@@ -65,6 +65,8 @@
     <string name="confirm_removal">Evet, cihazdan çıkış yap</string>
     <string name="congrats">Tebrikler!</string>
     <string name="connect">Bağlan</string>
+    <string name="connect_panel_active_features">Aktif özellikler</string>
+    <string name="connect_panel_connection_details">Bağlantı ayrıntıları</string>
     <string name="connected">Bağlandı</string>
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="connection_details_in">Giriş</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Hesap numarasını kopyala</string>
     <string name="create">Oluştur</string>
     <string name="create_account">Hesap oluştur</string>
+    <string name="create_custom_list_message">\"%1$s\" oluşturuldu</string>
     <string name="create_new_list">Yeni liste oluştur</string>
     <string name="created_x">Oluşturma tarihi: %1$s</string>
     <string name="creating_new_account">Hesap oluşturuluyor...</string>
@@ -89,6 +92,8 @@
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
     <string name="daita_info">%1$s (%2$s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler. Bu sayede, başka biri bağlantınızı izliyorsa ziyaret ettiğiniz web sitelerini tespit etmesi çok daha zor olacaktır. Özellik, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
+    <string name="daita_relay_subset_warning">Bu özellik tüm sunucularda mevcut değildir. Etkinleştirdikten sonra konumu değiştirmeniz gerekebilir.</string>
+    <string name="daita_warning">Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından sınırlı bir veri planınız varsa dikkatli olun. Ağ hızınız ve pil kullanımınız da bu durumdan olumsuz etkilenebilir.</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Geçerli olarak ayarlanamadı - API\'ye ulaşılamıyor</string>
     <string name="failed_to_set_current_unknown_error">Geçerli olarak ayarlanamadı - Bilinmeyen neden</string>
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
+    <string name="feature_custom_dns">Özel DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS içerik engelleyiciler</string>
     <string name="feature_lan_sharing">Yerel ağ paylaşımı</string>
+    <string name="feature_quantum_resistant">Kuantum direnci</string>
     <string name="feature_server_ip_override">Sunucu IP\'sini geçersiz kılma</string>
     <string name="feature_udp_2_tcp">Gizleme</string>
     <string name="filter">Filtrele</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="location_added">%1$s (eklendi)</string>
     <string name="location_was_added_to_list">%1$s, \"%2$s\" listesine eklendi</string>
+    <string name="location_was_removed_from_list">%1$s, \"%2$s\" listesinden kaldırıldı</string>
     <string name="locations">Konumlar</string>
     <string name="locations_were_changed_for">\"%1$s\" için konumlar değiştirildi</string>
     <string name="log_out">Oturumu kapat</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Lütfen geçerli bir IPv4 veya IPv6 adresi girin</string>
     <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
     <string name="port">Port</string>
+    <string name="port_x">Port: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Uygulama, en güvenli sürüme sahip olduğunuzdan emin olmak ve çalışan mevcut sürümle ilgili sorunları size bildirmek için sürüm kontrollerini otomatik olarak gerçekleştirir. Bu işlem, uygulama sürümünü ve Android sistem sürümünü Mullvad sunucularına gönderir. Mullvad, kullanılan uygulama sürümlerinin ve Android sürümlerinin numarasını kaydeder. Veriler asla sizi tanımlayacak şekilde saklanmaz veya kullanılmaz.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Bölünmüş tünelleme özelliği kullanılıyorsa uygulama, yüklü tüm uygulamaların bir listesi için sisteminizi sorgular. Bu liste yalnızca bölünmüş tünelleme görünümünde alınır. Yüklü uygulamaların listesi hiçbir zaman cihazdan gönderilmez.</string>
     <string name="privacy_disclaimer_title">Gizlilik</string>
@@ -239,6 +248,7 @@
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>
+    <string name="remove_location_from_list">%1$s, %2$s listesinden kaldırıldı</string>
     <string name="rented">Kiralananlar</string>
     <string name="rented_only">Sadece kiralananlar</string>
     <string name="report_a_problem">Bir sorun bildir</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">VPN ayarları</string>
     <string name="show_system_apps">Sistem uygulamalarını göster</string>
     <string name="split_tunneling_description">VPN tünelinden geçmeden doğrudan internete erişmesi gereken uygulamaları seçmenizi sağlar.</string>
+    <string name="split_tunneling_description_warning">Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse, bölünmüş uygulamalarda internet kullanılamayacaktır. Bölünmüş tünellemenin, gizlilik riski taşıdığını her zaman göz önünde bulundurun.</string>
     <string name="start_tunnel_error">Tünel bağlantısı başlatılamıyor. Lütfen bir hata raporu gönderin.</string>
     <string name="submit_button">Gönder</string>
     <string name="switch_location">Konum değiştir</string>
@@ -305,6 +316,7 @@
     <string name="undo">Geri al</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
     <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>
+    <string name="upd_over_tcp">TCP üzerinden UDP</string>
     <string name="update_dns_server_dialog_title">DNS sunucusunu güncelle</string>
     <string name="update_list_name">Liste adını güncelle</string>
     <string name="use_method">Yöntemi kullan</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
+    <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
     <string name="vpn_permission_error_notification_message">Her zaman açık VPN başka bir uygulama için etkinleştirilebilir</string>

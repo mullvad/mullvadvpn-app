@@ -10,7 +10,10 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
+
+msgid "%(amount)d more..."
+msgstr "その他%(amount)d件..."
 
 msgid "%(duration)s was added, account paid until %(expiry)s."
 msgstr "%(duration)sが追加され、アカウントは%(expiry)sまでに支払われます。"
@@ -90,8 +93,14 @@ msgstr "接続"
 msgid "Connected"
 msgstr "接続済み"
 
+msgid "CONNECTED"
+msgstr "接続中"
+
 msgid "Connecting"
 msgstr "接続中"
+
+msgid "CONNECTING..."
+msgstr "接続しています..."
 
 #. Creating a secure connection that isn't breakable by quantum computers.
 msgid "CREATING QUANTUM SECURE CONNECTION"
@@ -103,6 +112,11 @@ msgstr "セキュリティ保護接続を確立中"
 msgid "Custom"
 msgstr "カスタム"
 
+#. This refers to the Custom DNS setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Custom DNS"
+msgstr "カスタムDNS"
+
 msgid "Default"
 msgstr "デフォルト"
 
@@ -111,6 +125,9 @@ msgstr "削除"
 
 msgid "Delete list"
 msgstr "リストを削除"
+
+msgid "Direct only"
+msgstr "ダイレクトのみ"
 
 msgid "Disable"
 msgstr "無効にする"
@@ -124,11 +141,14 @@ msgstr "切断して終了"
 msgid "Disconnected"
 msgstr "未接続"
 
+msgid "DISCONNECTED"
+msgstr "切断中"
+
 msgid "Disconnecting"
 msgstr "接続解除中"
 
-msgid "Dismiss"
-msgstr "閉じる"
+msgid "DISCONNECTING..."
+msgstr "切断しています..."
 
 msgid "Edit"
 msgstr "編集"
@@ -136,8 +156,11 @@ msgstr "編集"
 msgid "Enable"
 msgstr "有効にする"
 
+msgid "Enable \"%(directOnly)s\""
+msgstr "\"%(directOnly)s\"を有効化"
+
 msgid "Enable anyway"
-msgstr "それでも有効化する"
+msgstr "それでも有効にする"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立できませんでした"
@@ -170,6 +193,11 @@ msgstr "1 日未満"
 msgid "less than a day left"
 msgstr "残り1日未満"
 
+#. This refers to the multihop setting in the VPN settings view. This is
+#. displayed when the feature is on.
+msgid "Multihop"
+msgstr "マルチホップ"
+
 msgid "Name"
 msgstr "名前"
 
@@ -196,6 +224,11 @@ msgstr "パスワード"
 
 msgid "Port"
 msgstr "ポート"
+
+#. This refers to the quantum resistance setting in the WireGuard settings view.
+#. This is displayed when the feature is on.
+msgid "Quantum resistance"
+msgstr "耐量子"
 
 #. The connection is secure and isn't breakable by quantum computers.
 msgid "QUANTUM SECURE CONNECTION"
@@ -233,7 +266,6 @@ msgstr "テスト"
 
 #. Warning shown in dialog to users when they enable setting that increases
 #. network latency (decreases performance).
-#. Warning text in a dialog that is displayed after a setting is toggled.
 msgid "This setting increases latency. Use only if needed."
 msgstr "この設定を有効にすると、遅延が増加します。必要な場合にのみご利用ください。"
 
@@ -293,7 +325,7 @@ msgstr "%(location)sを展開する"
 
 msgctxt "accessibility"
 msgid "Forget %(accountNumber)s"
-msgstr "%(accountNumber)sを忘れる"
+msgstr "%(accountNumber)sを削除"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -334,11 +366,19 @@ msgctxt "accessibility"
 msgid "Select location. Current location is %(location)s"
 msgstr "場所を選択します。現在の場所は%(location)sです"
 
+msgctxt "accessibility"
+msgid "Shadowsocks settings"
+msgstr "Shadowsocksの設定"
+
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which unobscures the account number.
 msgctxt "accessibility"
 msgid "Show account number"
 msgstr "アカウント番号の表示"
+
+msgctxt "accessibility"
+msgid "UDP-over-TCP settings"
+msgstr "UDP-over-TCPの設定"
 
 #. Title label in navigation bar
 msgctxt "account-view"
@@ -564,8 +604,16 @@ msgid "%(city)s (%(hostname)s)"
 msgstr "%(city)s (%(hostname)s)"
 
 msgctxt "connect-view"
+msgid "Active features"
+msgstr "有効な機能"
+
+msgctxt "connect-view"
 msgid "Congrats!"
 msgstr "おめでとうございます！"
+
+msgctxt "connect-view"
+msgid "Connection details"
+msgstr "接続の詳細"
 
 msgctxt "connect-view"
 msgid "Disconnect"
@@ -639,12 +687,6 @@ msgctxt "connect-view"
 msgid "You’re all set!"
 msgstr "準備完了！"
 
-#. %(hostname)s - The current server the app is connected to, e.g. "se-got-wg-001 using DAITA"
-#. %(daita)s - Will be replaced with "DAITA"
-msgctxt "connection-info"
-msgid "%(hostname)s using %(daita)s"
-msgstr "%(daita)s を使用した %(hostname)s"
-
 #. The hostname line displayed below the country on the main screen
 #. Available placeholders:
 #. %(relay)s - the relay hostname
@@ -656,14 +698,6 @@ msgstr "%(relay)s (%(entry)s経由)"
 msgctxt "connection-info"
 msgid "%(relay)s via Custom bridge"
 msgstr "カスタムブリッジを経由した %(relay)s"
-
-#. The tunnel type line displayed below the hostname line on the main screen
-#. Available placeholders:
-#. %(tunnelType)s - the tunnel type, i.e OpenVPN
-#. %(bridgeType)s - the bridge type, i.e Shadowsocks
-msgctxt "connection-info"
-msgid "%(tunnelType)s via %(bridgeType)s"
-msgstr "%(bridgeType)s経由で%(tunnelType)s"
 
 msgctxt "connection-info"
 msgid "In"
@@ -1492,6 +1526,10 @@ msgid "App version"
 msgstr "アプリのバージョン"
 
 msgctxt "settings-view"
+msgid "Multihop"
+msgstr "マルチホップ"
+
+msgctxt "settings-view"
 msgid "Support"
 msgstr "サポート"
 
@@ -1755,8 +1793,8 @@ msgid "Update your kernel."
 msgstr "カーネルを更新します。"
 
 msgctxt "tunnel-control"
-msgid "Secure my connection"
-msgstr "接続を保護する"
+msgid "Connect"
+msgstr "接続"
 
 msgctxt "tunnel-control"
 msgid "Switch location"
@@ -1880,11 +1918,6 @@ msgctxt "vpn-settings-view"
 msgid "Enable IPv6"
 msgstr "IPv6を有効にする"
 
-#. The label next to the multihop settings toggle.
-msgctxt "vpn-settings-view"
-msgid "Enable multihop"
-msgstr "マルチホップを有効にする"
-
 msgctxt "vpn-settings-view"
 msgid "Enable to add at least one DNS server."
 msgstr "1つ以上のDNSサーバーを追加するには有効にしてください。"
@@ -1897,13 +1930,6 @@ msgstr "IPを入力"
 msgctxt "vpn-settings-view"
 msgid "Gambling"
 msgstr "ギャンブル"
-
-#. Description for multihop settings toggle.
-#. Available placeholders:
-#. %(wireguard)s - Will be replaced with the string "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "Increases anonymity by routing your traffic into one %(wireguard)s server and out another, making it harder to trace."
-msgstr "トラフィックをある%(wireguard)sサーバーから別サーバーにルーティングすることで匿名性を高め、追跡を困難にします。"
 
 msgctxt "vpn-settings-view"
 msgid "IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it."
@@ -1978,6 +2004,10 @@ msgctxt "vpn-settings-view"
 msgid "This might cause issues on certain websites, services, and apps."
 msgstr "これにより、特定のWebサイト、サービス、アプリで問題が発生する可能性があります。"
 
+msgctxt "vpn-settings-view"
+msgid "To select %(openvpn)s, please disable these settings: %(featureList)s."
+msgstr "%(openvpn)sを選択するには、次の設定を無効にしてください: %(featureList)s。"
+
 #. Label for settings that enables tracker blocking.
 msgctxt "vpn-settings-view"
 msgid "Trackers"
@@ -2019,9 +2049,23 @@ msgctxt "wireguard-settings-nav"
 msgid "%(wireguard)s settings"
 msgstr "%(wireguard)sの設定"
 
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+#. Title label in navigation bar
+msgctxt "wireguard-settings-nav"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
 msgctxt "wireguard-settings-view"
-msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%(daita)s (%(daitaFull)s) を使用すると、暗号化された VPN トラフィックのパターンを隠すことができるようになります。何者かがあなたの接続を監視している場合に、アクセスしているウェブサイトの特定が大幅に難しくなります。ネットワークノイズを慎重に追加し、ネットワークパケットのサイズをすべて同一に揃えることによって実現しています。"
+msgid "%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic."
+msgstr "%(daita)s (%(daitaFull)s) は暗号化されたVPNトラフィックのパターンを隠します。"
+
+msgctxt "wireguard-settings-view"
+msgid "%(daita)s does this by carefully adding network noise and making all network packets the same size."
+msgstr "%(daita)sはネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。"
 
 #. Available placeholders:
 #. %(wireguard)s - Will be replaced with the string "WireGuard"
@@ -2030,8 +2074,24 @@ msgid "%(wireguard)s settings"
 msgstr "%(wireguard)sの設定"
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed. Please consider this if you want to enable %(daita)s."
-msgstr "注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワーク　の速度にも悪影響を及ぼす可能性があります。%(daita)s を有効にする場合は、この点を考慮に入れてください。"
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
+msgstr "注意: この機能はネットワークトラフィックの総数を増加させるため、上限のあるデータプランをご利用の場合にはご注意ください。この機能は%(wireguard)sでのみ使用できます。"
+
+msgctxt "wireguard-settings-view"
+msgid "By enabling “%(directOnly)s” you will have to manually select a server that is %(daita)s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view."
+msgstr "“%(directOnly)s” を有効化した場合、%(daita)s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。"
+
+msgctxt "wireguard-settings-view"
+msgid "By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted)."
+msgstr "高度なAIを使用することで、(トラフィックが暗号化されている場合でも) デバイスが送受信するデータパケットのトラフィックを分析することは可能です。"
+
+msgctxt "wireguard-settings-view"
+msgid "Cancel"
+msgstr "キャンセル"
+
+msgctxt "wireguard-settings-view"
+msgid "If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
+msgstr "%(daita)sはこのようなデータパケットが監視されている場合でも、訪問先ウェブサイトや通信相手を特定するのを極めて困難にします。"
 
 msgctxt "wireguard-settings-view"
 msgid "IP version"
@@ -2046,6 +2106,23 @@ msgid "MTU"
 msgstr "MTU"
 
 msgctxt "wireguard-settings-view"
+msgid "Multihop"
+msgstr "マルチホップ"
+
+msgctxt "wireguard-settings-view"
+msgid "Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online."
+msgstr "マルチホップはトラフィックをあるWireGuardサーバーにルーティングし、別サーバーに送出することで追跡を困難にします。これによって遅延が増加しますが、オンラインの匿名性は高まります。"
+
+#. Warning text in a dialog that is displayed after a setting is toggled.
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr "すべてのサーバーが%(daita)sに対応しているわけではありません。インターネットを使用するには、有効化した後に新しい場所を選択する必要がある場合もあります。"
+
+msgctxt "wireguard-settings-view"
+msgid "Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server."
+msgstr "すべてのサーバーが%(daita)sに対応しているわけではないため、どのサーバーでも%(daita)sが有効になるようにマルチホップを自動的に使用しています。"
+
+msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr "難読化"
 
@@ -2054,12 +2131,15 @@ msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can b
 msgstr "難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。"
 
 msgctxt "wireguard-settings-view"
-msgid "On (UDP-over-TCP)"
-msgstr "オン (UDP-over-TCP)"
-
-msgctxt "wireguard-settings-view"
 msgid "Port"
 msgstr "ポート"
+
+#. Text showing currently selected port.
+#. Available placeholders:
+#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+msgctxt "wireguard-settings-view"
+msgid "Port: %(port)s"
+msgstr "ポート: %(port)s"
 
 #. The title for the WireGuard quantum resistance selector. This setting
 #. makes the cryptography resistant to the future abilities of quantum
@@ -2078,6 +2158,14 @@ msgid "Set %(wireguard)s MTU value. Valid range: %(min)d - %(max)d."
 msgstr "%(wireguard)s MTUの値を設定します。有効範囲: %(min)d ～ %(max)d。"
 
 msgctxt "wireguard-settings-view"
+msgid "Shadowsocks"
+msgstr "Shadowsocks"
+
+msgctxt "wireguard-settings-view"
+msgid "Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available."
+msgstr "%(setting)sを使用可能にするには、設定 > %(tunnelProtocol)sで “%(wireguard)s” または “%(automatic)s” に切り替えてください。"
+
+msgctxt "wireguard-settings-view"
 msgid "The automatic setting will randomly choose from the valid port ranges shown below."
 msgstr "自動設定では、以下の有効なポート範囲からランダムに選択されます。"
 
@@ -2092,31 +2180,44 @@ msgctxt "wireguard-settings-view"
 msgid "This allows access to %(wireguard)s for devices that only support IPv6."
 msgstr "これにより、IPv6のみをサポートするデバイスでも%(wireguard)sにアクセスできるようになります。"
 
-#. Warning text in a dialog that is displayed after a setting is toggled.
-msgctxt "wireguard-settings-view"
-msgid "This feature isn't available on all servers. You might need to change location after enabling."
-msgstr "この機能は、すべてのサーバーでご利用いただけるわけではありません。有効化した後に場所の変更が必要となる可能性があります。"
-
 msgctxt "wireguard-settings-view"
 msgid "This feature makes the WireGuard tunnel resistant to potential attacks from quantum computers."
 msgstr "この機能は、WireGuardトンネルに量子コンピューターからの潜在的な攻撃に対する耐性を与えます。"
 
 msgctxt "wireguard-settings-view"
+msgid "UDP-over-TCP"
+msgstr "UDP-over-TCP"
+
+msgctxt "wireguard-settings-view"
 msgid "UDP-over-TCP port"
 msgstr "UDP-over-TCPポート"
+
+#. Text describing the valid port range for a port selector.
+msgctxt "wireguard-settings-view"
+msgid "Valid range: %(min)s - %(max)s"
+msgstr "有効な範囲: %(min)s～%(max)s"
 
 msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。"
 
+msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
+msgstr "%s (%s) は暗号化されたVPNトラフィックのパターンを隠します。これにより、接続が監視されている場合でもアクセス先のウェブサイトを特定するのを極めて困難にします。ネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。"
+
 msgid "%s (added)"
 msgstr "%s (追加済み)"
+
+msgid "%s using %s"
+msgstr "%s、%sを使用中"
 
 msgid "%s was added to \"%s\""
 msgstr "%s が \"%s\" に追加されました"
 
 msgid "%s was added to your account."
 msgstr "ご利用のアカウントに %s が追加されました。"
+
+msgid "%s was removed from \"%s\""
+msgstr "%sが \"%s\" から削除されました"
 
 msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
 msgstr "1. 下の [<b>VPN設定に移動</b>] ボタンをクリックし、<b>Mullvad VPN</b>名の横にある歯車をクリックします。"
@@ -2184,17 +2285,17 @@ msgstr "Always-on VPNが別のアプリで有効になっている可能性が�
 msgid "At least one method needs to be enabled"
 msgstr "方法は少なくとも 1 つは有効化する必要があります"
 
-msgid "Attention: Split tunneling is a privacy risk."
-msgstr "注意: スプリットトンネリングには、プライバシーが公開されるリスクがあります。"
+msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
+msgstr "注意: [VPNを使用していない接続をブロックする] が有効な場合、スプリット対象のアプリはインターネットを使用できません。スプリットトンネリングにはプライバシーのリスクがあることに常に注意してください。"
+
+msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
+msgstr "注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワークの速度とバッテリー使用量にも悪影響を及ぼす可能性があります。"
 
 msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "注意: この設定を「<b>カスタムDNSサーバーを使う</b>」と一緒に使用することはできません。"
+msgstr "注意: この設定を [<b>カスタムDNSサーバーを使う</b>] と一緒に使用することはできません。"
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "自動接続とロックダウンモード"
-
-msgid "Auto-connect & \\nLockdown mode"
-msgstr "自動接続と\\nロックダウンモード"
 
 msgid "Auto-connect (legacy)"
 msgstr "自動接続 (レガシー)"
@@ -2202,7 +2303,6 @@ msgstr "自動接続 (レガシー)"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。"
 
-msgctxt "Description of the existing \"auto-connect\" functionality as well as a notification about it being removed/replaced in a future update."
 msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
 msgstr "アプリの起動時に自動的に接続します。この設定は、今後のアップデートで新しい \"デバイスの起動時に接続\" 機能に置き換えられます。"
 
@@ -2233,7 +2333,6 @@ msgstr "リストの新規作成"
 msgid "Critical error (your attention is required)"
 msgstr "重大なエラー (ご注意ください)"
 
-msgctxt "Status information about which method/configuration is actively being used. The placeholder is replaced by a built-in or custom method. For example \"Current: Direct\" or \"Current: MyCustomMethod\". Note that it's not \"current\" as in \"present time\"."
 msgid "Current: %s"
 msgstr "現在の設定: %s"
 
@@ -2260,6 +2359,9 @@ msgstr "破棄"
 
 msgid "Discard changes?"
 msgstr "変更内容を破棄しますか？"
+
+msgid "Dismiss"
+msgstr "閉じる"
 
 msgid "Edit custom lists"
 msgstr "カスタムリストを編集する"
@@ -2321,11 +2423,11 @@ msgstr "インポートが正常に完了しました。オーバーライドは
 msgid "Importing new overrides might replace some previously imported overrides."
 msgstr "新しいオーバーライドをインポートすると、以前インポートしたオーバーライドが置き換えられる可能性があります。"
 
-msgid "Install Mullvad VPN (%s) to stay up to date"
-msgstr "Mullvad VPN (%s) をインストールして常に最新の状態を保ちましょう"
-
 msgid "Invalid or missing value \"%s\""
 msgstr "値 \"%s\" は無効であるか、または見つかりません"
+
+msgid "It looks like you’ve entered an account number instead of a voucher code. If you would like to change the active account, please log out first."
+msgstr "バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。"
 
 msgid "Lets you select apps that should access the Internet directly without going through the VPN tunnel."
 msgstr "VPN トンネルを経由せずに、直接インターネットにアクセスするアプリを選択できます。"
@@ -2369,6 +2471,9 @@ msgstr "場所が見つかりませんでした"
 msgid "Not found"
 msgstr "見つかりませんでした"
 
+msgid "On (UDP-over-TCP)"
+msgstr "オン (UDP-over-TCP)"
+
 msgid "Overrides active"
 msgstr "オーバーライドは有効です"
 
@@ -2394,7 +2499,7 @@ msgid "Please enter a valid remote server port"
 msgstr "有効なリモートサーバーのポートを入力してください"
 
 msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr "上の <b>%s</b> のガイドに従い、<b>Always-on</b> のシステム設定を代わりに使用してください。"
+msgstr "上の \"<b>%s</b>\" のガイドに従い、\"<b>Always-on</b>\" システム設定を代わりに使用してください。"
 
 msgid "Preferences"
 msgstr "環境設定"
@@ -2411,8 +2516,8 @@ msgstr "繰り返しの制限"
 msgid "Remove"
 msgstr "削除"
 
-msgid "Remove %s from list"
-msgstr "%s をリストから削除する"
+msgid "Remove %s from %s"
+msgstr "%sを%sから削除する"
 
 msgid "Remove custom port"
 msgstr "カスタムポートを削除"
@@ -2429,8 +2534,11 @@ msgstr "オーバーライドをリセット"
 msgid "Reset to default"
 msgstr "デフォルトにリセット"
 
+msgid "Secure my connection"
+msgstr "接続を保護する"
+
 msgid "Secured"
-msgstr "セキュリティ保護されています"
+msgstr "セキュリティ保護"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTUの値を設定します。有効範囲: %d ～ %d"
@@ -2463,7 +2571,7 @@ msgid "The Auto-connect and Lockdown mode settings can be found in the Android s
 msgstr "自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。"
 
 msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "このロックダウンモードは、Android のシステム設定では <b>VPN を使用していない接続をブロックする</b>と呼ばれています。情報漏洩の可能性を低減することが可能ですが、既知の制限がいくつかあります。制限については、こちらをご覧ください。"
+msgstr "このロックダウンモードは、Androidのシステム設定では [<b>VPNを使用していない接続をブロック</b>] と呼ばれています。情報漏洩の可能性を低減することが可能ですが、既知の制限がいくつかあります。制限については、"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"現在の設定\" の方法は、アプリが API に到達するために使用する方法を指しています。"
@@ -2476,6 +2584,9 @@ msgstr "デバイスにVPN設定がありません"
 
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
+
+msgid "This feature isn’t available on all servers. You might need to change location after enabling."
+msgstr "この機能はすべてのサーバーでご利用いただけるわけではありません。有効にした後に場所の変更が必要となる可能性があります。"
 
 msgid "This field is required"
 msgstr "このフィールドは必須です"
@@ -2511,9 +2622,8 @@ msgid "Unknown or prohibited key \"%s\""
 msgstr "キー \"%s\" は不明であるか、禁止されています"
 
 msgid "Unsecured"
-msgstr "セキュリティ保護されていません"
+msgstr "セキュリティ保護なし"
 
-msgctxt "Notification message shown when the app lacks a permission called \"VPN permission\"."
 msgid "Unsecured (No VPN permission)"
 msgstr "セキュリティ保護なし (VPN のアクセス許可なし)"
 
@@ -2589,12 +2699,14 @@ msgstr "ネットワーク通信が漏洩している可能性があります"
 msgid "You are running an unsupported app version."
 msgstr "サポート対象外バージョンのアプリを実行しています。"
 
+msgid "\"%s\" was created"
+msgstr "\"%s\" が作成されました"
+
 msgid "\"%s\" was deleted"
 msgstr "\"%s\" は削除されました"
 
-msgctxt "Clickable link that leads to our website."
 msgid "here"
-msgstr "こちら"
+msgstr "こちらをご覧ください。"
 
 msgid "less than a minute ago"
 msgstr "1分未満前"

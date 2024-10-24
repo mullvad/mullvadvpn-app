@@ -42,7 +42,7 @@
     <string name="auto_connect_and_lockdown_mode_footer">デバイスが必ずVPNトンネルを使用するようにします。</string>
     <string name="auto_connect_carousel_first_slide_top_text">自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
-    <string name="auto_connect_carousel_third_slide_top_text_website_link">こちら</string>
+    <string name="auto_connect_carousel_third_slide_top_text_website_link">こちらをご覧ください。</string>
     <string name="auto_connect_legacy">自動接続 (レガシー)</string>
     <string name="automatic">自動</string>
     <string name="back">戻る</string>
@@ -65,6 +65,8 @@
     <string name="confirm_removal">はい。デバイスをログアウトさせます</string>
     <string name="congrats">おめでとうございます！</string>
     <string name="connect">接続</string>
+    <string name="connect_panel_active_features">有効な機能</string>
+    <string name="connect_panel_connection_details">接続の詳細</string>
     <string name="connected">接続済み</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="connection_details_in">内側</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">アカウント番号のコピー</string>
     <string name="create">作成</string>
     <string name="create_account">アカウントを作成する</string>
+    <string name="create_custom_list_message">\"%1$s\" が作成されました</string>
     <string name="create_new_list">リストの新規作成</string>
     <string name="created_x">作成日: %1$s</string>
     <string name="creating_new_account">アカウントを作成中...</string>
@@ -88,7 +91,9 @@
     <string name="custom_port_dialog_submit">ポートを設定</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
-    <string name="daita_info">%1$s (%2$s) を使用すると、暗号化された VPN トラフィックのパターンを隠すことができるようになります。何者かがあなたの接続を監視している場合に、アクセスしているウェブサイトの特定が大幅に難しくなります。ネットワークノイズを慎重に追加し、ネットワークパケットのサイズをすべて同一に揃えることによって実現しています。</string>
+    <string name="daita_info">%1$s (%2$s) は暗号化されたVPNトラフィックのパターンを隠します。これにより、接続が監視されている場合でもアクセス先のウェブサイトを特定するのを極めて困難にします。ネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。</string>
+    <string name="daita_relay_subset_warning">この機能はすべてのサーバーでご利用いただけるわけではありません。有効にした後に場所の変更が必要となる可能性があります。</string>
+    <string name="daita_warning">注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワークの速度とバッテリー使用量にも悪影響を及ぼす可能性があります。</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>
@@ -119,7 +124,7 @@
     <string name="edit_method">方法の編集</string>
     <string name="edit_name">名前を編集</string>
     <string name="enable">有効にする</string>
-    <string name="enable_anyway">それでも有効化する</string>
+    <string name="enable_anyway">それでも有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="enter_value_placeholder">MTU を入力</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">現在の設定に設定できませんでした。API に到達できません</string>
     <string name="failed_to_set_current_unknown_error">現在の設定に設定できません。原因は不明です</string>
     <string name="faqs_and_guides">よくある質問とガイド</string>
+    <string name="feature_custom_dns">カスタムDNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNSコンテンツブロッカー</string>
     <string name="feature_lan_sharing">ローカルネットワーク共有</string>
+    <string name="feature_quantum_resistant">耐量子</string>
     <string name="feature_server_ip_override">サーバーIPのオーバーライド</string>
     <string name="feature_udp_2_tcp">難読化</string>
     <string name="filter">絞り込み</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
     <string name="location_added">%1$s (追加済み)</string>
     <string name="location_was_added_to_list">%1$s が \"%2$s\" に追加されました</string>
+    <string name="location_was_removed_from_list">%1$sが \"%2$s\" から削除されました</string>
     <string name="locations">場所</string>
     <string name="locations_were_changed_for">\"%1$s\" の場所が変更されました</string>
     <string name="log_out">ログアウト</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">有効な IPv4 または IPv6 アドレスを入力してください</string>
     <string name="please_enter_a_valid_remote_server_port">有効なリモートサーバーのポートを入力してください</string>
     <string name="port">ポート</string>
+    <string name="port_x">ポート: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">このアプリは最も安全なバージョンを使用していることを確認し、実行中の現在のバージョンに関する問題を通知できるよう、バージョンチェックを自動的に実行します。このチェックによってアプリのバージョンとAndroidシステムのバージョンがMullvadサーバーに送信されます。Mullvadは使用されているアプリのバージョンとAndroidのバージョンの数字を記憶しています。このデータがユーザーを特定できる方法で保存されたり、使用されたりすることはありません。</string>
     <string name="privacy_disclaimer_body_second_paragraph">スプリットトンネリング機能が使用されている場合、アプリはシステムにインストール済みの全アプリケーションのリストを照会します。このリストはスプリットトンネリングビューでのみ取得されます。インストール済みアプリケーションのリストがデバイスから送信されることはありません。</string>
     <string name="privacy_disclaimer_title">プライバシー</string>
@@ -239,6 +248,7 @@
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>
+    <string name="remove_location_from_list">%1$sを%2$sから削除する</string>
     <string name="rented">レンタルサーバー</string>
     <string name="rented_only">レンタルサーバーのみ</string>
     <string name="report_a_problem">問題を報告する</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">VPN設定</string>
     <string name="show_system_apps">システムアプリの表示</string>
     <string name="split_tunneling_description">VPN トンネルを経由せずに、直接インターネットにアクセスするアプリを選択できます。</string>
+    <string name="split_tunneling_description_warning">注意: [VPNを使用していない接続をブロックする] が有効な場合、スプリット対象のアプリはインターネットを使用できません。スプリットトンネリングにはプライバシーのリスクがあることに常に注意してください。</string>
     <string name="start_tunnel_error">トンネル接続を開始できません。問題の報告を送信してください。</string>
     <string name="submit_button">送信</string>
     <string name="switch_location">場所を切り替える</string>
@@ -305,6 +316,7 @@
     <string name="undo">元に戻す</string>
     <string name="unsupported_version">未対応のバージョン</string>
     <string name="unsupported_version_description">このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">DNS サーバーを更新</string>
     <string name="update_list_name">リスト名の更新</string>
     <string name="use_method">この方法を使用する</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">バウチャーを確認中…</string>
     <string name="view_logs">アプリのログを表示</string>
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
+    <string name="voucher_is_account_number">バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
     <string name="vpn_permission_denied_error">トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。</string>
     <string name="vpn_permission_error_notification_message">Always-on VPNが別のアプリで有効になっている可能性があります</string>

@@ -65,6 +65,8 @@
     <string name="confirm_removal">Tak, wyloguj urządzenie</string>
     <string name="congrats">Gratulacje!</string>
     <string name="connect">Połącz</string>
+    <string name="connect_panel_active_features">Aktywne funkcje</string>
+    <string name="connect_panel_connection_details">Szczegóły połączenia</string>
     <string name="connected">Połączono</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="connection_details_in">Wejście</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Kopiuj numer konta</string>
     <string name="create">Utwórz</string>
     <string name="create_account">Utwórz konto</string>
+    <string name="create_custom_list_message">Utworzono „%1$s”</string>
     <string name="create_new_list">Utwórz nową listę</string>
     <string name="created_x">Utworzono: %1$s</string>
     <string name="creating_new_account">Tworzenie konta...</string>
@@ -88,7 +91,9 @@
     <string name="custom_port_dialog_submit">Ustaw port</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
-    <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Jeśli ktoś monitoruje Twoje połączenie, znacznie utrudni to identyfikację odwiedzanych witryn. Odbywa się to poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>
+    <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Oznacza to, że jeśli ktoś monitoruje połączenie, identyfikacja odwiedzanych witryn jest znacznie utrudniona. Dzieje się tak poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>
+    <string name="daita_relay_subset_warning">Funkcja niedostępna na wszystkich serwerach. Po włączeniu może być konieczna zmiana lokalizacji.</string>
+    <string name="daita_warning">Uwaga: ponieważ zwiększa to łączny ruch sieciowy, zachowaj ostrożność, jeśli masz ograniczony pakiet danych. Może to również negatywnie wpłynąć na szybkość sieci i poziom naładowania.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Nie udało się ustawić jako bieżącą — interfejs API nieosiągalny</string>
     <string name="failed_to_set_current_unknown_error">Nie udało się ustawić jako bieżącą — przyczyna nieznana</string>
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
+    <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="feature_lan_sharing">Udostępnianie sieci lokalnej</string>
+    <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
     <string name="feature_server_ip_override">Zastąpienie adresu IP serwera</string>
     <string name="feature_udp_2_tcp">Zaciemnianie</string>
     <string name="filter">Filtruj</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd.</string>
     <string name="location_added">%1$s (dodano)</string>
     <string name="location_was_added_to_list">Lokalizację %1$s dodano do listy „%2$s”</string>
+    <string name="location_was_removed_from_list">Usunięto %1$s z „%2$s”</string>
     <string name="locations">Lokalizacje</string>
     <string name="locations_were_changed_for">Zmieniono lokalizacje dla „%1$s”</string>
     <string name="log_out">Wyloguj się</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Wprowadź prawidłowy adres IPv4 lub IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Wprowadź prawidłowy port serwera zdalnego</string>
     <string name="port">Port</string>
+    <string name="port_x">Port: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Aby upewnić się, że masz najbezpieczniejszą wersję i poinformować Cię o wszelkich problemach z aktualnie uruchomioną wersją, aplikacja automatycznie sprawdza wersję. Powoduje to wysłanie wersji aplikacji i wersji systemu Android na serwery Mullvad. Mullvad prowadzi liczniki używanych wersji aplikacji i wersji systemu Android. Dane te nigdy nie są przechowywane ani wykorzystywane w żaden sposób, który umożliwiłby zidentyfikowanie Ciebie jako osoby.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Jeśli używana jest funkcja dzielonego tunelowania, aplikacja wysyła do systemu zapytanie o listę wszystkich zainstalowanych aplikacji. Lista ta jest pobierana wyłącznie w widoku dzielonego tunelowania. Lista zainstalowanych aplikacji nigdy nie jest wysyłana z urządzenia.</string>
     <string name="privacy_disclaimer_title">Prywatność</string>
@@ -239,6 +248,7 @@
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
     <string name="remove_button">Usuń</string>
+    <string name="remove_location_from_list">Usuń %1$s z %2$s</string>
     <string name="rented">Wynajmowane</string>
     <string name="rented_only">Wyłącznie wynajmowane</string>
     <string name="report_a_problem">Zgłoś problem</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">Ustawienia VPN</string>
     <string name="show_system_apps">Pokaż aplikacje systemowe</string>
     <string name="split_tunneling_description">Umożliwia wybranie aplikacji, które powinny uzyskiwać bezpośredni dostęp do Internetu bez przechodzenia przez tunel VPN.</string>
+    <string name="split_tunneling_description_warning">Uwaga: jeśli opcja „Blokuj połączenia bez pośrednictwa sieci VPN” jest włączona, wówczas aplikacje dzielące nie będą miały dostępu do Internetu. Należy pamiętać, że dzielone tunelowanie stanowi zagrożenie dla prywatności.</string>
     <string name="start_tunnel_error">Nie można uruchomić połączenia tunelowego. Wyślij zgłoszenie problemu.</string>
     <string name="submit_button">Prześlij</string>
     <string name="switch_location">Zmień lokalizację</string>
@@ -305,6 +316,7 @@
     <string name="undo">Cofnij</string>
     <string name="unsupported_version">WERSJA NIEOBSŁUGIWANA</string>
     <string name="unsupported_version_description">W tej nieobsługiwanej wersji aplikacji prywatność może być zagrożona. Zaktualizuj już teraz.</string>
+    <string name="upd_over_tcp">UDP-przez-TCP</string>
     <string name="update_dns_server_dialog_title">Zaktualizuj serwer DNS</string>
     <string name="update_list_name">Zaktualizuj nazwę listy</string>
     <string name="use_method">Użyj metody</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Weryfikowanie kuponu…</string>
     <string name="view_logs">Wyświetl dzienniki aplikacji</string>
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
+    <string name="voucher_is_account_number">Wygląda na to, że wpisano numer konta zamiast kodu kuponu. Jeśli chcesz zmienić aktywne konto, najpierw się wyloguj.</string>
     <string name="voucher_success_title">Kupon został zrealizowany.</string>
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="vpn_permission_error_notification_message">Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji</string>

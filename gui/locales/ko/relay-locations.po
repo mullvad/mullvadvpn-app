@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2024-06-27 08:16\n"
+"PO-Revision-Date: 2024-10-23 06:33\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -152,6 +152,10 @@ msgstr "코펜하겐"
 msgid "Croatia"
 msgstr "크로아티아"
 
+#. CY
+msgid "Cyprus"
+msgstr "키프로스"
+
 #. CZ
 msgid "Czech Republic"
 msgstr "체코"
@@ -256,6 +260,10 @@ msgstr "아일랜드"
 msgid "Israel"
 msgstr "이스라엘"
 
+#. TR IST
+msgid "Istanbul"
+msgstr "이스탄불"
+
 #. IT
 msgid "Italy"
 msgstr "이탈리아"
@@ -287,6 +295,10 @@ msgstr "키예프"
 #. LV
 msgid "Latvia"
 msgstr "라트비아"
+
+#. PE LIM
+msgid "Lima"
+msgstr "리마"
 
 #. PT LIS
 msgid "Lisbon"
@@ -376,6 +388,10 @@ msgstr "뉴욕, NY"
 msgid "New Zealand"
 msgstr "뉴질랜드"
 
+#. CY NIC
+msgid "Nicosia"
+msgstr "니코시아"
+
 #. RS INI
 msgid "Nis"
 msgstr "니시"
@@ -411,6 +427,10 @@ msgstr "파리"
 #. AU PER
 msgid "Perth"
 msgstr "퍼스"
+
+#. PE
+msgid "Peru"
+msgstr "페루"
 
 #. US PHL
 msgid "Philadelphia, PA"
@@ -583,6 +603,10 @@ msgstr "도쿄"
 #. CA TOR
 msgid "Toronto"
 msgstr "토론토"
+
+#. TR
+msgid "Turkey"
+msgstr "튀르키예"
 
 #. GB
 msgid "UK"

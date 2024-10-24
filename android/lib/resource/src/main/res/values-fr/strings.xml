@@ -65,6 +65,8 @@
     <string name="confirm_removal">Oui, déconnecter l\'appareil</string>
     <string name="congrats">Félicitations !</string>
     <string name="connect">Connexion</string>
+    <string name="connect_panel_active_features">Fonctionnalités activées</string>
+    <string name="connect_panel_connection_details">Détails de la connexion</string>
     <string name="connected">Connecté</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
     <string name="connection_details_in">Entrante</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Copier le numéro de compte</string>
     <string name="create">Créer</string>
     <string name="create_account">Créer un compte</string>
+    <string name="create_custom_list_message">« %1$s » a été créé</string>
     <string name="create_new_list">Créer une nouvelle liste</string>
     <string name="created_x">Création : %1$s</string>
     <string name="creating_new_account">Création du compte…</string>
@@ -88,7 +91,9 @@
     <string name="custom_port_dialog_submit">Définir le port</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
-    <string name="daita_info">%1$s (%2$s) dissimule des motifs dans votre trafic VPN chiffré. Si quelqu\'un surveille votre connexion, il lui sera beaucoup plus difficile d\'identifier les sites Web que vous visitez. Pour ce faire, il ajoute soigneusement du bruit réseau et fait en sorte que tous les paquets de réseau aient la même taille.</string>
+    <string name="daita_info">%1$s (%2$s) dissimule des motifs dans votre trafic VPN chiffré. Si quelqu\'un surveille votre connexion, il lui sera beaucoup plus difficile d\'identifier les sites web que vous visitez. Pour ce faire, il ajoute soigneusement du bruit réseau et fait en sorte que tous les paquets de réseau aient la même taille.</string>
+    <string name="daita_relay_subset_warning">Cette fonctionnalité n\'est pas disponible sur tous les serveurs. Vous devrez peut-être changer d\'emplacement après l\'avoir activée.</string>
+    <string name="daita_warning">Attention : étant donné que cette opération augmente le trafic total de votre réseau, faites attention si vous disposez d\'un forfait à données limitées. Cela peut également avoir un impact négatif sur la vitesse de votre réseau et l\'utilisation de la batterie.</string>
     <string name="delete">Supprimer</string>
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Impossible de définir sur la méthode actuelle - API injoignable</string>
     <string name="failed_to_set_current_unknown_error">Impossible de définir sur la méthode actuelle - Raison inconnue</string>
     <string name="faqs_and_guides">FAQ et guides</string>
+    <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">Bloqueurs de contenu DNS</string>
     <string name="feature_lan_sharing">Partage réseau local</string>
+    <string name="feature_quantum_resistant">Résistance quantique</string>
     <string name="feature_server_ip_override">Substitution d\'IP de serveur</string>
     <string name="feature_udp_2_tcp">Dissimulation</string>
     <string name="filter">Filtrer</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
     <string name="location_added">%1$s (ajouté)</string>
     <string name="location_was_added_to_list">%1$s a été ajouté à « %2$s »</string>
+    <string name="location_was_removed_from_list">%1$s a été retiré de « %2$s »</string>
     <string name="locations">Localisations</string>
     <string name="locations_were_changed_for">Les localisations ont été modifiées pour « %1$s »</string>
     <string name="log_out">Déconnexion</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
     <string name="port">Port</string>
+    <string name="port_x">Port : %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">Pour vous assurer que vous disposez de la version la plus sécurisée et pour vous informer de tout problème lié à la version en cours d\'exécution, l\'application effectue automatiquement des vérifications de version. Elle envoie ainsi la version de l\'application et la version du système Android aux serveurs de Mullvad. Mullvad tient des compteurs sur le nombre de versions d\'applications et de versions d\'Android utilisées. Les données ne sont jamais stockées ou utilisées de manière à vous identifier.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Si la fonctionnalité de split tunneling est utilisée, l\'application demande à votre système la liste de toutes les applications installées. Cette liste n\'est récupérée que dans la vue de split tunneling. La liste des applications installées n\'est jamais envoyée par l\'appareil.</string>
     <string name="privacy_disclaimer_title">Confidentialité</string>
@@ -239,6 +248,7 @@
     <string name="redeem">Échanger</string>
     <string name="redeem_voucher">Échanger un bon</string>
     <string name="remove_button">Supprimer</string>
+    <string name="remove_location_from_list">Supprimer %1$s de %2$s</string>
     <string name="rented">Loué</string>
     <string name="rented_only">Loués uniquement</string>
     <string name="report_a_problem">Signaler un problème</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">Paramètres VPN</string>
     <string name="show_system_apps">Afficher les applications système</string>
     <string name="split_tunneling_description">Vous permet de sélectionner les applications qui doivent accéder directement à Internet sans passer par le tunnel VPN.</string>
+    <string name="split_tunneling_description_warning">Attention : si l\'option « Bloquer les connexions sans VPN » est activée, les applications partagées n\'auront pas accès à Internet. Gardez toujours à l\'esprit que le split tunneling présente un risque pour la vie privée.</string>
     <string name="start_tunnel_error">Impossible de démarrer la connexion au tunnel. Veuillez envoyer un rapport de problème.</string>
     <string name="submit_button">Envoyer</string>
     <string name="switch_location">Changer de localisation</string>
@@ -305,6 +316,7 @@
     <string name="undo">Annuler</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Mettre à jour le serveur DNS</string>
     <string name="update_list_name">Mettre à jour le nom de la liste</string>
     <string name="use_method">Utiliser la méthode</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Vérification du bon…</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
+    <string name="voucher_is_account_number">Vous semblez avoir saisi un numéro de compte plutôt qu\'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d\'abord vous déconnecter.</string>
     <string name="voucher_success_title">Le bon a bien été échangé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
     <string name="vpn_permission_error_notification_message">« Toujours exiger un VPN » est peut-être activé pour une autre application</string>

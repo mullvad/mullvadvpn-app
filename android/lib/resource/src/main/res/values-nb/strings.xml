@@ -65,6 +65,8 @@
     <string name="confirm_removal">Ja, logg av enhet</string>
     <string name="congrats">Gratulerer!</string>
     <string name="connect">Koble til</string>
+    <string name="connect_panel_active_features">Aktive funksjoner</string>
+    <string name="connect_panel_connection_details">Tilkoblingsdetaljer</string>
     <string name="connected">Tilkoblet</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="connection_details_in">Inngående</string>
@@ -74,6 +76,7 @@
     <string name="copy_account_number">Kopier kontonummer</string>
     <string name="create">Opprett</string>
     <string name="create_account">Opprett konto</string>
+    <string name="create_custom_list_message">«%1$s» ble opprettet</string>
     <string name="create_new_list">Opprett ny liste</string>
     <string name="created_x">Opprettet: %1$s</string>
     <string name="creating_new_account">Oppretter konto ...</string>
@@ -88,7 +91,9 @@
     <string name="custom_port_dialog_submit">Konfigurer port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
-    <string name="daita_info">%1$s (%2$s) skjuler mønstre i den krypterte VPN-trafikken. Hvis noen overvåker tilkoblingen din, gjør dette det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker. Dette gjøres ved varsomt å legge til nettverksstøy og gjøre alle nettverkspakker like store.</string>
+    <string name="daita_info">%1$s (%2$s) skjuler mønstre i den krypterte VPN-trafikken. Hvis noen overvåker tilkoblingen din, gjør dette det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker. Dette gjøres ved å legge til nettverksstøy på en forsiktig måte og gjøre alle nettverkspakker like store.</string>
+    <string name="daita_relay_subset_warning">Denne funksjonen er ikke tilgjengelig på alle servere. Det kan hende du må endre plassering etter aktivering.</string>
+    <string name="daita_warning">Merk: Siden dette øker den totale nettverkstrafikken, bør du være forsiktig hvis du har et abonnement med begrenset data. Det kan også negativt påvirke nettverkshastigheten og batteribruken.</string>
     <string name="delete">Slett</string>
     <string name="delete_custom_list_confirmation_description">Slette «%1$s»?</string>
     <string name="delete_custom_list_message">«%1$s» ble slettet</string>
@@ -136,9 +141,11 @@
     <string name="failed_to_set_current_test_error">Kunne ikke angi til gjeldende – API ikke tilgjengelig</string>
     <string name="failed_to_set_current_unknown_error">Kunne ikke angi til gjeldende – ukjent årsak</string>
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
+    <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_dns_content_blockers">DNS-innholdsblokkering</string>
     <string name="feature_lan_sharing">Deling over lokalt nettverk</string>
+    <string name="feature_quantum_resistant">Kvantemotstand</string>
     <string name="feature_server_ip_override">Overstyring av server-IP</string>
     <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
@@ -168,6 +175,7 @@
     <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
     <string name="location_added">%1$s (lagt til)</string>
     <string name="location_was_added_to_list">%1$s ble lagt til «%2$s»</string>
+    <string name="location_was_removed_from_list">%1$s ble fjernet fra «%2$s»</string>
     <string name="locations">Plasseringer</string>
     <string name="locations_were_changed_for">Plasseringer ble endret for «%1$s»</string>
     <string name="log_out">Logg ut</string>
@@ -226,6 +234,7 @@
     <string name="please_enter_a_valid_ip_address">Skriv inn en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Skriv inn en gyldig ekstern server-port</string>
     <string name="port">Port</string>
+    <string name="port_x">Port: %1$s</string>
     <string name="privacy_disclaimer_body_first_paragraph">For å sørge for at du har den sikreste appversjonen, og informere deg om eventuelle problemer med den versjonen som kjøres, vil appen automatisk sjekke appversjonen. Appversjonen og Android-systemversjonen blir da sendt til Mullvad-servere. Mullvad registrerer antallet brukte appversjoner og Android-versjoner. Dataen blir aldri lagret eller brukt på noen som helst måte som kan identifisere deg.</string>
     <string name="privacy_disclaimer_body_second_paragraph">Hvis funksjonen delt tunnelering brukes, vil appen be systemet ditt om en liste over alle installerte applikasjoner. Denne listen hentes bare i delt tunnelering-visningen. Listen over installerte apper sendes aldri ut fra enheten.</string>
     <string name="privacy_disclaimer_title">Personvern</string>
@@ -239,6 +248,7 @@
     <string name="redeem">Løs inn</string>
     <string name="redeem_voucher">Løs inn kupong</string>
     <string name="remove_button">Fjern</string>
+    <string name="remove_location_from_list">Fjern %1$s fra %2$s</string>
     <string name="rented">Leid</string>
     <string name="rented_only">Kun leid</string>
     <string name="report_a_problem">Rapporter et problem</string>
@@ -284,6 +294,7 @@
     <string name="settings_vpn">VPN-innstillinger</string>
     <string name="show_system_apps">Vis systemapper</string>
     <string name="split_tunneling_description">Lar deg velge apper som skal få tilgang til internett direkte uten å gå gjennom VPN-tunnelen.</string>
+    <string name="split_tunneling_description_warning">Merk: Hvis «Blokker tilkoblinger uten VPN» er aktivert, har ikke splittede apper internettilgang. Ha i bakhodet at «split tunneling» er en personvernrisiko.</string>
     <string name="start_tunnel_error">Kunne ikke starte tunneltilkobling. Send inn en problemrapport.</string>
     <string name="submit_button">Send inn</string>
     <string name="switch_location">Bytt plassering</string>
@@ -305,6 +316,7 @@
     <string name="undo">Angre</string>
     <string name="unsupported_version">VERSJON UTEN STØTTE</string>
     <string name="unsupported_version_description">Personvernet ditt kan være i fare med denne appversjonen som ikke støttes. Oppdater nå.</string>
+    <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="update_dns_server_dialog_title">Oppdater DNS-serveren</string>
     <string name="update_list_name">Oppdater listenavn</string>
     <string name="use_method">Bruk metode</string>
@@ -315,6 +327,7 @@
     <string name="verifying_voucher">Bekrefter kupong …</string>
     <string name="view_logs">Se applogger</string>
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
+    <string name="voucher_is_account_number">Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut.</string>
     <string name="voucher_success_title">Kupongkoden er løst inn.</string>
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
     <string name="vpn_permission_error_notification_message">VPN som alltid er på, kan være aktivert for en annen app</string>
