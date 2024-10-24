@@ -151,11 +151,15 @@ impl ConnectedState {
         metadata: &TunnelMetadata,
         shared_values: &SharedTunnelStateValues,
     ) -> ResolvedDnsConfig {
-        shared_values.dns_config.resolve(&metadata.gateways())
+        shared_values.dns_config.resolve(
+            &metadata.gateways(),
+            #[cfg(target_os = "macos")]
+            53,
+        )
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
-        let dns_config = Self::resolve_dns(&self.metadata, shared_values);
+        let dns_config: ResolvedDnsConfig = Self::resolve_dns(&self.metadata, shared_values);
 
         #[cfg(not(target_os = "macos"))]
         shared_values

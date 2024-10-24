@@ -67,11 +67,17 @@ enum InnerDnsConfig {
 }
 
 impl DnsConfig {
-    pub(crate) fn resolve(&self, default_tun_config: &[IpAddr]) -> ResolvedDnsConfig {
+    pub(crate) fn resolve(
+        &self,
+        default_tun_config: &[IpAddr],
+        #[cfg(target_os = "macos")] port: u16,
+    ) -> ResolvedDnsConfig {
         match &self.config {
             InnerDnsConfig::Default => ResolvedDnsConfig {
                 tunnel_config: default_tun_config.to_owned(),
                 non_tunnel_config: vec![],
+                #[cfg(target_os = "macos")]
+                port,
             },
             InnerDnsConfig::Override {
                 tunnel_config,
@@ -79,6 +85,8 @@ impl DnsConfig {
             } => ResolvedDnsConfig {
                 tunnel_config: tunnel_config.to_owned(),
                 non_tunnel_config: non_tunnel_config.to_owned(),
+                #[cfg(target_os = "macos")]
+                port,
             },
         }
     }
@@ -93,6 +101,9 @@ pub struct ResolvedDnsConfig {
     /// For the most part, the tunnel state machine will not handle any of this configuration
     /// on non-tunnel interface, only allow them in the firewall.
     non_tunnel_config: Vec<IpAddr>,
+    /// Port to use
+    #[cfg(target_os = "macos")]
+    port: u16,
 }
 
 impl fmt::Display for ResolvedDnsConfig {
