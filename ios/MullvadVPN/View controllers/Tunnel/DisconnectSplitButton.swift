@@ -42,12 +42,15 @@ class DisconnectSplitButton: UIView {
             secondaryButton.heightAnchor.constraint(equalToConstant: secondaryButtonSize.height)
         }
 
+        let targetSize = secondaryButtonSize.deducting(insets: secondaryButton.defaultContentInsets)
+        primaryButton.configuration?.contentInsets.leading += targetSize.width
+
         // Ideally, we shouldn't need to manually resize the image ourselves.
         // However, since UIButton.Configuration doesn't provide a direct property
         // for controlling image scaling (like imageScaling or contentMode in other contexts),
         // manual resizing has been one approach to ensure the image fits within bounds.
         secondaryButton.configuration?.image = UIImage(resource: .iconReload)
-            .resizeImage(targetSize: secondaryButtonSize.deducting(insets: secondaryButton.defaultContentInsets))
+            .resizeImage(targetSize: targetSize)
             .imageFlippedForRightToLeftLayoutDirection()
     }
 }
