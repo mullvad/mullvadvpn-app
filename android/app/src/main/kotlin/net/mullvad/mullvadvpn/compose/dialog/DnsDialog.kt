@@ -42,7 +42,7 @@ private fun PreviewDnsDialogEditAllowLanDisabled() {
     AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
 }
 
-data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = null)
+data class DnsDialogNavArgs(val index: Int? = null)
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class, navArgs = DnsDialogNavArgs::class)
 @Composable
