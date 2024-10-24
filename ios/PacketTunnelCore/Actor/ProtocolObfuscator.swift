@@ -42,7 +42,7 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
         let shouldObfuscate = switch settings.obfuscation.state {
         case .automatic:
             retryAttempts % 4 == 2 || retryAttempts % 4 == 3
-        case .on:
+        case .on, .udpTcp, .shadowsocks:
             true
         case .off:
             false
