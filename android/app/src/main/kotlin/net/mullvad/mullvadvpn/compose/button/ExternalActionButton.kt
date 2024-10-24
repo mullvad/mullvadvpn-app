@@ -8,6 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
@@ -40,6 +41,7 @@ fun ExternalButton(
     text: String,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
+    showSpinner: Boolean = false,
 ) {
     VariantButton(
         text = text,
@@ -47,11 +49,15 @@ fun ExternalButton(
         modifier = modifier,
         isEnabled = isEnabled,
         icon = {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.OpenInNew,
-                tint = MaterialTheme.colorScheme.onTertiary,
-                contentDescription = null,
-            )
+            if (showSpinner) {
+                MullvadCircularProgressIndicatorSmall()
+            } else {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.OpenInNew,
+                    tint = MaterialTheme.colorScheme.onTertiary,
+                    contentDescription = null,
+                )
+            }
         },
     )
 }

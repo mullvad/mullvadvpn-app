@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -37,16 +38,20 @@ class AccountViewModel(
     private val _uiSideEffect = Channel<UiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
+    private val _showManageAccountLoading = MutableStateFlow(false)
+
     val uiState: StateFlow<AccountUiState> =
         combine(
                 deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
                 accountData(),
                 paymentUseCase.paymentAvailability,
-            ) { deviceState, accountData, paymentAvailability ->
+                _showManageAccountLoading,
+            ) { deviceState, accountData, paymentAvailability, showManageAccountLoading ->
                 AccountUiState(
                     deviceName = deviceState.device.displayName(),
                     accountNumber = deviceState.accountNumber,
                     accountExpiry = accountData?.expiryDate,
+                    showManageAccountLoading = showManageAccountLoading,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState(),
                 )
@@ -67,9 +72,14 @@ class AccountViewModel(
             .distinctUntilChanged()
 
     fun onManageAccountClick() {
+        // Do nothing when if the user clicks the button when the spinner is shown.
+        if (_showManageAccountLoading.value) return
+        _showManageAccountLoading.value = true
+
         viewModelScope.launch {
             val wwwAuthToken = accountRepository.getWebsiteAuthToken()
             _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
+            _showManageAccountLoading.value = false
         }
     }
 
@@ -140,6 +150,7 @@ data class AccountUiState(
     val deviceName: String?,
     val accountNumber: AccountNumber?,
     val accountExpiry: DateTime?,
+    val showManageAccountLoading: Boolean,
     val showSitePayment: Boolean,
     val billingPaymentState: PaymentState? = null,
 ) {
@@ -149,6 +160,7 @@ data class AccountUiState(
                 deviceName = null,
                 accountNumber = null,
                 accountExpiry = null,
+                showManageAccountLoading = false,
                 showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,
             )

@@ -198,6 +198,7 @@ fun AccountScreen(
                     text = stringResource(id = R.string.manage_account),
                     onClick = onManageAccountClick,
                     modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
+                    showSpinner = state.showManageAccountLoading,
                 )
             }
 
