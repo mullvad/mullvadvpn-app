@@ -3,41 +3,39 @@ name: iOS settings migration tests
 concurrency:
   group: ios-end-to-end-tests
   cancel-in-progress: false
+
 permissions:
   contents: read
   issues: write
   pull-requests: write
+
 on:
-  workflow_dispatch:
+  workflow_dispatch: {}
   schedule:
-    # At midnight every day.
-    # Notifications for scheduled workflows are sent to the user who last modified the cron
-    # syntax in the workflow file. If you update this you must have notifications for
-    # Github Actions enabled, so these don't go unnoticed.
-    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * *'  # At midnight every day.
+
 env:
   TEST_DEVICE_UDID: 00008130-0019181022F3803A
-  OLD_APP_COMMIT_HASH: 895b7d98825e678f5d7023d5ea3c9b7beee89280
+  OLD_APP_COMMIT_HASH: f82b90126441e9f8afa8c820faa0e5b2c99ecc3e
+
 jobs:
-  checkout_old_version:
-    name: Checkout Old Repository Version
+  checkout_version:
+    name: Checkout Current Repository Version
     runs-on:
       - self-hosted
       - macOS
       - ios-test
     steps:
-      - name: Checkout old repository version
+      - name: Checkout current repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ env.OLD_APP_COMMIT_HASH }}
+
   configure_rust:
     name: Configure Rust
     runs-on:
       - self-hosted
       - macOS
       - ios-test
-    needs: checkout_old_version
+    needs: checkout_version
     steps:
       - name: Configure Rust
         uses: actions-rs/toolchain@v1.0.6
@@ -45,46 +43,52 @@ jobs:
           toolchain: stable
           override: true
           target: aarch64-apple-ios
+
   uninstall_app:
-    name: Uninstall Old App
+    name: Uninstall App
     runs-on:
       - self-hosted
       - macOS
       - ios-test
-    needs: checkout_old_version
+    needs: checkout_version
     steps:
       - name: Uninstall old app
         timeout-minutes: 5
-        run: ios-deploy --id ${{ env.TEST_DEVICE_UDID }} --uninstall_only --bundle_id
-          net.mullvad.MullvadVPN
+        run: ios-deploy --id ${{ env.TEST_DEVICE_UDID }} --uninstall_only --bundle_id net.mullvad.MullvadVPN
+
   change_dns_settings:
     name: Change DNS Settings on Old App Version
     needs:
-      - checkout_old_version
+      - checkout_version
       - configure_rust
       - uninstall_app
-    uses: mullvad/mullvadvpn-app/.github/workflows/ios-end-to-end-tests.yml@main
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "MullvadVPNUITestsChangeDNSSettings"
+      commit_hash: ${{ env.OLD_APP_COMMIT_HASH }}
     secrets: inherit
+
   verify_dns_settings:
     name: Verify DNS Settings Still Changed on Current App Version
     needs: change_dns_settings
-    uses: mullvad/mullvadvpn-app/.github/workflows/ios-end-to-end-tests.yml@main
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "MullvadVPNUITestsVerifyDNSSettingsChanged"
     secrets: inherit
+
   change_other_settings:
     name: Change All Other Settings on Old App Version
     needs: verify_dns_settings
-    uses: mullvad/mullvadvpn-app/.github/workflows/ios-end-to-end-tests.yml@main
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "MullvadVPNUITestsChangeSettings"
+      commit_hash: ${{ env.OLD_APP_COMMIT_HASH }}
     secrets: inherit
+
   verify_other_settings:
     name: Verify All Other Settings Still Changed on Current App Version
     needs: change_other_settings
-    uses: mullvad/mullvadvpn-app/.github/workflows/ios-end-to-end-tests.yml@main
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "MullvadVPNUITestsVerifySettingsChanged"
     secrets: inherit

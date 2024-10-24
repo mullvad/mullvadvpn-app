@@ -1,24 +1,29 @@
----
 name: iOS end-to-end tests
+
 env:
   TEST_DEVICE_UDID: 00008130-0019181022F3803A
+  REPO_DIR: iOSWorkingDirectory
+
 permissions:
   contents: read
   issues: write
   pull-requests: write
+
 on:
   workflow_call:
     inputs:
       arg_tests_json_key:
         type: string
         required: false
+      commit_hash:
+        type: string
+        required: false
   workflow_dispatch:
     inputs:
-      # Optionally specify a test case or suite to run.
-      # Must be in the format MullvadVPNUITest/<test-suite-name>/<test-case-name> where test case name is optional.
       user_supplied_test_name:
         description: 'Only run test case/suite'
         required: false
+
 jobs:
   set-up-outputs-directory:
     name: Set up outputs directory
@@ -32,10 +37,8 @@ jobs:
           job_outputs_directory="$HOME/workflow-outputs/job-outputs-${{ github.run_id }}"
           echo "job_outputs_directory=$job_outputs_directory" >> "$GITHUB_OUTPUT"
           mkdir -p "$job_outputs_directory"
-
         shell: bash
 
-  # Define the set of tests to run based on the event type and input
   define-test-suites-matrix:
     name: Define test suites matrix
     runs-on: [self-hosted, macOS, ios-test]
@@ -45,40 +48,61 @@ jobs:
         id: test-runs-to-json
         run: |
           if [ -n "${{ inputs.arg_tests_json_key }}" ]; then
-          # JSON key supplied by another workflow calling this reusable workflow
-          echo "Using calling workflow supplied test suites JSON key: ${{ inputs.arg_tests_json_key }}"
-            # Forcing the filesystem buffers to be flushed to ensure the
-            # directory tree is updated
-            sync
-            test_suites_json=$(jq -r --compact-output '.tests."${{ inputs.arg_tests_json_key }}"' tests.json)
-            echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+            echo "Using supplied test suites JSON key: ${{ inputs.arg_tests_json_key }}"
+            test_suites_json=$(jq -r --compact-output '.tests["${{ inputs.arg_tests_json_key }}"]' tests.json)
           elif [ -n "${{ inputs.user_supplied_test_name }}" ]; then
-            # User specified test case/suite when manually triggering run
             echo "Using user supplied test name: ${{ inputs.user_supplied_test_name }}"
-            test_suites_json="['${{ inputs.user_supplied_test_name }}']" >> $GITHUB_ENV
-            echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
+            test_suites_json="['${{ inputs.user_supplied_test_name }}']"
           else
-            echo "Tests not specified, will fallback to running nightly(all) tests scope"
+            echo "Tests not specified, will fallback to running nightly (all) tests scope"
             test_suites_json=$(jq -r --compact-output '.tests.nightly' tests.json)
-            echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
           fi
-
+          echo "test_suites_json=$test_suites_json" >> $GITHUB_ENV
           echo "Test suites/cases to run: $test_suites_json"
-        working-directory: ios/MullvadVPNUITests
+        working-directory: ${{ env.REPO_DIR }}/ios/MullvadVPNUITests
     outputs:
       test_suites_json: ${{ env.test_suites_json }}
 
-  # Build app and tests target
   build:
-    name: Build for end to end testing
+    name: Build for end-to-end testing
     runs-on: [self-hosted, macOS, ios-test]
     needs: set-up-outputs-directory
     timeout-minutes: 20
     steps:
+      - name: Set commit hash or default to github.sha
+        id: set-commit-hash
+        run: |
+          if [ -z "${{ inputs.commit_hash }}" ]; then
+            echo "COMMIT_HASH=${{ github.sha }}" >> $GITHUB_ENV
+          else
+            echo "COMMIT_HASH=${{ inputs.commit_hash }}" >> $GITHUB_ENV
+          fi
+        shell: bash
+
+      - name: Debug commit hash
+        run: echo "Commit hash is: ${{ env.COMMIT_HASH }}"
+
+      - name: Create directory if it does not exist
+        run: |
+          if [ ! -d "${{ env.REPO_DIR }}" ]; then
+            echo "Directory ${{ env.REPO_DIR }} does not exist. Creating it."
+            mkdir -p "${{ env.REPO_DIR }}"
+          else
+            echo "Directory ${{ env.REPO_DIR }} already exists."
+          fi
+
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           clean: true
+          fetch-depth: 1
+          ref: ${{ env.COMMIT_HASH }}
+          path: ${{ env.REPO_DIR }}
+
+      - name: Show checkout directory
+        run: |
+          echo "Repository checked out to: ${{ github.workspace }}"
+          ls -R ${{ github.workspace }}  # List files to verify contents
 
       - name: Configure Rust
         uses: actions-rs/toolchain@v1.0.6
@@ -87,7 +111,7 @@ jobs:
           override: true
           target: aarch64-apple-ios
 
-      - name: Build iOS end to end tests action
+      - name: Build iOS end-to-end tests action
         uses: ./.github/actions/build-ios-e2e-tests
         with:
           test_name: ${{ github.event.inputs.user_supplied_test_name }}
@@ -98,6 +122,7 @@ jobs:
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+          base_directory: ${{ env.REPO_DIR }}
 
       - name: Debug print job output directory
         run: |
@@ -108,7 +133,7 @@ jobs:
         run: |
           mkdir -p "$JOB_OUTPUTS_DIRECTORY/derived-data"
           cp -R ios/derived-data "$JOB_OUTPUTS_DIRECTORY"
-          cp -R . $JOB_OUTPUTS_DIRECTORY/mullvadvpn-app
+          cp -R . "$JOB_OUTPUTS_DIRECTORY/mullvadvpn-app"
         shell: bash
         env:
           JOB_OUTPUTS_DIRECTORY: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
@@ -127,14 +152,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test_suite: ${{fromJson(needs.define-test-suites-matrix.outputs.test_suites_json)}}
+        test_suite: ${{ fromJson(needs.define-test-suites-matrix.outputs.test_suites_json) }}
     steps:
-      - name: Run iOS end to end tests action
+      - name: Run iOS end-to-end tests action
         uses: ./.github/actions/run-ios-e2e-tests
         with:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+          base_directory: ${{ env.REPO_DIR }}
 
   clean-up-outputs-directory:
     if: always()
@@ -148,7 +174,7 @@ jobs:
 
   notify-on-failure:
     if: failure() && github.event_name == 'pull_request'
-    name: Notify team on failure(if PR related)
+    name: Notify team on failure (if PR related)
     runs-on: [self-hosted, macOS, ios-test]
     needs: test
     timeout-minutes: 5
@@ -156,7 +182,7 @@ jobs:
       - name: Comment PR on test failure
         uses: actions/github-script@v7
         with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const issue_number = context.issue.number;
             const run_id = context.runId;
@@ -165,5 +191,5 @@ jobs:
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: issue_number,
-              body: `🚨 End to end tests failed. Please check the [failed workflow run](${run_url}).`
+              body: `🚨 End-to-end tests failed. Please check the [failed workflow run](${run_url}).`
             });
