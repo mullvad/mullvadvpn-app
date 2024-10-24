@@ -175,6 +175,8 @@ impl WireguardMonitor {
         let mut config = crate::config::Config::from_parameters(params, desired_mtu)
             .map_err(Error::WireguardConfigError)?;
 
+        let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
+
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscator = args
@@ -190,8 +192,6 @@ impl WireguardMonitor {
             }
             config.mtu = clamp_mtu(params, config.mtu);
         }
-
-        let endpoint_addrs: Vec<IpAddr> = config.peers().map(|peer| peer.endpoint.ip()).collect();
 
         #[cfg(target_os = "windows")]
         let (setup_done_tx, setup_done_rx) = mpsc::channel(0);
