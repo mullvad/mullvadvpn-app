@@ -151,11 +151,15 @@ impl ConnectedState {
         metadata: &TunnelMetadata,
         shared_values: &SharedTunnelStateValues,
     ) -> ResolvedDnsConfig {
-        shared_values.dns_config.resolve(&metadata.gateways())
+        shared_values.dns_config.resolve(
+            &metadata.gateways(),
+            #[cfg(target_os = "macos")]
+            53,
+        )
     }
 
     fn set_dns(&self, shared_values: &mut SharedTunnelStateValues) -> Result<(), BoxedError> {
-        let dns_config = Self::resolve_dns(&self.metadata, shared_values);
+        let dns_config: ResolvedDnsConfig = Self::resolve_dns(&self.metadata, shared_values);
 
         #[cfg(not(target_os = "macos"))]
         shared_values
@@ -171,8 +175,22 @@ impl ConnectedState {
                     .filtering_resolver
                     .enable_forward(dns_config.addresses().collect()),
             );
+            shared_values
+                .dns_monitor
+                .set(
+                    "lo",
+                    crate::dns::DnsConfig::default().resolve(
+                        &[std::net::Ipv4Addr::LOCALHOST.into()],
+                        shared_values.filtering_resolver.listening_port(),
+                    ),
+                )
+                .map_err(BoxedError::new)?;
         } else {
             log::debug!("Not enabling DNS forwarding since loopback is used");
+            shared_values
+                .dns_monitor
+                .set(&self.metadata.interface, dns_config)
+                .map_err(BoxedError::new)?;
         }
 
         Ok(())
