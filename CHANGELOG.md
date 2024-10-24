@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+#### macOS
+- Fix DNS not working due to broken PF redirect.
 
 
 ## [2024.6] - 2024-10-23
