@@ -199,8 +199,11 @@ by the browser ignore the Mullvad firewall rules. On top of this, it even ignore
 table, and *always* send the traffic directly on the physical network interface
 instead of the tunnel interface.
 
-This affects all app versions and all versions of Edge on Application guard as far as we know.
-We have no known solution.
+This affects all app versions and all versions of Edge on Application Guard as far as we know.
+Since [Application Guard is deprecated] we are not going to put much effort into solving this.
+We recommend users to not use Application Guard.
+
+[Application Guard is deprecated]: https://learn.microsoft.com/en-us/deployedge/microsoft-edge-security-windows-defender-application-guard
 
 #### Other VPN software
 
