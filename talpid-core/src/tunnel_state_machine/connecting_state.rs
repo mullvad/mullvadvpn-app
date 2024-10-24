@@ -60,7 +60,10 @@ impl ConnectingState {
         #[cfg(target_os = "macos")]
         if let Err(err) = shared_values.dns_monitor.set(
             "lo",
-            crate::dns::DnsConfig::default().resolve(&[std::net::Ipv4Addr::LOCALHOST.into()]),
+            crate::dns::DnsConfig::default().resolve(
+                &[std::net::Ipv4Addr::LOCALHOST.into()],
+                shared_values.filtering_resolver.listening_port(),
+            ),
         ) {
             log::error!(
                 "{}",
