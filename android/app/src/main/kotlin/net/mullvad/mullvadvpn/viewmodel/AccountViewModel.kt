@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -37,16 +38,23 @@ class AccountViewModel(
     private val _uiSideEffect = Channel<UiSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
+    private val isLoggingOut = MutableStateFlow(false)
+    private val isLoadingAccountPage = MutableStateFlow(false)
+
     val uiState: StateFlow<AccountUiState> =
         combine(
                 deviceRepository.deviceState.filterIsInstance<DeviceState.LoggedIn>(),
                 accountData(),
                 paymentUseCase.paymentAvailability,
-            ) { deviceState, accountData, paymentAvailability ->
+                isLoggingOut,
+                isLoadingAccountPage,
+            ) { deviceState, accountData, paymentAvailability, isLoggingOut, isLoadingAccountPage ->
                 AccountUiState(
                     deviceName = deviceState.device.displayName(),
                     accountNumber = deviceState.accountNumber,
                     accountExpiry = accountData?.expiryDate,
+                    showLogoutLoading = isLoggingOut,
+                    showManageAccountLoading = isLoadingAccountPage,
                     showSitePayment = !isPlayBuild,
                     billingPaymentState = paymentAvailability?.toPaymentState(),
                 )
@@ -67,16 +75,24 @@ class AccountViewModel(
             .distinctUntilChanged()
 
     fun onManageAccountClick() {
+        if (isLoadingAccountPage.value) return
+        isLoadingAccountPage.value = true
+
         viewModelScope.launch {
             val wwwAuthToken = accountRepository.getWebsiteAuthToken()
             _uiSideEffect.send(UiSideEffect.OpenAccountManagementPageInBrowser(wwwAuthToken))
+            isLoadingAccountPage.value = false
         }
     }
 
     fun onLogoutClick() {
+        if (isLoggingOut.value) return
+        isLoggingOut.value = true
+
         viewModelScope.launch {
             accountRepository
                 .logout()
+                .also { isLoggingOut.value = false }
                 .fold(
                     { _uiSideEffect.send(UiSideEffect.GenericError) },
                     { _uiSideEffect.send(UiSideEffect.NavigateToLogin) },
@@ -142,6 +158,8 @@ data class AccountUiState(
     val accountExpiry: DateTime?,
     val showSitePayment: Boolean,
     val billingPaymentState: PaymentState? = null,
+    val showLogoutLoading: Boolean = false,
+    val showManageAccountLoading: Boolean = false,
 ) {
     companion object {
         fun default() =
@@ -149,6 +167,8 @@ data class AccountUiState(
                 deviceName = null,
                 accountNumber = null,
                 accountExpiry = null,
+                showLogoutLoading = false,
+                showManageAccountLoading = false,
                 showSitePayment = false,
                 billingPaymentState = PaymentState.Loading,
             )

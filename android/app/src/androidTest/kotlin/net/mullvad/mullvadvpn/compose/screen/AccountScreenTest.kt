@@ -45,6 +45,8 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                             showSitePayment = false,
+                            showLogoutLoading = false,
+                            showManageAccountLoading = false,
                         )
                 )
             }
@@ -63,10 +65,12 @@ class AccountScreenTest {
                 AccountScreen(
                     state =
                         AccountUiState(
-                            showSitePayment = true,
                             deviceName = DUMMY_DEVICE_NAME,
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
+                            showSitePayment = true,
+                            showLogoutLoading = false,
+                            showManageAccountLoading = false,
                         ),
                     onManageAccountClick = mockedClickHandler,
                 )
@@ -92,6 +96,8 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                             showSitePayment = false,
+                            showLogoutLoading = false,
+                            showManageAccountLoading = false,
                         ),
                     onRedeemVoucherClick = mockedClickHandler,
                 )
@@ -117,6 +123,8 @@ class AccountScreenTest {
                             accountNumber = DUMMY_ACCOUNT_NUMBER,
                             accountExpiry = null,
                             showSitePayment = false,
+                            showLogoutLoading = false,
+                            showManageAccountLoading = false,
                         ),
                     onLogoutClick = mockedClickHandler,
                 )
