@@ -3,7 +3,7 @@ These are instructions on how to build the app on desktop platforms. See the
 
 # Install toolchains and dependencies
 
-These instructions are probably not complete. If you find something more that needs installing
+These instructions are probably not complete. If you find something more that needs to be installed
 on your platform please submit an issue or a pull request.
 
 ## All platforms
@@ -57,7 +57,7 @@ sudo dnf install rpm-build
 
 ### Cross-compiling for ARM64
 
-By default, the app will build for the host platform. It is also possible to cross-compile the app
+By default, the app will be built for the host platform. It is also possible to cross-compile the app
 for ARM64 on x64.
 
 #### Debian
@@ -99,7 +99,7 @@ The host has to have the following installed:
   C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64
   ```
 
-- `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
+- `bash` installed as well as a few base Unix utilities, including `sed` and `tail`.
   You are recommended to use [Git for Windows].
 
 - The `x86` target is required for building some NSIS plugins:
@@ -112,7 +112,7 @@ The host has to have the following installed:
 
 ### Experimental: Cross-compiling for ARM64
 
-By default, the app will build for the host platform. It is also possible to cross-compile the app
+By default, the app will be built for the host platform. It is also possible to cross-compile the app
 for ARM64 on x64. This requires:
 
 - The ARM64 MSVC tools added to Visual Studio.
@@ -141,7 +141,7 @@ produce a smaller installer and installed binaries:
 ```bash
 ./build.sh [--optimize]
 ```
-This should produce an installer exe, pkg or rpm+deb file in the `dist/` directory.
+This should produce an installer exe, pkg, or rpm+deb file in the `dist/` directory.
 
 Building this requires at least 1GB of memory.
 
@@ -150,7 +150,7 @@ Building this requires at least 1GB of memory.
 ### macOS
 
 By default, `build.sh` produces a pkg for your current architecture only. To build a universal
-app that works on both Intel and Apple Silicon macs, build with `--universal`.
+app that works on both Intel and Apple Silicon Macs, build with `--universal`.
 
 ### Linux
 
@@ -174,13 +174,13 @@ TARGETS="aarch64-pc-windows-msvc" ./build.sh
 
 ## Notes on building on ARM64 Linux hosts
 
-Due to inability to build the management interface proto files on ARM64 (see
+Due to the inability to build the management interface proto files on ARM64 (see
 [this](https://github.com/grpc/grpc-node/issues/1497) issue), building on ARM64 must be done in
 2 stages:
 
 1. Build management interface proto files on another platform than arm64 Linux
 2. Use the built proto files during the main build by setting the
-   `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` environment variable to the path the proto files
+   `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` environment variable to the path of the proto files
 
 To build the management interface proto files there is a script (execute it on another platform than
 ARM64 Linux):
@@ -223,7 +223,7 @@ This section is for building the system service individually.
     cargo build
     ```
 
-1. Copy the OpenVPN binaries, and our plugin for it, to the directory we will
+1. Copy the OpenVPN binaries and our plugin to the directory we will
     use as a resource directory. If you want to use any other directory, you would need to copy
     even more files.
     ```bash
