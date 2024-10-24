@@ -2,7 +2,7 @@ use parking_lot::Mutex;
 use std::{
     collections::{BTreeSet, HashMap},
     fmt, mem,
-    net::IpAddr,
+    net::{IpAddr, SocketAddr},
     sync::{mpsc as sync_mpsc, Arc, RwLock},
     thread,
     time::Duration,
@@ -96,7 +96,7 @@ impl State {
                 self.update_and_apply_state(store);
             }
             Some(old_settings) => {
-                if new_settings.address_set() != old_settings.address_set() {
+                if new_settings.server_addresses() != old_settings.server_addresses() {
                     for service_path in self.backup.keys() {
                         new_settings.save(store, service_path.as_str())?;
                     }
@@ -124,7 +124,7 @@ impl State {
         };
 
         let prev_state = mem::take(&mut self.backup);
-        let desired_set = desired_settings.address_set();
+        let desired_set = desired_settings.server_addresses();
 
         self.backup = Self::merge_states(actual_state, prev_state, desired_set);
     }
@@ -134,7 +134,7 @@ impl State {
     fn merge_states(
         new_state: &HashMap<ServicePath, Option<DnsSettings>>,
         mut prev_state: HashMap<ServicePath, Option<DnsSettings>>,
-        ignore_addresses: BTreeSet<String>,
+        ignore_addresses: BTreeSet<SocketAddr>,
     ) -> HashMap<ServicePath, Option<DnsSettings>> {
         let mut modified_state = HashMap::new();
 
@@ -142,7 +142,7 @@ impl State {
             let old_entry = prev_state.remove(path);
             match settings {
                 // If the service is using the desired addresses, don't save changes
-                Some(settings) if settings.address_set() == ignore_addresses => {
+                Some(settings) if settings.server_addresses() == ignore_addresses => {
                     let settings = old_entry.unwrap_or_else(|| Some(settings.to_owned()));
                     modified_state.insert(path.to_owned(), settings);
                 }
@@ -150,7 +150,7 @@ impl State {
                 settings => {
                     let servers = settings
                         .as_ref()
-                        .map(|settings| settings.server_addresses().join(","))
+                        .map(|settings| settings.format_addresses())
                         .unwrap_or_default();
                     log::debug!("Saving DNS settings [{}] for {}", servers, path);
                     modified_state.insert(path.to_owned(), settings.to_owned());
@@ -174,14 +174,19 @@ impl State {
         let Some(ref desired_settings) = self.dns_settings else {
             return;
         };
-        let desired_set = desired_settings.address_set();
+        let desired_set = desired_settings.server_addresses();
 
         for (path, settings) in actual_state {
             match settings {
                 // Do nothing if the state is already what we want
-                Some(settings) if settings.address_set() == desired_set => (),
+                Some(settings) if settings.server_addresses() == desired_set => (),
                 // Ignore loopback addresses
-                Some(settings) if settings.ips().any(|ip| ip.is_loopback()) => {
+                Some(settings)
+                    if settings
+                        .server_addresses()
+                        .iter()
+                        .any(|addr| addr.ip().is_loopback()) =>
+                {
                     log::trace!("Not updating DNS config: localhost is used");
                 }
                 // Apply desired state to service
@@ -276,7 +281,7 @@ impl DnsSettings {
     ) -> Result<()> {
         log::trace!(
             "Setting DNS to [{}] for {}",
-            self.server_addresses().join(", "),
+            self.format_addresses(),
             path.to_string()
         );
         if store.set(path, self.dict.clone()) {
@@ -286,23 +291,37 @@ impl DnsSettings {
         }
     }
 
-    pub fn server_addresses(&self) -> Vec<String> {
+    pub fn server_addresses(&self) -> BTreeSet<SocketAddr> {
+        let port = self
+            .dict
+            .find(unsafe { kSCPropNetDNSServerPort }.to_void())
+            .map(|ptr| unsafe { CFType::wrap_under_get_rule(*ptr) })
+            .and_then(|port| port.downcast::<CFNumber>())
+            .and_then(|port| port.to_i32())
+            .and_then(|port| u16::try_from(port).ok())
+            .unwrap_or(DNS_PORT);
+
         self.dict
             .find(unsafe { kSCPropNetDNSServerAddresses }.to_void())
             .map(|array_ptr| unsafe { CFType::wrap_under_get_rule(*array_ptr) })
             .and_then(|array| array.downcast::<CFArray>())
             .and_then(Self::parse_cf_array_to_strings)
             .unwrap_or_default()
-    }
-
-    pub fn address_set(&self) -> BTreeSet<String> {
-        BTreeSet::from_iter(self.server_addresses())
-    }
-
-    pub fn ips(&self) -> impl Iterator<Item = IpAddr> {
-        self.server_addresses()
             .into_iter()
-            .filter_map(|addr| addr.parse::<IpAddr>().ok())
+            .flat_map(|addr| addr.parse::<IpAddr>())
+            .map(|ip| SocketAddr::new(ip, port))
+            .collect()
+    }
+
+    fn format_addresses(&self) -> String {
+        let mut s = String::new();
+        for addr in self.server_addresses() {
+            if !s.is_empty() {
+                s.push_str(", ");
+            }
+            s.push_str(&addr.to_string());
+        }
+        s
     }
 
     /// Parses a CFArray into a Rust vector of Rust strings, if the array contains CFString
@@ -527,7 +546,10 @@ mod test {
     use crate::dns::imp::DNS_PORT;
 
     use super::{DnsSettings, State};
-    use std::collections::{BTreeSet, HashMap};
+    use std::{
+        collections::{BTreeSet, HashMap},
+        net::SocketAddr,
+    };
 
     /// The initial backup should equal whatever the first provided state is.
     #[test]
@@ -555,7 +577,7 @@ mod test {
             ),
         ]);
 
-        let desired_addresses: BTreeSet<String> = ["10.64.0.1".to_owned()].into();
+        let desired_addresses: BTreeSet<SocketAddr> = ["10.64.0.1:53".parse().unwrap()].into();
 
         let merged_state = State::merge_states(&new_state, prev_state, desired_addresses);
 
@@ -658,7 +680,7 @@ mod test {
             ),
         ]);
 
-        let desired_addresses: BTreeSet<String> = ["10.64.0.1".to_owned()].into();
+        let desired_addresses: BTreeSet<SocketAddr> = ["10.64.0.1:53".parse().unwrap()].into();
 
         let merged_state = State::merge_states(&new_state, prev_state, desired_addresses);
 
@@ -690,7 +712,7 @@ mod test {
         let new_state = HashMap::from([("c".to_owned(), None)]);
         let expected_state = new_state.clone();
 
-        let desired_addresses: BTreeSet<String> = ["10.64.0.1".to_owned()].into();
+        let desired_addresses: BTreeSet<SocketAddr> = ["10.64.0.1:53".parse().unwrap()].into();
 
         let merged_state = State::merge_states(&new_state, prev_state, desired_addresses);
 
@@ -729,7 +751,7 @@ mod test {
             )),
         )]);
 
-        let desired_addresses: BTreeSet<String> = ["192.168.1.1".to_owned()].into();
+        let desired_addresses: BTreeSet<SocketAddr> = ["192.168.1.1:53".parse().unwrap()].into();
 
         let merged_state = State::merge_states(&new_state, prev_state, desired_addresses);
 
