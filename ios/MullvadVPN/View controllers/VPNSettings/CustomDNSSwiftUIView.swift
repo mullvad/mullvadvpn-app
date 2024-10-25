@@ -27,20 +27,30 @@ class CustomDNSViewModel: ObservableObject {
         DNSRowViewModel(name: "All", isEnabled: blockAll),
         DNSRowViewModel(name: DNSBlockingOptions.blockAdvertising.name, isEnabled: blockAdvertising),
         DNSRowViewModel(name: DNSBlockingOptions.blockTracking.name, isEnabled: blockTracking),
-        DNSRowViewModel(name: DNSBlockingOptions.blockMalware.name, isEnabled: blockMalware),
+        DNSRowViewModel(
+            name: DNSBlockingOptions.blockMalware.name,
+            isEnabled: blockMalware,
+            action: showMalwareInformation
+        ),
         DNSRowViewModel(name: DNSBlockingOptions.blockAdultContent.name, isEnabled: blockAdultContent),
         DNSRowViewModel(name: DNSBlockingOptions.blockGambling.name, isEnabled: blockGambling),
         DNSRowViewModel(name: DNSBlockingOptions.blockSocialMedia.name, isEnabled: blockSocialMedia),
     ]
+
+    func showMalwareInformation() {
+        print("show a popup here")
+    }
 }
 
 class DNSRowViewModel: ObservableObject, Identifiable {
     let name: String
     @Published var isEnabled: Bool
+    let infoButtonAction: (() -> Void)?
 
-    init(name: String, isEnabled: Bool) {
+    init(name: String, isEnabled: Bool, action: (() -> Void)? = nil) {
         self.name = name
         self.isEnabled = isEnabled
+        self.infoButtonAction = action
     }
 }
 
@@ -76,7 +86,7 @@ struct DNSItemRow: View {
             Spacer()
             Toggle(isOn: $viewModel.isEnabled, label: {
                 Text(viewModel.name)
-            }).toggleStyle(RedToggleStyle())
+            }).toggleStyle(RedToggleStyle(action: viewModel.infoButtonAction))
         }
     }
 }
