@@ -49,8 +49,8 @@ import com.ramcosta.composedestinations.result.ResultRecipient
 import com.ramcosta.composedestinations.result.onResult
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedButton
-import net.mullvad.mullvadvpn.compose.button.SegmentedButtonPosition
+import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedEndButton
+import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedStartButton
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
@@ -296,17 +296,15 @@ private fun MultihopBar(
         modifier =
             Modifier.fillMaxWidth().padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
     ) {
-        MullvadSegmentedButton(
+        MullvadSegmentedStartButton(
             selected = relayListSelection == RelayListSelection.Entry,
             onClick = { onSelectRelayList(RelayListSelection.Entry) },
             text = stringResource(id = R.string.entry),
-            position = SegmentedButtonPosition.First,
         )
-        MullvadSegmentedButton(
+        MullvadSegmentedEndButton(
             selected = relayListSelection == RelayListSelection.Exit,
             onClick = { onSelectRelayList(RelayListSelection.Exit) },
             text = stringResource(id = R.string.exit),
-            position = SegmentedButtonPosition.Last,
         )
     }
 }
