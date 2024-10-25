@@ -684,6 +684,7 @@
 		A90763C32B2858630045ADF0 /* Socks5Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C22B2858630045ADF0 /* Socks5Configuration.swift */; };
 		A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */; };
 		A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763C62B2858DC0045ADF0 /* CancellableChain.swift */; };
+		A90BCA3E2CCB96C200769DB1 /* CustomDNSViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90BCA3D2CCB96C200769DB1 /* CustomDNSViewModel.swift */; };
 		A90C48672C36BC2600DCB94C /* EphemeralPeerReceiver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */; };
 		A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90C48682C36BF3900DCB94C /* TunnelProvider.swift */; };
 		A91614D12B108D1B00F416EB /* TransportLayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = A91614D02B108D1B00F416EB /* TransportLayer.swift */; };
@@ -2014,6 +2015,7 @@
 		A90763C22B2858630045ADF0 /* Socks5Configuration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Configuration.swift; sourceTree = "<group>"; };
 		A90763C42B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AnyIPEndpoint+Socks5.swift"; sourceTree = "<group>"; };
 		A90763C62B2858DC0045ADF0 /* CancellableChain.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CancellableChain.swift; sourceTree = "<group>"; };
+		A90BCA3D2CCB96C200769DB1 /* CustomDNSViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDNSViewModel.swift; sourceTree = "<group>"; };
 		A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerReceiver.swift; sourceTree = "<group>"; };
 		A90C48682C36BF3900DCB94C /* TunnelProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelProvider.swift; sourceTree = "<group>"; };
 		A91614D02B108D1B00F416EB /* TransportLayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransportLayer.swift; sourceTree = "<group>"; };
@@ -2860,6 +2862,7 @@
 				A9EBCE052CC2937F00146599 /* CustomDNSSwiftUIViewController.swift */,
 				A9EBCE072CC2945100146599 /* CustomDNSSwiftUIView.swift */,
 				A9EBCE0B2CC2B5DF00146599 /* ToggleStyle.swift */,
+				A90BCA3D2CCB96C200769DB1 /* CustomDNSViewModel.swift */,
 			);
 			path = VPNSettings;
 			sourceTree = "<group>";
@@ -5938,6 +5941,7 @@
 				7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */,
 				7A6389DD2B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift in Sources */,
 				A9EBCE0A2CC2AB2400146599 /* UIColor+Color.swift in Sources */,
+				A90BCA3E2CCB96C200769DB1 /* CustomDNSViewModel.swift in Sources */,
 				5827B0BF2B14B37D00CCBBA1 /* Publisher+PreviousValue.swift in Sources */,
 				7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */,
 				5827B0AA2B0F4C9100CCBBA1 /* EditAccessMethodViewControllerDelegate.swift in Sources */,

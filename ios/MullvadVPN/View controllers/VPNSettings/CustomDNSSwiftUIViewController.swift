@@ -24,7 +24,7 @@ class CustomDNSSwiftUIViewController: UIViewController {
     }
 
     override func viewDidLoad() {
-        let rootView = CustomDNSSwiftUIView(viewModel: CustomDNSViewModel())
+        let rootView = CustomDNSSwiftUIView(viewModel: self.interactor.tunnelSettings.dnsSettings.viewModel())
 
         let hostingController = UIHostingController(rootView: rootView)
 
