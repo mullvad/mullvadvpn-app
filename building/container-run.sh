@@ -59,4 +59,4 @@ exec "$CONTAINER_RUNNER" run --rm -it \
     -v "$CARGO_REGISTRY_VOLUME_NAME:/root/.cargo/registry:Z" \
     "${optional_gradle_cache_volume[@]}" \
     "${optional_android_credentials_volume[@]}" \
-    "$container_image_name" bash -c "apt-get update -y && apt-get install -y libarchive-tools && $optional_mold $*"
+    "$container_image_name" bash -c "apt-get update -y &> /dev/null && apt-get install -y libarchive-tools &> /dev/null && $optional_mold $*"
