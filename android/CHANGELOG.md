@@ -24,6 +24,13 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.8-beta2] - 2024-10-25
+
+### Fixed
+- Fix issue where roaming with shadowsocks would lead to loss of connection.
+- Fix MTU calculation that could be incorrect under certain conditions.
+
+
 ## [android/2024.8-beta1] - 2024-10-21
 ### Added
 - Add feature indicators to the main view along with redesigning the connection details.

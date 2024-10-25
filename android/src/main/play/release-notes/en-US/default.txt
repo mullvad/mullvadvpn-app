@@ -1,4 +1,2 @@
-- Added feature indicators to the main view along with redesigning the connection details.
-- Added a new "Connect on device start-up" setting for devices without system VPN settings (primarily TVs).
-- Updated icons throughout the app.
-- Improved button accessibility to better support screen readers.
+- Fix issue where roaming with shadowsocks would lead to loss of connection.
+- Fix MTU calculation that could be incorrect under certain conditions.
