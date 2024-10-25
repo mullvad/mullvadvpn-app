@@ -1,5 +1,1 @@
-[macOS] Fix Apple services not working on recent macOS versions.
-New feature! WireGuard over Shadowsocks. This new obfuscation method aids in circumventing censorship.
-Add feature indicators which provide a quick overview of your current tunnel settings. This comes with a fresh new look to the home screen!
-DAITA and Multihop has been moved to the main settings view.
-Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server. If you want disable this behaviour, enable "Direct only" in the DAITA settings view.
+[macOS] Fix DNS issue introduced in 2024.6.
