@@ -39,6 +39,8 @@ Line wrap the file at 100 chars.                                              Th
 - Enable quantum-resistant tunnels by default (when set to `auto`).
 
 ### Fixed
+- Handle network switching better when using WG over Shadowsocks.
+
 #### macOS
 - Fix packets being duplicated on LAN when split tunneling is enabled.
 - Fix DNS not working due to broken PF redirect.
