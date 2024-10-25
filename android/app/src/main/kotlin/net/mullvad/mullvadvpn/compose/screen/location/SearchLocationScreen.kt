@@ -371,10 +371,7 @@ private fun LazyListScope.filterRow(
 ) {
     if (filters.isNotEmpty()) {
         item {
-            Title(
-                text = stringResource(R.string.filters),
-                onBackgroundColor = onBackgroundColor,
-            )
+            Title(text = stringResource(R.string.filters), onBackgroundColor = onBackgroundColor)
         }
         item {
             FilterRow(
