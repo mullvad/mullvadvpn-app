@@ -41,6 +41,11 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 #### macOS
 - Fix packets being duplicated on LAN when split tunneling is enabled.
+
+
+## [2024.7-beta1] - 2024-10-25
+### Fixed
+#### macOS
 - Fix DNS not working due to broken PF redirect.
 
 
