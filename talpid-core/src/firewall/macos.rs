@@ -236,6 +236,7 @@ impl Firewall {
     /// Some programs have been shown to bind their sockets directly to the physical network
     /// interface. To stop their network traffic from leaking outside the tunnel, we add a
     /// whole slew of redirect rules which redirect these packets to the tunnel again.
+    /// These NAT rules are part of the solution, as they fix the source IP address.
     /// The observed perpetrators are various Apple services, e.g. iMessage.
     ///
     /// This workaround is supposedly only needed for clients running macOS [14.6, 15.1).
