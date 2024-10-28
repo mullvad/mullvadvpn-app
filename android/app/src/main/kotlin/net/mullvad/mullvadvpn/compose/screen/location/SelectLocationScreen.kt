@@ -55,7 +55,7 @@ import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -95,8 +95,7 @@ fun SelectLocation(
         ResultRecipient<DeleteCustomListDestination, CustomListActionResultData.Success.Deleted>,
     updateCustomListResultRecipient:
         ResultRecipient<CustomListLocationsDestination, CustomListActionResultData>,
-    searchSelectedLocationResultRecipient:
-        ResultRecipient<SearchLocationDestination, RelayListSelection>,
+    searchSelectedLocationResultRecipient: ResultRecipient<SearchLocationDestination, RelayListType>,
 ) {
     val vm = koinViewModel<SelectLocationViewModel>()
     val state = vm.uiState.collectAsStateWithLifecycle()
@@ -142,10 +141,10 @@ fun SelectLocation(
 
     searchSelectedLocationResultRecipient.onResult { result ->
         when (result) {
-            RelayListSelection.Entry -> {
-                vm.selectRelayList(RelayListSelection.Exit)
+            RelayListType.ENTRY -> {
+                vm.selectRelayList(RelayListType.EXIT)
             }
-            RelayListSelection.Exit -> backNavigator.navigateBack(result = true)
+            RelayListType.EXIT -> backNavigator.navigateBack(result = true)
         }
     }
 
@@ -199,7 +198,7 @@ fun SelectLocationScreen(
     state: SelectLocationUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onSelectRelay: (item: RelayItem) -> Unit = {},
-    onSearchClick: (RelayListSelection) -> Unit = {},
+    onSearchClick: (RelayListType) -> Unit = {},
     onBackClick: () -> Unit = {},
     onFilterClick: () -> Unit = {},
     onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
@@ -215,7 +214,7 @@ fun SelectLocationScreen(
     onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
     onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
-    onSelectRelayList: (RelayListSelection) -> Unit = {},
+    onSelectRelayList: (RelayListType) -> Unit = {},
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
 
@@ -232,7 +231,7 @@ fun SelectLocationScreen(
         },
         snackbarHostState = snackbarHostState,
         actions = {
-            IconButton(onClick = { onSearchClick(state.relayListSelection) }) {
+            IconButton(onClick = { onSearchClick(state.relayListType) }) {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = stringResource(id = R.string.filter),
@@ -271,7 +270,7 @@ fun SelectLocationScreen(
             }
 
             if (state.multihopEnabled) {
-                MultihopBar(state.relayListSelection, onSelectRelayList)
+                MultihopBar(state.relayListType, onSelectRelayList)
             }
 
             Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
@@ -286,22 +285,19 @@ fun SelectLocationScreen(
 }
 
 @Composable
-private fun MultihopBar(
-    relayListSelection: RelayListSelection,
-    onSelectRelayList: (RelayListSelection) -> Unit,
-) {
+private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayListType) -> Unit) {
     SingleChoiceSegmentedButtonRow(
         modifier =
             Modifier.fillMaxWidth().padding(start = Dimens.sideMargin, end = Dimens.sideMargin)
     ) {
         MullvadSegmentedStartButton(
-            selected = relayListSelection == RelayListSelection.Entry,
-            onClick = { onSelectRelayList(RelayListSelection.Entry) },
+            selected = relayListType == RelayListType.ENTRY,
+            onClick = { onSelectRelayList(RelayListType.ENTRY) },
             text = stringResource(id = R.string.entry),
         )
         MullvadSegmentedEndButton(
-            selected = relayListSelection == RelayListSelection.Exit,
-            onClick = { onSelectRelayList(RelayListSelection.Exit) },
+            selected = relayListType == RelayListType.EXIT,
+            onClick = { onSelectRelayList(RelayListType.EXIT) },
             text = stringResource(id = R.string.exit),
         )
     }
@@ -321,14 +317,14 @@ private fun RelayLists(
         rememberPagerState(
             initialPage =
                 if (state.multihopEnabled) {
-                    RelayListSelection.Entry.ordinal
+                    RelayListType.ENTRY.ordinal
                 } else {
-                    RelayListSelection.Exit.ordinal
+                    RelayListType.EXIT.ordinal
                 },
-            pageCount = { RelayListSelection.entries.size },
+            pageCount = { RelayListType.entries.size },
         )
-    LaunchedEffect(state.relayListSelection) {
-        val index = state.relayListSelection.ordinal
+    LaunchedEffect(state.relayListType) {
+        val index = state.relayListType.ordinal
         pagerState.animateScrollToPage(index)
     }
 
@@ -344,7 +340,7 @@ private fun RelayLists(
     ) { pageIndex ->
         SelectLocationList(
             backgroundColor = backgroundColor,
-            relayListSelection = RelayListSelection.entries[pageIndex],
+            relayListType = RelayListType.entries[pageIndex],
             onSelectRelay = onSelectRelay,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )

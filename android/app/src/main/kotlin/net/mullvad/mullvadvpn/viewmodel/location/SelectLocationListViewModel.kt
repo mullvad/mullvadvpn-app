@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -20,7 +20,7 @@ import net.mullvad.mullvadvpn.usecase.customlists.CustomListsRelayItemUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.FilterCustomListsRelayItemUseCase
 
 class SelectLocationListViewModel(
-    private val relayListSelection: RelayListSelection,
+    private val relayListType: RelayListType,
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val filteredCustomListRelayItemsUseCase: FilterCustomListsRelayItemUseCase,
     private val selectedLocationUseCase: SelectedLocationUseCase,
@@ -53,10 +53,10 @@ class SelectLocationListViewModel(
         ) { relayCountries, customLists, selectedItem, expandedItems ->
             relayListItems(
                 relayCountries = relayCountries,
+                relayListType = relayListType,
                 customLists = customLists,
-                selectedItem = selectedItem.getForRelayListSelect(relayListSelection),
-                disabledItem =
-                    selectedItem.getForRelayListDisabled(relayListSelection, customLists),
+                selectedItem = selectedItem.getForRelayListSelect(relayListType),
+                disabledItem = selectedItem.getForRelayListDisabled(relayListType, customLists),
                 expandedItems = expandedItems,
             )
         }
@@ -79,9 +79,9 @@ class SelectLocationListViewModel(
     }
 
     private fun initialSelection() =
-        when (relayListSelection) {
-            RelayListSelection.Entry ->
+        when (relayListType) {
+            RelayListType.ENTRY ->
                 wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
-            RelayListSelection.Exit -> relayListRepository.selectedLocation.value
+            RelayListType.EXIT -> relayListRepository.selectedLocation.value
         }?.getOrNull()
 }

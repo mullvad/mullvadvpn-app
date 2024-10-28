@@ -8,7 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -262,8 +262,8 @@ val uiModule = module {
             get(),
         )
     }
-    viewModel { (relayListSelection: RelayListSelection) ->
-        SelectLocationListViewModel(relayListSelection, get(), get(), get(), get(), get(), get())
+    viewModel { (relayListType: RelayListType) ->
+        SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get())
     }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity

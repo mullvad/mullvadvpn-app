@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
@@ -31,7 +31,7 @@ class SelectLocationsUiStatePreviewParameterProvider :
                 // searchTerm = "search term",
                 listOf(FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned)),
                 multihopEnabled = true,
-                relayListSelection = RelayListSelection.Entry,
+                relayListType = RelayListType.ENTRY,
             )
         )
 }

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.customlists.CustomListActionUseCase
-import net.mullvad.mullvadvpn.util.combine
 
 @Suppress("TooManyFunctions")
 class SelectLocationViewModel(
@@ -33,19 +32,19 @@ class SelectLocationViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     filterChipUseCase: FilterChipUseCase,
 ) : ViewModel() {
-    private val _relayListSelection: MutableStateFlow<RelayListSelection> =
+    private val _relayListType: MutableStateFlow<RelayListType> =
         MutableStateFlow(initialRelayListSelection())
 
     val uiState =
         combine(
                 filterChipUseCase(),
                 wireguardConstraintsRepository.wireguardConstraints,
-                _relayListSelection,
+                _relayListType,
             ) { filterChips, wireguardConstraints, relayListSelection ->
                 SelectLocationUiState(
                     filterChips = filterChips,
                     multihopEnabled = wireguardConstraints?.useMultihop ?: false,
-                    relayListSelection = relayListSelection,
+                    relayListType = relayListSelection,
                 )
             }
             .stateIn(
@@ -54,7 +53,7 @@ class SelectLocationViewModel(
                 SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopEnabled = false,
-                    relayListSelection = RelayListSelection.Entry,
+                    relayListType = RelayListType.ENTRY,
                 ),
             )
 
@@ -63,30 +62,29 @@ class SelectLocationViewModel(
 
     private fun initialRelayListSelection() =
         if (wireguardConstraintsRepository.wireguardConstraints.value?.useMultihop == true) {
-            RelayListSelection.Entry
+            RelayListType.ENTRY
         } else {
-            RelayListSelection.Exit
+            RelayListType.EXIT
         }
 
-    fun selectRelayList(relayListSelection: RelayListSelection) {
-        viewModelScope.launch { _relayListSelection.emit(relayListSelection) }
+    fun selectRelayList(relayListType: RelayListType) {
+        viewModelScope.launch { _relayListType.emit(relayListType) }
     }
 
     fun selectRelay(relayItem: RelayItem) {
         viewModelScope.launch {
             selectRelayItem(
                     relayItem = relayItem,
-                    relayListSelection = _relayListSelection.value,
+                    relayListType = _relayListType.value,
                     selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
                     selectExitLocation = relayListRepository::updateSelectedRelayLocation,
                 )
                 .fold(
                     { _uiSideEffect.send(SelectLocationSideEffect.GenericError) },
                     {
-                        when (_relayListSelection.value) {
-                            RelayListSelection.Entry ->
-                                _relayListSelection.emit(RelayListSelection.Exit)
-                            RelayListSelection.Exit ->
+                        when (_relayListType.value) {
+                            RelayListType.ENTRY -> _relayListType.emit(RelayListType.EXIT)
+                            RelayListType.EXIT ->
                                 _uiSideEffect.send(SelectLocationSideEffect.CloseScreen)
                         }
                     },

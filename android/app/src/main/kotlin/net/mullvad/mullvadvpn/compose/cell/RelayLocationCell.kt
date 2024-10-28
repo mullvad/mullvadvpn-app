@@ -27,13 +27,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
+import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCheckbox
 import net.mullvad.mullvadvpn.compose.preview.RelayItemCheckableCellPreviewParameterProvider
+import net.mullvad.mullvadvpn.compose.state.RelayListItemState
 import net.mullvad.mullvadvpn.compose.test.EXPAND_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOCATION_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -69,9 +72,8 @@ private fun PreviewCheckableRelayLocationCell(
 @Composable
 fun StatusRelayItemCell(
     item: RelayItem,
-    name: String,
     isSelected: Boolean,
-    isEnabled: Boolean,
+    state: RelayListItemState?,
     modifier: Modifier = Modifier,
     onClick: () -> Unit = {},
     onLongClick: (() -> Unit)? = null,
@@ -82,13 +84,11 @@ fun StatusRelayItemCell(
     inactiveColor: Color = MaterialTheme.colorScheme.error,
     disabledColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
 ) {
-
     RelayItemCell(
         modifier = modifier,
-        name = name,
-        hasChildren = item.hasChildren,
+        item = item,
         isSelected = isSelected,
-        isEnabled = isEnabled,
+        state = state,
         leadingContent = {
             if (isSelected) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = null)
@@ -102,7 +102,7 @@ fun StatusRelayItemCell(
                                     when {
                                         item is RelayItem.CustomList && item.locations.isEmpty() ->
                                             disabledColor
-                                        !isEnabled -> disabledColor
+                                        state != null -> disabledColor
                                         item.active -> activeColor
                                         else -> inactiveColor
                                     },
@@ -123,10 +123,9 @@ fun StatusRelayItemCell(
 @Composable
 fun RelayItemCell(
     modifier: Modifier = Modifier,
-    name: String,
-    hasChildren: Boolean,
-    isEnabled: Boolean,
+    item: RelayItem,
     isSelected: Boolean,
+    state: RelayListItemState?,
     leadingContent: (@Composable RowScope.() -> Unit)? = null,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
@@ -155,7 +154,7 @@ fun RelayItemCell(
         Row(
             modifier =
                 Modifier.combinedClickable(
-                        enabled = isEnabled,
+                        enabled = state == null && item.active,
                         onClick = onClick,
                         onLongClick = onLongClick,
                     )
@@ -166,10 +165,10 @@ fun RelayItemCell(
             if (leadingContent != null) {
                 leadingContent()
             }
-            Name(name = name, isEnabled = isEnabled)
+            Name(name = item.name, state = state)
         }
 
-        if (hasChildren) {
+        if (item.hasChildren) {
             ExpandButton(
                 color = MaterialTheme.colorScheme.onSurface,
                 isExpanded = isExpanded,
@@ -192,10 +191,9 @@ fun CheckableRelayLocationCell(
 ) {
     RelayItemCell(
         modifier = modifier,
-        name = item.name,
-        hasChildren = item.hasChildren,
+        item = item,
         isSelected = false,
-        isEnabled = item.active,
+        state = null,
         leadingContent = {
             MullvadCheckbox(
                 checked = checked,
@@ -210,14 +208,14 @@ fun CheckableRelayLocationCell(
 }
 
 @Composable
-private fun Name(modifier: Modifier = Modifier, name: String, isEnabled: Boolean) {
+private fun Name(modifier: Modifier = Modifier, name: String, state: RelayListItemState?) {
     Text(
-        text = name,
+        text = name.appendName(state),
         color = MaterialTheme.colorScheme.onSurface,
         modifier =
             modifier
                 .alpha(
-                    if (isEnabled) {
+                    if (state == null) {
                         AlphaVisible
                     } else {
                         AlphaInactive
@@ -260,4 +258,12 @@ private fun Int.toBackgroundColor(): Color =
         1 -> MaterialTheme.colorScheme.surfaceContainerHigh
         2 -> MaterialTheme.colorScheme.surfaceContainerLow
         else -> MaterialTheme.colorScheme.surfaceContainerLowest
+    }
+
+@Composable
+private fun String.appendName(state: RelayListItemState?) =
+    when (state) {
+        RelayListItemState.BLOCKED_BY_EXIT -> stringResource(R.string.x_exit, this)
+        RelayListItemState.BLOCKED_BY_ENTRY -> stringResource(R.string.x_entry, this)
+        null -> this
     }

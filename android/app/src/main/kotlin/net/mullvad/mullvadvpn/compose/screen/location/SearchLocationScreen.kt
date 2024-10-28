@@ -56,7 +56,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchSelectLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.SearchTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -78,13 +78,13 @@ private fun PreviewSearchLocationScreen() {
     AppTheme { SearchLocationScreen(state = SearchSelectLocationUiState.NoQuery("", emptyList())) }
 }
 
-data class SearchLocationNavArgs(val relayListSelection: RelayListSelection)
+data class SearchLocationNavArgs(val relayListType: RelayListType)
 
 @Composable
 @Destination<RootGraph>(style = SearchTransition::class, navArgs = SearchLocationNavArgs::class)
 fun SearchLocation(
     navigator: DestinationsNavigator,
-    backNavigator: ResultBackNavigator<RelayListSelection>,
+    backNavigator: ResultBackNavigator<RelayListType>,
     createCustomListDialogResultRecipient:
         ResultRecipient<
             CreateCustomListDestination,
@@ -106,7 +106,7 @@ fun SearchLocation(
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
             is SearchLocationSideEffect.LocationSelected ->
-                backNavigator.navigateBack(result = it.relayListSelection)
+                backNavigator.navigateBack(result = it.relayListType)
             is SearchLocationSideEffect.CustomListActionToast ->
                 launch {
                     snackbarHostState.showResultSnackbar(
@@ -270,7 +270,6 @@ fun SearchLocationScreen(
                             backgroundColor = backgroundColor,
                             customLists = state.customLists,
                             relayListItems = state.relayListItems,
-                            relayListSelection = state.relayListSelection,
                             onSelectRelay = onSelectRelay,
                             onToggleExpand = onToggleExpand,
                             onUpdateBottomSheetState = { newSheetState ->

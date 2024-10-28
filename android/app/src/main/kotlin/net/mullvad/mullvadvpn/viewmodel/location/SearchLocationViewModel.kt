@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SearchSelectLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -51,8 +51,8 @@ class SearchLocationViewModel(
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
-    private val relayListSelection: RelayListSelection =
-        SearchLocationDestination.argsFrom(savedStateHandle).relayListSelection
+    private val relayListType: RelayListType =
+        SearchLocationDestination.argsFrom(savedStateHandle).relayListType
 
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
     private val _expandedItems = MutableStateFlow<Set<String>>(emptySet())
@@ -81,18 +81,18 @@ class SearchLocationViewModel(
                             relayListItems(
                                 searchTerm = searchTerm,
                                 relayCountries = relayCountries,
+                                relayListType = relayListType,
                                 customLists = filteredCustomLists,
-                                selectedItem =
-                                    selectedItem.getForRelayListSelect(relayListSelection),
+                                selectedItem = selectedItem.getForRelayListSelect(relayListType),
                                 disabledItem =
                                     selectedItem.getForRelayListDisabled(
-                                        relayListSelection,
+                                        relayListType,
                                         customLists,
                                     ),
                                 expandedItems = expandedItems,
                             ),
                         customLists = customLists,
-                        relayListSelection = relayListSelection,
+                        relayListType = relayListType,
                         filterChips = filterChips,
                     )
                 } else {
@@ -116,17 +116,13 @@ class SearchLocationViewModel(
         viewModelScope.launch {
             selectRelayItem(
                     relayItem = relayItem,
-                    relayListSelection = relayListSelection,
+                    relayListType = relayListType,
                     selectEntryLocation = wireguardConstraintsRepository::setEntryLocation,
                     selectExitLocation = relayListRepository::updateSelectedRelayLocation,
                 )
                 .fold(
                     { _uiSideEffect.send(SearchLocationSideEffect.GenericError) },
-                    {
-                        _uiSideEffect.send(
-                            SearchLocationSideEffect.LocationSelected(relayListSelection)
-                        )
-                    },
+                    { _uiSideEffect.send(SearchLocationSideEffect.LocationSelected(relayListType)) },
                 )
         }
     }
@@ -147,9 +143,9 @@ class SearchLocationViewModel(
                 // Do not show entry and exit filter chips if multihop is disabled
                 if (constraints?.useMultihop == true) {
                     add(
-                        when (relayListSelection) {
-                            RelayListSelection.Entry -> FilterChip.Entry
-                            RelayListSelection.Exit -> FilterChip.Exit
+                        when (relayListType) {
+                            RelayListType.ENTRY -> FilterChip.Entry
+                            RelayListType.EXIT -> FilterChip.Exit
                         }
                     )
                 }
@@ -203,8 +199,7 @@ class SearchLocationViewModel(
 }
 
 sealed interface SearchLocationSideEffect {
-    data class LocationSelected(val relayListSelection: RelayListSelection) :
-        SearchLocationSideEffect
+    data class LocationSelected(val relayListType: RelayListType) : SearchLocationSideEffect
 
     data class CustomListActionToast(val resultData: CustomListActionResultData) :
         SearchLocationSideEffect

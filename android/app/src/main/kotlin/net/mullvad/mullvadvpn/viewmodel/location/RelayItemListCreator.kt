@@ -1,7 +1,8 @@
 package net.mullvad.mullvadvpn.viewmodel.location
 
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListItemState
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -13,6 +14,7 @@ import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 // Creates a relay list to be displayed by RelayListContent
 internal fun relayListItems(
     searchTerm: String = "",
+    relayListType: RelayListType,
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
     selectedItem: RelayItemId?,
@@ -25,6 +27,7 @@ internal fun relayListItems(
         val relayItems =
             createRelayListItems(
                 isSearching = searchTerm.isSearching(),
+                relayListType = relayListType,
                 selectedItem = selectedItem,
                 disabledItem = disabledItem,
                 customLists = filteredCustomLists,
@@ -42,17 +45,33 @@ internal fun relayListItems(
 
 private fun createRelayListItems(
     isSearching: Boolean,
+    relayListType: RelayListType,
     selectedItem: RelayItemId?,
     disabledItem: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
 ): List<RelayListItem> =
-    createCustomListSection(isSearching, selectedItem, disabledItem, customLists, isExpanded) +
-        createLocationSection(isSearching, selectedItem, disabledItem, countries, isExpanded)
+    createCustomListSection(
+        isSearching,
+        relayListType,
+        selectedItem,
+        disabledItem,
+        customLists,
+        isExpanded,
+    ) +
+        createLocationSection(
+            isSearching,
+            selectedItem,
+            relayListType,
+            disabledItem,
+            countries,
+            isExpanded,
+        )
 
 private fun createCustomListSection(
     isSearching: Boolean,
+    relayListType: RelayListType,
     selectedItem: RelayItemId?,
     disabledItem: RelayItemId?,
     customLists: List<RelayItem.CustomList>,
@@ -63,7 +82,13 @@ private fun createCustomListSection(
     } else {
         add(RelayListItem.CustomListHeader)
         val customListItems =
-            createCustomListRelayItems(customLists, selectedItem, disabledItem, isExpanded)
+            createCustomListRelayItems(
+                customLists,
+                relayListType,
+                selectedItem,
+                disabledItem,
+                isExpanded,
+            )
         addAll(customListItems)
         // Do not show the footer in the search view
         if (!isSearching) {
@@ -74,6 +99,7 @@ private fun createCustomListSection(
 
 private fun createCustomListRelayItems(
     customLists: List<RelayItem.CustomList>,
+    relayListType: RelayListType,
     selectedItem: RelayItemId?,
     disabledItem: RelayItemId?,
     isExpanded: (String) -> Boolean,
@@ -85,10 +111,18 @@ private fun createCustomListRelayItems(
                 RelayListItem.CustomListItem(
                     item = customList,
                     isSelected = selectedItem == customList.id,
-                    isEnabled =
-                        disabledItem != customList.id &&
-                            customList.locations.singleOrNull()?.id?.let { it != disabledItem } !=
-                                false,
+                    state =
+                        if (
+                            disabledItem == customList.id ||
+                                customList.locations.all { it.id == disabledItem }
+                        ) {
+                            when (relayListType) {
+                                RelayListType.ENTRY -> RelayListItemState.BLOCKED_BY_EXIT
+                                RelayListType.EXIT -> RelayListItemState.BLOCKED_BY_ENTRY
+                            }
+                        } else {
+                            null
+                        },
                     expanded = expanded,
                 )
             )
@@ -99,6 +133,7 @@ private fun createCustomListRelayItems(
                         createCustomListEntry(
                             parent = customList,
                             item = it,
+                            relayListType = relayListType,
                             disabledItem = disabledItem,
                             depth = 1,
                             isExpanded = isExpanded,
@@ -112,6 +147,7 @@ private fun createCustomListRelayItems(
 private fun createLocationSection(
     isSearching: Boolean,
     selectedItem: RelayItemId?,
+    relayListType: RelayListType,
     disabledItem: RelayItemId?,
     countries: List<RelayItem.Location.Country>,
     isExpanded: (String) -> Boolean,
@@ -122,7 +158,13 @@ private fun createLocationSection(
         add(RelayListItem.LocationHeader)
         addAll(
             countries.flatMap { country ->
-                createGeoLocationEntry(country, selectedItem, disabledItem, isExpanded = isExpanded)
+                createGeoLocationEntry(
+                    item = country,
+                    selectedItem = selectedItem,
+                    relayListType = relayListType,
+                    disabledItem = disabledItem,
+                    isExpanded = isExpanded,
+                )
             }
         )
     }
@@ -131,6 +173,7 @@ private fun createLocationSection(
 private fun createCustomListEntry(
     parent: RelayItem.CustomList,
     item: RelayItem.Location,
+    relayListType: RelayListType,
     disabledItem: RelayItemId?,
     depth: Int = 1,
     isExpanded: (String) -> Boolean,
@@ -141,7 +184,15 @@ private fun createCustomListEntry(
             parentId = parent.id,
             parentName = parent.customList.name,
             item = item,
-            isEnabled = item.id != disabledItem,
+            state =
+                if (disabledItem == item.id) {
+                    when (relayListType) {
+                        RelayListType.ENTRY -> RelayListItemState.BLOCKED_BY_EXIT
+                        RelayListType.EXIT -> RelayListItemState.BLOCKED_BY_ENTRY
+                    }
+                } else {
+                    null
+                },
             expanded = expanded,
             depth = depth,
         )
@@ -152,13 +203,27 @@ private fun createCustomListEntry(
             is RelayItem.Location.City ->
                 addAll(
                     item.relays.flatMap {
-                        createCustomListEntry(parent, it, disabledItem, depth + 1, isExpanded)
+                        createCustomListEntry(
+                            parent = parent,
+                            item = it,
+                            relayListType = relayListType,
+                            disabledItem = disabledItem,
+                            depth = depth + 1,
+                            isExpanded = isExpanded,
+                        )
                     }
                 )
             is RelayItem.Location.Country ->
                 addAll(
                     item.cities.flatMap {
-                        createCustomListEntry(parent, it, disabledItem, depth + 1, isExpanded)
+                        createCustomListEntry(
+                            parent = parent,
+                            item = it,
+                            relayListType = relayListType,
+                            disabledItem = disabledItem,
+                            depth = depth + 1,
+                            isExpanded = isExpanded,
+                        )
                     }
                 )
             is RelayItem.Location.Relay -> {} // No children to add
@@ -168,6 +233,7 @@ private fun createCustomListEntry(
 
 private fun createGeoLocationEntry(
     item: RelayItem.Location,
+    relayListType: RelayListType,
     selectedItem: RelayItemId?,
     disabledItem: RelayItemId?,
     depth: Int = 0,
@@ -179,7 +245,15 @@ private fun createGeoLocationEntry(
         RelayListItem.GeoLocationItem(
             item = item,
             isSelected = selectedItem == item.id,
-            isEnabled = disabledItem != item.id,
+            state =
+                if (disabledItem == item.id) {
+                    when (relayListType) {
+                        RelayListType.ENTRY -> RelayListItemState.BLOCKED_BY_EXIT
+                        RelayListType.EXIT -> RelayListItemState.BLOCKED_BY_ENTRY
+                    }
+                } else {
+                    null
+                },
             depth = depth,
             expanded = expanded,
         )
@@ -191,11 +265,12 @@ private fun createGeoLocationEntry(
                 addAll(
                     item.relays.flatMap {
                         createGeoLocationEntry(
-                            it,
-                            selectedItem,
-                            disabledItem,
-                            depth + 1,
-                            isExpanded,
+                            item = it,
+                            relayListType = relayListType,
+                            selectedItem = selectedItem,
+                            disabledItem = disabledItem,
+                            depth = depth + 1,
+                            isExpanded = isExpanded,
                         )
                     }
                 )
@@ -203,11 +278,12 @@ private fun createGeoLocationEntry(
                 addAll(
                     item.cities.flatMap {
                         createGeoLocationEntry(
-                            it,
-                            selectedItem,
-                            disabledItem,
-                            depth + 1,
-                            isExpanded,
+                            item = it,
+                            relayListType = relayListType,
+                            selectedItem = selectedItem,
+                            disabledItem = disabledItem,
+                            depth = depth + 1,
+                            isExpanded = isExpanded,
                         )
                     }
                 )
@@ -223,26 +299,26 @@ internal fun RelayItemId.expandKey(parent: CustomListId? = null) =
             is GeoLocationId -> code
         }
 
-internal fun SelectedLocation.getForRelayListSelect(relayListSelection: RelayListSelection) =
+internal fun SelectedLocation.getForRelayListSelect(relayListType: RelayListType) =
     when (this) {
         is SelectedLocation.Multiple ->
-            when (relayListSelection) {
-                RelayListSelection.Entry -> entryLocation
-                RelayListSelection.Exit -> exitLocation
+            when (relayListType) {
+                RelayListType.ENTRY -> entryLocation
+                RelayListType.EXIT -> exitLocation
             }.getOrNull()
         is SelectedLocation.Single -> exitLocation.getOrNull()
     }
 
 internal fun SelectedLocation.getForRelayListDisabled(
-    relayListSelection: RelayListSelection,
+    relayListType: RelayListType,
     customLists: List<RelayItem.CustomList>,
 ) =
     when (this) {
         is SelectedLocation.Multiple -> {
             val location =
-                when (relayListSelection) {
-                    RelayListSelection.Entry -> exitLocation
-                    RelayListSelection.Exit -> entryLocation
+                when (relayListType) {
+                    RelayListType.ENTRY -> exitLocation
+                    RelayListType.EXIT -> entryLocation
                 }.getOrNull()
             location.singleRelayId(customLists)
         }

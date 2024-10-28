@@ -17,6 +17,6 @@ sealed interface SearchSelectLocationUiState {
         override val filterChips: List<FilterChip>,
         val relayListItems: List<RelayListItem>,
         val customLists: List<RelayItem.CustomList>,
-        val relayListSelection: RelayListSelection,
+        val relayListType: RelayListType,
     ) : SearchSelectLocationUiState
 }

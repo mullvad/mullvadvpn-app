@@ -14,6 +14,11 @@ enum class RelayListItemContentType {
     LOCATIONS_EMPTY_TEXT,
 }
 
+enum class RelayListItemState {
+    BLOCKED_BY_ENTRY,
+    BLOCKED_BY_EXIT,
+}
+
 sealed interface RelayListItem {
     val key: Any
     val contentType: RelayListItemContentType
@@ -26,15 +31,15 @@ sealed interface RelayListItem {
     sealed interface SelectableItem : RelayListItem {
         val depth: Int
         val isSelected: Boolean
-        val isEnabled: Boolean
         val expanded: Boolean
+        val state: RelayListItemState?
     }
 
     data class CustomListItem(
         val item: RelayItem.CustomList,
         override val isSelected: Boolean = false,
         override val expanded: Boolean = false,
-        override val isEnabled: Boolean = false,
+        override val state: RelayListItemState? = null,
     ) : SelectableItem {
         override val key = item.id
         override val depth: Int = 0
@@ -47,7 +52,7 @@ sealed interface RelayListItem {
         val item: RelayItem.Location,
         override val expanded: Boolean,
         override val depth: Int = 0,
-        override val isEnabled: Boolean,
+        override val state: RelayListItemState? = null,
     ) : SelectableItem {
         override val key = parentId to item.id
 
@@ -71,7 +76,7 @@ sealed interface RelayListItem {
         override val isSelected: Boolean = false,
         override val depth: Int = 0,
         override val expanded: Boolean = false,
-        override val isEnabled: Boolean = false,
+        override val state: RelayListItemState? = null,
     ) : SelectableItem {
         override val key = item.id
         override val contentType = RelayListItemContentType.LOCATION_ITEM

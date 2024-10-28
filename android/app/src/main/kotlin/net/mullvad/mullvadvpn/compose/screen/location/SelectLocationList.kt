@@ -18,7 +18,7 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
-import net.mullvad.mullvadvpn.compose.state.RelayListSelection
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
@@ -31,14 +31,14 @@ import org.koin.core.parameter.parametersOf
 @Composable
 fun SelectLocationList(
     backgroundColor: Color,
-    relayListSelection: RelayListSelection,
+    relayListType: RelayListType,
     onSelectRelay: (RelayItem) -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     val viewModel =
         koinViewModel<SelectLocationListViewModel>(
-            key = relayListSelection.name,
-            parameters = { parametersOf(relayListSelection) },
+            key = relayListType.name,
+            parameters = { parametersOf(relayListType) },
         )
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val lazyListState = rememberLazyListState()
@@ -68,7 +68,6 @@ fun SelectLocationList(
                     backgroundColor = backgroundColor,
                     relayListItems = stateActual.relayListItems,
                     customLists = stateActual.customLists,
-                    relayListSelection = relayListSelection,
                     onSelectRelay = onSelectRelay,
                     onToggleExpand = viewModel::onToggleExpand,
                     onUpdateBottomSheetState = onUpdateBottomSheetState,
