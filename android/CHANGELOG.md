@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add a new access method: Encrypted DNS Proxy. Encrypted DNS proxy is a way to reach the API via
+  proxies. The access method is enabled by default.
 
 
 ## [android/2024.8-beta2] - 2024-10-25
