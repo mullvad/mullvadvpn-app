@@ -74,6 +74,7 @@ fun LazyListScope.relayListContent(
                             listItem,
                             relayListSelection,
                             { onSelectRelay(listItem.item) },
+                            // Only direct children can be removed
                             if (listItem.depth == 1) {
                                 {
                                     onUpdateBottomSheetState(
@@ -99,7 +100,6 @@ fun LazyListScope.relayListContent(
                             relayListSelection = relayListSelection,
                             { onSelectRelay(listItem.item) },
                             {
-                                // Only direct children can be removed
                                 onUpdateBottomSheetState(
                                     ShowLocationBottomSheet(customLists, listItem.item)
                                 )

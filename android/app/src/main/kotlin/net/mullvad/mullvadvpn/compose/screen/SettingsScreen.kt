@@ -102,7 +102,7 @@ fun SettingsScreen(
             if (state.isLoggedIn) {
                 itemWithDivider {
                     Multihop(
-                        isMultihopEnabled = state.useMultihop,
+                        isMultihopEnabled = state.multihopEnabled,
                         onMultihopClick = onMultihopClick,
                     )
                 }
@@ -191,7 +191,7 @@ private fun FaqAndGuides() {
     NavigationComposeCell(
         title = faqGuideLabel,
         bodyView =
-            @Composable {
+            {
                 DefaultExternalLinkView(
                     chevronContentDescription = faqGuideLabel,
                     tint = MaterialTheme.colorScheme.onPrimary,
@@ -213,7 +213,7 @@ private fun PrivacyPolicy(state: SettingsUiState) {
     NavigationComposeCell(
         title = privacyPolicyLabel,
         bodyView =
-            @Composable {
+            {
                 DefaultExternalLinkView(
                     chevronContentDescription = privacyPolicyLabel,
                     tint = MaterialTheme.colorScheme.onPrimary,
@@ -229,21 +229,20 @@ private fun Multihop(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
     NavigationComposeCell(
         title = title,
         onClick = onMultihopClick,
-        bodyView =
-            @Composable {
-                NavigationCellBody(
-                    content =
-                        stringResource(
-                            if (isMultihopEnabled) {
-                                R.string.on
-                            } else {
-                                R.string.off
-                            }
-                        ),
-                    contentBodyDescription = title,
-                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    isExternalLink = false,
-                )
-            },
+        bodyView = {
+            NavigationCellBody(
+                content =
+                    stringResource(
+                        if (isMultihopEnabled) {
+                            R.string.on
+                        } else {
+                            R.string.off
+                        }
+                    ),
+                contentBodyDescription = title,
+                textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                isExternalLink = false,
+            )
+        },
     )
 }

@@ -44,8 +44,7 @@ fun SelectLocationList(
     val lazyListState = rememberLazyListState()
     val stateActual = state
     RunOnKeyChange(stateActual is SelectLocationListUiState.Content) {
-        val index = stateActual.indexOfSelectedRelayItem()
-        if (index != -1) {
+        stateActual.indexOfSelectedRelayItem()?.let { index ->
             lazyListState.scrollToItem(index)
             lazyListState.animateScrollAndCentralizeItem(index)
         }
@@ -85,21 +84,21 @@ private fun LazyListScope.loading() {
     }
 }
 
-private fun SelectLocationListUiState.indexOfSelectedRelayItem(): Int =
+private fun SelectLocationListUiState.indexOfSelectedRelayItem(): Int? =
     if (this is SelectLocationListUiState.Content) {
         relayListItems.indexOfFirst {
             when (it) {
                 is RelayListItem.CustomListItem -> it.isSelected
                 is RelayListItem.GeoLocationItem -> it.isSelected
-                is RelayListItem.CustomListEntryItem -> false
-                is RelayListItem.CustomListFooter -> false
-                RelayListItem.CustomListHeader -> false
-                RelayListItem.LocationHeader -> false
+                is RelayListItem.CustomListEntryItem,
+                is RelayListItem.CustomListFooter,
+                RelayListItem.CustomListHeader,
+                RelayListItem.LocationHeader,
                 is RelayListItem.LocationsEmptyText -> false
             }
         }
     } else {
-        -1
+        null
     }
 
 private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
