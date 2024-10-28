@@ -749,6 +749,34 @@ impl WireguardMonitor {
         #[cfg(target_os = "android")]
         let config = Self::patch_allowed_ips(config, gateway_only);
 
+        let exit_config = wireguard_go::exit_config(&config);
+
+        #[cfg(target_os = "android")]
+        let tunnel = if exit_config.is_some() {
+            WgGoTunnel::start_multihop_tunnel(
+                #[allow(clippy::needless_borrow)]
+                &config,
+                log_path,
+                tun_provider,
+                routes,
+                #[cfg(daita)]
+                resource_dir,
+            )
+            .map_err(Error::TunnelError)?
+        } else {
+            WgGoTunnel::start_tunnel(
+                #[allow(clippy::needless_borrow)]
+                &config,
+                log_path,
+                tun_provider,
+                routes,
+                #[cfg(daita)]
+                resource_dir,
+            )
+            .map_err(Error::TunnelError)?
+        };
+
+        #[cfg(not(target_os = "android"))]
         let tunnel = WgGoTunnel::start_tunnel(
             #[allow(clippy::needless_borrow)]
             &config,
