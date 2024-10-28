@@ -234,17 +234,17 @@ impl Firewall {
     /// Force all traffic out on the VPN interface (except LAN and some other exceptions).
     ///
     /// Some programs have been shown to bind their sockets directly to the physical network
-    /// interface. To stop their network traffic from leaking outside the tunnel, we add a
-    /// whole slew of redirect rules which redirect these packets to the tunnel again.
-    /// These NAT rules are part of the solution, as they fix the source IP address.
-    /// The observed perpetrators are various Apple services, e.g. iMessage.
+    /// interface. Their network traffic would be blocked by our existing firewall rules, and
+    /// therefore we add a whole slew of redirect rules which redirect these packets to the tunnel
+    /// again. These NAT rules are part of the solution, as they fix the source IP address. The
+    /// observed perpetrators are various Apple services, e.g. iMessage.
     ///
     /// This workaround is supposedly only needed for clients running macOS [14.6, 15.1).
     /// Apple has acknowleged the issue and released a patch in macOS 15.1:
     /// https://developer.apple.com/documentation/macos-release-notes/macos-15_1-release-notes#Resolved-Issues
-    /// If this naughty behavior does not make a comeback, it should be safe to drop these
-    /// redirect rules in a future release since they were supposedly not needed until Apple
-    /// tried to be a bit too clever.
+    /// If this naughty behavior does not make a comeback, it should be safe to drop these redirect
+    /// rules in a future release since they were supposedly not needed until Apple tried to be a
+    /// bit too clever.
     fn get_nat_rules(&mut self, policy: &FirewallPolicy) -> Result<Vec<pfctl::NatRule>> {
         let (FirewallPolicy::Connected {
             peer_endpoint,
