@@ -23,7 +23,7 @@ use mullvad_types::access_method::{
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
 use talpid_types::net::{
-    AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol,
+    proxy::CustomProxy, AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol,
 };
 
 pub enum Message {
@@ -31,7 +31,10 @@ pub enum Message {
     Use(ResponseTx<()>, Id),
     Rotate(ResponseTx<ApiConnectionMode>),
     Update(ResponseTx<()>, Settings),
-    Resolve(ResponseTx<ResolvedConnectionMode>, AccessMethodSetting),
+    Resolve(
+        ResponseTx<Option<ResolvedConnectionMode>>,
+        AccessMethodSetting,
+    ),
 }
 
 /// Calling [`AccessMethodEvent::send`] will cause a
@@ -102,6 +105,8 @@ pub struct ResolvedConnectionMode {
 pub enum Error {
     #[error("No access methods were provided.")]
     NoAccessMethods,
+    #[error("Could not resolve access method {access_method:#?}")]
+    Resolve { access_method: AccessMethod },
     #[error("AccessModeSelector is not receiving any messages.")]
     SendFailed(#[from] mpsc::TrySendError<Message>),
     #[error("AccessModeSelector is not receiving any messages.")]
@@ -175,7 +180,14 @@ impl AccessModeSelectorHandle {
             })
     }
 
-    pub async fn resolve(&self, setting: AccessMethodSetting) -> Result<ResolvedConnectionMode> {
+    /// Try to resolve an access method into a set of connection details.
+    ///
+    /// This might fail if the underlying store/cache where `setting` is the key is empty.
+    /// In that case, `Ok(None)` is returned.
+    pub async fn resolve(
+        &self,
+        setting: AccessMethodSetting,
+    ) -> Result<Option<ResolvedConnectionMode>> {
         self.send_command(|tx| Message::Resolve(tx, setting))
             .await
             .inspect_err(|_| {
@@ -275,8 +287,8 @@ impl AccessModeSelector {
 
         // Always start looking from the position of `Direct`.
         let (index, next) = Self::find_next_active(0, &access_method_settings);
-        let initial_connection_mode = Self::resolve_inner(
-            next,
+        let initial_connection_mode = Self::resolve_inner_with_default(
+            &next,
             &relay_selector,
             &mut encrypted_dns_proxy_cache,
             &address_cache,
@@ -397,7 +409,7 @@ impl AccessModeSelector {
     }
 
     async fn set_current(&mut self, access_method: AccessMethodSetting) {
-        let resolved = self.resolve(access_method).await;
+        let resolved = self.resolve_with_default(access_method).await;
 
         // Note: If the daemon is busy waiting for a call to this function
         // to complete while we wait for the daemon to fully handle this
@@ -497,16 +509,19 @@ impl AccessModeSelector {
 
     pub async fn on_resolve_access_method(
         &mut self,
-        tx: ResponseTx<ResolvedConnectionMode>,
+        tx: ResponseTx<Option<ResolvedConnectionMode>>,
         setting: AccessMethodSetting,
     ) -> Result<()> {
         let reply = self.resolve(setting).await;
         self.reply(tx, reply)
     }
 
-    async fn resolve(&mut self, access_method: AccessMethodSetting) -> ResolvedConnectionMode {
+    async fn resolve(
+        &mut self,
+        access_method: AccessMethodSetting,
+    ) -> Option<ResolvedConnectionMode> {
         Self::resolve_inner(
-            access_method,
+            &access_method,
             &self.relay_selector,
             &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
@@ -515,50 +530,101 @@ impl AccessModeSelector {
     }
 
     async fn resolve_inner(
+        access_method: &AccessMethodSetting,
+        relay_selector: &RelaySelector,
+        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
+        address_cache: &AddressCache,
+    ) -> Option<ResolvedConnectionMode> {
+        let connection_mode =
+            Self::resolve_connection_mode(access_method, relay_selector, encrypted_dns_proxy_cache)
+                .await?;
+        let endpoint =
+            resolve_allowed_endpoint(&connection_mode, address_cache.get_address().await);
+        Some(ResolvedConnectionMode {
+            connection_mode,
+            endpoint,
+            setting: access_method.clone(),
+        })
+    }
+
+    /// Resolve an access method into a set of connection details - fall back to
+    /// [`ApiConnectionMode::Direct`] in case `access_method` does not yield anything.
+    async fn resolve_with_default(
+        &mut self,
         access_method: AccessMethodSetting,
+    ) -> ResolvedConnectionMode {
+        Self::resolve_inner_with_default(
+            &access_method,
+            &self.relay_selector,
+            &mut self.encrypted_dns_proxy_cache,
+            &self.address_cache,
+        )
+        .await
+    }
+
+    async fn resolve_inner_with_default(
+        access_method: &AccessMethodSetting,
         relay_selector: &RelaySelector,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
     ) -> ResolvedConnectionMode {
+        match Self::resolve_inner(
+            access_method,
+            relay_selector,
+            encrypted_dns_proxy_cache,
+            address_cache,
+        )
+        .await
+        {
+            Some(resolved) => resolved,
+            None => {
+                log::trace!("Defaulting to direct API connection");
+                ResolvedConnectionMode {
+                    connection_mode: ApiConnectionMode::Direct,
+                    endpoint: resolve_allowed_endpoint(
+                        &ApiConnectionMode::Direct,
+                        address_cache.get_address().await,
+                    ),
+                    setting: access_method.clone(),
+                }
+            }
+        }
+    }
+
+    async fn resolve_connection_mode(
+        access_method: &AccessMethodSetting,
+        relay_selector: &RelaySelector,
+        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
+    ) -> Option<ApiConnectionMode> {
         let connection_mode = {
-            let access_method = access_method.access_method.clone();
-            match access_method {
+            match &access_method.access_method {
                 AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => relay_selector
-                    .get_bridge_forced()
-                    .map(ProxyConfig::from)
-                    .map(ApiConnectionMode::Proxied)
-                    .unwrap_or_else(|| {
-                        log::warn!(
-                            "Received unexpected proxy settings type. Defaulting to direct API connection"
-                        );
-                        log::debug!("Defaulting to direct API connection");
-                        ApiConnectionMode::Direct
-                    }),
+                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
+                    let Some(bridge) = relay_selector.get_bridge_forced() else {
+                        log::warn!("Could not select a Mullvad bridge");
+                        log::debug!("The relay list might be empty");
+                        return None;
+                    };
+                    let proxy = CustomProxy::Shadowsocks(bridge);
+                    ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
+                }
                 AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
                     if let Err(error) = encrypted_dns_proxy_cache.fetch_configs().await {
                         log::warn!("Failed to fetch new Encrypted DNS Proxy configurations");
                         log::debug!("{error:#?}");
                     }
-                    encrypted_dns_proxy_cache
-                    .next_configuration()
-                    .map(ProxyConfig::EncryptedDnsProxy)
-                    .map(ApiConnectionMode::Proxied)
-                    .unwrap_or_else(|| {
+                    let Some(edp) = encrypted_dns_proxy_cache.next_configuration() else {
                         log::warn!("Could not select next Encrypted DNS proxy config");
-                        log::debug!("Defaulting to direct API connection");
-                        ApiConnectionMode::Direct
-                    })},
-                AccessMethod::Custom(config) => ApiConnectionMode::Proxied(ProxyConfig::from(config)),
+                        return None;
+                    };
+                    ApiConnectionMode::Proxied(ProxyConfig::from(edp))
+                }
+                AccessMethod::Custom(config) => {
+                    ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))
+                }
             }
         };
-        let endpoint =
-            resolve_allowed_endpoint(&connection_mode, address_cache.get_address().await);
-        ResolvedConnectionMode {
-            connection_mode,
-            endpoint,
-            setting: access_method,
-        }
+        Some(connection_mode)
     }
 }
 

@@ -185,8 +185,8 @@ impl InnerParametersGenerator {
                     bridge: bridge_relay.cloned(),
                     server_override,
                 });
-                let bridge_settings = bridge.as_ref().map(|bridge| bridge.settings());
-                Ok(self.create_openvpn_tunnel_parameters(endpoint, data, bridge_settings.cloned()))
+                let bridge_settings = bridge.map(|bridge| bridge.to_proxy());
+                Ok(self.create_openvpn_tunnel_parameters(endpoint, data, bridge_settings))
             }
             GetRelay::Wireguard {
                 endpoint,

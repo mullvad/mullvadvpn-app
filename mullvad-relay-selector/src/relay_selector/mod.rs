@@ -46,7 +46,9 @@ use mullvad_types::{
 };
 use talpid_types::{
     net::{
-        obfuscation::ObfuscatorConfig, proxy::CustomProxy, Endpoint, TransportProtocol, TunnelType,
+        obfuscation::ObfuscatorConfig,
+        proxy::{CustomProxy, Shadowsocks},
+        Endpoint, TransportProtocol, TunnelType,
     },
     ErrorExt,
 };
@@ -228,15 +230,19 @@ pub enum GetRelay {
 
 #[derive(Clone, Debug)]
 pub enum SelectedBridge {
-    Normal { settings: CustomProxy, relay: Relay },
+    /// TODO: Document this variant, why there is only a Shadowsocks
+    Normal {
+        settings: Shadowsocks,
+        relay: Relay,
+    },
     Custom(CustomProxy),
 }
 
 impl SelectedBridge {
     /// Get the bridge settings.
-    pub fn settings(&self) -> &CustomProxy {
+    pub fn to_proxy(self) -> CustomProxy {
         match self {
-            SelectedBridge::Normal { settings, .. } => settings,
+            SelectedBridge::Normal { settings, .. } => CustomProxy::Shadowsocks(settings),
             SelectedBridge::Custom(settings) => settings,
         }
     }
@@ -444,7 +450,7 @@ impl RelaySelector {
 
     /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
     /// state.
-    pub fn get_bridge_forced(&self) -> Option<CustomProxy> {
+    pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
         let parsed_relays = &self.parsed_relays.lock().unwrap();
         let config = self.config.lock().unwrap();
         let specialized_config = SpecializedSelectorConfig::from(&*config);
@@ -1049,7 +1055,7 @@ impl RelaySelector {
         constraints: &InternalBridgeConstraints,
         location: Option<T>,
         custom_lists: &CustomListsSettings,
-    ) -> Result<(CustomProxy, Relay), Error> {
+    ) -> Result<(Shadowsocks, Relay), Error> {
         let bridges = filter_matching_bridges(constraints, parsed_relays.relays(), custom_lists);
         let bridge_data = &parsed_relays.parsed_list().bridge;
         let bridge = match location {

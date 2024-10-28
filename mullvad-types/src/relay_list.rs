@@ -4,10 +4,7 @@ use std::{
     net::{IpAddr, Ipv4Addr, Ipv6Addr, SocketAddr},
     ops::RangeInclusive,
 };
-use talpid_types::net::{
-    proxy::{CustomProxy, Shadowsocks},
-    wireguard, TransportProtocol,
-};
+use talpid_types::net::{proxy::Shadowsocks, wireguard, TransportProtocol};
 
 /// Stores a list of relays for each country obtained from the API using
 /// `mullvad_api::RelayListProxy`. This can also be passed to frontends.
@@ -246,11 +243,11 @@ pub struct ShadowsocksEndpointData {
 }
 
 impl ShadowsocksEndpointData {
-    pub fn to_proxy_settings(&self, addr: IpAddr) -> CustomProxy {
-        CustomProxy::Shadowsocks(Shadowsocks {
+    pub fn to_proxy_settings(&self, addr: IpAddr) -> Shadowsocks {
+        Shadowsocks {
             endpoint: SocketAddr::new(addr, self.port),
             password: self.password.clone(),
             cipher: self.cipher.clone(),
-        })
+        }
     }
 }
