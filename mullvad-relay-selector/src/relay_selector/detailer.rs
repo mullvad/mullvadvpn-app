@@ -21,7 +21,7 @@ use mullvad_types::{
 };
 use talpid_types::net::{
     all_of_the_internet,
-    proxy::CustomProxy,
+    proxy::Shadowsocks,
     wireguard::{PeerConfig, PublicKey},
     Endpoint, IpVersion, TransportProtocol,
 };
@@ -266,7 +266,7 @@ fn compatible_openvpn_port_combo(
 }
 
 /// Picks a random bridge from a relay.
-pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &Relay) -> Option<CustomProxy> {
+pub fn bridge_endpoint(data: &BridgeEndpointData, relay: &Relay) -> Option<Shadowsocks> {
     use rand::seq::SliceRandom;
     if relay.endpoint_data != RelayEndpointData::Bridge {
         return None;

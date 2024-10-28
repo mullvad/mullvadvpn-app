@@ -2752,8 +2752,19 @@ impl Daemon {
             }
         };
 
-        let test_subject = match self.access_mode_handler.resolve(access_method).await {
-            Ok(test_subject) => test_subject,
+        let test_subject = match self
+            .access_mode_handler
+            .resolve(access_method.clone())
+            .await
+        {
+            Ok(Some(test_subject)) => test_subject,
+            Ok(None) => {
+                let error = Error::ApiConnectionModeError(self::api::Error::Resolve {
+                    access_method: access_method.access_method,
+                });
+                reply(Err(error));
+                return;
+            }
             Err(err) => {
                 reply(Err(Error::ApiConnectionModeError(err)));
                 return;
