@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.viewmodel.location
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import co.touchlab.kermit.Logger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -65,18 +64,15 @@ class SelectLocationListViewModel(
     private fun initialExpand(item: RelayItemId?): Set<String> = buildSet {
         when (item) {
             is GeoLocationId.City -> {
-                Logger.d("GC item: $item")
                 add(item.country.code)
             }
             is GeoLocationId.Hostname -> {
-                Logger.d("GH item: $item")
                 add(item.country.code)
                 add(item.city.code)
             }
             is CustomListId,
             is GeoLocationId.Country,
             null -> {
-                Logger.d("NO item: $item")
                 /* No expands */
             }
         }

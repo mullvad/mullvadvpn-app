@@ -7,24 +7,24 @@ import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.SelectedLocation
+import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 
 // Creates a relay list to be displayed by RelayListContent
-// Search input as null is defined as not searching
 internal fun relayListItems(
-    searchTerm: String? = null,
+    searchTerm: String = "",
     relayCountries: List<RelayItem.Location.Country>,
     customLists: List<RelayItem.CustomList>,
     selectedItem: RelayItemId?,
     disabledItem: RelayItemId?,
     expandedItems: Set<String>,
 ): List<RelayListItem> {
-    val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm ?: "")
+    val filteredCustomLists = customLists.filterOnSearchTerm(searchTerm)
 
     return buildList {
         val relayItems =
             createRelayListItems(
-                isSearching = searchTerm != null,
+                isSearching = searchTerm.isSearching(),
                 selectedItem = selectedItem,
                 disabledItem = disabledItem,
                 customLists = filteredCustomLists,
@@ -32,7 +32,7 @@ internal fun relayListItems(
             ) {
                 it in expandedItems
             }
-        if (relayItems.isEmpty() && searchTerm != null) {
+        if (relayItems.isEmpty()) {
             add(RelayListItem.LocationsEmptyText(searchTerm))
         } else {
             addAll(relayItems)
@@ -266,3 +266,5 @@ private fun RelayItemId?.singleRelayId(customLists: List<RelayItem.CustomList>):
                 ?.id as? GeoLocationId.Hostname
         else -> null
     }
+
+private fun String.isSearching() = length >= MIN_SEARCH_LENGTH

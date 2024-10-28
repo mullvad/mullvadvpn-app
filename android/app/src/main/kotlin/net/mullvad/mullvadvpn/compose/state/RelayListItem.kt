@@ -62,7 +62,7 @@ sealed interface RelayListItem {
     }
 
     data object LocationHeader : RelayListItem {
-        override val key: Any = "location_header"
+        override val key = "location_header"
         override val contentType = RelayListItemContentType.LOCATION_HEADER
     }
 
@@ -78,7 +78,7 @@ sealed interface RelayListItem {
     }
 
     data class LocationsEmptyText(val searchTerm: String) : RelayListItem {
-        override val key: Any = "locations_empty_text"
+        override val key = "locations_empty_text"
         override val contentType = RelayListItemContentType.LOCATIONS_EMPTY_TEXT
     }
 }

@@ -140,10 +140,12 @@ class SearchLocationViewModel(
             .map { it.second }
 
     private fun filterChips() =
-        filterChipUseCase().map { filterChips: List<FilterChip> ->
+        combine(filterChipUseCase(), wireguardConstraintsRepository.wireguardConstraints) {
+            filterChips,
+            constraints ->
             filterChips.toMutableList().apply {
                 // Do not show entry and exit filter chips if multihop is disabled
-                if (multihopEnabled()) {
+                if (constraints?.useMultihop == true) {
                     add(
                         when (relayListSelection) {
                             RelayListSelection.Entry -> FilterChip.Entry
@@ -153,9 +155,6 @@ class SearchLocationViewModel(
                 }
             }
         }
-
-    private fun multihopEnabled() =
-        wireguardConstraintsRepository.wireguardConstraints.value?.useMultihop == true
 
     fun addLocationToList(item: RelayItem.Location, customList: RelayItem.CustomList) {
         viewModelScope.launch {

@@ -99,7 +99,7 @@ fun SettingsScreen(
             if (state.isLoggedIn) {
                 itemWithDivider {
                     Multihop(
-                        isMultihopEnabled = state.useMultihop,
+                        isMultihopEnabled = state.multihopEnabled,
                         onMultihopClick = onMultihopClick,
                     )
                 }
@@ -151,22 +151,21 @@ private fun Multihop(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
     NavigationComposeCell(
         title = title,
         onClick = onMultihopClick,
-        bodyView =
-            @Composable {
-                NavigationCellBody(
-                    content =
-                        stringResource(
-                            if (isMultihopEnabled) {
-                                R.string.on
-                            } else {
-                                R.string.off
-                            }
-                        ),
-                    contentBodyDescription = title,
-                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                    isExternalLink = false,
-                )
-            },
+        bodyView = {
+            NavigationCellBody(
+                content =
+                    stringResource(
+                        if (isMultihopEnabled) {
+                            R.string.on
+                        } else {
+                            R.string.off
+                        }
+                    ),
+                contentBodyDescription = title,
+                textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                isExternalLink = false,
+            )
+        },
     )
 }
 
@@ -183,23 +182,22 @@ private fun AppVersion(context: Context, state: SettingsUiState) {
                 )
             )
         },
-        bodyView =
-            @Composable {
-                if (!state.isPlayBuild) {
-                    NavigationCellBody(
-                        content = state.appVersion,
-                        contentBodyDescription = stringResource(id = R.string.app_version),
-                        textColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                        isExternalLink = true,
-                    )
-                } else {
-                    Text(
-                        text = state.appVersion,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            },
+        bodyView = {
+            if (!state.isPlayBuild) {
+                NavigationCellBody(
+                    content = state.appVersion,
+                    contentBodyDescription = stringResource(id = R.string.app_version),
+                    textColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    isExternalLink = true,
+                )
+            } else {
+                Text(
+                    text = state.appVersion,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        },
         showWarning = !state.isSupportedVersion,
         isRowEnabled = !state.isPlayBuild,
     )
@@ -234,13 +232,12 @@ private fun FaqAndGuides(context: Context) {
     val faqGuideLabel = stringResource(id = R.string.faqs_and_guides)
     NavigationComposeCell(
         title = faqGuideLabel,
-        bodyView =
-            @Composable {
-                DefaultExternalLinkView(
-                    chevronContentDescription = faqGuideLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = faqGuideLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = {
             context.openLink(Uri.parse(context.resources.getString(R.string.faqs_and_guides_url)))
         },
@@ -252,13 +249,12 @@ private fun PrivacyPolicy(context: Context, state: SettingsUiState) {
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_label)
     NavigationComposeCell(
         title = privacyPolicyLabel,
-        bodyView =
-            @Composable {
-                DefaultExternalLinkView(
-                    chevronContentDescription = privacyPolicyLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = privacyPolicyLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = {
             context.openLink(
                 Uri.parse(

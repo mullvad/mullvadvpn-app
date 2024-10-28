@@ -46,7 +46,7 @@ fun FilterRow(
             Modifier.padding(horizontal = Dimens.searchFieldHorizontalPadding)
                 .fillMaxWidth()
                 .horizontalScroll(scrollState),
-        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace, alignment = Alignment.Start),
+        horizontalArrangement = Arrangement.spacedBy(Dimens.chipSpace),
     ) {
         if (showTitle) {
             Text(
