@@ -190,13 +190,12 @@ private fun FaqAndGuides() {
 
     NavigationComposeCell(
         title = faqGuideLabel,
-        bodyView =
-            {
-                DefaultExternalLinkView(
-                    chevronContentDescription = faqGuideLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = faqGuideLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = openFaqAndGuides,
     )
 }
@@ -212,13 +211,12 @@ private fun PrivacyPolicy(state: SettingsUiState) {
 
     NavigationComposeCell(
         title = privacyPolicyLabel,
-        bodyView =
-            {
-                DefaultExternalLinkView(
-                    chevronContentDescription = privacyPolicyLabel,
-                    tint = MaterialTheme.colorScheme.onPrimary,
-                )
-            },
+        bodyView = {
+            DefaultExternalLinkView(
+                chevronContentDescription = privacyPolicyLabel,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
         onClick = openPrivacyPolicy,
     )
 }

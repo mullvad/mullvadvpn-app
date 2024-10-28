@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
@@ -12,7 +13,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -63,7 +63,8 @@ fun MultihopScreen(
             Image(
                 contentScale = ContentScale.FillWidth,
                 modifier =
-                    Modifier.widthIn(min = Dp.Infinity, max = Dimens.settingsDetailsImageMaxWidth)
+                    Modifier.widthIn(max = Dimens.settingsDetailsImageMaxWidth)
+                        .fillMaxWidth()
                         .padding(horizontal = Dimens.mediumPadding)
                         .align(Alignment.CenterHorizontally),
                 painter = painterResource(id = R.drawable.multihop_illustration),
