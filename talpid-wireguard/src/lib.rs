@@ -495,6 +495,8 @@ impl WireguardMonitor {
             };
 
             if should_negotiate_ephemeral_peer {
+                // Pre-requisite - We should have a single hop tunnel to the entry peer!
+                // debug_assert!(something);
                 // Ping before negotiating the ephemeral peer to make sure that the tunnel works.
                 tokio::task::spawn_blocking(ping()).await.unwrap()?;
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
@@ -742,6 +744,8 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         #[cfg(daita)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
+        // This bool is `true` when we should negotiate an ephemeral peer.
+        // Use this fact temporarily to conditionally apply multihop.
         #[cfg(target_os = "android")] gateway_only: bool,
     ) -> Result<WgGoTunnel> {
         let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
@@ -749,6 +753,8 @@ impl WireguardMonitor {
         #[cfg(target_os = "android")]
         let config = Self::patch_allowed_ips(config, gateway_only);
 
+        #[cfg(target_os = "android")]
+        let should_negotiate_ephemeral_peer = gateway_only;
         let tunnel = WgGoTunnel::start_tunnel(
             #[allow(clippy::needless_borrow)]
             &config,
@@ -757,6 +763,8 @@ impl WireguardMonitor {
             routes,
             #[cfg(daita)]
             resource_dir,
+            #[cfg(target_os = "android")]
+            should_negotiate_ephemeral_peer,
         )
         .map_err(Error::TunnelError)?;
 
@@ -984,6 +992,14 @@ pub(crate) trait Tunnel: Send {
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
+    /// HACK: Move this somewhere else
+    /// Implement only on Wireguard GO tunnel ?
+    /// yuck.
+    #[cfg(wireguard_go)]
+    fn turn_on_multihop<'a>(
+        &'a mut self,
+        config: Config,
+    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait

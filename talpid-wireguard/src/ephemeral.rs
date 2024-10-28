@@ -109,7 +109,7 @@ async fn config_ephemeral_peers_inner(
     log::debug!("Retrieved ephemeral peer");
 
     if config.is_multihop() {
-        // Set up tunnel to lead to entry
+        // Call `wgTurnOnMultihop` here before negotiating with exit peer.
         let mut entry_tun_config = config.clone();
         entry_tun_config
             .entry_peer
@@ -175,6 +175,7 @@ async fn config_ephemeral_peers_inner(
 
 /// Reconfigures the tunnel to use the provided config while potentially modifying the config
 /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
+#[cfg(not(target_os = "android"))]
 async fn reconfigure_tunnel(
     tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
     mut config: Config,
@@ -206,6 +207,58 @@ async fn reconfigure_tunnel(
             .map_err(Error::TunnelError)
             .map_err(CloseMsg::SetupError)?;
     }
+
+    Ok(config)
+}
+
+/// Reconfigures the tunnel to use the provided config while potentially modifying the config
+/// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
+#[cfg(target_os = "android")]
+#[cfg(wireguard_go)]
+async fn reconfigure_tunnel(
+    tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    mut config: Config,
+    obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
+    close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+    #[cfg(target_os = "android")] tun_provider: &Arc<Mutex<TunProvider>>,
+) -> std::result::Result<Config, CloseMsg> {
+    let mut obfs_guard = obfuscator.lock().await;
+    if let Some(obfuscator_handle) = obfs_guard.take() {
+        obfuscator_handle.abort();
+        *obfs_guard = super::obfuscation::apply_obfuscation_config(
+            &mut config,
+            close_obfs_sender,
+            #[cfg(target_os = "android")]
+            tun_provider.clone(),
+        )
+        .await
+        .map_err(CloseMsg::ObfuscatorFailed)?;
+    }
+
+    let mut tunnel_guard = tunnel.lock().await;
+    let tunnel = if let Some(mut tunnel) = tunnel_guard.take() {
+        // If multihop is used, we have to explicitly call `wgTurnOnMultihop` at this point.
+        let inner = if config.is_multihop() {
+            tunnel
+                .turn_on_multihop(config.clone())
+                .await
+                .expect("Could not start a new multihop-tunnel");
+            tunnel
+        } else {
+            // singlehop
+            tunnel
+                .set_config(config.clone())
+                .await
+                .map_err(Error::TunnelError)
+                .map_err(CloseMsg::SetupError)?;
+            tunnel
+        };
+        Some(inner)
+    } else {
+        None
+    };
+
+    *tunnel_guard = tunnel;
 
     Ok(config)
 }
