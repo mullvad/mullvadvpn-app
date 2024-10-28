@@ -7,7 +7,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
-import net.mullvad.mullvadvpn.lib.model.SelectedLocation
+import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.relaylist.MIN_SEARCH_LENGTH
 import net.mullvad.mullvadvpn.relaylist.filterOnSearchTerm
 
@@ -299,22 +299,22 @@ internal fun RelayItemId.expandKey(parent: CustomListId? = null) =
             is GeoLocationId -> code
         }
 
-internal fun SelectedLocation.getForRelayListSelect(relayListType: RelayListType) =
+internal fun RelayItemSelection.getForRelayListSelect(relayListType: RelayListType) =
     when (this) {
-        is SelectedLocation.Multiple ->
+        is RelayItemSelection.Multiple ->
             when (relayListType) {
                 RelayListType.ENTRY -> entryLocation
                 RelayListType.EXIT -> exitLocation
             }.getOrNull()
-        is SelectedLocation.Single -> exitLocation.getOrNull()
+        is RelayItemSelection.Single -> exitLocation.getOrNull()
     }
 
-internal fun SelectedLocation.getForRelayListDisabled(
+internal fun RelayItemSelection.getForRelayListDisabled(
     relayListType: RelayListType,
     customLists: List<RelayItem.CustomList>,
 ) =
     when (this) {
-        is SelectedLocation.Multiple -> {
+        is RelayItemSelection.Multiple -> {
             val location =
                 when (relayListType) {
                     RelayListType.ENTRY -> exitLocation
@@ -322,7 +322,7 @@ internal fun SelectedLocation.getForRelayListDisabled(
                 }.getOrNull()
             location.singleRelayId(customLists)
         }
-        is SelectedLocation.Single -> null
+        is RelayItemSelection.Single -> null
     }
 
 // We only want to block selecting the same entry as exit if it is a relay. For country and

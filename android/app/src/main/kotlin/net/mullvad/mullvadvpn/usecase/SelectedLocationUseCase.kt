@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import net.mullvad.mullvadvpn.lib.model.SelectedLocation
+import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 
@@ -16,12 +16,12 @@ class SelectedLocationUseCase(
             wireguardConstraintsRepository.wireguardConstraints.filterNotNull(),
         ) { selectedLocation, wireguardConstraints ->
             if (wireguardConstraints.useMultihop) {
-                SelectedLocation.Multiple(
+                RelayItemSelection.Multiple(
                     entryLocation = wireguardConstraints.entryLocation,
                     exitLocation = selectedLocation,
                 )
             } else {
-                SelectedLocation.Single(selectedLocation)
+                RelayItemSelection.Single(selectedLocation)
             }
         }
 }
