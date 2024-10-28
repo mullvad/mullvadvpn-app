@@ -2292,6 +2292,9 @@ msgstr ""
 msgid "At least one method needs to be enabled"
 msgstr ""
 
+msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
+msgstr ""
+
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
