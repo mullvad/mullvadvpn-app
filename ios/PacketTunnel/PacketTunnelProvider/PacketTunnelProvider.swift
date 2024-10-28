@@ -174,28 +174,36 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func performSettingsMigration() {
-        migrationManager.migrateSettings(
-            store: SettingsManager.store,
-            migrationCompleted: { [unowned self] migrationResult in
-                switch migrationResult {
-                case .success:
-                    providerLogger.debug("Successful migration from PacketTunnel")
-                case .nothing:
-                    providerLogger.debug("Attempted migration from PacketTunnel, but found nothing to do")
-                case let .failure(error):
-                    // `next` returns an Optional value, but this iterator is guaranteed to always have a next value
-                    guard let delay = migrationFailureIterator.next() else { return }
-                    providerLogger
-                        .error(
-                            "Failed migration from PacketTunnel: \(error), retrying in \(delay.timeInterval) seconds"
-                        )
-                    // Block the launch of the Packet Tunnel for as long as the settings migration fail.
-                    // The process watchdog introduced by iOS 17 will kill this process after 60 seconds.
-                    Thread.sleep(forTimeInterval: delay.timeInterval)
-                    performSettingsMigration()
+        var hasNotMigrated = true
+        repeat {
+            migrationManager.migrateSettings(
+                store: SettingsManager.store,
+                migrationCompleted: { [unowned self] migrationResult in
+                    switch migrationResult {
+                    case .success:
+                        providerLogger.debug("Successful migration from PacketTunnel")
+                        hasNotMigrated = false
+                    case .nothing:
+                        hasNotMigrated = false
+                        providerLogger.debug("Attempted migration from PacketTunnel, but found nothing to do")
+                    case let .failure(error):
+                        providerLogger
+                            .error(
+                                "Failed migration from PacketTunnel: \(error)"
+                            )
+                    }
                 }
+            )
+            if hasNotMigrated {
+                // `next` returns an Optional value, but this iterator is guaranteed to always have a next value
+                guard let delay = migrationFailureIterator.next() else { continue }
+
+                providerLogger.error("Retrying migration in \(delay.timeInterval) seconds")
+                // Block the launch of the Packet Tunnel for as long as the settings migration fail.
+                // The process watchdog introduced by iOS 17 will kill this process after 60 seconds.
+                Thread.sleep(forTimeInterval: delay.timeInterval)
             }
-        )
+        } while hasNotMigrated
     }
 
     private func setUpTransportProvider(

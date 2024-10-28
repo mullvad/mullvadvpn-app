@@ -68,6 +68,9 @@ public struct MigrationManager {
                 )
             } catch .itemNotFound as KeychainError {
                 migrationCompleted(.nothing)
+            } catch let couldNotReadKeychainError as KeychainError
+                where couldNotReadKeychainError == .interactionNotAllowed {
+                migrationCompleted(.failure(couldNotReadKeychainError))
             } catch {
                 resetStoreHandler(.failure(error))
             }
