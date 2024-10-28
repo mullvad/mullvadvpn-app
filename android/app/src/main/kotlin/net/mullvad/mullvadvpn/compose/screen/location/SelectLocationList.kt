@@ -86,17 +86,19 @@ private fun LazyListScope.loading() {
 
 private fun SelectLocationListUiState.indexOfSelectedRelayItem(): Int? =
     if (this is SelectLocationListUiState.Content) {
-        relayListItems.indexOfFirst {
-            when (it) {
-                is RelayListItem.CustomListItem -> it.isSelected
-                is RelayListItem.GeoLocationItem -> it.isSelected
-                is RelayListItem.CustomListEntryItem,
-                is RelayListItem.CustomListFooter,
-                RelayListItem.CustomListHeader,
-                RelayListItem.LocationHeader,
-                is RelayListItem.LocationsEmptyText -> false
+        val index =
+            relayListItems.indexOfFirst {
+                when (it) {
+                    is RelayListItem.CustomListItem -> it.isSelected
+                    is RelayListItem.GeoLocationItem -> it.isSelected
+                    is RelayListItem.CustomListEntryItem,
+                    is RelayListItem.CustomListFooter,
+                    RelayListItem.CustomListHeader,
+                    RelayListItem.LocationHeader,
+                    is RelayListItem.LocationsEmptyText -> false
+                }
             }
-        }
+        if (index >= 0) index else null
     } else {
         null
     }
