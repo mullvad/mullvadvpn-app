@@ -83,7 +83,7 @@ extension REST {
             maxRetryCount: .max,
             delay: .exponentialBackoff(
                 initial: .seconds(5),
-                multiplier: UInt64(1),
+                multiplier: UInt64(2),
                 maxDelay: .minutes(1)
             ),
             applyJitter: true
