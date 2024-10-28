@@ -98,6 +98,12 @@ impl From<proxy::CustomProxy> for ProxyConfig {
     }
 }
 
+impl From<mullvad_encrypted_dns_proxy::config::ProxyConfig> for ProxyConfig {
+    fn from(value: mullvad_encrypted_dns_proxy::config::ProxyConfig) -> Self {
+        ProxyConfig::EncryptedDnsProxy(value)
+    }
+}
+
 impl ApiConnectionMode {
     /// Reads the proxy config from `CURRENT_CONFIG_FILENAME`.
     /// This returns `ApiConnectionMode::Direct` if reading from disk fails for any reason.
