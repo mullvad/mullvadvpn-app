@@ -338,9 +338,11 @@ extension RelaySelectorTests {
                         ipv6AddrIn: .loopback,
                         publicKey: PrivateKey().publicKey.rawValue,
                         includeInCountry: true,
-                        daita: true
+                        daita: true,
+                        shadowsocksExtraAddrIn: nil
                     ),
-                ]
+                ],
+                shadowsocksPortRanges: []
             ),
             bridge: REST.ServerBridges(shadowsocks: [], relays: [])
         )

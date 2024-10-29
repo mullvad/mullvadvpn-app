@@ -50,7 +50,8 @@ extension REST.ServerRelaysResponse {
                 ipv4Gateway: .loopback,
                 ipv6Gateway: .loopback,
                 portRanges: [],
-                relays: serverRelays
+                relays: serverRelays,
+                shadowsocksPortRanges: []
             ),
             bridge: REST.ServerBridges(shadowsocks: [], relays: bridgeRelays)
         )

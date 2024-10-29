@@ -110,7 +110,8 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
             cachedRelays.relays.wireguard.ipv4Gateway,
             ipv6Gateway: cachedRelays.relays.wireguard.ipv6Gateway,
             portRanges: cachedRelays.relays.wireguard.portRanges,
-            relays: cachedRelaysWithFixedDaita
+            relays: cachedRelaysWithFixedDaita,
+            shadowsocksPortRanges: cachedRelays.relays.wireguard.shadowsocksPortRanges
         )
 
         let updatedRelays = REST.ServerRelaysResponse(

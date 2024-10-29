@@ -86,7 +86,8 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: true
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil
                 ),
                 REST.ServerRelay(
                     hostname: "se10-wireguard",
@@ -99,7 +100,8 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: false
+                    daita: false,
+                    shadowsocksExtraAddrIn: nil
                 ),
                 REST.ServerRelay(
                     hostname: "se2-wireguard",
@@ -112,7 +114,8 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: false
+                    daita: false,
+                    shadowsocksExtraAddrIn: nil
                 ),
                 REST.ServerRelay(
                     hostname: "se6-wireguard",
@@ -125,7 +128,8 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: false
+                    daita: false,
+                    shadowsocksExtraAddrIn: nil
                 ),
                 REST.ServerRelay(
                     hostname: "us-dal-wg-001",
@@ -138,7 +142,8 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: true
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil
                 ),
                 REST.ServerRelay(
                     hostname: "us-nyc-wg-301",
@@ -151,7 +156,8 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: true
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil
                 ),
                 REST.ServerRelay(
                     hostname: "us-nyc-wg-302",
@@ -164,9 +170,11 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: true
+                    daita: true,
+                    shadowsocksExtraAddrIn: nil
                 ),
-            ]
+            ],
+            shadowsocksPortRanges: []
         ),
         bridge: REST.ServerBridges(shadowsocks: [
             REST.ServerShadowsocks(protocol: "tcp", port: 443, cipher: "aes-256-gcm", password: "mullvad"),

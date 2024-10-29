@@ -58,7 +58,8 @@ public class IPOverrideWrapper: RelayCacheProtocol {
                 ipv4Gateway: wireguard.ipv4Gateway,
                 ipv6Gateway: wireguard.ipv6Gateway,
                 portRanges: wireguard.portRanges,
-                relays: overridenWireguardRelays
+                relays: overridenWireguardRelays,
+                shadowsocksPortRanges: wireguard.shadowsocksPortRanges
             ),
             bridge: REST.ServerBridges(
                 shadowsocks: bridge.shadowsocks,
