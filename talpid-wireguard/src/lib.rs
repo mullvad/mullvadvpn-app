@@ -7,6 +7,7 @@ use self::config::Config;
 use futures::channel::mpsc;
 use futures::future::{BoxFuture, Future};
 use obfuscation::ObfuscatorHandle;
+use std::any::Any;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
 #[cfg(windows)]
@@ -585,6 +586,8 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
+    ///
+    /// TODO: This might need some patchin' now when multihop is a thing.
     #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
@@ -746,14 +749,39 @@ impl WireguardMonitor {
     ) -> Result<WgGoTunnel> {
         let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
-        #[cfg(target_os = "android")]
-        let config = Self::patch_allowed_ips(config, gateway_only);
+        // TODO: Bring back
+        // #[cfg(target_os = "android")]
+        // let config = Self::patch_allowed_ips(config, gateway_only);
 
         let exit_config = wireguard_go::exit_config(&config);
 
+        let should_negotiate_with_ephemeral_peer = gateway_only;
         #[cfg(target_os = "android")]
-        let tunnel = if exit_config.is_some() {
-            WgGoTunnel::start_multihop_tunnel(
+        let tunnel = match exit_config {
+            // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
+            // with an ephemeral peer, this multihop strategy require us to restart the tunnel
+            // every time we want to reconfigure it. As such, we will actually start a multihop
+            // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
+            // At this point, when the tunnel *is first started*, we establish a regular, singlehop
+            // tunnel to where the ephemeral peer resides.
+            //
+            // TODO: Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+            Some(_exit_config) if should_negotiate_with_ephemeral_peer => {
+                WgGoTunnel::start_multihop_tunnel(
+                    #[allow(clippy::needless_borrow)]
+                    // TODO: Check if `entry` should be used instead ??
+                    &config,
+                    log_path,
+                    tun_provider,
+                    routes,
+                    #[cfg(daita)]
+                    resource_dir,
+                )
+                .map_err(Error::TunnelError)?
+            }
+            // If we don't need to negotiate with an ephemeral peer, we may simply start a multihop
+            // tunnel from the get-go.
+            Some(_exit_config) => WgGoTunnel::start_multihop_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
                 log_path,
@@ -762,9 +790,8 @@ impl WireguardMonitor {
                 #[cfg(daita)]
                 resource_dir,
             )
-            .map_err(Error::TunnelError)?
-        } else {
-            WgGoTunnel::start_tunnel(
+            .map_err(Error::TunnelError)?,
+            None => WgGoTunnel::start_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
                 log_path,
@@ -773,7 +800,7 @@ impl WireguardMonitor {
                 #[cfg(daita)]
                 resource_dir,
             )
-            .map_err(Error::TunnelError)?
+            .map_err(Error::TunnelError)?,
         };
 
         #[cfg(not(target_os = "android"))]
@@ -956,12 +983,10 @@ impl WireguardMonitor {
         }
     }
 
+    // TODO: Remove?
     /// Return routes for all allowed IPs.
     fn get_tunnel_destinations(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        config
-            .peers()
-            .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned()
+        config.get_tunnel_destinations()
     }
 
     /// Replace default (0-prefix) routes with more specific routes.
@@ -1012,6 +1037,7 @@ pub(crate) trait Tunnel: Send {
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
+    fn to_any(self: Box<Self>) -> Box<dyn Any>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
