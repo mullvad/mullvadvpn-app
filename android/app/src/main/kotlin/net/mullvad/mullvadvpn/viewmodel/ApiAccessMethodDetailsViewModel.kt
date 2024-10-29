@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.ApiAccessMethodDetailsUiState
 import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
-import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.model.TestApiAccessMethodError
 import net.mullvad.mullvadvpn.repository.ApiAccessRepository
@@ -42,15 +41,12 @@ class ApiAccessMethodDetailsViewModel(
                 apiAccessRepository.currentAccessMethod,
                 isTestingApiAccessMethodState,
             ) {
-                apiAccessMethod,
+                apiAccessMethodSetting,
                 enabledApiAccessMethods,
                 currentAccessMethod,
                 isTestingApiAccessMethod ->
                 ApiAccessMethodDetailsUiState.Content(
-                    apiAccessMethodId = apiAccessMethodId,
-                    name = apiAccessMethod.name,
-                    enabled = apiAccessMethod.enabled,
-                    isEditable = apiAccessMethod.apiAccessMethod is ApiAccessMethod.CustomProxy,
+                    apiAccessMethodSetting = apiAccessMethodSetting,
                     isDisableable = enabledApiAccessMethods.any { it.id != apiAccessMethodId },
                     isCurrentMethod = currentAccessMethod?.id == apiAccessMethodId,
                     isTestingAccessMethod = isTestingApiAccessMethod,

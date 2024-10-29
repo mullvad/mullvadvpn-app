@@ -33,10 +33,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.DeleteApiAccessMethodConfirmationDestination
 import com.ramcosta.composedestinations.generated.destinations.EditApiAccessMethodDestination
+import com.ramcosta.composedestinations.generated.destinations.EncryptedDnsProxyInfoDestination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
@@ -60,6 +62,7 @@ import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.model.ApiAccessMethod
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -175,6 +178,8 @@ fun ApiAccessMethodDetails(
                 launchSingleTop = true
             }
         },
+        onNavigateToEncryptedDnsInfoDialog =
+            dropUnlessResumed { navigator.navigate(EncryptedDnsProxyInfoDestination) },
         onBackClicked = navigator::navigateUp,
     )
 }
@@ -188,6 +193,7 @@ fun ApiAccessMethodDetailsScreen(
     onTestMethodClicked: () -> Unit = {},
     onUseMethodClicked: () -> Unit = {},
     onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit = {},
+    onNavigateToEncryptedDnsInfoDialog: () -> Unit = {},
     onBackClicked: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
@@ -214,6 +220,7 @@ fun ApiAccessMethodDetailsScreen(
                         onEnableClicked = onEnableClicked,
                         onTestMethodClicked = onTestMethodClicked,
                         onUseMethodClicked = onUseMethodClicked,
+                        onNavigateToEncryptedDnsInfoDialog = onNavigateToEncryptedDnsInfoDialog,
                     )
             }
         }
@@ -232,6 +239,7 @@ private fun Content(
     onEnableClicked: (Boolean) -> Unit,
     onTestMethodClicked: () -> Unit,
     onUseMethodClicked: () -> Unit,
+    onNavigateToEncryptedDnsInfoDialog: () -> Unit,
 ) {
     if (state.isEditable) {
         NavigationComposeCell(
@@ -246,6 +254,13 @@ private fun Content(
         title = stringResource(id = R.string.enable_method),
         isToggled = state.enabled,
         onCellClicked = onEnableClicked,
+        onInfoClicked =
+            when (state.apiAccessMethod) {
+                ApiAccessMethod.EncryptedDns -> onNavigateToEncryptedDnsInfoDialog
+                ApiAccessMethod.Bridges,
+                is ApiAccessMethod.CustomProxy,
+                ApiAccessMethod.Direct -> null
+            },
     )
     if (!state.isDisableable) {
         SwitchComposeSubtitleCell(
