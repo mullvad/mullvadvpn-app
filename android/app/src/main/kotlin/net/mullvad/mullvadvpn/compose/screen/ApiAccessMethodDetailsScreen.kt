@@ -256,11 +256,10 @@ private fun Content(
         onCellClicked = onEnableClicked,
         onInfoClicked =
             when (state.apiAccessMethod) {
-                ApiAccessMethod.Bridges -> null
-                is ApiAccessMethod.CustomProxy.Shadowsocks -> null
-                is ApiAccessMethod.CustomProxy.Socks5Remote -> null
-                ApiAccessMethod.Direct -> null
                 ApiAccessMethod.EncryptedDns -> onNavigateToEncryptedDnsInfoDialog
+                ApiAccessMethod.Bridges,
+                is ApiAccessMethod.CustomProxy,
+                ApiAccessMethod.Direct -> null
             },
     )
     if (!state.isDisableable) {
