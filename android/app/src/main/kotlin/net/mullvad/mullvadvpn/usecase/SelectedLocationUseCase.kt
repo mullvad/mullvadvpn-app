@@ -15,7 +15,7 @@ class SelectedLocationUseCase(
             relayListRepository.selectedLocation.filterNotNull(),
             wireguardConstraintsRepository.wireguardConstraints.filterNotNull(),
         ) { selectedLocation, wireguardConstraints ->
-            if (wireguardConstraints.useMultihop) {
+            if (wireguardConstraints.isMultihopEnabled) {
                 RelayItemSelection.Multiple(
                     entryLocation = wireguardConstraints.entryLocation,
                     exitLocation = selectedLocation,

@@ -101,7 +101,7 @@ fun SettingsScreen(
         ) {
             if (state.isLoggedIn) {
                 itemWithDivider {
-                    Multihop(
+                    MultihopCell(
                         isMultihopEnabled = state.multihopEnabled,
                         onMultihopClick = onMultihopClick,
                     )
@@ -222,7 +222,7 @@ private fun PrivacyPolicy(state: SettingsUiState) {
 }
 
 @Composable
-private fun Multihop(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
+private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit) {
     val title = stringResource(id = R.string.multihop)
     NavigationComposeCell(
         title = title,

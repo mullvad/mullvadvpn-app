@@ -30,7 +30,7 @@ class SettingsViewModel(
                     appVersion = versionInfo.currentVersion,
                     isSupportedVersion = versionInfo.isSupported,
                     isPlayBuild = isPlayBuild,
-                    multihopEnabled = wireguardConstraints?.useMultihop ?: false,
+                    multihopEnabled = wireguardConstraints?.isMultihopEnabled ?: false,
                 )
             }
             .stateIn(

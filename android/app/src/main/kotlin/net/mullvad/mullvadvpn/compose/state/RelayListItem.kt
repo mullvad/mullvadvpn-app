@@ -15,8 +15,8 @@ enum class RelayListItemContentType {
 }
 
 enum class RelayListItemState {
-    BLOCKED_BY_ENTRY,
-    BLOCKED_BY_EXIT,
+    USED_AS_ENTRY,
+    USED_AS_EXIT,
 }
 
 sealed interface RelayListItem {

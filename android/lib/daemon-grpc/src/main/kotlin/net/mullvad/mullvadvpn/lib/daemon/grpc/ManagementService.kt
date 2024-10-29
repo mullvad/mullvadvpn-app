@@ -125,6 +125,7 @@ import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardE
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.entryLocation
+import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
 import net.mullvad.mullvadvpn.lib.model.port
@@ -134,7 +135,6 @@ import net.mullvad.mullvadvpn.lib.model.selectedObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.shadowsocks
 import net.mullvad.mullvadvpn.lib.model.state
 import net.mullvad.mullvadvpn.lib.model.udp2tcp
-import net.mullvad.mullvadvpn.lib.model.useMultihop
 import net.mullvad.mullvadvpn.lib.model.wireguardConstraints
 
 @Suppress("TooManyFunctions")
@@ -764,7 +764,7 @@ class ManagementService(
         Either.catch {
                 val relaySettings = getSettings().relaySettings
                 val updated =
-                    RelaySettings.relayConstraints.wireguardConstraints.useMultihop.set(
+                    RelaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled.set(
                         relaySettings,
                         enabled,
                     )

@@ -55,8 +55,10 @@ class SelectLocationListViewModel(
                 relayCountries = relayCountries,
                 relayListType = relayListType,
                 customLists = customLists,
-                selectedItem = selectedItem.getForRelayListSelect(relayListType),
-                disabledItem = selectedItem.getForRelayListDisabled(relayListType, customLists),
+                selectedByThisEntryExitList =
+                    selectedItem.selectedByThisEntryExitList(relayListType),
+                selectedByOtherEntryExitList =
+                    selectedItem.selectedByOtherEntryExitList(relayListType, customLists),
                 expandedItems = expandedItems,
             )
         }

@@ -322,7 +322,7 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
             } else {
                 Constraint.Any
             },
-        useMultihop = useMultihop,
+        isMultihopEnabled = useMultihop,
         entryLocation = entryLocation.toDomain(),
     )
 

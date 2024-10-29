@@ -43,7 +43,7 @@ class SelectLocationViewModel(
             ) { filterChips, wireguardConstraints, relayListSelection ->
                 SelectLocationUiState(
                     filterChips = filterChips,
-                    multihopEnabled = wireguardConstraints?.useMultihop ?: false,
+                    multihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                     relayListType = relayListSelection,
                 )
             }
@@ -61,7 +61,7 @@ class SelectLocationViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private fun initialRelayListSelection() =
-        if (wireguardConstraintsRepository.wireguardConstraints.value?.useMultihop == true) {
+        if (wireguardConstraintsRepository.wireguardConstraints.value?.isMultihopEnabled == true) {
             RelayListType.ENTRY
         } else {
             RelayListType.EXIT

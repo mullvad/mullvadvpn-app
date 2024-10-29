@@ -83,9 +83,10 @@ class SearchLocationViewModel(
                                 relayCountries = relayCountries,
                                 relayListType = relayListType,
                                 customLists = filteredCustomLists,
-                                selectedItem = selectedItem.getForRelayListSelect(relayListType),
-                                disabledItem =
-                                    selectedItem.getForRelayListDisabled(
+                                selectedByThisEntryExitList =
+                                    selectedItem.selectedByThisEntryExitList(relayListType),
+                                selectedByOtherEntryExitList =
+                                    selectedItem.selectedByOtherEntryExitList(
                                         relayListType,
                                         customLists,
                                     ),
@@ -141,7 +142,7 @@ class SearchLocationViewModel(
             constraints ->
             filterChips.toMutableList().apply {
                 // Do not show entry and exit filter chips if multihop is disabled
-                if (constraints?.useMultihop == true) {
+                if (constraints?.isMultihopEnabled == true) {
                     add(
                         when (relayListType) {
                             RelayListType.ENTRY -> FilterChip.Entry

@@ -210,7 +210,7 @@ fun CheckableRelayLocationCell(
 @Composable
 private fun Name(modifier: Modifier = Modifier, name: String, state: RelayListItemState?) {
     Text(
-        text = name.appendName(state),
+        text = state?.let { name.withSuffix(state) } ?: name,
         color = MaterialTheme.colorScheme.onSurface,
         modifier =
             modifier
@@ -261,9 +261,8 @@ private fun Int.toBackgroundColor(): Color =
     }
 
 @Composable
-private fun String.appendName(state: RelayListItemState?) =
+private fun String.withSuffix(state: RelayListItemState) =
     when (state) {
-        RelayListItemState.BLOCKED_BY_EXIT -> stringResource(R.string.x_exit, this)
-        RelayListItemState.BLOCKED_BY_ENTRY -> stringResource(R.string.x_entry, this)
-        null -> this
+        RelayListItemState.USED_AS_EXIT -> stringResource(R.string.x_exit, this)
+        RelayListItemState.USED_AS_ENTRY -> stringResource(R.string.x_entry, this)
     }
