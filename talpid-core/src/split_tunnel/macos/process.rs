@@ -119,20 +119,18 @@ async fn has_full_disk_access_inner() -> Result<bool, Error> {
     let mut stdout_lines = stdout.lines();
 
     let mut find_err = tokio::spawn(async move {
-        loop {
-            tokio::select! {
-                Ok(Some(line)) = stderr_lines.next_line() => {
-                    break !matches!(
-                        parse_eslogger_error(&line),
-                        Some(Error::NeedFullDiskPermissions),
-                    );
-                }
-                Ok(Some(_)) = stdout_lines.next_line() => {
-                    // Received output, but not an err
-                    break true;
-                }
-                else => break true,
+        tokio::select! {
+            Ok(Some(line)) = stderr_lines.next_line() => {
+                !matches!(
+                    parse_eslogger_error(&line),
+                    Some(Error::NeedFullDiskPermissions),
+                )
             }
+            Ok(Some(_)) = stdout_lines.next_line() => {
+                // Received output, but not an err
+                true
+            }
+            else => true,
         }
     });
 
