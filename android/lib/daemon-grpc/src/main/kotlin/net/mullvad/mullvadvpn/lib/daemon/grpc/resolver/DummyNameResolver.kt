@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc.resolver
 
 import io.grpc.EquivalentAddressGroup
 import io.grpc.NameResolver
+import io.grpc.StatusOr
 import java.net.InetSocketAddress
 
 class DummyNameResolver : NameResolver() {
@@ -11,10 +12,12 @@ class DummyNameResolver : NameResolver() {
     override fun start(listener: Listener2) {
         val resolutionResult =
             ResolutionResult.newBuilder()
-                .setAddresses(
-                    listOf(
-                        EquivalentAddressGroup(
-                            InetSocketAddress.createUnresolved(DUMMY_HOST, DUMMY_PORT)
+                .setAddressesOrError(
+                    StatusOr.fromValue(
+                        listOf(
+                            EquivalentAddressGroup(
+                                InetSocketAddress.createUnresolved(DUMMY_HOST, DUMMY_PORT)
+                            )
                         )
                     )
                 )
