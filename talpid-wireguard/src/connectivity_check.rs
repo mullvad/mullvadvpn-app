@@ -1,6 +1,7 @@
 use crate::{
     ping_monitor::{new_pinger, Pinger},
     stats::StatsMap,
+    TunnelType,
 };
 use std::{
     cmp,
@@ -71,7 +72,8 @@ pub enum Error {
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
 pub struct ConnectivityMonitor {
-    tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
+    /// Tunnel implementation
+    tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
     conn_state: ConnState,
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
@@ -83,7 +85,7 @@ impl ConnectivityMonitor {
     pub(super) fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
-        tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
+        tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> Result<Self, Error> {
         let pinger = new_pinger(

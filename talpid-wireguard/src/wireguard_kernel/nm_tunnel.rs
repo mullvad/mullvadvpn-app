@@ -5,6 +5,7 @@ use super::{
     Config, Error as WgKernelError, Handle, Tunnel, TunnelError,
 };
 use futures::Future;
+use std::any::Any;
 use std::{collections::HashMap, pin::Pin};
 use talpid_dbus::{
     dbus,

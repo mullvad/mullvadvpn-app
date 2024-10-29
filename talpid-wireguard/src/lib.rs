@@ -54,6 +54,12 @@ mod mtu_detection;
 #[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
 
+// TODO: Document why we have a type alias !
+#[cfg(not(target_os = "android"))]
+type TunnelType = Box<dyn Tunnel>;
+#[cfg(target_os = "android")]
+type TunnelType = WgGoTunnel;
+
 type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
 
@@ -134,7 +140,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    tunnel: Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: Arc<AsyncMutex<Option<TunnelType>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -396,8 +402,8 @@ impl WireguardMonitor {
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
         let desired_mtu = get_desired_mtu(params);
-        let mut config = crate::config::Config::from_parameters(params, desired_mtu)
-            .map_err(Error::WireguardConfigError)?;
+        let mut config =
+            Config::from_parameters(params, desired_mtu).map_err(Error::WireguardConfigError)?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
@@ -417,8 +423,7 @@ impl WireguardMonitor {
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
-        let tunnel = Self::open_tunnel(
-            args.runtime.clone(),
+        let tunnel = Self::open_wireguard_go_tunnel(
             &config,
             log_path,
             args.resource_dir,
@@ -428,13 +433,13 @@ impl WireguardMonitor {
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
         )?;
-
         let iface_name = tunnel.get_interface_name();
+        let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
 
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
-            tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
+            tunnel: Arc::clone(&tunnel),
             event_callback: Box::new(args.on_event.clone()),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: pinger_tx,
@@ -444,23 +449,21 @@ impl WireguardMonitor {
         let gateway = config.ipv4_gateway;
         let connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
-            Arc::downgrade(&monitor.tunnel),
+            Arc::downgrade(&tunnel),
             pinger_rx,
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
-        let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
-            let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             let connectivity_monitor = Arc::new(Mutex::new(connectivity_monitor));
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
-            (args.on_event.clone())(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
+            args.on_event.clone()(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
             let handle_ping = |ping_result: std::result::Result<
@@ -498,6 +501,7 @@ impl WireguardMonitor {
                 // Ping before negotiating the ephemeral peer to make sure that the tunnel works.
                 tokio::task::spawn_blocking(ping()).await.unwrap()?;
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
+
                 ephemeral::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
@@ -585,6 +589,8 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
+    ///
+    /// TODO: This might need some patchin' now when multihop is a thing.
     #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
@@ -654,16 +660,16 @@ impl WireguardMonitor {
     }
 
     #[allow(unused_variables)]
+    #[cfg(not(target_os = "android"))]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
-        #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
-    ) -> Result<Box<dyn Tunnel>> {
+    ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
         #[cfg(target_os = "linux")]
@@ -751,9 +757,33 @@ impl WireguardMonitor {
 
         let exit_config = wireguard_go::exit_config(&config);
 
+        let should_negotiate_with_ephemeral_peer = gateway_only;
         #[cfg(target_os = "android")]
-        let tunnel = if exit_config.is_some() {
-            WgGoTunnel::start_multihop_tunnel(
+        let tunnel = match exit_config {
+            // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
+            // with an ephemeral peer, this multihop strategy require us to restart the tunnel
+            // every time we want to reconfigure it. As such, we will actually start a multihop
+            // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
+            // At this point, when the tunnel *is first started*, we establish a regular, singlehop
+            // tunnel to where the ephemeral peer resides.
+            //
+            // TODO: Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+            Some(_exit_config) if should_negotiate_with_ephemeral_peer => {
+                WgGoTunnel::start_multihop_tunnel(
+                    #[allow(clippy::needless_borrow)]
+                    // TODO: Check if `entry` should be used instead ??
+                    &config,
+                    log_path,
+                    tun_provider,
+                    routes,
+                    #[cfg(daita)]
+                    resource_dir,
+                )
+                .map_err(Error::TunnelError)?
+            }
+            // If we don't need to negotiate with an ephemeral peer, we may simply start a multihop
+            // tunnel from the get-go.
+            Some(_exit_config) => WgGoTunnel::start_multihop_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
                 log_path,
@@ -762,9 +792,8 @@ impl WireguardMonitor {
                 #[cfg(daita)]
                 resource_dir,
             )
-            .map_err(Error::TunnelError)?
-        } else {
-            WgGoTunnel::start_tunnel(
+            .map_err(Error::TunnelError)?,
+            None => WgGoTunnel::start_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
                 log_path,
@@ -773,7 +802,7 @@ impl WireguardMonitor {
                 #[cfg(daita)]
                 resource_dir,
             )
-            .map_err(Error::TunnelError)?
+            .map_err(Error::TunnelError)?,
         };
 
         #[cfg(not(target_os = "android"))]
@@ -956,12 +985,10 @@ impl WireguardMonitor {
         }
     }
 
+    // TODO: Remove?
     /// Return routes for all allowed IPs.
     fn get_tunnel_destinations(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        config
-            .peers()
-            .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned()
+        config.get_tunnel_destinations()
     }
 
     /// Replace default (0-prefix) routes with more specific routes.
@@ -1001,6 +1028,7 @@ enum CloseMsg {
     ObfuscatorFailed(Error),
 }
 
+#[allow(unused)]
 pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
