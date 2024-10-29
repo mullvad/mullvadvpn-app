@@ -1,3 +1,4 @@
+use std::any::Any;
 use std::pin::Pin;
 
 use futures::Future;
@@ -133,5 +134,9 @@ impl Tunnel for NetlinkTunnel {
     /// Outright fail to start - this tunnel type does not support DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
         Err(TunnelError::DaitaNotSupported)
+    }
+
+    fn to_any(self: Box<Self>) -> Box<dyn Any> {
+        Box::new(self)
     }
 }

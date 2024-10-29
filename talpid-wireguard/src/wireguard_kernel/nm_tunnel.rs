@@ -5,6 +5,7 @@ use super::{
     Config, Error as WgKernelError, Handle, Tunnel, TunnelError,
 };
 use futures::Future;
+use std::any::Any;
 use std::{collections::HashMap, pin::Pin};
 use talpid_dbus::{
     dbus,
@@ -64,6 +65,10 @@ impl NetworkManagerTunnel {
 }
 
 impl Tunnel for NetworkManagerTunnel {
+    fn to_any(self: Box<Self>) -> Box<dyn Any> {
+        Box::new(self)
+    }
+
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
     }

@@ -1,7 +1,10 @@
 //! This module takes care of obtaining ephemeral peers, updating the WireGuard configuration and
 //! restarting obfuscation and WG tunnels when necessary.
 
-use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel};
+use super::{
+    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel, WireguardMonitor,
+};
+use std::any::Any;
 #[cfg(target_os = "android")]
 use std::sync::Mutex;
 use std::{
@@ -12,6 +15,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 
+use crate::wireguard_go::WgGoTunnel;
 use ipnetwork::IpNetwork;
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
@@ -96,6 +100,7 @@ async fn config_ephemeral_peers_inner(
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
 
+    // NOTE: this might be the entry?
     let exit_should_have_daita = config.daita && !config.is_multihop();
     let exit_psk = request_ephemeral_peer(
         retry_attempt,
@@ -195,16 +200,36 @@ async fn reconfigure_tunnel(
         .map_err(CloseMsg::ObfuscatorFailed)?;
     }
 
-    let mut tunnel = tunnel.lock().await;
+    #[cfg(not(target_os = "android"))]
+    {
+        let mut tunnel = tunnel.lock().await;
 
-    let set_config_future = tunnel
-        .as_mut()
-        .map(|tunnel| tunnel.set_config(config.clone()));
+        let set_config_future = tunnel
+            .as_mut()
+            .map(|tunnel| tunnel.set_config(config.clone()));
 
-    if let Some(f) = set_config_future {
-        f.await
-            .map_err(Error::TunnelError)
-            .map_err(CloseMsg::SetupError)?;
+        if let Some(f) = set_config_future {
+            f.await
+                .map_err(Error::TunnelError)
+                .map_err(CloseMsg::SetupError)?;
+        }
+    }
+
+    #[cfg(target_os = "android")]
+    {
+        let mut tunnel_guard = tunnel.lock().await;
+
+        let Some(tunnel_box) = tunnel_guard.take() else {
+            panic!("invalid multihop tunnel")
+        };
+
+        let tunnel = tunnel_box.to_any();
+
+        let tunnel = tunnel.downcast::<WgGoTunnel>().unwrap();
+
+        *tunnel_guard = Some(Box::new(
+            tunnel.restart_as_mulitihop_tunnel(&config).unwrap(),
+        ));
     }
 
     Ok(config)
