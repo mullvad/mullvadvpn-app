@@ -1600,6 +1600,10 @@ msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr ""
 
+msgctxt "split-tunneling-view"
+msgid "To use split tunneling you first need to enable full disk access permissions."
+msgstr ""
+
 #. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
