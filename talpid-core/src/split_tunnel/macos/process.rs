@@ -10,9 +10,10 @@ use libc::pid_t;
 use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
+    future::Future,
     io,
     path::PathBuf,
-    process::Stdio,
+    process::{ExitStatus, Stdio},
     sync::{Arc, LazyLock, Mutex},
     time::Duration,
 };
@@ -20,7 +21,7 @@ use talpid_macos::process::{list_pids, process_path};
 use talpid_platform_metadata::MacosVersion;
 use talpid_types::tunnel::ErrorStateCause;
 use tokio::{
-    io::{AsyncBufReadExt, BufReader},
+    io::{AsyncBufReadExt, AsyncRead, BufReader},
     sync::OnceCell,
 };
 
@@ -101,17 +102,24 @@ impl ProcessMonitor {
 pub async fn has_full_disk_access() -> bool {
     static HAS_TCC_APPROVAL: OnceCell<bool> = OnceCell::const_new();
     *HAS_TCC_APPROVAL
-        .get_or_try_init(|| async { has_full_disk_access_inner().await })
+        .get_or_try_init(|| async {
+            let mut proc = spawn_eslogger()?;
+
+            let stdout = proc.stdout.take().unwrap();
+            let stderr = proc.stderr.take().unwrap();
+            drop(proc.stdin.take());
+
+            Ok::<bool, Error>(parse_logger_status(proc.wait(), stdout, stderr).await)
+        })
         .await
         .unwrap_or(&true)
 }
 
-async fn has_full_disk_access_inner() -> Result<bool, Error> {
-    let mut proc = spawn_eslogger()?;
-
-    let stdout = proc.stdout.take().unwrap();
-    let stderr = proc.stderr.take().unwrap();
-
+async fn parse_logger_status(
+    proc: impl Future<Output = io::Result<ExitStatus>>,
+    stdout: impl AsyncRead + Unpin + Send + 'static,
+    stderr: impl AsyncRead + Unpin + Send + 'static,
+) -> bool {
     let stderr = BufReader::new(stderr);
     let mut stderr_lines = stderr.lines();
 
@@ -134,21 +142,19 @@ async fn has_full_disk_access_inner() -> Result<bool, Error> {
         }
     });
 
-    drop(proc.stdin.take());
-
-    let proc = tokio::time::timeout(EARLY_FAIL_TIMEOUT, proc.wait());
+    let proc = tokio::time::timeout(EARLY_FAIL_TIMEOUT, proc);
 
     tokio::select! {
         // Received standard err/out
-        found_err = &mut find_err => {
-            Ok(found_err.expect("find_err panicked"))
+        biased; found_err = &mut find_err => {
+            found_err.expect("find_err panicked")
         }
         // Process exited
         Ok(Ok(_exit_status)) = proc => {
-            Ok(find_err.await.expect("find_err panicked"))
+            find_err.await.expect("find_err panicked")
         }
         // Timeout
-        else => Ok(true),
+        else => true,
     }
 }
 
@@ -539,17 +545,78 @@ fn check_os_version_support_inner(version: MacosVersion) -> Result<(), Error> {
     }
 }
 
-#[test]
-fn test_min_os_version() {
-    assert!(check_os_version_support_inner(MIN_OS_VERSION.clone()).is_ok());
+#[cfg(test)]
+mod test {
+    use super::{
+        check_os_version_support_inner, parse_logger_status, EARLY_FAIL_TIMEOUT, MIN_OS_VERSION,
+    };
+    use std::{process::ExitStatus, time::Duration};
+    use talpid_platform_metadata::MacosVersion;
 
-    // test unsupported version
-    assert!(
-        check_os_version_support_inner(MacosVersion::from_raw_version("12.1").unwrap()).is_err()
-    );
+    #[test]
+    fn test_min_os_version() {
+        assert!(check_os_version_support_inner(MIN_OS_VERSION.clone()).is_ok());
 
-    // test supported version
-    assert!(
-        check_os_version_support_inner(MacosVersion::from_raw_version("13.0").unwrap()).is_ok()
-    );
+        // test unsupported version
+        assert!(
+            check_os_version_support_inner(MacosVersion::from_raw_version("12.1").unwrap())
+                .is_err()
+        );
+
+        // test supported version
+        assert!(
+            check_os_version_support_inner(MacosVersion::from_raw_version("13.0").unwrap()).is_ok()
+        );
+    }
+
+    /// If the process prints 'ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED' to stderr, full-disk access
+    /// is denied.
+    #[tokio::test]
+    async fn test_parse_logger_status_missing_access() {
+        let has_fda = parse_logger_status(
+            async { Ok(ExitStatus::default()) },
+            &[][..],
+            b"ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED\n".as_slice(),
+        )
+        .await;
+
+        assert!(
+            !has_fda,
+            "expected 'false' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED was present"
+        );
+    }
+
+    /// If the check times out and 'ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED' is not in stderr, assume
+    /// full-disk access is available.
+    #[tokio::test]
+    async fn test_parse_logger_status_timeout() {
+        let has_fda = parse_logger_status(
+            async {
+                tokio::time::sleep(EARLY_FAIL_TIMEOUT + Duration::from_secs(10)).await;
+                Ok(ExitStatus::default())
+            },
+            b"nothing to see here\n".as_slice(),
+            b"nothing to see here\n".as_slice(),
+        )
+        .await;
+
+        assert!(
+            has_fda,
+            "expected 'true' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED wasn't present"
+        );
+    }
+
+    /// If process exits without 'ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED', assume full-disk access
+    /// is available.
+    #[tokio::test]
+    async fn test_parse_logger_status_immediate_exit() {
+        let has_fda = parse_logger_status(
+            async { Ok(ExitStatus::default()) },
+            b"nothing to see here\n".as_slice(),
+            b"nothing to see here\n".as_slice(),
+        )
+        .await;
+
+        assert!(has_fda, "expected 'true' on immediate exit");
+    }
 }
