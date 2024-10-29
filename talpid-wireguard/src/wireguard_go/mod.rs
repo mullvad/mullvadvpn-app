@@ -1,10 +1,12 @@
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use once_cell::sync::OnceCell;
+use std::any::Any;
 #[cfg(daita)]
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
+    iter,
     net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
     path::Path,
@@ -223,6 +225,19 @@ impl WgGoTunnel {
     }
 
     #[cfg(target_os = "android")]
+    pub fn restart_as_mulitihop_tunnel(self, config: &Config) -> Result<Self> {
+        let log_path = None;
+        let tun_provider = Arc::clone(&self.tun_provider);
+        let routes = iter::empty();
+        #[cfg(daita)]
+        let resource_dir = self.resource_dir.clone();
+
+        Box::new(self).stop().unwrap();
+
+        Self::start_multihop_tunnel(config, log_path, tun_provider, routes, &resource_dir)
+    }
+
+    #[cfg(target_os = "android")]
     fn bypass_tunnel_sockets(
         handle: &wireguard_go_rs::Tunnel,
         tunnel_device: &mut Tun,
@@ -354,6 +369,10 @@ impl Tunnel for WgGoTunnel {
             .map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
 
         Ok(())
+    }
+
+    fn to_any(self: Box<Self>) -> Box<dyn Any> {
+        Box::new(self)
     }
 }
 
