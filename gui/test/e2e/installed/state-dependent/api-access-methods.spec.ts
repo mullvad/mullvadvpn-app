@@ -84,7 +84,8 @@ test('App should add invalid access method', async () => {
   ).toEqual(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
-  await expect(accessMethods).toHaveCount(3);
+  // Direct, Bridges, Encrypted DNS Proxy & the non-functioning access method.
+  await expect(accessMethods).toHaveCount(4);
 
   await expect(accessMethods.last()).toHaveText(NON_FUNCTIONING_METHOD_NAME);
 });
@@ -137,7 +138,8 @@ test('App should edit access method', async () => {
   );
 
   const accessMethods = page.getByTestId('access-method');
-  await expect(accessMethods).toHaveCount(3);
+  // Direct, Bridges, Encrypted DNS Proxy & the custom access method.
+  await expect(accessMethods).toHaveCount(4);
 
   await expect(accessMethods.last()).toHaveText(FUNCTIONING_METHOD_NAME);
 });
@@ -172,5 +174,6 @@ test('App should delete method', async () => {
 
   await expect(page.getByText(`Delete ${FUNCTIONING_METHOD_NAME}?`)).toBeVisible();
   await page.locator('button:has-text("Delete")').click();
-  await expect(accessMethods).toHaveCount(2);
+  // Direct, Bridges, Encrypted DNS Proxy.
+  await expect(accessMethods).toHaveCount(3);
 });
