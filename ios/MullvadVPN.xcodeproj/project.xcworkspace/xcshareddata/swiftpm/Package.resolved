@@ -15,7 +15,7 @@
       "location" : "https://github.com/mullvad/wireguard-apple.git",
       "state" : {
         "branch" : "icmp-socket-always-on",
-        "revision" : "5e051810193e089230529691ea7b8d2244f3a05b"
+        "revision" : "b7d280b42bd5899acaa3f2a5c569c50dda2c608f"
       }
     }
   ],

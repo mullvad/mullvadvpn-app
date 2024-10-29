@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import MullvadTypes
+import Network
 import WireGuardKitTypes
 
 protocol Configuration {
@@ -69,7 +71,8 @@ private struct NormalConnectionConfiguration: Configuration {
                 endpoint: connectionData.connectedEndpoint,
                 allowedIPs: [
                     IPAddressRange(from: "\(connectionData.selectedRelays.exit.endpoint.ipv4Relay.ip)/32")!,
-                ]
+                ],
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
             ).makeConfiguration()
         } else {
             nil
@@ -84,7 +87,8 @@ private struct NormalConnectionConfiguration: Configuration {
             allowedIPs: [
                 IPAddressRange(from: "0.0.0.0/0")!,
                 IPAddressRange(from: "::/0")!,
-            ]
+            ],
+            pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
         ).makeConfiguration()
 
         return ConnectionConfiguration(
@@ -112,7 +116,8 @@ private struct EphemeralConnectionConfiguration: Configuration {
                 dns: settings.dnsServers,
                 endpoint: connectionData.connectedEndpoint,
                 allowedIPs: hop.configuration.allowedIPs,
-                preSharedKey: hop.configuration.preSharedKey
+                preSharedKey: hop.configuration.preSharedKey,
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
             ).makeConfiguration()
 
             return ConnectionConfiguration(entryConfiguration: nil, exitConfiguration: exitConfiguration)
@@ -124,7 +129,8 @@ private struct EphemeralConnectionConfiguration: Configuration {
                 dns: settings.dnsServers,
                 endpoint: connectionData.connectedEndpoint,
                 allowedIPs: firstHop.configuration.allowedIPs,
-                preSharedKey: firstHop.configuration.preSharedKey
+                preSharedKey: firstHop.configuration.preSharedKey,
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
             ).makeConfiguration()
 
             let exitConfiguration = try ConfigurationBuilder(
@@ -133,7 +139,8 @@ private struct EphemeralConnectionConfiguration: Configuration {
                 dns: settings.dnsServers,
                 endpoint: secondHop.relay.endpoint,
                 allowedIPs: secondHop.configuration.allowedIPs,
-                preSharedKey: secondHop.configuration.preSharedKey
+                preSharedKey: secondHop.configuration.preSharedKey,
+                pingableGateway: IPv4Address(LocalNetworkIPs.gatewayAddress.rawValue)!
             ).makeConfiguration()
 
             return ConnectionConfiguration(entryConfiguration: entryConfiguration, exitConfiguration: exitConfiguration)
