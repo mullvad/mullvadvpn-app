@@ -32,7 +32,7 @@ public struct PingerSendResult {
 public protocol PingerProtocol {
     var onReply: ((PingerReply) -> Void)? { get set }
 
-    func openSocket(bindTo interfaceName: String?, destAddress: IPv4Address) throws
-    func closeSocket()
+    func startPinging(destAddress: IPv4Address) throws
+    func stopPinging()
     func send() throws -> PingerSendResult
 }
