@@ -29,6 +29,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add experimental support for Windows ARM64.
 
+#### macOS
+- Detect whether full disk access is enabled in the split tunneling view.
+
 ### Changed
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
   ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
