@@ -43,6 +43,7 @@ import {
   StyledPageCover,
   StyledSearchBar,
   StyledSpinnerRow,
+  StyledSystemSettingsButton,
 } from './SplitTunnelingSettingsStyles';
 import Switch from './Switch';
 
@@ -313,15 +314,35 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     removeSplitTunnelingApplication,
     forgetManuallyAddedSplitTunnelingApplication,
     getSplitTunnelingApplications,
+    needFullDiskPermissions,
     setSplitTunnelingState,
   } = useAppContext();
-  const splitTunnelingEnabled = useSelector((state: IReduxState) => state.settings.splitTunneling);
+  const splitTunnelingEnabledValue = useSelector(
+    (state: IReduxState) => state.settings.splitTunneling,
+  );
   const splitTunnelingApplications = useSelector(
     (state: IReduxState) => state.settings.splitTunnelingApplications,
   );
 
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState<ISplitTunnelingApplication[]>();
+
+  const [splitTunnelingAvailable, setSplitTunnelingAvailable] = useState(
+    window.env.platform === 'darwin' ? undefined : true,
+  );
+
+  const splitTunnelingEnabled = splitTunnelingEnabledValue && (splitTunnelingAvailable ?? false);
+
+  const fetchNeedFullDiskPermissions = useCallback(async () => {
+    const needPermissions = await needFullDiskPermissions();
+    setSplitTunnelingAvailable(!needPermissions);
+  }, [needFullDiskPermissions]);
+
+  useEffect((): void | (() => void) => {
+    if (window.env.platform === 'darwin') {
+      void fetchNeedFullDiskPermissions();
+    }
+  }, [fetchNeedFullDiskPermissions]);
 
   const onMount = useEffectEvent(async () => {
     const { fromCache, applications } = await getSplitTunnelingApplications();
@@ -441,14 +462,25 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
       <SettingsHeader>
         <StyledHeaderTitleContainer>
           <StyledHeaderTitle>{strings.splitTunneling}</StyledHeaderTitle>
-          <Switch isOn={splitTunnelingEnabled} onChange={setSplitTunnelingState} />
+          <Switch
+            isOn={splitTunnelingEnabled}
+            disabled={!splitTunnelingAvailable}
+            onChange={setSplitTunnelingState}
+          />
         </StyledHeaderTitleContainer>
-        <HeaderSubTitle>
-          {messages.pgettext(
-            'split-tunneling-view',
-            'Choose the apps you want to exclude from the VPN tunnel.',
-          )}
-        </HeaderSubTitle>
+        <MacOsSplitTunnelingAvailability
+          needFullDiskPermissions={
+            window.env.platform === 'darwin' && splitTunnelingAvailable === false
+          }
+        />
+        {splitTunnelingAvailable ? (
+          <HeaderSubTitle>
+            {messages.pgettext(
+              'split-tunneling-view',
+              'Choose the apps you want to exclude from the VPN tunnel.',
+            )}
+          </HeaderSubTitle>
+        ) : null}
       </SettingsHeader>
 
       {splitTunnelingEnabled && (
@@ -491,6 +523,34 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
           {messages.pgettext('split-tunneling-view', 'Find another app')}
         </StyledBrowseButton>
       )}
+    </>
+  );
+}
+
+interface MacOsSplitTunnelingAvailabilityProps {
+  needFullDiskPermissions: boolean;
+}
+
+function MacOsSplitTunnelingAvailability({
+  needFullDiskPermissions,
+}: MacOsSplitTunnelingAvailabilityProps) {
+  const { showFullDiskAccessSettings } = useAppContext();
+
+  return (
+    <>
+      {needFullDiskPermissions === true ? (
+        <>
+          <HeaderSubTitle>
+            {messages.pgettext(
+              'split-tunneling-view',
+              'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
+            )}
+          </HeaderSubTitle>
+          <StyledSystemSettingsButton onClick={showFullDiskAccessSettings}>
+            Open System Settings
+          </StyledSystemSettingsButton>
+        </>
+      ) : null}
     </>
   );
 }

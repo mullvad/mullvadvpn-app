@@ -832,6 +832,9 @@ class ApplicationMain
       splitTunneling!.removeApplicationFromCache(application);
       return Promise.resolve();
     });
+    IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(() => {
+      return this.daemonRpc.needFullDiskPermissions();
+    });
 
     IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {

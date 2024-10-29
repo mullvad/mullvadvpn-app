@@ -240,6 +240,9 @@ export const ipcSchema = {
     getApplications: invoke<void, ILinuxSplitTunnelingApplication[]>(),
     launchApplication: invoke<ILinuxSplitTunnelingApplication | string, LaunchApplicationResult>(),
   },
+  macOsSplitTunneling: {
+    needFullDiskPermissions: invoke<void, boolean>(),
+  },
   splitTunneling: {
     '': notifyRenderer<ISplitTunnelingApplication[]>(),
     setState: invoke<boolean, void>(),
