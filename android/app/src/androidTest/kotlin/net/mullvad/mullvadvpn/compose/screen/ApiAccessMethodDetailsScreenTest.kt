@@ -32,10 +32,7 @@ class ApiAccessMethodDetailsScreenTest {
                 ApiAccessMethodDetailsScreen(
                     state =
                         ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodId = apiAccessMethod.id,
-                            name = apiAccessMethod.name,
-                            enabled = apiAccessMethod.enabled,
-                            isEditable = false,
+                            apiAccessMethodSetting = apiAccessMethod,
                             isDisableable = true,
                             isCurrentMethod = true,
                             isTestingAccessMethod = false,
@@ -58,10 +55,7 @@ class ApiAccessMethodDetailsScreenTest {
                 ApiAccessMethodDetailsScreen(
                     state =
                         ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodId = apiAccessMethod.id,
-                            name = apiAccessMethod.name,
-                            enabled = apiAccessMethod.enabled,
-                            isEditable = false,
+                            apiAccessMethodSetting = apiAccessMethod,
                             isDisableable = false,
                             isCurrentMethod = true,
                             isTestingAccessMethod = false,
@@ -88,10 +82,7 @@ class ApiAccessMethodDetailsScreenTest {
                 ApiAccessMethodDetailsScreen(
                     state =
                         ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodId = apiAccessMethod.id,
-                            name = apiAccessMethod.name,
-                            enabled = apiAccessMethod.enabled,
-                            isEditable = true,
+                            apiAccessMethodSetting = apiAccessMethod,
                             isDisableable = false,
                             isCurrentMethod = true,
                             isTestingAccessMethod = false,
@@ -118,10 +109,7 @@ class ApiAccessMethodDetailsScreenTest {
                 ApiAccessMethodDetailsScreen(
                     state =
                         ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodId = apiAccessMethod.id,
-                            name = apiAccessMethod.name,
-                            enabled = apiAccessMethod.enabled,
-                            isEditable = true,
+                            apiAccessMethodSetting = apiAccessMethod,
                             isDisableable = false,
                             isCurrentMethod = true,
                             isTestingAccessMethod = false,
@@ -147,10 +135,7 @@ class ApiAccessMethodDetailsScreenTest {
                 ApiAccessMethodDetailsScreen(
                     state =
                         ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodId = apiAccessMethod.id,
-                            name = apiAccessMethod.name,
-                            enabled = apiAccessMethod.enabled,
-                            isEditable = false,
+                            apiAccessMethodSetting = apiAccessMethod,
                             isDisableable = true,
                             isCurrentMethod = true,
                             isTestingAccessMethod = false,
@@ -176,10 +161,7 @@ class ApiAccessMethodDetailsScreenTest {
                 ApiAccessMethodDetailsScreen(
                     state =
                         ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodId = apiAccessMethod.id,
-                            name = apiAccessMethod.name,
-                            enabled = apiAccessMethod.enabled,
-                            isEditable = false,
+                            apiAccessMethodSetting = apiAccessMethod,
                             isDisableable = true,
                             isCurrentMethod = true,
                             isTestingAccessMethod = false,
@@ -205,10 +187,7 @@ class ApiAccessMethodDetailsScreenTest {
                 ApiAccessMethodDetailsScreen(
                     state =
                         ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodId = apiAccessMethod.id,
-                            name = apiAccessMethod.name,
-                            enabled = apiAccessMethod.enabled,
-                            isEditable = false,
+                            apiAccessMethodSetting = apiAccessMethod,
                             isDisableable = true,
                             isCurrentMethod = false,
                             isTestingAccessMethod = false,
