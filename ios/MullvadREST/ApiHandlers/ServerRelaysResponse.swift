@@ -62,6 +62,7 @@ extension REST {
         public let publicKey: Data
         public let includeInCountry: Bool
         public let daita: Bool?
+        public let shadowsocksExtraAddrIn: [String]?
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
             return ServerRelay(
@@ -75,7 +76,8 @@ extension REST {
                 ipv6AddrIn: ipv6AddrIn ?? self.ipv6AddrIn,
                 publicKey: publicKey,
                 includeInCountry: includeInCountry,
-                daita: daita
+                daita: daita,
+                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn
             )
         }
 
@@ -91,7 +93,8 @@ extension REST {
                 ipv6AddrIn: ipv6AddrIn,
                 publicKey: publicKey,
                 includeInCountry: includeInCountry,
-                daita: daita
+                daita: daita,
+                shadowsocksExtraAddrIn: shadowsocksExtraAddrIn
             )
         }
     }
@@ -101,12 +104,20 @@ extension REST {
         public let ipv6Gateway: IPv6Address
         public let portRanges: [[UInt16]]
         public let relays: [ServerRelay]
+        public let shadowsocksPortRanges: [[UInt16]]
 
-        public init(ipv4Gateway: IPv4Address, ipv6Gateway: IPv6Address, portRanges: [[UInt16]], relays: [ServerRelay]) {
+        public init(
+            ipv4Gateway: IPv4Address,
+            ipv6Gateway: IPv6Address,
+            portRanges: [[UInt16]],
+            relays: [ServerRelay],
+            shadowsocksPortRanges: [[UInt16]]
+        ) {
             self.ipv4Gateway = ipv4Gateway
             self.ipv6Gateway = ipv6Gateway
             self.portRanges = portRanges
             self.relays = relays
+            self.shadowsocksPortRanges = shadowsocksPortRanges
         }
     }
 

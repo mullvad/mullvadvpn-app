@@ -84,7 +84,8 @@ extension IPOverrideWrapperTests {
             ipv6AddrIn: .any,
             publicKey: Data(),
             includeInCountry: true,
-            daita: false
+            daita: false,
+            shadowsocksExtraAddrIn: nil
         )
     }
 
