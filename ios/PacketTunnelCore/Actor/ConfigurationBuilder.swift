@@ -28,6 +28,7 @@ public struct ConfigurationBuilder {
     var endpoint: MullvadEndpoint?
     var allowedIPs: [IPAddressRange]
     var preSharedKey: PreSharedKey?
+    var pingableGateway: IPv4Address
 
     public init(
         privateKey: PrivateKey,
@@ -35,7 +36,8 @@ public struct ConfigurationBuilder {
         dns: SelectedDNSServers? = nil,
         endpoint: MullvadEndpoint? = nil,
         allowedIPs: [IPAddressRange],
-        preSharedKey: PreSharedKey? = nil
+        preSharedKey: PreSharedKey? = nil,
+        pingableGateway: IPv4Address
     ) {
         self.privateKey = privateKey
         self.interfaceAddresses = interfaceAddresses
@@ -43,6 +45,7 @@ public struct ConfigurationBuilder {
         self.endpoint = endpoint
         self.allowedIPs = allowedIPs
         self.preSharedKey = preSharedKey
+        self.pingableGateway = pingableGateway
     }
 
     public func makeConfiguration() throws -> TunnelAdapterConfiguration {
@@ -51,7 +54,8 @@ public struct ConfigurationBuilder {
             interfaceAddresses: interfaceAddresses,
             dns: dnsServers,
             peer: try peer,
-            allowedIPs: allowedIPs
+            allowedIPs: allowedIPs,
+            pingableGateway: pingableGateway
         )
     }
 

@@ -35,6 +35,7 @@ public struct TunnelAdapterConfiguration {
     public var dns: [IPAddress]
     public var peer: TunnelPeer?
     public var allowedIPs: [IPAddressRange]
+    public var pingableGateway: IPv4Address
 }
 
 /// Struct describing a single peer.
