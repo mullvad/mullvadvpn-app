@@ -476,6 +476,7 @@ impl ConnectingState {
                 let _ = complete_tx.send(());
                 consequence
             }
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
                 shared_values.block_when_disconnected = block_when_disconnected;
                 let _ = complete_tx.send(());

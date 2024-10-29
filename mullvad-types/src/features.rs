@@ -127,6 +127,7 @@ pub fn compute_feature_indicators(
     #[cfg(not(any(windows, target_os = "android", target_os = "macos")))]
     let split_tunneling = false;
 
+    #[cfg(not(target_os = "android"))]
     let lockdown_mode = settings.block_when_disconnected;
     let lan_sharing = settings.allow_lan;
     let dns_content_blockers = settings
@@ -138,11 +139,12 @@ pub fn compute_feature_indicators(
 
     let generic_features = [
         (split_tunneling, FeatureIndicator::SplitTunneling),
-        (lockdown_mode, FeatureIndicator::LockdownMode),
         (lan_sharing, FeatureIndicator::LanSharing),
         (dns_content_blockers, FeatureIndicator::DnsContentBlockers),
         (custom_dns, FeatureIndicator::CustomDns),
         (server_ip_override, FeatureIndicator::ServerIpOverride),
+        #[cfg(not(target_os = "android"))]
+        (lockdown_mode, FeatureIndicator::LockdownMode),
     ];
 
     // Pick protocol-specific features and whether they are currently enabled.

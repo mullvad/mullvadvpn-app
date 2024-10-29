@@ -273,6 +273,7 @@ impl ManagementService for ManagementServiceImpl {
         Ok(Response::new(()))
     }
 
+    #[cfg(not(target_os = "android"))]
     async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
         let block_when_disconnected = request.into_inner();
         log::debug!("set_block_when_disconnected({})", block_when_disconnected);
@@ -283,6 +284,13 @@ impl ManagementService for ManagementServiceImpl {
         ))?;
         self.wait_for_result(rx).await??;
         Ok(Response::new(()))
+    }
+
+    #[cfg(target_os = "android")]
+    async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
+        let block_when_disconnected = request.into_inner();
+        log::debug!("set_block_when_disconnected({})", block_when_disconnected);
+        Err(Status::unimplemented("Setting Lockdown mode on Android is not supported - this is handled by the OS, not the daemon"))
     }
 
     async fn set_auto_connect(&self, request: Request<bool>) -> ServiceResult<()> {

@@ -90,6 +90,7 @@ pub struct InitialTunnelState {
     /// Whether to allow LAN traffic when not in the (non-blocking) disconnected state.
     pub allow_lan: bool,
     /// Block traffic unless connected to the VPN.
+    #[cfg(not(target_os = "android"))]
     pub block_when_disconnected: bool,
     /// DNS configuration to use
     pub dns_config: DnsConfig,
@@ -190,6 +191,7 @@ pub enum TunnelCommand {
     /// Set DNS configuration to use.
     Dns(crate::dns::DnsConfig, oneshot::Sender<()>),
     /// Enable or disable the block_when_disconnected feature.
+    #[cfg(not(target_os = "android"))]
     BlockWhenDisconnected(bool, oneshot::Sender<()>),
     /// Notify the state machine of the connectivity of the device.
     Connectivity(Connectivity),
@@ -292,12 +294,17 @@ impl TunnelStateMachine {
             split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), route_manager.clone());
 
         let fw_args = FirewallArguments {
+            #[cfg(not(target_os = "android"))]
             initial_state: if args.settings.block_when_disconnected || !args.settings.reset_firewall
             {
                 InitialFirewallState::Blocked(args.settings.allowed_endpoint.clone())
             } else {
                 InitialFirewallState::None
             },
+            // NOTE: This really has no effect. In all honesty, we should probably remove the
+            // firewall stub completely.
+            #[cfg(target_os = "android")]
+            initial_state: InitialFirewallState::None,
             allow_lan: args.settings.allow_lan,
             #[cfg(target_os = "linux")]
             fwmark: args.linux_ids.fwmark,
@@ -371,6 +378,7 @@ impl TunnelStateMachine {
             route_manager,
             _offline_monitor: offline_monitor,
             allow_lan: args.settings.allow_lan,
+            #[cfg(not(target_os = "android"))]
             block_when_disconnected: args.settings.block_when_disconnected,
             connectivity,
             dns_config: args.settings.dns_config,
@@ -463,6 +471,7 @@ struct SharedTunnelStateValues {
     /// Should LAN access be allowed outside the tunnel.
     allow_lan: bool,
     /// Should network access be allowed when in the disconnected state.
+    #[cfg(not(target_os = "android"))]
     block_when_disconnected: bool,
     /// True when the computer is known to be offline.
     connectivity: Connectivity,
