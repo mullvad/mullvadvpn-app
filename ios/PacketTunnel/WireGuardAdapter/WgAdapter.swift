@@ -163,7 +163,8 @@ private extension TunnelAdapterConfiguration {
         return TunnelConfiguration(
             name: nil,
             interface: interfaceConfig,
-            peers: peers
+            peers: peers,
+            pingableGateway: pingableGateway
         )
     }
 }
