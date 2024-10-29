@@ -979,6 +979,18 @@ impl ManagementService for ManagementServiceImpl {
         }))
     }
 
+    #[cfg(target_os = "macos")]
+    async fn need_full_disk_permissions(&self, _: Request<()>) -> ServiceResult<bool> {
+        log::debug!("need_full_disk_permissions");
+        let has_access = talpid_core::split_tunnel::has_full_disk_access().await;
+        Ok(Response::new(!has_access))
+    }
+
+    #[cfg(not(target_os = "macos"))]
+    async fn need_full_disk_permissions(&self, _: Request<()>) -> ServiceResult<bool> {
+        Ok(Response::new(false))
+    }
+
     #[cfg(windows)]
     async fn check_volumes(&self, _: Request<()>) -> ServiceResult<()> {
         log::debug!("check_volumes");

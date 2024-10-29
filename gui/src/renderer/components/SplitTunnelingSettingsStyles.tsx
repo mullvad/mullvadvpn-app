@@ -8,6 +8,7 @@ import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
 import SearchBar from './SearchBar';
 import { HeaderTitle } from './SettingsHeader';
+import { SmallButton } from './SmallButton';
 
 export const StyledPageCover = styled.div<{ $show: boolean }>((props) => ({
   position: 'absolute',
@@ -121,4 +122,9 @@ export const StyledSearchBar = styled(SearchBar)({
   marginLeft: measurements.viewMargin,
   marginRight: measurements.viewMargin,
   marginBottom: measurements.buttonVerticalMargin,
+});
+
+export const StyledSystemSettingsButton = styled(SmallButton)({
+  width: '100%',
+  marginTop: '24px',
 });

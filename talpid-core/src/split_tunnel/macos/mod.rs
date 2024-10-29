@@ -20,6 +20,10 @@ mod tun;
 use crate::tunnel_state_machine::TunnelCommand;
 pub use tun::VpnInterface;
 
+/// Check whether the current process has full-disk access enabled.
+/// This is required by the process monitor.
+pub use process::has_full_disk_access;
+
 /// Errors caused by split tunneling
 #[derive(Debug, Clone)]
 pub struct Error {

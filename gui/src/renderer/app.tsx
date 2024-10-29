@@ -345,6 +345,8 @@ export default class AppRenderer {
     IpcRendererEventChannel.splitTunneling.addApplication(application);
   public forgetManuallyAddedSplitTunnelingApplication = (application: ISplitTunnelingApplication) =>
     IpcRendererEventChannel.splitTunneling.forgetManuallyAddedApplication(application);
+  public needFullDiskPermissions = () =>
+    IpcRendererEventChannel.macOsSplitTunneling.needFullDiskPermissions();
   public setObfuscationSettings = (obfuscationSettings: ObfuscationSettings) =>
     IpcRendererEventChannel.settings.setObfuscationSettings(obfuscationSettings);
   public setEnableDaita = (value: boolean) =>

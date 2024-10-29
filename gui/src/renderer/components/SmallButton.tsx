@@ -53,6 +53,10 @@ const StyledSmallButton = styled.button<StyledSmallButtonProps>(smallText, (prop
     alignItems: 'center',
     justifyContent: 'center',
 
+    '&&:not(& + &&)': {
+      marginLeft: '0px',
+    },
+
     [`${SmallButtonGroupStart} &&`]: {
       marginLeft: 0,
       marginRight: `${BUTTON_GROUP_GAP}px`,
