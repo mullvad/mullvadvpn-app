@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [2024.7] - 2024-10-30
+This release is identical to 2024.7-beta1.
+
+
 ## [2024.7-beta1] - 2024-10-25
 ### Fixed
 #### macOS
