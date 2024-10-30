@@ -8,9 +8,9 @@
 
 import Foundation
 
-/// Whether obfuscation is enabled and which method is used
+/// Whether obfuscation is enabled and which method is used.
 ///
-/// `.automatic` means an algorithm will decide whether to use it or not.
+/// `.automatic` means an algorithm will decide whether to use obfuscation or not.
 public enum WireGuardObfuscationState: Codable {
     @available(*, deprecated, renamed: "udpOverTcp")
     case on

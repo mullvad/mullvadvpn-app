@@ -443,11 +443,11 @@ extension PacketTunnelActor {
 
         let obfuscatedEndpoint = protocolObfuscator.obfuscate(
             connectionState.connectedEndpoint,
-            settings: settings,
+            settings: settings.tunnelSettings,
             retryAttempts: connectionState.selectedRelays.retryAttempt
         )
-
         let transportLayer = protocolObfuscator.transportLayer.map { $0 } ?? .udp
+
         return State.ConnectionData(
             selectedRelays: connectionState.selectedRelays,
             relayConstraints: connectionState.relayConstraints,
