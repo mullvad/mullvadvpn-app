@@ -747,14 +747,22 @@ impl WireguardMonitor {
     ) -> Result<WgGoTunnel> {
         let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
+        // TODO: Bring back
         // #[cfg(target_os = "android")]
         // let config = Self::patch_allowed_ips(config, gateway_only);
 
         let exit_config = wireguard_go::exit_config(&config);
 
+        let should_negotiate_with_ephemeral_peer = gateway_only;
         #[cfg(target_os = "android")]
         let tunnel = match exit_config {
-            Some(exit_config) if gateway_only => WgGoTunnel::start_tunnel(
+            // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
+            // with an ephemeral peer, this multihop strategy require us to restart the tunnel
+            // every time we want to reconfigure it. As such, we will actually start a multihop
+            // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
+            // At this point, when the tunnel *is first started*, we establish a regular, singlehop
+            // tunnel to where the ephemeral peer resides.
+            Some(exit_config) if should_negotiate_with_ephemeral_peer => WgGoTunnel::start_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &exit_config,
                 log_path,
@@ -764,6 +772,8 @@ impl WireguardMonitor {
                 resource_dir,
             )
             .map_err(Error::TunnelError)?,
+            // If we don't need to negotiate with an ephemeral peer, we may simply start a multihop
+            // tunnel from the get-go.
             Some(_) => WgGoTunnel::start_multihop_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
