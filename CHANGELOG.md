@@ -49,6 +49,10 @@ Line wrap the file at 100 chars.                                              Th
 - Fix packets being duplicated on LAN when split tunneling is enabled.
 
 
+## [2024.7] - 2024-10-30
+This release is identical to 2024.7-beta1.
+
+
 ## [2024.7-beta1] - 2024-10-25
 ### Fixed
 #### macOS
