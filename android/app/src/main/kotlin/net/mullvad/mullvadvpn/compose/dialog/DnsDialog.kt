@@ -57,7 +57,8 @@ fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
                 resultNavigator.navigateBack(result = DnsDialogResult.Error)
         }
     }
-    val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val stateLc by viewModel.uiState.collectAsStateWithLifecycle()
+    val state = stateLc.content() ?: return
 
     DnsDialog(
         state,
@@ -68,6 +69,8 @@ fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
             dropUnlessResumed { resultNavigator.navigateBack(result = DnsDialogResult.Cancel) },
     )
 }
+
+// 4490997557103082
 
 @Composable
 fun DnsDialog(

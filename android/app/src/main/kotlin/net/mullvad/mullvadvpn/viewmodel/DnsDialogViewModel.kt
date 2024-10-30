@@ -16,13 +16,11 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
-import net.mullvad.talpid.util.addressString
 import org.apache.commons.validator.routines.InetAddressValidator
 
 sealed interface DnsDialogSideEffect {
@@ -30,6 +28,33 @@ sealed interface DnsDialogSideEffect {
 
     data object Error : DnsDialogSideEffect
 }
+
+sealed interface Lce<out T, out E> {
+    data object Loading : Lce<Nothing, Nothing>
+
+    data class Content<T>(val value: T) : Lce<T, Nothing>
+
+    data class Error<E>(val error: E) : Lce<E, Nothing>
+}
+
+fun <T, E> T.toLce(): Lce<T, E> = Lce.Content(this)
+
+sealed interface Lc<out T> {
+    data object Loading : Lc<Nothing>
+
+    data object Empty : Lc<Nothing>
+
+    data class Content<T>(val value: T) : Lc<T>
+
+    fun content(): T? =
+        when (this) {
+            is Loading,
+            Empty -> null
+            is Content -> value
+        }
+}
+
+fun <T> T.toLc(): Lc<T> = Lc.Content(this)
 
 data class DnsDialogViewState(
     val input: String,
@@ -57,50 +82,35 @@ class DnsDialogViewModel(
 ) : ViewModel() {
     private val navArgs = DnsDestination.argsFrom(savedStateHandle)
 
-    private val settings = MutableStateFlow<Settings?>(null)
-    private val _ipAddressInput = MutableStateFlow<String?>(null)
+    private val currentIndex = MutableStateFlow(navArgs.index)
+    private val ipAddressInput = MutableStateFlow(EMPTY_STRING)
 
-    val uiState: StateFlow<DnsDialogViewState> =
-        combine(_ipAddressInput, settings.filterNotNull()) { inputAddress, settings ->
-                val dnsList = settings.addresses()
-                val input =
-                    inputAddress
-                        ?: navArgs.index?.let { index -> dnsList[index].addressString() }
-                        ?: EMPTY_STRING
-
-                createViewState(
-                    customDnsList = dnsList,
-                    currentIndex = navArgs.index,
-                    isAllowLanEnabled = settings.allowLan,
-                    input = input,
-                )
+    val uiState: StateFlow<Lc<DnsDialogViewState>> =
+        combine(currentIndex, ipAddressInput, repository.settingsUpdates.filterNotNull()) {
+                currentIndex,
+                input,
+                settings ->
+                createViewState(settings.addresses(), currentIndex, settings.allowLan, input)
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.Lazily,
-                createViewState(emptyList(), null, false, EMPTY_STRING),
-            )
+            .stateIn(viewModelScope, SharingStarted.Lazily, Lc.Loading)
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
-
-    init {
-        viewModelScope.launch { settings.emit(repository.settingsUpdates.filterNotNull().first()) }
-    }
 
     private fun createViewState(
         customDnsList: List<InetAddress>,
         currentIndex: Int?,
         isAllowLanEnabled: Boolean,
         input: String,
-    ): DnsDialogViewState =
+    ): Lc<DnsDialogViewState> =
         DnsDialogViewState(
-            input,
-            input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
-            input.isLocalAddress(),
-            isAllowLanEnabled = isAllowLanEnabled,
-            currentIndex,
-        )
+                input,
+                input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
+                input.isLocalAddress(),
+                isAllowLanEnabled = isAllowLanEnabled,
+                currentIndex,
+            )
+            .toLc()
 
     private fun String.validateDnsEntry(
         index: Int?,
@@ -116,16 +126,17 @@ class DnsDialogViewModel(
     }
 
     fun onDnsInputChange(ipAddress: String) {
-        _ipAddressInput.value = ipAddress
+        ipAddressInput.value = ipAddress
     }
 
     fun onSaveDnsClick() =
         viewModelScope.launch(dispatcher) {
-            if (!uiState.value.isValid()) return@launch
+            val state = uiState.value.content()
+            if (state == null || !state.isValid()) return@launch
 
-            val address = InetAddress.getByName(uiState.value.input)
+            val address = InetAddress.getByName(state.input)
 
-            val index = uiState.value.index
+            val index = state.index
             val result =
                 if (index != null) {
                     repository.setCustomDns(index = index, address = address)
