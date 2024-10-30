@@ -32,7 +32,7 @@ import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
 
 private const val RELAY_LIST_ASSET_NAME = "relays.json"
-private const val MAYBENOT_MACHINES_ASSET_NAME = "maybenot_machines"
+private const val MAYBENOT_MACHINES_ASSET_NAME = "maybenot_machines_v2"
 
 class MullvadVpnService : TalpidVpnService() {
 
