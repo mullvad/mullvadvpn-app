@@ -573,15 +573,15 @@ mod test {
     /// is denied.
     #[tokio::test]
     async fn test_parse_logger_status_missing_access() {
-        let check_fda = parse_logger_status(
+        let has_fda = parse_logger_status(
             async { Ok(ExitStatus::default()) },
             &[][..],
             b"ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED\n".as_slice(),
         )
         .await;
 
-        assert_eq!(
-            check_fda, false,
+        assert!(
+            !has_fda,
             "expected 'false' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED was present"
         );
     }
@@ -590,7 +590,7 @@ mod test {
     /// full-disk access is available.
     #[tokio::test]
     async fn test_parse_logger_status_timeout() {
-        let check_fda = parse_logger_status(
+        let has_fda = parse_logger_status(
             async {
                 tokio::time::sleep(EARLY_FAIL_TIMEOUT + Duration::from_secs(10)).await;
                 Ok(ExitStatus::default())
@@ -600,8 +600,8 @@ mod test {
         )
         .await;
 
-        assert_eq!(
-            check_fda, true,
+        assert!(
+            has_fda,
             "expected 'true' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED wasn't present"
         );
     }
@@ -610,13 +610,13 @@ mod test {
     /// is available.
     #[tokio::test]
     async fn test_parse_logger_status_immediate_exit() {
-        let check_fda = parse_logger_status(
+        let has_fda = parse_logger_status(
             async { Ok(ExitStatus::default()) },
             b"nothing to see here\n".as_slice(),
             b"nothing to see here\n".as_slice(),
         )
         .await;
 
-        assert_eq!(check_fda, true, "expected 'true' on immediate exit");
+        assert!(has_fda, "expected 'true' on immediate exit");
     }
 }
