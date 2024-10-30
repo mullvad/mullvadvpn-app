@@ -7,11 +7,19 @@ use std::{
 
 static INIT_LOGGING: Once = Once::new();
 
+/// SAFETY: `TunnelObfuscatorProtocol` values must either be `0` or `1`
+#[repr(u8)]
+pub enum TunnelObfuscatorProtocol {
+    UdpOverTcp = 0,
+    Shadowsocks,
+}
+
 #[no_mangle]
 pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
     peer_address: *const u8,
     peer_address_len: usize,
     peer_port: u16,
+    obfuscation_protocol: TunnelObfuscatorProtocol,
     proxy_handle: *mut ProxyHandle,
 ) -> i32 {
     INIT_LOGGING.call_once(|| {
@@ -27,7 +35,7 @@ pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
             return -1;
         };
 
-    let result = TunnelObfuscatorRuntime::new(peer_sock_addr).and_then(|runtime| runtime.run());
+    let result = TunnelObfuscatorRuntime::new(peer_sock_addr, obfuscation_protocol).run();
 
     match result {
         Ok((local_endpoint, obfuscator_handle)) => {
