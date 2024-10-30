@@ -11,7 +11,8 @@ import Foundation
 import WireGuardKitTypes
 
 enum ServerRelaysResponseStubs {
-    static let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
+    static let wireguardPortRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
+    static let shadowsocksPortRanges: [[UInt16]] = [[51900, 51949]]
 
     static let sampleRelays = REST.ServerRelaysResponse(
         locations: [
@@ -73,7 +74,7 @@ enum ServerRelaysResponseStubs {
         wireguard: REST.ServerWireguardTunnels(
             ipv4Gateway: .loopback,
             ipv6Gateway: .loopback,
-            portRanges: portRanges,
+            portRanges: wireguardPortRanges,
             relays: [
                 REST.ServerRelay(
                     hostname: "es1-wireguard",
@@ -87,7 +88,7 @@ enum ServerRelaysResponseStubs {
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
                     daita: true,
-                    shadowsocksExtraAddrIn: nil
+                    shadowsocksExtraAddrIn: ["0.0.0.0"]
                 ),
                 REST.ServerRelay(
                     hostname: "se10-wireguard",
@@ -101,7 +102,7 @@ enum ServerRelaysResponseStubs {
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
                     daita: false,
-                    shadowsocksExtraAddrIn: nil
+                    shadowsocksExtraAddrIn: ["0.0.0.0"]
                 ),
                 REST.ServerRelay(
                     hostname: "se2-wireguard",
@@ -115,7 +116,7 @@ enum ServerRelaysResponseStubs {
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
                     daita: false,
-                    shadowsocksExtraAddrIn: nil
+                    shadowsocksExtraAddrIn: ["0.0.0.0"]
                 ),
                 REST.ServerRelay(
                     hostname: "se6-wireguard",
@@ -129,7 +130,7 @@ enum ServerRelaysResponseStubs {
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
                     daita: false,
-                    shadowsocksExtraAddrIn: nil
+                    shadowsocksExtraAddrIn: ["0.0.0.0"]
                 ),
                 REST.ServerRelay(
                     hostname: "us-dal-wg-001",
@@ -174,7 +175,7 @@ enum ServerRelaysResponseStubs {
                     shadowsocksExtraAddrIn: nil
                 ),
             ],
-            shadowsocksPortRanges: []
+            shadowsocksPortRanges: shadowsocksPortRanges
         ),
         bridge: REST.ServerBridges(shadowsocks: [
             REST.ServerShadowsocks(protocol: "tcp", port: 443, cipher: "aes-256-gcm", password: "mullvad"),
