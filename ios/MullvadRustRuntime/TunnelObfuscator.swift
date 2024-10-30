@@ -11,8 +11,13 @@ import MullvadRustRuntimeProxy
 import MullvadTypes
 import Network
 
+public enum TunnelObfuscationProtocol {
+    case udpOverTcp
+    case shadowsocks
+}
+
 public protocol TunnelObfuscation {
-    init(remoteAddress: IPAddress, tcpPort: UInt16)
+    init(remoteAddress: IPAddress, tcpPort: UInt16, obfuscationProtocol: TunnelObfuscationProtocol)
     func start()
     func stop()
     var localUdpPort: UInt16 { get }
@@ -21,11 +26,15 @@ public protocol TunnelObfuscation {
     var transportLayer: TransportLayer { get }
 }
 
-/// Class that implements UDP over TCP obfuscation by accepting traffic on a local UDP port and proxying it over TCP to the remote endpoint.
-public final class UDPOverTCPObfuscator: TunnelObfuscation {
+/// Class that implements obfuscation by accepting traffic on a local port and proxying it to the remote endpoint.
+///
+/// The obfuscation happens either by wrapping UDP traffic into TCP traffic, or by using a local shadowsocks server
+/// to encrypt the UDP traffic sent.
+public final class TunnelObfuscator: TunnelObfuscation {
     private let stateLock = NSLock()
     private let remoteAddress: IPAddress
     internal let tcpPort: UInt16
+    internal let obfuscationProtocol: TunnelObfuscationProtocol
 
     private var proxyHandle = ProxyHandle(context: nil, port: 0)
     private var isStarted = false
@@ -38,12 +47,20 @@ public final class UDPOverTCPObfuscator: TunnelObfuscation {
 
     public var remotePort: UInt16 { tcpPort }
 
-    public var transportLayer: TransportLayer { .tcp }
+    public var transportLayer: TransportLayer {
+        switch obfuscationProtocol {
+        case .udpOverTcp:
+            .tcp
+        case .shadowsocks:
+            .udp
+        }
+    }
 
     /// Initialize tunnel obfuscator with remote server address and TCP port where udp2tcp is running.
-    public init(remoteAddress: IPAddress, tcpPort: UInt16) {
+    public init(remoteAddress: IPAddress, tcpPort: UInt16, obfuscationProtocol: TunnelObfuscationProtocol) {
         self.remoteAddress = remoteAddress
         self.tcpPort = tcpPort
+        self.obfuscationProtocol = obfuscationProtocol
     }
 
     deinit {
@@ -54,6 +71,11 @@ public final class UDPOverTCPObfuscator: TunnelObfuscation {
         stateLock.withLock {
             guard !isStarted else { return }
 
+            let obfuscationProtocol = switch obfuscationProtocol {
+            case .udpOverTcp: TunnelObfuscatorProtocol(0)
+            case .shadowsocks: TunnelObfuscatorProtocol(1)
+            }
+
             let result = withUnsafeMutablePointer(to: &proxyHandle) { proxyHandlePointer in
                 let addressData = remoteAddress.rawValue
 
@@ -61,6 +83,7 @@ public final class UDPOverTCPObfuscator: TunnelObfuscation {
                     addressData.map { $0 },
                     UInt(addressData.count),
                     tcpPort,
+                    obfuscationProtocol,
                     proxyHandlePointer
                 )
             }

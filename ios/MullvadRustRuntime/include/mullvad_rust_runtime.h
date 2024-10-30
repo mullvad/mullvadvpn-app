@@ -5,6 +5,12 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+enum TunnelObfuscatorProtocol {
+  UdpOverTcp = 0,
+  Shadowsocks,
+};
+typedef uint8_t TunnelObfuscatorProtocol;
+
 /**
  * A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
  * can start a local forwarder (see [`Self::start`]).
@@ -179,6 +185,7 @@ int32_t stop_shadowsocks_proxy(struct ProxyHandle *proxy_config);
 int32_t start_tunnel_obfuscator_proxy(const uint8_t *peer_address,
                                       uintptr_t peer_address_len,
                                       uint16_t peer_port,
+                                      TunnelObfuscatorProtocol obfuscation_protocol,
                                       struct ProxyHandle *proxy_handle);
 
 int32_t stop_tunnel_obfuscator_proxy(struct ProxyHandle *proxy_handle);

@@ -1,6 +1,12 @@
-use std::{io, net::SocketAddr};
+use ffi::TunnelObfuscatorProtocol;
+use std::{
+    io,
+    net::{Ipv4Addr, SocketAddr},
+};
 use tokio::task::JoinHandle;
-use tunnel_obfuscation::{create_obfuscator, udp2tcp::Settings, Settings as ObfuscationSettings};
+use tunnel_obfuscation::{
+    create_obfuscator, shadowsocks, udp2tcp, Settings as ObfuscationSettings,
+};
 
 mod ffi;
 
@@ -11,8 +17,21 @@ pub struct TunnelObfuscatorRuntime {
 }
 
 impl TunnelObfuscatorRuntime {
-    pub fn new(peer: SocketAddr) -> io::Result<Self> {
-        let settings = ObfuscationSettings::Udp2Tcp(Settings { peer });
+    pub fn new(
+        peer: SocketAddr,
+        obfuscation_protocol: TunnelObfuscatorProtocol,
+    ) -> io::Result<Self> {
+        let settings: ObfuscationSettings = match obfuscation_protocol {
+            TunnelObfuscatorProtocol::UdpOverTcp => {
+                ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer })
+            }
+            TunnelObfuscatorProtocol::Shadowsocks => {
+                ObfuscationSettings::Shadowsocks(shadowsocks::Settings {
+                    shadowsocks_endpoint: peer,
+                    wireguard_endpoint: SocketAddr::from((Ipv4Addr::LOCALHOST, 51820)),
+                })
+            }
+        };
 
         Ok(Self { settings })
     }

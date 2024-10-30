@@ -97,7 +97,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 guard let self = self else { return }
                 tunnelSettingsListener.onNewSettings?(settings.tunnelSettings)
             },
-            protocolObfuscator: ProtocolObfuscator<UDPOverTCPObfuscator>()
+            protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
         )
 
         let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
