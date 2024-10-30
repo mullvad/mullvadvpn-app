@@ -225,7 +225,7 @@ async fn reconfigure_tunnel(
 
         let tunnel = tunnel_box.to_any();
 
-        let tunnel = tunnel.downcast::<WgGoTunnel>().unwrap();
+        let tunnel = tunnel.downcast::<Box<WgGoTunnel>>().unwrap();
 
         *tunnel_guard = Some(Box::new(
             tunnel.restart_as_mulitihop_tunnel(&config).unwrap(),
