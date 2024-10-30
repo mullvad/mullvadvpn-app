@@ -10,7 +10,7 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 
-typealias ModelOwnership = net.mullvad.mullvadvpn.lib.model.Ownership
+typealias ModelOwnership = Ownership
 
 class FilterChipUseCase(
     private val relayListFilterRepository: RelayListFilterRepository,

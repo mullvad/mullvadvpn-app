@@ -53,7 +53,7 @@ class SelectLocationViewModel(
                 SelectLocationUiState(
                     filterChips = emptyList(),
                     multihopEnabled = false,
-                    relayListType = RelayListType.ENTRY,
+                    relayListType = RelayListType.EXIT,
                 ),
             )
 

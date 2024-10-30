@@ -17,7 +17,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.communication.CustomListAction
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
 import net.mullvad.mullvadvpn.compose.state.RelayListType
-import net.mullvad.mullvadvpn.compose.state.SearchSelectLocationUiState
+import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
@@ -57,7 +57,7 @@ class SearchLocationViewModel(
     private val _searchTerm = MutableStateFlow(EMPTY_SEARCH_TERM)
     private val _expandedItems = MutableStateFlow<Set<String>>(emptySet())
 
-    val uiState: StateFlow<SearchSelectLocationUiState> =
+    val uiState: StateFlow<SearchLocationUiState> =
         combine(
                 _searchTerm,
                 searchRelayListLocations(),
@@ -75,7 +75,7 @@ class SearchLocationViewModel(
                 filterChips,
                 expandedItems ->
                 if (searchTerm.length >= MIN_SEARCH_LENGTH) {
-                    SearchSelectLocationUiState.Content(
+                    SearchLocationUiState.Content(
                         searchTerm = searchTerm,
                         relayListItems =
                             relayListItems(
@@ -97,13 +97,13 @@ class SearchLocationViewModel(
                         filterChips = filterChips,
                     )
                 } else {
-                    SearchSelectLocationUiState.NoQuery(searchTerm, filterChips)
+                    SearchLocationUiState.NoQuery(searchTerm, filterChips)
                 }
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                SearchSelectLocationUiState.NoQuery("", emptyList()),
+                SearchLocationUiState.NoQuery("", emptyList()),
             )
 
     private val _uiSideEffect = Channel<SearchLocationSideEffect>()

@@ -57,7 +57,7 @@ import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.state.RelayListType
-import net.mullvad.mullvadvpn.compose.state.SearchSelectLocationUiState
+import net.mullvad.mullvadvpn.compose.state.SearchLocationUiState
 import net.mullvad.mullvadvpn.compose.transitions.SearchTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -75,7 +75,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewSearchLocationScreen() {
-    AppTheme { SearchLocationScreen(state = SearchSelectLocationUiState.NoQuery("", emptyList())) }
+    AppTheme { SearchLocationScreen(state = SearchLocationUiState.NoQuery("", emptyList())) }
 }
 
 data class SearchLocationNavArgs(val relayListType: RelayListType)
@@ -190,7 +190,7 @@ fun SearchLocation(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchLocationScreen(
-    state: SearchSelectLocationUiState,
+    state: SearchLocationUiState,
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
     onSelectRelay: (RelayItem) -> Unit = {},
     onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
@@ -262,10 +262,10 @@ fun SearchLocationScreen(
                     onRemoveProviderFilter = onRemoveProviderFilter,
                 )
                 when (state) {
-                    is SearchSelectLocationUiState.NoQuery -> {
+                    is SearchLocationUiState.NoQuery -> {
                         noQuery()
                     }
-                    is SearchSelectLocationUiState.Content -> {
+                    is SearchLocationUiState.Content -> {
                         relayListContent(
                             backgroundColor = backgroundColor,
                             customLists = state.customLists,
