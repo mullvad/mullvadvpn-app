@@ -219,7 +219,7 @@ impl Tunnel for WgGoTunnel {
     fn start_daita(&mut self) -> Result<()> {
         static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
         let machines = MAYBENOT_MACHINES.get_or_try_init(|| {
-            let path = self.resource_dir.join("maybenot_machines");
+            let path = self.resource_dir.join("maybenot_machines_v2");
             log::debug!("Reading maybenot machines from {}", path.display());
 
             let machines =

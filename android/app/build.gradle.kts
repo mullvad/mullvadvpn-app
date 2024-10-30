@@ -18,7 +18,7 @@ plugins {
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
 val relayListPath = extraAssetsDirectory.file("relays.json").asFile
-val maybenotMachinesFile = extraAssetsDirectory.file("maybenot_machines").asFile
+val maybenotMachinesFile = extraAssetsDirectory.file("maybenot_machines_v2").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
 
