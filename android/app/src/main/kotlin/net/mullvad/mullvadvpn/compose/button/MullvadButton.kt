@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorSmall
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.Alpha20
@@ -74,6 +75,7 @@ fun NegativeButton(
             disabledContainerColor = MaterialTheme.colorScheme.errorDisabled,
         ),
     isEnabled: Boolean = true,
+    isLoading: Boolean = false,
     icon: @Composable (() -> Unit)? = null,
 ) {
     BaseButton(
@@ -82,6 +84,7 @@ fun NegativeButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
+        isLoading = isLoading,
         trailingIcon = icon,
     )
 }
@@ -100,6 +103,7 @@ fun VariantButton(
             disabledContainerColor = MaterialTheme.colorScheme.tertiaryDisabled,
         ),
     isEnabled: Boolean = true,
+    isLoading: Boolean = false,
     icon: @Composable (() -> Unit)? = null,
 ) {
     BaseButton(
@@ -108,6 +112,7 @@ fun VariantButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
+        isLoading = isLoading,
         trailingIcon = icon,
     )
 }
@@ -125,6 +130,7 @@ fun PrimaryButton(
             disabledContainerColor = MaterialTheme.colorScheme.primaryDisabled,
         ),
     isEnabled: Boolean = true,
+    isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
@@ -134,6 +140,7 @@ fun PrimaryButton(
         text = text,
         modifier = modifier,
         isEnabled = isEnabled,
+        isLoading = isLoading,
         leadingIcon = leadingIcon,
         trailingIcon = trailingIcon,
     )
@@ -146,6 +153,7 @@ private fun BaseButton(
     text: String,
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true,
+    isLoading: Boolean = false,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
 ) {
@@ -176,14 +184,18 @@ private fun BaseButton(
                     trailingIcon()
                 }
         }
-        Text(
-            text = text,
-            textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.bodyMedium,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis,
-            modifier = Modifier.weight(1f),
-        )
+        if (isLoading) {
+            MullvadCircularProgressIndicatorSmall()
+        } else {
+            Text(
+                text = text,
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.bodyMedium,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f),
+            )
+        }
         when {
             trailingIcon != null ->
                 Box(modifier = Modifier.padding(horizontal = Dimens.smallPadding)) {

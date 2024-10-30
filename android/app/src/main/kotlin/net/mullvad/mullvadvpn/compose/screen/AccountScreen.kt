@@ -198,6 +198,7 @@ fun AccountScreen(
                     text = stringResource(id = R.string.manage_account),
                     onClick = onManageAccountClick,
                     modifier = Modifier.padding(bottom = Dimens.buttonSpacing),
+                    isLoading = state.showManageAccountLoading,
                 )
             }
 
@@ -207,7 +208,11 @@ fun AccountScreen(
                 isEnabled = true,
             )
 
-            NegativeButton(text = stringResource(id = R.string.log_out), onClick = onLogoutClick)
+            NegativeButton(
+                text = stringResource(id = R.string.log_out),
+                onClick = onLogoutClick,
+                isLoading = state.showLogoutLoading,
+            )
         }
     }
 }
