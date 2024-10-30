@@ -12,6 +12,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.slideOutVertically
 import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
+import com.ramcosta.composedestinations.generated.destinations.SearchLocationDestination
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
 import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
@@ -63,6 +64,7 @@ object SelectLocationTransition : DestinationStyle.Animated() {
         {
             when (targetState.destination()) {
                 NoDaemonDestination -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
+                SearchLocationDestination -> fadeOut()
                 else -> slideOutHorizontally { -it.withHorizontalScalingFactor() }
             }
         }
@@ -72,6 +74,7 @@ object SelectLocationTransition : DestinationStyle.Animated() {
         {
             when (initialState.destination()) {
                 NoDaemonDestination -> fadeIn(snap(0))
+                SearchLocationDestination -> fadeIn()
                 else -> slideInHorizontally { -it.withHorizontalScalingFactor() }
             }
         }
