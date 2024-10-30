@@ -20,20 +20,28 @@ public final class RelaySelectorWrapper: RelaySelectorProtocol {
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays {
-        let relays = try relayCache.read().relays
+        let obfuscationResult = try ObfuscatorPortSelector(
+            relays: try relayCache.read().relays
+        ).obfuscate(
+            tunnelSettings: tunnelSettings,
+            connectionAttemptCount: connectionAttemptCount
+        )
+
+        var constraints = tunnelSettings.relayConstraints
+        constraints.port = obfuscationResult.port
 
         return switch tunnelSettings.tunnelMultihopState {
         case .off:
             try SinglehopPicker(
-                relays: relays,
-                constraints: tunnelSettings.relayConstraints,
+                relays: obfuscationResult.relays,
+                constraints: constraints,
                 connectionAttemptCount: connectionAttemptCount,
                 daitaSettings: tunnelSettings.daita
             ).pick()
         case .on:
             try MultihopPicker(
-                relays: relays,
-                constraints: tunnelSettings.relayConstraints,
+                relays: obfuscationResult.relays,
+                constraints: constraints,
                 connectionAttemptCount: connectionAttemptCount,
                 daitaSettings: tunnelSettings.daita
             ).pick()
