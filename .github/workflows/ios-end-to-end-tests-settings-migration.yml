@@ -21,7 +21,7 @@ on:
 # Define global environment variables here to make them easy to update
 env:
   TEST_DEVICE_UDID: 00008130-0019181022F3803A
-  OLD_APP_COMMIT_HASH: "f82b90126441e9f8afa8c820faa0e5b2c99ecc3e"
+  OLD_APP_COMMIT_HASH: "1c2efc6d3d40c1d168a90ac52e872274e74bb6f3"
 
 jobs:
   set_commit_hash:
