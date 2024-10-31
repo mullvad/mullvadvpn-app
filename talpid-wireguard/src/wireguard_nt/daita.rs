@@ -465,6 +465,8 @@ mod test {
     use super::load_maybenot_machines;
     use std::path::PathBuf;
 
+    /// Test whether `maybenot_machines` in dist-assets contains valid machines.
+    /// TODO: Remove when switching to dynamic machines.
     #[test]
     fn test_load_maybenot_machines() {
         let dist_assets = std::env::var("CARGO_MANIFEST_DIR")
