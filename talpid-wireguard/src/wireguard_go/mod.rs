@@ -70,7 +70,7 @@ pub(crate) fn exit_config(multihop_config: &Config) -> Option<Config> {
 }
 
 // TODO: move into impl of Config
-fn entry_config(multihop_config: &Config) -> Config {
+pub(crate) fn entry_config(multihop_config: &Config) -> Config {
     let mut entry_config = multihop_config.clone();
     entry_config.exit_peer = None;
     entry_config
@@ -224,11 +224,28 @@ impl WgGoTunnel {
         })
     }
 
+    // TODO: Rename
+    // singlehop
     #[cfg(target_os = "android")]
-    pub fn restart_as_mulitihop_tunnel(self, config: &Config) -> Result<Self> {
+    pub fn restart_tunnel(self, config: &Config) -> Result<Self> {
         let log_path = None;
         let tun_provider = Arc::clone(&self.tun_provider);
-        let routes = iter::empty();
+        let routes = config.get_tunnel_destinations();
+        #[cfg(daita)]
+        let resource_dir = self.resource_dir.clone();
+
+        // Important!
+        Box::new(self).stop().unwrap();
+        Self::start_tunnel(config, log_path, tun_provider, routes, &resource_dir)
+    }
+
+    // TODO: Rename
+    #[cfg(target_os = "android")]
+    pub fn restart_as_multihop_tunnel(self, config: &Config) -> Result<Self> {
+        let log_path = None;
+        let tun_provider = Arc::clone(&self.tun_provider);
+        // TODO: Document this / compare to open_wireguard_go_tunnel
+        let routes = config.get_tunnel_destinations();
         #[cfg(daita)]
         let resource_dir = self.resource_dir.clone();
 

@@ -15,7 +15,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 
-use crate::wireguard_go::WgGoTunnel;
+use crate::wireguard_go::{entry_config, WgGoTunnel};
 use ipnetwork::IpNetwork;
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
@@ -124,11 +124,20 @@ async fn config_ephemeral_peers_inner(
         let close_obfs_sender = close_obfs_sender.clone();
         let entry_config = reconfigure_tunnel(
             tunnel,
+            // I think what is happening here is that we talk to the same relay twice, I.e. the
+            // exit relay. This is because we initally open a single-hop tunnel to the exit relay,
+            // and here we reconfigure a multihop tunnel, which means that effectively we are
+            // talking with the gRPC server on the exit relay yet again.
+            //
+            // If we could instead hop to the entry relay first, then this logic would be correct.
+            // TODO: Try to initially connect to the entry relay, and see if that resolves the
+            // issue. If so, we would need to rename a couple of variables in this fn.
             entry_tun_config,
             obfuscator.clone(),
             close_obfs_sender,
             #[cfg(target_os = "android")]
             &tun_provider,
+            false,
         )
         .await?;
         let entry_psk = request_ephemeral_peer(
@@ -160,6 +169,7 @@ async fn config_ephemeral_peers_inner(
         close_obfs_sender,
         #[cfg(target_os = "android")]
         &tun_provider,
+        true,
     )
     .await?;
 
@@ -186,6 +196,7 @@ async fn reconfigure_tunnel(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: &Arc<Mutex<TunProvider>>,
+    multihop: bool,
 ) -> std::result::Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
@@ -217,19 +228,35 @@ async fn reconfigure_tunnel(
 
     #[cfg(target_os = "android")]
     {
-        let mut tunnel_guard = tunnel.lock().await;
+        // TODO: We could conditionally only do this more expensive tunnel reconfig if the current
+        // tunnel is a multihop tunnel, because it is hacky.
+        if multihop {
+            let mut tunnel_guard = tunnel.lock().await;
 
-        let Some(tunnel_box) = tunnel_guard.take() else {
-            panic!("invalid multihop tunnel")
-        };
+            let Some(tunnel_box) = tunnel_guard.take() else {
+                panic!("invalid multihop tunnel")
+            };
 
-        let tunnel = tunnel_box.to_any();
+            let tunnel = tunnel_box.to_any();
+            let tunnel = tunnel.downcast::<Box<WgGoTunnel>>().unwrap();
+            let tunnel = tunnel.restart_as_multihop_tunnel(&config).unwrap();
 
-        let tunnel = tunnel.downcast::<Box<WgGoTunnel>>().unwrap();
+            *tunnel_guard = Some(Box::new(tunnel));
+        } else {
+            // TODO: We need to restart the tunnel in singlehop config here !!!!!!
+            // Regular, singlehop stuff.
+            let mut tunnel_guard = tunnel.lock().await;
 
-        *tunnel_guard = Some(Box::new(
-            tunnel.restart_as_mulitihop_tunnel(&config).unwrap(),
-        ));
+            let Some(tunnel_box) = tunnel_guard.take() else {
+                panic!("invalid multihop tunnel")
+            };
+
+            let tunnel = tunnel_box.to_any();
+            let tunnel = tunnel.downcast::<Box<WgGoTunnel>>().unwrap();
+            let tunnel = tunnel.restart_tunnel(&config).unwrap();
+
+            *tunnel_guard = Some(Box::new(tunnel));
+        }
     }
 
     Ok(config)
