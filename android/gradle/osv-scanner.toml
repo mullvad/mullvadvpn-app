@@ -4,97 +4,82 @@
 
 [[IgnoredVulns]]
 id = "CVE-2022-45868" # GHSA-22wj-vf5f-wrvj
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "Used by the dependency-check tool and not the app directly."
 
 [[IgnoredVulns]]
 id = "CVE-2023-3635" # GHSA-w33c-445m-f8w7
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "We do not use gzip when using okio."
 
 [[IgnoredVulns]]
 id = "CVE-2024-29025" # GHSA-5jpm-x58v-624v
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "We do not use netty for http communication."
 
 [[IgnoredVulns]]
 id = "CVE-2023-44487" # GHSA-xpw8-rcwv-8f8p
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 # Same as the vuln above, but it seems like osv scanner does not always make the connection.
 [[IgnoredVulns]]
 id = "GHSA-xpw8-rcwv-8f8p"
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "No impact on this app since it uses UDS rather than HTTP2."
 
 [[IgnoredVulns]]
 id = "CVE-2023-34462" # GHSA-6mjq-h674-j845
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "We do not use netty for http communication."
 
 [[IgnoredVulns]]
 id = "CVE-2024-26308" # GHSA-4265-ccf5-phj5
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "Apache commons compress is used by lint and not the app directly."
 
 [[IgnoredVulns]]
 id = "CVE-2024-25710" # GHSA-4g9r-vxhx-9pgx
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "Apache commons compress is used by lint and not the app directly."
 
 [[IgnoredVulns]]
 id = "CVE-2020-13956" # GHSA-7r82-7xv7-xcpj
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "Apache http client is used by lint and not the app directly."
 
 [[IgnoredVulns]]
-id = "CVE-2023-51775" # GHSA-6qvw-249j-h44c
-ignoreUntil = 2024-10-02
-reason = "Used by the gradle bundler, will be fixed by upgrading the android gradle plugin."
-
-[[IgnoredVulns]]
-id = "CVE-2023-31582" # GHSA-7g24-qg88-p43q
-ignoreUntil = 2024-10-02
-reason = "Used by the gradle bundler, will be fixed by upgrading the android gradle plugin."
-
-[[IgnoredVulns]]
-id = "GHSA-jgvc-jfgh-rjvv"
-ignoreUntil = 2024-10-02
-reason = "Used by the gradle bundler, will be fixed by upgrading the android gradle plugin."
-
-[[IgnoredVulns]]
 id = "CVE-2022-24329" # GHSA-2qp4-g3q3-f92w
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "This CVE only affect Multiplatform Gradle Projects, which this project is not."
 
 [[IgnoredVulns]]
 id = "CVE-2024-7254" # GHSA-735f-pc8j-v9w8
-ignoreUntil = 2024-11-02
+ignoreUntil = 2025-02-02
 reason = "Should not be applicable since client and server are always in sync and we are only communicating locally over UDS."
 
 [[IgnoredVulns]]
 id = "CVE-2024-47554" # GHSA-78wr-2p64-hpwj
-ignoreUntil = 2025-01-04
+ignoreUntil = 2025-02-02
 reason = "No impact since the app doesn't process externally crafted XML."
 
 [[PackageOverrides]]
 name = "org.bouncycastle:bcprov-jdk15on"
 ecosystem = "Maven"
 ignore = true
-effectiveUntil = 2024-11-02
+effectiveUntil = 2025-02-02
 reason = "Used by lint and the dependency-check tool and not the app directly."
 
 [[PackageOverrides]]
 name = "org.bouncycastle:bcprov-jdk18on"
 ecosystem = "Maven"
 ignore = true
-effectiveUntil = 2024-11-02
+effectiveUntil = 2025-02-02
 reason = "Used by lint and the dependency-check tool and not the app directly."
 
 [[PackageOverrides]]
 name = "org.bouncycastle:bcpkix-jdk18on"
 ecosystem = "Maven"
 ignore = true
-effectiveUntil = 2024-11-02
+effectiveUntil = 2025-02-02
 reason = "Used by lint and the dependency-check tool and not the app directly."
