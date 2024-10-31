@@ -11,7 +11,7 @@ android-volley = "1.2.1"
 # AndroidX
 androidx-activitycompose = "1.9.3"
 androidx-appcompat = "1.7.0"
-androidx-ktx = "1.13.1"
+androidx-ktx = "1.15.0"
 androidx-coresplashscreen = "1.1.0-rc01"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.8.6"
