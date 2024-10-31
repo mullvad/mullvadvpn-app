@@ -70,6 +70,9 @@
     <string name="connected">연결됨</string>
     <string name="connecting_to_daemon">Mullvad 시스템 서비스에 연결하는 중...</string>
     <string name="connection_details_in">인</string>
+    <string name="connection_details_ipv4">IPv4</string>
+    <string name="connection_details_ipv6">IPv6</string>
+    <string name="connection_details_out">아웃</string>
     <string name="continue_login">로그인 계속하기</string>
     <string name="copied_logs_to_clipboard">로그를 클립보드에 복사했습니다.</string>
     <string name="copied_mullvad_account_number">클립보드에 Mullvad 계정 번호 복사됨</string>
