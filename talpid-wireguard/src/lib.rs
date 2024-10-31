@@ -586,6 +586,8 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
+    ///
+    /// TODO: This might need some patchin' now when multihop is a thing.
     #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
@@ -762,19 +764,24 @@ impl WireguardMonitor {
             // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
             // At this point, when the tunnel *is first started*, we establish a regular, singlehop
             // tunnel to where the ephemeral peer resides.
-            Some(exit_config) if should_negotiate_with_ephemeral_peer => WgGoTunnel::start_tunnel(
-                #[allow(clippy::needless_borrow)]
-                &exit_config,
-                log_path,
-                tun_provider,
-                routes,
-                #[cfg(daita)]
-                resource_dir,
-            )
-            .map_err(Error::TunnelError)?,
+            //
+            // TODO: Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+            Some(_exit_config) if should_negotiate_with_ephemeral_peer => {
+                WgGoTunnel::start_multihop_tunnel(
+                    #[allow(clippy::needless_borrow)]
+                    // TODO: Check if `entry` should be used instead ??
+                    &config,
+                    log_path,
+                    tun_provider,
+                    routes,
+                    #[cfg(daita)]
+                    resource_dir,
+                )
+                .map_err(Error::TunnelError)?
+            }
             // If we don't need to negotiate with an ephemeral peer, we may simply start a multihop
             // tunnel from the get-go.
-            Some(_) => WgGoTunnel::start_multihop_tunnel(
+            Some(_exit_config) => WgGoTunnel::start_multihop_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
                 log_path,
@@ -976,12 +983,10 @@ impl WireguardMonitor {
         }
     }
 
+    // TODO: Remove?
     /// Return routes for all allowed IPs.
     fn get_tunnel_destinations(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        config
-            .peers()
-            .flat_map(|peer| peer.allowed_ips.iter())
-            .cloned()
+        config.get_tunnel_destinations()
     }
 
     /// Replace default (0-prefix) routes with more specific routes.

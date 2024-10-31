@@ -185,6 +185,13 @@ impl Config {
             .into_iter()
             .chain(std::iter::once(&mut self.entry_peer))
     }
+
+    /// Return routes for all allowed IPs.
+    pub fn get_tunnel_destinations(&self) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
+        self.peers()
+            .flat_map(|peer| peer.allowed_ips.iter())
+            .cloned()
+    }
 }
 
 enum ConfValue<'a> {
