@@ -70,6 +70,9 @@
     <string name="connected">已連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="connection_details_in">入境</string>
+    <string name="connection_details_ipv4">IPv4</string>
+    <string name="connection_details_ipv6">IPv6</string>
+    <string name="connection_details_out">出境</string>
     <string name="continue_login">繼續登入</string>
     <string name="copied_logs_to_clipboard">已將記錄複製到剪貼簿</string>
     <string name="copied_mullvad_account_number">已將 Mullvad 帳號複製到剪貼簿</string>

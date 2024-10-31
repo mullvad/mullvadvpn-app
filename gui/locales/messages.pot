@@ -2512,12 +2512,6 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-msgid "Out Ipv4"
-msgstr ""
-
-msgid "Out Ipv6"
-msgstr ""
-
 msgid "Overrides active"
 msgstr ""
 

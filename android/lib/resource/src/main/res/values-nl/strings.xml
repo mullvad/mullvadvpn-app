@@ -70,6 +70,9 @@
     <string name="connected">Verbonden</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="connection_details_in">In</string>
+    <string name="connection_details_ipv4">IPv4</string>
+    <string name="connection_details_ipv6">IPv6</string>
+    <string name="connection_details_out">Uit</string>
     <string name="continue_login">Doorgaan met aanmelden</string>
     <string name="copied_logs_to_clipboard">Logs gekopieerd naar klembord</string>
     <string name="copied_mullvad_account_number">Mullvad-accountnummer gekopieerd naar klembord</string>
