@@ -146,7 +146,7 @@ async fn test_custom_access_methods_gui(
 ) -> anyhow::Result<()> {
     use mullvad_api::env;
     use mullvad_relay_selector::{RelaySelector, SelectorConfig};
-    use talpid_types::net::proxy::CustomProxy;
+
     // For this test to work, we need to supply the following env-variables:
     //
     // * SHADOWSOCKS_SERVER_IP
@@ -179,10 +179,6 @@ async fn test_custom_access_methods_gui(
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
     let access_method = relay_selector
         .get_bridge_forced()
-        .and_then(|proxy| match proxy {
-            CustomProxy::Shadowsocks(s) => Some(s),
-            _ => None
-        })
         .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
 
     let ui_result = run_test_env(
@@ -219,7 +215,7 @@ async fn test_custom_bridge_gui(
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     use mullvad_relay_selector::{RelaySelector, SelectorConfig};
-    use talpid_types::net::proxy::CustomProxy;
+
     // For this test to work, we need to supply the following env-variables:
     //
     // * SHADOWSOCKS_SERVER_IP
@@ -236,10 +232,6 @@ async fn test_custom_bridge_gui(
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
     let custom_proxy = relay_selector
         .get_bridge_forced()
-        .and_then(|proxy| match proxy {
-            CustomProxy::Shadowsocks(s) => Some(s),
-            _ => None
-        })
         .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
 
     let ui_result = run_test_env(
