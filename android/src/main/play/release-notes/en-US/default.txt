@@ -1,2 +1,1 @@
-- Improve connection stability when roaming while using Shadowsocks.
-- Fix incorrect MTU calculation to avoid connectivity issues when using obfuscation.
+- Fix the account number input keyboard being broken on Amazon FireStick by adding a workaround. This should eventually be fixed by Amazon since the FireStick behavior is broken.
