@@ -1,2 +1,7 @@
-- Improve connection stability when roaming while using Shadowsocks.
-- Fix incorrect MTU calculation to avoid connectivity issues when using obfuscation.
+- Added feature indicators to the main view along with redesigning the connection details.
+- Added a new "Connect on device start-up" setting for devices without system VPN settings (primarily TVs).
+- Improved connection stability when roaming while using Shadowsocks.
+- Improved button accessibility to better support screen readers.
+- Fixed incorrect MTU calculation to avoid connectivity issues when using obfuscation.
+- Fixed the account number input keyboard being broken on Amazon FireStick by adding a workaround. This should eventually be fixed by Amazon since the FireStick behavior is broken.
+- Updated icons throughout the app.
