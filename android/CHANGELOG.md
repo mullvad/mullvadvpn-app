@@ -24,6 +24,13 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.8] - 2024-10-31
+
+### Fixed
+- Fix the account number input keyboard being broken on Amazon FireStick by adding a workaround.
+  This should eventually be fixed by Amazon since the FireStick behavior is broken.
+
+
 ## [android/2024.8-beta2] - 2024-10-25
 
 ### Fixed
