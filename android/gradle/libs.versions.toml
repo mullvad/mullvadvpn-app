@@ -55,7 +55,7 @@ protobuf = "0.9.4"
 
 # Misc
 commonsvalidator = "1.9.0"
-dependency-check = "10.0.4"
+dependency-check = "11.1.0"
 dependency-versions = "0.51.0"
 detekt = "1.23.7"
 jodatime = "2.13.0"
