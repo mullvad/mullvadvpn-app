@@ -242,14 +242,14 @@ final class TunnelControlView: UIView {
                 String(format: NSLocalizedString(
                     "CONNECT_PANEL_TITLE",
                     tableName: "Main",
-                    value: "%@ via %@ \(usingDaita ? "using DAITA" : "")",
+                    value: "%@ via %@\(usingDaita ? " using DAITA" : "")",
                     comment: ""
                 ), exitName, entryName)
             } else {
                 String(format: NSLocalizedString(
                     "CONNECT_PANEL_TITLE",
                     tableName: "Main",
-                    value: "%@ \(usingDaita ? "using DAITA" : "")",
+                    value: "%@\(usingDaita ? " using DAITA" : "")",
                     comment: ""
                 ), exitName)
             }
