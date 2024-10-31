@@ -70,6 +70,9 @@
     <string name="connected">ချိတ်ဆက်ပြီး</string>
     <string name="connecting_to_daemon">Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ...</string>
     <string name="connection_details_in">အဝင်</string>
+    <string name="connection_details_ipv4">IPv4</string>
+    <string name="connection_details_ipv6">IPv6</string>
+    <string name="connection_details_out">အထွက်</string>
     <string name="continue_login">ဆက်လက် ဝင်ရောက်ရန်</string>
     <string name="copied_logs_to_clipboard">ကလစ်ဘုတ်တွင် မှတ်တမ်းများ ကူးယူပြီး</string>
     <string name="copied_mullvad_account_number">Mullvad အကောင့်နံပါတ်ကို ကလစ်ဘုတ်တွင် ကူးထားပါသည်</string>

@@ -70,6 +70,9 @@
     <string name="connected">Verbunden</string>
     <string name="connecting_to_daemon">Verbindung zum Mullvad-Systemdienst wird hergestellt...</string>
     <string name="connection_details_in">Eingehend</string>
+    <string name="connection_details_ipv4">IPv4</string>
+    <string name="connection_details_ipv6">IPv6</string>
+    <string name="connection_details_out">Ausgehend</string>
     <string name="continue_login">Weiter mit Anmeldung</string>
     <string name="copied_logs_to_clipboard">Protokolle in Zwischenablage kopiert</string>
     <string name="copied_mullvad_account_number">Mullvad-Kontonummer wurde in die Zwischenablage kopiert</string>

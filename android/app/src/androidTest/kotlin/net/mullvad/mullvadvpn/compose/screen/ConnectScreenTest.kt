@@ -518,10 +518,10 @@ class ConnectScreenTest {
             onNodeWithText("In").assertExists()
             onNodeWithText("$inHost:$inPort UDP").assertExists()
 
-            onNodeWithText("Out Ipv4").assertExists()
+            onNodeWithText("Out IPv4").assertExists()
             onNodeWithText(outIpv4).assertExists()
 
-            onNodeWithText("Out Ipv6").assertExists()
+            onNodeWithText("Out IPv6").assertExists()
             onNodeWithText(outIpv6).assertExists()
         }
     }

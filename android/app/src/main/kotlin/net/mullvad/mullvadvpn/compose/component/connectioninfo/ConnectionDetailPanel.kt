@@ -17,6 +17,7 @@ import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectionDetails
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
+import net.mullvad.mullvadvpn.constant.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -99,7 +100,12 @@ fun ConnectionDetails(
 
         if (outIPV4 != null) {
             Text(
-                text = stringResource(R.string.connection_details_out_ipv4),
+                text =
+                    buildString {
+                        append(stringResource(R.string.connection_details_out))
+                        append(SPACE_CHAR)
+                        append(stringResource(R.string.connection_details_ipv4))
+                    },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
@@ -139,7 +145,12 @@ fun ConnectionDetails(
 
         if (outIPV6 != null) {
             Text(
-                text = stringResource(R.string.connection_details_out_ipv6),
+                text =
+                    buildString {
+                        append(stringResource(R.string.connection_details_out))
+                        append(SPACE_CHAR)
+                        append(stringResource(R.string.connection_details_ipv6))
+                    },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall,
                 maxLines = 1,
