@@ -248,6 +248,8 @@ fn load_maybenot_machines(resource_dir: &Path) -> Result<CString> {
 
 #[cfg(test)]
 mod test {
+    /// Test whether `maybenot_machines` in dist-assets contains valid machines.
+    /// TODO: Remove when switching to dynamic machines.
     #[cfg(daita)]
     #[test]
     fn test_load_maybenot_machines() {
