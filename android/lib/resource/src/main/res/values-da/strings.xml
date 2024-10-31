@@ -70,6 +70,9 @@
     <string name="connected">Tilsluttet</string>
     <string name="connecting_to_daemon">Opretter forbindelse til Mullvad-systemtjeneste...</string>
     <string name="connection_details_in">Ind</string>
+    <string name="connection_details_ipv4">IPv4</string>
+    <string name="connection_details_ipv6">IPv6</string>
+    <string name="connection_details_out">Ud</string>
     <string name="continue_login">Fortsæt med login</string>
     <string name="copied_logs_to_clipboard">Kopierede logfiler til udklipsholder</string>
     <string name="copied_mullvad_account_number">Kopierede Mullvad-kontonummer til udklipsholder</string>
