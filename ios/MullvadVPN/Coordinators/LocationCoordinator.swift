@@ -246,14 +246,19 @@ extension LocationCoordinator: LocationViewControllerWrapperDelegate {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.filter = .only(filter)
 
-        tunnelManager.updateSettings([.relayConstraints(relayConstraints)])
-
-        if let cachedRelays = try? relayCacheTracker.getCachedRelays(), let locationViewControllerWrapper {
-            updateRelaysWithLocationFrom(
-                cachedRelays: cachedRelays,
-                filter: filter,
-                controllerWrapper: locationViewControllerWrapper
-            )
+        tunnelManager.updateSettings([.relayConstraints(relayConstraints)]) { [weak self] in
+            guard let self else { return }
+            if let cachedRelays = try? self.relayCacheTracker.getCachedRelays() {
+                DispatchQueue.main.async {
+                    if let locationViewControllerWrapper = self.locationViewControllerWrapper {
+                        self.updateRelaysWithLocationFrom(
+                            cachedRelays: cachedRelays,
+                            filter: filter,
+                            controllerWrapper: locationViewControllerWrapper
+                        )
+                    }
+                }
+            }
         }
     }
 
