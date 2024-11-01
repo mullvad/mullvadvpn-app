@@ -10,8 +10,7 @@ import androidx.compose.animation.scaleIn
 import androidx.navigation.NavBackStackEntry
 import com.ramcosta.composedestinations.spec.DestinationStyle
 
-object SettingsTransition : DestinationStyle.Animated() {
-
+object SelectLocationTransition : DestinationStyle.Animated() {
     override val enterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
