@@ -11,6 +11,8 @@ use talpid_types::{
 use widestring::WideCString;
 use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
 
+mod hyperv;
+
 /// Errors that can happen when configuring the Windows firewall.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
