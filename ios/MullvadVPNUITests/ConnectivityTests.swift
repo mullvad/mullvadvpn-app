@@ -15,6 +15,11 @@ class ConnectivityTests: LoggedOutUITestCase {
 
     /// Verifies that the app still functions when API has been blocked
     func testAPIConnectionViaBridges() throws {
+        let skipReason = """
+            This test is currently skipped because shadowsocks bridges cannot be reached
+            from the staging environment
+        """
+        try XCTSkipIf(true, skipReason)
         firewallAPIClient.removeRules()
         let hasTimeAccountNumber = getAccountWithTime()
 
