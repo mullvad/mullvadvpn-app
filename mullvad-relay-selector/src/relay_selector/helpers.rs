@@ -34,27 +34,25 @@ pub fn pick_random_relay_excluding<'a>(
     relays: &'a [Relay],
     exclude: &'_ Relay,
 ) -> Option<&'a Relay> {
-    relays
-        .iter()
-        .filter(|&a| a != exclude)
-        .choose(&mut thread_rng())
+    let filtered_relays = relays.iter().filter(|&a| a != exclude);
+    pick_random_relay_weighted(filtered_relays, |relay: &Relay| relay.weight)
 }
 
 /// Picks a relay using [pick_random_relay_weighted], using the `weight` member of each relay
 /// as the weight function.
 pub fn pick_random_relay(relays: &[Relay]) -> Option<&Relay> {
-    pick_random_relay_weighted(relays, |relay| relay.weight)
+    pick_random_relay_weighted(relays.iter(), |relay| relay.weight)
 }
 
 /// Pick a random relay from the given slice. Will return `None` if the given slice is empty.
 /// If all of the relays have a weight of 0, one will be picked at random without bias,
 /// otherwise roulette wheel selection will be used to pick only relays with non-zero
 /// weights.
-pub fn pick_random_relay_weighted<RelayType>(
-    relays: &[RelayType],
-    weight: impl Fn(&RelayType) -> u64,
-) -> Option<&RelayType> {
-    let total_weight: u64 = relays.iter().map(&weight).sum();
+pub fn pick_random_relay_weighted<'a, RelayType>(
+    mut relays: impl Iterator<Item = &'a RelayType> + Clone,
+    weight: impl Fn(&'a RelayType) -> u64,
+) -> Option<&'a RelayType> {
+    let total_weight: u64 = relays.clone().map(&weight).sum();
     let mut rng = thread_rng();
     if total_weight == 0 {
         relays.choose(&mut rng)
@@ -76,7 +74,6 @@ pub fn pick_random_relay_weighted<RelayType>(
         let mut i: u64 = rng.gen_range(1..=total_weight);
         Some(
             relays
-                .iter()
                 .find(|relay| {
                     i = i.saturating_sub(weight(relay));
                     i == 0
