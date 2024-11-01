@@ -96,7 +96,7 @@ import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SH
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.textfield.SearchTextField
-import net.mullvad.mullvadvpn.compose.transitions.SelectLocationTransition
+import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.RunOnKeyChange
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -123,7 +123,7 @@ private fun PreviewSelectLocationScreen(
     AppTheme { SelectLocationScreen(state = state) }
 }
 
-@Destination<RootGraph>(style = SelectLocationTransition::class)
+@Destination<RootGraph>(style = TopLevelTransition::class)
 @Suppress("LongMethod")
 @Composable
 fun SelectLocation(

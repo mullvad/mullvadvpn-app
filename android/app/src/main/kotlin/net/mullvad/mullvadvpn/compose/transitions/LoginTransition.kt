@@ -3,7 +3,7 @@ package net.mullvad.mullvadvpn.compose.transitions
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.navigation.NavBackStackEntry
@@ -13,17 +13,14 @@ import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestinat
 import com.ramcosta.composedestinations.generated.destinations.WelcomeDestination
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import com.ramcosta.composedestinations.utils.destination
-import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
 
 object LoginTransition : DestinationStyle.Animated() {
     override val enterTransition:
         (AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition) =
         {
-            fadeIn()
+            fadeIn(spring())
         }
 
-    // TODO temporary hack until we have a proper solution.
-    // https://issuetracker.google.com/issues/309506799
     override val exitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
@@ -31,20 +28,20 @@ object LoginTransition : DestinationStyle.Animated() {
                 is OutOfTimeDestination,
                 is WelcomeDestination,
                 is ConnectDestination,
-                is DeviceListDestination -> fadeOut()
-                else -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
+                is DeviceListDestination -> fadeOut(spring())
+                else -> ExitTransition.None
             }
         }
 
     override val popEnterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
-            fadeIn()
+            fadeIn(spring())
         }
 
     override val popExitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
-            fadeOut()
+            fadeOut(spring())
         }
 }
