@@ -12,7 +12,7 @@ import NetworkExtension
 
 struct TunnelStoreStub: TunnelStoreProtocol {
     typealias TunnelType = TunnelStub
-    let backgroundTaskProvider: any BackgroundTaskProvider
+    let backgroundTaskProvider: any BackgroundTaskProviding
     func getPersistentTunnels() -> [TunnelType] {
         []
     }
@@ -35,13 +35,13 @@ final class TunnelStub: TunnelProtocol, Equatable {
 
     convenience init(
         tunnelProvider: SimulatorTunnelProviderManager,
-        backgroundTaskProvider: any BackgroundTaskProvider
+        backgroundTaskProvider: any BackgroundTaskProviding
     ) {
         self.init(backgroundTaskProvider: backgroundTaskProvider, status: .invalid, isOnDemandEnabled: false)
     }
 
     init(
-        backgroundTaskProvider: any BackgroundTaskProvider,
+        backgroundTaskProvider: any BackgroundTaskProviding,
         status: NEVPNStatus,
         isOnDemandEnabled: Bool,
         startDate: Date? = nil
@@ -56,7 +56,7 @@ final class TunnelStub: TunnelProtocol, Equatable {
 
     func removeObserver(_ observer: TunnelStatusObserver) {}
 
-    var backgroundTaskProvider: any BackgroundTaskProvider
+    var backgroundTaskProvider: any BackgroundTaskProviding
 
     var status: NEVPNStatus
 

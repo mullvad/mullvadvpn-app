@@ -23,7 +23,7 @@ private let defaultTimeout: Duration = .seconds(5)
 final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> {
     typealias DecoderHandler = (Data?) throws -> Output
 
-    private let backgroundTaskProvider: BackgroundTaskProvider
+    private let backgroundTaskProvider: BackgroundTaskProviding
     private let tunnel: any TunnelProtocol
     private let message: TunnelProviderMessage
     private let timeout: Duration
@@ -38,7 +38,7 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
 
     init(
         dispatchQueue: DispatchQueue,
-        backgroundTaskProvider: BackgroundTaskProvider,
+        backgroundTaskProvider: BackgroundTaskProviding,
         tunnel: any TunnelProtocol,
         message: TunnelProviderMessage,
         timeout: Duration? = nil,
@@ -212,54 +212,6 @@ final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> 
         } catch {
             finish(result: .failure(SendTunnelProviderMessageError.system(error)))
         }
-    }
-}
-
-extension SendTunnelProviderMessageOperation where Output: Codable {
-    convenience init(
-        dispatchQueue: DispatchQueue,
-        backgroundTaskProvider: BackgroundTaskProvider,
-        tunnel: any TunnelProtocol,
-        message: TunnelProviderMessage,
-        timeout: Duration? = nil,
-        completionHandler: @escaping CompletionHandler
-    ) {
-        self.init(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: tunnel,
-            message: message,
-            timeout: timeout,
-            decoderHandler: { data in
-                if let data {
-                    return try TunnelProviderReply(messageData: data).value
-                } else {
-                    throw EmptyTunnelProviderResponseError()
-                }
-            },
-            completionHandler: completionHandler
-        )
-    }
-}
-
-extension SendTunnelProviderMessageOperation where Output == Void {
-    convenience init(
-        dispatchQueue: DispatchQueue,
-        backgroundTaskProvider: BackgroundTaskProvider,
-        tunnel: any TunnelProtocol,
-        message: TunnelProviderMessage,
-        timeout: Duration? = nil,
-        completionHandler: CompletionHandler?
-    ) {
-        self.init(
-            dispatchQueue: dispatchQueue,
-            backgroundTaskProvider: backgroundTaskProvider,
-            tunnel: tunnel,
-            message: message,
-            timeout: timeout,
-            decoderHandler: { _ in () },
-            completionHandler: completionHandler
-        )
     }
 }
 

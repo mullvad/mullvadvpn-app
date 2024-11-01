@@ -18,7 +18,7 @@ class TunnelManagerTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()
     private var tunnelObserver: TunnelObserver!
 
-    var application: UIApplicationStub!
+    var application: BackgroundTaskProviding!
     var relayCacheTracker: RelayCacheTrackerStub!
     var accountProxy: AccountsProxyStub!
     var accessTokenManager: AccessTokenManagerStub!
@@ -87,7 +87,7 @@ class TunnelManagerTests: XCTestCase {
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
 
         let tunnelManager = TunnelManager(
-            application: application,
+            backgroundTaskProvider: application,
             tunnelStore: TunnelStoreStub(backgroundTaskProvider: application),
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountProxy,
@@ -105,7 +105,7 @@ class TunnelManagerTests: XCTestCase {
         accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
 
         let tunnelManager = TunnelManager(
-            application: application,
+            backgroundTaskProvider: application,
             tunnelStore: TunnelStoreStub(backgroundTaskProvider: application),
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountProxy,
@@ -135,7 +135,7 @@ class TunnelManagerTests: XCTestCase {
         }
 
         let tunnelManager = TunnelManager(
-            application: application,
+            backgroundTaskProvider: application,
             tunnelStore: TunnelStore(application: application),
             relayCacheTracker: relayCacheTracker,
             accountsProxy: accountProxy,
