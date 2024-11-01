@@ -46,7 +46,7 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Error::*;
         match self {
-            GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
+            GrpcConnectError(err) => write!(f, "Failed to connect to config service: {err:?}"),
             GrpcError(status) => write!(f, "RPC failed: {status}"),
             MissingCiphertexts => write!(f, "Found no ciphertexts in response"),
             InvalidCiphertextLength {
