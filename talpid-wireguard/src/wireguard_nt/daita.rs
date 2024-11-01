@@ -250,26 +250,8 @@ impl Machinist {
 
         static MAYBENOT_MACHINES: OnceCell<Vec<maybenot::Machine>> = OnceCell::new();
 
-        let machines = MAYBENOT_MACHINES.get_or_try_init(|| {
-            let path = resource_dir.join("maybenot_machines_v2");
-            log::debug!("Reading maybenot machines from {}", path.display());
-
-            let mut machines = vec![];
-            let machines_str = fs::read_to_string(path).map_err(Error::EnumerateMachines)?;
-            for machine_str in machines_str.lines() {
-                let machine_str = machine_str.trim();
-                if matches!(machine_str.chars().next(), None | Some('#')) {
-                    continue;
-                }
-                log::debug!("Adding maybenot machine: {machine_str}");
-                machines.push(
-                    machine_str
-                        .parse::<maybenot::Machine>()
-                        .map_err(|_error| Error::InvalidMachine(machine_str.to_owned()))?,
-                );
-            }
-            Ok(machines)
-        })?;
+        let machines =
+            MAYBENOT_MACHINES.get_or_try_init(|| load_maybenot_machines(resource_dir))?;
 
         let quit_event =
             talpid_windows::sync::Event::new(true, false).map_err(Error::InitializeQuitEvent)?;
@@ -454,5 +436,45 @@ impl Machinist {
                 }
             }
         }
+    }
+}
+
+fn load_maybenot_machines(resource_dir: &Path) -> Result<Vec<maybenot::Machine>, Error> {
+    let path = resource_dir.join("maybenot_machines_v2");
+    log::debug!("Reading maybenot machines from {}", path.display());
+
+    let mut machines = vec![];
+    let machines_str = fs::read_to_string(path).map_err(Error::EnumerateMachines)?;
+    for machine_str in machines_str.lines() {
+        let machine_str = machine_str.trim();
+        if matches!(machine_str.chars().next(), None | Some('#')) {
+            continue;
+        }
+        log::debug!("Adding maybenot machine: {machine_str}");
+        machines.push(
+            machine_str
+                .parse::<maybenot::Machine>()
+                .map_err(|_error| Error::InvalidMachine(machine_str.to_owned()))?,
+        );
+    }
+    Ok(machines)
+}
+
+#[cfg(test)]
+mod test {
+    use super::load_maybenot_machines;
+    use std::path::PathBuf;
+
+    /// Test whether `maybenot_machines` in dist-assets contains valid machines.
+    /// TODO: Remove when switching to dynamic machines.
+    #[test]
+    fn test_load_maybenot_machines() {
+        let dist_assets = std::env::var("CARGO_MANIFEST_DIR")
+            .map(PathBuf::from)
+            .expect("CARGO_MANIFEST_DIR env var not set")
+            .join("..")
+            .join("dist-assets");
+
+        load_maybenot_machines(&dist_assets).unwrap();
     }
 }

@@ -11,7 +11,7 @@
 use core::slice;
 use std::{
     ffi::{c_char, CStr},
-    mem::ManuallyDrop,
+    mem::{ManuallyDrop, MaybeUninit},
 };
 use util::OnDrop;
 use zeroize::Zeroize;
@@ -196,6 +196,25 @@ impl Drop for Tunnel {
         if let Err(e) = result_from_code(code) {
             log::error!("Failed to stop wireguard-go tunnel,oerror_code={code} ({e:?})")
         }
+    }
+}
+
+/// Check whether `machines` contains a valid, LF-separated maybenot machines. Return an error
+/// otherwise.
+pub fn validate_maybenot_machines(machines: &CStr) -> Result<(), Error> {
+    use maybenot_ffi::MaybenotResult;
+
+    let mut framework = MaybeUninit::uninit();
+    // SAFETY: `machines` is a null-terminated string, and `&mut framework` is a valid pointer
+    let result =
+        unsafe { maybenot_ffi::maybenot_start(machines.as_ptr(), 0.0, 0.0, &mut framework) };
+
+    if result as u32 == MaybenotResult::Ok as u32 {
+        // SAFETY: `maybenot_start` succeeded, so `framework` points to a valid framework
+        unsafe { maybenot_ffi::maybenot_stop(framework.assume_init()) };
+        Ok(())
+    } else {
+        Err(Error::Other)
     }
 }
 
