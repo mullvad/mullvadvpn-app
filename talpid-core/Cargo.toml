@@ -71,6 +71,10 @@ once_cell = { workspace = true }
 windows-service = "0.6.0"
 talpid-windows = { path = "../talpid-windows" }
 
+wmi = "0.14.0"
+windows-core = "0.58.0"
+windows = "0.58.0"
+
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
 features = [
