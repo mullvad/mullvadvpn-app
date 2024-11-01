@@ -7,11 +7,20 @@ use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_types::{
     net::{AllowedEndpoint, AllowedTunnelTraffic},
     tunnel::FirewallPolicyError,
+    ErrorExt,
 };
 use widestring::WideCString;
 use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
 
 mod hyperv;
+
+// `COMLibrary` must be initialized for per thread, so use TLS
+thread_local! {
+    static WMI: Option<wmi::WMIConnection> = consume_and_log_hyperv_err(
+        "Initialize COM and WMI",
+        hyperv::init_wmi(),
+    );
+}
 
 /// Errors that can happen when configuring the Windows firewall.
 #[derive(thiserror::Error, Debug)]
@@ -46,7 +55,7 @@ const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
 const LOGGING_CONTEXT: &[u8] = b"WinFw\0";
 
-/// The Windows implementation for the firewall and DNS.
+/// The Windows implementation for the firewall.
 pub struct Firewall(());
 
 impl Firewall {
@@ -89,11 +98,24 @@ impl Firewall {
             .into_result()?
         };
         log::trace!("Successfully initialized windows firewall module to a blocking state");
+
+        WMI.with(|wmi| {
+            if let Some(con) = wmi {
+                let result = hyperv::add_blocking_hyperv_firewall_rule(con);
+                consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
+            }
+        });
+
         Ok(Firewall(()))
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
-        match policy {
+        let should_block_hyperv = matches!(
+            policy,
+            FirewallPolicy::Connecting { .. } | FirewallPolicy::Blocked { .. }
+        );
+
+        let apply_result = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
                 tunnel,
@@ -130,11 +152,35 @@ impl Firewall {
                     allowed_endpoint.map(WinFwAllowedEndpointContainer::from),
                 )
             }
-        }
+        };
+
+        WMI.with(|wmi| {
+            let Some(wmi) = wmi else {
+                return;
+            };
+            if should_block_hyperv {
+                let result = hyperv::add_blocking_hyperv_firewall_rule(wmi);
+                consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
+            } else {
+                let result = hyperv::remove_blocking_hyperv_firewall_rule(wmi);
+                consume_and_log_hyperv_err("Remove block-all Hyper-V filter", result);
+            }
+        });
+
+        apply_result
     }
 
     pub fn reset_policy(&mut self) -> Result<(), Error> {
         unsafe { WinFw_Reset().into_result().map_err(Error::ResettingPolicy) }?;
+
+        WMI.with(|wmi| {
+            let Some(con) = wmi else {
+                return;
+            };
+            let result = hyperv::remove_blocking_hyperv_firewall_rule(con);
+            consume_and_log_hyperv_err("Remove block-all Hyper-V filter", result);
+        });
+
         Ok(())
     }
 
@@ -435,6 +481,24 @@ fn multibyte_to_wide(mb_string: &CStr, codepage: u32) -> Result<Vec<u16>, io::Er
     unsafe { wc_buffer.set_len((chars_written - 1) as usize) };
 
     Ok(wc_buffer)
+}
+
+// Convert `result` into an option and log the error, if any.
+fn consume_and_log_hyperv_err<T>(
+    action: &'static str,
+    result: Result<T, hyperv::Error>,
+) -> Option<T> {
+    result
+        .inspect_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(&format!(
+                    "Failed: {action}. \
+                     Hyper-V (e.g. WSL machines) may leak in blocked states."
+                ))
+            );
+        })
+        .ok()
 }
 
 #[allow(non_snake_case)]
