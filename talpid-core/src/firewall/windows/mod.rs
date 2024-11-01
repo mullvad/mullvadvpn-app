@@ -1,17 +1,39 @@
 use crate::{dns::ResolvedDnsConfig, tunnel::TunnelMetadata};
 
-use std::{ffi::CStr, io, net::IpAddr, ptr};
+use std::{ffi::CStr, io, net::IpAddr, ptr, sync::LazyLock};
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_types::{
     net::{AllowedEndpoint, AllowedTunnelTraffic},
     tunnel::FirewallPolicyError,
+    ErrorExt,
 };
 use widestring::WideCString;
 use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
 
 mod hyperv;
+
+// `COMLibrary` must be initialized for per thread, so use TLS
+thread_local! {
+    static WMI: Option<wmi::WMIConnection> = consume_and_log_hyperv_err(
+        "Initialize COM and WMI",
+        hyperv::init_wmi(),
+    );
+}
+
+/// Enable or disable blocking Hyper-V rule
+static BLOCK_HYPERV: LazyLock<bool> = LazyLock::new(|| {
+    let enable = std::env::var("TALPID_FIREWALL_BLOCK_HYPERV")
+        .map(|v| v != "0")
+        .unwrap_or(true);
+
+    if !enable {
+        log::debug!("Hyper-V block rule disabled by TALPID_FIREWALL_BLOCK_HYPERV");
+    }
+
+    enable
+});
 
 /// Errors that can happen when configuring the Windows firewall.
 #[derive(thiserror::Error, Debug)]
@@ -46,7 +68,7 @@ const WINFW_TIMEOUT_SECONDS: u32 = 5;
 
 const LOGGING_CONTEXT: &[u8] = b"WinFw\0";
 
-/// The Windows implementation for the firewall and DNS.
+/// The Windows implementation for the firewall.
 pub struct Firewall(());
 
 impl Firewall {
@@ -89,11 +111,22 @@ impl Firewall {
             .into_result()?
         };
         log::trace!("Successfully initialized windows firewall module to a blocking state");
+
+        with_wmi_if_enabled(|wmi| {
+            let result = hyperv::add_blocking_hyperv_firewall_rules(wmi);
+            consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
+        });
+
         Ok(Firewall(()))
     }
 
     pub fn apply_policy(&mut self, policy: FirewallPolicy) -> Result<(), Error> {
-        match policy {
+        let should_block_hyperv = matches!(
+            policy,
+            FirewallPolicy::Connecting { .. } | FirewallPolicy::Blocked { .. }
+        );
+
+        let apply_result = match policy {
             FirewallPolicy::Connecting {
                 peer_endpoint,
                 tunnel,
@@ -130,11 +163,29 @@ impl Firewall {
                     allowed_endpoint.map(WinFwAllowedEndpointContainer::from),
                 )
             }
-        }
+        };
+
+        with_wmi_if_enabled(|wmi| {
+            if should_block_hyperv {
+                let result = hyperv::add_blocking_hyperv_firewall_rules(wmi);
+                consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
+            } else {
+                let result = hyperv::remove_blocking_hyperv_firewall_rules(wmi);
+                consume_and_log_hyperv_err("Remove block-all Hyper-V filter", result);
+            }
+        });
+
+        apply_result
     }
 
     pub fn reset_policy(&mut self) -> Result<(), Error> {
         unsafe { WinFw_Reset().into_result().map_err(Error::ResettingPolicy) }?;
+
+        with_wmi_if_enabled(|wmi| {
+            let result = hyperv::remove_blocking_hyperv_firewall_rules(wmi);
+            consume_and_log_hyperv_err("Remove block-all Hyper-V filter", result);
+        });
+
         Ok(())
     }
 
@@ -435,6 +486,36 @@ fn multibyte_to_wide(mb_string: &CStr, codepage: u32) -> Result<Vec<u16>, io::Er
     unsafe { wc_buffer.set_len((chars_written - 1) as usize) };
 
     Ok(wc_buffer)
+}
+
+// Convert `result` into an option and log the error, if any.
+fn consume_and_log_hyperv_err<T>(
+    action: &'static str,
+    result: Result<T, hyperv::Error>,
+) -> Option<T> {
+    result
+        .inspect_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg(&format!(
+                    "Failed: {action}. \
+                     Hyper-V (e.g. WSL machines) may leak in blocked states."
+                ))
+            );
+        })
+        .ok()
+}
+
+// Run a closure with the current thread's WMI connection, if available
+fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
+    if !*BLOCK_HYPERV {
+        return;
+    }
+    WMI.with(|wmi| {
+        if let Some(con) = wmi {
+            f(con)
+        }
+    })
 }
 
 #[allow(non_snake_case)]
