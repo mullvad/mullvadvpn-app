@@ -1,6 +1,6 @@
 use crate::{dns::ResolvedDnsConfig, tunnel::TunnelMetadata};
 
-use std::{ffi::CStr, io, net::IpAddr, ptr};
+use std::{ffi::CStr, io, net::IpAddr, ptr, sync::LazyLock};
 
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
@@ -21,6 +21,19 @@ thread_local! {
         hyperv::init_wmi(),
     );
 }
+
+/// Disable blocking Hyper-V rule
+static DISABLE_HYPERV_BLOCK: LazyLock<bool> = LazyLock::new(|| {
+    let disable = std::env::var("TALPID_FIREWALL_DISABLE_HYPERV_BLOCK")
+        .map(|v| v != "0")
+        .unwrap_or(false);
+
+    if disable {
+        log::debug!("Hyper-V block rule disabled by TALPID_FIREWALL_DISABLE_HYPERV_BLOCK");
+    }
+
+    disable
+});
 
 /// Errors that can happen when configuring the Windows firewall.
 #[derive(thiserror::Error, Debug)]
@@ -99,11 +112,9 @@ impl Firewall {
         };
         log::trace!("Successfully initialized windows firewall module to a blocking state");
 
-        WMI.with(|wmi| {
-            if let Some(con) = wmi {
-                let result = hyperv::add_blocking_hyperv_firewall_rule(con);
-                consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
-            }
+        with_wmi_if_enabled(|wmi| {
+            let result = hyperv::add_blocking_hyperv_firewall_rule(wmi);
+            consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
         });
 
         Ok(Firewall(()))
@@ -154,10 +165,7 @@ impl Firewall {
             }
         };
 
-        WMI.with(|wmi| {
-            let Some(wmi) = wmi else {
-                return;
-            };
+        with_wmi_if_enabled(|wmi| {
             if should_block_hyperv {
                 let result = hyperv::add_blocking_hyperv_firewall_rule(wmi);
                 consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
@@ -173,11 +181,8 @@ impl Firewall {
     pub fn reset_policy(&mut self) -> Result<(), Error> {
         unsafe { WinFw_Reset().into_result().map_err(Error::ResettingPolicy) }?;
 
-        WMI.with(|wmi| {
-            let Some(con) = wmi else {
-                return;
-            };
-            let result = hyperv::remove_blocking_hyperv_firewall_rule(con);
+        with_wmi_if_enabled(|wmi| {
+            let result = hyperv::remove_blocking_hyperv_firewall_rule(wmi);
             consume_and_log_hyperv_err("Remove block-all Hyper-V filter", result);
         });
 
@@ -499,6 +504,18 @@ fn consume_and_log_hyperv_err<T>(
             );
         })
         .ok()
+}
+
+// Run a closure with the current thread's WMI connection, if available
+fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
+    if *DISABLE_HYPERV_BLOCK {
+        return;
+    }
+    WMI.with(|wmi| {
+        if let Some(con) = wmi {
+            f(con)
+        }
+    })
 }
 
 #[allow(non_snake_case)]
