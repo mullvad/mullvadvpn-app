@@ -533,6 +533,13 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .wireguard()
         .multihop()
         .udp2tcp()
+        // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+        // This is an attempt to try to reduce this flakiness, but it relies on the following
+        // assumptions:
+        // 1. The client running this test is located in Sweden
+        // 2. There are at least two wireguard relays in Sweden
+        .entry(relay_constraints::GeographicLocationConstraint::country("se"))
+        .location(relay_constraints::GeographicLocationConstraint::country("se"))
         .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
