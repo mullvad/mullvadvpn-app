@@ -313,7 +313,6 @@ removed.
 
 
 ### Windows
-
 On Windows, persistent firewall filters may be added when the service exits, in case the service
 decides to continue to enforce a blocking policy. These filters block any traffic occurring before
 the service has started back up again during boot, including before the BFE service has started.
