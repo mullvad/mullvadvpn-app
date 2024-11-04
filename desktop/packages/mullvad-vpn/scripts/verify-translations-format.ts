@@ -2,7 +2,7 @@ import fs from 'fs';
 import { GetTextTranslation, po } from 'gettext-parser';
 import path from 'path';
 
-const LOCALES_DIR = path.join('..', 'locales');
+const LOCALES_DIR = path.join('locales');
 
 const ALLOWED_TAGS = ['b', 'br'];
 const ALLOWED_VOID_TAGS = ['br'];
