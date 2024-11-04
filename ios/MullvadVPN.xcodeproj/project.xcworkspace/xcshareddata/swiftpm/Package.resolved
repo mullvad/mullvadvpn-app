@@ -14,8 +14,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mullvad/wireguard-apple.git",
       "state" : {
-        "branch" : "icmp-socket-always-on",
-        "revision" : "b7d280b42bd5899acaa3f2a5c569c50dda2c608f"
+        "revision" : "cc6d3e918691c82d13389ad0fdbe8f35b683a6fc"
       }
     }
   ],

@@ -9251,8 +9251,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/mullvad/wireguard-apple.git";
 			requirement = {
-				branch = "icmp-socket-always-on";
-				kind = branch;
+				kind = revision;
+				revision = cc6d3e918691c82d13389ad0fdbe8f35b683a6fc;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
