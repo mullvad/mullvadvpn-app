@@ -11,6 +11,14 @@ pub async fn version() -> Result<String, Error> {
         .await
         .map_err(|e| Error::Service(e.to_string()))?;
     let version = String::from_utf8(version.stdout).map_err(|err| Error::Other(err.to_string()))?;
+    // HACK: The output from `mullvad --version` includes the `mullvad-cli` binary name followed by
+    // the version string. Simply remove the leading noise and get at the version string.
+    let Some(version) = version.split_whitespace().nth(1) else {
+        return Err(Error::Other(
+            "Could not parse version number from `mullvad-cli --version`".to_string(),
+        ));
+    };
+    let version = version.to_string();
     Ok(version)
 }
 

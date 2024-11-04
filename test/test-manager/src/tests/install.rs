@@ -111,9 +111,12 @@ pub async fn test_upgrade_app(
     // Verify that the correct version was installed
     // TODO: Verify that `app_package_filename` is the expected app version.
     let running_daemon_version = rpc.mullvad_daemon_version().await?;
+    let running_daemon_version =
+        mullvad_version::Version::parse(&running_daemon_version).to_string();
     ensure!(
-        mullvad_version::Version::parse(&running_daemon_version)
-            == mullvad_version::Version::parse(&TEST_CONFIG.app_package_filename),
+        &TEST_CONFIG
+            .app_package_filename
+            .contains(&running_daemon_version),
         Error::DaemonVersion {
             expected: TEST_CONFIG.app_package_filename.clone(),
             actual: running_daemon_version,

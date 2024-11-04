@@ -1,3 +1,4 @@
+use std::fmt::Display;
 use std::str::FromStr;
 use std::sync::LazyLock;
 
@@ -16,6 +17,21 @@ pub struct Version {
 impl Version {
     pub fn parse(version: &str) -> Version {
         Version::from_str(version).unwrap()
+    }
+}
+
+impl Display for Version {
+    /// Format Version as a string: year.incremental{-beta}
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let Version {
+            year,
+            incremental,
+            beta,
+        } = &self;
+        match beta {
+            Some(beta) => write!(f, "{year}.{incremental}-{beta}"),
+            None => write!(f, "{year}.{incremental}"),
+        }
     }
 }
 
