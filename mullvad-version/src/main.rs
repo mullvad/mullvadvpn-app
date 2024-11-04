@@ -1,12 +1,8 @@
-use regex::Regex;
+use mullvad_version::Version;
 use std::{env, process::exit};
 
 const ANDROID_VERSION: &str =
     include_str!(concat!(env!("OUT_DIR"), "/android-product-version.txt"));
-
-const VERSION_REGEX: &str = r"^20([0-9]{2})\.([1-9][0-9]?)(-beta([1-9][0-9]?))?(-dev-[0-9a-f]+)?$";
-
-const ANDROID_STABLE_VERSION_CODE_SUFFIX: &str = "99";
 
 fn main() {
     let command = env::args().nth(1);
@@ -53,7 +49,9 @@ fn to_semver(version: &str) -> String {
 /// Version: 2021.34
 /// versionCode: 21340099
 fn to_android_version_code(version: &str) -> String {
-    let version = parse_version(version);
+    const ANDROID_STABLE_VERSION_CODE_SUFFIX: &str = "99";
+
+    let version = Version::parse(version);
     format!(
         "{}{:0>2}00{:0>2}",
         version.year,
@@ -67,7 +65,7 @@ fn to_android_version_code(version: &str) -> String {
 fn to_windows_h_format(version: &str) -> String {
     let Version {
         year, incremental, ..
-    } = parse_version(version);
+    } = Version::parse(version);
 
     format!(
         "#define MAJOR_VERSION 20{year}
@@ -75,30 +73,4 @@ fn to_windows_h_format(version: &str) -> String {
 #define PATCH_VERSION 0
 #define PRODUCT_VERSION \"{version}\""
     )
-}
-
-struct Version {
-    year: String,
-    incremental: String,
-    beta: Option<String>,
-}
-
-fn parse_version(version: &str) -> Version {
-    let re = Regex::new(VERSION_REGEX).unwrap();
-    let captures = re
-        .captures(version)
-        .expect("Version does not match expected format");
-    let year = captures.get(1).expect("Missing year").as_str().to_owned();
-    let incremental = captures
-        .get(2)
-        .expect("Missing incremental")
-        .as_str()
-        .to_owned();
-    let beta = captures.get(4).map(|m| m.as_str().to_owned());
-
-    Version {
-        year,
-        incremental,
-        beta,
-    }
 }

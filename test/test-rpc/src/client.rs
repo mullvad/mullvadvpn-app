@@ -141,6 +141,16 @@ impl ServiceClient {
             .map_err(Error::Tarpc)
     }
 
+    /// Return the version string as reported by `mullvad --version`.
+    ///
+    /// TODO: Replace with nicer version type.
+    pub async fn mullvad_daemon_version(&self) -> Result<String, Error> {
+        self.client
+            .mullvad_version(tarpc::context::current())
+            .await
+            .map_err(Error::Tarpc)?
+    }
+
     /// Returns all Mullvad app files, directories, and other data found on the system.
     pub async fn find_mullvad_app_traces(&self) -> Result<Vec<AppTrace>, Error> {
         self.client

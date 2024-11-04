@@ -55,6 +55,9 @@ pub enum Error {
     #[error("Daemon unexpectedly not running")]
     DaemonNotRunning,
 
+    #[error("Incorrect deamon version installed. Expected {expected} but {actual} is installed")]
+    DaemonVersion { expected: String, actual: String },
+
     #[error("The daemon returned an error: {0}")]
     Daemon(String),
 

@@ -156,6 +156,9 @@ mod service {
         /// Return status of the system service.
         async fn mullvad_daemon_get_status() -> mullvad_daemon::ServiceStatus;
 
+        /// Return version number of installed daemon.
+        async fn mullvad_version() -> Result<String, Error>;
+
         /// Returns all Mullvad app files, directories, and other data found on the system.
         async fn find_mullvad_app_traces() -> Result<Vec<AppTrace>, Error>;
 

@@ -3,6 +3,17 @@ use std::path::{Path, PathBuf};
 
 use test_rpc::{AppTrace, Error};
 
+/// Get the installed app version string
+pub async fn version() -> Result<String, Error> {
+    let version = tokio::process::Command::new("mullvad")
+        .arg("--version")
+        .output()
+        .await
+        .map_err(|e| Error::Service(e.to_string()))?;
+    let version = String::from_utf8(version.stdout).map_err(|err| Error::Other(err.to_string()))?;
+    Ok(version)
+}
+
 #[cfg(target_os = "windows")]
 pub fn find_traces() -> Result<Vec<AppTrace>, Error> {
     // TODO: Check GUI data
