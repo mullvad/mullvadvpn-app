@@ -31,17 +31,17 @@ thread_local! {
     };
 }
 
-/// Disable blocking Hyper-V rule
-static DISABLE_HYPERV_BLOCK: LazyLock<bool> = LazyLock::new(|| {
-    let disable = std::env::var("TALPID_FIREWALL_DISABLE_HYPERV_BLOCK")
+/// Enable or disable blocking Hyper-V rule
+static BLOCK_HYPERV: LazyLock<bool> = LazyLock::new(|| {
+    let enable = std::env::var("TALPID_FIREWALL_BLOCK_HYPERV")
         .map(|v| v != "0")
-        .unwrap_or(false);
+        .unwrap_or(true);
 
-    if disable {
-        log::debug!("Hyper-V block rule disabled by TALPID_FIREWALL_DISABLE_HYPERV_BLOCK");
+    if enable {
+        log::debug!("Hyper-V block rule disabled by TALPID_FIREWALL_BLOCK_HYPERV");
     }
 
-    disable
+    enable
 });
 
 /// Errors that can happen when configuring the Windows firewall.
@@ -122,7 +122,7 @@ impl Firewall {
         log::trace!("Successfully initialized windows firewall module to a blocking state");
 
         with_wmi_if_enabled(|wmi| {
-            let result = hyperv::add_blocking_hyperv_firewall_rule(wmi);
+            let result = hyperv::add_blocking_hyperv_firewall_rules(wmi);
             consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
         });
 
@@ -176,10 +176,10 @@ impl Firewall {
 
         with_wmi_if_enabled(|wmi| {
             if should_block_hyperv {
-                let result = hyperv::add_blocking_hyperv_firewall_rule(wmi);
+                let result = hyperv::add_blocking_hyperv_firewall_rules(wmi);
                 consume_and_log_hyperv_err("Add block-all Hyper-V filter", result);
             } else {
-                let result = hyperv::remove_blocking_hyperv_firewall_rule(wmi);
+                let result = hyperv::remove_blocking_hyperv_firewall_rules(wmi);
                 consume_and_log_hyperv_err("Remove block-all Hyper-V filter", result);
             }
         });
@@ -191,7 +191,7 @@ impl Firewall {
         unsafe { WinFw_Reset().into_result().map_err(Error::ResettingPolicy) }?;
 
         with_wmi_if_enabled(|wmi| {
-            let result = hyperv::remove_blocking_hyperv_firewall_rule(wmi);
+            let result = hyperv::remove_blocking_hyperv_firewall_rules(wmi);
             consume_and_log_hyperv_err("Remove block-all Hyper-V filter", result);
         });
 
@@ -514,7 +514,7 @@ fn consume_and_log_hyperv_err<T>(
 
 // Run a closure with the current thread's WMI connection, if available
 fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
-    if *DISABLE_HYPERV_BLOCK {
+    if !*BLOCK_HYPERV {
         return;
     }
     WMI.with(|wmi| {
