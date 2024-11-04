@@ -61,7 +61,7 @@ detekt = "1.23.7"
 jodatime = "2.13.0"
 kermit = "2.0.4"
 konsist = "0.16.1"
-ktfmt = "0.20.1"
+ktfmt = "0.21.0"
 leakcanary = "2.14"
 
 # Blocked updating to 1.13.13 due to regression
