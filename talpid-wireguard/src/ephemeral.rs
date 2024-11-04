@@ -2,7 +2,8 @@
 //! restarting obfuscation and WG tunnels when necessary.
 
 use super::{
-    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel, WireguardMonitor,
+    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, DynAny, Error, Tunnel,
+    WireguardMonitor,
 };
 use std::any::Any;
 #[cfg(target_os = "android")]
@@ -68,7 +69,6 @@ fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
     }
 }
 
-#[cfg(not(windows))]
 pub async fn config_ephemeral_peers(
     tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
     config: &mut Config,
@@ -76,7 +76,7 @@ pub async fn config_ephemeral_peers(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-) -> std::result::Result<(), CloseMsg> {
+) -> Result<(), CloseMsg> {
     config_ephemeral_peers_inner(
         tunnel,
         config,
@@ -96,7 +96,7 @@ async fn config_ephemeral_peers_inner(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-) -> std::result::Result<(), CloseMsg> {
+) -> Result<(), CloseMsg> {
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
 
@@ -173,6 +173,8 @@ async fn config_ephemeral_peers_inner(
     )
     .await?;
 
+    log::info!("Config: {config:#?}");
+
     #[cfg(daita)]
     if config.daita {
         // Start local DAITA machines
@@ -188,6 +190,7 @@ async fn config_ephemeral_peers_inner(
     Ok(())
 }
 
+#[cfg(target_os = "android")]
 /// Reconfigures the tunnel to use the provided config while potentially modifying the config
 /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
 async fn reconfigure_tunnel(
@@ -195,9 +198,9 @@ async fn reconfigure_tunnel(
     mut config: Config,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(target_os = "android")] tun_provider: &Arc<Mutex<TunProvider>>,
+    tun_provider: &Arc<Mutex<TunProvider>>,
     multihop: bool,
-) -> std::result::Result<Config, CloseMsg> {
+) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
         obfuscator_handle.abort();
@@ -211,7 +214,45 @@ async fn reconfigure_tunnel(
         .map_err(CloseMsg::ObfuscatorFailed)?;
     }
 
-    #[cfg(not(target_os = "android"))]
+    let mut lock = tunnel.lock().await;
+
+    let tunnel = lock.take().expect("tunnel was None");
+    let tunnel = tunnel
+        .to_any()
+        .downcast::<Box<WgGoTunnel>>()
+        .expect("tunnel was not WgGoTunnel");
+
+    // TODO: We could conditionally only do this more expensive tunnel reconfig if the current
+    // tunnel is a multihop tunnel, because it is hacky.
+    let new_tunnel = if multihop {
+        tunnel.restart_as_multihop_tunnel(&config).unwrap()
+    } else {
+        // TODO: We need to restart the tunnel in singlehop config here !!!!!!
+        // Regular, singlehop stuff.
+        tunnel.restart_tunnel(&config).unwrap()
+    };
+
+    *lock = Some(Box::new(new_tunnel));
+    Ok(config)
+}
+
+#[cfg(not(target_os = "android"))]
+/// Reconfigures the tunnel to use the provided config while potentially modifying the config
+/// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
+async fn reconfigure_tunnel(
+    tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    mut config: Config,
+    obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
+    close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
+) -> Result<Config, CloseMsg> {
+    let mut obfs_guard = obfuscator.lock().await;
+    if let Some(obfuscator_handle) = obfs_guard.take() {
+        obfuscator_handle.abort();
+        *obfs_guard = super::obfuscation::apply_obfuscation_config(&mut config, close_obfs_sender)
+            .await
+            .map_err(CloseMsg::ObfuscatorFailed)?;
+    }
+
     {
         let mut tunnel = tunnel.lock().await;
 
@@ -223,39 +264,6 @@ async fn reconfigure_tunnel(
             f.await
                 .map_err(Error::TunnelError)
                 .map_err(CloseMsg::SetupError)?;
-        }
-    }
-
-    #[cfg(target_os = "android")]
-    {
-        // TODO: We could conditionally only do this more expensive tunnel reconfig if the current
-        // tunnel is a multihop tunnel, because it is hacky.
-        if multihop {
-            let mut tunnel_guard = tunnel.lock().await;
-
-            let Some(tunnel_box) = tunnel_guard.take() else {
-                panic!("invalid multihop tunnel")
-            };
-
-            let tunnel = tunnel_box.to_any();
-            let tunnel = tunnel.downcast::<Box<WgGoTunnel>>().unwrap();
-            let tunnel = tunnel.restart_as_multihop_tunnel(&config).unwrap();
-
-            *tunnel_guard = Some(Box::new(tunnel));
-        } else {
-            // TODO: We need to restart the tunnel in singlehop config here !!!!!!
-            // Regular, singlehop stuff.
-            let mut tunnel_guard = tunnel.lock().await;
-
-            let Some(tunnel_box) = tunnel_guard.take() else {
-                panic!("invalid multihop tunnel")
-            };
-
-            let tunnel = tunnel_box.to_any();
-            let tunnel = tunnel.downcast::<Box<WgGoTunnel>>().unwrap();
-            let tunnel = tunnel.restart_tunnel(&config).unwrap();
-
-            *tunnel_guard = Some(Box::new(tunnel));
         }
     }
 
