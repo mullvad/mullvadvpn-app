@@ -314,12 +314,32 @@ removed.
 
 ### Windows
 
+#### Security during boot
+
 On Windows, persistent firewall filters may be added when the service exits, in case the service
 decides to continue to enforce a blocking policy. These filters block any traffic occurring before
 the service has started back up again during boot, including before the BFE service has started.
 
 As with "Always require VPN", enabling "Auto-connect" in the service will cause it to
 enforce the blocking policy before being stopped.
+
+#### Hyper-V and WSL
+
+WSL (as well as other Windows features) relies on the Hyper-V hypervisor. Normal WFP filters do not
+in general apply to VMs. The guarantees are therefore weaker for VMs, but leaks will typically not
+occur when routes are correctly set up.
+
+The Mullvad service mitigates the issue by blocking all Hyper-V traffic in secured states, excepting
+the connected state. The connected state is exempted since the routing table will ensure that
+traffic is tunneled in that case, at least for WSL instances.
+
+There are certain limitations to this mitigation. For example, LAN traffic will never be blocked
+while connected, regardless of whether "Local network sharing" is enabled. Moreover, DNS leaks are
+more likely to occur.
+
+The Microsoft Edge browser has a deprecated feature known as Application Guard. This feature does
+not just bypass the normal firewall filters, but also sends all traffic out on the physical
+network interface. Be aware that this means that traffic will never be sent through the VPN tunnel.
 
 ### Linux
 
