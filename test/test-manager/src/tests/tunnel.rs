@@ -524,6 +524,10 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
@@ -533,6 +537,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .wireguard()
         .multihop()
         .udp2tcp()
+        .entry(LowLatency)
+        .location(LowLatency)
         .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
