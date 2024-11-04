@@ -87,7 +87,7 @@ pub fn add_blocking_hyperv_firewall_rules(con: &wmi::WMIConnection) -> Result<()
     )
 }
 
-#[repr(u16)]
+#[repr(i32)]
 enum Direction {
     Inbound = 1,
     Outbound = 2,
@@ -120,7 +120,7 @@ fn add_blocking_rule(
     // Enabled: 1 = enabled
     put_instance_property(&instance, "Enabled", &VARIANT::from(1))?;
 
-    put_instance_property(&instance, "Direction", &VARIANT::from(direction as u16))?;
+    put_instance_property(&instance, "Direction", &VARIANT::from(direction as i32))?;
 
     // SAFETY: We have a valid instance
     unsafe {
