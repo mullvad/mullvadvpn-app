@@ -181,12 +181,12 @@ exempted since the routing table will ensure that traffic is tunneled in that ca
 (see details below).
 
 There are certain limitations to this mitigation. First, the Hyper-V firewall is only available on
-*Windows 11 version 22H2 and above*. It will likely have no effect on earlier versions of Windows.
+*Windows 11 version 22H2 and above*, so it has no effect on earlier versions of Windows.
 Additionally, LAN traffic will never be blocked while connected, regardless of whether "Local
 network sharing" is enabled. Moreover, DNS leaks are more likely to occur.
 
 Your [WSL config] needs to enable the `firewall` setting for the Hyper-V firewall to be enabled.
-This is true by default (on Windows 11 version 22H2 and above).
+It is enabled by default.
 
 #### Linux under WSL2
 
