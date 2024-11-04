@@ -173,6 +173,8 @@ async fn config_ephemeral_peers_inner(
     )
     .await?;
 
+    log::info!("Config: {config:#?}");
+
     #[cfg(daita)]
     if config.daita {
         // Start local DAITA machines
