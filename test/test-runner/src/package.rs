@@ -173,6 +173,13 @@ fn apt_command() -> Command {
     // instead.
     cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
     cmd.arg("-qy");
+    // `apt` may consider installing a development build to be a downgrade from the baseline if the
+    // major version is identical, in which case the ordering is incorrectly based on the git hash
+    // suffix.
+    //
+    // Note that this is only sound if we take precaution to check the installed version after
+    // running this command.
+    cmd.arg("--allow-downgrades");
 
     cmd.env("DEBIAN_FRONTEND", "noninteractive");
 
