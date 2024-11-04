@@ -169,14 +169,20 @@ app. We have observed it on macOS 14.6 and newer, but it could very well have ex
 The Hyper-V Virtual Ethernet Adapter passes traffic to and from guests without letting the
 host’s firewall inspect the packets in the same way normal packets are inspected.
 The forwarded (NATed) packets are seen in the lower layers of WFP (OSI layer 2) as
-Ethernet frames only. This means that all firewall rules inserted by the Mullvad app
+Ethernet frames only. This means that all the normal firewall rules inserted by the Mullvad app
 to stop leaks are circumvented.
 
-This affects all virtual machines, containers and software running on a Hyper-V virtual network.
+This problem affects all virtual machines, containers and software running on a Hyper-V virtual
+network.
 
-We currently have no fix for this issue. We have been experimenting with simply blocking all
-layer 2 traffic. This solution would be safer, but at the same time break some software. The
-user can instead choose to not use said software.
+The app mitigates the issue by blocking all Hyper-V traffic in secured states using Hyper-V-specific
+filters, i.e. a firewall that applies specifically to the Hyper-V hypervisor. The connected state is
+exempted since the routing table will ensure that traffic is tunneled in that case, at least for WSL
+(see details below).
+
+There are certain limitations to this mitigation. For example, LAN traffic will never be blocked
+while connected, regardless of whether "Local network sharing" is enabled. Moreover, DNS leaks are
+more likely to occur.
 
 #### Linux under WSL2
 
@@ -184,12 +190,7 @@ Network traffic from a Linux guest running under WSL2 always goes out the defaul
 the host machine without being inspected by the normal layers of WFP (the firewall on the
 Windows host that Mullvad use to prevent leaks). This means that if there is a VPN tunnel
 up and running, the Linux guest’s traffic will be sent via the VPN with no leaks!
-However, if there is no active VPN tunnel, as is the case when the app is disconnected,
-connecting, reconnecting, or blocking (after an error occurred) then the Linux guest’s
-traffic will leak out on the regular network, even if “Lockdown mode” is enabled.
-
-WSL1 does not have this issue. So if you need to prevent leaks and you also need to use
-Linux on Windows, you can try using it under WSL1 instead.
+In the other states, the mitigation above is used to prevent leaks.
 
 #### Edge using Application guard
 
@@ -197,7 +198,8 @@ When running the Microsoft Edge browser with Microsoft Defender Application Guar
 the browser uses Hyper-V networking underneath. This makes the network traffic generated
 by the browser ignore the Mullvad firewall rules. On top of this, it even ignores the routing
 table, and *always* send the traffic directly on the physical network interface
-instead of the tunnel interface.
+instead of the tunnel interface. Hence, the mitigation above is ineffective when the VPN tunnel is
+active.
 
 This affects all app versions and all versions of Edge on Application Guard as far as we know.
 Since [Application Guard is deprecated] we are not going to put much effort into solving this.
