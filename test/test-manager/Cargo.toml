@@ -57,6 +57,7 @@ mullvad-api = { path = "../../mullvad-api", features = ["api-override"] }
 mullvad-management-interface = { path = "../../mullvad-management-interface" }
 mullvad-relay-selector = { path = "../../mullvad-relay-selector" }
 mullvad-types = { path = "../../mullvad-types" }
+mullvad-version = { path = "../../mullvad-version" }
 talpid-types = { path = "../../talpid-types" }
 
 ssh2 = "0.9.4"

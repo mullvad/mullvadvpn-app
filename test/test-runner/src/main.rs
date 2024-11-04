@@ -136,6 +136,11 @@ impl Service for TestServer {
         get_pipe_status()
     }
 
+    /// Get the installed app version
+    async fn mullvad_version(self, _: context::Context) -> Result<String, test_rpc::Error> {
+        app::version().await
+    }
+
     async fn find_mullvad_app_traces(
         self,
         _: context::Context,
