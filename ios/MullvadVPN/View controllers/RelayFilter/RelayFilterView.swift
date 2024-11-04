@@ -32,10 +32,16 @@ class RelayFilterView: UIView {
         return label
     }()
 
-    private let ownershipView = RelayFilterChipView()
-    private let providersView = RelayFilterChipView()
-    private let daitaView = RelayFilterChipView()
+    private var chips: [ChipConfiguration] = [] {
+        didSet {
+            isHidden = chips.isEmpty
+        }
+    }
+
+    private var chipsView = ChipCollectionView()
+    private var collectionViewHeightConstraint: NSLayoutConstraint!
     private var filter: RelayFilter?
+    private var contentSizeObservation: NSKeyValueObservation?
 
     var didUpdateFilter: ((RelayFilter) -> Void)?
 
@@ -51,92 +57,112 @@ class RelayFilterView: UIView {
 
     func setFilter(_ filter: RelayFilter) {
         self.filter = filter
-
-        ownershipView.isHidden = filter.ownership == .any
-        providersView.isHidden = filter.providers == .any
-
-        switch filter.ownership {
-        case .any:
-            break
-        case .owned:
-            ownershipView.setTitle(localizedOwnershipText(for: "Owned"))
-        case .rented:
-            ownershipView.setTitle(localizedOwnershipText(for: "Rented"))
-        }
-
-        switch filter.providers {
-        case .any:
-            providersView.isHidden = true
-        case let .only(providers):
-            providersView.setTitle(localizedProvidersText(for: providers.count))
-        }
+        self.chips.removeAll(where: { $0.group == .filter })
+        let filterChips = createFilterChips(for: filter)
+        chips += filterChips
+        chipsView.setChips(chips)
     }
 
     func setDaita(_ enabled: Bool) {
-        daitaView.isHidden = !enabled
-    }
-
-    private func setUpViews() {
-        daitaView.setTitle(localizedDaitaText())
-        daitaView.isHidden = true
-        daitaView.closeButton.isHidden = true
-
-        ownershipView.isHidden = true
-        ownershipView.didTapButton = { [weak self] in
-            guard var filter = self?.filter else { return }
-
-            filter.ownership = .any
-            self?.didUpdateFilter?(filter)
-        }
-
-        providersView.isHidden = true
-        providersView.didTapButton = { [weak self] in
-            guard var filter = self?.filter else { return }
-
-            filter.providers = .any
-            self?.didUpdateFilter?(filter)
-        }
-
-        // Add a dummy view at the end to push content to the left.
-        let filterContainer = UIStackView(arrangedSubviews: [daitaView, ownershipView, providersView, UIView()])
-        filterContainer.spacing = UIMetrics.FilterView.interChipViewSpacing
-
-        let contentContainer = UIStackView(arrangedSubviews: [titleLabel, filterContainer])
-        contentContainer.spacing = UIMetrics.FilterView.labelSpacing
-
-        addConstrainedSubviews([contentContainer]) {
-            contentContainer.pinEdges(.init([.top(7), .bottom(0)]), to: self)
-            contentContainer.pinEdges(.init([.leading(4), .trailing(4)]), to: layoutMarginsGuide)
-        }
-    }
-
-    private func localizedDaitaText() -> String {
-        return NSLocalizedString(
+        let text = NSLocalizedString(
             "RELAY_FILTER_APPLIED_DAITA",
             tableName: "RelayFilter",
             value: "Setting: DAITA",
             comment: ""
         )
+        chips.removeAll(where: { $0.title == text })
+        guard enabled else {
+            return
+        }
+        chips.insert(ChipConfiguration(group: .settings, title: text), at: 0)
+        chipsView.setChips(chips)
     }
 
-    private func localizedOwnershipText(for string: String) -> String {
-        return NSLocalizedString(
-            "RELAY_FILTER_APPLIED_OWNERSHIP",
-            tableName: "RelayFilter",
-            value: string,
-            comment: ""
-        )
+    // MARK: - Private
+
+    private func setUpViews() {
+        let contentContainer = UIStackView(arrangedSubviews: [titleLabel, chipsView])
+        contentContainer.distribution = .fill
+        contentContainer.spacing = UIMetrics.FilterView.labelSpacing
+
+        collectionViewHeightConstraint = chipsView.collectionView.heightAnchor
+            .constraint(equalToConstant: 8.0)
+        collectionViewHeightConstraint.isActive = true
+
+        addConstrainedSubviews([contentContainer]) {
+            contentContainer.pinEdgesToSuperview(PinnableEdges([.top(8.0), .bottom(8.0), .leading(4), .trailing(4)]))
+        }
+
+        // Add KVO for observing collectionView's contentSize changes
+        observeContentSize()
     }
 
-    private func localizedProvidersText(for count: Int) -> String {
-        return String(
-            format: NSLocalizedString(
-                "RELAY_FILTER_APPLIED_PROVIDERS",
+    private func createFilterChips(for filter: RelayFilter) -> [ChipConfiguration] {
+        var filterChips: [ChipConfiguration] = []
+
+        // Ownership Chip
+        if let ownershipChip = createOwnershipChip(for: filter.ownership) {
+            filterChips.append(ownershipChip)
+        }
+
+        // Providers Chip
+        if let providersChip = createProvidersChip(for: filter.providers) {
+            filterChips.append(providersChip)
+        }
+
+        return filterChips
+    }
+
+    private func createOwnershipChip(for ownership: RelayFilter.Ownership) -> ChipConfiguration? {
+        switch ownership {
+        case .any:
+            return nil
+        case .owned, .rented:
+            let title = NSLocalizedString(
+                "RELAY_FILTER_APPLIED_OWNERSHIP",
                 tableName: "RelayFilter",
-                value: "Providers: %d",
+                value: ownership == .owned ? "Owned" : "Rented",
                 comment: ""
-            ),
-            count
-        )
+            )
+            return ChipConfiguration(group: .filter, title: title, didTapButton: { [weak self] in
+                guard var filter = self?.filter else { return }
+                filter.ownership = .any
+                self?.didUpdateFilter?(filter)
+            })
+        }
+    }
+
+    private func createProvidersChip(for providers: RelayConstraint<[String]>) -> ChipConfiguration? {
+        switch providers {
+        case .any:
+            return nil
+        case let .only(providerList):
+            let title = String(
+                format: NSLocalizedString(
+                    "RELAY_FILTER_APPLIED_PROVIDERS",
+                    tableName: "RelayFilter",
+                    value: "Providers: %d",
+                    comment: ""
+                ),
+                providerList.count
+            )
+            return ChipConfiguration(group: .filter, title: title, didTapButton: { [weak self] in
+                guard var filter = self?.filter else { return }
+                filter.providers = .any
+                self?.didUpdateFilter?(filter)
+            })
+        }
+    }
+
+    private func observeContentSize() {
+        contentSizeObservation = chipsView.collectionView.observe(\.contentSize, options: [
+            .new,
+            .old,
+        ]) { [weak self] _, change in
+            guard let self, let newSize = change.newValue else { return }
+            let height = newSize.height == .zero ? 8 : newSize.height
+            collectionViewHeightConstraint.constant = height > 80 ? 80 : height
+            layoutIfNeeded() // Update the layout
+        }
     }
 }
