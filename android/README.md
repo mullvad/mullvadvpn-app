@@ -54,8 +54,8 @@ scripts/tidy.sh formatAndCheckDiff
 ```
 
 #### macOS
-Since macOS is using a different version of `sed` running the tidy script (`scripts/tidy.sh`) will 
-lead to the creation of a large number of files ending with `-e`. The recommended fix for this 
+Since macOS is using a different version of `sed` running the tidy script (`scripts/tidy.sh`) will
+lead to the creation of a large number of files ending with `-e`. The recommended fix for this
 issue is to install the gnu version of `sed`. This can be done by running:
 `brew install gnu-sed` and then set `gnu-sed` as your default `sed`.
 
@@ -66,12 +66,12 @@ strict. See each `build.gradle.kts`for more information.
 
 ## Translations and localization
 
-See the [locale README][gui-locales-readme] for how to easily update translations. It also includes
-documentation for which phrases and terms shouldn't be translated (Do Not Translate). Also see the
-[translations converter README](translations-converter-readme) for documentation about
+See the [locale README][desktop-locales-readme] for how to easily update translations. It also
+includes documentation for which phrases and terms shouldn't be translated (Do Not Translate).
+Also see the [translations converter README](translations-converter-readme) for documentation about
 the tool used to sync translations between the Android and Desktop apps.
 
-[gui-locales-readme]: ../gui/locales/README.md
+[desktop-locales-readme]: ../desktop-electron-app/packages/mullvad-vpn/locales/README.md
 [translations-converter-readme]: ./translations-converter/README.md
 
 ## Icons and assets
