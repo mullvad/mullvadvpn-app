@@ -36,10 +36,6 @@ final class LocationViewController: UIViewController {
         .lightContent
     }
 
-    var filterViewShouldBeHidden: Bool {
-        !shouldFilterDaita && (filter.ownership == .any) && (filter.providers == .any)
-    }
-
     init(
         customListRepository: CustomListRepositoryProtocol,
         selectedRelays: RelaySelection,
@@ -91,21 +87,12 @@ final class LocationViewController: UIViewController {
     func setRelaysWithLocation(_ relaysWithLocation: LocationRelays, filter: RelayFilter) {
         self.relaysWithLocation = relaysWithLocation
         self.filter = filter
-
         filterView.setFilter(filter)
-        if filterViewShouldBeHidden {
-            filterView.isHidden = true
-        } else {
-            filterView.isHidden = false
-        }
-
         dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
     }
 
     func setShouldFilterDaita(_ shouldFilterDaita: Bool) {
         self.shouldFilterDaita = shouldFilterDaita
-
-        filterView.isHidden = filterViewShouldBeHidden
         filterView.setDaita(shouldFilterDaita)
     }
 
@@ -187,8 +174,6 @@ final class LocationViewController: UIViewController {
         topContentView.axis = .vertical
         topContentView.addArrangedSubview(filterView)
         topContentView.addArrangedSubview(searchBar)
-
-        filterView.isHidden = filterViewShouldBeHidden
         filterView.setDaita(shouldFilterDaita)
 
         filterView.didUpdateFilter = { [weak self] in
