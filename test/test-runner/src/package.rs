@@ -173,6 +173,12 @@ fn apt_command() -> Command {
     // instead.
     cmd.args(["-o", "DPkg::Lock::Timeout=60"]);
     cmd.arg("-qy");
+    // `apt` may sporadically consider installing a development build to be a downgrade from the baseline stable
+    // version, which is why we pass this flag.
+    //
+    // Note that this is only sound if we take precaution to check the installed version after
+    // running this command.
+    cmd.arg("--allow-downgrades");
 
     cmd.env("DEBIAN_FRONTEND", "noninteractive");
 
