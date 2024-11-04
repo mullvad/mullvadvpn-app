@@ -14,12 +14,21 @@ use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
 
 mod hyperv;
 
+const HYPERV_LEAK_WARNING_MSG: &str = "Hyper-V (e.g. WSL machines) may leak in blocked states.";
+
 // `COMLibrary` must be initialized for per thread, so use TLS
 thread_local! {
-    static WMI: Option<wmi::WMIConnection> = consume_and_log_hyperv_err(
-        "Initialize COM and WMI",
-        hyperv::init_wmi(),
-    );
+    static WMI: Option<wmi::WMIConnection> = {
+        let result = hyperv::init_wmi();
+        if matches!(&result, Err(hyperv::Error::ObtainHyperVClass(_))) {
+            log::warn!("The Hyper-V firewall is not available. {HYPERV_LEAK_WARNING_MSG}");
+            return None;
+        }
+        consume_and_log_hyperv_err(
+            "Initialize COM and WMI",
+            result,
+        )
+    };
 }
 
 /// Enable or disable blocking Hyper-V rule
@@ -497,10 +506,7 @@ fn consume_and_log_hyperv_err<T>(
         .inspect_err(|error| {
             log::error!(
                 "{}",
-                error.display_chain_with_msg(&format!(
-                    "Failed: {action}. \
-                     Hyper-V (e.g. WSL machines) may leak in blocked states."
-                ))
+                error.display_chain_with_msg(&format!("{action}. {HYPERV_LEAK_WARNING_MSG}"))
             );
         })
         .ok()

@@ -40,11 +40,18 @@ pub enum Error {
 /// Initialize WMI connection to the ROOT\StandardCIMV2 namespace, which may be used for
 /// interacting with Hyper-V rules.
 pub fn init_wmi() -> Result<wmi::WMIConnection, Error> {
-    wmi::WMIConnection::with_namespace_path(
+    let con = wmi::WMIConnection::with_namespace_path(
         WMI_NAMESPACE,
         wmi::COMLibrary::new().map_err(Error::InitializeCom)?,
     )
-    .map_err(Error::ConnectWmi)
+    .map_err(Error::ConnectWmi)?;
+
+    // Test whether the class is available
+    let _ = con
+        .get_raw_by_path("MSFT_NetFirewallHyperVRule")
+        .map_err(Error::ObtainHyperVClass)?;
+
+    Ok(con)
 }
 
 /// Add a Hyper-V rule that blocks all traffic using WMI (Windows Management Instrumentation).
