@@ -559,6 +559,10 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
@@ -568,6 +572,8 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
         .wireguard()
         .multihop()
         .shadowsocks()
+        .entry(LowLatency)
+        .location(LowLatency)
         .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
