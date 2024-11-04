@@ -65,10 +65,6 @@ impl NetworkManagerTunnel {
 }
 
 impl Tunnel for NetworkManagerTunnel {
-    fn to_any(self: Box<Self>) -> Box<dyn Any> {
-        Box::new(self)
-    }
-
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
     }

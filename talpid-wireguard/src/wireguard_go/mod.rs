@@ -52,6 +52,8 @@ pub struct WgGoTunnel {
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
+    // HACK: Don't use this. Only sometimes. ;-)
+    _log_path: Option<PathBuf>,
     // context that maps to fs::File instance, used with logging callback
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
@@ -144,6 +146,7 @@ impl WgGoTunnel {
 
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
+        let _log_path = log_path.clone();
         let logging_context = initialize_logging(log_path)
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
@@ -164,6 +167,7 @@ impl WgGoTunnel {
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
+            _log_path: _log_path.map(|log_path| log_path.to_owned()),
             tun_provider: tun_provider_clone,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
@@ -185,6 +189,7 @@ impl WgGoTunnel {
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
+        let _log_path = log_path.clone();
         let logging_context = initialize_logging(log_path)
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
@@ -216,6 +221,7 @@ impl WgGoTunnel {
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
+            _log_path: _log_path.map(|log_path| log_path.to_owned()),
             tun_provider: tun_provider_clone,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
@@ -228,7 +234,7 @@ impl WgGoTunnel {
     // singlehop
     #[cfg(target_os = "android")]
     pub fn restart_tunnel(self, config: &Config) -> Result<Self> {
-        let log_path = None;
+        let log_path = self._log_path.clone();
         let tun_provider = Arc::clone(&self.tun_provider);
         let routes = config.get_tunnel_destinations();
         #[cfg(daita)]
@@ -236,13 +242,19 @@ impl WgGoTunnel {
 
         // Important!
         Box::new(self).stop().unwrap();
-        Self::start_tunnel(config, log_path, tun_provider, routes, &resource_dir)
+        Self::start_tunnel(
+            config,
+            log_path.as_deref(),
+            tun_provider,
+            routes,
+            &resource_dir,
+        )
     }
 
     // TODO: Rename
     #[cfg(target_os = "android")]
     pub fn restart_as_multihop_tunnel(self, config: &Config) -> Result<Self> {
-        let log_path = None;
+        let log_path = self._log_path.clone();
         let tun_provider = Arc::clone(&self.tun_provider);
         // TODO: Document this / compare to open_wireguard_go_tunnel
         let routes = config.get_tunnel_destinations();
@@ -251,7 +263,13 @@ impl WgGoTunnel {
 
         Box::new(self).stop().unwrap();
 
-        Self::start_multihop_tunnel(config, log_path, tun_provider, routes, &resource_dir)
+        Self::start_multihop_tunnel(
+            config,
+            log_path.as_deref(),
+            tun_provider,
+            routes,
+            &resource_dir,
+        )
     }
 
     #[cfg(target_os = "android")]
@@ -367,7 +385,8 @@ impl Tunnel for WgGoTunnel {
             MAYBENOT_MACHINES.get_or_try_init(|| load_maybenot_machines(&self.resource_dir))?;
 
         log::info!("Initializing DAITA for wireguard device");
-        let peer_public_key = &self.config.entry_peer.public_key;
+        //let peer_public_key = &self.config.entry_peer.public_key;
+        let peer_public_key = &self.config.exit_peer.as_ref().unwrap().public_key;
         self.tunnel_handle
             .activate_daita(
                 peer_public_key.as_bytes(),
@@ -378,10 +397,6 @@ impl Tunnel for WgGoTunnel {
             .map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
 
         Ok(())
-    }
-
-    fn to_any(self: Box<Self>) -> Box<dyn Any> {
-        Box::new(self)
     }
 }
 
