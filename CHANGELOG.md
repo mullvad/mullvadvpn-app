@@ -48,6 +48,13 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix packets being duplicated on LAN when split tunneling is enabled.
 
+### Security
+#### Windows
+- Block WSL/Hyper-V traffic in secured states (except the connected state). The normal firewall
+  (WFP) filters normally do not apply for VMs. This mitigates the issue by ensuring that it does not
+  leak (as easily) when the VPN tunnel is up. Previously, WSL would leak while in the blocked or
+  connecting state, or while lockdown mode was active.
+
 
 ## [2024.7] - 2024-10-30
 This release is identical to 2024.7-beta1.
