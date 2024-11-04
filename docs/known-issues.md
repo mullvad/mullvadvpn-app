@@ -180,9 +180,13 @@ filters, i.e. a firewall that applies specifically to the Hyper-V hypervisor. Th
 exempted since the routing table will ensure that traffic is tunneled in that case, at least for WSL
 (see details below).
 
-There are certain limitations to this mitigation. For example, LAN traffic will never be blocked
-while connected, regardless of whether "Local network sharing" is enabled. Moreover, DNS leaks are
-more likely to occur.
+There are certain limitations to this mitigation. First, the Hyper-V firewall is only available on
+*Windows 11 version 22H2 and above*. It will likely have no effect on earlier versions of Windows.
+Additionally, LAN traffic will never be blocked while connected, regardless of whether "Local
+network sharing" is enabled. Moreover, DNS leaks are more likely to occur.
+
+Your [WSL config] needs to enable the `firewall` setting for the Hyper-V firewall to be enabled.
+This is true by default (on Windows 11 version 22H2 and above).
 
 #### Linux under WSL2
 
@@ -206,6 +210,7 @@ Since [Application Guard is deprecated] we are not going to put much effort into
 We recommend users to not use Application Guard.
 
 [Application Guard is deprecated]: https://learn.microsoft.com/en-us/deployedge/microsoft-edge-security-windows-defender-application-guard
+[WSL config]: https://learn.microsoft.com/en-us/windows/wsl/wsl-config#main-wsl-settings
 
 #### Other VPN software
 
