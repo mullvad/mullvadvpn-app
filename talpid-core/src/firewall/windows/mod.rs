@@ -37,7 +37,7 @@ static BLOCK_HYPERV: LazyLock<bool> = LazyLock::new(|| {
         .map(|v| v != "0")
         .unwrap_or(true);
 
-    if enable {
+    if !enable {
         log::debug!("Hyper-V block rule disabled by TALPID_FIREWALL_BLOCK_HYPERV");
     }
 
