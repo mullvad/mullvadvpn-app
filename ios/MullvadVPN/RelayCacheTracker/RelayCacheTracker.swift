@@ -37,7 +37,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
     private let backgroundTaskProvider: BackgroundTaskProviding
 
     /// Lock used for synchronization.
-    private let relayCacheLock = NSLock()
+    private let relayCacheLock = NSRecursiveLock()
 
     /// Internal operation queue.
     private let operationQueue = AsyncOperationQueue.makeSerial()
