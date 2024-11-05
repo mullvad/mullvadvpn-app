@@ -15,6 +15,9 @@ ASSETS=(
     "build/test/e2e/shared/*.js"
     "build/test/e2e/installed/*.js"
     "build/test/e2e/installed/**/*.js"
+)
+
+NODE_MODULES=(
     "node_modules/.bin/playwright"
     "node_modules/playwright"
     "node_modules/playwright-core"
@@ -27,7 +30,7 @@ function build_test_executable {
     local temp_dir
     temp_dir="$(mktemp -d)"
     local temp_executable="$temp_dir/temp-test-executable$bin_suffix"
-    local output="../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
+    local output="../../../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
     local node_copy_path="$temp_dir/node$bin_suffix"
     local node_path
     node_path="$(volta which node || which node)"
@@ -35,7 +38,7 @@ function build_test_executable {
     # pack assets
     cp "$node_path" "$node_copy_path"
     # shellcheck disable=SC2068
-    tar -czf ./build/test/assets.tar.gz ${ASSETS[@]}
+    tar -czf ./build/test/assets.tar.gz ${ASSETS[@]} -C ../../ ${NODE_MODULES[@]}
 
     cp "$node_copy_path" "$temp_executable"
     node --experimental-sea-config standalone-tests.sea.json
