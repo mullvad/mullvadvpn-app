@@ -16,7 +16,7 @@ feature graphics in the app's Google Play Store listing. The PNG image should be
 The main and official mole logo. Used to generate icons on a bunch of platforms.
 
 If `icon.svg` is changed. You need to run the following to generate new assets:
-* Desktop: `gui/scripts/build-logo-icons.sh`
+* Desktop: `desktop-electron-app/packages/mullvad-vpn/scripts/build-logo-icons.sh`
 * Android: `android/scripts/generate-pngs.sh`
 
 ### `icon-square.svg`

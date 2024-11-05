@@ -11,7 +11,7 @@ on your platform please submit an issue or a pull request.
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
 
 - You need Node.js and npm. You can find the exact versions in the `volta` section of
-  `gui/package.json`. The toolchain is managed by volta.
+  `desktop-electron-app/package.json`. The toolchain is managed by volta.
 
   - Linux & macOS
 
@@ -186,17 +186,21 @@ To build the management interface proto files there is a script (execute it on a
 ARM64 Linux):
 
 ```bash
-cd gui/scripts
-npm ci
-./build-proto.sh
+cd desktop-electron-app
+npm ci -w mullvad-vpn
+npm run -w mullvad-vpn build-proto
 ```
 
-After that copy the files from `gui/src/main/management_interface/` and
-`gui/build/src/main/management_interface/` directories into a single directory, and set the value
-of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main build.
+After that copy the files from the following directories into a single directory:
+```
+desktop-electron-app/packages/mullvad-vpn/src/main/management_interface/
+desktop-electron-app/packages/mullvad-vpn/build/src/main/management_interface/
+```
+Set the value of `MANAGEMENT_INTERFACE_PROTO_BUILD_DIR` to that directory while running the main
+build.
 
-When all is done, run the main build. Assuming that you copied the proto files into `/tmp/management_interface_proto`
-directory, the build command will look as follows:
+When all is done, run the main build. Assuming that you copied the proto files into
+`/tmp/management_interface_proto` directory, the build command will look as follows:
 
 ```bash
 MANAGEMENT_INTERFACE_PROTO_BUILD_DIR=/tmp/management_interface_proto ./build.sh --dev-build
@@ -246,28 +250,28 @@ This section is for building the system service individually.
     Leave out `sudo` on Windows. The daemon must run as root since it modifies the firewall and sets
     up virtual network interfaces etc.
 
-# Building and running the GUI app
+# Building and running the desktop app
 
-This section is for building the GUI app individually.
+This section is for building the desktop app individually.
 
-1. Go to the `gui` directory
+1. Go to the `desktop-electron-app` directory
    ```bash
-   cd gui
+   cd desktop-electron-app
    ```
 
 1. Install all the JavaScript dependencies by running:
     ```bash
-    npm install
+    npm install -w mullvad-vpn
     ```
 
-1. Start the GUI in development mode by running:
+1. Start the Electron app in development mode by running:
     ```bash
-    npm run develop
+    npm run -w mullvad-vpn develop
     ```
 
 If you change any javascript file while the development mode is running it will automatically
 transpile and reload the file so that the changes are visible almost immediately.
 
-Please note that the GUI needs a running daemon to connect to in order to work. See
+Please note that the Electron app needs a running daemon to connect to in order to work. See
 [Building and running mullvad-daemon](#building-and-running-mullvad-daemon) for instructions
-on how to do that before starting the GUI.
+on how to do that before starting the Electron app.
