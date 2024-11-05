@@ -51,7 +51,7 @@ echo "Generating new components..."
 # Using a loop here since providing all tasks at once result in gradle task dependency issues.
 for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
     echo "Gradle task: $GRADLE_TASK"
-    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "$GRADLE_TASK" "${EXCLUDED_GRADLE_TASKS[@]}"
+    ../gradlew --stacktrace -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "$GRADLE_TASK" "${EXCLUDED_GRADLE_TASKS[@]}"
     echo ""
 done
 
