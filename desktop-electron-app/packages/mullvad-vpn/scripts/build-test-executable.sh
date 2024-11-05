@@ -15,10 +15,10 @@ ASSETS=(
     "build/test/e2e/shared/*.js"
     "build/test/e2e/installed/*.js"
     "build/test/e2e/installed/**/*.js"
-    "node_modules/.bin/playwright"
-    "node_modules/playwright"
-    "node_modules/playwright-core"
-    "node_modules/@playwright/test"
+    "../../node_modules/.bin/playwright"
+    "../../node_modules/playwright"
+    "../../node_modules/playwright-core"
+    "../../node_modules/@playwright/test"
 )
 
 function build_test_executable {
@@ -27,7 +27,7 @@ function build_test_executable {
     local temp_dir
     temp_dir="$(mktemp -d)"
     local temp_executable="$temp_dir/temp-test-executable$bin_suffix"
-    local output="../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
+    local output="../../../dist/app-e2e-tests-$PRODUCT_VERSION-$TARGET$bin_suffix"
     local node_copy_path="$temp_dir/node$bin_suffix"
     local node_path
     node_path="$(volta which node || which node)"

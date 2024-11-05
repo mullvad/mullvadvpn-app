@@ -45,8 +45,9 @@ if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
     exit 1
 fi
 
-if [[ $DESKTOP == "true" && $(grep "CHANGE THIS BEFORE A RELEASE" gui/changes.txt) != "" ]]; then
-    echo "It looks like you did not update gui/changes.txt"
+desktop_changes_path=desktop-electron-app/packages/mullvad-vpn/changes.txt
+if [[ $DESKTOP == "true" && $(grep "CHANGE THIS BEFORE A RELEASE" $desktop_changes_path) != "" ]]; then
+    echo "It looks like you did not update $desktop_changes_path"
     exit 1
 fi
 

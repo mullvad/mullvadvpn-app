@@ -356,7 +356,7 @@ cargo run --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
 log_header "Installing JavaScript dependencies"
 
-pushd gui
+pushd desktop-electron-app/packages/mullvad-vpn
 npm ci
 
 log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
