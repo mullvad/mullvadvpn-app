@@ -110,10 +110,9 @@ enum UIMetrics {
     }
 
     enum FilterView {
-        static let labelSpacing: CGFloat = 5
         static let interChipViewSpacing: CGFloat = 8
         static let chipViewCornerRadius: CGFloat = 8
-        static let chipViewLayoutMargins = UIEdgeInsets(top: 3, left: 8, bottom: 3, right: 8)
+        static let chipViewLayoutMargins = UIEdgeInsets(top: 5, left: 8, bottom: 5, right: 8)
         static let chipViewLabelSpacing: CGFloat = 7
     }
 
