@@ -84,6 +84,7 @@ impl Shadowsocks {
         let (shutdown_tx, shutdown_rx) = oneshot::channel();
 
         let remote_socket = create_shadowsocks_socket(
+            settings.shadowsocks_endpoint.is_ipv4(),
             #[cfg(target_os = "linux")]
             settings.fwmark,
         )
@@ -175,12 +176,17 @@ fn connect_shadowsocks(
 }
 
 async fn create_shadowsocks_socket(
+    ipv4: bool,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> std::result::Result<UdpSocket, Error> {
-    let socket = UdpSocket::bind("0.0.0.0:0")
+    let random_bind_addr = if ipv4 {
+        SocketAddr::new("0.0.0.0".parse().unwrap(), 0)
+    } else {
+        SocketAddr::new("::".parse().unwrap(), 0)
+    };
+    let socket = UdpSocket::bind(random_bind_addr)
         .await
         .map_err(Error::BindRemoteUdp)?;
-
     #[cfg(target_os = "linux")]
     if let Some(fwmark) = fwmark {
         setsockopt(socket.as_raw_fd(), sockopt::Mark, &fwmark).map_err(Error::SetFwmark)?;
