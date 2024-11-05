@@ -13,7 +13,8 @@ use std::{
 use talpid_tunnel::tun_provider::TunProvider;
 
 use ipnetwork::IpNetwork;
-use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
+use talpid_tunnel_config_client::EphemeralPeer;
+use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
 
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
@@ -97,7 +98,7 @@ async fn config_ephemeral_peers_inner(
     let close_obfs_sender = close_obfs_sender.clone();
 
     let exit_should_have_daita = config.daita && !config.is_multihop();
-    let exit_psk = request_ephemeral_peer(
+    let exit_ephemeral_peer = request_ephemeral_peer(
         retry_attempt,
         config,
         ephemeral_private_key.public_key(),
@@ -105,6 +106,9 @@ async fn config_ephemeral_peers_inner(
         exit_should_have_daita,
     )
     .await?;
+
+    #[cfg(not(target_os = "windows"))]
+    let mut daita = exit_ephemeral_peer.daita;
 
     log::debug!("Retrieved ephemeral peer");
 
@@ -126,7 +130,7 @@ async fn config_ephemeral_peers_inner(
             &tun_provider,
         )
         .await?;
-        let entry_psk = request_ephemeral_peer(
+        let entry_ephemeral_peer = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
             ephemeral_private_key.public_key(),
@@ -136,10 +140,14 @@ async fn config_ephemeral_peers_inner(
         .await?;
         log::debug!("Successfully exchanged PSK with entry peer");
 
-        config.entry_peer.psk = entry_psk;
+        config.entry_peer.psk = entry_ephemeral_peer.psk;
+        #[cfg(not(target_os = "windows"))]
+        {
+            daita = entry_ephemeral_peer.daita;
+        }
     }
 
-    config.exit_peer_mut().psk = exit_psk;
+    config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
     #[cfg(daita)]
     if config.daita {
         log::trace!("Enabling constant packet size for entry peer");
@@ -160,9 +168,22 @@ async fn config_ephemeral_peers_inner(
 
     #[cfg(daita)]
     if config.daita {
+        #[cfg(not(target_os = "windows"))]
+        let Some(daita) = daita
+        else {
+            unreachable!("missing DAITA settings");
+        };
+
         // Start local DAITA machines
         let mut tunnel = tunnel.lock().await;
         if let Some(tunnel) = tunnel.as_mut() {
+            #[cfg(not(target_os = "windows"))]
+            tunnel
+                .start_daita(daita)
+                .map_err(Error::TunnelError)
+                .map_err(CloseMsg::SetupError)?;
+
+            #[cfg(target_os = "windows")]
             tunnel
                 .start_daita()
                 .map_err(Error::TunnelError)
@@ -216,7 +237,7 @@ async fn request_ephemeral_peer(
     wg_psk_pubkey: PublicKey,
     enable_pq: bool,
     enable_daita: bool,
-) -> std::result::Result<Option<PresharedKey>, CloseMsg> {
+) -> std::result::Result<EphemeralPeer, CloseMsg> {
     log::debug!("Requesting ephemeral peer");
 
     let timeout = std::cmp::min(
@@ -243,5 +264,5 @@ async fn request_ephemeral_peer(
     .map_err(Error::EphemeralPeerNegotiationError)
     .map_err(CloseMsg::SetupError)?;
 
-    Ok(ephemeral.psk)
+    Ok(ephemeral)
 }

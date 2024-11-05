@@ -1,8 +1,6 @@
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
-use once_cell::sync::OnceCell;
-#[cfg(daita)]
-use std::{ffi::CString, fs, path::PathBuf};
+use std::ffi::CString;
 use std::{
     future::Future,
     os::unix::io::{AsRawFd, RawFd},
@@ -22,6 +20,8 @@ use super::{
 #[cfg(target_os = "linux")]
 use crate::config::MULLVAD_INTERFACE_NAME;
 use crate::logging::{clean_up_logging, initialize_logging};
+#[cfg(daita)]
+use talpid_tunnel_config_client::DaitaSettings;
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
@@ -54,8 +54,6 @@ pub struct WgGoTunnel {
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
     #[cfg(daita)]
-    resource_dir: PathBuf,
-    #[cfg(daita)]
     config: Config,
 }
 
@@ -65,7 +63,6 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
         #[cfg(target_os = "android")]
         let tun_provider_clone = tun_provider.clone();
@@ -102,8 +99,6 @@ impl WgGoTunnel {
             _logging_context: logging_context,
             #[cfg(target_os = "android")]
             tun_provider: tun_provider_clone,
-            #[cfg(daita)]
-            resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
         })
@@ -216,17 +211,20 @@ impl Tunnel for WgGoTunnel {
     }
 
     #[cfg(daita)]
-    fn start_daita(&mut self) -> Result<()> {
-        static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
-        let machines =
-            MAYBENOT_MACHINES.get_or_try_init(|| load_maybenot_machines(&self.resource_dir))?;
-
+    fn start_daita(&mut self, settings: DaitaSettings) -> Result<()> {
         log::info!("Initializing DAITA for wireguard device");
         let peer_public_key = &self.config.entry_peer.public_key;
+
+        let machines = settings.client_machines.join("\n");
+        let machines =
+            CString::new(machines).map_err(|err| TunnelError::StartDaita(Box::new(err)))?;
+
         self.tunnel_handle
             .activate_daita(
                 peer_public_key.as_bytes(),
-                machines,
+                &machines,
+                settings.max_padding_frac,
+                settings.max_blocking_frac,
                 DAITA_EVENTS_CAPACITY,
                 DAITA_ACTIONS_CAPACITY,
             )

@@ -160,6 +160,8 @@ impl Tunnel {
         &self,
         peer_public_key: &[u8; 32],
         machines: &CStr,
+        max_padding_frac: f64,
+        max_blocking_frac: f64,
         events_capacity: u32,
         actions_capacity: u32,
     ) -> Result<(), Error> {
@@ -169,6 +171,8 @@ impl Tunnel {
                 self.handle,
                 peer_public_key.as_ptr(),
                 machines.as_ptr(),
+                max_padding_frac,
+                max_blocking_frac,
                 events_capacity,
                 actions_capacity,
             )
@@ -294,6 +298,8 @@ mod ffi {
             tunnel_handle: i32,
             peer_public_key: *const u8,
             machines: *const c_char,
+            max_padding_frac: f64,
+            max_blocking_frac: f64,
             events_capacity: u32,
             actions_capacity: u32,
         ) -> i32;
