@@ -1,6 +1,8 @@
-use once_cell::sync::OnceCell;
+use std::sync::OnceLock;
 use std::{ops::Deref, path::Path};
 use test_rpc::meta::Os;
+
+pub static TEST_CONFIG: TestConfigContainer = TestConfigContainer::new();
 
 /// Default `mullvad_host`. This should match the production env.
 pub const DEFAULT_MULLVAD_HOST: &str = "mullvad.net";
@@ -110,9 +112,13 @@ impl Default for BootstrapScript {
 }
 
 #[derive(Debug, Clone)]
-pub struct TestConfigContainer(OnceCell<TestConfig>);
+pub struct TestConfigContainer(OnceLock<TestConfig>);
 
 impl TestConfigContainer {
+    const fn new() -> Self {
+        TestConfigContainer(OnceLock::new())
+    }
+
     /// Initializes the constants.
     ///
     /// # Panics
@@ -130,5 +136,3 @@ impl Deref for TestConfigContainer {
         self.0.get().unwrap()
     }
 }
-
-pub static TEST_CONFIG: TestConfigContainer = TestConfigContainer(OnceCell::new());

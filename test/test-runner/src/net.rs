@@ -251,10 +251,10 @@ pub fn get_interface_mac(_interface: &str) -> Result<Option<[u8; 6]>, test_rpc::
 
 #[cfg(target_os = "windows")]
 pub fn get_default_interface() -> &'static str {
-    use once_cell::sync::OnceCell;
+    use std::sync::OnceLock;
     use talpid_platform_metadata::WindowsVersion;
 
-    static WINDOWS_VERSION: OnceCell<WindowsVersion> = OnceCell::new();
+    static WINDOWS_VERSION: OnceLock<WindowsVersion> = OnceLock::new();
     let version = WINDOWS_VERSION
         .get_or_init(|| WindowsVersion::new().expect("failed to obtain Windows version"));
 
