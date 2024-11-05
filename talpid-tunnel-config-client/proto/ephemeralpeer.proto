@@ -41,6 +41,7 @@ message EphemeralPeerRequestV1 {
   bytes wg_ephemeral_peer_pubkey = 2;
   PostQuantumRequestV1 post_quantum = 3;
   DaitaRequestV1 daita = 4;
+  DaitaRequestV2 daita_v2 = 5;
 }
 
 // The v1 request supports these three algorithms.
@@ -57,6 +58,41 @@ message KemPubkeyV1 {
 }
 
 message DaitaRequestV1 { bool activate_daita = 1; }
+
+enum DaitaPlatform {
+  undefined = 0;
+  windows_native = 1;
+  linux_wg_go = 2;
+  macos_wg_go = 3;
+  ios_wg_go = 4;
+  android_wg_go = 5;
+}
+
+enum DaitaLevel {
+  level_default = 0;
+  level_1 = 1;
+  level_2 = 2;
+  level_3 = 3;
+  level_4 = 4;
+  level_5 = 5;
+  level_6 = 6;
+  level_7 = 7;
+  level_8 = 8;
+  level_9 = 9;
+  level_10 = 10;
+}
+
+message DaitaRequestV2 {
+  uint32 version = 1;
+  DaitaPlatform platform = 2;
+  DaitaLevel level = 3;
+}
+
+message DaitaResponseV2 {
+  repeated string client_machines = 1;
+  double max_padding_frac = 2;
+  double max_blocking_frac = 3;
+}
 
 message EphemeralPeerResponseV1 {
   // The response from the VPN server contains:
@@ -80,6 +116,8 @@ message EphemeralPeerResponseV1 {
   // is known. Both B *and* C must be known to compute any bit in A. This means all involved
   // KEM algorithms must be broken before the PSK can be computed by an attacker.
   PostQuantumResponseV1 post_quantum = 1;
+
+  DaitaResponseV2 daita = 2;
 }
 
 message PostQuantumResponseV1 { repeated bytes ciphertexts = 1; }
