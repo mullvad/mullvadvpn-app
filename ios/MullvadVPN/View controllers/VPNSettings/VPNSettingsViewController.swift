@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+import SwiftUI
 import UIKit
 
 protocol VPNSettingsViewControllerDelegate: AnyObject {
@@ -123,6 +124,14 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
 
     func showIPOverrides() {
         delegate?.showIPOverrides()
+    }
+
+    func showUDPTCPObfuscationSettings() {
+        let viewModel = TunnelUDPTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
+        let view = UDPTCPObfuscationSettingsView(viewModel: viewModel)
+        let vc = UIHostingController(rootView: view)
+        vc.title = "UDP TCP Obfuscation"
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {
