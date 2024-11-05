@@ -1,5 +1,6 @@
 use crate::ProxyHandle;
 
+use libc::c_char;
 use mullvad_encrypted_dns_proxy::state::{EncryptedDnsProxyState as State, FetchConfigError};
 use mullvad_encrypted_dns_proxy::Forwarder;
 use std::{
@@ -9,10 +10,13 @@ use std::{
 };
 use tokio::{net::TcpListener, task::JoinHandle};
 
+use std::ffi::CStr;
+
 /// A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
 /// can start a local forwarder (see [`Self::start`]).
 pub struct EncryptedDnsProxyState {
     state: State,
+    domain: String,
 }
 
 #[derive(Debug)]
@@ -47,7 +51,7 @@ impl From<Error> for i32 {
 impl EncryptedDnsProxyState {
     async fn start(&mut self) -> Result<ProxyHandle, Error> {
         self.state
-            .fetch_configs()
+            .fetch_configs(&self.domain)
             .await
             .map_err(Error::FetchConfig)?;
         let proxy_configuration = self.state.next_configuration().ok_or(Error::NoConfigs)?;
@@ -79,9 +83,17 @@ impl EncryptedDnsProxyState {
 
 /// Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
 #[no_mangle]
-pub unsafe extern "C" fn encrypted_dns_proxy_init() -> *mut EncryptedDnsProxyState {
+pub unsafe extern "C" fn encrypted_dns_proxy_init(
+    domain_name: *const c_char,
+) -> *mut EncryptedDnsProxyState {
+    let domain = unsafe {
+        let c_str = CStr::from_ptr(domain_name);
+        String::from_utf8_lossy(c_str.to_bytes())
+    };
+
     let state = Box::new(EncryptedDnsProxyState {
         state: State::default(),
+        domain: domain.into_owned(),
     });
     Box::into_raw(state)
 }
