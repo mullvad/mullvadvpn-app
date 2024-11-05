@@ -66,6 +66,19 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             cell.disclosureType = .chevron
             cell.accessibilityIdentifier = item.accessibilityIdentifier
 
+        case .udpTcpObfuscationSettings:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "UDP_TCP_OBFUSCATION_CELL_LABEL",
+                tableName: "VPNSettings",
+                value: "UDP/TCP Obfuscation",
+                comment: ""
+            )
+
+            cell.disclosureType = .chevron
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+
         case let .wireGuardPort(port):
             guard let cell = cell as? SelectableSettingsCell else { return }
 
