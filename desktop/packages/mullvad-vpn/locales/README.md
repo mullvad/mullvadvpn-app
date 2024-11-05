@@ -2,38 +2,38 @@ This is a folder with gettext translations for Mullvad VPN app.
 
 ## Adding new translations
 
-1. Create a new sub-folder under `gui/locales`, use the locale identifier for the folder name.
-   
+1. Create a new sub-folder under `../locales`, use the locale identifier for the folder name.
+
    The complete list of supported locale identifiers can be found at:
-   
+
    https://electronjs.org/docs/api/locales
 
-1. Add a new language on Crowdin under Settings -> Translations -> Target languages menu. 
-   
+1. Add a new language on Crowdin under Settings -> Translations -> Target languages menu.
+
    By default the file structure is configured to produce folders with translations using two-letter
-   language code (defined under Settings -> Files -> <FILE> -> ... [ellipsis] -> Settings). 
-  
-   If you wish to add a dialect (i.e: `pt-BR`), you have to provide a custom mapping 
+   language code (defined under Settings -> Files -> <FILE> -> ... [ellipsis] -> Settings).
+
+   If you wish to add a dialect (i.e: `pt-BR`), you have to provide a custom mapping
    to tell Crowdin to output Portuguese (Brazil) as `pt-BR` instead of `pt`.
-   
-   In order to add a language mapping, go to Settings -> General Settings -> Language mapping 
+
+   In order to add a language mapping, go to Settings -> General Settings -> Language mapping
    (three faders icon on the left hand side of the "Translations" menu).
 
-1. Follow the procedure as described in `gui/scripts/README.md`.
+1. Follow the procedure as described in `../scripts/README.md`.
 
-1. Optional: Upload the automatically translated `<NEW_LOCALE>/relay-locations.po` to 
-   Crowdin. 
-   
+1. Optional: Upload the automatically translated `<NEW_LOCALE>/relay-locations.po` to
+   Crowdin.
+
    *Note: Replace `<NEW_LOCALE>` with the identifier of a newly added language.*
-   
+
    1. ZIP file with the following command:
-   
+
       ```
-      cd gui/locales
+      cd ../locales
       zip payload.zip <NEW_LOCALE>/relay-locations.po
       ```
-   
-   1. Upload `payload.zip` to Crowdin via web interface (Settings -> Translations -> Upload 
+
+   1. Upload `payload.zip` to Crowdin via web interface (Settings -> Translations -> Upload
       translations).
 
 1. Add the language to `SUPPORTED_LOCALE_LIST` in `app.tsx`.
