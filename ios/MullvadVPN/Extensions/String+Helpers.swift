@@ -1,5 +1,5 @@
 //
-//  String+Split.swift
+//  String+Helpers.swift
 //  MullvadVPN
 //
 //  Created by pronebird on 27/03/2020.
@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension String {
     /// Returns the array of the longest possible subsequences of the given length.
