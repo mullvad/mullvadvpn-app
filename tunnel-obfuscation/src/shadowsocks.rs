@@ -123,7 +123,7 @@ async fn run_forwarding(
         .await
         .map_err(Error::WaitForUdpClient)?;
 
-    let shadowsocks = connect_shadowsocks(remote_socket, shadowsocks_endpoint)?;
+    let shadowsocks = connect_shadowsocks(remote_socket, shadowsocks_endpoint);
     let shadowsocks = Arc::new(shadowsocks);
 
     let local_udp = Arc::new(local_udp_socket);
@@ -157,22 +157,14 @@ async fn run_forwarding(
     Ok(())
 }
 
-fn connect_shadowsocks(
-    remote_socket: UdpSocket,
-    shadowsocks_endpoint: SocketAddr,
-) -> std::result::Result<ProxySocket, Error> {
+fn connect_shadowsocks(remote_socket: UdpSocket, shadowsocks_endpoint: SocketAddr) -> ProxySocket {
     let ss_context = Context::new_shared(ServerType::Local);
     let ss_config: ServerConfig = ServerConfig::new(
         shadowsocks_endpoint,
         SHADOWSOCKS_PASSWORD,
         SHADOWSOCKS_CIPHER,
     );
-    Ok(ProxySocket::from_socket(
-        UdpSocketType::Client,
-        ss_context,
-        &ss_config,
-        remote_socket,
-    ))
+    ProxySocket::from_socket(UdpSocketType::Client, ss_context, &ss_config, remote_socket)
 }
 
 async fn create_shadowsocks_socket(
