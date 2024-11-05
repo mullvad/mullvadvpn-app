@@ -9,19 +9,30 @@
 import Foundation
 import Network
 
+protocol Connection {
+    init(nwConnection: NWConnection)
+    static var connectionParameters: NWParameters { get }
+}
+
 /// Minimal implementation of UDP connection capable of sending data.
 /// > Warning: Do not use this implementation in production code. See the warning in `start()`.
-class UDPConnection {
+class UDPConnection: Connection {
     private let dispatchQueue = DispatchQueue(label: "UDPConnection")
     private let nwConnection: NWConnection
 
-    init(remote: IPAddress, port: UInt16) {
-        nwConnection = NWConnection(
+    convenience init(remote: IPAddress, port: UInt16) {
+        self.init(nwConnection: NWConnection(
             host: NWEndpoint.Host("\(remote)"),
             port: NWEndpoint.Port(integerLiteral: port),
             using: .udp
-        )
+        ))
     }
+
+    required init(nwConnection: NWConnection) {
+        self.nwConnection = nwConnection
+    }
+
+    static var connectionParameters: NWParameters { .udp }
 
     deinit {
         cancel()
@@ -56,6 +67,22 @@ class UDPConnection {
 
     func cancel() {
         nwConnection.cancel()
+    }
+
+    func readSingleDatagram() async throws -> Data {
+        return try await withCheckedThrowingContinuation { continuation in
+            nwConnection.receiveMessage { data, _, _, error in
+                guard let data else {
+                    continuation.resume(throwing: POSIXError(.EIO))
+                    return
+                }
+                if let error {
+                    continuation.resume(throwing: error)
+                    return
+                }
+                continuation.resume(with: .success(data))
+            }
+        }
     }
 
     func sendData(_ data: Data) async throws {

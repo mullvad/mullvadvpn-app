@@ -1,5 +1,5 @@
 //
-//  TCPUnsafeListener.swift
+//  UnsafeListener.swift
 //  MullvadRustRuntimeTests
 //
 //  Created by pronebird on 27/06/2023.
@@ -8,25 +8,23 @@
 
 import Network
 
-/// Minimal implementation of a TCP listener.
-/// > Warning: Do not use this implementation in production code. See the warning in `start()`.
-class TCPUnsafeListener {
-    private let dispatchQueue = DispatchQueue(label: "TCPListener")
+class UnsafeListener<T: Connection> {
+    private let dispatchQueue = DispatchQueue(label: "com.test.unsafeListener")
     private let listener: NWListener
 
-    /// A stream of new TCP connections.
-    /// The caller may iterate over this stream to accept new TCP connections.
+    /// A stream of new connections.
+    /// The caller may iterate over this stream to accept new connections.
     ///
-    /// `TCPConnection` objects are returned unopen, so the caller has to call `TCPConnection.start()` to accept the
+    /// `Connection` objects are returned unopen, so the caller has to call `Connection.start()` to accept the
     /// connection before initiating the data exchange.
-    let newConnections: AsyncStream<TCPConnection>
+    let newConnections: AsyncStream<T>
 
     init() throws {
-        let listener = try NWListener(using: .tcp)
+        let listener = try NWListener(using: T.connectionParameters)
 
         newConnections = AsyncStream { continuation in
             listener.newConnectionHandler = { nwConnection in
-                continuation.yield(TCPConnection(nwConnection: nwConnection))
+                continuation.yield(T(nwConnection: nwConnection))
             }
             continuation.onTermination = { @Sendable _ in
                 listener.newConnectionHandler = nil
@@ -40,7 +38,7 @@ class TCPUnsafeListener {
         cancel()
     }
 
-    /// Local TCP port bound by listener on which it accepts new connections.
+    /// Local port bound by listener on which it accepts new connections.
     var listenPort: UInt16 {
         return listener.port?.rawValue ?? 0
     }
