@@ -59,8 +59,8 @@ impl EncryptedDnsProxyState {
     }
 
     /// Fetch a config, but error out only when no existing configuration was there.
-    pub async fn fetch_configs(&mut self) -> Result<(), FetchConfigError> {
-        match resolve_default_config().await {
+    pub async fn fetch_configs(&mut self, domain: &str) -> Result<(), FetchConfigError> {
+        match resolve_default_config(domain).await {
             Ok(new_configs) => {
                 self.configurations = HashSet::from_iter(new_configs.into_iter());
             }
