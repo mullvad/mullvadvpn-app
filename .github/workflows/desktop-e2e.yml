@@ -13,10 +13,13 @@ on:
   workflow_dispatch:
     inputs:
       oses:
-        description: "Space-delimited list of targets to run tests on, e.g. `debian11 debian12`. \
-          Available images are:\n
+        description: "Space-delimited list of targets to run tests on, e.g. `debian12 ubuntu2004`. \
+          Available images:\n
           `debian11 debian12 ubuntu2004 ubuntu2204 ubuntu2404 ubuntu2410 fedora39 \
-          fedora40 fedora41 windows10 windows11 macos12 macos13 macos14 macos15`."
+          fedora40 fedora41 windows10 windows11 macos12 macos13 macos14 macos15`.\n
+          Default images:\n
+          `debian12 ubuntu2004 ubuntu2204 ubuntu2404 ubuntu2410 fedora39 \
+          fedora40 fedora41 windows10 windows11 macos13 macos14 macos15`."
         default: ''
         required: false
         type: string
@@ -39,10 +42,11 @@ jobs:
           # A list of VMs to run the tests on. These refer to the names defined
           # in $XDG_CONFIG_DIR/mullvad-test/config.json on the runner.
           all='["debian11","debian12","ubuntu2004","ubuntu2204","ubuntu2404","ubuntu2410","fedora39","fedora40","fedora41"]'
+          default='["debian12","ubuntu2004","ubuntu2204","ubuntu2404","ubuntu2410","fedora39","fedora40","fedora41"]'
           oses="${{ github.event.inputs.oses }}"
           echo "OSES: $oses"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
-            selected="$all"
+            selected="$default"
           else
             oses=$(printf '%s\n' $oses | jq . -R | jq . -s)
             selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
@@ -53,9 +57,10 @@ jobs:
         shell: bash
         run: |
           all='["windows10","windows11"]'
+          default='["windows10","windows11"]'
           oses="${{ github.event.inputs.oses }}"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
-            selected="$all"
+            selected="$default"
           else
             oses=$(printf '%s\n' $oses | jq . -R | jq . -s)
             selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
@@ -66,9 +71,10 @@ jobs:
         shell: bash
         run: |
           all='["macos12","macos13","macos14","macos15"]'
+          default='["macos13","macos14","macos15"]'
           oses="${{ github.event.inputs.oses }}"
           if [[ -z "$oses" || "$oses" == "null" ]]; then
-            selected="$all"
+            selected="$default"
           else
             oses=$(printf '%s\n' $oses | jq . -R | jq . -s)
             selected=$(jq -cn --argjson oses "$oses" --argjson all "$all" '$all - ($all - $oses)')
