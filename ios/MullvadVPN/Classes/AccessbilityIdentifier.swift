@@ -177,6 +177,7 @@ public enum AccessibilityIdentifier: String {
     case wireGuardObfuscationUdpOverTcp
     case wireGuardObfuscationShadowsocks
     case wireGuardPort
+    case udpOverTcpObfuscationSettings
 
     // Custom DNS
     case blockAll
