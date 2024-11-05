@@ -1,0 +1,22 @@
+{
+  "name": "desktop",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "author": {
+    "name": "Mullvad VPN",
+    "email": "support@mullvadvpn.net"
+  },
+  "repository": "https://github.com/mullvad/mullvadvpn-app",
+  "license": "GPL-3.0",
+  "engines": {
+    "node": ">=16",
+    "npm": ">=8.3"
+  },
+  "volta": {
+    "node": "20.13.0",
+    "npm": "9.9.0"
+  }
+}

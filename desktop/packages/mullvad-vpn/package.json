@@ -55,7 +55,7 @@
     "chai-as-promised": "^7.1.1",
     "chai-spies": "^1.0.0",
     "cross-env": "^7.0.3",
-    "electron": "^30.0.4",
+    "electron": "30.0.4",
     "electron-builder": "^24.13.3",
     "electron-devtools-installer": "^3.2.0",
     "eslint": "^9.10.0",
@@ -86,6 +86,7 @@
     "xvfb-maybe": "^0.2.1"
   },
   "scripts": {
+    "preinstall": "test -d node_modules || mkdir node_modules",
     "postinstall": "cross-env ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES=true electron-builder install-app-deps",
     "build": "gulp build",
     "build-proto": "gulp build-proto",
@@ -106,12 +107,7 @@
     "pack:win": "gulp pack-win",
     "pack:linux": "gulp pack-linux"
   },
-  "engines": {
-    "node": ">=16",
-    "npm": ">=8.3"
-  },
   "volta": {
-    "node": "20.13.0",
-    "npm": "9.9.0"
+    "extends": "../../package.json"
   }
 }
