@@ -30,7 +30,7 @@ extension SettingsReaderStub {
             tunnelSettings: LatestTunnelSettings(
                 relayConstraints: RelayConstraints(),
                 dnsSettings: DNSSettings(),
-                wireGuardObfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
+                wireGuardObfuscation: WireGuardObfuscationSettings(state: .off),
                 tunnelQuantumResistance: .automatic,
                 tunnelMultihopState: .off,
                 daita: DAITASettings()
@@ -49,7 +49,7 @@ extension SettingsReaderStub {
             tunnelSettings: LatestTunnelSettings(
                 relayConstraints: RelayConstraints(),
                 dnsSettings: DNSSettings(),
-                wireGuardObfuscation: WireGuardObfuscationSettings(state: .off, port: .automatic),
+                wireGuardObfuscation: WireGuardObfuscationSettings(state: .off),
                 tunnelQuantumResistance: .on,
                 tunnelMultihopState: .off,
                 daita: DAITASettings()

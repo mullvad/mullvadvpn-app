@@ -145,14 +145,16 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: "UDP-over-TCP",
                 comment: ""
             )
+
             #if DEBUG
             cell.detailTitleLabel.text = String(format: NSLocalizedString(
                 "WIREGUARD_OBFUSCATION_UDP_TCP_PORT",
                 tableName: "VPNSettings",
-                value: "Port: %d",
+                value: "Port: %@",
                 comment: ""
-            ), viewModel.obfuscationPort.portValue)
+            ), viewModel.obfuscationUpdOverTcpPort.description)
             #endif
+
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
@@ -169,14 +171,16 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: "Shadowsocks",
                 comment: ""
             )
+
             #if DEBUG
             cell.detailTitleLabel.text = String(format: NSLocalizedString(
                 "WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT",
                 tableName: "VPNSettings",
-                value: "Port: %d",
+                value: "Port: %@",
                 comment: ""
-            ), viewModel.obfuscationPort.portValue)
+            ), viewModel.obfuscationShadowsocksPort.description)
             #endif
+
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
 
@@ -199,7 +203,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
         case let .wireGuardObfuscationPort(port):
             guard let cell = cell as? SelectableSettingsCell else { return }
 
-            let portString = port == 0 ? "Automatic" : "\(port)"
+            let portString = port.description
             cell.titleLabel.text = NSLocalizedString(
                 "WIREGUARD_OBFUSCATION_PORT_LABEL",
                 tableName: "VPNSettings",

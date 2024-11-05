@@ -136,7 +136,10 @@ final class MigrationManagerTests: XCTestCase {
 
         settingsV5.relayConstraints = relayConstraints
         settingsV5.tunnelQuantumResistance = .off
-        settingsV5.wireGuardObfuscation = WireGuardObfuscationSettings(state: .off, port: .automatic)
+        settingsV5.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .off,
+            udpOverTcpPort: .automatic
+        )
         settingsV5.tunnelMultihopState = .off
 
         try migrateToLatest(settingsV5, version: .v5)
@@ -158,7 +161,10 @@ final class MigrationManagerTests: XCTestCase {
 
         settingsV4.relayConstraints = relayConstraints
         settingsV4.tunnelQuantumResistance = .off
-        settingsV4.wireGuardObfuscation = WireGuardObfuscationSettings(state: .off, port: .automatic)
+        settingsV4.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .off,
+            udpOverTcpPort: .automatic
+        )
 
         try migrateToLatest(settingsV4, version: .v4)
 
@@ -178,7 +184,10 @@ final class MigrationManagerTests: XCTestCase {
 
         settingsV3.relayConstraints = relayConstraints
         settingsV3.dnsSettings = DNSSettings()
-        settingsV3.wireGuardObfuscation = WireGuardObfuscationSettings(state: .on, port: .port80)
+        settingsV3.wireGuardObfuscation = WireGuardObfuscationSettings(
+            state: .udpOverTcp,
+            udpOverTcpPort: .port80
+        )
 
         try migrateToLatest(settingsV3, version: .v3)
 
