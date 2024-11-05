@@ -32,8 +32,8 @@ If a new module is created, make sure to add it in
 
 It is possible to write tests for asserting graphical properties in the app, but
 this is a slightly more involved process. GUI tests are written in `Typescript`,
-and reside in the `gui/test/e2e` folder in the app repository. Packaging of
-these tests is also done from the `gui/` folder.
+and reside in the `desktop-electron-app/packages/mullvad-vpn/test/e2e` folder in the app repository.
+Packaging of these tests is also done from the `desktop-electron-app/packages/mullvad-vpn/` folder.
 
 Assuming that a graphical test `gui-test.spec` has been bundled correctly, it
 can be invoked from any Rust function by calling

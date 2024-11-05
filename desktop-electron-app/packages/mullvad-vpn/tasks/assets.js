@@ -21,7 +21,7 @@ function copyLocales() {
 }
 
 function copyGeoData() {
-  return src('../dist-assets/geo/*.gl').pipe(dest('build/assets/geo'));
+  return src('../../../dist-assets/geo/*.gl').pipe(dest('build/assets/geo'));
 }
 
 copyStaticAssets.displayName = 'copy-static-assets';

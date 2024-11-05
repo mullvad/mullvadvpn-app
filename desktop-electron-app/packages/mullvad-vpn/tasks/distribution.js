@@ -434,15 +434,15 @@ function packLinux() {
 }
 
 function buildAssets(relativePath) {
-  return path.join(path.resolve(__dirname, '../../build'), relativePath);
+  return root(path.join('build', relativePath));
 }
 
 function distAssets(relativePath) {
-  return path.join(path.resolve(__dirname, '../../dist-assets'), relativePath);
+  return root(path.join('dist-assets', relativePath));
 }
 
 function root(relativePath) {
-  return path.join(path.resolve(__dirname, '../../'), relativePath);
+  return path.join(path.resolve(__dirname, '../../../../'), relativePath);
 }
 
 function getWindowsDistSubdir() {

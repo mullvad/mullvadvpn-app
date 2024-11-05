@@ -154,7 +154,8 @@ async fn test_custom_access_methods_gui(
     // * SHADOWSOCKS_SERVER_CIPHER
     // * SHADOWSOCKS_SERVER_PASSWORD
     //
-    // See `gui/test/e2e/installed/state-dependent/api-access-methods.spec.ts`
+    // See
+    // `desktop-electron-app/packages/mullvad-vpn/test/e2e/installed/state-dependent/api-access-methods.spec.ts`
     // for details. The setup should be the same as in
     // `test_manager::tests::access_methods::test_shadowsocks`.
     //
@@ -223,7 +224,8 @@ async fn test_custom_bridge_gui(
     // * SHADOWSOCKS_SERVER_CIPHER
     // * SHADOWSOCKS_SERVER_PASSWORD
     //
-    // See `gui/test/e2e/installed/state-dependent/custom-bridge.spec.ts`
+    // See
+    // `desktop-electron-app/packages/mullvad-vpn/test/e2e/installed/state-dependent/custom-bridge.spec.ts`
     // for details. The setup should be the same as in
     // `test_manager::tests::access_methods::test_shadowsocks`.
 

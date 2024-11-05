@@ -7,7 +7,7 @@ import path from 'path';
 
 // This file is bundled into a standalone executable able to run e2e tests against an installed
 // version of the app. This file is the entrypoint in the executable and extracts the required
-// assets and performs the tests. More info in /gui/README.md.
+// assets and performs the tests. More info in /desktop-electron-app/packages/mullvad-vpn/README.md.
 
 const tmpDir = path.join(os.tmpdir(), 'mullvad-standalone-tests');
 

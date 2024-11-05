@@ -132,7 +132,8 @@ function build {
     fi
     mv dist/*.{deb,rpm,exe,pkg} "$artifact_dir" || return 1
 
-    (run_in_build_env gui/scripts/build-test-executable.sh "$target" && \
+    (run_in_build_env desktop-electron-app/packages/mullvad-vpn/scripts/build-test-executable.sh \
+        "$target" && \
         mv "dist/app-e2e-tests-$version"* "$artifact_dir") || \
         true
 }
