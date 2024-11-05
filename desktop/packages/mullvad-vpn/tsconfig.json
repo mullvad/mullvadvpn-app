@@ -1,21 +1,15 @@
 {
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "alwaysStrict": true,
     "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
     "jsx": "react-jsx",
     "module": "commonjs",
-    "noImplicitReturns": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "outDir": "build",
-    "resolveJsonModule": true,
     "rootDirs": [
       "src",
       "assets"
     ],
     "skipLibCheck": true,
-    "strict": true,
     "target": "es2021",
     "lib": [
       "es2021",
