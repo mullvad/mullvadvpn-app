@@ -20,6 +20,7 @@ protocol VPNSettingsDataSourceDelegate: AnyObject {
     func showDetails(for: VPNSettingsDetailsButtonItem)
     func showDNSSettings()
     func showIPOverrides()
+    func showUDPTCPObfuscationSettings()
     func didSelectWireGuardPort(_ port: UInt16?)
     func humanReadablePortRepresentation() -> String
 }

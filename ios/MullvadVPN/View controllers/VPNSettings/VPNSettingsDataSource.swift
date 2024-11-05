@@ -22,6 +22,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardCustomPort
         case wireGuardObfuscation
         case wireGuardObfuscationOption
+        case udpTcpObfuscationSettings
         case wireGuardObfuscationPort
         case quantumResistance
         case multihop
@@ -40,6 +41,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return SelectableSettingsDetailsCell.self
             case .wireGuardObfuscation:
                 return SelectableSettingsCell.self
+            case .udpTcpObfuscationSettings:
+                return SettingsCell.self
             case .wireGuardObfuscationPort:
                 return SelectableSettingsCell.self
             case .quantumResistance:
@@ -74,6 +77,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case ipOverrides
         case wireGuardPort(_ port: UInt16?)
         case wireGuardCustomPort
+        case udpTcpObfuscationSettings
         case wireGuardObfuscationAutomatic
         case wireGuardObfuscationUdpOverTcp
         case wireGuardObfuscationShadowsocks
@@ -127,6 +131,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .wireGuardPort
             case .wireGuardCustomPort:
                 return .wireGuardCustomPort
+            case .udpTcpObfuscationSettings:
+                return .udpTcpObfuscationSettings
             case .wireGuardObfuscationAutomatic:
                 return .wireGuardObfuscationAutomatic
             case .wireGuardObfuscationUdpOverTcp:
@@ -158,6 +164,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .wireGuardPort
             case .wireGuardCustomPort:
                 return .wireGuardCustomPort
+            case .udpTcpObfuscationSettings:
+                return .udpTcpObfuscationSettings
             case .wireGuardObfuscationAutomatic, .wireGuardObfuscationOff:
                 return .wireGuardObfuscation
             case .wireGuardObfuscationUdpOverTcp, .wireGuardObfuscationShadowsocks:
@@ -310,6 +318,10 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         case .wireGuardCustomPort:
             getCustomPortCell()?.textField.becomeFirstResponder()
+
+        case .udpTcpObfuscationSettings:
+            tableView.deselectRow(at: indexPath, animated: false)
+            delegate?.showUDPTCPObfuscationSettings()
 
         case .wireGuardObfuscationAutomatic:
             selectObfuscationState(.automatic)
