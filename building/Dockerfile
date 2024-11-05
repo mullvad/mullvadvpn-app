@@ -101,7 +101,7 @@ RUN apt-get update -y && \
 ENV PATH=/root/.volta/bin:$PATH
 # volta seemingly does not have a way to explicitly install the toolchain
 # versions from package.json, but `node --version` triggers an install
-COPY gui/package.json .
+COPY desktop/packages/mullvad-vpn/package.json .
 RUN curl https://get.volta.sh | bash && node --version && rm package.json
 
 # === Golang ===
