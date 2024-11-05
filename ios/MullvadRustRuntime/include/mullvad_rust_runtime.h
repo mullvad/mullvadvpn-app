@@ -34,7 +34,7 @@ extern const uint16_t CONFIG_SERVICE_PORT;
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
  */
-struct EncryptedDnsProxyState *encrypted_dns_proxy_init(void);
+struct EncryptedDnsProxyState *encrypted_dns_proxy_init(const char *domain_name);
 
 /**
  * This must be called only once to deallocate `EncryptedDnsProxyState`.

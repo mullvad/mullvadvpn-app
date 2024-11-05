@@ -61,8 +61,9 @@ pub fn default_resolvers() -> Vec<Nameserver> {
     ]
 }
 
-pub async fn resolve_default_config() -> Result<Vec<config::ProxyConfig>, Error> {
-    resolve_configs(&default_resolvers(), "frakta.eu").await
+pub async fn resolve_default_config(domain: &str) -> Result<Vec<config::ProxyConfig>, Error> {
+    // TODO: We should remove the default value here and just force the callers to provide a domain instead
+    resolve_configs(&default_resolvers(), domain).await
 }
 
 /// Look up the `domain` towards the given `resolvers`, and try to deserialize all the returned

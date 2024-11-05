@@ -609,7 +609,7 @@ impl AccessModeSelector {
                     ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
                 }
                 AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
-                    if let Err(error) = encrypted_dns_proxy_cache.fetch_configs().await {
+                    if let Err(error) = encrypted_dns_proxy_cache.fetch_configs("frakta.eu").await {
                         log::warn!("Failed to fetch new Encrypted DNS Proxy configurations");
                         log::debug!("{error:#?}");
                     }
