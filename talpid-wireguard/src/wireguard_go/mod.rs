@@ -398,10 +398,6 @@ impl Tunnel for WgGoTunnel {
 
         Ok(())
     }
-
-    fn to_any(self: Box<Self>) -> Box<dyn Any> {
-        Box::new(self)
-    }
 }
 
 #[cfg(daita)]

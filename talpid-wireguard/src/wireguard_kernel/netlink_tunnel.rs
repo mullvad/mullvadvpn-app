@@ -135,8 +135,4 @@ impl Tunnel for NetlinkTunnel {
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
         Err(TunnelError::DaitaNotSupported)
     }
-
-    fn to_any(self: Box<Self>) -> Box<dyn Any> {
-        Box::new(self)
-    }
 }

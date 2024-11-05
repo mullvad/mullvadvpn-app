@@ -397,8 +397,8 @@ impl WireguardMonitor {
         args: TunnelArgs<'_, F>,
     ) -> Result<WireguardMonitor> {
         let desired_mtu = get_desired_mtu(params);
-        let mut config = crate::config::Config::from_parameters(params, desired_mtu)
-            .map_err(Error::WireguardConfigError)?;
+        let mut config =
+            Config::from_parameters(params, desired_mtu).map_err(Error::WireguardConfigError)?;
 
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
@@ -499,6 +499,7 @@ impl WireguardMonitor {
                 // Ping before negotiating the ephemeral peer to make sure that the tunnel works.
                 tokio::task::spawn_blocking(ping()).await.unwrap()?;
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
+
                 ephemeral::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
@@ -1026,7 +1027,27 @@ enum CloseMsg {
     ObfuscatorFailed(Error),
 }
 
-pub(crate) trait Tunnel: Send {
+trait DynAny: Any {
+    fn as_any(&self) -> &dyn Any;
+    fn as_any_mut(&mut self) -> &mut dyn Any;
+    fn to_any(self) -> Box<dyn Any>;
+}
+
+impl<T: Any> DynAny for T {
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+
+    fn to_any(self) -> Box<dyn Any> {
+        Box::new(self)
+    }
+}
+
+pub(crate) trait Tunnel: Send + DynAny {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
@@ -1037,7 +1058,6 @@ pub(crate) trait Tunnel: Send {
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
-    fn to_any(self: Box<Self>) -> Box<dyn Any>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
