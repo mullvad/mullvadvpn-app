@@ -15,7 +15,7 @@ struct TunnelObfuscationStub: TunnelObfuscation {
     var transportLayer: TransportLayer { .udp }
 
     let remotePort: UInt16
-    init(remoteAddress: IPAddress, tcpPort: UInt16) {
+    init(remoteAddress: IPAddress, tcpPort: UInt16, obfuscationProtocol: TunnelObfuscationProtocol) {
         remotePort = tcpPort
     }
 

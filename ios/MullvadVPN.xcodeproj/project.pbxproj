@@ -838,7 +838,7 @@
 		A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 584023212A406BF5007B27AC /* TunnelObfuscator.swift */; };
 		A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EB4F9C2B7FAB21002A2D7A /* EphemeralPeerNegotiator.swift */; };
 		A9D9A4C42C36D53C004088DD /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
-		A9D9A4CC2C36D54E004088DD /* TCPUnsafeListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585A02E82A4B283000C6CAFF /* TCPUnsafeListener.swift */; };
+		A9D9A4CC2C36D54E004088DD /* UnsafeListener.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585A02E82A4B283000C6CAFF /* UnsafeListener.swift */; };
 		A9D9A4CD2C36D54E004088DD /* UDPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585A02EA2A4B285800C6CAFF /* UDPConnection.swift */; };
 		A9D9A4CE2C36D54E004088DD /* TunnelObfuscationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58695A9F2A4ADA9200328DB3 /* TunnelObfuscationTests.swift */; };
 		A9D9A4CF2C36D54E004088DD /* TCPConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 585A02EC2A4B28F300C6CAFF /* TCPConnection.swift */; };
@@ -1519,7 +1519,7 @@
 		584D26C5270C8741004EA533 /* SettingsDNSTextCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsDNSTextCell.swift; sourceTree = "<group>"; };
 		58561C98239A5D1500BD6B5E /* IPv4Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv4Endpoint.swift; sourceTree = "<group>"; };
 		5859A55429CD9DD800F66591 /* changes.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changes.txt; sourceTree = "<group>"; };
-		585A02E82A4B283000C6CAFF /* TCPUnsafeListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPUnsafeListener.swift; sourceTree = "<group>"; };
+		585A02E82A4B283000C6CAFF /* UnsafeListener.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsafeListener.swift; sourceTree = "<group>"; };
 		585A02EA2A4B285800C6CAFF /* UDPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPConnection.swift; sourceTree = "<group>"; };
 		585A02EC2A4B28F300C6CAFF /* TCPConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TCPConnection.swift; sourceTree = "<group>"; };
 		585CA70E25F8C44600B47C62 /* UIMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIMetrics.swift; sourceTree = "<group>"; };
@@ -4067,12 +4067,12 @@
 		A9D9A4C12C36D53C004088DD /* MullvadRustRuntimeTests */ = {
 			isa = PBXGroup;
 			children = (
-				A9C308392C19DDA7008715F1 /* MullvadPostQuantum+Stubs.swift */,
 				A98F1B502C19C48D003C869E /* EphemeralPeerExchangeActorTests.swift */,
+				A9C308392C19DDA7008715F1 /* MullvadPostQuantum+Stubs.swift */,
 				585A02EC2A4B28F300C6CAFF /* TCPConnection.swift */,
-				585A02E82A4B283000C6CAFF /* TCPUnsafeListener.swift */,
 				58695A9F2A4ADA9200328DB3 /* TunnelObfuscationTests.swift */,
 				585A02EA2A4B285800C6CAFF /* UDPConnection.swift */,
+				585A02E82A4B283000C6CAFF /* UnsafeListener.swift */,
 			);
 			path = MullvadRustRuntimeTests;
 			sourceTree = "<group>";
@@ -6207,7 +6207,7 @@
 				F08B6B772C52878400D0A121 /* EphemeralPeerExchangeActorTests.swift in Sources */,
 				A9D9A4CF2C36D54E004088DD /* TCPConnection.swift in Sources */,
 				A9D9A4CE2C36D54E004088DD /* TunnelObfuscationTests.swift in Sources */,
-				A9D9A4CC2C36D54E004088DD /* TCPUnsafeListener.swift in Sources */,
+				A9D9A4CC2C36D54E004088DD /* UnsafeListener.swift in Sources */,
 				A9D9A4CD2C36D54E004088DD /* UDPConnection.swift in Sources */,
 				F0A1638A2C47B77300592300 /* ServerRelaysResponse+Stubs.swift in Sources */,
 			);
