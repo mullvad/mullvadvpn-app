@@ -124,9 +124,9 @@ public struct WireGuardObfuscationSettings: Codable, Equatable {
     @available(*, deprecated, message: "Use `udpOverTcpPort` instead")
     private var port: WireGuardObfuscationPort = .automatic
 
-    public let state: WireGuardObfuscationState
-    public let udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort
-    public let shadowsocksPort: WireGuardObfuscationShadowsockPort
+    public var state: WireGuardObfuscationState
+    public var udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort
+    public var shadowsocksPort: WireGuardObfuscationShadowsockPort
 
     public init(
         state: WireGuardObfuscationState = .automatic,
