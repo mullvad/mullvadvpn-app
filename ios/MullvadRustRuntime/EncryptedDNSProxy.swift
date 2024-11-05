@@ -20,7 +20,7 @@ public class EncryptedDNSProxy {
     private let state: OpaquePointer
 
     public init() {
-        state = encrypted_dns_proxy_init()
+        state = encrypted_dns_proxy_init("frakta.eu")
         proxyConfig = ProxyHandle(context: nil, port: 0)
     }
 
