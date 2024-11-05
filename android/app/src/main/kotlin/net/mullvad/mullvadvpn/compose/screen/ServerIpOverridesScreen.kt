@@ -70,7 +70,7 @@ import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_IMPORT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_INFO_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SERVER_IP_OVERRIDE_RESET_OVERRIDES_TEST_TAG
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightLeafTransition
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
@@ -102,7 +102,7 @@ private fun PreviewServerIpOverridesScreen(
     }
 }
 
-@Destination<RootGraph>(style = SlideInFromRightLeafTransition::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun ServerIpOverrides(
     navigator: DestinationsNavigator,

@@ -41,7 +41,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
-import net.mullvad.mullvadvpn.compose.transitions.SettingsTransition
+import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
@@ -58,7 +58,7 @@ private fun PreviewSettingsScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(style = SettingsTransition::class)
+@Destination<RootGraph>(style = TopLevelTransition::class)
 @Composable
 fun Settings(navigator: DestinationsNavigator) {
     val vm = koinViewModel<SettingsViewModel>()

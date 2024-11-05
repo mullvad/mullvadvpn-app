@@ -52,7 +52,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenAccountPageHook
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.AccountUiStatePreviewParameterProvider
-import net.mullvad.mullvadvpn.compose.transitions.SlideInFromBottomTransition
+import net.mullvad.mullvadvpn.compose.transitions.AccountTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.SecureScreenWhileInView
 import net.mullvad.mullvadvpn.compose.util.createCopyToClipboardHandle
@@ -76,7 +76,7 @@ private fun PreviewAccountScreen(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Destination<RootGraph>(style = SlideInFromBottomTransition::class)
+@Destination<RootGraph>(style = AccountTransition::class)
 @Composable
 fun Account(
     navigator: DestinationsNavigator,

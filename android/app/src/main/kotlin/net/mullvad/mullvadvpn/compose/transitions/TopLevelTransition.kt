@@ -3,42 +3,37 @@ package net.mullvad.mullvadvpn.compose.transitions
 import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.scaleIn
 import androidx.navigation.NavBackStackEntry
-import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestination
 import com.ramcosta.composedestinations.spec.DestinationStyle
-import com.ramcosta.composedestinations.utils.destination
-import net.mullvad.mullvadvpn.constant.SCREEN_ANIMATION_TIME_MILLIS
+import net.mullvad.mullvadvpn.constant.ENTER_TRANSITION_SCALE_IN_FACTOR
 
-object SlideInFromRightLeafTransition : DestinationStyle.Animated() {
+object TopLevelTransition : DestinationStyle.Animated() {
+
     override val enterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
-            slideInHorizontally(initialOffsetX = { it })
+            fadeIn(spring()) + scaleIn(initialScale = ENTER_TRANSITION_SCALE_IN_FACTOR)
         }
 
     override val exitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
-            when (targetState.destination()) {
-                NoDaemonDestination -> fadeOut(snap(SCREEN_ANIMATION_TIME_MILLIS))
-                else -> fadeOut()
-            }
+            ExitTransition.None
         }
 
     override val popEnterTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> EnterTransition =
         {
-            fadeIn(snap(0))
+            EnterTransition.None
         }
 
     override val popExitTransition:
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition =
         {
-            slideOutHorizontally(targetOffsetX = { it })
+            fadeOut(spring())
         }
 }

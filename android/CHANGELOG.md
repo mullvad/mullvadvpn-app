@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add a new access method: Encrypted DNS Proxy. Encrypted DNS proxy is a way to reach the API via
   proxies. The access method is enabled by default.
 
+### Changed
+- Animation has been changed to look better with predictive back.
+
 
 ## [android/2024.8-beta2] - 2024-10-25
 
