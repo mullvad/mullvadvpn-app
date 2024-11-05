@@ -8,10 +8,10 @@ For more information about the service, please visit our website,
 
 This repository contains all the source code for the
 desktop and mobile versions of the app. For desktop this includes the system service/daemon
-([`mullvad-daemon`](mullvad-daemon/)), a graphical user interface ([GUI](gui/)) and a
-command line interface ([CLI](mullvad-cli/)). The Android app uses the same backing
-system service for the tunnel and security but has a dedicated frontend in [android/](android/).
-iOS consists of a completely standalone implementation that resides in [ios/](ios/).
+([`mullvad-daemon`](mullvad-daemon/)), a graphical user interface ([GUI](desktop/)) and a command
+line interface ([CLI](mullvad-cli/)). The Android app uses the same backing system service for the
+tunnel and security but has a dedicated frontend in [android/](android/). iOS consists of a
+completely standalone implementation that resides in [ios/](ios/).
 
 ## Releases
 
@@ -234,15 +234,15 @@ launchctl unload -w /Library/LaunchDaemons/net.mullvad.daemon.plist
 launchctl load -w /Library/LaunchDaemons/net.mullvad.daemon.plist
 ```
 
-## Environment variables used by the GUI frontend
+## Environment variables used by the desktop frontend
 
 * `MULLVAD_PATH` - Allows changing the path to the folder with the `mullvad-problem-report` tool
    when running in development mode. Defaults to: `<repo>/target/debug/`.
-* `MULLVAD_DISABLE_UPDATE_NOTIFICATION` - If set to `1`, GUI notification will be disabled when
+* `MULLVAD_DISABLE_UPDATE_NOTIFICATION` - If set to `1`, notification will be disabled when
    an update is available.
 
 
-## Command line tools for Electron GUI app development
+## Command line tools for Electron app development
 
 - `$ npm run develop` - develop app with live-reload enabled
 - `$ npm run lint` - lint code
@@ -266,8 +266,8 @@ If you're using GNOME, try installing one of these GNOME Shell extensions:
 
 ## Repository structure
 
-### Electron GUI app and electron-builder packaging assets
-- **gui/**
+### Electron app and electron-builder packaging assets
+- **desktop/packages/mullvad-vpn/**
   - **assets/** - Graphical assets and stylesheets
   - **src/**
     - **main/**
@@ -386,10 +386,10 @@ environment variable.
 | Windows | `//./pipe/Mullvad VPN` |
 | Android | [`getNoBackupFilesDir()`](https://developer.android.com/reference/android/content/ContextWrapper#getNoBackupFilesDir()) |
 
-### GUI
+### Desktop Electron app
 
-The GUI has a specific settings file that is configured for each user. The path is set in the
-`gui/packages/desktop/main/gui-settings.ts` file.
+The desktop Electron app has a specific settings file that is configured for each user. The path is
+set in the `desktop/packages/mullvad-vpn/src/main/gui-settings.ts` file.
 
 | Platform | Path |
 |----------|------|
@@ -405,7 +405,7 @@ See [graphics README](graphics/README.md) for information about icons.
 ## Locales and translations
 
 Instructions for how to handle locales and translations are found
-[here](./gui/locales/README.md).
+[here](./desktop/packages/mullvad-vpn/locales/README.md).
 
 For instructions specific to the Android app, see [here](./android/README.md).
 
