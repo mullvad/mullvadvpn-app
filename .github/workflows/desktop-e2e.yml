@@ -124,7 +124,7 @@ jobs:
           USE_MOLD: false
         run: ./build.sh
       - name: Build test executable
-        run: ./gui/scripts/build-test-executable.sh
+        run: ./desktop-electron-app/packages/mullvad-vpn/scripts/build-test-executable.sh
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
         with:
@@ -185,9 +185,9 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: gui/package.json
+          node-version-file: desktop-electron-app/package.json
           cache: 'npm'
-          cache-dependency-path: gui/package-lock.json
+          cache-dependency-path: desktop-electron-app/package-lock.json
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
@@ -203,7 +203,7 @@ jobs:
         run: ./build.sh
       - name: Build test executable
         shell: bash
-        run: ./gui/scripts/build-test-executable.sh
+        run: ./desktop-electron-app/packages/mullvad-vpn/scripts/build-test-executable.sh
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
         with:
@@ -267,9 +267,9 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
       - uses: actions/setup-node@v4
         with:
-          node-version-file: gui/package.json
+          node-version-file: desktop-electron-app/package.json
           cache: 'npm'
-          cache-dependency-path: gui/package-lock.json
+          cache-dependency-path: desktop-electron-app/package-lock.json
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
@@ -278,7 +278,7 @@ jobs:
       - name: Build app
         run: ./build.sh
       - name: Build test executable
-        run: ./gui/scripts/build-test-executable.sh
+        run: ./desktop-electron-app/packages/mullvad-vpn/scripts/build-test-executable.sh
       - uses: actions/upload-artifact@v3
         if: '!cancelled()'
         with:

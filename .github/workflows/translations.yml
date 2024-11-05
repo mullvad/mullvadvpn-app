@@ -7,7 +7,7 @@ on:
       - android/translations-converter/**
       - android/lib/resource/src/**/plurals.xml
       - android/lib/resource/src/**/strings.xml
-      - gui/**
+      - desktop-electron-app/packages/mullvad-vpn/**
       - '!**/osv-scanner.toml'
   workflow_dispatch:
 
@@ -23,12 +23,12 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: gui/package.json
+          node-version-file: desktop-electron-app/package.json
           cache: 'npm'
-          cache-dependency-path: gui/package-lock.json
+          cache-dependency-path: desktop-electron-app/package-lock.json
 
       - name: Install JS dependencies
-        working-directory: gui
+        working-directory: desktop-electron-app
         shell: bash
         run: npm ci
 
