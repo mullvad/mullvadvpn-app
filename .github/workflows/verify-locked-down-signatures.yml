@@ -11,7 +11,8 @@ on:
       - test/Cargo.lock
       - deny.toml
       - test/deny.toml
-      - gui/package-lock.json
+      - desktop-electron-app/package-lock.json
+      - desktop-electron-app/packages/mullvad-vpn/package-lock.json
       - wireguard-go-rs/libwg/go.sum
       - ci/keys/**
       - ci/verify-locked-down-signatures.sh

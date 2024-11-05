@@ -18,7 +18,7 @@ on:
       - '!deny.toml'
       - '!docs/**'
       - '!graphics/**'
-      - '!gui/**'
+      - '!desktop-electron-app/**'
       - '!ios/**'
       - '!scripts/**'
       - '!.*ignore'

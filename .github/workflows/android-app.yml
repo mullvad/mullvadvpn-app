@@ -12,7 +12,7 @@ on:
       - '!dist-assets/**'
       - '!docs/**'
       - '!graphics/**'
-      - '!gui/**'
+      - '!desktop-electron-app/**'
       - '!ios/**'
       - '!test/**'
       - '!scripts/**'
