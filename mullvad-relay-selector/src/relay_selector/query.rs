@@ -732,9 +732,8 @@ pub mod builder {
     {
         /// Set the entry location in a multihop configuration. This requires
         /// multihop to be enabled.
-        pub fn entry(mut self, location: GeographicLocationConstraint) -> Self {
-            self.query.wireguard_constraints.entry_location =
-                Constraint::Only(LocationConstraint::from(location));
+        pub fn entry(mut self, location: impl Into<LocationConstraint>) -> Self {
+            self.query.wireguard_constraints.entry_location = Constraint::Only(location.into());
             self
         }
     }
