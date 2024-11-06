@@ -18,6 +18,7 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
     private let relayCacheTracker: RelayCacheTracker
     private let customListRepository: CustomListRepositoryProtocol
     private var locationRelays: LocationRelays?
+    private var daitaSettings: DAITASettings
 
     let navigationController: UINavigationController
 
@@ -52,6 +53,8 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         self.tunnelManager = tunnelManager
         self.relayCacheTracker = relayCacheTracker
         self.customListRepository = customListRepository
+
+        daitaSettings = tunnelManager.settings.daita
     }
 
     func start() {
@@ -99,7 +102,9 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         let tunnelObserver =
             TunnelBlockObserver(
                 didUpdateTunnelSettings: { [weak self] _, settings in
-                    guard let self, let locationRelays else { return }
+                    guard let self, let locationRelays, settings.daita != daitaSettings else { return }
+                    daitaSettings = settings.daita
+
                     locationViewControllerWrapper?.onDaitaSettingsUpdate(
                         settings.daita,
                         relaysWithLocation: locationRelays,
