@@ -21,6 +21,7 @@ use talpid_types::net::{
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
 const PREROUTING_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_CONNTRACK + 1;
 const PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK: &str = "/proc/sys/net/ipv4/conf/all/src_valid_mark";
+const PROC_SYS_NET_IPV4_CONF_ARP_IGNORE: &str = "/proc/sys/net/ipv4/conf/all/arp_ignore";
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -73,6 +74,12 @@ static ADD_COUNTERS: LazyLock<bool> = LazyLock::new(|| {
 
 static DONT_SET_SRC_VALID_MARK: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK")
+        .map(|v| v != "0")
+        .unwrap_or(false)
+});
+/// TODO: ADD THIS TO THE README
+static DONT_SET_ARP_IGNORE: LazyLock<bool> = LazyLock::new(|| {
+    env::var("TALPID_FIREWALL_DONT_SET_ARP_IGNORE")
         .map(|v| v != "0")
         .unwrap_or(false)
 });
@@ -134,12 +141,26 @@ impl Firewall {
     fn apply_kernel_config(policy: &FirewallPolicy) {
         if *DONT_SET_SRC_VALID_MARK {
             log::debug!("Not setting src_valid_mark");
-            return;
+        } else {
+            if let FirewallPolicy::Connecting { .. } = policy {
+                if let Err(err) = set_src_valid_mark_sysctl() {
+                    log::error!("Failed to apply src_valid_mark: {}", err);
+                }
+            }
         }
 
-        if let FirewallPolicy::Connecting { .. } = policy {
-            if let Err(err) = set_src_valid_mark_sysctl() {
-                log::error!("Failed to apply src_valid_mark: {}", err);
+        // When we have a tunnel with an in-tunnel IP configured, we configure the system
+        // to not reply to arp requests for other IPs than the ones configured on the interface
+        // where the ARP request comes in on.
+        // This prevents leaking the in-tunnel IP to an attacker that can send ARP requests to any
+        // interface on this device. Audit finding: <TODO XXX>.
+        if *DONT_SET_ARP_IGNORE {
+            log::debug!("Not setting arp_ignore");
+        } else {
+            if let FirewallPolicy::Connecting { .. } | FirewallPolicy::Connected { .. } = policy {
+                if let Err(err) = set_arp_ignore_sysctl() {
+                    log::error!("Failed to apply arp_ignore: {}", err);
+                }
             }
         }
     }
@@ -1052,6 +1073,10 @@ fn add_verdict(rule: &mut Rule<'_>, verdict: &expr::Verdict) {
 
 fn set_src_valid_mark_sysctl() -> io::Result<()> {
     fs::write(PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK, b"1")
+}
+
+fn set_arp_ignore_sysctl() -> io::Result<()> {
+    fs::write(PROC_SYS_NET_IPV4_CONF_ARP_IGNORE, b"1")
 }
 
 /// Tables that are no longer used but need to be deleted due to upgrades.
