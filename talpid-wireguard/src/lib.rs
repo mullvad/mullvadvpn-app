@@ -7,7 +7,6 @@ use self::config::Config;
 use futures::channel::mpsc;
 use futures::future::{BoxFuture, Future};
 use obfuscation::ObfuscatorHandle;
-use std::any::Any;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
 #[cfg(windows)]
@@ -54,6 +53,11 @@ mod mtu_detection;
 
 #[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
+
+#[cfg(not(target_os = "android"))]
+type TunnelType = Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>;
+#[cfg(target_os = "android")]
+type TunnelType = Arc<AsyncMutex<Option<WgGoTunnel>>>;
 
 type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
@@ -135,10 +139,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    #[cfg(not(target_os = "android"))]
-    tunnel: Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
-    #[cfg(target_os = "android")]
-    tunnel: Arc<AsyncMutex<Option<WgGoTunnel>>>,
+    tunnel: TunnelType,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -658,13 +659,13 @@ impl WireguardMonitor {
     }
 
     #[allow(unused_variables)]
+    #[cfg(not(target_os = "android"))]
     fn open_tunnel(
         runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
-        #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Box<dyn Tunnel>> {
@@ -1027,6 +1028,7 @@ enum CloseMsg {
     ObfuscatorFailed(Error),
 }
 
+#[allow(unused)]
 pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
