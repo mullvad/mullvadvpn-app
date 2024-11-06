@@ -22,7 +22,7 @@ const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
 
 #[cfg(windows)]
 pub async fn config_ephemeral_peers(
-    tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -65,7 +65,7 @@ fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
 }
 
 pub async fn config_ephemeral_peers(
-    tunnel: &TunnelType,
+    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -85,7 +85,7 @@ pub async fn config_ephemeral_peers(
 }
 
 async fn config_ephemeral_peers_inner(
-    tunnel: &TunnelType,
+    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -180,7 +180,7 @@ async fn config_ephemeral_peers_inner(
 /// Reconfigures the tunnel to use the provided config while potentially modifying the config
 /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
 async fn reconfigure_tunnel(
-    tunnel: &TunnelType,
+    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     mut config: Config,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -213,7 +213,7 @@ async fn reconfigure_tunnel(
 /// Reconfigures the tunnel to use the provided config while potentially modifying the config
 /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
 async fn reconfigure_tunnel(
-    tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     mut config: Config,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
