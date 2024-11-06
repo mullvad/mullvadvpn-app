@@ -50,21 +50,21 @@ pub enum WgGoTunnel {
 }
 
 impl WgGoTunnel {
-    fn to_state(self) -> WgGoTunnelState {
+    fn into_state(self) -> WgGoTunnelState {
         match self {
             WgGoTunnel::Multihop(state) => state,
             WgGoTunnel::Singlehop(state) => state,
         }
     }
 
-    fn state(&self) -> &WgGoTunnelState {
+    fn as_state(&self) -> &WgGoTunnelState {
         match self {
             WgGoTunnel::Multihop(state) => state,
             WgGoTunnel::Singlehop(state) => state,
         }
     }
 
-    fn state_mut(&mut self) -> &mut WgGoTunnelState {
+    fn to_state_mut(&mut self) -> &mut WgGoTunnelState {
         match self {
             WgGoTunnel::Multihop(state) => state,
             WgGoTunnel::Singlehop(state) => state,
@@ -72,7 +72,7 @@ impl WgGoTunnel {
     }
 
     pub fn better_set_config(self, config: &Config) -> Result<Self> {
-        let state = self.state();
+        let state = self.as_state();
         let log_path = state._log_path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
         let routes = config.get_tunnel_destinations();
@@ -113,7 +113,7 @@ impl WgGoTunnel {
     }
 
     pub fn stop(self) -> Result<()> {
-        self.to_state().stop()
+        self.into_state().stop()
     }
 }
 
@@ -294,7 +294,7 @@ impl WgGoTunnel {
 
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
-        let _log_path = log_path.clone();
+        let _log_path = log_path;
         let logging_context = initialize_logging(log_path)
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
@@ -336,7 +336,7 @@ impl WgGoTunnel {
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
-        let _log_path = log_path.clone();
+        let _log_path = log_path;
         let logging_context = initialize_logging(log_path)
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
@@ -393,15 +393,15 @@ impl WgGoTunnel {
 
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> String {
-        self.state().interface_name.clone()
+        self.as_state().interface_name.clone()
     }
 
     fn stop(self: Box<Self>) -> Result<()> {
-        self.to_state().stop()
+        self.into_state().stop()
     }
 
     fn get_tunnel_stats(&self) -> Result<StatsMap> {
-        self.state()
+        self.as_state()
             .tunnel_handle
             .get_config(|cstr| {
                 Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
@@ -414,24 +414,24 @@ impl Tunnel for WgGoTunnel {
         &mut self,
         config: Config,
     ) -> Pin<Box<dyn Future<Output = Result<()>> + Send + '_>> {
-        Box::pin(async move { self.state_mut().set_config(config) })
+        Box::pin(async move { self.to_state_mut().set_config(config) })
     }
 
     #[cfg(daita)]
     fn start_daita(&mut self) -> Result<()> {
         static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
         let machines = MAYBENOT_MACHINES
-            .get_or_try_init(|| load_maybenot_machines(&self.state().resource_dir))?;
+            .get_or_try_init(|| load_maybenot_machines(&self.as_state().resource_dir))?;
 
         log::info!("Initializing DAITA for wireguard device");
-        let config = &self.state().config;
+        let config = &self.as_state().config;
 
         let peer_public_key = match config.exit_peer.as_ref() {
             Some(exit) => &exit.public_key,
             None => &config.entry_peer.public_key,
         };
 
-        self.state()
+        self.as_state()
             .tunnel_handle
             .activate_daita(
                 peer_public_key.as_bytes(),
