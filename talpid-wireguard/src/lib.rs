@@ -135,7 +135,10 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
+    #[cfg(not(target_os = "android"))]
     tunnel: Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    #[cfg(target_os = "android")]
+    tunnel: Arc<AsyncMutex<Option<WgGoTunnel>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -418,8 +421,7 @@ impl WireguardMonitor {
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
-        let tunnel = Self::open_tunnel(
-            args.runtime.clone(),
+        let tunnel = Self::open_wireguard_go_tunnel(
             &config,
             log_path,
             args.resource_dir,
@@ -429,13 +431,13 @@ impl WireguardMonitor {
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
         )?;
-
         let iface_name = tunnel.get_interface_name();
+        let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
 
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
-            tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
+            tunnel: Arc::clone(&tunnel),
             event_callback: Box::new(args.on_event.clone()),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: pinger_tx,
@@ -445,23 +447,21 @@ impl WireguardMonitor {
         let gateway = config.ipv4_gateway;
         let connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
             gateway,
-            Arc::downgrade(&monitor.tunnel),
+            Arc::downgrade(&tunnel),
             pinger_rx,
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
-        let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
-            let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
             let connectivity_monitor = Arc::new(Mutex::new(connectivity_monitor));
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
-            (args.on_event.clone())(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
+            args.on_event.clone()(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
             let handle_ping = |ping_result: std::result::Result<
@@ -1027,27 +1027,7 @@ enum CloseMsg {
     ObfuscatorFailed(Error),
 }
 
-trait DynAny: Any {
-    fn as_any(&self) -> &dyn Any;
-    fn as_any_mut(&mut self) -> &mut dyn Any;
-    fn to_any(self) -> Box<dyn Any>;
-}
-
-impl<T: Any> DynAny for T {
-    fn as_any(&self) -> &dyn Any {
-        self
-    }
-
-    fn as_any_mut(&mut self) -> &mut dyn Any {
-        self
-    }
-
-    fn to_any(self) -> Box<dyn Any> {
-        Box::new(self)
-    }
-}
-
-pub(crate) trait Tunnel: Send + DynAny {
+pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;

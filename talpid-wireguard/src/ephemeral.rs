@@ -2,8 +2,7 @@
 //! restarting obfuscation and WG tunnels when necessary.
 
 use super::{
-    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, DynAny, Error, Tunnel,
-    WireguardMonitor,
+    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel, WireguardMonitor,
 };
 use std::any::Any;
 #[cfg(target_os = "android")]
@@ -24,6 +23,12 @@ use tokio::sync::Mutex as AsyncMutex;
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
+
+#[cfg(target_os = "android")]
+type TunnelType = Arc<AsyncMutex<Option<WgGoTunnel>>>;
+
+#[cfg(not(target_os = "android"))]
+type TunnelType = Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>;
 
 #[cfg(windows)]
 pub async fn config_ephemeral_peers(
@@ -70,7 +75,7 @@ fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
 }
 
 pub async fn config_ephemeral_peers(
-    tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: &TunnelType,
     config: &mut Config,
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -90,7 +95,7 @@ pub async fn config_ephemeral_peers(
 }
 
 async fn config_ephemeral_peers_inner(
-    tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: &TunnelType,
     config: &mut Config,
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -116,6 +121,7 @@ async fn config_ephemeral_peers_inner(
     if config.is_multihop() {
         // Set up tunnel to lead to entry
         let mut entry_tun_config = config.clone();
+        entry_tun_config.exit_peer = None;
         entry_tun_config
             .entry_peer
             .allowed_ips
@@ -124,20 +130,11 @@ async fn config_ephemeral_peers_inner(
         let close_obfs_sender = close_obfs_sender.clone();
         let entry_config = reconfigure_tunnel(
             tunnel,
-            // I think what is happening here is that we talk to the same relay twice, I.e. the
-            // exit relay. This is because we initally open a single-hop tunnel to the exit relay,
-            // and here we reconfigure a multihop tunnel, which means that effectively we are
-            // talking with the gRPC server on the exit relay yet again.
-            //
-            // If we could instead hop to the entry relay first, then this logic would be correct.
-            // TODO: Try to initially connect to the entry relay, and see if that resolves the
-            // issue. If so, we would need to rename a couple of variables in this fn.
             entry_tun_config,
             obfuscator.clone(),
             close_obfs_sender,
             #[cfg(target_os = "android")]
             &tun_provider,
-            false,
         )
         .await?;
         let entry_psk = request_ephemeral_peer(
@@ -169,7 +166,6 @@ async fn config_ephemeral_peers_inner(
         close_obfs_sender,
         #[cfg(target_os = "android")]
         &tun_provider,
-        true,
     )
     .await?;
 
@@ -194,12 +190,11 @@ async fn config_ephemeral_peers_inner(
 /// Reconfigures the tunnel to use the provided config while potentially modifying the config
 /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
 async fn reconfigure_tunnel(
-    tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    tunnel: &TunnelType,
     mut config: Config,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     tun_provider: &Arc<Mutex<TunProvider>>,
-    multihop: bool,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
@@ -217,22 +212,10 @@ async fn reconfigure_tunnel(
     let mut lock = tunnel.lock().await;
 
     let tunnel = lock.take().expect("tunnel was None");
-    let tunnel = tunnel
-        .to_any()
-        .downcast::<Box<WgGoTunnel>>()
-        .expect("tunnel was not WgGoTunnel");
 
-    // TODO: We could conditionally only do this more expensive tunnel reconfig if the current
-    // tunnel is a multihop tunnel, because it is hacky.
-    let new_tunnel = if multihop {
-        tunnel.restart_as_multihop_tunnel(&config).unwrap()
-    } else {
-        // TODO: We need to restart the tunnel in singlehop config here !!!!!!
-        // Regular, singlehop stuff.
-        tunnel.restart_tunnel(&config).unwrap()
-    };
+    let new_tunnel = tunnel.better_set_config(&config).unwrap();
 
-    *lock = Some(Box::new(new_tunnel));
+    *lock = Some(new_tunnel);
     Ok(config)
 }
 
