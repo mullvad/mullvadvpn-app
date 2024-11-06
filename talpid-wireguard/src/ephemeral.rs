@@ -1,10 +1,7 @@
 //! This module takes care of obtaining ephemeral peers, updating the WireGuard configuration and
 //! restarting obfuscation and WG tunnels when necessary.
 
-use super::{
-    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel, WireguardMonitor,
-};
-use std::any::Any;
+use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel, TunnelType};
 #[cfg(target_os = "android")]
 use std::sync::Mutex;
 use std::{
@@ -15,7 +12,6 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 
-use crate::wireguard_go::{entry_config, WgGoTunnel};
 use ipnetwork::IpNetwork;
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
@@ -23,12 +19,6 @@ use tokio::sync::Mutex as AsyncMutex;
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
-
-#[cfg(target_os = "android")]
-type TunnelType = Arc<AsyncMutex<Option<WgGoTunnel>>>;
-
-#[cfg(not(target_os = "android"))]
-type TunnelType = Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>;
 
 #[cfg(windows)]
 pub async fn config_ephemeral_peers(
