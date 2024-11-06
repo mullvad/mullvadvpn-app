@@ -2,8 +2,7 @@
 //! restarting obfuscation and WG tunnels when necessary.
 
 use super::{
-    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, DynAny, Error, Tunnel,
-    WireguardMonitor,
+    config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel, WireguardMonitor,
 };
 use std::any::Any;
 #[cfg(target_os = "android")]
@@ -24,6 +23,12 @@ use tokio::sync::Mutex as AsyncMutex;
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
 const MAX_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(48);
 const PSK_EXCHANGE_TIMEOUT_MULTIPLIER: u32 = 2;
+
+#[cfg(target_os = "android")]
+type TunnelType = Arc<AsyncMutex<Option<WgGoTunnel>>>;
+
+#[cfg(not(target_os = "android"))]
+type TunnelType = Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>;
 
 #[cfg(windows)]
 pub async fn config_ephemeral_peers(
@@ -70,8 +75,7 @@ fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
 }
 
 pub async fn config_ephemeral_peers(
-    #[cfg(not(target_os = "android"))] tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
-    #[cfg(target_os = "android")] tunnel: &Arc<AsyncMutex<Option<WgGoTunnel>>>,
+    tunnel: &TunnelType,
     config: &mut Config,
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -91,8 +95,7 @@ pub async fn config_ephemeral_peers(
 }
 
 async fn config_ephemeral_peers_inner(
-    #[cfg(not(target_os = "android"))] tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
-    #[cfg(target_os = "android")] tunnel: &Arc<AsyncMutex<Option<WgGoTunnel>>>,
+    tunnel: &TunnelType,
     config: &mut Config,
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -196,8 +199,7 @@ async fn config_ephemeral_peers_inner(
 /// Reconfigures the tunnel to use the provided config while potentially modifying the config
 /// and restarting the obfuscation provider. Returns the new config used by the new tunnel.
 async fn reconfigure_tunnel(
-    #[cfg(not(target_os = "android"))] tunnel: &Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
-    #[cfg(target_os = "android")] tunnel: &Arc<AsyncMutex<Option<WgGoTunnel>>>,
+    tunnel: &TunnelType,
     mut config: Config,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
@@ -220,10 +222,6 @@ async fn reconfigure_tunnel(
     let mut lock = tunnel.lock().await;
 
     let tunnel = lock.take().expect("tunnel was None");
-    let tunnel = tunnel
-        .to_any()
-        .downcast::<Box<WgGoTunnel>>()
-        .expect("tunnel was not WgGoTunnel");
 
     // TODO: We could conditionally only do this more expensive tunnel reconfig if the current
     // tunnel is a multihop tunnel, because it is hacky.
@@ -235,7 +233,7 @@ async fn reconfigure_tunnel(
         tunnel.restart_tunnel(&config).unwrap()
     };
 
-    *lock = Some(Box::new(new_tunnel));
+    *lock = Some(new_tunnel);
     Ok(config)
 }
 

@@ -132,7 +132,47 @@ impl WgGoTunnel {
         })
     }
 
-    #[cfg(target_os = "android")]
+    fn get_tunnel(
+        tun_provider: Arc<Mutex<TunProvider>>,
+        config: &Config,
+        routes: impl Iterator<Item = IpNetwork>,
+    ) -> Result<(Tun, RawFd)> {
+        let mut last_error = None;
+        let mut tun_provider = tun_provider.lock().unwrap();
+
+        let tun_config = tun_provider.config_mut();
+        #[cfg(target_os = "linux")]
+        {
+            tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
+        }
+        tun_config.addresses = config.tunnel.addresses.clone();
+        tun_config.ipv4_gateway = config.ipv4_gateway;
+        tun_config.ipv6_gateway = config.ipv6_gateway;
+        tun_config.routes = routes.collect();
+        tun_config.mtu = config.mtu;
+
+        for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+            let tunnel_device = tun_provider
+                .open_tun()
+                .map_err(TunnelError::SetupTunnelDevice)?;
+
+            match nix::unistd::dup(tunnel_device.as_raw_fd()) {
+                Ok(fd) => return Ok((tunnel_device, fd)),
+                #[cfg(not(target_os = "macos"))]
+                Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
+                Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
+                Err(error) => return Err(TunnelError::FdDuplicationError(error)),
+            }
+        }
+
+        Err(TunnelError::FdDuplicationError(
+            last_error.expect("Should be collected in loop"),
+        ))
+    }
+}
+
+#[cfg(target_os = "android")]
+impl WgGoTunnel {
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -176,7 +216,6 @@ impl WgGoTunnel {
         })
     }
 
-    #[cfg(target_os = "android")]
     pub fn start_multihop_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -232,7 +271,6 @@ impl WgGoTunnel {
 
     // TODO: Rename
     // singlehop
-    #[cfg(target_os = "android")]
     pub fn restart_tunnel(self, config: &Config) -> Result<Self> {
         let log_path = self._log_path.clone();
         let tun_provider = Arc::clone(&self.tun_provider);
@@ -241,7 +279,7 @@ impl WgGoTunnel {
         let resource_dir = self.resource_dir.clone();
 
         // Important!
-        Box::new(self).stop().unwrap();
+        self.stop().unwrap();
         Self::start_tunnel(
             config,
             log_path.as_deref(),
@@ -252,7 +290,6 @@ impl WgGoTunnel {
     }
 
     // TODO: Rename
-    #[cfg(target_os = "android")]
     pub fn restart_as_multihop_tunnel(self, config: &Config) -> Result<Self> {
         let log_path = self._log_path.clone();
         let tun_provider = Arc::clone(&self.tun_provider);
@@ -261,7 +298,7 @@ impl WgGoTunnel {
         #[cfg(daita)]
         let resource_dir = self.resource_dir.clone();
 
-        Box::new(self).stop().unwrap();
+        self.stop().unwrap();
 
         Self::start_multihop_tunnel(
             config,
@@ -272,7 +309,6 @@ impl WgGoTunnel {
         )
     }
 
-    #[cfg(target_os = "android")]
     fn bypass_tunnel_sockets(
         handle: &wireguard_go_rs::Tunnel,
         tunnel_device: &mut Tun,
@@ -286,48 +322,20 @@ impl WgGoTunnel {
         Ok(())
     }
 
-    fn get_tunnel(
-        tun_provider: Arc<Mutex<TunProvider>>,
-        config: &Config,
-        routes: impl Iterator<Item = IpNetwork>,
-    ) -> Result<(Tun, RawFd)> {
-        let mut last_error = None;
-        let mut tun_provider = tun_provider.lock().unwrap();
-
-        let tun_config = tun_provider.config_mut();
-        #[cfg(target_os = "linux")]
-        {
-            tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
-        }
-        tun_config.addresses = config.tunnel.addresses.clone();
-        tun_config.ipv4_gateway = config.ipv4_gateway;
-        tun_config.ipv6_gateway = config.ipv6_gateway;
-        tun_config.routes = routes.collect();
-        tun_config.mtu = config.mtu;
-
-        for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
-            let tunnel_device = tun_provider
-                .open_tun()
-                .map_err(TunnelError::SetupTunnelDevice)?;
-
-            match nix::unistd::dup(tunnel_device.as_raw_fd()) {
-                Ok(fd) => return Ok((tunnel_device, fd)),
-                #[cfg(not(target_os = "macos"))]
-                Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
-                Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
-                Err(error) => return Err(TunnelError::FdDuplicationError(error)),
-            }
-        }
-
-        Err(TunnelError::FdDuplicationError(
-            last_error.expect("Should be collected in loop"),
-        ))
+    pub fn stop(self) -> Result<()> {
+        Box::new(self).stop()
     }
 }
 
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
+    }
+
+    fn stop(self: Box<Self>) -> Result<()> {
+        self.tunnel_handle
+            .turn_off()
+            .map_err(|e| TunnelError::StopWireguardError(Box::new(e)))
     }
 
     fn get_tunnel_stats(&self) -> Result<StatsMap> {
@@ -337,12 +345,6 @@ impl Tunnel for WgGoTunnel {
             })
             .ok_or(TunnelError::GetConfigError)?
             .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
-    }
-
-    fn stop(self: Box<Self>) -> Result<()> {
-        self.tunnel_handle
-            .turn_off()
-            .map_err(|e| TunnelError::StopWireguardError(Box::new(e)))
     }
 
     fn set_config(
