@@ -54,10 +54,11 @@ mod mtu_detection;
 #[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
 
+// TODO: Document why we have a type alias !
 #[cfg(not(target_os = "android"))]
-type TunnelType = Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>;
+type TunnelType = Box<dyn Tunnel>;
 #[cfg(target_os = "android")]
-type TunnelType = Arc<AsyncMutex<Option<WgGoTunnel>>>;
+type TunnelType = WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
 type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
@@ -139,7 +140,7 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
-    tunnel: TunnelType,
+    tunnel: Arc<AsyncMutex<Option<TunnelType>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -668,7 +669,7 @@ impl WireguardMonitor {
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
-    ) -> Result<Box<dyn Tunnel>> {
+    ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
         #[cfg(target_os = "linux")]
