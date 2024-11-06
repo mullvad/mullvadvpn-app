@@ -6,7 +6,10 @@ use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal
 use std::{
     backtrace::Backtrace,
     ffi::{c_int, c_void},
-    sync::Once,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Once,
+    },
 };
 
 static INIT_ONCE: Once = Once::new();
@@ -72,6 +75,43 @@ extern "C" fn fault_handler(
     _siginfo: *mut siginfo_t,
     _thread_context_ptr: *mut c_void,
 ) {
+    // SAFETY: This function is known to be potentially unsound and should not be used in prod,
+    // but we keep it in debug-builds because debugging SIGSEGV faults is a PITA.
+    // See function docs for more info.
+    // TODO: Is it safe to perform logging for certain signals? e.g. SIGFPE
+    #[cfg(debug_assertions)]
+    unsafe {
+        logging_fault_handler(signum)
+    };
+
+    // on release-builds, choose the safe option and abort instead.
+    // NOTE: `process::abort` is safer than `process::exit` because it doesn't perform any cleanup
+    #[cfg(not(debug_assertions))]
+    std::process::abort();
+}
+
+/// Called by a signal handler to [log] the signal, and the current backtrace.
+///
+/// See also: [fault_handler].
+///
+/// # SAFETY
+/// Calling this function from a signal handler is potentially unsound.
+/// This is because the source of the fault is likely a memory safety violation. Any such violation
+/// has the potential to invalidate implicit safety invariants that this function relies on.
+///
+/// For example: The cause of a SIGSEGV fault might have trashed the heap, which means that any
+/// allocation that happens in the [log] implementation might be unsound.
+///
+/// This function is `cfg(debug_assertions)` because it should not be used in production builds.
+#[cfg(debug_assertions)]
+unsafe fn logging_fault_handler(signum: c_int) {
+    // Guard against reentrancy, which can happen if this fault handler triggers another fault.
+    static REENTRANCY_GUARD: AtomicBool = AtomicBool::new(false);
+    if REENTRANCY_GUARD.swap(true, Ordering::SeqCst) {
+        // NOTE: abort is more safe than exit,
+        std::process::abort();
+    }
+
     let signal: Signal = match Signal::try_from(signum) {
         Ok(signal) => signal,
         Err(err) => {
