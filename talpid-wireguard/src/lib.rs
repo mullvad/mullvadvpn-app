@@ -135,7 +135,10 @@ impl Error {
 pub struct WireguardMonitor {
     runtime: tokio::runtime::Handle,
     /// Tunnel implementation
+    #[cfg(not(target_os = "android"))]
     tunnel: Arc<AsyncMutex<Option<Box<dyn Tunnel>>>>,
+    #[cfg(target_os = "android")]
+    tunnel: Arc<AsyncMutex<Option<WgGoTunnel>>>,
     /// Callback to signal tunnel events
     event_callback: EventCallback,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
@@ -418,8 +421,7 @@ impl WireguardMonitor {
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
-        let tunnel = Self::open_tunnel(
-            args.runtime.clone(),
+        let tunnel = Self::open_wireguard_go_tunnel(
             &config,
             log_path,
             args.resource_dir,
