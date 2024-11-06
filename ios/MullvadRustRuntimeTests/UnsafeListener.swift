@@ -8,6 +8,7 @@
 
 import Network
 
+/// > Warning: Do not use this implementation in production code. See the warning in `start()`.
 class UnsafeListener<T: Connection> {
     private let dispatchQueue = DispatchQueue(label: "com.test.unsafeListener")
     private let listener: NWListener

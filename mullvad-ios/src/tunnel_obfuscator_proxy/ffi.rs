@@ -7,7 +7,7 @@ use std::{
 
 static INIT_LOGGING: Once = Once::new();
 
-#[allow(dead_code)]
+/// SAFETY: `TunnelObfuscatorProtocol` values must either be `0` or `1`
 #[repr(u8)]
 pub enum TunnelObfuscatorProtocol {
     UdpOverTcp = 0,
@@ -35,8 +35,7 @@ pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
             return -1;
         };
 
-    let result = TunnelObfuscatorRuntime::new(peer_sock_addr, obfuscation_protocol)
-        .and_then(|runtime| runtime.run());
+    let result = TunnelObfuscatorRuntime::new(peer_sock_addr, obfuscation_protocol).run();
 
     match result {
         Ok((local_endpoint, obfuscator_handle)) => {

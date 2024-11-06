@@ -5,6 +5,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+/**
+ * SAFETY: `TunnelObfuscatorProtocol` values must either be `0` or `1`
+ */
 enum TunnelObfuscatorProtocol {
   UdpOverTcp = 0,
   Shadowsocks,

@@ -17,10 +17,7 @@ pub struct TunnelObfuscatorRuntime {
 }
 
 impl TunnelObfuscatorRuntime {
-    pub fn new(
-        peer: SocketAddr,
-        obfuscation_protocol: TunnelObfuscatorProtocol,
-    ) -> io::Result<Self> {
+    pub fn new(peer: SocketAddr, obfuscation_protocol: TunnelObfuscatorProtocol) -> Self {
         let settings: ObfuscationSettings = match obfuscation_protocol {
             TunnelObfuscatorProtocol::UdpOverTcp => {
                 ObfuscationSettings::Udp2Tcp(udp2tcp::Settings { peer })
@@ -33,7 +30,7 @@ impl TunnelObfuscatorRuntime {
             }
         };
 
-        Ok(Self { settings })
+        Self { settings }
     }
 
     pub fn run(self) -> io::Result<(SocketAddr, TunnelObfuscatorHandle)> {
