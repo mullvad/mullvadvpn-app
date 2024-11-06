@@ -1,7 +1,7 @@
 use crate::{
     ping_monitor::{new_pinger, Pinger},
     stats::StatsMap,
-    wireguard_go::WgGoTunnel,
+    TunnelType,
 };
 use std::{
     cmp,
@@ -73,11 +73,7 @@ pub enum Error {
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
 pub struct ConnectivityMonitor {
     /// Tunnel implementation
-    #[cfg(not(target_os = "android"))]
-    tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
-    /// Tunnel implementation
-    #[cfg(target_os = "android")]
-    tunnel_handle: Weak<Mutex<Option<WgGoTunnel>>>,
+    tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
     conn_state: ConnState,
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
@@ -89,8 +85,7 @@ impl ConnectivityMonitor {
     pub(super) fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
-        #[cfg(not(target_os = "android"))] tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
-        #[cfg(target_os = "android")] tunnel_handle: Weak<Mutex<Option<WgGoTunnel>>>,
+        tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> Result<Self, Error> {
         let pinger = new_pinger(
