@@ -1,12 +1,10 @@
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use once_cell::sync::OnceCell;
-use std::any::Any;
 #[cfg(daita)]
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
-    iter,
     net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
     path::Path,
@@ -119,7 +117,8 @@ impl WgGoTunnel {
     }
 }
 
-struct WgGoTunnelState {
+// TODO: Does this need to be pub?
+pub struct WgGoTunnelState {
     interface_name: String,
     tunnel_handle: wireguard_go_rs::Tunnel,
     // holding on to the tunnel device and the log file ensures that the associated file handles
