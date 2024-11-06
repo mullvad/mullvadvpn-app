@@ -751,9 +751,8 @@ impl WireguardMonitor {
     ) -> Result<WgGoTunnel> {
         let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
 
-        // TODO: Bring back
-        // #[cfg(target_os = "android")]
-        // let config = Self::patch_allowed_ips(config, gateway_only);
+        #[cfg(target_os = "android")]
+        let config = Self::patch_allowed_ips(config, gateway_only);
 
         let exit_config = wireguard_go::exit_config(&config);
 
