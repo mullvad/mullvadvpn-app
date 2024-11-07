@@ -29,7 +29,7 @@ class LinkButton: CustomButton {
     private func commonInit() {
         imageAlignment = .trailing
         contentHorizontalAlignment = .leading
-
+        configuration?.contentInsets = .zero
         accessibilityTraits.insert(.link)
     }
 
