@@ -54,7 +54,7 @@ mod mtu_detection;
 #[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
 
-// TODO: Document why we have a type alias !
+// On android we only have Wireguard Go tunnel
 #[cfg(not(target_os = "android"))]
 type TunnelType = Box<dyn Tunnel>;
 #[cfg(target_os = "android")]
@@ -590,7 +590,6 @@ impl WireguardMonitor {
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
     ///
-    /// TODO: This might need some patchin' now when multihop is a thing.
     #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
@@ -750,60 +749,9 @@ impl WireguardMonitor {
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
     ) -> Result<WgGoTunnel> {
-        let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
-
-        #[cfg(target_os = "android")]
-        let config = Self::patch_allowed_ips(config, gateway_only);
-
-        let exit_config = wireguard_go::exit_config(&config);
-
-        let should_negotiate_with_ephemeral_peer = gateway_only;
-        #[cfg(target_os = "android")]
-        let tunnel = match exit_config {
-            // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
-            // with an ephemeral peer, this multihop strategy require us to restart the tunnel
-            // every time we want to reconfigure it. As such, we will actually start a multihop
-            // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
-            // At this point, when the tunnel *is first started*, we establish a regular, singlehop
-            // tunnel to where the ephemeral peer resides.
-            //
-            // TODO: Refer to `docs/architecture.md` for details on how to use multihop + PQ.
-            Some(_exit_config) if should_negotiate_with_ephemeral_peer => {
-                WgGoTunnel::start_multihop_tunnel(
-                    #[allow(clippy::needless_borrow)]
-                    // TODO: Check if `entry` should be used instead ??
-                    &config,
-                    log_path,
-                    tun_provider,
-                    routes,
-                    #[cfg(daita)]
-                    resource_dir,
-                )
-                .map_err(Error::TunnelError)?
-            }
-            // If we don't need to negotiate with an ephemeral peer, we may simply start a multihop
-            // tunnel from the get-go.
-            Some(_exit_config) => WgGoTunnel::start_multihop_tunnel(
-                #[allow(clippy::needless_borrow)]
-                &config,
-                log_path,
-                tun_provider,
-                routes,
-                #[cfg(daita)]
-                resource_dir,
-            )
-            .map_err(Error::TunnelError)?,
-            None => WgGoTunnel::start_tunnel(
-                #[allow(clippy::needless_borrow)]
-                &config,
-                log_path,
-                tun_provider,
-                routes,
-                #[cfg(daita)]
-                resource_dir,
-            )
-            .map_err(Error::TunnelError)?,
-        };
+        let routes = config
+            .get_tunnel_destinations()
+            .flat_map(Self::replace_default_prefixes);
 
         #[cfg(not(target_os = "android"))]
         let tunnel = WgGoTunnel::start_tunnel(
@@ -816,6 +764,42 @@ impl WireguardMonitor {
             resource_dir,
         )
         .map_err(Error::TunnelError)?;
+
+        // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
+        // with an ephemeral peer, this multihop strategy require us to restart the tunnel
+        // every time we want to reconfigure it. As such, we will actually start a multihop
+        // tunnel at a later stage, after we have negotiated with the first ephemeral peer.
+        // At this point, when the tunnel *is first started*, we establish a regular, singlehop
+        // tunnel to where the ephemeral peer resides.
+        //
+        // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+        #[cfg(target_os = "android")]
+        let config = Self::patch_allowed_ips(config, gateway_only);
+
+        #[cfg(target_os = "android")]
+        let tunnel = if let Some(exit_peer) = &config.exit_peer {
+            WgGoTunnel::start_multihop_tunnel(
+                &config,
+                exit_peer,
+                log_path,
+                tun_provider,
+                routes,
+                #[cfg(daita)]
+                resource_dir,
+            )
+            .map_err(Error::TunnelError)?
+        } else {
+            WgGoTunnel::start_tunnel(
+                #[allow(clippy::needless_borrow)]
+                &config,
+                log_path,
+                tun_provider,
+                routes,
+                #[cfg(daita)]
+                resource_dir,
+            )
+            .map_err(Error::TunnelError)?
+        };
 
         Ok(tunnel)
     }
@@ -922,7 +906,8 @@ impl WireguardMonitor {
             gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
         let routes = gateway_routes.chain(
-            Self::get_tunnel_destinations(config)
+            config
+                .get_tunnel_destinations()
                 .filter(|allowed_ip| allowed_ip.prefix() != 0)
                 .map(move |allowed_ip| {
                     if allowed_ip.is_ipv4() {
@@ -943,7 +928,8 @@ impl WireguardMonitor {
         config: &'a Config,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
-        let iter = Self::get_tunnel_destinations(config)
+        let iter = config
+            .get_tunnel_destinations()
             .filter(|allowed_ip| allowed_ip.prefix() == 0)
             .flat_map(Self::replace_default_prefixes)
             .map(move |allowed_ip| {
@@ -983,12 +969,6 @@ impl WireguardMonitor {
 
             route.mtu(mtu)
         }
-    }
-
-    // TODO: Remove?
-    /// Return routes for all allowed IPs.
-    fn get_tunnel_destinations(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        config.get_tunnel_destinations()
     }
 
     /// Replace default (0-prefix) routes with more specific routes.

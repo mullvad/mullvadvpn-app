@@ -1,3 +1,12 @@
+#[cfg(target_os = "android")]
+use super::config;
+use super::{
+    stats::{Stats, StatsMap},
+    Config, Tunnel, TunnelError,
+};
+#[cfg(target_os = "linux")]
+use crate::config::MULLVAD_INTERFACE_NAME;
+use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use once_cell::sync::OnceCell;
@@ -5,7 +14,6 @@ use once_cell::sync::OnceCell;
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
-    net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
     path::Path,
     pin::Pin,
@@ -14,15 +22,9 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
+#[cfg(target_os = "android")]
+use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::BoxedError;
-
-use super::{
-    stats::{Stats, StatsMap},
-    Config, Tunnel, TunnelError,
-};
-#[cfg(target_os = "linux")]
-use crate::config::MULLVAD_INTERFACE_NAME;
-use crate::logging::{clean_up_logging, initialize_logging};
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
@@ -36,19 +38,49 @@ const DAITA_ACTIONS_CAPACITY: u32 = 1000;
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
-struct LoggingContext(u64);
+struct LoggingContext {
+    ordinal: u64,
+    #[allow(dead_code)]
+    path: Option<PathBuf>,
+}
 
-impl Drop for LoggingContext {
-    fn drop(&mut self) {
-        clean_up_logging(self.0);
+impl LoggingContext {
+    fn new(ordinal: u64, path: Option<PathBuf>) -> Self {
+        LoggingContext { ordinal, path }
     }
 }
 
+impl Drop for LoggingContext {
+    fn drop(&mut self) {
+        clean_up_logging(self.ordinal);
+    }
+}
+
+#[cfg(not(target_os = "android"))]
+pub struct WgGoTunnel(WgGoTunnelState);
+
+#[cfg(target_os = "android")]
 pub enum WgGoTunnel {
     Multihop(WgGoTunnelState),
     Singlehop(WgGoTunnelState),
 }
 
+#[cfg(not(target_os = "android"))]
+impl WgGoTunnel {
+    fn into_state(self) -> WgGoTunnelState {
+        self.0
+    }
+
+    fn as_state(&self) -> &WgGoTunnelState {
+        &self.0
+    }
+
+    fn to_state_mut(&mut self) -> &mut WgGoTunnelState {
+        &mut self.0
+    }
+}
+
+#[cfg(target_os = "android")]
 impl WgGoTunnel {
     fn into_state(self) -> WgGoTunnelState {
         match self {
@@ -73,7 +105,7 @@ impl WgGoTunnel {
 
     pub fn better_set_config(self, config: &Config) -> Result<Self> {
         let state = self.as_state();
-        let log_path = state._log_path.clone();
+        let log_path = state._logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
         let routes = config.get_tunnel_destinations();
         #[cfg(daita)]
@@ -81,8 +113,7 @@ impl WgGoTunnel {
 
         match self {
             WgGoTunnel::Multihop(state) if !config.is_multihop() => {
-                // Important!
-                state.stop().unwrap();
+                state.stop()?;
                 Self::start_tunnel(
                     config,
                     log_path.as_deref(),
@@ -92,9 +123,10 @@ impl WgGoTunnel {
                 )
             }
             WgGoTunnel::Singlehop(state) if config.is_multihop() => {
-                state.stop().unwrap();
+                state.stop()?;
                 Self::start_multihop_tunnel(
                     config,
+                    &config.exit_peer.clone().unwrap().clone(),
                     log_path.as_deref(),
                     tun_provider,
                     routes,
@@ -117,16 +149,13 @@ impl WgGoTunnel {
     }
 }
 
-// TODO: Does this need to be pub?
-pub struct WgGoTunnelState {
+pub(crate) struct WgGoTunnelState {
     interface_name: String,
     tunnel_handle: wireguard_go_rs::Tunnel,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
-    // HACK: Don't use this. Only sometimes. ;-)
-    _log_path: Option<PathBuf>,
-    // context that maps to fs::File instance, used with logging callback
+    // context that maps to fs::File instance and stores the file path, used with logging callback
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
@@ -172,34 +201,6 @@ impl WgGoTunnelState {
     }
 }
 
-// TODO: move into impl of Config
-pub(crate) fn exit_config(multihop_config: &Config) -> Option<Config> {
-    let mut exit_config = multihop_config.clone();
-    exit_config.entry_peer = multihop_config.exit_peer.clone()?;
-    Some(exit_config)
-}
-
-// TODO: move into impl of Config
-pub(crate) fn entry_config(multihop_config: &Config) -> Config {
-    let mut entry_config = multihop_config.clone();
-    entry_config.exit_peer = None;
-    entry_config
-}
-
-// TODO: move into impl of Config
-fn private_ip(config: &Config) -> CString {
-    if let Some(ip) = config
-        .tunnel
-        .addresses
-        .iter()
-        .find(|addr| matches!(addr, IpAddr::V4(_)))
-    {
-        CString::new(ip.to_string()).unwrap()
-    } else {
-        CString::default()
-    }
-}
-
 impl WgGoTunnel {
     #[cfg(not(target_os = "android"))]
     pub fn start_tunnel(
@@ -214,7 +215,7 @@ impl WgGoTunnel {
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
         let logging_context = initialize_logging(log_path)
-            .map(LoggingContext)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
         let mtu = config.mtu as isize;
@@ -224,11 +225,11 @@ impl WgGoTunnel {
             &wg_config_str,
             tunnel_fd,
             Some(logging::wg_go_logging_callback),
-            logging_context.0,
+            logging_context.ordinal,
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
-        Ok(WgGoTunnelState {
+        Ok(WgGoTunnel(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -237,7 +238,7 @@ impl WgGoTunnel {
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
-        })
+        }))
     }
 
     fn get_tunnel(
@@ -288,22 +289,21 @@ impl WgGoTunnel {
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
-        let tun_provider_clone = tun_provider.clone();
-
-        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+        let (mut tunnel_device, tunnel_fd) =
+            Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
-        let wg_config_str = config.to_userspace_format();
-        let _log_path = log_path;
         let logging_context = initialize_logging(log_path)
-            .map(LoggingContext)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
+
+        let wg_config_str = config.to_userspace_format();
 
         let handle = wireguard_go_rs::Tunnel::turn_on(
             &wg_config_str,
             tunnel_fd,
             Some(logging::wg_go_logging_callback),
-            logging_context.0,
+            logging_context.ordinal,
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
@@ -315,8 +315,7 @@ impl WgGoTunnel {
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
-            _log_path: _log_path.map(|log_path| log_path.to_owned()),
-            tun_provider: tun_provider_clone,
+            tun_provider,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
@@ -326,29 +325,35 @@ impl WgGoTunnel {
 
     pub fn start_multihop_tunnel(
         config: &Config,
+        exit_peer: &PeerConfig,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
-        let tun_provider_clone = tun_provider.clone();
-
-        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+        let (mut tunnel_device, tunnel_fd) =
+            Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
-        let _log_path = log_path;
         let logging_context = initialize_logging(log_path)
-            .map(LoggingContext)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
-        let entry_config = entry_config(config);
-        let exit_config = exit_config(config);
+        let entry_config_str = config::userspace_format(
+            &config.tunnel.private_key,
+            std::iter::once(&config.entry_peer),
+        );
 
-        // multihop
-        let exit_config = exit_config.unwrap();
-        let entry_config_str = entry_config.to_userspace_format();
-        let exit_config_str = exit_config.to_userspace_format();
-        let private_ip = private_ip(config);
+        let exit_config_str =
+            config::userspace_format(&config.tunnel.private_key, std::iter::once(exit_peer));
+
+        let private_ip = config
+            .tunnel
+            .addresses
+            .iter()
+            .find(|addr| addr.is_ipv4())
+            .map(|addr| CString::new(addr.to_string()).unwrap())
+            .ok_or(TunnelError::SetConfigError)?;
 
         let handle = wireguard_go_rs::Tunnel::turn_on_multihop(
             &exit_config_str,
@@ -356,7 +361,7 @@ impl WgGoTunnel {
             &private_ip,
             tunnel_fd,
             Some(logging::wg_go_logging_callback),
-            logging_context.0,
+            logging_context.ordinal,
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
@@ -368,8 +373,7 @@ impl WgGoTunnel {
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
-            _log_path: _log_path.map(|log_path| log_path.to_owned()),
-            tun_provider: tun_provider_clone,
+            tun_provider,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
@@ -425,11 +429,7 @@ impl Tunnel for WgGoTunnel {
 
         log::info!("Initializing DAITA for wireguard device");
         let config = &self.as_state().config;
-
-        let peer_public_key = match config.exit_peer.as_ref() {
-            Some(exit) => &exit.public_key,
-            None => &config.entry_peer.public_key,
-        };
+        let peer_public_key = &config.entry_peer.public_key;
 
         self.as_state()
             .tunnel_handle

@@ -1,7 +1,10 @@
 //! This module takes care of obtaining ephemeral peers, updating the WireGuard configuration and
 //! restarting obfuscation and WG tunnels when necessary.
 
-use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, Tunnel, TunnelType};
+#[cfg(target_os = "android")] // On Android, the Tunnel trait is not imported by default.
+use super::Tunnel;
+use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, TunnelType};
+
 #[cfg(target_os = "android")]
 use std::sync::Mutex;
 use std::{
@@ -64,6 +67,7 @@ fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
     }
 }
 
+#[cfg(not(windows))]
 pub async fn config_ephemeral_peers(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
@@ -95,7 +99,6 @@ async fn config_ephemeral_peers_inner(
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
 
-    // NOTE: this might be the entry?
     let exit_should_have_daita = config.daita && !config.is_multihop();
     let exit_psk = request_ephemeral_peer(
         retry_attempt,
@@ -159,8 +162,6 @@ async fn config_ephemeral_peers_inner(
     )
     .await?;
 
-    log::info!("Config: {config:#?}");
-
     #[cfg(daita)]
     if config.daita {
         // Start local DAITA machines
@@ -203,7 +204,10 @@ async fn reconfigure_tunnel(
 
     let tunnel = lock.take().expect("tunnel was None");
 
-    let new_tunnel = tunnel.better_set_config(&config).unwrap();
+    let new_tunnel = tunnel
+        .better_set_config(&config)
+        .map_err(Error::TunnelError)
+        .map_err(CloseMsg::SetupError)?;
 
     *lock = Some(new_tunnel);
     Ok(config)
