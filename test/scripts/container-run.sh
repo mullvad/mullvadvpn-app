@@ -23,7 +23,7 @@ if [[ "$(uname -s)" != "Linux" ]]; then
 fi
 
 container_image=$(cat "$REPO_DIR/building/linux-container-image.txt")
-podman build -t mullvadvpn-app-tests --build-arg IMAGE="${container_image}" .
+"$CONTAINER_RUNNER" build -t mullvadvpn-app-tests --build-arg IMAGE="${container_image}" .
 
 exec "$CONTAINER_RUNNER" run --rm -it \
     -v "${CARGO_REGISTRY_VOLUME_NAME}":/root/.cargo/registry:Z \
