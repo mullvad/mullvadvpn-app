@@ -25,6 +25,11 @@ use windows_sys::Win32::{
 /// Minidump file name
 const MINIDUMP_FILENAME: &str = "DAEMON.DMP";
 
+/// Enable logging of unhandled SEH exceptions.
+pub fn enable() {
+    unsafe { SetUnhandledExceptionFilter(Some(logging_exception_filter)) };
+}
+
 #[repr(C)]
 #[allow(dead_code)]
 enum MINIDUMP_TYPE {
@@ -105,11 +110,6 @@ fn generate_minidump(
     }
 
     Ok(())
-}
-
-/// Enable logging of unhandled SEH exceptions.
-pub fn enable() {
-    unsafe { SetUnhandledExceptionFilter(Some(logging_exception_filter)) };
 }
 
 fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
