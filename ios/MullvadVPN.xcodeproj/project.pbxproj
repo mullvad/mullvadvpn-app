@@ -603,6 +603,12 @@
 		7AD0AA1D2AD6A86700119E10 /* PacketTunnelActorProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA192AD69B6E00119E10 /* PacketTunnelActorProtocol.swift */; };
 		7AD0AA1F2AD6C8B900119E10 /* URLRequestProxyProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA1E2AD6C8B900119E10 /* URLRequestProxyProtocol.swift */; };
 		7AD0AA212AD6CB0000119E10 /* URLRequestProxyStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD0AA202AD6CB0000119E10 /* URLRequestProxyStub.swift */; };
+		7AD63A392CD520FD00445268 /* ObfuscatorPortSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A382CD520FD00445268 /* ObfuscatorPortSelector.swift */; };
+		7AD63A3B2CD5278900445268 /* ObfuscationMethodSelector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */; };
+		7AD63A3D2CD9065D00445268 /* ObfuscatorPortSelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3C2CD9065100445268 /* ObfuscatorPortSelectorTests.swift */; };
+		7AD63A3F2CDA53F600445268 /* ObfuscationMethodSelectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A3E2CDA53E900445268 /* ObfuscationMethodSelectorTests.swift */; };
+		7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A432CDA662900445268 /* UInt+Counting.swift */; };
+		7AD63A472CDA666100445268 /* UIntTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AD63A462CDA665A00445268 /* UIntTests.swift */; };
 		7ADCB2D82B6A6EB300C88F89 /* AnyRelay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */; };
 		7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */; };
 		7AE044BB2A935726003915D8 /* Routing.h in Headers */ = {isa = PBXBuildFile; fileRef = 7A88DCD02A8FABBE00D2FF0E /* Routing.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1926,6 +1932,12 @@
 		7AD0AA1B2AD6A63F00119E10 /* PacketTunnelActorStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PacketTunnelActorStub.swift; sourceTree = "<group>"; };
 		7AD0AA1E2AD6C8B900119E10 /* URLRequestProxyProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxyProtocol.swift; sourceTree = "<group>"; };
 		7AD0AA202AD6CB0000119E10 /* URLRequestProxyStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLRequestProxyStub.swift; sourceTree = "<group>"; };
+		7AD63A382CD520FD00445268 /* ObfuscatorPortSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscatorPortSelector.swift; sourceTree = "<group>"; };
+		7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethodSelector.swift; sourceTree = "<group>"; };
+		7AD63A3C2CD9065100445268 /* ObfuscatorPortSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscatorPortSelectorTests.swift; sourceTree = "<group>"; };
+		7AD63A3E2CDA53E900445268 /* ObfuscationMethodSelectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObfuscationMethodSelectorTests.swift; sourceTree = "<group>"; };
+		7AD63A432CDA662900445268 /* UInt+Counting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt+Counting.swift"; sourceTree = "<group>"; };
+		7AD63A462CDA665A00445268 /* UIntTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIntTests.swift; sourceTree = "<group>"; };
 		7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyRelay.swift; sourceTree = "<group>"; };
 		7ADCB2D92B6A730400C88F89 /* IPOverrideRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideRepositoryStub.swift; sourceTree = "<group>"; };
 		7AE90B672C2D726000375A60 /* NSParagraphStyle+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSParagraphStyle+Extensions.swift"; sourceTree = "<group>"; };
@@ -2393,6 +2405,7 @@
 			children = (
 				F06045F02B2324DA00B2D37A /* ApiHandlers */,
 				062B45A228FD4C0F00746E77 /* Assets */,
+				7AD63A422CDA661B00445268 /* Extensions */,
 				582FFA82290A84E700895745 /* Info.plist */,
 				06799ABE28F98E1D00ACD94E /* MullvadREST.h */,
 				F0DC779F2B2222D20087F09D /* Relay */,
@@ -2439,6 +2452,7 @@
 		440E9EF32BDA942E00B1FD11 /* MullvadREST */ = {
 			isa = PBXGroup;
 			children = (
+				7AD63A452CDA665200445268 /* Extensions */,
 				F072D3D02C071A9100906F64 /* Shadowsocks */,
 				440E9EF42BDA943B00B1FD11 /* ApiHandlers */,
 				440E9EF52BDA954000B1FD11 /* Relay */,
@@ -2460,6 +2474,8 @@
 			children = (
 				A9EC20E72A5D3A8C0040D56E /* CoordinatesTests.swift */,
 				7ACE19142C1C429A00260BB6 /* MultihopDecisionFlowTests.swift */,
+				7AD63A3E2CDA53E900445268 /* ObfuscationMethodSelectorTests.swift */,
+				7AD63A3C2CD9065100445268 /* ObfuscatorPortSelectorTests.swift */,
 				A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */,
 				7ACE19122C1C352100260BB6 /* RelayPickingTests.swift */,
 				584B26F3237434D00073B10E /* RelaySelectorTests.swift */,
@@ -3902,6 +3918,22 @@
 			path = SelectLocation;
 			sourceTree = "<group>";
 		};
+		7AD63A422CDA661B00445268 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				7AD63A432CDA662900445268 /* UInt+Counting.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
+		7AD63A452CDA665200445268 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				7AD63A462CDA665A00445268 /* UIntTests.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		7AE241492C20682B0076CE33 /* Presentation controllers */ = {
 			isa = PBXGroup;
 			children = (
@@ -4193,11 +4225,13 @@
 				F0DDE4292B220A15006B57A7 /* Midpoint.swift */,
 				7ACE19102C1C349200260BB6 /* MultihopDecisionFlow.swift */,
 				F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */,
+				7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
 				7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */,
 				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
 				F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */,
 				F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */,
+				7AD63A382CD520FD00445268 /* ObfuscatorPortSelector.swift */,
 				5824037F2A827DF300163DE8 /* RelaySelectorProtocol.swift */,
 				F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */,
 				7AEBA5292C2179F20018BEC5 /* RelaySelectorWrapper.swift */,
@@ -5212,6 +5246,7 @@
 				F05F39972B21C735006E60A7 /* RelayCache.swift in Sources */,
 				A932D9EF2B5ADD0700999395 /* ProxyConfigurationTransportProvider.swift in Sources */,
 				F01528BB2BFF3FEE00B01D00 /* ShadowsocksRelaySelector.swift in Sources */,
+				7AD63A392CD520FD00445268 /* ObfuscatorPortSelector.swift in Sources */,
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
 				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
@@ -5250,6 +5285,7 @@
 				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */,
+				7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */,
 				7A516C3A2B7111A700BBD33D /* IPOverrideWrapper.swift in Sources */,
 				A90763B62B2857D50045ADF0 /* Socks5ConnectNegotiation.swift in Sources */,
 				7ACE19112C1C349200260BB6 /* MultihopDecisionFlow.swift in Sources */,
@@ -5258,6 +5294,7 @@
 				F0DDE42B2B220A15006B57A7 /* RelaySelector.swift in Sources */,
 				F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */,
 				7AEBA52A2C2179F20018BEC5 /* RelaySelectorWrapper.swift in Sources */,
+				7AD63A3B2CD5278900445268 /* ObfuscationMethodSelector.swift in Sources */,
 				F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
 				A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */,
@@ -5384,13 +5421,16 @@
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
 				A9A5FA0F2ACB05160083449F /* StoreSubscription.swift in Sources */,
 				A9A5FA102ACB05160083449F /* PacketTunnelTransport.swift in Sources */,
+				7AD63A472CDA666100445268 /* UIntTests.swift in Sources */,
 				A9A5FA112ACB05160083449F /* TransportMonitor.swift in Sources */,
 				A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */,
 				A9A5FA132ACB05160083449F /* LoadTunnelConfigurationOperation.swift in Sources */,
+				7AD63A3F2CDA53F600445268 /* ObfuscationMethodSelectorTests.swift in Sources */,
 				44DD7D292B7113CA0005F67F /* MockTunnel.swift in Sources */,
 				A9A5FA142ACB05160083449F /* MapConnectionStatusOperation.swift in Sources */,
 				A9A5FA152ACB05160083449F /* RedeemVoucherOperation.swift in Sources */,
 				A9A5FA162ACB05160083449F /* RotateKeyOperation.swift in Sources */,
+				7AD63A3D2CD9065D00445268 /* ObfuscatorPortSelectorTests.swift in Sources */,
 				F072D3CF2C07122400906F64 /* SettingsUpdaterTests.swift in Sources */,
 				7ACE19132C1C352100260BB6 /* RelayPickingTests.swift in Sources */,
 				F09D04B52AE93CB6003D4F89 /* OutgoingConnectionProxy+Stub.swift in Sources */,

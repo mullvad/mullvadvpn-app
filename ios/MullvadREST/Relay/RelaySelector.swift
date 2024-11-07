@@ -30,34 +30,9 @@ public enum RelaySelector {
         }
     }
 
-    // MARK: - private
-
     static func pickRandomRelayByWeight<T: AnyRelay>(relays: [RelayWithLocation<T>])
         -> RelayWithLocation<T>? {
         rouletteSelection(relays: relays, weightFunction: { relayWithLocation in relayWithLocation.relay.weight })
-    }
-
-    private static func pickRandomPort(rawPortRanges: [[UInt16]]) -> UInt16? {
-        let portRanges = parseRawPortRanges(rawPortRanges)
-        let portAmount = portRanges.reduce(0) { partialResult, closedRange in
-            partialResult + closedRange.count
-        }
-
-        guard var portIndex = (0 ..< portAmount).randomElement() else {
-            return nil
-        }
-
-        for range in portRanges {
-            if portIndex < range.count {
-                return UInt16(portIndex) + range.lowerBound
-            } else {
-                portIndex -= range.count
-            }
-        }
-
-        assertionFailure("Port selection algorithm is broken!")
-
-        return nil
     }
 
     static func rouletteSelection<T>(relays: [T], weightFunction: (T) -> UInt64) -> T? {
@@ -97,40 +72,6 @@ public enum RelaySelector {
         }
     }
 
-    private static func makeRelayWithLocationFrom<T: AnyRelay>(
-        _ serverLocation: REST.ServerLocation,
-        relay: T
-    ) -> RelayWithLocation<T>? {
-        let locationComponents = relay.location.split(separator: "-")
-        guard locationComponents.count > 1 else { return nil }
-
-        let location = Location(
-            country: serverLocation.country,
-            countryCode: String(locationComponents[0]),
-            city: serverLocation.city,
-            cityCode: String(locationComponents[1]),
-            latitude: serverLocation.latitude,
-            longitude: serverLocation.longitude
-        )
-
-        return RelayWithLocation(relay: relay, serverLocation: location)
-    }
-
-    private static func parseRawPortRanges(_ rawPortRanges: [[UInt16]]) -> [ClosedRange<UInt16>] {
-        rawPortRanges.compactMap { inputRange -> ClosedRange<UInt16>? in
-            guard inputRange.count == 2 else { return nil }
-
-            let startPort = inputRange[0]
-            let endPort = inputRange[1]
-
-            if startPort <= endPort {
-                return startPort ... endPort
-            } else {
-                return nil
-            }
-        }
-    }
-
     /// Produce a list of `RelayWithLocation` items satisfying the given constraints
     static func applyConstraints<T: AnyRelay>(
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
@@ -164,6 +105,65 @@ public enum RelaySelector {
 
             return useDefaultPort ? defaultPort : pickRandomPort(rawPortRanges: rawPortRanges)
         }
+    }
+
+    // MARK: - private
+
+    static func parseRawPortRanges(_ rawPortRanges: [[UInt16]]) -> [ClosedRange<UInt16>] {
+        rawPortRanges.compactMap { inputRange -> ClosedRange<UInt16>? in
+            guard inputRange.count == 2 else { return nil }
+
+            let startPort = inputRange[0]
+            let endPort = inputRange[1]
+
+            if startPort <= endPort {
+                return startPort ... endPort
+            } else {
+                return nil
+            }
+        }
+    }
+
+    static func pickRandomPort(rawPortRanges: [[UInt16]]) -> UInt16? {
+        let portRanges = parseRawPortRanges(rawPortRanges)
+        let portAmount = portRanges.reduce(0) { partialResult, closedRange in
+            partialResult + closedRange.count
+        }
+
+        guard var portIndex = (0 ..< portAmount).randomElement() else {
+            return nil
+        }
+
+        for range in portRanges {
+            if portIndex < range.count {
+                return UInt16(portIndex) + range.lowerBound
+            } else {
+                portIndex -= range.count
+            }
+        }
+
+        assertionFailure("Port selection algorithm is broken!")
+
+        return nil
+    }
+
+    private static func makeRelayWithLocationFrom<T: AnyRelay>(
+        _ serverLocation: REST.ServerLocation,
+        relay: T
+    ) -> RelayWithLocation<T>? {
+        let locationComponents = relay.location.split(separator: "-")
+        guard locationComponents.count > 1 else { return nil }
+
+        let location = Location(
+            country: serverLocation.country,
+            countryCode: String(locationComponents[0]),
+            city: serverLocation.city,
+            cityCode: String(locationComponents[1]),
+            latitude: serverLocation.latitude,
+            longitude: serverLocation.longitude
+        )
+
+        return RelayWithLocation(relay: relay, serverLocation: location)
     }
 
     private static func filterByActive<T: AnyRelay>(
