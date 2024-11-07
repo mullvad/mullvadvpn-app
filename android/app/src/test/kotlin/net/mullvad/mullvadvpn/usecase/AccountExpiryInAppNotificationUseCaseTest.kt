@@ -119,6 +119,10 @@ class AccountExpiryInAppNotificationUseCaseTest {
             advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
             assertEquals(Duration.ZERO, getExpiryNotificationDuration(expectMostRecentItem()))
             expectNoEvents()
+
+            // Make sure we reset the list of notifications emitted when new time is added
+            setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusDays(1))
+            assertEquals(emptyList(), expectMostRecentItem())
         }
     }
 
