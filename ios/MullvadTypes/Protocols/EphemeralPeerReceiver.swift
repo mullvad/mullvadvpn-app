@@ -20,25 +20,24 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     }
 
     unowned let tunnelProvider: any TunnelProvider
+    let keyReceiver: any EphemeralPeerReceiving
 
-    public init(tunnelProvider: TunnelProvider, keyReceiver: any EphemeralPeerReceiving) {
+    public init(tunnelProvider: TunnelProvider, keyReceiver: any EphemeralPeerReceiving ) {
         self.tunnelProvider = tunnelProvider
+        self.keyReceiver = keyReceiver
     }
 
     // MARK: - EphemeralPeerReceiving
 
     public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
-        receiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+        keyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 
     public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
-        guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
-        receiver.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+        keyReceiver.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
     }
 
     public func ephemeralPeerExchangeFailed() {
-        guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
-        receiver.ephemeralPeerExchangeFailed()
+        keyReceiver.ephemeralPeerExchangeFailed()
     }
 }
