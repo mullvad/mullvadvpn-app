@@ -11,7 +11,9 @@ use std::{
 };
 use tokio::sync::Mutex;
 
-use super::{Tunnel, TunnelError};
+#[cfg(target_os = "android")]
+use super::Tunnel;
+use super::TunnelError;
 
 /// Sleep time used when initially establishing connectivity
 const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
