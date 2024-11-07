@@ -49,6 +49,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix packets being duplicated on LAN when split tunneling is enabled.
 
 ### Security
+- Disable unix signal handler in release builds. The code was not signal safe and could potentially
+  cause issues. This mitigates audit issues `MLLVD-CR-24-01` and `MLLVD-CR-24-02`.
+
 #### Windows
 - Block WSL/Hyper-V traffic in secured states (except the connected state). The normal firewall
   (WFP) filters normally do not apply for VMs. This mitigates the issue by ensuring that it does not
