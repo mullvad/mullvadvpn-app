@@ -1,5 +1,5 @@
 use super::{ios_tcp_connection::*, EphemeralPeerParameters, PacketTunnelBridge};
-use std::{ffi::CStr, ptr, sync::Mutex};
+use std::{ffi::CStr, ptr, sync::Mutex, thread};
 use talpid_tunnel_config_client::{request_ephemeral_peer_with, Error, RelayConfigService};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::{runtime::Handle as TokioHandle, task::JoinHandle};
@@ -17,7 +17,6 @@ pub struct ExchangeCancelToken {
     inner: Mutex<CancelToken>,
 }
 
-
 impl ExchangeCancelToken {
     fn new(tokio_handle: TokioHandle, task: JoinHandle<()>) -> Self {
         let inner = CancelToken {
@@ -34,6 +33,9 @@ impl ExchangeCancelToken {
         if let Ok(mut inner) = self.inner.lock() {
             if let Some(task) = inner.task.take() {
                 task.abort();
+                // CODE STENCH:
+                // Swift can call this function from a tokio context. That *will* crash.
+                // context.
                 let _ = inner.tokio_handle.block_on(task);
             }
         }
@@ -51,6 +53,11 @@ pub struct EphemeralPeerExchange {
     packet_tunnel: PacketTunnelBridge,
     peer_parameters: EphemeralPeerParameters,
 }
+
+// # Safety
+// This is safe because the void pointer in PacketTunnelBridge is valid for the lifetime of the
+// process where this type is intended to be used.
+unsafe impl Send for EphemeralPeerExchange {}
 
 impl EphemeralPeerExchange {
     pub fn new(
@@ -77,7 +84,10 @@ impl EphemeralPeerExchange {
 
     /// Creates a `RelayConfigService` using the in-tunnel TCP Connection provided by the Packet
     /// Tunnel Provider
-    async fn ios_tcp_client(tunnel_handle: i32, peer_parameters: EphemeralPeerParameters) -> Result<RelayConfigService, Error> {
+    async fn ios_tcp_client(
+        tunnel_handle: i32,
+        peer_parameters: EphemeralPeerParameters,
+    ) -> Result<RelayConfigService, Error> {
         let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
 
         let tcp_provider = IosTcpProvider::new(tunnel_handle, peer_parameters);
@@ -105,10 +115,10 @@ impl EphemeralPeerExchange {
         Ok(RelayConfigService::new(conn))
     }
 
-    fn report_failure(&self) {
-        unsafe {
-            swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel, ptr::null(), ptr::null())
-        };
+    fn report_failure(self) {
+        thread::spawn(move || {
+            self.packet_tunnel.fail_exchange();
+        });
     }
 
     async fn run_service_inner(self) {
@@ -139,19 +149,20 @@ impl EphemeralPeerExchange {
                 match ephemeral_peer {
                     Ok(peer) => {
                         match peer.psk {
-                            Some(preshared_key) => unsafe {
-                                let preshared_key_bytes = preshared_key.as_bytes();
-                                swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
-                                    preshared_key_bytes.as_ptr(),
-                                    self.ephemeral_key.as_ptr());
+                            Some(preshared_key) => {
+                                let preshared_key_bytes = *preshared_key.as_bytes();
+                                thread::spawn(move || {
+                                    let Self{ ephemeral_key, packet_tunnel, .. } = self;
+                                    packet_tunnel.succeed_exchange(ephemeral_key, Some(preshared_key_bytes));
+                                });
+
                             },
                             None => {
                                 // Daita peer was requested, but without enabling post quantum keys
-                                unsafe {
-                                    swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
-                                        ptr::null(),
-                                        self.ephemeral_key.as_ptr());
-                                }
+                                thread::spawn(move || {
+                                    let Self{ ephemeral_key, packet_tunnel, .. } = self;
+                                    packet_tunnel.succeed_exchange(ephemeral_key, None);
+                                });
                             }
                         }
                     },

@@ -34,7 +34,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var ephemeralPeerReceiver = {
-        EphemeralPeerReceiver(tunnelProvider: adapter)
+        EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
     }()
 
     // swiftlint:disable:next function_body_length
