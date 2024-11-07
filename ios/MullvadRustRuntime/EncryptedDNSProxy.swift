@@ -18,9 +18,11 @@ public class EncryptedDNSProxy {
     private var stateLock = NSLock()
     private var didStart = false
     private let state: OpaquePointer
+    private let domain: String
 
-    public init() {
-        state = encrypted_dns_proxy_init("frakta.eu")
+    public init(domain: String) {
+        self.domain = domain
+        state = encrypted_dns_proxy_init(domain)
         proxyConfig = ProxyHandle(context: nil, port: 0)
     }
 
