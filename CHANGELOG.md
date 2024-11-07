@@ -22,7 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-### Fixed
+### Security
+- Disable unix signal handler in release builds. The code was not signal safe and could potentially
+  cause issues. This mitigates audit issues `MLLVD-CR-24-01` and `MLLVD-CR-24-02`.
+
 #### Windows
 - Fix issue where the installer would allow any executable named `taskkill.exe` in the working
   directory to run as admin. This fixes audit issue `MLLVD-CR-24-06`.
