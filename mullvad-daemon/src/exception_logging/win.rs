@@ -344,7 +344,7 @@ fn find_address_module(address: *mut c_void) -> io::Result<Option<ModuleEntry>> 
 
     for module in snap.modules() {
         let module = module?;
-        let module_end_address = unsafe { module.base_address.add(module.size) };
+        let module_end_address = module.base_address.wrapping_add(module.size);
         if (address as *const u8) >= module.base_address
             && (address as *const u8) < module_end_address
         {
