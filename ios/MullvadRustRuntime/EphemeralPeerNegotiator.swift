@@ -30,7 +30,7 @@ public protocol EphemeralPeerNegotiating {
 public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     required public init() {}
 
-    var cancelToken: UnsafeMutablePointer<EphemeralPeerCancelToken>?
+    var cancelToken: OpaquePointer?
 
     public func startNegotiation(
         gatewayIP: IPv4Address,
@@ -68,7 +68,7 @@ public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     }
 
     deinit {
-        guard var cancelToken else { return }
+        guard let cancelToken else { return }
         drop_ephemeral_peer_exchange_token(cancelToken)
     }
 }
