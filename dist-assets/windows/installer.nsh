@@ -690,6 +690,20 @@
 		Abort
 	${EndIf}
 
+	Var /GLOBAL NativeTarget
+	${If} ${IsNativeAMD64}
+		StrCpy $NativeTarget "x64"
+	${ElseIf} ${IsNativeARM64}
+		StrCpy $NativeTarget "ARM64"
+	${Else}
+		StrCpy $NativeTarget "unsupported arch"
+	${EndIf}
+
+	${If} $%TARGET_ARCHITECTURE% != $NativeTarget
+		MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "This build of the app does not run on $NativeTarget Windows. Please find the appropriate installer on the website."
+		Abort
+	${EndIf}
+
 	# Application settings key
 	# Migrate 2018.(x<6) to current
 	registry::MoveKey "HKLM\SOFTWARE\8fa2c331-e09e-5709-bc74-c59df61f0c7e" "HKLM\SOFTWARE\${PRODUCT_NAME}"
