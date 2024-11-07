@@ -5,7 +5,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onStart
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
@@ -24,12 +23,15 @@ class AccountExpiryInAppNotificationUseCase(private val accountRepository: Accou
                             tickStart = ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD,
                             updateInterval = { ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL },
                         )
-                        .map { expiresInPeriod -> InAppNotification.AccountExpiry(expiresInPeriod) }
+                        .map {
+                            it?.let { expiresInPeriod ->
+                                InAppNotification.AccountExpiry(expiresInPeriod)
+                            }
+                        }
                 } else {
                     flowOf(null)
                 }
             }
             .map(::listOfNotNull)
-            .onStart { emit(emptyList()) }
             .distinctUntilChanged()
 }

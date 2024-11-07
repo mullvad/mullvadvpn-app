@@ -10,7 +10,7 @@ fun expiryTickerFlow(
     expiry: DateTime,
     tickStart: Duration,
     updateInterval: (expiry: DateTime) -> Duration,
-): Flow<Duration> = flow {
+): Flow<Duration?> = flow {
     expiry.millisFromNow().let { expiryMillis ->
         if (expiryMillis <= 0) {
             // Has expired.
@@ -18,6 +18,8 @@ fun expiryTickerFlow(
             return@flow
         }
         if (expiryMillis > tickStart.millis) {
+            // Emit null if no expiry notification should be provided.
+            emit(null)
             // Delay until the time we should start emitting.
             delay(expiryMillis - tickStart.millis + 1)
         }
