@@ -11,13 +11,15 @@ import Network
 
 /// Minimal implementation of TCP connection capable of receiving data.
 /// > Warning: Do not use this implementation in production code. See the warning in `start()`.
-class TCPConnection {
+class TCPConnection: Connection {
     private let dispatchQueue = DispatchQueue(label: "TCPConnection")
     private let nwConnection: NWConnection
 
-    init(nwConnection: NWConnection) {
+    required init(nwConnection: NWConnection) {
         self.nwConnection = nwConnection
     }
+
+    static var connectionParameters: NWParameters { .tcp }
 
     deinit {
         cancel()

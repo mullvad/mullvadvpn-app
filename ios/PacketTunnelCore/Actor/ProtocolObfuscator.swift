@@ -53,7 +53,8 @@ public class ProtocolObfuscator<Obfuscator: TunnelObfuscation>: ProtocolObfuscat
 
         let obfuscator = Obfuscator(
             remoteAddress: endpoint.ipv4Relay.ip,
-            tcpPort: remotePort
+            tcpPort: remotePort,
+            obfuscationProtocol: .udpOverTcp
         )
 
         obfuscator.start()

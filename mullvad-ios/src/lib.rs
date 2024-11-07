@@ -2,7 +2,7 @@
 mod encrypted_dns_proxy;
 mod ephemeral_peer_proxy;
 mod shadowsocks_proxy;
-mod tunnel_obfuscator_proxy;
+pub mod tunnel_obfuscator_proxy;
 
 #[repr(C)]
 pub struct ProxyHandle {
