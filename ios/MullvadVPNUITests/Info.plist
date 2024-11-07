@@ -10,6 +10,8 @@
 	<string>$(API_ENDPOINT)</string>
 	<key>ApiHostName</key>
 	<string>$(API_HOST_NAME)</string>
+	<key>EncryptedDnsHostName</key>
+	<string>$(ENCRYPTED_DNS_HOST_NAME)</string>
 	<key>AttachAppLogsOnFailure</key>
 	<string>$(ATTACH_APP_LOGS_ON_FAILURE)</string>
 	<key>DisplayName</key>

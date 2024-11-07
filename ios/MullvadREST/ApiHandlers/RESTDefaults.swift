@@ -21,6 +21,8 @@ extension REST {
     /// Default API endpoint.
     public static let defaultAPIEndpoint = AnyIPEndpoint(string: infoDictionary["ApiEndpoint"] as! String)!
 
+    public static let encryptedDNSHostname = infoDictionary["EncryptedDnsHostName"] as! String
+
     /// Disables API IP address cache when in staging environment and sticks to using default API endpoint instead.
     public static let isStagingEnvironment = false
 
