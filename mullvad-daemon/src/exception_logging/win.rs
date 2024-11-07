@@ -7,15 +7,19 @@ use std::{
     os::windows::io::AsRawHandle,
     path::{Path, PathBuf},
     ptr,
+    sync::atomic::{AtomicBool, Ordering},
 };
 use talpid_types::ErrorExt;
 use talpid_windows::process::{ModuleEntry, ProcessSnapshot};
-use winapi::vc::excpt::EXCEPTION_EXECUTE_HANDLER;
+use winapi::vc::excpt::{EXCEPTION_CONTINUE_SEARCH, EXCEPTION_EXECUTE_HANDLER};
 use windows_sys::Win32::{
-    Foundation::{BOOL, HANDLE},
+    Foundation::HANDLE,
     System::{
         Diagnostics::{
-            Debug::{SetUnhandledExceptionFilter, CONTEXT, EXCEPTION_POINTERS, EXCEPTION_RECORD},
+            Debug::{
+                MiniDumpNormal, MiniDumpWriteDump, SetUnhandledExceptionFilter, CONTEXT,
+                EXCEPTION_POINTERS, EXCEPTION_RECORD, MINIDUMP_EXCEPTION_INFORMATION,
+            },
             ToolHelp::TH32CS_SNAPMODULE,
         },
         Threading::{GetCurrentProcess, GetCurrentProcessId, GetCurrentThreadId},
@@ -30,38 +34,6 @@ pub fn enable() {
     unsafe { SetUnhandledExceptionFilter(Some(logging_exception_filter)) };
 }
 
-#[repr(C)]
-#[allow(dead_code)]
-enum MINIDUMP_TYPE {
-    MiniDumpNormal = 0,
-    // Add missing values as needed
-}
-
-#[repr(C, packed)]
-#[derive(Clone, Copy, Debug)]
-#[allow(non_snake_case)]
-struct MINIDUMP_EXCEPTION_INFORMATION {
-    ThreadId: u32,
-    ExceptionPointers: *const EXCEPTION_POINTERS,
-    ClientPointers: BOOL,
-}
-
-#[link(name = "dbghelp")]
-extern "system" {
-    /// Store exception information, stack trace, etc. in a file.
-    fn MiniDumpWriteDump(
-        hProcess: HANDLE,
-        ProcessId: u32,
-        hFile: HANDLE,
-        DumpType: MINIDUMP_TYPE,
-        ExceptionParam: *const MINIDUMP_EXCEPTION_INFORMATION,
-
-        // Add types as needed:
-        UserStreamParam: *const c_void,
-        CallbackParam: *const c_void,
-    ) -> BOOL;
-}
-
 #[derive(thiserror::Error, Debug)]
 enum MinidumpError {
     #[error("Failed to create mini dump file")]
@@ -72,7 +44,7 @@ enum MinidumpError {
 
 fn generate_minidump(
     dump_file: &Path,
-    exception_pointers: &EXCEPTION_POINTERS,
+    exception_pointers: *mut EXCEPTION_POINTERS,
 ) -> Result<(), MinidumpError> {
     // Open/create dump file
     let handle_rs = fs::OpenOptions::new()
@@ -94,12 +66,14 @@ fn generate_minidump(
         ClientPointers: 0,
     };
 
+    // SAFETY: MiniDumpWriteDump is not thread-safe, so for this to be safe all threads need to be
+    // synchronized. logging_exception_filter takes precaution by adding a thread-safe reentrancy guard.
     if unsafe {
         MiniDumpWriteDump(
             process,
             process_id,
             handle as HANDLE,
-            MINIDUMP_TYPE::MiniDumpNormal,
+            MiniDumpNormal,
             &exception_parameters,
             ptr::null(),
             ptr::null(),
@@ -155,9 +129,29 @@ fn exception_code_to_string(value: &EXCEPTION_RECORD) -> Option<Cow<'_, str>> {
 }
 
 unsafe extern "system" fn logging_exception_filter(info: *const EXCEPTION_POINTERS) -> i32 {
-    // SAFETY: Windows gives us valid pointers
-    let info: &EXCEPTION_POINTERS = &*info;
+    // Guard against reentrancy, which can happen if this fault handler triggers another fault or
+    // if multiple threads would fail "at the same time".
+    // We have to take pre-cuation to synchronize all threads because the backing dbghelp Windows
+    // API is *not* thread safe: https://learn.microsoft.com/en-us/windows/win32/dxtecharts/crash-dump-analysis#thread-safety.
+    // We implicitly use it through for example MiniDumpWriteDump.
+    static REENTRANCY_GUARD: AtomicBool = AtomicBool::new(false);
+    if REENTRANCY_GUARD.swap(true, Ordering::SeqCst) {
+        // `process::abort` is signal-safe, unlike `process::exit`.
+        std::process::abort();
+    }
+
+    // We may treat *const as *mut if we wish?
+    // https://internals.rust-lang.org/t/what-is-the-real-difference-between-const-t-and-mut-t-raw-pointers/6127/22
+    let info_ptr: *mut EXCEPTION_POINTERS = info as *mut EXCEPTION_POINTERS;
+    if info_ptr.is_null() || !info_ptr.is_aligned() {
+        // Let someone else handle this error
+        return EXCEPTION_CONTINUE_SEARCH;
+    }
+    // SAFETY: We've explicitly checked for null pointer and
+    // alignment. We assume that Windows gives us valid pointers, i.e. info points to valid data.
+    let info: &EXCEPTION_POINTERS = &*info_ptr;
     let record: &EXCEPTION_RECORD = &*info.ExceptionRecord;
+    let context: &CONTEXT = &*info.ContextRecord;
 
     // Generate minidump
     let dump_path = match log_dir() {
@@ -170,7 +164,7 @@ unsafe extern "system" fn logging_exception_filter(info: *const EXCEPTION_POINTE
         }
     };
 
-    match generate_minidump(&dump_path, info) {
+    match generate_minidump(&dump_path, info_ptr) {
         Ok(()) => log::info!("Wrote Minidump to {}.", dump_path.to_string_lossy()),
         Err(e) => {
             log::error!(
@@ -181,7 +175,7 @@ unsafe extern "system" fn logging_exception_filter(info: *const EXCEPTION_POINTE
     }
 
     // Log exception information
-    let context_info = get_context_info(&*info.ContextRecord);
+    let context_info = get_context_info(context);
 
     let error_str = match exception_code_to_string(record) {
         Some(errstr) => errstr,
