@@ -103,6 +103,7 @@ fun NotificationBanner(
 }
 
 @Composable
+@Suppress("LongMethod")
 private fun Notification(notificationBannerData: NotificationData) {
     val (title, message, statusLevel, action) = notificationBannerData
     ConstraintLayout(
@@ -133,8 +134,16 @@ private fun Notification(notificationBannerData: NotificationData) {
                 Modifier.constrainAs(textTitle) {
                         top.linkTo(parent.top)
                         start.linkTo(status.end)
-                        bottom.linkTo(anchor = textMessage.top)
-                        end.linkTo(actionIcon.start)
+                        if (message != null) {
+                            bottom.linkTo(textMessage.top)
+                        } else {
+                            bottom.linkTo(parent.bottom)
+                        }
+                        if (action != null) {
+                            end.linkTo(actionIcon.start)
+                        } else {
+                            end.linkTo(parent.end)
+                        }
                         width = Dimension.fillToConstraints
                     }
                     .padding(start = Dimens.smallPadding),
@@ -150,7 +159,6 @@ private fun Notification(notificationBannerData: NotificationData) {
                     Modifier.constrainAs(textMessage) {
                             top.linkTo(textTitle.bottom)
                             start.linkTo(textTitle.start)
-                            bottom.linkTo(parent.bottom)
                             if (action != null) {
                                 end.linkTo(actionIcon.start)
                             } else {
@@ -158,7 +166,7 @@ private fun Notification(notificationBannerData: NotificationData) {
                             }
                             width = Dimension.fillToConstraints
                         }
-                        .padding(start = Dimens.smallPadding),
+                        .padding(start = Dimens.smallPadding, top = Dimens.tinyPadding),
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.labelMedium,
             )
@@ -189,7 +197,7 @@ private fun NotificationDot(statusLevel: StatusLevel, modifier: Modifier) {
                         when (statusLevel) {
                             StatusLevel.Error -> MaterialTheme.colorScheme.error
                             StatusLevel.Warning -> MaterialTheme.colorScheme.warning
-                            StatusLevel.Info -> MaterialTheme.colorScheme.surfaceContainer
+                            StatusLevel.Info -> MaterialTheme.colorScheme.tertiary
                         },
                     shape = CircleShape,
                 )
@@ -204,13 +212,8 @@ private fun NotificationAction(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    IconButton(
-        modifier =
-            modifier
-                .testTag(NOTIFICATION_BANNER_ACTION)
-                .padding(all = Dimens.notificationEndIconPadding),
-        onClick = onClick,
-    ) {
+
+    IconButton(modifier = modifier.testTag(NOTIFICATION_BANNER_ACTION), onClick = onClick) {
         Icon(
             modifier = Modifier.padding(Dimens.notificationIconPadding),
             imageVector = imageVector,
