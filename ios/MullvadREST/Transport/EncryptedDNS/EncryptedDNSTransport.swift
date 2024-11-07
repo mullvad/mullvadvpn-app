@@ -22,7 +22,7 @@ public final class EncryptedDNSTransport: RESTTransport {
 
     public init(urlSession: URLSession) {
         self.urlSession = urlSession
-        self.encryptedDnsProxy = EncryptedDNSProxy()
+        self.encryptedDnsProxy = EncryptedDNSProxy(domain: REST.encryptedDNSHostname)
     }
 
     public func stop() {
