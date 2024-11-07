@@ -5,7 +5,6 @@ use once_cell::sync::OnceCell;
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
     future::Future,
-    net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
     path::Path,
     pin::Pin,
@@ -44,11 +43,31 @@ impl Drop for LoggingContext {
     }
 }
 
+#[cfg(not(target_os = "android"))]
+pub struct WgGoTunnel(WgGoTunnelState);
+
+#[cfg(target_os = "android")]
 pub enum WgGoTunnel {
     Multihop(WgGoTunnelState),
     Singlehop(WgGoTunnelState),
 }
 
+#[cfg(not(target_os = "android"))]
+impl WgGoTunnel {
+    fn into_state(self) -> WgGoTunnelState {
+        self.0
+    }
+
+    fn as_state(&self) -> &WgGoTunnelState {
+        &self.0
+    }
+
+    fn to_state_mut(&mut self) -> &mut WgGoTunnelState {
+        &mut self.0
+    }
+}
+
+#[cfg(target_os = "android")]
 impl WgGoTunnel {
     fn into_state(self) -> WgGoTunnelState {
         match self {
@@ -125,6 +144,7 @@ pub struct WgGoTunnelState {
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
     // HACK: Don't use this. Only sometimes. ;-)
+    #[cfg(target_os = "android")]
     _log_path: Option<PathBuf>,
     // context that maps to fs::File instance, used with logging callback
     _logging_context: LoggingContext,
@@ -173,6 +193,7 @@ impl WgGoTunnelState {
 }
 
 // TODO: move into impl of Config
+#[cfg(target_os = "android")]
 pub(crate) fn exit_config(multihop_config: &Config) -> Option<Config> {
     let mut exit_config = multihop_config.clone();
     exit_config.entry_peer = multihop_config.exit_peer.clone()?;
@@ -180,6 +201,7 @@ pub(crate) fn exit_config(multihop_config: &Config) -> Option<Config> {
 }
 
 // TODO: move into impl of Config
+#[cfg(target_os = "android")]
 pub(crate) fn entry_config(multihop_config: &Config) -> Config {
     let mut entry_config = multihop_config.clone();
     entry_config.exit_peer = None;
@@ -187,13 +209,9 @@ pub(crate) fn entry_config(multihop_config: &Config) -> Config {
 }
 
 // TODO: move into impl of Config
+#[cfg(target_os = "android")]
 fn private_ip(config: &Config) -> CString {
-    if let Some(ip) = config
-        .tunnel
-        .addresses
-        .iter()
-        .find(|addr| matches!(addr, IpAddr::V4(_)))
-    {
+    if let Some(ip) = config.tunnel.addresses.iter().find(|addr| addr.is_ipv4()) {
         CString::new(ip.to_string()).unwrap()
     } else {
         CString::default()
@@ -228,7 +246,7 @@ impl WgGoTunnel {
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
-        Ok(WgGoTunnelState {
+        Ok(WgGoTunnel(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -237,7 +255,7 @@ impl WgGoTunnel {
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
-        })
+        }))
     }
 
     fn get_tunnel(
