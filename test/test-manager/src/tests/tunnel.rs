@@ -445,7 +445,11 @@ pub async fn test_quantum_resistant_tunnel(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::Off)
         .await
@@ -459,13 +463,12 @@ pub async fn test_quantum_resistant_tunnel(
 
     log::info!("Setting tunnel protocol to WireGuard");
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("Failed to update relay settings");
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .location(LowLatency)
+        .build();
+
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
