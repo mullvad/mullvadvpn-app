@@ -161,6 +161,7 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
@@ -340,6 +341,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           path: ./test/.ci-logs/artifacts
+      - uses: Swatinem/rust-cache@v2
       - name: Generate test result matrix
         shell: bash -ieo pipefail {0}
         run: |
