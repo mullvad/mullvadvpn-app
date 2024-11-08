@@ -195,7 +195,15 @@ pub async fn test_wireguard_over_shadowsocks(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    let query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .shadowsocks()
+        .location(LowLatency)
+        .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
