@@ -21,6 +21,7 @@ use talpid_types::net::{
 const MANGLE_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_MANGLE;
 const PREROUTING_CHAIN_PRIORITY: i32 = libc::NF_IP_PRI_CONNTRACK + 1;
 const PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK: &str = "/proc/sys/net/ipv4/conf/all/src_valid_mark";
+const PROC_SYS_NET_IPV4_CONF_ARP_IGNORE: &str = "/proc/sys/net/ipv4/conf/all/arp_ignore";
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -73,6 +74,11 @@ static ADD_COUNTERS: LazyLock<bool> = LazyLock::new(|| {
 
 static DONT_SET_SRC_VALID_MARK: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK")
+        .map(|v| v != "0")
+        .unwrap_or(false)
+});
+static DONT_SET_ARP_IGNORE: LazyLock<bool> = LazyLock::new(|| {
+    env::var("TALPID_FIREWALL_DONT_SET_ARP_IGNORE")
         .map(|v| v != "0")
         .unwrap_or(false)
 });
@@ -134,12 +140,27 @@ impl Firewall {
     fn apply_kernel_config(policy: &FirewallPolicy) {
         if *DONT_SET_SRC_VALID_MARK {
             log::debug!("Not setting src_valid_mark");
-            return;
-        }
-
-        if let FirewallPolicy::Connecting { .. } = policy {
+        } else if let FirewallPolicy::Connecting { .. } = policy {
             if let Err(err) = set_src_valid_mark_sysctl() {
                 log::error!("Failed to apply src_valid_mark: {}", err);
+            }
+        }
+
+        // When we have a tunnel with an IP configured, we configure the system
+        // to not reply to arp requests for this tunnel IP *on other interfaces*.
+        // By default, Linux responds to incoming arp requests for any IP configured on any
+        // interface on the system. This makes it possible to via ARP-pinging figure out the
+        // VPN in-tunnel IP by spamming ARP requests to any physical interface on the device.
+        //
+        // We never store the initial value and restore it. We deem the default value
+        // to be too relaxed and don't see any reason why anyone would want a more relaxed
+        // setting than the one we are setting here.
+        if *DONT_SET_ARP_IGNORE {
+            log::debug!("Not setting arp_ignore");
+        } else if let FirewallPolicy::Connecting { .. } | FirewallPolicy::Connected { .. } = policy
+        {
+            if let Err(err) = lock_down_arp_ignore_sysctl() {
+                log::error!("Failed to apply arp_ignore: {}", err);
             }
         }
     }
@@ -1052,6 +1073,21 @@ fn add_verdict(rule: &mut Rule<'_>, verdict: &expr::Verdict) {
 
 fn set_src_valid_mark_sysctl() -> io::Result<()> {
     fs::write(PROC_SYS_NET_IPV4_CONF_SRC_VALID_MARK, b"1")
+}
+
+/// If the `net.ipv4.conf.all.arp_ignore` setting is below 2, sets it to 2.
+///
+/// 2 means: reply only if the target IP address is local address configured on the incoming
+/// interface and both with the sender's IP address are part from same subnet on this interface.
+fn lock_down_arp_ignore_sysctl() -> io::Result<()> {
+    // Should be safe to treat the content as a string, since it should always be a number.
+    let current_arp_ignore = fs::read_to_string(PROC_SYS_NET_IPV4_CONF_ARP_IGNORE)?;
+    match current_arp_ignore.trim() {
+        "0" | "1" => fs::write(PROC_SYS_NET_IPV4_CONF_ARP_IGNORE, b"2")?,
+        "2" => (),
+        _ => log::trace!("Not locking down arp_ignore since it is set to {current_arp_ignore}"),
+    }
+    Ok(())
 }
 
 /// Tables that are no longer used but need to be deleted due to upgrades.

@@ -58,6 +58,10 @@ Line wrap the file at 100 chars.                                              Th
   leak (as easily) when the VPN tunnel is up. Previously, WSL would leak while in the blocked or
   connecting state, or while lockdown mode was active.
 
+#### Linux
+- Prevent attackers able to send ARP requests to the device running Mullvad from figuring out
+  the in-tunnel IP. Fixes 2024 audit issue `MLLVD-CR-24-03`.
+
 
 ## [2024.7] - 2024-10-30
 This release is identical to 2024.7-beta1.
