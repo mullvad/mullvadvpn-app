@@ -234,36 +234,6 @@ impl Tunnel for WgGoTunnel {
     }
 }
 
-#[cfg(daita)]
-fn load_maybenot_machines(resource_dir: &Path) -> Result<CString> {
-    let path = resource_dir.join("maybenot_machines_v2");
-    log::debug!("Reading maybenot machines from {}", path.display());
-
-    let machines = fs::read_to_string(path).map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
-    let machines = CString::new(machines).map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
-    Ok(machines)
-}
-
-#[cfg(test)]
-mod test {
-    /// Test whether `maybenot_machines` in dist-assets contains valid machines.
-    /// TODO: Remove when switching to dynamic machines.
-    #[cfg(daita)]
-    #[test]
-    fn test_load_maybenot_machines() {
-        use super::load_maybenot_machines;
-        use std::path::PathBuf;
-
-        let dist_assets = std::env::var("CARGO_MANIFEST_DIR")
-            .map(PathBuf::from)
-            .expect("CARGO_MANIFEST_DIR env var not set")
-            .join("..")
-            .join("dist-assets");
-        let machines = load_maybenot_machines(&dist_assets).unwrap();
-        wireguard_go_rs::validate_maybenot_machines(&machines).unwrap();
-    }
-}
-
 mod stats {
     use super::{Stats, StatsMap};
 
