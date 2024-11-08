@@ -6,6 +6,7 @@
   "description": "",
   "main": "./lib/index.cjs",
   "scripts": {
+    "postinstall": "node -e \"process.platform !== 'darwin' && process.exit(1)\" && npm run build",
     "cargo-build": "tsc && cargo build --message-format=json-render-diagnostics > cargo.log",
     "postcargo-build": "neon dist < cargo.log",
     "debug": "npm run cargo-build --",
