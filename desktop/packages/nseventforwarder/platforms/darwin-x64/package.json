@@ -1,5 +1,5 @@
 {
-  "name": "mullvadvpn/darwin-x64",
+  "name": "mullvad-vpn/darwin-x64",
   "description": "Prebuilt binary package for `nseventforwarder` on `darwin-x64`.",
   "version": "0.1.0",
   "os": [

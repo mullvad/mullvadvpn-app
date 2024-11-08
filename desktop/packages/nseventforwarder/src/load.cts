@@ -7,11 +7,8 @@
 
 module.exports = require('@neon-rs/load').proxy({
   platforms: {
-    'win32-x64-msvc': () => require('mullvadvpn/win32-x64-msvc'),
-    'darwin-x64': () => require('mullvadvpn/darwin-x64'),
-    'darwin-arm64': () => require('mullvadvpn/darwin-arm64'),
-    'linux-x64-gnu': () => require('mullvadvpn/linux-x64-gnu'),
-    'linux-arm64-gnu': () => require('mullvadvpn/linux-arm64-gnu')
+    'darwin-x64': () => require('mullvad-vpn/darwin-x64'),
+    'darwin-arm64': () => require('mullvad-vpn/darwin-arm64'),
   },
   debug: () => require('../index.node')
 });
