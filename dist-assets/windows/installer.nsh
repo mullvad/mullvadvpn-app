@@ -694,13 +694,13 @@
 	${If} ${IsNativeAMD64}
 		StrCpy $NativeTarget "x64"
 	${ElseIf} ${IsNativeARM64}
-		StrCpy $NativeTarget "ARM64"
+		StrCpy $NativeTarget "arm64"
 	${Else}
 		StrCpy $NativeTarget "unsupported arch"
 	${EndIf}
 
-	# $%TARGET_ARCHITECTURE% is set by distribution.js to the native architecture
-	# (see https://www.electron.build/builder-util.typealias.archtype)
+	# $%TARGET_ARCHITECTURE% is set by distribution.js to the corresponding architecture
+	# in https://www.electron.build/builder-util.typealias.archtype
 	${If} $%TARGET_ARCHITECTURE% != $NativeTarget
 		MessageBox MB_ICONSTOP|MB_TOPMOST|MB_OK "This build of the app does not run on $NativeTarget Windows. Please find the appropriate installer on the website."
 		Abort
