@@ -1,8 +1,5 @@
 {
-  "extends": [
-    "@tsconfig/node20/tsconfig.json",
-    "../../tsconfig.json"
-  ],
+  "extends": "../../tsconfig.json",
   "compilerOptions": {
     "module": "node16",
     "declaration": true,
