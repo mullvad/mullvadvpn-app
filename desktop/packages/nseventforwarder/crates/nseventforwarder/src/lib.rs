@@ -1,17 +1,23 @@
+#![cfg(target_os = "macos")]
+
 use std::{
     sync::{mpsc, Arc, Mutex},
     thread::JoinHandle,
 };
 
 use block2::RcBlock;
-use neon::{
-    prelude::{
-        Context, FunctionContext, Handle, JsFunction, JsNull, JsResult, JsUndefined, ModuleContext,
-        NeonResult, Object, Root,
-    },
-    result::Throw,
+use neon::prelude::{
+    Context, FunctionContext, Handle, JsFunction, JsNull, JsResult, JsUndefined, ModuleContext,
+    NeonResult, Object, Root,
 };
+use neon::result::Throw;
 use objc2_app_kit::{NSEvent, NSEventMask};
+
+#[neon::main]
+fn main(mut cx: ModuleContext) -> NeonResult<()> {
+    cx.export_function("start", start)?;
+    Ok(())
+}
 
 /// NSEventMonitor instance. It must be initialized by `start` and cleaned up by the callback
 /// function returned from `start`.
@@ -22,12 +28,6 @@ struct NSEventMonitor {
     thread: JoinHandle<()>,
     /// Signal for the current execution context to stop.
     stop: mpsc::Sender<()>,
-}
-
-#[neon::main]
-fn main(mut cx: ModuleContext) -> NeonResult<()> {
-    cx.export_function("start", start)?;
-    Ok(())
 }
 
 fn start(mut cx: FunctionContext) -> JsResult<JsFunction> {
