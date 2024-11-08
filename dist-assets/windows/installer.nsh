@@ -694,7 +694,7 @@
 	${If} ${IsNativeAMD64}
 		StrCpy $NativeTarget "x64"
 	${ElseIf} ${IsNativeARM64}
-		StrCpy $NativeTarget "ARM64"
+		StrCpy $NativeTarget "arm64"
 	${Else}
 		StrCpy $NativeTarget "unsupported arch"
 	${EndIf}
