@@ -294,7 +294,16 @@ pub async fn test_multihop(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let query = RelayQueryBuilder::new().wireguard().multihop().build();
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .multihop()
+        .location(LowLatency)
+        .entry(LowLatency)
+        .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
