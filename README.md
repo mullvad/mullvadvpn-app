@@ -135,11 +135,19 @@ See [this](Release.md) for instructions on how to make a new release.
     * Set to `"pass"` to add logging to rules allowing packets.
     * Set to `"drop"` to add logging to rules blocking packets.
 
-* `TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK` - Forces the daemon to not set `src_valid_mark` config
-    on Linux. The kernel config option is set because otherwise strict reverse path filtering may
-    prevent relay traffic from reaching the daemon. If `rp_filter` is set to `1` on the interface
+* `TALPID_FIREWALL_DONT_SET_SRC_VALID_MARK` - Set this variable to `1` to stop the daemon from
+    setting the `net.ipv4.conf.all.src_valid_mark` kernel parameter to `1` on Linux when a tunnel
+    is established.
+    The kernel config parameter is set by default, because otherwise strict reverse path filtering
+    may prevent relay traffic from reaching the daemon. If `rp_filter` is set to `1` on the interface
     that will be receiving relay traffic, and `src_valid_mark` is not set to `1`, the daemon will
     not be able to receive relay traffic.
+
+* `TALPID_FIREWALL_DONT_SET_ARP_IGNORE` - Set this variable to `1` to stop the daemon from
+    setting the `net.ipv4.conf.all.arp_ignore` kernel parameter to `2` on Linux when a tunnel
+    is established.
+    The kernel config parameter is set by default, because otherwise an attacker who can send ARP
+    requests to the device running Mullvad can figure out the in-tunnel IP.
 
 * `TALPID_DNS_MODULE` - Allows changing the method that will be used for DNS configuration.
   By default this is automatically detected, but you can set it to one of the options below to
