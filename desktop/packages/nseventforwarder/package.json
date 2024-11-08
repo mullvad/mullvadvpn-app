@@ -39,7 +39,7 @@
   ],
   "neon": {
     "type": "library",
-    "org": "mullvadvpn",
+    "org": "mullvad-vpn",
     "platforms": "common",
     "load": "./src/load.cts"
   },
