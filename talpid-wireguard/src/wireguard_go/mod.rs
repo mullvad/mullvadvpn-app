@@ -33,11 +33,11 @@ const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 /// Maximum number of events that can be stored in the underlying buffer
 #[cfg(daita)]
-const DAITA_EVENTS_CAPACITY: u32 = 1000;
+const DAITA_EVENTS_CAPACITY: u32 = 2048;
 
 /// Maximum number of actions that can be stored in the underlying buffer
 #[cfg(daita)]
-const DAITA_ACTIONS_CAPACITY: u32 = 1000;
+const DAITA_ACTIONS_CAPACITY: u32 = 1024;
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
