@@ -11,6 +11,19 @@ import MullvadSettings
 import MullvadTypes
 import UIKit
 
+//
+//  AddLocationsDataSource.swift
+//  MullvadVPN
+//
+//  Created by Mojgan on 2024-02-29.
+//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//
+
+import Combine
+import MullvadSettings
+import MullvadTypes
+import UIKit
+
 class AddLocationsDataSource:
     UITableViewDiffableDataSource<LocationSection, LocationCellViewModel>,
     LocationDiffableDataSourceProtocol {
@@ -83,7 +96,7 @@ class AddLocationsDataSource:
                 indentationLevel: 1
             ))
         }
-        updateDataSnapshot(with: [locationsList])
+        reloadDataSnapshot(with: [locationsList])
     }
 
     private func isLocationInCustomList(node: LocationNode) -> Bool {
@@ -110,20 +123,12 @@ extension AddLocationsDataSource: UITableViewDelegate {
 
 extension AddLocationsDataSource: LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {
-        let items = toggledItems(for: cell).first!.map { item in
-            var item = item
-            if containsChild(parent: customListLocationNode, child: item.node) {
-                item.isSelected = true
-            }
-            return item
-        }
-
-        updateDataSnapshot(with: [items], reloadExisting: true, completion: {
+        toggledItems(for: cell) {
             if let indexPath = self.tableView.indexPath(for: cell),
                let item = self.itemIdentifier(for: indexPath) {
                 self.scroll(to: item, animated: true)
             }
-        })
+        }
     }
 
     func toggleSelecting(cell: LocationCell) {
@@ -142,7 +147,7 @@ extension AddLocationsDataSource: LocationCellDelegate {
         } else {
             customListLocationNode.remove(selectedLocation: item.node, with: locationList)
         }
-        updateDataSnapshot(with: [locationList], completion: {
+        reloadDataSnapshot(with: [locationList], completion: {
             let locations = self.customListLocationNode.children.reduce([]) { partialResult, locationNode in
                 partialResult + locationNode.locations
             }

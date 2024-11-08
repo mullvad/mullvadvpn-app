@@ -40,7 +40,7 @@ extension [LocationCellViewModel] {
                 section: section,
                 node: $0,
                 indentationLevel: item.indentationLevel + 1,
-                isSelected: false
+                isSelected: item.isSelected
             )
         }
 
