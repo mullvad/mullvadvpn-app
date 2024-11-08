@@ -107,6 +107,20 @@ pub async fn test_upgrade_app(
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
         bail!(Error::DaemonNotRunning);
     }
+
+    // Verify that the correct version was installed
+    let running_daemon_version = rpc.mullvad_daemon_version().await?;
+    let running_daemon_version =
+        mullvad_version::Version::parse(&running_daemon_version).to_string();
+    ensure!(
+        &TEST_CONFIG
+            .app_package_filename
+            .contains(&running_daemon_version),
+        "Incorrect deamon version installed. Expected {expected} but {actual} is installed",
+        expected = TEST_CONFIG.app_package_filename.clone(),
+        actual = running_daemon_version
+    );
+
     // Check if any traffic was observed
     //
     let guest_ip = pinger.guest_ip;

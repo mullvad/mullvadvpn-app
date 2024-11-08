@@ -1998,6 +1998,13 @@ dependencies = [
 ]
 
 [[package]]
+name = "mullvad-version"
+version = "0.0.0"
+dependencies = [
+ "regex",
+]
+
+[[package]]
 name = "multimap"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3444,8 +3451,8 @@ dependencies = [
  "mullvad-management-interface",
  "mullvad-relay-selector",
  "mullvad-types",
+ "mullvad-version",
  "nix 0.29.0",
- "once_cell",
  "pcap",
  "pnet_base",
  "pnet_packet",
@@ -3507,7 +3514,6 @@ dependencies = [
  "log",
  "mullvad-paths",
  "nix 0.29.0",
- "once_cell",
  "parity-tokio-ipc",
  "plist",
  "rand 0.8.5",
