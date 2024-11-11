@@ -95,8 +95,8 @@ impl EncryptedDnsProxyState {
 pub unsafe extern "C" fn encrypted_dns_proxy_init(
     domain_name: *const c_char,
 ) -> *mut EncryptedDnsProxyState {
-    // SAFETY: domain_name points to a valid region of memory and contains a nul terminator.
     let domain = {
+        // SAFETY: domain_name points to a valid region of memory and contains a nul terminator.
         let c_str = unsafe { CStr::from_ptr(domain_name) };
         String::from_utf8_lossy(c_str.to_bytes())
     };
