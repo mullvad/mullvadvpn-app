@@ -33,6 +33,15 @@ extern const uint16_t CONFIG_SERVICE_PORT;
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
+ *
+ * # Safety
+ *
+ * * [domain_name] must not be non-null.
+ *
+ * * [domain_name] pointer must be [valid](core::ptr#safety)
+ *
+ * * The caller must ensure that the pointer to the [domain_name] string contains a nul terminator
+ *   at the end of the string.
  */
 struct EncryptedDnsProxyState *encrypted_dns_proxy_init(const char *domain_name);
 
