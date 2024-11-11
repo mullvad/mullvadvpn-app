@@ -29,7 +29,9 @@ struct UDPTCPObfuscationSettingsView<VM>: View where VM: UDPTCPObfuscationSettin
                 value: "\(item)",
                 comment: ""
             ) }
-        )
+        ).onDisappear {
+            viewModel.commit()
+        }
     }
 }
 
