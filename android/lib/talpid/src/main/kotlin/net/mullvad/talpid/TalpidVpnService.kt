@@ -138,8 +138,6 @@ open class TalpidVpnService : LifecycleVpnService() {
 
         val tunFd = vpnInterfaceFd.detachFd()
 
-        waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
-
         if (invalidDnsServerAddresses.isNotEmpty()) {
             return CreateTunResult.InvalidDnsServers(invalidDnsServerAddresses, tunFd)
         }
@@ -157,8 +155,6 @@ open class TalpidVpnService : LifecycleVpnService() {
             is Inet6Address -> IPV6_PREFIX_LENGTH
             else -> throw IllegalArgumentException("Invalid IP address (not IPv4 nor IPv6)")
         }
-
-    private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 
     companion object {
         private const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"

@@ -3,7 +3,6 @@
 mod api;
 mod classes;
 mod problem_report;
-mod talpid_vpn_service;
 
 use jnix::{
     jni::{
