@@ -22,7 +22,6 @@ GRADLE_TASKS=(
 EXCLUDED_GRADLE_TASKS=(
     "-xensureRelayListExist"
     "-xensureJniDirectoryExist"
-    "-xensureMaybenotMachinesExist"
 )
 
 export GRADLE_OPTS
