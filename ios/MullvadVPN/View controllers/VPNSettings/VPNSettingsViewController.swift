@@ -126,7 +126,7 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
         delegate?.showIPOverrides()
     }
 
-    func showUDPTCPObfuscationSettings() {
+    func showUDPOverTCPObfuscationSettings() {
         let viewModel = TunnelUDPTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
         let view = UDPTCPObfuscationSettingsView(viewModel: viewModel)
         let vc = UIHostingController(rootView: view)
