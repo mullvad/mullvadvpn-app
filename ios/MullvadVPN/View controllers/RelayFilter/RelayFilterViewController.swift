@@ -96,7 +96,18 @@ class RelayFilterViewController: UIViewController {
                 case .any:
                     self?.applyButton.isEnabled = true
                 case let .only(providers):
-                    self?.applyButton.isEnabled = !providers.isEmpty
+                    switch filter.ownership {
+                    case .any:
+                        self?.applyButton.isEnabled = !providers.isEmpty
+                    case .owned:
+                        let filterHasAtLeastOneOwnedProvider = viewModel.ownedProviders
+                            .first(where: { providers.contains($0) }) != nil
+                        self?.applyButton.isEnabled = filterHasAtLeastOneOwnedProvider
+                    case .rented:
+                        let filterHasAtLeastOneRentedProvider = viewModel.rentedProviders
+                            .first(where: { providers.contains($0) }) != nil
+                        self?.applyButton.isEnabled = filterHasAtLeastOneRentedProvider
+                    }
                 }
             }
             .store(in: &disposeBag)
@@ -105,7 +116,30 @@ class RelayFilterViewController: UIViewController {
     }
 
     @objc private func applyFilter() {
-        guard let filter = viewModel?.relayFilter else { return }
-        onApplyFilter?(filter)
+        guard let viewModel = viewModel else { return }
+        var relayFilter = viewModel.relayFilter
+
+        switch viewModel.relayFilter.ownership {
+        case .any:
+            break
+        case .owned:
+            switch relayFilter.providers {
+            case .any:
+                break
+            case let .only(providers):
+                let ownedProviders = viewModel.ownedProviders.filter { providers.contains($0) }
+                relayFilter.providers = .only(ownedProviders)
+            }
+        case .rented:
+            switch relayFilter.providers {
+            case .any:
+                break
+            case let .only(providers):
+                let rentedProviders = viewModel.rentedProviders.filter { providers.contains($0) }
+                relayFilter.providers = .only(rentedProviders)
+            }
+        }
+
+        onApplyFilter?(relayFilter)
     }
 }
