@@ -114,9 +114,6 @@ done
 echo "Updating relays.json..."
 cargo run --bin relay_list "${CARGO_ARGS[@]}" > android/app/build/extraAssets/relays.json
 
-echo "Copying maybenot machines..."
-cp dist-assets/maybenot_machines_v2 android/app/build/extraAssets/
-
 cd "$SCRIPT_DIR/android"
 $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
 
