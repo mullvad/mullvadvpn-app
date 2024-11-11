@@ -61,12 +61,12 @@ pub fn default_resolvers() -> Vec<Nameserver> {
     ]
 }
 
+/// Calls [resolve_configs] with a given `domain` using known DoH resolvers provided by [default_resolvers]
 pub async fn resolve_default_config(domain: &str) -> Result<Vec<config::ProxyConfig>, Error> {
-    // TODO: We should remove the default value here and just force the callers to provide a domain instead
     resolve_configs(&default_resolvers(), domain).await
 }
 
-/// Look up the `domain` towards the given `resolvers`, and try to deserialize all the returned
+/// Looks up the `domain` towards the given `resolvers`, and try to deserialize all the returned
 /// AAAA records into [`ProxyConfig`](config::ProxyConfig)s.
 pub async fn resolve_configs(
     resolvers: &[Nameserver],
