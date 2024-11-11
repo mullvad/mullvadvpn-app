@@ -82,12 +82,22 @@ impl EncryptedDnsProxyState {
 }
 
 /// Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
+///
+/// # Safety
+///
+/// * [domain_name] must not be non-null.
+///
+/// * [domain_name] pointer must be [valid](core::ptr#safety)
+///
+/// * The caller must ensure that the pointer to the [domain_name] string contains a nul terminator
+/// at the end of the string.
 #[no_mangle]
 pub unsafe extern "C" fn encrypted_dns_proxy_init(
     domain_name: *const c_char,
 ) -> *mut EncryptedDnsProxyState {
-    let domain = unsafe {
-        let c_str = CStr::from_ptr(domain_name);
+    // SAFETY: domain_name points to a valid region of memory and contains a nul terminator.
+    let domain = {
+        let c_str = unsafe { CStr::from_ptr(domain_name) };
         String::from_utf8_lossy(c_str.to_bytes())
     };
 
