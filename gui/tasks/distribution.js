@@ -283,6 +283,7 @@ function packWin() {
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
         process.env.CPP_BUILD_TARGET = options.arch;
+        process.env.TARGET_ARCHITECTURE = options.arch;
         switch (options.arch) {
           case 'x64':
             process.env.TARGET_TRIPLE = 'x86_64-pc-windows-msvc';
