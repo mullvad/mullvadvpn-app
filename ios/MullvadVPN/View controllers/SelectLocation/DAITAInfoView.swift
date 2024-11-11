@@ -22,8 +22,8 @@ class DAITAInfoView: UIView {
                 "SELECT_LOCATION_DAITA_INFO",
                 tableName: "SelectLocation",
                 value: """
-                DAITA overrides Multihop. To use Multihop, please enable "Direct only" or \
-                disable "DAITA" in the settings.
+                The entry server for multihop is currently overridden by DAITA. \
+                To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings.
                 """,
                 comment: ""
             ),
@@ -42,7 +42,7 @@ class DAITAInfoView: UIView {
         settingsButton.setTitle(NSLocalizedString(
             "SELECT_LOCATION_DAITA_BUTTON",
             tableName: "SelectLocation",
-            value: "Go to DAITA settings",
+            value: "Open DAITA settings",
             comment: ""
         ), for: .normal)
 
