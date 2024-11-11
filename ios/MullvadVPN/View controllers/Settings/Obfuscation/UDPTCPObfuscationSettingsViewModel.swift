@@ -11,6 +11,8 @@ import MullvadSettings
 
 protocol UDPTCPObfuscationSettingsViewModel: ObservableObject {
     var value: WireGuardObfuscationUdpOverTcpPort { get set }
+
+    func commit()
 }
 
 /** A simple mock view model for use in Previews and similar */
@@ -20,6 +22,8 @@ class MockUDPTCPObfuscationSettingsViewModel: UDPTCPObfuscationSettingsViewModel
     init(udpTcpPort: WireGuardObfuscationUdpOverTcpPort = .automatic) {
         self.value = udpTcpPort
     }
+
+    func commit() {}
 }
 
 /** The live view model which interfaces with the TunnelManager  */
@@ -30,8 +34,7 @@ class TunnelUDPTCPObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchin
     init(tunnelManager: TunnelManager) {
         super.init(
             tunnelManager: tunnelManager,
-            keyPath: \.udpOverTcpPort,
-            tunnelManager.settings.wireGuardObfuscation.udpOverTcpPort
+            keyPath: \.udpOverTcpPort
         )
     }
 }

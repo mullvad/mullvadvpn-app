@@ -45,6 +45,8 @@
 		440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */; };
 		4422C0712CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */; };
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
+		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
+		447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */; };
 		449275422C3570CA000526DE /* ICMP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275412C3570CA000526DE /* ICMP.swift */; };
 		449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */; };
 		449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */; };
@@ -1401,6 +1403,8 @@
 		440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationSettingsWatchingObservableObject.swift; sourceTree = "<group>"; };
 		4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceList.swift; sourceTree = "<group>"; };
+		447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
+		447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		449275412C3570CA000526DE /* ICMP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICMP.swift; sourceTree = "<group>"; };
 		449275432C3C3029000526DE /* TunnelPinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPinger.swift; sourceTree = "<group>"; };
 		449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdate.swift; sourceTree = "<group>"; };
@@ -2610,6 +2614,8 @@
 		4422C06F2CCFF6520001A385 /* Obfuscation */ = {
 			isa = PBXGroup;
 			children = (
+				447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */,
+				447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */,
 				440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */,
 				4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */,
 				44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */,
@@ -5763,6 +5769,7 @@
 				58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */,
 				5893716A28817A45004EE76C /* DeviceManagementViewController.swift in Sources */,
 				7A9CCCB82A96302800DD6A34 /* SetupAccountCompletedCoordinator.swift in Sources */,
+				447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */,
 				58BFA5C622A7C97F00A6173D /* RelayCacheTracker.swift in Sources */,
 				7A0B311E2B303A0D004B12E0 /* AccessbilityIdentifier.swift in Sources */,
 				E158B360285381C60002F069 /* String+AccountFormatting.swift in Sources */,
@@ -5905,6 +5912,7 @@
 				F02F41A22B9723AF00625A4F /* AddLocationsCoordinator.swift in Sources */,
 				7A27E3CD2CB814EF0088BCFF /* DAITAInfoView.swift in Sources */,
 				F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */,
+				447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */,
 				7A5869C52B5A899C00640D27 /* MethodSettingsCellConfiguration.swift in Sources */,
 				58E11188292FA11F009FCA84 /* SettingsMigrationUIHandler.swift in Sources */,
 				58CAFA002983FF0200BE19F7 /* LoginInteractor.swift in Sources */,
