@@ -424,7 +424,6 @@ impl WireguardMonitor {
             args.runtime.clone(),
             &config,
             log_path,
-            args.resource_dir,
             args.tun_provider.clone(),
             // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
             // that we only allows traffic to/from the gateway. This is only needed on Android
