@@ -66,7 +66,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             cell.disclosureType = .chevron
             cell.accessibilityIdentifier = item.accessibilityIdentifier
 
-        case .udpTcpObfuscationSettings:
+        case .udpOverTcpObfuscationSettings:
             guard let cell = cell as? SettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
