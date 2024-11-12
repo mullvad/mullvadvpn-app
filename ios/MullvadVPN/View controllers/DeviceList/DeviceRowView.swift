@@ -72,7 +72,7 @@ class DeviceRowView: UIView {
 
         accessibilityIdentifier = .deviceCell
         backgroundColor = .primaryColor
-        directionalLayoutMargins = UIMetrics.TableView.rowViewLayoutMargins
+        directionalLayoutMargins = UIMetrics.DeviceRowView.layoutMargins
 
         for subview in [textLabel, removeButton, activityIndicator, creationDateLabel] {
             addSubview(subview)

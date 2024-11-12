@@ -10,6 +10,7 @@ import MullvadLogging
 import MullvadSettings
 import Operations
 import Routing
+import SwiftUI
 import UIKit
 
 /// Settings navigation route.
@@ -28,6 +29,9 @@ enum SettingsNavigationRoute: Equatable {
 
     /// API access route.
     case apiAccess
+
+    /// Multihop route.
+    case multihop
 }
 
 /// Top-level settings coordinator.
@@ -267,6 +271,19 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
         case .faq:
             // Handled separately and presented as a modal.
             return .failed
+
+        case .multihop:
+            let view = SettingsMultihopView()
+
+            let host = UIHostingController(rootView: view)
+            host.title = NSLocalizedString(
+                "NAVIGATION_TITLE_MULTIHOP",
+                tableName: "Settings",
+                value: "Multihop",
+                comment: ""
+            )
+
+            return .viewController(host)
         }
     }
 

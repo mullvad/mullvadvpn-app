@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+import SwiftUI
 import UIKit
 
 final class IncreasedHitButton: UIButton {

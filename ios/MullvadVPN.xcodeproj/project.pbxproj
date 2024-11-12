@@ -550,6 +550,13 @@
 		7A88DCF42A93471F00D2FF0E /* ApplicationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5893C6FB29C311E9009090D1 /* ApplicationRouter.swift */; };
 		7A88DCF52A93471F00D2FF0E /* ApplicationRouterTypes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802EBCA2A8E45DC00E5CE4C /* ApplicationRouterTypes.swift */; };
 		7A88DCF62A93471F00D2FF0E /* AppRouteProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5802EBC62A8E457A00E5CE4C /* AppRouteProtocol.swift */; };
+		7A8A18F92CE34EA8000BCB5B /* SettingsMultihopView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A18F82CE34E9F000BCB5B /* SettingsMultihopView.swift */; };
+		7A8A18FB2CE4B678000BCB5B /* View+TapAreaSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A18FA2CE4B66C000BCB5B /* View+TapAreaSize.swift */; };
+		7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A18FC2CE4BE88000BCB5B /* CustomToggleStyle.swift */; };
+		7A8A19022CE4DD56000BCB5B /* ViewGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19012CE4DD4D000BCB5B /* ViewGeometry.swift */; };
+		7A8A19032CE4DD56000BCB5B /* ViewGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19012CE4DD4D000BCB5B /* ViewGeometry.swift */; };
+		7A8A19052CE4E9A9000BCB5B /* SwitchRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19042CE4E9A5000BCB5B /* SwitchRowView.swift */; };
+		7A8A19072CE4E9D3000BCB5B /* SettingsInfoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19062CE4E9CC000BCB5B /* SettingsInfoView.swift */; };
 		7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */; };
 		7A9BE5A32B8F89B900E2A7D0 /* LocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389F72B864CDF008E77E1 /* LocationNode.swift */; };
 		7A9BE5A52B90760C00E2A7D0 /* CustomListsDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */; };
@@ -1880,6 +1887,12 @@
 		7A88DCD02A8FABBE00D2FF0E /* Routing.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Routing.h; sourceTree = "<group>"; };
 		7A88DCD72A8FABBE00D2FF0E /* RoutingTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RoutingTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		7A88DCDE2A8FABBF00D2FF0E /* RoutingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoutingTests.swift; sourceTree = "<group>"; };
+		7A8A18F82CE34E9F000BCB5B /* SettingsMultihopView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsMultihopView.swift; sourceTree = "<group>"; };
+		7A8A18FA2CE4B66C000BCB5B /* View+TapAreaSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+TapAreaSize.swift"; sourceTree = "<group>"; };
+		7A8A18FC2CE4BE88000BCB5B /* CustomToggleStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomToggleStyle.swift; sourceTree = "<group>"; };
+		7A8A19012CE4DD4D000BCB5B /* ViewGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewGeometry.swift; sourceTree = "<group>"; };
+		7A8A19042CE4E9A5000BCB5B /* SwitchRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwitchRowView.swift; sourceTree = "<group>"; };
+		7A8A19062CE4E9CC000BCB5B /* SettingsInfoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInfoView.swift; sourceTree = "<group>"; };
 		7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNodeTests.swift; sourceTree = "<group>"; };
 		7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsDataSourceTests.swift; sourceTree = "<group>"; };
 		7A9BE5A82B90806800E2A7D0 /* CustomListsRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsRepositoryStub.swift; sourceTree = "<group>"; };
@@ -2920,6 +2933,7 @@
 				58ACF64E26567A7100ACE4B7 /* CustomSwitchContainer.swift */,
 				58293FB025124117005D0BB5 /* CustomTextField.swift */,
 				58293FB2251241B3005D0BB5 /* CustomTextView.swift */,
+				7A8A18FC2CE4BE88000BCB5B /* CustomToggleStyle.swift */,
 				5892A45D265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift */,
 				58FD5BF32428C67600112C88 /* InAppPurchaseButton.swift */,
 				F03580242A13842C00E5DAFD /* IncreasedHitButton.swift */,
@@ -3003,6 +3017,7 @@
 				7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */,
 				5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */,
 				7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */,
+				7A8A18FA2CE4B66C000BCB5B /* View+TapAreaSize.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -3052,6 +3067,7 @@
 				582AE30F2440A6CA00E6733A /* InputTextFormatter.swift */,
 				7A7907322BC0280A00B61F81 /* InterceptibleNavigationController.swift */,
 				58DFF7D12B0256A300F864E0 /* MarkdownStylingOptions.swift */,
+				7A8A19012CE4DD4D000BCB5B /* ViewGeometry.swift */,
 			);
 			path = Classes;
 			sourceTree = "<group>";
@@ -3737,6 +3753,8 @@
 			children = (
 				58CEB2E72AFBB9F300E6E088 /* APIAccess */,
 				7A5869A92B55516700640D27 /* IPOverride */,
+				7A8A18F72CE34E8F000BCB5B /* Multihop */,
+				7A8A18FE2CE4C7FA000BCB5B /* Views */,
 				58EFC7702AFB45E500E9F4CB /* SettingsChildCoordinator.swift */,
 				7A9CCCAD2A96302800DD6A34 /* SettingsCoordinator.swift */,
 				7A6389EC2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift */,
@@ -3889,6 +3907,23 @@
 				7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */,
 			);
 			path = RoutingTests;
+			sourceTree = "<group>";
+		};
+		7A8A18F72CE34E8F000BCB5B /* Multihop */ = {
+			isa = PBXGroup;
+			children = (
+				7A8A18F82CE34E9F000BCB5B /* SettingsMultihopView.swift */,
+			);
+			path = Multihop;
+			sourceTree = "<group>";
+		};
+		7A8A18FE2CE4C7FA000BCB5B /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				7A8A19062CE4E9CC000BCB5B /* SettingsInfoView.swift */,
+				7A8A19042CE4E9A5000BCB5B /* SwitchRowView.swift */,
+			);
+			path = Views;
 			sourceTree = "<group>";
 		};
 		7A9BE5A02B8F881B00E2A7D0 /* SelectLocation */ = {
@@ -5430,6 +5465,7 @@
 				A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */,
 				7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */,
 				A9A5FA2A2ACB05160083449F /* CoordinatesTests.swift in Sources */,
+				7A8A19022CE4DD56000BCB5B /* ViewGeometry.swift in Sources */,
 				44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */,
 				44BB5F982BE527F4002520EB /* TunnelState+UI.swift in Sources */,
 				A9A5FA2B2ACB05160083449F /* CustomDateComponentsFormattingTests.swift in Sources */,
@@ -5638,6 +5674,7 @@
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
 				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				587D96742886D87C00CD8F1C /* DeviceManagementContentView.swift in Sources */,
+				7A8A18F92CE34EA8000BCB5B /* SettingsMultihopView.swift in Sources */,
 				44BB5F972BE527F4002520EB /* TunnelState+UI.swift in Sources */,
 				7A11DD0B2A9495D400098CD8 /* AppRoutes.swift in Sources */,
 				5827B0902B0CAA0500CCBBA1 /* EditAccessMethodCoordinator.swift in Sources */,
@@ -5667,8 +5704,10 @@
 				F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */,
 				7A6389EB2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift in Sources */,
 				58B26E2A2943545A00D5980C /* NotificationManagerDelegate.swift in Sources */,
+				7A8A19072CE4E9D3000BCB5B /* SettingsInfoView.swift in Sources */,
 				58A1AA8C23F5584C009F7EA6 /* ConnectionPanelView.swift in Sources */,
 				5878A27B2909649A0096FC88 /* CustomOverlayRenderer.swift in Sources */,
+				7A8A19052CE4E9A9000BCB5B /* SwitchRowView.swift in Sources */,
 				A91614D62B10B26B00F416EB /* TunnelControlViewModel.swift in Sources */,
 				7A5869972B32EA4500640D27 /* AppButton.swift in Sources */,
 				586C0D8F2B03D88100E7CDD7 /* ProxyProtocolConfigurationItemIdentifier.swift in Sources */,
@@ -5856,6 +5895,7 @@
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
+				7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */,
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
 				58FF9FE82B07650A00E4C97D /* ButtonCellContentConfiguration.swift in Sources */,
 				7A6652B82BB44C3E0042D848 /* LocationDiffableDataSourceProtocol.swift in Sources */,
@@ -5936,6 +5976,7 @@
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
 				584D26C4270C855B004EA533 /* VPNSettingsDataSource.swift in Sources */,
 				F0D8825B2B04F53600D3EF9A /* OutgoingConnectionData.swift in Sources */,
+				7A8A18FB2CE4B678000BCB5B /* View+TapAreaSize.swift in Sources */,
 				7A6F2FAF2AFE36E7006D0856 /* VPNSettingsInfoButtonItem.swift in Sources */,
 				7A6389DD2B7E3BD6008E77E1 /* CustomListDataSourceConfiguration.swift in Sources */,
 				5827B0BF2B14B37D00CCBBA1 /* Publisher+PreviousValue.swift in Sources */,
@@ -5946,6 +5987,7 @@
 				7A5869A22B502EA800640D27 /* MethodSettingsSectionIdentifier.swift in Sources */,
 				586C0D812B03CA8400E7CDD7 /* CurrentValueSubject+UIActionBindings.swift in Sources */,
 				581DFAEA2B176C51005D6D1C /* PersistentProxyConfiguration+ViewModel.swift in Sources */,
+				7A8A19032CE4DD56000BCB5B /* ViewGeometry.swift in Sources */,
 				A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* TunnelControlView.swift in Sources */,

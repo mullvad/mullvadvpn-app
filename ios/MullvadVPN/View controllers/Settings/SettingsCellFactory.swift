@@ -156,6 +156,19 @@ final class SettingsCellFactory: CellFactoryProtocol {
                     directOnlyState: state
                 ))
             }
+
+        case .multihop:
+            guard let cell = cell as? SettingsCell else { return }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "MULTIHOP_CELL_LABEL",
+                tableName: "Settings",
+                value: "Multihop",
+                comment: ""
+            )
+            cell.detailTitleLabel.text = nil
+            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.disclosureType = .chevron
         }
     }
 }
