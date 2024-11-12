@@ -21,7 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## Unreleased
+## [2024.10]
+### Fixed
+- Improve connection stability in bad network environments.
+
+## [2024.9 - 2024-11-07]
 ### Changed
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
   ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
