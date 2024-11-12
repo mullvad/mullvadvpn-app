@@ -44,10 +44,4 @@ rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
 dscl . -delete /groups/mullvad-exclusion &>/dev/null || true
 
 # Kill the GUI before proceeding with the upgrade.
-#
-# When we drop support for all app versions older than 2022.5, we can skip this
-# check and always try to kill the GUI.
-if "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" is-older-version 2022.5; then
-    pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
-    sleep 1
-fi
+pkill -x "Mullvad VPN" && sleep 1 || echo "Unable to kill GUI, not running?"
