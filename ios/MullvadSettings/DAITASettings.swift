@@ -14,7 +14,12 @@ public enum DAITAState: Codable {
     case off
 
     public var isEnabled: Bool {
-        self == .on
+        get {
+            self == .on
+        }
+        set {
+            self = newValue ? .on : .off
+        }
     }
 }
 
@@ -24,7 +29,12 @@ public enum DirectOnlyState: Codable {
     case off
 
     public var isEnabled: Bool {
-        self == .on
+        get {
+            self == .on
+        }
+        set {
+            self = newValue ? .on : .off
+        }
     }
 }
 
@@ -37,8 +47,8 @@ public struct DAITASettings: Codable, Equatable {
     @available(*, deprecated, renamed: "daitaState")
     public let state: DAITAState = .off
 
-    public let daitaState: DAITAState
-    public let directOnlyState: DirectOnlyState
+    public var daitaState: DAITAState
+    public var directOnlyState: DirectOnlyState
 
     public var isAutomaticRouting: Bool {
         daitaState.isEnabled && !directOnlyState.isEnabled
