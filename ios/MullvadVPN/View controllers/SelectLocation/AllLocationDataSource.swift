@@ -22,6 +22,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
     /// and city names.
     func reload(_ relays: LocationRelays) {
         let rootNode = RootLocationNode()
+        let expandedNodes = nodes.flatMap { [$0] + $0.flattened }.filter { $0.showsChildren }
 
         for relay in relays.relays {
             guard case
@@ -36,7 +37,11 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             }
         }
 
-        nodes = rootNode.children
+        nodes = rootNode.children.map { $0.forEachDescendant { locationNode in
+            locationNode.showsChildren = expandedNodes.contains(locationNode)
+        }
+        return $0
+        }
     }
 
     func node(by location: RelayLocation) -> LocationNode? {

@@ -39,51 +39,115 @@ extension LocationDiffableDataSourceProtocol {
         }
     }
 
-    func toggledItems(for cell: LocationCell) -> [[LocationCellViewModel]] {
+    func toggledItems(for cell: LocationCell, completion: (() -> Void)? = nil) {
         guard let indexPath = tableView.indexPath(for: cell),
-              let item = itemIdentifier(for: indexPath) else { return [[]] }
-
+              let item = itemIdentifier(for: indexPath) else { return }
+        let snapshot = snapshot()
         let section = sections[indexPath.section]
         let isExpanded = item.node.showsChildren
-        var locationList = snapshot().itemIdentifiers(inSection: section)
+        var locationList = snapshot.itemIdentifiers(inSection: section)
 
         item.node.showsChildren = !isExpanded
 
         if !isExpanded {
             locationList.addSubNodes(from: item, at: indexPath)
+            addItem(locationList, toSection: section, index: indexPath.row, completion: completion)
         } else {
             locationList.removeSubNodes(from: item.node)
-        }
-
-        return sections.enumerated().map { index, section in
-            index == indexPath.section
-                ? locationList
-                : snapshot().itemIdentifiers(inSection: section)
+            updateSnapshotRetainingOnly(locationList, toSection: section, completion: completion)
         }
     }
 
-    func updateDataSnapshot(
+    private func addItem(
+        _ items: [LocationCellViewModel],
+        toSection section: LocationSection,
+        index: Int,
+        completion: (() -> Void)? = nil
+    ) {
+        var snapshot = snapshot()
+        let existingItems = snapshot.itemIdentifiers(inSection: section)
+
+        // Filter itemsToAdd to only include items not already in the section
+        let uniqueItems = items.filter { item in
+            existingItems.firstIndex(where: { $0 == item }) == nil
+        }
+
+        // Insert unique items at the specified index
+        if index < existingItems.count {
+            snapshot.insertItems(uniqueItems, afterItem: existingItems[index])
+        } else {
+            // If the index is beyond bounds, append to the end
+            snapshot.appendItems(uniqueItems, toSection: section)
+        }
+        applyAndReconfigureSnapshot(snapshot, in: section, completion: completion)
+    }
+
+    private func updateSnapshotRetainingOnly(
+        _ itemsToKeep: [LocationCellViewModel],
+        toSection section: LocationSection,
+        completion: (() -> Void)? = nil
+    ) {
+        var snapshot = snapshot()
+
+        // Ensure the section exists in the snapshot
+        guard snapshot.sectionIdentifiers.contains(section) else { return }
+
+        // Get the current items in the section
+        let currentItems = snapshot.itemIdentifiers(inSection: section)
+
+        // Determine the items that should be deleted
+        let itemsToDelete = currentItems.filter { !itemsToKeep.contains($0) }
+        snapshot.deleteItems(itemsToDelete)
+
+        // Apply the updated snapshot
+        applyAndReconfigureSnapshot(snapshot, in: section, completion: completion)
+    }
+
+    private func applyAndReconfigureSnapshot(
+        _ snapshot: NSDiffableDataSourceSnapshot<LocationSection, LocationCellViewModel>,
+        in section: LocationSection,
+        completion: (() -> Void)? = nil
+    ) {
+        self.apply(snapshot, animatingDifferences: true) {
+            // After adding, reconfigure specified items to update their content
+            var updatedSnapshot = self.snapshot()
+
+            // Ensure the items exist in the snapshot before attempting to reconfigure
+            let existingItems = updatedSnapshot.itemIdentifiers(inSection: section)
+
+            // Reconfigure the specified items
+            updatedSnapshot.reconfigureItems(existingItems)
+
+            // Apply the reconfigured snapshot without animations to avoid any flickering
+            self.apply(updatedSnapshot, animatingDifferences: false)
+        }
+    }
+
+    func reloadDataSnapshot(
         with list: [[LocationCellViewModel]],
-        reloadExisting: Bool = false,
         animated: Bool = false,
         completion: (() -> Void)? = nil
     ) {
         var snapshot = NSDiffableDataSourceSnapshot<LocationSection, LocationCellViewModel>()
-
         snapshot.appendSections(sections)
         for (index, section) in sections.enumerated() {
             let items = list[index]
-
             snapshot.appendItems(items, toSection: section)
-
-            if reloadExisting {
-                snapshot.reconfigureItems(items)
-            }
         }
 
-        DispatchQueue.main.async {
-            self.apply(snapshot, animatingDifferences: animated, completion: completion)
-        }
+        self.apply(snapshot, animatingDifferences: animated, completion: completion)
+        //        var snapshot = self.snapshot()
+        //        snapshot.deleteAllItems()
+        //        for (index, section) in sections.enumerated() {
+        //            // Check if the section already exists in the snapshot, and add it if not
+        //            if !snapshot.sectionIdentifiers.contains(section) {
+        //                snapshot.appendSections([section])
+        //            }
+        //            let items = list[index]
+        //            snapshot.appendItems(items, toSection: section)
+        //        }
+        //        // Apply the reconfiguration snapshot without animation to avoid unwanted animations
+        //        self.apply(snapshot, animatingDifferences: animated, completion: completion)
     }
 
     func recursivelyCreateCellViewModelTree(

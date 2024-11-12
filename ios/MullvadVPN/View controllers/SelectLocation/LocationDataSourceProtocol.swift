@@ -24,7 +24,8 @@ extension LocationDataSourceProtocol {
 
         var filteredNodes: [LocationNode] = []
 
-        searchableNodes.forEach { countryNode in
+        searchableNodes.forEach { node in
+            let countryNode = node.copy()
             countryNode.showsChildren = false
 
             if countryNode.name.fuzzyMatch(text) {

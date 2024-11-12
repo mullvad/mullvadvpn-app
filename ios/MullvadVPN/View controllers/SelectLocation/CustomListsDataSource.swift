@@ -26,6 +26,7 @@ class CustomListsDataSource: LocationDataSourceProtocol {
     /// Constructs a collection of node trees by copying each matching counterpart
     /// from the complete list of nodes created in ``AllLocationDataSource``.
     func reload(allLocationNodes: [LocationNode]) {
+        let expandedNodes = nodes.flatMap { [$0] + $0.flattened }.filter { $0.showsChildren }
         nodes = repository.fetchAll().map { list in
             let customListWrapper = CustomListLocationNodeBuilder(customList: list, allLocations: allLocationNodes)
             let listNode = customListWrapper.customListLocationNode
@@ -36,6 +37,7 @@ class CustomListsDataSource: LocationDataSourceProtocol {
                 // equality, each node code needs to be prefixed with the code of its
                 // parent custom list to uphold this.
                 node.code = LocationNode.combineNodeCodes([listNode.code, node.code])
+                node.showsChildren = expandedNodes.contains(node)
             }
 
             return listNode

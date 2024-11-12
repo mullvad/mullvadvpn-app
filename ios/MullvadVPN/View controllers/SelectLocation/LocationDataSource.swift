@@ -24,6 +24,7 @@ final class LocationDataSource:
     private var excludedLocation: LocationCellViewModel?
     let tableView: UITableView
     let sections: [LocationSection]
+    let updateQueue = DispatchQueue(label: "LocationDataSource.UpdateQueue")
 
     var didSelectRelayLocations: ((UserSelectedRelays) -> Void)?
     var didTapEditCustomLists: (() -> Void)?
@@ -55,96 +56,101 @@ final class LocationDataSource:
     }
 
     func setRelays(_ relaysWithLocation: LocationRelays, selectedRelays: RelaySelection) {
-        let allLocationsDataSource =
-            dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource
-
-        let customListsDataSource =
-            dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
-
-        allLocationsDataSource?.reload(relaysWithLocation)
-        customListsDataSource?.reload(allLocationNodes: allLocationsDataSource?.nodes ?? [])
-
-        setSelectedRelays(selectedRelays)
-        filterRelays(by: currentSearchString)
+        updateQueue.async { [weak self] in
+            guard let self = self,
+                  let allLocationsDataSource = dataSources
+                  .first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
+                  let customListsDataSource = dataSources
+                  .first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource else { return }
+            allLocationsDataSource.reload(relaysWithLocation)
+            customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes)
+            setSelectedRelays(selectedRelays)
+            filterRelays(by: currentSearchString)
+        }
     }
 
     func filterRelays(by searchString: String) {
-        currentSearchString = searchString
+        updateQueue.async { [weak self] in
+            guard let self else { return }
+            currentSearchString = searchString
 
-        let list = sections.enumerated().map { index, section in
-            dataSources[index]
-                .search(by: searchString)
-                .flatMap { node in
-                    let rootNode = RootLocationNode(children: [node])
-                    return recursivelyCreateCellViewModelTree(for: rootNode, in: section, indentationLevel: 0)
+            let list = sections.enumerated().map { index, section in
+                self.dataSources[index]
+                    .search(by: searchString)
+                    .flatMap { node in
+                        let rootNode = RootLocationNode(children: [node])
+                        return self.recursivelyCreateCellViewModelTree(for: rootNode, in: section, indentationLevel: 0)
+                    }
+            }
+
+            DispatchQueue.main.async {
+                self.reloadDataSnapshot(with: list) {
+                    if searchString.isEmpty {
+                        self.updateSelection(completion: {
+                            self.scrollToSelectedRelay()
+                        })
+                    } else {
+                        self.scrollToTop(animated: false)
+                    }
                 }
-        }
-
-        updateDataSnapshot(with: list, reloadExisting: !searchString.isEmpty) {
-            self.tableView.reloadData()
-
-            if searchString.isEmpty {
-                self.updateSelection(self.selectedLocation, animated: false, completion: {
-                    self.scrollToSelectedRelay()
-                })
-            } else {
-                self.scrollToTop(animated: false)
             }
         }
     }
 
     /// Refreshes the custom list section and keeps all modifications intact (selection and expanded states).
     func refreshCustomLists(selectedRelays: RelaySelection) {
-        guard let allLocationsDataSource =
-            dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
-            let customListsDataSource =
-            dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
-        else {
-            return
+        updateQueue.async { [weak self] in
+            guard let self,
+                  let allLocationsDataSource =
+                  dataSources.first(where: { $0 is AllLocationDataSource }) as? AllLocationDataSource,
+                  let customListsDataSource =
+                  dataSources.first(where: { $0 is CustomListsDataSource }) as? CustomListsDataSource
+            else {
+                return
+            }
+
+            // Reload data source with (possibly) updated custom lists.
+            customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes)
+
+            // Reapply current selection.
+            setSelectedRelays(selectedRelays)
+
+            // Reapply current search filter.
+            let searchResultNodes = dataSources[0].search(by: currentSearchString)
+
+            // Construct node tree.
+            let list = searchResultNodes.flatMap { node in
+                let rootNode = RootLocationNode(children: [node])
+                return self.recursivelyCreateCellViewModelTree(for: rootNode, in: .customLists, indentationLevel: 0)
+            }
+
+            DispatchQueue.main.async {
+                self.reloadDataSnapshot(with: [
+                    list,
+                    self.snapshot().itemIdentifiers(inSection: .allLocations),
+                ])
+            }
         }
-
-        // Take a "snapshot" of the currently expanded nodes.
-        let expandedNodes = customListsDataSource.nodes
-            .flatMap { [$0] + $0.flattened }
-            .filter { $0.showsChildren }
-
-        // Reload data source with (possibly) updated custom lists.
-        customListsDataSource.reload(allLocationNodes: allLocationsDataSource.nodes)
-
-        // Reapply current selection.
-        setSelectedRelays(selectedRelays)
-
-        // Reapply current search filter.
-        let searchResultNodes = dataSources[0].search(by: currentSearchString)
-
-        // Reapply expanded status and override nodes being hidden by search filter.
-        RootLocationNode(children: searchResultNodes).forEachDescendant { node in
-            node.showsChildren = expandedNodes.contains(node)
-            node.isHiddenFromSearch = false
-        }
-
-        // Construct node tree.
-        let list = searchResultNodes.flatMap { node in
-            let rootNode = RootLocationNode(children: [node])
-            return recursivelyCreateCellViewModelTree(for: rootNode, in: .customLists, indentationLevel: 0)
-        }
-
-        updateDataSnapshot(with: [
-            list,
-            snapshot().itemIdentifiers(inSection: .allLocations),
-        ], reloadExisting: true)
     }
 
     func setSelectedRelays(_ selectedRelays: RelaySelection) {
-        selectedLocation = mapSelection(from: selectedRelays.selected)
-
-        excludedLocation = mapSelection(from: selectedRelays.excluded)
-        excludedLocation?.excludedRelayTitle = selectedRelays.excludedTitle
-
-        tableView.reloadData()
+        updateQueue.async { [weak self] in
+            guard let self else { return }
+            selectedLocation = mapSelection(from: selectedRelays.selected)
+            excludedLocation = mapSelection(from: selectedRelays.excluded)
+            excludedLocation?.excludedRelayTitle = selectedRelays.excludedTitle
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                self.updateSelection(completion: {
+                    self.scrollToSelectedRelay()
+                })
+            }
+        }
     }
 
-    func scrollToSelectedRelay() {
+    // MARK: - Private functions
+
+    private func scrollToSelectedRelay() {
         indexPathForSelectedRelay().flatMap {
             tableView.scrollToRow(at: $0, at: .middle, animated: false)
         }
@@ -185,14 +191,15 @@ final class LocationDataSource:
         return nil
     }
 
-    private func updateSelection(_ item: LocationCellViewModel?, animated: Bool, completion: (() -> Void)? = nil) {
-        selectedLocation = item
+    private func updateSelection(completion: (() -> Void)? = nil) {
         guard let selectedLocation else { return }
-
         let rootNode = selectedLocation.node.root
+        var snapshot = snapshot()
 
         // Exit early if no changes to the node tree should be made.
         guard selectedLocation.node != rootNode else {
+            // Apply the updated snapshot
+            applySnapshotUsingReloadData(snapshot, completion: completion)
             completion?()
             return
         }
@@ -215,22 +222,12 @@ final class LocationDataSource:
             indentationLevel: 1
         )
 
-        // Insert the new node tree below the selected item.
-        var snapshotItems = snapshot().itemIdentifiers(inSection: selectedLocation.section)
-        snapshotItems.insert(contentsOf: nodesToAdd, at: indexPath.row + 1)
+        let existingItems = snapshot.itemIdentifiers(inSection: selectedLocation.section)
+        snapshot.deleteItems(nodesToAdd)
+        snapshot.insertItems(nodesToAdd, afterItem: existingItems[indexPath.row])
 
-        let list = sections.enumerated().map { index, section in
-            index == indexPath.section
-                ? snapshotItems
-                : snapshot().itemIdentifiers(inSection: section)
-        }
-
-        updateDataSnapshot(
-            with: list,
-            reloadExisting: true,
-            animated: animated,
-            completion: completion
-        )
+        // Apply the updated snapshot
+        applySnapshotUsingReloadData(snapshot, completion: completion)
     }
 
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -310,25 +307,21 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        if let item = itemIdentifier(for: indexPath), item == selectedLocation {
-            cell.setSelected(true, animated: false)
+        if let item = itemIdentifier(for: indexPath) {
+            cell.setSelected(item == selectedLocation, animated: false)
         }
     }
 
     func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
         if let indexPath = indexPathForSelectedRelay() {
-            if let cell = tableView.cellForRow(at: indexPath) {
-                cell.setSelected(false, animated: false)
-            }
+            tableView.deselectRow(at: indexPath, animated: false)
         }
-
         return indexPath
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let item = itemIdentifier(for: indexPath) else { return }
         selectedLocation = item
-
         var customListSelection: UserSelectedRelays.CustomListSelection?
         if let topmostNode = item.node.root as? CustomListLocationNode {
             customListSelection = UserSelectedRelays.CustomListSelection(
@@ -341,7 +334,6 @@ extension LocationDataSource: UITableViewDelegate {
             locations: item.node.locations,
             customListSelection: customListSelection
         )
-
         didSelectRelayLocations?(relayLocations)
     }
 
@@ -354,12 +346,9 @@ extension LocationDataSource: LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {
         guard let indexPath = tableView.indexPath(for: cell),
               let item = itemIdentifier(for: indexPath) else { return }
-
-        let items = toggledItems(for: cell)
-
-        updateDataSnapshot(with: items, reloadExisting: true, completion: {
+        toggledItems(for: cell) {
             self.scroll(to: item, animated: true)
-        })
+        }
     }
 
     func toggleSelecting(cell: LocationCell) {
