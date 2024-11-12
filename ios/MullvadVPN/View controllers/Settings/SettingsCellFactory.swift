@@ -11,8 +11,6 @@ import UIKit
 
 protocol SettingsCellEventHandler {
     func showInfo(for button: SettingsInfoButtonItem)
-    func switchDaitaState(_ settings: DAITASettings)
-    func switchDaitaDirectOnlyState(_ settings: DAITASettings)
 }
 
 final class SettingsCellFactory: CellFactoryProtocol {
@@ -105,57 +103,30 @@ final class SettingsCellFactory: CellFactoryProtocol {
             cell.disclosureType = .chevron
 
         case .daita:
-            guard let cell = cell as? SettingsSwitchCell else { return }
+            guard let cell = cell as? SettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
-                "DAITA_LABEL",
+                "DAITA_CELL_LABEL",
                 tableName: "Settings",
                 value: "DAITA",
                 comment: ""
             )
+            cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = item.accessibilityIdentifier
-            cell.setOn(viewModel.daitaSettings.daitaState.isEnabled, animated: false)
+            cell.disclosureType = .chevron
 
-            cell.infoButtonHandler = { [weak self] in
-                self?.delegate?.showInfo(for: .daita)
-            }
-
-            cell.action = { [weak self] isEnabled in
-                guard let self else { return }
-
-                let state: DAITAState = isEnabled ? .on : .off
-                delegate?.switchDaitaState(DAITASettings(
-                    daitaState: state,
-                    directOnlyState: viewModel.daitaSettings.directOnlyState
-                ))
-            }
-
-        case .daitaDirectOnly:
-            guard let cell = cell as? SettingsSwitchCell else { return }
+        case .multihop:
+            guard let cell = cell as? SettingsCell else { return }
 
             cell.titleLabel.text = NSLocalizedString(
-                "DAITA_DIRECT_ONLY_LABEL",
+                "MULTIHOP_CELL_LABEL",
                 tableName: "Settings",
-                value: "Direct only",
+                value: "Multihop",
                 comment: ""
             )
+            cell.detailTitleLabel.text = nil
             cell.accessibilityIdentifier = item.accessibilityIdentifier
-            cell.setOn(viewModel.daitaSettings.directOnlyState.isEnabled, animated: false)
-            cell.setSwitchEnabled(viewModel.daitaSettings.daitaState.isEnabled)
-
-            cell.infoButtonHandler = { [weak self] in
-                self?.delegate?.showInfo(for: .daitaDirectOnly)
-            }
-
-            cell.action = { [weak self] isEnabled in
-                guard let self else { return }
-
-                let state: DirectOnlyState = isEnabled ? .on : .off
-                delegate?.switchDaitaDirectOnlyState(DAITASettings(
-                    daitaState: viewModel.daitaSettings.daitaState,
-                    directOnlyState: state
-                ))
-            }
+            cell.disclosureType = .chevron
         }
     }
 }
