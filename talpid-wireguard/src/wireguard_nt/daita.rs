@@ -440,7 +440,7 @@ impl Machinist {
 }
 
 fn load_maybenot_machines(resource_dir: &Path) -> Result<Vec<maybenot::Machine>, Error> {
-    let path = resource_dir.join("maybenot_machines_v2");
+    let path = resource_dir.join("maybenot_machines");
     log::debug!("Reading maybenot machines from {}", path.display());
 
     let mut machines = vec![];

@@ -238,7 +238,7 @@ impl Tunnel for WgGoTunnel {
 
 #[cfg(daita)]
 fn load_maybenot_machines(resource_dir: &Path) -> Result<CString> {
-    let path = resource_dir.join("maybenot_machines_v2");
+    let path = resource_dir.join("maybenot_machines");
     log::debug!("Reading maybenot machines from {}", path.display());
 
     let machines = fs::read_to_string(path).map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
