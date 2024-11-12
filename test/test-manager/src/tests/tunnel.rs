@@ -195,7 +195,15 @@ pub async fn test_wireguard_over_shadowsocks(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    let query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .shadowsocks()
+        .location(LowLatency)
+        .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
@@ -294,7 +302,16 @@ pub async fn test_multihop(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let query = RelayQueryBuilder::new().wireguard().multihop().build();
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .multihop()
+        .location(LowLatency)
+        .entry(LowLatency)
+        .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
@@ -445,7 +462,11 @@ pub async fn test_quantum_resistant_tunnel(
     _: TestContext,
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::Off)
         .await
@@ -459,13 +480,12 @@ pub async fn test_quantum_resistant_tunnel(
 
     log::info!("Setting tunnel protocol to WireGuard");
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("Failed to update relay settings");
+    let query = RelayQueryBuilder::new()
+        .wireguard()
+        .location(LowLatency)
+        .build();
+
+    apply_settings_from_relay_query(&mut mullvad_client, query).await?;
 
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
@@ -524,6 +544,10 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
@@ -533,6 +557,8 @@ pub async fn test_quantum_resistant_multihop_udp2tcp_tunnel(
         .wireguard()
         .multihop()
         .udp2tcp()
+        .entry(LowLatency)
+        .location(LowLatency)
         .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
@@ -559,6 +585,10 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
+    // NOTE: We have experienced flakiness due to timeout issues if distant relays are selected.
+    // This is an attempt to try to reduce this type of flakiness.
+    use helpers::custom_lists::LowLatency;
+
     mullvad_client
         .set_quantum_resistant_tunnel(wireguard::QuantumResistantState::On)
         .await
@@ -568,6 +598,8 @@ pub async fn test_quantum_resistant_multihop_shadowsocks_tunnel(
         .wireguard()
         .multihop()
         .shadowsocks()
+        .entry(LowLatency)
+        .location(LowLatency)
         .build();
 
     apply_settings_from_relay_query(&mut mullvad_client, query).await?;
