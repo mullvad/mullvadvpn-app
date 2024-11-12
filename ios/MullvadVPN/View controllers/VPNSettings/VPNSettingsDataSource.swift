@@ -321,7 +321,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         case .udpOverTcpObfuscationSettings:
             tableView.deselectRow(at: indexPath, animated: false)
-            delegate?.showUDPOverTCPObfuscationSettings()
+            delegate?.showDetails(for: .udpOverTcp)
 
         case .wireGuardObfuscationAutomatic:
             selectObfuscationState(.automatic)
