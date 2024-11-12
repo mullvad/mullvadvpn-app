@@ -67,7 +67,10 @@ impl EphemeralPeer for EphemeralPeerImpl {
             None
         };
 
-        Ok(Response::new(EphemeralPeerResponseV1 { post_quantum }))
+        Ok(Response::new(EphemeralPeerResponseV1 {
+            post_quantum,
+            daita: None,
+        }))
     }
 }
 

@@ -617,7 +617,10 @@ mod test {
         }
 
         #[cfg(daita)]
-        fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+        fn start_daita(
+            &mut self,
+            #[cfg(not(target_os = "windows"))] _: talpid_tunnel_config_client::DaitaSettings,
+        ) -> std::result::Result<(), TunnelError> {
             Ok(())
         }
     }

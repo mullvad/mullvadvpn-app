@@ -13,6 +13,7 @@ use talpid_dbus::{
         WireguardTunnel,
     },
 };
+use talpid_tunnel_config_client::DaitaSettings;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -114,7 +115,7 @@ impl Tunnel for NetworkManagerTunnel {
     }
 
     /// Outright fail to start - this tunnel type does not support DAITA.
-    fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+    fn start_daita(&mut self, _: DaitaSettings) -> std::result::Result<(), TunnelError> {
         Err(TunnelError::DaitaNotSupported)
     }
 }
