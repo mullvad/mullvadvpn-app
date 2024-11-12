@@ -51,9 +51,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
 
-        // Tell the system that we will draw behind the status bar and navigation bar
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         lifecycle.addObserver(noDaemonViewModel)
 
         installSplashScreen().setKeepOnScreenCondition {
@@ -61,6 +58,11 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
             isReadyNextDraw = splashCompleteRepository.isSplashComplete()
             !isReady
         }
+
+        // Tell the system that we will draw behind the status bar and navigation bar
+        // This needs to be called after installSplashScreen()
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
         super.onCreate(savedInstanceState)
 
         // Needs to be before set content since we want to access the intent in compose
