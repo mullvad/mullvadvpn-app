@@ -40,8 +40,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 
     enum Section: String {
-        case daita
-        case main
+        case vpnSettings
+        case apiAccess
         case version
         case problemReport
     }
@@ -54,6 +54,8 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case apiAccess
         case daita
         case daitaDirectOnly
+        case multihop
+        case daita2
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -71,12 +73,16 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
                 return .daitaSwitch
             case .daitaDirectOnly:
                 return .daitaDirectOnlySwitch
+            case .multihop:
+                return .multihopCell
+            case .daita2:
+                return .daitaCell
             }
         }
 
         var reuseIdentifier: CellReuseIdentifiers {
             switch self {
-            case .vpnSettings, .version, .problemReport, .faq, .apiAccess:
+            case .vpnSettings, .version, .problemReport, .faq, .apiAccess, .multihop, .daita2:
                 .basic
             case .daita, .daitaDirectOnly:
                 .daita
@@ -119,7 +125,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         switch itemIdentifier(for: indexPath) {
-        case .vpnSettings, .problemReport, .faq, .apiAccess:
+        case .vpnSettings, .problemReport, .faq, .apiAccess, .multihop, .daita2:
             true
         case .version, .daita, .daitaDirectOnly, .none:
             false
@@ -159,17 +165,18 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
 
         if interactor.deviceState.isLoggedIn {
-            snapshot.appendSections([.daita])
-            snapshot.appendItems([.daita, .daitaDirectOnly], toSection: .daita)
+            snapshot.appendSections([.vpnSettings])
+            snapshot.appendItems([
+                .daita,
+                .daitaDirectOnly,
+                .daita2,
+                .multihop,
+                .vpnSettings,
+            ], toSection: .vpnSettings)
         }
 
-        snapshot.appendSections([.main])
-
-        if interactor.deviceState.isLoggedIn {
-            snapshot.appendItems([.vpnSettings], toSection: .main)
-        }
-
-        snapshot.appendItems([.apiAccess], toSection: .main)
+        snapshot.appendSections([.apiAccess])
+        snapshot.appendItems([.apiAccess], toSection: .apiAccess)
 
         snapshot.appendSections([.version, .problemReport])
         snapshot.appendItems([.version], toSection: .version)

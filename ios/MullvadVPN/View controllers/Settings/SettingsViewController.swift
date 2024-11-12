@@ -156,6 +156,10 @@ extension SettingsDataSource.Item {
             return .faq
         case .apiAccess:
             return .apiAccess
+        case .multihop:
+            return .multihop
+        case .daita2:
+            return .daita
         }
     }
 }
