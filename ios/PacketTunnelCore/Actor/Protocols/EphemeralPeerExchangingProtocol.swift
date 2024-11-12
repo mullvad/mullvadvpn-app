@@ -6,10 +6,15 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
 import WireGuardKitTypes
 
 public protocol EphemeralPeerExchangingProtocol {
     func start()
-    func receivePostQuantumKey(_ preSharedKey: PreSharedKey, ephemeralKey: PrivateKey)
-    func receiveEphemeralPeerPrivateKey(_: PrivateKey)
+    func receivePostQuantumKey(
+        _ preSharedKey: PreSharedKey,
+        ephemeralKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
+    )
+    func receiveEphemeralPeerPrivateKey(_: PrivateKey, daitaParameters: DaitaV2Parameters?)
 }

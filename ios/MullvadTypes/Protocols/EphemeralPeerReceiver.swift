@@ -19,14 +19,21 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
 
     // MARK: - EphemeralPeerReceiving
 
-    public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
+    public func receivePostQuantumKey(
+        _ key: PreSharedKey,
+        ephemeralKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
+    ) {
         guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
-        receiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+        receiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey, daitaParameters: daitaParameters)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
+    public func receiveEphemeralPeerPrivateKey(
+        _ ephemeralPeerPrivateKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
+    ) {
         guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
-        receiver.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+        receiver.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey, daitaParameters: daitaParameters)
     }
 
     public func ephemeralPeerExchangeFailed() {

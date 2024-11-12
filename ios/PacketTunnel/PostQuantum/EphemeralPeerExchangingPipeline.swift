@@ -8,6 +8,7 @@
 
 import MullvadRustRuntime
 import MullvadSettings
+import MullvadTypes
 import PacketTunnelCore
 import WireGuardKitTypes
 
@@ -59,11 +60,18 @@ final public class EphemeralPeerExchangingPipeline {
         ephemeralPeerExchanger.start()
     }
 
-    public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        ephemeralPeerExchanger.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    public func receivePostQuantumKey(
+        _ key: PreSharedKey,
+        ephemeralKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
+    ) {
+        ephemeralPeerExchanger.receivePostQuantumKey(key, ephemeralKey: ephemeralKey, daitaParameters: daitaParameters)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
-        ephemeralPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+    public func receiveEphemeralPeerPrivateKey(
+        _ ephemeralPeerPrivateKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
+    ) {
+        ephemeralPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey, daitaParameters: daitaParameters)
     }
 }

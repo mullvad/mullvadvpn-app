@@ -15,11 +15,11 @@ public protocol EphemeralPeerReceiving {
     /// - Parameters:
     ///   - key: The preshared key used by the Ephemeral Peer
     ///   - ephemeralKey: The private key used by the Ephemeral Peer
-    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey)
+    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey, daitaParameters: DaitaV2Parameters?)
 
     /// Called when successfully requesting an ephemeral peer with Daita enabled, and Post Quantum PSK disabled
     /// - Parameter _:_ The private key used by the Ephemeral Peer
-    func receiveEphemeralPeerPrivateKey(_: PrivateKey)
+    func receiveEphemeralPeerPrivateKey(_: PrivateKey, daitaParameters: DaitaV2Parameters?)
 
     /// Called when an ephemeral peer could not be successfully negotiated
     func ephemeralPeerExchangeFailed()

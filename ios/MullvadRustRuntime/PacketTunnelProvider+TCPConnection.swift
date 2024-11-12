@@ -94,7 +94,8 @@ func tcpConnectionReceive(
 func receivePostQuantumKey(
     rawEphemeralPeerReceiver: UnsafeMutableRawPointer?,
     rawPresharedKey: UnsafeMutableRawPointer?,
-    rawEphemeralKey: UnsafeMutableRawPointer?
+    rawEphemeralKey: UnsafeMutableRawPointer?,
+    rawDaitaParameters: UnsafeMutableRawPointer?
 ) {
     guard let rawEphemeralPeerReceiver else { return }
     let ephemeralPeerReceiver = Unmanaged<EphemeralPeerReceiver>.fromOpaque(rawEphemeralPeerReceiver)
@@ -107,12 +108,29 @@ func receivePostQuantumKey(
         return
     }
 
+    let maybeNot = Maybenot()
+    let daitaParameters: DaitaV2Parameters? = rawDaitaParameters?.withMemoryRebound(
+        to: DaitaParameters.self,
+        capacity: 1
+    ) { body in
+        let params = body.pointee
+        guard params.machines != nil else { return nil }
+        let machines = String(cString: params.machines)
+        return DaitaV2Parameters(
+            machines: machines,
+            maximumEvents: maybeNot.maximumEvents,
+            maximumActions: maybeNot.maximumActions,
+            maximumPadding: params.max_padding_frac,
+            maximumBlocking: params.max_blocking_frac
+        )
+    }
+
     // If there is a pre-shared key, an ephemeral peer was negotiated with Post Quantum options
     // Otherwise, a Daita enabled ephemeral peer was requested
     if let rawPresharedKey, let key = PreSharedKey(rawValue: Data(bytes: rawPresharedKey, count: 32)) {
-        ephemeralPeerReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+        ephemeralPeerReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey, daitaParameters: daitaParameters)
     } else {
-        ephemeralPeerReceiver.receiveEphemeralPeerPrivateKey(ephemeralKey)
+        ephemeralPeerReceiver.receiveEphemeralPeerPrivateKey(ephemeralKey, daitaParameters: daitaParameters)
     }
     return
 }

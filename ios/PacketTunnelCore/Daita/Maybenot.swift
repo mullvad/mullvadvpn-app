@@ -7,7 +7,9 @@ public struct Maybenot {
 789cedd1510a80200c80617de95addff36dda096e84b209bfe0f1bb40f32297f1056cbdd954eb68d6c9b7ac8e2e33a650176fbdd6ea07df24227b7daaf9effa27df2462768edade766689fa2a093d47aedbf86f6291a3ad1593ffb6e45fb4454795e630ae31d11bd1bedffeb0151b22c62
 789cedd2bd4b82411c07f07b2a48846a089a326889861a9c2452ee12221e0ca2a5201ca5a122fc0bda042544370771f3159c9c0405e51914e45c5414df7d441075f00515c4c553f0117906075f40f0331c77c7ddef8efb1e05a6de8e6f3d96661392ee1c6a9f349b72e6316a6e542c4c980b5dbb24cfbbcccefa1d00d57df145ff44079506a677adacc29623a4780f30288a312e99440f809a7d9b457c4711a1b8cf7249ea2adf75cb698e1b4fb50f19dc4d67e0c95d12d354186ab3b1e74f5b9ab7aecc4e70f332e918bfdef6db03ce9042a2bba491e88324629022ef85a6f1aa95a3ece0efcb5f5223012039997e3b726455cb84a9f82322db96f6ff531dbada6558bb120bdce79915bf6c6bc5f51659febc1141265ee0
 """
-    public let maximumEvents: UInt32 = 1000
-    public let maximumActions: UInt32 = 1000
+    public let maximumEvents: UInt32 = 2048
+    public let maximumActions: UInt32 = 1024
+    public let maximumPadding: Double = 1.0
+    public let maximumBlocking: Double = 1.0
 }
 // swiftlint:enable line_length
