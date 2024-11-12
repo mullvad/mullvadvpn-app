@@ -3,13 +3,9 @@ package net.mullvad.mullvadvpn.lib.model
 import java.net.InetAddress
 
 sealed class ErrorStateCause {
-    class AuthFailed(private val reason: String?) : ErrorStateCause() {
+    class AuthFailed(private val error: AuthFailedError) : ErrorStateCause() {
         fun isCausedByExpiredAccount(): Boolean {
-            return reason == AUTH_FAILED_REASON_EXPIRED_ACCOUNT
-        }
-
-        companion object {
-            private const val AUTH_FAILED_REASON_EXPIRED_ACCOUNT = "[EXPIRED_ACCOUNT]"
+            return error is AuthFailedError.ExpiredAccount
         }
     }
 
@@ -31,4 +27,14 @@ sealed class ErrorStateCause {
     data object IsOffline : ErrorStateCause()
 
     data object VpnPermissionDenied : ErrorStateCause()
+}
+
+sealed interface AuthFailedError {
+    data object ExpiredAccount : AuthFailedError
+
+    data object InvalidAccount : AuthFailedError
+
+    data object TooManyConnections : AuthFailedError
+
+    data object Unknown : AuthFailedError
 }

@@ -20,6 +20,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import net.mullvad.mullvadvpn.lib.model.AccountData
+import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
@@ -74,7 +75,7 @@ class OutOfTimeUseCaseTest {
     fun `tunnel is blocking because out of time should emit true`() =
         scope.runTest {
             // Arrange
-            val errorStateCause = ErrorStateCause.AuthFailed("[EXPIRED_ACCOUNT]")
+            val errorStateCause = ErrorStateCause.AuthFailed(AuthFailedError.ExpiredAccount)
             val tunnelStateError = TunnelState.Error(ErrorState(errorStateCause, true))
 
             // Act, Assert

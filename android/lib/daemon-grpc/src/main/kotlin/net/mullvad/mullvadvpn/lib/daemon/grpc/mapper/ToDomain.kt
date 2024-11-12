@@ -19,6 +19,7 @@ import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodName
 import net.mullvad.mullvadvpn.lib.model.ApiAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.AppId
 import net.mullvad.mullvadvpn.lib.model.AppVersionInfo
+import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
@@ -202,7 +203,7 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
         cause =
             when (cause!!) {
                 ManagementInterface.ErrorState.Cause.AUTH_FAILED ->
-                    ErrorStateCause.AuthFailed(authFailedError.name)
+                    ErrorStateCause.AuthFailed(authFailedError.toDomain())
                 ManagementInterface.ErrorState.Cause.IPV6_UNAVAILABLE ->
                     ErrorStateCause.Ipv6Unavailable
                 ManagementInterface.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR ->
@@ -224,6 +225,19 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
             },
         isBlocking = !hasBlockingError(),
     )
+
+private fun ManagementInterface.ErrorState.AuthFailedError.toDomain(): AuthFailedError =
+    when (this) {
+        ManagementInterface.ErrorState.AuthFailedError.UNKNOWN -> AuthFailedError.Unknown
+        ManagementInterface.ErrorState.AuthFailedError.INVALID_ACCOUNT ->
+            AuthFailedError.InvalidAccount
+        ManagementInterface.ErrorState.AuthFailedError.EXPIRED_ACCOUNT ->
+            AuthFailedError.ExpiredAccount
+        ManagementInterface.ErrorState.AuthFailedError.TOO_MANY_CONNECTIONS ->
+            AuthFailedError.TooManyConnections
+        ManagementInterface.ErrorState.AuthFailedError.UNRECOGNIZED ->
+            throw IllegalArgumentException("Unrecognized auth failed error")
+    }
 
 internal fun ManagementInterface.ErrorState.FirewallPolicyError.toDomain():
     ErrorStateCause.FirewallPolicyError =
