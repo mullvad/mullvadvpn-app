@@ -13,8 +13,14 @@ struct UDPTCPObfuscationSettingsView<VM>: View where VM: UDPTCPObfuscationSettin
     @StateObject var viewModel: VM
 
     var body: some View {
+        let portString = NSLocalizedString(
+            "UDP_TCP_PORT_LABEL",
+            tableName: "UdpToTcp",
+            value: "Port",
+            comment: ""
+        )
         SingleChoiceList(
-            title: "Port",
+            title: portString,
             options: [WireGuardObfuscationUdpOverTcpPort.automatic, .port80, .port5001],
             value: $viewModel.value
         )

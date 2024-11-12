@@ -72,7 +72,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             cell.titleLabel.text = NSLocalizedString(
                 "UDP_TCP_OBFUSCATION_CELL_LABEL",
                 tableName: "VPNSettings",
-                value: "UDP/TCP Obfuscation",
+                value: "UDP-over-TCP",
                 comment: ""
             )
 

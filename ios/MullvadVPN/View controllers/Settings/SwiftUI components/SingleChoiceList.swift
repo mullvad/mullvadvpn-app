@@ -13,16 +13,16 @@ import SwiftUI
  The items can be any Hashable type.
  */
 
-struct SingleChoiceList<T>: View where T: Hashable {
+struct SingleChoiceList<Item>: View where Item: Hashable {
     let title: String
-    let options: [T]
-    var value: Binding<T>
+    let options: [Item]
+    var value: Binding<Item>
 
-    func row(_ v: T) -> some View {
+    func row(_ v: Item) -> some View {
         let isSelected = value.wrappedValue == v
         return HStack {
             Image("IconTick").opacity(isSelected ? 1.0 : 0.0)
-            Text(verbatim: "\(v)")
+            Text(verbatim: NSLocalizedString("\(v)", comment: ""))
             Spacer()
         }
         .padding(16)
@@ -36,10 +36,10 @@ struct SingleChoiceList<T>: View where T: Hashable {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(title)
+                Text(title).fontWeight(.bold)
                 Spacer()
             }
-            .padding(16)
+            .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
             ForEach(options, id: \.self) { opt in
                 row(opt)
             }

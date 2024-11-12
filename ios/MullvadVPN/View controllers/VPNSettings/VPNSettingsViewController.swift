@@ -112,9 +112,13 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    func showDetails(for: VPNSettingsDetailsButtonItem) {
-        // TODO: When ready, add navigation to detail views for selecting obfuscation options for
-        // UDP-over-TCP and shadowsocks.
+    func showDetails(for item: VPNSettingsDetailsButtonItem) {
+        switch item {
+        case .udpOverTcp:
+            showUDPOverTCPObfuscationSettings()
+        case .wireguardOverShadowsocks:
+            showShadowsocksObfuscationSettings()
+        }
     }
 
     func showDNSSettings() {
@@ -126,12 +130,21 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
         delegate?.showIPOverrides()
     }
 
-    func showUDPOverTCPObfuscationSettings() {
+    private func showUDPOverTCPObfuscationSettings() {
         let viewModel = TunnelUDPTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
         let view = UDPTCPObfuscationSettingsView(viewModel: viewModel)
         let vc = UIHostingController(rootView: view)
-        vc.title = "UDP TCP Obfuscation"
+        vc.title = NSLocalizedString(
+            "UDP_OVER_TCP_TITLE",
+            tableName: "VPNSettings",
+            value: "UDP-over-TCP",
+            comment: ""
+        )
         navigationController?.pushViewController(vc, animated: true)
+    }
+
+    private func showShadowsocksObfuscationSettings() {
+        // TODO:
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {

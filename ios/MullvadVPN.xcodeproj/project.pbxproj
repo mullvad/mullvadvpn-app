@@ -2594,9 +2594,9 @@
 		4422C06F2CCFF6520001A385 /* Obfuscation */ = {
 			isa = PBXGroup;
 			children = (
+				440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */,
 				4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */,
 				44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */,
-				440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */,
 			);
 			path = Obfuscation;
 			sourceTree = "<group>";
