@@ -39,6 +39,9 @@ class TunnelObfuscationSettingsWatchingObservableObject<T: Equatable>: Observabl
     }
 
     private func updateValueFromSettings(_ settings: WireGuardObfuscationSettings) {
-        let newValue = settings
+        let newValue = settings[keyPath: keyPath]
+        if value != newValue {
+            value = newValue
+        }
     }
 }
