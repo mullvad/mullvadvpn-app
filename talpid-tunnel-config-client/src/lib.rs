@@ -202,18 +202,15 @@ pub async fn request_ephemeral_peer_with(
     };
 
     #[cfg(all(unix, not(target_os = "ios")))]
-    let daita = response.daita.map(|daita| DaitaSettings {
-        client_machines: daita.client_machines,
-        max_padding_frac: daita.max_padding_frac,
-        max_blocking_frac: daita.max_blocking_frac,
-    });
-    #[cfg(all(unix, not(target_os = "ios")))]
-    if daita.is_none() && enable_daita {
-        return Err(Error::MissingDaitaResponse);
-    }
-
-    #[cfg(all(unix, not(target_os = "ios")))]
     {
+        let daita = response.daita.map(|daita| DaitaSettings {
+            client_machines: daita.client_machines,
+            max_padding_frac: daita.max_padding_frac,
+            max_blocking_frac: daita.max_blocking_frac,
+        });
+        if daita.is_none() && enable_daita {
+            return Err(Error::MissingDaitaResponse);
+        }
         Ok(EphemeralPeer { psk, daita })
     }
 
