@@ -46,6 +46,9 @@ GRAPHICAL_ASSETS = [
   "icon-copy.svg",
   "icon-obscure.svg",
   "icon-unobscure.svg",
+  "multihop-illustration.svg",
+  "daita-off-illustration.svg",
+  "daita-on-illustration.svg"
 ]
 
 # graphical assets to resize.

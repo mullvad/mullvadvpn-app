@@ -24,8 +24,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationOption
         case wireGuardObfuscationPort
         case quantumResistance
-        case multihop
-        case daita
+
         var reusableViewClass: AnyClass {
             switch self {
             case .dnsSettings:
@@ -44,10 +43,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return SelectableSettingsCell.self
             case .quantumResistance:
                 return SelectableSettingsCell.self
-            case .multihop:
-                return SettingsSwitchCell.self
-            case .daita:
-                return SettingsSwitchCell.self
             }
         }
     }
@@ -82,7 +77,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case quantumResistanceAutomatic
         case quantumResistanceOn
         case quantumResistanceOff
-        case multihopSwitch
 
         static var wireGuardPorts: [Item] {
             let defaultPorts = VPNSettingsViewModel.defaultWireGuardPorts.map {
@@ -143,8 +137,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .quantumResistanceOn
             case .quantumResistanceOff:
                 return .quantumResistanceOff
-            case .multihopSwitch:
-                return .multihopSwitch
             }
         }
 
@@ -166,8 +158,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .wireGuardObfuscationPort
             case .quantumResistanceAutomatic, .quantumResistanceOn, .quantumResistanceOff:
                 return .quantumResistance
-            case .multihopSwitch:
-                return .multihop
             }
         }
     }
@@ -456,7 +446,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         snapshot.appendSections(Section.allCases)
         snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
         snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
-        snapshot.appendItems([.multihopSwitch], toSection: .privacyAndSecurity)
 
         applySnapshot(snapshot, animated: animated, completion: completion)
     }
@@ -603,7 +592,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
     /*
       Since we are dequeuing headers, it's crucial to maintain the state of expansion.
-      Using screenshots as a single source of truth to capture the state allows us to determine whether headers are expanded or not.
+      Using screenshots as a single source of truth to capture the state allows us to
+      determine whether headers are expanded or not.
      */
     private func isExpanded(_ section: Section) -> Bool {
         let snapshot = snapshot()
