@@ -53,6 +53,14 @@ pub struct SwiftContext {
 unsafe impl Send for SwiftContext {}
 unsafe impl Sync for SwiftContext {}
 
+#[derive(Clone)]
+#[repr(C)]
+pub struct DaitaParameters {
+    pub machines: *const u8,
+    pub max_padding_frac: f64,
+    pub max_blocking_frac: f64,
+}
+
 struct IOSRuntime {
     pub_key: [u8; 32],
     ephemeral_key: [u8; 32],
@@ -124,6 +132,7 @@ impl IOSRuntime {
                         self.packet_tunnel.packet_tunnel,
                         ptr::null(),
                         ptr::null(),
+                        ptr::null(),
                     );
                     return;
                 }
@@ -144,21 +153,43 @@ impl IOSRuntime {
                 if let Ok(mut connection) = self.packet_tunnel.tcp_connection.lock() {
                     connection.shutdown();
                 }
+
                 match ephemeral_peer {
                     Ok(peer) => {
+                        let params: Option<(Vec<u8>, DaitaParameters)> = peer.daita.as_ref().map(|daita| {
+                            let machines_newline_delim = daita
+                                .client_machines
+                                .join("\n")
+                                .into_bytes();
+                            // IMPORTANT: `machines_newline_delim` must not be dropped while
+                            // this is read
+                            let machines = machines_newline_delim.as_ptr();
+                            (machines_newline_delim, DaitaParameters {
+                                machines,
+                                max_padding_frac: daita.max_padding_frac,
+                                max_blocking_frac: daita.max_blocking_frac,
+                            })
+                        });
+                        let params_ptr = params.as_ref().map(|(_, params)| {
+                            params as *const DaitaParameters
+                        })
+                        .unwrap_or(std::ptr::null());
+
                         match peer.psk {
                             Some(preshared_key) => unsafe {
                                 let preshared_key_bytes = preshared_key.as_bytes();
                                 swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                     preshared_key_bytes.as_ptr(),
-                                    self.ephemeral_key.as_ptr());
+                                    self.ephemeral_key.as_ptr(),
+                                    params_ptr);
                             },
                             None => {
                                 // Daita peer was requested, but without enabling post quantum keys
                                 unsafe {
                                     swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                                         ptr::null(),
-                                        self.ephemeral_key.as_ptr());
+                                        self.ephemeral_key.as_ptr(),
+                                        params_ptr);
                                 }
                             }
                         }
@@ -167,6 +198,7 @@ impl IOSRuntime {
                         log::error!("Key exchange failed {}", error);
                         unsafe {
                             swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
+                                ptr::null(),
                                 ptr::null(),
                                 ptr::null());
                         }
@@ -181,7 +213,9 @@ impl IOSRuntime {
                         shutdown_handle.shutdown();
                         unsafe { swift_ephemeral_peer_ready(self.packet_tunnel.packet_tunnel,
                             ptr::null(),
-                            ptr::null()); }
+                            ptr::null(),
+                            ptr::null(),
+                        ); }
             }
         }
     }

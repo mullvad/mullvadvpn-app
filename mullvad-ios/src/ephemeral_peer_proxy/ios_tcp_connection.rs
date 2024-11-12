@@ -1,3 +1,4 @@
+use super::ios_runtime::DaitaParameters;
 use libc::c_void;
 use std::{
     io::{self, Result},
@@ -39,6 +40,7 @@ extern "C" {
         raw_packet_tunnel: *const c_void,
         raw_preshared_key: *const u8,
         raw_ephemeral_private_key: *const u8,
+        daita_parameters: *const DaitaParameters,
     );
 }
 

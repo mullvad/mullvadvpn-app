@@ -20,6 +20,12 @@ typedef struct EphemeralPeerCancelToken {
   void *context;
 } EphemeralPeerCancelToken;
 
+typedef struct DaitaParameters {
+  const uint8_t *machines;
+  double max_padding_frac;
+  double max_blocking_frac;
+} DaitaParameters;
+
 extern const uint16_t CONFIG_SERVICE_PORT;
 
 /**
@@ -147,7 +153,8 @@ extern void swift_nw_tcp_connection_read(const void *connection, const void *sen
  */
 extern void swift_ephemeral_peer_ready(const void *raw_packet_tunnel,
                                        const uint8_t *raw_preshared_key,
-                                       const uint8_t *raw_ephemeral_private_key);
+                                       const uint8_t *raw_ephemeral_private_key,
+                                       const struct DaitaParameters *daita_parameters);
 
 /**
  * # Safety
