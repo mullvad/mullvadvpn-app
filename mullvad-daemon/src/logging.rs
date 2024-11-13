@@ -24,6 +24,9 @@ pub enum Error {
 
     #[error("Unable to set logger")]
     SetLoggerError(#[from] log::SetLoggerError),
+
+    #[error("Log file path contained a null-byte")]
+    LogPathContainsNull(#[from] std::ffi::NulError),
 }
 
 pub const WARNING_SILENCED_CRATES: &[&str] = &["netlink_proto"];
@@ -101,7 +104,7 @@ pub fn init_logger(
         .chain(io::stdout());
     top_dispatcher = top_dispatcher.chain(stdout_dispatcher);
 
-    if let Some(ref log_file) = log_file {
+    if let Some(log_file) = log_file {
         rotate_log(log_file).map_err(Error::RotateLog)?;
         let file_formatter = Formatter {
             output_timestamp: true,
@@ -115,6 +118,12 @@ pub fn init_logger(
             .format(move |out, message, record| file_formatter.output_msg(out, message, record))
             .chain(Output::file(f, LINE_SEPARATOR));
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
+
+        #[cfg(unix)]
+        crate::exception_logging::set_log_file(
+            std::ffi::CString::new(log_file.as_os_str().as_encoded_bytes())
+                .map_err(Error::LogPathContainsNull)?,
+        );
     }
     #[cfg(all(target_os = "android", debug_assertions))]
     {
