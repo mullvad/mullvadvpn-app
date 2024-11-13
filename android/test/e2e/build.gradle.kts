@@ -24,7 +24,11 @@ android {
         targetProjectPath = ":app"
 
         fun Properties.addRequiredPropertyAsBuildConfigField(name: String) {
-            val value = getProperty(name) ?: throw GradleException("Missing property: $name")
+            val value =
+                System.getenv(name)
+                    ?: getProperty(name)
+                    ?: throw GradleException("Missing property: $name")
+
             buildConfigField(type = "String", name = name, value = "\"$value\"")
         }
 
