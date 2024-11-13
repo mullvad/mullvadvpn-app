@@ -113,12 +113,22 @@ function buildProto(callback) {
   exec('bash ./scripts/build-proto.sh', (err) => callback(err));
 }
 
+function buildNseventforwarder(callback) {
+  if (process.platform === 'darwin') {
+    exec('npm -w nseventforwarder run build-debug', (err) => callback(err));
+  } else {
+    callback();
+  }
+}
+
 compileScripts.displayName = 'compile-scripts';
 buildProto.displayName = 'build-proto';
+buildNseventforwarder.displayName = 'build-nseventforwarder';
 
 exports.build = series(
   compileScripts,
   parallel(makeBrowserifyPreload(false), makeBrowserifyRenderer(false)),
 );
 exports.buildProto = buildProto;
+exports.buildNseventforwarder = buildNseventforwarder;
 exports.makeWatchCompiler = makeWatchCompiler;

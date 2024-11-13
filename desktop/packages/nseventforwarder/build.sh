@@ -38,6 +38,8 @@ case "$TARGET_TRIPLE" in
 esac
 
 if [[ "$(uname -s)" == "Darwin" ]]; then
+    # We rely (heavily) on a pre-defined CARGO_TARGET_DIR, so don't let any user override it
+    unset CARGO_TARGET_DIR
     npm run cargo-build -- --release --target "$TARGET_TRIPLE"
     # Copy the neon library to the correct dists folder, which is what node will
     # pick up when loading the library at runtime.
