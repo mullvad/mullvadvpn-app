@@ -35,7 +35,7 @@ test('App should connect', async () => {
 
   const relay = page.getByTestId('hostname-line');
   const inIp = page.locator(':text("In") + span');
-  const outIp = page.locator(':text("Out") + div > span');
+  const outIp = page.locator(':text("Out") + div > span').first();
 
   await expect(relay).toHaveText(process.env.HOSTNAME!);
   await expect(inIp).not.toBeVisible();
