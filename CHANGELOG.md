@@ -68,18 +68,22 @@ Line wrap the file at 100 chars.                                              Th
 ### Security
 - Remove invalidly set up alternative stack for fault signal handlers on unix based systems.
   This prevents potential stack overflow and heap memory corruption.
-  Fixes audit issue `MLLVD-CR-24-01`.
+  Fixes audit issue [`MLLVD-CR-24-01`].
 - Remove/disable not signal safe code from fault signal handler on unix based systems.
-  Fixes audit issue `MLLVD-CR-24-02`.
+  Fixes audit issue [`MLLVD-CR-24-02`].
 
 #### Windows
 - Fix issue where the installer would allow any executable named `taskkill.exe` in the working
-  directory to run as admin. This fixes audit issue `MLLVD-CR-24-06`.
+  directory to run as admin. This fixes audit issue [`MLLVD-CR-24-06`].
 
 #### Linux
 - Prevent attackers able to send ARP requests to the device running Mullvad from figuring out
-  the in-tunnel IP. Fixes 2024 audit issue `MLLVD-CR-24-03`.
+  the in-tunnel IP. Fixes 2024 audit issue [`MLLVD-CR-24-03`].
 
+[`MLLVD-CR-24-01`]: audits/2024-12-10-X41-D-Sec.md#MLLVD-CR-24-01
+[`MLLVD-CR-24-02`]: audits/2024-12-10-X41-D-Sec.md#MLLVD-CR-24-02
+[`MLLVD-CR-24-03`]: audits/2024-12-10-X41-D-Sec.md#MLLVD-CR-24-03
+[`MLLVD-CR-24-06`]: audits/2024-12-10-X41-D-Sec.md#MLLVD-CR-24-06
 
 ## [2024.7] - 2024-10-30
 This release is identical to 2024.7-beta1.

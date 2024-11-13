@@ -229,6 +229,7 @@ it very difficult to properly secure them.
 
 
 ### Android exposes in-tunnel VPN IPs to network adjacent attackers via ARP
+<a id="MLLVD-CR-24-03"></a>
 
 By default the kernel parameter [`arp_ignore`] is set to `0` on Android. This makes the device reply
 to ARP requests for any local target IP address, configured on any interface. This means that any
@@ -251,8 +252,11 @@ tunnel IP.
 
 #### Timeline
 
-* November 6, 2024 - Auditors reported this issue on Linux and Android, later classified as `MLLVD-CR-24-03`.
+* November 6, 2024 - Auditors from X41 D-Sec reported this issue as part of the [2024 app audit].
+  The issue was given the identifier [`MLLVD-CR-24-03`].
 * November 14, 2024 - We reported the issue [upstream to Google].
 
 [`arp_ignore`]: https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
+[2024 app audit]: ../audits/2024-12-10-X41-D-Sec.md
+[`MLLVD-CR-24-03`]: ../audits/2024-12-10-X41-D-Sec.md#MLLVD-CR-24-03
 [upstream to Google]: https://issuetracker.google.com/issues/378814597
