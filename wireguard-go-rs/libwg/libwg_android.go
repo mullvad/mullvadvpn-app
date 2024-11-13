@@ -32,7 +32,6 @@ import (
 type LogSink = unsafe.Pointer
 type LogContext = C.uint64_t
 
-// TODO: Document
 type tunnelHandle struct {
 	exit   *device.Device
 	entry  *device.Device
