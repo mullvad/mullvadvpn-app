@@ -67,6 +67,7 @@ fn try_set_ipv4_mtu(alias: &str, mtu: u16) {
     }
 }
 
+#[cfg(not(windows))]
 pub async fn config_ephemeral_peers(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     config: &mut Config,
