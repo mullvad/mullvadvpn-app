@@ -9,7 +9,7 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL
-import net.mullvad.mullvadvpn.service.notifications.accountexpiry.expiryTickerFlow
+import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryTicker
 
 class AccountExpiryInAppNotificationUseCase(private val accountRepository: AccountRepository) {
 
@@ -18,20 +18,21 @@ class AccountExpiryInAppNotificationUseCase(private val accountRepository: Accou
         accountRepository.accountData
             .flatMapLatest { accountData ->
                 if (accountData != null) {
-                    expiryTickerFlow(
+                    AccountExpiryTicker.tickerFlow(
                             expiry = accountData.expiryDate,
                             tickStart = ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD,
                             updateInterval = { ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL },
                         )
-                        .map {
-                            it?.let { expiresInPeriod ->
-                                InAppNotification.AccountExpiry(expiresInPeriod)
+                        .map { tick ->
+                            when (tick) {
+                                AccountExpiryTicker.NotWithinThreshold -> emptyList()
+                                is AccountExpiryTicker.Tick ->
+                                    listOf(InAppNotification.AccountExpiry(tick.expiresIn))
                             }
                         }
                 } else {
-                    flowOf(null)
+                    flowOf(emptyList())
                 }
             }
-            .map(::listOfNotNull)
             .distinctUntilChanged()
 }

@@ -29,6 +29,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Animation has been changed to look better with predictive back.
 
+### Fixed
+- Fix a bug where the Android account expiry notifications would not be updated if the app was
+  running in the background for a long time.
+
 
 ## [android/2024.8] - 2024-11-01
 
