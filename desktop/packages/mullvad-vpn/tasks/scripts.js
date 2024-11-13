@@ -113,12 +113,18 @@ function buildProto(callback) {
   exec('bash ./scripts/build-proto.sh', (err) => callback(err));
 }
 
+function buildNseventforwarder(callback) {
+  exec('npm -w nseventforwarder run build-debug', (err) => callback(err));
+}
+
 compileScripts.displayName = 'compile-scripts';
 buildProto.displayName = 'build-proto';
+buildNseventforwarder.displayName = 'build-nseventforwarder';
 
 exports.build = series(
   compileScripts,
   parallel(makeBrowserifyPreload(false), makeBrowserifyRenderer(false)),
 );
 exports.buildProto = buildProto;
+exports.buildNseventforwarder = buildNseventforwarder;
 exports.makeWatchCompiler = makeWatchCompiler;

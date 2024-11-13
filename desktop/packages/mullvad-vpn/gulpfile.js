@@ -23,7 +23,10 @@ task(
   'build',
   series('clean', 'set-prod-env', parallel(assets.copyAll, scripts.buildProto), scripts.build),
 );
-task('develop', series('clean', 'set-dev-env', scripts.buildProto, watch.start));
+task(
+  'develop',
+  series('clean', 'set-dev-env', scripts.buildProto, scripts.buildNseventforwarder, watch.start),
+);
 task('pack-win', series('build', dist.packWin));
 task('pack-linux', series('build', dist.packLinux));
 task('pack-mac', series('build', dist.packMac));
