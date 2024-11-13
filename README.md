@@ -177,6 +177,13 @@ See [this](Release.md) for instructions on how to make a new release.
   interface UDS socket to users in the specified group. This means that only users in that group can
   use the CLI and GUI. By default, everyone has access to the socket.
 
+* `MULLVAD_BACKTRACE_ON_FAULT` - When enabled, if the daemon encounters a fault (e.g. `SIGSEGV`),
+  it will log a backtrace to stdout, and to `daemon.log`. By default, this is disabled in
+  release-builds and enabled in debug-builds. Set variable to `1` or `0` to explicitly enable or
+  disable this feature. Logging the backtrace cause heap allocation. Allocation is not signal safe,
+  but here it runs in the signal handler. This in technically undefined behavior and therefore
+  disabled by default. This usually works, but enable at your own risk.
+
 ### Development builds only
 
 * `MULLVAD_API_HOST` - Set the hostname to use in API requests. E.g. `api.mullvad.net`.
