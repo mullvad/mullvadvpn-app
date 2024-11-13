@@ -24,6 +24,7 @@ class TunnelObfuscationSettingsWatchingObservableObject<T: Equatable>: Observabl
             objectWillChange.send()
             var obfuscationSettings = tunnelManager.settings.wireGuardObfuscation
             obfuscationSettings[keyPath: keyPath] = newValue
+            tunnelManager.updateSettings([.obfuscation(obfuscationSettings)])
         }
     }
 
