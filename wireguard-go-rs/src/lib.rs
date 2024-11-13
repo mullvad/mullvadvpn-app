@@ -105,7 +105,8 @@ impl Tunnel {
         result_from_code(code)
     }
 
-    /// TODO: Document
+    /// Special function for android multihop since that behavior is different from desktop
+    /// and android non-multihop.
     ///
     /// The `logging_callback` let's you provide a Rust function that receives any logging output
     /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of

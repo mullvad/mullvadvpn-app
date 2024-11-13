@@ -99,7 +99,6 @@ async fn config_ephemeral_peers_inner(
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
 
-    // NOTE: this might be the entry?
     let exit_should_have_daita = config.daita && !config.is_multihop();
     let exit_psk = request_ephemeral_peer(
         retry_attempt,
@@ -162,8 +161,6 @@ async fn config_ephemeral_peers_inner(
         &tun_provider,
     )
     .await?;
-
-    log::info!("Config: {config:#?}");
 
     #[cfg(daita)]
     if config.daita {
