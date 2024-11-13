@@ -18,6 +18,7 @@ internal fun Notification.AccountExpiry.toNotification(context: Context) =
         .setContentTitle(context.resources.contentTitle(durationUntilExpiry))
         .setSmallIcon(R.drawable.small_logo_white)
         .setOngoing(ongoing)
+        .setOnlyAlertOnce(true)
         .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
         .build()
 

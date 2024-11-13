@@ -21,7 +21,6 @@ import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL
 import org.joda.time.DateTime
 import org.joda.time.Duration
-import org.joda.time.Period
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -64,7 +63,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
         accountExpiryInAppNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
             val expiry = setExpiry(notificationThreshold.minusHours(1))
-            assertExpiryNotificationAndPeriod(expiry, expectMostRecentItem())
+            assertExpiryNotificationDuration(expiry, expectMostRecentItem())
             expectNoEvents()
         }
     }
@@ -91,17 +90,17 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
             // Advance to after threshold
             advanceTimeBy(2.seconds)
-            assertExpiryNotificationAndPeriod(expiry, expectMostRecentItem())
+            assertExpiryNotificationDuration(expiry, expectMostRecentItem())
             expectNoEvents()
         }
     }
 
     @Test
-    fun `should emit zero period when the time expires`() = runTest {
+    fun `should emit zero duration when the time expires`() = runTest {
         accountExpiryInAppNotificationUseCase().test {
             assertTrue { awaitItem().isEmpty() }
 
-            // Set expiry to to be in the final update period.
+            // Set expiry to to be in the final update interval.
             val inLastUpdate =
                 DateTime.now()
                     .plus(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL)
@@ -110,7 +109,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
             // The expiry time is within the notification threshold so we should have an item
             // immediately.
-            assertExpiryNotificationAndPeriod(expiry, expectMostRecentItem())
+            assertExpiryNotificationDuration(expiry, expectMostRecentItem())
             expectNoEvents()
 
             // Advance past the delay before the while loop:
@@ -132,18 +131,16 @@ class AccountExpiryInAppNotificationUseCaseTest {
         return expiryDateTime
     }
 
-    // Assert that we go a single AccountExpiry notification and that the period is within
-    // the expected range (checking exact period values is not possible since we use DateTime.now)
-    private fun assertExpiryNotificationAndPeriod(
+    // Assert that we got a single AccountExpiry notification and that the expiry duration is within
+    // the expected range (checking exact duration value is not possible since we use DateTime.now)
+    private fun assertExpiryNotificationDuration(
         expiry: DateTime,
         notifications: List<InAppNotification>,
     ) {
         val notificationDuration = getExpiryNotificationDuration(notifications)
-        val periodNow = Period(DateTime.now(), expiry)
-        assertTrue(periodNow.toStandardDuration() <= notificationDuration)
-        assertTrue(
-            periodNow.toStandardDuration().plus(Duration.standardSeconds(5)) > notificationDuration
-        )
+        val expiresFromNow = Duration(DateTime.now(), expiry)
+        assertTrue(expiresFromNow <= notificationDuration)
+        assertTrue(expiresFromNow.plus(Duration.standardSeconds(5)) > notificationDuration)
     }
 
     private fun getExpiryNotificationDuration(notifications: List<InAppNotification>): Duration {
