@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.common.util
 
 import android.content.Context
 import net.mullvad.mullvadvpn.lib.common.R
+import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
@@ -43,10 +44,10 @@ private fun resolveAlwaysOnVpnErrorNotificationMessage(
     }
 }
 
-fun ErrorStateCause.errorMessageId(): Int {
-    return when (this) {
+fun ErrorStateCause.errorMessageId(): Int =
+    when (this) {
         is ErrorStateCause.InvalidDnsServers -> R.string.invalid_dns_servers
-        is ErrorStateCause.AuthFailed -> R.string.auth_failed
+        is ErrorStateCause.AuthFailed -> error.errorMessageId()
         is ErrorStateCause.Ipv6Unavailable -> R.string.ipv6_unavailable
         is ErrorStateCause.FirewallPolicyError -> R.string.set_firewall_policy_error
         is ErrorStateCause.DnsError -> R.string.set_dns_error
@@ -66,4 +67,11 @@ fun ErrorStateCause.errorMessageId(): Int {
         }
         is ErrorStateCause.VpnPermissionDenied -> R.string.vpn_permission_denied_error
     }
-}
+
+fun AuthFailedError.errorMessageId(): Int =
+    when (this) {
+        AuthFailedError.ExpiredAccount -> R.string.account_credit_has_expired
+        AuthFailedError.InvalidAccount,
+        AuthFailedError.TooManyConnections,
+        AuthFailedError.Unknown -> R.string.auth_failed
+    }
