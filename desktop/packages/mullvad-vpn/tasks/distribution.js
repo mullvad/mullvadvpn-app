@@ -60,7 +60,7 @@ const config = {
     'node_modules/',
     '!node_modules/grpc-tools',
     '!node_modules/@types',
-    '!node_modules/nseventmonitor/build/Release',
+    '!node_modules/nseventforwarder/target',
   ],
 
   // Make sure that all files declared in "extraResources" exists and abort if they don't.
@@ -84,7 +84,7 @@ const config = {
       target: 'pkg',
       arch: getMacArch(),
     },
-    singleArchFiles: 'node_modules/nseventmonitor/lib/binding/Release/**',
+    singleArchFiles: 'node_modules/nseventforwarder/dist/**',
     artifactName: 'MullvadVPN-${version}.${ext}',
     category: 'public.app-category.tools',
     icon: distAssets('icon-macos.icns'),
@@ -328,13 +328,15 @@ function packMac() {
     config: {
       ...config,
       asarUnpack: ['**/*.node'],
-      beforeBuild: (options) => {
+      beforeBuild: async (options) => {
         switch (options.arch) {
           case 'x64':
             process.env.TARGET_TRIPLE = 'x86_64-apple-darwin';
+            execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-x86']);
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-apple-darwin';
+            execFileSync('npm', ['-w', 'nseventforwarder', 'run', 'build-arm']);
             break;
           default:
             delete process.env.TARGET_TRIPLE;
@@ -347,17 +349,7 @@ function packMac() {
         return true;
       },
       beforePack: async (context) => {
-        try {
-          // `@electron/universal` tries to lipo together libraries built for the same architecture
-          // if they're present for both targets. So make sure we remove libraries for other archs.
-          // Remove the workaround once the issue has been fixed:
-          // https://github.com/electron/universal/issues/41#issuecomment-1496288834
-          await fs.promises.rm('node_modules/nseventmonitor/lib/binding/Release', {
-            recursive: true,
-          });
-        } catch {
-          // noop
-        }
+        await removeNseventforwarderNativeModules();
         config.beforePack?.(context);
       },
       afterPack: (context) => {
@@ -535,6 +527,21 @@ function getLinuxVersion() {
 function productVersion(extraArgs) {
   const args = ['run', '-q', '--bin', 'mullvad-version', ...extraArgs];
   return execFileSync('cargo', args, { encoding: 'utf-8' }).trim();
+}
+
+// `@electron/universal` tries to lipo together libraries built for the same architecture
+// if they're present for both targets. So make sure we remove libraries for other archs.
+// Remove the workaround once the issue has been fixed:
+// https://github.com/electron/universal/issues/41#issuecomment-1496288834
+//
+// dist/darwin-x64/index.node
+// dist/darwin-arm64/index.node
+async function removeNseventforwarderNativeModules() {
+  try {
+    await fs.promises.rm('../../node_modules/nseventforwarder/dist/', { recursive: true });
+  } catch {
+    // noop
+  }
 }
 
 packWin.displayName = 'builder-win';

@@ -487,7 +487,7 @@ export default class UserInterface implements WindowControllerDelegate {
     });
   }
 
-  // setup NSEvent monitor to fix inconsistent window.blur on macOS
+  // setup NSEvent forwarder to fix inconsistent window.blur on macOS
   // see https://github.com/electron/electron/issues/8689
   private installMacOsMenubarAppWindowHandlers() {
     if (this.delegate.isUnpinnedWindow()) {
@@ -495,14 +495,14 @@ export default class UserInterface implements WindowControllerDelegate {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { NSEventMonitor, NSEventMask } = require('nseventmonitor');
-    const macEventMonitor = new NSEventMonitor();
-    const eventMask = NSEventMask.leftMouseDown | NSEventMask.rightMouseDown;
+    const nseventforwarder = require('nseventforwarder');
+    let nseventforwarderStop: ReturnType<typeof nseventforwarder.start>;
 
-    this.windowController.window?.on('show', () =>
-      macEventMonitor.start(eventMask, () => this.windowController.hide()),
+    this.windowController.window?.on(
+      'show',
+      () => (nseventforwarderStop = nseventforwarder.start(() => this.windowController.hide())),
     );
-    this.windowController.window?.on('hide', () => macEventMonitor.stop());
+    this.windowController.window?.on('hide', () => nseventforwarderStop?.());
     this.windowController.window?.on('blur', () => {
       // Make sure to hide the menubar window when other program captures the focus.
       // But avoid doing that when dev tools capture the focus to make it possible to inspect the UI
