@@ -1,4 +1,16 @@
 #![cfg(target_os = "linux")]
+//! Test mitigation for cve-2019-14899
+//!
+//! The vulnerability allowed a malicious router to learn the victims private mullvad tunnel IP.
+//! It is performed by sending a TCP packet to the victim with SYN and ACK flags set.
+//!
+//! If the destination_addr of the packet was the same as the private IP, the victims computer
+//! would respond to the packet with the RST flag set.
+//!
+//! This test simply gets the private tunnel IP from the test runner and sends the SYN/ACK packet
+//! targeted to that address. If the guest does not respond, the test passes.
+//!
+//! Note that only linux was susceptible to this vulnerability.
 
 use std::{
     convert::Infallible,
@@ -30,27 +42,13 @@ use test_rpc::ServiceClient;
 use tokio::{task::yield_now, time::sleep};
 
 use crate::{
-    tests::helpers,
+    tests::{helpers, TestContext},
     vm::network::{linux::TAP_NAME, NON_TUN_GATEWAY},
 };
-
-use super::TestContext;
 
 /// The port number we set in the malicious packet.
 const MALICIOUS_PACKET_PORT: u16 = 12345;
 
-/// Test mitigation for cve-2019-14899.
-///
-/// The vulnerability allowed a malicious router to learn the victims private mullvad tunnel IP.
-/// It is performed by sending a TCP packet to the victim with SYN and ACK flags set.
-///
-/// If the destination_addr of the packet was the same as the private IP, the victims computer
-/// would respond to the packet with the RST flag set.
-///
-/// This test simply gets the private tunnel IP from the test runner and sends the SYN/ACK packet
-/// targeted to that address. If the guest does not respond, the test passes.
-///
-/// Note that only linux was susceptible to this vulnerability.
 #[test_function(target_os = "linux")]
 pub async fn test_cve_2019_14899_mitigation(
     _: TestContext,
