@@ -137,7 +137,7 @@ impl WgGoTunnel {
 }
 
 // TODO: Does this need to be pub?
-pub struct WgGoTunnelState {
+pub(crate) struct WgGoTunnelState {
     interface_name: String,
     tunnel_handle: wireguard_go_rs::Tunnel,
     // holding on to the tunnel device and the log file ensures that the associated file handles
@@ -189,32 +189,6 @@ impl WgGoTunnelState {
         }
 
         Ok(())
-    }
-}
-
-// TODO: move into impl of Config
-#[cfg(target_os = "android")]
-pub(crate) fn exit_config(multihop_config: &Config) -> Option<Config> {
-    let mut exit_config = multihop_config.clone();
-    exit_config.entry_peer = multihop_config.exit_peer.clone()?;
-    Some(exit_config)
-}
-
-// TODO: move into impl of Config
-#[cfg(target_os = "android")]
-pub(crate) fn entry_config(multihop_config: &Config) -> Config {
-    let mut entry_config = multihop_config.clone();
-    entry_config.exit_peer = None;
-    entry_config
-}
-
-// TODO: move into impl of Config
-#[cfg(target_os = "android")]
-fn private_ip(config: &Config) -> CString {
-    if let Some(ip) = config.tunnel.addresses.iter().find(|addr| addr.is_ipv4()) {
-        CString::new(ip.to_string()).unwrap()
-    } else {
-        CString::default()
     }
 }
 
@@ -359,14 +333,14 @@ impl WgGoTunnel {
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
 
-        let entry_config = entry_config(config);
-        let exit_config = exit_config(config);
+        let entry_config = config.entry_config();
+        let exit_config = config.exit_config();
 
         // multihop
         let exit_config = exit_config.unwrap();
         let entry_config_str = entry_config.to_userspace_format();
         let exit_config_str = exit_config.to_userspace_format();
-        let private_ip = private_ip(config);
+        let private_ip = config.private_ip();
 
         let handle = wireguard_go_rs::Tunnel::turn_on_multihop(
             &exit_config_str,
