@@ -10,3 +10,4 @@ performed on this app so far:
 * [2018-09-24 - Assured and Cure53](./2018-09-24-assured-cure53.md)
 * [2020-06-12 - Cure53](./2020-06-12-cure53.md)
 * [2022-10-14 - Atredis](./2022-10-14-atredis.md)
+* [2024-12-10 - X41 D-Sec](./2024-12-10-X41-D-Sec.md)
