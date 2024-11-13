@@ -590,7 +590,6 @@ impl WireguardMonitor {
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
     ///
-    /// TODO: This might need some patchin' now when multihop is a thing.
     #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
@@ -750,7 +749,9 @@ impl WireguardMonitor {
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
     ) -> Result<WgGoTunnel> {
-        let routes = Self::get_tunnel_destinations(config).flat_map(Self::replace_default_prefixes);
+        let routes = config
+            .get_tunnel_destinations()
+            .flat_map(Self::replace_default_prefixes);
 
         #[cfg(not(target_os = "android"))]
         let tunnel = WgGoTunnel::start_tunnel(
@@ -904,7 +905,8 @@ impl WireguardMonitor {
             gateway_routes.map(|route| Self::apply_route_mtu_for_multihop(route, config));
 
         let routes = gateway_routes.chain(
-            Self::get_tunnel_destinations(config)
+            config
+                .get_tunnel_destinations()
                 .filter(|allowed_ip| allowed_ip.prefix() != 0)
                 .map(move |allowed_ip| {
                     if allowed_ip.is_ipv4() {
@@ -925,7 +927,8 @@ impl WireguardMonitor {
         config: &'a Config,
     ) -> impl Iterator<Item = RequiredRoute> + 'a {
         let (node_v4, node_v6) = Self::get_tunnel_nodes(iface_name, config);
-        let iter = Self::get_tunnel_destinations(config)
+        let iter = config
+            .get_tunnel_destinations()
             .filter(|allowed_ip| allowed_ip.prefix() == 0)
             .flat_map(Self::replace_default_prefixes)
             .map(move |allowed_ip| {
@@ -965,12 +968,6 @@ impl WireguardMonitor {
 
             route.mtu(mtu)
         }
-    }
-
-    // TODO: Remove?
-    /// Return routes for all allowed IPs.
-    fn get_tunnel_destinations(config: &Config) -> impl Iterator<Item = ipnetwork::IpNetwork> + '_ {
-        config.get_tunnel_destinations()
     }
 
     /// Replace default (0-prefix) routes with more specific routes.
