@@ -17,7 +17,7 @@ annotation class HasDependencyOnLocalAPI {
         override fun evaluateExecutionCondition(
             context: ExtensionContext?
         ): ConditionEvaluationResult {
-            val enable = BuildConfig.ENABLE_ACCESS_TO_LOCAL_API_TESTS.toBoolean() ?: false
+            val enable = BuildConfig.ENABLE_ACCESS_TO_LOCAL_API_TESTS.toBoolean()
 
             return if (enable) {
                 ConditionEvaluationResult.enabled(
