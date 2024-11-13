@@ -771,7 +771,7 @@ impl WireguardMonitor {
         // At this point, when the tunnel *is first started*, we establish a regular, singlehop
         // tunnel to where the ephemeral peer resides.
         //
-        // TODO: Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+        // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
         #[cfg(target_os = "android")]
         let config = Self::patch_allowed_ips(config, gateway_only);
         #[cfg(target_os = "android")]
