@@ -17,6 +17,9 @@ fun UiObject2.findObjectByCaseInsensitiveText(text: String): UiObject2 {
     return findObjectWithTimeout(By.text(Pattern.compile(text, Pattern.CASE_INSENSITIVE)))
 }
 
+fun UiDevice.hasObjectWithTimeout(selector: BySelector, timeout: Long = DEFAULT_TIMEOUT): Boolean =
+    wait(Until.hasObject(selector), timeout)
+
 fun UiDevice.findObjectWithTimeout(
     selector: BySelector,
     timeout: Long = DEFAULT_TIMEOUT,
