@@ -5,9 +5,11 @@ import android.provider.Settings
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
 import java.util.regex.Pattern
 import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.extension.hasObjectWithTimeout
 import org.junit.jupiter.api.extension.BeforeTestExecutionCallback
 import org.junit.jupiter.api.extension.ExtensionContext
 
@@ -22,20 +24,35 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
         )
         val vpnSettingsButtons =
             device.findObjects(By.res(SETTINGS_PACKAGE, VPN_SETTINGS_BUTTON_ID))
-        vpnSettingsButtons.forEach { button ->
-            button.click()
+        vpnSettingsButtons
+            .filter { !it.isHardcodedVpn() }
+            .forEach { button ->
+                button.click()
 
-            try {
-                device.findObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT)).click()
-                device.findObjectByCaseInsensitiveText(FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT).click()
-            } catch (_: Exception) {
-                device.findObjectWithTimeout(By.text(DELETE_VPN_PROFILE_TEXT)).click()
-                device.findObjectWithTimeout(By.text(DELETE_VPN_CONFIRM_BUTTON_TEXT_REGEXP)).click()
+                if (device.hasObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT))) {
+                    device.findObjectWithTimeout(By.text(FORGET_VPN_VPN_BUTTON_TEXT)).click()
+                    device
+                        .findObjectByCaseInsensitiveText(FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT)
+                        .click()
+                } else if (device.hasObjectWithTimeout(By.text(DELETE_VPN_PROFILE_TEXT))) {
+                    device.findObjectWithTimeout(By.text(DELETE_VPN_PROFILE_TEXT)).click()
+                    device
+                        .findObjectWithTimeout(By.text(DELETE_VPN_CONFIRM_BUTTON_TEXT_REGEXP))
+                        .click()
+                } else {
+                    error("Unable to find forget or delete button")
+                }
             }
-        }
     }
 
+    private fun UiObject2.isHardcodedVpn(): Boolean =
+        parent.parent.children.any { uiObject ->
+            HARDCODED_VPN_PROFILE_NAMES.any { uiObject.hasObject(By.text(it)) }
+        }
+
     companion object {
+        private val HARDCODED_VPN_PROFILE_NAMES = listOf("VPN by Google")
+
         private const val FORGET_VPN_VPN_BUTTON_TEXT = "Forget VPN"
         private const val DELETE_VPN_PROFILE_TEXT = "Delete VPN profile"
         private const val FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT = "Forget"
