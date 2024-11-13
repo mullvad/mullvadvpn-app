@@ -194,6 +194,29 @@ impl Config {
     }
 }
 
+#[cfg(target_os = "android")]
+impl Config {
+    pub(crate) fn exit_config(&self) -> Option<Config> {
+        let mut exit_config = self.clone();
+        exit_config.entry_peer = self.exit_peer.clone()?;
+        Some(exit_config)
+    }
+
+    pub(crate) fn entry_config(&self) -> Config {
+        let mut entry_config = self.clone();
+        entry_config.exit_peer = None;
+        entry_config
+    }
+
+    pub(crate) fn private_ip(&self) -> CString {
+        if let Some(ip) = self.tunnel.addresses.iter().find(|addr| addr.is_ipv4()) {
+            CString::new(ip.to_string()).unwrap()
+        } else {
+            CString::default()
+        }
+    }
+}
+
 enum ConfValue<'a> {
     String(&'a str),
     Bytes(&'a [u8]),

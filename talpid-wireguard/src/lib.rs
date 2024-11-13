@@ -54,7 +54,7 @@ mod mtu_detection;
 #[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
 
-// TODO: Document why we have a type alias !
+// On android we only have Wireguard Go tunnel
 #[cfg(not(target_os = "android"))]
 type TunnelType = Box<dyn Tunnel>;
 #[cfg(target_os = "android")]
