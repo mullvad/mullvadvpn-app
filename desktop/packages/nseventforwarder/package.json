@@ -1,0 +1,41 @@
+{
+  "name": "nseventforwarder",
+  "version": "0.0.0",
+  "author": "Mullvad VPN",
+  "license": "GPL-3.0",
+  "description": "",
+  "main": "./lib/index.cjs",
+  "scripts": {
+    "cargo-build": "tsc && cargo build",
+    "build-debug": "npm run cargo-build && cp target/debug/libnseventforwarder.dylib target/debug/index.node",
+    "build-arm": "bash ./build.sh --target aarch64-apple-darwin",
+    "build-x86": "bash ./build.sh --target x86_64-apple-darwin",
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix ."
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.mts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.cts",
+        "default": "./lib/index.cjs"
+      }
+    }
+  },
+  "types": "./lib/index.d.cts",
+  "files": [
+    "lib/**/*.?({c,m}){t,j}s"
+  ],
+  "neon": {
+    "type": "library",
+    "org": "mullvad-vpn",
+    "platforms": "common",
+    "load": "./src/load.cts"
+  },
+  "dependencies": {
+    "@neon-rs/load": "^0.1.73"
+  }
+}
