@@ -401,7 +401,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .dnsSettings, .ipOverrides, .privacyAndSecurity:
+        case .dnsSettings, .ipOverrides, .privacyAndSecurity, .udpOverTcpObfuscationSettings:
             return .leastNonzeroMagnitude
         default:
             return tableView.estimatedRowHeight
