@@ -63,6 +63,11 @@ id = "CVE-2024-47554" # GHSA-78wr-2p64-hpwj
 ignoreUntil = 2025-02-02
 reason = "No impact since the app doesn't process externally crafted XML."
 
+[[IgnoredVulns]]
+id = "CVE-2024-47535" # GHSA-xq3w-v528-46rv
+ignoreUntil = 2025-02-13
+reason = "Only impacting Windows."
+
 [[PackageOverrides]]
 name = "org.bouncycastle:bcprov-jdk15on"
 ecosystem = "Maven"
