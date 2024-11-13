@@ -8,4 +8,4 @@ pub use win::enable;
 mod unix;
 
 #[cfg(unix)]
-pub use unix::enable;
+pub use unix::{enable, set_log_file};
