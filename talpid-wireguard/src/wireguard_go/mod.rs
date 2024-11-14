@@ -136,7 +136,6 @@ impl WgGoTunnel {
     }
 }
 
-// TODO: Does this need to be pub?
 pub(crate) struct WgGoTunnelState {
     interface_name: String,
     tunnel_handle: wireguard_go_rs::Tunnel,
