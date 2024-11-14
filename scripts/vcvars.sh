@@ -9,7 +9,7 @@
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-source "$SCRIPT_DIR/scripts/utils/host"
+source "$SCRIPT_DIR/utils/host"
 
 case $HOST in
     x86_64-pc-windows-msvc) HOST_TARGET=x64;;
