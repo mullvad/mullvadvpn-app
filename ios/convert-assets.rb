@@ -10,7 +10,10 @@ XCASSETS_DIR = File.join(SCRIPT_DIR, "MullvadVPN/Supporting Files/Assets.xcasset
 
 # graphical assets sources
 APPICON_PATH = File.join(ROOT_DIR, "graphics/icon-square.svg")
-GRAPHICAL_ASSETS_DIR = File.join(ROOT_DIR, "gui/assets/images")
+GRAPHICAL_ASSETS_DIR = File.join(
+  ROOT_DIR,
+  "desktop/packages/mullvad-vpn/assets/images"
+)
 ADDITIONAL_ASSETS_DIR = File.join(SCRIPT_DIR, "AdditionalAssets")
 
 # app icon output

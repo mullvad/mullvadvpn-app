@@ -1,0 +1,40 @@
+{
+  "name": "desktop",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "author": {
+    "name": "Mullvad VPN",
+    "email": "support@mullvadvpn.net"
+  },
+  "repository": "https://github.com/mullvad/mullvadvpn-app",
+  "license": "GPL-3.0",
+  "scripts": {
+    "lint": "eslint --ignore-pattern packages/ . && npm run lint --workspaces --if-present",
+    "lint-fix": "eslint --fix --ignore-pattern packages/ . && npm run lint-fix --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.10.0",
+    "@types/eslint__js": "^8.42.3",
+    "@types/node": "^20.12.11",
+    "eslint": "^9.10.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.2.1",
+    "eslint-plugin-simple-import-sort": "^12.1.1",
+    "prettier": "^3.3.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^8.6.0"
+  },
+  "engines": {
+    "node": ">=16",
+    "npm": ">=8.3"
+  },
+  "volta": {
+    "node": "20.13.0",
+    "npm": "9.9.0"
+  }
+}

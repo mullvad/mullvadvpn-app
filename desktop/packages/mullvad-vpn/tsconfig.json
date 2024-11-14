@@ -1,0 +1,36 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "esModuleInterop": true,
+    "jsx": "react-jsx",
+    "module": "commonjs",
+    "outDir": "build",
+    "rootDirs": [
+      "src",
+      "assets"
+    ],
+    "skipLibCheck": true,
+    "target": "es2021",
+    "lib": [
+      "es2021",
+      "dom"
+    ],
+    "typeRoots": [
+      "./types",
+      "node_modules/@types",
+      "../../node_modules/@types"
+    ]
+  },
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "playwright.config.ts",
+    "standalone-tests.ts",
+    "scripts/**/*.ts",
+    "test/**/*.ts",
+    "assets/geo/*.json"
+  ]
+}

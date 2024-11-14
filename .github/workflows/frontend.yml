@@ -4,7 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/frontend.yml
-      - gui/**
+      - desktop/**
       - mullvad-management-interface/proto/**
   workflow_dispatch:
 
@@ -34,46 +34,46 @@ jobs:
       - name: Setup node
         uses: actions/setup-node@v4
         with:
-          node-version-file: gui/package.json
+          node-version-file: desktop/package.json
           cache: 'npm'
-          cache-dependency-path: gui/package-lock.json
+          cache-dependency-path: desktop/package-lock.json
 
       - name: Install dependencies
-        working-directory: gui
+        working-directory: desktop
         shell: bash
         run: npm ci
 
       - name: Check formatting
         if: matrix.os == 'ubuntu-latest'
-        working-directory: gui
+        working-directory: desktop
         shell: bash
         run: npm run lint
 
       - name: Build
-        working-directory: gui
+        working-directory: desktop
         shell: bash
-        run: npm run build
+        run: npm run build -w mullvad-vpn
 
       - name: Run headless test Linux
         if: runner.os == 'Linux'
-        working-directory: gui
+        working-directory: desktop
         run: xvfb-run -a npm test
 
       - name: Run headless test Windows
         if: runner.os != 'Linux'
-        working-directory: gui
+        working-directory: desktop
         shell: bash
         run: npm test
 
       - name: Run Playwright tests on Linux
         if: runner.os == 'Linux'
-        working-directory: gui
+        working-directory: desktop
         # The sandbox is disabled as a workaround for lacking userns permisisons which is required
         # since Ubuntu 24.04.
-        run: NO_SANDBOX=1 npm run e2e:no-build
+        run: NO_SANDBOX=1 npm run e2e:no-build -w mullvad-vpn
 
       - name: Run Playwright tests on Windows
         if: runner.os != 'Linux'
-        working-directory: gui
+        working-directory: desktop
         shell: bash
-        run: npm run e2e:no-build
+        run: npm run e2e:no-build --w mullvad-vpn

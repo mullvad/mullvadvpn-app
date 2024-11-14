@@ -28,7 +28,7 @@ function main {
 function sync_localizations {
     # Update desktop strings in messages.pot
     log_header "Extracting localization strings from desktop app source code"
-    pushd ../gui
+    pushd ../desktop/packages/mullvad-vpn
     npm run update-translations
     popd
 
@@ -41,7 +41,7 @@ function sync_localizations {
 
 function update_relay_locations_pot {
     log_header "Retrieving relay locations from server list and translating by using map data"
-    pushd ../gui/scripts
+    pushd ../desktop/packages/mullvad-vpn/scripts
 
     # Add translations from geo data
     python3 fetch-relay-locations.py
@@ -73,7 +73,7 @@ function upload_to_crowdin {
 
     log_header "Uploading translations to crowdin"
 
-    pushd ../gui
+    pushd ../desktop/packages/mullvad-vpn
     crowdin upload sources
     crowdin upload translations
     popd
@@ -83,7 +83,7 @@ function download_from_crowdin {
     ensure_crowdin_api_key
 
     log_header "Downloading translations from crowdin"
-    pushd ../gui
+    pushd ../desktop/packages/mullvad-vpn
     crowdin download
     popd
 
@@ -101,8 +101,8 @@ function verify {
     ! git status -s | grep .
     local out_of_sync=$?
 
-    pushd ../gui/scripts
-    npm exec ts-node verify-translations-format.ts
+    pushd ../desktop/packages/mullvad-vpn
+    npm exec ts-node scripts/verify-translations-format.ts
     local incorrect_format=$?
     popd
 
