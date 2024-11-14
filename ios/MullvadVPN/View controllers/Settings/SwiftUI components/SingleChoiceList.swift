@@ -36,7 +36,7 @@ struct SingleChoiceList<Item>: View where Item: Hashable {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text(title).fontWeight(.bold)
+                Text(title).fontWeight(.semibold)
                 Spacer()
             }
             .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
