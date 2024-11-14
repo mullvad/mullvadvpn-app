@@ -12,7 +12,7 @@ mod vm;
 use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Result};
-use clap::Parser;
+use clap::{builder::PossibleValuesParser, Parser};
 use tests::{config::TEST_CONFIG, get_filtered_tests};
 use vm::provision;
 
@@ -73,6 +73,11 @@ enum Commands {
         /// Show display of guest
         #[arg(long, group = "display_args")]
         display: bool,
+
+        /// API and conncheck environment to use, such as "mullvad.net" or "stagemole.eu".
+        /// The domain name will be prefixed with "api." and "ipv4.am.i.".
+        #[arg(long, value_parser = PossibleValuesParser::new(&["mullvad.net", "stagemole.eu", "devmole.eu"]))]
+        mullvad_host: Option<String>,
 
         /// Run VNC server on a specified port
         #[arg(long, group = "display_args")]
@@ -236,6 +241,7 @@ async fn main() -> Result<()> {
         Commands::RunTests {
             vm,
             display,
+            mullvad_host,
             vnc,
             account,
             app_package,
@@ -256,6 +262,10 @@ async fn main() -> Result<()> {
                 (true, true) => unreachable!("invalid combination"),
             };
 
+            if let Some(mullvad_host) = mullvad_host {
+                log::debug!("Setting Mullvad host using --mullvad-host flag");
+                config.mullvad_host = Some(mullvad_host);
+            }
             let mullvad_host = config.get_host();
             log::debug!("Mullvad host: {mullvad_host}");
 
