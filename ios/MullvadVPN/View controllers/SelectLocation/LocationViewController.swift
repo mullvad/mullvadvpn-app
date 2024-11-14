@@ -72,11 +72,6 @@ final class LocationViewController: UIViewController {
         }
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        dataSource?.scrollToSelectedRelay()
-    }
-
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         tableView.flashScrollIndicators()
@@ -97,7 +92,7 @@ final class LocationViewController: UIViewController {
     }
 
     func refreshCustomLists() {
-        dataSource?.refreshCustomLists(selectedRelays: selectedRelays)
+        dataSource?.refreshCustomLists()
     }
 
     func setSelectedRelays(_ selectedRelays: RelaySelection) {
