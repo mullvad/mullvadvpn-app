@@ -38,9 +38,7 @@ use futures::{
 };
 use geoip::GeoIpHandler;
 use management_interface::ManagementInterfaceServer;
-use mullvad_relay_selector::{
-    AdditionalRelayConstraints, AdditionalWireguardConstraints, RelaySelector, SelectorConfig,
-};
+use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -636,7 +634,7 @@ impl Daemon {
             settings_event_listener.notify_settings(settings.to_owned());
         });
 
-        let initial_selector_config = new_selector_config(&settings);
+        let initial_selector_config = SelectorConfig::from_settings(&settings);
         let relay_selector = RelaySelector::new(
             initial_selector_config,
             resource_dir.join(RELAYS_FILENAME),
@@ -648,7 +646,7 @@ impl Daemon {
             // Notify relay selector of changes to the settings/selector config
             settings_relay_selector
                 .clone()
-                .set_config(new_selector_config(settings));
+                .set_config(SelectorConfig::from_settings(settings));
         });
 
         let (access_mode_handler, access_mode_provider) = api::AccessModeSelector::spawn(
@@ -3042,38 +3040,6 @@ impl DaemonShutdownHandle {
         let _ = self
             .tx
             .send(InternalDaemonEvent::TriggerShutdown(user_init_shutdown));
-    }
-}
-
-fn new_selector_config(settings: &Settings) -> SelectorConfig {
-    let additional_constraints = AdditionalRelayConstraints {
-        wireguard: AdditionalWireguardConstraints {
-            #[cfg(daita)]
-            daita: settings.tunnel_options.wireguard.daita.enabled,
-            #[cfg(daita)]
-            daita_use_multihop_if_necessary: settings
-                .tunnel_options
-                .wireguard
-                .daita
-                .use_multihop_if_necessary,
-
-            #[cfg(not(daita))]
-            daita: false,
-            #[cfg(not(daita))]
-            daita_use_multihop_if_necessary: false,
-
-            quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
-        },
-    };
-
-    SelectorConfig {
-        relay_settings: settings.relay_settings.clone(),
-        additional_constraints,
-        bridge_state: settings.bridge_state,
-        bridge_settings: settings.bridge_settings.clone(),
-        obfuscation_settings: settings.obfuscation_settings.clone(),
-        custom_lists: settings.custom_lists.clone(),
-        relay_overrides: settings.relay_overrides.clone(),
     }
 }
 

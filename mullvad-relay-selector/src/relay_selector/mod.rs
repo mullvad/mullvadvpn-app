@@ -118,6 +118,40 @@ pub struct SelectorConfig {
     pub bridge_settings: BridgeSettings,
 }
 
+impl SelectorConfig {
+    pub fn from_settings(settings: &Settings) -> Self {
+        let additional_constraints = AdditionalRelayConstraints {
+            wireguard: AdditionalWireguardConstraints {
+                #[cfg(daita)]
+                daita: settings.tunnel_options.wireguard.daita.enabled,
+                #[cfg(daita)]
+                daita_use_multihop_if_necessary: settings
+                    .tunnel_options
+                    .wireguard
+                    .daita
+                    .use_multihop_if_necessary,
+
+                #[cfg(not(daita))]
+                daita: false,
+                #[cfg(not(daita))]
+                daita_use_multihop_if_necessary: false,
+
+                quantum_resistant: settings.tunnel_options.wireguard.quantum_resistant,
+            },
+        };
+
+        Self {
+            relay_settings: settings.relay_settings.clone(),
+            additional_constraints,
+            bridge_state: settings.bridge_state,
+            bridge_settings: settings.bridge_settings.clone(),
+            obfuscation_settings: settings.obfuscation_settings.clone(),
+            custom_lists: settings.custom_lists.clone(),
+            relay_overrides: settings.relay_overrides.clone(),
+        }
+    }
+}
+
 /// Extra relay constraints not specified in `relay_settings`.
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
 pub struct AdditionalRelayConstraints {
