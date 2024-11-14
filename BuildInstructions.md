@@ -143,6 +143,15 @@ In addition to the above requirements:
   `INCLUDE` also needs to include the correct headers for clang. This can be found by running
   `vcvarsall.bat arm64` and typing `set INCLUDE`.
 
+- `grpc-tools` currently doesn't include ARM builds. The x64 binaries must be installed to build
+  the Electron app:
+
+  ```
+  pushd gui
+  npm install --target_arch=x64 grpc-tools
+  popd
+  ```
+
 ## macOS
 
 The host has to have the following installed:
