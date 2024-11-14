@@ -6,7 +6,9 @@ INSTALL_DIR=$2
 
 # Workaround for issue in electron-builder where the pkg-scripts are run twice, once with the
 # correct install dir and once with an incorrect one. This guard prevents running the script when
-# called the second time. This can be reverted when the following issue has been fixed:
+# called the second time.
+#
+# TODO: This can be reverted when the following issue has been fixed:
 # https://github.com/electron-userland/electron-builder/issues/8166
 if [[ $INSTALL_DIR == *"Mullvad VPN.app" ]]; then
     exit 0
@@ -40,14 +42,5 @@ fi
 rm "$NEW_CACHE_DIR/relays.json" || true
 rm "$NEW_CACHE_DIR/api-ip-address.txt" || true
 
-# Remove deprecated exclusion group. This line can be removed when 2023.4 is no longer supported
-dscl . -delete /groups/mullvad-exclusion &>/dev/null || true
-
 # Kill the GUI before proceeding with the upgrade.
-#
-# When we drop support for all app versions older than 2022.5, we can skip this
-# check and always try to kill the GUI.
-if "$INSTALL_DIR/Mullvad VPN.app/Contents/Resources/mullvad-setup" is-older-version 2022.5; then
-    pkill -x "Mullvad VPN" || echo "Unable to kill GUI, not running?"
-    sleep 1
-fi
+pkill -x "Mullvad VPN" && sleep 1 || echo "Unable to kill GUI, not running?"
