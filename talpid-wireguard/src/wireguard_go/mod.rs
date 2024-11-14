@@ -427,11 +427,7 @@ impl Tunnel for WgGoTunnel {
 
         log::info!("Initializing DAITA for wireguard device");
         let config = &self.as_state().config;
-
-        let peer_public_key = match config.exit_peer.as_ref() {
-            Some(exit) => &exit.public_key,
-            None => &config.entry_peer.public_key,
-        };
+        let peer_public_key = &config.entry_peer.public_key;
 
         self.as_state()
             .tunnel_handle
