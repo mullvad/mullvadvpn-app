@@ -1,4 +1,6 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
+#
+# Keep this file in sync with test/deny.toml
 
 # `instant` is unmaintained.
 [[IgnoredVulns]]

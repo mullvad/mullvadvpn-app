@@ -1,5 +1,7 @@
 # List of ignored known vulnerabilities
 #
+# Keep this file in sync with deny.toml
+#
 # When osv-scanner reports a vulnerability, evaluate if the vulnerability affects the security
 # of our app. If it does, escalate the issue and discuss in the team and with tech leadership.
 # If the vulnerability does *not* affect the security of the app, there are three ways to fix it.
