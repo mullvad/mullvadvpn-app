@@ -74,6 +74,11 @@ enum Commands {
         #[arg(long, group = "display_args")]
         display: bool,
 
+        /// API and conncheck environment to use, such as "mullvad.net" or "stagemole.eu".
+        /// The domain name will be prefixed with "api." and "ipv4.am.i.".
+        #[arg(long)]
+        mullvad_host: Option<String>,
+
         /// Run VNC server on a specified port
         #[arg(long, group = "display_args")]
         vnc: Option<u16>,
@@ -236,6 +241,7 @@ async fn main() -> Result<()> {
         Commands::RunTests {
             vm,
             display,
+            mullvad_host,
             vnc,
             account,
             app_package,
@@ -256,6 +262,10 @@ async fn main() -> Result<()> {
                 (true, true) => unreachable!("invalid combination"),
             };
 
+            if let Some(mullvad_host) = mullvad_host {
+                // Override environment using flag
+                config.mullvad_host = Some(mullvad_host);
+            }
             let mullvad_host = config.get_host();
             log::debug!("Mullvad host: {mullvad_host}");
 
