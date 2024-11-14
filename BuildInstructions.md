@@ -95,9 +95,12 @@ The host has to have the following installed:
 
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
+
   ```
-  C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\amd64
+  C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Current\Bin\<arch>
   ```
+
+  Where `<arch>` refers to the host architecture, either `amd64` or `arm64`.
 
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
   You are recommended to use [Git for Windows].
@@ -124,6 +127,21 @@ for ARM64 on x64. This requires:
 ```bash
 rustup target add aarch64-pc-windows-msvc
 ```
+
+### Compiling *on* Windows Arm
+
+In addition to the above requirements:
+
+- `x86_64-pc-windows-msvc` is required to build `talpid-openvpn-plugin`:
+
+  ```bash
+  rustup target add x86_64-pc-windows-msvc
+  ```
+
+- `clang` is required (can be found in the Visual Studio installer) in `PATH`.
+
+  `INCLUDE` also needs to include the correct headers for clang. This can be found by running
+  `vcvarsall.bat arm64` and typing `set INCLUDE`.
 
 ## macOS
 
