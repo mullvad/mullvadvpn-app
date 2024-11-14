@@ -6,7 +6,9 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
+import androidx.test.uiautomator.Until
 import java.util.regex.Pattern
+import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectByCaseInsensitiveText
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.extension.hasObjectWithTimeout
@@ -22,8 +24,11 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
-        val vpnSettingsButtons =
-            device.findObjects(By.res(SETTINGS_PACKAGE, VPN_SETTINGS_BUTTON_ID))
+
+        val vpnSettingsSelector = By.res(SETTINGS_PACKAGE, VPN_SETTINGS_BUTTON_ID)
+        device.wait(Until.hasObject(vpnSettingsSelector), DEFAULT_TIMEOUT)
+        val vpnSettingsButtons = device.findObjects(vpnSettingsSelector)
+
         vpnSettingsButtons
             .filter { !it.isHardcodedVpn() }
             .forEach { button ->
