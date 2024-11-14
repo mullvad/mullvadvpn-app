@@ -246,7 +246,7 @@ impl<'a> ResolvedLocationConstraint<'a> {
                         ResolvedLocationConstraint(custom_list.locations.iter().collect())
                     })
                     .unwrap_or_else(|| {
-                        log::warn!("Resolved non-existent custom list");
+                        log::warn!("Resolved non-existent custom list with id {list_id:?}");
                         ResolvedLocationConstraint(vec![])
                     }),
             }),
