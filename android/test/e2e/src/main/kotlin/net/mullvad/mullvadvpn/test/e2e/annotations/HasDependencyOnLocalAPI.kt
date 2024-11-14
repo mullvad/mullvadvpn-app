@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.test.e2e.annotations
 
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import androidx.test.platform.app.InstrumentationRegistry
+import net.mullvad.mullvadvpn.test.e2e.constant.ENABLE_ACCESS_TO_LOCAL_API_TESTS
+import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
 import org.junit.jupiter.api.extension.ConditionEvaluationResult
 import org.junit.jupiter.api.extension.ExecutionCondition
 import org.junit.jupiter.api.extension.ExtendWith
@@ -17,7 +19,11 @@ annotation class HasDependencyOnLocalAPI {
         override fun evaluateExecutionCondition(
             context: ExtensionContext?
         ): ConditionEvaluationResult {
-            val enable = BuildConfig.ENABLE_ACCESS_TO_LOCAL_API_TESTS.toBoolean()
+
+            val enable =
+                InstrumentationRegistry.getArguments()
+                    .getRequiredArgument(ENABLE_ACCESS_TO_LOCAL_API_TESTS)
+                    .toBoolean()
 
             return if (enable) {
                 ConditionEvaluationResult.enabled(

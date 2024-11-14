@@ -35,8 +35,6 @@ android {
         Properties().apply {
             load(project.file("e2e.properties").inputStream())
             addRequiredPropertyAsBuildConfigField("API_VERSION")
-            addRequiredPropertyAsBuildConfigField("ENABLE_HIGHLY_RATE_LIMITED_TESTS")
-            addRequiredPropertyAsBuildConfigField("ENABLE_ACCESS_TO_LOCAL_API_TESTS")
             addRequiredPropertyAsBuildConfigField("TRAFFIC_GENERATION_IP_ADDRESS")
             addRequiredPropertyAsBuildConfigField("PACKET_CAPTURE_API_HOST")
         }
@@ -54,6 +52,8 @@ android {
         testInstrumentationRunnerArguments +=
             mutableMapOf<String, String>().apply {
                 put("clearPackageData", "true")
+                addOptionalPropertyAsArgument("enable_access_to_local_api_tests")
+                addOptionalPropertyAsArgument("enable_highly_rate_limited_tests")
                 addOptionalPropertyAsArgument("valid_test_account_number")
                 addOptionalPropertyAsArgument("invalid_test_account_number")
             }
