@@ -62,9 +62,9 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             val targetPort = 80
 
             device.findObjectWithTimeout(By.res(SELECT_LOCATION_BUTTON_TEST_TAG)).click()
-            clickLocationExpandButton((EndToEndTest.DEFAULT_COUNTRY))
-            clickLocationExpandButton((EndToEndTest.DEFAULT_CITY))
-            device.findObjectWithTimeout(By.text(EndToEndTest.DEFAULT_RELAY)).click()
+            clickLocationExpandButton(DEFAULT_COUNTRY)
+            clickLocationExpandButton(DEFAULT_CITY)
+            device.findObjectWithTimeout(By.text(DEFAULT_RELAY)).click()
             device.findObjectWithTimeout(By.text("OK")).click()
             device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
 
@@ -100,9 +100,9 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
             device.findObjectWithTimeout(By.res(SELECT_LOCATION_BUTTON_TEST_TAG)).click()
             delay(1000.milliseconds)
-            clickLocationExpandButton((EndToEndTest.DEFAULT_COUNTRY))
-            clickLocationExpandButton((EndToEndTest.DEFAULT_CITY))
-            device.findObjectWithTimeout(By.text(EndToEndTest.DEFAULT_RELAY)).click()
+            clickLocationExpandButton(DEFAULT_COUNTRY)
+            clickLocationExpandButton(DEFAULT_CITY)
+            device.findObjectWithTimeout(By.text(DEFAULT_RELAY)).click()
             device.findObjectWithTimeout(By.text("OK")).click()
             device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
 
