@@ -31,7 +31,7 @@ if [[ ! -f "$VCVARSPATH" ]]; then
     exit 1
 fi
 
-VCVARSENV=$(MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' cmd.exe /c "$VCVARSPATH" $TARGET \>nul \& set)
+VCVARSENV=$(MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL='*' cmd.exe /c "$VCVARSPATH" "$TARGET" \>nul \& set)
 
 declare -A vcenvmap
 
@@ -44,12 +44,13 @@ function populate_vcenvmap {
 function to_unix_path {
     # Converts a Windows-style PATH to a UNIX-style PATH
     # eg from "C:\1\2\3;C:\4\5\6" to "/c/1/2/3:/c/4/5/6"
-    echo $1 | sed -e 's|\([a-zA-Z]\):|\/\1|g' -e 's|\\|/|g' -e 's|;|:|g'
+    echo "$1" | sed -e 's|\([a-zA-Z]\):|\/\1|g' -e 's|\\|/|g' -e 's|;|:|g'
 }
 
 populate_vcenvmap
 
 export INCLUDE="${vcenvmap["INCLUDE"]}"
-export PATH="$(to_unix_path "${vcenvmap["PATH"]}")"
+PATH="$(to_unix_path "${vcenvmap["PATH"]}")"
+export PATH
 
 echo "Initialized VS environment for $TARGET"
