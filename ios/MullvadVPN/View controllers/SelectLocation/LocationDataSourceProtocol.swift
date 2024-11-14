@@ -18,13 +18,16 @@ protocol LocationDataSourceProtocol {
 extension LocationDataSourceProtocol {
     func search(by text: String) -> [LocationNode] {
         guard !text.isEmpty else {
-            resetNodes()
             return nodes
         }
 
         var filteredNodes: [LocationNode] = []
 
-        searchableNodes.forEach { countryNode in
+        searchableNodes.forEach { node in
+            // Use a copy of the node to preserve the expanded state,
+            // allowing us to restore the previous view state after a search.
+            let countryNode = node.copy()
+
             countryNode.showsChildren = false
 
             if countryNode.name.fuzzyMatch(text) {
@@ -61,17 +64,5 @@ extension LocationDataSourceProtocol {
         }
 
         return filteredNodes
-    }
-
-    private func resetNodes() {
-        nodes.forEach { node in
-            node.showsChildren = false
-            node.isHiddenFromSearch = false
-
-            node.forEachDescendant { descendantNode in
-                descendantNode.showsChildren = false
-                descendantNode.isHiddenFromSearch = false
-            }
-        }
     }
 }

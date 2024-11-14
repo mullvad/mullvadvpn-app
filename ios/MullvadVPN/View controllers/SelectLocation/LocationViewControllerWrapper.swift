@@ -47,7 +47,7 @@ final class LocationViewControllerWrapper: UIViewController {
     private var entryLocationViewController: LocationViewController?
     private let exitLocationViewController: LocationViewController
     private let segmentedControl = UISegmentedControl()
-    private let locationViewContainer = UIStackView()
+    private let locationViewContainer = UIView()
 
     private var selectedEntry: UserSelectedRelays?
     private var selectedExit: UserSelectedRelays?
@@ -111,6 +111,8 @@ final class LocationViewControllerWrapper: UIViewController {
         setUpNavigation()
         setUpSegmentedControl()
         addSubviews()
+        add(entryLocationViewController)
+        add(exitLocationViewController)
         swapViewController()
     }
 
@@ -226,17 +228,22 @@ final class LocationViewControllerWrapper: UIViewController {
         }
     }
 
+    private func add(_ locationViewController: LocationViewController?) {
+        guard let locationViewController  else { return }
+        addChild(locationViewController)
+        locationViewController.didMove(toParent: self)
+        locationViewContainer.addConstrainedSubviews([locationViewController.view]) {
+            locationViewController.view.pinEdgesToSuperview()
+        }
+    }
+
     @objc
     private func segmentedControlDidChange(sender: UISegmentedControl) {
         multihopContext = .allCases[segmentedControl.selectedSegmentIndex]
         swapViewController()
     }
 
-    func swapViewController() {
-        locationViewContainer.arrangedSubviews.forEach { view in
-            view.removeFromSuperview()
-        }
-
+    private func swapViewController() {
         var selectedRelays: RelaySelection
         var oldViewController: LocationViewController?
         var newViewController: LocationViewController?
@@ -263,16 +270,12 @@ final class LocationViewControllerWrapper: UIViewController {
                 exitLocationViewController
             )
         }
-
-        oldViewController?.removeFromParent()
-
-        if let newViewController {
-            newViewController.setSelectedRelays(selectedRelays)
-
-            addChild(newViewController)
-            newViewController.didMove(toParent: self)
-
-            locationViewContainer.addArrangedSubview(newViewController.view)
+        newViewController?.setSelectedRelays(selectedRelays)
+        oldViewController?.view.isUserInteractionEnabled = false
+        newViewController?.view.isUserInteractionEnabled = true
+        UIView.animate(withDuration: 0.0) {
+            oldViewController?.view.alpha = 0
+            newViewController?.view.alpha = 1
         }
     }
 }
