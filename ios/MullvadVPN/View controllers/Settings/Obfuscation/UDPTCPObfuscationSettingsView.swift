@@ -22,7 +22,13 @@ struct UDPTCPObfuscationSettingsView<VM>: View where VM: UDPTCPObfuscationSettin
         SingleChoiceList(
             title: portString,
             options: [WireGuardObfuscationUdpOverTcpPort.automatic, .port80, .port5001],
-            value: $viewModel.value
+            value: $viewModel.value,
+            itemDescription: { item in NSLocalizedString(
+                "UDP_TCP_PORT_VALUE_\(item)",
+                tableName: "UdpToTcp",
+                value: "\(item)",
+                comment: ""
+            ) }
         )
     }
 }
