@@ -723,9 +723,10 @@ pub async fn constrain_to_relay(
         }
     }
 
+    let settings = mullvad_client.get_settings().await?;
     // Construct a relay selector with up-to-date information from the runnin daemon's relay list
     let relay_list = mullvad_client.get_relay_locations().await?;
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    let relay_selector = get_daemon_relay_selector(&settings, relay_list);
     // Select an(y) appropriate relay for the given query and constrain the daemon to only connect
     // to that specific relay (when connecting).
     let relay = relay_selector.get_relay_by_query(query.clone())?;
@@ -733,6 +734,17 @@ pub async fn constrain_to_relay(
     set_relay_settings(mullvad_client, RelaySettings::Normal(relay_constraints)).await?;
 
     Ok(exit)
+}
+
+/// Get a mirror of the relay selector used by the daemon.
+///
+/// This can be used to query the relay selector without triggering a tunnel state change in the
+/// daemon.
+fn get_daemon_relay_selector(
+    settings: &mullvad_types::settings::Settings,
+    relay_list: mullvad_types::relay_list::RelayList,
+) -> RelaySelector {
+    RelaySelector::from_list(SelectorConfig::from_settings(settings), relay_list)
 }
 
 /// Convenience function for constructing a constraint from a given [`Relay`].
@@ -1190,8 +1202,9 @@ pub mod custom_lists {
     // Expose all custom list variants as a shorthand.
     pub use List::*;
 
-    /// Mapping between [List] to daemon custom lists. Since custom list ids are assigned by the daemon at the creation
-    /// of the custom list settings object, we can't map a custom list name to a specific list before runtime.
+    /// Mapping between [List] to daemon custom lists. Since custom list ids are assigned by the
+    /// daemon at the creation of the custom list settings object, we can't map a custom list
+    /// name to a specific list before runtime.
     static IDS: LazyLock<Mutex<HashMap<List, Id>>> = LazyLock::new(|| Mutex::new(HashMap::new()));
 
     /// Pre-defined (well-typed) custom lists which may be useuful in different test scenarios.
@@ -1281,6 +1294,7 @@ pub mod custom_lists {
                 .create_custom_list(custom_list.name())
                 .await?;
             let mut daemon_dito = find_custom_list(mullvad_client, &custom_list.name()).await?;
+            assert_eq!(id, daemon_dito.id);
             for locations in custom_list.locations() {
                 daemon_dito.locations.insert(locations);
             }
