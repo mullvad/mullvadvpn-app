@@ -132,8 +132,8 @@ case "$TEST_TYPE" in
         echo "Error: The variable PARTNER_AUTH or VALID_TEST_ACCOUNT_NUMBER must be set."
         exit 1
     fi
-    OPTIONAL_TEST_ARGUMENTS+=" -e ENABLE_HIGHLY_RATE_LIMITED_TESTS $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
-    OPTIONAL_TEST_ARGUMENTS+=" -e ENABLE_ACCESS_TO_LOCAL_API_TESTS $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e enable_access_to_local_api_tests $ENABLE_ACCESS_TO_LOCAL_API_TESTS"
+    OPTIONAL_TEST_ARGUMENTS+=" -e enable_highly_rate_limited_tests $ENABLE_HIGHLY_RATE_LIMITED_TESTS"
     USE_ORCHESTRATOR="true"
     PACKAGE_NAME="net.mullvad.mullvadvpn"
     if [[ "$INFRA_FLAVOR" =~ ^(devmole|stagemole)$ ]]; then
