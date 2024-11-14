@@ -22,6 +22,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
     /// and city names.
     func reload(_ relays: LocationRelays) {
         let rootNode = RootLocationNode()
+        let expandedRelays = nodes.flatMap { [$0] + $0.flattened }.filter { $0.showsChildren }.map { $0.code }
 
         for relay in relays.relays {
             guard case
@@ -32,7 +33,13 @@ class AllLocationDataSource: LocationDataSourceProtocol {
             let relayLocation = RelayLocation.hostname(countryCode, cityCode, relay.hostname)
 
             for ancestorOrSelf in relayLocation.ancestors + [relayLocation] {
-                addLocation(ancestorOrSelf, rootNode: rootNode, serverLocation: serverLocation, relay: relay)
+                addLocation(
+                    ancestorOrSelf,
+                    rootNode: rootNode,
+                    serverLocation: serverLocation,
+                    relay: relay,
+                    showsChildren: expandedRelays.contains(ancestorOrSelf.stringRepresentation)
+                )
             }
         }
 
@@ -56,7 +63,8 @@ class AllLocationDataSource: LocationDataSourceProtocol {
         _ location: RelayLocation,
         rootNode: LocationNode,
         serverLocation: REST.ServerLocation,
-        relay: REST.ServerRelay
+        relay: REST.ServerRelay,
+        showsChildren: Bool
     ) {
         switch location {
         case let .country(countryCode):
@@ -64,7 +72,8 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 name: serverLocation.country,
                 code: LocationNode.combineNodeCodes([countryCode]),
                 locations: [location],
-                isActive: true // Defaults to true, updated when children are populated.
+                isActive: true, // Defaults to true, updated when children are populated.
+                showsChildren: showsChildren
             )
 
             if !rootNode.children.contains(countryNode) {
@@ -77,7 +86,8 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 name: serverLocation.city,
                 code: LocationNode.combineNodeCodes([countryCode, cityCode]),
                 locations: [location],
-                isActive: true // Defaults to true, updated when children are populated.
+                isActive: true, // Defaults to true, updated when children are populated.
+                showsChildren: showsChildren
             )
 
             if let countryNode = rootNode.countryFor(code: countryCode),
@@ -92,7 +102,8 @@ class AllLocationDataSource: LocationDataSourceProtocol {
                 name: relay.hostname,
                 code: LocationNode.combineNodeCodes([hostCode]),
                 locations: [location],
-                isActive: relay.active
+                isActive: relay.active,
+                showsChildren: showsChildren
             )
 
             if let countryNode = rootNode.countryFor(code: countryCode),

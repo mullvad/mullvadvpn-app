@@ -34,13 +34,14 @@ extension [LocationCellViewModel] {
     mutating func addSubNodes(from item: LocationCellViewModel, at indexPath: IndexPath) {
         let section = LocationSection.allCases[indexPath.section]
         let row = indexPath.row + 1
+        item.node.showsChildren = true
 
         let locations = item.node.children.map {
             LocationCellViewModel(
                 section: section,
                 node: $0,
                 indentationLevel: item.indentationLevel + 1,
-                isSelected: false
+                isSelected: item.isSelected
             )
         }
 
