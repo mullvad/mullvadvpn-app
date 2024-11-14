@@ -17,12 +17,20 @@ struct SingleChoiceList<Item>: View where Item: Hashable {
     let title: String
     let options: [Item]
     var value: Binding<Item>
+    let itemDescription: (Item) -> String
+
+    init(title: String, options: [Item], value: Binding<Item>, itemDescription: ((Item) -> String)? = nil) {
+        self.title = title
+        self.options = options
+        self.value = value
+        self.itemDescription = itemDescription ?? { "\($0)" }
+    }
 
     func row(_ v: Item) -> some View {
         let isSelected = value.wrappedValue == v
         return HStack {
             Image("IconTick").opacity(isSelected ? 1.0 : 0.0)
-            Text(verbatim: NSLocalizedString("\(v)", comment: ""))
+            Text(verbatim: itemDescription(v))
             Spacer()
         }
         .padding(16)
