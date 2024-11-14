@@ -1,3 +1,10 @@
+use super::{
+    stats::{Stats, StatsMap},
+    Config, Tunnel, TunnelError,
+};
+#[cfg(target_os = "linux")]
+use crate::config::MULLVAD_INTERFACE_NAME;
+use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use once_cell::sync::OnceCell;
@@ -13,15 +20,8 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
+use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::BoxedError;
-
-use super::{
-    stats::{Stats, StatsMap},
-    Config, Tunnel, TunnelError,
-};
-#[cfg(target_os = "linux")]
-use crate::config::MULLVAD_INTERFACE_NAME;
-use crate::logging::{clean_up_logging, initialize_logging};
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
@@ -100,8 +100,7 @@ impl WgGoTunnel {
 
         match self {
             WgGoTunnel::Multihop(state) if !config.is_multihop() => {
-                // Important!
-                state.stop().unwrap();
+                state.stop()?;
                 Self::start_tunnel(
                     config,
                     log_path.as_deref(),
@@ -111,9 +110,10 @@ impl WgGoTunnel {
                 )
             }
             WgGoTunnel::Singlehop(state) if config.is_multihop() => {
-                state.stop().unwrap();
+                state.stop()?;
                 Self::start_multihop_tunnel(
                     config,
+                    config.exit_peer.clone().unwrap(),
                     log_path.as_deref(),
                     tun_provider,
                     routes,
@@ -317,6 +317,7 @@ impl WgGoTunnel {
 
     pub fn start_multihop_tunnel(
         config: &Config,
+        exit_peer: PeerConfig,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
@@ -332,14 +333,22 @@ impl WgGoTunnel {
             .map(LoggingContext)
             .map_err(TunnelError::LoggingError)?;
 
-        let entry_config = config.entry_config();
-        let exit_config = config.exit_config();
+        let mut entry_config = config.clone();
+        entry_config.exit_peer = None;
 
-        // multihop
-        let exit_config = exit_config.unwrap();
+        let mut exit_config = config.clone();
+        exit_config.entry_peer = exit_peer;
+
         let entry_config_str = entry_config.to_userspace_format();
         let exit_config_str = exit_config.to_userspace_format();
-        let private_ip = config.private_ip();
+
+        let private_ip = config
+            .tunnel
+            .addresses
+            .iter()
+            .find(|addr| addr.is_ipv4())
+            .map(|addr| CString::new(addr.to_string()).unwrap())
+            .ok_or(TunnelError::SetConfigError)?;
 
         let handle = wireguard_go_rs::Tunnel::turn_on_multihop(
             &exit_config_str,
