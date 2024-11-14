@@ -54,7 +54,7 @@ function to_win_path {
         echo "$unixpath" | sed -e 's/^\///' -e 's/\//\\/g'
     # if it's an absolute path, transform the drive prefix
     else
-        # remove the cygrdive prefix if it's there
+        # remove the cygdrive prefix if it's there
         unixpath=$(echo "$unixpath" | sed -e 's/^\/cygdrive//')
         echo "$unixpath" | sed -e 's/^\///' -e 's/\//\\/g' -e 's/^./\0:/'
     fi
