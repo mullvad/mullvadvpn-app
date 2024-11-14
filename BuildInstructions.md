@@ -93,6 +93,9 @@ The host has to have the following installed:
 
 - Windows 10 (or Windows 11) SDK.
 
+- `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
+  You are recommended to use [Git for Windows].
+
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
 
@@ -102,8 +105,8 @@ The host has to have the following installed:
 
   Where `<arch>` refers to the host architecture, either `amd64` or `arm64`.
 
-- `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
-  You are recommended to use [Git for Windows].
+  The environment can also be set up in bash by sourcing `vcvars.sh`: `. ./scripts/vcvars.sh`. Note
+  that that script assumes that you're running VS 2022 Community.
 
 - The `x86` target is required for building some NSIS plugins:
 
@@ -142,6 +145,9 @@ In addition to the above requirements:
 
   `INCLUDE` also needs to include the correct headers for clang. This can be found by running
   `vcvarsall.bat arm64` and typing `set INCLUDE`.
+
+  The environment can also be set up in bash by sourcing `vcvars.sh`: `. ./scripts/vcvars.sh`. Note
+  that that script assumes that you're running VS 2022 Community.
 
 - `grpc-tools` currently doesn't include ARM builds. The x64 binaries must be installed to build
   the Electron app:
