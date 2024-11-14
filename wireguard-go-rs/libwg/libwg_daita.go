@@ -33,7 +33,7 @@ func wgActivateDaita(tunnelHandle C.int32_t, peerPubkey *C.uint8_t, machines *C.
 	var publicKey device.NoisePublicKey
 	copy(publicKey[:], C.GoBytes(unsafe.Pointer(peerPubkey), device.NoisePublicKeySize))
 
-	var peer
+	var peer *device.Peer
 	if tunnel.EntryDevice != nil {
 		// TODO: Document me
 		peer = tunnel.EntryDevice.LookupPeer(publicKey)
