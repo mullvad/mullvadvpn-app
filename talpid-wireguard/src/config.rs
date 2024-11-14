@@ -3,6 +3,7 @@ use std::{
     ffi::CString,
     net::{Ipv4Addr, Ipv6Addr},
 };
+use talpid_types::net::wireguard::{PeerConfig, PrivateKey};
 use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, GenericTunnelOptions};
 
 /// Name to use for the tunnel device
@@ -121,38 +122,11 @@ impl Config {
     /// Returns a CString with the appropriate config for WireGuard-go
     // TODO: Consider outputting both overriding and additive configs
     pub fn to_userspace_format(&self) -> CString {
-        // the order of insertion matters, public key entry denotes a new peer entry
-        let mut wg_conf = WgConfigBuffer::new();
-        wg_conf
-            .add::<&[u8]>("private_key", self.tunnel.private_key.to_bytes().as_ref())
-            .add("listen_port", "0");
-
-        #[cfg(target_os = "linux")]
-        if let Some(fwmark) = &self.fwmark {
-            wg_conf.add("fwmark", fwmark.to_string().as_str());
-        }
-
-        wg_conf.add("replace_peers", "true");
-
-        for peer in self.peers() {
-            wg_conf
-                .add::<&[u8]>("public_key", peer.public_key.as_bytes().as_ref())
-                .add("endpoint", peer.endpoint.to_string().as_str())
-                .add("replace_allowed_ips", "true");
-            if let Some(ref psk) = peer.psk {
-                wg_conf.add::<&[u8]>("preshared_key", psk.as_bytes().as_ref());
-            }
-            for addr in &peer.allowed_ips {
-                wg_conf.add("allowed_ip", addr.to_string().as_str());
-            }
-            #[cfg(daita)]
-            if peer.constant_packet_size {
-                wg_conf.add("constant_packet_size", "true");
-            }
-        }
-
-        let bytes = wg_conf.into_config();
-        CString::new(bytes).expect("null bytes inside config")
+        userspace_format(
+            &self.tunnel.private_key,
+            &self.entry_peer,
+            self.exit_peer.as_ref(),
+        )
     }
 
     /// Return whether the config connects to an exit peer from another remote peer.
@@ -241,4 +215,49 @@ impl WgConfigBuffer {
         self.buf.push(b'\n');
         self.buf
     }
+}
+
+/// Returns a CString with the appropriate config for WireGuard-go
+pub fn userspace_format(
+    private_key: &PrivateKey,
+    entry_peer: &PeerConfig,
+    exit_peer: Option<&PeerConfig>,
+) -> CString {
+    // the order of insertion matters, public key entry denotes a new peer entry
+    let mut wg_conf = WgConfigBuffer::new();
+    wg_conf
+        .add::<&[u8]>("private_key", private_key.to_bytes().as_ref())
+        .add("listen_port", "0");
+
+    #[cfg(target_os = "linux")]
+    if let Some(fwmark) = &self.fwmark {
+        wg_conf.add("fwmark", fwmark.to_string().as_str());
+    }
+
+    wg_conf.add("replace_peers", "true");
+
+    let peers = exit_peer
+        .as_ref()
+        .into_iter()
+        .chain(std::iter::once(&entry_peer));
+
+    for peer in peers {
+        wg_conf
+            .add::<&[u8]>("public_key", peer.public_key.as_bytes().as_ref())
+            .add("endpoint", peer.endpoint.to_string().as_str())
+            .add("replace_allowed_ips", "true");
+        if let Some(ref psk) = peer.psk {
+            wg_conf.add::<&[u8]>("preshared_key", psk.as_bytes().as_ref());
+        }
+        for addr in &peer.allowed_ips {
+            wg_conf.add("allowed_ip", addr.to_string().as_str());
+        }
+        #[cfg(daita)]
+        if peer.constant_packet_size {
+            wg_conf.add("constant_packet_size", "true");
+        }
+    }
+
+    let bytes = wg_conf.into_config();
+    CString::new(bytes).expect("null bytes inside config")
 }

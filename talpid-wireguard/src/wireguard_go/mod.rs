@@ -1,4 +1,5 @@
 use super::{
+    config,
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
@@ -35,11 +36,20 @@ const DAITA_ACTIONS_CAPACITY: u32 = 1000;
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
-struct LoggingContext(u64);
+struct LoggingContext {
+    ordinal: u64,
+    path: Option<PathBuf>,
+}
+
+impl LoggingContext {
+    fn new(ordinal: u64, path: Option<PathBuf>) -> Self {
+        LoggingContext { ordinal, path }
+    }
+}
 
 impl Drop for LoggingContext {
     fn drop(&mut self) {
-        clean_up_logging(self.0);
+        clean_up_logging(self.ordinal);
     }
 }
 
@@ -92,7 +102,7 @@ impl WgGoTunnel {
 
     pub fn better_set_config(self, config: &Config) -> Result<Self> {
         let state = self.as_state();
-        let log_path = state._log_path.clone();
+        let log_path = state.logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
         let routes = config.get_tunnel_destinations();
         #[cfg(daita)]
@@ -142,11 +152,8 @@ pub(crate) struct WgGoTunnelState {
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
-    // HACK: Don't use this. Only sometimes. ;-)
-    #[cfg(target_os = "android")]
-    _log_path: Option<PathBuf>,
-    // context that maps to fs::File instance, used with logging callback
-    _logging_context: LoggingContext,
+    // context that maps to fs::File instance and stores the file path, used with logging callback
+    logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
     #[cfg(daita)]
@@ -223,7 +230,7 @@ impl WgGoTunnel {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
-            _logging_context: logging_context,
+            logging_context,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
@@ -279,22 +286,21 @@ impl WgGoTunnel {
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
-        let tun_provider_clone = tun_provider.clone();
-
-        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+        let (mut tunnel_device, tunnel_fd) =
+            Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
-        let wg_config_str = config.to_userspace_format();
-        let _log_path = log_path;
         let logging_context = initialize_logging(log_path)
-            .map(LoggingContext)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
+
+        let wg_config_str = config.to_userspace_format();
 
         let handle = wireguard_go_rs::Tunnel::turn_on(
             &wg_config_str,
             tunnel_fd,
             Some(logging::wg_go_logging_callback),
-            logging_context.0,
+            logging_context.ordinal,
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
@@ -305,9 +311,8 @@ impl WgGoTunnel {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
-            _logging_context: logging_context,
-            _log_path: _log_path.map(|log_path| log_path.to_owned()),
-            tun_provider: tun_provider_clone,
+            logging_context,
+            tun_provider,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
@@ -323,24 +328,22 @@ impl WgGoTunnel {
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
-        let tun_provider_clone = tun_provider.clone();
-
-        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+        let (mut tunnel_device, tunnel_fd) =
+            Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
 
         let interface_name: String = tunnel_device.interface_name().to_string();
-        let _log_path = log_path;
         let logging_context = initialize_logging(log_path)
-            .map(LoggingContext)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
-        let mut entry_config = config.clone();
-        entry_config.exit_peer = None;
+        let entry_config_str =
+            config::userspace_format(&config.tunnel.private_key, &config.entry_peer, None);
 
-        let mut exit_config = config.clone();
-        exit_config.entry_peer = exit_peer;
-
-        let entry_config_str = entry_config.to_userspace_format();
-        let exit_config_str = exit_config.to_userspace_format();
+        let exit_config_str = config::userspace_format(
+            &config.tunnel.private_key,
+            &exit_peer,
+            config.exit_peer.as_ref(),
+        );
 
         let private_ip = config
             .tunnel
@@ -356,7 +359,7 @@ impl WgGoTunnel {
             &private_ip,
             tunnel_fd,
             Some(logging::wg_go_logging_callback),
-            logging_context.0,
+            logging_context.ordinal,
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
@@ -367,9 +370,8 @@ impl WgGoTunnel {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
-            _logging_context: logging_context,
-            _log_path: _log_path.map(|log_path| log_path.to_owned()),
-            tun_provider: tun_provider_clone,
+            logging_context,
+            tun_provider,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
