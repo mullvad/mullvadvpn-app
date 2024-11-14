@@ -12,7 +12,7 @@ on:
       - deny.toml
       - test/deny.toml
       - desktop/package-lock.json
-      - desktop/packages/mullvad-vpn/package-lock.json
+      - desktop/packages/nseventforwarder/Cargo.lock
       - wireguard-go-rs/libwg/go.sum
       - ci/keys/**
       - ci/verify-locked-down-signatures.sh
