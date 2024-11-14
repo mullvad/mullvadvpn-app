@@ -775,11 +775,13 @@ impl WireguardMonitor {
         // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
         #[cfg(target_os = "android")]
         let config = Self::patch_allowed_ips(config, gateway_only);
+
         #[cfg(target_os = "android")]
         let tunnel = if config.is_multihop() {
             WgGoTunnel::start_multihop_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
+                config.exit_peer.clone().unwrap(),
                 log_path,
                 tun_provider,
                 routes,
