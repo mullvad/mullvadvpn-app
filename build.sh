@@ -203,10 +203,13 @@ function sign_win {
 # Build the daemon and other Rust/C++ binaries, optionally
 # sign them, and copy to `dist-assets/`.
 function build {
-    local current_target=${1:-""}
-    local for_target_string=" for local target $HOST"
-    if [[ -n $current_target ]]; then
+    local specified_target=${1:-""}
+    local current_target=${specified_target:-"$HOST"}
+    local for_target_string
+    if [[ -n $specified_target ]]; then
         for_target_string=" for $current_target"
+    else
+        for_target_string=" for local target $HOST"
     fi
 
     ################################################################################
@@ -216,8 +219,8 @@ function build {
     log_header "Building Rust code in $RUST_BUILD_MODE mode using $RUSTC_VERSION$for_target_string"
 
     local cargo_target_arg=()
-    if [[ -n $current_target ]]; then
-        cargo_target_arg+=(--target="$current_target")
+    if [[ -n $specified_target ]]; then
+        cargo_target_arg+=(--target="$specified_target")
     fi
     local cargo_crates_to_build=(
         -p mullvad-daemon --bin mullvad-daemon
@@ -263,11 +266,11 @@ function build {
         )
     fi
 
-    if [[ -n $current_target ]]; then
-        local cargo_output_dir="$CARGO_TARGET_DIR/$current_target/$RUST_BUILD_MODE"
+    if [[ -n $specified_target ]]; then
+        local cargo_output_dir="$CARGO_TARGET_DIR/$specified_target/$RUST_BUILD_MODE"
         # To make it easier to package multiple targets, the binaries are
         # located in a directory with the name of the target triple.
-        local destination_dir="dist-assets/$current_target"
+        local destination_dir="dist-assets/$specified_target"
         mkdir -p "$destination_dir"
     else
         local cargo_output_dir="$CARGO_TARGET_DIR/$RUST_BUILD_MODE"
@@ -290,7 +293,12 @@ function build {
         # We ship x64 OpenVPN with ARM64, so we need an x64 talpid-openvpn-plugin
         # to include in the package.
         local source="$CARGO_TARGET_DIR/x86_64-pc-windows-msvc/$RUST_BUILD_MODE/talpid_openvpn_plugin.dll"
-        local destination="dist-assets/aarch64-pc-windows-msvc/talpid_openvpn_plugin.dll"
+        local destination
+        if [[ -n "$specified_target" ]]; then
+            destination="dist-assets/$specified_target/talpid_openvpn_plugin.dll"
+        else
+            destination="dist-assets/talpid_openvpn_plugin.dll"
+        fi
 
         log_info "Workaround: building x64 talpid-openvpn-plugin"
         cargo build --target x86_64-pc-windows-msvc "${CARGO_ARGS[@]}" -p talpid-openvpn-plugin --lib
@@ -302,7 +310,7 @@ function build {
 }
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
-    for t in "${TARGETS[@]:-"x86_64-pc-windows-msvc"}"; do
+    for t in "${TARGETS[@]:-"$HOST"}"; do
         case $t in
             x86_64-pc-windows-msvc) CPP_BUILD_TARGET=x64;;
             aarch64-pc-windows-msvc) CPP_BUILD_TARGET=ARM64;;
