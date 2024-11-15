@@ -57,7 +57,7 @@ class VPNSettingsViewController: UITableViewController {
         )
 
         interactor.tunnelSettingsDidChange = { [weak self] newSettings in
-            self?.dataSource?.update(from: newSettings)
+            self?.dataSource?.reload(from: newSettings)
         }
         dataSource?.update(from: interactor.tunnelSettings)
 
