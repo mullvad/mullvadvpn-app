@@ -743,7 +743,7 @@ pub async fn constrain_to_relay(
 ///
 /// This can be used to query the relay selector without triggering a tunnel state change in the
 /// daemon.
-fn get_daemon_relay_selector(
+pub fn get_daemon_relay_selector(
     settings: &mullvad_types::settings::Settings,
     relay_list: mullvad_types::relay_list::RelayList,
 ) -> RelaySelector {
