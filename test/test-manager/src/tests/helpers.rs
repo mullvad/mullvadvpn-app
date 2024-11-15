@@ -982,6 +982,8 @@ impl ConnChecker {
                 "--leak-tcp",
                 "--leak-udp",
                 "--leak-icmp",
+                "--url",
+                &format!("https://am.i.{}/json", TEST_CONFIG.mullvad_host),
             ]
             .map(String::from)
             .to_vec();
