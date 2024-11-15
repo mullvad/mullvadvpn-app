@@ -30,10 +30,12 @@ final class VPNSettingsInteractor {
         self.tunnelManager = tunnelManager
         self.relayCacheTracker = relayCacheTracker
 
-        tunnelObserver =
+        let tunnelObserver =
             TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] _, newSettings in
                 self?.tunnelSettingsDidChange?(newSettings)
             })
+        self.tunnelObserver = tunnelObserver
+        tunnelManager.addObserver(tunnelObserver)
     }
 
     func updateSettings(_ changes: [TunnelSettingsUpdate], completion: (() -> Void)? = nil) {
