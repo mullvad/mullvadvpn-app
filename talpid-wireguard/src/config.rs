@@ -126,6 +126,8 @@ impl Config {
             &self.tunnel.private_key,
             &self.entry_peer,
             self.exit_peer.as_ref(),
+            #[cfg(target_os = "linux")]
+            self.fwmark,
         )
     }
 
@@ -222,6 +224,7 @@ pub fn userspace_format(
     private_key: &PrivateKey,
     entry_peer: &PeerConfig,
     exit_peer: Option<&PeerConfig>,
+    #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> CString {
     // the order of insertion matters, public key entry denotes a new peer entry
     let mut wg_conf = WgConfigBuffer::new();
@@ -230,7 +233,7 @@ pub fn userspace_format(
         .add("listen_port", "0");
 
     #[cfg(target_os = "linux")]
-    if let Some(fwmark) = &self.fwmark {
+    if let Some(fwmark) = fwmark {
         wg_conf.add("fwmark", fwmark.to_string().as_str());
     }
 
