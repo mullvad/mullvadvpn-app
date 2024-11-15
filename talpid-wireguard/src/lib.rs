@@ -35,11 +35,10 @@ use tokio::sync::Mutex as AsyncMutex;
 
 /// WireGuard config data-types
 pub mod config;
-mod connectivity_check;
+mod connectivity;
 mod ephemeral;
 mod logging;
 mod obfuscation;
-mod ping_monitor;
 mod stats;
 #[cfg(wireguard_go)]
 mod wireguard_go;
@@ -88,7 +87,7 @@ pub enum Error {
 
     /// Failed to set up connectivity monitor
     #[error("Connectivity monitor failed")]
-    ConnectivityMonitorError(#[source] connectivity_check::Error),
+    ConnectivityMonitorError(#[source] connectivity::Error),
 
     /// Failed while negotiating ephemeral peer
     #[error("Failed while negotiating ephemeral peer")]
@@ -216,8 +215,17 @@ impl WireguardMonitor {
 
         let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
 
+        let gateway = config.ipv4_gateway;
+        let (mut connectivity_monitor, pinger_tx) = connectivity::Check::new(
+            gateway,
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
+            iface_name.clone(),
+            args.retry_attempt,
+        )
+        .map_err(Error::ConnectivityMonitorError)?
+        .with_cancellation();
+
         let event_callback = Box::new(on_event.clone());
-        let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
             tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
@@ -226,16 +234,6 @@ impl WireguardMonitor {
             pinger_stop_sender: pinger_tx,
             obfuscator,
         };
-
-        let gateway = config.ipv4_gateway;
-        let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
-            gateway,
-            #[cfg(any(target_os = "macos", target_os = "linux"))]
-            iface_name.clone(),
-            Arc::downgrade(&monitor.tunnel),
-            pinger_rx,
-        )
-        .map_err(Error::ConnectivityMonitorError)?;
 
         let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
@@ -321,8 +319,12 @@ impl WireguardMonitor {
                 });
             }
 
-            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
-                match connectivity_monitor.establish_connectivity(args.retry_attempt) {
+            let cloned_tunnel = Arc::clone(&tunnel);
+
+            let connectivity_check = tokio::task::spawn_blocking(move || {
+                let lock = cloned_tunnel.blocking_lock();
+                let tunnel = lock.as_ref().expect("The tunnel was dropped unexpectedly");
+                match connectivity_monitor.establish_connectivity(tunnel) {
                     Ok(true) => Ok(connectivity_monitor),
                     Ok(false) => {
                         log::warn!("Timeout while checking tunnel connection");
@@ -350,8 +352,11 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             (on_event)(TunnelEvent::Up(metadata)).await;
 
+            let monitored_tunnel = Arc::downgrade(&tunnel);
             tokio::task::spawn_blocking(move || {
-                if let Err(error) = connectivity_monitor.run() {
+                if let Err(error) =
+                    connectivity::Monitor::init(connectivity_check).run(monitored_tunnel)
+                {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Connectivity monitor failed")
@@ -423,6 +428,12 @@ impl WireguardMonitor {
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
+
+        let (connectivity_check, pinger_tx) =
+            connectivity::Check::new(config.ipv4_gateway, args.retry_attempt)
+                .map_err(Error::ConnectivityMonitorError)?
+                .with_cancellation();
+
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,
             log_path,
@@ -432,11 +443,11 @@ impl WireguardMonitor {
             // that we only allows traffic to/from the gateway. This is only needed on Android
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
+            connectivity_check,
         )?;
+
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
-
-        let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
             tunnel: Arc::clone(&tunnel),
@@ -446,60 +457,18 @@ impl WireguardMonitor {
             obfuscator: Arc::new(AsyncMutex::new(obfuscator)),
         };
 
-        let gateway = config.ipv4_gateway;
-        let connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
-            gateway,
-            Arc::downgrade(&tunnel),
-            pinger_rx,
-        )
-        .map_err(Error::ConnectivityMonitorError)?;
-
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
-            let connectivity_monitor = Arc::new(Mutex::new(connectivity_monitor));
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
             args.on_event.clone()(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
-            let handle_ping = |ping_result: std::result::Result<
-                bool,
-                connectivity_check::Error,
-            >| match ping_result {
-                Ok(true) => Ok(()),
-                Ok(false) => {
-                    log::warn!("Timeout while checking tunnel connection");
-                    Err(CloseMsg::PingErr)
-                }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to check tunnel connection")
-                    );
-                    Err(CloseMsg::PingErr)
-                }
-            };
-
-            // Prepare a closure which pings inside the tunnel when executed.
-            let ping = || {
-                let connectivity_monitor_arc = connectivity_monitor.clone();
-                let retry_attempt = args.retry_attempt;
-                move || {
-                    let ping_result = connectivity_monitor_arc
-                        .lock()
-                        .unwrap()
-                        .establish_connectivity(retry_attempt);
-                    handle_ping(ping_result)
-                }
-            };
-
             if should_negotiate_ephemeral_peer {
-                // Ping before negotiating the ephemeral peer to make sure that the tunnel works.
-                tokio::task::spawn_blocking(ping()).await.unwrap()?;
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
 
                 ephemeral::config_ephemeral_peers(
@@ -513,21 +482,31 @@ impl WireguardMonitor {
                 .await?;
 
                 let metadata = Self::tunnel_metadata(&iface_name, &config);
-                (args.on_event.clone())(TunnelEvent::InterfaceUp(
+                args.on_event.clone()(TunnelEvent::InterfaceUp(
                     metadata,
                     Self::allowed_traffic_after_tunnel_config(),
                 ))
                 .await;
             }
 
-            // Make sure the tunnel works (after potentially having negotiated an ephemeral peer).
-            tokio::task::spawn_blocking(ping()).await.unwrap()?;
-
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            (args.on_event.clone())(TunnelEvent::Up(metadata)).await;
+            args.on_event.clone()(TunnelEvent::Up(metadata)).await;
+
+            // HACK: The tunnel does not need the connectivity::Check anymore, so lets take it
+            let connectivity_check = {
+                let mut tunnel_lock = tunnel.lock().await;
+                let Some(tunnel) = tunnel_lock.as_mut() else {
+                    log::debug!("Tunnel is no longer running");
+                    return Err::<Infallible, CloseMsg>(CloseMsg::PingErr);
+                };
+                tunnel
+                    .take_checker()
+                    .expect("connectivity checker unexpectedly dropped")
+            };
 
             tokio::task::spawn_blocking(move || {
-                if let Err(error) = connectivity_monitor.lock().unwrap().run() {
+                let tunnel = Arc::downgrade(&tunnel);
+                if let Err(error) = connectivity::Monitor::init(connectivity_check).run(tunnel) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Connectivity monitor failed")
@@ -748,6 +727,9 @@ impl WireguardMonitor {
         #[cfg(daita)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
+        #[cfg(target_os = "android")] connectivity_check: connectivity::Check<
+            connectivity::Cancellable,
+        >,
     ) -> Result<WgGoTunnel> {
         let routes = config
             .get_tunnel_destinations()
@@ -786,6 +768,7 @@ impl WireguardMonitor {
                 routes,
                 #[cfg(daita)]
                 resource_dir,
+                connectivity_check,
             )
             .map_err(Error::TunnelError)?
         } else {
@@ -797,6 +780,7 @@ impl WireguardMonitor {
                 routes,
                 #[cfg(daita)]
                 resource_dir,
+                connectivity_check,
             )
             .map_err(Error::TunnelError)?
         };
@@ -1103,6 +1087,15 @@ pub enum TunnelError {
     #[cfg(daita)]
     #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
     DaitaNotSupported,
+
+    /// [connectivity] error.
+    #[error(transparent)]
+    Connectivity(#[from] Box<connectivity::Error>),
+
+    /// Tunnel seemingly does not serve any traffic
+    #[cfg(target_os = "android")]
+    #[error("Tunnel seemingly does not serve any traffic")]
+    TunnelUp,
 }
 
 #[cfg(target_os = "linux")]

@@ -130,6 +130,7 @@ async fn config_ephemeral_peers_inner(
             &tun_provider,
         )
         .await?;
+
         let entry_psk = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
@@ -199,17 +200,17 @@ async fn reconfigure_tunnel(
         .await
         .map_err(CloseMsg::ObfuscatorFailed)?;
     }
+    {
+        let mut shared_tunnel = tunnel.lock().await;
+        let tunnel = shared_tunnel.take().expect("tunnel was None");
 
-    let mut lock = tunnel.lock().await;
+        let updated_tunnel = tunnel
+            .set_config(&config)
+            .map_err(Error::TunnelError)
+            .map_err(CloseMsg::SetupError)?;
 
-    let tunnel = lock.take().expect("tunnel was None");
-
-    let new_tunnel = tunnel
-        .better_set_config(&config)
-        .map_err(Error::TunnelError)
-        .map_err(CloseMsg::SetupError)?;
-
-    *lock = Some(new_tunnel);
+        *shared_tunnel = Some(updated_tunnel);
+    }
     Ok(config)
 }
 
