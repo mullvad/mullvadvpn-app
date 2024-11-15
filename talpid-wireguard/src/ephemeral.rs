@@ -206,7 +206,8 @@ async fn reconfigure_tunnel(
 
     let new_tunnel = tunnel
         .better_set_config(&config)
-        .map_err(|e| SetupError(Error::TunnelError(e)))?;
+        .map_err(Error::TunnelError)
+        .map_err(CloseMsg::SetupError)?;
 
     *lock = Some(new_tunnel);
     Ok(config)
