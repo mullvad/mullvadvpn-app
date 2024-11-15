@@ -1,5 +1,6 @@
+#[cfg(target_os = "android")]
+use super::config;
 use super::{
-    config,
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
@@ -21,6 +22,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
+#[cfg(target_os = "android")]
 use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::BoxedError;
 
@@ -38,6 +40,7 @@ type Result<T> = std::result::Result<T, TunnelError>;
 
 struct LoggingContext {
     ordinal: u64,
+    #[allow(dead_code)]
     path: Option<PathBuf>,
 }
 
@@ -102,7 +105,7 @@ impl WgGoTunnel {
 
     pub fn better_set_config(self, config: &Config) -> Result<Self> {
         let state = self.as_state();
-        let log_path = state.logging_context.path.clone();
+        let log_path = state._logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
         let routes = config.get_tunnel_destinations();
         #[cfg(daita)]
@@ -153,7 +156,7 @@ pub(crate) struct WgGoTunnelState {
     // live long enough and get closed when the tunnel is stopped
     _tunnel_device: Tun,
     // context that maps to fs::File instance and stores the file path, used with logging callback
-    logging_context: LoggingContext,
+    _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
     #[cfg(daita)]
@@ -212,7 +215,7 @@ impl WgGoTunnel {
         let interface_name: String = tunnel_device.interface_name().to_string();
         let wg_config_str = config.to_userspace_format();
         let logging_context = initialize_logging(log_path)
-            .map(LoggingContext)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
         let mtu = config.mtu as isize;
@@ -222,7 +225,7 @@ impl WgGoTunnel {
             &wg_config_str,
             tunnel_fd,
             Some(logging::wg_go_logging_callback),
-            logging_context.0,
+            logging_context.ordinal,
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
@@ -230,7 +233,7 @@ impl WgGoTunnel {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
-            logging_context,
+            _logging_context: logging_context,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
@@ -311,7 +314,7 @@ impl WgGoTunnel {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
-            logging_context,
+            _logging_context: logging_context,
             tun_provider,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
@@ -370,7 +373,7 @@ impl WgGoTunnel {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
-            logging_context,
+            _logging_context: logging_context,
             tun_provider,
             #[cfg(daita)]
             resource_dir: resource_dir.to_owned(),
