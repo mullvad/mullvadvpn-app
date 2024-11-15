@@ -29,12 +29,17 @@ struct SingleChoiceList<Item>: View where Item: Hashable {
     func row(_ v: Item) -> some View {
         let isSelected = value.wrappedValue == v
         return HStack {
-            Image("IconTick").opacity(isSelected ? 1.0 : 0.0)
+            Image(uiImage: UIImage(resource: .iconTick)).opacity(isSelected ? 1.0 : 0.0)
+            Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
             Text(verbatim: itemDescription(v))
             Spacer()
         }
-        .padding(16)
-        .background(isSelected ? Color(UIColor.Cell.Background.selected) : Color(UIColor.Cell.Background.normal))
+        .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
+        .background(
+            isSelected
+                ? Color(UIColor.Cell.Background.selected)
+                : Color(UIColor.Cell.Background.indentationLevelOne)
+        )
         .foregroundColor(Color(UIColor.Cell.titleTextColor))
         .onTapGesture {
             value.wrappedValue = v
@@ -42,12 +47,13 @@ struct SingleChoiceList<Item>: View where Item: Hashable {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
+        VStack(spacing: UIMetrics.TableView.separatorHeight) {
             HStack {
                 Text(title).fontWeight(.semibold)
                 Spacer()
             }
             .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
+            .background(Color(UIColor.Cell.Background.normal))
             ForEach(options, id: \.self) { opt in
                 row(opt)
             }
