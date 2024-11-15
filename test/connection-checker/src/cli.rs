@@ -37,4 +37,7 @@ pub struct Opt {
     /// Junk data for each UDP and TCP packet
     #[clap(long, requires = "leak", default_value = "Hello there!")]
     pub payload: String,
+
+    /// URL to perform the connection check against. For example, https://am.i.mullvad.net/json.
+    pub url: String,
 }
