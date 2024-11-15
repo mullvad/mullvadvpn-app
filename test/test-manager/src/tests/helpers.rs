@@ -1201,11 +1201,15 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
 
 pub mod custom_lists {
     use super::*;
+
     use mullvad_types::custom_list::{CustomList, Id};
     use std::sync::{LazyLock, Mutex};
 
     // Expose all custom list variants as a shorthand.
     pub use List::*;
+
+    /// The default custom list to use as location for all tests.
+    pub const DEFAULT_LIST: List = List::Nordic;
 
     /// Mapping between [List] to daemon custom lists. Since custom list ids are assigned by the
     /// daemon at the creation of the custom list settings object, we can't map a custom list
@@ -1308,6 +1312,34 @@ pub mod custom_lists {
             IDS.lock().unwrap().insert(custom_list, id);
         }
         Ok(())
+    }
+
+    /// Set the default location to the custom list specified by `DEFAULT_LIST`. This also includes
+    /// entry location for multihop. It does not, however, affect bridge location for OpenVPN.
+    /// This is for simplify, as bridges default to using the server closest to the exit anyway, and
+    /// OpenVPN is slated for removal.
+    pub async fn set_default_location(
+        mullvad_client: &mut MullvadProxyClient,
+    ) -> anyhow::Result<()> {
+        let constraints = get_custom_list_location_relay_constraints(DEFAULT_LIST);
+
+        mullvad_client
+            .set_relay_settings(constraints.into())
+            .await
+            .context("Failed to set relay settings")
+    }
+
+    fn get_custom_list_location_relay_constraints(custom_list: List) -> RelayConstraints {
+        let wireguard_constraints = mullvad_types::relay_constraints::WireguardConstraints {
+            entry_location: Constraint::Only(custom_list.into()),
+            ..Default::default()
+        };
+
+        RelayConstraints {
+            location: Constraint::Only(custom_list.into()),
+            wireguard_constraints,
+            ..Default::default()
+        }
     }
 
     /// Dig out a custom list from the daemon settings based on the custom list's name.
