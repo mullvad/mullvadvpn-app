@@ -339,14 +339,13 @@ impl WgGoTunnel {
             .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
-        let entry_config_str =
-            config::userspace_format(&config.tunnel.private_key, &config.entry_peer, None);
-
-        let exit_config_str = config::userspace_format(
+        let entry_config_str = config::userspace_format(
             &config.tunnel.private_key,
-            exit_peer,
-            config.exit_peer.as_ref(),
+            std::iter::once(&config.entry_peer),
         );
+
+        let exit_config_str =
+            config::userspace_format(&config.tunnel.private_key, std::iter::once(exit_peer));
 
         let private_ip = config
             .tunnel
