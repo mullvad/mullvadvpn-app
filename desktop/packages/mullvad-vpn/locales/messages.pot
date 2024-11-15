@@ -1353,10 +1353,6 @@ msgctxt "select-location-view"
 msgid "(Added)"
 msgstr ""
 
-msgctxt "select-location-view"
-msgid "%(daita)s overrides %(multihop)s. To use %(multihop)s, please enable “%(directOnly)s” or disable %(daita)s in the %(daita)s settings."
-msgstr ""
-
 #. This is used for appending information about a location.
 #. E.g. "Gothenburg (Entry)" if Gothenburg has been selected as the entrypoint.
 #. Available placeholders:
@@ -1443,6 +1439,10 @@ msgstr ""
 
 msgctxt "select-location-view"
 msgid "The app selects a random bridge server, but servers have a higher probability the closer they are to you."
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
 msgstr ""
 
 msgctxt "settings-import"
