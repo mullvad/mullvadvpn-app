@@ -1,7 +1,11 @@
+#[cfg(target_os = "android")]
+use super::Tunnel;
+use super::{TunnelError, TunnelType};
+#[cfg(target_os = "android")]
+use crate::wireguard_go::WgGoTunnel;
 use crate::{
     ping_monitor::{new_pinger, Pinger},
     stats::StatsMap,
-    TunnelType,
 };
 use std::{
     cmp,
@@ -10,10 +14,6 @@ use std::{
     time::{Duration, Instant},
 };
 use tokio::sync::Mutex;
-
-#[cfg(target_os = "android")]
-use super::Tunnel;
-use super::TunnelError;
 
 /// Sleep time used when initially establishing connectivity
 const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
@@ -74,8 +74,6 @@ pub enum Error {
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
 pub struct ConnectivityMonitor {
-    /// Tunnel implementation
-    tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
     conn_state: ConnState,
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
@@ -87,7 +85,6 @@ impl ConnectivityMonitor {
     pub(super) fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
-        tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
         close_receiver: mpsc::Receiver<()>,
     ) -> Result<Self, Error> {
         let pinger = new_pinger(
@@ -100,7 +97,6 @@ impl ConnectivityMonitor {
         let now = Instant::now();
 
         Ok(Self {
-            tunnel_handle,
             conn_state: ConnState::new(now, Default::default()),
             initial_ping_timestamp: None,
             num_pings_sent: 0,
@@ -111,7 +107,11 @@ impl ConnectivityMonitor {
 
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successful at the start of a connection.
-    pub(super) fn establish_connectivity(&mut self, retry_attempt: u32) -> Result<bool, Error> {
+    pub(super) fn establish_connectivity(
+        &mut self,
+        retry_attempt: u32,
+        tunnel_handle: &TunnelType,
+    ) -> Result<bool, Error> {
         // Send initial ping to prod WireGuard into connecting.
         self.pinger.send_icmp().map_err(Error::PingError)?;
         self.establish_connectivity_inner(
@@ -119,6 +119,7 @@ impl ConnectivityMonitor {
             ESTABLISH_TIMEOUT,
             ESTABLISH_TIMEOUT_MULTIPLIER,
             MAX_ESTABLISH_TIMEOUT,
+            tunnel_handle,
         )
     }
 
@@ -128,6 +129,7 @@ impl ConnectivityMonitor {
         timeout_initial: Duration,
         timeout_multiplier: u32,
         max_timeout: Duration,
+        tunnel_handle: &TunnelType,
     ) -> Result<bool, Error> {
         if self.conn_state.connected() {
             return Ok(true);
@@ -140,7 +142,7 @@ impl ConnectivityMonitor {
 
         let start = Instant::now();
         while start.elapsed() < check_timeout {
-            if self.check_connectivity_interval(Instant::now(), check_timeout)? {
+            if self.check_connectivity_interval(Instant::now(), check_timeout, tunnel_handle)? {
                 return Ok(true);
             }
             if self.should_shut_down(DELAY_ON_INITIAL_SETUP) {
@@ -150,8 +152,11 @@ impl ConnectivityMonitor {
         Ok(false)
     }
 
-    pub(super) fn run(&mut self) -> Result<(), Error> {
-        self.wait_loop(REGULAR_LOOP_SLEEP)
+    pub(super) fn run(
+        &mut self,
+        tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
+    ) -> Result<(), Error> {
+        self.wait_loop(REGULAR_LOOP_SLEEP, tunnel_handle)
     }
 
     /// Returns true if monitor should be shut down
@@ -162,15 +167,28 @@ impl ConnectivityMonitor {
         }
     }
 
-    fn wait_loop(&mut self, iter_delay: Duration) -> Result<(), Error> {
+    fn wait_loop(
+        &mut self,
+        iter_delay: Duration,
+        tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
+    ) -> Result<(), Error> {
         let mut last_iteration = Instant::now();
         while !self.should_shut_down(iter_delay) {
             let mut current_iteration = Instant::now();
             let time_slept = current_iteration - last_iteration;
             if time_slept < (iter_delay * 2) {
-                if !self.check_connectivity(Instant::now())? {
+                let Some(tunnel) = tunnel_handle.upgrade() else {
+                    return Ok(());
+                };
+                let lock = tunnel.blocking_lock();
+                let Some(tunnel) = lock.as_ref() else {
+                    return Ok(());
+                };
+
+                if !self.check_connectivity(Instant::now(), tunnel)? {
                     return Ok(());
                 }
+                drop(lock);
 
                 let end = Instant::now();
                 if end - current_iteration > Duration::from_secs(1) {
@@ -188,8 +206,12 @@ impl ConnectivityMonitor {
     }
 
     /// Returns true if connection is established
-    fn check_connectivity(&mut self, now: Instant) -> Result<bool, Error> {
-        self.check_connectivity_interval(now, PING_TIMEOUT)
+    fn check_connectivity(
+        &mut self,
+        now: Instant,
+        tunnel_handle: &TunnelType,
+    ) -> Result<bool, Error> {
+        self.check_connectivity_interval(now, PING_TIMEOUT, tunnel_handle)
     }
 
     /// Returns true if connection is established
@@ -197,8 +219,9 @@ impl ConnectivityMonitor {
         &mut self,
         now: Instant,
         timeout: Duration,
+        tunnel_handle: &TunnelType,
     ) -> Result<bool, Error> {
-        match self.get_stats() {
+        match Self::get_stats(tunnel_handle) {
             None => Ok(false),
             Some(new_stats) => {
                 let new_stats = new_stats?;
@@ -218,19 +241,15 @@ impl ConnectivityMonitor {
     /// calls will also return None.
     ///
     /// NOTE: will panic if called from within a tokio runtime.
-    fn get_stats(&self) -> Option<Result<StatsMap, Error>> {
-        self.tunnel_handle
-            .upgrade()?
-            .blocking_lock()
-            .as_ref()
-            .and_then(|tunnel| match tunnel.get_tunnel_stats() {
-                Ok(stats) if stats.is_empty() => {
-                    log::error!("Tunnel unexpectedly shut down");
-                    None
-                }
-                Ok(stats) => Some(Ok(stats)),
-                Err(error) => Some(Err(Error::ConfigReadError(error))),
-            })
+    fn get_stats(tunnel_handle: &TunnelType) -> Option<Result<StatsMap, Error>> {
+        match tunnel_handle.get_tunnel_stats() {
+            Ok(stats) if stats.is_empty() => {
+                log::error!("Tunnel unexpectedly shut down");
+                None
+            }
+            Ok(stats) => Some(Ok(stats)),
+            Err(error) => Some(Err(Error::ConfigReadError(error))),
+        }
     }
 
     fn maybe_send_ping(&mut self, now: Instant) -> Result<(), Error> {
@@ -638,7 +657,7 @@ mod test {
             num_pings_sent: 0,
             pinger,
             close_receiver,
-            tunnel_handle,
+            tunnel_handle: Some(tunnel_handle),
         }
     }
 
@@ -676,7 +695,7 @@ mod test {
         monitor.conn_state = connected_state(start);
         // A ping was sent to verify connectivity
         monitor.maybe_send_ping(start).unwrap();
-        assert!(!monitor.check_connectivity(now).unwrap())
+        assert!(!monitor.check_connectivity(now,).unwrap())
     }
 
     #[test]
@@ -690,7 +709,7 @@ mod test {
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
         let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
 
-        assert!(!monitor.check_connectivity(now).unwrap())
+        assert!(!monitor.check_connectivity(now,).unwrap())
     }
 
     #[test]
@@ -707,7 +726,7 @@ mod test {
         // Mock the state - connectivity has been established
         monitor.conn_state = connected_state(start);
 
-        assert!(monitor.check_connectivity(now).unwrap())
+        assert!(monitor.check_connectivity(now,).unwrap())
     }
 
     #[test]

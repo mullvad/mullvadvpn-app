@@ -6,6 +6,8 @@ use super::{
 };
 #[cfg(target_os = "linux")]
 use crate::config::MULLVAD_INTERFACE_NAME;
+#[cfg(target_os = "android")]
+use crate::connectivity_check::ConnectivityMonitor;
 use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
@@ -103,7 +105,11 @@ impl WgGoTunnel {
         }
     }
 
-    pub fn better_set_config(self, config: &Config) -> Result<Self> {
+    pub fn set_config(
+        self,
+        config: &Config,
+        connectivity_monitor: &mut ConnectivityMonitor,
+    ) -> Result<Self> {
         let state = self.as_state();
         let log_path = state._logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
@@ -120,6 +126,7 @@ impl WgGoTunnel {
                     tun_provider,
                     routes,
                     &resource_dir,
+                    connectivity_monitor,
                 )
             }
             WgGoTunnel::Singlehop(state) if config.is_multihop() => {
@@ -131,6 +138,7 @@ impl WgGoTunnel {
                     tun_provider,
                     routes,
                     &resource_dir,
+                    connectivity_monitor,
                 )
             }
             WgGoTunnel::Singlehop(mut state) => {
@@ -288,6 +296,7 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
+        connectivity_monitor: &mut ConnectivityMonitor,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -310,7 +319,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        Ok(WgGoTunnel::Singlehop(WgGoTunnelState {
+        let tunnel = WgGoTunnel::Singlehop(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -320,7 +329,14 @@ impl WgGoTunnel {
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
-        }))
+        });
+
+        // TODO: explain
+        connectivity_monitor
+            .establish_connectivity(0, &tunnel)
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+
+        Ok(tunnel)
     }
 
     pub fn start_multihop_tunnel(
@@ -330,6 +346,7 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
+        connectivity_monitor: &mut ConnectivityMonitor,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -368,7 +385,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        Ok(WgGoTunnel::Multihop(WgGoTunnelState {
+        let tunnel = WgGoTunnel::Multihop(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -378,7 +395,14 @@ impl WgGoTunnel {
             resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
-        }))
+        });
+
+        // TODO: explain
+        connectivity_monitor
+            .establish_connectivity(0, &tunnel)
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+
+        Ok(tunnel)
     }
 
     fn bypass_tunnel_sockets(
