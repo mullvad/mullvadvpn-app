@@ -168,12 +168,15 @@ pub async fn using_mullvad_exit(rpc: &ServiceClient) -> bool {
 }
 
 /// Get VPN tunnel interface name
-pub async fn get_tunnel_interface(client: &mut MullvadProxyClient) -> Option<String> {
-    match client.get_tunnel_state().await.ok()? {
+pub async fn get_tunnel_interface(client: &mut MullvadProxyClient) -> anyhow::Result<String> {
+    match client.get_tunnel_state().await? {
         TunnelState::Connecting { endpoint, .. } | TunnelState::Connected { endpoint, .. } => {
-            endpoint.tunnel_interface
+            let Some(tunnel_interface) = endpoint.tunnel_interface else {
+                bail!("Unknown tunnel interface");
+            };
+            Ok(tunnel_interface)
         }
-        _ => None,
+        _ => bail!("Tunnel is not up"),
     }
 }
 
