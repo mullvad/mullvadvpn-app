@@ -293,6 +293,12 @@ function run_tests_for_os {
             runner_dir_flag=()
         fi
 
+        if [ -n "${MULLVAD_HOST+x}" ]; then
+            mullvad_host_arg=("--mullvad-host" "$MULLVAD_HOST")
+        else
+            mullvad_host_arg=()
+        fi
+
         if ! RUST_LOG_STYLE=always $test_manager run-tests \
             --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
             --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
@@ -301,6 +307,7 @@ function run_tests_for_os {
             --package-dir "${package_dir}" \
             --vm "$vm" \
             --openvpn-certificate "${OPENVPN_CERTIFICATE:-"assets/openvpn.ca.crt"}" \
+            "${mullvad_host_arg[@]}" \
             "${test_filters_arg[@]}" \
             "${runner_dir_flag[@]}" \
             2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
