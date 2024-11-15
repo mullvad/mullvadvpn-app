@@ -124,8 +124,7 @@ impl Config {
     pub fn to_userspace_format(&self) -> CString {
         userspace_format(
             &self.tunnel.private_key,
-            &self.entry_peer,
-            self.exit_peer.as_ref(),
+            self.peers(),
             #[cfg(target_os = "linux")]
             self.fwmark,
         )
@@ -220,10 +219,10 @@ impl WgConfigBuffer {
 }
 
 /// Returns a CString with the appropriate config for WireGuard-go
-pub fn userspace_format(
+#[allow(single_use_lifetimes)]
+pub fn userspace_format<'a>(
     private_key: &PrivateKey,
-    entry_peer: &PeerConfig,
-    exit_peer: Option<&PeerConfig>,
+    peers: impl Iterator<Item = &'a PeerConfig>,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
 ) -> CString {
     // the order of insertion matters, public key entry denotes a new peer entry
@@ -239,10 +238,9 @@ pub fn userspace_format(
 
     wg_conf.add("replace_peers", "true");
 
-    if let Some(exit) = exit_peer {
-        write_peer_to_config(&mut wg_conf, exit)
+    for peer in peers {
+        write_peer_to_config(&mut wg_conf, peer)
     }
-    write_peer_to_config(&mut wg_conf, entry_peer);
 
     let bytes = wg_conf.into_config();
     CString::new(bytes).expect("null bytes inside config")
