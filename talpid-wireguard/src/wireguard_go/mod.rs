@@ -344,7 +344,7 @@ impl WgGoTunnel {
 
         let exit_config_str = config::userspace_format(
             &config.tunnel.private_key,
-            &exit_peer,
+            exit_peer,
             config.exit_peer.as_ref(),
         );
 
