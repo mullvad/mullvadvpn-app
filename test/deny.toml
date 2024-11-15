@@ -1,3 +1,5 @@
+# Keep this file in sync with test/osv-scanner.toml
+
 [graph]
 # cargo deny will only evaluate dependencies pulled in by these
 # targets (the ones we run the test runner on)
