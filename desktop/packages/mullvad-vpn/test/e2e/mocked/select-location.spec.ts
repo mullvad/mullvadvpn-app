@@ -118,7 +118,7 @@ test("App shouldn't show entry selection when daita is enabled without direct on
     response: settings,
   });
 
-  const entryTab = page.getByText('Entry');
+  const entryTab = page.getByText('Entry').first();
   await entryTab.click();
   await expect(entryTab).toHaveCSS('background-color', colors.green);
 
