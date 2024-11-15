@@ -45,7 +45,7 @@ pub async fn test_mllvd_cr_24_03(
     connect_and_wait(&mut mullvad_client).await?;
     // Get the private ip address
     let in_tunnel_ip = {
-        let vpn_interface = get_tunnel_interface(&mut mullvad_client).await.unwrap(); // :cat-scream:
+        let vpn_interface = get_tunnel_interface(&mut mullvad_client).await?;
         rpc.get_interface_ip(vpn_interface).await?
     };
     // Invoke arping
