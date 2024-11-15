@@ -264,14 +264,16 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     func update(from tunnelSettings: LatestTunnelSettings) {
-        let newViewModel = VPNSettingsViewModel(from: tunnelSettings)
-        let mergedViewModel = viewModel.merged(newViewModel)
-
-        if viewModel != mergedViewModel {
-            viewModel = mergedViewModel
-        }
-
+        updateViewModel(from: tunnelSettings)
         updateSnapshot()
+    }
+
+    func reload(from tunnelSettings: LatestTunnelSettings) {
+        updateViewModel(from: tunnelSettings)
+
+        var snapshot = snapshot()
+        snapshot.reconfigureItems(snapshot.itemIdentifiers)
+        applySnapshot(snapshot, animated: false)
     }
 
     // MARK: - UITableViewDelegate
@@ -415,6 +417,15 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     // MARK: - Private
+
+    func updateViewModel(from tunnelSettings: LatestTunnelSettings) {
+        let newViewModel = VPNSettingsViewModel(from: tunnelSettings)
+        let mergedViewModel = viewModel.merged(newViewModel)
+
+        if viewModel != mergedViewModel {
+            viewModel = mergedViewModel
+        }
+    }
 
     private func registerClasses() {
         CellReuseIdentifiers.allCases.forEach { enumCase in
