@@ -223,8 +223,6 @@ async fn test_custom_bridge_gui(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    use mullvad_relay_selector::{RelaySelector, SelectorConfig};
-
     // For this test to work, we need to supply the following env-variables:
     //
     // * SHADOWSOCKS_SERVER_IP
@@ -238,8 +236,9 @@ async fn test_custom_bridge_gui(
     // `test_manager::tests::access_methods::test_shadowsocks`.
 
     let gui_test = "custom-bridge.spec";
+    let settings = mullvad_client.get_settings().await.unwrap();
     let relay_list = mullvad_client.get_relay_locations().await.unwrap();
-    let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
+    let relay_selector = helpers::get_daemon_relay_selector(&settings, relay_list);
     let custom_proxy = relay_selector
         .get_bridge_forced()
         .expect("`test_shadowsocks` needs at least one shadowsocks relay to execute. Found none in relay list.");
