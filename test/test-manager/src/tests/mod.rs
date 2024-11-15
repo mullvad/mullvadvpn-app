@@ -83,9 +83,12 @@ pub fn get_tests() -> Vec<&'static TestMetadata> {
 }
 
 pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<&TestMetadata>, anyhow::Error> {
-    let mut tests = get_tests();
-    tests.retain(|test| test.should_run_on_os(TEST_CONFIG.os));
-    if !specified_tests.is_empty() {
+    let tests = get_tests();
+
+    let mut tests = if specified_tests.is_empty() {
+        // Keep all tests
+        tests
+    } else {
         specified_tests
             .iter()
             .map(|f| {
@@ -95,11 +98,10 @@ pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<&TestMetadat
                     .cloned()
                     .ok_or(anyhow::anyhow!("Test '{f}' not found"))
             })
-            .collect()
-    } else {
-        // Keep all tests
-        Ok(tests)
-    }
+            .collect::<Result<_, anyhow::Error>>()?
+    };
+    tests.retain(|test| test.should_run_on_os(TEST_CONFIG.os));
+    Ok(tests)
 }
 
 /// Make sure the daemon is installed and logged in and restore settings to the defaults.
