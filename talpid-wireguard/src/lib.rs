@@ -779,9 +779,8 @@ impl WireguardMonitor {
         #[cfg(target_os = "android")]
         let tunnel = if let Some(exit_peer) = &config.exit_peer {
             WgGoTunnel::start_multihop_tunnel(
-                #[allow(clippy::needless_borrow)]
                 &config,
-                exit_peer.clone(),
+                exit_peer,
                 log_path,
                 tun_provider,
                 routes,

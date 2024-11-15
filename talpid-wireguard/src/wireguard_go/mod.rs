@@ -126,7 +126,7 @@ impl WgGoTunnel {
                 state.stop()?;
                 Self::start_multihop_tunnel(
                     config,
-                    config.exit_peer.clone().unwrap(),
+                    &config.exit_peer.clone().unwrap().clone(),
                     log_path.as_deref(),
                     tun_provider,
                     routes,
@@ -325,7 +325,7 @@ impl WgGoTunnel {
 
     pub fn start_multihop_tunnel(
         config: &Config,
-        exit_peer: PeerConfig,
+        exit_peer: &PeerConfig,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
