@@ -22,7 +22,7 @@ on:
 # Global environment variables for easy updates
 env:
   TEST_DEVICE_UDID: 00008130-0019181022F3803A
-  OLD_APP_COMMIT_HASH: "98c3489ede22a7eb4a6fcb69b4bd504abbe83d5f"
+  OLD_APP_COMMIT_HASH: "4319bfbe700d3e0f7ecfcd9d004a63f6f12c40ac"
 
 jobs:
   set_commit_hash:
