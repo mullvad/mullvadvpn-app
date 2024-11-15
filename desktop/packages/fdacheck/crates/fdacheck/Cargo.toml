@@ -1,0 +1,14 @@
+[package]
+name = "fdacheck"
+version = "0.1.0"
+license = "GPL-3.0"
+edition = "2021"
+exclude = ["index.node"]
+
+[lib]
+crate-type = ["cdylib"]
+
+[target.'cfg(target_os = "macos")'.dependencies]
+neon = "1"
+talpid-macos = { path = "../../../../../talpid-macos" }
+tokio = { version = "1", features = ["rt"] }

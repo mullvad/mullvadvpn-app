@@ -13,3 +13,6 @@ workspace = true
 [target.'cfg(target_os="macos")'.dependencies]
 libc = "0.2"
 log = { workspace = true }
+
+thiserror = { workspace = true }
+tokio = { workspace = true, features = ["process", "rt", "fs", "sync", "time", "macros", "io-util"] }

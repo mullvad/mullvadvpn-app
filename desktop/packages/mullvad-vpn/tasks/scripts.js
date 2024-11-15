@@ -121,9 +121,18 @@ function buildNseventforwarder(callback) {
   }
 }
 
+function buildFdacheck(callback) {
+  if (process.platform === 'darwin') {
+    exec('npm -w fdacheck run build-debug', (err) => callback(err));
+  } else {
+    callback();
+  }
+}
+
 compileScripts.displayName = 'compile-scripts';
 buildProto.displayName = 'build-proto';
 buildNseventforwarder.displayName = 'build-nseventforwarder';
+buildFdacheck.displayName = 'build-fdacheck';
 
 exports.build = series(
   compileScripts,
@@ -131,4 +140,5 @@ exports.build = series(
 );
 exports.buildProto = buildProto;
 exports.buildNseventforwarder = buildNseventforwarder;
+exports.buildFdacheck = buildFdacheck;
 exports.makeWatchCompiler = makeWatchCompiler;
