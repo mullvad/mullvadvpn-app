@@ -204,7 +204,9 @@ async fn reconfigure_tunnel(
 
     let tunnel = lock.take().expect("tunnel was None");
 
-    let new_tunnel = tunnel.better_set_config(&config).unwrap();
+    let new_tunnel = tunnel
+        .better_set_config(&config)
+        .map_err(|e| SetupError(Error::TunnelError(e)))?;
 
     *lock = Some(new_tunnel);
     Ok(config)
