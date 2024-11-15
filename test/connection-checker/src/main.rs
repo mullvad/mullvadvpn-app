@@ -49,7 +49,7 @@ fn am_i_mullvad(opt: &Opt) -> eyre::Result<bool> {
         mullvad_exit_ip_hostname: Option<String>,
     }
 
-    let url = "https://am.i.mullvad.net/json";
+    let url = &opt.url;
 
     let client = Client::new();
     let response: Response = client

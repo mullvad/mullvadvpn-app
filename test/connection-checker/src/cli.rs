@@ -37,4 +37,8 @@ pub struct Opt {
     /// Junk data for each UDP and TCP packet
     #[clap(long, requires = "leak", default_value = "Hello there!")]
     pub payload: String,
+
+    /// URL to fetch
+    #[clap(long, default_value = "https://am.i.mullvad.net/json")]
+    pub url: String,
 }
