@@ -324,10 +324,6 @@ class ApplicationMain
   };
 
   private onBeforeQuit = async (event: Electron.Event) => {
-    if (this.tunnelState.hasReceivedFullDiskAccessError) {
-      await this.daemonRpc.prepareRestart(true);
-    }
-
     log.info('before-quit received');
     if (this.quitInitiated) {
       event.preventDefault();
@@ -522,6 +518,16 @@ class ApplicationMain
         log.error(`Failed to check if daemon is performing post upgrade tasks: ${error.message}`);
 
         return this.handleBootstrapError(error);
+      }
+
+      // Restart the daemon if it does not have full-disk access
+      if (await this.daemonRpc.needFullDiskPermissions()) {
+        const fdacheck = require('fdacheck');
+        if (await fdacheck.hasFullDiskAccess()) {
+          console.log('Restarting daemon to enable full-disk access');
+          await this.daemonRpc.prepareRestart(true);
+          return;
+        }
       }
     }
 
