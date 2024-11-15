@@ -1,126 +1,108 @@
----
-name: iOS settings migration tests
+name: iOS Settings Migration Tests
+
 concurrency:
   group: ios-end-to-end-tests
   cancel-in-progress: false
+
 permissions:
   contents: read
+  issues: write
+  pull-requests: write
+
 on:
   workflow_dispatch:
   schedule:
     # At midnight every day.
     # Notifications for scheduled workflows are sent to the user who last modified the cron
-    # syntax in the workflow file. If you update this you must have notifications for
-    # Github Actions enabled, so these don't go unnoticed.
+    # syntax in the workflow file. If you update this, ensure notifications for
+    # GitHub Actions are enabled.
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
     - cron: '0 0 * * *'
+
+# Global environment variables for easy updates
 env:
   TEST_DEVICE_UDID: 00008130-0019181022F3803A
-jobs:
-  test:
-    name: Settings migration end to end tests
-    runs-on: [self-hosted, macOS, ios-test]
-    env:
-      OLD_APP_COMMIT_HASH: 895b7d98825e678f5d7023d5ea3c9b7beee89280
-    steps:
-      - name: Configure Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          override: true
-          target: aarch64-apple-ios
+  OLD_APP_COMMIT_HASH: "98c3489ede22a7eb4a6fcb69b4bd504abbe83d5f"
 
-      - name: Uninstall app
-        timeout-minutes: 5
+jobs:
+  set_commit_hash:
+    name: Set Commit Hash Environment Variable
+    runs-on:
+      - self-hosted
+      - macOS
+      - ios-test
+    outputs:
+      old_app_commit_hash: ${{ steps.set-hash.outputs.old_app_commit_hash }}
+    steps:
+      - name: Set OLD_APP_COMMIT_HASH
+        id: set-hash
+        run: echo "::set-output name=old_app_commit_hash::${{ env.OLD_APP_COMMIT_HASH }}"
+
+  uninstall_app:
+    name: Uninstall Old App
+    runs-on:
+      - self-hosted
+      - macOS
+      - ios-test
+    needs: set_commit_hash
+    env:
+      TEST_DEVICE_UDID: 00008130-0019181022F3803A
+    steps:
+      - name: Install ios-deploy
+        run: brew install ios-deploy
+
+      - name: Verify Device Connection
+        run: ios-deploy --detect
+
+      - name: Uninstall Old App from Device
+        timeout-minutes: 10
         run: ios-deploy --id ${{ env.TEST_DEVICE_UDID }} --uninstall_only --bundle_id net.mullvad.MullvadVPN
 
-      - name: Checkout old repository version
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.OLD_APP_COMMIT_HASH }}
+      - name: Verify Uninstallation
+        run: |
+          if ios-deploy --id ${{ env.TEST_DEVICE_UDID }} --list | grep net.mullvad.MullvadVPN; then
+            echo "Uninstallation failed."
+            exit 1
+          else
+            echo "App successfully uninstalled."
+          fi
 
-      - name: Change DNS settings on old app version
-        uses: ./.github/actions/ios-end-to-end-tests
-        with:
-          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
-          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
-          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
-          xcode_test_plan: 'MullvadVPNUITestsChangeDNSSettings'
-          partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+  change_dns_settings:
+    name: Change DNS Settings on Old App Version
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
+    needs:
+      - set_commit_hash
+      - uninstall_app
+    with:
+      arg_tests_json_key: "mullvadVPNUITestsChangeDNSSettings"
+      commit_hash: ${{ needs.set_commit_hash.outputs.old_app_commit_hash }}
+    secrets: inherit
 
-      - name: Store test report for changing DNS settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-change-dns-settings
-          path: ios/test-report/junit.xml
+  verify_dns_settings:
+    name: Verify DNS Settings on Current App Version
+    needs:
+      - change_dns_settings
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
+    with:
+      arg_tests_json_key: "mullvadVPNUITestsVerifyDNSSettingsChanged"
+    secrets: inherit
 
-      - name: Checkout repository to get the current app version
-        uses: actions/checkout@v4
+  change_other_settings:
+    name: Change All Other Settings on Old App Version
+    needs:
+      - set_commit_hash
+      - verify_dns_settings
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
+    with:
+      arg_tests_json_key: "mullvadVPNUITestsChangeSettings"
+      commit_hash: ${{ needs.set_commit_hash.outputs.old_app_commit_hash }}
+    secrets: inherit
 
-      - name: Verify DNS settings still changed on current app version
-        uses: ./.github/actions/ios-end-to-end-tests
-        if: always()
-        with:
-          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
-          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
-          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
-          partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
-          xcode_test_plan: 'MullvadVPNUITestsVerifyDNSSettingsChanged'
-
-      - name: Store test report for verifying DNS settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-verify-dns-settings
-          path: ios/test-report/junit.xml
-
-      - name: Checkout old repository version
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ env.OLD_APP_COMMIT_HASH }}
-
-      - name: Change all other settings on old app version
-        uses: ./.github/actions/ios-end-to-end-tests
-        if: always()
-        with:
-          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
-          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
-          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
-          partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
-          xcode_test_plan: 'MullvadVPNUITestsChangeSettings'
-
-      - name: Store test report for changing all settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-change-all-other-settings
-          path: ios/test-report/junit.xml
-
-      - name: Checkout repository to get the current app version
-        uses: actions/checkout@v4
-
-      - name: Verify all other settings still changed on current app version
-        uses: ./.github/actions/ios-end-to-end-tests
-        if: always()
-        with:
-          ios_device_pin_code: ${{ secrets.IOS_DEVICE_PIN_CODE }}
-          test_device_identifier_uuid: ${{ secrets.IOS_TEST_DEVICE_IDENTIFIER_UUID }}
-          has_time_account_number: ${{ secrets.IOS_HAS_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          no_time_account_number: ${{ secrets.IOS_NO_TIME_ACCOUNT_NUMBER_PRODUCTION }}
-          test_device_udid: ${{ env.TEST_DEVICE_UDID }}
-          partner_api_token: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
-          xcode_test_plan: 'MullvadVPNUITestsVerifySettingsChanged'
-
-      - name: Store test report for verifying all other settings
-        uses: actions/upload-artifact@v4
-        if: always()
-        with:
-          name: test-report-verify-all-other-settings
-          path: ios/test-report/junit.xml
+  verify_other_settings:
+    name: Verify All Other Settings on Current App Version
+    needs:
+      - change_other_settings
+    uses: ./.github/workflows/ios-end-to-end-tests.yml
+    with:
+      arg_tests_json_key: "mullvadVPNUITestsVerifySettingsChanged"
+    secrets: inherit

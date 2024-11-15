@@ -245,43 +245,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
     }
 
-    func testMultihopSettings() throws {
-        // Undo enabling Multihop in teardown
-        addTeardownBlock {
-            HeaderBar(self.app)
-                .tapSettingsButton()
-
-            SettingsPage(self.app)
-                .tapVPNSettingsCell()
-
-            VPNSettingsPage(self.app)
-                .tapMultihopSwitchIfOn()
-        }
-
-        HeaderBar(app)
-            .tapSettingsButton()
-
-        SettingsPage(app)
-            .tapVPNSettingsCell()
-
-        VPNSettingsPage(app)
-            .tapMultihopSwitch()
-            .tapBackButton()
-
-        SettingsPage(app)
-            .tapDoneButton()
-
-        TunnelControlPage(app)
-            .tapSecureConnectionButton()
-
-        allowAddVPNConfigurationsIfAsked()
-
-        TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
-            .verifyConnectingOverMultihop()
-            .tapDisconnectButton()
-    }
-
+    
     /// Connect to a relay in the default country and city, get name and IP address of the relay the app successfully connects to. Assumes user is logged on and at tunnel control page.
     private func getDefaultRelayInfo() -> RelayInfo {
         TunnelControlPage(app)

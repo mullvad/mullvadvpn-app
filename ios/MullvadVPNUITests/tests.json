@@ -1,19 +1,30 @@
 {
-    "tests": {
-        "nightly": [
-            "AccountTests",
-            "ConnectivityTests",
-            "CustomListsTests",
-            "RelayTests",
-            "SettingsTests"
-        ],
-        "pr-merge-to-main": [
-            "AccountTests/testLogin",
-            "AccountTests/testCreateAccount"
-        ],
-        "api-tests": [
-            "AccountTests"
-        ]
-    }
+   "tests":{
+      "nightly":[
+         "AccountTests",
+         "ConnectivityTests",
+         "CustomListsTests",
+         "RelayTests",
+         "SettingsTests"
+      ],
+      "pr-merge-to-main":[
+         "AccountTests/testLogin",
+         "AccountTests/testCreateAccount"
+      ],
+      "api-tests":[
+         "AccountTests"
+      ],
+      "mullvadVPNUITestsChangeDNSSettings":[
+         "SettingsMigrationTests/testChangeCustomDNSSettings"
+      ],
+      "mullvadVPNUITestsVerifyDNSSettingsChanged":[
+         "SettingsMigrationTests/testVerifyCustomDNSSettingsStillChanged"
+      ],
+      "mullvadVPNUITestsChangeSettings":[
+         "SettingsMigrationTests/testChangeVPNSettings"
+      ],
+      "mullvadVPNUITestsVerifySettingsChanged":[
+         "SettingsMigrationTests/testVerifySettingsStillChanged"
+      ]
+   }
 }
-
