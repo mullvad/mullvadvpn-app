@@ -509,6 +509,7 @@ impl WireguardMonitor {
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                     args.tun_provider,
+                    connectivity_monitor.clone(),
                 )
                 .await?;
 

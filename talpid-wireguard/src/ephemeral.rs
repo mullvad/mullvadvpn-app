@@ -3,8 +3,11 @@
 
 #[cfg(target_os = "android")] // On Android, the Tunnel trait is not imported by default.
 use super::Tunnel;
-use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, TunnelType};
+use super::{
+    config::Config, connectivity_check, obfuscation::ObfuscatorHandle, CloseMsg, Error, TunnelType,
+};
 
+use std::sync::mpsc;
 #[cfg(target_os = "android")]
 use std::sync::Mutex;
 use std::{
@@ -15,8 +18,10 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 
+use crate::connectivity_check::ConnectivityMonitor;
 use ipnetwork::IpNetwork;
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
+use talpid_types::ErrorExt;
 use tokio::sync::Mutex as AsyncMutex;
 
 const INITIAL_PSK_EXCHANGE_TIMEOUT: Duration = Duration::from_secs(8);
@@ -75,6 +80,7 @@ pub async fn config_ephemeral_peers(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+    connectivity_monitor: Arc<Mutex<ConnectivityMonitor>>,
 ) -> Result<(), CloseMsg> {
     config_ephemeral_peers_inner(
         tunnel,
@@ -84,6 +90,7 @@ pub async fn config_ephemeral_peers(
         close_obfs_sender,
         #[cfg(target_os = "android")]
         tun_provider,
+        connectivity_monitor,
     )
     .await
 }
@@ -95,6 +102,7 @@ async fn config_ephemeral_peers_inner(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
+    connectivity_monitor: Arc<Mutex<ConnectivityMonitor>>,
 ) -> Result<(), CloseMsg> {
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
@@ -130,6 +138,37 @@ async fn config_ephemeral_peers_inner(
             &tun_provider,
         )
         .await?;
+
+        let handle_ping =
+            |ping_result: std::result::Result<bool, connectivity_check::Error>| match ping_result {
+                Ok(true) => Ok(()),
+                Ok(false) => {
+                    log::warn!("Timeout while checking tunnel connection");
+                    Err(CloseMsg::PingErr)
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to check tunnel connection")
+                    );
+                    Err(CloseMsg::PingErr)
+                }
+            };
+
+        let ping = || {
+            let connectivity_monitor_arc = connectivity_monitor.clone();
+            // let retry_attempt = args.retry_attempt;
+            move || {
+                let ping_result = connectivity_monitor_arc
+                    .lock()
+                    .unwrap()
+                    .establish_connectivity(0);
+                handle_ping(ping_result)
+            }
+        };
+
+        tokio::task::spawn_blocking(ping()).await.unwrap()?;
+
         let entry_psk = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
