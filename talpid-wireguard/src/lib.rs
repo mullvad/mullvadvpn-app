@@ -777,11 +777,11 @@ impl WireguardMonitor {
         let config = Self::patch_allowed_ips(config, gateway_only);
 
         #[cfg(target_os = "android")]
-        let tunnel = if config.is_multihop() {
+        let tunnel = if let Some(exit_peer) = &config.exit_peer {
             WgGoTunnel::start_multihop_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
-                config.exit_peer.clone().unwrap(),
+                exit_peer.clone(),
                 log_path,
                 tun_provider,
                 routes,
