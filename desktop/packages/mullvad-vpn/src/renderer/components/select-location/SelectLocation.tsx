@@ -435,7 +435,7 @@ function DisabledEntrySelection() {
         {sprintf(
           messages.pgettext(
             'select-location-view',
-            '%(daita)s overrides %(multihop)s. To use %(multihop)s, please enable “%(directOnly)s” or disable %(daita)s in the %(daita)s settings.',
+            'The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable "%(daita)s" in the settings.',
           ),
           { daita: strings.daita, multihop, directOnly },
         )}
