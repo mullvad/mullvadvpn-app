@@ -122,6 +122,7 @@ pub async fn prepare_daemon(
         .context("Failed to disconnect daemon after test")?;
     helpers::ensure_logged_in(&mut mullvad_client).await?;
     helpers::custom_lists::add_default_lists(&mut mullvad_client).await?;
+    helpers::custom_lists::set_default_location(&mut mullvad_client).await?;
 
     Ok(())
 }

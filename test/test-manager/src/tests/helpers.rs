@@ -1199,11 +1199,15 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
 
 pub mod custom_lists {
     use super::*;
+    use mullvad_relay_selector::query::builder::RelayQueryBuilder;
     use mullvad_types::custom_list::{CustomList, Id};
     use std::sync::{LazyLock, Mutex};
 
     // Expose all custom list variants as a shorthand.
     pub use List::*;
+
+    /// The default custom list to use as location for all tests.
+    pub const DEFAULT_LIST: List = List::Nordic;
 
     /// Mapping between [List] to daemon custom lists. Since custom list ids are assigned by the
     /// daemon at the creation of the custom list settings object, we can't map a custom list
@@ -1308,6 +1312,32 @@ pub mod custom_lists {
         Ok(())
     }
 
+    /// Set the default location to the custom list specified by `DEFAULT_LIST`. This includes entry
+    /// location for multihop and bridge location for OpenVPN.
+    pub async fn set_default_location(
+        mullvad_client: &mut MullvadProxyClient,
+    ) -> anyhow::Result<()> {
+        let mut query = RelayQueryBuilder::new()
+            .location(DEFAULT_LIST)
+            .wireguard()
+            .multihop()
+            .entry(DEFAULT_LIST)
+            .build();
+
+        // The typestate query builder cannot express OpenVPN bridge locations while specifying
+        // wireguard options, like multihop. So we need to create a new query for bridge
+        // locations and insert the OpenVPN constraints into the existing query.
+        let openvpn_constraints = RelayQueryBuilder::new()
+            .openvpn()
+            .bridge()
+            .bridge_location(DEFAULT_LIST)
+            .build()
+            .into_openvpn_constraints();
+        query.set_openvpn_constraints(openvpn_constraints)?;
+
+        apply_settings_from_relay_query(mullvad_client, query).await?;
+        Ok(())
+    }
     /// Dig out a custom list from the daemon settings based on the custom list's name.
     /// There should be an rpc for this.
     async fn find_custom_list(
