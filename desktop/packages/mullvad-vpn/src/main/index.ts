@@ -324,7 +324,7 @@ class ApplicationMain
   };
 
   private onBeforeQuit = async (event: Electron.Event) => {
-    if (this.tunnelState.hasReceivedFullDiskAccessError) {
+    if (this.tunnelState.needFullDiskAccess) {
       await this.daemonRpc.prepareRestart(true);
     }
 
@@ -832,8 +832,10 @@ class ApplicationMain
       splitTunneling!.removeApplicationFromCache(application);
       return Promise.resolve();
     });
-    IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(() => {
-      return this.daemonRpc.needFullDiskPermissions();
+    IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(async () => {
+      const fullDiskState = await this.daemonRpc.needFullDiskPermissions();
+      this.tunnelState.needFullDiskAccess = fullDiskState;
+      return fullDiskState;
     });
 
     IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
