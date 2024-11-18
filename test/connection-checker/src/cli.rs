@@ -39,5 +39,6 @@ pub struct Opt {
     pub payload: String,
 
     /// URL to perform the connection check against. For example, https://am.i.mullvad.net/json.
+    #[clap(long)]
     pub url: String,
 }
