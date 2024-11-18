@@ -357,7 +357,7 @@ cargo run --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 log_header "Installing JavaScript dependencies"
 
 pushd desktop/packages/mullvad-vpn
-npm ci
+npm ci --no-audit --no-fund
 
 log_header "Packing Mullvad VPN $PRODUCT_VERSION artifact(s)"
 
