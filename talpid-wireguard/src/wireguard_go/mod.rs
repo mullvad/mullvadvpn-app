@@ -12,6 +12,8 @@ use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use once_cell::sync::OnceCell;
+#[cfg(target_os = "android")]
+use std::net::Ipv4Addr;
 #[cfg(daita)]
 use std::{ffi::CString, fs, path::PathBuf};
 use std::{
@@ -105,11 +107,7 @@ impl WgGoTunnel {
         }
     }
 
-    pub fn set_config(
-        self,
-        config: &Config,
-        connectivity_monitor: &mut ConnectivityMonitor,
-    ) -> Result<Self> {
+    pub fn set_config(self, config: &Config) -> Result<Self> {
         let state = self.as_state();
         let log_path = state._logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
@@ -126,7 +124,6 @@ impl WgGoTunnel {
                     tun_provider,
                     routes,
                     &resource_dir,
-                    connectivity_monitor,
                 )
             }
             WgGoTunnel::Singlehop(state) if config.is_multihop() => {
@@ -138,7 +135,6 @@ impl WgGoTunnel {
                     tun_provider,
                     routes,
                     &resource_dir,
-                    connectivity_monitor,
                 )
             }
             WgGoTunnel::Singlehop(mut state) => {
@@ -296,7 +292,6 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
-        connectivity_monitor: &mut ConnectivityMonitor,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -331,10 +326,7 @@ impl WgGoTunnel {
             config: config.clone(),
         });
 
-        // TODO: explain
-        connectivity_monitor
-            .establish_connectivity(0, &tunnel)
-            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+        tunnel.ensure_tunnel_is_running(config.ipv4_gateway)?;
 
         Ok(tunnel)
     }
@@ -346,7 +338,6 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
         #[cfg(daita)] resource_dir: &Path,
-        connectivity_monitor: &mut ConnectivityMonitor,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -397,10 +388,7 @@ impl WgGoTunnel {
             config: config.clone(),
         });
 
-        // TODO: explain
-        connectivity_monitor
-            .establish_connectivity(0, &tunnel)
-            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+        tunnel.ensure_tunnel_is_running(config.ipv4_gateway)?;
 
         Ok(tunnel)
     }
@@ -416,6 +404,20 @@ impl WgGoTunnel {
         tunnel_device.bypass(socket_v6)?;
 
         Ok(())
+    }
+
+    fn ensure_tunnel_is_running(&self, addr: Ipv4Addr) -> Result<()> {
+        let connection_established = ConnectivityMonitor::new(addr)
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?
+            .establish_connectivity(0, self)
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+
+        // Timed out
+        if !connection_established {
+            Err(TunnelError::TunnelUp)
+        } else {
+            Ok(())
+        }
     }
 }
 

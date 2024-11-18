@@ -26,8 +26,7 @@ use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::tun_provider;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
-#[cfg(target_os = "android")]
-use crate::connectivity_check::ConnectivityMonitor;
+use crate::connectivity_check::{ConnectivityMonitor, ConnectivityMonitorLoop};
 use talpid_types::net::wireguard::TunnelParameters;
 use talpid_types::{
     net::{AllowedTunnelTraffic, Endpoint, TransportProtocol},
@@ -230,13 +229,13 @@ impl WireguardMonitor {
         };
 
         let gateway = config.ipv4_gateway;
-        let mut connectivity_monitor = connectivity_check::ConnectivityMonitor::new(
+        let mut connectivity_monitor = ConnectivityMonitor::new(
             gateway,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             iface_name.clone(),
-            pinger_rx,
         )
-        .map_err(Error::ConnectivityMonitorError)?;
+        .map_err(Error::ConnectivityMonitorError)?
+        .with_close_receiver(pinger_rx);
 
         let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
@@ -324,7 +323,7 @@ impl WireguardMonitor {
 
             let cloned_tunnel = Arc::clone(&tunnel);
 
-            let mut connectivity_monitor = tokio::task::spawn_blocking(move || {
+            let connectivity_monitor = tokio::task::spawn_blocking(move || {
                 let lock = cloned_tunnel.blocking_lock();
 
                 let Some(tunnel) = lock.as_ref() else {
@@ -360,7 +359,9 @@ impl WireguardMonitor {
 
             let weak_tunnel = Arc::downgrade(&tunnel);
             tokio::task::spawn_blocking(move || {
-                if let Err(error) = connectivity_monitor.run(weak_tunnel) {
+                if let Err(error) =
+                    ConnectivityMonitorLoop::new(connectivity_monitor).run(weak_tunnel)
+                {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Connectivity monitor failed")
@@ -433,10 +434,6 @@ impl WireguardMonitor {
 
         let (pinger_tx, pinger_rx) = sync_mpsc::channel();
 
-        let mut connectivity_monitor =
-            connectivity_check::ConnectivityMonitor::new(config.ipv4_gateway, pinger_rx)
-                .map_err(Error::ConnectivityMonitorError)?;
-
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,
@@ -447,10 +444,13 @@ impl WireguardMonitor {
             // that we only allows traffic to/from the gateway. This is only needed on Android
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
-            &mut connectivity_monitor,
         )?;
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
+
+        let connectivity_monitor = ConnectivityMonitor::new(config.ipv4_gateway)
+            .map_err(Error::ConnectivityMonitorError)?
+            .with_close_receiver(pinger_rx);
 
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
@@ -466,7 +466,6 @@ impl WireguardMonitor {
         let tunnel_fut = async move {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
-            let connectivity_monitor = Arc::new(Mutex::new(connectivity_monitor));
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
@@ -483,7 +482,6 @@ impl WireguardMonitor {
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                     args.tun_provider,
-                    connectivity_monitor.clone(),
                 )
                 .await?;
 
@@ -500,7 +498,7 @@ impl WireguardMonitor {
 
             tokio::task::spawn_blocking(move || {
                 let tunnel = Arc::downgrade(&tunnel);
-                if let Err(error) = connectivity_monitor.lock().unwrap().run(tunnel) {
+                if let Err(error) = ConnectivityMonitorLoop::new(connectivity_monitor).run(tunnel) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Connectivity monitor failed")
@@ -721,7 +719,6 @@ impl WireguardMonitor {
         #[cfg(daita)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
-        #[cfg(target_os = "android")] connectivity_monitor: &mut ConnectivityMonitor,
     ) -> Result<WgGoTunnel> {
         let routes = config
             .get_tunnel_destinations()
@@ -760,7 +757,6 @@ impl WireguardMonitor {
                 routes,
                 #[cfg(daita)]
                 resource_dir,
-                connectivity_monitor,
             )
             .map_err(Error::TunnelError)?
         } else {
@@ -772,7 +768,6 @@ impl WireguardMonitor {
                 routes,
                 #[cfg(daita)]
                 resource_dir,
-                connectivity_monitor,
             )
             .map_err(Error::TunnelError)?
         };
@@ -1056,6 +1051,11 @@ pub enum TunnelError {
     #[cfg(target_os = "android")]
     #[error("Failed to configure Wireguard sockets to bypass the tunnel")]
     BypassError(#[source] tun_provider::Error),
+
+    /// TODO
+    #[cfg(target_os = "android")]
+    #[error("Failed to set up a working tunnel")]
+    TunnelUp,
 
     /// Invalid tunnel interface name.
     #[error("Invalid tunnel interface name")]
