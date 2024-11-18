@@ -8,8 +8,8 @@
   "scripts": {
     "cargo-build": "tsc && cargo build",
     "build-debug": "npm run cargo-build && cp target/debug/libnseventforwarder.dylib target/debug/index.node",
-    "build-arm": "bash ./build.sh --target aarch64-apple-darwin",
-    "build-x86": "bash ./build.sh --target x86_64-apple-darwin",
+    "build-arm": "npm run cargo-build -- --release --target aarch64-apple-darwin && mkdir -p dist/darwin-arm64 && cp target/aarch64-apple-darwin/release/libnseventforwarder.dylib dist/darwin-arm64/index.node",
+    "build-x86": "npm run cargo-build -- --release --target x86_64-apple-darwin && mkdir -p dist/darwin-x64 && cp target/x86_64-apple-darwin/release/libnseventforwarder.dylib dist/darwin-x64/index.node",
     "lint": "eslint .",
     "lint-fix": "eslint --fix ."
   },
