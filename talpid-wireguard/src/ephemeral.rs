@@ -15,8 +15,6 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 
-#[cfg(target_os = "android")]
-use crate::connectivity_check::ConnectivityMonitor;
 use ipnetwork::IpNetwork;
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
@@ -77,7 +75,6 @@ pub async fn config_ephemeral_peers(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-    #[cfg(target_os = "android")] connectivity_monitor: Arc<Mutex<ConnectivityMonitor>>,
 ) -> Result<(), CloseMsg> {
     config_ephemeral_peers_inner(
         tunnel,
@@ -87,8 +84,6 @@ pub async fn config_ephemeral_peers(
         close_obfs_sender,
         #[cfg(target_os = "android")]
         tun_provider,
-        #[cfg(target_os = "android")]
-        connectivity_monitor,
     )
     .await
 }
@@ -100,7 +95,6 @@ async fn config_ephemeral_peers_inner(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
-    #[cfg(target_os = "android")] connectivity_monitor: Arc<Mutex<ConnectivityMonitor>>,
 ) -> Result<(), CloseMsg> {
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
@@ -134,8 +128,6 @@ async fn config_ephemeral_peers_inner(
             close_obfs_sender,
             #[cfg(target_os = "android")]
             &tun_provider,
-            #[cfg(target_os = "android")]
-            &connectivity_monitor,
         )
         .await?;
 
@@ -168,8 +160,6 @@ async fn config_ephemeral_peers_inner(
         close_obfs_sender,
         #[cfg(target_os = "android")]
         &tun_provider,
-        #[cfg(target_os = "android")]
-        &connectivity_monitor,
     )
     .await?;
 
@@ -197,7 +187,6 @@ async fn reconfigure_tunnel(
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
     tun_provider: &Arc<Mutex<TunProvider>>,
-    connectivity_monitor: &Arc<Mutex<ConnectivityMonitor>>,
 ) -> Result<Config, CloseMsg> {
     let mut obfs_guard = obfuscator.lock().await;
     if let Some(obfuscator_handle) = obfs_guard.take() {
@@ -211,19 +200,17 @@ async fn reconfigure_tunnel(
         .await
         .map_err(CloseMsg::ObfuscatorFailed)?;
     }
+    {
+        let mut shared_tunnel = tunnel.lock().await;
+        let tunnel = shared_tunnel.take().expect("tunnel was None");
 
-    let mut lock = tunnel.lock().await;
+        let updated_tunnel = tunnel
+            .set_config(&config)
+            .map_err(Error::TunnelError)
+            .map_err(CloseMsg::SetupError)?;
 
-    let tunnel = lock.take().expect("tunnel was None");
-
-    let mut connectivity_monitor = connectivity_monitor.lock().unwrap();
-
-    let new_tunnel = tunnel
-        .set_config(&config, &mut connectivity_monitor)
-        .map_err(Error::TunnelError)
-        .map_err(CloseMsg::SetupError)?;
-
-    *lock = Some(new_tunnel);
+        *shared_tunnel = Some(updated_tunnel);
+    }
     Ok(config)
 }
 
