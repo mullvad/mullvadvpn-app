@@ -9,19 +9,19 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PERMISSION
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
-class VpnPermissionViewModel(
+class VpnProfileViewModel(
     intentProvider: IntentProvider,
     private val connectionProxy: ConnectionProxy,
 ) : ViewModel() {
-    val uiSideEffect: Flow<VpnPermissionSideEffect> =
+    val uiSideEffect: Flow<VpnProfileSideEffect> =
         intentProvider.intents
-            .filter { it?.action == KEY_REQUEST_VPN_PERMISSION }
+            .filter { it?.action == KEY_REQUEST_VPN_PROFILE }
             .distinctUntilChanged()
-            .map { VpnPermissionSideEffect.ShowDialog }
+            .map { VpnProfileSideEffect.RequestVpnProfile }
             .shareIn(viewModelScope, SharingStarted.WhileSubscribed())
 
     fun connect() {
@@ -29,6 +29,6 @@ class VpnPermissionViewModel(
     }
 }
 
-sealed interface VpnPermissionSideEffect {
-    data object ShowDialog : VpnPermissionSideEffect
+sealed interface VpnProfileSideEffect {
+    data object RequestVpnProfile : VpnProfileSideEffect
 }

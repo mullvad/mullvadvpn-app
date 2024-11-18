@@ -30,8 +30,10 @@ android {
 
 dependencies {
     implementation(projects.lib.model)
+    implementation(projects.lib.common)
 
     implementation(libs.androidx.lifecycle.service)
+    implementation(libs.arrow)
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

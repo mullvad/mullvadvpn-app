@@ -110,12 +110,20 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 i32::from(Cause::IsOffline)
                             }
                             #[cfg(target_os = "android")]
-                            talpid_tunnel::ErrorStateCause::VpnPermissionDenied => {
-                                i32::from(Cause::VpnPermissionDenied)
+                            talpid_tunnel::ErrorStateCause::NotPrepared { .. } => {
+                                i32::from(Cause::NotPrepared)
+                            }
+                            #[cfg(target_os = "android")]
+                            talpid_tunnel::ErrorStateCause::AlwaysOnApp { .. } => {
+                                i32::from(Cause::AlwaysOnApp)
+                            }
+                            #[cfg(target_os = "android")]
+                            talpid_tunnel::ErrorStateCause::LegacyLockdown => {
+                                i32::from(Cause::LegacyLockdown)
                             }
                             #[cfg(target_os = "android")]
                             talpid_tunnel::ErrorStateCause::InvalidDnsServers(_) => {
-                                i32::from(Cause::SetDnsError)
+                                i32::from(Cause::InvalidDnsServers)
                             }
                             #[cfg(any(
                                 target_os = "windows",
@@ -131,43 +139,65 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
+                        // TODO Add more logic to add data thingy
+                        always_on_app_error: if let talpid_tunnel::ErrorStateCause::AlwaysOnApp { app_name } =
+                            error_state.cause()
+                        {
+                            Some(proto::error_state::AlwaysOnAppError { app_name: app_name.to_string() })
+                        } else {
+                            None
+                        },
+                        not_prepared_error: if let talpid_tunnel::ErrorStateCause::NotPrepared { package_name, class_name } =
+                            error_state.cause()
+                        {
+                            Some(proto::error_state::NotPreparedError { package_name: package_name.to_string(), class_name: class_name.to_string() })
+                        } else {
+                            None
+                        },
+                        invalid_dns_servers_error: if let talpid_tunnel::ErrorStateCause::InvalidDnsServers(ip_addrs) =
+                            error_state.cause()
+                        {
+                            Some(proto::error_state::InvalidDnsServersError { ip_addrs: ip_addrs.iter().map(|ip| ip.to_string()).collect() })
+                        } else {
+                            None
+                        },
                         auth_failed_error: mullvad_types::auth_failed::AuthFailed::try_from(
                             error_state.cause(),
                         )
-                        .ok()
-                        .map(|auth_failed| {
-                            i32::from(proto::error_state::AuthFailedError::from(auth_failed))
-                        })
-                        .unwrap_or(0i32),
+                            .ok()
+                            .map(|auth_failed| {
+                                i32::from(proto::error_state::AuthFailedError::from(auth_failed))
+                            })
+                            .unwrap_or(0i32),
                         parameter_error:
-                            if let talpid_tunnel::ErrorStateCause::TunnelParameterError(reason) =
-                                error_state.cause()
-                            {
-                                match reason {
-                            talpid_tunnel::ParameterGenerationError::NoMatchingRelay => {
-                                i32::from(GenerationError::NoMatchingRelay)
+                        if let talpid_tunnel::ErrorStateCause::TunnelParameterError(reason) =
+                            error_state.cause()
+                        {
+                            match reason {
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelay => {
+                                    i32::from(GenerationError::NoMatchingRelay)
+                                }
+                                talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
+                                    i32::from(GenerationError::NoMatchingBridgeRelay)
+                                }
+                                talpid_tunnel::ParameterGenerationError::NoWireguardKey => {
+                                    i32::from(GenerationError::NoWireguardKey)
+                                }
+                                talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError => {
+                                    i32::from(GenerationError::CustomTunnelHostResolutionError)
+                                }
                             }
-                            talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
-                                i32::from(GenerationError::NoMatchingBridgeRelay)
-                            }
-                            talpid_tunnel::ParameterGenerationError::NoWireguardKey => {
-                                i32::from(GenerationError::NoWireguardKey)
-                            }
-                            talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError => {
-                                i32::from(GenerationError::CustomTunnelHostResolutionError)
-                            }
-                        }
-                            } else {
-                                0
-                            },
+                        } else {
+                            0
+                        },
                         policy_error:
-                            if let talpid_tunnel::ErrorStateCause::SetFirewallPolicyError(reason) =
-                                error_state.cause()
-                            {
-                                Some(map_firewall_error(reason))
-                            } else {
-                                None
-                            },
+                        if let talpid_tunnel::ErrorStateCause::SetFirewallPolicyError(reason) =
+                            error_state.cause()
+                        {
+                            Some(map_firewall_error(reason))
+                        } else {
+                            None
+                        },
                         #[cfg(not(target_os = "windows"))]
                         create_tunnel_error: None,
                         #[cfg(target_os = "windows")]
@@ -230,9 +260,9 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
         let state = match state.state {
             #[cfg_attr(target_os = "android", allow(unused_variables))]
             Some(proto::tunnel_state::State::Disconnected(proto::tunnel_state::Disconnected {
-                disconnected_location,
-                locked_down,
-            })) => MullvadState::Disconnected {
+                                                              disconnected_location,
+                                                              locked_down,
+                                                          })) => MullvadState::Disconnected {
                 location: disconnected_location
                     .map(mullvad_types::location::GeoIpLocation::try_from)
                     .transpose()?,
@@ -240,13 +270,13 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                 locked_down,
             },
             Some(proto::tunnel_state::State::Connecting(proto::tunnel_state::Connecting {
-                relay_info:
-                    Some(proto::TunnelStateRelayInfo {
-                        tunnel_endpoint: Some(tunnel_endpoint),
-                        location,
-                    }),
-                feature_indicators,
-            })) => MullvadState::Connecting {
+                                                            relay_info:
+                                                            Some(proto::TunnelStateRelayInfo {
+                                                                     tunnel_endpoint: Some(tunnel_endpoint),
+                                                                     location,
+                                                                 }),
+                                                            feature_indicators,
+                                                        })) => MullvadState::Connecting {
                 endpoint: talpid_net::TunnelEndpoint::try_from(tunnel_endpoint)?,
                 location: location
                     .map(mullvad_types::location::GeoIpLocation::try_from)
@@ -258,13 +288,13 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     ))?,
             },
             Some(proto::tunnel_state::State::Connected(proto::tunnel_state::Connected {
-                relay_info:
-                    Some(proto::TunnelStateRelayInfo {
-                        tunnel_endpoint: Some(tunnel_endpoint),
-                        location,
-                    }),
-                feature_indicators,
-            })) => MullvadState::Connected {
+                                                           relay_info:
+                                                           Some(proto::TunnelStateRelayInfo {
+                                                                    tunnel_endpoint: Some(tunnel_endpoint),
+                                                                    location,
+                                                                }),
+                                                           feature_indicators,
+                                                       })) => MullvadState::Connected {
                 endpoint: talpid_net::TunnelEndpoint::try_from(tunnel_endpoint)?,
                 location: location
                     .map(mullvad_types::location::GeoIpLocation::try_from)
@@ -276,8 +306,8 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                     ))?,
             },
             Some(proto::tunnel_state::State::Disconnecting(
-                proto::tunnel_state::Disconnecting { after_disconnect },
-            )) => MullvadState::Disconnecting(
+                     proto::tunnel_state::Disconnecting { after_disconnect },
+                 )) => MullvadState::Disconnecting(
                 match proto::AfterDisconnect::try_from(after_disconnect) {
                     Ok(proto::AfterDisconnect::Nothing) => {
                         talpid_tunnel::ActionAfterDisconnect::Nothing
@@ -296,16 +326,17 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                 },
             ),
             Some(proto::tunnel_state::State::Error(proto::tunnel_state::Error {
-                error_state:
-                    Some(proto::ErrorState {
-                        cause,
-                        blocking_error,
-                        auth_failed_error,
-                        parameter_error,
-                        policy_error,
-                        create_tunnel_error,
-                    }),
-            })) => {
+                                                       error_state:
+                                                       Some(proto::ErrorState {
+                                                                cause,
+                                                                blocking_error,
+                                                                auth_failed_error,
+                                                                parameter_error,
+                                                                policy_error,
+                                                                create_tunnel_error,
+                                                                ..
+                                                            }),
+                                                   })) => {
                 #[cfg(not(target_os = "windows"))]
                 let _ = create_tunnel_error;
 
@@ -356,10 +387,6 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                             )),
                         };
                         talpid_tunnel::ErrorStateCause::TunnelParameterError(parameter_error)
-                    }
-                    #[cfg(target_os = "android")]
-                    Ok(proto::error_state::Cause::VpnPermissionDenied) => {
-                        talpid_tunnel::ErrorStateCause::VpnPermissionDenied
                     }
                     #[cfg(any(target_os = "windows", target_os = "macos"))]
                     Ok(proto::error_state::Cause::SplitTunnelError) => {

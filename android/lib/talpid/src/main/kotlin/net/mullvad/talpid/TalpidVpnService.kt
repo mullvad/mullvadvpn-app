@@ -7,6 +7,8 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
+import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.talpid.model.CreateTunResult
 import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
@@ -78,10 +80,21 @@ open class TalpidVpnService : LifecycleVpnService() {
     // Function is to be cleaned up and lint suppression to be removed.
     @Suppress("ReturnCount")
     private fun createTun(config: TunConfig): CreateTunResult {
-        if (prepare(this) != null) {
-            // VPN permission wasn't granted
-            return CreateTunResult.PermissionDenied
-        }
+        prepareVpnSafe()
+            .mapLeft {
+                when (it) {
+                    is PrepareError.LegacyLockdown -> CreateTunResult.LegacyLockdown
+                    is PrepareError.NotPrepared ->
+                        CreateTunResult.NotPrepared(
+                            it.prepareIntent.component!!.packageName,
+                            it.prepareIntent.component!!.className,
+                        )
+                    is PrepareError.OtherAlwaysOnApp -> CreateTunResult.AlwaysOnApp(it.appName)
+                }
+            }
+            .onLeft {
+                return it
+            }
 
         val invalidDnsServerAddresses = ArrayList<InetAddress>()
 

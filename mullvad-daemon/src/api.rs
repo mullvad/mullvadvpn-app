@@ -52,6 +52,7 @@ pub enum AccessMethodEvent {
         setting: AccessMethodSetting,
         /// The endpoint which represents how to connect to the Mullvad API and
         /// which clients are allowed to initiate such a connection.
+        #[cfg(not(target_os = "android"))]
         endpoint: AllowedEndpoint,
     },
     /// Emitted when the the firewall should be updated.
@@ -63,6 +64,7 @@ pub enum AccessMethodEvent {
     /// should be opaque to any client, it should not produce any unwanted noise
     /// and as such it is *not* broadcasted after the daemon is done processing
     /// this [`AccessMethodEvent::Allow`].
+    #[cfg(not(target_os = "android"))]
     Allow { endpoint: AllowedEndpoint },
 }
 
@@ -419,10 +421,13 @@ impl AccessModeSelector {
         // created from this `AccessModeSelector` instance. As such, the
         // completion channel is discarded in this instance.
         let setting = resolved.setting.clone();
+        #[cfg(not(target_os = "android"))]
         let endpoint = resolved.endpoint.clone();
         let daemon_sender = self.access_method_event_sender.clone();
         tokio::spawn(async move {
-            let _ = AccessMethodEvent::New { setting, endpoint }
+            let _ = AccessMethodEvent::New { setting,
+                #[cfg(not(target_os = "android"))]
+                endpoint }
                 .send(daemon_sender)
                 .await;
         });

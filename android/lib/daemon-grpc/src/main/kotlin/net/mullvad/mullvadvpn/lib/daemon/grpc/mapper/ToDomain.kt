@@ -2,11 +2,13 @@
 
 package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
 
+import android.content.Intent
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
+import mullvad_daemon.management_interface.errorState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.RelayNameComparator
 import net.mullvad.mullvadvpn.lib.model.AccountData
@@ -35,6 +37,8 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.AuthFailed
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.TunnelParameterError
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -48,6 +52,8 @@ import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
+import net.mullvad.mullvadvpn.lib.model.PrepareError
+import net.mullvad.mullvadvpn.lib.model.PrepareError.LegacyLockdown
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
@@ -113,8 +119,53 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
             TunnelState.Disconnecting(
                 actionAfterDisconnect = disconnecting.afterDisconnect.toDomain()
             )
-        ManagementInterface.TunnelState.StateCase.ERROR ->
-            TunnelState.Error(errorState = error.errorState.toDomain())
+        ManagementInterface.TunnelState.StateCase.ERROR -> {
+            val alwaysOnAppError =
+                error.errorState.let {
+                    if (it.hasAlwaysOnAppError()) {
+                        PrepareError.OtherAlwaysOnApp(it.alwaysOnAppError.appName)
+                    } else {
+                        null
+                    }
+                }
+
+            val notPreparedError =
+                error.errorState.let {
+                    if (it.hasNotPreparedError()) {
+                        PrepareError.NotPrepared(
+                            Intent()
+                                .setClassName(
+                                    it.notPreparedError.packageName,
+                                    it.notPreparedError.className,
+                                )
+                        )
+                    } else {
+                        null
+                    }
+                }
+
+            val invalidDnsServers =
+                error.errorState.let {
+                    if (it.hasInvalidDnsServersError()) {
+                        ErrorStateCause.InvalidDnsServers(
+                            it.invalidDnsServersError.ipAddrsList.toList().map {
+                                InetAddress.getByName(it)
+                            }
+                        )
+                    } else {
+                        null
+                    }
+                }
+
+            TunnelState.Error(
+                errorState =
+                    error.errorState.toDomain(
+                        alwaysOnApp = alwaysOnAppError,
+                        notPrepared = notPreparedError,
+                        invalidDnsServers = invalidDnsServers,
+                    )
+            )
+        }
         ManagementInterface.TunnelState.StateCase.STATE_NOT_SET ->
             TunnelState.Disconnected(location = disconnected.disconnectedLocation.toDomain())
     }
@@ -198,12 +249,16 @@ internal fun ManagementInterface.AfterDisconnect.toDomain(): ActionAfterDisconne
             throw IllegalArgumentException("Unrecognized action after disconnect")
     }
 
-internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
+internal fun ManagementInterface.ErrorState.toDomain(
+    alwaysOnApp: PrepareError.OtherAlwaysOnApp?,
+    notPrepared: PrepareError.NotPrepared?,
+    invalidDnsServers: ErrorStateCause.InvalidDnsServers?,
+): ErrorState =
     ErrorState(
         cause =
             when (cause!!) {
                 ManagementInterface.ErrorState.Cause.AUTH_FAILED ->
-                    ErrorStateCause.AuthFailed(authFailedError.toDomain())
+                    AuthFailed(authFailedError.toDomain())
                 ManagementInterface.ErrorState.Cause.IPV6_UNAVAILABLE ->
                     ErrorStateCause.Ipv6Unavailable
                 ManagementInterface.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR ->
@@ -212,16 +267,22 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
                 ManagementInterface.ErrorState.Cause.START_TUNNEL_ERROR ->
                     ErrorStateCause.StartTunnelError
                 ManagementInterface.ErrorState.Cause.TUNNEL_PARAMETER_ERROR ->
-                    ErrorStateCause.TunnelParameterError(parameterError.toDomain())
+                    TunnelParameterError(parameterError.toDomain())
                 ManagementInterface.ErrorState.Cause.IS_OFFLINE -> ErrorStateCause.IsOffline
-                ManagementInterface.ErrorState.Cause.VPN_PERMISSION_DENIED ->
-                    ErrorStateCause.VpnPermissionDenied
                 ManagementInterface.ErrorState.Cause.SPLIT_TUNNEL_ERROR ->
                     ErrorStateCause.StartTunnelError
                 ManagementInterface.ErrorState.Cause.UNRECOGNIZED,
                 ManagementInterface.ErrorState.Cause.NEED_FULL_DISK_PERMISSIONS,
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
+
+                ManagementInterface.ErrorState.Cause.NOT_PREPARED ->
+                    ErrorStateCause.VpnPermissionDenied(notPrepared!!)
+                ManagementInterface.ErrorState.Cause.ALWAYS_ON_APP ->
+                    ErrorStateCause.VpnPermissionDenied(alwaysOnApp!!)
+                ManagementInterface.ErrorState.Cause.LEGACY_LOCKDOWN ->
+                    ErrorStateCause.VpnPermissionDenied(LegacyLockdown)
+                ManagementInterface.ErrorState.Cause.INVALID_DNS_SERVERS -> invalidDnsServers!!
             },
         isBlocking = !hasBlockingError(),
     )

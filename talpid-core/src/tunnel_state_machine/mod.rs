@@ -187,6 +187,7 @@ pub enum TunnelCommand {
     /// Endpoint that should never be blocked. `()` is sent to the
     /// channel after attempting to set the firewall policy, regardless
     /// of whether it succeeded.
+    #[cfg(not(target_os = "android"))]
     AllowEndpoint(AllowedEndpoint, oneshot::Sender<()>),
     /// Set DNS configuration to use.
     Dns(crate::dns::DnsConfig, oneshot::Sender<()>),

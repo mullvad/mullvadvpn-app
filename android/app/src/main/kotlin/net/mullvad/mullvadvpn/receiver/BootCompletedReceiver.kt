@@ -3,10 +3,10 @@ package net.mullvad.mullvadvpn.receiver
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.net.VpnService
 import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 
 class BootCompletedReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -16,7 +16,7 @@ class BootCompletedReceiver : BroadcastReceiver() {
     }
 
     private fun startAndConnectTunnel(context: Context) {
-        val hasVpnPermission = VpnService.prepare(context) == null
+        val hasVpnPermission = context.prepareVpnSafe().isRight()
         Logger.i("AutoStart on boot and connect, hasVpnPermission: $hasVpnPermission")
         if (hasVpnPermission) {
             val intent =

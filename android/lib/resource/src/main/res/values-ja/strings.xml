@@ -22,7 +22,7 @@
     <string name="all_locations">すべての場所</string>
     <string name="all_providers">すべてのプロバイダ</string>
     <string name="always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前に&lt;b&gt;%1$s&lt;/b&gt;のAlways-on VPNを無効にしてください。</string>
-    <string name="always_on_vpn_error_notification_title">Always-on VPNは他のアプリに割り当てられています</string>
+    <string name="legacy_always_on_vpn_error_notification_title">Always-on VPNは他のアプリに割り当てられています</string>
     <string name="any">すべて</string>
     <string name="api_access_description">Mullvad APIへのカスタムのアクセス方法を管理・追加します。</string>
     <string name="api_access_method_info_first_line">アプリはユーザーのログイン、サーバーリストの取得、およびその他の重要な操作を行うためにMullvad APIサーバーと通信する必要があります。</string>
@@ -133,7 +133,6 @@
     <string name="enter_value_placeholder">MTU を入力</string>
     <string name="enter_voucher_code">バウチャーコードを入力</string>
     <string name="error_occurred">エラー発生。</string>
-    <string name="error_state">セキュリティ保護接続を確立できませんでした</string>
     <string name="exclude_applications">除外対象アプリケーション</string>
     <string name="failed_to_block_internet">すべてのネットワークトラフィックをブロックできません。問題に対処するか、問題の報告を送信してください。</string>
     <string name="failed_to_create_account">アカウントを作成できませんでした</string>
@@ -333,7 +332,6 @@
     <string name="voucher_is_account_number">バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
     <string name="vpn_permission_denied_error">トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。</string>
-    <string name="vpn_permission_error_notification_message">Always-on VPNが別のアプリで有効になっている可能性があります</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
     <string name="wireguard_custon_port_title">カスタム</string>

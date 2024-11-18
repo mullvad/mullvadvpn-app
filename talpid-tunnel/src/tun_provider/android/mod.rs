@@ -46,8 +46,14 @@ pub enum Error {
     #[error("Failed to create tunnel device")]
     TunnelDeviceError,
 
-    #[error("Permission denied when trying to create tunnel")]
-    PermissionDenied,
+    #[error("Profile for VPN has not been setup")]
+    NotPrepared { package_name: String, class_name: String },
+
+    #[error("Another legacy VPN profile is used as always on")]
+    LegacyLockdown,
+
+    #[error("Another VPN app is used as always on")]
+    AlwaysOnApp { app_name: String },
 }
 
 /// Factory of tunnel devices on Android.
@@ -300,7 +306,7 @@ impl VpnServiceConfig {
             .collect()
     }
 
-    fn allowed_lan_networks() -> impl Iterator<Item = &'static IpNetwork> {
+    fn allowed_lan_networks() -> impl Iterator<Item=&'static IpNetwork> {
         ALLOWED_LAN_NETS
             .iter()
             .chain(ALLOWED_LAN_MULTICAST_NETS.iter())
@@ -375,8 +381,10 @@ impl AsRawFd for VpnServiceTun {
 enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
-    PermissionDenied,
     TunnelDeviceError,
+    LegacyLockdown,
+    AlwaysOnApp { app_name: String },
+    NotPrepared { package_name: String, class_name: String },
 }
 
 impl From<CreateTunResult> for Result<RawFd, Error> {
@@ -386,7 +394,9 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::PermissionDenied => Err(Error::PermissionDenied),
+            CreateTunResult::LegacyLockdown => Err(Error::LegacyLockdown),
+            CreateTunResult::NotPrepared { package_name, class_name } => Err(Error::NotPrepared { package_name, class_name }),
+            CreateTunResult::AlwaysOnApp { app_name } => Err(Error::AlwaysOnApp { app_name }),
             CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
         }
     }

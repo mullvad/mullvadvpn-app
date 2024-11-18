@@ -267,14 +267,34 @@ impl ConnectingState {
                     log::error!("{}", error.display_chain_with_msg("Failed to start tunnel"));
                     let block_reason = match error {
                         tunnel::Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
+
                         #[cfg(target_os = "android")]
                         tunnel::Error::WireguardTunnelMonitoringError(
                             talpid_wireguard::Error::TunnelError(
                                 talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::PermissionDenied,
+                                    tun_provider::Error::LegacyLockdown,
                                 ),
                             ),
-                        ) => ErrorStateCause::VpnPermissionDenied,
+                        ) => ErrorStateCause::LegacyLockdown,
+
+                        #[cfg(target_os = "android")]
+                        tunnel::Error::WireguardTunnelMonitoringError(
+                            talpid_wireguard::Error::TunnelError(
+                                talpid_wireguard::TunnelError::SetupTunnelDevice(
+                                    tun_provider::Error::AlwaysOnApp { app_name },
+                                ),
+                            ),
+                        ) => ErrorStateCause::AlwaysOnApp { app_name},
+
+                        #[cfg(target_os = "android")]
+                        tunnel::Error::WireguardTunnelMonitoringError(
+                            talpid_wireguard::Error::TunnelError(
+                                talpid_wireguard::TunnelError::SetupTunnelDevice(
+                                    tun_provider::Error::NotPrepared { package_name, class_name },
+                                ),
+                            ),
+                        ) => ErrorStateCause::NotPrepared { package_name, class_name},
+
                         #[cfg(target_os = "android")]
                         tunnel::Error::WireguardTunnelMonitoringError(
                             talpid_wireguard::Error::TunnelError(
@@ -435,6 +455,7 @@ impl ConnectingState {
                 let _ = complete_tx.send(());
                 consequence
             }
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
                     shared_values.allowed_endpoint = endpoint;
