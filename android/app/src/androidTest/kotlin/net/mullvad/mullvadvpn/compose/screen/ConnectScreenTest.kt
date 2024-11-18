@@ -241,7 +241,7 @@ class ConnectScreenTest {
             }
 
             // Assert
-            onNodeWithText("FAILED TO SECURE CONNECTION").assertExists()
+            onNodeWithText("FAILED TO CONNECT").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Dismiss").assertExists()
             onNodeWithText(text = "Critical error (your attention is required)", ignoreCase = true)

@@ -22,7 +22,6 @@
     <string name="all_locations">Alle Standorte</string>
     <string name="all_providers">Alle Anbieter</string>
     <string name="always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN für &lt;b&gt;%1$s&lt;/b&gt;, bevor Sie Mullvad VPN verwenden.</string>
-    <string name="always_on_vpn_error_notification_title">Always-on VPN ist einer anderen App zugeordnet</string>
     <string name="any">Beliebige</string>
     <string name="api_access_description">Verwaltung und Hinzufügen benutzerdefinierter Methoden für den Zugriff auf die Mullvad-API.</string>
     <string name="api_access_method_info_first_line">Die App muss mit einem Mullvad API-Server kommunizieren, um Sie anzumelden, Serverlisten abzurufen und andere wichtige Vorgänge durchzuführen.</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
     <string name="entry">Eingang</string>
     <string name="error_occurred">Ein Fehler ist aufgetreten.</string>
-    <string name="error_state">SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN</string>
     <string name="exclude_applications">Ausgeschlossene Anwendungen</string>
     <string name="exit">Ausgang</string>
     <string name="failed_to_block_internet">Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Bitte beheben Sie den Fehler oder senden Sie einen Problembericht.</string>
@@ -170,6 +168,7 @@
     <string name="invalid_voucher">Der Gutscheincode ist ungültig.</string>
     <string name="ipv6_unavailable">IPv6 konnte nicht konfiguriert werden. Deaktivieren Sie es in der App oder aktivieren Sie es auf Ihrem Gerät.</string>
     <string name="is_offline">Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist.</string>
+    <string name="legacy_always_on_vpn_error_notification_title">Always-on VPN ist einer anderen App zugeordnet</string>
     <string name="less_than_a_day_left">weniger als ein Tag übrig</string>
     <string name="less_than_one_day">weniger als ein Tag</string>
     <string name="list_name">Name der Liste</string>
@@ -334,7 +333,6 @@
     <string name="voucher_is_account_number">Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab.</string>
     <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
     <string name="vpn_permission_denied_error">VPN-Berechtigungen wurden beim Erstellen des Tunnels abgelehnt.</string>
-    <string name="vpn_permission_error_notification_message">Always-on VPN könnte für eine andere App aktiviert sein</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>

@@ -22,7 +22,6 @@
     <string name="all_locations">Kaikki sijainnit</string>
     <string name="all_providers">Kaikki palveluntarjoajat</string>
     <string name="always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä sovellukselle &lt;b&gt;%1$s&lt;/b&gt; ennen Mullvad VPN:n käyttämistä.</string>
-    <string name="always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle sovellukselle</string>
     <string name="any">Mikä tahansa</string>
     <string name="api_access_description">Hallitse ja lisää mukautettuja menetelmiä Mullvadin ohjelmointirajapinnan käyttämiseksi.</string>
     <string name="api_access_method_info_first_line">Sovelluksen on kommunikoitava Mullvadin ohjelmointirajapinnan palvelimen kanssa, jotta sinut voidaan kirjata sisään, palvelinluetteloiden hakemiseksi sekä muiden tärkeiden toimintojen suorittamiseksi.</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="entry">Tulo</string>
     <string name="error_occurred">Ilmeni virhe.</string>
-    <string name="error_state">YHTEYDEN SUOJAAMINEN EPÄONNISTUI</string>
     <string name="exclude_applications">Poissuljetut sovellukset</string>
     <string name="exit">Lähtö</string>
     <string name="failed_to_block_internet">Kaiken verkkoliikenteen estäminen ei onnistu. Käytä vianetsintää tai lähetä ongelmaraportti.</string>
@@ -170,6 +168,7 @@
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
     <string name="ipv6_unavailable">IPv6:n määritys ei onnistunut. Poista se käytöstä sovelluksessa tai ota käyttöön laitteellasi.</string>
     <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
+    <string name="legacy_always_on_vpn_error_notification_title">Aina päällä oleva VPN on määritetty toiselle sovellukselle</string>
     <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_one_day">alle vuorokausi</string>
     <string name="list_name">Luettelon nimi</string>
@@ -334,7 +333,6 @@
     <string name="voucher_is_account_number">Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä.</string>
     <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
     <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
-    <string name="vpn_permission_error_notification_message">Aina päällä oleva VPN on mahdollisesti otettu käyttöön toiselle sovellukselle</string>
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>

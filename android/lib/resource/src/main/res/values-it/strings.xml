@@ -22,7 +22,6 @@
     <string name="all_locations">Tutti i luoghi</string>
     <string name="all_providers">Tutti i fornitori</string>
     <string name="always_on_vpn_error_notification_content">Impossibile avviare la connessione tunnel. Disabilita VPN sempre attiva per &lt;b&gt;%1$s&lt;/b&gt; prima di utilizzare Mullvad VPN.</string>
-    <string name="always_on_vpn_error_notification_title">VPN sempre attiva assegnata a un\'altra app</string>
     <string name="any">Qualsiasi</string>
     <string name="api_access_description">Gestisci e aggiungi metodi personalizzati per accedere all\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'app deve comunicare con un server API Mullvad per accedere, recuperare elenchi di server e altre operazioni critiche.</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">Inserisci codice voucher</string>
     <string name="entry">Ingresso</string>
     <string name="error_occurred">Si è verificato un errore.</string>
-    <string name="error_state">IMPOSSIBILE STABILIRE UNA CONNESSIONE PROTETTA</string>
     <string name="exclude_applications">Applicazioni escluse</string>
     <string name="exit">Uscita</string>
     <string name="failed_to_block_internet">Impossibile bloccare tutto il traffico di rete. Consulta la risoluzione dei problemi o invia una segnalazione del problema.</string>
@@ -170,6 +168,7 @@
     <string name="invalid_voucher">Il codice voucher non è valido.</string>
     <string name="ipv6_unavailable">Impossibile configurare IPv6. Disabilitalo nell\'app o abilitalo sul tuo dispositivo.</string>
     <string name="is_offline">Il tuo dispositivo è offline. Il tunnel si connetterà automaticamente una volta che il tuo dispositivo sarà di nuovo online.</string>
+    <string name="legacy_always_on_vpn_error_notification_title">VPN sempre attiva assegnata a un\'altra app</string>
     <string name="less_than_a_day_left">meno di un giorno rimanente</string>
     <string name="less_than_one_day">meno di un giorno</string>
     <string name="list_name">Nome dell\'elenco</string>
@@ -334,7 +333,6 @@
     <string name="voucher_is_account_number">Sembra che tu abbia inserito un numero di account anziché un codice voucher. Se desideri modificare l\'account attivo, effettua prima la disconnessione.</string>
     <string name="voucher_success_title">Il voucher è stato riscattato correttamente.</string>
     <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo.</string>
-    <string name="vpn_permission_error_notification_message">La VPN sempre attiva potrebbe essere abilitata per un\'altra app</string>
     <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
     <string name="wireguard_custon_port_title">Personalizzato</string>

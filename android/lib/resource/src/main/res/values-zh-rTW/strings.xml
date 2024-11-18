@@ -22,7 +22,6 @@
     <string name="all_locations">所有位置</string>
     <string name="all_providers">所有供應商</string>
     <string name="always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請先為 &lt;b&gt;%1$s&lt;/b&gt; 停用「始終啟用 VPN」。</string>
-    <string name="always_on_vpn_error_notification_title">「始終啟用 VPN」已指派給其他應用程式</string>
     <string name="any">任何</string>
     <string name="api_access_description">管理並新增自訂方式以存取 Mullvad API。</string>
     <string name="api_access_method_info_first_line">該應用程式需要與 Mulvad API 伺服器通訊，以便您登入、取得伺服器清單並執行其他重要作業。</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">輸入優惠券兌換碼</string>
     <string name="entry">入口</string>
     <string name="error_occurred">發生錯誤了。</string>
-    <string name="error_state">保護連線失敗</string>
     <string name="exclude_applications">已排除的應用程式</string>
     <string name="exit">出口</string>
     <string name="failed_to_block_internet">無法封鎖所有網路流量。請排除故障或傳送問題回報。</string>
@@ -170,6 +168,7 @@
     <string name="invalid_voucher">憑證兌換碼無效。</string>
     <string name="ipv6_unavailable">無法配置 IPv6。請在應用程式中將其停用，或是在您的裝置上啟用它。</string>
     <string name="is_offline">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</string>
+    <string name="legacy_always_on_vpn_error_notification_title">「始終啟用 VPN」已指派給其他應用程式</string>
     <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">清單名稱</string>
@@ -334,7 +333,6 @@
     <string name="voucher_is_account_number">您輸入的似乎是帳戶，而不是憑證代碼。如果您想變更有效帳戶，請先登出。</string>
     <string name="voucher_success_title">憑證已成功兌換。</string>
     <string name="vpn_permission_denied_error">建立通道時，VPN 權限被拒絕。請嘗試重新連線。</string>
-    <string name="vpn_permission_error_notification_message">可能已為另一個應用程式啟用了「始終啟用 VPN」</string>
     <string name="vpn_permission_error_notification_title">VPN 權限錯誤</string>
     <string name="we_will_look_into_this">我們會對此進行調查。</string>
     <string name="wireguard_custon_port_title">自訂</string>

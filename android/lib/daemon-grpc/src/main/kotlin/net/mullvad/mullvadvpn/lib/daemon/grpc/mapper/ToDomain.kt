@@ -35,6 +35,9 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.AuthFailed
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.OtherAlwaysOnApp
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.TunnelParameterError
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -76,48 +79,77 @@ import org.joda.time.Instant
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
-        ManagementInterface.TunnelState.StateCase.DISCONNECTED ->
-            TunnelState.Disconnected(
-                location =
-                    with(disconnected) {
-                        if (hasDisconnectedLocation()) {
-                            disconnectedLocation.toDomain()
-                        } else null
-                    }
-            )
-        ManagementInterface.TunnelState.StateCase.CONNECTING ->
-            TunnelState.Connecting(
-                endpoint = connecting.relayInfo.tunnelEndpoint.toDomain(),
-                location =
-                    with(connecting.relayInfo) {
-                        if (hasLocation()) {
-                            location.toDomain()
-                        } else null
-                    },
-                featureIndicators = connecting.featureIndicators.toDomain(),
-            )
-        ManagementInterface.TunnelState.StateCase.CONNECTED ->
-            TunnelState.Connected(
-                endpoint = connected.relayInfo.tunnelEndpoint.toDomain(),
-                location =
-                    with(connected.relayInfo) {
-                        if (hasLocation()) {
-                            location.toDomain()
-                        } else {
-                            null
-                        }
-                    },
-                featureIndicators = connected.featureIndicators.toDomain(),
-            )
-        ManagementInterface.TunnelState.StateCase.DISCONNECTING ->
-            TunnelState.Disconnecting(
-                actionAfterDisconnect = disconnecting.afterDisconnect.toDomain()
-            )
-        ManagementInterface.TunnelState.StateCase.ERROR ->
-            TunnelState.Error(errorState = error.errorState.toDomain())
+        ManagementInterface.TunnelState.StateCase.DISCONNECTED -> disconnected.toDomain()
+        ManagementInterface.TunnelState.StateCase.CONNECTING -> connecting.toDomain()
+        ManagementInterface.TunnelState.StateCase.CONNECTED -> connected.toDomain()
+        ManagementInterface.TunnelState.StateCase.DISCONNECTING -> disconnecting.toDomain()
+        ManagementInterface.TunnelState.StateCase.ERROR -> error.toDomain()
         ManagementInterface.TunnelState.StateCase.STATE_NOT_SET ->
             TunnelState.Disconnected(location = disconnected.disconnectedLocation.toDomain())
     }
+
+private fun ManagementInterface.TunnelState.Connecting.toDomain(): TunnelState.Connecting =
+    TunnelState.Connecting(
+        endpoint = relayInfo.tunnelEndpoint.toDomain(),
+        location =
+            if (relayInfo.hasLocation()) {
+                relayInfo.location.toDomain()
+            } else null,
+        featureIndicators = featureIndicators.toDomain(),
+    )
+
+private fun ManagementInterface.TunnelState.Disconnected.toDomain(): TunnelState.Disconnected =
+    TunnelState.Disconnected(
+        location =
+            if (hasDisconnectedLocation()) {
+                disconnectedLocation.toDomain()
+            } else null
+    )
+
+private fun ManagementInterface.TunnelState.Connected.toDomain(): TunnelState.Connected =
+    TunnelState.Connected(
+        endpoint = relayInfo.tunnelEndpoint.toDomain(),
+        location =
+            if (relayInfo.hasLocation()) {
+                relayInfo.location.toDomain()
+            } else {
+                null
+            },
+        featureIndicators = featureIndicators.toDomain(),
+    )
+
+private fun ManagementInterface.TunnelState.Disconnecting.toDomain(): TunnelState.Disconnecting =
+    TunnelState.Disconnecting(actionAfterDisconnect = afterDisconnect.toDomain())
+
+private fun ManagementInterface.TunnelState.Error.toDomain(): TunnelState.Error {
+    val otherAlwaysOnAppError =
+        errorState.let {
+            if (it.hasOtherAlwaysOnAppError()) {
+                OtherAlwaysOnApp(it.otherAlwaysOnAppError.appName)
+            } else {
+                null
+            }
+        }
+
+    val invalidDnsServers =
+        errorState.let {
+            if (it.hasInvalidDnsServersError()) {
+                ErrorStateCause.InvalidDnsServers(
+                    it.invalidDnsServersError.ipAddrsList.toList().map { InetAddress.getByName(it) }
+                )
+            } else {
+                null
+            }
+        }
+
+    return TunnelState.Error(
+        errorState =
+            errorState.toDomain(
+                otherAlwaysOnApp = otherAlwaysOnAppError,
+                invalidDnsServers = invalidDnsServers,
+            )
+    )
+}
 
 internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
     GeoIpLocation(
@@ -198,12 +230,15 @@ internal fun ManagementInterface.AfterDisconnect.toDomain(): ActionAfterDisconne
             throw IllegalArgumentException("Unrecognized action after disconnect")
     }
 
-internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
+internal fun ManagementInterface.ErrorState.toDomain(
+    otherAlwaysOnApp: ErrorStateCause.OtherAlwaysOnApp?,
+    invalidDnsServers: ErrorStateCause.InvalidDnsServers?,
+): ErrorState =
     ErrorState(
         cause =
             when (cause!!) {
                 ManagementInterface.ErrorState.Cause.AUTH_FAILED ->
-                    ErrorStateCause.AuthFailed(authFailedError.toDomain())
+                    AuthFailed(authFailedError.toDomain())
                 ManagementInterface.ErrorState.Cause.IPV6_UNAVAILABLE ->
                     ErrorStateCause.Ipv6Unavailable
                 ManagementInterface.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR ->
@@ -212,16 +247,20 @@ internal fun ManagementInterface.ErrorState.toDomain(): ErrorState =
                 ManagementInterface.ErrorState.Cause.START_TUNNEL_ERROR ->
                     ErrorStateCause.StartTunnelError
                 ManagementInterface.ErrorState.Cause.TUNNEL_PARAMETER_ERROR ->
-                    ErrorStateCause.TunnelParameterError(parameterError.toDomain())
+                    TunnelParameterError(parameterError.toDomain())
                 ManagementInterface.ErrorState.Cause.IS_OFFLINE -> ErrorStateCause.IsOffline
-                ManagementInterface.ErrorState.Cause.VPN_PERMISSION_DENIED ->
-                    ErrorStateCause.VpnPermissionDenied
                 ManagementInterface.ErrorState.Cause.SPLIT_TUNNEL_ERROR ->
                     ErrorStateCause.StartTunnelError
                 ManagementInterface.ErrorState.Cause.UNRECOGNIZED,
                 ManagementInterface.ErrorState.Cause.NEED_FULL_DISK_PERMISSIONS,
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
+
+                ManagementInterface.ErrorState.Cause.NOT_PREPARED -> ErrorStateCause.NotPrepared
+                ManagementInterface.ErrorState.Cause.OTHER_ALWAYS_ON_APP -> otherAlwaysOnApp!!
+                ManagementInterface.ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN ->
+                    ErrorStateCause.OtherLegacyAlwaysOnApp
+                ManagementInterface.ErrorState.Cause.INVALID_DNS_SERVERS -> invalidDnsServers!!
             },
         isBlocking = !hasBlockingError(),
     )

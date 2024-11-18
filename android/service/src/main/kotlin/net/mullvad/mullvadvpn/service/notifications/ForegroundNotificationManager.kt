@@ -2,9 +2,9 @@ package net.mullvad.mullvadvpn.service.notifications
 
 import android.app.Service
 import android.content.pm.ServiceInfo
-import android.net.VpnService
 import android.os.Build
 import co.touchlab.kermit.Logger
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.lib.model.NotificationChannel
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
@@ -40,7 +40,7 @@ class ForegroundNotificationManager(
     private fun notifyForeground(tunnelStateNotification: Notification.Tunnel) {
 
         val androidNotification = tunnelStateNotification.toNotification(vpnService)
-        if (VpnService.prepare(vpnService) != null) {
+        if (vpnService.prepareVpnSafe().isLeft()) {
             // Got connect/disconnect intent, but we  don't have permission to go in foreground.
             // tunnel state will return permission and we will eventually get stopped by system.
             Logger.i("Did not start foreground: VPN permission not granted")
@@ -65,7 +65,7 @@ class ForegroundNotificationManager(
     private val defaultNotification =
         Notification.Tunnel(
             NotificationChannel.TunnelUpdates.id,
-            NotificationTunnelState.Disconnected(true),
+            NotificationTunnelState.Disconnected(null),
             emptyList(),
             false,
         )

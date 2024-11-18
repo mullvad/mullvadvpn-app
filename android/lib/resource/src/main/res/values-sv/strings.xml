@@ -22,7 +22,6 @@
     <string name="all_locations">Alla platser</string>
     <string name="all_providers">Alla leverantörer</string>
     <string name="always_on_vpn_error_notification_content">Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för &lt;b&gt;%1$s&lt;/b&gt; innan du använder Mullvad VPN.</string>
-    <string name="always_on_vpn_error_notification_title">VPN som alltid är på har tilldelats till annan app</string>
     <string name="any">Valfri</string>
     <string name="api_access_description">Hantera och lägg till anpassade metoder för att komma åt Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen måste kommunicera med en Mullvad API-server för att logga in dig, hämta serverlistor och andra viktiga åtgärder.</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">Ange kupongkod</string>
     <string name="entry">Ingång</string>
     <string name="error_occurred">Ett fel har inträffat.</string>
-    <string name="error_state">DET GICK INTE ATT SÄKRA ANSLUTNINGEN</string>
     <string name="exclude_applications">Exkluderade applikationer</string>
     <string name="exit">Utgång</string>
     <string name="failed_to_block_internet">Det går inte att blockera all nätverkstrafik. Felsök eller skicka en problemrapport.</string>
@@ -170,6 +168,7 @@
     <string name="invalid_voucher">Kupongkoden är ogiltig.</string>
     <string name="ipv6_unavailable">Det gick inte att konfigurera IPv6. Inaktivera det i appen eller aktivera det på din enhet.</string>
     <string name="is_offline">Din enhet är offline. Tunneln ansluts automatiskt när din enhet är online igen.</string>
+    <string name="legacy_always_on_vpn_error_notification_title">VPN som alltid är på har tilldelats till annan app</string>
     <string name="less_than_a_day_left">mindre än en dag kvar</string>
     <string name="less_than_one_day">mindre än en dag</string>
     <string name="list_name">Listnamn</string>
@@ -334,7 +333,6 @@
     <string name="voucher_is_account_number">Det verkar som om du angett ett kontonummer istället för en kupongkod. Logga först ut om du vill ändra den aktiva koden.</string>
     <string name="voucher_success_title">Kupongen har lösts in.</string>
     <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
-    <string name="vpn_permission_error_notification_message">VPN som alltid är på kan ha aktiverats för annan app</string>
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
     <string name="wireguard_custon_port_title">Anpassad</string>

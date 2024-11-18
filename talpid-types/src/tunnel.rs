@@ -96,9 +96,12 @@ pub enum ErrorStateCause {
     TunnelParameterError(ParameterGenerationError),
     /// This device is offline, no tunnels can be established.
     IsOffline,
-    /// The Android VPN permission was denied.
     #[cfg(target_os = "android")]
-    VpnPermissionDenied,
+    NotPrepared,
+    #[cfg(target_os = "android")]
+    OtherAlwaysOnApp { app_name: String },
+    #[cfg(target_os = "android")]
+    OtherLegacyAlwaysOnVpn,
     /// Error reported by split tunnel module.
     #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]
     SplitTunnelError,
@@ -204,12 +207,16 @@ impl fmt::Display for ErrorStateCause {
                 return write!(f, "Failure to generate tunnel parameters: {err}");
             }
             IsOffline => "This device is offline, no tunnels can be established",
-            #[cfg(target_os = "android")]
-            VpnPermissionDenied => "The Android VPN permission was denied when creating the tunnel",
             #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]
             SplitTunnelError => "The split tunneling module reported an error",
             #[cfg(target_os = "macos")]
             NeedFullDiskPermissions => "Need full disk access to enable split tunneling",
+            #[cfg(target_os = "android")]
+            NotPrepared => "This device is not prepared",
+            #[cfg(target_os = "android")]
+            OtherAlwaysOnApp { app_name: _ } => "Another app is set as always on",
+            #[cfg(target_os = "android")]
+            OtherLegacyAlwaysOnVpn => "Another legacy vpn profile is set as always on",
         };
 
         write!(f, "{description}")
