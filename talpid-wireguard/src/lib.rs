@@ -27,6 +27,7 @@ use talpid_tunnel::tun_provider;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
 use crate::connectivity_check::{ConnectivityMonitor, ConnectivityMonitorLoop};
+use crate::wireguard_go::WgGoError;
 use talpid_types::net::wireguard::TunnelParameters;
 use talpid_types::{
     net::{AllowedTunnelTraffic, Endpoint, TransportProtocol},
@@ -80,8 +81,13 @@ pub enum Error {
     WireguardConfigError(#[from] crate::config::Error),
 
     /// An interaction with a tunnel failed
+    #[cfg(target_os = "android")]
     #[error("Tunnel failed")]
-    TunnelError(#[source] TunnelError),
+    TunnelError(#[from] WgGoError),
+
+    #[cfg(not(target_os = "android"))]
+    #[error("Tunnel failed")]
+    TunnelError(#[from] TunnelError),
 
     /// Failed to run tunnel obfuscation
     #[error("Tunnel obfuscation failed")]
@@ -1051,11 +1057,6 @@ pub enum TunnelError {
     #[cfg(target_os = "android")]
     #[error("Failed to configure Wireguard sockets to bypass the tunnel")]
     BypassError(#[source] tun_provider::Error),
-
-    /// TODO
-    #[cfg(target_os = "android")]
-    #[error("Failed to set up a working tunnel")]
-    TunnelUp,
 
     /// Invalid tunnel interface name.
     #[error("Invalid tunnel interface name")]

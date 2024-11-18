@@ -183,11 +183,9 @@ impl ConnectivityMonitor {
         timeout: Duration,
         tunnel_handle: &TunnelType,
     ) -> Result<bool, Error> {
-        match Self::get_stats(tunnel_handle) {
+        match Self::get_stats(tunnel_handle).map_err(Error::ConfigReadError)? {
             None => Ok(false),
             Some(new_stats) => {
-                let new_stats = new_stats?;
-
                 if self.conn_state.update(now, new_stats) {
                     self.ping_state.reset();
                     return Ok(true);
@@ -203,14 +201,13 @@ impl ConnectivityMonitor {
     /// calls will also return None.
     ///
     /// NOTE: will panic if called from within a tokio runtime.
-    fn get_stats(tunnel_handle: &TunnelType) -> Option<Result<StatsMap, Error>> {
-        match tunnel_handle.get_tunnel_stats() {
-            Ok(stats) if stats.is_empty() => {
-                log::error!("Tunnel unexpectedly shut down");
-                None
-            }
-            Ok(stats) => Some(Ok(stats)),
-            Err(error) => Some(Err(Error::ConfigReadError(error))),
+    fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
+        let stats = tunnel_handle.get_tunnel_stats()?;
+        if stats.is_empty() {
+            log::error!("Tunnel unexpectedly shut down");
+            Ok(None)
+        } else {
+            Ok(Some(stats))
         }
     }
 

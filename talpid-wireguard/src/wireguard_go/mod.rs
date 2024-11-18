@@ -1,6 +1,7 @@
 #[cfg(target_os = "android")]
 use super::config;
 use super::{
+    connectivity_check,
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
 };
@@ -40,6 +41,24 @@ const DAITA_EVENTS_CAPACITY: u32 = 1000;
 #[cfg(daita)]
 const DAITA_ACTIONS_CAPACITY: u32 = 1000;
 
+#[cfg(target_os = "android")]
+#[derive(thiserror::Error, Debug)]
+pub enum WgGoError {
+    #[error("TODO")]
+    Tunnel(#[from] TunnelError),
+    #[error("TODO")]
+    ConnectivityMonitor(#[source] connectivity_check::Error),
+
+    /// TODO
+    #[cfg(target_os = "android")]
+    #[error("Failed to set up a working tunnel")]
+    TunnelUp,
+}
+
+#[cfg(target_os = "android")]
+type Result<T> = std::result::Result<T, WgGoError>;
+
+#[cfg(not(target_os = "android"))]
 type Result<T> = std::result::Result<T, TunnelError>;
 
 struct LoggingContext {
@@ -408,13 +427,13 @@ impl WgGoTunnel {
 
     fn ensure_tunnel_is_running(&self, addr: Ipv4Addr) -> Result<()> {
         let connection_established = ConnectivityMonitor::new(addr)
-            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?
+            .map_err(WgGoError::ConnectivityMonitor)?
             .establish_connectivity(0, self)
-            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+            .map_err(WgGoError::ConnectivityMonitor)?;
 
         // Timed out
         if !connection_established {
-            Err(TunnelError::TunnelUp)
+            Err(WgGoError::TunnelUp)
         } else {
             Ok(())
         }

@@ -15,6 +15,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 
+use crate::wireguard_go::WgGoError;
 use ipnetwork::IpNetwork;
 use talpid_types::net::wireguard::{PresharedKey, PrivateKey, PublicKey};
 use tokio::sync::Mutex as AsyncMutex;
@@ -170,7 +171,7 @@ async fn config_ephemeral_peers_inner(
         if let Some(tunnel) = tunnel.as_mut() {
             tunnel
                 .start_daita()
-                .map_err(Error::TunnelError)
+                .map_err(|arg0: WgGoError| todo!()) //Error::TunnelError(arg0))
                 .map_err(CloseMsg::SetupError)?;
         }
     }
