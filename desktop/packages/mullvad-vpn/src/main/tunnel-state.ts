@@ -11,6 +11,8 @@ export interface TunnelStateHandlerDelegate {
 }
 
 export default class TunnelStateHandler {
+  public needFullDiskAccess = false;
+
   // The current tunnel state
   private tunnelStateValue: TunnelState = { state: 'disconnected' };
   // When pressing connect/disconnect/reconnect the app assumes what the next state will be before
@@ -20,15 +22,10 @@ export default class TunnelStateHandler {
   // Scheduler for discarding the assumed next state.
   private tunnelStateFallbackScheduler = new Scheduler();
 
-  private receivedFullDiskAccessError = false;
-
   private lastKnownDisconnectedLocation: Partial<ILocation> | undefined;
 
   public constructor(private delegate: TunnelStateHandlerDelegate) {}
 
-  public get hasReceivedFullDiskAccessError() {
-    return this.receivedFullDiskAccessError;
-  }
   public get tunnelState() {
     return this.tunnelStateValue;
   }
@@ -60,7 +57,7 @@ export default class TunnelStateHandler {
   public handleNewTunnelState(newState: TunnelState) {
     if (newState.state === 'error' && newState.details) {
       if (newState.details.cause === ErrorStateCause.needFullDiskPermissions) {
-        this.receivedFullDiskAccessError = true;
+        this.needFullDiskAccess = true;
       }
     }
 
