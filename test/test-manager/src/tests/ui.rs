@@ -91,7 +91,7 @@ pub async fn test_ui_tunnel_settings(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    // NOTE: This test connects multiple times using various settings, some of which may cauase a
+    // NOTE: This test connects multiple times using various settings, some of which may cause a
     // significant increase in connection time, e.g. multihop and OpenVPN. For this reason, it is
     // preferable to only target low latency servers.
     use helpers::custom_lists::LowLatency;
@@ -236,6 +236,7 @@ async fn test_custom_bridge_gui(
     // `test_manager::tests::access_methods::test_shadowsocks`.
 
     let gui_test = "custom-bridge.spec";
+
     let settings = mullvad_client.get_settings().await.unwrap();
     let relay_list = mullvad_client.get_relay_locations().await.unwrap();
     let relay_selector = helpers::get_daemon_relay_selector(&settings, relay_list);
@@ -278,7 +279,7 @@ pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Resu
     Ok(())
 }
 
-/// Test obufscation settings in the GUI
+/// Test obfuscation settings in the GUI
 #[test_function]
 pub async fn test_obfuscation_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
     let ui_result = run_test(&rpc, &["obfuscation.spec"]).await?;

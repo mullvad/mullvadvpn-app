@@ -767,7 +767,7 @@ pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
 
 /// Ping monitoring made easy!
 ///
-/// Continously ping some destination while monitoring to detect diverging
+/// Continuously ping some destination while monitoring to detect diverging
 /// packets.
 ///
 /// To customize [`Pinger`] before the pinging and network monitoring starts,
@@ -897,7 +897,7 @@ impl PingerBuilder {
     }
 }
 
-/// This helper spawns a seperate process which checks if we are connected to Mullvad, and tries to
+/// This helper spawns a separate process which checks if we are connected to Mullvad, and tries to
 /// leak traffic outside the tunnel by sending TCP, UDP, and ICMP packets to [LEAK_DESTINATION].
 pub struct ConnChecker {
     rpc: ServiceClient,
@@ -962,7 +962,7 @@ impl ConnChecker {
         self.payload = Some(payload.into())
     }
 
-    /// Spawn the connecton checker process and return a handle to it.
+    /// Spawn the connection checker process and return a handle to it.
     ///
     /// Dropping the handle will stop the process.
     /// **NOTE**: The handle must be dropped from a tokio runtime context.
@@ -1101,7 +1101,7 @@ impl ConnCheckerHandle<'_> {
     }
 
     pub async fn check_connection(&mut self) -> anyhow::Result<ConnectionStatus> {
-        // Monitor all pakets going to LEAK_DESTINATION during the check.
+        // Monitor all packets going to LEAK_DESTINATION during the check.
         let leak_destination = self.checker.leak_destination;
         let monitor = start_packet_monitor(
             move |packet| packet.destination.ip() == leak_destination.ip(),
@@ -1216,7 +1216,7 @@ pub mod custom_lists {
     /// name to a specific list before runtime.
     static IDS: LazyLock<Mutex<HashMap<List, Id>>> = LazyLock::new(|| Mutex::new(HashMap::new()));
 
-    /// Pre-defined (well-typed) custom lists which may be useuful in different test scenarios.
+    /// Pre-defined (well-typed) custom lists which may be useful in different test scenarios.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub enum List {
         /// A selection of Nordic servers
