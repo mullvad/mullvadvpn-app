@@ -21,12 +21,12 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
@@ -48,7 +48,6 @@ class ConnectViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
-    private val vpnPermissionRepository: VpnPermissionRepository,
     private val resources: Resources,
     private val isPlayBuild: Boolean,
     private val packageName: String,
@@ -138,23 +137,20 @@ class ConnectViewModel(
         viewModelScope.launch {
             connectionProxy.connect().onLeft { connectError ->
                 when (connectError) {
-                    ConnectError.NoVpnPermission -> _uiSideEffect.send(UiSideEffect.NoVpnPermission)
-                    is ConnectError.Unknown -> {
-                        _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
-                    }
+                    is ConnectError.Unknown -> _uiSideEffect.send(UiSideEffect.ConnectError.Generic)
+                    is ConnectError.NotPrepared ->
+                        _uiSideEffect.send(UiSideEffect.NotPrepared(connectError.error))
                 }
             }
         }
     }
 
-    fun requestVpnPermissionResult(hasVpnPermission: Boolean) {
+    fun createVpnProfileResult(hasVpnPermission: Boolean) {
         viewModelScope.launch {
             if (hasVpnPermission) {
                 connectionProxy.connect()
             } else {
-                vpnPermissionRepository.getAlwaysOnVpnAppName()?.let {
-                    _uiSideEffect.send(UiSideEffect.ConnectError.AlwaysOnVpn(it))
-                } ?: _uiSideEffect.send(UiSideEffect.ConnectError.NoVpnPermission)
+                _uiSideEffect.send(UiSideEffect.ConnectError.PermissionDenied)
             }
         }
     }
@@ -206,14 +202,12 @@ class ConnectViewModel(
 
         data object RevokedDevice : UiSideEffect
 
-        data object NoVpnPermission : UiSideEffect
+        data class NotPrepared(val prepareError: PrepareError) : UiSideEffect
 
         sealed interface ConnectError : UiSideEffect {
             data object Generic : ConnectError
 
-            data object NoVpnPermission : ConnectError
-
-            data class AlwaysOnVpn(val appName: String) : ConnectError
+            data object PermissionDenied : ConnectError
         }
     }
 

@@ -22,7 +22,6 @@
     <string name="all_locations">Alle placeringer</string>
     <string name="all_providers">Alle udbydere</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN for &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="always_on_vpn_error_notification_title">Altid-til VPN tildelt en anden app</string>
     <string name="any">Enhver</string>
     <string name="api_access_description">Administrer og tilføj brugerdefinerede metoder for at få adgang til Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen skal kommunikere med en Mullvad API-server for at kunne logge dig på, hente serverlister og andre kritiske operationer.</string>
@@ -133,7 +132,6 @@
     <string name="enter_value_placeholder">Indtast MTU</string>
     <string name="enter_voucher_code">Indtast kuponkode</string>
     <string name="error_occurred">Der opstod en fejl.</string>
-    <string name="error_state">KUNNE IKKE SIKRE FORBINDELSEN</string>
     <string name="exclude_applications">Ekskluderede applikationer</string>
     <string name="failed_to_block_internet">Kan ikke blokere al netværkstrafik. Udfør fejlfinding, eller indsend en problemrapport.</string>
     <string name="failed_to_create_account">Kunne ikke oprette konto</string>
@@ -169,6 +167,7 @@
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver det i appen, eller aktiver det på din enhed.</string>
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
+    <string name="legacy_always_on_vpn_error_notification_title">Altid-til VPN tildelt en anden app</string>
     <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_one_day">mindre end én dag</string>
     <string name="list_name">Listenavn</string>
@@ -333,7 +332,6 @@
     <string name="voucher_is_account_number">Det ser ud til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge ud.</string>
     <string name="voucher_success_title">Indløsning af kuponen lykkedes.</string>
     <string name="vpn_permission_denied_error">VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen.</string>
-    <string name="vpn_permission_error_notification_message">Altid-til VPN er måske aktiveret for en anden app</string>
     <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
     <string name="wireguard_custon_port_title">Brugerdefineret</string>

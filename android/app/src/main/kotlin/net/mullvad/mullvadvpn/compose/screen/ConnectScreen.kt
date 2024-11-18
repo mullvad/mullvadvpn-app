@@ -61,7 +61,6 @@ import com.ramcosta.composedestinations.generated.destinations.SettingsDestinati
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.result.ResultRecipient
 import kotlinx.coroutines.launch
-import mullvad_daemon.management_interface.tunnelState
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.ConnectionButton
 import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
@@ -84,8 +83,8 @@ import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
-import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
@@ -100,6 +99,7 @@ import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
+import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -142,9 +142,9 @@ fun Connect(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
-    val launchVpnPermission =
-        rememberLauncherForActivityResult(RequestVpnPermission()) {
-            connectViewModel.requestVpnPermissionResult(it)
+    val createVpnProfile =
+        rememberLauncherForActivityResult(CreateVpnProfile()) {
+            connectViewModel.createVpnProfileResult(it)
         }
 
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
@@ -154,9 +154,8 @@ fun Connect(
         minActiveState = Lifecycle.State.RESUMED,
     ) { sideEffect ->
         when (sideEffect) {
-            is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser -> {
+            is ConnectViewModel.UiSideEffect.OpenAccountManagementPageInBrowser ->
                 openAccountPage(sideEffect.token)
-            }
 
             is ConnectViewModel.UiSideEffect.OutOfTime ->
                 navigator.navigate(OutOfTimeDestination) {
@@ -170,7 +169,24 @@ fun Connect(
                     popUpTo(NavGraphs.root) { inclusive = true }
                 }
 
-            is ConnectViewModel.UiSideEffect.NoVpnPermission -> launchVpnPermission.launch(Unit)
+            is ConnectViewModel.UiSideEffect.NotPrepared ->
+                when (sideEffect.prepareError) {
+                    is PrepareError.OtherLegacyAlwaysOnVpn ->
+                        launch {
+                            snackbarHostState.showSnackbarImmediately(
+                                message = sideEffect.prepareError.toMessage(context)
+                            )
+                        }
+
+                    is PrepareError.OtherAlwaysOnApp ->
+                        launch {
+                            snackbarHostState.showSnackbarImmediately(
+                                message = sideEffect.prepareError.toMessage(context)
+                            )
+                        }
+                    is PrepareError.NotPrepared ->
+                        createVpnProfile.launch(sideEffect.prepareError.prepareIntent)
+                }
             is ConnectViewModel.UiSideEffect.ConnectError ->
                 launch {
                     snackbarHostState.showSnackbarImmediately(
@@ -178,13 +194,12 @@ fun Connect(
                     )
                 }
 
-            is ConnectViewModel.UiSideEffect.OpenUri -> {
+            is ConnectViewModel.UiSideEffect.OpenUri ->
                 try {
                     uriHandler.openUri(sideEffect.uri.toString())
                 } catch (e: IllegalArgumentException) {
                     Logger.w("Failed to open uri", e)
                 }
-            }
         }
     }
 
@@ -571,15 +586,17 @@ fun GeoIpLocation.toLatLong() =
 
 private fun ConnectViewModel.UiSideEffect.ConnectError.toMessage(context: Context): String =
     when (this) {
-        ConnectViewModel.UiSideEffect.ConnectError.NoVpnPermission ->
-            context.getString(R.string.vpn_permission_denied_error)
-
-        is ConnectViewModel.UiSideEffect.ConnectError.AlwaysOnVpn ->
-            // Snackbar currently do not support annotated string
-            context
-                .getString(R.string.always_on_vpn_error_notification_content, appName)
-                .removeHtmlTags()
-
         ConnectViewModel.UiSideEffect.ConnectError.Generic ->
             context.getString(R.string.error_occurred)
+
+        ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied ->
+            context.getString(R.string.vpn_permission_denied_error)
     }
+
+private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(context: Context) =
+    context
+        .getString(R.string.always_on_vpn_error_notification_content, "Legacy app")
+        .removeHtmlTags()
+
+private fun PrepareError.OtherAlwaysOnApp.toMessage(context: Context) =
+    context.getString(R.string.always_on_vpn_error_notification_content, appName).removeHtmlTags()

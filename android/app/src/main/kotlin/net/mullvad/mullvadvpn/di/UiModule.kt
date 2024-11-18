@@ -88,7 +88,7 @@ import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.Udp2TcpSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
-import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnProfileViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
@@ -198,7 +198,6 @@ val uiModule = module {
             get(),
             get(),
             get(),
-            get(),
             IS_PLAY_BUILD,
             get(named(SELF_PACKAGE_NAME)),
         )
@@ -231,7 +230,7 @@ val uiModule = module {
     viewModel { DeleteCustomListConfirmationViewModel(get(), get()) }
     viewModel { ServerIpOverridesViewModel(get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
-    viewModel { VpnPermissionViewModel(get(), get()) }
+    viewModel { VpnProfileViewModel(get(), get()) }
     viewModel { ApiAccessListViewModel(get()) }
     viewModel { EditApiAccessMethodViewModel(get(), get(), get()) }
     viewModel { SaveApiAccessMethodViewModel(get(), get()) }

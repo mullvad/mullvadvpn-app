@@ -1436,6 +1436,23 @@ impl Daemon {
         event: AccessMethodEvent,
         endpoint_active_tx: oneshot::Sender<()>,
     ) {
+        #[cfg(target_os = "android")]
+        match event {
+            AccessMethodEvent::New { setting, .. } => {
+                // Announce to all clients listening for updates of the
+                // currently active access method. The announcement should be
+                // made after the firewall policy has been updated, since the
+                // new access method will be useless before then.
+                let notifier = self.management_interface.notifier().clone();
+                tokio::spawn(async move {
+                    // Let the emitter of this event know that the firewall has been updated.
+                    let _ = endpoint_active_tx.send(());
+                    // Notify clients about the change if necessary.
+                    notifier.notify_new_access_method_event(setting);
+                });
+            }
+        }
+        #[cfg(not(target_os = "android"))]
         match event {
             AccessMethodEvent::Allow { endpoint } => {
                 let (completion_tx, completion_rx) = oneshot::channel();

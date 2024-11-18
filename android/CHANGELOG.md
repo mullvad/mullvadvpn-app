@@ -33,6 +33,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix a bug where the Android account expiry notifications would not be updated if the app was
   running in the background for a long time.
 - Fix ANR due to the tokio runtime being blocked by `getaddrinfo` when dropped.
+- Fix crash when having a legacy VPN profile as always-on.
 
 
 ## [android/2024.8] - 2024-11-01

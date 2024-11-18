@@ -30,7 +30,6 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -87,9 +86,6 @@ class ConnectViewModelTest {
     // Last known location
     private val mockLastKnownLocationUseCase: LastKnownLocationUseCase = mockk()
 
-    // VpnPermissionRepository
-    private val mockVpnPermissionRepository: VpnPermissionRepository = mockk(relaxed = true)
-
     @BeforeEach
     fun setup() {
         every { mockServiceConnectionManager.connectionState } returns serviceConnectionState
@@ -124,7 +120,6 @@ class ConnectViewModelTest {
                 selectedLocationTitleUseCase = mockSelectedLocationTitleUseCase,
                 connectionProxy = mockConnectionProxy,
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
-                vpnPermissionRepository = mockVpnPermissionRepository,
                 resources = mockk(),
                 isPlayBuild = false,
                 packageName = "net.mullvad.mullvadvpn",

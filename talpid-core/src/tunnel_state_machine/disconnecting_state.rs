@@ -45,6 +45,7 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Nothing
                 }
+                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     shared_values.allowed_endpoint = endpoint;
                     let _ = tx.send(());
@@ -100,6 +101,8 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Block(reason)
                 }
+
+                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     shared_values.allowed_endpoint = endpoint;
                     let _ = tx.send(());
@@ -159,6 +162,7 @@ impl DisconnectingState {
                     let _ = complete_tx.send(());
                     AfterDisconnect::Reconnect(retry_attempt)
                 }
+                #[cfg(not(target_os = "android"))]
                 Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                     shared_values.allowed_endpoint = endpoint;
                     let _ = tx.send(());

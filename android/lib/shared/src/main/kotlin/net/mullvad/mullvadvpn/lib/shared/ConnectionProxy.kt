@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.lib.shared
 
 import arrow.core.Either
 import arrow.core.raise.either
-import arrow.core.raise.ensure
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ConnectError
@@ -12,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 class ConnectionProxy(
     private val managementService: ManagementService,
     translationRepository: RelayLocationTranslationRepository,
-    private val vpnPermissionRepository: VpnPermissionRepository,
+    private val vpnProfileUseCase: VpnProfileUseCase,
 ) {
     val tunnelState =
         combine(managementService.tunnelState, translationRepository.translations) {
@@ -35,7 +34,7 @@ class ConnectionProxy(
         copy(city = translations[city] ?: city, country = translations[country] ?: country)
 
     suspend fun connect(): Either<ConnectError, Boolean> = either {
-        ensure(vpnPermissionRepository.hasVpnPermission()) { ConnectError.NoVpnPermission }
+        vpnProfileUseCase.prepareVpn().mapLeft(ConnectError::NotPrepared).bind()
         managementService.connect().bind()
     }
 
