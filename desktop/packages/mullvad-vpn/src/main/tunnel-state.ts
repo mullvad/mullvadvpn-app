@@ -11,6 +11,8 @@ export interface TunnelStateHandlerDelegate {
 }
 
 export default class TunnelStateHandler {
+  public needFullDiskAccess = false;
+
   // The current tunnel state
   private tunnelStateValue: TunnelState = { state: 'disconnected' };
   // When pressing connect/disconnect/reconnect the app assumes what the next state will be before
@@ -19,8 +21,6 @@ export default class TunnelStateHandler {
   private tunnelStateFallback?: TunnelState;
   // Scheduler for discarding the assumed next state.
   private tunnelStateFallbackScheduler = new Scheduler();
-
-  public needFullDiskAccess = false;
 
   private lastKnownDisconnectedLocation: Partial<ILocation> | undefined;
 
