@@ -40,6 +40,11 @@
 		06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCache.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
+		44075DFB2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */; };
+		440E5AB02CDBD67D00B09614 /* StatefulPreviewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */; };
+		440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */; };
+		4422C0712CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */; };
+		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
 		449275422C3570CA000526DE /* ICMP.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449275412C3570CA000526DE /* ICMP.swift */; };
 		449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */; };
 		449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */; };
@@ -1391,6 +1396,11 @@
 		06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTDevicesProxy.swift; sourceTree = "<group>"; };
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
+		44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPTCPObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
+		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
+		440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationSettingsWatchingObservableObject.swift; sourceTree = "<group>"; };
+		4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
+		4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceList.swift; sourceTree = "<group>"; };
 		449275412C3570CA000526DE /* ICMP.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ICMP.swift; sourceTree = "<group>"; };
 		449275432C3C3029000526DE /* TunnelPinger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelPinger.swift; sourceTree = "<group>"; };
 		449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdate.swift; sourceTree = "<group>"; };
@@ -2597,6 +2607,25 @@
 			path = Protocols;
 			sourceTree = "<group>";
 		};
+		4422C06F2CCFF6520001A385 /* Obfuscation */ = {
+			isa = PBXGroup;
+			children = (
+				440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */,
+				4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */,
+				44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */,
+			);
+			path = Obfuscation;
+			sourceTree = "<group>";
+		};
+		4424CDD12CDBD457009D8C9F /* SwiftUI components */ = {
+			isa = PBXGroup;
+			children = (
+				440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */,
+				4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */,
+			);
+			path = "SwiftUI components";
+			sourceTree = "<group>";
+		};
 		449872E22B7CB91B00094DDC /* MullvadSettings */ = {
 			isa = PBXGroup;
 			children = (
@@ -2825,6 +2854,8 @@
 		583FE01829C19709006E85F9 /* Settings */ = {
 			isa = PBXGroup;
 			children = (
+				4424CDD12CDBD457009D8C9F /* SwiftUI components */,
+				4422C06F2CCFF6520001A385 /* Obfuscation */,
 				7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */,
 				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */,
@@ -5647,7 +5678,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				44075DFB2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift in Sources */,
 				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,
+				4422C0712CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift in Sources */,
 				7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */,
 				5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */,
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,
@@ -5719,6 +5752,7 @@
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
+				4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */,
 				5827B0BD2B14AC9200CCBBA1 /* AccessViewModel+TestingStatus.swift in Sources */,
 				58F8AC0E25D3F8CE002BE0ED /* ProblemReportReviewViewController.swift in Sources */,
 				58EFC7752AFB4CEF00E9F4CB /* AboutViewController.swift in Sources */,
@@ -5762,6 +5796,7 @@
 				7A5869C72B5A8E4C00640D27 /* MethodSettingsDataSourceConfiguration.swift in Sources */,
 				58F2E14C276A61C000A79513 /* RotateKeyOperation.swift in Sources */,
 				5871FB96254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift in Sources */,
+				440E5AB02CDBD67D00B09614 /* StatefulPreviewWrapper.swift in Sources */,
 				F0E8E4C52A60499100ED26A3 /* AccountDeletionViewController.swift in Sources */,
 				7A9CCCC12A96302800DD6A34 /* AccountCoordinator.swift in Sources */,
 				58FEEB58260B662E00A621A8 /* AutomaticKeyboardResponder.swift in Sources */,
@@ -5892,6 +5927,7 @@
 				58CEB2FD2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift in Sources */,
 				F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,
+				440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */,
 				588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */,
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,

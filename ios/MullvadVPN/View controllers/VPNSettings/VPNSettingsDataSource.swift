@@ -65,7 +65,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case ipOverrides
         case wireGuardPorts
         case wireGuardObfuscation
-        case wireGuardObfuscationPort
         case quantumResistance
         case privacyAndSecurity
     }
@@ -265,14 +264,16 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     func update(from tunnelSettings: LatestTunnelSettings) {
-        let newViewModel = VPNSettingsViewModel(from: tunnelSettings)
-        let mergedViewModel = viewModel.merged(newViewModel)
-
-        if viewModel != mergedViewModel {
-            viewModel = mergedViewModel
-        }
-
+        updateViewModel(from: tunnelSettings)
         updateSnapshot()
+    }
+
+    func reload(from tunnelSettings: LatestTunnelSettings) {
+        updateViewModel(from: tunnelSettings)
+
+        var snapshot = snapshot()
+        snapshot.reconfigureItems(snapshot.itemIdentifiers)
+        applySnapshot(snapshot, animated: false)
     }
 
     // MARK: - UITableViewDelegate
@@ -369,9 +370,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .wireGuardObfuscation:
             configureObfuscationHeader(view)
             return view
-        case .wireGuardObfuscationPort:
-            configureObfuscationPortHeader(view)
-            return view
         case .quantumResistance:
             configureQuantumResistanceHeader(view)
             return view
@@ -420,6 +418,15 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
     // MARK: - Private
 
+    func updateViewModel(from tunnelSettings: LatestTunnelSettings) {
+        let newViewModel = VPNSettingsViewModel(from: tunnelSettings)
+        let mergedViewModel = viewModel.merged(newViewModel)
+
+        if viewModel != mergedViewModel {
+            viewModel = mergedViewModel
+        }
+    }
+
     private func registerClasses() {
         CellReuseIdentifiers.allCases.forEach { enumCase in
             tableView?.register(
@@ -449,7 +456,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         snapshot.appendSections(Section.allCases)
         snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
         snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
-
         snapshot.appendItems([.multihopSwitch], toSection: .privacyAndSecurity)
 
         applySnapshot(snapshot, animated: animated, completion: completion)
@@ -544,36 +550,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         header.infoButtonHandler = { [weak self] in
             self.map { $0.delegate?.showInfo(for: .wireGuardObfuscation) }
-        }
-    }
-
-    private func configureObfuscationPortHeader(_ header: SettingsHeaderView) {
-        let title = NSLocalizedString(
-            "OBFUSCATION_PORT_HEADER_LABEL",
-            tableName: "VPNSettings",
-            value: "UDP-over-TCP Port",
-            comment: ""
-        )
-
-        header.accessibilityIdentifier = .udpOverTCPPortCell
-        header.titleLabel.text = title
-        header.accessibilityCustomActionName = title
-        header.isExpanded = isExpanded(.wireGuardObfuscationPort)
-        header.didCollapseHandler = { [weak self] header in
-            guard let self else { return }
-
-            var snapshot = snapshot()
-            if header.isExpanded {
-                snapshot.deleteItems(Item.wireGuardObfuscationPort)
-            } else {
-                snapshot.appendItems(Item.wireGuardObfuscationPort, toSection: .wireGuardObfuscationPort)
-            }
-            header.isExpanded.toggle()
-            applySnapshot(snapshot, animated: true)
-        }
-
-        header.infoButtonHandler = { [weak self] in
-            self.map { $0.delegate?.showInfo(for: .wireGuardObfuscationPort) }
         }
     }
 
