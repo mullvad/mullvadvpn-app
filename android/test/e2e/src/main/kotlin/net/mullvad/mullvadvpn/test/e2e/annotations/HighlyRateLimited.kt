@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.test.e2e.annotations
 
-import net.mullvad.mullvadvpn.test.e2e.BuildConfig
+import androidx.test.platform.app.InstrumentationRegistry
+import net.mullvad.mullvadvpn.test.e2e.constant.ENABLE_HIGHLY_RATE_LIMITED_TESTS
+import net.mullvad.mullvadvpn.test.e2e.extension.getRequiredArgument
 import org.junit.jupiter.api.extension.ConditionEvaluationResult
 import org.junit.jupiter.api.extension.ExecutionCondition
 import org.junit.jupiter.api.extension.ExtendWith
@@ -17,10 +19,12 @@ annotation class HighlyRateLimited {
         override fun evaluateExecutionCondition(
             context: ExtensionContext?
         ): ConditionEvaluationResult {
-            val enableHighlyRateLimited =
-                BuildConfig.ENABLE_HIGHLY_RATE_LIMITED_TESTS.toBoolean() ?: false
+            val enable =
+                InstrumentationRegistry.getArguments()
+                    .getRequiredArgument(ENABLE_HIGHLY_RATE_LIMITED_TESTS)
+                    .toBoolean()
 
-            return if (enableHighlyRateLimited) {
+            return if (enable) {
                 ConditionEvaluationResult.enabled("Running test highly affected by rate limiting.")
             } else {
                 ConditionEvaluationResult.disabled(
