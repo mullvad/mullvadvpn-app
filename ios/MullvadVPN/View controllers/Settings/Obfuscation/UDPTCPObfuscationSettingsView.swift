@@ -34,6 +34,6 @@ struct UDPTCPObfuscationSettingsView<VM>: View where VM: UDPTCPObfuscationSettin
 }
 
 #Preview {
-    var model = MockUDPTCPObfuscationSettingsViewModel(udpTcpPort: .port5001)
+    let model = MockUDPTCPObfuscationSettingsViewModel(udpTcpPort: .port5001)
     return UDPTCPObfuscationSettingsView(viewModel: model)
 }

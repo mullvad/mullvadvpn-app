@@ -26,12 +26,12 @@ struct SingleChoiceList<Item>: View where Item: Hashable {
         self.itemDescription = itemDescription ?? { "\($0)" }
     }
 
-    func row(_ v: Item) -> some View {
-        let isSelected = value.wrappedValue == v
+    func row(_ item: Item) -> some View {
+        let isSelected = value.wrappedValue == item
         return HStack {
             Image(uiImage: UIImage(resource: .iconTick)).opacity(isSelected ? 1.0 : 0.0)
             Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
-            Text(verbatim: itemDescription(v))
+            Text(verbatim: itemDescription(item))
             Spacer()
         }
         .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
@@ -42,7 +42,7 @@ struct SingleChoiceList<Item>: View where Item: Hashable {
         )
         .foregroundColor(Color(UIColor.Cell.titleTextColor))
         .onTapGesture {
-            value.wrappedValue = v
+            value.wrappedValue = item
         }
     }
 
@@ -59,6 +59,7 @@ struct SingleChoiceList<Item>: View where Item: Hashable {
             }
             Spacer()
         }
+        .padding(EdgeInsets(top: 24, leading: 0, bottom: 0, trailing: 0))
         .background(Color(.secondaryColor))
         .foregroundColor(Color(.primaryTextColor))
     }
