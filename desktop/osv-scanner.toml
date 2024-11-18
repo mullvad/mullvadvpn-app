@@ -29,9 +29,3 @@ reason = "This is just a dev dependency, and we don't have untrusted input to mi
 id = "CVE-2024-21528" # GHSA-g974-hxvm-x689
 ignoreUntil = 2025-01-17
 reason = "There is no fix yet and we don't send untrusted input to the first argument of addTranslations"
-
-# elliptic: Valid ECDSA signatures erroneously rejected in Elliptic
-[[IgnoredVulns]]
-id = "CVE-2024-48948" # GHSA-fc9h-whq2-v747
-ignoreUntil = 2025-01-17
-reason = "We don't use the signing capabiliteis of browserify"
