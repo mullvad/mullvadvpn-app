@@ -38,6 +38,7 @@ pub struct Opt {
     #[clap(long, requires = "leak", default_value = "Hello there!")]
     pub payload: String,
 
-    /// URL to perform the connection check against. For example, https://am.i.mullvad.net/json.
+    /// URL to perform the connection check against. Defaults to, https://am.i.mullvad.net/json.
+    #[clap(long, default_value = "https://am.i.mullvad.net/json")]
     pub url: String,
 }
