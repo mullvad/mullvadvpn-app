@@ -40,6 +40,7 @@ dependencies {
     implementation(libs.koin.android)
 
     implementation(libs.androidx.appcompat)
+    implementation(libs.arrow)
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)

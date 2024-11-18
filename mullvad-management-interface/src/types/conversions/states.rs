@@ -110,12 +110,20 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 i32::from(Cause::IsOffline)
                             }
                             #[cfg(target_os = "android")]
-                            talpid_tunnel::ErrorStateCause::VpnPermissionDenied => {
-                                i32::from(Cause::VpnPermissionDenied)
+                            talpid_tunnel::ErrorStateCause::NotPrepared => {
+                                i32::from(Cause::NotPrepared)
+                            }
+                            #[cfg(target_os = "android")]
+                            talpid_tunnel::ErrorStateCause::OtherAlwaysOnApp { .. } => {
+                                i32::from(Cause::OtherAlwaysOnApp)
+                            }
+                            #[cfg(target_os = "android")]
+                            talpid_tunnel::ErrorStateCause::OtherLegacyAlwaysOnVpn => {
+                                i32::from(Cause::OtherLegacyAlwaysOnVpn)
                             }
                             #[cfg(target_os = "android")]
                             talpid_tunnel::ErrorStateCause::InvalidDnsServers(_) => {
-                                i32::from(Cause::SetDnsError)
+                                i32::from(Cause::InvalidDnsServers)
                             }
                             #[cfg(any(
                                 target_os = "windows",
@@ -131,6 +139,32 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             }
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
+                        #[cfg(not(target_os = "android"))]
+                        other_always_on_app_error: None,
+                        #[cfg(target_os = "android")]
+                        other_always_on_app_error:
+                            if let talpid_tunnel::ErrorStateCause::OtherAlwaysOnApp { app_name } =
+                                error_state.cause()
+                            {
+                                Some(proto::error_state::OtherAlwaysOnAppError {
+                                    app_name: app_name.to_string(),
+                                })
+                            } else {
+                                None
+                            },
+                        #[cfg(not(target_os = "android"))]
+                        invalid_dns_servers_error: None,
+                        #[cfg(target_os = "android")]
+                        invalid_dns_servers_error:
+                            if let talpid_tunnel::ErrorStateCause::InvalidDnsServers(ip_addrs) =
+                                error_state.cause()
+                            {
+                                Some(proto::error_state::InvalidDnsServersError {
+                                    ip_addrs: ip_addrs.iter().map(|ip| ip.to_string()).collect(),
+                                })
+                            } else {
+                                None
+                            },
                         auth_failed_error: mullvad_types::auth_failed::AuthFailed::try_from(
                             error_state.cause(),
                         )
@@ -144,19 +178,19 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                                 error_state.cause()
                             {
                                 match reason {
-                            talpid_tunnel::ParameterGenerationError::NoMatchingRelay => {
-                                i32::from(GenerationError::NoMatchingRelay)
+                                talpid_tunnel::ParameterGenerationError::NoMatchingRelay => {
+                                    i32::from(GenerationError::NoMatchingRelay)
+                                }
+                                talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
+                                    i32::from(GenerationError::NoMatchingBridgeRelay)
+                                }
+                                talpid_tunnel::ParameterGenerationError::NoWireguardKey => {
+                                    i32::from(GenerationError::NoWireguardKey)
+                                }
+                                talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError => {
+                                    i32::from(GenerationError::CustomTunnelHostResolutionError)
+                                }
                             }
-                            talpid_tunnel::ParameterGenerationError::NoMatchingBridgeRelay => {
-                                i32::from(GenerationError::NoMatchingBridgeRelay)
-                            }
-                            talpid_tunnel::ParameterGenerationError::NoWireguardKey => {
-                                i32::from(GenerationError::NoWireguardKey)
-                            }
-                            talpid_tunnel::ParameterGenerationError::CustomTunnelHostResultionError => {
-                                i32::from(GenerationError::CustomTunnelHostResolutionError)
-                            }
-                        }
                             } else {
                                 0
                             },
@@ -304,6 +338,7 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                         parameter_error,
                         policy_error,
                         create_tunnel_error,
+                        ..
                     }),
             })) => {
                 #[cfg(not(target_os = "windows"))]
@@ -356,10 +391,6 @@ impl TryFrom<proto::TunnelState> for mullvad_types::states::TunnelState {
                             )),
                         };
                         talpid_tunnel::ErrorStateCause::TunnelParameterError(parameter_error)
-                    }
-                    #[cfg(target_os = "android")]
-                    Ok(proto::error_state::Cause::VpnPermissionDenied) => {
-                        talpid_tunnel::ErrorStateCause::VpnPermissionDenied
                     }
                     #[cfg(any(target_os = "windows", target_os = "macos"))]
                     Ok(proto::error_state::Cause::SplitTunnelError) => {

@@ -17,7 +17,6 @@ sealed class ErrorStateCause {
 
     data object DnsError : ErrorStateCause()
 
-    // Regression
     data class InvalidDnsServers(val addresses: List<InetAddress>) : ErrorStateCause()
 
     data object StartTunnelError : ErrorStateCause()
@@ -26,7 +25,11 @@ sealed class ErrorStateCause {
 
     data object IsOffline : ErrorStateCause()
 
-    data object VpnPermissionDenied : ErrorStateCause()
+    data object NotPrepared : ErrorStateCause()
+
+    data class OtherAlwaysOnApp(val appName: String) : ErrorStateCause()
+
+    data object OtherLegacyAlwaysOnApp : ErrorStateCause()
 }
 
 sealed interface AuthFailedError {

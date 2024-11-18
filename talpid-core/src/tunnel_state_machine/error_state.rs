@@ -4,12 +4,13 @@ use super::{
 };
 #[cfg(target_os = "macos")]
 use crate::dns::DnsConfig;
+#[cfg(not(target_os = "android"))]
 use crate::firewall::FirewallPolicy;
 use futures::StreamExt;
 #[cfg(target_os = "macos")]
 use std::net::Ipv4Addr;
 use talpid_types::{
-    tunnel::{self as talpid_tunnel, ErrorStateCause, FirewallPolicyError},
+    tunnel::{ErrorStateCause, FirewallPolicyError},
     ErrorExt,
 };
 
@@ -66,13 +67,14 @@ impl ErrorState {
             Box::new(ErrorState {
                 block_reason: block_reason.clone(),
             }),
-            TunnelStateTransition::Error(talpid_tunnel::ErrorState::new(
+            TunnelStateTransition::Error(talpid_types::tunnel::ErrorState::new(
                 block_reason,
                 block_failure,
             )),
         )
     }
 
+    #[cfg(not(target_os = "android"))]
     fn set_firewall_policy(
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), FirewallPolicyError> {
@@ -145,19 +147,11 @@ impl TunnelState for ErrorState {
                 let _ = complete_tx.send(());
                 consequence
             }
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
                     shared_values.allowed_endpoint = endpoint;
                     let _ = Self::set_firewall_policy(shared_values);
-
-                    #[cfg(target_os = "android")]
-                    if let Err(_err) = shared_values.restart_tunnel(true) {
-                        let _ = tx.send(());
-                        return NewState(Self::enter(
-                            shared_values,
-                            ErrorStateCause::SetFirewallPolicyError(FirewallPolicyError::Generic),
-                        ));
-                    }
                 }
                 let _ = tx.send(());
                 SameState(self)
@@ -168,7 +162,11 @@ impl TunnelState for ErrorState {
                     {
                         // DNS is blocked in the error state, so only update tun config
                         shared_values.prepare_tun_config(true);
-                        SameState(self)
+                        if let ErrorStateCause::InvalidDnsServers(_) = self.block_reason {
+                            NewState(ConnectingState::enter(shared_values, 0))
+                        } else {
+                            SameState(self)
+                        }
                     }
                     #[cfg(not(target_os = "android"))]
                     {

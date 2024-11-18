@@ -60,10 +60,6 @@ import {
 } from '../shared/daemon-rpc-types';
 import * as grpcTypes from './management_interface/management_interface_pb';
 
-const invalidErrorStateCause = new Error(
-  'VPN_PERMISSION_DENIED is not a valid error state cause on desktop',
-);
-
 export class ResponseParseError extends Error {
   constructor(message: string) {
     super(message);
@@ -275,9 +271,12 @@ function convertFromTunnelStateError(state: grpcTypes.ErrorState.AsObject): Erro
         ...baseError,
         cause: ErrorStateCause.needFullDiskPermissions,
       };
-    case grpcTypes.ErrorState.Cause.VPN_PERMISSION_DENIED:
-      // VPN_PERMISSION_DENIED is only ever created on Android
-      throw invalidErrorStateCause;
+    // These are only ever created on Android
+    case grpcTypes.ErrorState.Cause.INVALID_DNS_SERVERS:
+    case grpcTypes.ErrorState.Cause.NOT_PREPARED:
+    case grpcTypes.ErrorState.Cause.OTHER_ALWAYS_ON_APP:
+    case grpcTypes.ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN:
+      throw new Error('Unsupported error state cause: ' + state.cause);
   }
 }
 

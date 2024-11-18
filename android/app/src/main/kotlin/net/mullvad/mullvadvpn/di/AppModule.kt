@@ -13,7 +13,7 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.LocaleRepository
 import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
-import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
+import net.mullvad.mullvadvpn.lib.shared.VpnProfileUseCase
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -29,11 +29,13 @@ val appModule = module {
             scope = MainScope(),
         )
     }
+
+    single { VpnProfileUseCase(androidContext()) }
+
     single { BuildVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) }
     single { IntentProvider() }
     single { AccountRepository(get(), get(), MainScope()) }
     single { DeviceRepository(get()) }
-    single { VpnPermissionRepository(androidContext()) }
     single { ConnectionProxy(get(), get(), get()) }
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }

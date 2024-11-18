@@ -22,7 +22,6 @@
     <string name="all_locations">ตำแหน่งที่ตั้งทั้งหมด</string>
     <string name="all_providers">ผู้ให้บริการทั้งหมด</string>
     <string name="always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน Always-on VPN เป็นเวลา &lt;b&gt;%1$s&lt;/b&gt; ก่อนที่จะใช้งาน Mullvad VPN</string>
-    <string name="always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
     <string name="any">อะไรก็ได้</string>
     <string name="api_access_description">จัดการและเพิ่มวิธีแบบกำหนดเอง เพื่อเข้าถึง Mullvad API</string>
     <string name="api_access_method_info_first_line">แอปจำเป็นต้องสื่อสารกับเซิร์ฟเวอร์ Mullvad API เพื่อนำคุณเข้าสู่ระบบ ดึงข้อมูลรายการเซิร์ฟเวอร์ และการดำเนินการที่สำคัญอื่นๆ</string>
@@ -133,7 +132,6 @@
     <string name="enter_value_placeholder">ป้อน MTU</string>
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
-    <string name="error_state">ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้</string>
     <string name="exclude_applications">แอปพลิเคชันที่แยกออก</string>
     <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือส่งรายงานปัญหา</string>
     <string name="failed_to_create_account">ไม่สามารถสร้างบัญชีได้</string>
@@ -169,6 +167,7 @@
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
     <string name="ipv6_unavailable">ไม่สามารถกำหนดค่า IPv6 ได้ โปรดปิดใช้งานรายการนี้ในแอป หรือเปิดใช้งานบนอุปกรณ์ของคุณ</string>
     <string name="is_offline">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</string>
+    <string name="legacy_always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
     <string name="less_than_a_day_left">เหลือเวลาน้อยกว่าหนึ่งวัน</string>
     <string name="less_than_one_day">น้อยกว่าหนึ่งวัน</string>
     <string name="list_name">ชื่อรายการ</string>
@@ -333,7 +332,6 @@
     <string name="voucher_is_account_number">ดูเหมือนว่า คุณได้ป้อนหมายเลขบัญชีแทนรหัสบัตรกำนัล หากคุณต้องการเปลี่ยนบัญชีที่ใช้งานอยู่ โปรดออกจากระบบก่อน</string>
     <string name="voucher_success_title">แลกบัตรกำนัลสำเร็จแล้ว</string>
     <string name="vpn_permission_denied_error">การให้สิทธิ์ VPN ถูกปฏิเสธ ในขณะที่สร้างอุโมงค์ โปรดลองเชื่อมต่อใหม่อีกครั้ง</string>
-    <string name="vpn_permission_error_notification_message">Always-on VPN อาจได้รับการเปิดใช้งานสำหรับแอปอื่น</string>
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>

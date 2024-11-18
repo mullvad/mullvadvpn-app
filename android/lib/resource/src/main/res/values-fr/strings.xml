@@ -22,7 +22,6 @@
     <string name="all_locations">Toutes les localisations</string>
     <string name="all_providers">Tous les fournisseurs</string>
     <string name="always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver « Toujours exiger un VPN « pour &lt;b&gt;%1$s&lt;/b&gt; avant d\'utiliser Mullvad VPN.</string>
-    <string name="always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à une autre application</string>
     <string name="any">N\'importe lequel</string>
     <string name="api_access_description">Gérez et ajoutez des modes d\'accès personnalisés à l\'API Mullvad.</string>
     <string name="api_access_method_info_first_line">L\'application doit communiquer avec un serveur d\'API Mullvad pour vous connecter, récupérer des listes de serveurs et effectuer d\'autres opérations critiques.</string>
@@ -133,7 +132,6 @@
     <string name="enter_value_placeholder">Saisir le MTU</string>
     <string name="enter_voucher_code">Saisir un code de bon</string>
     <string name="error_occurred">Une erreur est survenue.</string>
-    <string name="error_state">ÉCHEC DE LA SÉCURISATION DE LA CONNEXION</string>
     <string name="exclude_applications">Applications exclues</string>
     <string name="failed_to_block_internet">Impossible de bloquer tout le trafic réseau. Veuillez dépanner ou envoyer un rapport de problème.</string>
     <string name="failed_to_create_account">Échec de la création du compte</string>
@@ -169,6 +167,7 @@
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
+    <string name="legacy_always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à une autre application</string>
     <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_one_day">moins d\'un jour</string>
     <string name="list_name">Nom de la liste</string>
@@ -333,7 +332,6 @@
     <string name="voucher_is_account_number">Vous semblez avoir saisi un numéro de compte plutôt qu\'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d\'abord vous déconnecter.</string>
     <string name="voucher_success_title">Le bon a bien été échangé.</string>
     <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
-    <string name="vpn_permission_error_notification_message">« Toujours exiger un VPN » est peut-être activé pour une autre application</string>
     <string name="vpn_permission_error_notification_title">Erreur de permission VPN</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
     <string name="wireguard_custon_port_title">Personnalisé</string>

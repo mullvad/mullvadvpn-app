@@ -22,7 +22,6 @@
     <string name="all_locations">Todas as localizações</string>
     <string name="all_providers">Todos os fornecedores</string>
     <string name="always_on_vpn_error_notification_content">Não foi possível iniciar a ligação de túnel. Desative a VPN sempre ligada para &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar a Mullvad VPN.</string>
-    <string name="always_on_vpn_error_notification_title">VPN sempre ligada atribuída a outra app</string>
     <string name="any">Qualquer</string>
     <string name="api_access_description">Gerir e adicionar métodos personalizados para aceder à Mullvad API.</string>
     <string name="api_access_method_info_first_line">A app precisa de comunicar com um servidor da Mullvad API para iniciar a sua sessão, obter listas de servidores e outras operações críticas.</string>
@@ -133,7 +132,6 @@
     <string name="enter_value_placeholder">Introduzir MTU</string>
     <string name="enter_voucher_code">Introduza o código do voucher</string>
     <string name="error_occurred">Ocorreu um erro.</string>
-    <string name="error_state">ERRO AO ESTABELECER LIGAÇÃO SEGURA</string>
     <string name="exclude_applications">Aplicações excluídas</string>
     <string name="failed_to_block_internet">Não foi possível bloquear todo o tráfego de rede. Experimente a resolução de problemas ou envie um relatório do problema.</string>
     <string name="failed_to_create_account">Não foi possível criar a conta</string>
@@ -169,6 +167,7 @@
     <string name="invalid_voucher">Código do voucher inválido.</string>
     <string name="ipv6_unavailable">Não foi possível configurar o IPv6. Desative-o ou ative-o no seu dispositivo.</string>
     <string name="is_offline">O seu dispositivo está offline. O túnel irá ligar-se automaticamente assim que o seu dispositivo estiver novamente online.</string>
+    <string name="legacy_always_on_vpn_error_notification_title">VPN sempre ligada atribuída a outra app</string>
     <string name="less_than_a_day_left">menos de um dia restante</string>
     <string name="less_than_one_day">menos de um dia</string>
     <string name="list_name">Nome da lista</string>
@@ -333,7 +332,6 @@
     <string name="voucher_is_account_number">Parece que introduziu um número de conta em vez de um código de voucher. Se pretender alterar a conta ativa, termine a sessão primeiro.</string>
     <string name="voucher_success_title">O voucher foi reclamado com sucesso.</string>
     <string name="vpn_permission_denied_error">A transmissão foi negada durante a criação do túnel. Tente fazer novamente a ligação.</string>
-    <string name="vpn_permission_error_notification_message">A VPN sempre ligada pode estar ativada para outra app</string>
     <string name="vpn_permission_error_notification_title">Erro de permissão da VPN</string>
     <string name="we_will_look_into_this">Vamos analisar esta situação.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>

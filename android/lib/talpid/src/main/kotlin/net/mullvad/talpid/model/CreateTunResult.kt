@@ -17,7 +17,13 @@ sealed class CreateTunResult {
             get() = true
     }
 
-    data object PermissionDenied : CreateTunResult()
-
+    // Establish error
     data object TunnelDeviceError : CreateTunResult()
+
+    // Prepare errors
+    data object OtherLegacyAlwaysOnVpn : CreateTunResult()
+
+    data class OtherAlwaysOnApp(val appName: String) : CreateTunResult()
+
+    data object NotPrepared : CreateTunResult()
 }
