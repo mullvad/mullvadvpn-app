@@ -431,9 +431,9 @@ private fun GeoIpLocation?.asString(): String {
     else {
         buildString {
             append(country)
-            city?.let {
+            if (city != null && city?.isNotBlank() == true) {
                 append(", ")
-                append(it)
+                append(city)
             }
         }
     }

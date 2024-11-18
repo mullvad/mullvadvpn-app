@@ -134,7 +134,7 @@ internal fun ManagementInterface.GeoIpLocation.toDomain(): GeoIpLocation =
                 null
             },
         country = country,
-        city = city,
+        city = if (hasCity()) city else null,
         latitude = latitude,
         longitude = longitude,
         hostname = if (hasHostname()) hostname else null,
