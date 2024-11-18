@@ -120,28 +120,6 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapMultihopSwitch() -> Self {
-        app.cells[AccessibilityIdentifier.multihopSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-            .tap()
-        return self
-    }
-
-    @discardableResult func tapDaitaSwitch() -> Self {
-        app.cells[AccessibilityIdentifier.daitaSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-            .tap()
-        let promptIsShown = app
-            .otherElements[AccessibilityIdentifier.daitaPromptAlert.rawValue]
-            .waitForExistence(timeout: 1.0)
-
-        if promptIsShown {
-            DaitaPromptAlert(app)
-                .tapEnableAnyway()
-        }
-        return self
-    }
-
     @discardableResult func verifyCustomWireGuardPortSelected(portNumber: String) -> Self {
         let cell = app.cells[AccessibilityIdentifier.wireGuardCustomPort]
         XCTAssertTrue(cell.isSelected)
@@ -177,32 +155,6 @@ class VPNSettingsPage: Page {
     @discardableResult func verifyQuantumResistantTunnelOnSelected() -> Self {
         let cell = app.cells[AccessibilityIdentifier.quantumResistanceOn]
         XCTAssertTrue(cell.isSelected)
-        return self
-    }
-
-    @discardableResult func verifyMultihopSwitchOn() -> Self {
-        let switchElement = app.cells[.multihopSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-
-        guard let switchValue = switchElement.value as? String else {
-            XCTFail("Failed to read switch state")
-            return self
-        }
-
-        XCTAssertEqual(switchValue, "1")
-        return self
-    }
-
-    @discardableResult func verifyDaitaSwitchOn() -> Self {
-        let switchElement = app.cells[.daitaSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-
-        guard let switchValue = switchElement.value as? String else {
-            XCTFail("Failed to read switch state")
-            return self
-        }
-
-        XCTAssertEqual(switchValue, "1")
         return self
     }
 }

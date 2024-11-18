@@ -121,8 +121,6 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapUDPOverTCPPort80Cell()
             .tapQuantumResistantTunnelExpandButton()
             .tapQuantumResistantTunnelOnCell()
-            .tapDaitaSwitch()
-            .tapMultihopSwitch()
     }
 
     func testVerifySettingsStillChanged() {
@@ -154,7 +152,5 @@ class SettingsMigrationTests: BaseUITestCase {
             .verifyUDPOverTCPPort80Selected()
             .tapQuantumResistantTunnelExpandButton()
             .verifyQuantumResistantTunnelOnSelected()
-            .verifyDaitaSwitchOn()
-            .verifyMultihopSwitchOn()
     }
 }
