@@ -12,6 +12,10 @@ inputs:
       Path to where outputs are stored - both build outputs and outputs from running tests.
       This should be unique for each job run in order to avoid concurrency issues.
     required: true
+  should_uninstall_app:
+    description: 'Boolean value to decide whether to uninstall the app before running tests'
+    required: true
+    default: 'true'
 
 runs:
   using: 'composite'
@@ -41,11 +45,13 @@ runs:
         OUTPUTS_PATH: ${{ inputs.outputs_path }}
 
     - name: Uninstall app
+      if: ${{ inputs.should_uninstall_app == 'true' }}
       run: ios-deploy --id $TEST_DEVICE_UDID --uninstall_only --bundle_id net.mullvad.MullvadVPN
       shell: bash
       env:
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
 
+    # Run end-to-end-tests
     - name: Run end-to-end-tests
       run: |
         # Forcing the filesystem buffers to be flushed to ensure the
@@ -71,7 +77,8 @@ runs:
         TEST_NAME: ${{ inputs.test_name }}
         TEST_DEVICE_UDID: ${{ inputs.test_device_udid }}
 
-    - name: Store test report artifact
+    # Store test report artifacts
+    - name: Store test report artifacts
       if: always()
       uses: actions/upload-artifact@v4
       with:

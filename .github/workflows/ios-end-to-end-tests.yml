@@ -15,6 +15,10 @@ on:
       commit_hash:
         type: string
         required: false
+      should_uninstall_app:
+        type: boolean
+        required: false
+        default: true
   workflow_dispatch:
     inputs:
       # Optionally specify a test case or suite to run.
@@ -22,6 +26,11 @@ on:
       user_supplied_test_name:
         description: 'Only run test case/suite'
         required: false
+      should_uninstall_app:
+        description: >
+          Indicate if the app should be uninstalled before running the tests.
+        required: false
+        default: true
 jobs:
   set-up-outputs-directory:
     name: Set up outputs directory
@@ -149,6 +158,7 @@ jobs:
           test_name: "MullvadVPNUITests/${{ matrix.test_suite }}"
           test_device_udid: ${{ env.TEST_DEVICE_UDID }}
           outputs_path: ${{ needs.set-up-outputs-directory.outputs.job_outputs_directory }}
+          should_uninstall_app: ${{ inputs.should_uninstall_app }}
 
   clean-up-outputs-directory:
     if: always()
