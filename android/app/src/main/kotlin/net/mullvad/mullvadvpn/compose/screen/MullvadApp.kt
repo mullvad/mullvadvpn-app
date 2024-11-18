@@ -7,9 +7,11 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.navigation.NavHostController
+import arrow.core.merge
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -17,11 +19,14 @@ import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestinati
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
-import net.mullvad.mullvadvpn.compose.util.RequestVpnPermission
+import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
+import net.mullvad.mullvadvpn.lib.model.PrepareError
+import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
 import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
-import net.mullvad.mullvadvpn.viewmodel.VpnPermissionSideEffect
-import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
+import net.mullvad.mullvadvpn.viewmodel.VpnProfileSideEffect
+import net.mullvad.mullvadvpn.viewmodel.VpnProfileViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -32,7 +37,7 @@ fun MullvadApp() {
     val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
 
     val serviceVm = koinViewModel<NoDaemonViewModel>()
-    val permissionVm = koinViewModel<VpnPermissionViewModel>()
+    val permissionVm = koinViewModel<VpnProfileViewModel>()
 
     DisposableEffect(Unit) {
         navHostController.addOnDestinationChangedListener(serviceVm)
@@ -64,11 +69,20 @@ fun MullvadApp() {
 
     // Ask for VPN Permission
     val launchVpnPermission =
-        rememberLauncherForActivityResult(RequestVpnPermission()) { _ -> permissionVm.connect() }
+        rememberLauncherForActivityResult(CreateVpnProfile()) { _ -> permissionVm.connect() }
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         permissionVm.uiSideEffect.collect {
-            if (it is VpnPermissionSideEffect.ShowDialog) {
-                launchVpnPermission.launch(Unit)
+            if (it is VpnProfileSideEffect.RequestVpnProfile) {
+                val prepareResult = context.prepareVpnSafe().merge()
+                when (prepareResult) {
+                    is PrepareError.NotPrepared ->
+                        launchVpnPermission.launch(prepareResult.prepareIntent)
+                    // If legacy or other always on connect at let daemon generate a error state
+                    is PrepareError.OtherLegacyAlwaysOnVpn,
+                    is PrepareError.OtherAlwaysOnApp,
+                    Prepared -> permissionVm.connect()
+                }
             }
         }
     }

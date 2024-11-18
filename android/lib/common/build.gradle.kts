@@ -31,10 +31,11 @@ android {
 dependencies {
     implementation(projects.lib.model)
     implementation(projects.lib.resource)
-    implementation(projects.lib.talpid)
 
+    implementation(libs.arrow)
     implementation(libs.androidx.appcompat)
     implementation(libs.jodatime)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kermit)
 }

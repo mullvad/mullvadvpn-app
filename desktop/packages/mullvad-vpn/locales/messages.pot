@@ -2284,10 +2284,10 @@ msgstr ""
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
 msgstr ""
 
-msgid "Always-on VPN assigned to other app"
+msgid "Always-on VPN assigned to %s"
 msgstr ""
 
-msgid "Always-on VPN might be enabled for another app"
+msgid "Always-on VPN assigned to other app"
 msgstr ""
 
 msgid "App info"
@@ -2431,6 +2431,9 @@ msgstr ""
 msgid "Expand"
 msgstr ""
 
+msgid "FAILED TO CONNECT"
+msgstr ""
+
 msgid "Failed to apply patch"
 msgstr ""
 
@@ -2534,6 +2537,9 @@ msgid "Please enter a valid IPv4 or IPv6 address"
 msgstr ""
 
 msgid "Please enter a valid remote server port"
+msgstr ""
+
+msgid "Please press connect to request VPN permission"
 msgstr ""
 
 msgid "Privacy"
@@ -2642,6 +2648,9 @@ msgid "Unable to apply firewall rules. Please troubleshoot or send a problem rep
 msgstr ""
 
 msgid "Unable to parse patch"
+msgstr ""
+
+msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
 msgstr ""
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."

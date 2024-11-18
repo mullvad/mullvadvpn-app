@@ -13,6 +13,8 @@ use futures::{
     stream::Fuse,
     StreamExt,
 };
+#[cfg(target_os = "android")]
+use talpid_tunnel::tun_provider::Error;
 use talpid_types::{
     net::{AllowedClients, AllowedEndpoint, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -283,6 +285,7 @@ impl ConnectedState {
                 let _ = complete_tx.send(());
                 consequence
             }
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 shared_values.allowed_endpoint = endpoint;
                 let _ = tx.send(());
@@ -293,10 +296,18 @@ impl ConnectedState {
                     #[cfg(target_os = "android")]
                     {
                         if let Err(_err) = shared_values.restart_tunnel(false) {
-                            self.disconnect(
-                                shared_values,
-                                AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
-                            )
+                            match _err {
+                                Error::InvalidDnsServers(ip_addrs) => self.disconnect(
+                                    shared_values,
+                                    AfterDisconnect::Block(ErrorStateCause::InvalidDnsServers(
+                                        ip_addrs,
+                                    )),
+                                ),
+                                _ => self.disconnect(
+                                    shared_values,
+                                    AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
+                                ),
+                            }
                         } else {
                             self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                         }
