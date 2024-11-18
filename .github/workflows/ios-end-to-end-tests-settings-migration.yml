@@ -46,6 +46,7 @@ jobs:
     with:
       arg_tests_json_key: "mullvadVPNUITestsChangeDNSSettings"
       commit_hash: ${{ needs.set_commit_hash.outputs.old_app_commit_hash }}
+      should_uninstall_app: true
     secrets: inherit
 
   verify_dns_settings:
@@ -55,6 +56,7 @@ jobs:
     uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "mullvadVPNUITestsVerifyDNSSettingsChanged"
+      should_uninstall_app: false
     secrets: inherit
 
   change_other_settings:
@@ -66,6 +68,7 @@ jobs:
     with:
       arg_tests_json_key: "mullvadVPNUITestsChangeSettings"
       commit_hash: ${{ needs.set_commit_hash.outputs.old_app_commit_hash }}
+      should_uninstall_app: true
     secrets: inherit
 
   verify_other_settings:
@@ -75,4 +78,5 @@ jobs:
     uses: ./.github/workflows/ios-end-to-end-tests.yml
     with:
       arg_tests_json_key: "mullvadVPNUITestsVerifySettingsChanged"
+      should_uninstall_app: false
     secrets: inherit
