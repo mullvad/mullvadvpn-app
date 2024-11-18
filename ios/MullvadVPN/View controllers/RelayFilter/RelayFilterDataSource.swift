@@ -285,10 +285,6 @@ extension RelayFilterDataSource: UITableViewDelegate {
         return nil
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return UITableView.automaticDimension
-    }
-
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return UIMetrics.TableView.separatorHeight
     }
