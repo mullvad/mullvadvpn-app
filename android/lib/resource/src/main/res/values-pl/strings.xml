@@ -22,7 +22,7 @@
     <string name="all_locations">Wszystkie lokalizacje</string>
     <string name="all_providers">Wszyscy dostawcy</string>
     <string name="always_on_vpn_error_notification_content">Nie można uruchomić połączenia tunelowego. Przed rozpoczęciem użytkowania usługi Mullvad VPN wyłącz opcję „Zawsze włączony VPN” w &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji</string>
+    <string name="legacy_always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji</string>
     <string name="any">Dowolny</string>
     <string name="api_access_description">Zarządzaj i dodawaj niestandardowe metody dostępu do interfejsu API Mullvad.</string>
     <string name="api_access_method_info_first_line">Aplikacja musi komunikować się z serwerem API Mullvad, aby można było się zalogować, pobrać listy serwerów i wykonywać inne krytyczne operacje.</string>
@@ -133,7 +133,6 @@
     <string name="enter_value_placeholder">Wprowadź MTU</string>
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="error_occurred">Wystąpił błąd.</string>
-    <string name="error_state">BŁĄD ZABEZPIECZANIA POŁĄCZENIA</string>
     <string name="exclude_applications">Wykluczone aplikacje</string>
     <string name="failed_to_block_internet">Nie można zablokować całego ruchu sieciowego. Rozwiąż problem lub wyślij zgłoszenie problemu.</string>
     <string name="failed_to_create_account">Nie można utworzyć konta</string>
@@ -333,7 +332,6 @@
     <string name="voucher_is_account_number">Wygląda na to, że wpisano numer konta zamiast kodu kuponu. Jeśli chcesz zmienić aktywne konto, najpierw się wyloguj.</string>
     <string name="voucher_success_title">Kupon został zrealizowany.</string>
     <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
-    <string name="vpn_permission_error_notification_message">Opcja „Zawsze włączony VPN” może być włączona dla innej aplikacji</string>
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>

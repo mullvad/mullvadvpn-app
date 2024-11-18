@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.provider.Settings
-import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.getInstalledPackagesList
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 
 private const val ALWAYS_ON_VPN_APP = "always_on_vpn_app"
@@ -18,18 +17,6 @@ fun createAccountUri(accountUri: String, websiteAuthToken: WebsiteAuthToken?): U
         }
     }
     return Uri.parse(urlString)
-}
-
-fun Context.getAlwaysOnVpnAppName(): String? {
-    return resolveAlwaysOnVpnPackageName()
-        ?.let { currentAlwaysOnVpn ->
-            packageManager.getInstalledPackagesList(0).singleOrNull {
-                it.packageName == currentAlwaysOnVpn && it.packageName != packageName
-            }
-        }
-        ?.applicationInfo
-        ?.loadLabel(packageManager)
-        ?.toString()
 }
 
 // NOTE: This function will return the current Always-on VPN package's name. In case of either

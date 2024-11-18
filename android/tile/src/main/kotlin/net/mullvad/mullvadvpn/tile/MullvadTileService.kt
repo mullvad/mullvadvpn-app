@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.app.PendingIntent
 import android.content.Intent
 import android.graphics.drawable.Icon
-import android.net.VpnService
 import android.os.Build
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
@@ -26,6 +25,7 @@ import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.constant.VPN_SERVICE_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.setSubtitleIfSupported
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
@@ -88,9 +88,26 @@ class MullvadTileService : TileService() {
 
     @SuppressLint("StartActivityAndCollapseDeprecated")
     private fun toggleTunnel() {
-        val isSetup = VpnService.prepare(applicationContext) == null
+        val isSetup = applicationContext.prepareVpnSafe().isRight()
         // TODO This logic should be more advanced, we should ensure user has an account setup etc.
-        if (!isSetup) {
+        if (isSetup) {
+            Logger.i("TileService: VPN service is setup")
+
+            val intent =
+                Intent().apply {
+                    setClassName(applicationContext.packageName, VPN_SERVICE_CLASS)
+                    action =
+                        if (qsTile.state == Tile.STATE_INACTIVE) {
+                            KEY_CONNECT_ACTION
+                        } else {
+                            KEY_DISCONNECT_ACTION
+                        }
+                }
+
+            // Always start as foreground, e.g if app is dead we won't be allowed to start if not
+            // in foreground.
+            startForegroundService(intent)
+        } else {
             Logger.i("TileService: VPN service not setup, starting main activity")
 
             val intent =
@@ -103,24 +120,7 @@ class MullvadTileService : TileService() {
                     action = Intent.ACTION_MAIN
                 }
             startActivityAndCollapseCompat(intent)
-            return
-        } else {
-            Logger.i("TileService: VPN service is setup")
         }
-        val intent =
-            Intent().apply {
-                setClassName(applicationContext.packageName, VPN_SERVICE_CLASS)
-                action =
-                    if (qsTile.state == Tile.STATE_INACTIVE) {
-                        KEY_CONNECT_ACTION
-                    } else {
-                        KEY_DISCONNECT_ACTION
-                    }
-            }
-
-        // Always start as foreground, e.g if app is dead we won't be allowed to start if not
-        // in foreground.
-        startForegroundService(intent)
     }
 
     @SuppressLint("StartActivityAndCollapseDeprecated")

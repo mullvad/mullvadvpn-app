@@ -173,6 +173,7 @@ impl TunnelState for DisconnectedState {
                 let _ = complete_tx.send(());
                 SameState(self)
             }
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
                     shared_values.allowed_endpoint = endpoint;

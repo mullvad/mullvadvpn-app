@@ -3,7 +3,6 @@ package net.mullvad.mullvadvpn.compose.component.notificationbanner
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.OpenInNew
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -16,7 +15,7 @@ import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
-import net.mullvad.mullvadvpn.lib.common.util.getErrorNotificationResources
+import net.mullvad.mullvadvpn.lib.common.util.notificationResources
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
@@ -111,7 +110,7 @@ fun InAppNotification.toNotificationData(
 
 @Composable
 private fun errorMessageBannerData(error: ErrorState) =
-    error.getErrorNotificationResources(LocalContext.current).run {
+    with(error.notificationResources()) {
         NotificationData(
             title = stringResource(id = titleResourceId),
             message =

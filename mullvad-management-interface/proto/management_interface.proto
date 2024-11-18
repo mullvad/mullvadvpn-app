@@ -159,9 +159,16 @@ message ErrorState {
     CREATE_TUNNEL_DEVICE = 5;
     TUNNEL_PARAMETER_ERROR = 6;
     IS_OFFLINE = 7;
-    VPN_PERMISSION_DENIED = 8;
-    SPLIT_TUNNEL_ERROR = 9;
-    NEED_FULL_DISK_PERMISSIONS = 10;
+    // Android only
+    NOT_PREPARED = 8;
+    // Android only
+    ALWAYS_ON_APP = 9;
+    // Android only
+    LEGACY_LOCKDOWN = 10;
+    // Android only
+    INVALID_DNS_SERVERS = 11;
+    SPLIT_TUNNEL_ERROR = 12;
+    NEED_FULL_DISK_PERMISSIONS = 13;
   }
 
   enum AuthFailedError {
@@ -190,6 +197,19 @@ message ErrorState {
     optional string lock_name = 3;
   }
 
+  message AlwaysOnAppError {
+    string app_name = 1;
+  }
+
+  message NotPreparedError {
+    string package_name = 1;
+    string class_name = 2;
+  }
+
+  message InvalidDnsServersError {
+    repeated string ip_addrs = 1;
+  }
+
   Cause cause = 1;
   FirewallPolicyError blocking_error = 2;
 
@@ -201,6 +221,13 @@ message ErrorState {
   FirewallPolicyError policy_error = 5;
   // CREATE_TUNNEL_DEVICE
   optional int32 create_tunnel_error = 6;
+
+  // Android only
+  NotPreparedError not_prepared_error = 7;
+  // Android only
+  AlwaysOnAppError always_on_app_error = 8;
+  // Android only
+  InvalidDnsServersError invalid_dns_servers_error = 9;
 }
 
 message TunnelState {

@@ -577,7 +577,7 @@ pub struct Daemon {
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
-    shutdown_tasks: Vec<Pin<Box<dyn Future<Output = ()> + Send + Sync>>>,
+    shutdown_tasks: Vec<Pin<Box<dyn Future<Output=()> + Send + Sync>>>,
     tunnel_state_machine_handle: TunnelStateMachineHandle,
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
@@ -611,8 +611,8 @@ impl Daemon {
             #[cfg(target_os = "android")]
             api::create_bypass_tx(&internal_event_tx),
         )
-        .await
-        .map_err(Error::InitRpcFactory)?;
+            .await
+            .map_err(Error::InitRpcFactory)?;
 
         let api_availability = api_runtime.availability_handle();
         api_availability.suspend();
@@ -656,8 +656,8 @@ impl Daemon {
             internal_event_tx.to_specialized_sender(),
             api_runtime.address_cache().clone(),
         )
-        .await
-        .map_err(Error::ApiConnectionModeError)?;
+            .await
+            .map_err(Error::ApiConnectionModeError)?;
 
         let api_handle = api_runtime.mullvad_rest_handle(access_mode_provider);
 
@@ -696,15 +696,15 @@ impl Daemon {
                 .unwrap_or_default(),
             internal_event_tx.to_specialized_sender(),
         )
-        .await
-        .map_err(Error::LoadAccountManager)?;
+            .await
+            .map_err(Error::LoadAccountManager)?;
 
         let account_history = account_history::AccountHistory::new(
             &settings_dir,
             data.device().map(|device| device.account_number.clone()),
         )
-        .await
-        .map_err(Error::LoadAccountHistory)?;
+            .await
+            .map_err(Error::LoadAccountHistory)?;
 
         let target_state = if settings.auto_connect {
             log::info!("Automatically connecting since auto-connect is turned on");
@@ -783,8 +783,8 @@ impl Daemon {
                 table_id: mullvad_types::TUNNEL_TABLE_ID,
             },
         )
-        .await
-        .map_err(Error::TunnelError)?;
+            .await
+            .map_err(Error::TunnelError)?;
 
         api::forward_offline_state(api_availability.clone(), offline_state_rx);
 
@@ -807,7 +807,7 @@ impl Daemon {
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
         )
-        .await;
+            .await;
 
         // Attempt to download a fresh relay list
         relay_list_updater.update().await;
@@ -1124,7 +1124,7 @@ impl Daemon {
             TunnelState::Disconnected {
                 ref mut location,
                 #[cfg(not(target_os = "android"))]
-                    locked_down: _,
+                locked_down: _,
             } => *location = Some(fetched_location),
             TunnelState::Connected {
                 ref mut location, ..
@@ -1414,6 +1414,25 @@ impl Daemon {
         event: AccessMethodEvent,
         endpoint_active_tx: oneshot::Sender<()>,
     ) {
+
+
+        #[cfg(target_os = "android")]
+        match event {
+            AccessMethodEvent::New { setting, .. } => {
+                // Announce to all clients listening for updates of the
+                // currently active access method. The announcement should be
+                // made after the firewall policy has been updated, since the
+                // new access method will be useless before then.
+                let notifier = self.management_interface.notifier().clone();
+                tokio::spawn(async move {
+                    // Let the emitter of this event know that the firewall has been updated.
+                    let _ = endpoint_active_tx.send(());
+                    // Notify clients about the change if necessary.
+                    notifier.notify_new_access_method_event(setting);
+                });
+            }
+        }
+        #[cfg(not(target_os = "android"))]
         match event {
             AccessMethodEvent::Allow { endpoint } => {
                 let (completion_tx, completion_rx) = oneshot::channel();
@@ -2727,8 +2746,8 @@ impl Daemon {
                 daemon_event_sender,
                 api_proxy,
             )
-            .await
-            .map_err(Error::AccessMethodError);
+                .await
+                .map_err(Error::AccessMethodError);
 
             Self::oneshot_send(tx, result, "on_test_proxy_as_access_method response");
         });
@@ -2780,8 +2799,8 @@ impl Daemon {
                 daemon_event_sender,
                 api_proxy,
             )
-            .await
-            .map_err(Error::AccessMethodError);
+                .await
+                .map_err(Error::AccessMethodError);
 
             log::debug!(
                 "API access method {method} {verdict}",

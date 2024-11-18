@@ -1,48 +1,50 @@
 package net.mullvad.mullvadvpn.lib.common.util
 
-import android.content.Context
+import java.net.InetAddress
 import net.mullvad.mullvadvpn.lib.common.R
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
-import net.mullvad.talpid.util.addressString
+import net.mullvad.mullvadvpn.lib.model.PrepareError
 
-fun ErrorState.getErrorNotificationResources(context: Context): ErrorNotificationMessage {
+fun ErrorState.notificationResources(): ErrorNotificationMessage {
+    val cause = this.cause
     return when {
         cause is ErrorStateCause.InvalidDnsServers -> {
             ErrorNotificationMessage(
                 R.string.blocking_internet,
                 cause.errorMessageId(),
-                (cause as ErrorStateCause.InvalidDnsServers).addresses.joinToString { address ->
-                    address.addressString()
-                },
+                cause.addresses.joinToString { address -> address.addressString() },
             )
         }
-        cause is ErrorStateCause.VpnPermissionDenied -> {
-            resolveAlwaysOnVpnErrorNotificationMessage(context.getAlwaysOnVpnAppName())
-        }
+        cause is ErrorStateCause.VpnPermissionDenied ->
+            cause.prepareError.errorNotificationMessage()
+
         isBlocking -> ErrorNotificationMessage(R.string.blocking_internet, cause.errorMessageId())
         else -> ErrorNotificationMessage(R.string.critical_error, R.string.failed_to_block_internet)
     }
 }
 
-private fun resolveAlwaysOnVpnErrorNotificationMessage(
-    alwaysOnVpnAppName: String?
-): ErrorNotificationMessage {
-    return if (alwaysOnVpnAppName != null) {
-        ErrorNotificationMessage(
-            R.string.always_on_vpn_error_notification_title,
-            R.string.always_on_vpn_error_notification_content,
-            alwaysOnVpnAppName,
-        )
-    } else {
-        ErrorNotificationMessage(
-            R.string.vpn_permission_error_notification_title,
-            R.string.vpn_permission_error_notification_message,
-        )
+private fun PrepareError.errorNotificationMessage(): ErrorNotificationMessage =
+    when (this) {
+        is PrepareError.NotPrepared ->
+            ErrorNotificationMessage(
+                R.string.vpn_permission_error_notification_title,
+                R.string.vpn_permission_error_notification_message,
+            )
+        is PrepareError.OtherAlwaysOnApp ->
+            ErrorNotificationMessage(
+                R.string.legacy_always_on_vpn_error_notification_title,
+                R.string.always_on_vpn_error_notification_content,
+                appName,
+            )
+        is PrepareError.LegacyLockdown ->
+            ErrorNotificationMessage(
+                R.string.legacy_always_on_vpn_error_notification_title,
+                R.string.legacy_always_on_vpn_error_notification_content,
+            )
     }
-}
 
 fun ErrorStateCause.errorMessageId(): Int =
     when (this) {
@@ -75,3 +77,10 @@ fun AuthFailedError.errorMessageId(): Int =
         AuthFailedError.TooManyConnections,
         AuthFailedError.Unknown -> R.string.auth_failed
     }
+
+fun InetAddress.addressString(): String {
+    val hostNameAndAddress = this.toString().split('/', limit = 2)
+    val address = hostNameAndAddress[1]
+
+    return address
+}

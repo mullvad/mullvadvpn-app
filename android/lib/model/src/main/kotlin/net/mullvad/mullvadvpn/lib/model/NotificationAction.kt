@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
+import android.content.Intent
+
 sealed interface NotificationAction {
 
     sealed interface AccountExpiry : NotificationAction {
@@ -15,6 +17,6 @@ sealed interface NotificationAction {
 
         data object Dismiss : Tunnel
 
-        data object RequestPermission : Tunnel
+        data class RequestPermission(val prepareIntent: Intent) : Tunnel
     }
 }

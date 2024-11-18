@@ -22,7 +22,7 @@
     <string name="all_locations">Todas las ubicaciones</string>
     <string name="all_providers">Todos los proveedores</string>
     <string name="always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa en &lt;b&gt;%1$s&lt;/b&gt; antes de utilizar la VPN de Mullvad.</string>
-    <string name="always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra aplicación</string>
+    <string name="legacy_always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra aplicación</string>
     <string name="any">Cualquiera</string>
     <string name="api_access_description">Gestione y añada métodos personalizados para acceder a la API de Mullvad.</string>
     <string name="api_access_method_info_first_line">La aplicación necesita comunicarse con un servidor API de Mullvad para iniciar su sesión, obtener las listas de servidores y otras operaciones críticas.</string>
@@ -133,7 +133,6 @@
     <string name="enter_value_placeholder">Introducir MTU</string>
     <string name="enter_voucher_code">Escriba el código del cupón</string>
     <string name="error_occurred">Se produjo un error.</string>
-    <string name="error_state">NO SE PUDO PROTEGER LA CONEXIÓN</string>
     <string name="exclude_applications">Aplicaciones excluidas</string>
     <string name="failed_to_block_internet">No se puede bloquear todo el tráfico de red. Intente solucionar el problema o envíe un informe de problemas.</string>
     <string name="failed_to_create_account">No se puede crear la cuenta</string>
@@ -333,7 +332,6 @@
     <string name="voucher_is_account_number">Parece que ha introducido un número de cuenta en lugar de un código de cupón. Si desea cambiar la cuenta activa, cierre primero la sesión.</string>
     <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
     <string name="vpn_permission_denied_error">Se denegó el permiso para usar una conexión VPN al crear el túnel. Intente volver a establecer la conexión.</string>
-    <string name="vpn_permission_error_notification_message">La VPN siempre activa podría estar habilitada en otra aplicación</string>
     <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>
     <string name="we_will_look_into_this">Revisaremos esto.</string>
     <string name="wireguard_custon_port_title">Personalizado</string>
