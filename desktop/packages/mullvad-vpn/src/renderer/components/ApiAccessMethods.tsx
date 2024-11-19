@@ -127,7 +127,7 @@ export default function ApiAccessMethods() {
                 </SettingsHeader>
 
                 <StyledSettingsContent>
-                  <Cell.Group>
+                  <Cell.Group $noMarginBottom>
                     <ApiAccessMethod
                       method={methods.direct}
                       inUse={methods.direct.id === currentMethod?.id}
