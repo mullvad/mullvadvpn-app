@@ -3,9 +3,12 @@ package net.mullvad.talpid
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.ConnectivityManager.NetworkCallback
+import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import co.touchlab.kermit.Logger
+import java.net.InetAddress
 import kotlin.properties.Delegates.observable
 
 class ConnectivityListener {
@@ -24,6 +27,14 @@ class ConnectivityListener {
             }
         }
 
+    private val defaultNetworkCallback =
+        object : NetworkCallback() {
+            override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
+                super.onLinkPropertiesChanged(network, linkProperties)
+                currentDnsServers = ArrayList(linkProperties.dnsServers)
+            }
+        }
+
     private lateinit var connectivityManager: ConnectivityManager
 
     // Used by JNI
@@ -34,6 +45,12 @@ class ConnectivityListener {
                     notifyConnectivityChange(newValue, senderAddress)
                 }
             }
+        }
+
+    var currentDnsServers: ArrayList<InetAddress> = ArrayList()
+        private set(value) {
+            field = ArrayList(value.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER })
+            Logger.d("New currentDnsServers: $field")
         }
 
     var senderAddress = 0L
@@ -49,10 +66,15 @@ class ConnectivityListener {
             context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
 
         connectivityManager.registerNetworkCallback(request, callback)
+        currentDnsServers =
+            connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.dnsServers?.let { ArrayList(it) }
+                ?: ArrayList()
+        connectivityManager.registerDefaultNetworkCallback(defaultNetworkCallback)
     }
 
     fun unregister() {
         connectivityManager.unregisterNetworkCallback(callback)
+        connectivityManager.unregisterNetworkCallback(defaultNetworkCallback)
     }
 
     // DROID-1401
