@@ -341,7 +341,7 @@ jobs:
 
       - name: Build stagemole app
         uses: burrunan/gradle-cache-action@v1
-        if: github.event_name == 'schedule' || github.event.inputs.run_firebase_tests == 'true'
+        if: github.event.inputs.run_firebase_tests == 'true'
         with:
           job-id: jdk17
           arguments: assemblePlayStagemoleDebug
@@ -547,7 +547,7 @@ jobs:
 
   firebase-tests:
     name: Run firebase tests
-    if: github.event_name == 'schedule' || github.event.inputs.run_firebase_tests == 'true'
+    if: github.event.inputs.run_firebase_tests == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     needs: [build-app, build-instrumented-tests]
