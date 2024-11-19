@@ -10,6 +10,7 @@ import MullvadSettings
 import MullvadTypes
 
 protocol RelayPicking {
+    var obfuscation: ObfuscatorPortSelection { get }
     var relays: REST.ServerRelaysResponse { get }
     var constraints: RelayConstraints { get }
     var connectionAttemptCount: UInt { get }
@@ -20,12 +21,13 @@ protocol RelayPicking {
 extension RelayPicking {
     func findBestMatch(
         from candidates: [RelayWithLocation<REST.ServerRelay>],
-        closeTo location: Location? = nil
+        closeTo location: Location? = nil,
+        obfuscate: Bool
     ) throws -> SelectedRelay {
         let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
             relays: relays,
-            portConstraint: constraints.port,
+            portConstraint: obfuscate ? obfuscation.port : constraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
             closeTo: location
         )
@@ -39,10 +41,14 @@ extension RelayPicking {
 }
 
 struct SinglehopPicker: RelayPicking {
-    let relays: REST.ServerRelaysResponse
+    let obfuscation: ObfuscatorPortSelection
     let constraints: RelayConstraints
     let connectionAttemptCount: UInt
     let daitaSettings: DAITASettings
+
+    var relays: REST.ServerRelaysResponse {
+        obfuscation.relays
+    }
 
     func pick() throws -> SelectedRelays {
         do {
@@ -53,14 +59,14 @@ struct SinglehopPicker: RelayPicking {
                 daitaEnabled: daitaSettings.daitaState.isEnabled
             )
 
-            let match = try findBestMatch(from: exitCandidates)
+            let match = try findBestMatch(from: exitCandidates, obfuscate: true)
             return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
         } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
             // If DAITA is on and Direct only is off, and no supported relays are found, we should try to find the nearest
             // available relay that supports DAITA and use it as entry in a multihop selection.
             if daitaSettings.isAutomaticRouting {
                 return try MultihopPicker(
-                    relays: relays,
+                    obfuscation: obfuscation,
                     constraints: constraints,
                     connectionAttemptCount: connectionAttemptCount,
                     daitaSettings: daitaSettings
@@ -73,10 +79,14 @@ struct SinglehopPicker: RelayPicking {
 }
 
 struct MultihopPicker: RelayPicking {
-    let relays: REST.ServerRelaysResponse
+    let obfuscation: ObfuscatorPortSelection
     let constraints: RelayConstraints
     let connectionAttemptCount: UInt
     let daitaSettings: DAITASettings
+
+    var relays: REST.ServerRelaysResponse {
+        obfuscation.relays
+    }
 
     func pick() throws -> SelectedRelays {
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
@@ -129,12 +139,13 @@ struct MultihopPicker: RelayPicking {
     func exclude(
         relay: SelectedRelay,
         from candidates: [RelayWithLocation<REST.ServerRelay>],
-        closeTo location: Location? = nil
+        closeTo location: Location? = nil,
+        obfuscate: Bool
     ) throws -> SelectedRelay {
         let filteredCandidates = candidates.filter { relayWithLocation in
             relayWithLocation.relay.hostname != relay.hostname
         }
 
-        return try findBestMatch(from: filteredCandidates, closeTo: location)
+        return try findBestMatch(from: filteredCandidates, closeTo: location, obfuscate: obfuscate)
     }
 }

@@ -160,13 +160,16 @@ class MultihopDecisionFlowTests: XCTestCase {
 
 extension MultihopDecisionFlowTests {
     var picker: MultihopPicker {
+        let obfuscation = try? ObfuscatorPortSelector(relays: sampleRelays)
+            .obfuscate(tunnelSettings: LatestTunnelSettings(), connectionAttemptCount: 0)
+
         let constraints = RelayConstraints(
             entryLocations: .only(UserSelectedRelays(locations: [.city("se", "sto")])),
             exitLocations: .only(UserSelectedRelays(locations: [.city("se", "sto")]))
         )
 
         return MultihopPicker(
-            relays: sampleRelays,
+            obfuscation: obfuscation.unsafelyUnwrapped,
             constraints: constraints,
             connectionAttemptCount: 0,
             daitaSettings: DAITASettings(daitaState: .off)
