@@ -644,10 +644,6 @@
 		8529693A2B4F0238007EAD4C /* TermsOfServicePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852969392B4F0238007EAD4C /* TermsOfServicePage.swift */; };
 		8529693C2B4F0257007EAD4C /* Alert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8529693B2B4F0257007EAD4C /* Alert.swift */; };
 		852A26462BA9C9CB006EB9C8 /* DNSSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852A26452BA9C9CB006EB9C8 /* DNSSettingsPage.swift */; };
-		852BC66F2BAB44F500A47558 /* MullvadVPNUITestsVerifySettingsChanged.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 852BC66C2BAB44F500A47558 /* MullvadVPNUITestsVerifySettingsChanged.xctestplan */; };
-		852BC6702BAB44F500A47558 /* MullvadVPNUITestsChangeSettings.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 852BC66D2BAB44F500A47558 /* MullvadVPNUITestsChangeSettings.xctestplan */; };
-		852BC6712BAB44F500A47558 /* MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 852BC66E2BAB44F500A47558 /* MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan */; };
-		852BC6732BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 852BC6722BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan */; };
 		852D054D2BC3DE3A008578D2 /* APIAccessPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852D054C2BC3DE3A008578D2 /* APIAccessPage.swift */; };
 		852D054F2BC43DF7008578D2 /* AddAccessMethodPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 852D054E2BC43DF7008578D2 /* AddAccessMethodPage.swift */; };
 		8532E6872B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8532E6862B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift */; };
@@ -1979,10 +1975,6 @@
 		852969392B4F0238007EAD4C /* TermsOfServicePage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TermsOfServicePage.swift; sourceTree = "<group>"; };
 		8529693B2B4F0257007EAD4C /* Alert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Alert.swift; sourceTree = "<group>"; };
 		852A26452BA9C9CB006EB9C8 /* DNSSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DNSSettingsPage.swift; sourceTree = "<group>"; };
-		852BC66C2BAB44F500A47558 /* MullvadVPNUITestsVerifySettingsChanged.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNUITestsVerifySettingsChanged.xctestplan; sourceTree = "<group>"; };
-		852BC66D2BAB44F500A47558 /* MullvadVPNUITestsChangeSettings.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNUITestsChangeSettings.xctestplan; sourceTree = "<group>"; };
-		852BC66E2BAB44F500A47558 /* MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan; sourceTree = "<group>"; };
-		852BC6722BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = MullvadVPNUITestsChangeDNSSettings.xctestplan; sourceTree = "<group>"; };
 		852D054C2BC3DE3A008578D2 /* APIAccessPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAccessPage.swift; sourceTree = "<group>"; };
 		852D054E2BC43DF7008578D2 /* AddAccessMethodPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccessMethodPage.swift; sourceTree = "<group>"; };
 		8532E6862B8CCED600ACECD1 /* ProblemReportSubmittedPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProblemReportSubmittedPage.swift; sourceTree = "<group>"; };
@@ -3908,11 +3900,7 @@
 				7A83C4002A55B81A00DFB83A /* MullvadVPNCI.xctestplan */,
 				7A02D4EA2A9CEC7A00C19E31 /* MullvadVPNScreenshots.xctestplan */,
 				852969302B4D9E70007EAD4C /* MullvadVPNUITestsAll.xctestplan */,
-				852BC6722BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan */,
-				852BC66D2BAB44F500A47558 /* MullvadVPNUITestsChangeSettings.xctestplan */,
 				85006A8E2B73EF67004AD8FB /* MullvadVPNUITestsSmoke.xctestplan */,
-				852BC66E2BAB44F500A47558 /* MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan */,
-				852BC66C2BAB44F500A47558 /* MullvadVPNUITestsVerifySettingsChanged.xctestplan */,
 			);
 			path = TestPlans;
 			sourceTree = "<group>";
@@ -5123,10 +5111,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				852BC66F2BAB44F500A47558 /* MullvadVPNUITestsVerifySettingsChanged.xctestplan in Resources */,
-				852BC6712BAB44F500A47558 /* MullvadVPNUITestsVerifyDNSSettingsChanged.xctestplan in Resources */,
-				852BC6702BAB44F500A47558 /* MullvadVPNUITestsChangeSettings.xctestplan in Resources */,
-				852BC6732BAB450B00A47558 /* MullvadVPNUITestsChangeDNSSettings.xctestplan in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
