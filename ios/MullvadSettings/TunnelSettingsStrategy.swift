@@ -18,9 +18,7 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol {
         newSettings: LatestTunnelSettings
     ) -> Bool {
         switch (oldSettings, newSettings) {
-        case let (old, new) where old.relayConstraints != new.relayConstraints,
-             let (old, new) where old.tunnelMultihopState != new.tunnelMultihopState,
-             let (old, new) where old.daita != new.daita:
+        case let (old, new) where old != new:
             true
         default:
             false

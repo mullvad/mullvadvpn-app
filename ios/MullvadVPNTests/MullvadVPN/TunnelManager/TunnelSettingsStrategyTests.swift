@@ -52,7 +52,7 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         TunnelSettingsUpdate.dnsSettings(dnsSettings).apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertFalse(tunnelSettingsStrategy.shouldReconnectToNewRelay(
+        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
             oldSettings: currentSettings,
             newSettings: updatedSettings
         ))
@@ -66,7 +66,7 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         TunnelSettingsUpdate.quantumResistance(.on).apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertFalse(tunnelSettingsStrategy.shouldReconnectToNewRelay(
+        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
             oldSettings: currentSettings,
             newSettings: updatedSettings
         ))
@@ -88,7 +88,7 @@ final class TunnelSettingsStrategyTests: XCTestCase {
         .apply(to: &updatedSettings)
 
         let tunnelSettingsStrategy = TunnelSettingsStrategy()
-        XCTAssertFalse(tunnelSettingsStrategy.shouldReconnectToNewRelay(
+        XCTAssertTrue(tunnelSettingsStrategy.shouldReconnectToNewRelay(
             oldSettings: currentSettings,
             newSettings: updatedSettings
         ))
