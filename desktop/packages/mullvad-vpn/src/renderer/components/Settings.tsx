@@ -7,7 +7,6 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -19,6 +18,7 @@ import {
   StyledNavigationScrollbars,
   StyledQuitButton,
   StyledSettingsContent,
+  StyledSettingsGroups,
 } from './SettingsStyles';
 
 export default function Support() {
@@ -54,45 +54,47 @@ export default function Support() {
                 </SettingsHeader>
 
                 <StyledSettingsContent>
-                  {showSubSettings ? (
-                    <>
-                      <Cell.Group>
-                        <UserInterfaceSettingsButton />
-                        <MultihopButton />
-                        <DaitaButton />
-                        <VpnSettingsButton />
-                      </Cell.Group>
-
-                      {showSplitTunneling && (
-                        <Cell.Group>
-                          <SplitTunnelingButton />
+                  <StyledSettingsGroups>
+                    {showSubSettings ? (
+                      <>
+                        <Cell.Group $noMarginBottom>
+                          <UserInterfaceSettingsButton />
+                          <MultihopButton />
+                          <DaitaButton />
+                          <VpnSettingsButton />
                         </Cell.Group>
-                      )}
-                    </>
-                  ) : (
-                    <Cell.Group>
-                      <UserInterfaceSettingsButton />
+
+                        {showSplitTunneling && (
+                          <Cell.Group $noMarginBottom>
+                            <SplitTunnelingButton />
+                          </Cell.Group>
+                        )}
+                      </>
+                    ) : (
+                      <Cell.Group $noMarginBottom>
+                        <UserInterfaceSettingsButton />
+                      </Cell.Group>
+                    )}
+
+                    <Cell.Group $noMarginBottom>
+                      <ApiAccessMethodsButton />
                     </Cell.Group>
-                  )}
 
-                  <Cell.Group>
-                    <ApiAccessMethodsButton />
-                  </Cell.Group>
-
-                  <Cell.Group>
-                    <SupportButton />
-                    <AppVersionButton />
-                  </Cell.Group>
-
-                  {window.env.development && (
-                    <Cell.Group>
-                      <DebugButton />
+                    <Cell.Group $noMarginBottom>
+                      <SupportButton />
+                      <AppVersionButton />
                     </Cell.Group>
-                  )}
+
+                    {window.env.development && (
+                      <Cell.Group $noMarginBottom>
+                        <DebugButton />
+                      </Cell.Group>
+                    )}
+                  </StyledSettingsGroups>
+
+                  <QuitButton />
                 </StyledSettingsContent>
               </StyledContent>
-
-              <QuitButton />
             </StyledNavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
@@ -209,7 +211,7 @@ function AppVersionButton() {
     [openUrl, suggestedIsBeta],
   );
 
-  let icon;
+  let alertIcon;
   let footer;
   if (!consistentVersion || !upToDateVersion) {
     const inconsistentVersionMessage = messages.pgettext(
@@ -224,7 +226,7 @@ function AppVersionButton() {
 
     const message = !consistentVersion ? inconsistentVersionMessage : updateAvailableMessage;
 
-    icon = <StyledCellIcon source="icon-alert" width={18} tintColor={colors.red} />;
+    alertIcon = <StyledCellIcon source="icon-alert" width={18} tintColor={colors.red} />;
     footer = (
       <Cell.CellFooter>
         <Cell.CellFooterText>{message}</Cell.CellFooterText>
@@ -233,24 +235,20 @@ function AppVersionButton() {
   }
 
   return (
-    <AriaDescriptionGroup>
-      <AriaDescribed>
-        <Cell.CellButton disabled={isOffline} onClick={openDownloadLink}>
-          {icon}
-          <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
-          <Cell.SubText>{appVersion}</Cell.SubText>
-          <AriaDescription>
-            <Cell.Icon
-              height={16}
-              width={16}
-              source="icon-extLink"
-              aria-label={messages.pgettext('accessibility', 'Opens externally')}
-            />
-          </AriaDescription>
-        </Cell.CellButton>
-      </AriaDescribed>
+    <>
+      <Cell.CellNavigationButton
+        disabled={isOffline}
+        onClick={openDownloadLink}
+        icon={{
+          source: 'icon-extLink',
+          'aria-label': messages.pgettext('accessibility', 'Opens externally'),
+        }}>
+        {alertIcon}
+        <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
+        <Cell.SubText>{appVersion}</Cell.SubText>
+      </Cell.CellNavigationButton>
       {footer}
-    </AriaDescriptionGroup>
+    </>
   );
 }
 
