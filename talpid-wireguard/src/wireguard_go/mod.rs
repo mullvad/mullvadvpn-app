@@ -7,7 +7,7 @@ use super::{
 #[cfg(target_os = "linux")]
 use crate::config::MULLVAD_INTERFACE_NAME;
 #[cfg(target_os = "android")]
-use crate::connectivity_check::ConnectivityMonitor;
+use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
@@ -407,7 +407,7 @@ impl WgGoTunnel {
     }
 
     fn ensure_tunnel_is_running(&self, addr: Ipv4Addr) -> Result<()> {
-        let connection_established = ConnectivityMonitor::new(addr)
+        let connection_established = connectivity::Check::new(addr)
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?
             .establish_connectivity(0, self)
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
