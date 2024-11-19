@@ -622,7 +622,6 @@ impl Daemon {
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
-            // FIXME: clone is bad (single sender)
             #[cfg(target_os = "android")]
             android_dns::AndroidDnsResolver::new(connectivity_listener.clone()),
             #[cfg(not(target_os = "android"))]

@@ -9,10 +9,9 @@ use jnix::{
         sys::{jboolean, jlong, JNI_TRUE},
         JNIEnv, JavaVM,
     },
-    JnixEnv,
-    FromJava,
+    FromJava, JnixEnv,
 };
-use std::{net::IpAddr, sync::{Arc, Weak}};
+use std::{net::IpAddr, sync::Arc};
 use talpid_types::{android::AndroidContext, net::Connectivity, ErrorExt};
 
 /// Error related to Android connectivity monitor
@@ -45,7 +44,6 @@ pub struct ConnectivityListener {
     jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
-    _sender: Option<Arc<UnboundedSender<Connectivity>>>,
 }
 
 impl ConnectivityListener {
@@ -96,26 +94,24 @@ impl ConnectivityListener {
             jvm: android_context.jvm,
             class,
             object,
-            _sender: None,
         })
     }
 
     /// Register a channel that receives changes about the offline state
+    ///
+    /// # Note
+    ///
+    /// The listener is shared by all instances of the struct.
     pub fn set_connectivity_listener(
         &mut self,
         sender: UnboundedSender<Connectivity>,
     ) -> Result<(), Error> {
-        let sender = Arc::new(sender);
-
-        let weak_sender = Arc::downgrade(&sender);
-
-        let weak_sender_ptr = Box::new(weak_sender);
-        let weak_sender_address = Box::into_raw(weak_sender_ptr) as jlong;
+        let sender_ptr = Box::into_raw(Box::new(sender)) as jlong;
 
         let result = self.call_method(
             "setSenderAddress",
             "(J)V",
-            &[JValue::Long(weak_sender_address)],
+            &[JValue::Long(sender_ptr)],
             JavaType::Primitive(Primitive::Void),
         )?;
 
@@ -127,8 +123,6 @@ impl ConnectivityListener {
                 format!("{:?}", value),
             )),
         }?;
-
-        self._sender = Some(sender);
 
         Ok(())
     }
@@ -222,15 +216,18 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
     sender_address: jlong,
 ) {
     let connected = JNI_TRUE == connected;
-    let sender_ref = Box::leak(unsafe { get_sender_from_address(sender_address) });
-    if let Some(sender) = sender_ref.upgrade() {
-        if sender
-            .unbounded_send(Connectivity::Status { connected })
-            .is_err()
-        {
-            log::warn!("Failed to send offline change event");
-        }
+
+    let sender = unsafe { Box::from_raw(sender_address as *mut UnboundedSender<Connectivity>) };
+
+    if sender
+        .unbounded_send(Connectivity::Status { connected })
+        .is_err()
+    {
+        log::warn!("Failed to send offline change event");
     }
+
+    // Do not destroy
+    std::mem::forget(sender);
 }
 
 /// Entry point for Android Java code to return ownership of the sender reference.
@@ -241,9 +238,5 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_destroySende
     _: JObject<'_>,
     sender_address: jlong,
 ) {
-    let _ = unsafe { get_sender_from_address(sender_address) };
-}
-
-unsafe fn get_sender_from_address(address: jlong) -> Box<Weak<UnboundedSender<Connectivity>>> {
-    Box::from_raw(address as *mut Weak<UnboundedSender<Connectivity>>)
+    let _ = unsafe { Box::from_raw(sender_address as *mut UnboundedSender<Connectivity>) };
 }
