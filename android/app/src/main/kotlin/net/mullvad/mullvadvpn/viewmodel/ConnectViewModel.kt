@@ -78,11 +78,11 @@ class ConnectViewModel(
                     location =
                         when (tunnelState) {
                             is TunnelState.Disconnected ->
-                                tunnelState.location() ?: lastKnownDisconnectedLocation
+                                tunnelState.location ?: lastKnownDisconnectedLocation
                             is TunnelState.Connecting -> tunnelState.location
                             is TunnelState.Connected -> tunnelState.location
                             is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
-                            is TunnelState.Error -> null
+                            is TunnelState.Error -> lastKnownDisconnectedLocation
                         },
                     selectedRelayItemTitle = selectedRelayItemTitle,
                     tunnelState = tunnelState,
