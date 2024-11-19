@@ -26,6 +26,10 @@ on:
       user_supplied_test_name:
         description: 'Only run test case/suite'
         required: false
+      commit_hash:
+        description: >
+         Specifies the repository commit to use; defaults to the current event's commit if not provided.
+        required: false
       should_uninstall_app:
         description: >
           Indicate if the app should be uninstalled before running the tests.

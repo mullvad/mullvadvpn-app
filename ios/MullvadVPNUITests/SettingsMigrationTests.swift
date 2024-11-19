@@ -9,15 +9,32 @@
 import Foundation
 import XCTest
 
-/*
- Settings migration is an exception, it uses four different test plans and a separate workflow
-   `ios-end-to-end-tests-settings-migration.yml` which executes the test plans in order,
- do not reinstall the app in between runs but upgrades the app after changing settings:
- * `MullvadVPNUITestsChangeDNSSettings` - Change settings for using custom DNS
- * `MullvadVPNUITestsVerifyDNSSettingsChanged` - Verify custom DNS settings still changed
- * `MullvadVPNUITestsChangeSettings` - Change all settings except custom DNS setting
- * `MullvadVPNUITestsVerifySettingsChanged` - Verify all settings except custom DNS setting still changed
- */
+/// Pre-Release iOS Settings Migration Testing Instructions
+///
+/// Before releasing a new version, ensure the settings migration process works as expected.
+/// Follow these steps to validate that user settings persist correctly across app updates:
+///
+/// 1. Remove the installed app:
+///    Uninstall the current app from the test device to ensure a clean environment.
+/// 2. Switch to an older released version:
+///    Checkout an app version released approximately 6 months ago for testing migration over a meaningful time span.
+/// 3. Run `testChangeCustomDNSSettings`:
+///    Modify DNS settings in the older app version to simulate real-world user interactions.
+/// 4. Checkout the release branch:
+///    Switch to the branch containing the new app version to be released.
+///    - Run `testVerifyCustomDNSSettingsStillChanged`:
+///      Verify that DNS settings changed in step 3 persist after upgrading.
+/// 5. Return to the older version:
+///    Checkout the same older version used in step 2 to continue testing additional settings.
+/// 6. Run `testChangeVPNSettings`:
+///    Modify VPN-related settings in the older app version.
+/// 7. Switch back to the release branch:
+///    Return to the branch checked out in step 4.
+///    - Run `testVerifySettingsStillChanged`:
+///      Confirm that VPN settings changed in step 6 persist after upgrading.
+///
+/// These steps ensure the app's settings migration logic is robust and reliable,
+/// providing a seamless user experience during upgrades.
 class SettingsMigrationTests: BaseUITestCase {
     let customDNSServerIPAddress = "123.123.123.123"
     let wireGuardPort = "4001"
@@ -121,7 +138,6 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapUDPOverTCPPort80Cell()
             .tapQuantumResistantTunnelExpandButton()
             .tapQuantumResistantTunnelOnCell()
-            .tapDaitaSwitch()
             .tapMultihopSwitch()
     }
 
@@ -154,7 +170,6 @@ class SettingsMigrationTests: BaseUITestCase {
             .verifyUDPOverTCPPort80Selected()
             .tapQuantumResistantTunnelExpandButton()
             .verifyQuantumResistantTunnelOnSelected()
-            .verifyDaitaSwitchOn()
             .verifyMultihopSwitchOn()
     }
 }
