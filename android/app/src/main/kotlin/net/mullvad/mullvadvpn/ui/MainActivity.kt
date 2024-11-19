@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
+import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityScope
@@ -42,7 +42,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         }
 
     private val intentProvider by inject<IntentProvider>()
-    private val noDaemonViewModel by inject<NoDaemonViewModel>()
+    private val mullvadAppViewModel by inject<MullvadAppViewModel>()
     private val privacyDisclaimerRepository by inject<PrivacyDisclaimerRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
 
-        lifecycle.addObserver(noDaemonViewModel)
+        lifecycle.addObserver(mullvadAppViewModel)
 
         installSplashScreen().setKeepOnScreenCondition {
             val isReady = isReadyNextDraw
@@ -121,7 +121,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     }
 
     override fun onDestroy() {
-        lifecycle.removeObserver(noDaemonViewModel)
+        lifecycle.removeObserver(mullvadAppViewModel)
         super.onDestroy()
     }
 }

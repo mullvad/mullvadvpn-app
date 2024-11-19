@@ -1,5 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.content.Intent
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -19,14 +21,17 @@ import com.ramcosta.composedestinations.generated.destinations.NoDaemonDestinati
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.rememberNavHostEngine
 import com.ramcosta.composedestinations.utils.rememberDestinationsNavigator
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.filter
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
+import net.mullvad.mullvadvpn.util.getActivity
 import net.mullvad.mullvadvpn.viewmodel.DaemonScreenEvent
-import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
-import net.mullvad.mullvadvpn.viewmodel.VpnProfileSideEffect
-import net.mullvad.mullvadvpn.viewmodel.VpnProfileViewModel
+import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -36,12 +41,32 @@ fun MullvadApp() {
     val navHostController: NavHostController = engine.rememberNavController()
     val navigator: DestinationsNavigator = navHostController.rememberDestinationsNavigator()
 
-    val serviceVm = koinViewModel<NoDaemonViewModel>()
-    val permissionVm = koinViewModel<VpnProfileViewModel>()
+    val mullvadAppViewModel = koinViewModel<MullvadAppViewModel>()
 
     DisposableEffect(Unit) {
-        navHostController.addOnDestinationChangedListener(serviceVm)
-        onDispose { navHostController.removeOnDestinationChangedListener(serviceVm) }
+        navHostController.addOnDestinationChangedListener(mullvadAppViewModel)
+        onDispose { navHostController.removeOnDestinationChangedListener(mullvadAppViewModel) }
+    }
+
+    // Get intents
+    val launchVpnPermission =
+        rememberLauncherForActivityResult(CreateVpnProfile()) { _ -> mullvadAppViewModel.connect() }
+    val activity = LocalContext.current.getActivity() as ComponentActivity
+    LaunchedEffect(navHostController) {
+        activity
+            .intents()
+            .filter { it.action == KEY_REQUEST_VPN_PROFILE }
+            .collect {
+                val prepareResult = activity.prepareVpnSafe().merge()
+                when (prepareResult) {
+                    is PrepareError.NotPrepared ->
+                        launchVpnPermission.launch(prepareResult.prepareIntent)
+                    // If legacy or other always on connect at let daemon generate a error state
+                    is PrepareError.OtherLegacyAlwaysOnVpn,
+                    is PrepareError.OtherAlwaysOnApp,
+                    Prepared -> mullvadAppViewModel.connect()
+                }
+            }
     }
 
     DestinationsNavHost(
@@ -56,7 +81,7 @@ fun MullvadApp() {
 
     // Globally handle daemon dropped connection with NoDaemonScreen
     LaunchedEffect(Unit) {
-        serviceVm.uiSideEffect.collect {
+        mullvadAppViewModel.uiSideEffect.collect {
             Logger.i { "DaemonScreenEvent: $it" }
             when (it) {
                 DaemonScreenEvent.Show ->
@@ -66,24 +91,15 @@ fun MullvadApp() {
             }
         }
     }
-
-    // Ask for VPN Permission
-    val launchVpnPermission =
-        rememberLauncherForActivityResult(CreateVpnProfile()) { _ -> permissionVm.connect() }
-    val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        permissionVm.uiSideEffect.collect {
-            if (it is VpnProfileSideEffect.RequestVpnProfile) {
-                val prepareResult = context.prepareVpnSafe().merge()
-                when (prepareResult) {
-                    is PrepareError.NotPrepared ->
-                        launchVpnPermission.launch(prepareResult.prepareIntent)
-                    // If legacy or other always on connect at let daemon generate a error state
-                    is PrepareError.OtherLegacyAlwaysOnVpn,
-                    is PrepareError.OtherAlwaysOnApp,
-                    Prepared -> permissionVm.connect()
-                }
-            }
-        }
-    }
 }
+
+private fun ComponentActivity.intents() =
+    callbackFlow<Intent> {
+        send(intent)
+
+        val listener: (Intent) -> Unit = { trySend(it) }
+
+        addOnNewIntentListener(listener)
+
+        awaitClose { removeOnNewIntentListener(listener) }
+    }
