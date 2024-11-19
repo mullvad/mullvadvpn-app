@@ -4,7 +4,7 @@
 use libc::siginfo_t;
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
 
-use core::fmt::{self};
+use core::fmt;
 use std::{
     backtrace::Backtrace,
     env,
