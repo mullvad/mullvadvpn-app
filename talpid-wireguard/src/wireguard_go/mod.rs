@@ -406,18 +406,20 @@ impl WgGoTunnel {
         Ok(())
     }
 
+    /// There is a breif period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
+    /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
     fn ensure_tunnel_is_running(&self, addr: Ipv4Addr) -> Result<()> {
+        let connectivity_err = |e| TunnelError::Connectivity(Box::new(e));
         let connection_established = connectivity::Check::new(addr)
-            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?
+            .map_err(connectivity_err)?
             .establish_connectivity(0, self)
-            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+            .map_err(connectivity_err)?;
 
         // Timed out
         if !connection_established {
-            Err(TunnelError::TunnelUp)
-        } else {
-            Ok(())
+            return Err(TunnelError::TunnelUp);
         }
+        Ok(())
     }
 }
 

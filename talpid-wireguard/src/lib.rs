@@ -1046,11 +1046,6 @@ pub enum TunnelError {
     #[error("Failed to configure Wireguard sockets to bypass the tunnel")]
     BypassError(#[source] tun_provider::Error),
 
-    /// TODO
-    #[cfg(target_os = "android")]
-    #[error("Failed to set up a working tunnel")]
-    TunnelUp,
-
     /// Invalid tunnel interface name.
     #[error("Invalid tunnel interface name")]
     InterfaceNameError(#[source] std::ffi::NulError),
@@ -1073,6 +1068,15 @@ pub enum TunnelError {
     #[cfg(daita)]
     #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
     DaitaNotSupported,
+
+    /// [connecitivity] error.
+    #[error(transparent)]
+    Connectivity(#[from] Box<connectivity::Error>),
+
+    /// Tunnel seemingly does not serve any traffic
+    #[cfg(target_os = "android")]
+    #[error("Tunnel seemingly does not serve any traffic")]
+    TunnelUp,
 }
 
 #[cfg(target_os = "linux")]
