@@ -3,6 +3,7 @@
 
 mod access_method;
 pub mod account_history;
+mod android_dns;
 mod api;
 mod api_address_updater;
 #[cfg(not(target_os = "android"))]
@@ -38,6 +39,8 @@ use futures::{
 };
 use geoip::GeoIpHandler;
 use management_interface::ManagementInterfaceServer;
+#[cfg(not(target_os = "android"))]
+use mullvad_api::DefaultDnsResolver;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
@@ -90,6 +93,9 @@ use talpid_types::{
     ErrorExt,
 };
 use tokio::io;
+
+#[cfg(target_os = "android")]
+use talpid_core::connectivity_listener::ConnectivityListener;
 
 /// Delay between generating a new WireGuard key and reconnecting
 const WG_RECONNECT_DELAY: Duration = Duration::from_secs(4 * 60);
@@ -604,8 +610,25 @@ impl Daemon {
 
         let (internal_event_tx, internal_event_rx) = daemon_command_channel.destructure();
 
+        #[cfg(target_os = "android")]
+        let connectivity_listener = match ConnectivityListener::new(android_context.clone()) {
+            Ok(listener) => listener,
+            Err(error) => {
+                log::warn!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to start connectivity listener")
+                );
+                return Err(Error::DaemonUnavailable);
+            }
+        };
+
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
+            // FIXME: clone is bad (single sender)
+            #[cfg(target_os = "android")]
+            android_dns::AndroidDnsResolver::new(connectivity_listener.clone()),
+            #[cfg(not(target_os = "android"))]
+            DefaultDnsResolver,
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
@@ -777,6 +800,8 @@ impl Daemon {
             volume_update_rx,
             #[cfg(target_os = "android")]
             android_context,
+            #[cfg(target_os = "android")]
+            connectivity_listener,
             #[cfg(target_os = "linux")]
             tunnel_state_machine::LinuxNetworkingIdentifiers {
                 fwmark: mullvad_types::TUNNEL_FWMARK,

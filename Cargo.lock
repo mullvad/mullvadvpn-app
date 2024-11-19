@@ -2371,6 +2371,7 @@ dependencies = [
  "either",
  "fern",
  "futures",
+ "hickory-resolver",
  "libc",
  "log",
  "log-panics",

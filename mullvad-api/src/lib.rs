@@ -12,10 +12,12 @@ use std::{
     cell::Cell,
     collections::BTreeMap,
     future::Future,
+    io,
     net::{IpAddr, Ipv4Addr, SocketAddr},
     ops::Deref,
     path::Path,
-    sync::OnceLock,
+    pin::Pin,
+    sync::{Arc, OnceLock},
 };
 use talpid_types::ErrorExt;
 
@@ -304,11 +306,37 @@ impl ApiEndpoint {
     }
 }
 
+pub trait DnsResolver: 'static + Send + Sync {
+    fn resolve(
+        &self,
+        host: String,
+    ) -> Pin<Box<dyn Future<Output = io::Result<Vec<IpAddr>>> + Send>>;
+}
+
+pub struct DefaultDnsResolver;
+
+impl DnsResolver for DefaultDnsResolver {
+    fn resolve(
+        &self,
+        host: String,
+    ) -> Pin<Box<dyn Future<Output = io::Result<Vec<IpAddr>>> + Send>> {
+        use std::net::ToSocketAddrs;
+
+        Box::pin(async move {
+            let addrs = tokio::task::spawn_blocking(move || (host, 0).to_socket_addrs())
+                .await
+                .expect("DNS task panicked")?;
+            Ok(addrs.map(|addr| addr.ip()).collect())
+        })
+    }
+}
+
 /// A type that helps with the creation of API connections.
 pub struct Runtime {
     handle: tokio::runtime::Handle,
     address_cache: AddressCache,
     api_availability: availability::ApiAvailability,
+    dns_resolver: Arc<dyn DnsResolver>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
@@ -323,13 +351,20 @@ pub enum Error {
 
     #[error("API availability check failed")]
     ApiCheckError(#[from] availability::Error),
+
+    #[error("DNS resolution error")]
+    ResolutionFailed(#[from] std::io::Error),
 }
 
 impl Runtime {
     /// Create a new `Runtime`.
-    pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
+    pub fn new(
+        handle: tokio::runtime::Handle,
+        dns_resolver: impl DnsResolver,
+    ) -> Result<Self, Error> {
         Self::new_inner(
             handle,
+            dns_resolver,
             #[cfg(target_os = "android")]
             None,
         )
@@ -346,12 +381,14 @@ impl Runtime {
 
     fn new_inner(
         handle: tokio::runtime::Handle,
+        dns_resolver: impl DnsResolver,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         Ok(Runtime {
             handle,
             address_cache: AddressCache::new(None)?,
             api_availability: ApiAvailability::default(),
+            dns_resolver: Arc::new(dns_resolver),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -360,11 +397,13 @@ impl Runtime {
     /// Create a new `Runtime` using the specified directories.
     /// Try to use the cache directory first, and fall back on the bundled address otherwise.
     pub async fn with_cache(
+        dns_resolver: impl DnsResolver,
         cache_dir: &Path,
         write_changes: bool,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
         let handle = tokio::runtime::Handle::current();
+
         #[cfg(feature = "api-override")]
         if API.disable_address_cache {
             return Self::new_inner(
@@ -402,6 +441,7 @@ impl Runtime {
             handle,
             address_cache,
             api_availability,
+            dns_resolver: Arc::new(dns_resolver),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -419,6 +459,7 @@ impl Runtime {
             self.api_availability.clone(),
             self.address_cache.clone(),
             connection_mode_provider,
+            self.dns_resolver.clone(),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         )
