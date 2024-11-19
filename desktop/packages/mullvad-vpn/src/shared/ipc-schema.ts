@@ -140,6 +140,7 @@ export const ipcSchema = {
     daemonAllowed: notifyRenderer<boolean>(),
     connected: notifyRenderer<void>(),
     disconnected: notifyRenderer<void>(),
+    prepareRestart: send<boolean>(),
   },
   relays: {
     '': notifyRenderer<IRelayListWithEndpointData>(),

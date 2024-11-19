@@ -10,6 +10,13 @@ export const sourceSansPro: React.CSSProperties = {
   fontFamily: '"Source Sans Pro", "Noto Sans Myanmar", "Noto Sans Thai", sans-serif',
 };
 
+export const miniText = {
+  ...openSans,
+  fontSize: '10px',
+  fontWeight: 600,
+  lineHeight: '15px',
+};
+
 export const tinyText = {
   ...openSans,
   fontSize: '12px',
