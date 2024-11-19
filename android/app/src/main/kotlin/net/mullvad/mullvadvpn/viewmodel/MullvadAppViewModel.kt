@@ -24,11 +24,14 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
+import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 
 private val noServiceDestinations = listOf(SplashDestination, PrivacyDisclaimerDestination)
 
-class NoDaemonViewModel(managementService: ManagementService) :
-    ViewModel(), LifecycleEventObserver, NavController.OnDestinationChangedListener {
+class MullvadAppViewModel(
+    private val connectionProxy: ConnectionProxy,
+    managementService: ManagementService,
+) : ViewModel(), LifecycleEventObserver, NavController.OnDestinationChangedListener {
 
     private val lifecycleFlow: MutableSharedFlow<Lifecycle.Event> = MutableSharedFlow()
     private val destinationFlow: MutableSharedFlow<DestinationSpec> = MutableSharedFlow()
@@ -97,6 +100,10 @@ class NoDaemonViewModel(managementService: ManagementService) :
         viewModelScope.launch {
             controller.currentBackStackEntry?.destination()?.let { destinationFlow.emit(it) }
         }
+    }
+
+    fun connect() {
+        viewModelScope.launch { connectionProxy.connectWithoutPermissionCheck() }
     }
 
     companion object {

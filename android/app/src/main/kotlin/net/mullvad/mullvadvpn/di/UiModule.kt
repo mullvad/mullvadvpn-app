@@ -71,7 +71,7 @@ import net.mullvad.mullvadvpn.viewmodel.EditCustomListViewModel
 import net.mullvad.mullvadvpn.viewmodel.FilterViewModel
 import net.mullvad.mullvadvpn.viewmodel.LoginViewModel
 import net.mullvad.mullvadvpn.viewmodel.MtuDialogViewModel
-import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
+import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import net.mullvad.mullvadvpn.viewmodel.OutOfTimeViewModel
 import net.mullvad.mullvadvpn.viewmodel.PaymentViewModel
 import net.mullvad.mullvadvpn.viewmodel.PrivacyDisclaimerViewModel
@@ -88,7 +88,6 @@ import net.mullvad.mullvadvpn.viewmodel.SplitTunnelingViewModel
 import net.mullvad.mullvadvpn.viewmodel.Udp2TcpSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.ViewLogsViewModel
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
-import net.mullvad.mullvadvpn.viewmodel.VpnPermissionViewModel
 import net.mullvad.mullvadvpn.viewmodel.VpnSettingsViewModel
 import net.mullvad.mullvadvpn.viewmodel.WelcomeViewModel
 import net.mullvad.mullvadvpn.viewmodel.WireguardCustomPortDialogViewModel
@@ -231,7 +230,6 @@ val uiModule = module {
     viewModel { DeleteCustomListConfirmationViewModel(get(), get()) }
     viewModel { ServerIpOverridesViewModel(get(), get()) }
     viewModel { ResetServerIpOverridesConfirmationViewModel(get()) }
-    viewModel { VpnPermissionViewModel(get(), get()) }
     viewModel { ApiAccessListViewModel(get()) }
     viewModel { EditApiAccessMethodViewModel(get(), get(), get()) }
     viewModel { SaveApiAccessMethodViewModel(get(), get()) }
@@ -242,7 +240,7 @@ val uiModule = module {
     viewModel { ShadowsocksCustomPortDialogViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
-    single { NoDaemonViewModel(get()) }
+    single { MullvadAppViewModel(get(), get()) }
 }
 
 const val SELF_PACKAGE_NAME = "SELF_PACKAGE_NAME"
