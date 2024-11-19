@@ -6,6 +6,7 @@ use crate::{
     availability::ApiAvailability,
     https_client_with_sni::{HttpsConnectorWithSni, HttpsConnectorWithSniHandle},
     proxy::ConnectionModeProvider,
+    DnsResolver,
 };
 use futures::{
     channel::{mpsc, oneshot},
@@ -154,11 +155,13 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         api_availability: ApiAvailability,
         address_cache: AddressCache,
         connection_mode_provider: T,
+        dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
             sni_hostname,
             address_cache.clone(),
+            dns_resolver,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
         );
