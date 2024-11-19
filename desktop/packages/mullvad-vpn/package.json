@@ -12,7 +12,7 @@
   "repository": "https://github.com/mullvad/mullvadvpn-app",
   "license": "GPL-3.0",
   "dependencies": {
-    "@grpc/grpc-js": "^1.9.6",
+    "@grpc/grpc-js": "^1.12.2",
     "argv-split": "^2.0.1",
     "gettext-parser": "^6.0.0",
     "gl-matrix": "^3.4.3",
@@ -60,7 +60,7 @@
     "eslint-plugin-react-hooks": "^0.0.0-experimental-2d16326d-20240930",
     "gettext-extractor": "^3.5.4",
     "globals": "^15.9.0",
-    "grpc_tools_node_protoc_ts": "^5.3.2",
+    "grpc_tools_node_protoc_ts": "^5.3.3",
     "gulp": "^4.0.2",
     "gulp-inject-string": "^1.1.2",
     "gulp-sourcemaps": "^3.0.0",
