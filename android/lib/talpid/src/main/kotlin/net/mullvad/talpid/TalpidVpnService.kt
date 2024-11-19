@@ -161,7 +161,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 
     companion object {
-        private const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
+        const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
 
         private const val IPV4_PREFIX_LENGTH = 32
         private const val IPV6_PREFIX_LENGTH = 128
