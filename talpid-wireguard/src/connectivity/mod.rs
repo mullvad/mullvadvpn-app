@@ -6,6 +6,7 @@ mod mock;
 mod monitor;
 mod pinger;
 
-pub use check::Check;
+#[allow(unused_imports)]
+pub use check::{Cancellable, Check};
 pub use error::Error;
 pub use monitor::Monitor;
