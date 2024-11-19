@@ -37,14 +37,14 @@ final class TransportMonitor: RESTTransportProvider {
             tunnel.status == .connecting || tunnel.status == .reasserting || tunnel.status == .connected
         }
 
-        if let tunnel, shouldByPassVPN(tunnel: tunnel) {
+        if let tunnel, shouldBypassVPN(tunnel: tunnel) {
             return PacketTunnelTransport(tunnel: tunnel)
         } else {
             return transportProvider.makeTransport()
         }
     }
 
-    private func shouldByPassVPN(tunnel: any TunnelProtocol) -> Bool {
+    private func shouldBypassVPN(tunnel: any TunnelProtocol) -> Bool {
         switch tunnel.status {
         case .connected:
             if case .error = tunnelManager.tunnelStatus.state {
