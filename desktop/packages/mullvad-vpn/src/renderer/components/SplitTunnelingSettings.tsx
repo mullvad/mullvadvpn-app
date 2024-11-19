@@ -26,6 +26,7 @@ import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
+  Spacing,
   StyledActionIcon,
   StyledBrowseButton,
   StyledCellButton,
@@ -37,6 +38,7 @@ import {
   StyledIcon,
   StyledIconPlaceholder,
   StyledListContainer,
+  StyledMiniTitle,
   StyledNavigationScrollbars,
   StyledNoResult,
   StyledNoResultText,
@@ -534,7 +536,8 @@ interface MacOsSplitTunnelingAvailabilityProps {
 function MacOsSplitTunnelingAvailability({
   needFullDiskPermissions,
 }: MacOsSplitTunnelingAvailabilityProps) {
-  const { showFullDiskAccessSettings } = useAppContext();
+  const { showFullDiskAccessSettings, daemonPrepareRestart } = useAppContext();
+  const restartDaemon = () => daemonPrepareRestart(true);
 
   return (
     <>
@@ -546,8 +549,20 @@ function MacOsSplitTunnelingAvailability({
               'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
             )}
           </HeaderSubTitle>
+          <Spacing height="24px" />
           <StyledSystemSettingsButton onClick={showFullDiskAccessSettings}>
             Open System Settings
+          </StyledSystemSettingsButton>
+          <Spacing height="32px" />
+          <StyledMiniTitle>
+            {messages.pgettext(
+              'split-tunneling-view',
+              'Enabled "Fill disk access" and still having issues?',
+            )}
+          </StyledMiniTitle>
+          <Spacing height="8px" />
+          <StyledSystemSettingsButton onClick={restartDaemon}>
+            Restart Mullvad Service
           </StyledSystemSettingsButton>
         </>
       ) : null}
