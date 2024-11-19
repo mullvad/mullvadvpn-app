@@ -1,9 +1,9 @@
+#[cfg(target_os = "android")]
+use crate::connectivity_listener::ConnectivityListener;
 use futures::channel::mpsc::UnboundedSender;
 use std::sync::LazyLock;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
-#[cfg(target_os = "android")]
-use talpid_types::android::AndroidContext;
 use talpid_types::{net::Connectivity, ErrorExt};
 
 #[cfg(target_os = "macos")]
@@ -44,7 +44,7 @@ pub async fn spawn_monitor(
     sender: UnboundedSender<Connectivity>,
     #[cfg(not(target_os = "android"))] route_manager: RouteManagerHandle,
     #[cfg(target_os = "linux")] fwmark: Option<u32>,
-    #[cfg(target_os = "android")] android_context: AndroidContext,
+    #[cfg(target_os = "android")] connectivity_listener: ConnectivityListener,
 ) -> MonitorHandle {
     let monitor = if *FORCE_DISABLE_OFFLINE_MONITOR {
         None
@@ -56,7 +56,7 @@ pub async fn spawn_monitor(
             #[cfg(target_os = "linux")]
             fwmark,
             #[cfg(target_os = "android")]
-            android_context,
+            connectivity_listener,
         )
         .await
         .inspect_err(|error| {

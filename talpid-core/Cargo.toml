@@ -50,8 +50,8 @@ duct = "0.13"
 pfctl = "0.6.1"
 subslice = "0.2"
 system-configuration = "0.5.1"
-hickory-proto = "0.24.1"
-hickory-server = { version = "0.24.1", features = ["resolver"] }
+hickory-proto = { workspace = true }
+hickory-server = { workspace = true, features = ["resolver"] }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 pcap = { version = "2.1", features = ["capture-stream"] }
 pnet_packet = "0.34"
