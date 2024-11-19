@@ -103,6 +103,17 @@ impl Check<Timeout> {
         };
         (check, cancellation_tx)
     }
+
+    #[cfg(test)]
+    /// Create a new [Check] with a custom initial state. To use the [Cancellable] strategy,
+    /// see [Check::with_cancellation].
+    pub(super) fn mock(conn_state: ConnState, ping_state: PingState) -> Self {
+        Check {
+            conn_state,
+            ping_state,
+            strategy: Timeout,
+        }
+    }
 }
 
 impl<S: Strategy> Check<S> {
@@ -236,7 +247,7 @@ impl<S: Strategy> Check<S> {
     }
 }
 
-struct PingState {
+pub(super) struct PingState {
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
     pinger: Box<dyn Pinger>,
@@ -254,11 +265,15 @@ impl PingState {
         )
         .map_err(Error::PingError)?;
 
-        Ok(Self {
+        Ok(Self::new_with(pinger))
+    }
+
+    pub(super) fn new_with(pinger: Box<dyn Pinger>) -> Self {
+        Self {
             initial_ping_timestamp: None,
             num_pings_sent: 0,
             pinger,
-        })
+        }
     }
 
     fn ping_timed_out(&self, timeout: Duration) -> bool {
@@ -275,7 +290,7 @@ impl PingState {
     }
 }
 
-enum ConnState {
+pub(super) enum ConnState {
     Connecting {
         start: Instant,
         stats: StatsMap,
@@ -408,21 +423,8 @@ impl ConnState {
 
 #[cfg(test)]
 mod test {
-    use futures::Future;
-
     use super::*;
-    use crate::{
-        config::Config,
-        stats::{self, Stats},
-        Tunnel,
-    };
-    use std::{
-        pin::Pin,
-        sync::{
-            atomic::{AtomicBool, Ordering},
-            Arc,
-        },
-    };
+    use crate::connectivity::mock::*;
 
     /// Test if a newly created ConnState won't have timed out or consider itself connected
     #[test]
@@ -528,218 +530,76 @@ mod test {
         assert!(!conn_state.traffic_timed_out());
     }
 
-    #[derive(Default)]
-    struct MockPinger {
-        on_send_ping: Option<Box<dyn FnMut() + Send>>,
-    }
-
-    impl Pinger for MockPinger {
-        fn send_icmp(&mut self) -> Result<(), crate::ping_monitor::Error> {
-            if let Some(callback) = self.on_send_ping.as_mut() {
-                (callback)();
-            }
-            Ok(())
-        }
-    }
-
-    struct MockTunnel {
-        on_get_stats: Box<dyn Fn() -> Result<stats::StatsMap, TunnelError> + Send>,
-    }
-
-    impl MockTunnel {
-        const PEER: [u8; 32] = [0u8; 32];
-
-        fn new<F: Fn() -> Result<stats::StatsMap, TunnelError> + Send + 'static>(f: F) -> Self {
-            Self {
-                on_get_stats: Box::new(f),
-            }
-        }
-
-        fn always_incrementing() -> Self {
-            let mut map = stats::StatsMap::new();
-            map.insert(
-                Self::PEER,
-                stats::Stats {
-                    tx_bytes: 0,
-                    rx_bytes: 0,
-                },
-            );
-            let peers = std::sync::Mutex::new(map);
-            Self {
-                on_get_stats: Box::new(move || {
-                    let mut peers = peers.lock().unwrap();
-                    for traffic in peers.values_mut() {
-                        traffic.tx_bytes += 1;
-                        traffic.rx_bytes += 1;
-                    }
-                    Ok(peers.clone())
-                }),
-            }
-        }
-
-        fn never_incrementing() -> Self {
-            Self {
-                on_get_stats: Box::new(|| {
-                    let mut map = stats::StatsMap::new();
-                    map.insert(
-                        Self::PEER,
-                        stats::Stats {
-                            tx_bytes: 0,
-                            rx_bytes: 0,
-                        },
-                    );
-                    Ok(map)
-                }),
-            }
-        }
-
-        #[allow(clippy::type_complexity)]
-        fn into_locked(
-            self,
-        ) -> (
-            Arc<Mutex<Option<Box<dyn Tunnel>>>>,
-            Weak<Mutex<Option<Box<dyn Tunnel>>>>,
-        ) {
-            let dyn_tunnel: Box<dyn Tunnel> = Box::new(self);
-            let arc = Arc::new(Mutex::new(Some(dyn_tunnel)));
-            let weak_ref = Arc::downgrade(&arc);
-            (arc, weak_ref)
-        }
-    }
-
-    impl Tunnel for MockTunnel {
-        fn get_interface_name(&self) -> String {
-            "mock-tunnel".to_string()
-        }
-
-        fn stop(self: Box<Self>) -> Result<(), TunnelError> {
-            Ok(())
-        }
-
-        fn get_tunnel_stats(&self) -> Result<stats::StatsMap, TunnelError> {
-            (self.on_get_stats)()
-        }
-
-        fn set_config(
-            &mut self,
-            _config: Config,
-        ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
-            Box::pin(async { Ok(()) })
-        }
-
-        #[cfg(daita)]
-        fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
-            Ok(())
-        }
-    }
-
-    fn mock_monitor(
-        now: Instant,
-        pinger: Box<dyn Pinger>,
-        tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
-        close_receiver: mpsc::Receiver<()>,
-    ) -> Check {
-        Check {
-            conn_state: ConnState::new(now, Default::default()),
-            initial_ping_timestamp: None,
-            num_pings_sent: 0,
-            pinger,
-            close_receiver,
-            tunnel_handle: Some(tunnel_handle),
-        }
-    }
-
-    fn connected_state(timestamp: Instant) -> ConnState {
-        const PEER: [u8; 32] = [0u8; 32];
-        let mut stats = stats::StatsMap::new();
-        stats.insert(
-            PEER,
-            stats::Stats {
-                tx_bytes: 0,
-                rx_bytes: 0,
-            },
-        );
-        ConnState::Connected {
-            rx_timestamp: timestamp,
-            tx_timestamp: timestamp,
-            stats,
-        }
-    }
-
     #[test]
     /// Verify that `check_connectivity()` returns `false` if the tunnel is connected and traffic is
     /// not flowing after `BYTES_RX_TIMEOUT` and `PING_TIMEOUT`.
     fn test_ping_times_out() {
-        let (_tunnel_anchor, tunnel) = MockTunnel::never_incrementing().into_locked();
-        let (_tx, rx) = mpsc::channel();
+        let tunnel = MockTunnel::never_incrementing().boxed();
         let pinger = MockPinger::default();
         let now = Instant::now();
         let start = now
             .checked_sub(BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(10))
             .unwrap();
-        let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
+        let mut checker = mock_checker(start, Box::new(pinger));
 
         // Mock the state - connectivity has been established
-        monitor.conn_state = connected_state(start);
+        checker.conn_state = connected_state(start);
         // A ping was sent to verify connectivity
-        monitor.maybe_send_ping(start).unwrap();
-        assert!(!monitor.check_connectivity(now,).unwrap())
+        checker.maybe_send_ping(start).unwrap();
+        assert!(!checker.check_connectivity(now, &tunnel).unwrap())
     }
 
     #[test]
     /// Verify that `check_connectivity()` returns `true` if the tunnel is connected and traffic is
     /// flowing constantly.
     fn test_no_connection_on_start() {
-        let (_tunnel_anchor, tunnel) = MockTunnel::never_incrementing().into_locked();
-        let (_tx, rx) = mpsc::channel();
+        let tunnel = MockTunnel::never_incrementing().boxed();
         let pinger = MockPinger::default();
         let now = Instant::now();
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-        let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
+        let mut monitor = mock_checker(start, Box::new(pinger));
 
-        assert!(!monitor.check_connectivity(now,).unwrap())
+        assert!(!monitor.check_connectivity(now, &tunnel).unwrap())
     }
 
     #[test]
     /// Verify that `check_connectivity()` returns `true` if the tunnel is connected and traffic is
     /// flowing constantly.
     fn test_connection_works() {
-        let (_tunnel_anchor, tunnel) = MockTunnel::always_incrementing().into_locked();
-        let (_tx, rx) = mpsc::channel();
+        let tunnel = MockTunnel::always_incrementing().boxed();
         let pinger = MockPinger::default();
         let now = Instant::now();
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-        let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, rx);
+        let mut monitor = mock_checker(start, Box::new(pinger));
 
         // Mock the state - connectivity has been established
         monitor.conn_state = connected_state(start);
 
-        assert!(monitor.check_connectivity(now,).unwrap())
+        assert!(monitor.check_connectivity(now, &tunnel).unwrap())
     }
 
     #[test]
     /// Verify that the timeout for setting up a tunnel works as expected.
     fn test_establish_timeout() {
-        let mut tunnel_stats = stats::StatsMap::new();
-        tunnel_stats.insert(
-            [0u8; 32],
-            stats::Stats {
-                tx_bytes: 0,
-                rx_bytes: 0,
-            },
-        );
-
         let pinger = MockPinger::default();
-        let (_tunnel_anchor, tunnel) =
-            MockTunnel::new(move || Ok(tunnel_stats.clone())).into_locked();
+        let tunnel = {
+            let mut tunnel_stats = StatsMap::new();
+            tunnel_stats.insert(
+                [0u8; 32],
+                Stats {
+                    tx_bytes: 0,
+                    rx_bytes: 0,
+                },
+            );
+            MockTunnel::new(move || Ok(tunnel_stats.clone())).boxed()
+        };
 
         let (result_tx, result_rx) = mpsc::channel();
 
-        let (_stop_tx, stop_rx) = mpsc::channel();
         std::thread::spawn(move || {
             let now = Instant::now();
             let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-            let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
+            let mut monitor = mock_checker(start, Box::new(pinger));
 
             const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;
             const ESTABLISH_TIMEOUT: Duration = Duration::from_millis(500);
@@ -752,6 +612,7 @@ mod test {
                         ESTABLISH_TIMEOUT,
                         ESTABLISH_TIMEOUT_MULTIPLIER,
                         MAX_ESTABLISH_TIMEOUT,
+                        &tunnel,
                     ))
                     .unwrap();
             }
