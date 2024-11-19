@@ -877,6 +877,10 @@ class ApplicationMain
       return this.daemonRpc.updateCustomList(customList);
     });
 
+    IpcMainEventChannel.daemon.handlePrepareRestart((shutdown) => {
+      return this.daemonRpc.prepareRestart(shutdown);
+    });
+
     problemReport.registerIpcListeners();
     this.userInterface!.registerIpcListeners();
     this.settings.registerIpcListeners();

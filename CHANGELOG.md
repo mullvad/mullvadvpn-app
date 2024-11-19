@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
 
 #### macOS
 - Detect whether full disk access is enabled in the split tunneling view.
+- Add button to restart system service in split tunneling view. This can help mitigate edge-case
+  issues when enabling full disk access.
 
 ### Changed
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized

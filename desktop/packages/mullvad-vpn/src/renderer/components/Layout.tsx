@@ -36,3 +36,7 @@ export const Footer = styled.div({
   paddingRight: measurements.viewMargin,
   paddingBottom: measurements.viewMargin,
 });
+
+export const Spacing = styled.div<{ height: string }>((props) => ({
+  height: props.height,
+}));
