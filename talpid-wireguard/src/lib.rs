@@ -427,6 +427,11 @@ impl WireguardMonitor {
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
+
+        let (connectivity_check, pinger_tx) = connectivity::Check::new(config.ipv4_gateway)
+            .map_err(Error::ConnectivityMonitorError)?
+            .with_cancellation();
+
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,
             log_path,
@@ -436,12 +441,10 @@ impl WireguardMonitor {
             // that we only allows traffic to/from the gateway. This is only needed on Android
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
+            connectivity_check,
         )?;
-        let iface_name = tunnel.get_interface_name();
-        let (connectivity_check, pinger_tx) = connectivity::Check::new(config.ipv4_gateway)
-            .map_err(Error::ConnectivityMonitorError)?
-            .with_cancellation();
 
+        let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
@@ -486,6 +489,18 @@ impl WireguardMonitor {
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             args.on_event.clone()(TunnelEvent::Up(metadata)).await;
+
+            // HACK: The tunnel does not need the connectivity::Check anymore, so lets take it
+            let connectivity_check = {
+                let mut tunnel_lock = tunnel.lock().await;
+                let Some(tunnel) = tunnel_lock.as_mut() else {
+                    log::debug!("Tunnel is no longer running");
+                    return Err::<Infallible, CloseMsg>(CloseMsg::PingErr);
+                };
+                tunnel
+                    .take_checker()
+                    .expect("connectivity checker unexpectedly dropped")
+            };
 
             tokio::task::spawn_blocking(move || {
                 let tunnel = Arc::downgrade(&tunnel);
@@ -710,6 +725,9 @@ impl WireguardMonitor {
         #[cfg(daita)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
+        #[cfg(target_os = "android")] connectivity_check: connectivity::Check<
+            connectivity::Cancellable,
+        >,
     ) -> Result<WgGoTunnel> {
         let routes = config
             .get_tunnel_destinations()
@@ -748,6 +766,7 @@ impl WireguardMonitor {
                 routes,
                 #[cfg(daita)]
                 resource_dir,
+                connectivity_check,
             )
             .map_err(Error::TunnelError)?
         } else {
@@ -759,6 +778,7 @@ impl WireguardMonitor {
                 routes,
                 #[cfg(daita)]
                 resource_dir,
+                connectivity_check,
             )
             .map_err(Error::TunnelError)?
         };
