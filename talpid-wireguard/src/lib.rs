@@ -322,10 +322,7 @@ impl WireguardMonitor {
 
             let connectivity_check = tokio::task::spawn_blocking(move || {
                 let lock = cloned_tunnel.blocking_lock();
-
-                let Some(tunnel) = lock.as_ref() else {
-                    panic!("fix me");
-                };
+                let tunnel = lock.as_ref().expect("The tunnel was dropped unexpectedly");
                 match connectivity_monitor.establish_connectivity(args.retry_attempt, tunnel) {
                     Ok(true) => Ok(connectivity_monitor),
                     Ok(false) => {
