@@ -15,7 +15,7 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/mullvad/wireguard-apple.git",
       "state" : {
-        "revision" : "ee90a96a20d42d231b878277d0a3fe4dfb63d93d"
+        "revision" : "e879364834a69dccaee9c66c53fc3cf55b923f8a"
       }
     }
   ],
