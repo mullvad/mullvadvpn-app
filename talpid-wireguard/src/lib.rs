@@ -26,7 +26,6 @@ use talpid_routing::{self, RequiredRoute};
 use talpid_tunnel::tun_provider;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
 
-use crate::connectivity_check::{ConnectivityMonitor, ConnectivityMonitorLoop};
 use talpid_types::net::wireguard::TunnelParameters;
 use talpid_types::{
     net::{AllowedTunnelTraffic, Endpoint, TransportProtocol},
@@ -36,11 +35,10 @@ use tokio::sync::Mutex as AsyncMutex;
 
 /// WireGuard config data-types
 pub mod config;
-mod connectivity_check;
+mod connectivity;
 mod ephemeral;
 mod logging;
 mod obfuscation;
-mod ping_monitor;
 mod stats;
 #[cfg(wireguard_go)]
 mod wireguard_go;
@@ -89,7 +87,7 @@ pub enum Error {
 
     /// Failed to set up connectivity monitor
     #[error("Connectivity monitor failed")]
-    ConnectivityMonitorError(#[source] connectivity_check::Error),
+    ConnectivityMonitorError(#[source] connectivity::Error),
 
     /// Failed while negotiating ephemeral peer
     #[error("Failed while negotiating ephemeral peer")]
@@ -217,8 +215,16 @@ impl WireguardMonitor {
 
         let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
 
+        let gateway = config.ipv4_gateway;
+        let (mut connectivity_monitor, pinger_tx) = connectivity::Check::new(
+            gateway,
+            #[cfg(any(target_os = "macos", target_os = "linux"))]
+            iface_name.clone(),
+        )
+        .map_err(Error::ConnectivityMonitorError)?
+        .with_cancellation();
+
         let event_callback = Box::new(on_event.clone());
-        let (pinger_tx, pinger_rx) = sync_mpsc::channel();
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
             tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
@@ -227,15 +233,6 @@ impl WireguardMonitor {
             pinger_stop_sender: pinger_tx,
             obfuscator,
         };
-
-        let gateway = config.ipv4_gateway;
-        let mut connectivity_monitor = ConnectivityMonitor::new(
-            gateway,
-            #[cfg(any(target_os = "macos", target_os = "linux"))]
-            iface_name.clone(),
-        )
-        .map_err(Error::ConnectivityMonitorError)?
-        .with_close_receiver(pinger_rx);
 
         let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
@@ -323,7 +320,7 @@ impl WireguardMonitor {
 
             let cloned_tunnel = Arc::clone(&tunnel);
 
-            let connectivity_monitor = tokio::task::spawn_blocking(move || {
+            let connectivity_check = tokio::task::spawn_blocking(move || {
                 let lock = cloned_tunnel.blocking_lock();
 
                 let Some(tunnel) = lock.as_ref() else {
@@ -357,10 +354,10 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             (on_event)(TunnelEvent::Up(metadata)).await;
 
-            let weak_tunnel = Arc::downgrade(&tunnel);
+            let connectivity_monitor_tunnel = Arc::downgrade(&tunnel);
             tokio::task::spawn_blocking(move || {
                 if let Err(error) =
-                    ConnectivityMonitorLoop::new(connectivity_monitor).run(weak_tunnel)
+                    connectivity::Monitor::init(connectivity_check).run(connectivity_monitor_tunnel)
                 {
                     log::error!(
                         "{}",
@@ -432,8 +429,6 @@ impl WireguardMonitor {
             config.mtu = clamp_mtu(params, config.mtu);
         }
 
-        let (pinger_tx, pinger_rx) = sync_mpsc::channel();
-
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,
@@ -446,12 +441,11 @@ impl WireguardMonitor {
             should_negotiate_ephemeral_peer,
         )?;
         let iface_name = tunnel.get_interface_name();
-        let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
-
-        let connectivity_monitor = ConnectivityMonitor::new(config.ipv4_gateway)
+        let (connectivity_check, pinger_tx) = connectivity::Check::new(config.ipv4_gateway)
             .map_err(Error::ConnectivityMonitorError)?
-            .with_close_receiver(pinger_rx);
+            .with_cancellation();
 
+        let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
             tunnel: Arc::clone(&tunnel),
@@ -498,7 +492,7 @@ impl WireguardMonitor {
 
             tokio::task::spawn_blocking(move || {
                 let tunnel = Arc::downgrade(&tunnel);
-                if let Err(error) = ConnectivityMonitorLoop::new(connectivity_monitor).run(tunnel) {
+                if let Err(error) = connectivity::Monitor::init(connectivity_check).run(tunnel) {
                     log::error!(
                         "{}",
                         error.display_chain_with_msg("Connectivity monitor failed")

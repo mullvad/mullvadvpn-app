@@ -1,53 +1,17 @@
+use std::cmp;
+use std::net::Ipv4Addr;
+use std::sync::mpsc;
+use std::time::{Duration, Instant};
+
+use super::constants::*;
+use super::error::Error;
+use super::pinger;
+
+use crate::stats::StatsMap;
 #[cfg(target_os = "android")]
-use super::Tunnel;
-use super::{TunnelError, TunnelType};
-use crate::{
-    ping_monitor::{new_pinger, Pinger},
-    stats::StatsMap,
-};
-use std::{
-    cmp,
-    net::Ipv4Addr,
-    sync::{mpsc, Weak},
-    time::{Duration, Instant},
-};
-use tokio::sync::Mutex;
-
-/// Sleep time used when initially establishing connectivity
-const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
-/// Sleep time used when checking if an established connection is still working.
-const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
-
-/// Timeout for waiting on receiving traffic after sending outgoing traffic.  Once this timeout is
-/// hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT` is reached, or traffic
-/// is received.
-const BYTES_RX_TIMEOUT: Duration = Duration::from_secs(5);
-/// Timeout for waiting on receiving or sending any traffic.  Once this timeout is hit, a ping will
-/// be sent every `SECONDS_PER_PING` until `PING_TIMEOUT` is reached or traffic is received.
-const TRAFFIC_TIMEOUT: Duration = Duration::from_secs(120);
-/// Timeout for waiting on receiving traffic after sending the first ICMP packet.  Once this
-/// timeout is reached, it is assumed that the connection is lost.
-const PING_TIMEOUT: Duration = Duration::from_secs(15);
-/// Timeout for receiving traffic when establishing a connection.
-const ESTABLISH_TIMEOUT: Duration = Duration::from_secs(4);
-/// `ESTABLISH_TIMEOUT` is multiplied by this after each failed connection attempt.
-const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;
-/// Maximum timeout for establishing a connection.
-const MAX_ESTABLISH_TIMEOUT: Duration = PING_TIMEOUT;
-/// Number of seconds to wait between sending ICMP packets
-const SECONDS_PER_PING: Duration = Duration::from_secs(3);
-
-/// Connectivity monitor errors
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    /// Failed to read tunnel's configuration
-    #[error("Failed to read tunnel's configuration")]
-    ConfigReadError(TunnelError),
-
-    /// Failed to send ping
-    #[error("Ping monitor failed")]
-    PingError(#[from] crate::ping_monitor::Error),
-}
+use crate::Tunnel;
+use crate::{TunnelError, TunnelType};
+use pinger::Pinger;
 
 /// Verifies if a connection to a tunnel is working.
 /// The connectivity monitor is biased to receiving traffic - it is expected that all outgoing
@@ -71,55 +35,80 @@ pub enum Error {
 ///
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
-pub struct ConnectivityMonitor {
+pub struct Check<Strategy = Timeout> {
     conn_state: ConnState,
     ping_state: PingState,
-    close_receiver: Option<mpsc::Receiver<()>>,
+    strategy: Strategy,
 }
 
-impl ConnectivityMonitor {
-    pub(super) fn new(
+// Define the type state of [Check]
+pub(crate) trait Strategy {
+    fn should_shut_down(&mut self, timeout: Duration) -> bool;
+}
+
+/// An uncancellable [Check] that will run [Check::establish_connectivity] until
+/// completion or until it times out.
+pub struct Timeout;
+
+impl Strategy for Timeout {
+    /// The Timeout strategy cannot receive shut down signals so this function always returns false.
+    fn should_shut_down(&mut self, _timeout: Duration) -> bool {
+        false
+    }
+}
+
+/// A cancellable [Check] may be cancelled before it will time out by sending
+/// a signal on the channel returned by [Check::with_canellation]. Otherwise,
+/// it behaves as [Timeout].
+pub struct Cancellable {
+    close_receiver: mpsc::Receiver<()>,
+}
+
+impl Strategy for Cancellable {
+    /// Returns true if monitor should be shut down
+    fn should_shut_down(&mut self, timeout: Duration) -> bool {
+        match self.close_receiver.recv_timeout(timeout) {
+            Ok(()) | Err(mpsc::RecvTimeoutError::Disconnected) => true,
+            Err(mpsc::RecvTimeoutError::Timeout) => false,
+        }
+    }
+}
+
+impl Check<Timeout> {
+    pub fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
-    ) -> Result<Self, Error> {
-        Ok(Self {
+    ) -> Result<Check<Timeout>, Error> {
+        Ok(Check {
             conn_state: ConnState::new(Instant::now(), Default::default()),
             ping_state: PingState::new(
                 addr,
                 #[cfg(any(target_os = "macos", target_os = "linux"))]
                 interface,
             )?,
-            close_receiver: None,
+            strategy: Timeout,
         })
     }
 
-    pub(super) fn with_close_receiver(self, close_receiver: mpsc::Receiver<()>) -> Self {
-        Self {
-            close_receiver: Some(close_receiver),
-            ..self
-        }
-    }
-
-    /// Returns true if monitor should be shut down
-    fn should_shut_down(&mut self, timeout: Duration) -> bool {
-        let Some(close_receiver) = self.close_receiver.as_ref() else {
-            return false;
+    /// Cancel a [Check] preemptively by sennding a message on the channel or by dropping
+    /// the returned channel.
+    pub fn with_cancellation(self) -> (Check<Cancellable>, mpsc::Sender<()>) {
+        let (cancellation_tx, cancellation_rx) = mpsc::channel();
+        let check = Check {
+            conn_state: self.conn_state,
+            ping_state: self.ping_state,
+            strategy: Cancellable {
+                close_receiver: cancellation_rx,
+            },
         };
-
-        match close_receiver.recv_timeout(timeout) {
-            Ok(()) | Err(mpsc::RecvTimeoutError::Disconnected) => true,
-            Err(mpsc::RecvTimeoutError::Timeout) => false,
-        }
+        (check, cancellation_tx)
     }
+}
 
-    fn reset(&mut self, current_iteration: Instant) {
-        self.ping_state.reset();
-        self.conn_state.reset_after_suspension(current_iteration);
-    }
-
+impl<S: Strategy> Check<S> {
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successful at the start of a connection.
-    pub(super) fn establish_connectivity(
+    pub fn establish_connectivity(
         &mut self,
         retry_attempt: u32,
         tunnel_handle: &TunnelType,
@@ -138,7 +127,16 @@ impl ConnectivityMonitor {
         )
     }
 
-    fn establish_connectivity_inner(
+    pub(crate) fn reset(&mut self, current_iteration: Instant) {
+        self.ping_state.reset();
+        self.conn_state.reset_after_suspension(current_iteration);
+    }
+
+    pub(crate) fn should_shut_down(&mut self, timeout: Duration) -> bool {
+        self.strategy.should_shut_down(timeout)
+    }
+
+    pub(crate) fn establish_connectivity_inner(
         &mut self,
         retry_attempt: u32,
         timeout_initial: Duration,
@@ -168,7 +166,7 @@ impl ConnectivityMonitor {
     }
 
     /// Returns true if connection is established
-    fn check_connectivity(
+    pub(crate) fn check_connectivity(
         &mut self,
         now: Instant,
         tunnel_handle: &TunnelType,
@@ -238,66 +236,6 @@ impl ConnectivityMonitor {
     }
 }
 
-pub struct ConnectivityMonitorLoop {
-    connectivity_monitor: ConnectivityMonitor,
-}
-
-impl ConnectivityMonitorLoop {
-    pub(super) fn new(connectivity_monitor: ConnectivityMonitor) -> Self {
-        debug_assert!(
-            connectivity_monitor.close_receiver.is_some(),
-            "Close receiver must be set"
-        );
-        Self {
-            connectivity_monitor,
-        }
-    }
-
-    pub(super) fn run(self, tunnel_handle: Weak<Mutex<Option<TunnelType>>>) -> Result<(), Error> {
-        self.wait_loop(REGULAR_LOOP_SLEEP, tunnel_handle)
-    }
-
-    fn wait_loop(
-        mut self,
-        iter_delay: Duration,
-        tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
-    ) -> Result<(), Error> {
-        let mut last_iteration = Instant::now();
-        while !self.connectivity_monitor.should_shut_down(iter_delay) {
-            let mut current_iteration = Instant::now();
-            let time_slept = current_iteration - last_iteration;
-            if time_slept < (iter_delay * 2) {
-                let Some(tunnel) = tunnel_handle.upgrade() else {
-                    return Ok(());
-                };
-                let lock = tunnel.blocking_lock();
-                let Some(tunnel) = lock.as_ref() else {
-                    return Ok(());
-                };
-
-                if !self
-                    .connectivity_monitor
-                    .check_connectivity(Instant::now(), tunnel)?
-                {
-                    return Ok(());
-                }
-                drop(lock);
-
-                let end = Instant::now();
-                if end - current_iteration > Duration::from_secs(1) {
-                    current_iteration = end;
-                }
-            } else {
-                // Loop was suspended for too long, so it's safer to assume that the host still has
-                // connectivity.
-                self.connectivity_monitor.reset(current_iteration);
-            }
-            last_iteration = current_iteration;
-        }
-        Ok(())
-    }
-}
-
 struct PingState {
     initial_ping_timestamp: Option<Instant>,
     num_pings_sent: u32,
@@ -309,7 +247,7 @@ impl PingState {
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
     ) -> Result<Self, Error> {
-        let pinger = new_pinger(
+        let pinger = pinger::new_pinger(
             addr,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             interface,
@@ -700,8 +638,8 @@ mod test {
         pinger: Box<dyn Pinger>,
         tunnel_handle: Weak<Mutex<Option<Box<dyn Tunnel>>>>,
         close_receiver: mpsc::Receiver<()>,
-    ) -> ConnectivityMonitor {
-        ConnectivityMonitor {
+    ) -> Check {
+        Check {
             conn_state: ConnState::new(now, Default::default()),
             initial_ping_timestamp: None,
             num_pings_sent: 0,
@@ -777,88 +715,6 @@ mod test {
         monitor.conn_state = connected_state(start);
 
         assert!(monitor.check_connectivity(now,).unwrap())
-    }
-
-    #[test]
-    /// Verify that the connectivity monitor doesn't fail if the tunnel constantly sends traffic,
-    /// and it shuts down properly.
-    fn test_wait_loop() {
-        let (result_tx, result_rx) = mpsc::channel();
-        let (_tunnel_anchor, tunnel) = MockTunnel::always_incrementing().into_locked();
-        let pinger = MockPinger::default();
-        let (stop_tx, stop_rx) = mpsc::channel();
-        std::thread::spawn(move || {
-            let now = Instant::now();
-            let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-            let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
-
-            let start_result = monitor.establish_connectivity(0);
-            result_tx.send(start_result).unwrap();
-
-            let result = monitor.run().map(|_| true);
-            result_tx.send(result).unwrap();
-        });
-
-        std::thread::sleep(Duration::from_secs(1));
-        assert!(result_rx.try_recv().unwrap().unwrap());
-        stop_tx.send(()).unwrap();
-        std::thread::sleep(Duration::from_secs(1));
-        assert!(result_rx.try_recv().unwrap().is_ok());
-    }
-
-    #[test]
-    /// Verify that the connectivity monitor detects the tunnel timing out after no longer than
-    /// `BYTES_RX_TIMEOUT` and `PING_TIMEOUT` combined.
-    fn test_wait_loop_timeout() {
-        let should_stop = Arc::new(AtomicBool::new(false));
-        let should_stop_inner = should_stop.clone();
-
-        let mut map = stats::StatsMap::new();
-        map.insert(
-            [0u8; 32],
-            stats::Stats {
-                tx_bytes: 0,
-                rx_bytes: 0,
-            },
-        );
-        let tunnel_stats = std::sync::Mutex::new(map);
-
-        let pinger = MockPinger::default();
-        let (_tunnel_anchor, tunnel) = MockTunnel::new(move || {
-            let mut tunnel_stats = tunnel_stats.lock().unwrap();
-            if !should_stop_inner.load(Ordering::SeqCst) {
-                for traffic in tunnel_stats.values_mut() {
-                    traffic.rx_bytes += 1;
-                }
-            }
-            for traffic in tunnel_stats.values_mut() {
-                traffic.tx_bytes += 1;
-            }
-            Ok(tunnel_stats.clone())
-        })
-        .into_locked();
-
-        let (result_tx, result_rx) = mpsc::channel();
-
-        let (_stop_tx, stop_rx) = mpsc::channel();
-        std::thread::spawn(move || {
-            let now = Instant::now();
-            let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-            let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
-            let start_result = monitor.establish_connectivity(0);
-            result_tx.send(start_result).unwrap();
-            let end_result = monitor.run().map(|_| true);
-            result_tx.send(end_result).expect("Failed to send result");
-        });
-        assert!(result_rx
-            .recv_timeout(Duration::from_secs(1))
-            .unwrap()
-            .unwrap());
-        should_stop.store(true, Ordering::SeqCst);
-        assert!(result_rx
-            .recv_timeout(BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2))
-            .unwrap()
-            .is_ok());
     }
 
     #[test]
