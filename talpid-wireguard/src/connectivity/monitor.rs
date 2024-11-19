@@ -19,9 +19,7 @@ pub struct Monitor {
 
 impl Monitor {
     pub fn init(connectivity_check: Check<Cancellable>) -> Self {
-        Self {
-            connectivity_check,
-        }
+        Self { connectivity_check }
     }
 
     pub fn run(self, tunnel_handle: Weak<Mutex<Option<TunnelType>>>) -> Result<(), Error> {
@@ -71,24 +69,40 @@ impl Monitor {
 
 #[cfg(test)]
 mod test {
+    use super::*;
+
+    // TODO: Port to async + tokio to reduce cost of testing?
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::mpsc;
+    use std::sync::Arc;
+    use std::time::Duration;
+    use std::time::Instant;
+
+    use tokio::sync::Mutex;
+
+    use crate::connectivity::constants::*;
+    use crate::connectivity::mock::*;
 
     #[test]
     /// Verify that the connectivity monitor doesn't fail if the tunnel constantly sends traffic,
     /// and it shuts down properly.
     fn test_wait_loop() {
+        use std::sync::mpsc;
         let (result_tx, result_rx) = mpsc::channel();
-        let (_tunnel_anchor, tunnel) = MockTunnel::always_incrementing().into_locked();
+        let tunnel = MockTunnel::always_incrementing().boxed();
         let pinger = MockPinger::default();
-        let (stop_tx, stop_rx) = mpsc::channel();
-        std::thread::spawn(move || {
+        let (mut checker, stop_tx) = {
             let now = Instant::now();
             let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-            let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
-
-            let start_result = monitor.establish_connectivity(0);
+            mock_checker(start, Box::new(pinger)).with_cancellation()
+        };
+        std::thread::spawn(move || {
+            let start_result = checker.establish_connectivity(0, &tunnel);
             result_tx.send(start_result).unwrap();
-
-            let result = monitor.run().map(|_| true);
+            // Pointer dance
+            let tunnel = Arc::new(Mutex::new(Some(tunnel)));
+            let _tunnel = Arc::downgrade(&tunnel);
+            let result = Monitor::init(checker).run(_tunnel).map(|_| true);
             result_tx.send(result).unwrap();
         });
 
@@ -106,10 +120,10 @@ mod test {
         let should_stop = Arc::new(AtomicBool::new(false));
         let should_stop_inner = should_stop.clone();
 
-        let mut map = stats::StatsMap::new();
+        let mut map = StatsMap::new();
         map.insert(
             [0u8; 32],
-            stats::Stats {
+            Stats {
                 tx_bytes: 0,
                 rx_bytes: 0,
             },
@@ -117,7 +131,7 @@ mod test {
         let tunnel_stats = std::sync::Mutex::new(map);
 
         let pinger = MockPinger::default();
-        let (_tunnel_anchor, tunnel) = MockTunnel::new(move || {
+        let tunnel = MockTunnel::new(move || {
             let mut tunnel_stats = tunnel_stats.lock().unwrap();
             if !should_stop_inner.load(Ordering::SeqCst) {
                 for traffic in tunnel_stats.values_mut() {
@@ -129,18 +143,22 @@ mod test {
             }
             Ok(tunnel_stats.clone())
         })
-        .into_locked();
+        .boxed();
 
         let (result_tx, result_rx) = mpsc::channel();
 
-        let (_stop_tx, stop_rx) = mpsc::channel();
         std::thread::spawn(move || {
-            let now = Instant::now();
-            let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-            let mut monitor = mock_monitor(start, Box::new(pinger), tunnel, stop_rx);
-            let start_result = monitor.establish_connectivity(0);
+            let (mut checker, _cancellation_token) = {
+                let now = Instant::now();
+                let start = now.checked_sub(Duration::from_secs(1)).unwrap();
+                mock_checker(start, Box::new(pinger)).with_cancellation()
+            };
+            let start_result = checker.establish_connectivity(0, &tunnel);
             result_tx.send(start_result).unwrap();
-            let end_result = monitor.run().map(|_| true);
+            // Pointer dance
+            let _tunnel = Arc::new(Mutex::new(Some(tunnel)));
+            let tunnel = Arc::downgrade(&_tunnel);
+            let end_result = Monitor::init(checker).run(tunnel).map(|_| true);
             result_tx.send(end_result).expect("Failed to send result");
         });
         assert!(result_rx
