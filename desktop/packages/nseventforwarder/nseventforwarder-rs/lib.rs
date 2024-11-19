@@ -14,7 +14,7 @@ use neon::result::Throw;
 use objc2_app_kit::{NSEvent, NSEventMask};
 
 #[neon::main]
-fn main(mut cx: ModuleContext) -> NeonResult<()> {
+fn main(mut cx: ModuleContext<'_>) -> NeonResult<()> {
     cx.export_function("start", start)?;
     Ok(())
 }
@@ -44,7 +44,7 @@ impl NSEventForwarder {
 /// Register a callback to fire every time a [NSEventMask::LeftMouseDown] or [NSEventMask::RightMouseDown] event occur.
 ///
 /// Returns a stop function to call when the original callback shouldn't be called anymore.
-fn start(mut cx: FunctionContext) -> JsResult<JsFunction> {
+fn start(mut cx: FunctionContext<'_>) -> JsResult<'_, JsFunction> {
     // Set up neon stuff
     let callback = cx.argument::<JsFunction>(0)?.root(&mut cx);
     let callback: Arc<Root<JsFunction>> = Arc::new(callback);
