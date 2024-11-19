@@ -2,11 +2,11 @@ import styled from 'styled-components';
 
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { measurements } from './common-styles';
+import { measurements, spacings } from './common-styles';
 import { NavigationScrollbars } from './NavigationBar';
 
 export const StyledCellIcon = styled(Cell.UntintedIcon)({
-  marginRight: '8px',
+  marginRight: spacings.spacing3,
 });
 
 export const StyledNavigationScrollbars = styled(NavigationScrollbars)({
@@ -18,14 +18,21 @@ export const StyledContent = styled.div({
   flexDirection: 'column',
   flex: 1,
   overflow: 'visible',
+  marginBottom: measurements.viewMargin,
 });
 
 export const StyledSettingsContent = styled.div({
   display: 'flex',
   flexDirection: 'column',
+  gap: spacings.spacing6,
+});
+
+export const StyledSettingsGroups = styled.div({
+  display: 'flex',
+  flexDirection: 'column',
+  gap: spacings.spacing5,
 });
 
 export const StyledQuitButton = styled(AppButton.RedButton)({
-  margin: measurements.viewMargin,
-  marginTop: measurements.rowVerticalMargin,
+  margin: `0 ${measurements.viewMargin}`,
 });
