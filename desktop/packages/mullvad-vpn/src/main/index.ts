@@ -14,6 +14,7 @@ import {
   AccessMethodSetting,
   DaemonEvent,
   DeviceEvent,
+  ErrorStateCause,
   IRelayListWithEndpointData,
   ISettings,
   TunnelState,
@@ -129,6 +130,10 @@ class ApplicationMain
   private relayList?: IRelayListWithEndpointData;
 
   private currentApiAccessMethod?: AccessMethodSetting;
+
+  // If set to true, the GUI should restart the daemon when it exits.
+  // This is to make sure that the daemon is granted full-disk access.
+  private needFullDiskAccess = false;
 
   public constructor() {
     this.daemonRpc = new DaemonRpc(
@@ -324,7 +329,7 @@ class ApplicationMain
   };
 
   private onBeforeQuit = async (event: Electron.Event) => {
-    if (this.tunnelState.needFullDiskAccess) {
+    if (this.needFullDiskAccess) {
       await this.daemonRpc.prepareRestart(true);
     }
 
@@ -537,7 +542,7 @@ class ApplicationMain
 
     // fetch the tunnel state
     try {
-      this.tunnelState.handleNewTunnelState(await this.daemonRpc.getState());
+      this.handleNewTunnelState(await this.daemonRpc.getState());
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to fetch the tunnel state: ${error.message}`);
@@ -692,7 +697,7 @@ class ApplicationMain
     const daemonEventListener = new SubscriptionListener(
       (daemonEvent: DaemonEvent) => {
         if ('tunnelState' in daemonEvent) {
-          this.tunnelState.handleNewTunnelState(daemonEvent.tunnelState);
+          this.handleNewTunnelState(daemonEvent.tunnelState);
         } else if ('settings' in daemonEvent) {
           this.setSettings(daemonEvent.settings);
         } else if ('relayList' in daemonEvent) {
@@ -736,6 +741,16 @@ class ApplicationMain
     IpcMainEventChannel.settings.notify?.(newSettings);
 
     void this.updateSplitTunnelingApplications(newSettings.splitTunnel.appsList);
+  }
+
+  private async handleNewTunnelState(newState: TunnelState) {
+    this.tunnelState.handleNewTunnelState(await this.daemonRpc.getState());
+    if (
+      newState.state === 'error' &&
+      newState.details?.cause === ErrorStateCause.needFullDiskPermissions
+    ) {
+      this.needFullDiskAccess = true;
+    }
   }
 
   private setRelayList(relayList: IRelayListWithEndpointData) {
@@ -834,7 +849,7 @@ class ApplicationMain
     });
     IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(async () => {
       const fullDiskState = await this.daemonRpc.needFullDiskPermissions();
-      this.tunnelState.needFullDiskAccess = fullDiskState;
+      this.needFullDiskAccess = fullDiskState;
       return fullDiskState;
     });
 

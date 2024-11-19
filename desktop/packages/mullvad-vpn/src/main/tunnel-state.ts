@@ -1,5 +1,5 @@
 import { connectEnabled, disconnectEnabled, reconnectEnabled } from '../shared/connect-helper';
-import { ErrorStateCause, ILocation, TunnelState } from '../shared/daemon-rpc-types';
+import { ILocation, TunnelState } from '../shared/daemon-rpc-types';
 import { Scheduler } from '../shared/scheduler';
 
 export interface TunnelStateProvider {
@@ -11,8 +11,6 @@ export interface TunnelStateHandlerDelegate {
 }
 
 export default class TunnelStateHandler {
-  public needFullDiskAccess = false;
-
   // The current tunnel state
   private tunnelStateValue: TunnelState = { state: 'disconnected' };
   // When pressing connect/disconnect/reconnect the app assumes what the next state will be before
@@ -55,12 +53,6 @@ export default class TunnelStateHandler {
   }
 
   public handleNewTunnelState(newState: TunnelState) {
-    if (newState.state === 'error' && newState.details) {
-      if (newState.details.cause === ErrorStateCause.needFullDiskPermissions) {
-        this.needFullDiskAccess = true;
-      }
-    }
-
     // If there's a fallback state set then the app is in an assumed next state and need to check
     // if it's now reached or if the current state should be ignored and set as the fallback state.
     if (this.tunnelStateFallback) {
