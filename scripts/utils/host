@@ -16,6 +16,11 @@ case "$(uname -s)" in
     HOST="${arch}-apple-darwin"
     ;;
   MINGW*|MSYS_NT*)
-    HOST="x86_64-pc-windows-msvc"
+    arch="$(powershell -Command "(Get-CimInstance Win32_OperatingSystem).OSArchitecture")"
+    if [[ $arch == "ARM 64"* ]]; then
+        HOST="aarch64-pc-windows-msvc"
+    else
+        HOST="x86_64-pc-windows-msvc"
+    fi
     ;;
 esac
