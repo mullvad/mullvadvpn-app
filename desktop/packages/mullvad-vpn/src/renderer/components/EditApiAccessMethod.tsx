@@ -16,12 +16,17 @@ import { useLastDefinedValue } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsNavigationScrollbars,
+  SettingsStack,
+} from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import { NamedProxyForm } from './ProxyForm';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { StyledContent, StyledNavigationScrollbars, StyledSettingsContent } from './SettingsStyles';
 import { SmallButton } from './SmallButton';
 
 export function EditApiAccessMethod() {
@@ -102,20 +107,20 @@ function AccessMethodForm() {
               </NavigationItems>
             </NavigationBar>
 
-            <StyledNavigationScrollbars fillContainer>
-              <StyledContent>
+            <SettingsNavigationScrollbars fillContainer>
+              <SettingsContent>
                 <SettingsHeader>
                   <HeaderTitle>{title}</HeaderTitle>
                   <HeaderSubTitle>{subtitle}</HeaderSubTitle>
                 </SettingsHeader>
 
-                <StyledSettingsContent>
+                <SettingsStack>
                   {id !== undefined && method === undefined ? (
                     <span>Failed to open method</span>
                   ) : (
                     <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop} />
                   )}
-                </StyledSettingsContent>
+                </SettingsStack>
 
                 <TestingDialog
                   name={updatedMethod?.name ?? ''}
@@ -125,8 +130,8 @@ function AccessMethodForm() {
                   cancel={resetTestResult}
                   save={handleDialogSave}
                 />
-              </StyledContent>
-            </StyledNavigationScrollbars>
+              </SettingsContent>
+            </SettingsNavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
       </Layout>
