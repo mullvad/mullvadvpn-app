@@ -29,12 +29,6 @@
   "files": [
     "lib/**/*.?({c,m}){t,j}s"
   ],
-  "neon": {
-    "type": "library",
-    "org": "mullvad-vpn",
-    "platforms": "common",
-    "load": "./src/load.cts"
-  },
   "dependencies": {
     "@neon-rs/load": "^0.1.73"
   }
