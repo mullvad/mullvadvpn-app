@@ -172,6 +172,9 @@ fn log_fault_to_file_and_stdout(signum: c_int) -> Result<(), FaultHandlerErr> {
 
         log_fault_to_writer(signum, &mut log_file)?;
         log_file.flush()?;
+
+        // Forget about the file. It will be closed when `_exit` is called by `fault_handler`.
+        drop(log_file);
     }
 
     Ok(())
