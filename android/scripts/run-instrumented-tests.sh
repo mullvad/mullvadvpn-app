@@ -2,6 +2,20 @@
 
 set -eu
 
+
+cleanup() {
+    echo "### Trapped termination signal, clean up ###"
+    echo "### Store logcat and instrumentation log ###"
+    adb shell "mkdir -p $TEST_DEVICE_OUTPUTS_DIR"
+    adb shell "logcat -d > $TEST_DEVICE_OUTPUTS_DIR/logcat.txt"
+
+    if [[ -n ${TEMP_DOWNLOAD_DIR-} ]]; then
+    rm -rf "$TEMP_DOWNLOAD_DIR"
+fi
+}
+
+trap cleanup SIGHUP EXIT
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
@@ -18,6 +32,7 @@ VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
 INVALID_TEST_ACCOUNT_NUMBER="${INVALID_TEST_ACCOUNT_NUMBER:-}"
 ENABLE_HIGHLY_RATE_LIMITED_TESTS="${ENABLE_HIGHLY_RATE_LIMITED_TESTS:-false}"
 ENABLE_ACCESS_TO_LOCAL_API_TESTS="${ENABLE_ACCESS_TO_LOCAL_API_TESTS:-false}"
+TEST_DEVICE_OUTPUTS_DIR="${TEST_DEVICE_OUTPUTS_DIR:-/sdcard/Download/test-outputs}" # Must match the path where e2e tests output their attachments
 REPORT_DIR="${REPORT_DIR:-}"
 
 while [[ "$#" -gt 0 ]]; do
@@ -72,6 +87,7 @@ if [[ -z ${BILLING_FLAVOR-} ]]; then
 fi
 
 echo "### Configuration ###"
+echo "Test device outputs dir: $TEST_DEVICE_OUTPUTS_DIR"
 echo "Report dir: $REPORT_DIR"
 echo "Test type: $TEST_TYPE"
 echo "Infra flavor: $INFRA_FLAVOR"
@@ -144,6 +160,12 @@ case "$TEST_TYPE" in
     ;;
 esac
 
+if [[ -z $TEST_DEVICE_OUTPUTS_DIR ]]; then
+    echo ""
+    echo "Error: The variable TEST_DEVICE_OUTPUTS_DIR must be set."
+    exit 1
+fi
+
 if [[ -z $REPORT_DIR || ! -d $REPORT_DIR ]]; then
     echo ""
     echo "Error: The variable REPORT_DIR must be set and the directory must exist."
@@ -153,17 +175,14 @@ fi
 GRADLE_ENVIRONMENT_VARIABLES="TEST_E2E_ENABLEACCESSTOLOCALAPITESTS=$ENABLE_ACCESS_TO_LOCAL_API_TESTS"
 
 INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
-LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
-LOCAL_SCREENSHOT_PATH="$REPORT_DIR/screenshots"
 DEVICE_SCREENSHOT_PATH="/sdcard/Pictures/mullvad-$TEST_TYPE"
-DEVICE_TEST_ATTACHMENTS_PATH="/sdcard/Download/test-attachments"
 
 echo ""
 echo "### Ensure clean report structure ###"
 rm -rf "${REPORT_DIR:?}/*"
 adb logcat --clear
 adb shell rm -rf "$DEVICE_SCREENSHOT_PATH"
-adb shell rm -rf "$DEVICE_TEST_ATTACHMENTS_PATH"
+adb shell rm -rf "$TEST_DEVICE_OUTPUTS_DIR"
 echo ""
 
 if [[ "${USE_ORCHESTRATOR-}" == "true" ]]; then
@@ -238,13 +257,5 @@ echo "### Checking logs for success message ###"
 if grep -q -E "$LOG_SUCCESS_REGEX" "$INSTRUMENTATION_LOG_FILE_PATH"; then
     echo "Success, no failures!"
 else
-    echo "One or more tests failed, see logs for more details."
-    echo "Collecting report..."
-    adb pull "$DEVICE_SCREENSHOT_PATH" "$LOCAL_SCREENSHOT_PATH" || echo "No screenshots"
-    adb logcat -d > "$LOGCAT_FILE_PATH"
     exit 1
-fi
-
-if [[ -n ${TEMP_DOWNLOAD_DIR-} ]]; then
-    rm -rf "$TEMP_DOWNLOAD_DIR"
 fi

@@ -55,6 +55,6 @@ class CaptureScreenRecordingsExtension : BeforeEachCallback, AfterEachCallback {
 
     companion object {
         val OUTPUT_DIRECTORY =
-            "${Environment.getExternalStorageDirectory().path}/Download/test-attachments/video"
+            "${Environment.getExternalStorageDirectory().path}/Download/${Attachment.DIRECTORY_NAME}/video"
     }
 }
