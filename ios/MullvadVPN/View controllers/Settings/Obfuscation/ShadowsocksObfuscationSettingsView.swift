@@ -12,42 +12,48 @@ import SwiftUI
 struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfuscationSettingsViewModel {
     @StateObject var viewModel: VM
 
-    @State var customValue = ""
-
-    let title = "Shadowsocks port"
-
-    func row<V: View>(isSelected: Bool, @ViewBuilder items: () -> V) -> some View {
-        HStack {
-            Image("IconTick").opacity(isSelected ? 1.0 : 0.0)
-            items()
-        }
-        .padding(16)
-        .background(isSelected ? Color(UIColor.Cell.Background.selected) : Color(UIColor.Cell.Background.normal))
-        .foregroundColor(Color(UIColor.Cell.titleTextColor))
-    }
-
     var body: some View {
-        VStack(spacing: 0) {
-            HStack {
-                Text(title)
-                Spacer()
-            }
-            row(isSelected: true) {
-                Text("Automatic")
-                Spacer()
-            }
-            row(isSelected: false) {
-                Text("Custom")
-                Spacer()
-                TextField("value", text: $customValue, prompt: Text("Port        "))
-                    .fixedSize().background(.white)
-            }
-            Spacer()
-        }
-        .background(Color(.secondaryColor))
-        .foregroundColor(Color(.primaryTextColor))
+        let portString = NSLocalizedString(
+            "SHADOWSOCKS_PORT_LABEL",
+            tableName: "Shadowsocks",
+            value: "Port",
+            comment: ""
+        )
 
-        Spacer()
+        SingleChoiceList(
+            title: portString,
+            options: [WireGuardObfuscationShadowsockPort.automatic],
+            value: $viewModel.value,
+            itemDescription: { item in NSLocalizedString(
+                "SHADOWSOCKS_PORT_VALUE_\(item)",
+                tableName: "Shadowsocks",
+                value: "\(item)",
+                comment: ""
+            ) },
+            parseCustomValue: { UInt16($0).map { WireGuardObfuscationShadowsockPort.custom($0) }
+            },
+            formatCustomValue: {
+                if case let .custom(port) = $0 {
+                    "\(port)"
+                } else {
+                    nil
+                }
+            },
+            customLabel: NSLocalizedString(
+                "SHADOWSOCKS_PORT_VALUE_CUSTOM",
+                tableName: "Shadowsocks",
+                value: "Custom",
+                comment: ""
+            ),
+            customPrompt: NSLocalizedString(
+                "SHADOWSOCKS_PORT_VALUE_PORT_PROMPT",
+                tableName: "Shadowsocks",
+                // currently padded with spaces to make space
+                value: "Port        ",
+                comment: ""
+            ),
+            customFieldMode: .numericText
+        )
     }
 }
 
