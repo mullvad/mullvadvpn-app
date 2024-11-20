@@ -743,7 +743,7 @@ pub async fn constrain_to_relay(
 ///
 /// This can be used to query the relay selector without triggering a tunnel state change in the
 /// daemon.
-fn get_daemon_relay_selector(
+pub fn get_daemon_relay_selector(
     settings: &mullvad_types::settings::Settings,
     relay_list: mullvad_types::relay_list::RelayList,
 ) -> RelaySelector {
@@ -767,7 +767,7 @@ pub fn into_constraint(relay: &Relay) -> Constraint<LocationConstraint> {
 
 /// Ping monitoring made easy!
 ///
-/// Continously ping some destination while monitoring to detect diverging
+/// Continuously ping some destination while monitoring to detect diverging
 /// packets.
 ///
 /// To customize [`Pinger`] before the pinging and network monitoring starts,
@@ -897,7 +897,7 @@ impl PingerBuilder {
     }
 }
 
-/// This helper spawns a seperate process which checks if we are connected to Mullvad, and tries to
+/// This helper spawns a separate process which checks if we are connected to Mullvad, and tries to
 /// leak traffic outside the tunnel by sending TCP, UDP, and ICMP packets to [LEAK_DESTINATION].
 pub struct ConnChecker {
     rpc: ServiceClient,
@@ -962,7 +962,7 @@ impl ConnChecker {
         self.payload = Some(payload.into())
     }
 
-    /// Spawn the connecton checker process and return a handle to it.
+    /// Spawn the connection checker process and return a handle to it.
     ///
     /// Dropping the handle will stop the process.
     /// **NOTE**: The handle must be dropped from a tokio runtime context.
@@ -1101,7 +1101,7 @@ impl ConnCheckerHandle<'_> {
     }
 
     pub async fn check_connection(&mut self) -> anyhow::Result<ConnectionStatus> {
-        // Monitor all pakets going to LEAK_DESTINATION during the check.
+        // Monitor all packets going to LEAK_DESTINATION during the check.
         let leak_destination = self.checker.leak_destination;
         let monitor = start_packet_monitor(
             move |packet| packet.destination.ip() == leak_destination.ip(),
@@ -1201,18 +1201,22 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
 
 pub mod custom_lists {
     use super::*;
+
     use mullvad_types::custom_list::{CustomList, Id};
     use std::sync::{LazyLock, Mutex};
 
     // Expose all custom list variants as a shorthand.
     pub use List::*;
 
+    /// The default custom list to use as location for all tests.
+    pub const DEFAULT_LIST: List = List::Nordic;
+
     /// Mapping between [List] to daemon custom lists. Since custom list ids are assigned by the
     /// daemon at the creation of the custom list settings object, we can't map a custom list
     /// name to a specific list before runtime.
     static IDS: LazyLock<Mutex<HashMap<List, Id>>> = LazyLock::new(|| Mutex::new(HashMap::new()));
 
-    /// Pre-defined (well-typed) custom lists which may be useuful in different test scenarios.
+    /// Pre-defined (well-typed) custom lists which may be useful in different test scenarios.
     #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
     pub enum List {
         /// A selection of Nordic servers
@@ -1308,6 +1312,34 @@ pub mod custom_lists {
             IDS.lock().unwrap().insert(custom_list, id);
         }
         Ok(())
+    }
+
+    /// Set the default location to the custom list specified by `DEFAULT_LIST`. This also includes
+    /// entry location for multihop. It does not, however, affect bridge location for OpenVPN.
+    /// This is for simplify, as bridges default to using the server closest to the exit anyway, and
+    /// OpenVPN is slated for removal.
+    pub async fn set_default_location(
+        mullvad_client: &mut MullvadProxyClient,
+    ) -> anyhow::Result<()> {
+        let constraints = get_custom_list_location_relay_constraints(DEFAULT_LIST);
+
+        mullvad_client
+            .set_relay_settings(constraints.into())
+            .await
+            .context("Failed to set relay settings")
+    }
+
+    fn get_custom_list_location_relay_constraints(custom_list: List) -> RelayConstraints {
+        let wireguard_constraints = mullvad_types::relay_constraints::WireguardConstraints {
+            entry_location: Constraint::Only(custom_list.into()),
+            ..Default::default()
+        };
+
+        RelayConstraints {
+            location: Constraint::Only(custom_list.into()),
+            wireguard_constraints,
+            ..Default::default()
+        }
     }
 
     /// Dig out a custom list from the daemon settings based on the custom list's name.

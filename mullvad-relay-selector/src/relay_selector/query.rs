@@ -154,6 +154,10 @@ impl RelayQuery {
         &self.openvpn_constraints
     }
 
+    pub fn into_openvpn_constraints(self) -> OpenVpnRelayQuery {
+        self.openvpn_constraints
+    }
+
     pub fn set_openvpn_constraints(
         &mut self,
         openvpn_constraints: OpenVpnRelayQuery,
@@ -163,6 +167,10 @@ impl RelayQuery {
 
     pub fn wireguard_constraints(&self) -> &WireguardRelayQuery {
         &self.wireguard_constraints
+    }
+
+    pub fn into_wireguard_constraints(self) -> WireguardRelayQuery {
+        self.wireguard_constraints
     }
 
     pub fn set_wireguard_constraints(
@@ -890,9 +898,8 @@ pub mod builder {
 
     impl<Transport> RelayQueryBuilder<OpenVPN<Transport, BridgeConstraints>> {
         /// Constraint the geographical location of the selected bridge.
-        pub fn bridge_location(mut self, location: GeographicLocationConstraint) -> Self {
-            self.protocol.bridge_settings.location =
-                Constraint::Only(LocationConstraint::from(location));
+        pub fn bridge_location(mut self, location: impl Into<LocationConstraint>) -> Self {
+            self.protocol.bridge_settings.location = Constraint::Only(location.into());
             self.query.openvpn_constraints.bridge_settings =
                 BridgeQuery::Normal(self.protocol.bridge_settings.clone());
             self
