@@ -9,17 +9,17 @@ import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import {
+  Footer,
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsNavigationScrollbars,
+  SettingsStack,
+} from './Layout';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import {
-  StyledCellIcon,
-  StyledContent,
-  StyledNavigationScrollbars,
-  StyledQuitButton,
-  StyledSettingsContent,
-  StyledSettingsGroups,
-} from './SettingsStyles';
+import { StyledCellIcon, StyledQuitButton } from './SettingsStyles';
 
 export default function Support() {
   const history = useHistory();
@@ -47,55 +47,54 @@ export default function Support() {
               </NavigationItems>
             </NavigationBar>
 
-            <StyledNavigationScrollbars fillContainer>
-              <StyledContent>
+            <SettingsNavigationScrollbars fillContainer>
+              <SettingsContent>
                 <SettingsHeader>
                   <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
                 </SettingsHeader>
 
-                <StyledSettingsContent>
-                  <StyledSettingsGroups>
-                    {showSubSettings ? (
-                      <>
-                        <Cell.Group $noMarginBottom>
-                          <UserInterfaceSettingsButton />
-                          <MultihopButton />
-                          <DaitaButton />
-                          <VpnSettingsButton />
-                        </Cell.Group>
-
-                        {showSplitTunneling && (
-                          <Cell.Group $noMarginBottom>
-                            <SplitTunnelingButton />
-                          </Cell.Group>
-                        )}
-                      </>
-                    ) : (
+                <SettingsStack>
+                  {showSubSettings ? (
+                    <>
                       <Cell.Group $noMarginBottom>
                         <UserInterfaceSettingsButton />
+                        <MultihopButton />
+                        <DaitaButton />
+                        <VpnSettingsButton />
                       </Cell.Group>
-                    )}
 
+                      {showSplitTunneling && (
+                        <Cell.Group $noMarginBottom>
+                          <SplitTunnelingButton />
+                        </Cell.Group>
+                      )}
+                    </>
+                  ) : (
                     <Cell.Group $noMarginBottom>
-                      <ApiAccessMethodsButton />
+                      <UserInterfaceSettingsButton />
                     </Cell.Group>
+                  )}
 
+                  <Cell.Group $noMarginBottom>
+                    <ApiAccessMethodsButton />
+                  </Cell.Group>
+
+                  <Cell.Group $noMarginBottom>
+                    <SupportButton />
+                    <AppVersionButton />
+                  </Cell.Group>
+
+                  {window.env.development && (
                     <Cell.Group $noMarginBottom>
-                      <SupportButton />
-                      <AppVersionButton />
+                      <DebugButton />
                     </Cell.Group>
-
-                    {window.env.development && (
-                      <Cell.Group $noMarginBottom>
-                        <DebugButton />
-                      </Cell.Group>
-                    )}
-                  </StyledSettingsGroups>
-
+                  )}
+                </SettingsStack>
+                <Footer>
                   <QuitButton />
-                </StyledSettingsContent>
-              </StyledContent>
-            </StyledNavigationScrollbars>
+                </Footer>
+              </SettingsContent>
+            </SettingsNavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
       </Layout>
