@@ -18,7 +18,7 @@ use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
         self, BridgeConstraints, BridgeSettings, BridgeType, OpenVpnConstraints, RelayConstraints,
-        RelaySettings, TransportPort, WireguardConstraints,
+        RelaySettings, TransportPort,
     },
     wireguard,
 };
