@@ -144,7 +144,16 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
     }
 
     private func showShadowsocksObfuscationSettings() {
-        // TODO:
+        let viewModel = TunnelShadowsocksObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
+        let view = ShadowsocksObfuscationSettingsView(viewModel: viewModel)
+        let vc = UIHostingController(rootView: view)
+        vc.title = NSLocalizedString(
+            "SHADOWSOCKS_TITLE",
+            tableName: "VPNSettings",
+            value: "Shadowsocks",
+            comment: ""
+        )
+        navigationController?.pushViewController(vc, animated: true)
     }
 
     func didSelectWireGuardPort(_ port: UInt16?) {
