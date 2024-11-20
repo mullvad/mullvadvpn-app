@@ -51,7 +51,8 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 // currently padded with spaces to make space
                 value: "Port        ",
                 comment: ""
-            )
+            ),
+            customFieldMode: .numericText
         )
     }
 }
