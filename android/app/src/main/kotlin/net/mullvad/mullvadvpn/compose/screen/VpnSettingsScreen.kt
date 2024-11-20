@@ -84,11 +84,13 @@ import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_OFF_CELL
+import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
@@ -313,7 +315,7 @@ fun VpnSettingsScreen(
         snackbarHostState = snackbarHostState,
     ) { modifier, lazyListState ->
         LazyColumn(
-            modifier = modifier.testTag(LAZY_LIST_TEST_TAG).animateContentSize(),
+            modifier = modifier.testTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG).animateContentSize(),
             state = lazyListState,
         ) {
             if (state.systemVpnSettingsAvailable) {
@@ -601,6 +603,7 @@ fun VpnSettingsScreen(
                     port = state.selectedUdp2TcpObfuscationPort,
                     onSelected = onSelectObfuscationMode,
                     onNavigate = navigateToUdp2TcpSettings,
+                    testTag = WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL,
                 )
             }
             itemWithDivider {
@@ -608,6 +611,7 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.off),
                     isSelected = state.obfuscationMode == ObfuscationMode.Off,
                     onCellClicked = { onSelectObfuscationMode(ObfuscationMode.Off) },
+                    testTag = WIREGUARD_OBFUSCATION_OFF_CELL,
                 )
             }
 

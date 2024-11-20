@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_VPN_SETTINGS_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
@@ -47,7 +47,7 @@ class VpnSettingsScreenTest {
             // Arrange
             setContentWithTheme { VpnSettingsScreen(state = VpnSettingsUiState.createDefault()) }
 
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
             // Assert
@@ -70,7 +70,7 @@ class VpnSettingsScreenTest {
                 )
             }
 
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
             // Assert
@@ -117,7 +117,7 @@ class VpnSettingsScreenTest {
                         )
                 )
             }
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
             // Assert
             onNodeWithText(DUMMY_DNS_ADDRESS).assertDoesNotExist()
@@ -213,7 +213,7 @@ class VpnSettingsScreenTest {
                         )
                 )
             }
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
 
             // Assert
@@ -236,7 +236,7 @@ class VpnSettingsScreenTest {
                     onSelectQuantumResistanceSetting = mockSelectQuantumResistantSettingListener,
                 )
             }
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG))
 
             // Assert
@@ -261,7 +261,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(
                     hasTestTag(String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 53))
                 )
@@ -291,7 +291,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(
                     hasTestTag(String.format(LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG, 53))
                 )
@@ -318,7 +318,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
 
             // Assert
@@ -342,7 +342,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
             onNodeWithTag(testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG).performClick()
 
@@ -364,7 +364,7 @@ class VpnSettingsScreenTest {
                 )
             }
 
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
 
             // Act
@@ -407,7 +407,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG))
             onNodeWithText("WireGuard obfuscation").performClick()
 
@@ -430,7 +430,7 @@ class VpnSettingsScreenTest {
 
             // Act
 
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_QUANTUM_ITEM_ON_TEST_TAG))
             onNodeWithText("Quantum-resistant tunnel").performClick()
 
@@ -469,7 +469,7 @@ class VpnSettingsScreenTest {
                 )
             }
 
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG))
             onNodeWithText("Custom").performClick()
 
@@ -490,7 +490,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
             onNodeWithTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG).performClick()
 
@@ -514,7 +514,7 @@ class VpnSettingsScreenTest {
             }
 
             // Act
-            onNodeWithTag(LAZY_LIST_TEST_TAG)
+            onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
                 .performScrollToNode(hasTestTag(LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG))
             onNodeWithTag(testTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG).performClick()
 
