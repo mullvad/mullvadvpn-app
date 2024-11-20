@@ -21,11 +21,13 @@ static LOG_FILE_PATH: OnceLock<CString> = OnceLock::new();
 
 /// If true, the signal-handler will log a backtrace when triggered.
 ///
-/// Default value can be overridden using the env var [ENABLE_BACKTRACE_VAR].
+/// Default value is `true` for debug-builds, and `false` for release-builds.
+/// This can be overridden by setting the env var [ENABLE_BACKTRACE_VAR] to `1` or `0`.
 ///
 /// # Safety
-/// Printing a backtrace from the signal-handler is potentially unsound.
-/// Therefore, this is only enabled by default in debug-builds.
+/// The [Backtrace] implementation we use does not guarantee signal-safety; Invoking it from a
+/// signal handler can be unsound. In practice this usually works fine, but to avoid any risk to
+/// users, we disable backtracing by default in release-builds.
 static ENABLE_BACKTRACE: AtomicBool = AtomicBool::new(cfg!(debug_assertions));
 
 /// Name of the environment variable that sets [ENABLE_BACKTRACE].
@@ -63,21 +65,21 @@ pub fn enable() {
             ENABLE_BACKTRACE.store(override_backtrace, Ordering::Release);
         }
 
-        // XXX: SA_ONSTACK tells the signal handler to use an alternate stack, if one is available.
-        //      The purpose of an alternate stack is to have somewhere to execute the signal handler
-        //      in the case of a stack overflow. I.e. if an alternate stack hasn't been configured,
-        //      stack overflows will silently cause the process to exit with code SIGSEGV.
+        // SA_ONSTACK tells the signal handler to use an alternate stack, if one is available.
+        // The purpose of an alternate stack is to have somewhere to execute the signal handler in
+        // the case of a stack overflow. I.e. if an alternate stack hasn't been configured, stack
+        // overflows will silently cause the process to exit with code SIGSEGV.
         //
-        // XXX: `libc::sigaltstack` can be used to set up an alternate stack on the current thread.
-        //       The default behaviour of the Rust runtime is to set up alternate stacks for the
-        //       main thread, and for every thread spawned using `std::thread`. However, Rust will
-        //       not do this if any signal handlers have been configured before the Rust runtime is
-        //       initialized (note: the initialization happens before main() is called). For
-        //       example, if any Go code is linked into this binary, the Go runtime will probably
-        //       be initialized first, and will set up it's own signal handlers.
+        // `libc::sigaltstack` can be used to set up an alternate stack on the current thread. The
+        // default behaviour of the Rust runtime is to set up alternate stacks for the main thread,
+        // and for every thread spawned using `std::thread`. However, Rust will not do this if any
+        // signal handlers have been configured before the Rust runtime is initialized (note: the
+        // initialization happens before main() is called). For example, if any Go code is linked
+        // into this binary, the Go runtime will probably be initialized first, and will set up
+        // it's own signal handlers.
         //
-        // XXX: Go requires this flag to be set for all signal handlers.
-        //      https://github.com/golang/go/blob/d6fb0ab2/src/os/signal/doc.go
+        // Go requires this flag to be set for all signal handlers.
+        // https://github.com/golang/go/blob/d6fb0ab2/src/os/signal/doc.go
         let sig_handler_flags = SaFlags::SA_ONSTACK;
 
         let signal_action = SigAction::new(
@@ -87,7 +89,9 @@ pub fn enable() {
         );
 
         for signal in &FAULT_SIGNALS {
-            // SAFETY: `fault_handler` is signal-safe.
+            // SAFETY:
+            // `fault_handler` is signal-safe if ENABLE_BACKTRACE is false.
+            // See docs on ENABLE_BACKTRACE.
             if let Err(err) = unsafe { sigaction(*signal, &signal_action) } {
                 log::error!("Failed to install signal handler for {}: {}", signal, err);
             }
@@ -96,27 +100,30 @@ pub fn enable() {
 }
 
 /// Signal handler to catch signals that are used to indicate unrecoverable errors in the daemon.
+///
+/// # Safety
+/// This function is signal-safe if [ENABLE_BACKTRACE] is false.
+//
+// NOTE: When implementing, make sure to adhere to the rules of signal-safety!
+// For a detailed definition, see https://man7.org/linux/man-pages/man7/signal-safety.7.html
+// The short version is:
+// - This function must be re-entrant.
+// - This function must only call functions that are signal-safe.
+// - The man-page provides a list of posix-functions that are signal-safe. (These can be found
+//   in the `libc`-crate)
 extern "C" fn fault_handler(
     signum: c_int,
     _siginfo: *mut siginfo_t,
     _thread_context_ptr: *mut c_void,
 ) {
-    // XXX: This function is a signal handler, meaning it must be signal safe.
-    // For a detailed definition, see https://man7.org/linux/man-pages/man7/signal-safety.7.html
-    // The short version is:
-    // - This function must be re-entrant.
-    // - This function must only call functions that are signal-safe.
-    // - The man-page provides a list of posix-functions that are signal-safe. (These can be found
-    //   in the `libc`-crate)
-
-    // 128 + signum is the "standard" set by bash.
+    // 128 + signum is the convention set by bash.
     let signum_code: c_int = signum.saturating_add(0x80);
 
     let code: c_int = match log_fault_to_file_and_stdout(signum) {
-        // Signal numbers are positive integers
+        // Signal numbers are positive integers.
         Ok(()) => signum_code,
 
-        // map error to error-codes
+        // map error to error-codes.
         Err(err) => match err {
             FaultHandlerErr::UnknownSignal => signum_code,
             FaultHandlerErr::Open => 2,
@@ -134,9 +141,11 @@ extern "C" fn fault_handler(
 /// Call from a signal handler to try to print the signal (and optionally a backtrace).
 ///
 /// The output is written to stdout, and to a file if [set_exception_logging_file] was called.
+///
+/// # Safety
+/// This function is signal-safe if [ENABLE_BACKTRACE] is false.
+// NOTE: See rules on signal-safety in `fn fault_handler`!
 fn log_fault_to_file_and_stdout(signum: c_int) -> Result<(), FaultHandlerErr> {
-    // XXX: This function must be signal-safe. See notes in `fn fault_handler`
-
     // Guard against reentrancy, which can happen if this fault handler triggers another fault.
     static REENTRANT: AtomicBool = AtomicBool::new(false);
     if REENTRANT.swap(true, Ordering::SeqCst) {
@@ -171,6 +180,10 @@ fn log_fault_to_file_and_stdout(signum: c_int) -> Result<(), FaultHandlerErr> {
 /// Call from a signal handler to try to write the signal (and optionally a backtrace).
 ///
 /// The output is written to the writer passed in as an argument.
+///
+/// # Safety
+/// This function is signal-safe if [ENABLE_BACKTRACE] is false.
+// NOTE: See rules on signal-safety in `fn fault_handler`.
 fn log_fault_to_writer(signum: c_int, mut w: impl fmt::Write) -> Result<(), FaultHandlerErr> {
     // SIGNAL-SAFETY: Signal::try_from(i32) is signal-safe
     let signal: Signal = match Signal::try_from(signum) {
@@ -187,7 +200,7 @@ fn log_fault_to_writer(signum: c_int, mut w: impl fmt::Write) -> Result<(), Faul
     //   as_str is const and formatting a &str is signal-safe.
     writeln!(w, "Caught signal {}", signal.as_str())?;
 
-    // Formatting a `Backtrace` is NOT signal-safe.
+    // Formatting a `Backtrace` is NOT signal-safe. See docs on ENABLE_BACKTRACE.
     if ENABLE_BACKTRACE.load(Ordering::Acquire) {
         writeln!(w, "Backtrace:")?;
         writeln!(w, "{}", Backtrace::force_capture())?;
