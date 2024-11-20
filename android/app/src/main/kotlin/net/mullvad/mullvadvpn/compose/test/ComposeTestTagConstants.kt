@@ -18,6 +18,9 @@ const val CUSTOM_PORT_DIALOG_INPUT_TEST_TAG = "custom_port_dialog_input_test_tag
 const val LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG =
     "lazy_list_wireguard_obfuscation_title_test_tag"
 const val SWITCH_TEST_TAG = "switch_test_tag"
+const val WIREGUARD_OBFUSCATION_OFF_CELL = "wireguard_obfuscation_off_cell_test_tag"
+const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL =
+    "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
