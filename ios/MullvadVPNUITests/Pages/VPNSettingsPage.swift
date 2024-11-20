@@ -102,8 +102,14 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapWireGuardObfuscationOnCell() -> Self {
+    @discardableResult func tapWireGuardObfuscationUdpOverTcpCell() -> Self {
         app.cells[AccessibilityIdentifier.wireGuardObfuscationUdpOverTcp].tap()
+
+        return self
+    }
+
+    @discardableResult func tapWireGuardObfuscationShadowsocksCell() -> Self {
+        app.cells[AccessibilityIdentifier.wireGuardObfuscationShadowsocks].tap()
 
         return self
     }
