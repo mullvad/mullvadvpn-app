@@ -14,7 +14,7 @@ import Network
 import XCTest
 
 private let portRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
-private let defaultPort: UInt16 = 53
+private let defaultPort: UInt16 = 443
 
 class RelaySelectorTests: XCTestCase {
     let sampleRelays = ServerRelaysResponseStubs.sampleRelays
@@ -124,10 +124,10 @@ class RelaySelectorTests: XCTestCase {
         XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
 
         result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 1)
-        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
+        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
 
         result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 2)
-        XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
+        XCTAssertTrue(allPorts.contains(result.endpoint.ipv4Relay.port))
 
         result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 3)
         XCTAssertEqual(result.endpoint.ipv4Relay.port, defaultPort)
