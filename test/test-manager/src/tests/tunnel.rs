@@ -103,19 +103,11 @@ pub async fn test_wireguard_tunnel(
     for (port, should_succeed) in PORTS {
         log::info!("Connect to WireGuard endpoint on port {port}");
 
-        let relay_settings = RelaySettings::Normal(RelayConstraints {
-            location: Constraint::Any,
-            tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-            wireguard_constraints: WireguardConstraints {
-                port: Constraint::Only(port),
-                ..Default::default()
-            },
-            ..Default::default()
-        });
+        let query = RelayQueryBuilder::new().wireguard().port(port).build();
 
-        set_relay_settings(&mut mullvad_client, relay_settings)
+        apply_settings_from_relay_query(&mut mullvad_client, query)
             .await
-            .expect("failed to update relay settings");
+            .unwrap();
 
         let connection_result = connect_and_wait(&mut mullvad_client).await;
         assert_eq!(
