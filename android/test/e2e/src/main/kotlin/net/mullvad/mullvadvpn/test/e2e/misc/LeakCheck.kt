@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.test.e2e.misc
 
-import net.mullvad.mullvadvpn.test.e2e.model.Stream
+import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.Stream
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 

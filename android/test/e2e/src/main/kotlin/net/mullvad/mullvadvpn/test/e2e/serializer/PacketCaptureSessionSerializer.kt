@@ -6,7 +6,7 @@ import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import net.mullvad.mullvadvpn.test.e2e.misc.PacketCaptureSession
+import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCaptureSession
 
 object PacketCaptureSessionSerializer : KSerializer<PacketCaptureSession> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor

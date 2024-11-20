@@ -6,9 +6,9 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import net.mullvad.mullvadvpn.test.e2e.model.Packet
-import net.mullvad.mullvadvpn.test.e2e.model.RxPacket
-import net.mullvad.mullvadvpn.test.e2e.model.TxPacket
+import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.Packet
+import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.RxPacket
+import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.TxPacket
 
 object PacketSerializer : JsonContentPolymorphicSerializer<Packet>(Packet::class) {
     override fun selectDeserializer(element: JsonElement): KSerializer<out Packet> {
