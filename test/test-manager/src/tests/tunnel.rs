@@ -104,6 +104,7 @@ pub async fn test_wireguard_tunnel(
         log::info!("Connect to WireGuard endpoint on port {port}");
 
         let relay_settings = RelaySettings::Normal(RelayConstraints {
+            location: Constraint::Any,
             tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
             wireguard_constraints: WireguardConstraints {
                 port: Constraint::Only(port),
