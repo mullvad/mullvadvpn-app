@@ -46,6 +46,13 @@ on:
         default: '0'
         required: true
         type: string
+      e2e_tests_infra_flavor:
+        description: >
+          Infra environment to run e2e tests on(prod/stagemole).
+          If set to 'stagemole' test-related artefacts will be uploaded.
+        default: 'stagemole'
+        required: true
+        type: string
   # Build if main is updated to ensure up-to-date caches are available
   push:
     branches: [main]
@@ -341,7 +348,7 @@ jobs:
 
       - name: Build stagemole app
         uses: burrunan/gradle-cache-action@v1
-        if: github.event.inputs.run_firebase_tests == 'true'
+        if: github.event.inputs.e2e_test_repeat != '0'
         with:
           job-id: jdk17
           arguments: assemblePlayStagemoleDebug
@@ -475,9 +482,16 @@ jobs:
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
 
+      - name: Pull test report
+        if: always() && matrix.test-repeat != 0 && github.event.inputs.e2e_tests_infra_flavor == 'stagemole'
+        shell: bash -ieo pipefail {0}
+        env:
+          REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
+        run: ./android/scripts/pull-test-output.sh --test-type ${{ matrix.test-type }}
+
       - name: Upload instrumentation report (${{ matrix.test-type }})
         uses: actions/upload-artifact@v4
-        if: always() && matrix.test-repeat != 0
+        if: always() && matrix.test-repeat != 0 && github.event.inputs.e2e_tests_infra_flavor == 'stagemole'
         with:
           name: ${{ matrix.test-type }}-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
@@ -526,7 +540,7 @@ jobs:
 
       - name: Calculate timeout
         id: calculate-timeout
-        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 10 ))" >> $GITHUB_OUTPUT
+        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 15 ))" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run instrumented test script
@@ -536,14 +550,37 @@ jobs:
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
           TEST_TYPE: e2e
-          BILLING_FLAVOR: oss
-          INFRA_FLAVOR: prod
-          VALID_TEST_ACCOUNT_NUMBER: ${{ secrets.ANDROID_PROD_TEST_ACCOUNT }}
+          BILLING_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor == 'prod' && 'oss' || 'play' }}
+          INFRA_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor }}
+          PARTNER_AUTH: >
+            github.event.inputs.e2e_tests_infra_flavor == 'stagemole'
+            && secrets.STAGEMOLE_PARTNER_AUTH ||''
+          VALID_TEST_ACCOUNT_NUMBER: >
+            github.event.inputs.e2e_tests_infra_flavor == 'prod' &&
+            secrets.ANDROID_PROD_TEST_ACCOUNT || ''
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
+
+      - name: Pull test report
+        if: >
+          always() && matrix.test-repeat != 0 &&
+          github.event.inputs.e2e_tests_infra_flavor == 'stagemole'
+        shell: bash -ieo pipefail {0}
+        env:
+          REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
+        run: ./android/scripts/pull-test-output.sh --test-type e2e
+
+      - name: Upload e2e instrumentation report
+        uses: actions/upload-artifact@v4
+        if: >
+          always() && matrix.test-repeat != 0 &&
+          github.event.inputs.e2e_tests_infra_flavor == 'stagemole'
+        with:
+          name: e2e-instrumentation-report
+          path: ${{ steps.prepare-report-dir.outputs.report_dir }}
 
   firebase-tests:
     name: Run firebase tests
