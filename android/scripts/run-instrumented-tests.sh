@@ -109,10 +109,6 @@ case "$TEST_TYPE" in
         echo ""
         echo "Error: The 'e2e' test type with billing flavor 'play' require infra flavor 'stagemole'."
         exit 1
-    elif [[ $BILLING_FLAVOR == "oss" && $INFRA_FLAVOR != "prod" ]]; then
-        echo ""
-        echo "Error: The 'e2e' test type with billing flavor 'oss' require infra flavor 'prod'."
-        exit 1
     fi
     OPTIONAL_TEST_ARGUMENTS=""
     if [[ -n ${INVALID_TEST_ACCOUNT_NUMBER-} ]]; then
@@ -238,10 +234,6 @@ echo "### Checking logs for success message ###"
 if grep -q -E "$LOG_SUCCESS_REGEX" "$INSTRUMENTATION_LOG_FILE_PATH"; then
     echo "Success, no failures!"
 else
-    echo "One or more tests failed, see logs for more details."
-    echo "Collecting report..."
-    adb pull "$DEVICE_SCREENSHOT_PATH" "$LOCAL_SCREENSHOT_PATH" || echo "No screenshots"
-    adb logcat -d > "$LOGCAT_FILE_PATH"
     exit 1
 fi
 
