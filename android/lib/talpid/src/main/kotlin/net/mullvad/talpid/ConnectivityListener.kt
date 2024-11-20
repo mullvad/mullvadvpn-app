@@ -1,86 +1,95 @@
 package net.mullvad.talpid
 
-import android.content.Context
 import android.net.ConnectivityManager
-import android.net.ConnectivityManager.NetworkCallback
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import co.touchlab.kermit.Logger
 import java.net.InetAddress
-import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
+import net.mullvad.talpid.util.NetworkEvent
+import net.mullvad.talpid.util.defaultNetworkFlow
+import net.mullvad.talpid.util.networkFlow
 
-class ConnectivityListener {
-    private val availableNetworks = HashSet<Network>()
-
-    private val callback =
-        object : NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                availableNetworks.add(network)
-                isConnected = true
-            }
-
-            override fun onLost(network: Network) {
-                availableNetworks.remove(network)
-                isConnected = availableNetworks.isNotEmpty()
-            }
-        }
-
-    private val defaultNetworkCallback =
-        object : NetworkCallback() {
-            override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
-                super.onLinkPropertiesChanged(network, linkProperties)
-                currentDnsServers = ArrayList(linkProperties.dnsServers)
-            }
-        }
-
-    private lateinit var connectivityManager: ConnectivityManager
-
+class ConnectivityListener(val connectivityManager: ConnectivityManager) {
     // Used by JNI
-    var isConnected by
-        observable(false) { _, oldValue, newValue ->
-            if (newValue != oldValue) {
-                if (senderAddress != 0L) {
-                    notifyConnectivityChange(newValue, senderAddress)
-                }
-            }
-        }
-
-    var currentDnsServers: ArrayList<InetAddress> = ArrayList()
-        private set(value) {
-            field = ArrayList(value.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER })
-            Logger.d("New currentDnsServers: $field")
-        }
-
     var senderAddress = 0L
+        set(value) {
+            if (value == 0L) {
+                destroySender(field)
+            }
+            field = value
+        }
 
-    fun register(context: Context) {
+    private lateinit var _isConnected: StateFlow<Boolean>
+    // Used by JNI
+    val isConnected
+        get() = _isConnected.value
+
+    private lateinit var _currentDnsServers: StateFlow<List<InetAddress>>
+    // Used by JNI
+    val currentDnsServers
+        get() = ArrayList(_currentDnsServers.value)
+
+    fun register(scope: CoroutineScope) {
+        _currentDnsServers =
+            dnsServerChanges().stateIn(scope, SharingStarted.Eagerly, currentDnsServers())
+
+        _isConnected =
+            hasInternetCapability()
+                .onEach {
+                    if (senderAddress != 0L) {
+                        notifyConnectivityChange(it, senderAddress)
+                    }
+                }
+                .stateIn(scope, SharingStarted.Eagerly, false)
+    }
+
+    fun unregister() {
+        senderAddress = 0L
+    }
+
+    private fun dnsServerChanges(): Flow<List<InetAddress>> =
+        connectivityManager
+            .defaultNetworkFlow()
+            .filterIsInstance<NetworkEvent.LinkPropertiesChanged>()
+            .map { it.linkProperties.dnsServersWithoutFallback() }
+
+    private fun currentDnsServers(): List<InetAddress> =
+        connectivityManager
+            .getLinkProperties(connectivityManager.activeNetwork)
+            ?.dnsServersWithoutFallback() ?: emptyList()
+
+    private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
+        dnsServers.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER }
+
+    private fun hasInternetCapability(): Flow<Boolean> {
         val request =
             NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
                 .build()
 
-        connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        connectivityManager.registerNetworkCallback(request, callback)
-        currentDnsServers =
-            connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.dnsServers?.let { ArrayList(it) }
-                ?: ArrayList()
-        connectivityManager.registerDefaultNetworkCallback(defaultNetworkCallback)
-    }
-
-    fun unregister() {
-        connectivityManager.unregisterNetworkCallback(callback)
-        connectivityManager.unregisterNetworkCallback(defaultNetworkCallback)
-
-        if (senderAddress != 0L) {
-            var oldSender = senderAddress
-            senderAddress = 0L
-            destroySender(oldSender)
-        }
+        return connectivityManager
+            .networkFlow(request)
+            .scan(setOf<Network>()) { networks, event ->
+                when (event) {
+                    is NetworkEvent.Available -> networks + event.network
+                    is NetworkEvent.Lost -> networks - event.network
+                    else -> networks
+                }
+            }
+            .map { it.isNotEmpty() }
+            .distinctUntilChanged()
     }
 
     private external fun notifyConnectivityChange(isConnected: Boolean, senderAddress: Long)
