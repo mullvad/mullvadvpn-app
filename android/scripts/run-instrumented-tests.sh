@@ -150,6 +150,8 @@ if [[ -z $REPORT_DIR || ! -d $REPORT_DIR ]]; then
     exit 1
 fi
 
+GRADLE_ENVIRONMENT_VARIABLES="TEST_E2E_ENABLEACCESSTOLOCALAPITESTS=$ENABLE_ACCESS_TO_LOCAL_API_TESTS"
+
 INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
 LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
 LOCAL_SCREENSHOT_PATH="$REPORT_DIR/screenshots"
@@ -222,7 +224,7 @@ else
     -e runnerBuilder de.mannodermaus.junit5.AndroidJUnit5Builder \
     $TEST_PACKAGE_NAME/androidx.test.runner.AndroidJUnitRunner"
 fi
-adb shell "$INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
+adb shell "$GRADLE_ENVIRONMENT_VARIABLES $INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
 echo ""
 
 echo "### Ensure that packages are uninstalled ###"
