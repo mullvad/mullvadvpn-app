@@ -7,5 +7,5 @@ module.exports = require('@neon-rs/load').proxy({
     'darwin-x64': () => require('../dist/darwin-x64'),
     'darwin-arm64': () => require('../dist/darwin-arm64'),
   },
-  debug: () => require('../target/debug/index.node'),
+  debug: () => require('../debug/index.node'),
 });
