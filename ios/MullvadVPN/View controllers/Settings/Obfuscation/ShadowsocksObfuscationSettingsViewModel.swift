@@ -31,7 +31,7 @@ class TunnelShadowsocksObfuscationSettingsViewModel: TunnelObfuscationSettingsWa
         super.init(
             tunnelManager: tunnelManager,
             keyPath: \.shadowsocksPort,
-            .automatic
+            tunnelManager.settings.wireGuardObfuscation.shadowsocksPort
         )
     }
 }
