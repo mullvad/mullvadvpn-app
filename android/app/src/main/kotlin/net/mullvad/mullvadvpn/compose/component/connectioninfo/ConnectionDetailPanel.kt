@@ -16,6 +16,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.ConnectionDetails
+import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_IN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LOCATION_INFO_CONNECTION_OUT_TEST_TAG
 import net.mullvad.mullvadvpn.constant.SPACE_CHAR
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
@@ -88,7 +89,7 @@ fun ConnectionDetails(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
             modifier =
-                Modifier.constrainAs(inAddr) {
+                Modifier.testTag(LOCATION_INFO_CONNECTION_IN_TEST_TAG).constrainAs(inAddr) {
                     start.linkTo(headerBarrier)
                     end.linkTo(parent.end)
                     top.linkTo(parent.top)
