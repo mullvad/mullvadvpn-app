@@ -116,7 +116,7 @@ class SettingsMigrationTests: BaseUITestCase {
             .enterText(wireGuardPort)
             .dismissKeyboard()
             .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationOnCell()
+            .tapWireGuardObfuscationUdpOverTcpCell()
             .tapUDPOverTCPPortExpandButton()
             .tapUDPOverTCPPort80Cell()
             .tapQuantumResistantTunnelExpandButton()
