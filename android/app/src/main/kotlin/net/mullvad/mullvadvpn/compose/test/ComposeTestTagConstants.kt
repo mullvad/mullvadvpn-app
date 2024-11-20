@@ -5,6 +5,7 @@ const val TOP_BAR_ACCOUNT_BUTTON = "top_bar_account_button"
 const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
 
 // VpnSettingsScreen
+const val LAZY_LIST_VPN_SETTINGS_TEST_TAG = "lazy_list_vpn_settings_test_tag"
 const val LAZY_LIST_TEST_TAG = "lazy_list_test_tag"
 const val LAZY_LIST_LAST_ITEM_TEST_TAG = "lazy_list_last_item_test_tag"
 const val LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG = "lazy_list_quantum_item_off_test_tag"
@@ -18,6 +19,9 @@ const val CUSTOM_PORT_DIALOG_INPUT_TEST_TAG = "custom_port_dialog_input_test_tag
 const val LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG =
     "lazy_list_wireguard_obfuscation_title_test_tag"
 const val SWITCH_TEST_TAG = "switch_test_tag"
+const val WIREGUARD_OBFUSCATION_OFF_CELL = "wireguard_obfuscation_off_cell_test_tag"
+const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL =
+    "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
