@@ -224,7 +224,7 @@ sudo systemctl restart mullvad-daemon
 Use `launchctl`:
 
 ```bash
-sudo launchctl setenv TALPID_DISABLE_OFFLINE_MONITOR 1
+sudo plutil -replace EnvironmentVariables -json '{"TALPID_DISABLE_OFFLINE_MONITOR": "1"}' /Library/LaunchDaemons/net.mullvad.daemon.plist
 ```
 
 For the change to take effect, restart the daemon:
