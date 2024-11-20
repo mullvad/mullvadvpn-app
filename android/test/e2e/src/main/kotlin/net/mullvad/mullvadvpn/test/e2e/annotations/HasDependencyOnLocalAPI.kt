@@ -22,7 +22,7 @@ annotation class HasDependencyOnLocalAPI {
 
             val enable =
                 InstrumentationRegistry.getArguments()
-                    .getRequiredArgument(ENABLE_ACCESS_TO_LOCAL_API_TESTS)
+                    .getRequiredArgument("enable_access_to_local_api_tests")
                     .toBoolean()
 
             return if (enable) {
