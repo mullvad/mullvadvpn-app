@@ -9,9 +9,45 @@
 import SwiftUI
 
 /**
- A component presenting a vertical list in the Mullvad style for selecting a single item from a list.
- The items can be any Hashable type.
- */
+  A component presenting a vertical list in the Mullvad style for selecting a single item from a list.
+  This is parametrised over a value type known as `Value`, which can be any Equatable type. One would typically use an `enum` for this. As the name suggests, this allows one value to be chosen, which it sets a provided binding to.
+
+  The simplest use case for `SingleChoiceList` is to present a list of options, each of which being a simple value without additional data; i.e.,
+
+  ```swift
+  SingleChoiceList(
+     title: "Colour",
+     options: [.red, .green, .blue],
+     value: $colour,
+     itemDescription: { NSLocalizedString("colour_\($0)") }
+  )
+  ```
+
+  `SingleChoiceList` also provides support for having a value that takes a user-defined value, and presents a UI for filling this. In this case, the caller needs to provide not only the UI elements but functions for parsing the entered text to a value and unparsing the value to the text field, like so:
+
+  ```swift
+ enum TipAmount {
+     case none
+     case fivePercent
+     case tenPercent
+     case custom(Int)
+  }
+
+  SingleChoiceList(
+     title: "Tip",
+     options: [.none, .fivePercent, .tenPercent],
+     value: $tipAmount,
+     parseCustomValue: { Int($0).map { TipAmount.custom($0) },
+     formatCustomValue: {
+         if case let .custom(t) = $0 { "\(t)" } else { nil }
+     },
+     customLabel: "Custom",
+     customPrompt: "%  ",
+     customFieldMode: .numericText
+  )
+
+  ```
+  */
 
 struct SingleChoiceList<Value>: View where Value: Equatable {
     let title: String
@@ -63,6 +99,12 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         self.customFieldMode = customFieldMode
     }
 
+    ///  Create a `SingleChoiceList` presenting a choice of several fixed values.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the list, which is typically the name of the item being chosen.
+    ///   - options:  A list of `Value`s to be presented.
+    ///   - itemDescription: An optional function that, when given a `Value`, returns the string representation to present in the list. If not provided, this will be generated naïvely using string interpolation.
     init(title: String, options: [Value], value: Binding<Value>, itemDescription: ((Value) -> String)? = nil) {
         self.init(
             title: title,
@@ -72,6 +114,17 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         )
     }
 
+    /// Create a `SingleChoiceList` presenting a choice of several fixed values, plus a row where the user may enter an argument for a custom value.
+    ///
+    /// - Parameters:
+    ///   - title: The title of the list, which is typically the name of the item being chosen.
+    ///   - options:  A list of fixed `Value`s to be presented.
+    ///   - itemDescription: An optional function that, when given a `Value`, returns the string representation to present in the list. If not provided, this will be generated naïvely using string interpolation. This is only used for the non-custom values.
+    ///   - parseCustomValue: A function that attempts to parse the text entered into the text field and produce a `Value` (typically the tagged custom value with an argument applied to it). If the text is not valid for a value, it should return `nil`
+    ///   - formatCustomValue: A function that, when passed a `Value` containing user-entered custom data, formats that data into a string, which should match what the user would have entered. This function can expect to only be called for the custom value, and should return `nil` in the event of its argument not being a valid custom value.
+    ///   - customLabel: The caption to display in the custom row, next to the text field.
+    ///   - customPrompt: The text to display, greyed, in the text field when it is empty. This also serves to set the width of the field, and should be right-padded with spaces as appropriate.
+    ///   - customFieldMode: An enumeration that sets the mode of the custom value entry text field. If this is `.numericText`, the data is expected to be a decimal number, and the device will present a numeric keyboard when the field is focussed. If it is `.freeText`,  a standard alphanumeric keyboard will be presented. If not specified, this defaults to `.freeText`.
     init(
         title: String,
         options: [Value],
@@ -80,7 +133,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         parseCustomValue: @escaping ((String) -> Value?),
         formatCustomValue: @escaping ((Value) -> String?),
         customLabel: String,
-        customPrompt: String
+        customPrompt: String,
+        customFieldMode: CustomFieldMode = .freeText
     ) {
         self.init(
             title: title,
@@ -91,7 +145,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 fromValue: formatCustomValue
             )],
             value: value,
-            itemDescription: itemDescription
+            itemDescription: itemDescription,
+            customFieldMode: customFieldMode
         )
     }
 
