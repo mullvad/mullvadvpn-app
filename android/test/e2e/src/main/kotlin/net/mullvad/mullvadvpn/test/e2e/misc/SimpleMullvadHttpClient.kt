@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.test.e2e.constant.DEVICE_LIST_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.PARTNER_ACCOUNT_URL
 import org.json.JSONArray
 import org.json.JSONObject
+import org.junit.jupiter.api.fail
 
 class SimpleMullvadHttpClient(context: Context) {
 
@@ -201,6 +202,10 @@ class SimpleMullvadHttpClient(context: Context) {
 
         private val onErrorResponse = { error: VolleyError ->
             if (error.networkResponse != null) {
+                if (error.networkResponse.statusCode == 429) {
+                    fail("Request failed with response status code 429: Too many requests")
+                }
+
                 Logger.e(
                     "Response returned error message: ${error.message} " +
                         "status code: ${error.networkResponse.statusCode}"
