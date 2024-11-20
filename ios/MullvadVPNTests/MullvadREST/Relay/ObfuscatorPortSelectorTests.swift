@@ -68,7 +68,7 @@ final class ObfuscatorPortSelectorTests: XCTestCase {
         XCTAssertEqual(obfuscationResult.port, .only(5001))
     }
 
-    func testObfuscateUpdOverTcpPortAutomaticIsPort80OnEvenRetryAttempts() throws {
+    func testObfuscateUpdOverTcpPortAutomaticIsRandomPort() throws {
         tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
             state: .udpOverTcp,
             udpOverTcpPort: .automatic
@@ -82,25 +82,8 @@ final class ObfuscatorPortSelectorTests: XCTestCase {
                 connectionAttemptCount: UInt(attempt)
             )
 
-            XCTAssertEqual(obfuscationResult.port, .only(80))
-        }
-    }
-
-    func testObfuscateUpdOverTcpPortAutomaticIsPort5001OnOddRetryAttempts() throws {
-        tunnelSettings.wireGuardObfuscation = WireGuardObfuscationSettings(
-            state: .udpOverTcp,
-            udpOverTcpPort: .automatic
-        )
-
-        try (0 ... 10).filter { !$0.isMultiple(of: 2) }.forEach { attempt in
-            let obfuscationResult = try ObfuscatorPortSelector(
-                relays: sampleRelays
-            ).obfuscate(
-                tunnelSettings: tunnelSettings,
-                connectionAttemptCount: UInt(attempt)
-            )
-
-            XCTAssertEqual(obfuscationResult.port, .only(5001))
+            let validPorts: [RelayConstraint<UInt16>] = [.only(80), .only(5001)]
+            XCTAssertTrue(validPorts.contains(obfuscationResult.port))
         }
     }
 
