@@ -58,4 +58,4 @@ docker run --rm --volumes-from gcloud-config -v ${PWD}:/android gcr.io/google.co
 ```
 
 ## Test artefacts
-Test artefacts are stored on the test device in `/sdcard/Download/test-attachments`. In CI this directory is cleared in between each test run, but note that when running tests locally the directory isn't cleared but already existing files are overwritten.
+Test artefacts are stored on the test device in `/sdcard/Download/test-outputs`. In CI this directory is cleared in between each test run, but note that when running tests locally the directory isn't cleared but already existing files are overwritten.
