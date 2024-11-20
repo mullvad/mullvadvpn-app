@@ -61,7 +61,7 @@ pub fn enable() {
     static INIT_ONCE: Once = Once::new();
 
     INIT_ONCE.call_once(|| {
-        if let Ok(override_backtrace) = env::var(ENABLE_BACKTRACE_VAR).map(|v| v != "0") {
+        if let Ok(override_backtrace) = env::var(ENABLE_BACKTRACE_VAR).map(|v| v == "1") {
             ENABLE_BACKTRACE.store(override_backtrace, Ordering::Release);
         }
 
