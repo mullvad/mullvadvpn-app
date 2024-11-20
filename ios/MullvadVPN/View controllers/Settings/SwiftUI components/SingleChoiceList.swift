@@ -19,7 +19,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     var value: Binding<Value>
     let itemDescription: (Value) -> String
     let customFieldMode: CustomFieldMode
-    
+
     /// The configuration for the field for a custom value row
     enum CustomFieldMode {
         /// The field is a text field into which any text may be typed
@@ -27,7 +27,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         /// The field is a text field configured for numeric input; i.e., the user will see a numeric keyboard
         case numericText
     }
-    
+
     // Assumption: there will be only one custom value input per list.
     // This makes sense if it's something like a port; if we ever need to
     // use this with a type with more than one form of custom value, we will
@@ -41,16 +41,23 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             // this row consists of a constant item with a fixed Value. It may only be selected as is
             case literal(Value)
             // this row consists of a text field into which the user can enter a custom value, which may yield a valid Value. This has accompanying text, and functions to translate between text field contents and the Value. (The fromValue method only needs to give a non-nil value if its input is a custom value that could have come from this row.)
-            case custom(label: String, prompt: String, toValue: (String)->Value?, fromValue: (Value)->String?)
+            case custom(label: String, prompt: String, toValue: (String) -> Value?, fromValue: (Value) -> String?)
         }
+
         let id: Int
         let value: OptValue
     }
-    
+
     // an internal constructor, building the element from basics
-    fileprivate init(title: String, optionSpecs: [OptionSpec.OptValue], value: Binding<Value>, itemDescription: ((Value) -> String)? = nil, customFieldMode: CustomFieldMode = .freeText) {
+    fileprivate init(
+        title: String,
+        optionSpecs: [OptionSpec.OptValue],
+        value: Binding<Value>,
+        itemDescription: ((Value) -> String)? = nil,
+        customFieldMode: CustomFieldMode = .freeText
+    ) {
         self.title = title
-        self.options = optionSpecs.enumerated().map {OptionSpec(id: $0.offset, value: $0.element) }
+        self.options = optionSpecs.enumerated().map { OptionSpec(id: $0.offset, value: $0.element) }
         self.value = value
         self.itemDescription = itemDescription ?? { "\($0)" }
         self.customFieldMode = customFieldMode
@@ -64,16 +71,30 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             itemDescription: itemDescription
         )
     }
-    
-    init(title: String, options: [Value], value: Binding<Value>, itemDescription: ((Value) -> String)? = nil, parseCustomValue: @escaping ((String)->Value?), formatCustomValue: @escaping ((Value)->String?), customLabel: String, customPrompt: String ) {
+
+    init(
+        title: String,
+        options: [Value],
+        value: Binding<Value>,
+        itemDescription: ((Value) -> String)? = nil,
+        parseCustomValue: @escaping ((String) -> Value?),
+        formatCustomValue: @escaping ((Value) -> String?),
+        customLabel: String,
+        customPrompt: String
+    ) {
         self.init(
             title: title,
-            optionSpecs: options.map { .literal($0) } + [.custom(label: customLabel, prompt: customPrompt, toValue: parseCustomValue, fromValue: formatCustomValue)],
+            optionSpecs: options.map { .literal($0) } + [.custom(
+                label: customLabel,
+                prompt: customPrompt,
+                toValue: parseCustomValue,
+                fromValue: formatCustomValue
+            )],
             value: value,
             itemDescription: itemDescription
         )
     }
-    
+
     // Construct a row with arbitrary content and the correct style
     private func row<V: View>(isSelected: Bool, @ViewBuilder items: () -> V) -> some View {
         HStack {
@@ -102,9 +123,14 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             customValueIsFocused = false
         }
     }
-    
+
     // Construct the one row with a custom input field for a custom value
-    private func customRow(label: String, prompt: String, toValue: @escaping (String)->Value?, fromValue: @escaping (Value)->String?) -> some View {
+    private func customRow(
+        label: String,
+        prompt: String,
+        toValue: @escaping (String) -> Value?,
+        fromValue: @escaping (Value) -> String?
+    ) -> some View {
         row(isSelected: value.wrappedValue == toValue(customValue)) {
             Text(label)
             Spacer()
@@ -177,24 +203,3 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     )
     }
 }
-
-//#Preview {
-//    enum ExampleValue: Equatable {
-//        case two
-//        case three
-//        case someNumber(Int)
-//    }
-//    
-//    return StatefulPreviewWrapper(ExampleValue.two) { value in
-//        VStack {
-//        SingleChoiceList(
-//            title: "Test",
-//            optionSpecs: [
-//                .literal(.two),
-//                .literal(.three),
-//                .custom(label: "Number", prompt: "value", { Int($0).map { ExampleValue.someNumber($0) } })
-//            ],
-//            value: value)
-//    }
-//    }
-//}
