@@ -1,7 +1,10 @@
 package net.mullvad.talpid
 
+import android.net.ConnectivityManager
 import android.os.ParcelFileDescriptor
 import androidx.annotation.CallSuper
+import androidx.core.content.getSystemService
+import androidx.lifecycle.lifecycleScope
 import co.touchlab.kermit.Logger
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -29,12 +32,13 @@ open class TalpidVpnService : LifecycleVpnService() {
     private var currentTunConfig: TunConfig? = null
 
     // Used by JNI
-    val connectivityListener = ConnectivityListener()
+    lateinit var connectivityListener: ConnectivityListener
 
     @CallSuper
     override fun onCreate() {
         super.onCreate()
-        connectivityListener.register(this)
+        connectivityListener = ConnectivityListener(getSystemService<ConnectivityManager>()!!)
+        connectivityListener.register(lifecycleScope)
     }
 
     @CallSuper

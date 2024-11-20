@@ -203,6 +203,7 @@ class MullvadVpnService : TalpidVpnService() {
     }
 
     override fun onDestroy() {
+        super.onDestroy()
         Logger.i("MullvadVpnService: onDestroy")
         // Shutting down the daemon gracefully
         managementService.stop()
@@ -214,7 +215,6 @@ class MullvadVpnService : TalpidVpnService() {
         managementService.enterIdle()
 
         Logger.i("Shutdown complete")
-        super.onDestroy()
     }
 
     // If an intent is from the system it is because of the OS starting/stopping the VPN.
