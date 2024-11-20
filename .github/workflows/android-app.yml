@@ -534,6 +534,14 @@ jobs:
         run: echo "timeout=$(( ${{ matrix.test-repeat }} * 10 ))" >> $GITHUB_OUTPUT
         shell: bash
 
+      - name: Fetch environment secrets
+        id: fetch-infra-environment-secrets
+        env:
+          ENVIRONMENT_NAME: ${{ github.event.inputs.e2e_tests_infra_flavor }}
+        run: |
+          SECRET_NAME="ANDROID_$(echo $ENVIRONMENT_NAME | tr '[:lower:]' '[:upper:]')_TEST_ACCOUNT"
+          echo "VALID_TEST_ACCOUNT_NUMBER=${{ secrets[env.SECRET_NAME] }}" >> $GITHUB_OUTPUT
+
       - name: Run instrumented test script
         if: ${{ matrix.test-repeat != 0 }}
         timeout-minutes: ${{ fromJSON(steps.calculate-timeout.outputs.timeout) }}
@@ -543,7 +551,7 @@ jobs:
           TEST_TYPE: e2e
           BILLING_FLAVOR: oss
           INFRA_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor }}
-          VALID_TEST_ACCOUNT_NUMBER: ${{ secrets[format('ANDROID_{0}_TEST_ACCOUNT', toUpper(github.event.inputs.e2e_tests_infra_flavor))] }}
+          VALID_TEST_ACCOUNT_NUMBER: ${{ secrets[github.steps.fetch-infra-environment-secrets.outputs.VALID_TEST_ACCOUNT_NUMBER] }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
