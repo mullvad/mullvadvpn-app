@@ -8,12 +8,17 @@ import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsNavigationScrollbars,
+  SettingsStack,
+} from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import { ProxyForm } from './ProxyForm';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { StyledContent, StyledNavigationScrollbars, StyledSettingsContent } from './SettingsStyles';
 import { SmallButton, SmallButtonColor } from './SmallButton';
 
 export function EditCustomBridge() {
@@ -73,20 +78,20 @@ function CustomBridgeForm() {
               </NavigationItems>
             </NavigationBar>
 
-            <StyledNavigationScrollbars fillContainer>
-              <StyledContent>
+            <SettingsNavigationScrollbars fillContainer>
+              <SettingsContent>
                 <SettingsHeader>
                   <HeaderTitle>{title}</HeaderTitle>
                 </SettingsHeader>
 
-                <StyledSettingsContent>
+                <SettingsStack>
                   <ProxyForm
                     proxy={bridgeSettings.custom}
                     onSave={onSave}
                     onCancel={pop}
                     onDelete={bridgeSettings.custom === undefined ? undefined : showDeleteDialog}
                   />
-                </StyledSettingsContent>
+                </SettingsStack>
 
                 <ModalAlert
                   isOpen={deleteDialogVisible}
@@ -110,8 +115,8 @@ function CustomBridgeForm() {
                     'Deleting the custom bridge will take you back to the select location view and the Automatic option will be selected instead.',
                   )}
                 />
-              </StyledContent>
-            </StyledNavigationScrollbars>
+              </SettingsContent>
+            </SettingsNavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
       </Layout>
