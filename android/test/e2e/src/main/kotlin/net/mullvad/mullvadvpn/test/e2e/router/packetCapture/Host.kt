@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.test.e2e.model
+package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
 data class Host(val ipAddress: String, val port: Int) {
     companion object {

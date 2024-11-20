@@ -96,7 +96,7 @@ class AppInteractor(
     }
 
     fun extractInIpv4Address(): String {
-        device.findObjectWithTimeout(By.res("location_info_test_tag")).click()
+        device.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
         val inString =
             device
                 .findObjectWithTimeout(
@@ -105,7 +105,7 @@ class AppInteractor(
                 )
                 .text
 
-        val extractedIpAddress = inString.split(" ")[1].split(":")[0]
+        val extractedIpAddress = inString.split(" ")[0].split(":")[0]
         return extractedIpAddress
     }
 
