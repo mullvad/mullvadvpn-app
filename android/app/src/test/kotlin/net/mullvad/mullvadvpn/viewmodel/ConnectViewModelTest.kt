@@ -17,7 +17,6 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
@@ -79,6 +78,7 @@ class ConnectViewModelTest {
     // Flows
     private val tunnelState = MutableStateFlow<TunnelState>(TunnelState.Disconnected())
     private val selectedRelayItemFlow = MutableStateFlow<String?>(null)
+    private val lastKnownLocationFlow = MutableStateFlow<GeoIpLocation?>(null)
 
     // Out Of Time Use Case
     private val outOfTimeUseCase: OutOfTimeUseCase = mockk()
@@ -104,7 +104,8 @@ class ConnectViewModelTest {
 
         every { mockConnectionProxy.tunnelState } returns tunnelState
 
-        every { mockLastKnownLocationUseCase.lastKnownDisconnectedLocation } returns flowOf(null)
+        every { mockLastKnownLocationUseCase.lastKnownDisconnectedLocation } returns
+            lastKnownLocationFlow
 
         every { mockLocation.country } returns "dummy country"
 
@@ -142,15 +143,14 @@ class ConnectViewModelTest {
     }
 
     @Test
-    fun `given change in tunnelRealState uiState should emit new tunnelRealState`() = runTest {
-        val tunnelRealStateTestItem =
-            TunnelState.Connected(mockk(relaxed = true), null, emptyList())
+    fun `given change in tunnel state uiState should emit new tunnel state`() = runTest {
+        val tunnelStateTestItem = TunnelState.Connected(mockk(relaxed = true), null, emptyList())
 
         viewModel.uiState.test {
             assertEquals(ConnectUiState.INITIAL, awaitItem())
-            tunnelState.emit(tunnelRealStateTestItem)
+            tunnelState.emit(tunnelStateTestItem)
             val result = awaitItem()
-            assertEquals(tunnelRealStateTestItem, result.tunnelState)
+            assertEquals(tunnelStateTestItem, result.tunnelState)
         }
     }
 
@@ -326,4 +326,21 @@ class ConnectViewModelTest {
         // Assert
         assertIs<ConnectViewModel.UiSideEffect.OutOfTime>(deferred.await())
     }
+
+    @Test
+    fun `given tunnel state error should emit last known disconnected location as location`() =
+        runTest {
+            // Arrange
+            val tunnel = TunnelState.Error(mockk(relaxed = true))
+            val lastKnownLocation: GeoIpLocation = mockk(relaxed = true)
+            lastKnownLocationFlow.emit(lastKnownLocation)
+            tunnelState.emit(tunnel)
+
+            // Act, Assert
+            viewModel.uiState.test {
+                assertEquals(ConnectUiState.INITIAL, awaitItem())
+                val result = awaitItem()
+                assertEquals(lastKnownLocation, result.location)
+            }
+        }
 }
