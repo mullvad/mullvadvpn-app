@@ -22,6 +22,10 @@ on:
       user_supplied_test_name:
         description: 'Only run test case/suite'
         required: false
+      commit_hash:
+        description: >
+         Specifies the repository commit to use; defaults to the current event's commit if not provided.
+        required: false
 jobs:
   set-up-outputs-directory:
     name: Set up outputs directory
