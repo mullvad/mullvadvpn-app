@@ -7,9 +7,11 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import { RedButton } from './AppButton';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import {
+  ButtonStack,
   Footer,
   Layout,
   SettingsContainer,
@@ -19,7 +21,7 @@ import {
 } from './Layout';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { StyledCellIcon, StyledQuitButton } from './SettingsStyles';
+import { StyledCellIcon } from './SettingsStyles';
 
 export default function Support() {
   const history = useHistory();
@@ -91,7 +93,9 @@ export default function Support() {
                   )}
                 </SettingsStack>
                 <Footer>
-                  <QuitButton />
+                  <ButtonStack>
+                    <QuitButton />
+                  </ButtonStack>
                 </Footer>
               </SettingsContent>
             </SettingsNavigationScrollbars>
@@ -278,10 +282,10 @@ function QuitButton() {
   const tunnelState = useSelector((state) => state.connection.status);
 
   return (
-    <StyledQuitButton onClick={quit}>
+    <RedButton onClick={quit}>
       {tunnelState.state === 'disconnected'
         ? messages.gettext('Quit')
         : messages.gettext('Disconnect & quit')}
-    </StyledQuitButton>
+    </RedButton>
   );
 }

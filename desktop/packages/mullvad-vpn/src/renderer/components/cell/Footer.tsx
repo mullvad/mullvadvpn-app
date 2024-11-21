@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { measurements, spacings, tinyText } from '../common-styles';
+import { spacings, tinyText } from '../common-styles';
 
 export const CellFooter = styled.div({
-  margin: `${spacings.spacing1} ${measurements.viewMargin} 0px`,
+  margin: `${spacings.spacing1} ${spacings.spacing6} 0px`,
 });
 
 export const CellFooterText = styled.span(tinyText, {

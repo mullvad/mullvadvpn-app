@@ -27,7 +27,7 @@ const StyledInputContainer = styled.div({
   alignItems: 'center',
   flex: 1,
   backgroundColor: colors.blue,
-  paddingLeft: measurements.viewMargin,
+  paddingLeft: measurements.horizontalViewMargin,
   height: measurements.rowMinHeight,
 });
 
@@ -35,7 +35,7 @@ const StyledHeaderLabel = styled(Cell.Label)({
   display: 'block',
   flex: 1,
   backgroundColor: colors.blue,
-  paddingLeft: measurements.viewMargin,
+  paddingLeft: measurements.horizontalViewMargin,
   margin: 0,
   height: measurements.rowMinHeight,
   lineHeight: measurements.rowMinHeight,
