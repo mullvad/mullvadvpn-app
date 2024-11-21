@@ -169,7 +169,9 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
 
     // Construct a literal row for a specific literal value
     private func literalRow(_ item: Value) -> some View {
-        row(isSelected: value.wrappedValue == item) {
+        row(
+            isSelected: value.wrappedValue == item && !customValueIsFocused
+        ) {
             Text(verbatim: itemDescription(item))
             Spacer()
         }
@@ -186,7 +188,9 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         toValue: @escaping (String) -> Value?,
         fromValue: @escaping (Value) -> String?
     ) -> some View {
-        row(isSelected: value.wrappedValue == toValue(customValue)) {
+        row(
+            isSelected: value.wrappedValue == toValue(customValue) || customValueIsFocused
+        ) {
             Text(label)
             Spacer()
             TextField("value", text: $customValue, prompt: Text(prompt))
