@@ -1,7 +1,7 @@
 use std::{
     ffi::{OsStr, OsString},
     io,
-    path::{Path, PathBuf},
+    path::Path,
     time::Duration,
 };
 use windows_service::{
@@ -36,10 +36,6 @@ pub enum Error {
     /// Failed to check service status
     #[error("Failed to query service status")]
     QueryServiceStatus(#[source] windows_service::Error),
-
-    /// Failed to open service config
-    #[error("Failed to retrieve service config")]
-    QueryServiceConfig(#[source] windows_service::Error),
 
     /// Failed to install ST service
     #[error("Failed to install split tunnel driver")]
@@ -82,15 +78,7 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
         }
     };
 
-    if expected_syspath != get_driver_binpath(&service)? {
-        log::debug!("ST driver is already installed");
-        return start_and_wait_for_service(&service);
-    }
-
-    log::debug!("Replacing ST driver due to unexpected path");
-
-    remove_device(service)?;
-    install_driver(&scm, &expected_syspath)
+    start_and_wait_for_service(&service)
 }
 
 pub fn stop_driver_service() -> Result<(), Error> {
@@ -117,25 +105,6 @@ pub fn stop_driver_service() -> Result<(), Error> {
 fn stop_service(service: &Service) -> Result<(), Error> {
     let _ = service.stop();
     wait_for_status(service, ServiceState::Stopped)
-}
-
-fn remove_device(service: Service) -> Result<(), Error> {
-    reset_driver(&service)?;
-    stop_service(&service)?;
-    let _ = service.delete();
-    Ok(())
-}
-
-fn reset_driver(service: &Service) -> Result<(), Error> {
-    let status = service.query_status().map_err(Error::QueryServiceStatus)?;
-
-    if status.current_state == ServiceState::Running {
-        let old_handle =
-            super::driver::DeviceHandle::new_handle_only().map_err(Error::OpenHandle)?;
-        old_handle.reset().map_err(Error::ResetDriver)?;
-    }
-
-    Ok(())
 }
 
 fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
@@ -196,9 +165,4 @@ fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), 
     }
 
     Ok(())
-}
-
-fn get_driver_binpath(service: &Service) -> Result<PathBuf, Error> {
-    let config = service.query_config().map_err(Error::QueryServiceConfig)?;
-    Ok(config.executable_path)
 }
