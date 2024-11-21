@@ -132,7 +132,7 @@ class TunnelControlPage: Page {
         // Should do four connection attempts but due to UI bug sometimes only two are displayed, sometimes all four
         if connectionAttempts.count == 4 { // Expected retries flow
             for (attemptIndex, attempt) in connectionAttempts.enumerated() {
-                if attemptIndex == 0 || attemptIndex == 1 || attemptIndex == 2 {
+                if attemptIndex < 3 {
                     XCTAssertEqual(attempt.protocolName, "UDP")
                 } else if attemptIndex == 3 {
                     XCTAssertEqual(attempt.protocolName, "TCP")
