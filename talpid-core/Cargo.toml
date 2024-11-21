@@ -47,8 +47,7 @@ duct = "0.13"
 [target.'cfg(target_os = "macos")'.dependencies]
 async-trait = "0.1"
 duct = "0.13"
-#pfctl = "0.6.1"
-pfctl = { path = "../../pfctl-rs" }
+pfctl = "0.6.1"
 subslice = "0.2"
 system-configuration = "0.5.1"
 hickory-proto = { workspace = true }

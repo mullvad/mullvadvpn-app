@@ -15,6 +15,8 @@ workspace = true
 api-override = ["mullvad-api/api-override"]
 
 [dependencies]
+anyhow = "*" # TODO: do we want this?
+surge-ping = "0.8.0" # TODO: workspace dep?
 chrono = { workspace = true }
 thiserror = { workspace = true }
 either = "1.11"
@@ -27,6 +29,7 @@ serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
 tokio = { workspace = true, features =  ["fs", "io-util", "rt-multi-thread", "sync", "time"] }
 tokio-stream = "0.1"
+socket2 = { workspace = true }
 
 mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 mullvad-types = { path = "../mullvad-types" }
@@ -40,6 +43,8 @@ talpid-future = { path = "../talpid-future" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }
+
+leak-checker = { path = "../leak-checker" }
 
 clap = { workspace = true }
 log-panics = "2.0.0"
