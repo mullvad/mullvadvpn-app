@@ -27,6 +27,6 @@ pub async fn spawn_monitor(
     let mut monitor_handle = MonitorHandle::new(connectivity_listener);
     monitor_handle
         .connectivity_listener
-        .set_connectivity_listener(sender)?;
+        .set_connectivity_listener(sender);
     Ok(monitor_handle)
 }
