@@ -35,7 +35,7 @@ const Subtitle = styled.span({
   fontFamily: 'Open Sans',
   fontSize: '14px',
   lineHeight: '20px',
-  margin: `0 ${measurements.viewMargin}`,
+  margin: `0 ${measurements.horizontalViewMargin}`,
   color: colors.white40,
   textAlign: 'center',
 });

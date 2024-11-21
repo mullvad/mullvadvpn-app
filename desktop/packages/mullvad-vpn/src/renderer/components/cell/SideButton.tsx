@@ -7,8 +7,8 @@ import { buttonColor, ButtonColors } from './styles';
 export const SideButton = styled.button<ButtonColors>(buttonColor, {
   position: 'relative',
   alignSelf: 'stretch',
-  paddingLeft: measurements.viewMargin,
-  paddingRight: measurements.viewMargin,
+  paddingLeft: measurements.horizontalViewMargin,
+  paddingRight: measurements.horizontalViewMargin,
   border: 0,
 
   '&&::before': {
