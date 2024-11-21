@@ -34,8 +34,7 @@ class TunnelUDPTCPObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchin
     init(tunnelManager: TunnelManager) {
         super.init(
             tunnelManager: tunnelManager,
-            keyPath: \.udpOverTcpPort,
-            tunnelManager.settings.wireGuardObfuscation.udpOverTcpPort
+            keyPath: \.udpOverTcpPort
         )
     }
 }

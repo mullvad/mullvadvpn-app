@@ -19,10 +19,10 @@ class TunnelObfuscationSettingsWatchingObservableObject<T: Equatable>: Observabl
 
     @Published var value: T
 
-    init(tunnelManager: TunnelManager, keyPath: WritableKeyPath<WireGuardObfuscationSettings, T>, _ initialValue: T) {
+    init(tunnelManager: TunnelManager, keyPath: WritableKeyPath<WireGuardObfuscationSettings, T>) {
         self.tunnelManager = tunnelManager
         self.keyPath = keyPath
-        self.value = initialValue
+        self.value = tunnelManager.settings.wireGuardObfuscation[keyPath: keyPath]
         tunnelObserver =
             TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] _, newSettings in
                 guard let self else { return }
