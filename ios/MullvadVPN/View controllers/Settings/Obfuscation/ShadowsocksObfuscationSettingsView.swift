@@ -53,7 +53,9 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 comment: ""
             ),
             customFieldMode: .numericText
-        )
+        ).onDisappear {
+            viewModel.commit()
+        }
     }
 }
 
