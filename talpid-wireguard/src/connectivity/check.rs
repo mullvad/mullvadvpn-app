@@ -78,8 +78,8 @@ impl Strategy for Cancellable {
 impl Check<Timeout> {
     pub fn new(
         addr: Ipv4Addr,
-        retry_attempt: u32,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
+        retry_attempt: u32,
     ) -> Result<Check<Timeout>, Error> {
         Ok(Check {
             conn_state: ConnState::new(Instant::now(), Default::default()),

@@ -218,9 +218,9 @@ impl WireguardMonitor {
         let gateway = config.ipv4_gateway;
         let (mut connectivity_monitor, pinger_tx) = connectivity::Check::new(
             gateway,
-            args.retry_attempt,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             iface_name.clone(),
+            args.retry_attempt,
         )
         .map_err(Error::ConnectivityMonitorError)?
         .with_cancellation();
