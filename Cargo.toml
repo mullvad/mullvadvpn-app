@@ -9,6 +9,7 @@ rust-version = "1.80.0"
 resolver = "2"
 members = [
     "android/translations-converter",
+    "desktop/packages/nseventforwarder",
     "mullvad-api",
     "mullvad-cli",
     "mullvad-daemon",

@@ -60,7 +60,7 @@ const config = {
     'node_modules/',
     '!node_modules/grpc-tools',
     '!node_modules/@types',
-    '!node_modules/nseventforwarder/target',
+    '!node_modules/nseventforwarder/debug',
   ],
 
   // Make sure that all files declared in "extraResources" exists and abort if they don't.

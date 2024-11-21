@@ -1,7 +1,21 @@
-[workspace]
-members = ["crates/nseventforwarder"]
-resolver = "2"
+[package]
+name = "nseventforwarder"
+description = "Node.js module for monitoring NSEvents"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+exclude = ["index.node"]
 
-[profile.release]
-strip = true    # Automatically strip symbols from the binary.
-opt-level = "z" # Optimize for size.
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+path = "nseventforwarder-rs/lib.rs"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+neon = "1"
+block2 = "0.5.1"
+objc2-app-kit = { version = "0.2.2", features = ["NSEvent", "block2"] }
