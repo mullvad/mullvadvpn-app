@@ -29,7 +29,7 @@ use config::TEST_CONFIG;
 use helpers::{get_app_env, install_app};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
-use test_rpc::ServiceClient;
+use test_rpc::{mullvad_daemon::MullvadClientVersion, ServiceClient};
 
 const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
 
@@ -76,14 +76,29 @@ pub enum Error {
 }
 
 /// Get a list of all tests, sorted by priority.
-pub fn get_tests() -> Vec<&'static TestMetadata> {
-    let mut tests: Vec<_> = inventory::iter::<TestMetadata>().collect();
+pub fn get_tests() -> Vec<TestMetadata> {
+    let mut tests: Vec<_> = inventory::iter::<TestMetadata>().cloned().collect();
     tests.sort_by_key(|test| test.priority.unwrap_or(0));
-    tests
+    let test_upgrade_app = TestMetadata {
+        priority: None,
+        name: "test_upgrade_app",
+        command: "test_upgrade_app",
+        targets: &[],
+        mullvad_client_version: MullvadClientVersion::None,
+        func: |_, _, _| {
+            Box::pin(async {
+                unreachable!("`test_upgrade_app` should not be executed from this function pointer")
+            })
+        },
+    };
+    [vec![test_upgrade_app], tests].concat()
 }
 
-pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<&TestMetadata>, anyhow::Error> {
-    let tests = get_tests();
+/// Return all tests with names matching the input argument. Filters out tests that are skipped for
+/// the target platform and `test_upgrade_app`, which is handle separately.
+pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata>, anyhow::Error> {
+    let mut tests: Vec<_> = inventory::iter::<TestMetadata>().cloned().collect();
+    tests.sort_by_key(|test| test.priority.unwrap_or(0));
 
     let mut tests = if specified_tests.is_empty() {
         // Keep all tests
