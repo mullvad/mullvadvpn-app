@@ -78,7 +78,13 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             // this row consists of a constant item with a fixed Value. It may only be selected as is
             case literal(Value)
             // this row consists of a text field into which the user can enter a custom value, which may yield a valid Value. This has accompanying text, and functions to translate between text field contents and the Value. (The fromValue method only needs to give a non-nil value if its input is a custom value that could have come from this row.)
-            case custom(label: String, prompt: String, toValue: (String) -> Value?, fromValue: (Value) -> String?)
+            case custom(
+                label: String,
+                prompt: String,
+                legend: String?,
+                toValue: (String) -> Value?,
+                fromValue: (Value) -> String?
+            )
         }
 
         let id: Int
@@ -126,6 +132,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - formatCustomValue: A function that, when passed a `Value` containing user-entered custom data, formats that data into a string, which should match what the user would have entered. This function can expect to only be called for the custom value, and should return `nil` in the event of its argument not being a valid custom value.
     ///   - customLabel: The caption to display in the custom row, next to the text field.
     ///   - customPrompt: The text to display, greyed, in the text field when it is empty. This also serves to set the width of the field, and should be right-padded with spaces as appropriate.
+    ///   - customLegend: Optional text to display below the custom field, i.e., to explain sensible values
     ///   - customFieldMode: An enumeration that sets the mode of the custom value entry text field. If this is `.numericText`, the data is expected to be a decimal number, and the device will present a numeric keyboard when the field is focussed. If it is `.freeText`,  a standard alphanumeric keyboard will be presented. If not specified, this defaults to `.freeText`.
     init(
         title: String,
@@ -136,6 +143,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         formatCustomValue: @escaping ((Value) -> String?),
         customLabel: String,
         customPrompt: String,
+        customLegend: String? = nil,
         customFieldMode: CustomFieldMode = .freeText
     ) {
         self.init(
@@ -143,6 +151,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             optionSpecs: options.map { .literal($0) } + [.custom(
                 label: customLabel,
                 prompt: customPrompt,
+                legend: customLegend,
                 toValue: parseCustomValue,
                 fromValue: formatCustomValue
             )],
@@ -199,8 +208,9 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 .keyboardType(customFieldMode == .numericText ? .numberPad : .default)
                 .fixedSize()
                 .padding(4)
-                .foregroundColor(.black)
-                .background(.white)
+                .foregroundColor(Color(UIColor.TextField.textColor))
+                .background(Color(UIColor.TextField.backgroundColor))
+                .cornerRadius(4.0)
                 .focused($customValueIsFocused)
                 .onChange(of: customValue) { newValue in
                     if let v = toValue(customValue) {
@@ -231,6 +241,17 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         }
     }
 
+    private func subtitleRow(_ text: String) -> some View {
+        HStack {
+            Text(text)
+                .font(.callout)
+                .opacity(0.6)
+            Spacer()
+        }
+        .padding(.horizontal, UIMetrics.SettingsCell.layoutMargins.leading)
+        .padding(.vertical, 4)
+    }
+
     var body: some View {
         VStack(spacing: UIMetrics.TableView.separatorHeight) {
             HStack {
@@ -243,8 +264,11 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 switch opt.value {
                 case let .literal(v):
                     literalRow(v)
-                case let .custom(label, prompt, toValue, fromValue):
+                case let .custom(label, prompt, legend, toValue, fromValue):
                     customRow(label: label, prompt: prompt, toValue: toValue, fromValue: fromValue)
+                    if let legend {
+                        subtitleRow(legend)
+                    }
                 }
             }
             Spacer()
@@ -275,7 +299,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         parseCustomValue: { Int($0).map { ExampleValue.someNumber($0) } },
         formatCustomValue: { if case let .someNumber(n) = $0 { "\(n)" } else { nil } },
         customLabel: "Custom",
-        customPrompt: "Number"
+        customPrompt: "Number",
+        customLegend: "The legend goes here"
     )
     }
 }
