@@ -120,7 +120,7 @@ pub struct Summary {
 impl Summary {
     /// Read test summary from `path`.
     pub async fn parse_log<P: AsRef<Path>>(
-        all_tests: &[crate::tests::TestDesciption],
+        all_tests: &[crate::tests::TestDescription],
         path: P,
     ) -> Result<Summary, Error> {
         let file = fs::OpenOptions::new()
@@ -186,7 +186,7 @@ impl Summary {
 /// be parsed, we should not abort the entire summarization.
 pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     // Collect test details
-    let tests = crate::tests::get_tests();
+    let tests = crate::tests::get_test_descriptions();
 
     let mut summaries = vec![];
     let mut failed_to_parse = vec![];

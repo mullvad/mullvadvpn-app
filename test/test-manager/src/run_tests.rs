@@ -139,6 +139,11 @@ pub async fn run(
         logger: Logger::get_or_init(),
     };
 
+    // We need to handle the upgrade test separately since it expects the daemon to *not* be
+    // installed, which is done by `tests::prepare_daemon`, and only runs with
+    // `app_package_to_upgrade_from_filename` set.
+    // TODO: Extend `TestMetadata` and the `test_function` macro to specify if what daemon state is
+    // expected, and to allow for skipping tests on arbitrary conditions.
     if TEST_CONFIG.app_package_to_upgrade_from_filename.is_some() {
         test_handler
             .run_test(
