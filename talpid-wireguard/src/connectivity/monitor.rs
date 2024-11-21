@@ -97,7 +97,7 @@ mod test {
             mock_checker(start, Box::new(pinger)).with_cancellation()
         };
         std::thread::spawn(move || {
-            let start_result = checker.establish_connectivity(0, &tunnel);
+            let start_result = checker.establish_connectivity(&tunnel);
             result_tx.send(start_result).unwrap();
             // Pointer dance
             let tunnel = Arc::new(Mutex::new(Some(tunnel)));
@@ -153,7 +153,7 @@ mod test {
                 let start = now.checked_sub(Duration::from_secs(1)).unwrap();
                 mock_checker(start, Box::new(pinger)).with_cancellation()
             };
-            let start_result = checker.establish_connectivity(0, &tunnel);
+            let start_result = checker.establish_connectivity(&tunnel);
             result_tx.send(start_result).unwrap();
             // Pointer dance
             let _tunnel = Arc::new(Mutex::new(Some(tunnel)));

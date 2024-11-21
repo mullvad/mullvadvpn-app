@@ -220,6 +220,7 @@ impl WireguardMonitor {
             gateway,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             iface_name.clone(),
+            args.retry_attempt,
         )
         .map_err(Error::ConnectivityMonitorError)?
         .with_cancellation();
@@ -323,7 +324,7 @@ impl WireguardMonitor {
             let connectivity_check = tokio::task::spawn_blocking(move || {
                 let lock = cloned_tunnel.blocking_lock();
                 let tunnel = lock.as_ref().expect("The tunnel was dropped unexpectedly");
-                match connectivity_monitor.establish_connectivity(args.retry_attempt, tunnel) {
+                match connectivity_monitor.establish_connectivity(tunnel) {
                     Ok(true) => Ok(connectivity_monitor),
                     Ok(false) => {
                         log::warn!("Timeout while checking tunnel connection");
@@ -428,9 +429,10 @@ impl WireguardMonitor {
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
-        let (connectivity_check, pinger_tx) = connectivity::Check::new(config.ipv4_gateway)
-            .map_err(Error::ConnectivityMonitorError)?
-            .with_cancellation();
+        let (connectivity_check, pinger_tx) =
+            connectivity::Check::new(config.ipv4_gateway, args.retry_attempt)
+                .map_err(Error::ConnectivityMonitorError)?
+                .with_cancellation();
 
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,

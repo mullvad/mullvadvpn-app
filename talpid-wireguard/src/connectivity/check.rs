@@ -39,6 +39,7 @@ pub struct Check<Strategy = Timeout> {
     conn_state: ConnState,
     ping_state: PingState,
     strategy: Strategy,
+    retry_attempt: u32,
 }
 
 // Define the type state of [Check]
@@ -58,7 +59,7 @@ impl Strategy for Timeout {
 }
 
 /// A cancellable [Check] may be cancelled before it will time out by sending
-/// a signal on the channel returned by [Check::with_canellation]. Otherwise,
+/// a signal on the channel returned by [Check::with_cancellation]. Otherwise,
 /// it behaves as [Timeout].
 pub struct Cancellable {
     close_receiver: mpsc::Receiver<()>,
@@ -78,6 +79,7 @@ impl Check<Timeout> {
     pub fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
+        retry_attempt: u32,
     ) -> Result<Check<Timeout>, Error> {
         Ok(Check {
             conn_state: ConnState::new(Instant::now(), Default::default()),
@@ -87,6 +89,7 @@ impl Check<Timeout> {
                 interface,
             )?,
             strategy: Timeout,
+            retry_attempt,
         })
     }
 
@@ -100,6 +103,7 @@ impl Check<Timeout> {
             strategy: Cancellable {
                 close_receiver: cancellation_rx,
             },
+            retry_attempt: self.retry_attempt,
         };
         (check, cancellation_tx)
     }
@@ -112,6 +116,7 @@ impl Check<Timeout> {
             conn_state,
             ping_state,
             strategy: Timeout,
+            retry_attempt: 0,
         }
     }
 }
@@ -119,18 +124,14 @@ impl Check<Timeout> {
 impl<S: Strategy> Check<S> {
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successful at the start of a connection.
-    pub fn establish_connectivity(
-        &mut self,
-        retry_attempt: u32,
-        tunnel_handle: &TunnelType,
-    ) -> Result<bool, Error> {
+    pub fn establish_connectivity(&mut self, tunnel_handle: &TunnelType) -> Result<bool, Error> {
         // Send initial ping to prod WireGuard into connecting.
         self.ping_state
             .pinger
             .send_icmp()
             .map_err(Error::PingError)?;
         self.establish_connectivity_inner(
-            retry_attempt,
+            self.retry_attempt,
             ESTABLISH_TIMEOUT,
             ESTABLISH_TIMEOUT_MULTIPLIER,
             MAX_ESTABLISH_TIMEOUT,
@@ -147,7 +148,7 @@ impl<S: Strategy> Check<S> {
         self.strategy.should_shut_down(timeout)
     }
 
-    pub(crate) fn establish_connectivity_inner(
+    fn establish_connectivity_inner(
         &mut self,
         retry_attempt: u32,
         timeout_initial: Duration,
