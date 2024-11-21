@@ -143,7 +143,6 @@ jobs:
       # TEST: the path is not updated?
       - name: Dump PATH
         if: ${{ matrix.config.arch == 'arm64' }}
-        shell: bash
         run: |
           echo "PATH: $env:PATH"
           echo "GITHUB_PATH:"
@@ -151,7 +150,6 @@ jobs:
 
       - name: Install Git
         if: ${{ matrix.config.arch == 'arm64' }}
-        shell: bash
         run: |
           choco install git -y
           #echo "C:\Program Files\Git\bin" >> $GITHUB_PATH
@@ -159,7 +157,6 @@ jobs:
 
       - name: Dump PATH Environment Variable
         if: ${{ matrix.config.arch == 'arm64' }}
-        shell: bash
         run: echo $env:PATH
 
       - name: Checkout submodules
