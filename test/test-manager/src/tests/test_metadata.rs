@@ -4,7 +4,6 @@ use test_rpc::{meta::Os, mullvad_daemon::MullvadClientVersion};
 #[derive(Clone)]
 pub struct TestMetadata {
     pub name: &'static str,
-    pub command: &'static str,
     pub targets: &'static [Os],
     pub mullvad_client_version: MullvadClientVersion,
     pub func: TestWrapperFunction,

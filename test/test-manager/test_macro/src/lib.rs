@@ -187,7 +187,6 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
     quote! {
         inventory::submit!(crate::tests::test_metadata::TestMetadata {
             name: stringify!(#func_name),
-            command: stringify!(#func_name),
             targets: &[#targets],
             mullvad_client_version: #function_mullvad_version,
             func: #wrapper_closure,
