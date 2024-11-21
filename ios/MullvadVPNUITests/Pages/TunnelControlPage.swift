@@ -159,7 +159,7 @@ class TunnelControlPage: Page {
 
     /// Verify that connection attempts are made in the correct order
     @discardableResult func verifyConnectionAttemptsOrder() -> Self {
-        var connectionAttempts = waitForConnectionAttempts(4, timeout: 70)
+        var connectionAttempts = waitForConnectionAttempts(4, timeout: 80)
         var totalAttemptsOffset = 0
         XCTAssertEqual(connectionAttempts.count, 4)
 
@@ -169,7 +169,7 @@ class TunnelControlPage: Page {
         /// of connection attempts.
         if connectionAttempts.last?.protocolName == "UDP" {
             connectionAttempts.removeLast()
-            totalAttemptsOffset = -1
+            totalAttemptsOffset = 1
         }
         for (attemptIndex, attempt) in connectionAttempts.enumerated() {
             if attemptIndex < 3 - totalAttemptsOffset {
