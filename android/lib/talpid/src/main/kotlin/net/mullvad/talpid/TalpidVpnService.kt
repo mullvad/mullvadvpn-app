@@ -41,12 +41,6 @@ open class TalpidVpnService : LifecycleVpnService() {
         connectivityListener.register(lifecycleScope)
     }
 
-    @CallSuper
-    override fun onDestroy() {
-        super.onDestroy()
-        connectivityListener.unregister()
-    }
-
     fun openTun(config: TunConfig): CreateTunResult {
         synchronized(this) {
             val tunStatus = activeTunStatus
