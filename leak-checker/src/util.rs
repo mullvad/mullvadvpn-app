@@ -1,3 +1,4 @@
+use eyre::eyre;
 use match_cfg::match_cfg;
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]

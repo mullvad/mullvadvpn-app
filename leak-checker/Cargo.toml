@@ -24,7 +24,7 @@ clap = { version = "*", features = ["derive"] }
 tokio = { workspace = true, features = ["full"] }
 
 [target.'cfg(unix)'.dependencies]
-nix = { version = "0.29.0", features = ["net"] }
+nix = { version = "0.29.0", features = ["net", "socket", "uio"] }
 
 [target.'cfg(windows)'.dependencies]
 windows-sys.workspace = true

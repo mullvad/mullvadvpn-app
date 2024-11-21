@@ -13,5 +13,5 @@ workspace = true
 [target.'cfg(unix)'.dependencies]
 libc = "0.2"
 talpid-types = { path = "../talpid-types" }
-socket2 = { version = "0.5.3", features = ["all"] }
+socket2 = { workspace = true, features = ["all"] }
 log = { workspace = true }

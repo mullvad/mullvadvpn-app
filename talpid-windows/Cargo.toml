@@ -12,7 +12,7 @@ workspace = true
 
 [target.'cfg(windows)'.dependencies]
 thiserror = { workspace = true }
-socket2 = { version = "0.5.3" }
+socket2 = { workspace = true }
 futures = { workspace = true }
 
 talpid-types = { path = "../talpid-types" }
