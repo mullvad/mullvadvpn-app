@@ -21,15 +21,6 @@ import net.mullvad.talpid.util.defaultNetworkFlow
 import net.mullvad.talpid.util.networkFlow
 
 class ConnectivityListener(val connectivityManager: ConnectivityManager) {
-    // Used by JNI
-    var senderAddress = 0L
-        set(value) {
-            if (value == 0L) {
-                destroySender(field)
-            }
-            field = value
-        }
-
     private lateinit var _isConnected: StateFlow<Boolean>
     // Used by JNI
     val isConnected
@@ -47,16 +38,12 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
         _isConnected =
             hasInternetCapability()
                 .onEach {
-                    if (senderAddress != 0L) {
-                        notifyConnectivityChange(it, senderAddress)
-                    }
+                    notifyConnectivityChange(it)
                 }
                 .stateIn(scope, SharingStarted.Eagerly, false)
     }
 
-    fun unregister() {
-        senderAddress = 0L
-    }
+    fun unregister() {}
 
     private fun dnsServerChanges(): Flow<List<InetAddress>> =
         connectivityManager
@@ -92,7 +79,5 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
             .distinctUntilChanged()
     }
 
-    private external fun notifyConnectivityChange(isConnected: Boolean, senderAddress: Long)
-
-    private external fun destroySender(senderAddress: Long)
+    private external fun notifyConnectivityChange(isConnected: Boolean)
 }

@@ -5,13 +5,15 @@ use jnix::{
     jni::{
         self,
         objects::{GlobalRef, JObject, JValue},
-        signature::{JavaType, Primitive},
-        sys::{jboolean, jlong, JNI_TRUE},
+        sys::{jboolean, JNI_TRUE},
         JNIEnv, JavaVM,
     },
     FromJava, JnixEnv,
 };
-use std::{net::IpAddr, sync::Arc};
+use std::{
+    net::IpAddr,
+    sync::{Arc, Mutex},
+};
 use talpid_types::{android::AndroidContext, net::Connectivity, ErrorExt};
 
 /// Error related to Android connectivity monitor
@@ -42,9 +44,10 @@ pub enum Error {
 #[derive(Clone)]
 pub struct ConnectivityListener {
     jvm: Arc<JavaVM>,
-    class: GlobalRef,
-    object: GlobalRef,
+    android_listener: GlobalRef,
 }
+
+static CONNECTIVITY_TX: Mutex<Option<UnboundedSender<Connectivity>>> = Mutex::new(None);
 
 impl ConnectivityListener {
     /// Create a new connectivity listener
@@ -56,28 +59,18 @@ impl ConnectivityListener {
                 .map_err(Error::AttachJvmToThread)?,
         );
 
-        let get_connectivity_listener_method = env
-            .get_method_id(
-                &env.get_class("net/mullvad/talpid/TalpidVpnService"),
+        let result = env
+            .call_method(
+                android_context.vpn_service.as_obj(),
                 "getConnectivityListener",
                 "()Lnet/mullvad/talpid/ConnectivityListener;",
-            )
-            .map_err(|cause| {
-                Error::FindMethod("MullvadVpnService", "getConnectivityListener", cause)
-            })?;
-
-        let result = env
-            .call_method_unchecked(
-                android_context.vpn_service.as_obj(),
-                get_connectivity_listener_method,
-                JavaType::Object("Lnet/mullvad/talpid/ConnectivityListener;".to_owned()),
                 &[],
             )
             .map_err(|cause| {
                 Error::CallMethod("MullvadVpnService", "getConnectivityListener", cause)
             })?;
 
-        let object = match result {
+        let android_listener = match result {
             JValue::Object(object) => env.new_global_ref(object).map_err(Error::CreateGlobalRef)?,
             value => {
                 return Err(Error::InvalidMethodResult(
@@ -88,43 +81,19 @@ impl ConnectivityListener {
             }
         };
 
-        let class = env.get_class("net/mullvad/talpid/ConnectivityListener");
-
         Ok(ConnectivityListener {
             jvm: android_context.jvm,
-            class,
-            object,
+            android_listener,
         })
     }
 
-    /// Register a channel that receives changes about the offline state
+    /// Register a channel that receives changes about the offline state.
     ///
     /// # Note
     ///
     /// The listener is shared by all instances of the struct.
-    pub fn set_connectivity_listener(
-        &mut self,
-        sender: UnboundedSender<Connectivity>,
-    ) -> Result<(), Error> {
-        let sender_ptr = Box::into_raw(Box::new(sender)) as jlong;
-
-        let result = self.call_method(
-            "setSenderAddress",
-            "(J)V",
-            &[JValue::Long(sender_ptr)],
-            JavaType::Primitive(Primitive::Void),
-        )?;
-
-        match result {
-            JValue::Void => Ok(()),
-            value => Err(Error::InvalidMethodResult(
-                "ConnectivityListener",
-                "setSenderAddress",
-                format!("{:?}", value),
-            )),
-        }?;
-
-        Ok(())
+    pub fn set_connectivity_listener(&mut self, sender: UnboundedSender<Connectivity>) {
+        *CONNECTIVITY_TX.lock().unwrap() = Some(sender);
     }
 
     /// Return the current offline/connectivity state
@@ -141,16 +110,18 @@ impl ConnectivityListener {
     }
 
     fn get_is_connected(&self) -> Result<bool, Error> {
-        let is_connected = self.call_method(
-            "isConnected",
-            "()Z",
-            &[],
-            JavaType::Primitive(Primitive::Boolean),
-        )?;
+        let env = JnixEnv::from(
+            self.jvm
+                .attach_current_thread_as_daemon()
+                .map_err(Error::AttachJvmToThread)?,
+        );
+
+        let is_connected =
+            env.call_method(self.android_listener.as_obj(), "isConnected", "()Z", &[]);
 
         match is_connected {
-            JValue::Bool(JNI_TRUE) => Ok(true),
-            JValue::Bool(_) => Ok(false),
+            Ok(JValue::Bool(JNI_TRUE)) => Ok(true),
+            Ok(JValue::Bool(_)) => Ok(false),
             value => Err(Error::InvalidMethodResult(
                 "ConnectivityListener",
                 "isConnected",
@@ -167,42 +138,21 @@ impl ConnectivityListener {
                 .map_err(Error::AttachJvmToThread)?,
         );
 
-        let current_dns_servers = self.call_method(
+        let current_dns_servers = env.call_method(
+            self.android_listener.as_obj(),
             "getCurrentDnsServers",
             "()Ljava/util/ArrayList;",
             &[],
-            JavaType::Object("java/util/ArrayList".to_owned()),
-        )?;
+        );
 
         match current_dns_servers {
-            JValue::Object(jaddrs) => Ok(Vec::from_java(&env, jaddrs)),
+            Ok(JValue::Object(jaddrs)) => Ok(Vec::from_java(&env, jaddrs)),
             value => Err(Error::InvalidMethodResult(
                 "ConnectivityListener",
-                "currentDnsServers",
+                "getCurrentDnsServers",
                 format!("{:?}", value),
             )),
         }
-    }
-
-    fn call_method(
-        &self,
-        method: &'static str,
-        signature: &str,
-        parameters: &[JValue<'_>],
-        return_type: JavaType,
-    ) -> Result<JValue<'_>, Error> {
-        let env = JnixEnv::from(
-            self.jvm
-                .attach_current_thread_as_daemon()
-                .map_err(Error::AttachJvmToThread)?,
-        );
-
-        let method_id = env
-            .get_method_id(&self.class, method, signature)
-            .map_err(|cause| Error::FindMethod("ConnectivityListener", method, cause))?;
-
-        env.call_method_unchecked(self.object.as_obj(), method_id, return_type, parameters)
-            .map_err(|cause| Error::CallMethod("ConnectivityListener", method, cause))
     }
 }
 
@@ -213,30 +163,18 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
     _: JNIEnv<'_>,
     _: JObject<'_>,
     connected: jboolean,
-    sender_address: jlong,
 ) {
+    let Some(tx) = &*CONNECTIVITY_TX.lock().unwrap() else {
+        // No sender has been registered
+        return;
+    };
+
     let connected = JNI_TRUE == connected;
 
-    let sender = unsafe { Box::from_raw(sender_address as *mut UnboundedSender<Connectivity>) };
-
-    if sender
+    if tx
         .unbounded_send(Connectivity::Status { connected })
         .is_err()
     {
         log::warn!("Failed to send offline change event");
     }
-
-    // Do not destroy
-    std::mem::forget(sender);
-}
-
-/// Entry point for Android Java code to return ownership of the sender reference.
-#[no_mangle]
-#[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_destroySender(
-    _: JNIEnv<'_>,
-    _: JObject<'_>,
-    sender_address: jlong,
-) {
-    let _ = unsafe { Box::from_raw(sender_address as *mut UnboundedSender<Connectivity>) };
 }
