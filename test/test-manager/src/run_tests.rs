@@ -102,7 +102,7 @@ impl TestHandler<'_> {
 
 pub async fn run(
     instance: &dyn vm::VmInstance,
-    tests: Vec<&TestMetadata>,
+    tests: Vec<TestMetadata>,
     skip_wait: bool,
     print_failed_tests_only: bool,
     summary_logger: Option<SummaryLogger>,

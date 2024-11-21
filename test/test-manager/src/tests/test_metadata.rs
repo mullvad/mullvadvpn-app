@@ -1,6 +1,7 @@
 use super::TestWrapperFunction;
 use test_rpc::{meta::Os, mullvad_daemon::MullvadClientVersion};
 
+#[derive(Clone)]
 pub struct TestMetadata {
     pub name: &'static str,
     pub command: &'static str,
