@@ -51,6 +51,7 @@ tokio = { workspace = true, features =  ["test-util"] }
 
 [target.'cfg(target_os="android")'.dependencies]
 android_logger = "0.8"
+async-trait = "0.1"
 hickory-resolver = { version = "0.24.1" }
 
 [target.'cfg(unix)'.dependencies]

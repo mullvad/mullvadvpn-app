@@ -1,4 +1,5 @@
 #![allow(rustdoc::private_intra_doc_links)]
+use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 #[cfg(target_os = "android")]
@@ -16,7 +17,6 @@ use std::{
     net::{IpAddr, Ipv4Addr, SocketAddr},
     ops::Deref,
     path::Path,
-    pin::Pin,
     sync::{Arc, OnceLock},
 };
 use talpid_types::ErrorExt;
@@ -306,28 +306,21 @@ impl ApiEndpoint {
     }
 }
 
+#[async_trait]
 pub trait DnsResolver: 'static + Send + Sync {
-    fn resolve(
-        &self,
-        host: String,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Vec<IpAddr>>> + Send>>;
+    async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>>;
 }
 
 pub struct DefaultDnsResolver;
 
+#[async_trait]
 impl DnsResolver for DefaultDnsResolver {
-    fn resolve(
-        &self,
-        host: String,
-    ) -> Pin<Box<dyn Future<Output = io::Result<Vec<IpAddr>>> + Send>> {
+    async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>> {
         use std::net::ToSocketAddrs;
-
-        Box::pin(async move {
-            let addrs = tokio::task::spawn_blocking(move || (host, 0).to_socket_addrs())
-                .await
-                .expect("DNS task panicked")?;
-            Ok(addrs.map(|addr| addr.ip()).collect())
-        })
+        let addrs = tokio::task::spawn_blocking(move || (host, 0).to_socket_addrs())
+            .await
+            .expect("DNS task panicked")?;
+        Ok(addrs.map(|addr| addr.ip()).collect())
     }
 }
 
@@ -408,6 +401,7 @@ impl Runtime {
         if API.disable_address_cache {
             return Self::new_inner(
                 handle,
+                dns_resolver,
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
             );

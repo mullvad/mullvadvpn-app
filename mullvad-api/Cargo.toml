@@ -15,6 +15,7 @@ workspace = true
 api-override = []
 
 [dependencies]
+async-trait = "0.1"
 libc = "0.2"
 chrono = { workspace = true }
 thiserror = { workspace = true }
