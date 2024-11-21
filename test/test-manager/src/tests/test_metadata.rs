@@ -10,11 +10,5 @@ pub struct TestMetadata {
     pub priority: Option<i32>,
 }
 
-impl TestMetadata {
-    pub fn should_run_on_os(&self, os: Os) -> bool {
-        self.targets.is_empty() || self.targets.contains(&os)
-    }
-}
-
 // Register our test metadata struct with inventory to allow submitting tests of this type.
 inventory::collect!(TestMetadata);
