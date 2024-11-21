@@ -82,7 +82,6 @@ pub fn get_tests() -> Vec<TestMetadata> {
     let test_upgrade_app = TestMetadata {
         priority: None,
         name: "test_upgrade_app",
-        command: "test_upgrade_app",
         targets: &[],
         mullvad_client_version: MullvadClientVersion::None,
         func: |_, _, _| {
@@ -109,7 +108,7 @@ pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata
             .map(|f| {
                 tests
                     .iter()
-                    .find(|t| t.command.eq_ignore_ascii_case(f))
+                    .find(|t| t.name.eq_ignore_ascii_case(f))
                     .cloned()
                     .ok_or(anyhow::anyhow!("Test '{f}' not found"))
             })
