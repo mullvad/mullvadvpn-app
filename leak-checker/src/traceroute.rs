@@ -3,7 +3,6 @@ use std::{
     io,
     net::{IpAddr, Ipv4Addr},
     ops::{Range, RangeFrom},
-    os::fd::{FromRawFd, IntoRawFd},
     time::Duration,
 };
 
@@ -36,7 +35,7 @@ pub struct TracerouteOpt {
 
     /// Destination IP of the probe packets
     #[clap(short, long)]
-    pub destination: Ipv4Addr,
+    pub destination: IpAddr,
 
     /// Avoid sending probe packets to this port
     #[clap(long)]
@@ -156,8 +155,8 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> eyre::Result<LeakStatus> 
             .await??;
     }
 
+    let recv_task = read_probe_responses_no_root(opt.destination, &opt.interface, icmp_socket);
     //let recv_task = read_probe_responses(&opt.interface, icmp_socket);
-    let recv_task = read_probe_responses(&opt.interface, icmp_socket);
 
     // wait until either task exits, or the timeout is reached
     let leak_status = select! {
@@ -272,125 +271,155 @@ async fn send_udp_probes(socket: &mut UdpSocket, opt: &TracerouteOpt) -> eyre::R
     Ok(())
 }
 
-/// Experimental PoC of a linux implementation that doesn't need root.
+/// Try to read ICMP/TimeExceeded error packets from an ICMP socket.
+///
+/// This method does not require root, but only works on Linux (including Android).
+// TODO: double check if this works on MacOS
 #[cfg(any(target_os = "linux", target_os = "android"))]
-#[allow(dead_code)]
 async fn read_probe_responses_no_root(
-    _interface: &str,
+    destination: IpAddr,
+    interface: &str,
     socket: UdpSocket,
 ) -> eyre::Result<LeakStatus> {
-    use nix::{errno::Errno, libc::sock_extended_err};
-    use std::ffi::c_void;
-    use std::mem::transmute;
-    use std::os::fd::AsRawFd;
+    use nix::errno::Errno;
+    use nix::sys::socket::{ControlMessageOwned, MsgFlags, SockaddrIn};
+    use nix::{cmsg_space, libc};
+    use pnet_packet::icmp::time_exceeded::IcmpCodes;
+    use pnet_packet::icmp::{IcmpCode, IcmpType};
+    use std::io::IoSliceMut;
+    use std::net::IpAddr;
+    use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd},
 
     // the list of node IP addresses from which we received a response to our probe packets.
     let mut reachable_nodes = vec![];
 
-    let mut read_buf = vec![0u8; usize::from(u16::MAX)].into_boxed_slice();
-    loop {
+    // A time at which this function should exit. This is set when we receive the first probe
+    // response, and allows us to wait a while to collect any additional probe responses before
+    // returning.
+    let mut timeout_at = None;
+
+    // Allocate buffer for receiving packets.
+    let mut recv_buf = vec![0u8; usize::from(u16::MAX)].into_boxed_slice();
+    let mut io_vec = [IoSliceMut::new(&mut recv_buf)];
+
+    // Allocate space for EHOSTUNREACH errors caused by ICMP/TimeExceeded packets.
+    // This is the size of ControlMessageOwned::Ipv4RecvErr(sock_extended_err, sockaddr_in).
+    // FIXME: sockaddr_in only works for ipv4
+    let mut control_buf = cmsg_space!(libc::sock_extended_err, libc::sockaddr_in);
+
+    'outer: loop {
         log::debug!("Reading from ICMP socket");
 
-        // XXX: only works for ipv4
-        let mut msg_name: nix::libc::sockaddr_in = unsafe { std::mem::zeroed() };
-        let mut msg_iov = vec![nix::libc::iovec {
-            iov_base: read_buf.as_mut_ptr() as *mut _,
-            iov_len: read_buf.len(),
-        }];
-        let mut msg_control = vec![0u8; 2048];
-
-        let mut msg_header = nix::libc::msghdr {
-            msg_name: &mut msg_name as *mut _ as *mut c_void,
-            msg_namelen: size_of_val(&msg_name) as u32,
-            msg_iov: msg_iov.as_mut_ptr() as *mut _,
-            msg_iovlen: msg_iov.len(),
-            msg_control: msg_control.as_mut_ptr() as *mut _,
-            msg_controllen: msg_control.len(),
-            msg_flags: 0,
-        };
-        log::debug!("header: {msg_header:?}");
-
-        // Calling recvmsg with MSG_ERRQUEUE will prompt linux to tell us if we get any ICMP errorr
-        // replies to our Echos.
-        let flags = nix::libc::MSG_ERRQUEUE;
-        let n = loop {
-            match unsafe { nix::libc::recvmsg(socket.as_raw_fd(), &mut msg_header, flags) } {
-                ..0 => match nix::errno::Errno::last() {
-                    nix::errno::Errno::EWOULDBLOCK => {
-                        sleep(Duration::from_millis(10)).await;
-                        continue;
-                    }
-                    e => bail!("Faileed to read from socket {e}"),
-                },
-                n => break n as usize,
-            }
-        };
-
-        log::debug!("header after: {msg_header:?}");
-        msg_iov.truncate(msg_header.msg_iovlen);
-        msg_control.truncate(msg_header.msg_controllen);
-        let _ = msg_header;
-
-        log::debug!("msg_name: {msg_name:?}");
-        log::debug!("msg_iov: {msg_iov:?}");
-        log::debug!("msg_iov[0]: {:?}", &read_buf[..n]);
-        log::debug!("msg_control: {msg_control:?}");
-
-        let source = Ipv4Addr::from_bits(msg_name.sin_addr.s_addr);
-        //let source = source.ip();
-        let (control_header, rest) = msg_control
-            .split_first_chunk::<{ size_of::<nix::libc::cmsghdr>() }>()
-            .ok_or_eyre("Foo")?;
-        let control_header: nix::libc::cmsghdr = unsafe { transmute(*control_header) };
-        let _control_message_len = control_header
-            .cmsg_len
-            .saturating_sub(size_of::<nix::libc::cmsghdr>());
-
-        debug_assert_eq!(control_header.cmsg_level, nix::libc::IPPROTO_IP);
-        debug_assert_eq!(control_header.cmsg_type, nix::libc::IP_RECVERR);
-
-        let (control_message, rest) = rest
-            .split_first_chunk::<{ size_of::<sock_extended_err>() }>()
-            .ok_or_eyre("ASADAD")?;
-        //debug_assert_eq!(control_message_len, control_message.len());
-
-        let control_message: sock_extended_err = unsafe { transmute(*control_message) };
-
-        let result = parse_icmp_time_exceeded_raw(&rest)
-            .map_err(|e| eyre!("Ignoring packet (len={n}, ip.src={source}): {e}",));
-
-        log::debug!("{control_header:?}");
-        log::debug!("{control_message:?}");
-        log::debug!("rest: {rest:?}");
-        log::debug!("{:?}", Errno::from_raw(control_message.ee_errno as i32));
-
-        let _original_icmp_echo = &read_buf[..n];
-
-        // contains the source address of the ICMP Time Exceeded packet
-        let _icmp_source/*: nix::libc::sockaddr */ = rest;
-
-        match result {
-            Ok(..) => {
-                log::debug!("Got a probe response, we are leaking!");
-                //timeout_at.get_or_insert_with(|| Instant::now() + RECV_TIMEOUT);
-                //let ip = IpAddr::from(ip);
-                let ip = IpAddr::from(Ipv4Addr::new(1, 3, 3, 7));
-                if !reachable_nodes.contains(&ip) {
-                    reachable_nodes.push(ip);
+        let recv = loop {
+            if let Some(timeout_at) = timeout_at {
+                if Instant::now() >= timeout_at {
+                    break 'outer;
                 }
             }
 
-            // an error means the packet wasn't the ICMP/TimeExceeded we're listening for.
-            Err(e) => log::debug!("{e}"),
-        }
+            match nix::sys::socket::recvmsg::<SockaddrIn>(
+                socket.as_raw_fd(),
+                &mut io_vec,
+                Some(&mut control_buf),
+                // NOTE: MSG_ERRQUEUE asks linux to tell us if we get any ICMP error replies to
+                // our Echo packets.
+                MsgFlags::MSG_ERRQUEUE,
+            ) {
+                Ok(recv) => break recv,
+
+                // poor-mans async IO :'(
+                Err(Errno::EWOULDBLOCK) => {
+                    sleep(Duration::from_millis(10)).await;
+                    continue;
+                }
+
+                Err(e) => bail!("Faileed to read from socket {e}"),
+            };
+        };
+
+        // NOTE: This should be the IP destination of our ping packets. That does NOT mean the
+        // packets reached the destination, if we see an EHOSTUNREACH control message, it means the
+        // packets was instead dropped along the way. Seeing this addres helps us identify that
+        // this is a response to the ping we sent.
+        // // FIXME: sockaddr_in only works for ipv4
+        let source: SockaddrIn = recv.address.unwrap();
+        let source = source.ip();
+        debug_assert_eq!(source, destination);
+
+        let mut control_messages = recv
+            .cmsgs()
+            .wrap_err("Failed to decode cmsgs from recvmsg")?;
+
+        let error_source = match control_messages.next() {
+            Some(ControlMessageOwned::Ipv6RecvErr(_socket_error, _source_addr)) => {
+                bail!("IPv6 not implemented");
+            }
+            Some(ControlMessageOwned::Ipv4RecvErr(socket_error, source_addr)) => {
+                let libc::sock_extended_err {
+                    ee_errno,   // Error Number: Should be EHOSTUNREACH
+                    ee_origin,  // Error Origin: 2 = Icmp, 3 = Icmp6.
+                    ee_type,    // ICMP Type: 11 = ICMP/TimeExceeded.
+                    ee_code,    // ICMP Code. 0 = TTL exceeded in transit.
+                    ee_pad: _,  // padding
+                    ee_info: _, // N/A
+                    ee_data: _, // N/A
+                } = socket_error;
+
+                let errno = Errno::from_raw(ee_errno as i32);
+                debug_assert_eq!(errno, Errno::EHOSTUNREACH);
+                debug_assert_eq!(ee_origin, nix::libc::SO_EE_ORIGIN_ICMP); // TODO: or SO_EE_ORIGIN_ICMP6
+
+                // TODO: Icmp6Types
+                let icmp_type = IcmpType::new(ee_type);
+                debug_assert_eq!(icmp_type, IcmpTypes::TimeExceeded);
+
+                let icmp_code = IcmpCode::new(ee_code);
+                debug_assert_eq!(icmp_code, IcmpCodes::TimeToLiveExceededInTransit);
+
+                // NOTE: This is the IP of the node that dropped the packet due to TTL exceeded.
+                let error_source = SockaddrIn::from(source_addr.unwrap());
+                log::debug!("addr: {error_source}");
+
+                error_source
+            }
+            Some(other_message) => {
+                // TODO: We might want to not error in this case, and just ignore the cmsg.
+                // If so, we should loop over the iterator instead of taking the first elem.
+                bail!("Unhandled control message: {other_message:?}");
+            }
+            None => {
+                // We're looking for EHOSTUNREACH errors. No errors means skip.
+                log::debug!("Skipping recvmsg that produced no control messages.");
+                continue;
+            }
+        };
+
+        // NOTE: This is the original Echo packet that we sent.
+        // TODO: make sure.
+        let packet = recv.iovs().next().unwrap();
+        let packet = Ipv4Packet::new(packet).ok_or_else(too_small)?;
+        let _original_icmp_echo = parse_icmp_echo(&packet);
+
+        log::debug!("Got a probe response, we are leaking!");
+        timeout_at.get_or_insert_with(|| Instant::now() + RECV_TIMEOUT);
+        reachable_nodes.push(IpAddr::from(error_source.ip()));
     }
+
+    debug_assert!(!reachable_nodes.is_empty());
+
+    Ok(LeakStatus::LeakDetected(
+        LeakInfo::NodeReachableOnInterface {
+            reachable_nodes,
+            interface: interface.to_string(),
+        },
+    ))
 }
 
 async fn read_probe_responses(interface: &str, socket: UdpSocket) -> eyre::Result<LeakStatus> {
     // the list of node IP addresses from which we received a response to our probe packets.
     let mut reachable_nodes = vec![];
 
-    // a time at which this function should exit. this is set when we receive the first probe
+    // A time at which this function should exit. This is set when we receive the first probe
     // response, and allows us to wait a while to collect any additional probe responses before
     // returning.
     let mut timeout_at = None;
@@ -495,7 +524,7 @@ fn configure_listen_socket(socket: &Socket, interface: &str) -> eyre::Result<()>
 ///
 /// This only valdiates the IPv4 header, not the payload.
 fn parse_ipv4(packet: &[u8]) -> eyre::Result<Ipv4Packet<'_>> {
-    let ip_packet = Ipv4Packet::new(packet).ok_or_eyre("Too small")?;
+    let ip_packet = Ipv4Packet::new(packet).ok_or_else(too_small)?;
     ensure!(ip_packet.get_version() == 4, "Not IPv4");
     eyre::Ok(ip_packet)
 }
@@ -514,7 +543,6 @@ fn parse_icmp_time_exceeded(ip_packet: &Ipv4Packet<'_>) -> eyre::Result<Ipv4Addr
 
 fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> eyre::Result<()> {
     let icmp_packet = IcmpPacket::new(bytes).ok_or(eyre!("Too small"))?;
-    let too_small = || eyre!("Too small");
 
     let correct_type = icmp_packet.get_icmp_type() == IcmpTypes::TimeExceeded;
     ensure!(correct_type, "Not ICMP/TimeExceeded");
@@ -564,6 +592,39 @@ fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> eyre::Result<()> {
             // check if payload looks right
             // some network nodes will strip the payload, that's fine.
             let echo_payload = original_icmp_packet.payload();
+            if !echo_payload.is_empty() && !echo_payload.starts_with(&PROBE_PAYLOAD) {
+                let echo_payload: String = echo_payload
+                    .iter()
+                    .copied()
+                    .flat_map(escape_default)
+                    .map(char::from)
+                    .collect();
+                bail!("Wrong ICMP/Echo payload: {echo_payload:?}");
+            }
+
+            Ok(())
+        }
+
+        _ => bail!("Not UDP/ICMP"),
+    }
+}
+
+fn parse_icmp_echo(ip_packet: &Ipv4Packet<'_>) -> eyre::Result<()> {
+    let ip_protocol = ip_packet.get_next_level_protocol();
+
+    match ip_protocol {
+        IpProtocol::Icmp => {
+            let echo_packet = EchoRequestPacket::new(ip_packet.payload()).ok_or_else(too_small)?;
+
+            ensure!(
+                echo_packet.get_icmp_type() == IcmpTypes::EchoRequest,
+                "Not ICMP/EchoRequest"
+            );
+
+            // check if payload looks right
+            // some network nodes will strip the payload.
+            // some network nodes will add a bunch of zeros at the end.
+            let echo_payload = echo_packet.payload();
             if !echo_payload.is_empty() && !echo_payload.starts_with(&PROBE_PAYLOAD) {
                 let echo_payload: String = echo_payload
                     .iter()
@@ -741,3 +802,7 @@ match_cfg! {
 // )
 // .wrap_err("Failed to send on raw socket")?;
 // }
+
+fn too_small() -> eyre::Report {
+    eyre!("Too small")
+}

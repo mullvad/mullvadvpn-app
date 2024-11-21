@@ -2430,6 +2430,7 @@ name = "mullvad-daemon"
 version = "0.0.0"
 dependencies = [
  "android_logger",
+ "anyhow",
  "async-trait",
  "chrono",
  "clap",
@@ -2439,6 +2440,7 @@ dependencies = [
  "fern",
  "futures",
  "hickory-resolver",
+ "leak-checker",
  "libc",
  "log",
  "log-panics",
@@ -2456,6 +2458,8 @@ dependencies = [
  "serde",
  "serde_json",
  "simple-signal",
+ "socket2",
+ "surge-ping",
  "talpid-core",
  "talpid-dbus",
  "talpid-future",
