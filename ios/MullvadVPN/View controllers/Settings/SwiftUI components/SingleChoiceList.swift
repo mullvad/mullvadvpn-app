@@ -53,6 +53,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     let title: String
     private let options: [OptionSpec]
     var value: Binding<Value>
+    @State var initialValue: Value?
     let itemDescription: (Value) -> String
     let customFieldMode: CustomFieldMode
 
@@ -97,6 +98,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         self.value = value
         self.itemDescription = itemDescription ?? { "\($0)" }
         self.customFieldMode = customFieldMode
+        self.initialValue = value.wrappedValue
     }
 
     ///  Create a `SingleChoiceList` presenting a choice of several fixed values.
@@ -203,6 +205,13 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 .onChange(of: customValue) { newValue in
                     if let v = toValue(customValue) {
                         value.wrappedValue = v
+                    } else if customValue.isEmpty {
+                        // user backspaced over input text; this won't form a
+                        // valid value, so we fall back to the initial value
+                        // and await their next move
+                        if let initialValue {
+                            value.wrappedValue = initialValue
+                        }
                     } else if let t = fromValue(value.wrappedValue) {
                         customValue = t
                     }
@@ -243,6 +252,9 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         .padding(EdgeInsets(top: 24, leading: 0, bottom: 0, trailing: 0))
         .background(Color(.secondaryColor))
         .foregroundColor(Color(.primaryTextColor))
+        .onAppear {
+            initialValue = value.wrappedValue
+        }
     }
 }
 
