@@ -80,13 +80,13 @@ impl FromStr for Version {
         static VERSION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new(
                 r"(?x)
-                20(?<year>[0-9]{2})\.                 # the last two digits of the year
-                (?<incremental>[1-9][0-9]?)           # the incrementing version number
-                (?:                                   # (optional) alpha or beta or dev
-                  -alpha(?<alpha>[1-9][0-9]?)|
-                  -beta(?<beta>[1-9][0-9]?)|
+                20(?<year>\d{2})\.                 # the last two digits of the year
+                (?<incremental>[1-9]\d?)           # the incrementing version number
+                (?:                                # (optional) alpha or beta or dev
+                  -alpha(?<alpha>[1-9]\d?\d?)|
+                  -beta(?<beta>[1-9]\d?\d?)|
                   -dev-(?<dev>[0-9a-f]+)|
-                  -dev
+                  (?<no_ver_dev>-dev)
                 )?$
                 ",
             )
@@ -109,14 +109,17 @@ impl FromStr for Version {
             .as_str()
             .to_owned();
 
-        let alpha = captures.name("alpha").map(|m| m.as_str().to_owned());
-        let beta = captures.name("beta").map(|m| m.as_str().to_owned());
-        let dev = captures.name("dev").map(|m| m.as_str().to_owned());
+        let alpha = captures.name("alpha").map(|m| m.as_str());
+        let beta = captures.name("beta").map(|m| m.as_str());
+        let dev = captures
+            .name("dev")
+            .map(|m| m.as_str())
+            .or(captures.name("no_ver_dev").map(|_| ""));
 
         let sub_type = match (alpha, beta, dev) {
-            (Some(v), _, _) => VersionType::Alpha(v),
-            (_, Some(v), _) => VersionType::Beta(v),
-            (_, _, Some(v)) => VersionType::Dev(v),
+            (Some(v), _, _) => VersionType::Alpha(v.to_owned()),
+            (_, Some(v), _) => VersionType::Beta(v.to_owned()),
+            (_, _, Some(v)) => VersionType::Dev(v.to_owned()),
             (None, None, None) => VersionType::Stable,
         };
 
@@ -154,6 +157,10 @@ mod tests {
         assert_eq!(parsed.beta(), None);
         assert_eq!(parsed.dev(), None);
         assert_eq!(parsed.is_stable(), false);
+
+        let version = "2021.34-alpha777";
+        let parsed = Version::parse(version);
+        assert_eq!(parsed.alpha(), Some("777"));
     }
 
     #[test]
@@ -166,6 +173,10 @@ mod tests {
         assert_eq!(parsed.beta(), Some("5"));
         assert_eq!(parsed.dev(), None);
         assert_eq!(parsed.is_stable(), false);
+
+        let version = "2021.34-beta453";
+        let parsed = Version::parse(version);
+        assert_eq!(parsed.beta(), Some("453"));
     }
 
     #[test]
@@ -181,9 +192,27 @@ mod tests {
     }
 
     #[test]
+    fn test_parse_with_dev_no_version() {
+        let version = "2099.99-dev";
+        let parsed = Version::parse(version);
+        assert_eq!(parsed.year, "99");
+        assert_eq!(parsed.incremental, "99");
+        assert_eq!(parsed.alpha(), None);
+        assert_eq!(parsed.beta(), None);
+        assert_eq!(parsed.dev(), Some(""));
+        assert_eq!(parsed.is_stable(), false);
+    }
+
+    #[test]
     #[should_panic]
     fn test_panics_on_invalid_version() {
         Version::parse("2021");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_panics_on_invalid_version_type_number() {
+        Version::parse("2021.1-beta001");
     }
 
     #[test]
