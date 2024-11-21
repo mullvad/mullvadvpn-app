@@ -152,29 +152,31 @@ fn log_fault_to_file_and_stdout(signum: c_int) -> Result<(), FaultHandlerErr> {
         return Err(FaultHandlerErr::Reentrancy);
     }
 
-    // SAFETY: calling `write` on stdout is always safe, even if it's been closed.
+    // SAFETY: calling `write` on stdout is safe, even if it's been closed.
     let stdout = unsafe { LibcWriter::from_raw_fd(libc::STDOUT_FILENO) };
     log_fault_to_writer(signum, stdout)?;
 
     // SIGNAL-SAFETY: OnceLock::get is atomic and non-blocking.
-    if let Some(log_file) = LOG_FILE_PATH.get() {
-        let open_flags = libc::O_WRONLY | libc::O_APPEND;
+    if let Some(log_file_path) = LOG_FILE_PATH.get() {
+        let mut log_file: LibcWriter = {
+            let open_flags = libc::O_WRONLY | libc::O_APPEND;
 
-        // SIGNAL-SAFETY: This function is listed in `man 7 signal-safety`.
-        // SAFETY: `path` is a null-terminated string.
-        let log_file: RawFd = match unsafe { libc::open(log_file.as_ptr(), open_flags) } {
-            ..0 => return Err(FaultHandlerErr::Open),
-            fd => fd,
+            // This file remains open until `_exit` is called by `fault_handler`.
+            // SIGNAL-SAFETY: This function is listed in `man 7 signal-safety`.
+            // SAFETY: the path is a null-terminated string.
+            let result_code = unsafe { libc::open(log_file_path.as_ptr(), open_flags) };
+
+            match result_code {
+                // `open` returns -1 on failure.
+                ..0 => return Err(FaultHandlerErr::Open),
+
+                // SAFETY: `fd` is an open file descriptor.
+                fd => unsafe { LibcWriter::from_raw_fd(fd) },
+            }
         };
-
-        // SAFETY: `log_file` is an open file descriptor; it's not closed until the process exits.
-        let mut log_file = unsafe { LibcWriter::from_raw_fd(log_file) };
 
         log_fault_to_writer(signum, &mut log_file)?;
         log_file.flush()?;
-
-        // Forget about the file. It will be closed when `_exit` is called by `fault_handler`.
-        drop(log_file);
     }
 
     Ok(())
