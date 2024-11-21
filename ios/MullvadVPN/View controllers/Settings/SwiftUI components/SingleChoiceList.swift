@@ -208,8 +208,9 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 .keyboardType(customFieldMode == .numericText ? .numberPad : .default)
                 .fixedSize()
                 .padding(4)
-                .foregroundColor(.black)
-                .background(.white)
+                .foregroundColor(Color(UIColor.TextField.textColor))
+                .background(Color(UIColor.TextField.backgroundColor))
+                .cornerRadius(4.0)
                 .focused($customValueIsFocused)
                 .onChange(of: customValue) { newValue in
                     if let v = toValue(customValue) {
