@@ -33,7 +33,7 @@ test-rpc = { path = "../test-rpc" }
 mullvad-paths = { path = "../../mullvad-paths" }
 talpid-platform-metadata = { path = "../../talpid-platform-metadata", default-features = false }
 
-socket2 = { version = "0.5.4", features = ["all"] }
+socket2 = { workspace = true, features = ["all"] }
 
 [target."cfg(target_os=\"windows\")".dependencies]
 talpid-windows = { path = "../../talpid-windows" }

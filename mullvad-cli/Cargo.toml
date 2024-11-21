@@ -15,7 +15,7 @@ name = "mullvad"
 path = "src/main.rs"
 
 [dependencies]
-anyhow = "1.0"
+anyhow = { workspace = true }
 chrono = { workspace = true }
 clap = { workspace = true }
 thiserror = { workspace = true }
