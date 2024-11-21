@@ -44,19 +44,19 @@ class Networking {
                 interfaceAddress.sa_family == UInt8(AF_INET) {
                 // Check if interface is en0 which is the WiFi connection on the iPhone
                 let name = String(cString: interfacePointer.pointee.ifa_name)
-                if name == "en0" {
-                    // Convert interface address to a human readable string:
-                    var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-                    if getnameinfo(
-                        interfacePointer.pointee.ifa_addr,
-                        socklen_t(interfaceAddress.sa_len),
-                        &hostname,
-                        socklen_t(hostname.count),
-                        nil,
-                        socklen_t(0),
-                        NI_NUMERICHOST
-                    ) == 0 {
-                        ipAddress = String(cString: hostname)
+                // Convert interface address to a human readable string:
+                var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                if getnameinfo(
+                    interfacePointer.pointee.ifa_addr,
+                    socklen_t(interfaceAddress.sa_len),
+                    &hostname,
+                    socklen_t(hostname.count),
+                    nil,
+                    socklen_t(0),
+                    NI_NUMERICHOST
+                ) == 0 {
+                    ipAddress = String(cString: hostname)
+                    if ipAddress.starts(with: "192.168") {
                         return ipAddress
                     }
                 }
@@ -65,7 +65,7 @@ class Networking {
 
         freeifaddrs(interfaceList)
 
-        throw NetworkingError.internalError(reason: "Failed to determine device's IP address")
+        throw NetworkingError.internalError(reason: "No local IP found")
     }
 
     /// Get configured ad serving domain
