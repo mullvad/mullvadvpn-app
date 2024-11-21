@@ -5,6 +5,8 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt},
 };
 
+use crate::tests::should_run_on_os;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to open log file {1:?}")]
@@ -118,7 +120,7 @@ pub struct Summary {
 impl Summary {
     /// Read test summary from `path`.
     pub async fn parse_log<P: AsRef<Path>>(
-        all_tests: &[crate::tests::TestMetadata],
+        all_tests: &[crate::tests::TestDesciption],
         path: P,
     ) -> Result<Summary, Error> {
         let file = fs::OpenOptions::new()
@@ -155,7 +157,7 @@ impl Summary {
         for test in all_tests {
             // Add missing test results
             let entry = results.entry(test.name.to_owned());
-            if test.should_run_on_os(os) {
+            if should_run_on_os(test.targets, os) {
                 entry.or_insert(TestResult::Unknown);
             } else {
                 entry.or_insert(TestResult::Skip);
