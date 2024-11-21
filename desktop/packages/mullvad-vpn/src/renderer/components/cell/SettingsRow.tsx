@@ -11,7 +11,7 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   display: 'flex',
   alignItems: 'center',
 
-  margin: `0 ${measurements.viewMargin} ${measurements.rowVerticalMargin}`,
+  margin: `0 ${measurements.horizontalViewMargin} ${measurements.rowVerticalMargin}`,
   padding: '0 8px',
   minHeight: '36px',
   backgroundColor: colors.blue60,
@@ -59,7 +59,7 @@ const StyledInputContainer = styled.div({
 const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   display: 'flex',
   alignItems: 'center',
-  marginLeft: measurements.viewMargin,
+  marginLeft: measurements.horizontalViewMargin,
   marginTop: '5px',
   color: colors.white60,
 });

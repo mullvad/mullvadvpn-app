@@ -88,7 +88,8 @@ export const spacings = {
 
 export const measurements = {
   rowMinHeight: spacings.spacing9,
-  viewMargin: spacings.spacing6,
+  horizontalViewMargin: spacings.spacing5,
+  verticalViewMargin: spacings.spacing6,
   rowVerticalMargin: spacings.spacing6,
   buttonVerticalMargin: spacings.spacing5,
 };

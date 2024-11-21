@@ -16,8 +16,8 @@ export const Row = styled.div.withConfig({
   alignItems: 'center',
   backgroundColor: colors.blue,
   minHeight: measurements.rowMinHeight,
-  paddingLeft: measurements.viewMargin,
-  paddingRight: measurements.viewMargin,
+  paddingLeft: measurements.horizontalViewMargin,
+  paddingRight: measurements.horizontalViewMargin,
   marginBottom: '1px',
   [`${Group} > &&:last-child`]: {
     marginBottom: props.includeMarginBottomOnLast ? '1px' : '0px',

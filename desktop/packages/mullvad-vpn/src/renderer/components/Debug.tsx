@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
-import { measurements } from './common-styles';
+import { measurements, spacings } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import {
@@ -24,7 +24,7 @@ const StyledContent = styled.div({
 });
 
 const StyledButtonGroup = styled.div({
-  margin: measurements.viewMargin,
+  margin: `${spacings.spacing6} ${measurements.horizontalViewMargin}`,
 });
 
 export default function Debug() {

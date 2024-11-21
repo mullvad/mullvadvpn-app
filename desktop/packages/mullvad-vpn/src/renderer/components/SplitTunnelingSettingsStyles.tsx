@@ -90,7 +90,7 @@ export const StyledListContainer = styled.div({
 });
 
 export const StyledBrowseButton = styled(AppButton.BlueButton)({
-  margin: `0 ${measurements.viewMargin} ${measurements.viewMargin}`,
+  margin: `0 ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
 });
 
 export const StyledCellContainer = styled(Cell.Container)({
@@ -124,8 +124,8 @@ export const StyledMiniTitle = styled.span({
 });
 
 export const StyledSearchBar = styled(SearchBar)({
-  marginLeft: measurements.viewMargin,
-  marginRight: measurements.viewMargin,
+  marginLeft: measurements.horizontalViewMargin,
+  marginRight: measurements.horizontalViewMargin,
   marginBottom: measurements.buttonVerticalMargin,
 });
 

@@ -12,8 +12,7 @@ import * as AppButton from './AppButton';
 import { measurements, tinyText } from './common-styles';
 import ErrorView from './ErrorView';
 import { Footer } from './Layout';
-import { ModalAlert, ModalMessage, ModalMessageList } from './Modal';
-import { ModalAlertType } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 
 export default function Launch() {
   const daemonAllowed = useSelector((state) => state.userInterface.daemonAllowed);
@@ -28,7 +27,6 @@ export default function Launch() {
 
 const StyledFooter = styled(Footer)({
   backgroundColor: colors.blue,
-  padding: `0 14px ${measurements.viewMargin}`,
   transition: 'opacity 250ms ease-in-out',
 });
 
