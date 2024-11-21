@@ -203,6 +203,11 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                         customValue = t
                     }
                 }
+                .onAppear {
+                    if let t = fromValue(value.wrappedValue) {
+                        customValue = t
+                    }
+                }
         }
         .onTapGesture {
             if let v = toValue(customValue) {
