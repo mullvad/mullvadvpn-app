@@ -79,7 +79,7 @@ impl FromStr for Version {
     fn from_str(version: &str) -> Result<Self, Self::Err> {
         static VERSION_REGEX: LazyLock<Regex> = LazyLock::new(|| {
             Regex::new(
-                r"(?x)
+                r"(?x)                             # enable insignificant whitespace mode
                 20(?<year>\d{2})\.                 # the last two digits of the year
                 (?<incremental>[1-9]\d?)           # the incrementing version number
                 (?:                                # (optional) alpha or beta or dev
@@ -116,17 +116,18 @@ impl FromStr for Version {
             .map(|m| m.as_str())
             .or(captures.name("no_ver_dev").map(|_| ""));
 
-        let sub_type = match (alpha, beta, dev) {
-            (Some(v), _, _) => VersionType::Alpha(v.to_owned()),
-            (_, Some(v), _) => VersionType::Beta(v.to_owned()),
-            (_, _, Some(v)) => VersionType::Dev(v.to_owned()),
+        let version_type = match (alpha, beta, dev) {
             (None, None, None) => VersionType::Stable,
+            (Some(v), None, None) => VersionType::Alpha(v.to_owned()),
+            (None, Some(v), None) => VersionType::Beta(v.to_owned()),
+            (None, None, Some(v)) => VersionType::Dev(v.to_owned()),
+            _ => return Err(format!("Invalid version: {version}")),
         };
 
         Ok(Version {
             year,
             incremental,
-            version_type: sub_type,
+            version_type,
         })
     }
 }
