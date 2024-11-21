@@ -436,7 +436,7 @@ impl WgGoTunnel {
     ) -> Result<()> {
         let connectivity_err = |e| TunnelError::Connectivity(Box::new(e));
         let connection_established = checker
-            .establish_connectivity(0, self)
+            .establish_connectivity(self)
             .map_err(connectivity_err)?;
 
         // Timed out
