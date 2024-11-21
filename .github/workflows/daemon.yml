@@ -122,8 +122,8 @@ jobs:
     strategy:
       matrix:
         config:
-          #- os: windows-latest
-          #  arch: x64
+          - os: windows-latest
+            arch: x64
           - os: windows-arm64
             arch: arm64
     runs-on: ${{ matrix.config.os }}
@@ -154,6 +154,9 @@ jobs:
           choco install git -y
           #echo "C:\Program Files\Git\bin" >> $GITHUB_PATH
           $env:PATH += ";C:\Program Files\Git\bin"
+
+      - name: fail on purpose
+        run: asdjiosadjioadsjioadsojiasdjio
 
       - name: Dump PATH Environment Variable
         if: ${{ matrix.config.arch == 'arm64' }}
