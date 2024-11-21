@@ -52,6 +52,12 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 value: "Port        ",
                 comment: ""
             ),
+            customLegend: NSLocalizedString(
+                "SHADOWSOCKS_PORT_VALUE_PORT_LEGEND",
+                tableName: "Shadowsocks",
+                value: "Valid range: 1 - 65535",
+                comment: ""
+            ),
             customFieldMode: .numericText
         ).onDisappear {
             viewModel.commit()
