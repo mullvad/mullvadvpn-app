@@ -77,8 +77,8 @@ pub enum Error {
 }
 
 #[derive(Clone)]
-/// An abbriviated version of [`TestMetadata`]
-pub struct TestDesciption {
+/// An abbreviated version of [`TestMetadata`]
+pub struct TestDescription {
     pub name: &'static str,
     pub targets: &'static [Os],
     pub priority: Option<i32>,
@@ -89,16 +89,18 @@ pub fn should_run_on_os(targets: &[Os], os: Os) -> bool {
 }
 
 /// Get a list of all tests, sorted by priority.
-pub fn get_tests() -> Vec<TestDesciption> {
+pub fn get_test_descriptions() -> Vec<TestDescription> {
     let tests: Vec<_> = inventory::iter::<TestMetadata>()
-        .map(|test| TestDesciption {
+        .map(|test| TestDescription {
             priority: test.priority,
             name: test.name,
             targets: test.targets,
         })
         .sorted_by_key(|test| test.priority)
         .collect_vec();
-    let test_upgrade_app = TestDesciption {
+
+    // Since `test_upgrade_app` is not registered with inventory, we need to add it manually
+    let test_upgrade_app = TestDescription {
         priority: None,
         name: "test_upgrade_app",
         targets: &[],
@@ -107,7 +109,7 @@ pub fn get_tests() -> Vec<TestDesciption> {
 }
 
 /// Return all tests with names matching the input argument. Filters out tests that are skipped for
-/// the target platform and `test_upgrade_app`, which is handle separately.
+/// the target platform and `test_upgrade_app`, which is run separately.
 pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata>, anyhow::Error> {
     let mut tests: Vec<_> = inventory::iter::<TestMetadata>().cloned().collect();
     tests.sort_by_key(|test| test.priority.unwrap_or(0));
