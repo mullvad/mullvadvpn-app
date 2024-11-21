@@ -138,12 +138,23 @@ jobs:
           [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
           iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-      - name: Dump PATH Environment Variable
-        run: echo $env:PATH
+      - name: Fix PATH
+        if: ${{ matrix.config.arch == 'arm64' }}
+        run: |
+          echo "C:\ProgramData\chocolatey\bin" >> $GITHUB_PATH
 
       - name: Install Git
         if: ${{ matrix.config.arch == 'arm64' }}
         run: choco install git -y
+
+      - name: Fix PATH
+        if: ${{ matrix.config.arch == 'arm64' }}
+        run: |
+          echo "C:\Program Files\Git\bin" >> $GITHUB_PATH
+
+      - name: Dump PATH Environment Variable
+        if: ${{ matrix.config.arch == 'arm64' }}
+        run: echo $env:PATH
 
       - name: Checkout submodules
         run: git submodule update --init --depth=1
