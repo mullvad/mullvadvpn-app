@@ -9,5 +9,5 @@ export const StyledCellIcon = styled(Cell.UntintedIcon)({
 });
 
 export const StyledQuitButton = styled(AppButton.RedButton)({
-  margin: `0 ${measurements.viewMargin}`,
+  margin: `0 ${measurements.horizontalViewMargin}`,
 });

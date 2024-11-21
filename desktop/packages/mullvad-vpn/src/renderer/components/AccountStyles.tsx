@@ -16,7 +16,7 @@ export const AccountRows = styled.div({
 });
 
 export const AccountRow = styled.div({
-  padding: `0 ${measurements.viewMargin}`,
+  padding: `0 ${measurements.horizontalViewMargin}`,
   marginBottom: measurements.rowVerticalMargin,
 });
 

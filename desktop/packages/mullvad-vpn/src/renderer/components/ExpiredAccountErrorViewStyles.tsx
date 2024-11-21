@@ -40,7 +40,7 @@ export const StyledBody = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  padding: `0 ${measurements.viewMargin}`,
+  padding: `0 ${measurements.horizontalViewMargin}`,
 });
 
 export const StyledTitle = styled.span(hugeText, {

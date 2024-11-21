@@ -48,7 +48,7 @@ const StyledStatusIcon = styled.div({
 
 const StyledTitle = styled.span(bigText, {
   lineHeight: '38px',
-  margin: `0 ${measurements.viewMargin} 8px`,
+  margin: `0 ${measurements.horizontalViewMargin} 8px`,
   color: colors.white,
 });
 
@@ -58,7 +58,7 @@ const StyledLabel = styled.span({
   fontWeight: 600,
   lineHeight: '20px',
   color: colors.white,
-  margin: `0 ${measurements.viewMargin} 18px`,
+  margin: `0 ${measurements.horizontalViewMargin} 18px`,
 });
 
 const StyledSpacer = styled.div({

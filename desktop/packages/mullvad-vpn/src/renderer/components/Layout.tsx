@@ -37,7 +37,7 @@ export const SettingsContent = styled.div({
   flexDirection: 'column',
   flex: 1,
   overflow: 'visible',
-  marginBottom: measurements.viewMargin,
+  marginBottom: measurements.verticalViewMargin,
 });
 
 export const SettingsStack = styled.div({
@@ -50,8 +50,8 @@ export const Footer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  padding: measurements.viewMargin,
+  margin: `${spacings.spacing6} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
   [`${SettingsContent} &&`]: {
-    paddingBottom: 0,
+    marginBottom: 0,
   },
 });
