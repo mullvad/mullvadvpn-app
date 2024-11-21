@@ -5,7 +5,7 @@ edition = "2021"
 license.workspace = true
 
 [build-dependencies]
-anyhow = "1.0"
+anyhow.workspace = true
 
 [dependencies]
 thiserror.workspace = true

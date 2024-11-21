@@ -1163,16 +1163,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "eyre"
-version = "0.6.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7cd915d99f24784cdc19fd37ef22b97e3ff0ae756c7e492e9fbfe897d61e2aec"
-dependencies = [
- "indenter",
- "once_cell",
-]
-
-[[package]]
 name = "fastrand"
 version = "2.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1936,12 +1926,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "indenter"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ce23b50ad8242c51a442f3ff322d56b02f08852c77e4c0b4d3fd684abc89c683"
-
-[[package]]
 name = "indexmap"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2209,26 +2193,6 @@ name = "lazy_static"
 version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
-
-[[package]]
-name = "leak-checker"
-version = "0.1.0"
-dependencies = [
- "clap",
- "eyre",
- "futures",
- "log",
- "match_cfg",
- "nix 0.29.0",
- "pnet_packet 0.35.0",
- "pretty_env_logger",
- "reqwest",
- "serde",
- "socket2",
- "talpid-windows",
- "tokio",
- "windows-sys 0.52.0",
-]
 
 [[package]]
 name = "libc"
@@ -2570,6 +2534,7 @@ name = "mullvad-daemon"
 version = "0.0.0"
 dependencies = [
  "android_logger",
+ "anyhow",
  "async-trait",
  "chrono",
  "clap",
@@ -2585,6 +2550,7 @@ dependencies = [
  "mullvad-api",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
+ "mullvad-leak-checker",
  "mullvad-management-interface",
  "mullvad-paths",
  "mullvad-relay-selector",
@@ -2596,10 +2562,12 @@ dependencies = [
  "serde",
  "serde_json",
  "simple-signal",
+ "socket2",
  "talpid-core",
  "talpid-dbus",
  "talpid-future",
  "talpid-platform-metadata",
+ "talpid-routing",
  "talpid-time",
  "talpid-types",
  "talpid-windows",
@@ -2682,6 +2650,25 @@ dependencies = [
  "talpid-types",
  "thiserror 2.0.9",
  "tokio",
+]
+
+[[package]]
+name = "mullvad-leak-checker"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "futures",
+ "log",
+ "nix 0.29.0",
+ "pnet_packet 0.35.0",
+ "pretty_env_logger",
+ "reqwest",
+ "serde",
+ "socket2",
+ "talpid-windows",
+ "tokio",
+ "windows-sys 0.52.0",
 ]
 
 [[package]]
@@ -3346,6 +3333,8 @@ dependencies = [
 [[package]]
 name = "pfctl"
 version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a44e65c0d3523afa79a600a3964c3ac0fabdabe2d7c68da624b2bb0b441b9d61"
 dependencies = [
  "derive_builder",
  "ioctl-sys 0.8.0",
@@ -4663,7 +4652,7 @@ dependencies = [
  "parking_lot",
  "pcap",
  "pfctl",
- "pnet_packet 0.34.0",
+ "pnet_packet 0.35.0",
  "rand 0.8.5",
  "resolv-conf",
  "serde",
