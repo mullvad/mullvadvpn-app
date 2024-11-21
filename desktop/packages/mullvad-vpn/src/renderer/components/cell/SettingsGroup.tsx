@@ -16,7 +16,7 @@ const StyledTitle = styled.h2(tinyText, {
   display: 'flex',
   alignItems: 'center',
   color: colors.white80,
-  margin: `0 ${measurements.viewMargin} 8px`,
+  margin: `0 ${measurements.horizontalViewMargin} 8px`,
   lineHeight: '17px',
 });
 

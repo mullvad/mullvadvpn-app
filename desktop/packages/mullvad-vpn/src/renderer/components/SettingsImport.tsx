@@ -41,7 +41,7 @@ const Content = styled.div({
 });
 
 const StyledSmallButtonGrid = styled(SmallButtonGrid)({
-  margin: `0 ${measurements.viewMargin}`,
+  margin: `0 ${measurements.horizontalViewMargin}`,
 });
 
 type ImportStatus = { successful: boolean } & ({ type: 'file'; name: string } | { type: 'text' });
@@ -221,7 +221,7 @@ export default function SettingsImport() {
 const StyledStatusContainer = styled.div({
   display: 'flex',
   flexDirection: 'column',
-  margin: `18px ${measurements.viewMargin}`,
+  margin: `18px ${measurements.horizontalViewMargin}`,
 });
 
 const StyledStatusTitle = styled.div(normalText, {
