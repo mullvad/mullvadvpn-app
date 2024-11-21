@@ -9,7 +9,6 @@ There are five workflows running tests:
  - [ios-end-to-end-tests-nightly.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-nightly.yml) - scheduled nightly test run, running all tests.
  - [ios-end-to-end-tests-merge-to-main.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-merge-to-main.yml) - automatically triggered by a PR merge to `main`.
  - [ios-end-to-end-tests-api.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-api.yml) - manually triggered tests focusing on making sure the API is functioning as intended on stagemole.
- - [ios-end-to-end-tests-settings-migration.yml](https://github.com/mullvad/mullvadvpn-app/actions/workflows/ios-end-to-end-tests-settings-migration.yml) - for now this is still manually triggered. Tests installing older version of the app, changing settings, upgrading the app and verifying that settings were correctly migrated.
 
 ## Adding more tests
 When adding more files with test suites they must be added to the `MullvadVPNUITestsAll` test plan and also added to the appropriate node(s) in `ios/MullvadVPNUITests/tests.json` file in order to run in CI. For new test cases in already existing test suite nothing needs to be done. The test case/suite values in `tests.json` translate to input for `xcodebuild -only-testing` which is in the format `<target-name>/<test-suite-name>/<test-case-name>`. The GitHub actions workflow will add the `<target-name>` part so only `<test-suite-name>/<test-case-name>` is required, where `<test-case-name>` is optional. So for example `AccountTests` and `AccountTests/testLogin` are both valid values.
@@ -33,7 +32,7 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
 1. Make sure device is added to provisioning profiles
 2. Enable developer mode
 3. Disable passcode in iOS settings - otherwise tests cannot be started without manually entering passcode
-4. Set the value of `TEST_DEVICE_UDID` to the UDID of the test device in `ios-end-to-end-tests.yml` and `ios-end-to-end-tests-settings-migration.yml`.
+4. Set the value of `TEST_DEVICE_UDID` to the UDID of the test device in `ios-end-to-end-tests.yml`.
 5. Make sure the test device is connected to the WiFi `app-team-ios-tests`
 6. Make sure iCloud syncing of keychain is off on the device so that the device isn't getting WiFi passwords from another device causing it to sometimes connect to another WiFi.
 7. After the device is set up download updated provisioning profiles on the GitHub runner computer(Download manual profiles in Xcode settings)
@@ -69,14 +68,10 @@ The test device must be on the office WiFi `app-team-ios-tests` in order to be a
   - `PARTNER_API_TOKEN` - secret token for partner API. Optional and only intended to be used in CI when running tests against staging environment.
 
 ### Specifying which tests run when in CI
-Which tests run when is specified in `tests.json`(See _Adding more tests_). Settings migration is an exception, it uses four different test plans and a separate workflow `ios-end-to-end-tests-settings-migration.yml` which executes the test plans in order, do not reinstall the app in between runs but upgrades the app after changing settings:
-* `MullvadVPNUITestsChangeDNSSettings` - Change settings for using custom DNS
-* `MullvadVPNUITestsVerifyDNSSettingsChanged` - Verify custom DNS settings still changed
-* `MullvadVPNUITestsChangeSettings` - Change all settings except custom DNS setting
-* `MullvadVPNUITestsVerifySettingsChanged` - Verify all settings except custom DNS setting still changed
+Which tests run when is specified in `tests.json`(See _Adding more tests_).
 
 ### Current test devices
-Currently we are using an iPhone 15 Pro(UDID `00008130-0019181022F3803A`) running iOS 17.
+Currently we are using an iPhone 15 Pro(UDID `00008130-0019181022F3803A`) running iOS 17.3.1.
 
 ## APIs used
 The iOS team NUC is hosting APIs consumed by tests:
