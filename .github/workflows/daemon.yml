@@ -131,14 +131,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Set up Chocolatey (only for ARM64)
+      - name: Install Chocolatey
         if: ${{ matrix.config.arch == 'arm64' }}
         run: |
           Set-ExecutionPolicy Bypass -Scope Process -Force
           [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072
           iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-      - name: Install Git (only for ARM64)
+      - name: Dump PATH Environment Variable
+        run: echo $env:PATH
+
+      - name: Install Git
         if: ${{ matrix.config.arch == 'arm64' }}
         run: choco install git -y
 
