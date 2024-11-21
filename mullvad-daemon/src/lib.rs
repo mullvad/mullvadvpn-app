@@ -39,6 +39,7 @@ use futures::{
     StreamExt,
 };
 use geoip::GeoIpHandler;
+use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
 use mullvad_api::ApiEndpoint;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
@@ -414,6 +415,8 @@ pub(crate) enum InternalDaemonEvent {
     /// The split tunnel paths or state were updated.
     #[cfg(any(windows, target_os = "android", target_os = "macos"))]
     ExcludedPathsEvent(ExcludedPathsUpdate, oneshot::Sender<Result<(), Error>>),
+    /// A network leak was detected.
+    LeakDetected(LeakInfo),
 }
 
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -588,6 +591,7 @@ pub struct Daemon {
     #[cfg(target_os = "windows")]
     volume_update_tx: mpsc::UnboundedSender<()>,
     location_handler: GeoIpHandler,
+    leak_checker: LeakChecker,
 }
 pub struct DaemonConfig {
     pub log_dir: Option<PathBuf>,
@@ -850,6 +854,17 @@ impl Daemon {
             internal_event_tx.clone().to_specialized_sender(),
         );
 
+        let leak_checker = {
+            let mut leak_checker = LeakChecker::new();
+            let internal_event_tx = internal_event_tx.clone();
+            leak_checker.add_leak_callback(move |info| {
+                internal_event_tx
+                    .send(InternalDaemonEvent::LeakDetected(info))
+                    .is_ok()
+            });
+            leak_checker
+        };
+
         let daemon = Daemon {
             tunnel_state: TunnelState::Disconnected {
                 location: None,
@@ -880,6 +895,7 @@ impl Daemon {
             #[cfg(target_os = "windows")]
             volume_update_tx,
             location_handler,
+            leak_checker,
         };
 
         api_availability.unsuspend();
@@ -978,7 +994,7 @@ impl Daemon {
         let mut should_stop = false;
         match event {
             TunnelStateTransition(transition) => {
-                self.handle_tunnel_state_transition(transition).await
+                self.handle_tunnel_state_transition(transition).await;
             }
             Command(command) => self.handle_command(command).await,
             TriggerShutdown(user_init_shutdown) => {
@@ -1000,6 +1016,9 @@ impl Daemon {
             }
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
+            LeakDetected(leak_info) => {
+                log::warn!("LEAK DETECTED! AAAH: {leak_info:?}");
+            }
         }
         should_stop
     }
@@ -1008,6 +1027,9 @@ impl Daemon {
         &mut self,
         tunnel_state_transition: TunnelStateTransition,
     ) {
+        self.leak_checker
+            .on_tunnel_state_transition(tunnel_state_transition.clone());
+
         self.reset_rpc_sockets_on_tunnel_state_transition(&tunnel_state_transition);
         self.device_checker
             .handle_state_transition(&tunnel_state_transition);

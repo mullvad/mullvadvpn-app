@@ -1,3 +1,5 @@
+// TODO: Remove this file
+
 use match_cfg::match_cfg;
 
 #[cfg(any(target_os = "windows", target_os = "macos", target_os = "android"))]
@@ -6,6 +8,8 @@ use std::net::IpAddr;
 match_cfg! {
     #[cfg(target_os = "windows")] => {
         pub fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+            use eyre::eyre;
+
             use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 
             let interface_luid = luid_from_alias(interface)?;

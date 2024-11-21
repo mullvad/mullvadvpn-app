@@ -2579,6 +2579,7 @@ name = "mullvad-daemon"
 version = "0.0.0"
 dependencies = [
  "android_logger",
+ "anyhow",
  "async-trait",
  "chrono",
  "clap",
@@ -2588,6 +2589,7 @@ dependencies = [
  "fern",
  "futures",
  "hickory-resolver",
+ "leak-checker",
  "libc",
  "log",
  "log-panics",
@@ -2605,6 +2607,8 @@ dependencies = [
  "serde",
  "serde_json",
  "simple-signal",
+ "socket2",
+ "surge-ping",
  "talpid-core",
  "talpid-dbus",
  "talpid-future",
@@ -3371,6 +3375,8 @@ dependencies = [
 [[package]]
 name = "pfctl"
 version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a44e65c0d3523afa79a600a3964c3ac0fabdabe2d7c68da624b2bb0b441b9d61"
 dependencies = [
  "derive_builder",
  "ioctl-sys 0.8.0",
