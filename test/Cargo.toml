@@ -77,5 +77,6 @@ chrono = { version = "0.4.26", default-features = false }
 clap = { version = "4.2.7", features = ["cargo", "derive"] }
 bytes = "1.3.0"
 async-trait = "0.1.58"
+socket2 = "0.5.7"
 surge-ping = "0.8"
 nix = { version = "0.29", features = ["ioctl", "socket", "net"] }
