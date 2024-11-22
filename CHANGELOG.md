@@ -57,6 +57,8 @@ Line wrap the file at 100 chars.                                              Th
   (WFP) filters normally do not apply for VMs. This mitigates the issue by ensuring that it does not
   leak (as easily) when the VPN tunnel is up. Previously, WSL would leak while in the blocked or
   connecting state, or while lockdown mode was active.
+- Fix issue where the installer would allow any executable named `taskkill.exe` in the working
+  directory to run as admin. This fixes audit issue `MLLVD-CR-24-06`.
 
 #### Linux
 - Prevent attackers able to send ARP requests to the device running Mullvad from figuring out
