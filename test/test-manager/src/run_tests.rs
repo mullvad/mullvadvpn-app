@@ -157,15 +157,20 @@ pub async fn run(
     };
 
     for test in tests {
-        tests::prepare_daemon(&test_runner_client, &rpc_provider)
+        let mut mullvad_client = tests::prepare_daemon(&test_runner_client, &rpc_provider)
             .await
             .context("Failed to reset daemon before test")?;
 
-        let mullvad_client = rpc_provider
-            .mullvad_client(test.mullvad_client_version)
-            .await;
+        tests::set_test_location(&mut mullvad_client, &test)
+            .await
+            .context("Failed to create custom list from test locations")?;
+
         test_handler
-            .run_test(&test.func, test.name, mullvad_client)
+            .run_test(
+                &test.func,
+                test.name,
+                MullvadClientArgument::WithClient(mullvad_client),
+            )
             .await?;
     }
 

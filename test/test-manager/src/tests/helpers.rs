@@ -17,6 +17,7 @@ use mullvad_relay_selector::{
 };
 use mullvad_types::{
     constraints::Constraint,
+    custom_list::CustomList,
     relay_constraints::{
         GeographicLocationConstraint, LocationConstraint, RelayConstraints, RelaySettings,
     },
@@ -1199,160 +1200,48 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
     })
 }
 
-pub mod custom_lists {
-    use super::*;
+/// Set the location to the given [`LocationConstraint`]. This also includes
+/// entry location for multihop. It does not, however, affect bridge location for OpenVPN.
+/// This is for simplify, as bridges default to using the server closest to the exit anyway, and
+/// OpenVPN is slated for removal.
+///
+/// NOTE: Calling this from within a test will overwrite the default test lcoation specified in
+/// the settings.
+pub async fn set_location(
+    mullvad_client: &mut MullvadProxyClient,
+    location: impl Into<LocationConstraint>,
+) -> anyhow::Result<()> {
+    let constraints = get_location_relay_constraints(location.into());
 
-    use mullvad_types::custom_list::{CustomList, Id};
-    use std::sync::{LazyLock, Mutex};
+    mullvad_client
+        .set_relay_settings(constraints.into())
+        .await
+        .context("Failed to set relay settings")
+}
 
-    // Expose all custom list variants as a shorthand.
-    pub use List::*;
+fn get_location_relay_constraints(custom_list: LocationConstraint) -> RelayConstraints {
+    let wireguard_constraints = mullvad_types::relay_constraints::WireguardConstraints {
+        entry_location: Constraint::Only(custom_list.clone()),
+        ..Default::default()
+    };
 
-    /// The default custom list to use as location for all tests.
-    pub const DEFAULT_LIST: List = List::Nordic;
-
-    /// Mapping between [List] to daemon custom lists. Since custom list ids are assigned by the
-    /// daemon at the creation of the custom list settings object, we can't map a custom list
-    /// name to a specific list before runtime.
-    static IDS: LazyLock<Mutex<HashMap<List, Id>>> = LazyLock::new(|| Mutex::new(HashMap::new()));
-
-    /// Pre-defined (well-typed) custom lists which may be useful in different test scenarios.
-    #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
-    pub enum List {
-        /// A selection of Nordic servers
-        Nordic,
-        /// A selection of European servers
-        Europe,
-        /// This custom list contains relays which are close geographically to the computer running
-        /// the test scenarios, which hopefully means there will be little latency between the test
-        /// machine and these relays
-        LowLatency,
-        /// Antithesis of [List::LowLatency], these relays are located far away from the test
-        /// server. Use this custom list if you want to simulate scenarios where the probability
-        /// of experiencing high latencies is desirable.
-        HighLatency,
+    RelayConstraints {
+        location: Constraint::Only(custom_list),
+        wireguard_constraints,
+        ..Default::default()
     }
+}
 
-    impl List {
-        pub fn name(self) -> String {
-            use List::*;
-            match self {
-                Nordic => "Nordic".to_string(),
-                Europe => "Europe".to_string(),
-                LowLatency => "Low Latency".to_string(),
-                HighLatency => "High Latency".to_string(),
-            }
-        }
-
-        /// Iterator over all custom lists.
-        pub fn all() -> impl Iterator<Item = List> {
-            use List::*;
-            [Nordic, Europe, LowLatency, HighLatency].into_iter()
-        }
-
-        pub fn locations(self) -> impl Iterator<Item = GeographicLocationConstraint> {
-            use List::*;
-            let country = GeographicLocationConstraint::country;
-            let city = GeographicLocationConstraint::city;
-            match self {
-                Nordic => {
-                    vec![country("no"), country("se"), country("fi"), country("dk")].into_iter()
-                }
-                Europe => vec![
-                    // North
-                    country("se"),
-                    // West
-                    country("fr"),
-                    // East
-                    country("ro"),
-                    // South
-                    country("it"),
-                ]
-                .into_iter(),
-                LowLatency => {
-                    // Assumption: Test server is located in Gothenburg, Sweden.
-                    vec![city("se", "got")].into_iter()
-                }
-                HighLatency => {
-                    // Assumption: Test server is located in Gothenburg, Sweden.
-                    vec![country("au"), country("ca"), country("za")].into_iter()
-                }
-            }
-        }
-
-        pub fn to_constraint(self) -> Option<LocationConstraint> {
-            let ids = IDS.lock().unwrap();
-            let id = ids.get(&self)?;
-            Some(LocationConstraint::CustomList { list_id: *id })
-        }
-    }
-
-    impl From<List> for LocationConstraint {
-        fn from(custom_list: List) -> Self {
-            // TODO: Is this _too_ unsound ??
-            custom_list.to_constraint().unwrap()
-        }
-    }
-
-    /// Add a set of custom lists which can be used in different test scenarios.
-    ///
-    /// See [`List`] for available custom lists.
-    pub async fn add_default_lists(mullvad_client: &mut MullvadProxyClient) -> anyhow::Result<()> {
-        for custom_list in List::all() {
-            let id = mullvad_client
-                .create_custom_list(custom_list.name())
-                .await?;
-            let mut daemon_dito = find_custom_list(mullvad_client, &custom_list.name()).await?;
-            assert_eq!(id, daemon_dito.id);
-            for locations in custom_list.locations() {
-                daemon_dito.locations.insert(locations);
-            }
-            mullvad_client.update_custom_list(daemon_dito).await?;
-            // Associate this custom list variant with a specific, runtime custom list id.
-            IDS.lock().unwrap().insert(custom_list, id);
-        }
-        Ok(())
-    }
-
-    /// Set the default location to the custom list specified by `DEFAULT_LIST`. This also includes
-    /// entry location for multihop. It does not, however, affect bridge location for OpenVPN.
-    /// This is for simplify, as bridges default to using the server closest to the exit anyway, and
-    /// OpenVPN is slated for removal.
-    pub async fn set_default_location(
-        mullvad_client: &mut MullvadProxyClient,
-    ) -> anyhow::Result<()> {
-        let constraints = get_custom_list_location_relay_constraints(DEFAULT_LIST);
-
-        mullvad_client
-            .set_relay_settings(constraints.into())
-            .await
-            .context("Failed to set relay settings")
-    }
-
-    fn get_custom_list_location_relay_constraints(custom_list: List) -> RelayConstraints {
-        let wireguard_constraints = mullvad_types::relay_constraints::WireguardConstraints {
-            entry_location: Constraint::Only(custom_list.into()),
-            ..Default::default()
-        };
-
-        RelayConstraints {
-            location: Constraint::Only(custom_list.into()),
-            wireguard_constraints,
-            ..Default::default()
-        }
-    }
-
-    /// Dig out a custom list from the daemon settings based on the custom list's name.
-    /// There should be an rpc for this.
-    async fn find_custom_list(
-        rpc: &mut MullvadProxyClient,
-        name: &str,
-    ) -> anyhow::Result<CustomList> {
-        rpc.get_settings()
-            .await?
-            .custom_lists
-            .into_iter()
-            .find(|list| list.name == name)
-            .ok_or(anyhow!("List '{name}' not found"))
-    }
+/// Dig out a custom list from the daemon settings based on the custom list's name.
+/// There should be an rpc for this.
+pub async fn find_custom_list(
+    rpc: &mut MullvadProxyClient,
+    name: &str,
+) -> anyhow::Result<CustomList> {
+    rpc.get_settings()
+        .await?
+        .custom_lists
+        .into_iter()
+        .find(|list| list.name == name)
+        .ok_or(anyhow!("List '{name}' not found"))
 }
