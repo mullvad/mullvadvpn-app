@@ -1,7 +1,7 @@
 use clap::Parser;
 use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
 
-use mullvad_api::{proxy::ApiConnectionMode, DefaultDnsResolver, DEVICE_NOT_FOUND};
+use mullvad_api::{proxy::ApiConnectionMode, NullDnsResolver, DEVICE_NOT_FOUND};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::version::ParsedAppVersion;
 use talpid_core::firewall::{self, Firewall};
@@ -152,7 +152,7 @@ async fn remove_device() -> Result<(), Error> {
         .await
         .map_err(Error::ReadDeviceCacheError)?;
     if let Some(device) = state.into_device() {
-        let api_runtime = mullvad_api::Runtime::with_cache(DefaultDnsResolver, &cache_path, false)
+        let api_runtime = mullvad_api::Runtime::with_cache(NullDnsResolver, &cache_path, false)
             .await
             .map_err(Error::RpcInitializationError)?;
 

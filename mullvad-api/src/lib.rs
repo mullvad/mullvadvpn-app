@@ -311,6 +311,7 @@ pub trait DnsResolver: 'static + Send + Sync {
     async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>>;
 }
 
+/// DNS resolver that relies on `ToSocketAddrs` (`getaddrinfo`).
 pub struct DefaultDnsResolver;
 
 #[async_trait]
@@ -323,6 +324,16 @@ impl DnsResolver for DefaultDnsResolver {
             .await
             .expect("DNS task panicked")?;
         Ok(addrs.map(|addr| addr.ip()).collect())
+    }
+}
+
+/// DNS resolver that always returns no results
+pub struct NullDnsResolver;
+
+#[async_trait]
+impl DnsResolver for NullDnsResolver {
+    async fn resolve(&self, _host: String) -> io::Result<Vec<IpAddr>> {
+        Ok(vec![])
     }
 }
 
