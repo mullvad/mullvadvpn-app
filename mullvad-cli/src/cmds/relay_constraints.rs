@@ -27,7 +27,6 @@ impl From<LocationArgs> for Constraint<GeographicLocationConstraint> {
             (country, Some(city), Some(hostname)) => {
                 GeographicLocationConstraint::Hostname(country, city, hostname)
             }
-
             _ => unreachable!("invalid location arguments"),
         })
     }
