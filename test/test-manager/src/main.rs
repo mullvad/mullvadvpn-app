@@ -327,7 +327,16 @@ async fn main() -> Result<()> {
                 test_rpc::meta::Os::from(vm_config.os_type),
                 openvpn_certificate,
             ));
-            let tests = get_filtered_tests(&test_filters)?;
+            let tests = {
+                let mut tests = get_filtered_tests(&test_filters)?;
+                // Fill in location overrides
+                if let Some(locations) = &config.location {
+                    for test in tests.iter_mut() {
+                        test.location = locations.lookup(test.name).cloned();
+                    }
+                }
+                tests
+            };
 
             // For convenience, spawn a SOCKS5 server that is reachable for tests that need it
             let socks = socks_server::spawn(SocketAddr::new(
