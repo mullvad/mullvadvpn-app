@@ -1344,7 +1344,7 @@ pub mod custom_lists {
 
     /// Dig out a custom list from the daemon settings based on the custom list's name.
     /// There should be an rpc for this.
-    async fn find_custom_list(
+    pub async fn find_custom_list(
         rpc: &mut MullvadProxyClient,
         name: &str,
     ) -> anyhow::Result<CustomList> {

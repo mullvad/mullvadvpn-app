@@ -16,6 +16,7 @@ mod tunnel_state;
 mod ui;
 
 use itertools::Itertools;
+use mullvad_types::relay_constraints::GeographicLocationConstraint;
 pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
@@ -137,7 +138,7 @@ pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata
 pub async fn prepare_daemon(
     rpc: &ServiceClient,
     rpc_provider: &RpcClientProvider,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<MullvadProxyClient> {
     // Check if daemon should be restarted
     let mut mullvad_client = ensure_daemon_version(rpc, rpc_provider)
         .await
@@ -154,6 +155,51 @@ pub async fn prepare_daemon(
     helpers::ensure_logged_in(&mut mullvad_client).await?;
     helpers::custom_lists::add_default_lists(&mut mullvad_client).await?;
     helpers::custom_lists::set_default_location(&mut mullvad_client).await?;
+
+    Ok(mullvad_client)
+}
+
+/// Create an "anonynmous" custom list for this test. The custom list will
+/// have the same as the test and contain the locations as specified by [TestMetadata::location].
+pub async fn prepare_custom_lists(
+    mullvad_client: &mut MullvadProxyClient,
+    test: &TestMetadata,
+) -> anyhow::Result<()> {
+    use helpers::custom_lists::find_custom_list;
+    // Convert locations from the test config to actual location constraints
+    let locations = {
+        let mut locations: Vec<GeographicLocationConstraint> = vec![];
+        for input in test.location.clone().unwrap() {
+            match input.parse::<GeographicLocationConstraint>() {
+                Ok(location) => locations.push(location),
+                // If some location argument can not be parsed as a GeographicLocationconstraint,
+                // assume it is a custom list.
+                Err(_parse_error) => {
+                    let custom_list = find_custom_list(mullvad_client, &input).await.unwrap();
+                    // Hack: Dig out all the geographic location constraints from this custom list
+                    for custom_list_location in custom_list.locations {
+                        locations.push(custom_list_location)
+                    }
+                }
+            };
+        }
+        locations
+    };
+
+    // Add the custom list to the current app instance
+    let id = mullvad_client
+        .create_custom_list(test.name.to_string())
+        .await?;
+
+    let mut custom_list = find_custom_list(mullvad_client, test.name).await?;
+    log::info!("Creating custom list {}", custom_list.name);
+
+    assert_eq!(id, custom_list.id);
+    for location in locations {
+        custom_list.locations.insert(location);
+    }
+    mullvad_client.update_custom_list(custom_list).await?;
+    log::info!("Added custom list");
 
     Ok(())
 }
