@@ -28,11 +28,12 @@ impl AndroidDnsResolver {
 #[async_trait]
 impl DnsResolver for AndroidDnsResolver {
     async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>> {
-        let ips = self.connectivity_listener.current_dns_servers();
-
-        let ips = ips.map_err(|err| {
-            io::Error::other(format!("Failed to retrieve current servers: {err}"))
-        })?;
+        let ips = self
+            .connectivity_listener
+            .current_dns_servers()
+            .map_err(|err| {
+                io::Error::other(format!("Failed to retrieve current servers: {err}"))
+            })?;
         let group = NameServerConfigGroup::from_ips_clear(&ips, 53, false);
 
         let config = ResolverConfig::from_parts(None, vec![], group);
