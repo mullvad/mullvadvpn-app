@@ -14,6 +14,14 @@ pub struct Config {
     pub runtime_opts: RuntimeOptions,
     pub vms: BTreeMap<String, VmConfig>,
     pub mullvad_host: Option<String>,
+    /// Add location override on a per-test basis. These those locations will be the
+    /// only available options for the given test to pick from!
+    ///
+    /// Glob patterns are used to targeet one or more tests with a set of locations. If there are multiple
+    /// patterns that match with a test name, only the first match will be considered. The ordering
+    /// is just like a regular JSON list.
+    // TODO: Make sure this is not serialized into null
+    pub location: Option<locations::Locations>,
 }
 
 #[derive(Default, Serialize, Deserialize, Clone)]
@@ -43,5 +51,113 @@ impl Config {
             log::debug!("No Mullvad host has been set explicitly. Falling back to default host");
             DEFAULT_MULLVAD_HOST.to_owned()
         })
+    }
+}
+
+mod locations {
+    use std::collections::BTreeMap;
+    use std::ops::Deref;
+
+    use serde::{de::Visitor, Deserialize, Serialize};
+
+    #[derive(Serialize, Deserialize, Clone, Default)]
+    pub struct Locations {
+        pub r#override: Override,
+    }
+
+    impl Locations {}
+
+    #[derive(Serialize, Deserialize, Clone)]
+    pub struct Override(BTreeMap<SerializeableGlob, Vec<String>>);
+
+    impl Default for Override {
+        /// All tests default to using the "any" location.
+        /// Written out in a config it would look like the following: { "*": ["any"] }
+        fn default() -> Self {
+            let overrides = {
+                let mut overrides = BTreeMap::new();
+                let glob = SerializeableGlob::from(glob::Pattern::new("*").unwrap());
+                overrides.insert(glob, vec!["any".to_string()]);
+                overrides
+            };
+            Override(overrides)
+        }
+    }
+
+    /// Implement serde [Serialize] and [Deserialize] for [glob::Pattern].
+    #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Debug)]
+    struct SerializeableGlob(glob::Pattern);
+
+    impl<'de> Deserialize<'de> for SerializeableGlob {
+        fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+        where
+            D: serde::Deserializer<'de>,
+        {
+            let glob = deserializer.deserialize_string(GlobVisitor)?;
+            Ok(SerializeableGlob(glob))
+        }
+    }
+
+    impl Serialize for SerializeableGlob {
+        fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+        {
+            let glob = self.0.as_str();
+            serializer.serialize_str(glob)
+        }
+    }
+
+    impl From<glob::Pattern> for SerializeableGlob {
+        fn from(pattern: glob::Pattern) -> Self {
+            Self(pattern)
+        }
+    }
+
+    impl Deref for SerializeableGlob {
+        type Target = glob::Pattern;
+
+        fn deref(&self) -> &Self::Target {
+            &self.0
+        }
+    }
+
+    struct GlobVisitor;
+
+    impl Visitor<'_> for GlobVisitor {
+        type Value = glob::Pattern;
+
+        fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            formatter.write_str("Only strings can be deserialised to glob pattern")
+        }
+
+        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
+        where
+            E: serde::de::Error,
+        {
+            glob::Pattern::new(v).map_err(|err| {
+                E::custom(format!(
+                    "Cannot compile glob pattern from: {v} error: {err:?}"
+                ))
+            })
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_relay_location_per_test_override() {
+        let config = "
+            {
+                \"vms\": {},
+                \"mullvad_host\": \"mullvad.net\",
+                \"location\": { \"override\": { \"*\": [\"Low Latency\"] } }
+            }";
+
+        let config: Config = serde_json::from_str(config).unwrap();
+        let _location = config.location.expect("location overrides was not parsed");
     }
 }

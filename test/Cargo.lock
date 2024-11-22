@@ -3444,6 +3444,7 @@ dependencies = [
  "dirs",
  "env_logger",
  "futures",
+ "glob",
  "hyper-util",
  "inventory",
  "ipnetwork",
