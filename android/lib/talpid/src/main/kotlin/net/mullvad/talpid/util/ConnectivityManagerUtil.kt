@@ -11,26 +11,6 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 
-sealed interface NetworkEvent {
-    data class Available(val network: Network) : NetworkEvent
-
-    data object Unavailable : NetworkEvent
-
-    data class LinkPropertiesChanged(val network: Network, val linkProperties: LinkProperties) :
-        NetworkEvent
-
-    data class CapabilitiesChanged(
-        val network: Network,
-        val networkCapabilities: NetworkCapabilities,
-    ) : NetworkEvent
-
-    data class BlockedStatusChanged(val network: Network, val blocked: Boolean) : NetworkEvent
-
-    data class Losing(val network: Network, val maxMsToLive: Int) : NetworkEvent
-
-    data class Lost(val network: Network) : NetworkEvent
-}
-
 fun ConnectivityManager.defaultNetworkFlow(): Flow<NetworkEvent> =
     callbackFlow<NetworkEvent> {
         val callback =
@@ -130,3 +110,23 @@ fun ConnectivityManager.networkFlow(networkRequest: NetworkRequest): Flow<Networ
 
         awaitClose { unregisterNetworkCallback(callback) }
     }
+
+sealed interface NetworkEvent {
+    data class Available(val network: Network) : NetworkEvent
+
+    data object Unavailable : NetworkEvent
+
+    data class LinkPropertiesChanged(val network: Network, val linkProperties: LinkProperties) :
+        NetworkEvent
+
+    data class CapabilitiesChanged(
+        val network: Network,
+        val networkCapabilities: NetworkCapabilities,
+    ) : NetworkEvent
+
+    data class BlockedStatusChanged(val network: Network, val blocked: Boolean) : NetworkEvent
+
+    data class Losing(val network: Network, val maxMsToLive: Int) : NetworkEvent
+
+    data class Lost(val network: Network) : NetworkEvent
+}
