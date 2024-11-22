@@ -611,16 +611,14 @@ impl Daemon {
         let (internal_event_tx, internal_event_rx) = daemon_command_channel.destructure();
 
         #[cfg(target_os = "android")]
-        let connectivity_listener = match ConnectivityListener::new(android_context.clone()) {
-            Ok(listener) => listener,
-            Err(error) => {
-                log::warn!(
+        let connectivity_listener = ConnectivityListener::new(android_context.clone())
+            .inspect_err(|error| {
+                log::error!(
                     "{}",
                     error.display_chain_with_msg("Failed to start connectivity listener")
                 );
-                return Err(Error::DaemonUnavailable);
-            }
-        };
+            })
+            .map_err(|_| Err(Error::DaemonUnavailable))?;
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
