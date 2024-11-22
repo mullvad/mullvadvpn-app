@@ -1,7 +1,5 @@
 #![cfg(target_os = "android")]
-//! A non-blocking DNS resolver. `getaddrinfo` tends to prevent the tokio runtime from being
-//! dropped, since it waits indefinitely on blocking threads. This is particularly bad on Android,
-//! so we use a non-blocking resolver instead.
+//! See [AndroidDnsResolver].
 
 use async_trait::async_trait;
 use hickory_resolver::{
@@ -11,6 +9,9 @@ use hickory_resolver::{
 use mullvad_api::DnsResolver;
 use std::{io, net::IpAddr};
 
+/// A non-blocking DNS resolver. The default resolver uses `getaddrinfo`, which often prevents the
+/// tokio runtime from being dropped, since it waits indefinitely on blocking threads. This is
+/// particularly bad on Android, so we use a non-blocking resolver instead.
 pub struct AndroidDnsResolver {
     connectivity_listener: talpid_core::connectivity_listener::ConnectivityListener,
 }
