@@ -229,7 +229,7 @@ async fn main() -> Result<()> {
         }
         Commands::ListTests => {
             println!("priority\tname");
-            for test in tests::get_tests() {
+            for test in tests::get_test_descriptions() {
                 println!(
                     "{priority:8}\t{name}",
                     name = test.name,

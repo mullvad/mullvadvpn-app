@@ -5,6 +5,8 @@ use tokio::{
     io::{AsyncBufReadExt, AsyncWriteExt},
 };
 
+use crate::tests::should_run_on_os;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to open log file {1:?}")]
@@ -118,7 +120,7 @@ pub struct Summary {
 impl Summary {
     /// Read test summary from `path`.
     pub async fn parse_log<P: AsRef<Path>>(
-        all_tests: &[&crate::tests::TestMetadata],
+        all_tests: &[crate::tests::TestDescription],
         path: P,
     ) -> Result<Summary, Error> {
         let file = fs::OpenOptions::new()
@@ -155,7 +157,7 @@ impl Summary {
         for test in all_tests {
             // Add missing test results
             let entry = results.entry(test.name.to_owned());
-            if test.should_run_on_os(os) {
+            if should_run_on_os(test.targets, os) {
                 entry.or_insert(TestResult::Unknown);
             } else {
                 entry.or_insert(TestResult::Skip);
@@ -184,12 +186,12 @@ impl Summary {
 /// be parsed, we should not abort the entire summarization.
 pub async fn print_summary_table<P: AsRef<Path>>(summary_files: &[P]) {
     // Collect test details
-    let tests = crate::tests::get_tests();
+    let tests = crate::tests::get_test_descriptions();
 
     let mut summaries = vec![];
     let mut failed_to_parse = vec![];
     for sumfile in summary_files {
-        match Summary::parse_log(&tests, sumfile).await {
+        match Summary::parse_log(&tests[..], sumfile).await {
             Ok(summary) => summaries.push(summary),
             Err(_) => failed_to_parse.push(sumfile),
         }

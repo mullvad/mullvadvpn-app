@@ -15,6 +15,7 @@ mod tunnel;
 mod tunnel_state;
 mod ui;
 
+use itertools::Itertools;
 pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
@@ -29,7 +30,7 @@ use config::TEST_CONFIG;
 use helpers::{get_app_env, install_app};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
-use test_rpc::ServiceClient;
+use test_rpc::{meta::Os, ServiceClient};
 
 const WAIT_FOR_TUNNEL_STATE_TIMEOUT: Duration = Duration::from_secs(40);
 
@@ -75,15 +76,43 @@ pub enum Error {
     Other(String),
 }
 
-/// Get a list of all tests, sorted by priority.
-pub fn get_tests() -> Vec<&'static TestMetadata> {
-    let mut tests: Vec<_> = inventory::iter::<TestMetadata>().collect();
-    tests.sort_by_key(|test| test.priority.unwrap_or(0));
-    tests
+#[derive(Clone)]
+/// An abbreviated version of [`TestMetadata`]
+pub struct TestDescription {
+    pub name: &'static str,
+    pub targets: &'static [Os],
+    pub priority: Option<i32>,
 }
 
-pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<&TestMetadata>, anyhow::Error> {
-    let tests = get_tests();
+pub fn should_run_on_os(targets: &[Os], os: Os) -> bool {
+    targets.is_empty() || targets.contains(&os)
+}
+
+/// Get a list of all tests, sorted by priority.
+pub fn get_test_descriptions() -> Vec<TestDescription> {
+    let tests: Vec<_> = inventory::iter::<TestMetadata>()
+        .map(|test| TestDescription {
+            priority: test.priority,
+            name: test.name,
+            targets: test.targets,
+        })
+        .sorted_by_key(|test| test.priority)
+        .collect_vec();
+
+    // Since `test_upgrade_app` is not registered with inventory, we need to add it manually
+    let test_upgrade_app = TestDescription {
+        priority: None,
+        name: "test_upgrade_app",
+        targets: &[],
+    };
+    [vec![test_upgrade_app], tests].concat()
+}
+
+/// Return all tests with names matching the input argument. Filters out tests that are skipped for
+/// the target platform and `test_upgrade_app`, which is run separately.
+pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata>, anyhow::Error> {
+    let mut tests: Vec<_> = inventory::iter::<TestMetadata>().cloned().collect();
+    tests.sort_by_key(|test| test.priority.unwrap_or(0));
 
     let mut tests = if specified_tests.is_empty() {
         // Keep all tests
@@ -94,13 +123,13 @@ pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<&TestMetadat
             .map(|f| {
                 tests
                     .iter()
-                    .find(|t| t.command.eq_ignore_ascii_case(f))
+                    .find(|t| t.name.eq_ignore_ascii_case(f))
                     .cloned()
                     .ok_or(anyhow::anyhow!("Test '{f}' not found"))
             })
             .collect::<Result<_, anyhow::Error>>()?
     };
-    tests.retain(|test| test.should_run_on_os(TEST_CONFIG.os));
+    tests.retain(|test| should_run_on_os(test.targets, TEST_CONFIG.os));
     Ok(tests)
 }
 
