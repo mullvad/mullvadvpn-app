@@ -203,6 +203,7 @@ fun ServerIpOverridesScreen(
             ServerIpOverridesCell(active = state.overridesActive)
 
             Spacer(modifier = Modifier.weight(1f))
+            SnackbarHost(hostState = snackbarHostState) { MullvadSnackbar(snackbarData = it) }
             PrimaryButton(
                 onClick = { showBottomSheet = true },
                 text = stringResource(R.string.server_ip_overrides_import_button),
@@ -211,9 +212,6 @@ fun ServerIpOverridesScreen(
                         .padding(bottom = Dimens.screenVerticalMargin)
                         .testTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG),
             )
-            SnackbarHost(hostState = snackbarHostState, modifier = Modifier.animateContentSize()) {
-                MullvadSnackbar(snackbarData = it)
-            }
         }
     }
 }
