@@ -389,7 +389,8 @@ impl HttpsConnectorWithSni {
     }
 
     /// Resolve the provided `uri` to an IP and port using `address_cache` in the first place, and
-    /// using `dns_resolver` otherwise.
+    /// using `dns_resolver` otherwise. If the URI contains an IP, that IP will be used. If the URI
+    /// contains a port, the port will be used.
     async fn resolve_address(
         address_cache: AddressCache,
         dns_resolver: &dyn DnsResolver,
