@@ -192,12 +192,14 @@ pub async fn prepare_custom_lists(
         .await?;
 
     let mut custom_list = find_custom_list(mullvad_client, test.name).await?;
+    log::info!("Creating custom list {}", custom_list.name);
 
     assert_eq!(id, custom_list.id);
     for location in locations {
         custom_list.locations.insert(location);
     }
     mullvad_client.update_custom_list(custom_list).await?;
+    log::info!("Added custom list");
 
     Ok(())
 }
