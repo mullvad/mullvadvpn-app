@@ -191,6 +191,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
             mullvad_client_version: #function_mullvad_version,
             func: #wrapper_closure,
             priority: #test_function_priority,
+            location: None,
         });
     }
 }
