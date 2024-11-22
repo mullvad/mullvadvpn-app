@@ -118,12 +118,6 @@ pub fn init_logger(
             .format(move |out, message, record| file_formatter.output_msg(out, message, record))
             .chain(Output::file(f, LINE_SEPARATOR));
         top_dispatcher = top_dispatcher.chain(file_dispatcher);
-
-        #[cfg(unix)]
-        crate::exception_logging::set_log_file(
-            std::ffi::CString::new(log_file.as_os_str().as_encoded_bytes())
-                .map_err(Error::LogPathContainsNull)?,
-        );
     }
     #[cfg(all(target_os = "android", debug_assertions))]
     {

@@ -137,7 +137,19 @@ fn init_early_boot_logging(config: &cli::Config) {
 }
 
 /// Initialize logging to stderr and to file (if provided).
+///
+/// Also install the [exception_logging] signal handler to log faults.
 fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), String> {
+    #[cfg(unix)]
+    if let Some(log_file) = &log_file {
+        exception_logging::set_log_file(
+            std::ffi::CString::new(log_file.as_os_str().as_encoded_bytes())
+                .map_err(|_| "Log file path contains null-bytes".to_string())?,
+        );
+    }
+
+    exception_logging::enable();
+
     logging::init_logger(
         config.log_level,
         log_file.as_ref(),
@@ -145,7 +157,6 @@ fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), St
     )
     .map_err(|e| e.display_chain_with_msg("Unable to initialize logger"))?;
     log_panics::init();
-    exception_logging::enable();
     version::log_version();
     Ok(())
 }
