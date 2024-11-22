@@ -30,4 +30,14 @@ public struct MullvadEndpoint: Equatable, Codable {
         self.ipv6Gateway = ipv6Gateway
         self.publicKey = publicKey
     }
+
+    public func override(ipv4Relay: IPv4Endpoint) -> Self {
+        MullvadEndpoint(
+            ipv4Relay: ipv4Relay,
+            ipv6Relay: ipv6Relay,
+            ipv4Gateway: ipv4Gateway,
+            ipv6Gateway: ipv6Gateway,
+            publicKey: publicKey
+        )
+    }
 }
