@@ -41,8 +41,6 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
                 .stateIn(scope, SharingStarted.Eagerly, false)
     }
 
-    fun unregister() {}
-
     private fun dnsServerChanges(): Flow<List<InetAddress>> =
         connectivityManager
             .defaultNetworkFlow()
