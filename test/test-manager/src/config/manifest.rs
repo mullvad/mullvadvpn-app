@@ -55,32 +55,66 @@ impl Config {
 }
 
 mod locations {
-    use std::collections::BTreeMap;
     use std::ops::Deref;
 
     use serde::{de::Visitor, Deserialize, Serialize};
 
+    // "location": {
+    //   "override": [
+    //     { "test": "test_daita", locations: ["se-got-101"] },
+    //     { "test": "*", locations: ["Nordic"] }
+    //   ]
+    // },
+
     #[derive(Serialize, Deserialize, Clone, Default)]
     pub struct Locations {
-        pub r#override: Override,
+        pub r#override: Overrides,
     }
 
-    impl Locations {}
+    impl Locations {
+        // Look up a test (by name) and see if there are any locations
+        // that we should use.
+        pub fn lookup(&self, test: &str) -> Option<&Vec<String>> {
+            self.r#override.lookup(test)
+        }
+    }
+
+    /// Mapping of glob pattern to a set of locations.
+    #[derive(Serialize, Deserialize, Clone)]
+    pub struct Overrides(Vec<Override>);
 
     #[derive(Serialize, Deserialize, Clone)]
-    pub struct Override(BTreeMap<SerializeableGlob, Vec<String>>);
+    pub struct Override {
+        test: SerializeableGlob,
+        locations: Vec<String>,
+    }
 
-    impl Default for Override {
+    impl Overrides {
+        // Lookup the first test that matches a glob pattern.
+        fn lookup(&self, test: &str) -> Option<&Vec<String>> {
+            self.0
+                .iter()
+                .find(
+                    |Override {
+                         test: test_glob, ..
+                     }| test_glob.matches(test),
+                )
+                .map(|Override { locations, .. }| locations)
+        }
+    }
+
+    impl Default for Overrides {
         /// All tests default to using the "any" location.
         /// Written out in a config it would look like the following: { "*": ["any"] }
         fn default() -> Self {
             let overrides = {
-                let mut overrides = BTreeMap::new();
                 let glob = SerializeableGlob::from(glob::Pattern::new("*").unwrap());
-                overrides.insert(glob, vec!["any".to_string()]);
-                overrides
+                vec![Override {
+                    test: glob,
+                    locations: vec!["any".to_string()],
+                }]
             };
-            Override(overrides)
+            Overrides(overrides)
         }
     }
 
