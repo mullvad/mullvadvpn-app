@@ -71,14 +71,28 @@ fn to_android_version_code(version: &str) -> String {
 
 fn to_windows_h_format(version: &str) -> String {
     let Version {
-        year, incremental, ..
+        year,
+        incremental,
+        version_type,
+        ..
     } = Version::parse(version);
+
+    if !is_valid_windows_version(&version_type) {
+        panic!("Invalid Windows version type: {version_type:?}");
+    }
 
     format!(
         "#define MAJOR_VERSION 20{year}
 #define MINOR_VERSION {incremental}
 #define PATCH_VERSION 0
 #define PRODUCT_VERSION \"{version}\""
+    )
+}
+
+fn is_valid_windows_version(version_type: &VersionType) -> bool {
+    matches!(
+        version_type,
+        VersionType::Beta(_) | VersionType::Dev(_) | VersionType::Stable
     )
 }
 
@@ -105,5 +119,11 @@ mod tests {
     fn test_version_code_dev() {
         assert_eq!("21349000", to_android_version_code("2021.34-dev"));
         assert_eq!("21349000", to_android_version_code("2021.34-dev-be846a5f0"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_windows_version_code() {
+        to_windows_h_format("2021.34-alpha1");
     }
 }
