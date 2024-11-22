@@ -190,18 +190,16 @@ fn log_fault_to_file_and_stdout(signum: c_int) -> Result<(), FaultHandlerErr> {
 // NOTE: See rules on signal-safety in `fn fault_handler`.
 fn log_fault_to_writer(signum: c_int, mut w: impl fmt::Write) -> Result<(), FaultHandlerErr> {
     // SIGNAL-SAFETY: Signal::try_from(i32) is signal-safe
-    match Signal::try_from(signum) {
-        Ok(signal) => {
-            // SIGNAL-SAFETY:
-            // `writeln` resolves to <LibcWriter as io::Write>::write, which is signal-safe.
-            // as_str is const and formatting a &str is signal-safe.
-            writeln!(w, "Caught signal {}", signal.as_str())?;
-        }
-        Err(_) => {
-            // SIGNAL-SAFETY: formatting an i32 is signal-safe.
-            writeln!(w, "Caught signal {signum}")?;
-        }
-    }
+    let signal_name: &str = match Signal::try_from(signum) {
+        // SIGNAL-SAFETY: as_str is const
+        Ok(signal) => signal.as_str(),
+        Err(_) => "UNKNOWN",
+    };
+
+    // SIGNAL-SAFETY:
+    // `writeln` resolves to <LibcWriter as io::Write>::write, which is signal-safe.
+    // formatting &str and i32 is signal-safe.
+    writeln!(w, "Caught signal {signum} ({signal_name})")?;
 
     // Formatting a `Backtrace` is NOT signal-safe. See docs on ENABLE_BACKTRACE.
     if ENABLE_BACKTRACE.load(Ordering::Acquire) {
