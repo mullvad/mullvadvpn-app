@@ -8,18 +8,17 @@ use hickory_resolver::{
 };
 use mullvad_api::DnsResolver;
 use std::{io, net::IpAddr};
+use talpid_core::connectivity_listener::ConnectivityListener;
 
 /// A non-blocking DNS resolver. The default resolver uses `getaddrinfo`, which often prevents the
 /// tokio runtime from being dropped, since it waits indefinitely on blocking threads. This is
 /// particularly bad on Android, so we use a non-blocking resolver instead.
 pub struct AndroidDnsResolver {
-    connectivity_listener: talpid_core::connectivity_listener::ConnectivityListener,
+    connectivity_listener: ConnectivityListener,
 }
 
 impl AndroidDnsResolver {
-    pub fn new(
-        connectivity_listener: talpid_core::connectivity_listener::ConnectivityListener,
-    ) -> Self {
+    pub fn new(connectivity_listener: ConnectivityListener) -> Self {
         Self {
             connectivity_listener,
         }
