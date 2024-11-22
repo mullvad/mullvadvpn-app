@@ -418,7 +418,7 @@ impl HttpsConnectorWithSni {
         //
         let addrs = dns_resolver.resolve(hostname.to_owned()).await?;
         let addr = addrs
-            .get(0)
+            .first()
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
         Ok(SocketAddr::new(*addr, port.unwrap_or(DEFAULT_PORT)))
     }
