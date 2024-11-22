@@ -55,8 +55,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             customLegend: NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_PORT_LEGEND",
                 tableName: "Shadowsocks",
-                // should this be 65000 or 65535 (i.e., 0xffff)?
-                value: "Valid range: 1 - 65000",
+                value: "Valid range: 1 - 65535",
                 comment: ""
             ),
             customFieldMode: .numericText
