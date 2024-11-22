@@ -34,10 +34,10 @@ extension REST {
         public let ipv4AddrIn: IPv4Address
         public let weight: UInt64
         public let includeInCountry: Bool
-        public var daita: Bool?
+        public let daita: Bool?
 
         public func override(ipv4AddrIn: IPv4Address?) -> Self {
-            return BridgeRelay(
+            BridgeRelay(
                 hostname: hostname,
                 active: active,
                 owned: owned,
@@ -45,7 +45,8 @@ extension REST {
                 provider: provider,
                 ipv4AddrIn: ipv4AddrIn ?? self.ipv4AddrIn,
                 weight: weight,
-                includeInCountry: includeInCountry
+                includeInCountry: includeInCountry,
+                daita: daita
             )
         }
     }
@@ -65,7 +66,7 @@ extension REST {
         public let shadowsocksExtraAddrIn: [String]?
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
-            return ServerRelay(
+            ServerRelay(
                 hostname: hostname,
                 active: active,
                 owned: owned,
@@ -82,7 +83,7 @@ extension REST {
         }
 
         public func override(daita: Bool) -> Self {
-            return ServerRelay(
+            ServerRelay(
                 hostname: hostname,
                 active: active,
                 owned: owned,
