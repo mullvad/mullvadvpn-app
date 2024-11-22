@@ -6,6 +6,7 @@ import android.net.ConnectivityManager.NetworkCallback
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import co.touchlab.kermit.Logger
 import kotlin.properties.Delegates.observable
 
 class ConnectivityListener {
@@ -14,6 +15,7 @@ class ConnectivityListener {
     private val callback =
         object : NetworkCallback() {
             override fun onAvailable(network: Network) {
+                Logger.d("Network $network")
                 availableNetworks.add(network)
                 isConnected = true
             }
