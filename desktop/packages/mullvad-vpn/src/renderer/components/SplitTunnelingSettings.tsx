@@ -557,7 +557,7 @@ function MacOsSplitTunnelingAvailability({
           <StyledMiniTitle>
             {messages.pgettext(
               'split-tunneling-view',
-              'Enabled "Fill disk access" and still having issues?',
+              'Enabled "Full disk access" and still having issues?',
             )}
           </StyledMiniTitle>
           <Spacing height="8px" />
