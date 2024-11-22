@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Fixed
+#### Windows
+- Fix issue where the installer would allow any executable named `taskkill.exe` in the working
+  directory to run as admin. This fixes audit issue `MLLVD-CR-24-06`.
 
 #### Linux
 - Prevent attackers able to send ARP requests to the device running Mullvad from figuring out

@@ -751,7 +751,7 @@
 	${EndIf}
 
 	# Killing without /f will likely cause the daemon to disconnect.
-	nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}"` $R0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"` $R0
 	Sleep 500
 
 	customCheckAppRunning_skip_kill:
@@ -1051,9 +1051,9 @@
 
 	Pop $FullUninstall
 
-	nsExec::Exec `taskkill /t /im "${APP_EXECUTABLE_FILENAME}"` $0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /t /im "${APP_EXECUTABLE_FILENAME}"` $0
 	Sleep 500
-	nsExec::Exec `taskkill /f /t /im "${APP_EXECUTABLE_FILENAME}"` $0
+	nsExec::Exec `"$SYSDIR\taskkill.exe" /f /t /im "${APP_EXECUTABLE_FILENAME}"` $0
 
 	${If} $FullUninstall == 0
 		# Save the target tunnel state if we're upgrading
