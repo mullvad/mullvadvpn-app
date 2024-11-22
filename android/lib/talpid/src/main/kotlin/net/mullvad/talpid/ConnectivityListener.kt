@@ -37,9 +37,7 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
 
         _isConnected =
             hasInternetCapability()
-                .onEach {
-                    notifyConnectivityChange(it)
-                }
+                .onEach { notifyConnectivityChange(it) }
                 .stateIn(scope, SharingStarted.Eagerly, false)
     }
 
