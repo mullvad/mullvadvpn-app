@@ -31,19 +31,17 @@ impl DnsResolver for AndroidDnsResolver {
         let ips = self.connectivity_listener.current_dns_servers();
 
         let ips = ips.map_err(|err| {
-            io::Error::new(
-                io::ErrorKind::Other,
-                format!("Failed to retrieve current servers: {err}"),
-            )
+            io::Error::other(format!("Failed to retrieve current servers: {err}"))
         })?;
         let group = NameServerConfigGroup::from_ips_clear(&ips, 53, false);
 
         let config = ResolverConfig::from_parts(None, vec![], group);
         let resolver = TokioAsyncResolver::tokio(config, ResolverOpts::default());
 
-        let lookup = resolver.lookup_ip(host).await.map_err(|err| {
-            io::Error::new(io::ErrorKind::Other, format!("lookup_ip failed: {err}"))
-        })?;
+        let lookup = resolver
+            .lookup_ip(host)
+            .await
+            .map_err(|err| io::Error::other(format!("lookup_ip failed: {err}")))?;
 
         Ok(lookup.into_iter().collect())
     }
