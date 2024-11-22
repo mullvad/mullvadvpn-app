@@ -124,6 +124,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdow
         _ = context.runtime.block_on(context.running_daemon);
 
         // Dropping the tokio runtime will block if there are any tasks in flight.
+        // That is, until all async tasks yield *and* all blocking threads have stopped.
     }
 }
 
