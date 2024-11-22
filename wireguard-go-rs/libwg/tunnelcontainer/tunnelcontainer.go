@@ -16,6 +16,7 @@ import (
 
 type Context struct {
 	Device *device.Device
+	EntryDevice *device.Device
 	Uapi   net.Listener
 	Logger *device.Logger
 }

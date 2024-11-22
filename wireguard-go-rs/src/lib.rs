@@ -8,10 +8,10 @@
 
 #![cfg(unix)]
 
-use core::slice;
-use std::{
+use core::{
     ffi::{c_char, CStr},
     mem::{ManuallyDrop, MaybeUninit},
+    slice,
 };
 use util::OnDrop;
 use zeroize::Zeroize;
@@ -105,6 +105,37 @@ impl Tunnel {
         result_from_code(code)
     }
 
+    /// Special function for android multihop since that behavior is different from desktop
+    /// and android non-multihop.
+    ///
+    /// The `logging_callback` let's you provide a Rust function that receives any logging output
+    /// from wireguard-go. `logging_context` is a value that will be passed to each invocation of
+    /// `logging_callback`.
+    #[cfg(target_os = "android")]
+    pub fn turn_on_multihop(
+        exit_settings: &CStr,
+        entry_settings: &CStr,
+        private_ip: &CStr,
+        device: Fd,
+        logging_callback: Option<LoggingCallback>,
+        logging_context: LoggingContext,
+    ) -> Result<Self, Error> {
+        // SAFETY: pointer is valid for the the lifetime of this function
+        let code = unsafe {
+            ffi::wgTurnOnMultihop(
+                exit_settings.as_ptr(),
+                entry_settings.as_ptr(),
+                private_ip.as_ptr(),
+                device,
+                logging_callback,
+                logging_context,
+            )
+        };
+
+        result_from_code(code)?;
+        Ok(Tunnel { handle: code })
+    }
+
     /// Get the config of the WireGuard interface and make it available in the provided function.
     ///
     /// This takes a function to make sure the cstr get's zeroed and freed afterwards.
@@ -180,12 +211,14 @@ impl Tunnel {
     /// Get the file descriptor of the tunnel IPv4 socket.
     #[cfg(target_os = "android")]
     pub fn get_socket_v4(&self) -> Fd {
+        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
         unsafe { ffi::wgGetSocketV4(self.handle) }
     }
 
     /// Get the file descriptor of the tunnel IPv6 socket.
     #[cfg(target_os = "android")]
     pub fn get_socket_v6(&self) -> Fd {
+        // SAFETY: self.handle is a valid pointer to an active wireguard-go tunnel.
         unsafe { ffi::wgGetSocketV6(self.handle) }
     }
 }
@@ -252,6 +285,21 @@ mod ffi {
         pub fn wgTurnOn(
             #[cfg(not(target_os = "android"))] mtu: isize,
             settings: *const c_char,
+            fd: Fd,
+            logging_callback: Option<LoggingCallback>,
+            logging_context: LoggingContext,
+        ) -> i32;
+
+        /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
+        /// for the tunnel device and logging.
+        ///
+        /// Positive return values are tunnel handles for this specific wireguard tunnel instance.
+        /// Negative return values signify errors.
+        #[cfg(target_os = "android")]
+        pub fn wgTurnOnMultihop(
+            exit_settings: *const c_char,
+            entry_settings: *const c_char,
+            private_ip: *const c_char,
             fd: Fd,
             logging_callback: Option<LoggingCallback>,
             logging_context: LoggingContext,
