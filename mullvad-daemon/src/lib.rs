@@ -618,7 +618,7 @@ impl Daemon {
                     error.display_chain_with_msg("Failed to start connectivity listener")
                 );
             })
-            .map_err(|_| Err(Error::DaemonUnavailable))?;
+            .map_err(|_| Error::DaemonUnavailable)?;
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
