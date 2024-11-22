@@ -388,6 +388,8 @@ impl HttpsConnectorWithSni {
             .map_err(|err| io::Error::new(io::ErrorKind::TimedOut, err))?
     }
 
+    /// Resolve the provided `uri` to an IP and port using `address_cache` in the first place, and
+    /// using `dns_resolver` otherwise.
     async fn resolve_address(
         address_cache: AddressCache,
         dns_resolver: &dyn DnsResolver,
