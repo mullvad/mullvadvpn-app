@@ -37,7 +37,7 @@ extension REST {
         public var daita: Bool?
 
         public func override(ipv4AddrIn: IPv4Address?) -> Self {
-            return BridgeRelay(
+            BridgeRelay(
                 hostname: hostname,
                 active: active,
                 owned: owned,
@@ -65,7 +65,7 @@ extension REST {
         public let shadowsocksExtraAddrIn: [String]?
 
         public func override(ipv4AddrIn: IPv4Address?, ipv6AddrIn: IPv6Address?) -> Self {
-            return ServerRelay(
+            ServerRelay(
                 hostname: hostname,
                 active: active,
                 owned: owned,
@@ -82,7 +82,7 @@ extension REST {
         }
 
         public func override(daita: Bool) -> Self {
-            return ServerRelay(
+            ServerRelay(
                 hostname: hostname,
                 active: active,
                 owned: owned,

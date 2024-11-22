@@ -12,6 +12,7 @@ import MullvadTypes
 struct ObfuscatorPortSelection {
     let relays: REST.ServerRelaysResponse
     let port: RelayConstraint<UInt16>
+    let method: WireGuardObfuscationState
 }
 
 struct ObfuscatorPortSelector {
@@ -44,7 +45,7 @@ struct ObfuscatorPortSelector {
             break
         }
 
-        return ObfuscatorPortSelection(relays: relays, port: port)
+        return ObfuscatorPortSelection(relays: relays, port: port, method: obfuscationMethod)
     }
 
     private func obfuscateShadowsocksRelays(tunnelSettings: LatestTunnelSettings) -> REST.ServerRelaysResponse {
