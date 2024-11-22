@@ -317,6 +317,8 @@ pub struct DefaultDnsResolver;
 impl DnsResolver for DefaultDnsResolver {
     async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>> {
         use std::net::ToSocketAddrs;
+        // Spawn a blocking thread, since `to_socket_addrs` relies on `libc::getaddrinfo`, which
+        // blocks and either has no timeout or a very long one.
         let addrs = tokio::task::spawn_blocking(move || (host, 0).to_socket_addrs())
             .await
             .expect("DNS task panicked")?;
