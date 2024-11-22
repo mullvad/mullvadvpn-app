@@ -125,7 +125,6 @@ extern "C" fn fault_handler(
 
         // map error to error-codes.
         Err(err) => match err {
-            FaultHandlerErr::UnknownSignal => signum_code,
             FaultHandlerErr::Open => 2,
             FaultHandlerErr::Write => 3,
             FaultHandlerErr::FSync => 4,
@@ -191,19 +190,18 @@ fn log_fault_to_file_and_stdout(signum: c_int) -> Result<(), FaultHandlerErr> {
 // NOTE: See rules on signal-safety in `fn fault_handler`.
 fn log_fault_to_writer(signum: c_int, mut w: impl fmt::Write) -> Result<(), FaultHandlerErr> {
     // SIGNAL-SAFETY: Signal::try_from(i32) is signal-safe
-    let signal: Signal = match Signal::try_from(signum) {
-        Ok(signal) => signal,
+    match Signal::try_from(signum) {
+        Ok(signal) => {
+            // SIGNAL-SAFETY:
+            // `writeln` resolves to <LibcWriter as io::Write>::write, which is signal-safe.
+            // as_str is const and formatting a &str is signal-safe.
+            writeln!(w, "Caught signal {}", signal.as_str())?;
+        }
         Err(_) => {
             // SIGNAL-SAFETY: formatting an i32 is signal-safe.
-            writeln!(w, "Signal handler triggered by unknown signal: {signum}")?;
-            return Err(FaultHandlerErr::UnknownSignal);
+            writeln!(w, "Caught signal {signum}")?;
         }
-    };
-
-    // SIGNAL-SAFETY:
-    //   `writeln` resolves to calls to <LibcWriter as io::Write>::write, which is signal-safe.
-    //   as_str is const and formatting a &str is signal-safe.
-    writeln!(w, "Caught signal {}", signal.as_str())?;
+    }
 
     // Formatting a `Backtrace` is NOT signal-safe. See docs on ENABLE_BACKTRACE.
     if ENABLE_BACKTRACE.load(Ordering::Acquire) {
@@ -217,9 +215,6 @@ fn log_fault_to_writer(signum: c_int, mut w: impl fmt::Write) -> Result<(), Faul
 }
 
 enum FaultHandlerErr {
-    /// Signal handler received an unknown signal number.
-    UnknownSignal,
-
     /// A call to `libc::open` failed.
     Open,
 
