@@ -197,7 +197,7 @@ fn log_fault_to_writer(signum: c_int, mut w: impl fmt::Write) -> Result<(), Faul
     };
 
     // SIGNAL-SAFETY:
-    // `writeln` resolves to <LibcWriter as io::Write>::write, which is signal-safe.
+    // `writeln` resolves to <LibcWriter as fmt::Write>::write, which is signal-safe.
     // formatting &str and i32 is signal-safe.
     writeln!(w, "Caught signal {signum} ({signal_name})")?;
 
