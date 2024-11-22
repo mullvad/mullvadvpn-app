@@ -2318,6 +2318,7 @@ dependencies = [
 name = "mullvad-api"
 version = "0.0.0"
 dependencies = [
+ "async-trait",
  "cbindgen",
  "chrono",
  "futures",
@@ -2373,6 +2374,7 @@ name = "mullvad-daemon"
 version = "0.0.0"
 dependencies = [
  "android_logger",
+ "async-trait",
  "chrono",
  "clap",
  "ctrlc",
@@ -2380,6 +2382,7 @@ dependencies = [
  "either",
  "fern",
  "futures",
+ "hickory-resolver",
  "libc",
  "log",
  "log-panics",

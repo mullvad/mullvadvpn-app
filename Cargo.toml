@@ -67,6 +67,9 @@ single_use_lifetimes = "warn"
 unused_async = "deny"
 
 [workspace.dependencies]
+hickory-proto = "0.24.1"
+hickory-resolver = "0.24.1"
+hickory-server = { version = "0.24.1", features = ["resolver"] }
 tokio = { version = "1.8" }
 parity-tokio-ipc = "0.9"
 futures = "0.3.15"

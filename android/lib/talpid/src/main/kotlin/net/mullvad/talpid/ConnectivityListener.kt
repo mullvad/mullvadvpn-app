@@ -1,70 +1,79 @@
 package net.mullvad.talpid
 
-import android.content.Context
 import android.net.ConnectivityManager
-import android.net.ConnectivityManager.NetworkCallback
+import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
-import kotlin.properties.Delegates.observable
+import java.net.InetAddress
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.scan
+import kotlinx.coroutines.flow.stateIn
+import net.mullvad.talpid.util.NetworkEvent
+import net.mullvad.talpid.util.defaultNetworkFlow
+import net.mullvad.talpid.util.networkFlow
 
-class ConnectivityListener {
-    private val availableNetworks = HashSet<Network>()
-
-    private val callback =
-        object : NetworkCallback() {
-            override fun onAvailable(network: Network) {
-                availableNetworks.add(network)
-                isConnected = true
-            }
-
-            override fun onLost(network: Network) {
-                availableNetworks.remove(network)
-                isConnected = availableNetworks.isNotEmpty()
-            }
-        }
-
-    private lateinit var connectivityManager: ConnectivityManager
-
+class ConnectivityListener(val connectivityManager: ConnectivityManager) {
+    private lateinit var _isConnected: StateFlow<Boolean>
     // Used by JNI
-    var isConnected by
-        observable(false) { _, oldValue, newValue ->
-            if (newValue != oldValue) {
-                if (senderAddress != 0L) {
-                    notifyConnectivityChange(newValue, senderAddress)
-                }
-            }
-        }
+    val isConnected
+        get() = _isConnected.value
 
-    var senderAddress = 0L
+    private lateinit var _currentDnsServers: StateFlow<List<InetAddress>>
+    // Used by JNI
+    val currentDnsServers
+        get() = ArrayList(_currentDnsServers.value)
 
-    fun register(context: Context) {
+    fun register(scope: CoroutineScope) {
+        _currentDnsServers =
+            dnsServerChanges().stateIn(scope, SharingStarted.Eagerly, currentDnsServers())
+
+        _isConnected =
+            hasInternetCapability()
+                .onEach { notifyConnectivityChange(it) }
+                .stateIn(scope, SharingStarted.Eagerly, false)
+    }
+
+    private fun dnsServerChanges(): Flow<List<InetAddress>> =
+        connectivityManager
+            .defaultNetworkFlow()
+            .filterIsInstance<NetworkEvent.LinkPropertiesChanged>()
+            .map { it.linkProperties.dnsServersWithoutFallback() }
+
+    private fun currentDnsServers(): List<InetAddress> =
+        connectivityManager
+            .getLinkProperties(connectivityManager.activeNetwork)
+            ?.dnsServersWithoutFallback() ?: emptyList()
+
+    private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
+        dnsServers.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER }
+
+    private fun hasInternetCapability(): Flow<Boolean> {
         val request =
             NetworkRequest.Builder()
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
                 .build()
 
-        connectivityManager =
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        connectivityManager.registerNetworkCallback(request, callback)
+        return connectivityManager
+            .networkFlow(request)
+            .scan(setOf<Network>()) { networks, event ->
+                when (event) {
+                    is NetworkEvent.Available -> networks + event.network
+                    is NetworkEvent.Lost -> networks - event.network
+                    else -> networks
+                }
+            }
+            .map { it.isNotEmpty() }
+            .distinctUntilChanged()
     }
 
-    fun unregister() {
-        connectivityManager.unregisterNetworkCallback(callback)
-    }
-
-    // DROID-1401
-    // This function has never been used and should most likely be merged into unregister(),
-    // along with ensuring that the lifecycle of it is correct.
-    @Suppress("UnusedPrivateMember")
-    private fun finalize() {
-        destroySender(senderAddress)
-        senderAddress = 0L
-    }
-
-    private external fun notifyConnectivityChange(isConnected: Boolean, senderAddress: Long)
-
-    private external fun destroySender(senderAddress: Long)
+    private external fun notifyConnectivityChange(isConnected: Boolean)
 }

@@ -1,7 +1,10 @@
 package net.mullvad.talpid
 
+import android.net.ConnectivityManager
 import android.os.ParcelFileDescriptor
 import androidx.annotation.CallSuper
+import androidx.core.content.getSystemService
+import androidx.lifecycle.lifecycleScope
 import co.touchlab.kermit.Logger
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -29,18 +32,13 @@ open class TalpidVpnService : LifecycleVpnService() {
     private var currentTunConfig: TunConfig? = null
 
     // Used by JNI
-    val connectivityListener = ConnectivityListener()
+    lateinit var connectivityListener: ConnectivityListener
 
     @CallSuper
     override fun onCreate() {
         super.onCreate()
-        connectivityListener.register(this)
-    }
-
-    @CallSuper
-    override fun onDestroy() {
-        super.onDestroy()
-        connectivityListener.unregister()
+        connectivityListener = ConnectivityListener(getSystemService<ConnectivityManager>()!!)
+        connectivityListener.register(lifecycleScope)
     }
 
     fun openTun(config: TunConfig): CreateTunResult {
@@ -161,7 +159,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
 
     companion object {
-        private const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
+        const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
 
         private const val IPV4_PREFIX_LENGTH = 32
         private const val IPV6_PREFIX_LENGTH = 128

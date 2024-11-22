@@ -49,6 +49,9 @@ use talpid_types::{
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 
+#[cfg(target_os = "android")]
+use crate::connectivity_listener::ConnectivityListener;
+
 const TUNNEL_STATE_MACHINE_SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(5);
 
 /// Errors that can happen when setting up or using the state machine.
@@ -119,6 +122,7 @@ pub struct LinuxNetworkingIdentifiers {
 }
 
 /// Spawn the tunnel state machine thread, returning a channel for sending tunnel commands.
+#[allow(clippy::too_many_arguments)]
 pub async fn spawn(
     initial_settings: InitialTunnelState,
     tunnel_parameters_generator: impl TunnelParametersGenerator,
@@ -128,6 +132,7 @@ pub async fn spawn(
     offline_state_listener: mpsc::UnboundedSender<Connectivity>,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
+    #[cfg(target_os = "android")] connectivity_listener: ConnectivityListener,
     #[cfg(target_os = "linux")] linux_ids: LinuxNetworkingIdentifiers,
 ) -> Result<TunnelStateMachineHandle, Error> {
     let (command_tx, command_rx) = mpsc::unbounded();
@@ -155,7 +160,7 @@ pub async fn spawn(
         #[cfg(target_os = "windows")]
         volume_update_rx,
         #[cfg(target_os = "android")]
-        android_context,
+        connectivity_listener,
         #[cfg(target_os = "linux")]
         linux_ids,
     };
@@ -251,7 +256,7 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     #[cfg(target_os = "windows")]
     volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")]
-    android_context: AndroidContext,
+    connectivity_listener: ConnectivityListener,
     #[cfg(target_os = "linux")]
     linux_ids: LinuxNetworkingIdentifiers,
 }
@@ -263,7 +268,7 @@ impl TunnelStateMachine {
         #[cfg(target_os = "windows")]
         let volume_update_rx = args.volume_update_rx;
         #[cfg(target_os = "android")]
-        let android_context = args.android_context;
+        let connectivity_listener = args.connectivity_listener;
 
         let runtime = tokio::runtime::Handle::current();
 
@@ -339,7 +344,7 @@ impl TunnelStateMachine {
             #[cfg(target_os = "linux")]
             Some(args.linux_ids.fwmark),
             #[cfg(target_os = "android")]
-            android_context,
+            connectivity_listener,
         )
         .await;
         let connectivity = offline_monitor.connectivity().await;
