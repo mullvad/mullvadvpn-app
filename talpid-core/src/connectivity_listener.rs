@@ -166,6 +166,7 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
 ) {
     let Some(tx) = &*CONNECTIVITY_TX.lock().unwrap() else {
         // No sender has been registered
+        log::trace!("Received connectivity notification wíth on channel");
         return;
     };
 
