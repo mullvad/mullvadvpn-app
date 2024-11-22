@@ -142,8 +142,10 @@ fn init_early_boot_logging(config: &cli::Config) {
 fn init_logger(config: &cli::Config, log_file: Option<PathBuf>) -> Result<(), String> {
     #[cfg(unix)]
     if let Some(log_file) = &log_file {
+        use std::os::unix::ffi::OsStrExt;
+
         exception_logging::set_log_file(
-            std::ffi::CString::new(log_file.as_os_str().as_encoded_bytes())
+            std::ffi::CString::new(log_file.as_os_str().as_bytes())
                 .map_err(|_| "Log file path contains null-bytes".to_string())?,
         );
     }
