@@ -15,38 +15,51 @@ pub struct LocationArgs {
     pub hostname: Option<Hostname>,
 }
 
-impl From<LocationArgs> for Constraint<GeographicLocationConstraint> {
-    fn from(value: LocationArgs) -> Self {
-        if value.country.eq_ignore_ascii_case("any") {
-            return Constraint::Any;
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Failed to parse location constraint from input: TODO")]
+    Parse,
+}
+
+impl TryFrom<LocationArgs> for GeographicLocationConstraint {
+    type Error = Error;
+
+    fn try_from(value: LocationArgs) -> Result<Self, Self::Error> {
+        match (value.country, value.city, value.hostname) {
+            (country, None, None) => Ok(GeographicLocationConstraint::Country(country)),
+            (country, Some(city), None) => Ok(GeographicLocationConstraint::City(country, city)),
+            (country, Some(city), Some(hostname)) => Ok(GeographicLocationConstraint::Hostname(
+                country, city, hostname,
+            )),
+            _ => Err(Error::Parse),
+            //_ => unreachable!("invalid location arguments"),
         }
-
-        Constraint::Only(match (value.country, value.city, value.hostname) {
-            (country, None, None) => GeographicLocationConstraint::Country(country),
-            (country, Some(city), None) => GeographicLocationConstraint::City(country, city),
-            (country, Some(city), Some(hostname)) => {
-                GeographicLocationConstraint::Hostname(country, city, hostname)
-            }
-
-            _ => unreachable!("invalid location arguments"),
-        })
     }
 }
 
-impl From<LocationArgs> for Constraint<LocationConstraint> {
-    fn from(value: LocationArgs) -> Self {
-        if value.country.eq_ignore_ascii_case("any") {
-            return Constraint::Any;
-        }
+impl TryFrom<LocationArgs> for LocationConstraint {
+    type Error = Error;
 
-        let location = match (value.country, value.city, value.hostname) {
-            (country, None, None) => GeographicLocationConstraint::Country(country),
-            (country, Some(city), None) => GeographicLocationConstraint::City(country, city),
-            (country, Some(city), Some(hostname)) => {
-                GeographicLocationConstraint::Hostname(country, city, hostname)
-            }
-            _ => unreachable!("invalid location arguments"),
-        };
-        Constraint::Only(LocationConstraint::Location(location))
+    fn try_from(value: LocationArgs) -> Result<Self, Self::Error> {
+        GeographicLocationConstraint::try_from(value).map(LocationConstraint::from)
+    }
+}
+
+impl TryFrom<LocationArgs> for Constraint<GeographicLocationConstraint> {
+    type Error = Error;
+
+    fn try_from(value: LocationArgs) -> Result<Self, Self::Error> {
+        if value.country.eq_ignore_ascii_case("any") {
+            return Ok(Constraint::Any);
+        }
+        GeographicLocationConstraint::try_from(value).map(Constraint::Only)
+    }
+}
+
+impl TryFrom<LocationArgs> for Constraint<LocationConstraint> {
+    type Error = Error;
+
+    fn try_from(value: LocationArgs) -> Result<Self, Self::Error> {
+        LocationConstraint::try_from(value).map(Constraint::Only)
     }
 }

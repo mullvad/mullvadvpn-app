@@ -174,6 +174,12 @@ pub enum GeographicLocationConstraint {
     Hostname(CountryCode, CityCode, Hostname),
 }
 
+#[derive(thiserror::Error, Debug)]
+#[error("Failed to parse {input} into a geographic location constraint")]
+pub struct ParseGeoLocationError {
+    input: String,
+}
+
 impl GeographicLocationConstraint {
     /// Create a new [`GeographicLocationConstraint`] given a country.
     pub fn country(country: impl Into<String>) -> Self {
@@ -223,6 +229,27 @@ impl Match<Relay> for GeographicLocationConstraint {
                     && loc.city_code == *city
                     && relay.hostname == *hostname
             }
+        }
+    }
+}
+
+impl FromStr for GeographicLocationConstraint {
+    type Err = ParseGeoLocationError;
+
+    // TODO: Implement for country and city as well?
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        // A host name, such as "se-got-wg-101" maps to
+        // Country: se
+        // City: got
+        // hostname: se-got-wg-101
+        let x = input.split("-").collect::<Vec<_>>();
+        match x[..] {
+            [country] => Ok(GeographicLocationConstraint::country(country)),
+            [country, city] => Ok(GeographicLocationConstraint::city(country, city)),
+            [country, city, ..] => Ok(GeographicLocationConstraint::hostname(country, city, input)),
+            _ => Err(ParseGeoLocationError {
+                input: input.to_string(),
+            }),
         }
     }
 }
@@ -675,5 +702,31 @@ impl RelayOverride {
                 not_overridden_v4 || not_overridden_v6
             });
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parse_hostname() {
+        // Parse a country
+        assert_eq!(
+            "se".parse::<GeographicLocationConstraint>().unwrap(),
+            GeographicLocationConstraint::country("se")
+        );
+        // Parse a city
+        assert_eq!(
+            "se-got".parse::<GeographicLocationConstraint>().unwrap(),
+            GeographicLocationConstraint::city("se", "got")
+        );
+        // Parse a hostname
+        assert_eq!(
+            "se-got-wg-101"
+                .parse::<GeographicLocationConstraint>()
+                .unwrap(),
+            GeographicLocationConstraint::hostname("se", "got", "se-got-wg-101")
+        );
     }
 }
