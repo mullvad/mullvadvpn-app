@@ -41,7 +41,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -73,7 +73,7 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Checkout submodules
         run: |
@@ -91,7 +91,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Checkout wireguard-go submodule
         run: |
@@ -121,7 +121,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Checkout submodules
         run: git submodule update --init --depth=1

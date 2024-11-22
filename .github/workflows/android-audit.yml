@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -59,7 +59,7 @@ jobs:
       - name: Set locale
         run: echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Run gradle audit task
         run: android/gradlew -p android dependencyCheckAnalyze
@@ -79,7 +79,7 @@ jobs:
       - name: Set locale
         run: echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Fix git dir
         run: git config --global --add safe.directory $(pwd)

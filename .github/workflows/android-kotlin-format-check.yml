@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
@@ -44,7 +44,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Run ktfmt check
         run: android/gradlew -p android ktfmtCheck

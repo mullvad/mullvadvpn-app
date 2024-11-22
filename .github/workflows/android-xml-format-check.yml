@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Resolve container image
         run: |
           echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
@@ -34,7 +34,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Run tidy
         shell: bash
         run: |-

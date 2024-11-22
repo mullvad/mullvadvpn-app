@@ -23,7 +23,7 @@ jobs:
           brew upgrade swiftformat
 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Check formatting
         run: |
@@ -36,7 +36,7 @@ jobs:
     runs-on: macos-13
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run swiftlint
         run: |
@@ -52,7 +52,7 @@ jobs:
       SOURCE_PACKAGES_PATH: .spm
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Configure cache
         uses: actions/cache@v3
