@@ -163,9 +163,7 @@ class CustomListLocationsScreenTest {
             }
 
             // Assert
-            onNodeWithText(EMPTY_SEARCH_FIRST_ROW.format(mockSearchString), substring = true)
-                .assertExists()
-            onNodeWithText(EMPTY_SEARCH_SECOND_ROW, substring = true).assertExists()
+            onNodeWithText(EMPTY_SEARCH.format(mockSearchString)).assertExists()
         }
 
     @Test
@@ -239,8 +237,7 @@ class CustomListLocationsScreenTest {
         const val ADD_LOCATIONS_TEXT = "Add locations"
         const val EDIT_LOCATIONS_TEXT = "Edit locations"
         const val SEARCH_PLACEHOLDER = "Search for..."
-        const val EMPTY_SEARCH_FIRST_ROW = "No result for %s."
-        const val EMPTY_SEARCH_SECOND_ROW = "Try a different search"
+        const val EMPTY_SEARCH = "No result for \"%s\", please try a different search"
         const val NO_LOCATIONS_FOUND_TEXT = "No locations found"
     }
 }
