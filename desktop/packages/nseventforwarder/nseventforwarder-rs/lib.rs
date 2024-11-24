@@ -8,10 +8,8 @@ use std::thread::JoinHandle;
 
 use block2::RcBlock;
 use neon::prelude::{
-    Context, FunctionContext, Handle, JsFunction, JsNull, JsResult, JsUndefined, ModuleContext,
-    NeonResult, Object, Root,
+    Context, FunctionContext, JsFunction, JsNull, JsResult, ModuleContext, NeonResult, Object, Root,
 };
-use neon::result::Throw;
 use objc2_app_kit::{NSEvent, NSEventMask};
 
 #[neon::main]
@@ -20,31 +18,11 @@ fn main(mut cx: ModuleContext<'_>) -> NeonResult<()> {
     Ok(())
 }
 
-/// NSEventForwarder instance. It must be initialized by `start` and cleaned up by the callback
-/// function returned from `start`.
-static NSEVENTFORWARDER: Mutex<Option<NSEventForwarder>> = Mutex::new(None);
-
-struct NSEventForwarder {
-    /// The thread listening for incoming [NSEvent]s.
-    thread: JoinHandle<()>,
-    /// Signal for the current execution context to stop.
-    stop: mpsc::Sender<()>,
-}
-
-impl NSEventForwarder {
-    fn stop(self) {
-        // Tell the thread to stop running
-        let _ = self.stop.send(());
-        // Wait for the thread to shutdown
-        self.thread
-            .join()
-            .expect("Couldn't join the NSEventForwarder thread");
-    }
-}
-
 /// Register a callback to fire every time a [NSEventMask::LeftMouseDown] or [NSEventMask::RightMouseDown] event occur.
 ///
-/// Returns a stop function to call when the original callback shouldn't be called anymore.
+/// Returns a stop function to call when the original callback shouldn't be called anymore. This
+/// stop function returns a `true` value when called the first time and the callback is
+/// deregistered. If it were to be called yet again, it will keep returning `false`.
 fn start(mut cx: FunctionContext<'_>) -> JsResult<'_, JsFunction> {
     // Set up neon stuff.
     // These will be moved into the spawned thread
@@ -90,29 +68,42 @@ fn start(mut cx: FunctionContext<'_>) -> JsResult<'_, JsFunction> {
         // The thread's execution will stop when this function returns
     });
 
-    let new_context = NSEventForwarder {
+    // NSEventForwarder instance. It must be cleaned up by the callback
+    // function returned from `start` (aka `stop`). We use an Option here
+    // because we can not enforce the Nodejs caller to only call `stop` once.
+    let nseventforwarder = Mutex::new(Some(NSEventForwarder {
         thread: join_handle,
         stop: stop_tx,
-    };
-
-    // Update the global NSEventForwarder state
-    let mut nseventmonitor_context = NSEVENTFORWARDER.lock().unwrap();
-    // Stop any old NSEventForwarder
-    if let Some(context) = nseventmonitor_context.take() {
-        context.stop();
-    }
-    let _ = nseventmonitor_context.insert(new_context);
-    drop(nseventmonitor_context);
+    }));
 
     // Return a stop function to be invoked from the node runtime to deregister the NSEvent
     // callback.
-    JsFunction::new(&mut cx, stop)
+    JsFunction::new(&mut cx, move |mut cx: FunctionContext<'_>| {
+        // Stop this NSEventForwarder
+        // Returns whether NSEventForwarder was stopped on this invocation of the stop function
+        let mut stopped = false;
+        if let Some(context) = nseventforwarder.lock().unwrap().take() {
+            context.stop();
+            stopped = true;
+        }
+        Ok(cx.boolean(stopped))
+    })
 }
 
-fn stop(mut cx: FunctionContext<'_>) -> Result<Handle<'_, JsUndefined>, Throw> {
-    if let Some(context) = NSEVENTFORWARDER.lock().unwrap().take() {
-        context.stop();
-    }
+struct NSEventForwarder {
+    /// The thread listening for incoming [NSEvent]s.
+    thread: JoinHandle<()>,
+    /// Signal for the current execution context to stop.
+    stop: mpsc::Sender<()>,
+}
 
-    Ok(JsUndefined::new(&mut cx))
+impl NSEventForwarder {
+    fn stop(self) {
+        // Tell the thread to stop running
+        let _ = self.stop.send(());
+        // Wait for the thread to shutdown
+        self.thread
+            .join()
+            .expect("Couldn't join the NSEventForwarder thread");
+    }
 }
