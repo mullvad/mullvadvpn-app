@@ -132,9 +132,11 @@
     <string name="enable_method">Включить метод</string>
     <string name="enter_value_placeholder">Введите MTU</string>
     <string name="enter_voucher_code">Введите код ваучера</string>
+    <string name="entry">Вход</string>
     <string name="error_occurred">Произошла ошибка.</string>
     <string name="error_state">НЕ УДАЛОСЬ УСТАНОВИТЬ БЕЗОПАСНОЕ ПОДКЛЮЧЕНИЕ</string>
     <string name="exclude_applications">Исключенные приложения</string>
+    <string name="exit">Выход</string>
     <string name="failed_to_block_internet">Не удалось заблокировать весь сетевой трафик. Устраните неполадки или отправьте сообщение о проблеме.</string>
     <string name="failed_to_create_account">Не удалось создать учетную запись</string>
     <string name="failed_to_fetch_devices">Не удалось получить список устройств</string>
@@ -152,7 +154,6 @@
     <string name="feature_server_ip_override">Переопределение IP-адреса сервера</string>
     <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
-    <string name="filtered">Фильтр:</string>
     <string name="foreground_notification_channel_description">Показывает текущее состояние VPN-туннеля</string>
     <string name="foreground_notification_channel_name">Состояние туннеля VPN</string>
     <string name="go_to_login">Войти</string>
@@ -199,6 +200,8 @@
     <string name="max_devices_warning_title">Слишком много устройств</string>
     <string name="more_information">Подробнее</string>
     <string name="mullvad_owned_only">Только принадлежащие Mullvad</string>
+    <string name="multihop">Многократный переход</string>
+    <string name="multihop_description">Функция «Многократный переход» перенаправляет трафик с одного сервера WireGuard на другой, что затрудняет отслеживание. Это увеличивает задержку, но зато повышает анонимность в сети.</string>
     <string name="name">Имя</string>
     <string name="name_was_changed_to">Имя изменено на «%1$s»</string>
     <string name="new_device_notification_message">Добро пожаловать, теперь это устройство называется &lt;b&gt;%1$s&lt;/b&gt;. Для получения более подробной нажмите на кнопку «Информация» в учетной записи.</string>
@@ -259,8 +262,6 @@
     <string name="save">Сохранить</string>
     <string name="search_placeholder">Поиск...</string>
     <string name="select_location">Выбор местоположения</string>
-    <string name="select_location_empty_text_first_row">По запросу &lt;b&gt;%1$s&lt;/b&gt; ничего не найдено.</string>
-    <string name="select_location_empty_text_second_row">Измените условие поиска.</string>
     <string name="send">Отправить</string>
     <string name="send_anyway">Все равно отправить</string>
     <string name="sending">Идет отправка...</string>
@@ -342,4 +343,5 @@
     <string name="wireguard_port_info_description">При автоматической настройке порт будет выбираться случайным образом из допустимого диапазона, показанного ниже.</string>
     <string name="wireguard_port_info_port_range">Пользовательский порт может принимать любое значение внутри допустимых диапазонов: %1$s.</string>
     <string name="wireguard_port_title">Порт WireGuard</string>
+    <string name="x_via_x">%1$s через %2$s</string>
 </resources>
