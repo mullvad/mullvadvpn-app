@@ -132,9 +132,11 @@
     <string name="enable_method">Aktivera metod</string>
     <string name="enter_value_placeholder">Ange MTU</string>
     <string name="enter_voucher_code">Ange kupongkod</string>
+    <string name="entry">Ingång</string>
     <string name="error_occurred">Ett fel har inträffat.</string>
     <string name="error_state">DET GICK INTE ATT SÄKRA ANSLUTNINGEN</string>
     <string name="exclude_applications">Exkluderade applikationer</string>
+    <string name="exit">Utgång</string>
     <string name="failed_to_block_internet">Det går inte att blockera all nätverkstrafik. Felsök eller skicka en problemrapport.</string>
     <string name="failed_to_create_account">Det gick inte att skapa konto</string>
     <string name="failed_to_fetch_devices">Det gick inte att hämta lista med enheter</string>
@@ -152,7 +154,6 @@
     <string name="feature_server_ip_override">Åsidosättning av server-IP</string>
     <string name="feature_udp_2_tcp">Obfuskering</string>
     <string name="filter">Filtrera</string>
-    <string name="filtered">Filtrerat:</string>
     <string name="foreground_notification_channel_description">Visar nuvarande status för VPN-tunnel</string>
     <string name="foreground_notification_channel_name">VPN-tunnelstatus</string>
     <string name="go_to_login">Gå till inloggning</string>
@@ -199,6 +200,8 @@
     <string name="max_devices_warning_title">För många enheter</string>
     <string name="more_information">Mer information</string>
     <string name="mullvad_owned_only">Endast Mullvad-ägd</string>
+    <string name="multihop">Multihopp</string>
+    <string name="multihop_description">Multihopp dirigerar din trafik till en WireGuard-server och ut genom en annan, vilket gör det svårare att spåra. Detta leder till ökad fördröjning men bättre anonymitet online.</string>
     <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
     <string name="new_device_notification_message">Välkommen! Den här enheten heter nu &lt;b&gt;%1$s&lt;/b&gt;. Använd informationsknappen i Konto för mer information.</string>
@@ -259,8 +262,6 @@
     <string name="save">Spara</string>
     <string name="search_placeholder">Sök efter …</string>
     <string name="select_location">Välj plats</string>
-    <string name="select_location_empty_text_first_row">Inga resultat för &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Testa en annan sökning.</string>
     <string name="send">Skicka</string>
     <string name="send_anyway">Skicka ändå</string>
     <string name="sending">Skicka...</string>
@@ -342,4 +343,5 @@
     <string name="wireguard_port_info_description">Den automatiska inställningen väljer slumpmässigt från giltiga portintervall som visas nedan.</string>
     <string name="wireguard_port_info_port_range">Den anpassade porten kan vara ett värde inom de giltiga intervallen: %1$s.</string>
     <string name="wireguard_port_title">WireGuard-port</string>
+    <string name="x_via_x">%1$s via %2$s</string>
 </resources>

@@ -132,9 +132,11 @@
     <string name="enable_method">Methode inschakelen</string>
     <string name="enter_value_placeholder">Voer MTU in</string>
     <string name="enter_voucher_code">Vouchercode invoeren</string>
+    <string name="entry">Ingang</string>
     <string name="error_occurred">Er is een fout opgetreden.</string>
     <string name="error_state">VERBINDING BEVEILIGEN MISLUKT</string>
     <string name="exclude_applications">Uitgesloten toepassingen</string>
+    <string name="exit">Uitgang</string>
     <string name="failed_to_block_internet">Kan niet alle netwerkverkeer blokkeren. Los problemen op of stuur een probleemmelding.</string>
     <string name="failed_to_create_account">Account aanmaken mislukt</string>
     <string name="failed_to_fetch_devices">Ophalen van lijst van apparaten mislukt</string>
@@ -152,7 +154,6 @@
     <string name="feature_server_ip_override">Overschrijving van server-IP-adressen</string>
     <string name="feature_udp_2_tcp">Obfuscatie</string>
     <string name="filter">Filter</string>
-    <string name="filtered">Gefilterd:</string>
     <string name="foreground_notification_channel_description">Toont de huidige status van de VPN-tunnel</string>
     <string name="foreground_notification_channel_name">Status VPN-tunnel</string>
     <string name="go_to_login">Ga naar aanmelden</string>
@@ -199,6 +200,8 @@
     <string name="max_devices_warning_title">Te veel apparaten</string>
     <string name="more_information">Meer informatie</string>
     <string name="mullvad_owned_only">Alleen in eigendom van Multivad</string>
+    <string name="multihop">Multihop</string>
+    <string name="multihop_description">Multihop leidt uw verkeer de ene WireGuard-server in en de andere uit, waardoor het moeilijker te traceren is. Dit leidt tot een hogere latentie, maar verhoogt de online anonimiteit.</string>
     <string name="name">Naam</string>
     <string name="name_was_changed_to">Naam is gewijzigd in %1$s</string>
     <string name="new_device_notification_message">Welkom, dit apparaat heet nu &lt;b&gt;%1$s&lt;/b&gt;. Zie voor meer informatie de infoknop in Account.</string>
@@ -259,8 +262,6 @@
     <string name="save">Opslaan</string>
     <string name="search_placeholder">Zoeken naar...</string>
     <string name="select_location">Locatie selecteren</string>
-    <string name="select_location_empty_text_first_row">Geen resultaten voor &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Probeer een andere zoekopdracht.</string>
     <string name="send">Verzenden</string>
     <string name="send_anyway">Toch verzenden</string>
     <string name="sending">Verzenden...</string>
@@ -342,4 +343,5 @@
     <string name="wireguard_port_info_description">Bij de automatische instelling wordt willekeurig gekozen uit de hieronder weergegeven geldige poortbereiken.</string>
     <string name="wireguard_port_info_port_range">De aangepaste poort kan elke waarde zijn binnen de geldige bereiken: %1$s.</string>
     <string name="wireguard_port_title">WireGuard-poort</string>
+    <string name="x_via_x">%1$s via %2$s</string>
 </resources>
