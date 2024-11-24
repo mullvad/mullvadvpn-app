@@ -132,9 +132,11 @@
     <string name="enable_method">방법 활성화</string>
     <string name="enter_value_placeholder">MTU 입력</string>
     <string name="enter_voucher_code">바우처 코드 입력</string>
+    <string name="entry">시작</string>
     <string name="error_occurred">오류가 발생했습니다.</string>
     <string name="error_state">보안 연결 실패</string>
     <string name="exclude_applications">제외된 애플리케이션</string>
+    <string name="exit">종료</string>
     <string name="failed_to_block_internet">모든 네트워크 트래픽을 차단할 수는 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요.</string>
     <string name="failed_to_create_account">계정을 만들지 못함</string>
     <string name="failed_to_fetch_devices">장치 목록을 가져오지 못함</string>
@@ -152,7 +154,6 @@
     <string name="feature_server_ip_override">서버 IP 재정의</string>
     <string name="feature_udp_2_tcp">난독 처리</string>
     <string name="filter">필터</string>
-    <string name="filtered">필터링됨:</string>
     <string name="foreground_notification_channel_description">현재 VPN 터널 상태 표시</string>
     <string name="foreground_notification_channel_name">VPN 터널 상태</string>
     <string name="go_to_login">로그인하기</string>
@@ -199,6 +200,8 @@
     <string name="max_devices_warning_title">장치가 너무 많음</string>
     <string name="more_information">추가 정보</string>
     <string name="mullvad_owned_only">Mullvad 소유만</string>
+    <string name="multihop">멀티홉</string>
+    <string name="multihop_description">멀티홉은 사용자의 트래픽을 하나의 WireGuard 서버로 라우팅하고 다른 서버로 전달하여 추적을 더 어렵게 만듭니다. 그로 인해 대기 시간은 증가하지만 온라인 익명성은 증대됩니다.</string>
     <string name="name">이름</string>
     <string name="name_was_changed_to">이름이 %1$s(으)로 변경되었습니다</string>
     <string name="new_device_notification_message">환영합니다! 이제 이 장치의 이름은 &lt;b&gt;%1$s&lt;/b&gt;입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요.</string>
@@ -259,8 +262,6 @@
     <string name="save">저장</string>
     <string name="search_placeholder">검색...</string>
     <string name="select_location">위치 선택</string>
-    <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt;에 대한 결과가 없습니다.</string>
-    <string name="select_location_empty_text_second_row">다른 검색어를 시도하세요.</string>
     <string name="send">전송</string>
     <string name="send_anyway">그래도 전송</string>
     <string name="sending">전송 중...</string>
@@ -342,4 +343,5 @@
     <string name="wireguard_port_info_description">자동 설정은 아래 표시된 유효한 포트 범위에서 임의로 선택합니다.</string>
     <string name="wireguard_port_info_port_range">사용자 지정 포트는 유효한 범위 내의 모든 값이 될 수 있습니다: %1$s</string>
     <string name="wireguard_port_title">WireGuard 포트</string>
+    <string name="x_via_x">%1$s을(를) 통한 %2$s</string>
 </resources>
