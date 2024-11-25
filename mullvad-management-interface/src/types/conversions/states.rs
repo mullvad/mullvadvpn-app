@@ -147,13 +147,6 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                         } else {
                             None
                         },
-                        not_prepared_error: if let talpid_tunnel::ErrorStateCause::NotPrepared { package_name, class_name } =
-                            error_state.cause()
-                        {
-                            Some(proto::error_state::NotPreparedError { package_name: package_name.to_string(), class_name: class_name.to_string() })
-                        } else {
-                            None
-                        },
                         invalid_dns_servers_error: if let talpid_tunnel::ErrorStateCause::InvalidDnsServers(ip_addrs) =
                             error_state.cause()
                         {

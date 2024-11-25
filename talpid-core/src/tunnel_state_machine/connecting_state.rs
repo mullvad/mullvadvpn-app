@@ -290,10 +290,10 @@ impl ConnectingState {
                         tunnel::Error::WireguardTunnelMonitoringError(
                             talpid_wireguard::Error::TunnelError(
                                 talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::NotPrepared { package_name, class_name },
+                                    tun_provider::Error::NotPrepared,
                                 ),
                             ),
-                        ) => ErrorStateCause::NotPrepared { package_name, class_name},
+                        ) => ErrorStateCause::NotPrepared,
 
                         #[cfg(target_os = "android")]
                         tunnel::Error::WireguardTunnelMonitoringError(

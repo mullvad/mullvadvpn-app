@@ -47,7 +47,7 @@ pub enum Error {
     TunnelDeviceError,
 
     #[error("Profile for VPN has not been setup")]
-    NotPrepared { package_name: String, class_name: String },
+    NotPrepared,
 
     #[error("Another legacy VPN profile is used as always on")]
     LegacyLockdown,
@@ -384,7 +384,7 @@ enum CreateTunResult {
     TunnelDeviceError,
     LegacyLockdown,
     AlwaysOnApp { app_name: String },
-    NotPrepared { package_name: String, class_name: String },
+    NotPrepared,
 }
 
 impl From<CreateTunResult> for Result<RawFd, Error> {
@@ -395,7 +395,7 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
                 Err(Error::InvalidDnsServers(addresses))
             }
             CreateTunResult::LegacyLockdown => Err(Error::LegacyLockdown),
-            CreateTunResult::NotPrepared { package_name, class_name } => Err(Error::NotPrepared { package_name, class_name }),
+            CreateTunResult::NotPrepared => Err(Error::NotPrepared),
             CreateTunResult::AlwaysOnApp { app_name } => Err(Error::AlwaysOnApp { app_name }),
             CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
         }

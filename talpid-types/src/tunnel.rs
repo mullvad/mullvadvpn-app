@@ -97,7 +97,7 @@ pub enum ErrorStateCause {
     /// This device is offline, no tunnels can be established.
     IsOffline,
     #[cfg(target_os = "android")]
-    NotPrepared { package_name: String, class_name: String },
+    NotPrepared,
     #[cfg(target_os = "android")]
     AlwaysOnApp { app_name: String },
     #[cfg(target_os = "android")]
@@ -212,7 +212,7 @@ impl fmt::Display for ErrorStateCause {
             #[cfg(target_os = "macos")]
             NeedFullDiskPermissions => "Need full disk access to enable split tunneling",
             #[cfg(target_os = "android")]
-            NotPrepared { package_name: _, class_name: _ } => "This device is not prepared",
+            NotPrepared => "This device is not prepared",
             #[cfg(target_os = "android")]
             AlwaysOnApp { app_name: _ } => "Another app is set as always on",
             #[cfg(target_os = "android")]
