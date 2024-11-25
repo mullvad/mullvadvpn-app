@@ -42,12 +42,10 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     UINavigationControllerDelegate {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
-    private let interactorFactory: SettingsInteractorFactory
     private var currentRoute: SettingsNavigationRoute?
     private var modalRoute: SettingsNavigationRoute?
-    private let accessMethodRepository: AccessMethodRepositoryProtocol
-    private let proxyConfigurationTester: ProxyConfigurationTesterProtocol
-    private let ipOverrideRepository: IPOverrideRepository
+    private let interactorFactory: SettingsInteractorFactory
+    private var viewControllerFactory: SettingsViewControllerFactory?
 
     let navigationController: UINavigationController
 
@@ -78,9 +76,17 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
-        self.accessMethodRepository = accessMethodRepository
-        self.proxyConfigurationTester = proxyConfigurationTester
-        self.ipOverrideRepository = ipOverrideRepository
+
+        super.init()
+
+        viewControllerFactory = SettingsViewControllerFactory(
+            interactorFactory: interactorFactory,
+            accessMethodRepository: accessMethodRepository,
+            proxyConfigurationTester: proxyConfigurationTester,
+            ipOverrideRepository: ipOverrideRepository,
+            navigationController: navigationController,
+            alertPresenter: AlertPresenter(context: self)
+        )
     }
 
     /// Start the coordinator fllow.
@@ -200,7 +206,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     /// - Parameters:
     ///   - result: the result of creating a child representing a route.
     ///   - animated: whether to animate the transition.
-    private func push(from result: MakeChildResult, animated: Bool) {
+    private func push(from result: SettingsViewControllerFactory.MakeChildResult, animated: Bool) {
         switch result {
         case let .viewController(vc):
             navigationController.pushViewController(vc, animated: animated)
@@ -225,83 +231,19 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
     // MARK: - Route mapping
 
-    /// The result of creating a child representing a route.
-    private enum MakeChildResult {
-        /// View controller that should be pushed into navigation stack.
-        case viewController(UIViewController)
-
-        /// Child coordinator that should be added to the children hierarchy.
-        /// The child is responsile for presenting itself.
-        case childCoordinator(SettingsChildCoordinator)
-
-        /// Failure to produce a child.
-        case failed
-    }
-
     /// Produce a view controller or a child coordinator representing the route.
     /// - Parameter route: the route for which to request the new view controller or child coordinator.
     /// - Returns: a result of creating a child for the route.
-    private func makeChild(for route: SettingsNavigationRoute) -> MakeChildResult {
-        switch route {
-        case .root:
+    private func makeChild(for route: SettingsNavigationRoute) -> SettingsViewControllerFactory.MakeChildResult {
+        if route == .root {
             let controller = SettingsViewController(
                 interactor: interactorFactory.makeSettingsInteractor(),
                 alertPresenter: AlertPresenter(context: self)
             )
             controller.delegate = self
             return .viewController(controller)
-
-        case .vpnSettings:
-            return .childCoordinator(VPNSettingsCoordinator(
-                navigationController: navigationController,
-                interactorFactory: interactorFactory,
-                ipOverrideRepository: ipOverrideRepository
-            ))
-
-        case .problemReport:
-            return .viewController(ProblemReportViewController(
-                interactor: interactorFactory.makeProblemReportInteractor(),
-                alertPresenter: AlertPresenter(context: self)
-            ))
-
-        case .apiAccess:
-            return .childCoordinator(ListAccessMethodCoordinator(
-                navigationController: navigationController,
-                accessMethodRepository: accessMethodRepository,
-                proxyConfigurationTester: proxyConfigurationTester
-            ))
-
-        case .faq:
-            // Handled separately and presented as a modal.
-            return .failed
-
-        case .multihop:
-            let viewModel = MultihopTunnelSettingsViewModel(tunnelManager: interactorFactory.tunnelManager)
-            let view = SettingsMultihopView(tunnelViewModel: viewModel)
-
-            let host = UIHostingController(rootView: view)
-            host.title = NSLocalizedString(
-                "NAVIGATION_TITLE_MULTIHOP",
-                tableName: "Settings",
-                value: "Multihop",
-                comment: ""
-            )
-
-            return .viewController(host)
-
-        case .daita:
-            let viewModel = DAITATunnelSettingsViewModel(tunnelManager: interactorFactory.tunnelManager)
-            let view = SettingsDAITAView(tunnelViewModel: viewModel)
-
-            let host = UIHostingController(rootView: view)
-            host.title = NSLocalizedString(
-                "NAVIGATION_TITLE_DAITA",
-                tableName: "Settings",
-                value: "DAITA",
-                comment: ""
-            )
-
-            return .viewController(host)
+        } else {
+            return viewControllerFactory?.makeRoute(for: route) ?? .failed
         }
     }
 

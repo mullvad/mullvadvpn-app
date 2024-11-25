@@ -9,32 +9,37 @@
 import SwiftUI
 
 struct SwitchRowView: View {
-    @Binding var enabled: Bool
+    @Binding var isOn: Bool
+
+    var disabled = false
     let text: String
+    var accessibilityId: AccessibilityIdentifier?
 
     var didTapInfoButton: (() -> Void)?
 
     var body: some View {
-        Toggle(isOn: $enabled, label: {
+        Toggle(isOn: $isOn, label: {
             Text(text)
-        }).onChange(of: enabled, perform: { enabled in
-            $enabled.wrappedValue = enabled
         })
-        .toggleStyle(CustomToggleStyle(infoButtonAction: didTapInfoButton))
+        .toggleStyle(CustomToggleStyle(
+            disabled: disabled,
+            accessibilityId: accessibilityId,
+            infoButtonAction: didTapInfoButton
+        ))
+        .disabled(disabled)
         .font(.headline)
         .frame(height: UIMetrics.SettingsRowView.height)
         .padding(UIMetrics.SettingsRowView.layoutMargins)
         .background(Color(.primaryColor))
         .foregroundColor(Color(.primaryTextColor))
         .cornerRadius(UIMetrics.SettingsRowView.cornerRadius)
-        .accessibilityIdentifier(AccessibilityIdentifier.multihopSwitch.rawValue)
     }
 }
 
 #Preview("SwitchRowView") {
     StatefulPreviewWrapper(true) {
         SwitchRowView(
-            enabled: $0,
+            isOn: $0,
             text: "Enable",
             didTapInfoButton: {
                 print("Tapped")
