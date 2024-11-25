@@ -213,8 +213,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 .cornerRadius(4.0)
                 .focused($customValueIsFocused)
                 .onChange(of: customValue) { newValue in
-                    if let v = toValue(customValue) {
-                        value.wrappedValue = v
+                    if let parsedValue = toValue(customValue) {
+                        value.wrappedValue = parsedValue
                     } else if customValue.isEmpty {
                         // user backspaced over input text; this won't form a
                         // valid value, so we fall back to the initial value
@@ -227,8 +227,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                     }
                 }
                 .onAppear {
-                    if let t = fromValue(value.wrappedValue) {
-                        customValue = t
+                    if let valueText = fromValue(value.wrappedValue) {
+                        customValue = valueText
                     }
                 }
         }
