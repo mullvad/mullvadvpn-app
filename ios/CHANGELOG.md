@@ -21,7 +21,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## Unreleased
+## UNRELEASED
+
+## [2024.10 - 2024-11-20]
+### Fixed
+- Removed deadlock when losing connectivity without entering offline state.
+
+## [2024.9 - 2024-11-07]
+### Added
+DAITA everywhere, using multihop.
+
 ### Changed
 - Replace the draft key encapsulation mechanism Kyber (round 3) with the standardized
   ML-KEM (FIPS 203) dito in the handshake for Quantum-resistant tunnels.
