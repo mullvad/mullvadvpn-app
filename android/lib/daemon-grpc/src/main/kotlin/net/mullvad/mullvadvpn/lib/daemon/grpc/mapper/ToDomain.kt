@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.model.AppVersionInfo
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.Cipher
 import net.mullvad.mullvadvpn.lib.model.Constraint
-import net.mullvad.mullvadvpn.lib.model.CreateTunFailed
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
@@ -36,6 +35,7 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.AlwaysOnApp
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.AuthFailed
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.TunnelParameterError
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
@@ -120,7 +120,7 @@ internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
             val alwaysOnAppError =
                 error.errorState.let {
                     if (it.hasAlwaysOnAppError()) {
-                        CreateTunFailed.AlwaysOnApp(it.alwaysOnAppError.appName)
+                        AlwaysOnApp(it.alwaysOnAppError.appName)
                     } else {
                         null
                     }
@@ -231,7 +231,7 @@ internal fun ManagementInterface.AfterDisconnect.toDomain(): ActionAfterDisconne
     }
 
 internal fun ManagementInterface.ErrorState.toDomain(
-    alwaysOnApp: CreateTunFailed.AlwaysOnApp?,
+    alwaysOnApp: ErrorStateCause.AlwaysOnApp?,
     invalidDnsServers: ErrorStateCause.InvalidDnsServers?,
 ): ErrorState =
     ErrorState(
@@ -256,12 +256,10 @@ internal fun ManagementInterface.ErrorState.toDomain(
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
 
-                ManagementInterface.ErrorState.Cause.NOT_PREPARED ->
-                    ErrorStateCause.NotPrepared(CreateTunFailed.NotPrepared)
-                ManagementInterface.ErrorState.Cause.ALWAYS_ON_APP ->
-                    ErrorStateCause.NotPrepared(alwaysOnApp!!)
+                ManagementInterface.ErrorState.Cause.NOT_PREPARED -> ErrorStateCause.NotPrepared
+                ManagementInterface.ErrorState.Cause.ALWAYS_ON_APP -> alwaysOnApp!!
                 ManagementInterface.ErrorState.Cause.LEGACY_LOCKDOWN ->
-                    ErrorStateCause.NotPrepared(CreateTunFailed.LegacyLockdown)
+                    ErrorStateCause.LegacyLockdown
                 ManagementInterface.ErrorState.Cause.INVALID_DNS_SERVERS -> invalidDnsServers!!
             },
         isBlocking = !hasBlockingError(),

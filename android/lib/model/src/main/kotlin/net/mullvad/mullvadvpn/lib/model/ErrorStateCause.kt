@@ -25,7 +25,11 @@ sealed class ErrorStateCause {
 
     data object IsOffline : ErrorStateCause()
 
-    data class NotPrepared(val prepare: CreateTunFailed) : ErrorStateCause()
+    data object NotPrepared: ErrorStateCause()
+
+    data class AlwaysOnApp(val appName: String): ErrorStateCause()
+
+    data object LegacyLockdown: ErrorStateCause()
 }
 
 sealed interface AuthFailedError {
@@ -36,10 +40,4 @@ sealed interface AuthFailedError {
     data object TooManyConnections : AuthFailedError
 
     data object Unknown : AuthFailedError
-}
-
-sealed interface CreateTunFailed {
-    data object NotPrepared: CreateTunFailed
-    data class AlwaysOnApp(val appName: String): CreateTunFailed
-    data object LegacyLockdown: CreateTunFailed
 }

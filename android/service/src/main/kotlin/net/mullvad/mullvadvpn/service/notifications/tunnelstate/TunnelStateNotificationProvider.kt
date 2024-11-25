@@ -11,7 +11,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
-import net.mullvad.mullvadvpn.lib.model.CreateTunFailed
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.Notification
@@ -108,15 +107,11 @@ class TunnelStateNotificationProvider(
             cause is ErrorStateCause.IsOffline && errorState.isBlocking ->
                 NotificationTunnelState.Error.DeviceOffline
             cause is ErrorStateCause.InvalidDnsServers -> NotificationTunnelState.Error.Blocking
+            cause is ErrorStateCause.LegacyLockdown -> NotificationTunnelState.Error.LegacyLockdown
             cause is ErrorStateCause.NotPrepared ->
-                when (val prepareError = cause.prepare) {
-                    is CreateTunFailed.LegacyLockdown ->
-                        NotificationTunnelState.Error.LegacyLockdown
-                    is CreateTunFailed.NotPrepared ->
-                        NotificationTunnelState.Error.VpnPermissionDenied
-                    is CreateTunFailed.AlwaysOnApp ->
-                        NotificationTunnelState.Error.AlwaysOnVpn(prepareError.appName)
-                }
+                NotificationTunnelState.Error.VpnPermissionDenied
+            cause is ErrorStateCause.AlwaysOnApp ->
+                NotificationTunnelState.Error.AlwaysOnVpn(cause.appName)
             errorState.isBlocking -> NotificationTunnelState.Error.Blocking
             else -> NotificationTunnelState.Error.Critical
         }

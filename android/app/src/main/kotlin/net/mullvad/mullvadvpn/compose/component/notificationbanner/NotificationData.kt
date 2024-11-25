@@ -17,7 +17,6 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
-import net.mullvad.mullvadvpn.lib.model.CreateTunFailed
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
@@ -126,7 +125,12 @@ private fun ErrorState.title(): String {
     val cause = this.cause
     return when {
         cause is ErrorStateCause.InvalidDnsServers -> stringResource(R.string.blocking_internet)
-        cause is ErrorStateCause.NotPrepared -> cause.prepare.errorTitle()
+        cause is ErrorStateCause.NotPrepared ->
+            stringResource(R.string.vpn_permission_error_notification_title)
+        cause is ErrorStateCause.AlwaysOnApp ->
+            stringResource(R.string.always_on_vpn_error_notification_title, cause.appName)
+        cause is ErrorStateCause.LegacyLockdown ->
+            stringResource(R.string.legacy_always_on_vpn_error_notification_title)
         isBlocking -> stringResource(R.string.blocking_internet)
         else -> stringResource(R.string.critical_error)
     }
@@ -136,63 +140,32 @@ private fun ErrorState.title(): String {
 private fun ErrorState.message(): String {
     val cause = this.cause
     return when {
-        cause is ErrorStateCause.InvalidDnsServers -> {
-            stringResource(
-                cause.errorMessageId(),
-                cause.addresses.joinToString { address -> address.addressString() },
-            )
-        }
-        cause is ErrorStateCause.NotPrepared -> cause.prepare.errorNotificationMessage()
-
-        isBlocking -> stringResource(cause.errorMessageId())
+        isBlocking -> cause.errorMessageId()
         else -> stringResource(R.string.failed_to_block_internet)
     }
 }
 
 @Composable
-private fun CreateTunFailed.errorTitle(): String =
+private fun ErrorStateCause.errorMessageId(): String =
     when (this) {
-        is CreateTunFailed.NotPrepared ->
-            stringResource(R.string.vpn_permission_error_notification_title)
-        is CreateTunFailed.AlwaysOnApp ->
-            stringResource(R.string.always_on_vpn_error_notification_title, appName)
-        is CreateTunFailed.LegacyLockdown ->
-            stringResource(R.string.legacy_always_on_vpn_error_notification_title)
-    }
-
-@Composable
-private fun CreateTunFailed.errorNotificationMessage(): String =
-    when (this) {
-        is CreateTunFailed.NotPrepared ->
+        is ErrorStateCause.AuthFailed -> stringResource(error.errorMessageId())
+        is ErrorStateCause.Ipv6Unavailable -> stringResource(R.string.ipv6_unavailable)
+        is ErrorStateCause.FirewallPolicyError -> stringResource(R.string.set_firewall_policy_error)
+        is ErrorStateCause.DnsError -> stringResource(R.string.set_dns_error)
+        is ErrorStateCause.StartTunnelError -> stringResource(R.string.start_tunnel_error)
+        is ErrorStateCause.IsOffline -> stringResource(R.string.is_offline)
+        is ErrorStateCause.TunnelParameterError -> stringResource(error.errorMessageId())
+        is ErrorStateCause.NotPrepared ->
             stringResource(R.string.vpn_permission_error_notification_message)
-        is CreateTunFailed.AlwaysOnApp ->
+        is ErrorStateCause.AlwaysOnApp ->
             stringResource(R.string.always_on_vpn_error_notification_content, appName)
-        is CreateTunFailed.LegacyLockdown ->
+        is ErrorStateCause.LegacyLockdown ->
             stringResource(R.string.legacy_always_on_vpn_error_notification_content)
-    }
-
-private fun ErrorStateCause.errorMessageId(): Int =
-    when (this) {
-        is ErrorStateCause.InvalidDnsServers -> R.string.invalid_dns_servers
-        is ErrorStateCause.AuthFailed -> error.errorMessageId()
-        is ErrorStateCause.Ipv6Unavailable -> R.string.ipv6_unavailable
-        is ErrorStateCause.FirewallPolicyError -> R.string.set_firewall_policy_error
-        is ErrorStateCause.DnsError -> R.string.set_dns_error
-        is ErrorStateCause.StartTunnelError -> R.string.start_tunnel_error
-        is ErrorStateCause.IsOffline -> R.string.is_offline
-        is ErrorStateCause.TunnelParameterError -> {
-            when (error) {
-                ParameterGenerationError.NoMatchingRelay,
-                ParameterGenerationError.NoMatchingBridgeRelay -> {
-                    R.string.no_matching_relay
-                }
-                ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
-                ParameterGenerationError.CustomTunnelHostResultionError -> {
-                    R.string.custom_tunnel_host_resolution_error
-                }
-            }
-        }
-        is ErrorStateCause.NotPrepared -> R.string.vpn_permission_denied_error
+        is ErrorStateCause.InvalidDnsServers ->
+            stringResource(
+                R.string.invalid_dns_servers,
+                addresses.joinToString { address -> address.addressString() },
+            )
     }
 
 private fun AuthFailedError.errorMessageId(): Int =
@@ -201,6 +174,17 @@ private fun AuthFailedError.errorMessageId(): Int =
         AuthFailedError.InvalidAccount,
         AuthFailedError.TooManyConnections,
         AuthFailedError.Unknown -> R.string.auth_failed
+    }
+
+private fun ParameterGenerationError.errorMessageId(): Int =
+    when (this) {
+        ParameterGenerationError.NoMatchingRelay,
+        ParameterGenerationError.NoMatchingBridgeRelay -> {
+            R.string.no_matching_relay
+        }
+        ParameterGenerationError.NoWireguardKey -> R.string.no_wireguard_key
+        ParameterGenerationError.CustomTunnelHostResultionError ->
+            R.string.custom_tunnel_host_resolution_error
     }
 
 private fun InetAddress.addressString(): String {
