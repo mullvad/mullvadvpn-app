@@ -14,11 +14,13 @@ struct CustomToggleStyle: ToggleStyle {
     private let height: CGFloat = 30
     private let circleRadius: CGFloat = 23
 
+    var disabled = false
     var infoButtonAction: (() -> Void)?
 
     func makeBody(configuration: Configuration) -> some View {
         HStack {
             configuration.label
+                .opacity(disabled ? 0.2 : 1)
 
             if let infoButtonAction {
                 Button(action: infoButtonAction) {
@@ -41,6 +43,7 @@ struct CustomToggleStyle: ToggleStyle {
                                 lineWidth: 2
                             )
                     )
+                    .opacity(disabled ? 0.2 : 1)
 
                 Circle()
                     .frame(width: circleRadius, height: circleRadius)
@@ -50,9 +53,12 @@ struct CustomToggleStyle: ToggleStyle {
                             ? Color(uiColor: UIColor.Switch.onThumbColor)
                             : Color(uiColor: UIColor.Switch.offThumbColor)
                     )
+                    .opacity(disabled ? 0.4 : 1)
             }
             .onTapGesture {
-                toggle(configuration)
+                if !disabled {
+                    toggle(configuration)
+                }
             }
             .adjustingTapAreaSize()
         }

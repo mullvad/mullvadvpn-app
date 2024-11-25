@@ -146,6 +146,8 @@ public enum AccessibilityIdentifier: String {
     case editCustomListEditLocationsTableView
     case relayFilterChipView
     case dnsSettingsTableView
+    case multihopView
+    case daitaView
 
     // Other UI elements
     case accessMethodEnableSwitch

@@ -13,15 +13,9 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     UITableViewDelegate {
     enum CellReuseIdentifiers: String, CaseIterable {
         case basic
-        case daita
 
         var reusableViewClass: AnyClass {
-            switch self {
-            case .basic:
-                SettingsCell.self
-            case .daita:
-                SettingsSwitchCell.self
-            }
+            SettingsCell.self
         }
     }
 
@@ -53,9 +47,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         case faq
         case apiAccess
         case daita
-        case daitaDirectOnly
         case multihop
-        case daita2
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
@@ -70,23 +62,14 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             case .apiAccess:
                 return .apiAccessCell
             case .daita:
-                return .daitaSwitch
-            case .daitaDirectOnly:
-                return .daitaDirectOnlySwitch
+                return .daitaCell
             case .multihop:
                 return .multihopCell
-            case .daita2:
-                return .daitaCell
             }
         }
 
         var reuseIdentifier: CellReuseIdentifiers {
-            switch self {
-            case .vpnSettings, .version, .problemReport, .faq, .apiAccess, .multihop, .daita2:
-                .basic
-            case .daita, .daitaDirectOnly:
-                .daita
-            }
+            .basic
         }
     }
 
@@ -125,9 +108,9 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
         switch itemIdentifier(for: indexPath) {
-        case .vpnSettings, .problemReport, .faq, .apiAccess, .multihop, .daita2:
+        case .vpnSettings, .problemReport, .faq, .apiAccess, .daita, .multihop:
             true
-        case .version, .daita, .daitaDirectOnly, .none:
+        case .version, .none:
             false
         }
     }
@@ -168,8 +151,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             snapshot.appendSections([.vpnSettings])
             snapshot.appendItems([
                 .daita,
-                .daitaDirectOnly,
-                .daita2,
                 .multihop,
                 .vpnSettings,
             ], toSection: .vpnSettings)
@@ -191,66 +172,9 @@ extension SettingsDataSource: SettingsCellEventHandler {
         delegate?.showInfo(for: button)
     }
 
-    func switchDaitaState(_ settings: DAITASettings) {
-        testDaitaCompatibility(for: .daita, settings: settings) { [weak self] in
-            self?.reloadItem(.daitaDirectOnly)
-        } onDiscard: { [weak self] in
-            self?.reloadItem(.daita)
-        }
-    }
-
-    func switchDaitaDirectOnlyState(_ settings: DAITASettings) {
-        testDaitaCompatibility(for: .daitaDirectOnly, settings: settings, onDiscard: { [weak self] in
-            self?.reloadItem(.daitaDirectOnly)
-        })
-    }
-
     private func reloadItem(_ item: Item) {
         var snapshot = snapshot()
         snapshot.reloadItems([item])
         apply(snapshot, animatingDifferences: false)
-    }
-
-    private func testDaitaCompatibility(
-        for item: Item,
-        settings: DAITASettings,
-        onSave: (() -> Void)? = nil,
-        onDiscard: @escaping () -> Void
-    ) {
-        let updateSettings = { [weak self] in
-            self?.settingsCellFactory.viewModel.setDAITASettings(settings)
-            self?.interactor.updateDAITASettings(settings)
-
-            onSave?()
-        }
-
-        var promptItemSetting: DAITASettingsPromptItem.Setting?
-        switch item {
-        case .daita:
-            promptItemSetting = .daita
-        case .daitaDirectOnly:
-            promptItemSetting = .directOnly
-        default:
-            break
-        }
-
-        if let promptItemSetting, let error = interactor.evaluateDaitaSettingsCompatibility(settings) {
-            switch error {
-            case .singlehop:
-                delegate?.showPrompt(
-                    for: .daitaSettingIncompatibleWithSinglehop(promptItemSetting),
-                    onSave: { updateSettings() },
-                    onDiscard: onDiscard
-                )
-            case .multihop:
-                delegate?.showPrompt(
-                    for: .daitaSettingIncompatibleWithMultihop(promptItemSetting),
-                    onSave: { updateSettings() },
-                    onDiscard: onDiscard
-                )
-            }
-        } else {
-            updateSettings()
-        }
     }
 }
