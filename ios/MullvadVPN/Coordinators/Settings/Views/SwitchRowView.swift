@@ -17,8 +17,6 @@ struct SwitchRowView: View {
     var body: some View {
         Toggle(isOn: $enabled, label: {
             Text(text)
-        }).onChange(of: enabled, perform: { enabled in
-            $enabled.wrappedValue = enabled
         })
         .toggleStyle(CustomToggleStyle(infoButtonAction: didTapInfoButton))
         .font(.headline)

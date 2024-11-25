@@ -85,7 +85,7 @@ struct SettingsInfoView: View {
                 harder to trace. This results in increased latency but increases anonymity online.
                 """,
                 image: .multihopIllustration
-            )
+            ),
         ]
     ))
 }
@@ -109,7 +109,7 @@ struct SettingsInfoView: View {
                 harder to trace. This results in increased latency but increases anonymity online.
                 """,
                 image: .multihopIllustration
-            )
+            ),
         ]
     ))
 }

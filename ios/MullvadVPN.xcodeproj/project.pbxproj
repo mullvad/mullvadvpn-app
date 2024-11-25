@@ -565,11 +565,10 @@
 		7A8A190E2CEB77C1000BCB5B /* SettingsRowViewFooter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A190D2CEB77B7000BCB5B /* SettingsRowViewFooter.swift */; };
 		7A8A19102CEE391B000BCB5B /* RowSeparator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */; };
 		7A8A19122CEF1E68000BCB5B /* SettingsInfoContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19112CEF1E58000BCB5B /* SettingsInfoContainerView.swift */; };
-		7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsObserver.swift */; };
-		7A8A19162CEF269E000BCB5B /* MultihopTunnelSettingsObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19152CEF2696000BCB5B /* MultihopTunnelSettingsObserver.swift */; };
-		7A8A19182CEF27AB000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19172CEF279C000BCB5B /* DAITATunnelSettingsViewModel.swift */; };
+		7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsViewModel.swift */; };
+		7A8A19162CEF269E000BCB5B /* MultihopTunnelSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19152CEF2696000BCB5B /* MultihopTunnelSettingsViewModel.swift */; };
 		7A8A191A2CEF41AF000BCB5B /* GroupedRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19192CEF41AC000BCB5B /* GroupedRowView.swift */; };
-		7A8A191C2CEF55E3000BCB5B /* MultihopTunnelSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A191B2CEF55DA000BCB5B /* MultihopTunnelSettingsViewModel.swift */; };
+		7A8A191E2CEF5CF2000BCB5B /* TunnelSettingsObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */; };
 		7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */; };
 		7A9BE5A32B8F89B900E2A7D0 /* LocationNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6389F72B864CDF008E77E1 /* LocationNode.swift */; };
 		7A9BE5A52B90760C00E2A7D0 /* CustomListsDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */; };
@@ -1921,11 +1920,10 @@
 		7A8A190D2CEB77B7000BCB5B /* SettingsRowViewFooter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsRowViewFooter.swift; sourceTree = "<group>"; };
 		7A8A190F2CEE3918000BCB5B /* RowSeparator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RowSeparator.swift; sourceTree = "<group>"; };
 		7A8A19112CEF1E58000BCB5B /* SettingsInfoContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInfoContainerView.swift; sourceTree = "<group>"; };
-		7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITATunnelSettingsObserver.swift; sourceTree = "<group>"; };
-		7A8A19152CEF2696000BCB5B /* MultihopTunnelSettingsObserver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopTunnelSettingsObserver.swift; sourceTree = "<group>"; };
-		7A8A19172CEF279C000BCB5B /* DAITATunnelSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITATunnelSettingsViewModel.swift; sourceTree = "<group>"; };
+		7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITATunnelSettingsViewModel.swift; sourceTree = "<group>"; };
+		7A8A19152CEF2696000BCB5B /* MultihopTunnelSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopTunnelSettingsViewModel.swift; sourceTree = "<group>"; };
 		7A8A19192CEF41AC000BCB5B /* GroupedRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GroupedRowView.swift; sourceTree = "<group>"; };
-		7A8A191B2CEF55DA000BCB5B /* MultihopTunnelSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopTunnelSettingsViewModel.swift; sourceTree = "<group>"; };
+		7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsObservable.swift; sourceTree = "<group>"; };
 		7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNodeTests.swift; sourceTree = "<group>"; };
 		7A9BE5A42B90760C00E2A7D0 /* CustomListsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsDataSourceTests.swift; sourceTree = "<group>"; };
 		7A9BE5A82B90806800E2A7D0 /* CustomListsRepositoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsRepositoryStub.swift; sourceTree = "<group>"; };
@@ -2887,7 +2885,6 @@
 				4424CDD12CDBD457009D8C9F /* SwiftUI components */,
 				4422C06F2CCFF6520001A385 /* Obfuscation */,
 				7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */,
-				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */,
 				7A27E3CE2CBD4A830088BCFF /* SelectableSettingsDetailsCell.swift */,
 				5819C2162729595500D6EC38 /* SettingsAddDNSEntryCell.swift */,
@@ -3825,6 +3822,7 @@
 				7A9CCCAD2A96302800DD6A34 /* SettingsCoordinator.swift */,
 				7A6389EC2B7FADA1008E77E1 /* SettingsFieldValidationErrorConfiguration.swift */,
 				7A6389EA2B7FAD7A008E77E1 /* SettingsFieldValidationErrorContentView.swift */,
+				7A8A191D2CEF5CDF000BCB5B /* TunnelSettingsObservable.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -3978,8 +3976,7 @@
 		7A8A18F72CE34E8F000BCB5B /* Multihop */ = {
 			isa = PBXGroup;
 			children = (
-				7A8A19152CEF2696000BCB5B /* MultihopTunnelSettingsObserver.swift */,
-				7A8A191B2CEF55DA000BCB5B /* MultihopTunnelSettingsViewModel.swift */,
+				7A8A19152CEF2696000BCB5B /* MultihopTunnelSettingsViewModel.swift */,
 				7A8A18F82CE34E9F000BCB5B /* SettingsMultihopView.swift */,
 			);
 			path = Multihop;
@@ -4000,8 +3997,8 @@
 		7A8A19082CE5FFD7000BCB5B /* DAITA */ = {
 			isa = PBXGroup;
 			children = (
-				7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsObserver.swift */,
-				7A8A19172CEF279C000BCB5B /* DAITATunnelSettingsViewModel.swift */,
+				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
+				7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsViewModel.swift */,
 				7A8A19092CE5FFDF000BCB5B /* SettingsDAITAView.swift */,
 			);
 			path = DAITA;
@@ -5781,7 +5778,7 @@
 				7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */,
 				7A6389F82B864CDF008E77E1 /* LocationNode.swift in Sources */,
 				587D96742886D87C00CD8F1C /* DeviceManagementContentView.swift in Sources */,
-				7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsObserver.swift in Sources */,
+				7A8A19142CEF2548000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */,
 				7A8A18F92CE34EA8000BCB5B /* SettingsMultihopView.swift in Sources */,
 				44BB5F972BE527F4002520EB /* TunnelState+UI.swift in Sources */,
 				7A11DD0B2A9495D400098CD8 /* AppRoutes.swift in Sources */,
@@ -5932,7 +5929,6 @@
 				F0EF50D52A949F8E0031E8DF /* ChangeLogViewModel.swift in Sources */,
 				F0E8E4BB2A56C9F100ED26A3 /* WelcomeInteractor.swift in Sources */,
 				7A6000F62B60092F001CF0D9 /* AccessMethodViewModelEditing.swift in Sources */,
-				7A8A191C2CEF55E3000BCB5B /* MultihopTunnelSettingsViewModel.swift in Sources */,
 				5878A27729093A4F0096FC88 /* StorePaymentBlockObserver.swift in Sources */,
 				58EF87572B16330B00C098B2 /* ProxyConfigurationTester.swift in Sources */,
 				5827B0A62B0F39E900CCBBA1 /* EditAccessMethodInteractor.swift in Sources */,
@@ -5960,6 +5956,7 @@
 				7AB2B6712BA1EB8C00B03E3B /* ListCustomListCoordinator.swift in Sources */,
 				582BB1AF229566420055B6EF /* SettingsCell.swift in Sources */,
 				7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */,
+				7A8A191E2CEF5CF2000BCB5B /* TunnelSettingsObservable.swift in Sources */,
 				58F3C0A4249CB069003E76BE /* HeaderBarView.swift in Sources */,
 				5864AF0829C78849005B0CD9 /* CellFactoryProtocol.swift in Sources */,
 				7A6389E22B7E3BD6008E77E1 /* CustomListInteractor.swift in Sources */,
@@ -5968,7 +5965,6 @@
 				58CEB2F32AFD0BA100E6E088 /* TextCellContentView.swift in Sources */,
 				7A6389E72B7E42BE008E77E1 /* CustomListViewController.swift in Sources */,
 				586C0D7C2B03BDD100E7CDD7 /* AccessMethodViewModel.swift in Sources */,
-				7A8A19182CEF27AB000BCB5B /* DAITATunnelSettingsViewModel.swift in Sources */,
 				587A01FC23F1F0BE00B68763 /* SimulatorTunnelProviderHost.swift in Sources */,
 				7A6F2FA72AFBB9AE006D0856 /* AccountExpiry.swift in Sources */,
 				5819C2172729595500D6EC38 /* SettingsAddDNSEntryCell.swift in Sources */,
@@ -6002,7 +5998,7 @@
 				5892A45E265FABFF00890742 /* EmptyTableViewHeaderFooterView.swift in Sources */,
 				580909D32876D09A0078138D /* RevokedDeviceViewController.swift in Sources */,
 				58FF9FF02B07C4D300E4C97D /* PersistentAccessMethod+ViewModel.swift in Sources */,
-				7A8A19162CEF269E000BCB5B /* MultihopTunnelSettingsObserver.swift in Sources */,
+				7A8A19162CEF269E000BCB5B /* MultihopTunnelSettingsViewModel.swift in Sources */,
 				58CEB2FD2AFD19D300E6E088 /* UITableView+ReuseIdentifier.swift in Sources */,
 				F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */,
 				5835B7CC233B76CB0096D79F /* TunnelManager.swift in Sources */,

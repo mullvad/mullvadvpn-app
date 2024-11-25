@@ -241,6 +241,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     /// Produce a view controller or a child coordinator representing the route.
     /// - Parameter route: the route for which to request the new view controller or child coordinator.
     /// - Returns: a result of creating a child for the route.
+    // swiftlint:disable:next function_body_length
     private func makeChild(for route: SettingsNavigationRoute) -> MakeChildResult {
         switch route {
         case .root:
@@ -293,6 +294,16 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             let viewModel = DAITATunnelSettingsViewModel(tunnelManager: interactorFactory.tunnelManager)
             let view = SettingsDAITAView(tunnelViewModel: viewModel)
 
+            viewModel.didFailDAITAValidation = { [weak self] result in
+                self?.showPrompt(
+                    for: result.item,
+                    onSave: {
+                        viewModel.value = result.setting
+                    },
+                    onDiscard: {}
+                )
+            }
+
             let host = UIHostingController(rootView: view)
             host.title = NSLocalizedString(
                 "NAVIGATION_TITLE_DAITA",
@@ -303,6 +314,49 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
             return .viewController(host)
         }
+    }
+
+    private func showPrompt(
+        for item: DAITASettingsPromptItem,
+        onSave: @escaping () -> Void,
+        onDiscard: @escaping () -> Void
+    ) {
+        let presentation = AlertPresentation(
+            id: "settings-daita-prompt",
+            accessibilityIdentifier: .daitaPromptAlert,
+            icon: .info,
+            message: NSLocalizedString(
+                "SETTINGS_DAITA_ENABLE_TEXT",
+                tableName: "DAITA",
+                value: item.description,
+                comment: ""
+            ),
+            buttons: [
+                AlertAction(
+                    title: String(format: NSLocalizedString(
+                        "SETTINGS_DAITA_ENABLE_OK_ACTION",
+                        tableName: "DAITA",
+                        value: "Enable %@",
+                        comment: ""
+                    ), item.title),
+                    style: .default,
+                    accessibilityId: .daitaConfirmAlertEnableButton,
+                    handler: { onSave() }
+                ),
+                AlertAction(
+                    title: NSLocalizedString(
+                        "SETTINGS_DAITA_ENABLE_CANCEL_ACTION",
+                        tableName: "DAITA",
+                        value: "Back",
+                        comment: ""
+                    ),
+                    style: .default,
+                    handler: { onDiscard() }
+                ),
+            ]
+        )
+
+        AlertPresenter(context: self).showAlert(presentation: presentation, animated: true)
     }
 
     /// Map the view controller to the individual route.

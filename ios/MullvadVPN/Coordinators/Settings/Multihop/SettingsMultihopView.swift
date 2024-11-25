@@ -6,33 +6,16 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
+import MullvadSettings
 import SwiftUI
 
-struct SettingsMultihopView<VM>: View where VM: MultihopTunnelSettingsObservable {
-    @StateObject var tunnelViewModel: VM
-
-    private let viewModel = SettingsInfoViewModel(
-        pages: [
-            SettingsInfoViewModelPage(
-                body: NSLocalizedString(
-                    "SETTINGS_INFO_MULTIHOP",
-                    tableName: "Settings",
-                    value: """
-                    Multihop routes your traffic into one WireGuard server and out another, making it \
-                    harder to trace. This results in increased latency but increases anonymity online.
-                    """,
-                    comment: ""
-                ),
-                image: .multihopIllustration
-            )
-        ]
-    )
+struct SettingsMultihopView<ViewModel>: View where ViewModel: TunnelSettingsObservable<MultihopState> {
+    @StateObject var tunnelViewModel: ViewModel
 
     var body: some View {
         SettingsInfoContainerView {
             VStack(alignment: .leading, spacing: 8) {
-                SettingsInfoView(viewModel: viewModel)
+                SettingsInfoView(viewModel: dataViewModel)
 
                 SwitchRowView(
                     enabled: $tunnelViewModel.value.isEnabled,
@@ -52,4 +35,25 @@ struct SettingsMultihopView<VM>: View where VM: MultihopTunnelSettingsObservable
 
 #Preview {
     SettingsMultihopView(tunnelViewModel: MockMultihopTunnelSettingsViewModel())
+}
+
+extension SettingsMultihopView {
+    private var dataViewModel: SettingsInfoViewModel {
+        SettingsInfoViewModel(
+            pages: [
+                SettingsInfoViewModelPage(
+                    body: NSLocalizedString(
+                        "SETTINGS_INFO_MULTIHOP",
+                        tableName: "Settings",
+                        value: """
+                        Multihop routes your traffic into one WireGuard server and out another, making it \
+                        harder to trace. This results in increased latency but increases anonymity online.
+                        """,
+                        comment: ""
+                    ),
+                    image: .multihopIllustration
+                ),
+            ]
+        )
+    }
 }
