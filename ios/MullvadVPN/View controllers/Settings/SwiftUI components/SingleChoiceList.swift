@@ -69,8 +69,9 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     // This makes sense if it's something like a port; if we ever need to
     // use this with a type with more than one form of custom value, we will
     // need to add some mitigations
-    @State var customValue = ""
+    @State var customValueInput = ""
     @FocusState var customValueIsFocused: Bool
+    @State var customValueInputIsInvalid = false
 
     // an individual option being presented in a row
     fileprivate struct OptionSpec: Identifiable {
@@ -200,40 +201,52 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         fromValue: @escaping (Value) -> String?
     ) -> some View {
         row(
-            isSelected: value.wrappedValue == toValue(customValue) || customValueIsFocused
+            isSelected: value.wrappedValue == toValue(customValueInput) || customValueIsFocused
         ) {
             Text(label)
             Spacer()
-            TextField("value", text: $customValue, prompt: Text(prompt))
+            TextField("value", text: $customValueInput, prompt: Text(prompt))
                 .keyboardType(customFieldMode == .numericText ? .numberPad : .default)
                 .fixedSize()
                 .padding(4)
-                .foregroundColor(Color(UIColor.TextField.textColor))
+                .foregroundColor(
+                    customValueInputIsInvalid
+                        ? Color(UIColor.TextField.invalidInputTextColor)
+                        : Color(UIColor.TextField.textColor)
+                )
                 .background(Color(UIColor.TextField.backgroundColor))
                 .cornerRadius(4.0)
+                // .border doesn't honour .cornerRadius, so overlaying a RoundedRectangle is necessary
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4.0)
+                        .stroke(
+                            customValueInputIsInvalid ? Color(UIColor.TextField.invalidInputTextColor) : .clear,
+                            lineWidth: 1
+                        )
+                )
                 .focused($customValueIsFocused)
-                .onChange(of: customValue) { newValue in
-                    if let parsedValue = toValue(customValue) {
+                .onChange(of: customValueInput) { newValue in
+                    if let parsedValue = toValue(customValueInput) {
                         value.wrappedValue = parsedValue
-                    } else if customValue.isEmpty {
-                        // user backspaced over input text; this won't form a
-                        // valid value, so we fall back to the initial value
-                        // and await their next move
+                        customValueInputIsInvalid = false
+                    } else {
+                        // this is not a valid value, so we fall back to the
+                        // initial value, showing the invalid-value state if
+                        // the field is not empty
                         if let initialValue {
                             value.wrappedValue = initialValue
                         }
-                    } else if let t = fromValue(value.wrappedValue) {
-                        customValue = t
+                        customValueInputIsInvalid = !customValueInput.isEmpty
                     }
                 }
                 .onAppear {
                     if let valueText = fromValue(value.wrappedValue) {
-                        customValue = valueText
+                        customValueInput = valueText
                     }
                 }
         }
         .onTapGesture {
-            if let v = toValue(customValue) {
+            if let v = toValue(customValueInput) {
                 value.wrappedValue = v
             } else {
                 customValueIsFocused = true
@@ -296,7 +309,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         title: "Test",
         options: [.two, .three],
         value: $0,
-        parseCustomValue: { Int($0).map { ExampleValue.someNumber($0) } },
+        parseCustomValue: { Int($0).flatMap { $0 > 3 ? ExampleValue.someNumber($0) : nil } },
         formatCustomValue: { if case let .someNumber(n) = $0 { "\(n)" } else { nil } },
         customLabel: "Custom",
         customPrompt: "Number",
