@@ -199,6 +199,13 @@ class TunnelControlPage: Page {
         return self
     }
 
+    /// Verify that the app attempts to connect using DAITA.
+    @discardableResult func verifyConnectingUsingDAITA() -> Self {
+        let relayName = getCurrentRelayName().lowercased()
+        XCTAssertTrue(relayName.contains("using daita"))
+        return self
+    }
+
     func getInIPAddressFromConnectionStatus() -> String {
         let inAddressRow = app.otherElements[AccessibilityIdentifier.connectionPanelInAddressRow]
 

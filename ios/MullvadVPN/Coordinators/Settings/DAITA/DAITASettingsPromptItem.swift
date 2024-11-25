@@ -32,13 +32,13 @@ enum DAITASettingsPromptItem: CustomStringConvertible {
         switch self {
         case .daitaSettingIncompatibleWithSinglehop:
             """
-            Not all our servers are DAITA-enabled. In order to use the internet, you might have to \
-            select a new location after enabling.
+            DAITA isn’t available at the currently selected location. After enabling, please go to \
+            the “Select location” view and select a location that supports DAITA.
             """
         case .daitaSettingIncompatibleWithMultihop:
             """
-            Not all our servers are DAITA-enabled. In order to use the internet, you might have to \
-            select a new entry location after enabling.
+            DAITA isn’t available on the current entry server. After enabling, please go to the \
+            “Select location” view and select an entry location that supports DAITA.
             """
         }
     }
