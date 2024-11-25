@@ -20,7 +20,6 @@ class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnS
             VpnSettingsUiState.createDefault(
                 mtu = Mtu(MTU),
                 isLocalNetworkSharingEnabled = true,
-                isDaitaEnabled = true,
                 isCustomDnsEnabled = true,
                 customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
                 contentBlockersOptions =

@@ -94,7 +94,7 @@
     <string name="custom_port_dialog_submit">Poort instellen</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
-    <string name="daita_info">%1$s (%2$s) verbergt patronen in het versleutelde VPN-verkeer. Als iemand de verbinding in de gaten houdt, maakt dit het aanzienlijk moeilijker voor diegene om te zien welke websites u bezoekt. Dit wordt gedaan door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
+    <string name="daita_description_slide_1_second_paragraph">Door gebruik te maken van geavanceerde AI is het mogelijk om het verkeer van datapakketten te analyseren die uw apparaat in- en uitgaan (zelfs als het verkeer versleuteld is).</string>
     <string name="daita_relay_subset_warning">Deze functie is niet op alle servers beschikbaar. Mogelijk moet u na het inschakelen van locatie veranderen.</string>
     <string name="daita_warning">Let op: omdat dit het totale netwerkverkeer verhoogt, moet u voorzichtig zijn als u een beperkt data-abonnement hebt. Ook kan het uw netwerksnelheid en batterijgebruik beïnvloeden.</string>
     <string name="delete">Verwijderen</string>
@@ -110,6 +110,7 @@
     <string name="device_name_info_first_paragraph">Dit is de naam die aan het apparaat is toegewezen. Elk apparaat dat is aangemeld op een Mullvad-account, krijgt een unieke naam waarmee u het kunt identificeren wanneer u uw apparaten beheert in de app of op de website.</string>
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
     <string name="device_name_info_third_paragraph">Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam.</string>
+    <string name="direct_only">Alleen rechtstreeks</string>
     <string name="discard">Verwerpen</string>
     <string name="discard_changes">Wijzigingen verwerpen?</string>
     <string name="disconnect">Verbinding verbreken</string>

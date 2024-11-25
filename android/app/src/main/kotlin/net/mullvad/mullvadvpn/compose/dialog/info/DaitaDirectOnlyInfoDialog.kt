@@ -14,22 +14,15 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
-private fun PreviewDaitaInfoDialog() {
-    AppTheme { DaitaInfo(EmptyDestinationsNavigator) }
+private fun PreviewDaitaDirectOnlyInfoDialog() {
+    AppTheme { DaitaDirectOnlyInfo(EmptyDestinationsNavigator) }
 }
 
 @Destination<RootGraph>(style = DestinationStyle.Dialog::class)
 @Composable
-fun DaitaInfo(navigator: DestinationsNavigator) {
+fun DaitaDirectOnlyInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message =
-            stringResource(
-                id = R.string.daita_info,
-                stringResource(id = R.string.daita),
-                stringResource(id = R.string.daita_full),
-            ),
-        additionalInfo =
-            stringResource(id = R.string.daita_warning, stringResource(id = R.string.daita)),
+        message = stringResource(id = R.string.daita_info),
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

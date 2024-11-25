@@ -72,4 +72,6 @@ class SettingsRepository(
         managementService.setAllowLan(isEnabled)
 
     suspend fun setDaitaEnabled(enabled: Boolean) = managementService.setDaitaEnabled(enabled)
+
+    suspend fun setDaitaDirectOnly(enabled: Boolean) = managementService.setDaitaDirectOnly(enabled)
 }

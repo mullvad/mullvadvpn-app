@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.CustomDnsOptions
 import net.mullvad.mullvadvpn.lib.model.CustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListId
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
@@ -253,3 +254,9 @@ internal fun ShadowsocksSettings.fromDomain(): ManagementInterface.ShadowsocksSe
         is Constraint.Only ->
             ManagementInterface.ShadowsocksSettings.newBuilder().setPort(port.value.value).build()
     }
+
+internal fun DaitaSettings.fromDomain(): ManagementInterface.DaitaSettings =
+    ManagementInterface.DaitaSettings.newBuilder()
+        .setEnabled(enabled)
+        .setDirectOnly(directOnly)
+        .build()
