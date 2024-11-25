@@ -12,8 +12,10 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
@@ -28,10 +30,12 @@ class SettingsViewModelTest {
     private val mockDeviceRepository: DeviceRepository = mockk()
     private val mockAppVersionInfoRepository: AppVersionInfoRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
+    private val mockSettingsRepository: SettingsRepository = mockk()
 
     private val versionInfo =
         MutableStateFlow(VersionInfo(currentVersion = "", isSupported = false))
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
+    private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SettingsViewModel
 
@@ -43,12 +47,14 @@ class SettingsViewModelTest {
         every { mockAppVersionInfoRepository.versionInfo } returns versionInfo
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
+        every { mockSettingsRepository.settingsUpdates } returns settings
 
         viewModel =
             SettingsViewModel(
                 deviceRepository = mockDeviceRepository,
                 appVersionInfoRepository = mockAppVersionInfoRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                settingsRepository = mockSettingsRepository,
                 isPlayBuild = false,
             )
     }

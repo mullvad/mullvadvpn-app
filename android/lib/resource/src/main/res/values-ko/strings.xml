@@ -94,7 +94,7 @@
     <string name="custom_port_dialog_submit">포트 설정</string>
     <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
-    <string name="daita_info">%1$s(%2$s)는 암호화된 VPN 트래픽의 패턴을 숨깁니다. 누군가 사용자의 연결을 모니터링하고 있다면 이 기능은 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다. 이는 정교하게 네트워크 노이즈를 추가하고 모든 네트워크 패킷을 동일한 사이즈로 만드는 방식으로 달성됩니다.</string>
+    <string name="daita_description_slide_1_second_paragraph">정교한 AI를 사용하면, 트래픽이 암호화된 경우라도 장치를 드나드는 데이터 패킷의 트래픽을 분석하는 것이 가능합니다.</string>
     <string name="daita_relay_subset_warning">이 기능은 일부 서버에서 이용 가능하지 않습니다. 활성화 후 위치를 변경해야 할 수도 있습니다.</string>
     <string name="daita_warning">주의: 이러한 방식은 총 네트워크 트래픽을 증가시키므로, 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다. 또한 네트워크 속도와 배터리 사용에 부정적인 영향을 미칠 수 있습니다.</string>
     <string name="delete">삭제</string>
@@ -110,6 +110,7 @@
     <string name="device_name_info_first_paragraph">이것은 장치에 할당된 이름입니다. Mullvad 계정에 로그인된 각 장치에는 앱이나 웹사이트에서 장치를 관리할 때 장치를 보다 쉽게 식별할 수 있는 고유한 이름이 부여됩니다.</string>
     <string name="device_name_info_second_paragraph">최대 5개의 장치에서 하나의 Mullvad 계정에 로그인할 수 있습니다.</string>
     <string name="device_name_info_third_paragraph">로그아웃하면 해당 장치와 장치 이름이 제거됩니다. 다시 로그인하면 장치에 새 이름이 부여됩니다.</string>
+    <string name="direct_only">직접 전용</string>
     <string name="discard">취소</string>
     <string name="discard_changes">변경 사항을 취소하시겠습니까?</string>
     <string name="disconnect">연결 끊기</string>

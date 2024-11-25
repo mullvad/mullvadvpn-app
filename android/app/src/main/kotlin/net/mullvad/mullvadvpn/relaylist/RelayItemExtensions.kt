@@ -73,9 +73,9 @@ fun RelayItem.CustomList.filter(
 fun RelayItem.Location.Country.filter(
     ownership: Constraint<Ownership>,
     providers: Constraint<Providers>,
-    shouldFilterByDaita: Boolean,
+    filterDaita: Boolean,
 ): RelayItem.Location.Country? {
-    val cities = cities.mapNotNull { it.filter(ownership, providers, shouldFilterByDaita) }
+    val cities = cities.mapNotNull { it.filter(ownership, providers, filterDaita) }
     return if (cities.isNotEmpty()) {
         this.copy(cities = cities)
     } else {
@@ -96,8 +96,8 @@ private fun RelayItem.Location.City.filter(
     }
 }
 
-private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(isDaitaEnabled: Boolean): Boolean {
-    return if (isDaitaEnabled) daita else true
+private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(filterDaita: Boolean): Boolean {
+    return if (filterDaita) daita else true
 }
 
 private fun RelayItem.Location.Relay.filter(

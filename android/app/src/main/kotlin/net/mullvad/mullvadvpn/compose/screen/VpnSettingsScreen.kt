@@ -37,8 +37,6 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.AutoConnectAndLockdownModeDestination
 import com.ramcosta.composedestinations.generated.destinations.ContentBlockersInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomDnsInfoDestination
-import com.ramcosta.composedestinations.generated.destinations.DaitaConfirmationDestination
-import com.ramcosta.composedestinations.generated.destinations.DaitaInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.DnsDestination
 import com.ramcosta.composedestinations.generated.destinations.LocalNetworkSharingInfoDestination
 import com.ramcosta.composedestinations.generated.destinations.MalwareInfoDestination
@@ -141,7 +139,6 @@ fun VpnSettings(
     dnsDialogResult: ResultRecipient<DnsDestination, DnsDialogResult>,
     customWgPortResult: ResultRecipient<WireguardCustomPortDestination, Port?>,
     mtuDialogResult: ResultRecipient<MtuDestination, Boolean>,
-    daitaConfirmationDialogResult: ResultRecipient<DaitaConfirmationDestination, Boolean>,
 ) {
     val vm = koinViewModel<VpnSettingsViewModel>()
     val state by vm.uiState.collectAsStateWithLifecycle()
@@ -168,12 +165,6 @@ fun VpnSettings(
     mtuDialogResult.OnNavResultValue { result ->
         if (!result) {
             vm.showGenericErrorToast()
-        }
-    }
-
-    daitaConfirmationDialogResult.OnNavResultValue { doEnableDaita ->
-        if (doEnableDaita) {
-            vm.onToggleDaita(true)
         }
     }
 
@@ -223,16 +214,12 @@ fun VpnSettings(
             },
         navigateToLocalNetworkSharingInfo =
             dropUnlessResumed { navigator.navigate(LocalNetworkSharingInfoDestination) },
-        navigateToDaitaInfo = dropUnlessResumed { navigator.navigate(DaitaInfoDestination) },
-        navigateToDaitaConfirmation =
-            dropUnlessResumed { navigator.navigate(DaitaConfirmationDestination) },
         navigateToServerIpOverrides =
             dropUnlessResumed { navigator.navigate(ServerIpOverridesDestination) },
         onToggleBlockTrackers = vm::onToggleBlockTrackers,
         onToggleBlockAds = vm::onToggleBlockAds,
         onToggleBlockMalware = vm::onToggleBlockMalware,
         onToggleLocalNetworkSharing = vm::onToggleLocalNetworkSharing,
-        onDisableDaita = { vm.onToggleDaita(false) },
         onToggleBlockAdultContent = vm::onToggleBlockAdultContent,
         onToggleBlockGambling = vm::onToggleBlockGambling,
         onToggleBlockSocialMedia = vm::onToggleBlockSocialMedia,
@@ -280,15 +267,12 @@ fun VpnSettingsScreen(
     navigateToQuantumResistanceInfo: () -> Unit = {},
     navigateToWireguardPortInfo: (availablePortRanges: List<PortRange>) -> Unit = {},
     navigateToLocalNetworkSharingInfo: () -> Unit = {},
-    navigateToDaitaInfo: () -> Unit = {},
-    navigateToDaitaConfirmation: () -> Unit = {},
     navigateToWireguardPortDialog: () -> Unit = {},
     navigateToServerIpOverrides: () -> Unit = {},
     onToggleBlockTrackers: (Boolean) -> Unit = {},
     onToggleBlockAds: (Boolean) -> Unit = {},
     onToggleBlockMalware: (Boolean) -> Unit = {},
     onToggleLocalNetworkSharing: (Boolean) -> Unit = {},
-    onDisableDaita: () -> Unit = {},
     onToggleBlockAdultContent: (Boolean) -> Unit = {},
     onToggleBlockGambling: (Boolean) -> Unit = {},
     onToggleBlockSocialMedia: (Boolean) -> Unit = {},
@@ -500,23 +484,6 @@ fun VpnSettingsScreen(
                             bottom = Dimens.cellLabelVerticalPadding,
                         ),
                 )
-            }
-
-            item {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-                HeaderSwitchComposeCell(
-                    title = stringResource(id = R.string.daita),
-                    isToggled = state.isDaitaEnabled,
-                    onCellClicked = { enable ->
-                        if (enable) {
-                            navigateToDaitaConfirmation()
-                        } else {
-                            onDisableDaita()
-                        }
-                    },
-                    onInfoClicked = navigateToDaitaInfo,
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
             }
 
             itemWithDivider {

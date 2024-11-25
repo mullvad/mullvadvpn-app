@@ -94,7 +94,7 @@
     <string name="custom_port_dialog_submit">Définir le port</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
-    <string name="daita_info">%1$s (%2$s) dissimule des motifs dans votre trafic VPN chiffré. Si quelqu\'un surveille votre connexion, il lui sera beaucoup plus difficile d\'identifier les sites web que vous visitez. Pour ce faire, il ajoute soigneusement du bruit réseau et fait en sorte que tous les paquets de réseau aient la même taille.</string>
+    <string name="daita_description_slide_1_second_paragraph">Utiliser une IA sophistiquée peut permettre d\'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</string>
     <string name="daita_relay_subset_warning">Cette fonctionnalité n\'est pas disponible sur tous les serveurs. Vous devrez peut-être changer d\'emplacement après l\'avoir activée.</string>
     <string name="daita_warning">Attention : étant donné que cette opération augmente le trafic total de votre réseau, faites attention si vous disposez d\'un forfait à données limitées. Cela peut également avoir un impact négatif sur la vitesse de votre réseau et l\'utilisation de la batterie.</string>
     <string name="delete">Supprimer</string>
@@ -110,6 +110,7 @@
     <string name="device_name_info_first_paragraph">Il s\'agit du nom attribué à l\'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l\'identifier lorsque vous gérez vos appareils dans l\'application ou sur le site Web.</string>
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
+    <string name="direct_only">Directe uniquement</string>
     <string name="discard">Annuler</string>
     <string name="discard_changes">Annuler les modifications ?</string>
     <string name="disconnect">Déconnexion</string>

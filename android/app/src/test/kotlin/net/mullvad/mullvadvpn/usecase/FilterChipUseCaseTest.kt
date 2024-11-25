@@ -108,10 +108,14 @@ class FilterChipUseCaseTest {
         }
 
     @Test
-    fun `when Daita is enabled and multihop is disabled should return Daita filter chip`() =
+    fun `when Daita with direct only is enabled and multihop is disabled should return Daita filter chip`() =
         runTest {
             // Arrange
-            settings.value = mockk(relaxed = true) { every { isDaitaEnabled() } returns true }
+            settings.value =
+                mockk<Settings>(relaxed = true) {
+                    every { this@mockk.tunnelOptions.wireguard.daitaSettings.enabled } returns true
+                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns true
+                }
             wireguardConstraints.value =
                 mockk(relaxed = true) { every { isMultihopEnabled } returns false }
 
@@ -121,10 +125,29 @@ class FilterChipUseCaseTest {
         }
 
     @Test
-    fun `when Daita is enabled and multihop is enabled and relay list type is entry should return Daita filter chip`() =
+    fun `when Daita without direct only is enabled and multihop is disabled should return no filter chip`() =
         runTest {
             // Arrange
-            settings.value = mockk(relaxed = true) { every { isDaitaEnabled() } returns true }
+            settings.value =
+                mockk<Settings>(relaxed = true) {
+                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
+                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+                }
+            wireguardConstraints.value =
+                mockk(relaxed = true) { every { isMultihopEnabled } returns false }
+
+            filterChipUseCase(RelayListType.EXIT).test { assertLists(emptyList(), awaitItem()) }
+        }
+
+    @Test
+    fun `when Daita with direct only is enabled and multihop is enabled and relay list type is entry should return Daita filter chip`() =
+        runTest {
+            // Arrange
+            settings.value =
+                mockk<Settings>(relaxed = true) {
+                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
+                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns true
+                }
             wireguardConstraints.value =
                 mockk(relaxed = true) { every { isMultihopEnabled } returns true }
 
@@ -134,10 +157,29 @@ class FilterChipUseCaseTest {
         }
 
     @Test
-    fun `when Daita is enabled and multihop is enabled and relay list type is exit should return no filter`() =
+    fun `when Daita with direct only is enabled and multihop is enabled and relay list type is exit should return no filter`() =
         runTest {
             // Arrange
-            settings.value = mockk(relaxed = true) { every { isDaitaEnabled() } returns true }
+            settings.value =
+                mockk<Settings>(relaxed = true) {
+                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
+                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns true
+                }
+            wireguardConstraints.value =
+                mockk(relaxed = true) { every { isMultihopEnabled } returns true }
+
+            filterChipUseCase(RelayListType.EXIT).test { assertLists(emptyList(), awaitItem()) }
+        }
+
+    @Test
+    fun `when Daita without direct only is enabled and multihop is enabled and relay list type is exit should return no filter`() =
+        runTest {
+            // Arrange
+            settings.value =
+                mockk<Settings>(relaxed = true) {
+                    every { tunnelOptions.wireguard.daitaSettings.enabled } returns true
+                    every { tunnelOptions.wireguard.daitaSettings.directOnly } returns false
+                }
             wireguardConstraints.value =
                 mockk(relaxed = true) { every { isMultihopEnabled } returns true }
 

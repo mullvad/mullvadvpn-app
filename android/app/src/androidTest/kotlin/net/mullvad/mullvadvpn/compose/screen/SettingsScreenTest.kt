@@ -34,6 +34,7 @@ class SettingsScreenTest {
                             isSupportedVersion = true,
                             isPlayBuild = false,
                             multihopEnabled = false,
+                            isDaitaEnabled = false,
                         )
                 )
             }
@@ -58,6 +59,7 @@ class SettingsScreenTest {
                             isSupportedVersion = true,
                             isPlayBuild = false,
                             multihopEnabled = false,
+                            isDaitaEnabled = false,
                         )
                 )
             }

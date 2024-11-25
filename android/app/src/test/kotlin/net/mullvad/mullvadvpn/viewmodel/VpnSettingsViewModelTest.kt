@@ -18,8 +18,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
+import mullvad_daemon.management_interface.daitaSettings
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
@@ -131,7 +133,7 @@ class VpnSettingsViewModelTest {
                 WireguardTunnelOptions(
                     mtu = Mtu(0),
                     quantumResistant = expectedResistantState,
-                    daita = false,
+                    daitaSettings = DaitaSettings(enabled = false, directOnly = false),
                 )
 
             every { mockSettings.tunnelOptions } returns mockTunnelOptions
@@ -167,7 +169,7 @@ class VpnSettingsViewModelTest {
                         WireguardTunnelOptions(
                             mtu = null,
                             quantumResistant = QuantumResistantState.Off,
-                            daita = false,
+                            daitaSettings = DaitaSettings(enabled = false, directOnly = false),
                         ),
                     dnsOptions = mockk(relaxed = true),
                 )

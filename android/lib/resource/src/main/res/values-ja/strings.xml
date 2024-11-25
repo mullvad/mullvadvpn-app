@@ -94,7 +94,7 @@
     <string name="custom_port_dialog_submit">ポートを設定</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
-    <string name="daita_info">%1$s (%2$s) は暗号化されたVPNトラフィックのパターンを隠します。これにより、接続が監視されている場合でもアクセス先のウェブサイトを特定するのを極めて困難にします。ネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。</string>
+    <string name="daita_description_slide_1_second_paragraph">高度なAIを使用することで、(トラフィックが暗号化されている場合でも) デバイスが送受信するデータパケットのトラフィックを分析することは可能です。</string>
     <string name="daita_relay_subset_warning">この機能はすべてのサーバーでご利用いただけるわけではありません。有効にした後に場所の変更が必要となる可能性があります。</string>
     <string name="daita_warning">注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワークの速度とバッテリー使用量にも悪影響を及ぼす可能性があります。</string>
     <string name="delete">削除</string>
@@ -110,6 +110,7 @@
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
     <string name="device_name_info_third_paragraph">ログアウトすると、デバイスとデバイス名が削除されます。もう一度ログインすると、デバイスに新しい名前が付けられます。</string>
+    <string name="direct_only">ダイレクトのみ</string>
     <string name="discard">破棄</string>
     <string name="discard_changes">変更内容を破棄しますか？</string>
     <string name="disconnect">接続解除</string>

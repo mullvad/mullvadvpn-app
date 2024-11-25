@@ -26,6 +26,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.ApiAccessListDestination
 import com.ramcosta.composedestinations.generated.destinations.AppInfoDestination
+import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.MultihopDestination
 import com.ramcosta.composedestinations.generated.destinations.ReportProblemDestination
 import com.ramcosta.composedestinations.generated.destinations.SplitTunnelingDestination
@@ -74,6 +75,7 @@ fun Settings(navigator: DestinationsNavigator) {
         onReportProblemCellClick =
             dropUnlessResumed { navigator.navigate(ReportProblemDestination) },
         onMultihopClick = dropUnlessResumed { navigator.navigate(MultihopDestination) },
+        onDaitaClick = dropUnlessResumed { navigator.navigate(DaitaDestination) },
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
     )
 }
@@ -88,6 +90,7 @@ fun SettingsScreen(
     onReportProblemCellClick: () -> Unit = {},
     onApiAccessClick: () -> Unit = {},
     onMultihopClick: () -> Unit = {},
+    onDaitaClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
     ScaffoldWithMediumTopBar(
@@ -99,6 +102,9 @@ fun SettingsScreen(
             state = lazyListState,
         ) {
             if (state.isLoggedIn) {
+                itemWithDivider {
+                    DaitaCell(isDaitaEnabled = state.isDaitaEnabled, onDaitaClick = onDaitaClick)
+                }
                 itemWithDivider {
                     MultihopCell(
                         isMultihopEnabled = state.multihopEnabled,
@@ -217,6 +223,23 @@ private fun PrivacyPolicy(state: SettingsUiState) {
             )
         },
         onClick = openPrivacyPolicy,
+    )
+}
+
+@Composable
+private fun DaitaCell(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
+    val title = stringResource(id = R.string.daita)
+    TwoRowCell(
+        titleText = title,
+        subtitleText =
+            stringResource(
+                if (isDaitaEnabled) {
+                    R.string.on
+                } else {
+                    R.string.off
+                }
+            ),
+        onCellClicked = onDaitaClick,
     )
 }
 

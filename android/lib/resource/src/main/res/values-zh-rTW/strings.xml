@@ -94,7 +94,7 @@
     <string name="custom_port_dialog_submit">設定連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
-    <string name="daita_info">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。如果有人正在監控您的連線，這會大大增加他們的難度，讓他們難以辨識您正在瀏覽哪些網站。這個方法會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。</string>
+    <string name="daita_description_slide_1_second_paragraph">可透過精密的 AI 分析進出裝置的資料封包流量 (即使流量已加密)。</string>
     <string name="daita_relay_subset_warning">此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。</string>
     <string name="daita_warning">注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度和電池使用情況產生負面影響。</string>
     <string name="delete">刪除</string>
@@ -110,6 +110,7 @@
     <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
     <string name="device_name_info_second_paragraph">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>
     <string name="device_name_info_third_paragraph">如果您登出，則系統會移除裝置和裝置名稱。當您再次登入時，裝置則會獲得新名稱。</string>
+    <string name="direct_only">僅直接連線</string>
     <string name="discard">捨棄</string>
     <string name="discard_changes">要捨棄變更嗎？</string>
     <string name="disconnect">中斷連線</string>
