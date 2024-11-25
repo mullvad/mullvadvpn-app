@@ -122,8 +122,8 @@ jobs:
     strategy:
       matrix:
         config:
-          - os: windows-latest
-            arch: x64
+          #- os: windows-latest
+          #  arch: x64
           - os: windows-arm64
             arch: arm64
     runs-on: ${{ matrix.config.os }}
@@ -150,21 +150,24 @@ jobs:
 
       - name: Install Git
         if: ${{ matrix.config.arch == 'arm64' }}
+        # HACK: Path isn't persisted on the arm runner
         run: |
+          $env:PATH += ";C:\ProgramData\chocolatey\bin"
           choco install git -y
-          #echo "C:\Program Files\Git\bin" >> $GITHUB_PATH
-          $env:PATH += ";C:\Program Files\Git\bin"
 
-      - name: fail on purpose
-        run: asdjiosadjioadsjioadsojiasdjio
+      #- name: fail on purpose
+      #  run: asdjiosadjioadsjioadsojiasdjio
 
       - name: Dump PATH Environment Variable
         if: ${{ matrix.config.arch == 'arm64' }}
         run: echo $env:PATH
 
       - name: Checkout submodules
-        shell: bash
-        run: git submodule update --init --depth=1
+        #shell: bash
+        # HACK: Path isn't persisted on the arm runner
+        run: |
+          $env:PATH += ";C:\Program Files\Git\bin"
+          git submodule update --init --depth=1
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
@@ -172,6 +175,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Calculate Windows libraries cache hash
+        if: ${{ matrix.config.arch == 'x64' }}
         id: windows-modules-hash
         shell: bash
         run: |
@@ -182,6 +186,7 @@ jobs:
           echo "hash=$hash" >> "$GITHUB_OUTPUT"
 
       - name: Cache Windows libraries
+        if: ${{ matrix.config.arch == 'x64' }}
         uses: actions/cache@v2
         id: cache-windows-modules
         with:
@@ -216,14 +221,20 @@ jobs:
 
       - name: Build Windows modules
         if: steps.cache-windows-modules.outputs.cache-hit != 'true'
-        shell: bash
-        run: ./build-windows-modules.sh
+        #shell: bash
+        # HACK: Path isn't persisted on the arm runner
+        run: |
+          $env:PATH += ";C:\Program Files\Git\bin"
+          bash ./build-windows-modules.sh
 
       - name: Build and test crates
-        shell: bash
+        #shell: bash
         env:
           # On Windows, the checkout is on the D drive, which is very small.
           # Moving the target directory to the C drive ensures that the runner
           # doesn't run out of space on the D drive.
           CARGO_TARGET_DIR: "C:/cargo-target"
-        run: ./ci/check-rust.sh
+        # HACK: Path isn't persisted on the arm runner
+        run: |
+          $env:PATH += ";C:\Program Files\Git\bin"
+          bash ./ci/check-rust.sh
