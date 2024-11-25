@@ -36,7 +36,7 @@ struct FirewallRule {
 
     /// Make a firewall rule blocking API access for the current device under test
     public static func makeBlockAPIAccessFirewallRule() throws -> FirewallRule {
-        let deviceIPAddress = try Networking.getIPAddress()
+        let deviceIPAddress = try FirewallAPIClient().getDeviceIPAddress()
         let apiIPAddress = try MullvadAPIWrapper.getAPIIPAddress()
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
@@ -46,7 +46,7 @@ struct FirewallRule {
     }
 
     public static func makeBlockAllTrafficRule(toIPAddress: String) throws -> FirewallRule {
-        let deviceIPAddress = try Networking.getIPAddress()
+        let deviceIPAddress = try FirewallAPIClient().getDeviceIPAddress()
 
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
@@ -56,7 +56,7 @@ struct FirewallRule {
     }
 
     public static func makeBlockUDPTrafficRule(toIPAddress: String) throws -> FirewallRule {
-        let deviceIPAddress = try Networking.getIPAddress()
+        let deviceIPAddress = try FirewallAPIClient().getDeviceIPAddress()
 
         return FirewallRule(
             fromIPAddress: deviceIPAddress,
