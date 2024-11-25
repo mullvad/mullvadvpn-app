@@ -44,7 +44,7 @@ import {
   StyledPageCover,
   StyledSearchBar,
   StyledSpinnerRow,
-  StyledSystemSettingsButton,
+  WideSmallButton,
 } from './SplitTunnelingSettingsStyles';
 import Switch from './Switch';
 
@@ -549,9 +549,12 @@ function MacOsSplitTunnelingAvailability({
             )}
           </HeaderSubTitle>
           <Spacing height="24px" />
-          <StyledSystemSettingsButton onClick={showFullDiskAccessSettings}>
-            Open System Settings
-          </StyledSystemSettingsButton>
+          <WideSmallButton onClick={showFullDiskAccessSettings}>
+            {messages.pgettext(
+              'split-tunneling-view',
+              'Open System Settings',
+            )}
+          </WideSmallButton>
           <Spacing height="32px" />
           <StyledMiniTitle>
             {messages.pgettext(
@@ -560,9 +563,12 @@ function MacOsSplitTunnelingAvailability({
             )}
           </StyledMiniTitle>
           <Spacing height="8px" />
-          <StyledSystemSettingsButton onClick={restartDaemon}>
-            Restart Mullvad Service
-          </StyledSystemSettingsButton>
+          <WideSmallButton onClick={restartDaemon}>
+            {messages.pgettext(
+              'split-tunneling-view',
+              'Restart Mullvad Service',
+            )}
+          </WideSmallButton>
         </>
       ) : null}
     </>

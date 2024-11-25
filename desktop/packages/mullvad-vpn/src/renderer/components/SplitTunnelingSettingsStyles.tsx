@@ -129,7 +129,7 @@ export const StyledSearchBar = styled(SearchBar)({
   marginBottom: measurements.buttonVerticalMargin,
 });
 
-export const StyledSystemSettingsButton = styled(SmallButton)({
+export const WideSmallButton = styled(SmallButton)({
   width: '100%',
 });
 
