@@ -30,7 +30,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 value: "\(item)",
                 comment: ""
             ) },
-            parseCustomValue: { UInt16($0).map { WireGuardObfuscationShadowsockPort.custom($0) }
+            parseCustomValue: { UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationShadowsockPort.custom($0) : nil }
             },
             formatCustomValue: {
                 if case let .custom(port) = $0 {
@@ -48,8 +48,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             customPrompt: NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_PORT_PROMPT",
                 tableName: "Shadowsocks",
-                // currently padded with spaces to make space
-                value: "Port        ",
+                value: "Port",
                 comment: ""
             ),
             customLegend: NSLocalizedString(
@@ -58,6 +57,8 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 value: "Valid range: 1 - 65535",
                 comment: ""
             ),
+            customInputMinWidth: 100,
+            customInputMaxLength: 5,
             customFieldMode: .numericText
         ).onDisappear {
             viewModel.commit()

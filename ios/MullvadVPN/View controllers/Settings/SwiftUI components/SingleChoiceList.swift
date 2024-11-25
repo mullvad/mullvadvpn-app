@@ -69,8 +69,9 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     // This makes sense if it's something like a port; if we ever need to
     // use this with a type with more than one form of custom value, we will
     // need to add some mitigations
-    @State var customValue = ""
+    @State var customValueInput = ""
     @FocusState var customValueIsFocused: Bool
+    @State var customValueInputIsInvalid = false
 
     // an individual option being presented in a row
     fileprivate struct OptionSpec: Identifiable {
@@ -82,6 +83,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 label: String,
                 prompt: String,
                 legend: String?,
+                minInputWidth: CGFloat?,
+                maxInputLength: Int?,
                 toValue: (String) -> Value?,
                 fromValue: (Value) -> String?
             )
@@ -133,6 +136,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - customLabel: The caption to display in the custom row, next to the text field.
     ///   - customPrompt: The text to display, greyed, in the text field when it is empty. This also serves to set the width of the field, and should be right-padded with spaces as appropriate.
     ///   - customLegend: Optional text to display below the custom field, i.e., to explain sensible values
+    ///   - customInputWidth: An optional minimum width (in pseudo-pixels) for the custom input field
+    ///   - customInputMaxLength: An optional maximum length to which input is truncated
     ///   - customFieldMode: An enumeration that sets the mode of the custom value entry text field. If this is `.numericText`, the data is expected to be a decimal number, and the device will present a numeric keyboard when the field is focussed. If it is `.freeText`,  a standard alphanumeric keyboard will be presented. If not specified, this defaults to `.freeText`.
     init(
         title: String,
@@ -144,6 +149,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         customLabel: String,
         customPrompt: String,
         customLegend: String? = nil,
+        customInputMinWidth: CGFloat? = nil,
+        customInputMaxLength: Int? = nil,
         customFieldMode: CustomFieldMode = .freeText
     ) {
         self.init(
@@ -152,6 +159,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 label: customLabel,
                 prompt: customPrompt,
                 legend: customLegend,
+                minInputWidth: customInputMinWidth,
+                maxInputLength: customInputMaxLength,
                 toValue: parseCustomValue,
                 fromValue: formatCustomValue
             )],
@@ -196,44 +205,64 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     private func customRow(
         label: String,
         prompt: String,
+        inputWidth: CGFloat?,
+        maxInputLength: Int?,
         toValue: @escaping (String) -> Value?,
         fromValue: @escaping (Value) -> String?
     ) -> some View {
         row(
-            isSelected: value.wrappedValue == toValue(customValue) || customValueIsFocused
+            isSelected: value.wrappedValue == toValue(customValueInput) || customValueIsFocused
         ) {
             Text(label)
             Spacer()
-            TextField("value", text: $customValue, prompt: Text(prompt))
+            TextField("value", text: $customValueInput, prompt: Text(prompt))
                 .keyboardType(customFieldMode == .numericText ? .numberPad : .default)
+                .frame(minWidth: inputWidth, maxWidth: .infinity)
                 .fixedSize()
                 .padding(4)
-                .foregroundColor(Color(UIColor.TextField.textColor))
+                .foregroundColor(
+                    customValueInputIsInvalid
+                        ? Color(UIColor.TextField.invalidInputTextColor)
+                        : Color(UIColor.TextField.textColor)
+                )
                 .background(Color(UIColor.TextField.backgroundColor))
                 .cornerRadius(4.0)
+                // .border doesn't honour .cornerRadius, so overlaying a RoundedRectangle is necessary
+                .overlay(
+                    RoundedRectangle(cornerRadius: 4.0)
+                        .stroke(
+                            customValueInputIsInvalid ? Color(UIColor.TextField.invalidInputTextColor) : .clear,
+                            lineWidth: 1
+                        )
+                )
                 .focused($customValueIsFocused)
-                .onChange(of: customValue) { newValue in
-                    if let parsedValue = toValue(customValue) {
+                .onChange(of: customValueInput) { newValue in
+                    if let maxInputLength {
+                        if customValueInput.count > maxInputLength {
+                            customValueInput = String(customValueInput.prefix(maxInputLength))
+                        }
+                    }
+                    if let parsedValue = toValue(customValueInput) {
                         value.wrappedValue = parsedValue
-                    } else if customValue.isEmpty {
-                        // user backspaced over input text; this won't form a
-                        // valid value, so we fall back to the initial value
-                        // and await their next move
+                        customValueInputIsInvalid = false
+                    } else {
+                        // this is not a valid value, so we fall back to the
+                        // initial value, showing the invalid-value state if
+                        // the field is not empty
                         if let initialValue {
                             value.wrappedValue = initialValue
                         }
-                    } else if let t = fromValue(value.wrappedValue) {
-                        customValue = t
+                        customValueInputIsInvalid = !customValueInput.isEmpty
                     }
                 }
                 .onAppear {
                     if let valueText = fromValue(value.wrappedValue) {
-                        customValue = valueText
+                        customValueInput = valueText
                     }
                 }
         }
         .onTapGesture {
-            if let v = toValue(customValue) {
+            if let v = toValue(customValueInput) {
                 value.wrappedValue = v
             } else {
                 customValueIsFocused = true
@@ -264,8 +293,15 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 switch opt.value {
                 case let .literal(v):
                     literalRow(v)
-                case let .custom(label, prompt, legend, toValue, fromValue):
-                    customRow(label: label, prompt: prompt, toValue: toValue, fromValue: fromValue)
+                case let .custom(label, prompt, legend, inputWidth, maxInputLength, toValue, fromValue):
+                    customRow(
+                        label: label,
+                        prompt: prompt,
+                        inputWidth: inputWidth,
+                        maxInputLength: maxInputLength,
+                        toValue: toValue,
+                        fromValue: fromValue
+                    )
                     if let legend {
                         subtitleRow(legend)
                     }
@@ -296,11 +332,13 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         title: "Test",
         options: [.two, .three],
         value: $0,
-        parseCustomValue: { Int($0).map { ExampleValue.someNumber($0) } },
+        parseCustomValue: { Int($0).flatMap { $0 > 3 ? ExampleValue.someNumber($0) : nil } },
         formatCustomValue: { if case let .someNumber(n) = $0 { "\(n)" } else { nil } },
         customLabel: "Custom",
         customPrompt: "Number",
-        customLegend: "The legend goes here"
+        customLegend: "The legend goes here",
+        customInputMinWidth: 120,
+        customInputMaxLength: 6
     )
     }
 }
