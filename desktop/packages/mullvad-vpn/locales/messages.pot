@@ -1572,6 +1572,10 @@ msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel unti
 msgstr ""
 
 msgctxt "split-tunneling-view"
+msgid "Enabled \"Full disk access\" and still having issues?"
+msgstr ""
+
+msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr ""
 
@@ -1587,6 +1591,10 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr ""
 
+msgctxt "split-tunneling-view"
+msgid "Open System Settings"
+msgstr ""
+
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
@@ -1598,6 +1606,10 @@ msgstr ""
 #. This error message is shown if an application fails during startup.
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
+msgstr ""
+
+msgctxt "split-tunneling-view"
+msgid "Restart Mullvad Service"
 msgstr ""
 
 msgctxt "split-tunneling-view"
