@@ -317,11 +317,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .wireGuardObfuscationUdpOverTcp:
             selectObfuscationState(.udpOverTcp)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        // TODO: When ready, add implementation for selected obfuscation (navigate to new view etc).
         case .wireGuardObfuscationShadowsocks:
             selectObfuscationState(.shadowsocks)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
-        // TODO: When ready, add implementation for selected obfuscation (navigate to new view etc).
         case .wireGuardObfuscationOff:
             selectObfuscationState(.off)
             delegate?.didUpdateTunnelSettings(TunnelSettingsUpdate.obfuscation(obfuscationSettings))
