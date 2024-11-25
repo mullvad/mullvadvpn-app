@@ -62,6 +62,7 @@ import net.mullvad.mullvadvpn.lib.model.CustomList as ModelCustomList
 import net.mullvad.mullvadvpn.lib.model.CustomListAlreadyExists
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
+import net.mullvad.mullvadvpn.lib.model.DaitaSettings
 import net.mullvad.mullvadvpn.lib.model.DeleteCustomListError
 import net.mullvad.mullvadvpn.lib.model.DeleteDeviceError
 import net.mullvad.mullvadvpn.lib.model.Device
@@ -123,6 +124,8 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
+import net.mullvad.mullvadvpn.lib.model.directOnly
+import net.mullvad.mullvadvpn.lib.model.enabled
 import net.mullvad.mullvadvpn.lib.model.entryLocation
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.location
@@ -508,15 +511,19 @@ class ManagementService(
 
     suspend fun setDaitaEnabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
         Either.catch {
-                val daitaSettings =
-                    ManagementInterface.DaitaSettings.newBuilder()
-                        .setEnabled(enabled)
-                        // Before Multihop is supported on Android, calling `setDirectOnly` with
-                        // false will cause undefined behaviour. Will be fixed by as part of
-                        // DROID-1412.
-                        .setDirectOnly(true)
-                        .build()
-                grpc.setDaitaSettings(daitaSettings)
+                val currentDaitaSettings = getSettings().tunnelOptions.wireguard.daitaSettings
+                val updatedDaitaSettings = DaitaSettings.enabled.set(currentDaitaSettings, enabled)
+                grpc.setDaitaSettings(updatedDaitaSettings.fromDomain())
+            }
+            .mapLeft(SetDaitaSettingsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setDaitaDirectOnly(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
+        Either.catch {
+                val currentDaitaSettings = getSettings().tunnelOptions.wireguard.daitaSettings
+                val updatedDaitaSettings =
+                    DaitaSettings.directOnly.set(currentDaitaSettings, enabled)
+                grpc.setDaitaSettings(updatedDaitaSettings.fromDomain())
             }
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()

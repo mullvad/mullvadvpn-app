@@ -67,9 +67,8 @@ class VpnSettingsViewModel(
             ) { settings, portRanges, customWgPort, autoStartAndConnectOnBoot ->
                 VpnSettingsViewModelState(
                     mtuValue = settings?.tunnelOptions?.wireguard?.mtu,
-                    isLocalNetworkSharingEnabled = settings?.allowLan ?: false,
-                    isDaitaEnabled = settings?.isDaitaEnabled() ?: false,
-                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() ?: false,
+                    isLocalNetworkSharingEnabled = settings?.allowLan == true,
+                    isCustomDnsEnabled = settings?.isCustomDnsEnabled() == true,
                     customDnsList = settings?.addresses()?.asStringAddressList() ?: listOf(),
                     contentBlockersOptions =
                         settings?.contentBlockersSettings() ?: DefaultDnsOptions(),

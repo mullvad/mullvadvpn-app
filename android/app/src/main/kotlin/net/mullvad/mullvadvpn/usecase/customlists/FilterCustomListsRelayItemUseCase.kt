@@ -7,6 +7,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.RelayItem
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.relaylist.filter
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
@@ -33,7 +34,7 @@ class FilterCustomListsRelayItemUseCase(
                 providers = selectedProviders,
                 daita =
                     shouldFilterByDaita(
-                        isDaitaEnabled = settings?.isDaitaEnabled() == true,
+                        isDaitaEnabled = settings?.daitaAndDirectOnly() == true,
                         isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListType,
                     ),
@@ -45,4 +46,8 @@ class FilterCustomListsRelayItemUseCase(
         providers: Constraint<Providers>,
         daita: Boolean,
     ) = mapNotNull { it.filter(ownership, providers, daita = daita) }
+
+    private fun Settings.daitaAndDirectOnly() =
+        tunnelOptions.wireguard.daitaSettings.enabled &&
+            tunnelOptions.wireguard.daitaSettings.directOnly
 }

@@ -94,7 +94,7 @@
     <string name="custom_port_dialog_submit">Konfigurer port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
-    <string name="daita_info">%1$s (%2$s) skjuler mønstre i den krypterte VPN-trafikken. Hvis noen overvåker tilkoblingen din, gjør dette det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker. Dette gjøres ved å legge til nettverksstøy på en forsiktig måte og gjøre alle nettverkspakker like store.</string>
+    <string name="daita_description_slide_1_second_paragraph">Ved hjelp av avansert kunstig intelligens er det mulig å analysere trafikken av datapakker som går inn og ut av enheten din (selv om trafikken er kryptert).</string>
     <string name="daita_relay_subset_warning">Denne funksjonen er ikke tilgjengelig på alle servere. Det kan hende du må endre plassering etter aktivering.</string>
     <string name="daita_warning">Merk: Siden dette øker den totale nettverkstrafikken, bør du være forsiktig hvis du har et abonnement med begrenset data. Det kan også negativt påvirke nettverkshastigheten og batteribruken.</string>
     <string name="delete">Slett</string>
@@ -110,6 +110,7 @@
     <string name="device_name_info_first_paragraph">Dette er navnet som er tildelt enheten. Enhver enhet som er logget inn på en Mullvad-konto, får et unikt navn som gjør det enklere for deg å identifisere den når du administrerer enheten i appen eller på nettsiden.</string>
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Hvis du logger ut, vil enheten og enhetsnavnet bli fjernet. Når du logger inn igjen, vil enheten få et nytt navn.</string>
+    <string name="direct_only">Kun direkte</string>
     <string name="discard">Forkast</string>
     <string name="discard_changes">Forkaste endringer?</string>
     <string name="disconnect">Koble fra</string>

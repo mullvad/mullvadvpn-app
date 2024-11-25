@@ -95,8 +95,8 @@ private fun RelayItem.Location.City.filter(
     }
 }
 
-private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(isDaitaEnabled: Boolean): Boolean {
-    return if (isDaitaEnabled) daita else true
+private fun RelayItem.Location.Relay.hasMatchingDaitaSetting(filterDaita: Boolean): Boolean {
+    return if (filterDaita) daita else true
 }
 
 private fun RelayItem.Location.Relay.filter(
