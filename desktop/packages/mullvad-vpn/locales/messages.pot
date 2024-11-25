@@ -2209,9 +2209,6 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr ""
 
-msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr ""
-
 msgid "%s (Entry)"
 msgstr ""
 
@@ -2302,6 +2299,9 @@ msgstr ""
 msgid "At least one method needs to be enabled"
 msgstr ""
 
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
+msgstr ""
+
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr ""
 
@@ -2327,6 +2327,9 @@ msgid "Automatically connect on device start-up. Only works if the app has been 
 msgstr ""
 
 msgid "Blocking internet (device offline)"
+msgstr ""
+
+msgid "By enabling \"Direct Only\" you will have to manually select a server that is DAITA-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the \"Select location\" view."
 msgstr ""
 
 msgid "Changelog"
@@ -2375,6 +2378,12 @@ msgid "Custom DNS server addresses %s are invalid"
 msgstr ""
 
 msgid "DAITA"
+msgstr ""
+
+msgid "DAITA (Defense against AI-guided Traffic Analysis) hides patterns in your encrypted VPN traffic."
+msgstr ""
+
+msgid "DAITA does this by carefully adding network noise and making all network packets the same size."
 msgstr ""
 
 msgid "DNS settings might not go into effect immediately"
@@ -2428,6 +2437,9 @@ msgstr ""
 msgid "Edit name"
 msgstr ""
 
+msgid "Enable \"Direct only\""
+msgstr ""
+
 msgid "Enable method"
 msgstr ""
 
@@ -2468,6 +2480,9 @@ msgid "Google Play payment pending"
 msgstr ""
 
 msgid "Google Play unavailable"
+msgstr ""
+
+msgid "If an observer monitors these data packets, DAITA makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating."
 msgstr ""
 
 msgid "If the split tunneling feature is used, then the app queries your system for a list of all installed applications. This list is only retrieved in the split tunneling view. The list of installed applications is never sent from the device."
@@ -2527,7 +2542,16 @@ msgstr ""
 msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
+msgid "Not all our servers are DAITA-enabled. In order to use the internet, you might have to select a new location after enabling."
+msgstr ""
+
+msgid "Not all our servers are DAITA-enabled. Therefore, we use multihop automatically to enable DAITA with any server."
+msgstr ""
+
 msgid "Not found"
+msgstr ""
+
+msgid "Open DAITA settings"
 msgstr ""
 
 msgid "Overrides active"
@@ -2633,6 +2657,9 @@ msgid "The Lockdown mode is called \"Block connections without VPN\" in the Andr
 msgstr ""
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
+msgstr ""
+
+msgid "The entry server for multihop is currently overridden by DAITA. To select an entry server, please first enable “Direct only” or disable “DAITA” in the settings."
 msgstr ""
 
 msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."

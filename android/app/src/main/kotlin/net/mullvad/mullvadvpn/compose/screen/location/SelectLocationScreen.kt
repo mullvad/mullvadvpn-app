@@ -39,6 +39,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
+import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.generated.destinations.FilterDestination
@@ -190,6 +191,7 @@ fun SelectLocation(
                 )
             },
         onSelectRelayList = vm::selectRelayList,
+        openDaitaSettings = dropUnlessResumed { navigator.navigate(DaitaDestination) },
     )
 }
 
@@ -216,6 +218,7 @@ fun SelectLocationScreen(
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
     onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
     onSelectRelayList: (RelayListType) -> Unit = {},
+    openDaitaSettings: () -> Unit = {},
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
 
@@ -285,6 +288,7 @@ fun SelectLocationScreen(
                 state = state,
                 backgroundColor = backgroundColor,
                 onSelectRelay = onSelectRelay,
+                openDaitaSettings = openDaitaSettings,
                 onUpdateBottomSheetState = { newState -> locationBottomSheetState = newState },
             )
         }
@@ -315,6 +319,7 @@ private fun RelayLists(
     state: SelectLocationUiState,
     backgroundColor: Color,
     onSelectRelay: (RelayItem) -> Unit,
+    openDaitaSettings: () -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
     // For multihop we want to start on the entry list.
@@ -349,6 +354,7 @@ private fun RelayLists(
             backgroundColor = backgroundColor,
             relayListType = RelayListType.entries[pageIndex],
             onSelectRelay = onSelectRelay,
+            openDaitaSettings = openDaitaSettings,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
     }

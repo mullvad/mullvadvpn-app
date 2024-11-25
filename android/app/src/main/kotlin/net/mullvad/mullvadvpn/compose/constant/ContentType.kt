@@ -9,4 +9,5 @@ object ContentType {
     const val SPACER = 5
     const val PROGRESS = 6
     const val EMPTY_TEXT = 7
+    const val BUTTON = 8
 }

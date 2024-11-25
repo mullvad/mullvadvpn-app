@@ -63,6 +63,7 @@ import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import net.mullvad.mullvadvpn.viewmodel.CreateCustomListDialogViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListLocationsViewModel
 import net.mullvad.mullvadvpn.viewmodel.CustomListsViewModel
+import net.mullvad.mullvadvpn.viewmodel.DaitaViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteApiAccessMethodConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeleteCustomListConfirmationViewModel
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
@@ -218,7 +219,7 @@ val uiModule = module {
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
     viewModel { SelectLocationViewModel(get(), get(), get(), get(), get(), get()) }
-    viewModel { SettingsViewModel(get(), get(), get(), IS_PLAY_BUILD) }
+    viewModel { SettingsViewModel(get(), get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { SplashViewModel(get(), get(), get(), get()) }
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
@@ -262,8 +263,9 @@ val uiModule = module {
         )
     }
     viewModel { (relayListType: RelayListType) ->
-        SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get())
+        SelectLocationListViewModel(relayListType, get(), get(), get(), get(), get(), get(), get())
     }
+    viewModel { DaitaViewModel(get()) }
 
     // This view model must be single so we correctly attach lifecycle and share it with activity
     single { NoDaemonViewModel(get()) }
