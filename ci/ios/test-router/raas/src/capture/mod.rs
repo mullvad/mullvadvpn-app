@@ -54,13 +54,11 @@ const RAAS_TMP_DIR: &'static str = "raas";
 
 impl Capture {
     fn capture_file_path(label: &uuid::Uuid) -> PathBuf {
-        Self::capture_dir_path()
-            .join(label.to_string())
+        Self::capture_dir_path().join(label.to_string())
     }
 
     fn capture_dir_path() -> PathBuf {
-        std::env::temp_dir()
-            .join(RAAS_TMP_DIR)
+        std::env::temp_dir().join(RAAS_TMP_DIR)
     }
 
     pub async fn start(&mut self, label: uuid::Uuid) -> Result<(), Error> {

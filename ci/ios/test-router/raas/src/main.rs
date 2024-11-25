@@ -12,7 +12,8 @@ async fn main() {
     let mut args = std::env::args().skip(1);
     let bind_address = args.next().expect("First arg must be listening address");
 
-    let router = web::router(Default::default()).into_make_service_with_connect_info::<SocketAddr>();
+    let router =
+        web::router(Default::default()).into_make_service_with_connect_info::<SocketAddr>();
     let listener = tokio::net::TcpListener::bind(bind_address)
         .await
         .expect("Failed to bind to listening socket");
