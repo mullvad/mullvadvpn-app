@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.VpnProfileRepository
+import net.mullvad.mullvadvpn.lib.shared.VpnProfileUseCase
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
@@ -49,7 +49,7 @@ class ConnectViewModel(
     private val paymentUseCase: PaymentUseCase,
     private val connectionProxy: ConnectionProxy,
     lastKnownLocationUseCase: LastKnownLocationUseCase,
-    private val vpnPermissionRepository: VpnProfileRepository,
+    private val vpnPermissionRepository: VpnProfileUseCase,
     private val resources: Resources,
     private val isPlayBuild: Boolean,
     private val packageName: String,

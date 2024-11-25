@@ -12,14 +12,14 @@ import org.junit.jupiter.api.Test
 class ConnectionProxyTest {
 
     private val mockManagementService: ManagementService = mockk(relaxed = true)
-    private val mockVpnPermissionRepository: VpnProfileRepository = mockk()
+    private val mockVpnPermissionRepository: VpnProfileUseCase = mockk()
     private val mockTranslationRepository: RelayLocationTranslationRepository =
         mockk(relaxed = true)
 
     private val connectionProxy: ConnectionProxy =
         ConnectionProxy(
             managementService = mockManagementService,
-            vpnPermissionRepository = mockVpnPermissionRepository,
+            vpnProfileUseCase = mockVpnPermissionRepository,
             translationRepository = mockTranslationRepository,
         )
 

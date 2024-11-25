@@ -17,6 +17,6 @@ sealed interface NotificationAction {
 
         data object Dismiss : Tunnel
 
-        data class RequestPermission(val prepareIntent: Intent) : Tunnel
+        data object RequestVpnProfile : Tunnel
     }
 }

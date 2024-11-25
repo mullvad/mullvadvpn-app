@@ -23,12 +23,12 @@ import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.VpnProfileRepository
+import net.mullvad.mullvadvpn.lib.shared.VpnProfileUseCase
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
     connectionProxy: ConnectionProxy,
-    vpnPermissionRepository: VpnProfileRepository,
+    vpnPermissionRepository: VpnProfileUseCase,
     deviceRepository: DeviceRepository,
     channelId: NotificationChannelId,
     scope: CoroutineScope,
@@ -122,12 +122,11 @@ class TunnelStateNotificationProvider(
     private fun NotificationTunnelState.toAction(): NotificationAction.Tunnel =
         when (this) {
             is NotificationTunnelState.Disconnected -> {
-                when (val error = prepareError) {
+                when (prepareError) {
                     is PrepareError.OtherAlwaysOnApp,
                     is PrepareError.LegacyLockdown,
                     null -> NotificationAction.Tunnel.Connect
-                    is PrepareError.NotPrepared ->
-                        NotificationAction.Tunnel.RequestPermission(error.prepareIntent)
+                    is PrepareError.NotPrepared -> NotificationAction.Tunnel.RequestVpnProfile
                 }
             }
             NotificationTunnelState.Disconnecting -> NotificationAction.Tunnel.Connect

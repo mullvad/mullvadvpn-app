@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.TunnelState
 class ConnectionProxy(
     private val managementService: ManagementService,
     translationRepository: RelayLocationTranslationRepository,
-    private val vpnPermissionRepository: VpnProfileRepository,
+    private val vpnProfileUseCase: VpnProfileUseCase,
 ) {
     val tunnelState =
         combine(managementService.tunnelState, translationRepository.translations) {
@@ -34,7 +34,7 @@ class ConnectionProxy(
         copy(city = translations[city] ?: city, country = translations[country] ?: country)
 
     suspend fun connect(): Either<ConnectError, Boolean> = either {
-        vpnPermissionRepository.prepareVpn().mapLeft(ConnectError::NotPrepared).bind()
+        vpnProfileUseCase.prepareVpn().mapLeft(ConnectError::NotPrepared).bind()
         managementService.connect().bind()
     }
 

@@ -64,14 +64,13 @@ private fun NotificationTunnelState.contentTitleResourceId(context: Context): St
 internal fun NotificationAction.Tunnel.toCompatAction(context: Context): NotificationCompat.Action {
 
     val pendingIntent =
-        if (this is NotificationAction.Tunnel.RequestPermission) {
+        if (this is NotificationAction.Tunnel.RequestVpnProfile) {
             val intent =
                 Intent().apply {
                     setClassName(context.packageName, MAIN_ACTIVITY_CLASS)
                     addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
                     setAction(KEY_REQUEST_VPN_PROFILE)
-                    putExtra("intent", prepareIntent)
                 }
 
             PendingIntent.getActivity(context, 1, intent, SdkUtils.getSupportedPendingIntentFlags())
@@ -91,7 +90,7 @@ fun NotificationAction.Tunnel.titleResource() =
     when (this) {
         NotificationAction.Tunnel.Cancel -> R.string.cancel
         NotificationAction.Tunnel.Connect,
-        is NotificationAction.Tunnel.RequestPermission -> R.string.connect
+        is NotificationAction.Tunnel.RequestVpnProfile -> R.string.connect
         NotificationAction.Tunnel.Disconnect -> R.string.disconnect
         NotificationAction.Tunnel.Dismiss -> R.string.dismiss
     }
@@ -99,7 +98,7 @@ fun NotificationAction.Tunnel.titleResource() =
 fun NotificationAction.Tunnel.toKey() =
     when (this) {
         NotificationAction.Tunnel.Connect -> KEY_CONNECT_ACTION
-        is NotificationAction.Tunnel.RequestPermission -> KEY_REQUEST_VPN_PROFILE
+        is NotificationAction.Tunnel.RequestVpnProfile -> KEY_REQUEST_VPN_PROFILE
         NotificationAction.Tunnel.Cancel,
         NotificationAction.Tunnel.Disconnect,
         NotificationAction.Tunnel.Dismiss -> KEY_DISCONNECT_ACTION
