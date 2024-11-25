@@ -258,7 +258,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
         willSendProblemReport()
 
-        _ = interactor.sendReport(
+        interactor.sendReport(
             email: viewModel.email,
             message: viewModel.message
         ) { completion in
