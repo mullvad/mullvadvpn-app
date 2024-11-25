@@ -56,9 +56,9 @@ private fun NotificationTunnelState.contentTitleResourceId(context: Context): St
         NotificationTunnelState.Error.VpnPermissionDenied ->
             context.getString(R.string.vpn_permission_error_notification_title)
         is NotificationTunnelState.Error.AlwaysOnVpn ->
-            context.getString(R.string.always_on_vpn_error_notification_title_2, appName)
+            context.getString(R.string.always_on_vpn_error_notification_title, appName)
         NotificationTunnelState.Error.LegacyLockdown ->
-            context.getString(R.string.always_on_vpn_error_notification_title)
+            context.getString(R.string.legacy_always_on_vpn_error_notification_title)
     }
 
 internal fun NotificationAction.Tunnel.toCompatAction(context: Context): NotificationCompat.Action {
