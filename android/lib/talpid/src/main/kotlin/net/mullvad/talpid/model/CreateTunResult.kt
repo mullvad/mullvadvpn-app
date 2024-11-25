@@ -25,5 +25,5 @@ sealed class CreateTunResult {
 
     data class AlwaysOnApp(val appName: String) : CreateTunResult()
 
-    data class NotPrepared(val packageName: String, val className: String) : CreateTunResult()
+    data object NotPrepared : CreateTunResult()
 }

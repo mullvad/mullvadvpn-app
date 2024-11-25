@@ -29,11 +29,13 @@ val appModule = module {
             scope = MainScope(),
         )
     }
+
+    single { VpnProfileUseCase(androidContext()) }
+
     single { BuildVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) }
     single { IntentProvider() }
     single { AccountRepository(get(), get(), MainScope()) }
     single { DeviceRepository(get()) }
-    single { VpnProfileUseCase(androidContext()) }
     single { ConnectionProxy(get(), get(), get()) }
     single { LocaleRepository(get()) }
     single { RelayLocationTranslationRepository(get(), get(), MainScope()) }

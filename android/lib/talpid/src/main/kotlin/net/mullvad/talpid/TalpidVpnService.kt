@@ -84,11 +84,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             .mapLeft {
                 when (it) {
                     is PrepareError.LegacyLockdown -> CreateTunResult.LegacyLockdown
-                    is PrepareError.NotPrepared ->
-                        CreateTunResult.NotPrepared(
-                            it.prepareIntent.component!!.packageName,
-                            it.prepareIntent.component!!.className,
-                        )
+                    is PrepareError.NotPrepared -> CreateTunResult.NotPrepared
                     is PrepareError.OtherAlwaysOnApp -> CreateTunResult.AlwaysOnApp(it.appName)
                 }
             }

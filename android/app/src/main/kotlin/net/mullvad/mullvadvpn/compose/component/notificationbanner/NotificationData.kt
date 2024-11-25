@@ -17,10 +17,10 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
 import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
+import net.mullvad.mullvadvpn.lib.model.CreateTunFailed
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
-import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
 
@@ -126,7 +126,7 @@ private fun ErrorState.title(): String {
     val cause = this.cause
     return when {
         cause is ErrorStateCause.InvalidDnsServers -> stringResource(R.string.blocking_internet)
-        cause is ErrorStateCause.VpnPermissionDenied -> cause.prepareError.errorTitle()
+        cause is ErrorStateCause.NotPrepared -> cause.prepare.errorTitle()
         isBlocking -> stringResource(R.string.blocking_internet)
         else -> stringResource(R.string.critical_error)
     }
@@ -142,8 +142,7 @@ private fun ErrorState.message(): String {
                 cause.addresses.joinToString { address -> address.addressString() },
             )
         }
-        cause is ErrorStateCause.VpnPermissionDenied ->
-            cause.prepareError.errorNotificationMessage()
+        cause is ErrorStateCause.NotPrepared -> cause.prepare.errorNotificationMessage()
 
         isBlocking -> stringResource(cause.errorMessageId())
         else -> stringResource(R.string.failed_to_block_internet)
@@ -151,24 +150,24 @@ private fun ErrorState.message(): String {
 }
 
 @Composable
-private fun PrepareError.errorTitle(): String =
+private fun CreateTunFailed.errorTitle(): String =
     when (this) {
-        is PrepareError.NotPrepared ->
+        is CreateTunFailed.NotPrepared ->
             stringResource(R.string.vpn_permission_error_notification_title)
-        is PrepareError.OtherAlwaysOnApp ->
+        is CreateTunFailed.AlwaysOnApp ->
             stringResource(R.string.always_on_vpn_error_notification_title, appName)
-        is PrepareError.LegacyLockdown ->
+        is CreateTunFailed.LegacyLockdown ->
             stringResource(R.string.legacy_always_on_vpn_error_notification_title)
     }
 
 @Composable
-private fun PrepareError.errorNotificationMessage(): String =
+private fun CreateTunFailed.errorNotificationMessage(): String =
     when (this) {
-        is PrepareError.NotPrepared ->
+        is CreateTunFailed.NotPrepared ->
             stringResource(R.string.vpn_permission_error_notification_message)
-        is PrepareError.OtherAlwaysOnApp ->
+        is CreateTunFailed.AlwaysOnApp ->
             stringResource(R.string.always_on_vpn_error_notification_content, appName)
-        is PrepareError.LegacyLockdown ->
+        is CreateTunFailed.LegacyLockdown ->
             stringResource(R.string.legacy_always_on_vpn_error_notification_content)
     }
 
@@ -193,7 +192,7 @@ private fun ErrorStateCause.errorMessageId(): Int =
                 }
             }
         }
-        is ErrorStateCause.VpnPermissionDenied -> R.string.vpn_permission_denied_error
+        is ErrorStateCause.NotPrepared -> R.string.vpn_permission_denied_error
     }
 
 private fun AuthFailedError.errorMessageId(): Int =
