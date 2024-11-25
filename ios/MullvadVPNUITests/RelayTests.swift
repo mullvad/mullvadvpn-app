@@ -245,6 +245,43 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
     }
 
+    func testDAITASettings() throws {
+        // Undo enabling DAITA in teardown
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapDAITACell()
+
+            DAITAPage(self.app)
+                .tapEnableSwitchIfOn()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapDAITACell()
+
+        DAITAPage(app)
+            .tapEnableSwitch()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+            .verifyConnectingUsingDAITA()
+            .tapDisconnectButton()
+    }
+
     func testMultihopSettings() throws {
         // Undo enabling Multihop in teardown
         addTeardownBlock {
@@ -252,20 +289,20 @@ class RelayTests: LoggedInWithTimeUITestCase {
                 .tapSettingsButton()
 
             SettingsPage(self.app)
-                .tapVPNSettingsCell()
+                .tapMultihopCell()
 
-            VPNSettingsPage(self.app)
-                .tapMultihopSwitchIfOn()
+            MultihopPage(self.app)
+                .tapEnableSwitchIfOn()
         }
 
         HeaderBar(app)
             .tapSettingsButton()
 
         SettingsPage(app)
-            .tapVPNSettingsCell()
+            .tapMultihopCell()
 
-        VPNSettingsPage(app)
-            .tapMultihopSwitch()
+        MultihopPage(app)
+            .tapEnableSwitch()
             .tapBackButton()
 
         SettingsPage(app)

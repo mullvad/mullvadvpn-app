@@ -120,13 +120,6 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapMultihopSwitch() -> Self {
-        app.cells[AccessibilityIdentifier.multihopSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-            .tap()
-        return self
-    }
-
     @discardableResult func tapDaitaSwitch() -> Self {
         app.cells[AccessibilityIdentifier.daitaSwitch]
             .switches[AccessibilityIdentifier.customSwitch]
@@ -180,19 +173,6 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func verifyMultihopSwitchOn() -> Self {
-        let switchElement = app.cells[.multihopSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-
-        guard let switchValue = switchElement.value as? String else {
-            XCTFail("Failed to read switch state")
-            return self
-        }
-
-        XCTAssertEqual(switchValue, "1")
-        return self
-    }
-
     @discardableResult func verifyDaitaSwitchOn() -> Self {
         let switchElement = app.cells[.daitaSwitch]
             .switches[AccessibilityIdentifier.customSwitch]
@@ -211,15 +191,6 @@ class VPNSettingsPage: Page {
 
         if switchElement.value as? String == "1" {
             tapDaitaSwitch()
-        }
-        return self
-    }
-
-    @discardableResult func tapMultihopSwitchIfOn() -> Self {
-        let switchElement = app.cells[.multihopSwitch].switches[AccessibilityIdentifier.customSwitch]
-
-        if switchElement.value as? String == "1" {
-            tapMultihopSwitch()
         }
         return self
     }

@@ -9,7 +9,7 @@
 import SwiftUI
 
 struct RowSeparator: View {
-    var color: Color = Color(.secondaryColor)
+    var color = Color(.secondaryColor)
 
     var body: some View {
         color
