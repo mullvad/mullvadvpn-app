@@ -20,13 +20,12 @@ import * as Cell from './cell';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Layout, SettingsContainer, Spacing } from './Layout';
 import List from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
-  Spacing,
   StyledActionIcon,
   StyledBrowseButton,
   StyledCellButton,
