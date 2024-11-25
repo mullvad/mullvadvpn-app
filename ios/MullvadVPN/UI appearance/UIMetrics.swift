@@ -16,13 +16,11 @@ enum UIMetrics {
         static let separatorHeight: CGFloat = 0.33
         /// Spacing used between distinct sections of views
         static let sectionSpacing: CGFloat = 24
+        /// Common layout margins for row views presentation
+        /// Similar to `SettingsCell.layoutMargins` however maintains equal horizontal spacing
+        static let rowViewLayoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
         /// Common cell indentation width
         static let cellIndentationWidth: CGFloat = 16
-    }
-
-    enum DeviceRowView {
-        /// Similar to `SettingsCell.layoutMargins` however maintains equal horizontal spacing.
-        static let layoutMargins = NSDirectionalEdgeInsets(top: 16, leading: 24, bottom: 16, trailing: 24)
     }
 
     enum CustomAlert {
