@@ -387,7 +387,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.guiSettings.setAnimateMap(displayMap);
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
-  }
+  };
 
   public login = async (accountNumber: AccountNumber) => {
     const actions = this.reduxActions;

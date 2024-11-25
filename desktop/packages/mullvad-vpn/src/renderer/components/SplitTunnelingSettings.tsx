@@ -536,7 +536,7 @@ function MacOsSplitTunnelingAvailability({
   needFullDiskPermissions,
 }: MacOsSplitTunnelingAvailabilityProps) {
   const { showFullDiskAccessSettings, daemonPrepareRestart } = useAppContext();
-  const restartDaemon = () => daemonPrepareRestart(true);
+  const restartDaemon = useCallback(() => daemonPrepareRestart(true), [daemonPrepareRestart]);
 
   return (
     <>
@@ -550,10 +550,7 @@ function MacOsSplitTunnelingAvailability({
           </HeaderSubTitle>
           <Spacing height="24px" />
           <WideSmallButton onClick={showFullDiskAccessSettings}>
-            {messages.pgettext(
-              'split-tunneling-view',
-              'Open System Settings',
-            )}
+            {messages.pgettext('split-tunneling-view', 'Open System Settings')}
           </WideSmallButton>
           <Spacing height="32px" />
           <StyledMiniTitle>
@@ -564,10 +561,7 @@ function MacOsSplitTunnelingAvailability({
           </StyledMiniTitle>
           <Spacing height="8px" />
           <WideSmallButton onClick={restartDaemon}>
-            {messages.pgettext(
-              'split-tunneling-view',
-              'Restart Mullvad Service',
-            )}
+            {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
           </WideSmallButton>
         </>
       ) : null}

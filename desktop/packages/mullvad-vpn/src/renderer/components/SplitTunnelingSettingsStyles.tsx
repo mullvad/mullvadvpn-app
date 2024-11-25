@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { measurements, normalText, miniText } from './common-styles';
+import { measurements, miniText, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
 import SearchBar from './SearchBar';
