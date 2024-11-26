@@ -12,8 +12,8 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.lib.shared.LocaleRepository
-import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
 import net.mullvad.mullvadvpn.lib.shared.PrepareVpnUseCase
+import net.mullvad.mullvadvpn.lib.shared.RelayLocationTranslationRepository
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
