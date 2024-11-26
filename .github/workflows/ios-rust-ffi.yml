@@ -1,5 +1,5 @@
 ---
-name: iOS - Build and test Rust FFI (mullvad-ios)
+name: iOS - Build and test Rust FFI (mullvad-ios and mullvad-api)
 on:
   pull_request:
     paths:
@@ -43,6 +43,9 @@ jobs:
           time cargo build --locked --verbose --lib -p mullvad-ios --target ${{ matrix.target }}
           time cargo test --locked --verbose --lib -p mullvad-ios
 
+          time cargo build --locked --verbose --lib -p mullvad-api --target ${{ matrix.target }}
+          time cargo test --locked --verbose --lib -p mullvad-api
+
   clippy-check-ios:
     runs-on: macos-latest
     strategy:
@@ -72,3 +75,6 @@ jobs:
           source env.sh
           time cargo clippy --locked --all-targets --no-default-features -p mullvad-ios --target ${{ matrix.target }}
           time cargo clippy --locked --all-targets --all-features -p mullvad-ios --target ${{ matrix.target }}
+
+          time cargo clippy --locked --all-targets --no-default-features -p mullvad-api --target ${{ matrix.target }}
+          time cargo clippy --locked --all-targets --all-features -p mullvad-api --target ${{ matrix.target }}
