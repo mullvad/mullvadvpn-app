@@ -70,5 +70,7 @@ jobs:
           RUSTFLAGS: --deny warnings
         run: |
           source env.sh
-          time cargo clippy --locked --all-targets --no-default-features -p mullvad-ios -p mullvad-api --target ${{ matrix.target }}
-          time cargo clippy --locked --all-targets --all-features -p mullvad-ios -p mullvad-api --target ${{ matrix.target }}
+          time cargo clippy --locked --all-targets --no-default-features -p mullvad-ios -p mullvad-api \
+            --target ${{ matrix.target }}
+          time cargo clippy --locked --all-targets --all-features -p mullvad-ios -p mullvad-api \
+            --target ${{ matrix.target }}
