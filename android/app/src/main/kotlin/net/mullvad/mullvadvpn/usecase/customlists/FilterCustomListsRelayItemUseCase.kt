@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.relaylist.filter
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.util.showOnlyRelaysWithDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByDaita
 
 class FilterCustomListsRelayItemUseCase(
     private val customListsRelayItemUseCase: CustomListsRelayItemUseCase,
@@ -28,11 +28,11 @@ class FilterCustomListsRelayItemUseCase(
             settingsRepository.settingsUpdates,
             wireguardConstraintsRepository.wireguardConstraints,
         ) { customLists, selectedOwnership, selectedProviders, settings, wireguardConstraints ->
-            customLists.filterOnOwnershipAndProvider(
+            customLists.filter(
                 ownership = selectedOwnership,
                 providers = selectedProviders,
-                shouldFilterByDaita =
-                    showOnlyRelaysWithDaita(
+                daita =
+                    shouldFilterByDaita(
                         isDaitaEnabled = settings?.isDaitaEnabled() == true,
                         isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListType,
@@ -40,9 +40,9 @@ class FilterCustomListsRelayItemUseCase(
             )
         }
 
-    private fun List<RelayItem.CustomList>.filterOnOwnershipAndProvider(
+    private fun List<RelayItem.CustomList>.filter(
         ownership: Constraint<Ownership>,
         providers: Constraint<Providers>,
-        shouldFilterByDaita: Boolean,
-    ) = mapNotNull { it.filter(ownership, providers, shouldFilterByDaita = shouldFilterByDaita) }
+        daita: Boolean,
+    ) = mapNotNull { it.filter(ownership, providers, daita = daita) }
 }

@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.util
 
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 
-fun showOnlyRelaysWithDaita(
+fun shouldFilterByDaita(
     isDaitaEnabled: Boolean,
     isMultihopEnabled: Boolean,
     relayListType: RelayListType,

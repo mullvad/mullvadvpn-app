@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.util.showOnlyRelaysWithDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByDaita
 
 class FilteredRelayListUseCase(
     private val relayListRepository: RelayListRepository,
@@ -31,7 +31,7 @@ class FilteredRelayListUseCase(
                 ownership = selectedOwnership,
                 providers = selectedProviders,
                 shouldFilterByDaita =
-                    showOnlyRelaysWithDaita(
+                    shouldFilterByDaita(
                         isDaitaEnabled = settings?.isDaitaEnabled() == true,
                         isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                         relayListType = relayListType,

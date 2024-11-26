@@ -11,7 +11,7 @@ import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
-import net.mullvad.mullvadvpn.util.showOnlyRelaysWithDaita
+import net.mullvad.mullvadvpn.util.shouldFilterByDaita
 
 typealias ModelOwnership = Ownership
 
@@ -71,7 +71,7 @@ class FilterChipUseCase(
                 add(FilterChip.Provider(providerCountFilter))
             }
             if (
-                showOnlyRelaysWithDaita(
+                shouldFilterByDaita(
                     isDaitaEnabled = isDaitaEnabled,
                     relayListType = relayListType,
                     isMultihopEnabled = isMultihopEnabled,

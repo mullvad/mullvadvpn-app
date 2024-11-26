@@ -409,14 +409,8 @@ private fun ConnectionCardHeader(
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
-
-        val hostname =
-            when {
-                location?.entryHostname != null && location.hostname != null ->
-                    stringResource(R.string.x_via_x, location.hostname!!, location.entryHostname!!)
-                else -> location?.hostname
-            }
-        AnimatedContent(hostname, label = "hostname") {
+        val hostnames = location.hostNames()
+        AnimatedContent(hostnames, label = "hostname") {
             if (it != null) {
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -441,6 +435,17 @@ private fun GeoIpLocation?.asString(): String {
                 append(city)
             }
         }
+    }
+}
+
+@Composable
+private fun GeoIpLocation?.hostNames(): String? {
+    val entryHostName = this?.entryHostname
+    val exitHostName = this?.hostname
+    return when {
+        entryHostName != null && exitHostName != null ->
+            stringResource(R.string.x_via_x, exitHostName, entryHostName)
+        else -> exitHostName
     }
 }
 

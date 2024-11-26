@@ -277,7 +277,10 @@ fun SelectLocationScreen(
                 MultihopBar(state.relayListType, onSelectRelayList)
             }
 
-            Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+            if (state.filterChips.isNotEmpty() || state.multihopEnabled) {
+                Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+            }
+
             RelayLists(
                 state = state,
                 backgroundColor = backgroundColor,
