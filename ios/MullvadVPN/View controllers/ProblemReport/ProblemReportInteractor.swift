@@ -14,51 +14,73 @@ import Operations
 final class ProblemReportInteractor {
     private let apiProxy: APIQuerying
     private let tunnelManager: TunnelManager
-
-    private lazy var consolidatedLog: ConsolidatedApplicationLog = {
-        let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
-        let redactStrings = [tunnelManager.deviceState.accountData?.number].compactMap { $0 }
-
-        let report = ConsolidatedApplicationLog(
-            redactCustomStrings: redactStrings,
-            redactContainerPathsForSecurityGroupIdentifiers: [securityGroupIdentifier]
-        )
-
-        let logFileURLs = ApplicationTarget.allCases.flatMap {
-            ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
-        }
-        report.addLogFiles(fileURLs: logFileURLs)
-
-        return report
-    }()
-
-    var reportString: String {
-        consolidatedLog.string
-    }
+    private let consolidatedLog: ConsolidatedApplicationLog
 
     init(apiProxy: APIQuerying, tunnelManager: TunnelManager) {
         self.apiProxy = apiProxy
         self.tunnelManager = tunnelManager
+        self.consolidatedLog = ConsolidatedApplicationLog(
+            redactCustomStrings: [tunnelManager.deviceState.accountData?.number].compactMap { $0 },
+            redactContainerPathsForSecurityGroupIdentifiers: [ApplicationConfiguration.securityGroupIdentifier]
+        )
+    }
+
+    func loadLogFiles(completion: @escaping () -> Void) {
+        DispatchQueue
+            .global()
+            .async { [weak self] in
+                guard let self else { return }
+                let logFileURLs = ApplicationTarget.allCases.flatMap {
+                    ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
+                }
+                consolidatedLog.addLogFiles(fileURLs: logFileURLs) {
+                    DispatchQueue.main.async {
+                        completion()
+                    }
+                }
+            }
+    }
+
+    func fetchReportString(completion: @escaping (String) -> Void) {
+        DispatchQueue
+            .global()
+            .async { [weak self] in
+                guard let self else { return }
+                let result = self.consolidatedLog.string
+                DispatchQueue.main.async {
+                    completion(result)
+                }
+            }
     }
 
     func sendReport(
         email: String,
         message: String,
         completion: @escaping (Result<Void, Error>) -> Void
-    ) -> Cancellable {
-        let request = REST.ProblemReportRequest(
-            address: email,
-            message: message,
-            log: consolidatedLog.string,
-            metadata: consolidatedLog.metadata.reduce(into: [:]) { output, entry in
-                output[entry.key.rawValue] = entry.value
-            }
-        )
+    ) {
+        DispatchQueue
+            .global()
+            .async { [weak self] in
+                guard let self else { return }
+                let logString = self.consolidatedLog.string
+                let metadataDict = self.consolidatedLog.metadata.reduce(into: [:]) { output, entry in
+                    output[entry.key.rawValue] = entry.value
+                }
+                let request = REST.ProblemReportRequest(
+                    address: email,
+                    message: message,
+                    log: logString,
+                    metadata: metadataDict
+                )
 
-        return apiProxy.sendProblemReport(
-            request,
-            retryStrategy: .default,
-            completionHandler: completion
-        )
+                _ = self.apiProxy.sendProblemReport(
+                    request,
+                    retryStrategy: .default
+                ) { result in
+                    DispatchQueue.main.async {
+                        completion(result)
+                    }
+                }
+            }
     }
 }
