@@ -90,7 +90,7 @@ pub extern "C" fn mullvad_api_device_iter_next(
     // SAFETY: Assuming device pointer is valid
     unsafe { ptr::write(device_ptr, device.into()) }
 
-    return true;
+    true
 }
 
 #[no_mangle]

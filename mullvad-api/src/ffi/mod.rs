@@ -223,18 +223,19 @@ impl FfiClient {
 
 /// Initializes a Mullvad API client.
 ///
-/// #Arguments
+/// # Safety
+///
 /// * `client_ptr`: Must be a pointer to that is valid for the length of a `MullvadApiClient`
-/// struct.
+///   struct.
 ///
 /// * `api_address`: pointer to nul-terminated UTF-8 string containing a socket address
 ///   representation
-/// ("143.32.4.32:9090"), the port is mandatory.
+///   ("143.32.4.32:9090"), the port is mandatory.
 ///
 /// * `hostname`: pointer to a null-terminated UTF-8 string representing the hostname that will be
-/// used for TLS validation.
+///   used for TLS validation.
 #[no_mangle]
-pub extern "C" fn mullvad_api_client_initialize(
+pub unsafe extern "C" fn mullvad_api_client_initialize(
     client_ptr: *mut MullvadApiClient,
     api_address_ptr: *const libc::c_char,
     hostname: *const libc::c_char,
@@ -252,13 +253,14 @@ pub extern "C" fn mullvad_api_client_initialize(
 
 /// Removes all devices from a given account
 ///
-/// #Arguments
+/// # Safety
+///
 /// * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
 ///
 /// * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
-/// account that will have all of it's devices removed.
+///   account that will have all of it's devices removed.
 #[no_mangle]
-pub extern "C" fn mullvad_api_remove_all_devices(
+pub unsafe extern "C" fn mullvad_api_remove_all_devices(
     client_ptr: MullvadApiClient,
     account_ptr: *const libc::c_char,
 ) -> MullvadApiError {
@@ -271,16 +273,16 @@ pub extern "C" fn mullvad_api_remove_all_devices(
 
 /// Removes all devices from a given account
 ///
-/// #Arguments
+/// # Safety
 /// * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
 ///
 /// * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
-/// account that will have all of it's devices removed.
+///   account that will have all of it's devices removed.
 ///
 /// * `expiry_unix_timestamp`: a pointer to a signed 64 bit integer. If this function returns no
-/// error, the expiry timestamp will be written to this pointer.
+///   error, the expiry timestamp will be written to this pointer.
 #[no_mangle]
-pub extern "C" fn mullvad_api_get_expiry(
+pub unsafe extern "C" fn mullvad_api_get_expiry(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
     expiry_unix_timestamp: *mut i64,
@@ -297,17 +299,18 @@ pub extern "C" fn mullvad_api_get_expiry(
 
 /// Gets a list of all devices associated with the specified account from the API.
 ///
-/// #Arguments
+/// # Safety
+///
 /// * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
 ///
 /// * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
-/// account that will have all of it's devices removed.
+///   account that will have all of it's devices removed.
 ///
 /// * `device_iter_ptr`: a pointer to a `device::MullvadApiDeviceIterator`. If this function
-/// doesn't return an error, the pointer will be initialized with a valid instance of
-/// `device::MullvadApiDeviceIterator`, which can be used to iterate through the devices.
+///   doesn't return an error, the pointer will be initialized with a valid instance of
+///   `device::MullvadApiDeviceIterator`, which can be used to iterate through the devices.
 #[no_mangle]
-pub extern "C" fn mullvad_api_list_devices(
+pub unsafe extern "C" fn mullvad_api_list_devices(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
     device_iter_ptr: *mut device::MullvadApiDeviceIterator,
@@ -325,18 +328,19 @@ pub extern "C" fn mullvad_api_list_devices(
 /// Adds a device to the specified account with the specified public key. Note that the device
 /// name, associated addresess and UUID are not returned.
 ///
-/// #Arguments
+/// # Safety
+///
 /// * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
 ///
 /// * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
-/// account that will have a device added to ita device added to it.
+///   account that will have a device added to ita device added to it.
 ///
 /// * `public_key_ptr`: a pointer to 32 bytes of a WireGuard public key that will be uploaded.
 ///
 /// * `new_device_ptr`: a pointer to enough memory to allocate a `MullvadApiDevice`. If this
-/// function doesn't return an error, it will be initialized.
+///   function doesn't return an error, it will be initialized.
 #[no_mangle]
-pub extern "C" fn mullvad_api_add_device(
+pub unsafe extern "C" fn mullvad_api_add_device(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
     public_key_ptr: *const u8,
@@ -358,15 +362,15 @@ pub extern "C" fn mullvad_api_add_device(
 
 /// Creates a new account.
 ///
-/// #Arguments
+/// # Safety
+///
 /// * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
 ///
 /// * `account_str_ptr`: If a new account is created successfully, a pointer to an allocated C
-///   string containing the new
-/// account number will be written to this pointer. It must be freed via
-/// `mullvad_api_cstring_drop`.
+///   string containing the new account number will be written to this pointer. It must be freed via
+///   `mullvad_api_cstring_drop`.
 #[no_mangle]
-pub extern "C" fn mullvad_api_create_account(
+pub unsafe extern "C" fn mullvad_api_create_account(
     client_ptr: MullvadApiClient,
     account_str_ptr: *mut *const libc::c_char,
 ) -> MullvadApiError {
@@ -389,12 +393,13 @@ pub extern "C" fn mullvad_api_create_account(
 
 /// Deletes the specified account.
 ///
-/// #Arguments
+/// # Safety
+///
 /// * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
 ///
-/// * `account_str_ptr`: A null-terminated string representing the account to be deleted.
+/// * `account_str_ptr`: Must be a null-terminated string representing the account to be deleted.
 #[no_mangle]
-pub extern "C" fn mullvad_api_delete_account(
+pub unsafe extern "C" fn mullvad_api_delete_account(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
 ) -> MullvadApiError {
@@ -411,14 +416,20 @@ pub extern "C" fn mullvad_api_client_drop(client: MullvadApiClient) {
 }
 
 /// Deallocates a CString returned by the Mullvad API client.
+///
+/// # Safety
+///
+/// `cstr_ptr` must be a pointer to a string allocated by another `mullvad_api` function.
 #[no_mangle]
-pub extern "C" fn mullvad_api_cstring_drop(cstr_ptr: *mut libc::c_char) {
+pub unsafe extern "C" fn mullvad_api_cstring_drop(cstr_ptr: *mut libc::c_char) {
     let _ = unsafe { CString::from_raw(cstr_ptr) };
 }
 
 /// The return value is only valid for the lifetime of the `ptr` that's passed in
 ///
-/// SAFETY: `ptr` must be valid for `size` bytes
+/// # Safety
+///
+/// `ptr` must be valid for `size` bytes
 unsafe fn string_from_raw_ptr(ptr: *const libc::c_char) -> Result<String, MullvadApiError> {
     let cstr = unsafe { CStr::from_ptr(ptr) };
 
