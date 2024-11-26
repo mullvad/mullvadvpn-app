@@ -17,20 +17,20 @@ import org.junit.jupiter.api.Test
 class ConnectionProxyTest {
 
     private val mockManagementService: ManagementService = mockk(relaxed = true)
-    private val mockVpnPermissionRepository: VpnProfileUseCase = mockk()
+    private val mockVpnPermissionRepository: PrepareVpnUseCase = mockk()
     private val mockTranslationRepository: RelayLocationTranslationRepository =
         mockk(relaxed = true)
 
     private val connectionProxy: ConnectionProxy =
         ConnectionProxy(
             managementService = mockManagementService,
-            vpnProfileUseCase = mockVpnPermissionRepository,
+            prepareVpnUseCase = mockVpnPermissionRepository,
             translationRepository = mockTranslationRepository,
         )
 
     @Test
     fun `connect with vpn permission allowed should call managementService connect`() = runTest {
-        every { mockVpnPermissionRepository.prepareVpn() } returns Prepared.right()
+        every { mockVpnPermissionRepository.invoke() } returns Prepared.right()
         connectionProxy.connect()
         coVerify(exactly = 1) { mockManagementService.connect() }
     }
@@ -38,7 +38,7 @@ class ConnectionProxyTest {
     @Test
     fun `connect with vpn permission not allowed should not call managementService connect`() =
         runTest {
-            every { mockVpnPermissionRepository.prepareVpn() } returns
+            every { mockVpnPermissionRepository.invoke() } returns
                 PrepareError.NotPrepared(Intent()).left()
             connectionProxy.connect()
             coVerify(exactly = 0) { mockManagementService.connect() }
