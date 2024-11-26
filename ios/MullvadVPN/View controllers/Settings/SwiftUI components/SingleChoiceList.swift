@@ -198,6 +198,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         .onTapGesture {
             value.wrappedValue = item
             customValueIsFocused = false
+            customValueInput = ""
         }
     }
 
@@ -215,51 +216,70 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         ) {
             Text(label)
             Spacer()
-            TextField("value", text: $customValueInput, prompt: Text(prompt))
-                .keyboardType(customFieldMode == .numericText ? .numberPad : .default)
-                .frame(minWidth: inputWidth, maxWidth: .infinity)
-                .fixedSize()
-                .padding(4)
-                .foregroundColor(
-                    customValueInputIsInvalid
+            TextField(
+                "value",
+                text: $customValueInput,
+                prompt: Text(prompt).foregroundColor(
+                    customValueIsFocused
+                        ? Color(UIColor.TextField.placeholderTextColor)
+                        : Color(UIColor.TextField.inactivePlaceholderTextColor)
+                )
+            )
+            .keyboardType(customFieldMode == .numericText ? .numberPad : .default)
+            .multilineTextAlignment(
+                customFieldMode == .numericText
+                    ? .trailing
+                    : .leading/*@END_MENU_TOKEN@*/
+            )
+            .frame(minWidth: inputWidth, maxWidth: .infinity)
+            .fixedSize()
+            .padding(4)
+            .foregroundColor(
+                customValueIsFocused
+                    ? customValueInputIsInvalid
                         ? Color(UIColor.TextField.invalidInputTextColor)
                         : Color(UIColor.TextField.textColor)
-                )
-                .background(Color(UIColor.TextField.backgroundColor))
-                .cornerRadius(4.0)
-                // .border doesn't honour .cornerRadius, so overlaying a RoundedRectangle is necessary
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4.0)
-                        .stroke(
-                            customValueInputIsInvalid ? Color(UIColor.TextField.invalidInputTextColor) : .clear,
-                            lineWidth: 1
-                        )
-                )
-                .focused($customValueIsFocused)
-                .onChange(of: customValueInput) { newValue in
-                    if let maxInputLength {
-                        if customValueInput.count > maxInputLength {
-                            customValueInput = String(customValueInput.prefix(maxInputLength))
-                        }
-                    }
-                    if let parsedValue = toValue(customValueInput) {
-                        value.wrappedValue = parsedValue
-                        customValueInputIsInvalid = false
-                    } else {
-                        // this is not a valid value, so we fall back to the
-                        // initial value, showing the invalid-value state if
-                        // the field is not empty
-                        if let initialValue {
-                            value.wrappedValue = initialValue
-                        }
-                        customValueInputIsInvalid = !customValueInput.isEmpty
+                    : Color(UIColor.TextField.inactiveTextColor)
+            )
+            .background(
+                customValueIsFocused
+                    ? Color(UIColor.TextField.backgroundColor)
+                    : Color(UIColor.TextField.inactiveBackgroundColor)
+            )
+            .cornerRadius(4.0)
+            // .border doesn't honour .cornerRadius, so overlaying a RoundedRectangle is necessary
+            .overlay(
+                RoundedRectangle(cornerRadius: 4.0)
+                    .stroke(
+                        customValueInputIsInvalid ? Color(UIColor.TextField.invalidInputTextColor) : .clear,
+                        lineWidth: 1
+                    )
+            )
+            .focused($customValueIsFocused)
+            .onChange(of: customValueInput) { newValue in
+                if let maxInputLength {
+                    if customValueInput.count > maxInputLength {
+                        customValueInput = String(customValueInput.prefix(maxInputLength))
                     }
                 }
-                .onAppear {
-                    if let valueText = fromValue(value.wrappedValue) {
-                        customValueInput = valueText
+                if let parsedValue = toValue(customValueInput) {
+                    value.wrappedValue = parsedValue
+                    customValueInputIsInvalid = false
+                } else {
+                    // this is not a valid value, so we fall back to the
+                    // initial value, showing the invalid-value state if
+                    // the field is not empty
+                    if let initialValue {
+                        value.wrappedValue = initialValue
                     }
+                    customValueInputIsInvalid = !customValueInput.isEmpty
                 }
+            }
+            .onAppear {
+                if let valueText = fromValue(value.wrappedValue) {
+                    customValueInput = valueText
+                }
+            }
         }
         .onTapGesture {
             if let v = toValue(customValueInput) {
@@ -338,7 +358,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         customPrompt: "Number",
         customLegend: "The legend goes here",
         customInputMinWidth: 120,
-        customInputMaxLength: 6
+        customInputMaxLength: 6,
+        customFieldMode: .numericText
     )
     }
 }
