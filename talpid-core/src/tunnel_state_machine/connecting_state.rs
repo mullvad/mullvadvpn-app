@@ -26,9 +26,6 @@ use talpid_types::{
     ErrorExt,
 };
 
-#[cfg(target_os = "android")]
-use talpid_tunnel::tun_provider;
-
 use super::connected_state::TunnelEventsReceiver;
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
@@ -218,7 +215,7 @@ impl ConnectingState {
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let on_tunnel_event =
-            move |event| -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
+            move |event| -> std::pin::Pin<Box<dyn std::future::Future<Output=()> + Send>> {
                 let (tx, rx) = oneshot::channel();
                 let _ = event_tx.unbounded_send((event, tx));
                 Box::pin(async move {
@@ -265,55 +262,7 @@ impl ConnectingState {
                 }
                 Err(error) => {
                     log::error!("{}", error.display_chain_with_msg("Failed to start tunnel"));
-                    let block_reason = match error {
-                        tunnel::Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
-
-                        #[cfg(target_os = "android")]
-                        tunnel::Error::WireguardTunnelMonitoringError(
-                            talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::OtherLegacyAlwaysOnVpn,
-                                ),
-                            ),
-                        ) => ErrorStateCause::OtherLegacyAlwaysOnVpn,
-
-                        #[cfg(target_os = "android")]
-                        tunnel::Error::WireguardTunnelMonitoringError(
-                            talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::OtherAlwaysOnApp { app_name },
-                                ),
-                            ),
-                        ) => ErrorStateCause::OtherAlwaysOnApp { app_name },
-
-                        #[cfg(target_os = "android")]
-                        tunnel::Error::WireguardTunnelMonitoringError(
-                            talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::NotPrepared,
-                                ),
-                            ),
-                        ) => ErrorStateCause::NotPrepared,
-
-                        #[cfg(target_os = "android")]
-                        tunnel::Error::WireguardTunnelMonitoringError(
-                            talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::InvalidDnsServers(addresses),
-                                ),
-                            ),
-                        ) => ErrorStateCause::InvalidDnsServers(addresses),
-                        #[cfg(target_os = "windows")]
-                        error => match error.get_tunnel_device_error() {
-                            Some(error) => ErrorStateCause::CreateTunnelDevice {
-                                os_error: error.raw_os_error(),
-                            },
-                            None => ErrorStateCause::StartTunnelError,
-                        },
-                        #[cfg(not(target_os = "windows"))]
-                        _ => ErrorStateCause::StartTunnelError,
-                    };
-                    Some(block_reason)
+                    Some(error.into())
                 }
             };
 
@@ -355,14 +304,14 @@ impl ConnectingState {
                     None
                 }
                 error @ tunnel::Error::WireguardTunnelMonitoringError(..)
-                    if !should_retry(&error, retry_attempt) =>
-                {
-                    log::error!(
+                if !should_retry(&error, retry_attempt) =>
+                    {
+                        log::error!(
                         "{}",
                         error.display_chain_with_msg("Tunnel has stopped unexpectedly")
                     );
-                    Some(ErrorStateCause::StartTunnelError)
-                }
+                        Some(ErrorStateCause::StartTunnelError)
+                    }
                 error => {
                     log::warn!(
                         "{}",

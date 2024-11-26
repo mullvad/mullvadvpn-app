@@ -5,9 +5,12 @@ use std::path;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
 pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
+#[cfg(target_os = "android")]
+use talpid_tunnel::tun_provider;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
+use talpid_types::tunnel::ErrorStateCause;
 
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
@@ -42,6 +45,59 @@ pub enum Error {
     /// Could not detect and assign the correct mtu
     #[error("Could not detect and assign a correct MTU for the Wireguard tunnel")]
     AssignMtuError,
+}
+
+impl Into<ErrorStateCause> for Error {
+    fn into(self) -> ErrorStateCause {
+        match self {
+            Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
+
+            #[cfg(target_os = "android")]
+            Error::WireguardTunnelMonitoringError(
+                talpid_wireguard::Error::TunnelError(
+                    talpid_wireguard::TunnelError::SetupTunnelDevice(
+                        tun_provider::Error::OtherLegacyAlwaysOnVpn,
+                    ),
+                ),
+            ) => ErrorStateCause::OtherLegacyAlwaysOnVpn,
+
+            #[cfg(target_os = "android")]
+            Error::WireguardTunnelMonitoringError(
+                talpid_wireguard::Error::TunnelError(
+                    talpid_wireguard::TunnelError::SetupTunnelDevice(
+                        tun_provider::Error::OtherAlwaysOnApp { app_name },
+                    ),
+                ),
+            ) => ErrorStateCause::OtherAlwaysOnApp { app_name },
+
+            #[cfg(target_os = "android")]
+            Error::WireguardTunnelMonitoringError(
+                talpid_wireguard::Error::TunnelError(
+                    talpid_wireguard::TunnelError::SetupTunnelDevice(
+                        tun_provider::Error::NotPrepared,
+                    ),
+                ),
+            ) => ErrorStateCause::NotPrepared,
+
+            #[cfg(target_os = "android")]
+            Error::WireguardTunnelMonitoringError(
+                talpid_wireguard::Error::TunnelError(
+                    talpid_wireguard::TunnelError::SetupTunnelDevice(
+                        tun_provider::Error::InvalidDnsServers(addresses),
+                    ),
+                ),
+            ) => ErrorStateCause::InvalidDnsServers(addresses),
+            #[cfg(target_os = "windows")]
+            error => match error.get_tunnel_device_error() {
+                Some(error) => ErrorStateCause::CreateTunnelDevice {
+                    os_error: error.raw_os_error(),
+                },
+                None => ErrorStateCause::StartTunnelError,
+            },
+            #[cfg(not(target_os = "windows"))]
+            _ => ErrorStateCause::StartTunnelError,
+        }
+    }
 }
 
 impl Error {
