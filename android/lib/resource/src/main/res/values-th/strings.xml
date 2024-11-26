@@ -167,7 +167,6 @@
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
     <string name="ipv6_unavailable">ไม่สามารถกำหนดค่า IPv6 ได้ โปรดปิดใช้งานรายการนี้ในแอป หรือเปิดใช้งานบนอุปกรณ์ของคุณ</string>
     <string name="is_offline">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</string>
-    <string name="legacy_always_on_vpn_error_notification_title">Always-on VPN ได้รับการมอบหมายไปยังแอปอื่นแล้ว</string>
     <string name="less_than_a_day_left">เหลือเวลาน้อยกว่าหนึ่งวัน</string>
     <string name="less_than_one_day">น้อยกว่าหนึ่งวัน</string>
     <string name="list_name">ชื่อรายการ</string>

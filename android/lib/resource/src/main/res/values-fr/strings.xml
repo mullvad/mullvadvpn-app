@@ -167,7 +167,6 @@
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
     <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">« Toujours exiger un VPN » est assigné à une autre application</string>
     <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_one_day">moins d\'un jour</string>
     <string name="list_name">Nom de la liste</string>

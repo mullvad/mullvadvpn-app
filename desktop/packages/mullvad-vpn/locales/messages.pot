@@ -2287,7 +2287,7 @@ msgstr ""
 msgid "Always-on VPN assigned to %s"
 msgstr ""
 
-msgid "Always-on VPN assigned to other app"
+msgid "Always-on VPN assigned to other VPN"
 msgstr ""
 
 msgid "App info"

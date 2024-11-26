@@ -167,7 +167,6 @@
     <string name="invalid_voucher">Код ваучера недействителен.</string>
     <string name="ipv6_unavailable">Не удается сконфигурировать IPv6. Отключите этот протокол в приложении или включите на устройстве.</string>
     <string name="is_offline">Устройство отключено от Интернета. Туннельное подключение автоматически запустится, как только ваше устройство подключится к Интернету.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">Опция «Постоянная VPN» назначена другому приложению</string>
     <string name="less_than_a_day_left">осталось менее суток</string>
     <string name="less_than_one_day">менее суток</string>
     <string name="list_name">Имя списка</string>
