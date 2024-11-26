@@ -1439,10 +1439,8 @@ impl Daemon {
         #[cfg(target_os = "android")]
         match event {
             AccessMethodEvent::New { setting, .. } => {
-                // Announce to all clients listening for updates of the
-                // currently active access method. The announcement should be
-                // made after the firewall policy has been updated, since the
-                // new access method will be useless before then.
+                // No-op, on Android mullvad-api invokes protect on a socket to send requests
+                // outside the tunnel
                 let notifier = self.management_interface.notifier().clone();
                 tokio::spawn(async move {
                     // Let the emitter of this event know that the firewall has been updated.
