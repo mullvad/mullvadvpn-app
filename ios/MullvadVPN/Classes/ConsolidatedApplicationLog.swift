@@ -15,6 +15,7 @@ private let kRedactedContainerPlaceholder = "[REDACTED CONTAINER PATH]"
 
 class ConsolidatedApplicationLog: TextOutputStreamable {
     typealias Metadata = KeyValuePairs<MetadataKey, String>
+    private let bufferSize: UInt64
 
     enum MetadataKey: String {
         case id, os
@@ -30,14 +31,20 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
     let applicationGroupContainers: [URL]
     let metadata: Metadata
 
+    private let logQueue = DispatchQueue(
+        label: "com.mullvad.consolidation.logs.queue",
+        attributes: .concurrent
+    )
     private var logs: [LogAttachment] = []
 
     init(
         redactCustomStrings: [String],
-        redactContainerPathsForSecurityGroupIdentifiers securityGroupIdentifiers: [String]
+        redactContainerPathsForSecurityGroupIdentifiers securityGroupIdentifiers: [String],
+        bufferSize: UInt64
     ) {
         metadata = Self.makeMetadata()
         self.redactCustomStrings = redactCustomStrings
+        self.bufferSize = bufferSize
 
         applicationGroupContainers = securityGroupIdentifiers
             .compactMap { securityGroupIdentifier -> URL? in
@@ -46,37 +53,50 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
             }
     }
 
-    func addLogFiles(fileURLs: [URL]) {
-        for fileURL in fileURLs {
-            addSingleLogFile(fileURL)
+    func addLogFiles(fileURLs: [URL], completion: @escaping () -> Void = {}) {
+        logQueue.async(flags: .barrier) {
+            for fileURL in fileURLs {
+                self.addSingleLogFile(fileURL)
+            }
+            completion()
         }
     }
 
-    func addError(message: String, error: String) {
+    func addError(message: String, error: String, completion: (() -> Void)? = nil) {
         let redactedError = redact(string: error)
-
-        logs.append(LogAttachment(label: message, content: redactedError))
+        logQueue.async(flags: .barrier) {
+            self.logs.append(LogAttachment(label: message, content: redactedError))
+            completion?()
+        }
     }
 
     var string: String {
-        var body = ""
-        write(to: &body)
-        return body
+        var result = ""
+        logQueue.sync {
+            var body = ""
+            self.write(to: &body)
+            result = body
+        }
+        return result
     }
 
     func write(to stream: inout some TextOutputStream) {
-        print("System information:", to: &stream)
-        for (key, value) in metadata {
-            print("\(key.rawValue): \(value)", to: &stream)
-        }
-        print("", to: &stream)
+        logQueue.sync {
+            var localOutput = ""
 
-        for attachment in logs {
-            print(kLogDelimiter, to: &stream)
-            print(attachment.label, to: &stream)
-            print(kLogDelimiter, to: &stream)
-            print(attachment.content, to: &stream)
-            print("", to: &stream)
+            localOutput += "System information:\n"
+            for (key, value) in metadata {
+                localOutput += "\(key.rawValue): \(value)\n"
+            }
+            localOutput += "\n"
+            for attachment in logs {
+                localOutput += "\(kLogDelimiter)\n"
+                localOutput += "\(attachment.label)\n"
+                localOutput += "\(kLogDelimiter)\n"
+                localOutput += "\(attachment.content)\n\n"
+            }
+
+            stream.write(localOutput)
         }
     }
 
@@ -92,10 +112,11 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         let path = fileURL.path
         let redactedPath = redact(string: path)
 
-        if let lossyString = Self.readFileLossy(path: path, maxBytes: ApplicationConfiguration.logMaximumFileSize) {
+        if let lossyString = readFileLossy(path: path, maxBytes: bufferSize) {
             let redactedString = redact(string: lossyString)
-
-            logs.append(LogAttachment(label: redactedPath, content: redactedString))
+            logQueue.async(flags: .barrier) {
+                self.logs.append(LogAttachment(label: redactedPath, content: redactedString))
+            }
         } else {
             addError(message: redactedPath, error: "Log file does not exist: \(path).")
         }
@@ -113,7 +134,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         ]
     }
 
-    private static func readFileLossy(path: String, maxBytes: UInt64) -> String? {
+    private func readFileLossy(path: String, maxBytes: UInt64) -> String? {
         guard let fileHandle = FileHandle(forReadingAtPath: path) else {
             return nil
         }
@@ -125,7 +146,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
             fileHandle.seek(toFileOffset: 0)
         }
 
-        let data = fileHandle.readData(ofLength: Int(ApplicationConfiguration.logMaximumFileSize))
+        let data = fileHandle.readData(ofLength: Int(bufferSize))
         let replacementCharacter = Character(UTF8.decode(UTF8.encodedReplacementCharacter))
         let lossyString = String(
             String(decoding: data, as: UTF8.self)
@@ -147,9 +168,9 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
     private func redact(string: String) -> String {
         [
             redactContainerPaths,
-            Self.redactAccountNumber,
-            Self.redactIPv4Address,
-            Self.redactIPv6Address,
+            redactAccountNumber,
+            redactIPv4Address,
+            redactIPv6Address,
             redactCustomStrings,
         ].reduce(string) { resultString, transform -> String in
             transform(resultString)
@@ -165,7 +186,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         }
     }
 
-    private static func redactAccountNumber(string: String) -> String {
+    private func redactAccountNumber(string: String) -> String {
         redact(
             // swiftlint:disable:next force_try
             regularExpression: try! NSRegularExpression(pattern: #"\d{16}"#),
@@ -174,7 +195,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         )
     }
 
-    private static func redactIPv4Address(string: String) -> String {
+    private func redactIPv4Address(string: String) -> String {
         redact(
             regularExpression: NSRegularExpression.ipv4RegularExpression,
             string: string,
@@ -182,7 +203,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         )
     }
 
-    private static func redactIPv6Address(string: String) -> String {
+    private func redactIPv6Address(string: String) -> String {
         redact(
             regularExpression: NSRegularExpression.ipv6RegularExpression,
             string: string,
@@ -190,7 +211,7 @@ class ConsolidatedApplicationLog: TextOutputStreamable {
         )
     }
 
-    private static func redact(
+    private func redact(
         regularExpression: NSRegularExpression,
         string: String,
         replacementString: String
