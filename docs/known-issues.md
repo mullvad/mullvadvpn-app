@@ -2,7 +2,7 @@
 
 A collection of known security and privacy issues currently affecting the Mullvad VPN app.
 
-This is not a bug tracker. This is not a collection of post mortems. This is not a historical 
+This is not a bug tracker. This is not a collection of post mortems. This is not a historical
 record of past issues. This is not a list of issues we plan on solving soon.
 This document is for listing issues affecting the app, that cannot be fixed or that we have
 decided to not address for some reason. Some example reasons why issues might end up here is:
@@ -226,3 +226,28 @@ it very difficult to properly secure them.
 * May 15, 2024 - A user notify us that Edge under Application Guard cause leaks
 
 [Linux under WSL2 leaking]: https://mullvad.net/en/blog/linux-under-wsl2-can-be-leaking
+
+### Android exposes in-tunnel VPN IPs to network adjacent attackers via ARP
+
+By default the kernel paramter [`arp_ignore`] is set to `0` on Android. This makes the device reply
+to ARP requests for any local target IP address, configured on any interface. This means that any
+network adjacent attacker (same LAN) can figure out the IP address configured on the VPN tunnel
+interface by simply sending a lot of ARP requests to the device.
+
+This can be used by an adversary on the same local network to make a qualified guess if the device
+is using Mullvad VPN. Furthermore, since the in-tunnel IP only changes monthly, the adversary can
+also possibly identify a device over time.
+
+Android apps, including Mullvad VPN, do not have the permission to change kernel parameters such as
+`arp_ignore`. All Android devices that we know of are affected as it is the default behaviour in
+Android. We've reported [upstream to Google], see the report for more details.
+
+We don't consider this a critical leak since the in-tunnel IP does not tell a great deal about the
+user. However, users that are worried can log out and in of their account in order to rotate the IP.
+
+#### Timeline
+* November 6, 2024 - Auditors reported this issue on Linux and Android, later classified as `MLLVD-CR-24-03`.
+* November 14, 2024 - We reported the issue [upstream to Google].
+
+[`arp_ignore`]: https://www.kernel.org/doc/Documentation/networking/ip-sysctl.txt
+[upstream to Google]: https://issuetracker.google.com/issues/378814597
