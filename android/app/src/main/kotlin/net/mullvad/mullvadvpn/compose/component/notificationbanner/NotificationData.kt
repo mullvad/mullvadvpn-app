@@ -106,7 +106,6 @@ private fun errorMessageBannerData(error: ErrorState) =
         title = error.title().formatWithHtml(),
         message = error.message().formatWithHtml(),
         statusLevel = StatusLevel.Error,
-        action = null,
     )
 
 @Composable
