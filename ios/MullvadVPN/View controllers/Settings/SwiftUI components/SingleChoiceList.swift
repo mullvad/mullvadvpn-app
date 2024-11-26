@@ -84,6 +84,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 prompt: String,
                 legend: String?,
                 inputWidth: CGFloat?,
+                maxInputLength: Int?,
                 toValue: (String) -> Value?,
                 fromValue: (Value) -> String?
             )
@@ -135,6 +136,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - customLabel: The caption to display in the custom row, next to the text field.
     ///   - customPrompt: The text to display, greyed, in the text field when it is empty. This also serves to set the width of the field, and should be right-padded with spaces as appropriate.
     ///   - customLegend: Optional text to display below the custom field, i.e., to explain sensible values
+    ///   - customInputWidth: An optional minimum width (in pseudo-pixels) for the custom input field
+    ///   - customInputMaxLength: An optional maximum length to which input is truncated
     ///   - customFieldMode: An enumeration that sets the mode of the custom value entry text field. If this is `.numericText`, the data is expected to be a decimal number, and the device will present a numeric keyboard when the field is focussed. If it is `.freeText`,  a standard alphanumeric keyboard will be presented. If not specified, this defaults to `.freeText`.
     init(
         title: String,
@@ -147,6 +150,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         customPrompt: String,
         customLegend: String? = nil,
         customInputWidth: CGFloat? = nil,
+        customInputMaxLength: Int? = nil,
         customFieldMode: CustomFieldMode = .freeText
     ) {
         self.init(
@@ -156,6 +160,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 prompt: customPrompt,
                 legend: customLegend,
                 inputWidth: customInputWidth,
+                maxInputLength: customInputMaxLength,
                 toValue: parseCustomValue,
                 fromValue: formatCustomValue
             )],
@@ -201,6 +206,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         label: String,
         prompt: String,
         inputWidth: CGFloat?,
+        maxInputLength: Int?,
         toValue: @escaping (String) -> Value?,
         fromValue: @escaping (Value) -> String?
     ) -> some View {
@@ -231,6 +237,11 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 )
                 .focused($customValueIsFocused)
                 .onChange(of: customValueInput) { newValue in
+                    if let maxInputLength {
+                        if customValueInput.count > maxInputLength {
+                            customValueInput = String(customValueInput.prefix(maxInputLength))
+                        }
+                    }
                     if let parsedValue = toValue(customValueInput) {
                         value.wrappedValue = parsedValue
                         customValueInputIsInvalid = false
@@ -282,11 +293,12 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 switch opt.value {
                 case let .literal(v):
                     literalRow(v)
-                case let .custom(label, prompt, legend, inputWidth, toValue, fromValue):
+                case let .custom(label, prompt, legend, inputWidth, maxInputLength, toValue, fromValue):
                     customRow(
                         label: label,
                         prompt: prompt,
                         inputWidth: inputWidth,
+                        maxInputLength: maxInputLength,
                         toValue: toValue,
                         fromValue: fromValue
                     )

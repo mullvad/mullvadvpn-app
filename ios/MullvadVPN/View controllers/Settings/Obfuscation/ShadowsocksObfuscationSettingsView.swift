@@ -58,6 +58,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 comment: ""
             ),
             customInputWidth: 100,
+            customInputMaxLength: 5,
             customFieldMode: .numericText
         ).onDisappear {
             viewModel.commit()
