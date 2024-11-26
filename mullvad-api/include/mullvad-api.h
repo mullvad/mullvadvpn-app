@@ -43,16 +43,17 @@ typedef struct MullvadApiDevice {
 /**
  * Initializes a Mullvad API client.
  *
- * #Arguments
+ * # Safety
+ *
  * * `client_ptr`: Must be a pointer to that is valid for the length of a `MullvadApiClient`
- * struct.
+ *   struct.
  *
  * * `api_address`: pointer to nul-terminated UTF-8 string containing a socket address
  *   representation
- * ("143.32.4.32:9090"), the port is mandatory.
+ *   ("143.32.4.32:9090"), the port is mandatory.
  *
  * * `hostname`: pointer to a null-terminated UTF-8 string representing the hostname that will be
- * used for TLS validation.
+ *   used for TLS validation.
  */
 struct MullvadApiError mullvad_api_client_initialize(struct MullvadApiClient *client_ptr,
                                                      const char *api_address_ptr,
@@ -61,11 +62,12 @@ struct MullvadApiError mullvad_api_client_initialize(struct MullvadApiClient *cl
 /**
  * Removes all devices from a given account
  *
- * #Arguments
+ * # Safety
+ *
  * * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
  *
  * * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
- * account that will have all of it's devices removed.
+ *   account that will have all of it's devices removed.
  */
 struct MullvadApiError mullvad_api_remove_all_devices(struct MullvadApiClient client_ptr,
                                                       const char *account_ptr);
@@ -73,14 +75,14 @@ struct MullvadApiError mullvad_api_remove_all_devices(struct MullvadApiClient cl
 /**
  * Removes all devices from a given account
  *
- * #Arguments
+ * # Safety
  * * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
  *
  * * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
- * account that will have all of it's devices removed.
+ *   account that will have all of it's devices removed.
  *
  * * `expiry_unix_timestamp`: a pointer to a signed 64 bit integer. If this function returns no
- * error, the expiry timestamp will be written to this pointer.
+ *   error, the expiry timestamp will be written to this pointer.
  */
 struct MullvadApiError mullvad_api_get_expiry(struct MullvadApiClient client_ptr,
                                               const char *account_str_ptr,
@@ -89,15 +91,16 @@ struct MullvadApiError mullvad_api_get_expiry(struct MullvadApiClient client_ptr
 /**
  * Gets a list of all devices associated with the specified account from the API.
  *
- * #Arguments
+ * # Safety
+ *
  * * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
  *
  * * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
- * account that will have all of it's devices removed.
+ *   account that will have all of it's devices removed.
  *
  * * `device_iter_ptr`: a pointer to a `device::MullvadApiDeviceIterator`. If this function
- * doesn't return an error, the pointer will be initialized with a valid instance of
- * `device::MullvadApiDeviceIterator`, which can be used to iterate through the devices.
+ *   doesn't return an error, the pointer will be initialized with a valid instance of
+ *   `device::MullvadApiDeviceIterator`, which can be used to iterate through the devices.
  */
 struct MullvadApiError mullvad_api_list_devices(struct MullvadApiClient client_ptr,
                                                 const char *account_str_ptr,
@@ -107,16 +110,17 @@ struct MullvadApiError mullvad_api_list_devices(struct MullvadApiClient client_p
  * Adds a device to the specified account with the specified public key. Note that the device
  * name, associated addresess and UUID are not returned.
  *
- * #Arguments
+ * # Safety
+ *
  * * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
  *
  * * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
- * account that will have a device added to ita device added to it.
+ *   account that will have a device added to ita device added to it.
  *
  * * `public_key_ptr`: a pointer to 32 bytes of a WireGuard public key that will be uploaded.
  *
  * * `new_device_ptr`: a pointer to enough memory to allocate a `MullvadApiDevice`. If this
- * function doesn't return an error, it will be initialized.
+ *   function doesn't return an error, it will be initialized.
  */
 struct MullvadApiError mullvad_api_add_device(struct MullvadApiClient client_ptr,
                                               const char *account_str_ptr,
@@ -126,13 +130,13 @@ struct MullvadApiError mullvad_api_add_device(struct MullvadApiClient client_ptr
 /**
  * Creates a new account.
  *
- * #Arguments
+ * # Safety
+ *
  * * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
  *
  * * `account_str_ptr`: If a new account is created successfully, a pointer to an allocated C
- *   string containing the new
- * account number will be written to this pointer. It must be freed via
- * `mullvad_api_cstring_drop`.
+ *   string containing the new account number will be written to this pointer. It must be freed via
+ *   `mullvad_api_cstring_drop`.
  */
 struct MullvadApiError mullvad_api_create_account(struct MullvadApiClient client_ptr,
                                                   const char **account_str_ptr);
@@ -140,10 +144,11 @@ struct MullvadApiError mullvad_api_create_account(struct MullvadApiClient client
 /**
  * Deletes the specified account.
  *
- * #Arguments
+ * # Safety
+ *
  * * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
  *
- * * `account_str_ptr`: A null-terminated string representing the account to be deleted.
+ * * `account_str_ptr`: Must be a null-terminated string representing the account to be deleted.
  */
 struct MullvadApiError mullvad_api_delete_account(struct MullvadApiClient client_ptr,
                                                   const char *account_str_ptr);
@@ -152,6 +157,10 @@ void mullvad_api_client_drop(struct MullvadApiClient client);
 
 /**
  * Deallocates a CString returned by the Mullvad API client.
+ *
+ * # Safety
+ *
+ * `cstr_ptr` must be a pointer to a string allocated by another `mullvad_api` function.
  */
 void mullvad_api_cstring_drop(char *cstr_ptr);
 
