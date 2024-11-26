@@ -15,6 +15,11 @@ class ConnectivityTests: LoggedOutUITestCase {
 
     /// Verifies that the app still functions when API has been blocked
     func testAPIConnectionViaBridges() throws {
+        let skipReason = """
+            This test is currently skipped because shadowsocks bridges cannot be reached
+            from the staging environment
+        """
+        try XCTSkipIf(true, skipReason)
         firewallAPIClient.removeRules()
         let hasTimeAccountNumber = getAccountWithTime()
 
@@ -138,6 +143,12 @@ class ConnectivityTests: LoggedOutUITestCase {
     // swiftlint:disable function_body_length
     /// Test that the app is functioning when API is down. To simulate API being down we create a dummy access method
     func testAppStillFunctioningWhenAPIDown() throws {
+        let skipReason = """
+            This test is currently skipped due to a bug in iOS 18 where ATS shuts down the
+        connection to the API in the blocked state, despite being explicitly disabled,
+        and after the checks in SSLPinningURLSessionDelegate return no error.
+        """
+        try XCTSkipIf(true, skipReason)
         let hasTimeAccountNumber = getAccountWithTime()
 
         addTeardownBlock {

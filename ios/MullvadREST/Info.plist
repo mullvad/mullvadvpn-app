@@ -6,5 +6,7 @@
 	<string>$(API_HOST_NAME)</string>
 	<key>ApiEndpoint</key>
 	<string>$(API_ENDPOINT)</string>
+	<key>EncryptedDnsHostName</key>
+	<string>$(ENCRYPTED_DNS_HOST_NAME)</string>
 </dict>
 </plist>

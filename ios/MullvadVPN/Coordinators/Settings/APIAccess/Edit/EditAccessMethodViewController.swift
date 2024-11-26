@@ -45,9 +45,9 @@ class EditAccessMethodViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.accessibilityIdentifier = .editAccessMethodView
         view.backgroundColor = .secondaryColor
 
+        tableView.accessibilityIdentifier = .editAccessMethodView
         tableView.backgroundColor = .secondaryColor
         tableView.delegate = self
 
