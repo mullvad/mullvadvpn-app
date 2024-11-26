@@ -47,9 +47,9 @@ pub enum Error {
     AssignMtuError,
 }
 
-impl Into<ErrorStateCause> for Error {
-    fn into(self) -> ErrorStateCause {
-        match self {
+impl From<Error> for ErrorStateCause {
+    fn from(error: Error) -> ErrorStateCause {
+        match error {
             Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
 
             #[cfg(target_os = "android")]
