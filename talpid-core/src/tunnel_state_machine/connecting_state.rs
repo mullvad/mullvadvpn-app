@@ -215,7 +215,7 @@ impl ConnectingState {
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
         let on_tunnel_event =
-            move |event| -> std::pin::Pin<Box<dyn std::future::Future<Output=()> + Send>> {
+            move |event| -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
                 let (tx, rx) = oneshot::channel();
                 let _ = event_tx.unbounded_send((event, tx));
                 Box::pin(async move {
@@ -304,14 +304,14 @@ impl ConnectingState {
                     None
                 }
                 error @ tunnel::Error::WireguardTunnelMonitoringError(..)
-                if !should_retry(&error, retry_attempt) =>
-                    {
-                        log::error!(
+                    if !should_retry(&error, retry_attempt) =>
+                {
+                    log::error!(
                         "{}",
                         error.display_chain_with_msg("Tunnel has stopped unexpectedly")
                     );
-                        Some(ErrorStateCause::StartTunnelError)
-                    }
+                    Some(ErrorStateCause::StartTunnelError)
+                }
                 error => {
                     log::warn!(
                         "{}",
