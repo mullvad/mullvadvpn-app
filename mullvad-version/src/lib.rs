@@ -141,7 +141,7 @@ mod tests {
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), None);
         assert_eq!(parsed.dev(), None);
-        assert_eq!(parsed.is_stable(), true);
+        assert!(parsed.is_stable());
     }
 
     #[test]
@@ -153,7 +153,7 @@ mod tests {
         assert_eq!(parsed.alpha(), Some("77"));
         assert_eq!(parsed.beta(), None);
         assert_eq!(parsed.dev(), None);
-        assert_eq!(parsed.is_stable(), false);
+        assert!(!parsed.is_stable());
 
         let version = "2021.34-alpha777";
         let parsed = Version::parse(version);
@@ -169,7 +169,7 @@ mod tests {
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), Some("5"));
         assert_eq!(parsed.dev(), None);
-        assert_eq!(parsed.is_stable(), false);
+        assert!(!parsed.is_stable());
 
         let version = "2021.34-beta453";
         let parsed = Version::parse(version);
@@ -185,7 +185,7 @@ mod tests {
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), None);
         assert_eq!(parsed.dev(), Some("0b60e4d87"));
-        assert_eq!(parsed.is_stable(), false);
+        assert!(!parsed.is_stable());
     }
 
     #[test]
