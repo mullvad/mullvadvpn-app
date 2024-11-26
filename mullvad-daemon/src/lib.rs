@@ -1439,11 +1439,11 @@ impl Daemon {
         #[cfg(target_os = "android")]
         match event {
             AccessMethodEvent::New { setting, .. } => {
-                // No-op, on Android mullvad-api invokes protect on a socket to send requests
+                  // On android mullvad-api invokes protect on a socket to send requests
                 // outside the tunnel
                 let notifier = self.management_interface.notifier().clone();
                 tokio::spawn(async move {
-                    // Let the emitter of this event know that the firewall has been updated.
+                    // No-op
                     let _ = endpoint_active_tx.send(());
                     // Notify clients about the change if necessary.
                     notifier.notify_new_access_method_event(setting);
