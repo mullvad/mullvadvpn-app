@@ -302,7 +302,7 @@ function SelectLocationContent() {
       </>
     );
   } else if (relaySettings?.tunnelProtocol !== 'openvpn') {
-    if (daita && !directOnly) {
+    if (daita && !directOnly && relaySettings?.wireguard.useMultihop) {
       return <DisabledEntrySelection />;
     }
 
