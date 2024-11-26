@@ -168,7 +168,6 @@
     <string name="invalid_voucher">Nieprawidłowy kod kuponu.</string>
     <string name="ipv6_unavailable">Nie można skonfigurować protokołu IPv6. Wyłącz go w aplikacji lub włącz na urządzeniu.</string>
     <string name="is_offline">Twoje urządzenie jest offline. Tunel zostanie automatycznie połączony, gdy urządzenie ponownie przejdzie w tryb online.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">Opcja „Zawsze włączony VPN” przypisana jest do innej aplikacji</string>
     <string name="less_than_a_day_left">pozostał mniej niż jeden dzień</string>
     <string name="less_than_one_day">mniej niż jeden dzień</string>
     <string name="list_name">Nazwa listy</string>

@@ -168,7 +168,7 @@
     <string name="always_on_vpn_error_notification_content">
         <![CDATA[Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN.]]>
     </string>
-    <string name="legacy_always_on_vpn_error_notification_title">Always-on VPN assigned to other app</string>
+    <string name="legacy_always_on_vpn_error_notification_title">Always-on VPN assigned to other VPN</string>
     <string name="legacy_always_on_vpn_error_notification_content">Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN.</string>
     <string name="vpn_permission_error_notification_title">VPN permission error</string>
     <string name="vpn_permission_error_notification_message">Please press connect to request VPN permission</string>

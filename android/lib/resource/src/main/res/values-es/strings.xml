@@ -168,7 +168,6 @@
     <string name="invalid_voucher">El código del cupón no es válido.</string>
     <string name="ipv6_unavailable">No se pudo configurar IPv6. Desactívelo en la aplicación o actívelo en el dispositivo.</string>
     <string name="is_offline">El dispositivo está sin conexión. El túnel se conectará automáticamente cuando el dispositivo vuelva a estar en línea.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">La VPN siempre activa se ha asignado a otra aplicación</string>
     <string name="less_than_a_day_left">queda menos de un día</string>
     <string name="less_than_one_day">menos de un día</string>
     <string name="list_name">Nombre de la lista</string>

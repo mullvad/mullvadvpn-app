@@ -168,7 +168,6 @@
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
     <string name="ipv6_unavailable">Kon IPv6 niet configureren. Schakel het uit in de app of schakel het in op uw apparaat.</string>
     <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere app</string>
     <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>

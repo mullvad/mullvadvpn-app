@@ -168,7 +168,6 @@
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
     <string name="ipv6_unavailable">IPv6 yapılandırılamadı. IPv6\'yı uygulamada devre dışı bırakın veya cihazınızda etkinleştirin.</string>
     <string name="is_offline">Cihazınız çevrimdışı. Cihazınız tekrar çevrimiçi olduğunda tünel otomatik olarak bağlanacak.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
     <string name="less_than_a_day_left">bir günden az kaldı</string>
     <string name="less_than_one_day">bir günden az</string>
     <string name="list_name">Liste adı</string>

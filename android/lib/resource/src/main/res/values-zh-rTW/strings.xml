@@ -168,7 +168,6 @@
     <string name="invalid_voucher">憑證兌換碼無效。</string>
     <string name="ipv6_unavailable">無法配置 IPv6。請在應用程式中將其停用，或是在您的裝置上啟用它。</string>
     <string name="is_offline">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</string>
-    <string name="legacy_always_on_vpn_error_notification_title">「始終啟用 VPN」已指派給其他應用程式</string>
     <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">清單名稱</string>

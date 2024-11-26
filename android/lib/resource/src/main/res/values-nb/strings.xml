@@ -168,7 +168,6 @@
     <string name="invalid_voucher">Ugyldig kupongkode.</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver den i appen eller aktiver den på enheten din.</string>
     <string name="is_offline">Enheten er frakoblet. Tunnelen vil koble til automatisk når enheten er tilkoblet internett igjen.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen app</string>
     <string name="less_than_a_day_left">mindre enn én dag igjen</string>
     <string name="less_than_one_day">mindre enn én dag</string>
     <string name="list_name">Listenavn</string>
