@@ -4,9 +4,9 @@ use futures::channel::oneshot;
 use std::path;
 #[cfg(not(target_os = "android"))]
 use talpid_routing::RouteManagerHandle;
-pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider;
+pub use talpid_tunnel::{TunnelArgs, TunnelEvent, TunnelMetadata};
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::openvpn as openvpn_types;
 use talpid_types::net::{wireguard as wireguard_types, TunnelParameters};
@@ -53,40 +53,30 @@ impl Into<ErrorStateCause> for Error {
             Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(
-                talpid_wireguard::Error::TunnelError(
-                    talpid_wireguard::TunnelError::SetupTunnelDevice(
-                        tun_provider::Error::OtherLegacyAlwaysOnVpn,
-                    ),
+            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+                talpid_wireguard::TunnelError::SetupTunnelDevice(
+                    tun_provider::Error::OtherLegacyAlwaysOnVpn,
                 ),
-            ) => ErrorStateCause::OtherLegacyAlwaysOnVpn,
+            )) => ErrorStateCause::OtherLegacyAlwaysOnVpn,
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(
-                talpid_wireguard::Error::TunnelError(
-                    talpid_wireguard::TunnelError::SetupTunnelDevice(
-                        tun_provider::Error::OtherAlwaysOnApp { app_name },
-                    ),
+            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+                talpid_wireguard::TunnelError::SetupTunnelDevice(
+                    tun_provider::Error::OtherAlwaysOnApp { app_name },
                 ),
-            ) => ErrorStateCause::OtherAlwaysOnApp { app_name },
+            )) => ErrorStateCause::OtherAlwaysOnApp { app_name },
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(
-                talpid_wireguard::Error::TunnelError(
-                    talpid_wireguard::TunnelError::SetupTunnelDevice(
-                        tun_provider::Error::NotPrepared,
-                    ),
-                ),
-            ) => ErrorStateCause::NotPrepared,
+            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+                talpid_wireguard::TunnelError::SetupTunnelDevice(tun_provider::Error::NotPrepared),
+            )) => ErrorStateCause::NotPrepared,
 
             #[cfg(target_os = "android")]
-            Error::WireguardTunnelMonitoringError(
-                talpid_wireguard::Error::TunnelError(
-                    talpid_wireguard::TunnelError::SetupTunnelDevice(
-                        tun_provider::Error::InvalidDnsServers(addresses),
-                    ),
+            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+                talpid_wireguard::TunnelError::SetupTunnelDevice(
+                    tun_provider::Error::InvalidDnsServers(addresses),
                 ),
-            ) => ErrorStateCause::InvalidDnsServers(addresses),
+            )) => ErrorStateCause::InvalidDnsServers(addresses),
             #[cfg(target_os = "windows")]
             error => match error.get_tunnel_device_error() {
                 Some(error) => ErrorStateCause::CreateTunnelDevice {
