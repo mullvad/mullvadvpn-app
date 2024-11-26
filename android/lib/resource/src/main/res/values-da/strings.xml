@@ -167,7 +167,6 @@
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver det i appen, eller aktiver det på din enhed.</string>
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
-    <string name="legacy_always_on_vpn_error_notification_title">Altid-til VPN tildelt en anden app</string>
     <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_one_day">mindre end én dag</string>
     <string name="list_name">Listenavn</string>

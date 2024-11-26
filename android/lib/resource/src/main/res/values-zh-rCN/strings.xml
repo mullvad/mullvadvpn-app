@@ -167,7 +167,6 @@
     <string name="invalid_voucher">该优惠券码无效。</string>
     <string name="ipv6_unavailable">无法配置 IPv6。请在应用中将其禁用或在您的设备上将其启用。</string>
     <string name="is_offline">您的设备已离线。在您的设备重新上线后，隧道将自动连接。</string>
-    <string name="legacy_always_on_vpn_error_notification_title">“始终开启 VPN”已分配给其他应用</string>
     <string name="less_than_a_day_left">剩余时间不足 1 天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">列表名称</string>
