@@ -85,8 +85,7 @@ impl FromStr for Version {
                 (?:                                # (optional) alpha or beta or dev
                   -alpha(?<alpha>[1-9]\d?\d?)|
                   -beta(?<beta>[1-9]\d?\d?)|
-                  -dev-(?<dev>[0-9a-f]+)|
-                  (?<no_ver_dev>-dev)
+                  -dev-(?<dev>[0-9a-f]+)
                 )?$
                 ",
             )
@@ -111,10 +110,7 @@ impl FromStr for Version {
 
         let alpha = captures.name("alpha").map(|m| m.as_str());
         let beta = captures.name("beta").map(|m| m.as_str());
-        let dev = captures
-            .name("dev")
-            .map(|m| m.as_str())
-            .or(captures.name("no_ver_dev").map(|_| ""));
+        let dev = captures.name("dev").map(|m| m.as_str());
 
         let version_type = match (alpha, beta, dev) {
             (None, None, None) => VersionType::Stable,
@@ -193,18 +189,6 @@ mod tests {
     }
 
     #[test]
-    fn test_parse_with_dev_no_version() {
-        let version = "2099.99-dev";
-        let parsed = Version::parse(version);
-        assert_eq!(parsed.year, "99");
-        assert_eq!(parsed.incremental, "99");
-        assert_eq!(parsed.alpha(), None);
-        assert_eq!(parsed.beta(), None);
-        assert_eq!(parsed.dev(), Some(""));
-        assert_eq!(parsed.is_stable(), false);
-    }
-
-    #[test]
     #[should_panic]
     fn test_panics_on_invalid_version() {
         Version::parse("2021");
@@ -220,5 +204,11 @@ mod tests {
     #[should_panic]
     fn test_panics_on_alpha_and_beta_in_same_version() {
         Version::parse("2021.1-beta5-alpha2");
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_panics_on_dev_without_commit_hash() {
+        Version::parse("2021.1-dev");
     }
 }

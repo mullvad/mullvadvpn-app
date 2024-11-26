@@ -69,6 +69,8 @@ fn to_android_version_code(version: &str) -> String {
     )
 }
 
+/// On Windows we do not support alpha versions for now, so this function will panic
+/// if the parsed version is an alpha version.
 fn to_windows_h_format(version: &str) -> String {
     let Version {
         year,
@@ -77,9 +79,10 @@ fn to_windows_h_format(version: &str) -> String {
         ..
     } = Version::parse(version);
 
-    if !is_valid_windows_version(&version_type) {
-        panic!("Invalid Windows version type: {version_type:?}");
-    }
+    assert!(
+        is_valid_windows_version(&version_type),
+        "Invalid Windows version type: {version_type:?}"
+    );
 
     format!(
         "#define MAJOR_VERSION 20{year}
@@ -117,7 +120,6 @@ mod tests {
 
     #[test]
     fn test_version_code_dev() {
-        assert_eq!("21349000", to_android_version_code("2021.34-dev"));
         assert_eq!("21349000", to_android_version_code("2021.34-dev-be846a5f0"));
     }
 
