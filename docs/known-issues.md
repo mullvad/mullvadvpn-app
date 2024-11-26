@@ -2,7 +2,7 @@
 
 A collection of known security and privacy issues currently affecting the Mullvad VPN app.
 
-This is not a bug tracker. This is not a collection of post mortems. This is not a historical 
+This is not a bug tracker. This is not a collection of post mortems. This is not a historical
 record of past issues. This is not a list of issues we plan on solving soon.
 This document is for listing issues affecting the app, that cannot be fixed or that we have
 decided to not address for some reason. Some example reasons why issues might end up here is:
@@ -226,3 +226,19 @@ it very difficult to properly secure them.
 * May 15, 2024 - A user notify us that Edge under Application Guard cause leaks
 
 [Linux under WSL2 leaking]: https://mullvad.net/en/blog/linux-under-wsl2-can-be-leaking
+
+### Android exposes in-tunnel VPN IPs to network adjacent attackers via ARP
+
+By default the `arp_ignore` setting is set to `0` on Android. This makes the device reply to ARP
+requests for any local target IP address, configured on any interface. This means that any network
+adjacent attacker (same LAN) can figure out the IP address configured on the VPN tunnel interface
+by simply sending a lot of ARP requests on LAN. This is a system setting and the Mullvad VPN app
+has no permission to change this behaviour.
+
+Most Android devices are affected since this is the default behaviour. It has been reported
+upstream to Google, and we wait for their response.
+
+#### Timeline
+* November 12 ###!!!CHECK DATE!!!###, 2024 - Auditors reported ARP issue on Linux, MLLVD-CR-24-03.
+* November 14, 2024 - [Issue reported upstream to Google.](https://issuetracker.google.com/issues/378814597)
+
