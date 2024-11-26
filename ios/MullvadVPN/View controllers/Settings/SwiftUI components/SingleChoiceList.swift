@@ -83,6 +83,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 label: String,
                 prompt: String,
                 legend: String?,
+                inputWidth: CGFloat?,
                 toValue: (String) -> Value?,
                 fromValue: (Value) -> String?
             )
@@ -145,6 +146,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         customLabel: String,
         customPrompt: String,
         customLegend: String? = nil,
+        customInputWidth: CGFloat? = nil,
         customFieldMode: CustomFieldMode = .freeText
     ) {
         self.init(
@@ -153,6 +155,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 label: customLabel,
                 prompt: customPrompt,
                 legend: customLegend,
+                inputWidth: customInputWidth,
                 toValue: parseCustomValue,
                 fromValue: formatCustomValue
             )],
@@ -197,6 +200,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     private func customRow(
         label: String,
         prompt: String,
+        inputWidth: CGFloat?,
         toValue: @escaping (String) -> Value?,
         fromValue: @escaping (Value) -> String?
     ) -> some View {
@@ -207,6 +211,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             Spacer()
             TextField("value", text: $customValueInput, prompt: Text(prompt))
                 .keyboardType(customFieldMode == .numericText ? .numberPad : .default)
+                .frame(minWidth: inputWidth, maxWidth: .infinity)
                 .fixedSize()
                 .padding(4)
                 .foregroundColor(
@@ -277,8 +282,14 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 switch opt.value {
                 case let .literal(v):
                     literalRow(v)
-                case let .custom(label, prompt, legend, toValue, fromValue):
-                    customRow(label: label, prompt: prompt, toValue: toValue, fromValue: fromValue)
+                case let .custom(label, prompt, legend, inputWidth, toValue, fromValue):
+                    customRow(
+                        label: label,
+                        prompt: prompt,
+                        inputWidth: inputWidth,
+                        toValue: toValue,
+                        fromValue: fromValue
+                    )
                     if let legend {
                         subtitleRow(legend)
                     }
@@ -313,7 +324,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         formatCustomValue: { if case let .someNumber(n) = $0 { "\(n)" } else { nil } },
         customLabel: "Custom",
         customPrompt: "Number",
-        customLegend: "The legend goes here"
+        customLegend: "The legend goes here",
+        customInputWidth: 120
     )
     }
 }

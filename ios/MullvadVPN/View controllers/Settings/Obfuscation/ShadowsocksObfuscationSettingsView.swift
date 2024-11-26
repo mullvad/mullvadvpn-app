@@ -48,8 +48,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
             customPrompt: NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_PORT_PROMPT",
                 tableName: "Shadowsocks",
-                // currently padded with spaces to make space
-                value: "Port        ",
+                value: "Port",
                 comment: ""
             ),
             customLegend: NSLocalizedString(
@@ -58,6 +57,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 value: "Valid range: 1 - 65535",
                 comment: ""
             ),
+            customInputWidth: 100,
             customFieldMode: .numericText
         ).onDisappear {
             viewModel.commit()
