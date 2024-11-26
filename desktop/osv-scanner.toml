@@ -21,7 +21,7 @@ reason = "This package is only used to match paths from either us or trusted lib
 # micromatch (dev): Regular Expression Denial of Service (ReDoS) in micromatch
 [[IgnoredVulns]]
 id = "CVE-2024-4067" # GHSA-952p-6rrq-rcjv
-ignoreUntil = 2024-11-23
+ignoreUntil = 2025-02-23
 reason = "This is just a dev dependency, and we don't have untrusted input to micromatch there"
 
 # node-gettext: Prototype Pullution via the addTranslations function
