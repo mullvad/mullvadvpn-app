@@ -23,12 +23,12 @@ import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.VpnProfileUseCase
+import net.mullvad.mullvadvpn.lib.shared.PrepareVpnUseCase
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
     connectionProxy: ConnectionProxy,
-    vpnPermissionRepository: VpnProfileUseCase,
+    vpnPermissionRepository: PrepareVpnUseCase,
     deviceRepository: DeviceRepository,
     channelId: NotificationChannelId,
     scope: CoroutineScope,
@@ -50,7 +50,7 @@ class TunnelStateNotificationProvider(
                     tunnelState(
                         tunnelState,
                         actionAfterDisconnect,
-                        vpnPermissionRepository.prepareVpn().leftOrNull(),
+                        vpnPermissionRepository.invoke().leftOrNull(),
                     )
 
                 return@combine NotificationUpdate.Notify(

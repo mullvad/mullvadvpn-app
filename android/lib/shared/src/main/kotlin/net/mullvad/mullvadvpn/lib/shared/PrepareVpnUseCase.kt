@@ -6,6 +6,6 @@ import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 
-class VpnProfileUseCase(private val applicationContext: Context) {
-    fun prepareVpn(): Either<PrepareError, Prepared> = applicationContext.prepareVpnSafe()
+class PrepareVpnUseCase(private val applicationContext: Context) {
+    fun invoke(): Either<PrepareError, Prepared> = applicationContext.prepareVpnSafe()
 }
