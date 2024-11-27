@@ -2,10 +2,11 @@ use std::env;
 use std::io;
 use std::net::{IpAddr, Ipv4Addr};
 use std::ptr;
+use std::sync::LazyLock;
 
 use ipnetwork::IpNetwork;
 use libc::{c_int, sysctlbyname};
-use pfctl::{DropAction, FilterRuleAction, Ip, Uid};
+use pfctl::{DropAction, FilterRuleAction, Ip, RedirectRule, Uid};
 use subslice::SubsliceExt;
 use talpid_types::net::{
     AllowedEndpoint, AllowedTunnelTraffic, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
@@ -21,6 +22,27 @@ type Result<T> = std::result::Result<T, Error>;
 /// TODO(linus): This crate is not supposed to be Mullvad-aware. So at some point this should be
 /// replaced by allowing the anchor name to be configured from the public API of this crate.
 const ANCHOR_NAME: &str = "mullvad";
+
+/// If NAT firewall rules should be applied to force Apple services through the tunnel.
+///
+/// macOS versions 14.6 <= x < 15.1 were affected by a bug where Apple services tried to bypass the
+/// tunnel by going out on the physical interface instead. To mitigate this and force all traffic
+/// to go through the tunnel we added NAT filtering rules to redirect traffic all deviating traffic
+/// to the tunnel.
+///
+/// This is not something that we deem is necessary otherwise, and as such we disable NAT filtering
+/// on macOS versions that are unaffected by this naughty bug, but keep it were it is necessary for
+/// Apple services to function properly together with a VPN.
+pub static NAT_WORKAROUND: LazyLock<bool> = LazyLock::new(|| {
+    use talpid_platform_metadata::MacosVersion;
+    let version = MacosVersion::new().expect("Could not detect macOS version");
+    let v = |s| MacosVersion::from_raw_version(s).unwrap();
+    let apply_workaround = v("14.6") <= version && version < v("15.1");
+    if apply_workaround {
+        log::debug!("Using NAT redirect workaround");
+    };
+    apply_workaround
+});
 
 pub struct Firewall {
     pf: pfctl::PfCtl,
@@ -191,7 +213,9 @@ impl Firewall {
         anchor_change.set_scrub_rules(Self::get_scrub_rules()?);
         anchor_change.set_filter_rules(new_filter_rules);
         anchor_change.set_redirect_rules(self.get_dns_redirect_rules(policy)?);
-        anchor_change.set_nat_rules(self.get_nat_rules(policy)?);
+        if *NAT_WORKAROUND {
+            anchor_change.set_nat_rules(self.get_nat_rules(policy)?);
+        }
         self.pf.set_rules(ANCHOR_NAME, anchor_change)?;
 
         Ok(())
@@ -210,24 +234,44 @@ impl Firewall {
         &mut self,
         policy: &FirewallPolicy,
     ) -> Result<Vec<pfctl::RedirectRule>> {
-        let redirect_rules = match policy {
-            FirewallPolicy::Connected { dns_config, .. } if dns_config.is_loopback() => vec![],
-            FirewallPolicy::Blocked {
-                dns_redirect_port, ..
+        /// Redirect DNS requests to [port]. Technically this redirects UDP on port 53 to [port].
+        ///
+        /// For this to work as expected, please make sure a DNS resolver is running on [port].
+        fn redirect_dns_to(port: u16) -> Result<Vec<RedirectRule>> {
+            let redirect_dns = pfctl::RedirectRuleBuilder::default()
+                .action(pfctl::RedirectRuleAction::Redirect)
+                .interface("lo0")
+                .proto(pfctl::Proto::Udp)
+                .to(pfctl::Port::from(53))
+                .redirect_to(pfctl::Port::from(port))
+                .build()?;
+            Ok(vec![redirect_dns])
+        }
+
+        let redirect_rules = if *crate::resolver::LOCAL_DNS_RESOLVER {
+            match policy {
+                FirewallPolicy::Connected { dns_config, .. } if dns_config.is_loopback() => {
+                    vec![]
+                }
+                FirewallPolicy::Blocked {
+                    dns_redirect_port, ..
+                }
+                | FirewallPolicy::Connecting {
+                    dns_redirect_port, ..
+                }
+                | FirewallPolicy::Connected {
+                    dns_redirect_port, ..
+                } => redirect_dns_to(*dns_redirect_port)?,
             }
-            | FirewallPolicy::Connecting {
-                dns_redirect_port, ..
-            }
-            | FirewallPolicy::Connected {
-                dns_redirect_port, ..
-            } => {
-                vec![pfctl::RedirectRuleBuilder::default()
-                    .action(pfctl::RedirectRuleAction::Redirect)
-                    .interface("lo0")
-                    .proto(pfctl::Proto::Udp)
-                    .to(pfctl::Port::from(53))
-                    .redirect_to(pfctl::Port::from(*dns_redirect_port))
-                    .build()?]
+        } else {
+            // Only apply redirect rules in the blocked state if we should *not* use our local DNS
+            // resolver, since it will be running in the blocked state to work with Apple's captive
+            // portal check.
+            match policy {
+                FirewallPolicy::Blocked {
+                    dns_redirect_port, ..
+                } => redirect_dns_to(*dns_redirect_port)?,
+                FirewallPolicy::Connecting { .. } | FirewallPolicy::Connected { .. } => vec![],
             }
         };
         Ok(redirect_rules)
@@ -404,7 +448,9 @@ impl Firewall {
                         &mut self.get_split_tunnel_rules(&tunnel.interface, redirect_interface)?,
                     );
                 } else {
-                    rules.push(self.route_everything_to(&tunnel.interface)?);
+                    if *NAT_WORKAROUND {
+                        rules.push(self.route_everything_to(&tunnel.interface)?);
+                    }
                     rules.extend(self.get_allow_tunnel_rules(
                         tunnel.interface.as_str(),
                         &AllowedTunnelTraffic::All,
@@ -918,8 +964,10 @@ impl Firewall {
     fn add_anchor(&mut self) -> Result<()> {
         self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Scrub)?;
-        self.pf
-            .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Nat)?;
+        if *NAT_WORKAROUND {
+            self.pf
+                .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Nat)?;
+        }
         self.pf
             .try_add_anchor(ANCHOR_NAME, pfctl::AnchorKind::Filter)?;
         self.pf
@@ -930,8 +978,10 @@ impl Firewall {
     fn remove_anchor(&mut self) -> Result<()> {
         self.pf
             .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Scrub)?;
-        self.pf
-            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Nat)?;
+        // Opportunistically remove Nat anchor.
+        let _ = self
+            .pf
+            .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Nat);
         self.pf
             .try_remove_anchor(ANCHOR_NAME, pfctl::AnchorKind::Redirect)?;
         self.pf
