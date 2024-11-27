@@ -40,10 +40,10 @@
 		06799AFC28F98EE300ACD94E /* AddressCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 06AC114128F8413A0037AF9A /* AddressCache.swift */; };
 		0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0697D6E628F01513007A9E99 /* TransportMonitor.swift */; };
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
-		44075DFB2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */; };
+		44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */; };
 		440E5AB02CDBD67D00B09614 /* StatefulPreviewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */; };
 		440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */; };
-		4422C0712CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */; };
+		4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */; };
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
 		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
 		447F3D8B2CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */; };
@@ -1398,10 +1398,10 @@
 		06FAE67A28F83CA50033DD93 /* RESTDevicesProxy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTDevicesProxy.swift; sourceTree = "<group>"; };
 		06FAE67B28F83CA50033DD93 /* REST.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = REST.swift; sourceTree = "<group>"; };
 		06FAE67D28F83CA50033DD93 /* RESTTransport.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RESTTransport.swift; sourceTree = "<group>"; };
-		44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPTCPObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
+		44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
 		440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationSettingsWatchingObservableObject.swift; sourceTree = "<group>"; };
-		4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
+		4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceList.swift; sourceTree = "<group>"; };
 		447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsView.swift; sourceTree = "<group>"; };
@@ -2617,8 +2617,8 @@
 				447F3D892CDE1853006E3462 /* ShadowsocksObfuscationSettingsView.swift */,
 				447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */,
 				440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */,
-				4422C0702CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift */,
-				44075DFA2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift */,
+				4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */,
+				44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */,
 			);
 			path = Obfuscation;
 			sourceTree = "<group>";
@@ -5684,9 +5684,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				44075DFB2CDA4F7400F61139 /* UDPTCPObfuscationSettingsViewModel.swift in Sources */,
+				44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */,
 				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,
-				4422C0712CCFF6790001A385 /* UDPTCPObfuscationSettingsView.swift in Sources */,
+				4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */,
 				7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */,
 				5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */,
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,

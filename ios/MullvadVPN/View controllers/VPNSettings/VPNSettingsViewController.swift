@@ -131,8 +131,8 @@ extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
     }
 
     private func showUDPOverTCPObfuscationSettings() {
-        let viewModel = TunnelUDPTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
-        let view = UDPTCPObfuscationSettingsView(viewModel: viewModel)
+        let viewModel = TunnelUDPOverTCPObfuscationSettingsViewModel(tunnelManager: interactor.tunnelManager)
+        let view = UDPOverTCPObfuscationSettingsView(viewModel: viewModel)
         let vc = UIHostingController(rootView: view)
         vc.title = NSLocalizedString(
             "UDP_OVER_TCP_TITLE",
