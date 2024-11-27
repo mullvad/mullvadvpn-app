@@ -620,7 +620,6 @@ impl Daemon {
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
-            #[cfg(not(target_os = "android"))]
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
