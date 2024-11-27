@@ -133,21 +133,6 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    @discardableResult func tapDaitaSwitch() -> Self {
-        app.cells[AccessibilityIdentifier.daitaSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-            .tap()
-        let promptIsShown = app
-            .otherElements[AccessibilityIdentifier.daitaPromptAlert.rawValue]
-            .waitForExistence(timeout: 1.0)
-
-        if promptIsShown {
-            DaitaPromptAlert(app)
-                .tapEnableAnyway()
-        }
-        return self
-    }
-
     @discardableResult func verifyCustomWireGuardPortSelected(portNumber: String) -> Self {
         let cell = app.cells[AccessibilityIdentifier.wireGuardCustomPort]
         XCTAssertTrue(cell.isSelected)
@@ -196,28 +181,6 @@ class VPNSettingsPage: Page {
         }
 
         XCTAssertEqual(switchValue, "1")
-        return self
-    }
-
-    @discardableResult func verifyDaitaSwitchOn() -> Self {
-        let switchElement = app.cells[.daitaSwitch]
-            .switches[AccessibilityIdentifier.customSwitch]
-
-        guard let switchValue = switchElement.value as? String else {
-            XCTFail("Failed to read switch state")
-            return self
-        }
-
-        XCTAssertEqual(switchValue, "1")
-        return self
-    }
-
-    @discardableResult func tapDaitaSwitchIfOn() -> Self {
-        let switchElement = app.cells[.daitaSwitch].switches[AccessibilityIdentifier.customSwitch]
-
-        if switchElement.value as? String == "1" {
-            tapDaitaSwitch()
-        }
         return self
     }
 
