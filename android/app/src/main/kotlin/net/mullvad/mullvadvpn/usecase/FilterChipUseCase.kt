@@ -39,7 +39,7 @@ class FilterChipUseCase(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,
                 allProviders = allProviders,
-                isDaitaEnabled = settings?.daitaAndDirectOnly() == true,
+                daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
                 isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                 relayListType = relayListType,
             )
@@ -49,7 +49,7 @@ class FilterChipUseCase(
         selectedOwnership: Constraint<Ownership>,
         selectedConstraintProviders: Constraint<Providers>,
         allProviders: List<Provider>,
-        isDaitaEnabled: Boolean,
+        daitaDirectOnly: Boolean,
         isMultihopEnabled: Boolean,
         relayListType: RelayListType,
     ): List<FilterChip> {
@@ -73,7 +73,7 @@ class FilterChipUseCase(
             }
             if (
                 shouldFilterByDaita(
-                    isDaitaEnabled = isDaitaEnabled,
+                    daitaDirectOnly = daitaDirectOnly,
                     relayListType = relayListType,
                     isMultihopEnabled = isMultihopEnabled,
                 )

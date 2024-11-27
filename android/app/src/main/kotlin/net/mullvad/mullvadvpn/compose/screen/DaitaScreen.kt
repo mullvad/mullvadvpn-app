@@ -71,7 +71,7 @@ fun Daita(
     DaitaScreen(
         state = state,
         onDaitaEnabled = viewModel::setDaita,
-        onDirectOnly = { enable ->
+        onDirectOnlyClick = { enable ->
             if (enable) {
                 navigator.navigate(DaitaDirectOnlyConfirmationDestination)
             } else {
@@ -88,7 +88,7 @@ fun Daita(
 fun DaitaScreen(
     state: DaitaUiState,
     onDaitaEnabled: (enable: Boolean) -> Unit = {},
-    onDirectOnly: (enable: Boolean) -> Unit = {},
+    onDirectOnlyClick: (enable: Boolean) -> Unit = {},
     onDirectOnlyInfoClick: () -> Unit = {},
     onBackClick: () -> Unit = {},
 ) {
@@ -110,7 +110,7 @@ fun DaitaScreen(
                 title = stringResource(R.string.direct_only),
                 isToggled = state.directOnly,
                 isEnabled = state.daitaEnabled,
-                onCellClicked = onDirectOnly,
+                onCellClicked = onDirectOnlyClick,
                 onInfoClicked = onDirectOnlyInfoClick,
             )
         }
