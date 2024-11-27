@@ -292,6 +292,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             }
         }
     }
+    // swiftlint:enable function_body_length
 
     private func subtitleRow(_ text: String) -> some View {
         HStack {
@@ -340,6 +341,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         }
     }
 }
+// swiftlint:enable function_parameter_count
+
 
 #Preview("Static values") {
     StatefulPreviewWrapper(1) { SingleChoiceList(title: "Test", options: [1, 2, 3], value: $0) }
