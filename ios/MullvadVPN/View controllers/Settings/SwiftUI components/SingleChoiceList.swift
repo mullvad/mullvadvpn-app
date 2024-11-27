@@ -229,7 +229,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             .multilineTextAlignment(
                 customFieldMode == .numericText
                     ? .trailing
-                    : .leading/*@END_MENU_TOKEN@*/
+                    : .leading
             )
             .frame(minWidth: inputWidth, maxWidth: .infinity)
             .fixedSize()
