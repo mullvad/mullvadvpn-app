@@ -49,6 +49,8 @@ import SwiftUI
   ```
   */
 
+// swiftlint:disable function_parameter_count
+
 struct SingleChoiceList<Value>: View where Value: Equatable {
     let title: String
     private let options: [OptionSpec]
@@ -203,6 +205,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     }
 
     // Construct the one row with a custom input field for a custom value
+    // swiftlint:disable function_body_length
     private func customRow(
         label: String,
         prompt: String,
@@ -256,7 +259,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                     )
             )
             .focused($customValueIsFocused)
-            .onChange(of: customValueInput) { newValue in
+            .onChange(of: customValueInput) { _ in
                 if let maxInputLength {
                     if customValueInput.count > maxInputLength {
                         customValueInput = String(customValueInput.prefix(maxInputLength))
