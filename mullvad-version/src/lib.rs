@@ -2,7 +2,7 @@ use std::fmt::Display;
 use std::str::FromStr;
 use std::sync::LazyLock;
 
-use crate::VersionType::{Alpha, Beta};
+use crate::PreStableType::{Alpha, Beta};
 use regex::Regex;
 
 /// The Mullvad VPN app product version
@@ -12,15 +12,15 @@ pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-versio
 pub struct Version {
     pub year: String,
     pub incremental: String,
-    /// A version can have an optional type, e.g. alpha or beta. If `version_type` and `dev`
-    /// both are None the version is stable.
-    pub version_type: Option<VersionType>,
+    /// A version can have an optional pre-stable type, e.g. alpha or beta. If `pre_stable`
+    /// and `dev` both are None the version is stable.
+    pub pre_stable: Option<PreStableType>,
     /// All versions may have an optional -dev-[commit hash] suffix.
     pub dev: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq)]
-pub enum VersionType {
+pub enum PreStableType {
     Alpha(String),
     Beta(String),
 }
@@ -31,19 +31,19 @@ impl Version {
     }
 
     pub fn is_stable(&self) -> bool {
-        self.version_type.is_none() && self.dev.is_none()
+        self.pre_stable.is_none() && self.dev.is_none()
     }
 
     pub fn alpha(&self) -> Option<&str> {
-        match &self.version_type {
-            Some(VersionType::Alpha(v)) => Some(v),
+        match &self.pre_stable {
+            Some(PreStableType::Alpha(v)) => Some(v),
             _ => None,
         }
     }
 
     pub fn beta(&self) -> Option<&str> {
-        match &self.version_type {
-            Some(VersionType::Beta(beta)) => Some(beta),
+        match &self.pre_stable {
+            Some(PreStableType::Beta(beta)) => Some(beta),
             _ => None,
         }
     }
@@ -55,15 +55,15 @@ impl Display for Version {
         let Version {
             year,
             incremental,
-            version_type,
+            pre_stable: version_type,
             dev,
         } = &self;
 
         write!(f, "{year}.{incremental}")?;
 
         match version_type {
-            Some(VersionType::Alpha(version)) => write!(f, "-alpha{version}")?,
-            Some(VersionType::Beta(version)) => write!(f, "-beta{version}")?,
+            Some(PreStableType::Alpha(version)) => write!(f, "-alpha{version}")?,
+            Some(PreStableType::Beta(version)) => write!(f, "-beta{version}")?,
             None => (),
         };
 
@@ -126,7 +126,7 @@ impl FromStr for Version {
         Ok(Version {
             year,
             incremental,
-            version_type,
+            pre_stable: version_type,
             dev,
         })
     }

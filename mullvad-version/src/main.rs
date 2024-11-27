@@ -1,4 +1,4 @@
-use mullvad_version::{Version, VersionType};
+use mullvad_version::{PreStableType, Version};
 use std::{env, process::exit};
 
 const ANDROID_VERSION: &str =
@@ -60,9 +60,9 @@ fn to_android_version_code(version: &str) -> String {
     let (build_type, build_number) = if version.dev.is_some() {
         ("9", "000")
     } else {
-        match &version.version_type {
-            Some(VersionType::Alpha(v)) => ("0", v.as_str()),
-            Some(VersionType::Beta(v)) => ("1", v.as_str()),
+        match &version.pre_stable {
+            Some(PreStableType::Alpha(v)) => ("0", v.as_str()),
+            Some(PreStableType::Beta(v)) => ("1", v.as_str()),
             // Stable version
             None => ("9", "000"),
         }
@@ -74,31 +74,30 @@ fn to_android_version_code(version: &str) -> String {
     )
 }
 
-/// On Windows we do not support alpha versions for now, so this function will panic
-/// if the parsed version is an alpha version.
-fn to_windows_h_format(version: &str) -> String {
-    let Version {
-        year,
-        incremental,
-        version_type,
-        ..
-    } = Version::parse(version);
-
+fn to_windows_h_format(version_str: &str) -> String {
+    let version = Version::parse(version_str);
     assert!(
-        is_valid_windows_version(&version_type),
-        "Invalid Windows version type: {version_type:?}"
+        is_valid_windows_version(&version),
+        "Invalid Windows version: {version:?}"
     );
+
+    let Version {
+        year, incremental, ..
+    } = version;
 
     format!(
         "#define MAJOR_VERSION 20{year}
 #define MINOR_VERSION {incremental}
 #define PATCH_VERSION 0
-#define PRODUCT_VERSION \"{version}\""
+#define PRODUCT_VERSION \"{version_str}\""
     )
 }
 
-fn is_valid_windows_version(version_type: &Option<VersionType>) -> bool {
-    matches!(version_type, None | Some(VersionType::Beta(_)))
+/// On Windows we currently support the following versions: stable, beta and dev.
+fn is_valid_windows_version(version: &Version) -> bool {
+    version.is_stable()
+        || version.beta().is_some()
+        || (version.dev.is_some() && version.alpha().is_none())
 }
 
 #[cfg(test)]
