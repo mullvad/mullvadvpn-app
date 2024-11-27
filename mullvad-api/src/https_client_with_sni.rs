@@ -2,7 +2,7 @@ use crate::{
     abortable_stream::{AbortableStream, AbortableStreamHandle},
     proxy::{ApiConnection, ApiConnectionMode, ProxyConfig},
     tls_stream::TlsStream,
-    AddressCache, DnsResolver,
+    DnsResolver,
 };
 use futures::{channel::mpsc, future, pin_mut, StreamExt};
 #[cfg(target_os = "android")]
@@ -287,7 +287,6 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
 pub struct HttpsConnectorWithSni {
     inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
     sni_hostname: Option<String>,
-    address_cache: AddressCache,
     abort_notify: Arc<tokio::sync::Notify>,
     dns_resolver: Arc<dyn DnsResolver>,
     #[cfg(target_os = "android")]
@@ -305,7 +304,6 @@ pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 impl HttpsConnectorWithSni {
     pub fn new(
         sni_hostname: Option<String>,
-        address_cache: AddressCache,
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> (Self, HttpsConnectorWithSniHandle) {
@@ -353,7 +351,6 @@ impl HttpsConnectorWithSni {
             HttpsConnectorWithSni {
                 inner,
                 sni_hostname,
-                address_cache,
                 abort_notify,
                 dns_resolver,
                 #[cfg(target_os = "android")]
@@ -390,13 +387,9 @@ impl HttpsConnectorWithSni {
     }
 
     /// Resolve the provided `uri` to an IP and port. If the URI contains an IP, that IP will be used.
-    /// Otherwise `address_cache` will be preferred, and `dns_resolver` will be used as a fallback.
+    /// Otherwise `dns_resolver` will be used as a fallback.
     /// If the URI contains a port, then that port will be used.
-    async fn resolve_address(
-        address_cache: AddressCache,
-        dns_resolver: &dyn DnsResolver,
-        uri: Uri,
-    ) -> io::Result<SocketAddr> {
+    async fn resolve_address(dns_resolver: &dyn DnsResolver, uri: Uri) -> io::Result<SocketAddr> {
         const DEFAULT_PORT: u16 = 443;
 
         let hostname = uri.host().ok_or_else(|| {
@@ -407,22 +400,16 @@ impl HttpsConnectorWithSni {
             return Ok(SocketAddr::new(addr, port.unwrap_or(DEFAULT_PORT)));
         }
 
-        // Preferentially, use cached address.
-        //
-        if let Some(addr) = address_cache.resolve_hostname(hostname).await {
-            return Ok(SocketAddr::new(
-                addr.ip(),
-                port.unwrap_or_else(|| addr.port()),
-            ));
-        }
-
-        // Use DNS resolution as fallback
-        //
         let addrs = dns_resolver.resolve(hostname.to_owned()).await?;
         let addr = addrs
             .first()
             .ok_or_else(|| io::Error::new(io::ErrorKind::Other, "Empty DNS response"))?;
-        Ok(SocketAddr::new(*addr, port.unwrap_or(DEFAULT_PORT)))
+        let port = match (addr.port(), port) {
+            (_, Some(port)) => port,
+            (0, None) => DEFAULT_PORT,
+            (addr_port, None) => addr_port,
+        };
+        Ok(SocketAddr::new(addr.ip(), port))
     }
 }
 
@@ -456,7 +443,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
         let abort_notify = self.abort_notify.clone();
         #[cfg(target_os = "android")]
         let socket_bypass_tx = self.socket_bypass_tx.clone();
-        let address_cache = self.address_cache.clone();
         let dns_resolver = self.dns_resolver.clone();
 
         let fut = async move {
@@ -468,7 +454,7 @@ impl Service<Uri> for HttpsConnectorWithSni {
             }
 
             let hostname = sni_hostname?;
-            let addr = Self::resolve_address(address_cache, &*dns_resolver, uri).await?;
+            let addr = Self::resolve_address(&*dns_resolver, uri).await?;
 
             // Loop until we have established a connection. This starts over if a new endpoint
             // is selected while connecting.

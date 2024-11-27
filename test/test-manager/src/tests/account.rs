@@ -295,11 +295,8 @@ pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
         ..api_endpoint
     });
 
-    let api = mullvad_api::Runtime::new(
-        tokio::runtime::Handle::current(),
-        mullvad_api::DefaultDnsResolver,
-    )
-    .expect("failed to create api runtime");
+    let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current())
+        .expect("failed to create api runtime");
     let rest_handle = api.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider());
     Ok(DevicesProxy::new(rest_handle))
 }

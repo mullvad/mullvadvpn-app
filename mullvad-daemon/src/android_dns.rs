@@ -7,7 +7,7 @@ use hickory_resolver::{
     TokioAsyncResolver,
 };
 use mullvad_api::DnsResolver;
-use std::{io, net::IpAddr};
+use std::{io, net::SocketAddr};
 use talpid_core::connectivity_listener::ConnectivityListener;
 
 /// A non-blocking DNS resolver. The default resolver uses `getaddrinfo`, which often prevents the
@@ -27,7 +27,7 @@ impl AndroidDnsResolver {
 
 #[async_trait]
 impl DnsResolver for AndroidDnsResolver {
-    async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>> {
+    async fn resolve(&self, host: String) -> io::Result<Vec<SocketAddr>> {
         let ips = self
             .connectivity_listener
             .current_dns_servers()
@@ -44,6 +44,6 @@ impl DnsResolver for AndroidDnsResolver {
             .await
             .map_err(|err| io::Error::other(format!("lookup_ip failed: {err}")))?;
 
-        Ok(lookup.into_iter().collect())
+        Ok(lookup.into_iter().map(|ip| (ip, 0).into()).collect())
     }
 }
