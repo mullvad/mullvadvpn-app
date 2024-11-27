@@ -229,16 +229,21 @@ it very difficult to properly secure them.
 
 ### Android exposes in-tunnel VPN IPs to network adjacent attackers via ARP
 
-By default the `arp_ignore` setting is set to `0` on Android. This makes the device reply to ARP
-requests for any local target IP address, configured on any interface. This means that any network
-adjacent attacker (same LAN) can figure out the IP address configured on the VPN tunnel interface
-by simply sending a lot of ARP requests on LAN. This is a system setting and the Mullvad VPN app
-has no permission to change this behaviour.
+By default the kernel paramter `arp_ignore` is set to `0` on Android. This makes the device reply
+to ARP requests for any local target IP address, configured on any interface. This means that any
+network adjacent attacker (same LAN) can figure out the IP address configured on the VPN tunnel
+interface by simply sending a lot of ARP requests on LAN. This is a system setting and the Mullvad
+VPN app has no permission to change this behaviour.
 
-Most Android devices are affected since this is the default behaviour. It has been reported
-upstream to Google, and we wait for their response.
+All Android devices that we know of are are affected and it is the default behaviour of Android.
+We've reported upstream to Google, and we wait for their response.
+
+We consider this a low severity issue. The in-tunnel IP is not considered a secret and an attacker
+would have to be on the same LAN to disclose it. Users that are worried can login & logout of
+their account in order to rotate the IP to a new one.
 
 #### Timeline
-* November 12 ###!!!CHECK DATE!!!###, 2024 - Auditors reported ARP issue on Linux, MLLVD-CR-24-03.
+* November 6, 2024 - Auditors reported ARP issue on Linux, later classified as MLLVD-CR-24-03.
+* November 13, 2024 - Mullvad engineers were able to reproduce the issue on Android.
 * November 14, 2024 - [Issue reported upstream to Google.](https://issuetracker.google.com/issues/378814597)
 
