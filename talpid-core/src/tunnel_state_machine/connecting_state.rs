@@ -4,7 +4,9 @@ use super::{
     TunnelStateTransition,
 };
 use crate::{
+    dns::DnsConfig,
     firewall::FirewallPolicy,
+    resolver::LOCAL_DNS_RESOLVER,
     tunnel::{self, TunnelMonitor},
 };
 use futures::{
@@ -57,17 +59,23 @@ impl ConnectingState {
         retry_attempt: u32,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
         #[cfg(target_os = "macos")]
-        if let Err(err) = shared_values.dns_monitor.set(
-            "lo",
-            crate::dns::DnsConfig::default().resolve(
+        if *LOCAL_DNS_RESOLVER {
+            // Set system DNS to our local DNS resolver
+            let system_dns = DnsConfig::default().resolve(
                 &[std::net::Ipv4Addr::LOCALHOST.into()],
                 shared_values.filtering_resolver.listening_port(),
-            ),
-        ) {
-            log::error!(
-                "{}",
-                err.display_chain_with_msg("Failed to configure system to use filtering resolver")
             );
+            let _ = shared_values
+                .dns_monitor
+                .set("lo", system_dns)
+                .inspect_err(|err| {
+                    log::error!(
+                        "{}",
+                        err.display_chain_with_msg(
+                            "Failed to configure system to use filtering resolver"
+                        )
+                    );
+                });
         }
 
         if shared_values.connectivity.is_offline() {
