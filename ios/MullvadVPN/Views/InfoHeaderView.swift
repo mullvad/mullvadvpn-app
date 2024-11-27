@@ -23,7 +23,6 @@ class InfoHeaderView: UIView, UITextViewDelegate {
         super.init(frame: .zero)
 
         textView.backgroundColor = .clear
-        textView.dataDetectorTypes = .link
         textView.isSelectable = true
         textView.isEditable = false
         textView.isScrollEnabled = false
@@ -32,11 +31,13 @@ class InfoHeaderView: UIView, UITextViewDelegate {
         textView.attributedText = makeAttributedString()
         textView.linkTextAttributes = defaultLinkAttributes
         textView.textContainer.lineFragmentPadding = 0
+        textView.isSelectable = false
         textView.delegate = self
 
         directionalLayoutMargins = .zero
 
         addSubviews()
+        addTapGestureRecognizer()
     }
 
     required init?(coder: NSCoder) {
@@ -78,29 +79,13 @@ class InfoHeaderView: UIView, UITextViewDelegate {
         }
     }
 
-    func textView(
-        _ textView: UITextView,
-        shouldInteractWith URL: URL,
-        in characterRange: NSRange,
-        interaction: UITextItemInteraction
-    ) -> Bool {
+    private func addTapGestureRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap))
+        textView.addGestureRecognizer(tapGesture)
+    }
+
+    @objc
+    private func handleTextViewTap() {
         onAbout?()
-        return false
-    }
-
-    @available(iOS 17.0, *)
-    func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem
-        .MenuConfiguration? {
-        return nil
-    }
-
-    @available(iOS 17.0, *)
-    func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
-        if case .link = textItem.content {
-            return UIAction { [weak self] _ in
-                self?.onAbout?()
-            }
-        }
-        return nil
     }
 }
