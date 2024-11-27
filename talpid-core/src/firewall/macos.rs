@@ -33,7 +33,7 @@ impl Firewall {
 
     pub fn new() -> Result<Self> {
         // Allows controlling whether firewall rules should log to pflog0. Useful for debugging the
-        // rules.
+        // rules. The firewall rules can be inspected by running `tcpdump -netttti pflog0`.
         let firewall_debugging = env::var("TALPID_FIREWALL_DEBUG");
         let rule_logging = match firewall_debugging.as_ref().map(String::as_str) {
             Ok("pass") => RuleLogging::Pass,
