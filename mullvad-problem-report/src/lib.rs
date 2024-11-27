@@ -1,4 +1,4 @@
-use mullvad_api::{proxy::ApiConnectionMode, NullDnsResolver};
+use mullvad_api::proxy::ApiConnectionMode;
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -292,7 +292,6 @@ async fn send_problem_report_inner(
 ) -> Result<(), Error> {
     let metadata = ProblemReport::parse_metadata(report_content).unwrap_or_else(metadata::collect);
     let api_runtime = mullvad_api::Runtime::with_cache(
-        NullDnsResolver,
         cache_dir,
         false,
         #[cfg(target_os = "android")]
