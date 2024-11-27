@@ -31,30 +31,28 @@ pub struct AddressCache {
 
 impl AddressCache {
     /// Initialize cache using the hardcoded address, and write changes to `write_path`.
-    pub fn new(write_path: Option<Box<Path>>) -> Result<Self, Error> {
+    pub fn new(write_path: Option<Box<Path>>) -> Self {
         Self::new_inner(API.address(), write_path)
     }
 
     pub fn with_static_addr(address: SocketAddr) -> Self {
         Self::new_inner(address, None)
-            .expect("Failed to construct an address cache from a static address")
     }
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
     pub async fn from_file(read_path: &Path, write_path: Option<Box<Path>>) -> Result<Self, Error> {
         log::debug!("Loading API addresses from {}", read_path.display());
-        Self::new_inner(read_address_file(read_path).await?, write_path)
+        Ok(Self::new_inner(read_address_file(read_path).await?, write_path))
     }
 
-    fn new_inner(address: SocketAddr, write_path: Option<Box<Path>>) -> Result<Self, Error> {
+    fn new_inner(address: SocketAddr, write_path: Option<Box<Path>>) -> Self {
         let cache = AddressCacheInner::from_address(address);
         log::debug!("Using API address: {}", cache.address);
 
-        let address_cache = Self {
+        Self {
             inner: Arc::new(Mutex::new(cache)),
             write_path: write_path.map(Arc::from),
-        };
-        Ok(address_cache)
+        }
     }
 
     /// Returns the address if the hostname equals `API.host`. Otherwise, returns `None`.
