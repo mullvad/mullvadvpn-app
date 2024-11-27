@@ -56,10 +56,13 @@ data class Dimensions(
     val relayCircleSize: Dp = 16.dp,
     val screenVerticalMargin: Dp = 22.dp,
     val searchFieldHeight: Dp = 42.dp,
+    // Search view full screen header container height (material design guidelines)
+    val searchFieldHeightExpanded: Dp = 72.dp,
     val searchFieldHorizontalPadding: Dp = 22.dp,
     val searchIconSize: Dp = 24.dp,
     val selectLocationTitlePadding: Dp = 12.dp,
     val selectableCellTextMargin: Dp = 12.dp,
+    val settingsDetailsImageMaxWidth: Dp = 480.dp,
     val sideMargin: Dp = 22.dp,
     val smallIconSize: Dp = 16.dp,
     val smallPadding: Dp = 8.dp,

@@ -132,9 +132,11 @@
     <string name="enable_method">Methode aktivieren</string>
     <string name="enter_value_placeholder">MTU eingeben</string>
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
+    <string name="entry">Eingang</string>
     <string name="error_occurred">Ein Fehler ist aufgetreten.</string>
     <string name="error_state">SICHERE VERBINDUNG KONNTE NICHT HERGESTELLT WERDEN</string>
     <string name="exclude_applications">Ausgeschlossene Anwendungen</string>
+    <string name="exit">Ausgang</string>
     <string name="failed_to_block_internet">Der Netzwerk-Traffic konnte nicht gänzlich blockiert werden. Bitte beheben Sie den Fehler oder senden Sie einen Problembericht.</string>
     <string name="failed_to_create_account">Konto konnte nicht erstellt werden</string>
     <string name="failed_to_fetch_devices">Fehler beim Abrufen der Geräteliste</string>
@@ -152,7 +154,6 @@
     <string name="feature_server_ip_override">Server-IP überschreiben</string>
     <string name="feature_udp_2_tcp">Verschleierung</string>
     <string name="filter">Filter</string>
-    <string name="filtered">Gefiltert:</string>
     <string name="foreground_notification_channel_description">Zeigt den aktuellen Status des VPN-Tunnels an</string>
     <string name="foreground_notification_channel_name">Status des VPN-Tunnels</string>
     <string name="go_to_login">Zur Anmeldung</string>
@@ -199,6 +200,8 @@
     <string name="max_devices_warning_title">Zu viele Geräte</string>
     <string name="more_information">Weitere Informationen</string>
     <string name="mullvad_owned_only">Nur im Besitz von Mullvad</string>
+    <string name="multihop">Multihop</string>
+    <string name="multihop_description">Multihop leitet Ihren Traffic in einen WireGuard-Server hinein und aus einem anderen heraus, so dass er schwerer zu verfolgen ist. Dies führt zu einer erhöhten Latenzzeit, erhöht aber die Anonymität im Internet.</string>
     <string name="name">Name</string>
     <string name="name_was_changed_to">Name wurde geändert in %1$s</string>
     <string name="new_device_notification_message">Dieses Gerät heißt jetzt &lt;b&gt;%1$s&lt;/b&gt;. Weitere Details finden Sie über die Info-Schaltfläche in Ihrem Konto.</string>
@@ -259,8 +262,6 @@
     <string name="save">Speichern</string>
     <string name="search_placeholder">Suchen nach …</string>
     <string name="select_location">Ort auswählen</string>
-    <string name="select_location_empty_text_first_row">Keine Ergebnisse für &lt;b&gt;%1$s&lt;/b&gt;.</string>
-    <string name="select_location_empty_text_second_row">Versuchen Sie es mit einer anderen Suchanfrage.</string>
     <string name="send">Senden</string>
     <string name="send_anyway">Trotzdem senden</string>
     <string name="sending">Wird gesendet...</string>
@@ -342,4 +343,5 @@
     <string name="wireguard_port_info_description">Die automatische Einstellung wählt zufällig aus den unten gezeigten gültigen Portbereichen.</string>
     <string name="wireguard_port_info_port_range">Der benutzerdefinierte Port kann ein beliebiger Wert innerhalb dieser gültigen Bereiche sein: %1$s.</string>
     <string name="wireguard_port_title">WireGuard-Port</string>
+    <string name="x_via_x">%1$s über %2$s</string>
 </resources>

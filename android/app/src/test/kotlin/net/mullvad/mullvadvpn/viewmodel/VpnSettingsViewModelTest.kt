@@ -189,7 +189,7 @@ class VpnSettingsViewModelTest {
             val wireguardConstraints =
                 WireguardConstraints(
                     port = wireguardPort,
-                    useMultihop = false,
+                    isMultihopEnabled = false,
                     entryLocation = Constraint.Any,
                 )
             coEvery { mockWireguardConstraintsRepository.setWireguardPort(any()) } returns

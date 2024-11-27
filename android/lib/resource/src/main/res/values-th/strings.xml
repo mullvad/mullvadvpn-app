@@ -132,9 +132,11 @@
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
     <string name="enter_value_placeholder">ป้อน MTU</string>
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
+    <string name="entry">เข้า</string>
     <string name="error_occurred">เกิดข้อผิดพลาดขึ้น</string>
     <string name="error_state">ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้</string>
     <string name="exclude_applications">แอปพลิเคชันที่แยกออก</string>
+    <string name="exit">ออก</string>
     <string name="failed_to_block_internet">ไม่สามารถบล็อกการรับส่งข้อมูลทางเครือข่ายทั้งหมดได้ โปรดแก้ไขปัญหาหรือส่งรายงานปัญหา</string>
     <string name="failed_to_create_account">ไม่สามารถสร้างบัญชีได้</string>
     <string name="failed_to_fetch_devices">ไม่สามารถดึงรายการอุปกรณ์มาได้</string>
@@ -152,7 +154,6 @@
     <string name="feature_server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
     <string name="feature_udp_2_tcp">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="filter">ตัวกรอง</string>
-    <string name="filtered">กรอง:</string>
     <string name="foreground_notification_channel_description">แสดงสถานะอุโมงค์ VPN ในปัจจุบัน</string>
     <string name="foreground_notification_channel_name">สถานะอุโมงค์ VPN</string>
     <string name="go_to_login">ไปเข้าสู่ระบบ</string>
@@ -199,6 +200,8 @@
     <string name="max_devices_warning_title">มีอุปกรณ์มากเกินไป</string>
     <string name="more_information">ข้อมูลเพิ่มเติม</string>
     <string name="mullvad_owned_only">ของ Mullvad เท่านั้น</string>
+    <string name="multihop">มัลติฮอป</string>
+    <string name="multihop_description">มัลติฮอปจะกำหนดเส้นทางการรับส่งข้อมูลของคุณ ไปยังหนึ่งในเซิร์ฟเวอร์ WireGuard และออกไปยังอีกเซิร์ฟเวอร์หนึ่ง ซึ่งทำให้ติดตามได้ยากขึ้น นี่จะส่งผลให้มีเวลาแฝงเพิ่มขึ้น แต่ก็จะช่วยปกปิดตัวตนออนไลน์ได้มากขึ้น</string>
     <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
     <string name="new_device_notification_message">ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี</string>
@@ -259,8 +262,6 @@
     <string name="save">บันทึก</string>
     <string name="search_placeholder">ค้นหา…</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
-    <string name="select_location_empty_text_first_row">ไม่มีผลลัพธ์สำหรับ &lt;b&gt;%1$s&lt;/b&gt;</string>
-    <string name="select_location_empty_text_second_row">ลองใช้การค้นหาอื่น</string>
     <string name="send">ส่ง</string>
     <string name="send_anyway">ส่งต่อไป</string>
     <string name="sending">กำลังส่ง...</string>
@@ -342,4 +343,5 @@
     <string name="wireguard_port_info_description">การตั้งค่าอัตโนมัติจะเป็นการสุ่มเลือกจากช่วงพอร์ตที่ใช้งานได้ต่างๆ ซึ่งแสดงอยู่ด้านล่าง</string>
     <string name="wireguard_port_info_port_range">พอร์ตแบบกำหนดเองอาจมีค่าใดๆ ก็ได้ ภายในช่วงที่ใช้งานได้: %1$s</string>
     <string name="wireguard_port_title">พอร์ต WireGuard</string>
+    <string name="x_via_x">%1$s ผ่าน %2$s</string>
 </resources>

@@ -132,9 +132,11 @@
     <string name="enable_method">Yöntemi etkinleştir</string>
     <string name="enter_value_placeholder">MTU\'yu girin</string>
     <string name="enter_voucher_code">Kupon kodunu girin</string>
+    <string name="entry">Giriş</string>
     <string name="error_occurred">Bir hata oluştu.</string>
     <string name="error_state">GÜVENLİ BAĞLANTI OLUŞTURULAMADI</string>
     <string name="exclude_applications">Hariç tutulan uygulamalar</string>
+    <string name="exit">Çıkış</string>
     <string name="failed_to_block_internet">Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin.</string>
     <string name="failed_to_create_account">Hesap oluşturulamadı</string>
     <string name="failed_to_fetch_devices">Cihaz listesi alınamadı</string>
@@ -152,7 +154,6 @@
     <string name="feature_server_ip_override">Sunucu IP\'sini geçersiz kılma</string>
     <string name="feature_udp_2_tcp">Gizleme</string>
     <string name="filter">Filtrele</string>
-    <string name="filtered">Filtrelendi:</string>
     <string name="foreground_notification_channel_description">Mevcut VPN tünelinin durumunu gösterir</string>
     <string name="foreground_notification_channel_name">VPN tüneli durumu</string>
     <string name="go_to_login">Giriş sayfasına git</string>
@@ -199,6 +200,8 @@
     <string name="max_devices_warning_title">Cihaz sayısı çok fazla</string>
     <string name="more_information">Daha fazla bilgi</string>
     <string name="mullvad_owned_only">Sadece Mullvad\'a ait olanlar</string>
+    <string name="multihop">Çoklu geçiş</string>
+    <string name="multihop_description">Çoklu geçiş, trafiğinizi bir WireGuard sunucusundan diğerine yönlendirerek izlemeyi zorlaştırır. Bu, gecikmenin artmasına neden olur ancak çevrimiçi gizliliği artırır.</string>
     <string name="name">Ad</string>
     <string name="name_was_changed_to">Ad, %1$s olarak değiştirildi</string>
     <string name="new_device_notification_message">Hoş geldiniz, bu cihazın adı artık &lt;b&gt;%1$s&lt;/b&gt;. Daha fazla ayrıntı için Hesap içinden bilgi düğmesine bakın.</string>
@@ -259,8 +262,6 @@
     <string name="save">Kaydet</string>
     <string name="search_placeholder">Ara...</string>
     <string name="select_location">Konum seçin</string>
-    <string name="select_location_empty_text_first_row">&lt;b&gt;%1$s&lt;/b&gt; için sonuç bulunamadı.</string>
-    <string name="select_location_empty_text_second_row">Farklı bir arama deneyin.</string>
     <string name="send">Gönder</string>
     <string name="send_anyway">Yine de gönder</string>
     <string name="sending">Gönderiliyor...</string>
@@ -342,4 +343,5 @@
     <string name="wireguard_port_info_description">Otomatik ayar, aşağıda gösterilen geçerli port aralıklarından rastgele seçim yapar.</string>
     <string name="wireguard_port_info_port_range">Özel port, geçerli aralıklar içindeki herhangi bir değer olabilir: %1$s.</string>
     <string name="wireguard_port_title">WireGuard portu</string>
+    <string name="x_via_x">%1$s aracılığıyla %2$s</string>
 </resources>
