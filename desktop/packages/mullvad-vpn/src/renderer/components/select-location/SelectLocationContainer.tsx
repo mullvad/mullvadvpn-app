@@ -1,6 +1,7 @@
 import React, { useContext, useMemo, useState } from 'react';
 
 import useActions from '../../lib/actionsHook';
+import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
 import { useSelector } from '../../redux/store';
 import userInterface from '../../redux/userinterface/actions';
 import { RelayListContextProvider } from './RelayListContext';
@@ -23,12 +24,25 @@ export function useSelectLocationContext() {
 }
 
 export default function SelectLocationContainer() {
-  const locationType = useSelector((state) => state.userInterface.selectLocationView);
+  const locationTypeSelector = useSelector((state) => state.userInterface.selectLocationView);
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = useState('');
+  const relaySettings = useNormalRelaySettings();
+
+  const locationType = useMemo(() => {
+    if (relaySettings?.wireguard.useMultihop) {
+      return locationTypeSelector;
+    }
+    return LocationType.exit;
+  }, [locationTypeSelector, relaySettings]);
 
   const value = useMemo(
-    () => ({ locationType, setLocationType: setSelectLocationView, searchTerm, setSearchTerm }),
+    () => ({
+      locationType,
+      setLocationType: setSelectLocationView,
+      searchTerm,
+      setSearchTerm,
+    }),
     [locationType, searchTerm, setSelectLocationView],
   );
 

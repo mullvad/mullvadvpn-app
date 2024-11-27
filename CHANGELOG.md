@@ -46,6 +46,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Handle network switching better when using WG over Shadowsocks.
+- Fix multihop entry location list sometimes being shown when multihop is disabled.
 
 #### macOS
 - Fix packets being duplicated on LAN when split tunneling is enabled.
