@@ -1,6 +1,7 @@
 use std::fmt::Display;
 use std::str::FromStr;
 use std::sync::LazyLock;
+use VersionType::*;
 
 use regex::Regex;
 
@@ -19,6 +20,7 @@ pub enum VersionType {
     Alpha(String),
     Beta(String),
     Dev(String),
+    BetaDev { beta: String, dev: String },
     Stable,
 }
 
@@ -28,33 +30,33 @@ impl Version {
     }
 
     pub fn is_stable(&self) -> bool {
-        matches!(&self.version_type, VersionType::Stable)
+        matches!(&self.version_type, Stable)
     }
 
     pub fn alpha(&self) -> Option<&str> {
         match &self.version_type {
-            VersionType::Alpha(v) => Some(v),
+            Alpha(v) => Some(v),
             _ => None,
         }
     }
 
     pub fn beta(&self) -> Option<&str> {
         match &self.version_type {
-            VersionType::Beta(v) => Some(v),
+            Beta(beta) | BetaDev { beta, .. } => Some(beta),
             _ => None,
         }
     }
 
     pub fn dev(&self) -> Option<&str> {
         match &self.version_type {
-            VersionType::Dev(v) => Some(v),
+            Dev(dev) | BetaDev { dev, .. } => Some(dev),
             _ => None,
         }
     }
 }
 
 impl Display for Version {
-    /// Format Version as a string: year.incremental-{alpha|beta|dev}
+    /// Format Version as a string: year.incremental-{alpha|beta|dev}-{dev}
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Version {
             year,
@@ -65,10 +67,11 @@ impl Display for Version {
         write!(f, "{year}.{incremental}")?;
 
         match version_type {
-            VersionType::Alpha(version) => write!(f, "-alpha{version}"),
-            VersionType::Beta(version) => write!(f, "-beta{version}"),
-            VersionType::Dev(commit_hash) => write!(f, "-dev-{commit_hash}"),
-            VersionType::Stable => Ok(()),
+            Alpha(version) => write!(f, "-alpha{version}"),
+            Beta(version) => write!(f, "-beta{version}"),
+            BetaDev { beta, dev } => write!(f, "-beta{beta}-dev-{dev}"),
+            Dev(commit_hash) => write!(f, "-dev-{commit_hash}"),
+            Stable => Ok(()),
         }
     }
 }
@@ -84,7 +87,9 @@ impl FromStr for Version {
                 (?<incremental>[1-9]\d?)           # the incrementing version number
                 (?:                                # (optional) alpha or beta or dev
                   -alpha(?<alpha>[1-9]\d?\d?)|
-                  -beta(?<beta>[1-9]\d?\d?)|
+                  -beta(?<beta>[1-9]\d?\d?)
+                )?
+                (?:
                   -dev-(?<dev>[0-9a-f]+)
                 )?$
                 ",
@@ -108,15 +113,16 @@ impl FromStr for Version {
             .as_str()
             .to_owned();
 
-        let alpha = captures.name("alpha").map(|m| m.as_str());
-        let beta = captures.name("beta").map(|m| m.as_str());
-        let dev = captures.name("dev").map(|m| m.as_str());
+        let alpha = captures.name("alpha").map(|m| m.as_str().to_owned());
+        let beta = captures.name("beta").map(|m| m.as_str().to_owned());
+        let dev = captures.name("dev").map(|m| m.as_str().to_owned());
 
         let version_type = match (alpha, beta, dev) {
-            (None, None, None) => VersionType::Stable,
-            (Some(v), None, None) => VersionType::Alpha(v.to_owned()),
-            (None, Some(v), None) => VersionType::Beta(v.to_owned()),
-            (None, None, Some(v)) => VersionType::Dev(v.to_owned()),
+            (None, None, None) => Stable,
+            (Some(v), None, None) => Alpha(v),
+            (None, Some(v), None) => Beta(v),
+            (None, None, Some(v)) => Dev(v),
+            (None, Some(beta), Some(dev)) => BetaDev { beta, dev },
             _ => return Err(format!("Invalid version: {version}")),
         };
 
@@ -185,6 +191,18 @@ mod tests {
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), None);
         assert_eq!(parsed.dev(), Some("0b60e4d87"));
+        assert!(!parsed.is_stable());
+    }
+
+    #[test]
+    fn test_parse_both_beta_and_dev() {
+        let version = "2024.8-beta1-dev-e5483d";
+        let parsed = Version::parse(version);
+        assert_eq!(parsed.year, "24");
+        assert_eq!(parsed.incremental, "8");
+        assert_eq!(parsed.alpha(), None);
+        assert_eq!(parsed.beta(), Some("1"));
+        assert_eq!(parsed.dev(), Some("e5483d"));
         assert!(!parsed.is_stable());
     }
 

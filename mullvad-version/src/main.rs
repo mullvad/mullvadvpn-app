@@ -1,5 +1,6 @@
 use mullvad_version::{Version, VersionType};
 use std::{env, process::exit};
+use VersionType::*;
 
 const ANDROID_VERSION: &str =
     include_str!(concat!(env!("OUT_DIR"), "/android-product-version.txt"));
@@ -58,9 +59,9 @@ fn to_android_version_code(version: &str) -> String {
     let version = Version::parse(version);
 
     let (build_type, build_number) = match &version.version_type {
-        VersionType::Alpha(v) => ("0", v.as_str()),
-        VersionType::Beta(v) => ("1", v.as_str()),
-        VersionType::Dev(_) | VersionType::Stable => ("9", "000"),
+        Alpha(v) => ("0", v.as_str()),
+        Beta(v) => ("1", v.as_str()),
+        Stable | Dev(_) | BetaDev { .. } => ("9", "000"),
     };
 
     format!(
@@ -93,10 +94,7 @@ fn to_windows_h_format(version: &str) -> String {
 }
 
 fn is_valid_windows_version(version_type: &VersionType) -> bool {
-    matches!(
-        version_type,
-        VersionType::Beta(_) | VersionType::Dev(_) | VersionType::Stable
-    )
+    matches!(version_type, Beta(_) | Dev(_) | BetaDev { .. } | Stable)
 }
 
 #[cfg(test)]
