@@ -67,6 +67,6 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
 }
 
 #Preview {
-    var model = MockShadowsocksObfuscationSettingsViewModel(shadowsocksPort: .automatic)
+    let model = MockShadowsocksObfuscationSettingsViewModel(shadowsocksPort: .automatic)
     return ShadowsocksObfuscationSettingsView(viewModel: model)
 }
