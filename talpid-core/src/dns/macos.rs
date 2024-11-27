@@ -78,6 +78,7 @@ impl State {
         }
     }
 
+    /// Construct [`DnsSettings`] from the arguments and apply the desired addresses to all network services.
     fn apply_new_config(
         &mut self,
         store: &SCDynamicStore,
@@ -375,8 +376,9 @@ impl InterfaceSettings {
 unsafe impl Send for InterfaceSettings {}
 
 pub struct DnsMonitor {
+    /// The backing "System Configuration framework" store, which allow us to access and detect
+    /// changes to the device's network configuration.
     store: SCDynamicStore,
-
     /// The current DNS injection state. If this is `None` it means we are not injecting any DNS.
     /// When it's `Some(state)` we are actively making sure `state.dns_settings` is configured
     /// on all network interfaces.
@@ -403,6 +405,10 @@ impl super::DnsMonitorT for DnsMonitor {
         })
     }
 
+    /// Update the system config to use the DNS `config`.
+    ///
+    /// Note that the `interface` parameter does nothing on macOS. Since we can't configure DNS
+    /// on the tunnel interface, we have to configure all interfaces.
     fn set(&mut self, interface: &str, config: ResolvedDnsConfig) -> Result<()> {
         let port = config.port;
         let servers: Vec<_> = config.addresses().collect();

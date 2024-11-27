@@ -36,13 +36,12 @@ impl ErrorState {
 
         #[cfg(target_os = "macos")]
         if !block_reason.prevents_filtering_resolver() {
-            if let Err(err) = shared_values.dns_monitor.set(
-                "lo",
-                DnsConfig::default().resolve(
-                    &[Ipv4Addr::LOCALHOST.into()],
-                    shared_values.filtering_resolver.listening_port(),
-                ),
-            ) {
+            // Set system DNS to our local DNS resolver
+            let system_dns = DnsConfig::default().resolve(
+                &[Ipv4Addr::LOCALHOST.into()],
+                shared_values.filtering_resolver.listening_port(),
+            );
+            if let Err(err) = shared_values.dns_monitor.set("lo", system_dns) {
                 log::error!(
                     "{}",
                     err.display_chain_with_msg(
