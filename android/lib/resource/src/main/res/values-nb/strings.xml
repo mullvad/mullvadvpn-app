@@ -22,7 +22,6 @@
     <string name="all_locations">Alle steder</string>
     <string name="all_providers">Alle leverandører</string>
     <string name="always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, for &lt;b&gt;%1$s&lt;/b&gt; før du bruker Mullvad VPN.</string>
-    <string name="always_on_vpn_error_notification_title">VPN som alltid er på, er tilordnet en annen app</string>
     <string name="any">Hvilken som helst</string>
     <string name="api_access_description">Administrer og legg til tilpassede metoder for tilgang til Mullvad API.</string>
     <string name="api_access_method_info_first_line">Appen må kunne kommunisere med en Mullvad API-server for å logge deg inn, hente serverlister og utføre andre kritiske operasjoner.</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">Skriv inn kupongkode</string>
     <string name="entry">Inngang</string>
     <string name="error_occurred">Det oppstod en feil.</string>
-    <string name="error_state">KUNNE IKKE OPPRETTE SIKKER TILKOBLING</string>
     <string name="exclude_applications">Ekskluder applikasjoner</string>
     <string name="exit">Utgang</string>
     <string name="failed_to_block_internet">Kunne ikke blokkere all nettverkstrafikk. Feilsøk eller send inn en problemrapport.</string>
@@ -334,7 +332,6 @@
     <string name="voucher_is_account_number">Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut.</string>
     <string name="voucher_success_title">Kupongkoden er løst inn.</string>
     <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
-    <string name="vpn_permission_error_notification_message">VPN som alltid er på, kan være aktivert for en annen app</string>
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>
     <string name="wireguard_custon_port_title">Egendefinert</string>

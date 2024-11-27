@@ -10,6 +10,8 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
+import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.talpid.model.CreateTunResult
 import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
@@ -76,10 +78,11 @@ open class TalpidVpnService : LifecycleVpnService() {
     // Function is to be cleaned up and lint suppression to be removed.
     @Suppress("ReturnCount")
     private fun createTun(config: TunConfig): CreateTunResult {
-        if (prepare(this) != null) {
-            // VPN permission wasn't granted
-            return CreateTunResult.PermissionDenied
-        }
+        prepareVpnSafe()
+            .mapLeft { it.toCreateTunResult() }
+            .onLeft {
+                return it
+            }
 
         val invalidDnsServerAddresses = ArrayList<InetAddress>()
 
@@ -148,6 +151,13 @@ open class TalpidVpnService : LifecycleVpnService() {
     fun bypass(socket: Int): Boolean {
         return protect(socket)
     }
+
+    private fun PrepareError.toCreateTunResult() =
+        when (this) {
+            is PrepareError.OtherLegacyAlwaysOnVpn -> CreateTunResult.OtherLegacyAlwaysOnVpn
+            is PrepareError.NotPrepared -> CreateTunResult.NotPrepared
+            is PrepareError.OtherAlwaysOnApp -> CreateTunResult.OtherAlwaysOnApp(appName)
+        }
 
     private fun InetAddress.prefixLength(): Int =
         when (this) {

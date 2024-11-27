@@ -22,7 +22,6 @@
     <string name="all_locations">Tüm konumlar</string>
     <string name="all_providers">Tüm hizmet sağlayıcılar</string>
     <string name="always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen Her zaman açık VPN\'i &lt;b&gt;%1$s&lt;/b&gt; için devre dışı bırakın.</string>
-    <string name="always_on_vpn_error_notification_title">Her zaman açık VPN başka bir uygulamaya atandı</string>
     <string name="any">Tümü</string>
     <string name="api_access_description">Mullvad API\'sine erişim için özel yöntemler ekleyip yönetin.</string>
     <string name="api_access_method_info_first_line">Uygulamanın oturumunuzu açmak, sunucu listelerini almak ve diğer kritik işlemleri yapmak için bir Mullvad API sunucusuyla iletişim kurması gerekir.</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">Kupon kodunu girin</string>
     <string name="entry">Giriş</string>
     <string name="error_occurred">Bir hata oluştu.</string>
-    <string name="error_state">GÜVENLİ BAĞLANTI OLUŞTURULAMADI</string>
     <string name="exclude_applications">Hariç tutulan uygulamalar</string>
     <string name="exit">Çıkış</string>
     <string name="failed_to_block_internet">Tüm ağ trafiği engellenemiyor. Lütfen sorunu çözmeyi deneyin veya bir hata raporu gönderin.</string>
@@ -334,7 +332,6 @@
     <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
     <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
-    <string name="vpn_permission_error_notification_message">Her zaman açık VPN başka bir uygulama için etkinleştirilebilir</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
     <string name="wireguard_custon_port_title">Özel</string>

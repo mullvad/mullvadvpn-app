@@ -15,6 +15,6 @@ sealed interface NotificationAction {
 
         data object Dismiss : Tunnel
 
-        data object RequestPermission : Tunnel
+        data object RequestVpnProfile : Tunnel
     }
 }

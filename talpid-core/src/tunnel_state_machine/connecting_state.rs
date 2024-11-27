@@ -26,9 +26,6 @@ use talpid_types::{
     ErrorExt,
 };
 
-#[cfg(target_os = "android")]
-use talpid_tunnel::tun_provider;
-
 use super::connected_state::TunnelEventsReceiver;
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
@@ -265,35 +262,7 @@ impl ConnectingState {
                 }
                 Err(error) => {
                     log::error!("{}", error.display_chain_with_msg("Failed to start tunnel"));
-                    let block_reason = match error {
-                        tunnel::Error::EnableIpv6Error => ErrorStateCause::Ipv6Unavailable,
-                        #[cfg(target_os = "android")]
-                        tunnel::Error::WireguardTunnelMonitoringError(
-                            talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::PermissionDenied,
-                                ),
-                            ),
-                        ) => ErrorStateCause::VpnPermissionDenied,
-                        #[cfg(target_os = "android")]
-                        tunnel::Error::WireguardTunnelMonitoringError(
-                            talpid_wireguard::Error::TunnelError(
-                                talpid_wireguard::TunnelError::SetupTunnelDevice(
-                                    tun_provider::Error::InvalidDnsServers(addresses),
-                                ),
-                            ),
-                        ) => ErrorStateCause::InvalidDnsServers(addresses),
-                        #[cfg(target_os = "windows")]
-                        error => match error.get_tunnel_device_error() {
-                            Some(error) => ErrorStateCause::CreateTunnelDevice {
-                                os_error: error.raw_os_error(),
-                            },
-                            None => ErrorStateCause::StartTunnelError,
-                        },
-                        #[cfg(not(target_os = "windows"))]
-                        _ => ErrorStateCause::StartTunnelError,
-                    };
-                    Some(block_reason)
+                    Some(error.into())
                 }
             };
 
@@ -435,6 +404,7 @@ impl ConnectingState {
                 let _ = complete_tx.send(());
                 consequence
             }
+            #[cfg(not(target_os = "android"))]
             Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
                 if shared_values.allowed_endpoint != endpoint {
                     shared_values.allowed_endpoint = endpoint;

@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model
 
 sealed interface NotificationTunnelState {
-    data class Disconnected(val hasVpnPermission: Boolean) : NotificationTunnelState
+    data class Disconnected(val prepareError: PrepareError?) : NotificationTunnelState
 
     data object Connecting : NotificationTunnelState
 
@@ -18,7 +18,9 @@ sealed interface NotificationTunnelState {
 
         data object VpnPermissionDenied : Error
 
-        data object AlwaysOnVpn : Error
+        data class AlwaysOnVpn(val appName: String) : Error
+
+        data object LegacyLockdown : Error
 
         data object Critical : Error
     }

@@ -1436,6 +1436,21 @@ impl Daemon {
         event: AccessMethodEvent,
         endpoint_active_tx: oneshot::Sender<()>,
     ) {
+        #[cfg(target_os = "android")]
+        match event {
+            AccessMethodEvent::New { setting, .. } => {
+                // On android mullvad-api invokes protect on a socket to send requests
+                // outside the tunnel
+                let notifier = self.management_interface.notifier().clone();
+                tokio::spawn(async move {
+                    // No-op
+                    let _ = endpoint_active_tx.send(());
+                    // Notify clients about the change if necessary.
+                    notifier.notify_new_access_method_event(setting);
+                });
+            }
+        }
+        #[cfg(not(target_os = "android"))]
         match event {
             AccessMethodEvent::Allow { endpoint } => {
                 let (completion_tx, completion_rx) = oneshot::channel();

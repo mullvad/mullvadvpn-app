@@ -22,7 +22,6 @@
     <string name="all_locations">Alle locaties</string>
     <string name="all_providers">Alle aanbieders</string>
     <string name="always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voor &lt;b&gt;%1$s&lt;/b&gt; voordat u Mullvad VPN gebruikt.</string>
-    <string name="always_on_vpn_error_notification_title">Altijd-aan VPN toegewezen aan andere app</string>
     <string name="any">Elke</string>
     <string name="api_access_description">Beheer en voeg aangepaste methoden toe om toegang te krijgen tot de Mullvad-API.</string>
     <string name="api_access_method_info_first_line">De app moet communiceren met een Mullvad-API-server om u aan te melden, serverlijsten op te halen en andere belangrijke handelingen uit te voeren.</string>
@@ -134,7 +133,6 @@
     <string name="enter_voucher_code">Vouchercode invoeren</string>
     <string name="entry">Ingang</string>
     <string name="error_occurred">Er is een fout opgetreden.</string>
-    <string name="error_state">VERBINDING BEVEILIGEN MISLUKT</string>
     <string name="exclude_applications">Uitgesloten toepassingen</string>
     <string name="exit">Uitgang</string>
     <string name="failed_to_block_internet">Kan niet alle netwerkverkeer blokkeren. Los problemen op of stuur een probleemmelding.</string>
@@ -334,7 +332,6 @@
     <string name="voucher_is_account_number">Het lijkt erop dat u een accountnummer hebt ingevoerd in plaats van een vouchercode. Als u het actieve account wilt wijzigen, meld u dan eerst af.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
     <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens maken van de tunnel. Probeer opnieuw verbinding te maken.</string>
-    <string name="vpn_permission_error_notification_message">Altijd-aan VPN is mogelijk ingeschakeld voor een andere app</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
     <string name="wireguard_custon_port_title">Aangepast</string>

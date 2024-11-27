@@ -46,8 +46,14 @@ pub enum Error {
     #[error("Failed to create tunnel device")]
     TunnelDeviceError,
 
-    #[error("Permission denied when trying to create tunnel")]
-    PermissionDenied,
+    #[error("Profile for VPN has not been setup")]
+    NotPrepared,
+
+    #[error("Another legacy VPN profile is used as always on")]
+    OtherLegacyAlwaysOnVpn,
+
+    #[error("Another VPN app is used as always on")]
+    OtherAlwaysOnApp { app_name: String },
 }
 
 /// Factory of tunnel devices on Android.
@@ -375,8 +381,10 @@ impl AsRawFd for VpnServiceTun {
 enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
-    PermissionDenied,
     TunnelDeviceError,
+    LegacyLockdown,
+    AlwaysOnApp { app_name: String },
+    NotPrepared,
 }
 
 impl From<CreateTunResult> for Result<RawFd, Error> {
@@ -386,7 +394,9 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::PermissionDenied => Err(Error::PermissionDenied),
+            CreateTunResult::LegacyLockdown => Err(Error::OtherLegacyAlwaysOnVpn),
+            CreateTunResult::NotPrepared => Err(Error::NotPrepared),
+            CreateTunResult::AlwaysOnApp { app_name } => Err(Error::OtherAlwaysOnApp { app_name }),
             CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
         }
     }

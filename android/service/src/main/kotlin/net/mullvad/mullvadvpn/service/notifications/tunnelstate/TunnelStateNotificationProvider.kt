@@ -19,15 +19,16 @@ import net.mullvad.mullvadvpn.lib.model.NotificationChannelId
 import net.mullvad.mullvadvpn.lib.model.NotificationId
 import net.mullvad.mullvadvpn.lib.model.NotificationTunnelState
 import net.mullvad.mullvadvpn.lib.model.NotificationUpdate
+import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.VpnPermissionRepository
+import net.mullvad.mullvadvpn.lib.shared.PrepareVpnUseCase
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 
 class TunnelStateNotificationProvider(
     connectionProxy: ConnectionProxy,
-    vpnPermissionRepository: VpnPermissionRepository,
+    vpnPermissionRepository: PrepareVpnUseCase,
     deviceRepository: DeviceRepository,
     channelId: NotificationChannelId,
     scope: CoroutineScope,
@@ -49,8 +50,7 @@ class TunnelStateNotificationProvider(
                     tunnelState(
                         tunnelState,
                         actionAfterDisconnect,
-                        vpnPermissionRepository.hasVpnPermission(),
-                        vpnPermissionRepository.getAlwaysOnVpnAppName(),
+                        vpnPermissionRepository.invoke().leftOrNull(),
                     )
 
                 return@combine NotificationUpdate.Notify(
@@ -68,14 +68,9 @@ class TunnelStateNotificationProvider(
     private fun tunnelState(
         tunnelState: TunnelState,
         actionAfterDisconnect: ActionAfterDisconnect?,
-        hasVpnPermission: Boolean,
-        alwaysOnVpnPermissionName: String?,
+        prepareError: PrepareError?,
     ): NotificationTunnelState =
-        tunnelState.toNotificationTunnelState(
-            actionAfterDisconnect,
-            hasVpnPermission,
-            alwaysOnVpnPermissionName,
-        )
+        tunnelState.toNotificationTunnelState(actionAfterDisconnect, prepareError)
 
     private fun Flow<TunnelState>.actionAfterDisconnect(): Flow<ActionAfterDisconnect?> =
         filterIsInstance<TunnelState.Disconnecting>()
@@ -84,11 +79,10 @@ class TunnelStateNotificationProvider(
 
     private fun TunnelState.toNotificationTunnelState(
         actionAfterDisconnect: ActionAfterDisconnect?,
-        hasVpnPermission: Boolean,
-        alwaysOnVpnPermissionName: String?,
+        prepareError: PrepareError?,
     ) =
         when (this) {
-            is TunnelState.Disconnected -> NotificationTunnelState.Disconnected(hasVpnPermission)
+            is TunnelState.Disconnected -> NotificationTunnelState.Disconnected(prepareError)
             is TunnelState.Connecting -> {
                 if (actionAfterDisconnect == ActionAfterDisconnect.Reconnect) {
                     NotificationTunnelState.Reconnecting
@@ -104,20 +98,21 @@ class TunnelStateNotificationProvider(
                 }
             }
             is TunnelState.Connected -> NotificationTunnelState.Connected
-            is TunnelState.Error -> toNotificationTunnelState(alwaysOnVpnPermissionName)
+            is TunnelState.Error -> toNotificationTunnelState()
         }
 
-    private fun TunnelState.Error.toNotificationTunnelState(
-        alwaysOnVpnPermissionName: String?
-    ): NotificationTunnelState.Error {
+    private fun TunnelState.Error.toNotificationTunnelState(): NotificationTunnelState.Error {
         val cause = errorState.cause
         return when {
             cause is ErrorStateCause.IsOffline && errorState.isBlocking ->
                 NotificationTunnelState.Error.DeviceOffline
             cause is ErrorStateCause.InvalidDnsServers -> NotificationTunnelState.Error.Blocking
-            cause is ErrorStateCause.VpnPermissionDenied ->
-                alwaysOnVpnPermissionName?.let { NotificationTunnelState.Error.AlwaysOnVpn }
-                    ?: NotificationTunnelState.Error.VpnPermissionDenied
+            cause is ErrorStateCause.OtherLegacyAlwaysOnApp ->
+                NotificationTunnelState.Error.LegacyLockdown
+            cause is ErrorStateCause.NotPrepared ->
+                NotificationTunnelState.Error.VpnPermissionDenied
+            cause is ErrorStateCause.OtherAlwaysOnApp ->
+                NotificationTunnelState.Error.AlwaysOnVpn(cause.appName)
             errorState.isBlocking -> NotificationTunnelState.Error.Blocking
             else -> NotificationTunnelState.Error.Critical
         }
@@ -126,10 +121,11 @@ class TunnelStateNotificationProvider(
     private fun NotificationTunnelState.toAction(): NotificationAction.Tunnel =
         when (this) {
             is NotificationTunnelState.Disconnected -> {
-                if (this.hasVpnPermission) {
-                    NotificationAction.Tunnel.Connect
-                } else {
-                    NotificationAction.Tunnel.RequestPermission
+                when (prepareError) {
+                    is PrepareError.OtherAlwaysOnApp,
+                    is PrepareError.OtherLegacyAlwaysOnVpn,
+                    null -> NotificationAction.Tunnel.Connect
+                    is PrepareError.NotPrepared -> NotificationAction.Tunnel.RequestVpnProfile
                 }
             }
             NotificationTunnelState.Disconnecting -> NotificationAction.Tunnel.Connect
@@ -140,6 +136,7 @@ class TunnelStateNotificationProvider(
             is NotificationTunnelState.Error.Critical,
             NotificationTunnelState.Error.DeviceOffline,
             NotificationTunnelState.Error.VpnPermissionDenied,
-            NotificationTunnelState.Error.AlwaysOnVpn -> NotificationAction.Tunnel.Dismiss
+            is NotificationTunnelState.Error.AlwaysOnVpn,
+            NotificationTunnelState.Error.LegacyLockdown -> NotificationAction.Tunnel.Dismiss
         }
 }
