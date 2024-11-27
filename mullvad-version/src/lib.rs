@@ -1,8 +1,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
 use std::sync::LazyLock;
-use VersionType::*;
 
+use crate::VersionType::{Alpha, Beta};
 use regex::Regex;
 
 /// The Mullvad VPN app product version
@@ -12,16 +12,15 @@ pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-versio
 pub struct Version {
     pub year: String,
     pub incremental: String,
+    pub version_type: Option<VersionType>,
     // All versions may have an optional -dev-[commit hash] suffix.
     pub dev: Option<String>,
-    pub version_type: VersionType,
 }
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum VersionType {
     Alpha(String),
     Beta(String),
-    Stable,
 }
 
 impl Version {
@@ -30,19 +29,19 @@ impl Version {
     }
 
     pub fn is_stable(&self) -> bool {
-        matches!(&self.version_type, Stable)
+        self.version_type.is_none() && self.dev.is_none()
     }
 
     pub fn alpha(&self) -> Option<&str> {
         match &self.version_type {
-            Alpha(v) => Some(v),
+            Some(VersionType::Alpha(v)) => Some(v),
             _ => None,
         }
     }
 
     pub fn beta(&self) -> Option<&str> {
         match &self.version_type {
-            Beta(beta) => Some(beta),
+            Some(VersionType::Beta(beta)) => Some(beta),
             _ => None,
         }
     }
@@ -61,9 +60,9 @@ impl Display for Version {
         write!(f, "{year}.{incremental}")?;
 
         match version_type {
-            Alpha(version) => write!(f, "-alpha{version}")?,
-            Beta(version) => write!(f, "-beta{version}")?,
-            Stable => (),
+            Some(VersionType::Alpha(version)) => write!(f, "-alpha{version}")?,
+            Some(VersionType::Beta(version)) => write!(f, "-beta{version}")?,
+            None => (),
         };
 
         if let Some(dev) = dev {
@@ -116,9 +115,9 @@ impl FromStr for Version {
         let dev = captures.name("dev").map(|m| m.as_str().to_owned());
 
         let version_type = match (alpha, beta) {
-            (None, None) => Stable,
-            (Some(v), None) => Alpha(v),
-            (None, Some(v)) => Beta(v),
+            (None, None) => None,
+            (Some(v), None) => Some(Alpha(v)),
+            (None, Some(v)) => Some(Beta(v)),
             _ => return Err(format!("Invalid version: {version}")),
         };
 
@@ -185,7 +184,7 @@ mod tests {
         let parsed = Version::parse(version);
         assert_eq!(parsed.year, "21");
         assert_eq!(parsed.incremental, "34");
-        assert!(parsed.is_stable());
+        assert!(!parsed.is_stable());
         assert_eq!(parsed.dev, Some("0b60e4d87".to_string()));
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), None);
