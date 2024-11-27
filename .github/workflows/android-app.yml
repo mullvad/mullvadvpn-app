@@ -354,7 +354,7 @@ jobs:
 
       - name: Upload apks
         # Using v3 due to v4 being very slow for this artifact.
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: apks
           path: android/app/build/outputs/apk
@@ -409,7 +409,7 @@ jobs:
 
       - name: Upload apks
         # Using v3 due to v4 being very slow for this artifact.
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.test-type }}-instrumentation-apks
           path: ${{ matrix.artifact-path }}
@@ -445,14 +445,14 @@ jobs:
         uses: actions/checkout@v4
 
       # Using v3 due to v4 being very slow for this artifact.
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
           path: android/app/build/outputs/apk
 
       # Using v3 due to v4 being very slow for this artifact.
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
         with:
           name: ${{ matrix.test-type }}-instrumentation-apks
@@ -511,14 +511,14 @@ jobs:
         uses: actions/checkout@v4
 
       # Using v3 due to v4 being very slow for this artifact.
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
           path: android/app/build/outputs/apk
 
       # Using v3 due to v4 being very slow for this artifact.
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
         with:
           name: e2e-instrumentation-apks
@@ -574,13 +574,13 @@ jobs:
         uses: actions/checkout@v4
 
       # Using v3 due to v4 being very slow for this artifact.
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: apks
           path: android/app/build/outputs/apk
 
       # Using v3 due to v4 being very slow for this artifact.
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.test-type }}-instrumentation-apks
           path: ${{ matrix.path }}

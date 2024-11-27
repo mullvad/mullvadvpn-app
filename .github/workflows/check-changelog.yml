@@ -20,7 +20,7 @@ jobs:
         changelog: [CHANGELOG.md, ios/CHANGELOG.md, android/CHANGELOG.md]
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: No lines must exceed ${{ env.LINE_LIMIT }} characters
         run: |
           awk 'length($0) > '$LINE_LIMIT' { print NR ": Line exceeds '$LINE_LIMIT' chars: " $0; found=1 } \

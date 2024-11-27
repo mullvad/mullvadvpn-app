@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Use custom container image if specified
         if: ${{ github.event.inputs.override_container_image != '' }}
         run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
@@ -119,7 +119,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
@@ -131,7 +131,7 @@ jobs:
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: linux-build
@@ -154,7 +154,7 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ needs.build-linux.result == 'success' }}
         with:
           name: linux-build
@@ -167,7 +167,7 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -210,7 +210,7 @@ jobs:
       - name: Build test executable
         shell: bash
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: windows-build
@@ -230,7 +230,7 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ needs.build-windows.result == 'success' }}
         with:
           name: windows-build
@@ -243,7 +243,7 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -285,7 +285,7 @@ jobs:
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: macos-build
@@ -307,7 +307,7 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.macos_matrix) }}
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: ${{ needs.build-macos.result == 'success' }}
         with:
           name: macos-build
@@ -320,7 +320,7 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -337,7 +337,7 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           path: ./test/.ci-logs/artifacts
       - name: Generate test result matrix
@@ -348,7 +348,7 @@ jobs:
           cp ./.ci-logs/artifacts/*_report/*_report ./.ci-logs/
           cargo run --bin test-manager format-test-reports ./.ci-logs/*_report \
             | tee summary.html >> $GITHUB_STEP_SUMMARY
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: summary.html
           path: test/summary.html
