@@ -285,7 +285,6 @@ impl TryFrom<ApiConnectionMode> for InnerConnectionMode {
 #[derive(Clone)]
 pub struct HttpsConnectorWithSni {
     inner: Arc<Mutex<HttpsConnectorWithSniInner>>,
-    sni_hostname: Option<String>,
     abort_notify: Arc<tokio::sync::Notify>,
     dns_resolver: Arc<dyn DnsResolver>,
     #[cfg(target_os = "android")]
@@ -302,7 +301,6 @@ pub type SocketBypassRequest = (RawFd, oneshot::Sender<()>);
 
 impl HttpsConnectorWithSni {
     pub fn new(
-        sni_hostname: Option<String>,
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> (Self, HttpsConnectorWithSniHandle) {
@@ -349,7 +347,6 @@ impl HttpsConnectorWithSni {
         (
             HttpsConnectorWithSni {
                 inner,
-                sni_hostname,
                 abort_notify,
                 dns_resolver,
                 #[cfg(target_os = "android")]
@@ -431,13 +428,6 @@ impl Service<Uri> for HttpsConnectorWithSni {
     }
 
     fn call(&mut self, uri: Uri) -> Self::Future {
-        let sni_hostname = self
-            .sni_hostname
-            .clone()
-            .or_else(|| uri.host().map(str::to_owned))
-            .ok_or_else(|| {
-                io::Error::new(io::ErrorKind::InvalidInput, "invalid url, missing host")
-            });
         let inner = self.inner.clone();
         let abort_notify = self.abort_notify.clone();
         #[cfg(target_os = "android")]
@@ -451,8 +441,12 @@ impl Service<Uri> for HttpsConnectorWithSni {
                     "invalid url, not https",
                 ));
             }
-
-            let hostname = sni_hostname?;
+            let Some(hostname) = uri.host().map(str::to_owned) else {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidInput,
+                    "invalid url, missing host",
+                ));
+            };
             let addr = Self::resolve_address(&*dns_resolver, uri).await?;
 
             // Loop until we have established a connection. This starts over if a new endpoint

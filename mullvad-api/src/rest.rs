@@ -150,14 +150,12 @@ pub(crate) struct RequestService<T: ConnectionModeProvider> {
 impl<T: ConnectionModeProvider + 'static> RequestService<T> {
     /// Constructs a new request service.
     pub fn spawn(
-        sni_hostname: Option<String>,
         api_availability: ApiAvailability,
         connection_mode_provider: T,
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
-            sni_hostname,
             dns_resolver,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
