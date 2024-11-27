@@ -1,7 +1,7 @@
 //! This module keeps track of the last known good API IP address and reads and stores it on disk.
 
-use crate::DnsResolver;
 use super::API;
+use crate::DnsResolver;
 use async_trait::async_trait;
 use std::{io, net::SocketAddr, path::Path, sync::Arc};
 use tokio::{
@@ -25,28 +25,14 @@ pub enum Error {
     Write(#[source] io::Error),
 }
 
-/// A DNS resolver which resolves using `AddressCache`, or else a fallback resolver.
-pub struct AddressCacheResolver {
-    address_cache: AddressCache,
-    fallback_resolver: Arc<dyn DnsResolver>,
-}
-
-impl AddressCacheResolver {
-    pub fn new(address_cache: AddressCache, fallback_resolver: impl DnsResolver) -> Self {
-        Self {
-            address_cache,
-            fallback_resolver: Arc::new(fallback_resolver),
-        }
-    }
-}
-
+/// A DNS resolver which resolves using `AddressCache`.
 #[async_trait]
-impl DnsResolver for AddressCacheResolver {
+impl DnsResolver for AddressCache {
     async fn resolve(&self, host: String) -> Result<Vec<SocketAddr>, io::Error> {
-        match self.address_cache.resolve_hostname(&host).await {
-            Some(addr) => Ok(vec![addr]),
-            None => self.fallback_resolver.resolve(host).await,
-        }
+        self.resolve_hostname(&host)
+            .await
+            .map(|addr| vec![addr])
+            .ok_or(io::Error::other("host does not match API host"))
     }
 }
 

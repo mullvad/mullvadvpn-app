@@ -1,5 +1,4 @@
 #![allow(rustdoc::private_intra_doc_links)]
-use address_cache::AddressCacheResolver;
 use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
@@ -343,7 +342,6 @@ pub struct Runtime {
     handle: tokio::runtime::Handle,
     address_cache: AddressCache,
     api_availability: availability::ApiAvailability,
-    dns_resolver: Arc<AddressCacheResolver>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
@@ -365,13 +363,9 @@ pub enum Error {
 
 impl Runtime {
     /// Create a new `Runtime`.
-    pub fn new(
-        handle: tokio::runtime::Handle,
-        dns_resolver: impl DnsResolver,
-    ) -> Result<Self, Error> {
+    pub fn new(handle: tokio::runtime::Handle) -> Result<Self, Error> {
         Self::new_inner(
             handle,
-            dns_resolver,
             #[cfg(target_os = "android")]
             None,
         )
@@ -388,15 +382,12 @@ impl Runtime {
 
     fn new_inner(
         handle: tokio::runtime::Handle,
-        dns_resolver: impl DnsResolver,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
-        let address_cache = AddressCache::new(None);
         Ok(Runtime {
             handle,
-            address_cache: address_cache.clone(),
+            address_cache: AddressCache::new(None),
             api_availability: ApiAvailability::default(),
-            dns_resolver: Arc::new(AddressCacheResolver::new(address_cache, dns_resolver)),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -405,7 +396,6 @@ impl Runtime {
     /// Create a new `Runtime` using the specified directories.
     /// Try to use the cache directory first, and fall back on the bundled address otherwise.
     pub async fn with_cache(
-        dns_resolver: impl DnsResolver,
         cache_dir: &Path,
         write_changes: bool,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -416,7 +406,6 @@ impl Runtime {
         if API.disable_address_cache {
             return Self::new_inner(
                 handle,
-                dns_resolver,
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
             );
@@ -448,29 +437,11 @@ impl Runtime {
 
         Ok(Runtime {
             handle,
-            address_cache: address_cache.clone(),
+            address_cache,
             api_availability,
-            dns_resolver: Arc::new(AddressCacheResolver::new(address_cache, dns_resolver)),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
-    }
-
-    /// Creates a new request service and returns a handle to it.
-    fn new_request_service<T: ConnectionModeProvider + 'static>(
-        &self,
-        sni_hostname: Option<String>,
-        connection_mode_provider: T,
-        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
-    ) -> rest::RequestServiceHandle {
-        rest::RequestService::spawn(
-            sni_hostname,
-            self.api_availability.clone(),
-            connection_mode_provider,
-            self.dns_resolver.clone(),
-            #[cfg(target_os = "android")]
-            socket_bypass_tx,
-        )
     }
 
     /// Returns a request factory initialized to create requests for the master API
@@ -481,6 +452,7 @@ impl Runtime {
         let service = self.new_request_service(
             Some(API.host().to_string()),
             connection_mode_provider,
+            Arc::new(self.address_cache.clone()),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
@@ -495,6 +467,7 @@ impl Runtime {
         let service = self.new_request_service(
             Some(hostname.clone()),
             ApiConnectionMode::Direct.into_provider(),
+            Arc::new(self.address_cache.clone()),
             #[cfg(target_os = "android")]
             self.socket_bypass_tx.clone(),
         );
@@ -505,12 +478,31 @@ impl Runtime {
     }
 
     /// Returns a new request service handle
-    pub fn rest_handle(&self) -> rest::RequestServiceHandle {
+    pub fn rest_handle(&self, dns_resolver: impl DnsResolver) -> rest::RequestServiceHandle {
         self.new_request_service(
             None,
             ApiConnectionMode::Direct.into_provider(),
+            Arc::new(dns_resolver),
             #[cfg(target_os = "android")]
             None,
+        )
+    }
+
+    /// Creates a new request service and returns a handle to it.
+    fn new_request_service<T: ConnectionModeProvider + 'static>(
+        &self,
+        sni_hostname: Option<String>,
+        connection_mode_provider: T,
+        dns_resolver: Arc<dyn DnsResolver>,
+        #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    ) -> rest::RequestServiceHandle {
+        rest::RequestService::spawn(
+            sni_hostname,
+            self.api_availability.clone(),
+            connection_mode_provider,
+            dns_resolver,
+            #[cfg(target_os = "android")]
+            socket_bypass_tx,
         )
     }
 
