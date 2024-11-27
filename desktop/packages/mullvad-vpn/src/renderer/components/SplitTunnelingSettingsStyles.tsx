@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { measurements, normalText } from './common-styles';
+import { measurements, miniText, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
 import SearchBar from './SearchBar';
@@ -118,13 +118,21 @@ export const StyledHeaderTitle = styled(HeaderTitle)({
   flex: 1,
 });
 
+export const StyledMiniTitle = styled.span({
+  ...miniText,
+  color: colors.white60,
+});
+
 export const StyledSearchBar = styled(SearchBar)({
   marginLeft: measurements.viewMargin,
   marginRight: measurements.viewMargin,
   marginBottom: measurements.buttonVerticalMargin,
 });
 
-export const StyledSystemSettingsButton = styled(SmallButton)({
+export const WideSmallButton = styled(SmallButton)({
   width: '100%',
-  marginTop: '24px',
 });
+
+export const Spacing = styled.div<{ height: string }>((props) => ({
+  height: props.height,
+}));
