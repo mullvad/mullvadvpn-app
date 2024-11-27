@@ -62,6 +62,20 @@ constraints the following default ones will take effect:
   - The seventh attempt will connect to an OpenVPN relay over TCP on port 443
   - The eighth attempt will connect to an OpenVPN relay over a bridge on a random port
 
+### Default constraints for tunnel endpoints on iOS
+
+The iOS platform does not support OpenVPN, or connecting to a relay over IPv6.
+As such, the above algorithm is simplified to the following version:
+  - The first attempt will connect to a Wireguard relay on a random port
+  - The second attempt will connect to a Wireguard relay on port 443
+  - The third attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
+  - The fourth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
+
+### Random Ports for UDP2TCP and Shadowsocks
+
+- The UDP2TCP random port is **either** 80 **or** 5001
+- The Shadowsocks port is random within a certain range of ports defined by the relay list
+
 If no tunnel has been established after exhausting this list of attempts, the relay selector will
 loop back to the first default constraint and continue its search from there.
 
@@ -117,5 +131,5 @@ will indirectly change the bridge state to _Auto_ if it was previously set to _O
 
 ### Obfuscator caveats
 
-Currently, there is only a single type of obfuscator - _udp2tcp_, and it's only used if it's mode is
-set to _On_ or _Auto_ and the user has selected WireGuard to be the only tunnel protocol to be used.
+There are two type of obfuscators - _udp2tcp_, and _shadowsocks_.
+They are used if the obfuscation mode is set _Auto_ and the user has selected WireGuard to be the only tunnel protocol to be used.

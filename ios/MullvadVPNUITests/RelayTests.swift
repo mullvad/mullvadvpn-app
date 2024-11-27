@@ -151,7 +151,48 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         VPNSettingsPage(app)
             .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationOnCell()
+            .tapWireGuardObfuscationUdpOverTcpCell()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        try Networking.verifyCanAccessInternet()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+    }
+
+    func testWireGuardOverShadowsocksManually() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapWireGuardObfuscationExpandButton()
+                .tapWireGuardObfuscationOffCell()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationShadowsocksCell()
             .tapBackButton()
 
         SettingsPage(app)
