@@ -1,4 +1,5 @@
 #![allow(rustdoc::private_intra_doc_links)]
+use address_cache::AddressCacheResolver;
 use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
@@ -308,7 +309,7 @@ impl ApiEndpoint {
 
 #[async_trait]
 pub trait DnsResolver: 'static + Send + Sync {
-    async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>>;
+    async fn resolve(&self, host: String) -> io::Result<Vec<SocketAddr>>;
 }
 
 /// DNS resolver that relies on `ToSocketAddrs` (`getaddrinfo`).
@@ -316,14 +317,14 @@ pub struct DefaultDnsResolver;
 
 #[async_trait]
 impl DnsResolver for DefaultDnsResolver {
-    async fn resolve(&self, host: String) -> io::Result<Vec<IpAddr>> {
+    async fn resolve(&self, host: String) -> io::Result<Vec<SocketAddr>> {
         use std::net::ToSocketAddrs;
         // Spawn a blocking thread, since `to_socket_addrs` relies on `libc::getaddrinfo`, which
         // blocks and either has no timeout or a very long one.
         let addrs = tokio::task::spawn_blocking(move || (host, 0).to_socket_addrs())
             .await
             .expect("DNS task panicked")?;
-        Ok(addrs.map(|addr| addr.ip()).collect())
+        Ok(addrs.collect())
     }
 }
 
@@ -332,7 +333,7 @@ pub struct NullDnsResolver;
 
 #[async_trait]
 impl DnsResolver for NullDnsResolver {
-    async fn resolve(&self, _host: String) -> io::Result<Vec<IpAddr>> {
+    async fn resolve(&self, _host: String) -> io::Result<Vec<SocketAddr>> {
         Ok(vec![])
     }
 }
@@ -342,7 +343,7 @@ pub struct Runtime {
     handle: tokio::runtime::Handle,
     address_cache: AddressCache,
     api_availability: availability::ApiAvailability,
-    dns_resolver: Arc<dyn DnsResolver>,
+    dns_resolver: Arc<AddressCacheResolver>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
 }
@@ -390,11 +391,12 @@ impl Runtime {
         dns_resolver: impl DnsResolver,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
     ) -> Result<Self, Error> {
+        let address_cache = AddressCache::new(None);
         Ok(Runtime {
             handle,
-            address_cache: AddressCache::new(None)?,
+            address_cache: address_cache.clone(),
             api_availability: ApiAvailability::default(),
-            dns_resolver: Arc::new(dns_resolver),
+            dns_resolver: Arc::new(AddressCacheResolver::new(address_cache, dns_resolver)),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -438,7 +440,7 @@ impl Runtime {
                         )
                     );
                 }
-                AddressCache::new(write_file)?
+                AddressCache::new(write_file)
             }
         };
 
@@ -446,9 +448,9 @@ impl Runtime {
 
         Ok(Runtime {
             handle,
-            address_cache,
+            address_cache: address_cache.clone(),
             api_availability,
-            dns_resolver: Arc::new(dns_resolver),
+            dns_resolver: Arc::new(AddressCacheResolver::new(address_cache, dns_resolver)),
             #[cfg(target_os = "android")]
             socket_bypass_tx,
         })
@@ -464,7 +466,6 @@ impl Runtime {
         rest::RequestService::spawn(
             sni_hostname,
             self.api_availability.clone(),
-            self.address_cache.clone(),
             connection_mode_provider,
             self.dns_resolver.clone(),
             #[cfg(target_os = "android")]
