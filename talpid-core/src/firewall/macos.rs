@@ -1,16 +1,18 @@
-use super::{FirewallArguments, FirewallPolicy};
+use std::env;
+use std::io;
+use std::net::{IpAddr, Ipv4Addr};
+use std::ptr;
+
 use ipnetwork::IpNetwork;
 use libc::{c_int, sysctlbyname};
 use pfctl::{DropAction, FilterRuleAction, Ip, Uid};
-use std::{
-    env, io,
-    net::{IpAddr, Ipv4Addr},
-    ptr,
-};
 use subslice::SubsliceExt;
 use talpid_types::net::{
-    self, AllowedEndpoint, AllowedTunnelTraffic, ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS,
+    AllowedEndpoint, AllowedTunnelTraffic, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
+    ALLOWED_LAN_NETS,
 };
+
+use super::{FirewallArguments, FirewallPolicy};
 
 pub use pfctl::Error;
 
@@ -530,10 +532,7 @@ impl Firewall {
         Ok(rules)
     }
 
-    fn get_allow_relay_rule(
-        &self,
-        relay_endpoint: &net::AllowedEndpoint,
-    ) -> Result<pfctl::FilterRule> {
+    fn get_allow_relay_rule(&self, relay_endpoint: &AllowedEndpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.endpoint.protocol);
 
         let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
@@ -941,10 +940,10 @@ impl Firewall {
     }
 }
 
-fn as_pfctl_proto(protocol: net::TransportProtocol) -> pfctl::Proto {
+fn as_pfctl_proto(protocol: TransportProtocol) -> pfctl::Proto {
     match protocol {
-        net::TransportProtocol::Udp => pfctl::Proto::Udp,
-        net::TransportProtocol::Tcp => pfctl::Proto::Tcp,
+        TransportProtocol::Udp => pfctl::Proto::Udp,
+        TransportProtocol::Tcp => pfctl::Proto::Tcp,
     }
 }
 
