@@ -12,8 +12,10 @@ pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-versio
 pub struct Version {
     pub year: String,
     pub incremental: String,
+    /// A version can have an optional type, e.g. alpha or beta. If `version_type` and `dev`
+    /// both are None the version is stable.
     pub version_type: Option<VersionType>,
-    // All versions may have an optional -dev-[commit hash] suffix.
+    /// All versions may have an optional -dev-[commit hash] suffix.
     pub dev: Option<String>,
 }
 
@@ -65,8 +67,8 @@ impl Display for Version {
             None => (),
         };
 
-        if let Some(dev) = dev {
-            write!(f, "-dev-{dev}")?;
+        if let Some(commit_hash) = dev {
+            write!(f, "-dev-{commit_hash}")?;
         }
 
         Ok(())
