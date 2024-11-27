@@ -254,10 +254,12 @@ struct VPNSettingsViewModel: Equatable {
         multihopState = tunnelSettings.tunnelMultihopState
     }
 
-    /// Produce merged view model keeping entry `identifier` for matching DNS entries.
+    /// Produce merged view model, keeping entry `identifier` for matching DNS entries and
+    /// retaining available Wireguard port ranges.
     func merged(_ other: VPNSettingsViewModel) -> VPNSettingsViewModel {
         var mergedViewModel = other
         mergedViewModel.customDNSDomains = merge(customDNSDomains, with: other.customDNSDomains)
+        mergedViewModel.availableWireGuardPortRanges = availableWireGuardPortRanges
 
         return mergedViewModel
     }
