@@ -12,6 +12,8 @@ pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-versio
 pub struct Version {
     pub year: String,
     pub incremental: String,
+    // All versions may have an optional -dev-[commit hash] suffix.
+    pub dev: Option<String>,
     pub version_type: VersionType,
 }
 
@@ -19,8 +21,6 @@ pub struct Version {
 pub enum VersionType {
     Alpha(String),
     Beta(String),
-    Dev(String),
-    BetaDev { beta: String, dev: String },
     Stable,
 }
 
@@ -42,37 +42,35 @@ impl Version {
 
     pub fn beta(&self) -> Option<&str> {
         match &self.version_type {
-            Beta(beta) | BetaDev { beta, .. } => Some(beta),
-            _ => None,
-        }
-    }
-
-    pub fn dev(&self) -> Option<&str> {
-        match &self.version_type {
-            Dev(dev) | BetaDev { dev, .. } => Some(dev),
+            Beta(beta) => Some(beta),
             _ => None,
         }
     }
 }
 
 impl Display for Version {
-    /// Format Version as a string: year.incremental-{alpha|beta|dev}-{dev}
+    /// Format Version as a string: year.incremental-{alpha|beta}-{dev}
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         let Version {
             year,
             incremental,
             version_type,
+            dev,
         } = &self;
 
         write!(f, "{year}.{incremental}")?;
 
         match version_type {
-            Alpha(version) => write!(f, "-alpha{version}"),
-            Beta(version) => write!(f, "-beta{version}"),
-            BetaDev { beta, dev } => write!(f, "-beta{beta}-dev-{dev}"),
-            Dev(commit_hash) => write!(f, "-dev-{commit_hash}"),
-            Stable => Ok(()),
+            Alpha(version) => write!(f, "-alpha{version}")?,
+            Beta(version) => write!(f, "-beta{version}")?,
+            Stable => (),
+        };
+
+        if let Some(dev) = dev {
+            write!(f, "-dev-{dev}")?;
         }
+
+        Ok(())
     }
 }
 
@@ -117,12 +115,10 @@ impl FromStr for Version {
         let beta = captures.name("beta").map(|m| m.as_str().to_owned());
         let dev = captures.name("dev").map(|m| m.as_str().to_owned());
 
-        let version_type = match (alpha, beta, dev) {
-            (None, None, None) => Stable,
-            (Some(v), None, None) => Alpha(v),
-            (None, Some(v), None) => Beta(v),
-            (None, None, Some(v)) => Dev(v),
-            (None, Some(beta), Some(dev)) => BetaDev { beta, dev },
+        let version_type = match (alpha, beta) {
+            (None, None) => Stable,
+            (Some(v), None) => Alpha(v),
+            (None, Some(v)) => Beta(v),
             _ => return Err(format!("Invalid version: {version}")),
         };
 
@@ -130,6 +126,7 @@ impl FromStr for Version {
             year,
             incremental,
             version_type,
+            dev,
         })
     }
 }
@@ -146,7 +143,7 @@ mod tests {
         assert_eq!(parsed.incremental, "34");
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), None);
-        assert_eq!(parsed.dev(), None);
+        assert_eq!(parsed.dev, None);
         assert!(parsed.is_stable());
     }
 
@@ -158,7 +155,7 @@ mod tests {
         assert_eq!(parsed.incremental, "1");
         assert_eq!(parsed.alpha(), Some("77"));
         assert_eq!(parsed.beta(), None);
-        assert_eq!(parsed.dev(), None);
+        assert_eq!(parsed.dev, None);
         assert!(!parsed.is_stable());
 
         let version = "2021.34-alpha777";
@@ -174,7 +171,7 @@ mod tests {
         assert_eq!(parsed.incremental, "34");
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), Some("5"));
-        assert_eq!(parsed.dev(), None);
+        assert_eq!(parsed.dev, None);
         assert!(!parsed.is_stable());
 
         let version = "2021.34-beta453";
@@ -188,10 +185,10 @@ mod tests {
         let parsed = Version::parse(version);
         assert_eq!(parsed.year, "21");
         assert_eq!(parsed.incremental, "34");
+        assert!(parsed.is_stable());
+        assert_eq!(parsed.dev, Some("0b60e4d87".to_string()));
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), None);
-        assert_eq!(parsed.dev(), Some("0b60e4d87"));
-        assert!(!parsed.is_stable());
     }
 
     #[test]
@@ -202,7 +199,7 @@ mod tests {
         assert_eq!(parsed.incremental, "8");
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), Some("1"));
-        assert_eq!(parsed.dev(), Some("e5483d"));
+        assert_eq!(parsed.dev, Some("e5483d".to_string()));
         assert!(!parsed.is_stable());
     }
 

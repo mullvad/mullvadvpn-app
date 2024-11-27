@@ -58,10 +58,14 @@ fn to_semver(version: &str) -> String {
 fn to_android_version_code(version: &str) -> String {
     let version = Version::parse(version);
 
-    let (build_type, build_number) = match &version.version_type {
-        Alpha(v) => ("0", v.as_str()),
-        Beta(v) => ("1", v.as_str()),
-        Stable | Dev(_) | BetaDev { .. } => ("9", "000"),
+    let (build_type, build_number) = if version.dev.is_some() {
+        ("9", "000")
+    } else {
+        match &version.version_type {
+            Alpha(v) => ("0", v.as_str()),
+            Beta(v) => ("1", v.as_str()),
+            Stable => ("9", "000"),
+        }
     };
 
     format!(
@@ -94,7 +98,7 @@ fn to_windows_h_format(version: &str) -> String {
 }
 
 fn is_valid_windows_version(version_type: &VersionType) -> bool {
-    matches!(version_type, Beta(_) | Dev(_) | BetaDev { .. } | Stable)
+    matches!(version_type, Beta(_) | Stable)
 }
 
 #[cfg(test)]
