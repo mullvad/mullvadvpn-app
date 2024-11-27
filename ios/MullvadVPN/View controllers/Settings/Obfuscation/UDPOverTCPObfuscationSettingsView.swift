@@ -1,5 +1,5 @@
 //
-//  UDPTCPObfuscationSettingsView.swift
+//  UDPOverTCPObfuscationSettingsView.swift
 //  MullvadVPN
 //
 //  Created by Andrew Bulhak on 2024-10-28.
@@ -9,7 +9,7 @@
 import MullvadSettings
 import SwiftUI
 
-struct UDPTCPObfuscationSettingsView<VM>: View where VM: UDPTCPObfuscationSettingsViewModel {
+struct UDPOverTCPObfuscationSettingsView<VM>: View where VM: UDPOverTCPObfuscationSettingsViewModel {
     @StateObject var viewModel: VM
 
     var body: some View {
@@ -36,6 +36,6 @@ struct UDPTCPObfuscationSettingsView<VM>: View where VM: UDPTCPObfuscationSettin
 }
 
 #Preview {
-    let model = MockUDPTCPObfuscationSettingsViewModel(udpTcpPort: .port5001)
-    return UDPTCPObfuscationSettingsView(viewModel: model)
+    let model = MockUDPOverTCPObfuscationSettingsViewModel(udpTcpPort: .port5001)
+    return UDPOverTCPObfuscationSettingsView(viewModel: model)
 }
