@@ -1,0 +1,3 @@
+- Fixed a case where the app would freeze.
+- Fixed an issue with account expiry notifications not showing. 
+- Improve animations.
