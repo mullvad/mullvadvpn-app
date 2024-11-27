@@ -4,8 +4,9 @@ use super::{
     TunnelStateTransition,
 };
 use crate::{
-    dns::ResolvedDnsConfig,
+    dns::{DnsConfig, ResolvedDnsConfig},
     firewall::FirewallPolicy,
+    resolver::LOCAL_DNS_RESOLVER,
     tunnel::{TunnelEvent, TunnelMetadata},
 };
 use futures::{
@@ -171,27 +172,31 @@ impl ConnectedState {
 
         // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
-        if !dns_config.is_loopback() {
-            shared_values.runtime.block_on(
-                shared_values
-                    .filtering_resolver
-                    .enable_forward(dns_config.addresses().collect()),
-            );
-            shared_values
-                .dns_monitor
-                .set(
-                    "lo",
-                    crate::dns::DnsConfig::default().resolve(
-                        &[std::net::Ipv4Addr::LOCALHOST.into()],
-                        shared_values.filtering_resolver.listening_port(),
-                    ),
-                )
-                .map_err(BoxedError::new)?;
-        } else {
-            log::debug!("Not enabling DNS forwarding since loopback is used");
+        // We do not want to forward DNS queries to *our* local resolver if we do not run a local
+        // DNS resolver *or* if the DNS config points to a loopback address.
+        if dns_config.is_loopback() || !*LOCAL_DNS_RESOLVER {
+            log::debug!("Not enabling DNS forwarding");
             shared_values
                 .dns_monitor
                 .set(&self.metadata.interface, dns_config)
+                .map_err(BoxedError::new)?;
+        } else {
+            log::debug!("Enabling DNS forwarding");
+            let local_resolver_config = dns_config.addresses().collect();
+            // Forward all DNS requests to our local DNS resolver
+            shared_values.runtime.block_on(
+                shared_values
+                    .filtering_resolver
+                    .enable_forward(local_resolver_config),
+            );
+            // Set system DNS to our local DNS resolver
+            let system_dns = DnsConfig::default().resolve(
+                &[std::net::Ipv4Addr::LOCALHOST.into()],
+                shared_values.filtering_resolver.listening_port(),
+            );
+            shared_values
+                .dns_monitor
+                .set("lo", system_dns)
                 .map_err(BoxedError::new)?;
         }
 
