@@ -214,14 +214,13 @@ impl ConnectingState {
         retry_attempt: u32,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
-        let on_tunnel_event =
-            move |event| -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>> {
-                let (tx, rx) = oneshot::channel();
-                let _ = event_tx.unbounded_send((event, tx));
-                Box::pin(async move {
-                    let _ = rx.await;
-                })
-            };
+        let on_tunnel_event = move |event| {
+            let (tx, rx) = oneshot::channel();
+            let _ = event_tx.unbounded_send((event, tx));
+            async move {
+                let _ = rx.await;
+            }
+        };
 
         let route_manager = route_manager.clone();
         let log_dir = log_dir.clone();
@@ -290,10 +289,14 @@ impl ConnectingState {
         }
     }
 
-    fn wait_for_tunnel_monitor(
-        tunnel_monitor: TunnelMonitor,
+    fn wait_for_tunnel_monitor<L, F>(
+        tunnel_monitor: TunnelMonitor<L>,
         retry_attempt: u32,
-    ) -> Option<ErrorStateCause> {
+    ) -> Option<ErrorStateCause>
+    where
+        L: (Fn(talpid_tunnel::TunnelEvent) -> F) + Send + Clone + Sync + 'static,
+        F: std::future::Future<Output = ()> + Send + 'static,
+    {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {
