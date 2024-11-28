@@ -28,13 +28,22 @@ export default function SelectLocationContainer() {
   const { setSelectLocationView } = useActions(userInterface);
   const [searchTerm, setSearchTerm] = useState('');
   const relaySettings = useNormalRelaySettings();
+  const bridgeState = useSelector((state) => state.settings.bridgeState);
 
   const locationType = useMemo(() => {
-    if (relaySettings?.wireguard.useMultihop) {
+    const wireguardEnabled = relaySettings?.tunnelProtocol !== 'openvpn';
+    const multihopEnabled = wireguardEnabled && relaySettings?.wireguard.useMultihop;
+
+    const openvpnEnabled = relaySettings?.tunnelProtocol !== 'wireguard';
+    const bridgeModeEnabled = openvpnEnabled && bridgeState === 'on';
+
+    const allowEntryLocations = multihopEnabled || bridgeModeEnabled;
+
+    if (allowEntryLocations) {
       return locationTypeSelector;
     }
     return LocationType.exit;
-  }, [locationTypeSelector, relaySettings]);
+  }, [locationTypeSelector, relaySettings, bridgeState]);
 
   const value = useMemo(
     () => ({
