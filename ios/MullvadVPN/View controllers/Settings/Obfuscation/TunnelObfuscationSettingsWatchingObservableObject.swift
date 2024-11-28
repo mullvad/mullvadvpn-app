@@ -17,21 +17,12 @@ class TunnelObfuscationSettingsWatchingObservableObject<T: Equatable>: Observabl
     let keyPath: WritableKeyPath<WireGuardObfuscationSettings, T>
     private var tunnelObserver: TunnelObserver?
 
-    // this is essentially @Published from scratch
-    var value: T {
-        willSet(newValue) {
-            guard newValue != self.value else { return }
-            objectWillChange.send()
-            var obfuscationSettings = tunnelManager.settings.wireGuardObfuscation
-            obfuscationSettings[keyPath: keyPath] = newValue
-            tunnelManager.updateSettings([.obfuscation(obfuscationSettings)])
-        }
-    }
+    @Published var value: T
 
-    init(tunnelManager: TunnelManager, keyPath: WritableKeyPath<WireGuardObfuscationSettings, T>, _ initialValue: T) {
+    init(tunnelManager: TunnelManager, keyPath: WritableKeyPath<WireGuardObfuscationSettings, T>) {
         self.tunnelManager = tunnelManager
         self.keyPath = keyPath
-        self.value = initialValue
+        self.value = tunnelManager.settings.wireGuardObfuscation[keyPath: keyPath]
         tunnelObserver =
             TunnelBlockObserver(didUpdateTunnelSettings: { [weak self] _, newSettings in
                 guard let self else { return }
@@ -44,5 +35,12 @@ class TunnelObfuscationSettingsWatchingObservableObject<T: Equatable>: Observabl
         if value != newValue {
             value = newValue
         }
+    }
+
+    // Commit the temporarily stored value upstream
+    func commit() {
+        var obfuscationSettings = tunnelManager.settings.wireGuardObfuscation
+        obfuscationSettings[keyPath: keyPath] = value
+        tunnelManager.updateSettings([.obfuscation(obfuscationSettings)])
     }
 }

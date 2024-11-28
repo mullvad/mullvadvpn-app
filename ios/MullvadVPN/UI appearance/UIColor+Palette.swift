@@ -31,18 +31,21 @@ extension UIColor {
 
     enum TextField {
         static let placeholderTextColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 0.40)
+        static let inactivePlaceholderTextColor = UIColor(white: 1.0, alpha: 0.4)
         static let textColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
+        static let inactiveTextColor = UIColor.white
         static let backgroundColor = UIColor.white
+        static let inactiveBackgroundColor = UIColor(white: 1.0, alpha: 0.1)
         static let invalidInputTextColor = UIColor.dangerColor
     }
 
     enum SearchTextField {
         static let placeholderTextColor = TextField.placeholderTextColor
-        static let inactivePlaceholderTextColor = UIColor(white: 1.0, alpha: 0.4)
+        static let inactivePlaceholderTextColor = TextField.inactivePlaceholderTextColor
         static let textColor = TextField.textColor
-        static let inactiveTextColor = UIColor.white
+        static let inactiveTextColor = TextField.inactiveTextColor
         static let backgroundColor = TextField.backgroundColor
-        static let inactiveBackgroundColor = UIColor(white: 1.0, alpha: 0.1)
+        static let inactiveBackgroundColor = TextField.inactiveBackgroundColor
         static let leftViewTintColor = UIColor.primaryColor
         static let inactiveLeftViewTintColor = UIColor.white
     }

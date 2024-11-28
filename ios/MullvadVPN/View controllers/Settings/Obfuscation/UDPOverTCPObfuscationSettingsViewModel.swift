@@ -1,5 +1,5 @@
 //
-//  UDPTCPObfuscationSettingsViewModel.swift
+//  UDPOverTCPObfuscationSettingsViewModel.swift
 //  MullvadVPN
 //
 //  Created by Andrew Bulhak on 2024-11-05.
@@ -9,29 +9,32 @@
 import Foundation
 import MullvadSettings
 
-protocol UDPTCPObfuscationSettingsViewModel: ObservableObject {
+protocol UDPOverTCPObfuscationSettingsViewModel: ObservableObject {
     var value: WireGuardObfuscationUdpOverTcpPort { get set }
+
+    func commit()
 }
 
 /** A simple mock view model for use in Previews and similar */
-class MockUDPTCPObfuscationSettingsViewModel: UDPTCPObfuscationSettingsViewModel {
+class MockUDPOverTCPObfuscationSettingsViewModel: UDPOverTCPObfuscationSettingsViewModel {
     @Published var value: WireGuardObfuscationUdpOverTcpPort
 
     init(udpTcpPort: WireGuardObfuscationUdpOverTcpPort = .automatic) {
         self.value = udpTcpPort
     }
+
+    func commit() {}
 }
 
 /** The live view model which interfaces with the TunnelManager  */
-class TunnelUDPTCPObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchingObservableObject<
+class TunnelUDPOverTCPObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchingObservableObject<
     WireGuardObfuscationUdpOverTcpPort
 >,
-    UDPTCPObfuscationSettingsViewModel {
+    UDPOverTCPObfuscationSettingsViewModel {
     init(tunnelManager: TunnelManager) {
         super.init(
             tunnelManager: tunnelManager,
-            keyPath: \.udpOverTcpPort,
-            tunnelManager.settings.wireGuardObfuscation.udpOverTcpPort
+            keyPath: \.udpOverTcpPort
         )
     }
 }
