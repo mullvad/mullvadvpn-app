@@ -48,7 +48,7 @@ ktor = "3.0.1"
 kotlin = "2.1.0"
 kotlin-ksp = "2.1.0-1.0.29"
 kotlinx = "1.9.0"
-kotlinx-serialization = "2.0.21"
+kotlinx-serialization = "2.1.0"
 
 # Protobuf
 protobuf = "0.9.4"
