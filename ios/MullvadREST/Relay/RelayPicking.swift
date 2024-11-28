@@ -8,8 +8,10 @@
 
 import MullvadSettings
 import MullvadTypes
+import Network
 
 protocol RelayPicking {
+    var obfuscation: ObfuscatorPortSelection { get }
     var relays: REST.ServerRelaysResponse { get }
     var constraints: RelayConstraints { get }
     var connectionAttemptCount: UInt { get }
@@ -20,15 +22,20 @@ protocol RelayPicking {
 extension RelayPicking {
     func findBestMatch(
         from candidates: [RelayWithLocation<REST.ServerRelay>],
-        closeTo location: Location? = nil
+        closeTo location: Location? = nil,
+        useObfuscatedPortIfAvailable: Bool
     ) throws -> SelectedRelay {
-        let match = try RelaySelector.WireGuard.pickCandidate(
+        var match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
             relays: relays,
-            portConstraint: constraints.port,
+            portConstraint: useObfuscatedPortIfAvailable ? obfuscation.port : constraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
             closeTo: location
         )
+
+        if useObfuscatedPortIfAvailable && obfuscation.method == .shadowsocks {
+            match = applyShadowsocksIpAddress(in: match)
+        }
 
         return SelectedRelay(
             endpoint: match.endpoint,
@@ -36,13 +43,42 @@ extension RelayPicking {
             location: match.location
         )
     }
+
+    private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> RelaySelectorMatch {
+        let port = match.endpoint.ipv4Relay.port
+        let portRanges = RelaySelector.parseRawPortRanges(relays.wireguard.shadowsocksPortRanges)
+        let portIsWithinRange = portRanges.contains(where: { $0.contains(port) })
+
+        var endpoint = match.endpoint
+
+        // If the currently selected obfuscation port is not within the allowed range (as specified
+        // in the relay list), we should use one of the extra Shadowsocks IP addresses instead of
+        // the default one.
+        if !portIsWithinRange {
+            var ipv4Address = match.endpoint.ipv4Relay.ip
+            if let shadowsocksAddress = match.relay.shadowsocksExtraAddrIn?.randomElement() {
+                ipv4Address = IPv4Address(shadowsocksAddress) ?? ipv4Address
+            }
+
+            endpoint = match.endpoint.override(ipv4Relay: IPv4Endpoint(
+                ip: ipv4Address,
+                port: port
+            ))
+        }
+
+        return RelaySelectorMatch(endpoint: endpoint, relay: match.relay, location: match.location)
+    }
 }
 
 struct SinglehopPicker: RelayPicking {
-    let relays: REST.ServerRelaysResponse
+    let obfuscation: ObfuscatorPortSelection
     let constraints: RelayConstraints
     let connectionAttemptCount: UInt
     let daitaSettings: DAITASettings
+
+    var relays: REST.ServerRelaysResponse {
+        obfuscation.relays
+    }
 
     func pick() throws -> SelectedRelays {
         do {
@@ -53,14 +89,14 @@ struct SinglehopPicker: RelayPicking {
                 daitaEnabled: daitaSettings.daitaState.isEnabled
             )
 
-            let match = try findBestMatch(from: exitCandidates)
+            let match = try findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: true)
             return SelectedRelays(entry: nil, exit: match, retryAttempt: connectionAttemptCount)
         } catch let error as NoRelaysSatisfyingConstraintsError where error.reason == .noDaitaRelaysFound {
             // If DAITA is on and Direct only is off, and no supported relays are found, we should try to find the nearest
             // available relay that supports DAITA and use it as entry in a multihop selection.
             if daitaSettings.isAutomaticRouting {
                 return try MultihopPicker(
-                    relays: relays,
+                    obfuscation: obfuscation,
                     constraints: constraints,
                     connectionAttemptCount: connectionAttemptCount,
                     daitaSettings: daitaSettings
@@ -73,10 +109,14 @@ struct SinglehopPicker: RelayPicking {
 }
 
 struct MultihopPicker: RelayPicking {
-    let relays: REST.ServerRelaysResponse
+    let obfuscation: ObfuscatorPortSelection
     let constraints: RelayConstraints
     let connectionAttemptCount: UInt
     let daitaSettings: DAITASettings
+
+    var relays: REST.ServerRelaysResponse {
+        obfuscation.relays
+    }
 
     func pick() throws -> SelectedRelays {
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
@@ -129,12 +169,17 @@ struct MultihopPicker: RelayPicking {
     func exclude(
         relay: SelectedRelay,
         from candidates: [RelayWithLocation<REST.ServerRelay>],
-        closeTo location: Location? = nil
+        closeTo location: Location? = nil,
+        useObfuscatedPortIfAvailable: Bool
     ) throws -> SelectedRelay {
         let filteredCandidates = candidates.filter { relayWithLocation in
             relayWithLocation.relay.hostname != relay.hostname
         }
 
-        return try findBestMatch(from: filteredCandidates, closeTo: location)
+        return try findBestMatch(
+            from: filteredCandidates,
+            closeTo: location,
+            useObfuscatedPortIfAvailable: useObfuscatedPortIfAvailable
+        )
     }
 }

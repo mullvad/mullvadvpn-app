@@ -9,9 +9,10 @@
 import MullvadSettings
 import MullvadTypes
 
-struct ObfuscatorPortSelectorResult {
+struct ObfuscatorPortSelection {
     let relays: REST.ServerRelaysResponse
     let port: RelayConstraint<UInt16>
+    let method: WireGuardObfuscationState
 }
 
 struct ObfuscatorPortSelector {
@@ -20,7 +21,7 @@ struct ObfuscatorPortSelector {
     func obfuscate(
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
-    ) throws -> ObfuscatorPortSelectorResult {
+    ) throws -> ObfuscatorPortSelection {
         var relays = relays
         var port = tunnelSettings.relayConstraints.port
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
@@ -44,7 +45,7 @@ struct ObfuscatorPortSelector {
             break
         }
 
-        return ObfuscatorPortSelectorResult(relays: relays, port: port)
+        return ObfuscatorPortSelection(relays: relays, port: port, method: obfuscationMethod)
     }
 
     private func obfuscateShadowsocksRelays(tunnelSettings: LatestTunnelSettings) -> REST.ServerRelaysResponse {

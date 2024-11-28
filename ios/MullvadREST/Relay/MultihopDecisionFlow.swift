@@ -22,6 +22,7 @@ protocol MultihopDecisionFlow {
 struct OneToOne: MultihopDecisionFlow {
     let next: MultihopDecisionFlow?
     let relayPicker: RelayPicking
+
     init(next: (any MultihopDecisionFlow)?, relayPicker: RelayPicking) {
         self.next = next
         self.relayPicker = relayPicker
@@ -47,10 +48,11 @@ struct OneToOne: MultihopDecisionFlow {
             throw NoRelaysSatisfyingConstraintsError(.entryEqualsExit)
         }
 
-        let exitMatch = try relayPicker.findBestMatch(from: exitCandidates)
+        let exitMatch = try relayPicker.findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: false)
         let entryMatch = try relayPicker.findBestMatch(
             from: entryCandidates,
-            closeTo: daitaAutomaticRouting ? exitMatch.location : nil
+            closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
+            useObfuscatedPortIfAvailable: true
         )
 
         return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
@@ -95,8 +97,12 @@ struct OneToMany: MultihopDecisionFlow {
                 .pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates, daitaAutomaticRouting: true)
         }
 
-        let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates)
-        let exitMatch = try multihopPicker.exclude(relay: entryMatch, from: exitCandidates)
+        let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates, useObfuscatedPortIfAvailable: true)
+        let exitMatch = try multihopPicker.exclude(
+            relay: entryMatch,
+            from: exitCandidates,
+            useObfuscatedPortIfAvailable: false
+        )
 
         return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
     }
@@ -135,11 +141,12 @@ struct ManyToOne: MultihopDecisionFlow {
             )
         }
 
-        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates)
+        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: false)
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
-            closeTo: daitaAutomaticRouting ? exitMatch.location : nil
+            closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
+            useObfuscatedPortIfAvailable: true
         )
 
         return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
@@ -179,11 +186,12 @@ struct ManyToMany: MultihopDecisionFlow {
             )
         }
 
-        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates)
+        let exitMatch = try multihopPicker.findBestMatch(from: exitCandidates, useObfuscatedPortIfAvailable: false)
         let entryMatch = try multihopPicker.exclude(
             relay: exitMatch,
             from: entryCandidates,
-            closeTo: daitaAutomaticRouting ? exitMatch.location : nil
+            closeTo: daitaAutomaticRouting ? exitMatch.location : nil,
+            useObfuscatedPortIfAvailable: true
         )
 
         return SelectedRelays(entry: entryMatch, exit: exitMatch, retryAttempt: relayPicker.connectionAttemptCount)
