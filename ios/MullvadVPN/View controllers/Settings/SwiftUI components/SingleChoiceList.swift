@@ -272,7 +272,12 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                     // this is not a valid value, so we fall back to the
                     // initial value, showing the invalid-value state if
                     // the field is not empty
-                    if let initialValue {
+                    // As `customValueIsFocused` takes a while to propagate, we
+                    // only reset the field to the initial value if it was previously
+                    // a custom value. Otherwise, blanking this field when the user
+                    // has selected another field will cause the user's choice to be
+                    // overridden.
+                    if let initialValue, fromValue(value.wrappedValue) != nil {
                         value.wrappedValue = initialValue
                     }
                     customValueInputIsInvalid = !customValueInput.isEmpty
@@ -355,18 +360,23 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         case three
         case someNumber(Int)
     }
-    return StatefulPreviewWrapper(ExampleValue.two) { SingleChoiceList(
-        title: "Test",
-        options: [.two, .three],
-        value: $0,
-        parseCustomValue: { Int($0).flatMap { $0 > 3 ? ExampleValue.someNumber($0) : nil } },
-        formatCustomValue: { if case let .someNumber(n) = $0 { "\(n)" } else { nil } },
-        customLabel: "Custom",
-        customPrompt: "Number",
-        customLegend: "The legend goes here",
-        customInputMinWidth: 120,
-        customInputMaxLength: 6,
-        customFieldMode: .numericText
-    )
+    return StatefulPreviewWrapper(ExampleValue.two) { value in
+        VStack {
+            let vs = "Value = \(value.wrappedValue)"
+            Text(vs)
+            SingleChoiceList(
+                title: "Test",
+                options: [.two, .three],
+                value: value,
+                parseCustomValue: { Int($0).flatMap { $0 > 3 ? ExampleValue.someNumber($0) : nil } },
+                formatCustomValue: { if case let .someNumber(n) = $0 { "\(n)" } else { nil } },
+                customLabel: "Custom",
+                customPrompt: "Number",
+                customLegend: "The legend goes here",
+                customInputMinWidth: 120,
+                customInputMaxLength: 6,
+                customFieldMode: .numericText
+            )
+        }
     }
 }
