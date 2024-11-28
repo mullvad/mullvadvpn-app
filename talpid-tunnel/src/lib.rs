@@ -1,4 +1,5 @@
 use std::{
+    future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::Path,
     sync::{Arc, Mutex},
@@ -9,7 +10,7 @@ use std::{
 pub mod network_interface;
 
 pub mod tun_provider;
-use futures::{channel::oneshot, future::BoxFuture};
+use futures::channel::oneshot;
 use talpid_routing::RouteManagerHandle;
 use talpid_types::net::AllowedTunnelTraffic;
 use tun_provider::TunProvider;
@@ -28,9 +29,10 @@ pub const MIN_IPV4_MTU: u16 = 576;
 pub const MIN_IPV6_MTU: u16 = 1280;
 
 /// Arguments for creating a tunnel.
-pub struct TunnelArgs<'a, L>
+pub struct TunnelArgs<'a, L, F>
 where
-    L: (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Clone + Sync + 'static,
+    L: (Fn(TunnelEvent) -> F) + Send + Clone + Sync + 'static,
+    F: Future<Output = ()>,
 {
     /// Tokio runtime handle.
     pub runtime: tokio::runtime::Handle,
