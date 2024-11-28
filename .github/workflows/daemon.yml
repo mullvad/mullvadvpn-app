@@ -118,7 +118,14 @@ jobs:
         run: ./ci/check-rust.sh
 
   build-windows:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - os: windows-latest
+            arch: x64
+          - os: [self-hosted, ARM64, Windows]
+            arch: arm64
+    runs-on: ${{ matrix.config.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -127,11 +134,13 @@ jobs:
         run: git submodule update --init --depth=1
 
       - name: Install Protoc
+        if: ${{ matrix.config.arch == 'x64' }}
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Calculate Windows libraries cache hash
+        if: ${{ matrix.config.arch == 'x64' }}
         id: windows-modules-hash
         shell: bash
         run: |
@@ -142,6 +151,7 @@ jobs:
           echo "hash=$hash" >> "$GITHUB_OUTPUT"
 
       - name: Cache Windows libraries
+        if: ${{ matrix.config.arch == 'x64' }}
         uses: actions/cache@v2
         id: cache-windows-modules
         with:
@@ -153,6 +163,15 @@ jobs:
             !./windows/*/bin/x64-*/libwfp.lib
           key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
 
+      # The x64 toolchain is needed to build talpid-openvpn-plugin
+      # TODO: Remove once fixed
+      - name: Install Rust x64 target
+        if: ${{ matrix.config.arch == 'arm64' }}
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: x86_64-pc-windows-msvc
+
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
         with:
@@ -161,6 +180,7 @@ jobs:
           default: true
 
       - name: Install msbuild
+        if: ${{ matrix.config.arch == 'x64' }}
         uses: microsoft/setup-msbuild@v1.0.2
         with:
           vs-version: 16
