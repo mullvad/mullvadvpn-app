@@ -57,7 +57,10 @@ if [[ "$DESKTOP" == "true" && $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.m
     exit 1
 fi
 
-if [[ "$ANDROID" == "true" && $(grep "^## \\[android/$PRODUCT_VERSION\\] - " android/CHANGELOG.md) == "" ]]; then
+if [[ "$ANDROID" == "true" &&
+    $PRODUCT_VERSION != *"alpha"* &&
+    $(grep "^## \\[android/$PRODUCT_VERSION\\] - " android/CHANGELOG.md) == "" ]]; then
+
     echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
     echo "Please make sure the changelog is up to date and correct before you proceed."
     exit 1
