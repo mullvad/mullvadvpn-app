@@ -1,5 +1,7 @@
 #[cfg(target_os = "android")]
 use super::config;
+#[cfg(target_os = "android")]
+use super::Error;
 use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
@@ -434,14 +436,15 @@ impl WgGoTunnel {
         &self,
         checker: &mut connectivity::Check<connectivity::Cancellable>,
     ) -> Result<()> {
-        let connectivity_err = |e| TunnelError::Connectivity(Box::new(e));
         let connection_established = checker
             .establish_connectivity(self)
-            .map_err(connectivity_err)?;
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
         // Timed out
         if !connection_established {
-            return Err(TunnelError::TunnelUp);
+            return Err(TunnelError::RecoverableStartWireguardError(Box::new(
+                Error::TimeoutError,
+            )));
         }
         Ok(())
     }
