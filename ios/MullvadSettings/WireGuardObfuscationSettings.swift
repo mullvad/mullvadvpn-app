@@ -81,7 +81,7 @@ public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomString
     }
 }
 
-public enum WireGuardObfuscationShadowsockPort: Codable, Equatable, CustomStringConvertible {
+public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStringConvertible {
     case automatic
     case custom(UInt16)
 
@@ -126,12 +126,12 @@ public struct WireGuardObfuscationSettings: Codable, Equatable {
 
     public var state: WireGuardObfuscationState
     public var udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort
-    public var shadowsocksPort: WireGuardObfuscationShadowsockPort
+    public var shadowsocksPort: WireGuardObfuscationShadowsocksPort
 
     public init(
         state: WireGuardObfuscationState = .automatic,
         udpOverTcpPort: WireGuardObfuscationUdpOverTcpPort = .automatic,
-        shadowsocksPort: WireGuardObfuscationShadowsockPort = .automatic
+        shadowsocksPort: WireGuardObfuscationShadowsocksPort = .automatic
     ) {
         self.state = state
         self.udpOverTcpPort = udpOverTcpPort
@@ -143,7 +143,7 @@ public struct WireGuardObfuscationSettings: Codable, Equatable {
 
         state = try container.decode(WireGuardObfuscationState.self, forKey: .state)
         shadowsocksPort = try container.decodeIfPresent(
-            WireGuardObfuscationShadowsockPort.self,
+            WireGuardObfuscationShadowsocksPort.self,
             forKey: .shadowsocksPort
         ) ?? .automatic
 

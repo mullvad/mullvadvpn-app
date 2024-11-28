@@ -10,16 +10,16 @@ import Foundation
 import MullvadSettings
 
 protocol ShadowsocksObfuscationSettingsViewModel: ObservableObject {
-    var value: WireGuardObfuscationShadowsockPort { get set }
+    var value: WireGuardObfuscationShadowsocksPort { get set }
 
     func commit()
 }
 
 /** A simple mock view model for use in Previews and similar */
 class MockShadowsocksObfuscationSettingsViewModel: ShadowsocksObfuscationSettingsViewModel {
-    @Published var value: WireGuardObfuscationShadowsockPort
+    @Published var value: WireGuardObfuscationShadowsocksPort
 
-    init(shadowsocksPort: WireGuardObfuscationShadowsockPort = .automatic) {
+    init(shadowsocksPort: WireGuardObfuscationShadowsocksPort = .automatic) {
         self.value = shadowsocksPort
     }
 
@@ -28,7 +28,7 @@ class MockShadowsocksObfuscationSettingsViewModel: ShadowsocksObfuscationSetting
 
 /// ** The live view model which interfaces with the TunnelManager  */
 class TunnelShadowsocksObfuscationSettingsViewModel: TunnelObfuscationSettingsWatchingObservableObject<
-    WireGuardObfuscationShadowsockPort
+    WireGuardObfuscationShadowsocksPort
 >,
     ShadowsocksObfuscationSettingsViewModel {
     init(tunnelManager: TunnelManager) {
