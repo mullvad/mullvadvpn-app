@@ -110,12 +110,14 @@ impl Error {
         match self {
             Error::ObfuscationError(_) => true,
             Error::EphemeralPeerNegotiationError(_) => true,
-            Error::TunnelError(TunnelError::RecoverableStartWireguardError(..)) => true,
+            Error::TunnelError(
+                TunnelError::RecoverableStartWireguardError(..) | TunnelError::Connectivity(_),
+            ) => true,
 
             Error::SetupRoutingError(error) => error.is_recoverable(),
 
             #[cfg(target_os = "android")]
-            Error::TunnelError(TunnelError::BypassError(_)) => true,
+            Error::TunnelError(TunnelError::BypassError(_) | TunnelError::TunnelUp) => true,
 
             #[cfg(windows)]
             _ => self.get_tunnel_device_error().is_some(),
