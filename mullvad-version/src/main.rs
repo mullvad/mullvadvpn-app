@@ -1,4 +1,4 @@
-use mullvad_version::Version;
+use mullvad_version::{PreStableType, Version};
 use std::{env, process::exit};
 
 const ANDROID_VERSION: &str =
@@ -35,42 +35,98 @@ fn to_semver(version: &str) -> String {
 /// Takes a version in the normal Mullvad VPN app version format and returns the Android
 /// `versionCode` formatted version.
 ///
-/// The format of the code is:           YYVV00XX
-/// Last two digits of the year (major)  ^^
-///          Incrementing version (minor)  ^^
-///                                  Unused  ^^
-///                 Beta number, 99 if stable  ^^
+/// The format of the code is:                    YYVVXZZZ
+///   Last two digits of the year (major)---------^^
+///   Incrementing version (minor)------------------^^
+///   Build type (0=alpha, 1=beta, 9=stable/dev)------^
+///   Build number (000 if stable/dev)-----------------^^^
 ///
 /// # Examples
 ///
+/// Version: 2021.1-alpha1
+/// versionCode: 21010001
+///
 /// Version: 2021.34-beta5
-/// versionCode: 21340005
+/// versionCode: 21341005
 ///
 /// Version: 2021.34
-/// versionCode: 21340099
+/// versionCode: 21349000
+///
+/// Version: 2021.34-dev
+/// versionCode: 21349000
 fn to_android_version_code(version: &str) -> String {
-    const ANDROID_STABLE_VERSION_CODE_SUFFIX: &str = "99";
-
     let version = Version::parse(version);
+
+    let (build_type, build_number) = if version.dev.is_some() {
+        ("9", "000")
+    } else {
+        match &version.pre_stable {
+            Some(PreStableType::Alpha(v)) => ("0", v.as_str()),
+            Some(PreStableType::Beta(v)) => ("1", v.as_str()),
+            // Stable version
+            None => ("9", "000"),
+        }
+    };
+
     format!(
-        "{}{:0>2}00{:0>2}",
-        version.year,
-        version.incremental,
-        version
-            .beta
-            .unwrap_or(ANDROID_STABLE_VERSION_CODE_SUFFIX.to_string())
+        "{}{:0>2}{}{:0>3}",
+        version.year, version.incremental, build_type, build_number,
     )
 }
 
-fn to_windows_h_format(version: &str) -> String {
+fn to_windows_h_format(version_str: &str) -> String {
+    let version = Version::parse(version_str);
+    assert!(
+        is_valid_windows_version(&version),
+        "Invalid Windows version: {version:?}"
+    );
+
     let Version {
         year, incremental, ..
-    } = Version::parse(version);
+    } = version;
 
     format!(
         "#define MAJOR_VERSION 20{year}
 #define MINOR_VERSION {incremental}
 #define PATCH_VERSION 0
-#define PRODUCT_VERSION \"{version}\""
+#define PRODUCT_VERSION \"{version_str}\""
     )
+}
+
+/// On Windows we currently support the following versions: stable, beta and dev.
+fn is_valid_windows_version(version: &Version) -> bool {
+    version.is_stable()
+        || version.beta().is_some()
+        || (version.dev.is_some() && version.alpha().is_none())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_version_code() {
+        assert_eq!("21349000", to_android_version_code("2021.34"));
+    }
+
+    #[test]
+    fn test_version_code_alpha() {
+        assert_eq!("21010001", to_android_version_code("2021.1-alpha1"));
+    }
+
+    #[test]
+    fn test_version_code_beta() {
+        assert_eq!("21341005", to_android_version_code("2021.34-beta5"));
+    }
+
+    #[test]
+    fn test_version_code_dev() {
+        assert_eq!("21349000", to_android_version_code("2021.34-dev-be846a5f0"));
+    }
+
+    #[test]
+    #[should_panic]
+    fn test_invalid_windows_version_code() {
+        to_windows_h_format("2021.34-alpha1");
+    }
 }
