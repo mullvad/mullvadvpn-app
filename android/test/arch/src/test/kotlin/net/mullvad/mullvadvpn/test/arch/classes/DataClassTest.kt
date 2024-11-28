@@ -12,6 +12,6 @@ class DataClassTest {
         Konsist.scopeFromProject()
             .classes(includeNested = true)
             .withDataModifier()
-            .properties(includeNested = false)
-            .assertFalse { it.hasVarModifier }
+            .properties(includeNested = true)
+            .assertFalse { it.isVar }
 }
