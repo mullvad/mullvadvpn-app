@@ -19,7 +19,9 @@ use std::{
     time::{Duration, Instant},
 };
 use talpid_routing::RouteManagerHandle;
-use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{
+    tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
+};
 use talpid_types::{
     net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters},
     tunnel::{ErrorStateCause, FirewallPolicyError},
@@ -214,13 +216,7 @@ impl ConnectingState {
         retry_attempt: u32,
     ) -> Self {
         let (event_tx, event_rx) = mpsc::unbounded();
-        let on_tunnel_event = move |event| {
-            let (tx, rx) = oneshot::channel();
-            let _ = event_tx.unbounded_send((event, tx));
-            async move {
-                let _ = rx.await;
-            }
-        };
+        let event_hook = EventHook::new(event_tx);
 
         let route_manager = route_manager.clone();
         let log_dir = log_dir.clone();
@@ -237,7 +233,7 @@ impl ConnectingState {
             let args = TunnelArgs {
                 runtime,
                 resource_dir: &resource_dir,
-                on_event: on_tunnel_event,
+                event_hook,
                 tunnel_close_rx,
                 tun_provider,
                 retry_attempt,
@@ -289,14 +285,10 @@ impl ConnectingState {
         }
     }
 
-    fn wait_for_tunnel_monitor<L, F>(
-        tunnel_monitor: TunnelMonitor<L>,
+    fn wait_for_tunnel_monitor(
+        tunnel_monitor: TunnelMonitor,
         retry_attempt: u32,
-    ) -> Option<ErrorStateCause>
-    where
-        L: (Fn(talpid_tunnel::TunnelEvent) -> F) + Send + Clone + Sync + 'static,
-        F: std::future::Future<Output = ()> + Send + 'static,
-    {
+    ) -> Option<ErrorStateCause> {
         match tunnel_monitor.wait() {
             Ok(_) => None,
             Err(error) => match error {

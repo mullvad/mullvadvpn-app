@@ -14,6 +14,9 @@ use talpid_types::{
     tunnel::ErrorStateCause,
 };
 
+#[cfg(not(target_os = "android"))]
+use talpid_tunnel::EventHook;
+
 const OPENVPN_LOG_FILENAME: &str = "openvpn.log";
 const WIREGUARD_LOG_FILENAME: &str = "wireguard.log";
 
@@ -115,23 +118,19 @@ impl Error {
 }
 
 /// Abstraction for monitoring a generic VPN tunnel.
-pub struct TunnelMonitor<F> {
-    monitor: InternalTunnelMonitor<F>,
+pub struct TunnelMonitor {
+    monitor: InternalTunnelMonitor,
 }
 
 // TODO(emilsp) move most of the openvpn tunnel details to OpenVpnTunnelMonitor
-impl<L, F> TunnelMonitor<L>
-where
-    L: (Fn(talpid_tunnel::TunnelEvent) -> F) + Send + Clone + Sync + 'static,
-    F: std::future::Future<Output = ()> + Send + 'static,
-{
+impl TunnelMonitor {
     /// Creates a new `TunnelMonitor` that connects to the given remote and notifies `on_event`
     /// on tunnel state changes.
     #[cfg_attr(any(target_os = "android", windows), allow(unused_variables))]
     pub fn start(
         tunnel_parameters: &TunnelParameters,
         log_dir: &Option<path::PathBuf>,
-        args: TunnelArgs<'_, L, F>,
+        args: TunnelArgs<'_>,
     ) -> Result<Self> {
         Self::ensure_ipv6_can_be_used_if_enabled(tunnel_parameters)?;
         let log_file = Self::prepare_tunnel_log_file(tunnel_parameters, log_dir)?;
@@ -142,7 +141,7 @@ where
                 config,
                 log_file,
                 args.resource_dir,
-                args.on_event,
+                args.event_hook,
                 args.tunnel_close_rx,
                 args.route_manager,
             )),
@@ -155,13 +154,33 @@ where
         }
     }
 
+    /// Returns a path to an executable that communicates with relay servers.
+    /// Returns `None` if the executable is unknown.
+    #[cfg(windows)]
+    pub fn get_relay_client(
+        resource_dir: &path::Path,
+        params: &TunnelParameters,
+    ) -> Option<path::PathBuf> {
+        use talpid_types::net::proxy::CustomProxy;
+
+        let resource_dir = resource_dir.to_path_buf();
+        match params {
+            TunnelParameters::OpenVpn(params) => match &params.proxy {
+                Some(CustomProxy::Shadowsocks(_)) => Some(std::env::current_exe().unwrap()),
+                Some(CustomProxy::Socks5Local(_)) => None,
+                Some(CustomProxy::Socks5Remote(_)) | None => Some(resource_dir.join("openvpn.exe")),
+            },
+            _ => Some(std::env::current_exe().unwrap()),
+        }
+    }
+
     fn start_wireguard_tunnel(
         #[cfg(not(any(target_os = "linux", target_os = "windows")))]
         params: &wireguard_types::TunnelParameters,
         #[cfg(any(target_os = "linux", target_os = "windows"))]
         params: &wireguard_types::TunnelParameters,
         log: Option<path::PathBuf>,
-        args: TunnelArgs<'_, L, F>,
+        args: TunnelArgs<'_>,
     ) -> Result<Self> {
         let monitor = talpid_wireguard::WireguardMonitor::start(params, log.as_deref(), args)?;
         Ok(TunnelMonitor {
@@ -174,12 +193,12 @@ where
         config: &openvpn_types::TunnelParameters,
         log: Option<path::PathBuf>,
         resource_dir: &path::Path,
-        on_event: L,
+        event_hook: EventHook,
         tunnel_close_rx: oneshot::Receiver<()>,
         route_manager: RouteManagerHandle,
     ) -> Result<Self> {
         let monitor = talpid_openvpn::OpenVpnMonitor::start(
-            on_event,
+            event_hook,
             config,
             log,
             resource_dir,
@@ -255,39 +274,13 @@ where
     }
 }
 
-impl TunnelMonitor<()> {
-    /// Returns a path to an executable that communicates with relay servers.
-    /// Returns `None` if the executable is unknown.
-    #[cfg(windows)]
-    pub fn get_relay_client(
-        resource_dir: &path::Path,
-        params: &TunnelParameters,
-    ) -> Option<path::PathBuf> {
-        use talpid_types::net::proxy::CustomProxy;
-
-        let resource_dir = resource_dir.to_path_buf();
-        match params {
-            TunnelParameters::OpenVpn(params) => match &params.proxy {
-                Some(CustomProxy::Shadowsocks(_)) => Some(std::env::current_exe().unwrap()),
-                Some(CustomProxy::Socks5Local(_)) => None,
-                Some(CustomProxy::Socks5Remote(_)) | None => Some(resource_dir.join("openvpn.exe")),
-            },
-            _ => Some(std::env::current_exe().unwrap()),
-        }
-    }
-}
-
-enum InternalTunnelMonitor<F> {
+enum InternalTunnelMonitor {
     #[cfg(not(target_os = "android"))]
     OpenVpn(talpid_openvpn::OpenVpnMonitor),
-    Wireguard(talpid_wireguard::WireguardMonitor<F>),
+    Wireguard(talpid_wireguard::WireguardMonitor),
 }
 
-impl<L, F> InternalTunnelMonitor<L>
-where
-    L: (Fn(talpid_tunnel::TunnelEvent) -> F) + Send + Clone + Sync + 'static,
-    F: std::future::Future<Output = ()> + Send + 'static,
-{
+impl InternalTunnelMonitor {
     fn wait(self) -> Result<()> {
         #[cfg(not(target_os = "android"))]
         let handle = tokio::runtime::Handle::current();

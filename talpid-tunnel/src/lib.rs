@@ -1,5 +1,4 @@
 use std::{
-    future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     path::Path,
     sync::{Arc, Mutex},
@@ -10,7 +9,13 @@ use std::{
 pub mod network_interface;
 
 pub mod tun_provider;
-use futures::channel::oneshot;
+use futures::{
+    channel::{
+        mpsc::UnboundedSender,
+        oneshot::{self, Sender},
+    },
+    SinkExt,
+};
 use talpid_routing::RouteManagerHandle;
 use talpid_types::net::AllowedTunnelTraffic;
 use tun_provider::TunProvider;
@@ -29,17 +34,13 @@ pub const MIN_IPV4_MTU: u16 = 576;
 pub const MIN_IPV6_MTU: u16 = 1280;
 
 /// Arguments for creating a tunnel.
-pub struct TunnelArgs<'a, L, F>
-where
-    L: (Fn(TunnelEvent) -> F) + Send + Clone + Sync + 'static,
-    F: Future<Output = ()>,
-{
+pub struct TunnelArgs<'a> {
     /// Tokio runtime handle.
     pub runtime: tokio::runtime::Handle,
     /// Resource directory path.
     pub resource_dir: &'a Path,
     /// Callback function called when an event happens.
-    pub on_event: L,
+    pub event_hook: EventHook,
     /// Receiver oneshot channel for closing the tunnel.
     pub tunnel_close_rx: oneshot::Receiver<()>,
     /// Mutex to tunnel provider.
@@ -48,6 +49,24 @@ where
     pub retry_attempt: u32,
     /// Route manager handle.
     pub route_manager: RouteManagerHandle,
+}
+
+#[derive(Clone)]
+pub struct EventHook {
+    event_tx: UnboundedSender<(TunnelEvent, Sender<()>)>,
+}
+
+impl EventHook {
+    pub fn new(event_tx: UnboundedSender<(TunnelEvent, Sender<()>)>) -> Self {
+        Self { event_tx }
+    }
+
+    pub async fn on_event(&mut self, event: TunnelEvent) {
+        let (tx, rx) = oneshot::channel::<()>();
+        if let Ok(()) = self.event_tx.send((event, tx)).await {
+            let _ = rx.await;
+        }
+    }
 }
 
 /// Information about a VPN tunnel.
