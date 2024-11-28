@@ -64,7 +64,7 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
-                        SelectLocationUiState(
+                        SelectLocationUiState.Data(
                             // searchTerm = "",
                             filterChips = emptyList(),
                             multihopEnabled = false,
@@ -96,7 +96,7 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
-                        SelectLocationUiState(
+                        SelectLocationUiState.Data(
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
@@ -124,7 +124,7 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
-                        SelectLocationUiState(
+                        SelectLocationUiState.Data(
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
@@ -156,7 +156,7 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
-                        SelectLocationUiState(
+                        SelectLocationUiState.Data(
                             // searchTerm = "",
                             filterChips = emptyList(),
                             multihopEnabled = false,
@@ -189,7 +189,7 @@ class SelectLocationScreenTest {
             setContentWithTheme {
                 SelectLocationScreen(
                     state =
-                        SelectLocationUiState(
+                        SelectLocationUiState.Data(
                             filterChips = emptyList(),
                             multihopEnabled = false,
                             relayListType = RelayListType.EXIT,
