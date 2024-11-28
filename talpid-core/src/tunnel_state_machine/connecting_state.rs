@@ -1,34 +1,30 @@
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::{Duration, Instant};
+
+use futures::channel::{mpsc, oneshot};
+use futures::future::Fuse;
+use futures::{FutureExt, StreamExt};
+use talpid_routing::RouteManagerHandle;
+use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
+use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
+use talpid_types::ErrorExt;
+
+use super::connected_state::TunnelEventsReceiver;
 use super::{
     AfterDisconnect, ConnectedState, DisconnectingState, ErrorState, EventConsequence, EventResult,
     SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition,
 };
-use crate::{
-    dns::DnsConfig,
-    firewall::FirewallPolicy,
-    resolver::LOCAL_DNS_RESOLVER,
-    tunnel::{self, TunnelMonitor},
-};
-use futures::{
-    channel::{mpsc, oneshot},
-    future::Fuse,
-    FutureExt, StreamExt,
-};
-use std::{
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex},
-    thread,
-    time::{Duration, Instant},
-};
-use talpid_routing::RouteManagerHandle;
-use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
-use talpid_types::{
-    net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters},
-    tunnel::{ErrorStateCause, FirewallPolicyError},
-    ErrorExt,
-};
 
-use super::connected_state::TunnelEventsReceiver;
+#[cfg(target_os = "macos")]
+use crate::dns::DnsConfig;
+use crate::firewall::FirewallPolicy;
+#[cfg(target_os = "macos")]
+use crate::resolver::LOCAL_DNS_RESOLVER;
+use crate::tunnel::{self, TunnelMonitor};
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
