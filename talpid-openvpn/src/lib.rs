@@ -245,7 +245,7 @@ impl WintunContextImpl {
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
-    pub async fn start<L>(
+    pub async fn start<L, F>(
         on_event: L,
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
@@ -253,10 +253,8 @@ impl OpenVpnMonitor<OpenVpnCommand> {
         route_manager: talpid_routing::RouteManagerHandle,
     ) -> Result<Self>
     where
-        L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + 'static,
+        L: (Fn(TunnelEvent) -> F) + Send + Clone + Sync + 'static,
+        F: std::future::Future<Output = ()> + Send + 'static,
     {
         let user_pass_file =
             Self::create_credentials_file(&params.config.username, &params.config.password)
@@ -808,14 +806,7 @@ mod event_server {
     }
 
     /// Implements a gRPC service used to process events sent to by OpenVPN.
-    pub struct OpenvpnEventProxyImpl<
-        L: (Fn(
-                talpid_tunnel::TunnelEvent,
-            ) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + 'static,
-    > {
+    pub struct OpenvpnEventProxyImpl<L> {
         pub on_event: L,
         pub user_pass_file_path: super::PathBuf,
         pub proxy_auth_file_path: Option<super::PathBuf>,
@@ -828,13 +819,8 @@ mod event_server {
     }
 
     impl<
-            L: (Fn(
-                    talpid_tunnel::TunnelEvent,
-                )
-                    -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-                + Send
-                + Sync
-                + 'static,
+            L: (Fn(talpid_tunnel::TunnelEvent) -> F) + Send + Clone + Sync + 'static,
+            F: std::future::Future<Output = ()>,
         > OpenvpnEventProxyImpl<L>
     {
         async fn up_inner(
@@ -971,13 +957,8 @@ mod event_server {
 
     #[tonic::async_trait]
     impl<
-            L: (Fn(
-                    talpid_tunnel::TunnelEvent,
-                )
-                    -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-                + Send
-                + Sync
-                + 'static,
+            L: (Fn(talpid_tunnel::TunnelEvent) -> F) + Send + Clone + Sync + 'static,
+            F: std::future::Future<Output = ()> + 'static + Send,
         > OpenvpnEventProxy for OpenvpnEventProxyImpl<L>
     {
         async fn auth_failed(
