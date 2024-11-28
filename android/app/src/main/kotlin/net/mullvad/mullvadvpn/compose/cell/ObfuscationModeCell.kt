@@ -60,16 +60,13 @@ fun ObfuscationModeCell(
     onNavigate: () -> Unit = {},
     testTag: String? = null,
 ) {
-    var rowModifier =
-        Modifier.height(IntrinsicSize.Min)
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainerLow)
-
-    if (testTag != null) {
-        rowModifier = rowModifier.testTag(testTag)
-    }
-
-    Row(modifier = rowModifier) {
+    Row(
+        modifier =
+            Modifier.height(IntrinsicSize.Min)
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
+                .let { if (testTag != null) it.testTag(testTag) else it }
+    ) {
         TwoRowCell(
             modifier = Modifier.weight(1f),
             titleStyle = MaterialTheme.typography.listItemText,

@@ -62,7 +62,7 @@ class ForgetAllVpnAppsInSettingsTestRule : BeforeTestExecutionCallback {
         private val HARDCODED_VPN_PROFILE_NAMES = listOf("VPN by Google")
 
         private const val FORGET_VPN_VPN_BUTTON_TEXT = "Forget VPN"
-        private const val FORGET_VPN_BUTTON_TEXT = "Forget" // Android 16, Pixel 8a
+        private const val FORGET_VPN_BUTTON_TEXT = "Forget" // Legacy VPN
         private const val DELETE_VPN_PROFILE_TEXT = "Delete VPN profile"
         private const val FORGET_VPN_VPN_CONFIRM_BUTTON_TEXT = "Forget"
         // Samsung S22 shows "Delete"
