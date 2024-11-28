@@ -2,7 +2,7 @@
 use super::config;
 use super::{
     stats::{Stats, StatsMap},
-    Config, Tunnel, TunnelError,
+    Config, Error, Tunnel, TunnelError,
 };
 #[cfg(target_os = "linux")]
 use crate::config::MULLVAD_INTERFACE_NAME;
@@ -434,14 +434,15 @@ impl WgGoTunnel {
         &self,
         checker: &mut connectivity::Check<connectivity::Cancellable>,
     ) -> Result<()> {
-        let connectivity_err = |e| TunnelError::Connectivity(Box::new(e));
         let connection_established = checker
             .establish_connectivity(self)
-            .map_err(connectivity_err)?;
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
         // Timed out
         if !connection_established {
-            return Err(TunnelError::TunnelUp);
+            return Err(TunnelError::RecoverableStartWireguardError(Box::new(
+                Error::TimeoutError,
+            )));
         }
         Ok(())
     }
