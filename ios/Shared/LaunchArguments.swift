@@ -46,7 +46,7 @@ public extension ProcessInfo {
 extension Encodable {
     public func toJSON(_ encoder: JSONEncoder = JSONEncoder()) throws -> String {
         let data = try encoder.encode(self)
-        let result = String(decoding: data, as: UTF8.self)
+        let result = String(bytes: data, encoding: .utf8) ?? ""
         return result
     }
 }

@@ -9,8 +9,14 @@
 import UIKit
 
 class ProblemReportReviewViewController: UIViewController {
+    private let spinnerView = SpinnerActivityIndicatorView(style: .large)
     private var textView = UITextView()
     private let interactor: ProblemReportInteractor
+    private lazy var spinnerContainerView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .black.withAlphaComponent(0.5)
+        return view
+    }()
 
     init(interactor: ProblemReportInteractor) {
         self.interactor = interactor
@@ -23,7 +29,7 @@ class ProblemReportReviewViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        view.backgroundColor = .secondaryColor
         view.accessibilityIdentifier = .appLogsView
 
         navigationItem.title = NSLocalizedString(
@@ -60,14 +66,21 @@ class ProblemReportReviewViewController: UIViewController {
         )
         textView.backgroundColor = .systemBackground
 
-        view.addSubview(textView)
+        view.addConstrainedSubviews([textView]) {
+            textView.pinEdgesToSuperview(.all().excluding(.top))
+            textView.pinEdgeToSuperviewMargin(.top(0))
+        }
 
-        NSLayoutConstraint.activate([
-            textView.topAnchor.constraint(equalTo: view.topAnchor),
-            textView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            textView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            textView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
+        textView.addConstrainedSubviews([spinnerContainerView]) {
+            spinnerContainerView.pinEdgesToSuperview()
+            spinnerContainerView.widthAnchor.constraint(equalTo: textView.widthAnchor)
+            spinnerContainerView.heightAnchor.constraint(equalTo: textView.heightAnchor)
+        }
+
+        spinnerContainerView.addConstrainedSubviews([spinnerView]) {
+            spinnerView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            spinnerView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        }
 
         // Used to layout constraints so that navigation controller could properly adjust the text
         // view insets.
@@ -81,30 +94,28 @@ class ProblemReportReviewViewController: UIViewController {
     }
 
     private func loadLogs() {
-        let presentation = AlertPresentation(
-            id: "problem-report-load",
-            icon: .spinner,
-            buttons: []
-        )
-
-        let alertController = AlertViewController(presentation: presentation)
-
-        present(alertController, animated: true) {
-            self.textView.text = self.interactor.reportString
-            self.dismiss(animated: true)
+        spinnerView.startAnimating()
+        interactor.fetchReportString { [weak self] reportString in
+            guard let self else { return }
+            textView.text = reportString
+            spinnerView.stopAnimating()
+            spinnerContainerView.isHidden = true
         }
     }
 
     #if DEBUG
     private func share() {
-        let activityController = UIActivityViewController(
-            activityItems: [interactor.reportString],
-            applicationActivities: nil
-        )
+        interactor.fetchReportString { [weak self] reportString in
+            guard let self,!reportString.isEmpty else { return }
+            let activityController = UIActivityViewController(
+                activityItems: [reportString],
+                applicationActivities: nil
+            )
 
-        activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
+            activityController.popoverPresentationController?.barButtonItem = navigationItem.leftBarButtonItem
 
-        present(activityController, animated: true)
+            present(activityController, animated: true)
+        }
     }
     #endif
 }
