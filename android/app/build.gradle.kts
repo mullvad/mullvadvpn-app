@@ -1,5 +1,6 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
+import com.github.triplet.gradle.androidpublisher.ReleaseStatus
 import java.io.FileInputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
@@ -50,6 +51,12 @@ android {
             abortOnError = true
             warningsAsErrors = true
             checkDependencies = true
+        }
+    }
+
+    playConfigs {
+        register("playStagemoleRelease") {
+            enabled = true
         }
     }
 
@@ -315,7 +322,17 @@ tasks.create("printVersion") {
     }
 }
 
-play { serviceAccountCredentials.set(file("play-api-key.json")) }
+play {
+    serviceAccountCredentials.set(file("$credentialsPath/play-api-key.json"))
+    // Disable for all flavors by default. Only specific flavors should be enabled using PlayConfigs.
+    enabled = false
+    // This property refers to the Publishing API (not git).
+    commit = true
+    defaultToAppBundles = true
+    track = "internal"
+    releaseStatus = ReleaseStatus.COMPLETED
+    userFraction = 1.0
+}
 
 dependencies {
     implementation(projects.lib.common)
