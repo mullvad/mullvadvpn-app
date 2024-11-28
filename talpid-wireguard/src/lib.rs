@@ -1087,15 +1087,6 @@ pub enum TunnelError {
     #[cfg(daita)]
     #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
     DaitaNotSupported,
-
-    /// [connectivity] error.
-    #[error(transparent)]
-    Connectivity(#[from] Box<connectivity::Error>),
-
-    /// Tunnel seemingly does not serve any traffic
-    #[cfg(target_os = "android")]
-    #[error("Tunnel seemingly does not serve any traffic")]
-    TunnelUp,
 }
 
 #[cfg(target_os = "linux")]
