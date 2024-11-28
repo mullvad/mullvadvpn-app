@@ -33,6 +33,8 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @JvmField
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
+    val firewallClient = FirewallClient()
+
     @Test
     fun testConnect() {
         // Given
@@ -93,7 +95,6 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
         // Block UDP traffic to the relay
         val firewallRule = FirewallClient.FirewallDropRule.blockUDPTrafficRule(relayIpAddress)
-        val firewallClient = FirewallClient()
         firewallClient.createRule(firewallRule)
 
         // Ensure it is not possible to connect to relay
@@ -125,7 +126,6 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
             // Block UDP traffic to the relay
             val firewallRule = FirewallClient.FirewallDropRule.blockUDPTrafficRule(relayIpAddress)
-            val firewallClient = FirewallClient()
             firewallClient.createRule(firewallRule)
 
             // Enable UDP-over-TCP

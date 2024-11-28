@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.e2e.misc
 
 import android.annotation.SuppressLint
 import android.provider.Settings
+import android.se.omapi.Session
 import androidx.test.platform.app.InstrumentationRegistry
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
@@ -44,7 +45,26 @@ class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
 
     suspend fun removeAllRules() {
         Logger.v("Sending remove all rules request")
-        httpClient.delete("remove-rules/${sessionIdentifierFromDeviceIdentifier()}")
+        httpClient.delete("remove-rules/${SessionIdentifier.fromDeviceIdentifier()}")
+    }
+
+    @JvmInline
+    @Serializable
+    value class SessionIdentifier(val value: String) {
+        override fun toString(): String = value
+
+        companion object {
+            @SuppressLint("HardwareIds")
+            fun fromDeviceIdentifier(): SessionIdentifier {
+                val deviceIdentifier =
+                    Settings.Secure.getString(
+                        InstrumentationRegistry.getInstrumentation().targetContext.contentResolver,
+                        Settings.Secure.ANDROID_ID,
+                    )
+
+                return SessionIdentifier(UUID.nameUUIDFromBytes(deviceIdentifier.toByteArray()).toString())
+            }
+        }
     }
 
     @SuppressLint("HardwareIds")
@@ -52,20 +72,19 @@ class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
     @Serializable
     data class FirewallDropRule
     constructor(
-        val from: String,
-        val to: String,
         val src: String,
         val dst: String,
         val protocols: List<NetworkingProtocol>,
         @EncodeDefault
-        val label: String = "urn:uuid:" + FirewallClient.sessionIdentifierFromDeviceIdentifier(),
+        val label: String = "urn:uuid:${SessionIdentifier.fromDeviceIdentifier()}",
     ) {
+        val from = src
+        val to = dst
+
         companion object {
             fun blockUDPTrafficRule(to: String): FirewallDropRule {
                 val testDeviceIpAddress = Networking.getDeviceIpv4Address()
                 return FirewallDropRule(
-                    testDeviceIpAddress,
-                    to,
                     testDeviceIpAddress,
                     to,
                     listOf(NetworkingProtocol.UDP),
@@ -80,24 +99,11 @@ class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
         @SerialName("udp") UDP,
         @SerialName("icmp") ICMP,
     }
-
-    companion object {
-        @SuppressLint("HardwareIds")
-        fun sessionIdentifierFromDeviceIdentifier(): String {
-            val deviceIdentifier =
-                Settings.Secure.getString(
-                    InstrumentationRegistry.getInstrumentation().targetContext.contentResolver,
-                    Settings.Secure.ANDROID_ID,
-                )
-
-            return UUID.nameUUIDFromBytes(deviceIdentifier.toByteArray()).toString()
-        }
-    }
 }
 
 private fun defaultHttpClient(): HttpClient =
     HttpClient(CIO) {
-        defaultRequest { url("http://${BuildConfig.FIREWALL_API_HOST}") }
+        defaultRequest { url("http://${BuildConfig.TEST_ROUTER_API_HOST}") }
 
         install(ContentNegotiation) {
             json(

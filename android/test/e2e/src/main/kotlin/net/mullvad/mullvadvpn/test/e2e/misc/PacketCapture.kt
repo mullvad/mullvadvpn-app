@@ -63,7 +63,7 @@ class PacketCapture {
 
 private fun defaultHttpClient(): HttpClient =
     HttpClient(CIO) {
-        defaultRequest { url("http://${BuildConfig.PACKET_CAPTURE_API_HOST}") }
+        defaultRequest { url("http://${BuildConfig.TEST_ROUTER_API_HOST}") }
 
         install(ContentNegotiation) {
             json(

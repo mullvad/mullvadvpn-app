@@ -36,8 +36,7 @@ android {
             load(project.file("e2e.properties").inputStream())
             addRequiredPropertyAsBuildConfigField("API_VERSION")
             addRequiredPropertyAsBuildConfigField("TRAFFIC_GENERATION_IP_ADDRESS")
-            addRequiredPropertyAsBuildConfigField("PACKET_CAPTURE_API_HOST")
-            addRequiredPropertyAsBuildConfigField("FIREWALL_API_HOST")
+            addRequiredPropertyAsBuildConfigField("TEST_ROUTER_API_HOST")
         }
 
         fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
