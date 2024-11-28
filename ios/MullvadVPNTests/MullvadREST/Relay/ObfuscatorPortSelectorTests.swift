@@ -153,7 +153,7 @@ final class ObfuscatorPortSelectorTests: XCTestCase {
             !relay.shadowsocksExtraAddrIn.isNil
         }
 
-        XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, relaysWithExtraAddresses.count)
+        XCTAssertEqual(obfuscationResult.wireguard.relays.count, relaysWithExtraAddresses.count)
     }
 
     func testObfuscateShadowsocksRelayFilteringWithPortInsideDefaultRanges() throws {
@@ -172,6 +172,6 @@ final class ObfuscatorPortSelectorTests: XCTestCase {
             connectionAttemptCount: 0
         )
 
-        XCTAssertEqual(obfuscationResult.relays.wireguard.relays.count, sampleRelays.wireguard.relays.count)
+        XCTAssertEqual(obfuscationResult.wireguard.relays.count, sampleRelays.wireguard.relays.count)
     }
 }

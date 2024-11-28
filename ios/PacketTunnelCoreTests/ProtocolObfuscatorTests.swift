@@ -58,13 +58,13 @@ final class ProtocolObfuscatorTests: XCTestCase {
         let settings = settings(.automatic, obfuscationPort: .automatic)
 
         try (UInt(0) ... 3).forEach { attempt in
-            var obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: attempt)
+            let obfuscatedEndpoint = obfuscator.obfuscate(endpoint, settings: settings, retryAttempts: attempt)
 
             switch attempt {
             case 0, 1:
                 XCTAssertEqual(endpoint, obfuscatedEndpoint)
             case 2, 3:
-                var obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
+                let obfuscationProtocol = try XCTUnwrap(obfuscator.tunnelObfuscator as? TunnelObfuscationStub)
                 validate(obfuscatedEndpoint, against: obfuscationProtocol)
             default:
                 XCTExpectFailure("Should not end up here, test setup is wrong")

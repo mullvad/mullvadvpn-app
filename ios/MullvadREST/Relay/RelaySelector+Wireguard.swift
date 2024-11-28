@@ -31,14 +31,14 @@ extension RelaySelector {
         /// Picks a random relay from a list.
         public static func pickCandidate(
             from relayWithLocations: [RelayWithLocation<REST.ServerRelay>],
-            relays: REST.ServerRelaysResponse,
+            wireguard: REST.ServerWireguardTunnels,
             portConstraint: RelayConstraint<UInt16>,
             numberOfFailedAttempts: UInt,
             closeTo referenceLocation: Location? = nil
         ) throws -> RelaySelectorMatch {
             let port = try evaluatePort(
-                relays: relays,
                 portConstraint: portConstraint,
+                rawPortRanges: wireguard.portRanges,
                 numberOfFailedAttempts: numberOfFailedAttempts
             )
 
@@ -54,7 +54,7 @@ extension RelaySelector {
                 throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
             }
 
-            return createMatch(for: relayWithLocation, port: port, relays: relays)
+            return createMatch(for: relayWithLocation, port: port, wireguard: wireguard)
         }
 
         public static func closestRelay(
@@ -96,13 +96,13 @@ extension RelaySelector {
     }
 
     private static func evaluatePort(
-        relays: REST.ServerRelaysResponse,
         portConstraint: RelayConstraint<UInt16>,
+        rawPortRanges: [[UInt16]],
         numberOfFailedAttempts: UInt
     ) throws -> UInt16 {
         let port = applyPortConstraint(
             portConstraint,
-            rawPortRanges: relays.wireguard.portRanges,
+            rawPortRanges: rawPortRanges,
             numberOfFailedAttempts: numberOfFailedAttempts
         )
 
@@ -116,7 +116,7 @@ extension RelaySelector {
     private static func createMatch(
         for relayWithLocation: RelayWithLocation<REST.ServerRelay>,
         port: UInt16,
-        relays: REST.ServerRelaysResponse
+        wireguard: REST.ServerWireguardTunnels
     ) -> RelaySelectorMatch {
         let endpoint = MullvadEndpoint(
             ipv4Relay: IPv4Endpoint(
@@ -124,8 +124,8 @@ extension RelaySelector {
                 port: port
             ),
             ipv6Relay: nil,
-            ipv4Gateway: relays.wireguard.ipv4Gateway,
-            ipv6Gateway: relays.wireguard.ipv6Gateway,
+            ipv4Gateway: wireguard.ipv4Gateway,
+            ipv6Gateway: wireguard.ipv6Gateway,
             publicKey: relayWithLocation.relay.publicKey
         )
 
