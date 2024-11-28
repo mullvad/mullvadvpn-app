@@ -395,7 +395,7 @@ impl Relay {
         Ok(())
     }
 
-    /// Get active relays which are not bridges.
+    // Get active relays which are not bridges.
 
     async fn update_constraints(update_fn: impl FnOnce(&mut RelayConstraints)) -> Result<()> {
         let mut rpc = MullvadProxyClient::new().await?;
