@@ -118,7 +118,14 @@ jobs:
         run: ./ci/check-rust.sh
 
   build-windows:
-    runs-on: windows-latest
+    strategy:
+      matrix:
+        config:
+          - os: windows-latest
+            arch: x64
+          - os: [self-hosted, ARM64, Windows]
+            arch: arm64
+    runs-on: ${{ matrix.config.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -136,6 +143,7 @@ jobs:
         shell: bash
         run: |
           hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' \
+            | grep -v '\.exe$\|\.md$' \
             | xargs sha1sum \
             | sha1sum \
             | cut -d" " -f1)"
@@ -146,12 +154,21 @@ jobs:
         id: cache-windows-modules
         with:
           path: |
-            ./windows/*/bin/x64-*/*.dll
-            ./windows/*/bin/x64-*/*.lib
-            !./windows/*/bin/x64-*/libcommon.lib
-            !./windows/*/bin/x64-*/libshared.lib
-            !./windows/*/bin/x64-*/libwfp.lib
+            ./windows/*/bin/${{ matrix.config.arch }}-*/*.dll
+            ./windows/*/bin/${{ matrix.config.arch }}-*/*.lib
+            !./windows/*/bin/${{ matrix.config.arch }}-*/libcommon.lib
+            !./windows/*/bin/${{ matrix.config.arch }}-*/libshared.lib
+            !./windows/*/bin/${{ matrix.config.arch }}-*/libwfp.lib
           key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
+
+      # The x64 toolchain is needed to build talpid-openvpn-plugin
+      # TODO: Remove once fixed
+      - name: Install Rust x64 target
+        if: ${{ matrix.config.arch == 'arm64' }}
+        uses: actions-rs/toolchain@v1.0.6
+        with:
+          toolchain: stable
+          target: x86_64-pc-windows-msvc
 
       - name: Install Rust
         uses: actions-rs/toolchain@v1.0.6
