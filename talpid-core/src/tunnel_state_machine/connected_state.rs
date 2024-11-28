@@ -1,31 +1,29 @@
+use futures::channel::{mpsc, oneshot};
+use futures::stream::Fuse;
+use futures::StreamExt;
+
+#[cfg(target_os = "android")]
+use talpid_tunnel::tun_provider::Error;
+use talpid_types::net::{AllowedClients, AllowedEndpoint, TunnelParameters};
+use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
+use talpid_types::{BoxedError, ErrorExt};
+
+#[cfg(target_os = "macos")]
+use crate::dns::DnsConfig;
+use crate::dns::ResolvedDnsConfig;
+use crate::firewall::FirewallPolicy;
+#[cfg(target_os = "macos")]
+use crate::resolver::LOCAL_DNS_RESOLVER;
+#[cfg(windows)]
+use crate::tunnel::TunnelMonitor;
+use crate::tunnel::{TunnelEvent, TunnelMetadata};
+
+use super::connecting_state::TunnelCloseEvent;
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, ErrorState, EventConsequence,
     EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition,
 };
-use crate::{
-    dns::{DnsConfig, ResolvedDnsConfig},
-    firewall::FirewallPolicy,
-    resolver::LOCAL_DNS_RESOLVER,
-    tunnel::{TunnelEvent, TunnelMetadata},
-};
-use futures::{
-    channel::{mpsc, oneshot},
-    stream::Fuse,
-    StreamExt,
-};
-#[cfg(target_os = "android")]
-use talpid_tunnel::tun_provider::Error;
-use talpid_types::{
-    net::{AllowedClients, AllowedEndpoint, TunnelParameters},
-    tunnel::{ErrorStateCause, FirewallPolicyError},
-    BoxedError, ErrorExt,
-};
-
-#[cfg(windows)]
-use crate::tunnel::TunnelMonitor;
-
-use super::connecting_state::TunnelCloseEvent;
 
 pub(crate) type TunnelEventsReceiver =
     Fuse<mpsc::UnboundedReceiver<(TunnelEvent, oneshot::Sender<()>)>>;
