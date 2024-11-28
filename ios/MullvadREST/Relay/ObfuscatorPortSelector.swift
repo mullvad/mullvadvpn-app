@@ -10,9 +10,14 @@ import MullvadSettings
 import MullvadTypes
 
 struct ObfuscatorPortSelection {
-    let relays: REST.ServerRelaysResponse
+    let entryRelays: REST.ServerRelaysResponse
+    let exitRelays: REST.ServerRelaysResponse
     let port: RelayConstraint<UInt16>
     let method: WireGuardObfuscationState
+
+    var wireguard: REST.ServerWireguardTunnels {
+        exitRelays.wireguard
+    }
 }
 
 struct ObfuscatorPortSelector {
@@ -22,7 +27,9 @@ struct ObfuscatorPortSelector {
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> ObfuscatorPortSelection {
-        var relays = relays
+        var entryRelays = relays
+        var exitRelays = relays
+
         var port = tunnelSettings.relayConstraints.port
         let obfuscationMethod = ObfuscationMethodSelector.obfuscationMethodBy(
             connectionAttemptCount: connectionAttemptCount,
@@ -36,7 +43,13 @@ struct ObfuscatorPortSelector {
                 connectionAttemptCount: connectionAttemptCount
             )
         case .shadowsocks:
-            relays = obfuscateShadowsocksRelays(tunnelSettings: tunnelSettings)
+            let filteredRelays = obfuscateShadowsocksRelays(tunnelSettings: tunnelSettings)
+            if tunnelSettings.tunnelMultihopState.isEnabled {
+                entryRelays = filteredRelays
+            } else {
+                exitRelays = filteredRelays
+            }
+
             port = obfuscateShadowsocksPort(
                 tunnelSettings: tunnelSettings,
                 shadowsocksPortRanges: relays.wireguard.shadowsocksPortRanges
@@ -45,7 +58,12 @@ struct ObfuscatorPortSelector {
             break
         }
 
-        return ObfuscatorPortSelection(relays: relays, port: port, method: obfuscationMethod)
+        return ObfuscatorPortSelection(
+            entryRelays: entryRelays,
+            exitRelays: exitRelays,
+            port: port,
+            method: obfuscationMethod
+        )
     }
 
     private func obfuscateShadowsocksRelays(tunnelSettings: LatestTunnelSettings) -> REST.ServerRelaysResponse {

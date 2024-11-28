@@ -30,7 +30,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
 
         let match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
-            relays: ServerRelaysResponseStubs.sampleRelays,
+            wireguard: ServerRelaysResponseStubs.sampleRelays.wireguard,
             portConstraint: relayConstraints.port,
             numberOfFailedAttempts: 0
         )
