@@ -714,80 +714,45 @@ impl WgNtDll {
         Ok(WgNtDll {
             handle,
             func_create: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardCreateAdapter\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardCreateAdapter")?) as *const _ as *const _)
             },
             func_close: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardCloseAdapter\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardCloseAdapter")?) as *const _ as *const _)
             },
             func_get_adapter_luid: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardGetAdapterLUID\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardGetAdapterLUID")?) as *const _ as *const _)
             },
             func_set_configuration: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardSetConfiguration\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardSetConfiguration")?) as *const _ as *const _)
             },
             func_get_configuration: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardGetConfiguration\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardGetConfiguration")?) as *const _ as *const _)
             },
             func_set_adapter_state: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardSetAdapterState\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardSetAdapterState")?) as *const _ as *const _)
             },
             func_set_logger: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardSetLogger\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardSetLogger")?) as *const _ as *const _)
             },
             func_set_adapter_logging: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardSetAdapterLogging\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardSetAdapterLogging")?) as *const _ as *const _)
             },
             #[cfg(daita)]
             func_daita_activate: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardDaitaActivate\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardDaitaActivate")?) as *const _ as *const _)
             },
             #[cfg(daita)]
             func_daita_event_data_available_event: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardDaitaEventDataAvailableEvent\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardDaitaEventDataAvailableEvent")?) as *const _
+                    as *const _)
             },
             #[cfg(daita)]
             func_daita_receive_events: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardDaitaReceiveEvents\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardDaitaReceiveEvents")?) as *const _ as *const _)
             },
             #[cfg(daita)]
             func_daita_send_action: unsafe {
-                *((&get_proc_fn(
-                    handle,
-                    CStr::from_bytes_with_nul(b"WireGuardDaitaSendAction\0").unwrap(),
-                )?) as *const _ as *const _)
+                *((&get_proc_fn(handle, c"WireGuardDaitaSendAction")?) as *const _ as *const _)
             },
         })
     }
