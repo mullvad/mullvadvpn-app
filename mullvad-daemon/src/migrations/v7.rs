@@ -66,7 +66,7 @@ pub struct ShadowsocksProxySettings {
 }
 
 // ======================================================
-/// This is a closed migration.
+// This is a closed migration.
 
 /// We change bridge settings to no longer be an enum with custom and normal variants. It now is a
 /// struct which contains a bridge type, a normal relay constraint and optional custom constraints.
