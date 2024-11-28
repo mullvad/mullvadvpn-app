@@ -56,13 +56,11 @@ class SelectableSettingsDetailsCell: SelectableSettingsCell {
     }
 
     private func setViewContainer() {
-        #if DEBUG
         setTrailingView { superview in
             superview.addConstrainedSubviews([viewContainer]) {
                 viewContainer.pinEdgesToSuperview()
             }
         }
-        #endif
     }
 
     // MARK: - Actions
