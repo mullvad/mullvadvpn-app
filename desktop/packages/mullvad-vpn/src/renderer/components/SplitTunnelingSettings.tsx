@@ -548,18 +548,18 @@ function MacOsSplitTunnelingAvailability({
               'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
             )}
           </HeaderSubTitle>
-          <Spacing height="24px" />
+          <Spacing $height="24px" />
           <WideSmallButton onClick={showFullDiskAccessSettings}>
             {messages.pgettext('split-tunneling-view', 'Open System Settings')}
           </WideSmallButton>
-          <Spacing height="32px" />
+          <Spacing $height="32px" />
           <StyledMiniTitle>
             {messages.pgettext(
               'split-tunneling-view',
               'Enabled "Full disk access" and still having issues?',
             )}
           </StyledMiniTitle>
-          <Spacing height="8px" />
+          <Spacing $height="8px" />
           <WideSmallButton onClick={restartDaemon}>
             {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
           </WideSmallButton>

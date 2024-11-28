@@ -56,8 +56,8 @@ export const Footer = styled.div({
   },
 });
 
-export const Spacing = styled.div<{ height: string }>((props) => ({
-  height: props.height,
+export const Spacing = styled.div<{ $height: string }>((props) => ({
+  height: props.$height,
 }));
 
 export const ButtonStack = styled.div({
