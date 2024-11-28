@@ -68,7 +68,7 @@ leakcanary = "2.14"
 # https://github.com/mockk/mockk/issues/1308
 mockk = "1.13.12"
 mockwebserver = "4.12.0"
-play-publisher = "3.11.0"
+play-publisher = "3.12.1"
 turbine = "1.2.0"
 
 [libraries]
