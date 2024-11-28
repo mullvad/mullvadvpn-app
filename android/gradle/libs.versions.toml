@@ -45,8 +45,8 @@ ktor = "3.0.1"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.0.21"
-kotlin-ksp = "2.0.21-1.0.26"
+kotlin = "2.1.0"
+kotlin-ksp = "2.1.0-1.0.29"
 kotlinx = "1.9.0"
 kotlinx-serialization = "2.0.21"
 
