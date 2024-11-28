@@ -22,7 +22,13 @@ import {
 import ImageView from './ImageView';
 import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import {
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsNavigationScrollbars,
+  SettingsStack,
+} from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
   NavigationBar,
@@ -32,7 +38,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { StyledContent, StyledNavigationScrollbars, StyledSettingsContent } from './SettingsStyles';
 import { SmallButton, SmallButtonColor, SmallButtonGroup } from './SmallButton';
 
 const StyledContextMenuButton = styled(Cell.Icon)({
@@ -114,8 +119,8 @@ export default function ApiAccessMethods() {
               </NavigationItems>
             </NavigationBar>
 
-            <StyledNavigationScrollbars fillContainer>
-              <StyledContent>
+            <SettingsNavigationScrollbars fillContainer>
+              <SettingsContent>
                 <SettingsHeader>
                   <HeaderTitle>{messages.pgettext('navigation-bar', 'API access')}</HeaderTitle>
                   <HeaderSubTitle>
@@ -126,8 +131,8 @@ export default function ApiAccessMethods() {
                   </HeaderSubTitle>
                 </SettingsHeader>
 
-                <StyledSettingsContent>
-                  <Cell.Group>
+                <SettingsStack>
+                  <Cell.Group $noMarginBottom>
                     <ApiAccessMethod
                       method={methods.direct}
                       inUse={methods.direct.id === currentMethod?.id}
@@ -153,9 +158,9 @@ export default function ApiAccessMethods() {
                   <SmallButtonGroup $noMarginTop>
                     <SmallButton onClick={navigateToNew}>{messages.gettext('Add')}</SmallButton>
                   </SmallButtonGroup>
-                </StyledSettingsContent>
-              </StyledContent>
-            </StyledNavigationScrollbars>
+                </SettingsStack>
+              </SettingsContent>
+            </SettingsNavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
       </Layout>

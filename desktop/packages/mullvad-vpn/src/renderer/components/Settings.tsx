@@ -7,19 +7,21 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
+import { RedButton } from './AppButton';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import {
+  ButtonStack,
+  Footer,
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsNavigationScrollbars,
+  SettingsStack,
+} from './Layout';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import {
-  StyledCellIcon,
-  StyledContent,
-  StyledNavigationScrollbars,
-  StyledQuitButton,
-  StyledSettingsContent,
-} from './SettingsStyles';
+import { StyledCellIcon } from './SettingsStyles';
 
 export default function Support() {
   const history = useHistory();
@@ -47,16 +49,16 @@ export default function Support() {
               </NavigationItems>
             </NavigationBar>
 
-            <StyledNavigationScrollbars fillContainer>
-              <StyledContent>
+            <SettingsNavigationScrollbars fillContainer>
+              <SettingsContent>
                 <SettingsHeader>
                   <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
                 </SettingsHeader>
 
-                <StyledSettingsContent>
+                <SettingsStack>
                   {showSubSettings ? (
                     <>
-                      <Cell.Group>
+                      <Cell.Group $noMarginBottom>
                         <UserInterfaceSettingsButton />
                         <MultihopButton />
                         <DaitaButton />
@@ -64,36 +66,39 @@ export default function Support() {
                       </Cell.Group>
 
                       {showSplitTunneling && (
-                        <Cell.Group>
+                        <Cell.Group $noMarginBottom>
                           <SplitTunnelingButton />
                         </Cell.Group>
                       )}
                     </>
                   ) : (
-                    <Cell.Group>
+                    <Cell.Group $noMarginBottom>
                       <UserInterfaceSettingsButton />
                     </Cell.Group>
                   )}
 
-                  <Cell.Group>
+                  <Cell.Group $noMarginBottom>
                     <ApiAccessMethodsButton />
                   </Cell.Group>
 
-                  <Cell.Group>
+                  <Cell.Group $noMarginBottom>
                     <SupportButton />
                     <AppVersionButton />
                   </Cell.Group>
 
                   {window.env.development && (
-                    <Cell.Group>
+                    <Cell.Group $noMarginBottom>
                       <DebugButton />
                     </Cell.Group>
                   )}
-                </StyledSettingsContent>
-              </StyledContent>
-
-              <QuitButton />
-            </StyledNavigationScrollbars>
+                </SettingsStack>
+                <Footer>
+                  <ButtonStack>
+                    <QuitButton />
+                  </ButtonStack>
+                </Footer>
+              </SettingsContent>
+            </SettingsNavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
       </Layout>
@@ -209,7 +214,7 @@ function AppVersionButton() {
     [openUrl, suggestedIsBeta],
   );
 
-  let icon;
+  let alertIcon;
   let footer;
   if (!consistentVersion || !upToDateVersion) {
     const inconsistentVersionMessage = messages.pgettext(
@@ -224,7 +229,7 @@ function AppVersionButton() {
 
     const message = !consistentVersion ? inconsistentVersionMessage : updateAvailableMessage;
 
-    icon = <StyledCellIcon source="icon-alert" width={18} tintColor={colors.red} />;
+    alertIcon = <StyledCellIcon source="icon-alert" width={18} tintColor={colors.red} />;
     footer = (
       <Cell.CellFooter>
         <Cell.CellFooterText>{message}</Cell.CellFooterText>
@@ -233,24 +238,20 @@ function AppVersionButton() {
   }
 
   return (
-    <AriaDescriptionGroup>
-      <AriaDescribed>
-        <Cell.CellButton disabled={isOffline} onClick={openDownloadLink}>
-          {icon}
-          <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
-          <Cell.SubText>{appVersion}</Cell.SubText>
-          <AriaDescription>
-            <Cell.Icon
-              height={16}
-              width={16}
-              source="icon-extLink"
-              aria-label={messages.pgettext('accessibility', 'Opens externally')}
-            />
-          </AriaDescription>
-        </Cell.CellButton>
-      </AriaDescribed>
+    <>
+      <Cell.CellNavigationButton
+        disabled={isOffline}
+        onClick={openDownloadLink}
+        icon={{
+          source: 'icon-extLink',
+          'aria-label': messages.pgettext('accessibility', 'Opens externally'),
+        }}>
+        {alertIcon}
+        <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
+        <Cell.SubText>{appVersion}</Cell.SubText>
+      </Cell.CellNavigationButton>
       {footer}
-    </AriaDescriptionGroup>
+    </>
   );
 }
 
@@ -281,10 +282,10 @@ function QuitButton() {
   const tunnelState = useSelector((state) => state.connection.status);
 
   return (
-    <StyledQuitButton onClick={quit}>
+    <RedButton onClick={quit}>
       {tunnelState.state === 'disconnected'
         ? messages.gettext('Quit')
         : messages.gettext('Disconnect & quit')}
-    </StyledQuitButton>
+    </RedButton>
   );
 }

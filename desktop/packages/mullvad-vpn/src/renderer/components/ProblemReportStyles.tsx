@@ -20,7 +20,7 @@ export const StyledForm = styled.div({
   display: 'flex',
   flex: 1,
   flexDirection: 'column',
-  margin: `0 ${measurements.viewMargin}`,
+  margin: `0 ${measurements.horizontalViewMargin}`,
 });
 
 export const StyledFormEmailRow = styled.div({

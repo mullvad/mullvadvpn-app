@@ -99,7 +99,7 @@ export const StyledLoginForm = styled.div({
   flex: '0 1 225px',
   flexDirection: 'column',
   overflow: 'visible',
-  padding: `0 ${measurements.viewMargin}`,
+  padding: `0 ${measurements.horizontalViewMargin}`,
 });
 
 interface IStyledAccountInputGroupProps {
