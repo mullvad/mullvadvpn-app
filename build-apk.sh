@@ -56,6 +56,10 @@ if [[ "$BUILD_TYPE" == "release" && "$PRODUCT_VERSION" != *"-dev-"* ]]; then
     echo "Removing old Rust build artifacts"
     cargo clean
     CARGO_ARGS+=( "--locked" )
+    if [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
+        GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
+        BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
+    fi
 else
     CARGO_ARGS+=( "--features" "api-override" )
     GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
