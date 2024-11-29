@@ -14,9 +14,11 @@ echo ""
 BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
-BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
-CARGO_ARGS=( "--release" )
 BUILD_BUNDLE="no"
+BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
+RUN_PLAY_PUBLISH_TASKS="no"
+PLAY_PUBLISH_TASKS=(publishPlayStagemoleReleaseBundle)
+CARGO_ARGS=( "--release" )
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 SKIP_STRIPPING=${SKIP_STRIPPING:-"no"}
 
@@ -33,6 +35,8 @@ while [ -n "${1:-""}" ]; do
         BUNDLE_TASKS=(createOssProdFdroidDistBundle)
     elif [[ "${1:-""}" == "--app-bundle" ]]; then
         BUILD_BUNDLE="yes"
+    elif [[ "${1:-""}" == "--play-publish" ]]; then
+        RUN_PLAY_PUBLISH_TASKS="yes"
     elif [[ "${1:-""}" == "--skip-stripping" ]]; then
         SKIP_STRIPPING="yes"
     fi
@@ -122,6 +126,10 @@ $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
     $GRADLE_CMD --console plain "${BUNDLE_TASKS[@]}"
+fi
+
+if [[ "$RUN_PLAY_PUBLISH_TASKS" == "yes" ]]; then
+    $GRADLE_CMD --console plain "${PLAY_PUBLISH_TASKS[@]}"
 fi
 
 echo "**********************************"
