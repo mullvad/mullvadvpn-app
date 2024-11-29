@@ -10,6 +10,9 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+boringtun = ["talpid-wireguard/boringtun"]
+
 [dependencies]
 chrono = { workspace = true, features = ["clock"] }
 thiserror = { workspace = true }
