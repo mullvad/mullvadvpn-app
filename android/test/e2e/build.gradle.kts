@@ -175,4 +175,7 @@ dependencies {
     // Need these for forcing later versions of dependencies
     implementation(libs.compose.ui)
     implementation(libs.androidx.activity.compose)
+
+    implementation(libs.prometheus.simpleclient)
+    implementation(libs.prometheus.pushgateway)
 }

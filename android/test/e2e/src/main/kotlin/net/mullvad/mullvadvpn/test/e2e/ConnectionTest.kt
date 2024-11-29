@@ -12,6 +12,14 @@ import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SWITCH_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_SETTINGS_BUTTON
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
+import io.prometheus.client.CollectorRegistry
+import io.prometheus.client.Gauge
+import io.prometheus.client.Histogram
+import io.prometheus.client.exporter.PushGateway
+import kotlin.time.measureTime
+import net.mullvad.mullvadvpn.BuildConfig
+import net.mullvad.mullvadvpn.compose.test.SWITCH_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.TOP_BAR_SETTINGS_BUTTON
 import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
@@ -40,12 +48,25 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // Given
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
+        enableLocalNetworkSharing()
+
+        val connectDuration = Gauge.build()
+            .name("connect_duration_seconds_gauge")
+            .help("Duration of default connect operation")
+            .register()
+
+
+
         // When
         device.findObjectWithTimeout(By.text("Connect")).click()
         device.findObjectWithTimeout(By.text("OK")).click()
 
-        // Then
+        val startTime = System.nanoTime()
         device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
+        val duration = (System.nanoTime() - startTime) / 1_000_000_000.0
+        connectDuration.set(duration)
+
+        pushMetric(connectDuration)
     }
 
     @Test
@@ -166,6 +187,16 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         val locationCell = device.findObjectWithTimeout(By.text(locationName)).parent.parent
         val expandButton = locationCell.findObjectWithTimeout(By.res(EXPAND_BUTTON_TEST_TAG))
         expandButton.click()
+    }
+
+    private fun pushMetric(metric: Gauge) {
+        val pushGateway = PushGateway("192.168.105.187:9091")
+
+        try {
+            pushGateway.pushAdd(CollectorRegistry.defaultRegistry, "mullvad_e2e_metrics", mapOf("environment" to "production", "timestamp" to System.currentTimeMillis().toString()))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     companion object {

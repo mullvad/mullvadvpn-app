@@ -16,6 +16,7 @@ class LoginTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @Test
     fun testLoginWithValidCredentials() {
+
         // Given
         val validTestAccountNumber = accountTestRule.validAccountNumber
 

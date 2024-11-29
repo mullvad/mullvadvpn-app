@@ -158,6 +158,10 @@ leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.re
 mockkWebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "mockwebserver" }
 turbine = { module = "app.cash.turbine:turbine", version.ref = "turbine" }
 
+# Prometheus
+prometheus-simpleclient = { module = "io.prometheus:simpleclient", version = "0.16.0" }
+prometheus-pushgateway = { module = "io.prometheus:simpleclient_pushgateway", version = "0.16.0" }
+
 [plugins]
 # Android
 android-gradle-plugin = { id = "com.android.tools.build:gradle", version.ref = "android-gradle-plugin" }
