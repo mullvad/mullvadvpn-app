@@ -46,7 +46,7 @@ impl BoringTun {
         let (config_pipe_rx, config_pipe_tx) = nix::unistd::pipe().expect("failed to create pipe");
         let wg_config_str = config.to_userspace_format();
         let boringtun_config = DeviceConfig {
-            n_threads: 8,
+            n_threads: 1,
             use_connected_socket: true, // TODO: what is this?
             use_multi_queue: true,      // TODO: what is this?
             uapi_fd: config_pipe_rx,
