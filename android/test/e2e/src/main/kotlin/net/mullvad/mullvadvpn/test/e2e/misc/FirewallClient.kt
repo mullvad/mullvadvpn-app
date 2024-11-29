@@ -73,19 +73,21 @@ class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
     data class FirewallDropRule
     constructor(
         val src: String,
+        val from: String,
         val dst: String,
+        val to: String,
         val protocols: List<NetworkingProtocol>,
         @EncodeDefault
         val label: String = "urn:uuid:${SessionIdentifier.fromDeviceIdentifier()}",
     ) {
-        val from = src
-        val to = dst
 
         companion object {
             fun blockUDPTrafficRule(to: String): FirewallDropRule {
                 val testDeviceIpAddress = Networking.getDeviceIpv4Address()
                 return FirewallDropRule(
                     testDeviceIpAddress,
+                    testDeviceIpAddress,
+                    to,
                     to,
                     listOf(NetworkingProtocol.UDP),
                 )

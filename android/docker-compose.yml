@@ -6,6 +6,7 @@ services:
     container_name: prometheus
     volumes:
       - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
     ports:
       - "9090:9090"
 
@@ -14,6 +15,8 @@ services:
     container_name: grafana
     env_file:
       - .env
+    volumes:
+      - grafana_data:/var/lib/grafana
     ports:
       - "3000:3000"
     depends_on:
@@ -22,7 +25,14 @@ services:
   pushgateway:
     image: prom/pushgateway:latest
     container_name: pushgateway
+    volumes:
+      - pushgateway_data:/data
     ports:
       - "9091:9091"
     depends_on:
       - prometheus
+
+volumes:
+  prometheus_data:
+  grafana_data:
+  pushgateway_data:
