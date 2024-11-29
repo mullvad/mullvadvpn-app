@@ -186,9 +186,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     weak var delegate: VPNSettingsDataSourceDelegate?
 
     var selectedIndexPaths: [IndexPath] {
-        let wireGuardPortItem: Item = viewModel.customWireGuardPort == nil
-            ? .wireGuardPort(viewModel.wireGuardPort)
-            : .wireGuardCustomPort
+        var wireGuardPortItem: Item = .wireGuardPort(viewModel.wireGuardPort)
+        if let customPort = indexPath(for: .wireGuardCustomPort) {
+            if tableView?.indexPathsForSelectedRows?.contains(customPort) ?? false {
+                wireGuardPortItem = .wireGuardCustomPort
+            }
+        }
 
         let obfuscationStateItem: Item = switch viewModel.obfuscationState {
         case .automatic: .wireGuardObfuscationAutomatic
@@ -253,6 +256,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
             Item.wireGuardPorts.forEach { item in
                 if case let .wireGuardPort(port) = item, port == viewModel.wireGuardPort {
+                    if let indexPath = indexPath(for: item) {
+                        deselectAllRowsInSectionExceptRowAt(indexPath)
+                    }
                     selectRow(at: item)
                     return
                 }
