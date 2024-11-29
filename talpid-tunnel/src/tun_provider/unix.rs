@@ -5,7 +5,7 @@ use std::{
     os::unix::io::{AsRawFd, RawFd},
     process::Command,
 };
-use tun::{Configuration, Device};
+use tun::{AbstractDevice, AsyncDevice, Configuration};
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
@@ -54,7 +54,10 @@ impl UnixTunProvider {
             let mut builder = TunnelDeviceBuilder::default();
             #[cfg(target_os = "linux")]
             {
-                builder.enable_packet_information();
+                if self.config.packet_information {
+                    builder.enable_packet_information();
+                }
+
                 if let Some(ref name) = self.config.name {
                     builder.name(name);
                 }
@@ -81,6 +84,10 @@ impl UnixTun {
     /// Retrieve the tunnel interface name.
     pub fn interface_name(&self) -> Result<String, Error> {
         self.get_name()
+    }
+
+    pub fn into_inner(self) -> TunnelDevice {
+        self.0
     }
 }
 
@@ -115,7 +122,7 @@ impl TunnelDeviceBuilder {
     /// Set a custom name for this tunnel device.
     #[cfg(target_os = "linux")]
     pub fn name(&mut self, name: &str) -> &mut Self {
-        self.config.name(name);
+        self.config.tun_name(name);
         self
     }
 
@@ -123,7 +130,7 @@ impl TunnelDeviceBuilder {
     /// When enabled the first 4 bytes of each packet is a header with flags and protocol type.
     #[cfg(target_os = "linux")]
     pub fn enable_packet_information(&mut self) -> &mut Self {
-        self.config.platform(|config| {
+        self.config.platform_config(|config| {
             #[allow(deprecated)]
             // NOTE: This function does seemingly have an effect on Linux, despite what the deprecation
             // warning says.
@@ -135,7 +142,7 @@ impl TunnelDeviceBuilder {
 
 impl AsRawFd for TunnelDevice {
     fn as_raw_fd(&self) -> RawFd {
-        self.dev.get_ref().as_raw_fd()
+        self.dev.as_raw_fd()
     }
 }
 
@@ -143,10 +150,7 @@ impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
         match ip {
             IpAddr::V4(ipv4) => {
-                self.dev
-                    .get_mut()
-                    .set_address(ipv4)
-                    .map_err(Error::SetIpv4)?;
+                self.dev.set_address(ipv4.into()).map_err(Error::SetIpv4)?;
             }
 
             // NOTE: On MacOs, As of `tun 0.7`, `Device::set_address` accepts an `IpAddr` but
@@ -169,9 +173,9 @@ impl TunnelDevice {
             IpAddr::V6(ipv6) => {
                 // ip -6 addr add <ipv6 address> dev <device>
                 let ipv6 = ipv6.to_string();
-                let device = self.dev.get_ref().name();
+                let device = self.get_name()?;
                 Command::new("ip")
-                    .args(["-6", "addr", "add", &ipv6, "dev", device])
+                    .args(["-6", "addr", "add", &ipv6, "dev", &device])
                     .output()
                     .map_err(Error::SetIpv6)?;
             }
@@ -180,10 +184,14 @@ impl TunnelDevice {
     }
 
     fn set_up(&mut self, up: bool) -> Result<(), Error> {
-        self.dev.get_mut().enabled(up).map_err(Error::ToggleDevice)
+        self.dev.enabled(up).map_err(Error::ToggleDevice)
     }
 
     fn get_name(&self) -> Result<String, Error> {
-        Ok(self.dev.get_ref().name().to_owned())
+        Ok(self.dev.tun_name().unwrap()) // TODO
+    }
+
+    pub fn into_inner(self) -> AsyncDevice {
+        self.dev
     }
 }
