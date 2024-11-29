@@ -67,9 +67,9 @@ impl BoringTun {
             config.to_userspace_format().to_string_lossy().to_string()
         );
         let boringtun_config = DeviceConfig {
-            n_threads: 1,
-            use_connected_socket: true, // TODO: what is this?
-            use_multi_queue: true,      // TODO: what is this?
+            n_threads: 4,
+            use_connected_socket: false, // TODO: what is this?
+            use_multi_queue: false,      // TODO: what is this?
             uapi_fd: -1,
             config_string: Some(config_string),
         };
