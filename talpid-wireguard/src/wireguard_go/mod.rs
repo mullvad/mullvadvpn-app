@@ -237,7 +237,7 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<Self> {
-        let (tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
+        let (tunnel_device, tunnel_fd) = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
         let interface_name = tunnel_device
             .interface_name()
@@ -352,57 +352,56 @@ impl WgGoTunnel {
             UpdatedDetails(_) => (),
         }
     }
+}
 
-    #[cfg(unix)]
-    fn get_tunnel(
-        tun_provider: Arc<Mutex<TunProvider>>,
-        config: &Config,
-        #[cfg(not(target_os = "android"))] routes: impl Iterator<Item = IpNetwork>,
-    ) -> Result<(Tun, RawFd)> {
-        let mut last_error = None;
-        let mut tun_provider = tun_provider.lock().unwrap();
+pub fn get_tunnel_for_userspace(
+    tun_provider: Arc<Mutex<TunProvider>>,
+    config: &Config,
+    #[cfg(not(target_os = "android"))] routes: impl Iterator<Item = IpNetwork>,
+) -> Result<(Tun, RawFd)> {
+    let mut last_error = None;
+    let mut tun_provider = tun_provider.lock().unwrap();
 
-        let tun_config = tun_provider.config_mut();
-        #[cfg(target_os = "linux")]
-        {
-            tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
-        }
-        tun_config.addresses = config.tunnel.addresses.clone();
-        tun_config.ipv4_gateway = config.ipv4_gateway;
-        tun_config.ipv6_gateway = config.ipv6_gateway;
-        tun_config.mtu = config.mtu;
-
-        #[cfg(not(target_os = "android"))]
-        {
-            tun_config.routes = routes.collect();
-        }
-
-        #[cfg(target_os = "android")]
-        {
-            // Route everything into the tunnel and have wireguard-go act as a firewall when
-            // blocking. These will not necessarily be the actual routes used by android. Those will
-            // be generated at a later stage e.g. if Local Network Sharing is enabled.
-            tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
-        }
-
-        for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
-            let tunnel_device = tun_provider
-                .open_tun()
-                .map_err(TunnelError::SetupTunnelDevice)?;
-
-            match nix::unistd::dup(tunnel_device.as_raw_fd()) {
-                Ok(fd) => return Ok((tunnel_device, fd)),
-                #[cfg(not(target_os = "macos"))]
-                Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
-                Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
-                Err(error) => return Err(TunnelError::FdDuplicationError(error)),
-            }
-        }
-
-        Err(TunnelError::FdDuplicationError(
-            last_error.expect("Should be collected in loop"),
-        ))
+    let tun_config = tun_provider.config_mut();
+    #[cfg(target_os = "linux")]
+    {
+        tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
     }
+    tun_config.addresses = config.tunnel.addresses.clone();
+    tun_config.ipv4_gateway = config.ipv4_gateway;
+    tun_config.ipv6_gateway = config.ipv6_gateway;
+    tun_config.mtu = config.mtu;
+
+    #[cfg(not(target_os = "android"))]
+    {
+        tun_config.routes = routes.collect();
+    }
+
+    #[cfg(target_os = "android")]
+    {
+        // Route everything into the tunnel and have wireguard-go act as a firewall when
+        // blocking. These will not necessarily be the actual routes used by android. Those will
+        // be generated at a later stage e.g. if Local Network Sharing is enabled.
+        tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
+    }
+
+    for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+        let tunnel_device = tun_provider
+            .open_tun()
+            .map_err(TunnelError::SetupTunnelDevice)?;
+
+        match nix::unistd::dup(tunnel_device.as_raw_fd()) {
+            Ok(fd) => return Ok((tunnel_device, fd)),
+            #[cfg(not(target_os = "macos"))]
+            Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
+            Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
+            Err(error) => return Err(TunnelError::FdDuplicationError(error)),
+        }
+    }
+
+    Err(TunnelError::FdDuplicationError(
+        last_error.expect("Should be collected in loop"),
+    ))
 }
 
 #[cfg(target_os = "android")]

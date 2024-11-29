@@ -1158,6 +1158,10 @@ pub enum TunnelError {
     #[cfg(daita)]
     #[error("Failed to start DAITA - tunnel implemenation does not support DAITA")]
     DaitaNotSupported,
+
+    /// BoringTun device error
+    #[error("Boringtun: {0:?}")]
+    BoringTunDevice(::boringtun::device::Error),
 }
 
 #[cfg(target_os = "linux")]
