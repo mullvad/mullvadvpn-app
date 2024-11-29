@@ -367,6 +367,7 @@ impl WgGoTunnel {
         #[cfg(target_os = "linux")]
         {
             tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
+            tun_config.packet_information = true;
         }
         tun_config.addresses = config.tunnel.addresses.clone();
         tun_config.ipv4_gateway = config.ipv4_gateway;

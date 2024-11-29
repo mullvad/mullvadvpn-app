@@ -251,6 +251,7 @@ junitPlatform {
 
 cargo {
     val isReleaseBuild = isReleaseBuild()
+    val enableBoringTun = localProperties.getProperty("ENABLE_BORING_TUN").toBoolean() == true
     val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
     module = repoRootPath
     libname = "mullvad-jni"
@@ -268,6 +269,9 @@ cargo {
     features {
         if (enableApiOverride) {
             defaultAnd(arrayOf("api-override"))
+        }
+        if (enableBoringTun) {
+            defaultAnd(arrayOf("boringtun"))
         }
     }
     targetIncludes = arrayOf("libmullvad_jni.so")

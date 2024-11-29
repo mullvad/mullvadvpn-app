@@ -6,9 +6,6 @@ fn main() {
     if target_os == "windows" {
         declare_libs_dir("../dist-assets/binaries");
     }
-    // Wireguard-Go can be used on all platforms
-    println!("cargo::rustc-check-cfg=cfg(wireguard_go)");
-    println!("cargo::rustc-cfg=wireguard_go");
 
     // Enable DAITA by default on desktop and android
     println!("cargo::rustc-check-cfg=cfg(daita)");
