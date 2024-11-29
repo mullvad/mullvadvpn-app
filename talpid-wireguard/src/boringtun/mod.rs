@@ -7,20 +7,22 @@ use std::{
 
 use crate::{
     config::{Config, MULLVAD_INTERFACE_NAME},
-    stats::StatsMap,
+    stats::{Stats, StatsMap},
     wireguard_go::get_tunnel_for_userspace,
     Tunnel, TunnelError,
 };
 use boringtun::device::{DeviceConfig, DeviceHandle};
 use ipnetwork::IpNetwork;
-use nix::unistd::write;
+use nix::unistd::{close, write};
 use talpid_tunnel::tun_provider::Tun;
 use talpid_tunnel::tun_provider::TunProvider;
+use talpid_types::net::wireguard::PeerConfig;
 
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 pub struct BoringTun {
     device_handle: DeviceHandle,
+    config: Config,
 
     /// holding on to the tunnel device and the log file ensures that the associated file handles
     /// live long enough and get closed when the tunnel is stopped
@@ -36,6 +38,22 @@ impl BoringTun {
         #[cfg(daita)] _resource_dir: &Path,
     ) -> Result<Self, TunnelError> {
         log::info!("BoringTun::start_tunnel");
+        // log::info!("writing wireguard-config to boringtun");
+        // let wg_config_str = config.to_userspace_format();
+        // let (config_pipe_rx, config_pipe_tx) = nix::unistd::pipe().expect("failed to create pipe");
+
+        // let mut wg_config_bytes = dbg!(wg_config_str.to_str().unwrap()).as_bytes();
+        // while !wg_config_bytes.is_empty() {
+        //     let n = write(config_pipe_tx, wg_config_bytes).expect("write failed");
+
+        //     if n == 0 {
+        //         panic!("didn't write??");
+        //     }
+
+        //     wg_config_bytes = &wg_config_bytes[n..];
+        // }
+        // close(config_pipe_tx).unwrap();
+
         log::info!("calling get_tunnel_for_userspace");
 
         // TODO: investigate timing bug when creating tun device?
@@ -43,13 +61,17 @@ impl BoringTun {
         let (tun, _tunnel_fd) = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
         log::info!("creating pipe");
-        let (config_pipe_rx, config_pipe_tx) = nix::unistd::pipe().expect("failed to create pipe");
-        let wg_config_str = config.to_userspace_format();
+
+        let config_string = format!(
+            "set=1\n{}",
+            config.to_userspace_format().to_string_lossy().to_string()
+        );
         let boringtun_config = DeviceConfig {
             n_threads: 1,
             use_connected_socket: true, // TODO: what is this?
             use_multi_queue: true,      // TODO: what is this?
-            uapi_fd: config_pipe_rx,
+            uapi_fd: -1,
+            config_string: Some(config_string),
         };
 
         log::info!("passing tunnel dev to boringtun");
@@ -61,21 +83,11 @@ impl BoringTun {
         // TODO: make sure all the bytes are written
         // TODO: can we use a rust type instead of a raw fd?
 
-        log::info!("writing wireguard-config to boringtun");
-        let mut wg_config_bytes = wg_config_str.to_str().unwrap().as_bytes();
-        while !wg_config_bytes.is_empty() {
-            let n = write(config_pipe_tx, wg_config_bytes).expect("write failed");
-
-            if n == 0 {
-                panic!("didn't write??");
-            }
-
-            wg_config_bytes = &wg_config_bytes[n..];
-        }
         log::info!("done! boringtun time!?");
 
         Ok(Self {
             device_handle,
+            config: config.clone(),
             tunnel_device: tun,
         })
     }
@@ -95,13 +107,25 @@ impl Tunnel for BoringTun {
     }
 
     fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
-        todo!("get_tunnel_stats")
+        let mut stats = StatsMap::new();
+
+        for peer in self.config.peers() {
+            stats.insert(
+                *peer.public_key.as_bytes(),
+                Stats {
+                    tx_bytes: 1234,
+                    rx_bytes: 4321,
+                },
+            );
+        }
+        Ok(stats)
     }
 
     fn set_config<'a>(
         &'a mut self,
         _config: Config,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
+        self.config = _config;
         todo!("set_config")
     }
 
