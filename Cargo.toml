@@ -122,7 +122,7 @@ prost-types = "0.13.3"
 hyper-util = {version = "0.1.8", features = ["client", "client-legacy", "http2", "http1"]}
 
 env_logger = "0.10.0"
-thiserror = "1.0.57"
+thiserror = "2"
 log = "0.4"
 
 shadowsocks = "1.20.3"
