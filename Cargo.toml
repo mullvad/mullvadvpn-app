@@ -54,6 +54,9 @@ members = [
 # To build or test everything, add `--workspace` to your cargo commands.
 default-members = ["mullvad-cli", "mullvad-daemon", "mullvad-version"]
 
+[patch.crates-io]
+boringtun = { path = "../boringtun/boringtun" }
+
 # Keep all lints in sync with `test/Cargo.toml`
 [workspace.lints.rust]
 # Security

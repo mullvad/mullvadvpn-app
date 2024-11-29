@@ -12,6 +12,7 @@ workspace = true
 
 [dependencies]
 async-trait = "0.1"
+boringtun = "0.5.3"
 thiserror = { workspace = true }
 futures = { workspace = true }
 hex = "0.4"
@@ -84,4 +85,4 @@ features = [
 
 [dev-dependencies]
 proptest = { workspace = true }
-tokio = { workspace = true, features = [ "test-util" ] }
+tokio = { workspace = true, features = ["test-util"] }

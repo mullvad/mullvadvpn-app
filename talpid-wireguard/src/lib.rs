@@ -3,6 +3,7 @@
 #![deny(missing_docs)]
 
 use self::config::Config;
+use boringtun::BoringTun;
 #[cfg(windows)]
 use futures::channel::mpsc;
 use futures::future::Future;
@@ -38,6 +39,7 @@ use talpid_types::{
 };
 use tokio::sync::Mutex as AsyncMutex;
 
+mod boringtun;
 /// WireGuard config data-types
 pub mod config;
 mod connectivity;
@@ -643,6 +645,10 @@ impl WireguardMonitor {
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
+        let tunnel = Self::open_boringtun_tunnel(config, log_path, resource_dir, tun_provider)
+            .map(Box::new)?;
+        return Ok(tunnel);
+
         let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || config.daita;
 
         if userspace_wireguard {
@@ -794,6 +800,35 @@ impl WireguardMonitor {
             .await
             .map_err(Error::TunnelError)?
         };
+
+        Ok(tunnel)
+    }
+
+    /// Configure and start a boringtun tunnel.
+    fn open_boringtun_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        #[cfg(daita)] resource_dir: &Path,
+        tun_provider: Arc<Mutex<TunProvider>>,
+        //#[cfg(target_os = "android")] gateway_only: bool,
+        //#[cfg(target_os = "android")] connectivity_check: connectivity::Check<
+        //    connectivity::Cancellable,
+        //>,
+    ) -> Result<BoringTun> {
+        let routes = config
+            .get_tunnel_destinations()
+            .flat_map(Self::replace_default_prefixes);
+
+        #[cfg(not(target_os = "android"))]
+        let tunnel = boringtun::BoringTun::start_tunnel(
+            config,
+            log_path,
+            tun_provider,
+            routes,
+            #[cfg(daita)]
+            resource_dir,
+        )
+        .map_err(Error::TunnelError)?;
 
         Ok(tunnel)
     }
