@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.screen.toLatLong
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
@@ -69,7 +70,7 @@ class ConnectViewModel(
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
                 accountRepository.accountData,
                 deviceRepository.deviceState.map { it?.displayName() },
-                filteredRelayListUseCase().map { countries -> countries.flatMap { it.cities } },
+                filteredRelayListUseCase(RelayListType.EXIT).map { countries -> countries.flatMap { it.cities } },
             ) {
                 selectedRelayItemTitle,
                 notifications,
