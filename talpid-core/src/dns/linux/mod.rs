@@ -7,7 +7,11 @@ use self::{
     network_manager::NetworkManager, resolvconf::Resolvconf, static_resolv_conf::StaticResolvConf,
     systemd_resolved::SystemdResolved,
 };
-use std::{env, fmt, net::IpAddr};
+use std::{
+    env,
+    fmt::{self, Display},
+    net::IpAddr,
+};
 use talpid_routing::RouteManagerHandle;
 
 use super::ResolvedDnsConfig;
@@ -89,7 +93,7 @@ impl fmt::Display for DnsMonitorHolder {
             Resolvconf(..) => "resolvconf",
             StaticResolvConf(..) => "/etc/resolv.conf",
             SystemdResolved(..) => "systemd-resolved",
-            NetworkManager(..) => "network manager",
+            NetworkManager(..) => "NetworkManager",
         };
         f.write_str(name)
     }
@@ -111,21 +115,30 @@ impl DnsMonitorHolder {
     }
 
     fn with_detected_dns_manager() -> Result<Self> {
+        fn log_err<E: Display>(method: &'static str) -> impl Fn(&E) {
+            move |err: &E| {
+                log::debug!("Can't manage DNS using {method}: {err}");
+            }
+        }
+
         SystemdResolved::new()
             .map(DnsMonitorHolder::SystemdResolved)
-            .or_else(|err| {
-                match err {
-                    systemd_resolved::Error::SystemdResolvedError(
-                        systemd_resolved::SystemdDbusError::NoSystemdResolved(_),
-                    ) => (),
-                    other_error => {
-                        log::debug!("NetworkManager is being used because {}", other_error)
-                    }
-                }
-                NetworkManager::new().map(DnsMonitorHolder::NetworkManager)
+            .inspect_err(log_err("systemd-resolved"))
+            .or_else(|_| {
+                NetworkManager::new()
+                    .map(DnsMonitorHolder::NetworkManager)
+                    .inspect_err(log_err("NetworkManager"))
             })
-            .or_else(|_| Resolvconf::new().map(DnsMonitorHolder::Resolvconf))
-            .or_else(|_| StaticResolvConf::new().map(DnsMonitorHolder::StaticResolvConf))
+            .or_else(|_| {
+                Resolvconf::new()
+                    .map(DnsMonitorHolder::Resolvconf)
+                    .inspect_err(log_err("resolveconf"))
+            })
+            .or_else(|_| {
+                StaticResolvConf::new()
+                    .map(DnsMonitorHolder::StaticResolvConf)
+                    .inspect_err(log_err("/etc/resolv.conf"))
+            })
             .map_err(|_| Error::NoDnsMonitor)
     }
 
