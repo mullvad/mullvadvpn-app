@@ -38,30 +38,12 @@ impl BoringTun {
         #[cfg(daita)] _resource_dir: &Path,
     ) -> Result<Self, TunnelError> {
         log::info!("BoringTun::start_tunnel");
-        // log::info!("writing wireguard-config to boringtun");
-        // let wg_config_str = config.to_userspace_format();
-        // let (config_pipe_rx, config_pipe_tx) = nix::unistd::pipe().expect("failed to create pipe");
-
-        // let mut wg_config_bytes = dbg!(wg_config_str.to_str().unwrap()).as_bytes();
-        // while !wg_config_bytes.is_empty() {
-        //     let n = write(config_pipe_tx, wg_config_bytes).expect("write failed");
-
-        //     if n == 0 {
-        //         panic!("didn't write??");
-        //     }
-
-        //     wg_config_bytes = &wg_config_bytes[n..];
-        // }
-        // close(config_pipe_tx).unwrap();
 
         log::info!("calling get_tunnel_for_userspace");
-
-        // TODO: investigate timing bug when creating tun device?
-        // Device or resource busy
+        // TODO: investigate timing bug when creating tun device? (Device or resource busy)
         let (tun, _tunnel_fd) = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
-        log::info!("creating pipe");
-
+        // TODO: avoid going through a CString
         let config_string = format!(
             "set=1\n{}",
             config.to_userspace_format().to_string_lossy().to_string()
@@ -76,14 +58,21 @@ impl BoringTun {
 
         log::info!("passing tunnel dev to boringtun");
         let device_handle: DeviceHandle =
+            // TODO: don't pass file descriptor as a string -_-
             DeviceHandle::new(&_tunnel_fd.to_string(), boringtun_config)
                 .map_err(TunnelError::BoringTunDevice)?;
 
-        // TODO: remove null byte in a better way
-        // TODO: make sure all the bytes are written
-        // TODO: can we use a rust type instead of a raw fd?
-
-        log::info!("done! boringtun time!?");
+        log::info!(
+            "This tunnel was brought to you by...
+.........................................................
+..*...*.. .--.                    .---.         ..*....*.
+...*..... |   )         o           |           ......*..
+.*..*..*. |--:  .-. .--..  .--. .-..|.  . .--.  ...*.....
+...*..... |   )(   )|   |  |  |(   |||  | |  |  .*.....*.
+*.....*.. '--'  `-' ' -' `-'  `-`-`|'`--`-'  `- .....*...
+.........                       ._.'            ..*...*..
+..*...*.............................................*...."
+        );
 
         Ok(Self {
             device_handle,
