@@ -24,7 +24,7 @@ where
     S: AsyncRead + AsyncWrite + Unpin,
 {
     /// Create a [`Forwarder`] with a connected `stream` to an encrypted DNS proxy server
-    pub fn from_stream(proxy_config: &crate::config::ProxyConfig, stream: S) -> io::Result<Self> {
+    pub fn from_stream(proxy_config: &crate::config::ProxyConfig, stream: S) -> Self {
         let (read_obfuscator, write_obfuscator) =
             if let Some(obfuscation_config) = &proxy_config.obfuscation {
                 (
@@ -35,11 +35,11 @@ where
                 (None, None)
             };
 
-        Ok(Self {
+        Self {
             read_obfuscator,
             write_obfuscator,
             stream,
-        })
+        }
     }
 }
 
@@ -48,7 +48,7 @@ impl Forwarder<TcpStream> {
     /// Create a forwarder that will connect to a given proxy endpoint.
     pub async fn connect(proxy_config: &crate::config::ProxyConfig) -> io::Result<Self> {
         let server_connection = TcpStream::connect(proxy_config.addr).await?;
-        Self::from_stream(proxy_config, server_connection)
+        Ok(Self::from_stream(proxy_config, server_connection))
     }
 
     /// Forwards traffic from the client stream to the remote proxy, obfuscating and deobfuscating
