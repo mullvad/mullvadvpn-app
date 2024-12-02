@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { colors } from '../../config.json';
+import { Colors, Spacings } from '../tokens';
 
 export const openSans: React.CSSProperties = {
   fontFamily: 'Open Sans',
@@ -8,13 +8,6 @@ export const openSans: React.CSSProperties = {
 
 export const sourceSansPro: React.CSSProperties = {
   fontFamily: '"Source Sans Pro", "Noto Sans Myanmar", "Noto Sans Thai", sans-serif',
-};
-
-export const miniText = {
-  ...openSans,
-  fontSize: '10px',
-  fontWeight: 600,
-  lineHeight: '15px',
 };
 
 export const tinyText = {
@@ -29,7 +22,7 @@ export const smallText = {
   fontSize: '14px',
   fontWeight: 600,
   lineHeight: '20px',
-  color: colors.white80,
+  color: Colors.white80,
 };
 
 export const smallNormalText = {
@@ -52,7 +45,7 @@ export const largeText = {
 
 export const buttonText = {
   ...largeText,
-  color: colors.white,
+  color: Colors.white,
 };
 
 export const bigText = {
@@ -67,29 +60,13 @@ export const hugeText = {
   fontSize: '32px',
   fontWeight: 700,
   lineHeight: '34px',
-  color: colors.white,
-};
-
-export const spacings = {
-  spacing1: '4px',
-  spacing2: '6px',
-  spacing3: '8px',
-  spacing4: '12px',
-  spacing5: '16px',
-  spacing6: '24px',
-  spacing7: '32px',
-  spacing8: '40px',
-  spacing9: '48px',
-  spacing10: '56px',
-  spacing11: '64px',
-  spacing12: '72px',
-  spacing13: '80px',
+  color: Colors.white,
 };
 
 export const measurements = {
-  rowMinHeight: spacings.spacing9,
-  horizontalViewMargin: spacings.spacing5,
-  verticalViewMargin: spacings.spacing6,
-  rowVerticalMargin: spacings.spacing6,
-  buttonVerticalMargin: spacings.spacing5,
+  rowMinHeight: Spacings.spacing9,
+  horizontalViewMargin: Spacings.spacing5,
+  verticalViewMargin: Spacings.spacing6,
+  rowVerticalMargin: Spacings.spacing6,
+  buttonVerticalMargin: Spacings.spacing5,
 };

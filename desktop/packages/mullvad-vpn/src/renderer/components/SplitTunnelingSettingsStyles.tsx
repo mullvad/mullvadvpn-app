@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { measurements, miniText, normalText } from './common-styles';
+import { measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
 import SearchBar from './SearchBar';
@@ -116,11 +116,6 @@ export const StyledHeaderTitleContainer = styled.div({
 
 export const StyledHeaderTitle = styled(HeaderTitle)({
   flex: 1,
-});
-
-export const StyledMiniTitle = styled.span({
-  ...miniText,
-  color: colors.white60,
 });
 
 export const StyledSearchBar = styled(SearchBar)({

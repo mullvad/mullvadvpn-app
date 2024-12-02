@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
-import { buttonText, normalText, spacings, tinyText } from '../common-styles';
+import { Colors, Spacings } from '../../tokens';
+import { buttonText, normalText, tinyText } from '../common-styles';
 import ImageView, { IImageViewProps } from '../ImageView';
 import { CellButton } from './CellButton';
 import { CellDisabledContext } from './Container';
@@ -11,7 +11,7 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
   display: 'flex',
   margin: '10px 0',
   flex: 1,
-  color: props.disabled ? colors.white40 : colors.white,
+  color: props.disabled ? Colors.white40 : Colors.white,
   textAlign: 'left',
 
   [`${LabelContainer} &&`]: {
@@ -27,10 +27,10 @@ const StyledLabel = styled.div<{ disabled: boolean }>(buttonText, (props) => ({
 }));
 
 const StyledSubText = styled.span<{ disabled: boolean }>(tinyText, (props) => ({
-  color: props.disabled ? colors.white20 : colors.white60,
+  color: props.disabled ? Colors.white20 : Colors.white60,
   flex: -1,
   textAlign: 'right',
-  margin: `0 ${spacings.spacing3}`,
+  margin: `0 ${Spacings.spacing3}`,
 }));
 
 const StyledIconContainer = styled.div<{ disabled: boolean }>((props) => ({
@@ -38,8 +38,8 @@ const StyledIconContainer = styled.div<{ disabled: boolean }>((props) => ({
 }));
 
 const StyledTintedIcon = styled(ImageView).attrs((props: IImageViewProps) => ({
-  tintColor: props.tintColor ?? colors.white,
-  tintHoverColor: props.tintHoverColor ?? props.tintColor ?? colors.white60,
+  tintColor: props.tintColor ?? Colors.white,
+  tintHoverColor: props.tintHoverColor ?? props.tintColor ?? Colors.white60,
 }))((props: IImageViewProps) => ({
   '&&:hover': {
     backgroundColor: props.tintHoverColor,
@@ -52,7 +52,7 @@ const StyledTintedIcon = styled(ImageView).attrs((props: IImageViewProps) => ({
 const StyledSubLabel = styled.div<{ disabled: boolean }>(tinyText, {
   display: 'flex',
   alignItems: 'center',
-  color: colors.white60,
+  color: Colors.white60,
   marginBottom: '5px',
   lineHeight: '14px',
   height: '14px',

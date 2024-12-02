@@ -1,27 +1,30 @@
 import { useCallback } from 'react';
 
-import { colors, strings } from '../../config.json';
+import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import { Colors } from '../tokens';
 import { RedButton } from './AppButton';
 import * as Cell from './cell';
+import { TitleBig } from './common/text';
 import { BackAction } from './KeyboardNavigation';
 import {
   ButtonStack,
   Footer,
+  LabelStack,
   Layout,
   SettingsContainer,
   SettingsContent,
+  SettingsGroup,
   SettingsNavigationScrollbars,
   SettingsStack,
 } from './Layout';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
-import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { StyledCellIcon } from './SettingsStyles';
+import SettingsHeader from './SettingsHeader';
 
 export default function Support() {
   const history = useHistory();
@@ -52,44 +55,44 @@ export default function Support() {
             <SettingsNavigationScrollbars fillContainer>
               <SettingsContent>
                 <SettingsHeader>
-                  <HeaderTitle>{messages.pgettext('navigation-bar', 'Settings')}</HeaderTitle>
+                  <TitleBig>{messages.pgettext('navigation-bar', 'Settings')}</TitleBig>
                 </SettingsHeader>
 
                 <SettingsStack>
                   {showSubSettings ? (
                     <>
-                      <Cell.Group $noMarginBottom>
+                      <SettingsGroup>
                         <UserInterfaceSettingsButton />
                         <MultihopButton />
                         <DaitaButton />
                         <VpnSettingsButton />
-                      </Cell.Group>
+                      </SettingsGroup>
 
                       {showSplitTunneling && (
-                        <Cell.Group $noMarginBottom>
+                        <SettingsGroup>
                           <SplitTunnelingButton />
-                        </Cell.Group>
+                        </SettingsGroup>
                       )}
                     </>
                   ) : (
-                    <Cell.Group $noMarginBottom>
+                    <SettingsGroup>
                       <UserInterfaceSettingsButton />
-                    </Cell.Group>
+                    </SettingsGroup>
                   )}
 
-                  <Cell.Group $noMarginBottom>
+                  <SettingsGroup>
                     <ApiAccessMethodsButton />
-                  </Cell.Group>
+                  </SettingsGroup>
 
-                  <Cell.Group $noMarginBottom>
+                  <SettingsGroup>
                     <SupportButton />
                     <AppVersionButton />
-                  </Cell.Group>
+                  </SettingsGroup>
 
                   {window.env.development && (
-                    <Cell.Group $noMarginBottom>
+                    <SettingsGroup>
                       <DebugButton />
-                    </Cell.Group>
+                    </SettingsGroup>
                   )}
                 </SettingsStack>
                 <Footer>
@@ -229,7 +232,7 @@ function AppVersionButton() {
 
     const message = !consistentVersion ? inconsistentVersionMessage : updateAvailableMessage;
 
-    alertIcon = <StyledCellIcon source="icon-alert" width={18} tintColor={colors.red} />;
+    alertIcon = <Cell.UntintedIcon source="icon-alert" width={18} tintColor={Colors.red} />;
     footer = (
       <Cell.CellFooter>
         <Cell.CellFooterText>{message}</Cell.CellFooterText>
@@ -246,8 +249,10 @@ function AppVersionButton() {
           source: 'icon-extLink',
           'aria-label': messages.pgettext('accessibility', 'Opens externally'),
         }}>
-        {alertIcon}
-        <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
+        <LabelStack>
+          {alertIcon}
+          <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
+        </LabelStack>
         <Cell.SubText>{appVersion}</Cell.SubText>
       </Cell.CellNavigationButton>
       {footer}
