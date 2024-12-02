@@ -134,6 +134,8 @@ jobs:
         run: git submodule update --init --depth=1
 
       - name: Install Protoc
+        # The ARM runner comes with this installed
+        if: ${{ matrix.config.arch != 'arm64' }}
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
