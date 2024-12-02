@@ -539,8 +539,9 @@ jobs:
         env:
           ENVIRONMENT_NAME: ${{ github.event.inputs.e2e_tests_infra_flavor }}
         run: |
-          SECRET_NAME="ANDROID_$(echo $ENVIRONMENT_NAME | tr '[:lower:]' '[:upper:]')_TEST_ACCOUNT"
-          echo "VALID_TEST_ACCOUNT_NUMBER=${{ secrets[env.SECRET_NAME] }}" >> $GITHUB_OUTPUT
+          environment_name_uppercased=$(echo $ENVIRONMENT_NAME | tr '[:lower:]' '[:upper:]')
+          secret_name="ANDROID_${environment_name_uppercased}_TEST_ACCOUNT"
+          echo "VALID_TEST_ACCOUNT_NUMBER=${{ secrets[env.secret_name] }}" >> $GITHUB_OUTPUT
 
       - name: Run instrumented test script
         if: ${{ matrix.test-repeat != 0 }}
