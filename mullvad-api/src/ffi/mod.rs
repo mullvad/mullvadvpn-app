@@ -7,7 +7,7 @@ use std::{
 
 use crate::{
     rest::{self, MullvadRestHandle},
-    AccountsProxy, DevicesProxy, NullDnsResolver,
+    AccountsProxy, DevicesProxy,
 };
 
 mod device;
@@ -209,11 +209,11 @@ impl FfiClient {
     }
 
     fn device_proxy(&self) -> DevicesProxy {
-        crate::DevicesProxy::new(self.rest_handle(NullDnsResolver))
+        crate::DevicesProxy::new(self.rest_handle())
     }
 
     fn accounts_proxy(&self) -> AccountsProxy {
-        crate::AccountsProxy::new(self.rest_handle(NullDnsResolver))
+        crate::AccountsProxy::new(self.rest_handle())
     }
 
     fn tokio_handle(&self) -> tokio::runtime::Handle {

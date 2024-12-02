@@ -376,7 +376,6 @@ impl Runtime {
         Runtime {
             handle,
             address_cache: AddressCache::with_static_addr(address),
-            dns_resolver: Arc::new(NullDnsResolver),
             api_availability: ApiAvailability::default(),
         }
     }
