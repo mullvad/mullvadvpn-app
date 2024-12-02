@@ -3,8 +3,9 @@ import styled from 'styled-components';
 
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
+import { spacings } from '../tokens';
 import * as AppButton from './AppButton';
-import { measurements, spacings } from './common-styles';
+import { measurements } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import {

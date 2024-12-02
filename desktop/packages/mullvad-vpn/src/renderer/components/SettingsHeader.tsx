@@ -1,8 +1,8 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
-import { hugeText, spacings, tinyText } from './common-styles';
+import { spacings } from '../tokens';
+import { LabelTiny, TitleBig } from './common/text';
 
 export const Container = styled.div({
   flex: 0,
@@ -15,13 +15,14 @@ export const ContentWrapper = styled.div({
   },
 });
 
-export const HeaderTitle = styled.span(hugeText, {
+export const HeaderTitle = styled(TitleBig)({
   wordWrap: 'break-word',
   hyphens: 'auto',
 });
-export const HeaderSubTitle = styled.span(tinyText, {
-  color: colors.white60,
-});
+
+export const HeaderSubTitle = styled(LabelTiny).attrs({
+  $color: 'white60',
+})({});
 
 interface ISettingsHeaderProps {
   children?: React.ReactNode;

@@ -1,10 +1,11 @@
 import React from 'react';
 import styled from 'styled-components';
 
+import { spacings } from '../../tokens';
 import { Row } from './Row';
 
 const StyledContainer = styled(Row)({
-  paddingRight: '16px',
+  padding: `0 ${spacings.spacing5}`,
 });
 
 export const CellDisabledContext = React.createContext<boolean>(false);

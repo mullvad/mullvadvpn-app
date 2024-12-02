@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
-import { spacings } from '../common-styles';
+import { colors, spacings } from '../../tokens';
+import { Center } from '../common/layout';
 import { IImageViewProps } from '../ImageView';
 import { CellDisabledContext } from './Container';
 import { Icon } from './Label';
@@ -58,13 +58,6 @@ export const CellButton = styled(
   }),
 )({});
 
-const StyledNavigationButtonIcon = styled('div')({
-  display: 'grid',
-  placeItems: 'center',
-  width: '24px',
-  height: '24px',
-});
-
 interface ICellNavigationButtonProps extends ICellButtonProps {
   isAriaDescription?: boolean;
   icon?: IImageViewProps;
@@ -80,9 +73,9 @@ export function CellNavigationButton({
   return (
     <CellButton {...props}>
       {children}
-      <StyledNavigationButtonIcon>
+      <Center $height="24px" $width="24px">
         <Icon {...icon} />
-      </StyledNavigationButtonIcon>
+      </Center>
     </CellButton>
   );
 }

@@ -12,8 +12,8 @@ import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
-import { measurements, normalText } from './common-styles';
-import { tinyText } from './common-styles';
+import { Flex } from './common/layout/Flex';
+import { measurements, normalText, tinyText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
@@ -25,20 +25,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { SmallButton, SmallButtonGrid } from './SmallButton';
-import { SmallButtonColor } from './SmallButton';
-
-const ContentContainer = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-});
-
-const Content = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-});
+import { SmallButton, SmallButtonColor, SmallButtonGrid } from './SmallButton';
 
 const StyledSmallButtonGrid = styled(SmallButtonGrid)({
   margin: `0 ${measurements.horizontalViewMargin}`,
@@ -157,8 +144,7 @@ export default function SettingsImport() {
               />
             </NavigationItems>
           </NavigationBar>
-
-          <ContentContainer>
+          <Flex $flexDirection="column" $flex={1}>
             <SettingsHeader>
               <HeaderTitle>
                 {messages.pgettext('settings-import', 'Server IP override')}
@@ -171,7 +157,7 @@ export default function SettingsImport() {
               </HeaderSubTitle>
             </SettingsHeader>
 
-            <Content>
+            <Flex $flexDirection="column" $flex={1}>
               <StyledSmallButtonGrid>
                 <SmallButton onClick={navigateTextImport}>
                   {messages.pgettext('settings-import', 'Import via text')}
@@ -182,7 +168,7 @@ export default function SettingsImport() {
               </StyledSmallButtonGrid>
 
               <SettingsImportStatus status={importStatus} />
-            </Content>
+            </Flex>
 
             <Footer>
               <SmallButton
@@ -211,7 +197,7 @@ export default function SettingsImport() {
                 'Clearing the imported overrides changes the server IPs, in the Select location view, back to default.',
               )}
             />
-          </ContentContainer>
+          </Flex>
         </SettingsContainer>
       </Layout>
     </BackAction>

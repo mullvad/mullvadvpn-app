@@ -17,10 +17,12 @@ import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
+import { Flex } from './common/layout';
+import { FootnoteMini } from './common/text';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer, Spacing } from './Layout';
+import { Layout, SettingsContainer } from './Layout';
 import List from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
@@ -37,7 +39,6 @@ import {
   StyledIcon,
   StyledIconPlaceholder,
   StyledListContainer,
-  StyledMiniTitle,
   StyledNavigationScrollbars,
   StyledNoResult,
   StyledNoResultText,
@@ -538,34 +539,33 @@ function MacOsSplitTunnelingAvailability({
   const { showFullDiskAccessSettings, daemonPrepareRestart } = useAppContext();
   const restartDaemon = useCallback(() => daemonPrepareRestart(true), [daemonPrepareRestart]);
 
+  if (!needFullDiskPermissions) return null;
+
   return (
-    <>
-      {needFullDiskPermissions === true ? (
-        <>
-          <HeaderSubTitle>
-            {messages.pgettext(
-              'split-tunneling-view',
-              'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
-            )}
-          </HeaderSubTitle>
-          <Spacing height="24px" />
+    <Flex $flexDirection="column" $gap="spacing6">
+      <HeaderSubTitle>
+        {messages.pgettext(
+          'split-tunneling-view',
+          'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
+        )}
+      </HeaderSubTitle>
+      <Flex $flexDirection="column" $gap="spacing3">
+        <Flex $flexDirection="column" $gap="spacing7">
           <WideSmallButton onClick={showFullDiskAccessSettings}>
             {messages.pgettext('split-tunneling-view', 'Open System Settings')}
           </WideSmallButton>
-          <Spacing height="32px" />
-          <StyledMiniTitle>
+          <FootnoteMini $color="white60">
             {messages.pgettext(
               'split-tunneling-view',
               'Enabled "Full disk access" and still having issues?',
             )}
-          </StyledMiniTitle>
-          <Spacing height="8px" />
-          <WideSmallButton onClick={restartDaemon}>
-            {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
-          </WideSmallButton>
-        </>
-      ) : null}
-    </>
+          </FootnoteMini>
+        </Flex>
+        <WideSmallButton onClick={restartDaemon}>
+          {messages.pgettext('split-tunneling-view', 'Restart Mullvad Service')}
+        </WideSmallButton>
+      </Flex>
+    </Flex>
   );
 }
 

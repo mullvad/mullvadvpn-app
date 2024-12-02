@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { colors } from '../../config.json';
+import { spacings } from '../tokens';
 
 export const openSans: React.CSSProperties = {
   fontFamily: 'Open Sans',
@@ -8,13 +9,6 @@ export const openSans: React.CSSProperties = {
 
 export const sourceSansPro: React.CSSProperties = {
   fontFamily: '"Source Sans Pro", "Noto Sans Myanmar", "Noto Sans Thai", sans-serif',
-};
-
-export const miniText = {
-  ...openSans,
-  fontSize: '10px',
-  fontWeight: 600,
-  lineHeight: '15px',
 };
 
 export const tinyText = {
@@ -68,22 +62,6 @@ export const hugeText = {
   fontWeight: 700,
   lineHeight: '34px',
   color: colors.white,
-};
-
-export const spacings = {
-  spacing1: '4px',
-  spacing2: '6px',
-  spacing3: '8px',
-  spacing4: '12px',
-  spacing5: '16px',
-  spacing6: '24px',
-  spacing7: '32px',
-  spacing8: '40px',
-  spacing9: '48px',
-  spacing10: '56px',
-  spacing11: '64px',
-  spacing12: '72px',
-  spacing13: '80px',
 };
 
 export const measurements = {

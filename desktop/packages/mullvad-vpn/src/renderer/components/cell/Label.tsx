@@ -2,7 +2,8 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
-import { buttonText, normalText, spacings, tinyText } from '../common-styles';
+import { spacings } from '../../tokens';
+import { buttonText, normalText, tinyText } from '../common-styles';
 import ImageView, { IImageViewProps } from '../ImageView';
 import { CellButton } from './CellButton';
 import { CellDisabledContext } from './Container';

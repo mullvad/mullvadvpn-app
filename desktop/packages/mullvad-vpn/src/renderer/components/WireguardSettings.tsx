@@ -21,7 +21,7 @@ import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGro
 import * as Cell from './cell';
 import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { ModalMessage } from './Modal';
 import {
   NavigationBar,
@@ -39,13 +39,6 @@ const WIREUGARD_UDP_PORTS = [51820, 53];
 function mapPortToSelectorItem(value: number): SelectorItem<number> {
   return { label: value.toString(), value };
 }
-
-const StyledContent = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '2px',
-});
 
 const StyledSelectorContainer = styled.div({
   flex: 0,
@@ -84,28 +77,29 @@ export default function WireguardSettings() {
                   )}
                 </HeaderTitle>
               </SettingsHeader>
+              <SettingsContent>
+                <SettingsStack>
+                  <SettingsGroup>
+                    <PortSelector />
+                  </SettingsGroup>
 
-              <StyledContent>
-                <Cell.Group>
-                  <PortSelector />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <ObfuscationSettings />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <ObfuscationSettings />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <QuantumResistantSetting />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <QuantumResistantSetting />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <IpVersionSetting />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <IpVersionSetting />
-                </Cell.Group>
-
-                <Cell.Group>
-                  <MtuSetting />
-                </Cell.Group>
-              </StyledContent>
+                  <SettingsGroup>
+                    <MtuSetting />
+                  </SettingsGroup>
+                </SettingsStack>
+              </SettingsContent>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>

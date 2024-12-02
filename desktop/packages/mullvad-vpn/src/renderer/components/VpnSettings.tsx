@@ -15,6 +15,7 @@ import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
+import { spacings } from '../tokens';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
@@ -22,7 +23,7 @@ import Selector, { SelectorItem } from './cell/Selector';
 import CustomDnsSettings from './CustomDnsSettings';
 import InfoButton, { InfoIcon } from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 import {
   NavigationBar,
@@ -33,19 +34,8 @@ import {
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-const StyledContent = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '2px',
-});
-
 const StyledInfoIcon = styled(InfoIcon)({
-  marginRight: '16px',
-});
-
-const StyledSelectorContainer = styled.div({
-  flex: 0,
+  marginRight: spacings.spacing5,
 });
 
 const StyledTitleLabel = styled(Cell.SectionTitle)({
@@ -58,11 +48,11 @@ const StyledSectionItem = styled(Cell.Container)({
 
 const LanIpRanges = styled.ul({
   listStyle: 'disc outside',
-  marginLeft: '20px',
+  marginLeft: spacings.spacing6,
 });
 
 const IndentedValueLabel = styled(Cell.ValueLabel)({
-  marginLeft: '16px',
+  marginLeft: spacings.spacing5,
 });
 
 export default function VpnSettings() {
@@ -89,46 +79,48 @@ export default function VpnSettings() {
                 <HeaderTitle>{messages.pgettext('vpn-settings-view', 'VPN settings')}</HeaderTitle>
               </SettingsHeader>
 
-              <StyledContent>
-                <Cell.Group>
-                  <AutoStart />
-                  <AutoConnect />
-                </Cell.Group>
+              <SettingsContent>
+                <SettingsStack>
+                  <SettingsGroup>
+                    <AutoStart />
+                    <AutoConnect />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <AllowLan />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <AllowLan />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <DnsBlockers />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <DnsBlockers />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <EnableIpv6 />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <EnableIpv6 />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <KillSwitchInfo />
-                  <LockdownMode />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <KillSwitchInfo />
+                    <LockdownMode />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <TunnelProtocolSetting />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <TunnelProtocolSetting />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <WireguardSettingsButton />
-                  <OpenVpnSettingsButton />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <WireguardSettingsButton />
+                    <OpenVpnSettingsButton />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <CustomDnsSettings />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <CustomDnsSettings />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <IpOverrideButton />
-                </Cell.Group>
-              </StyledContent>
+                  <SettingsGroup>
+                    <IpOverrideButton />
+                  </SettingsGroup>
+                </SettingsStack>
+              </SettingsContent>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
@@ -736,15 +728,13 @@ function TunnelProtocolSetting() {
 
   return (
     <AriaInputGroup>
-      <StyledSelectorContainer>
-        <Selector
-          title={messages.pgettext('vpn-settings-view', 'Tunnel protocol')}
-          items={tunnelProtocolItems}
-          value={tunnelProtocol ?? null}
-          onSelect={setTunnelProtocol}
-          automaticValue={null}
-        />
-      </StyledSelectorContainer>
+      <Selector
+        title={messages.pgettext('vpn-settings-view', 'Tunnel protocol')}
+        items={tunnelProtocolItems}
+        value={tunnelProtocol ?? null}
+        onSelect={setTunnelProtocol}
+        automaticValue={null}
+      />
       {openVpnDisabled ? (
         <Cell.CellFooter>
           <AriaDescription>

@@ -1,7 +1,9 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
-import { measurements, spacings } from './common-styles';
+import { spacings } from '../tokens';
+import { Flex } from './common/layout/Flex';
+import { measurements } from './common-styles';
 import HeaderBar from './HeaderBar';
 import { NavigationScrollbars } from './NavigationBar';
 
@@ -40,12 +42,6 @@ export const SettingsContent = styled.div({
   marginBottom: measurements.verticalViewMargin,
 });
 
-export const SettingsStack = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacings.spacing5,
-});
-
 export const Footer = styled.div({
   display: 'flex',
   flexDirection: 'column',
@@ -56,16 +52,29 @@ export const Footer = styled.div({
   },
 });
 
-export const Spacing = styled.div<{ height: string }>((props) => ({
-  height: props.height,
-}));
+export const SettingsStack = styled(Flex).attrs({
+  $flexDirection: 'column',
+  $gap: 'spacing5',
+})({});
 
-export const ButtonStack = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  gap: spacings.spacing5,
-  margin: `0 ${spacings.spacing6}`,
+export const SettingsGroup = styled(Flex).attrs({
+  $flex: 1,
+  $flexDirection: 'column',
+})({});
+
+export const ButtonStack = styled(Flex).attrs(() => ({
+  $flexDirection: 'column',
+  $gap: 'spacing5',
+  $margin: `0 ${spacings.spacing6}`,
+}))({
   [`${Footer} &&`]: {
     margin: `0 ${spacings.spacing3}`,
   },
 });
+
+export const LabelStack = styled(Flex).attrs(() => ({
+  $flexGrow: 1,
+  $flexDirection: 'row',
+  $alignItems: 'center',
+  $gap: 'spacing3',
+}))({});
