@@ -3,7 +3,9 @@ package net.mullvad.mullvadvpn.compose.screen.location
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,6 +42,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.destinations.CreateCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListLocationsDestination
 import com.ramcosta.composedestinations.generated.destinations.CustomListsDestination
+import com.ramcosta.composedestinations.generated.destinations.DaitaDestination
 import com.ramcosta.composedestinations.generated.destinations.DeleteCustomListDestination
 import com.ramcosta.composedestinations.generated.destinations.EditCustomListNameDestination
 import com.ramcosta.composedestinations.generated.destinations.FilterDestination
@@ -53,6 +57,7 @@ import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedEndButton
 import net.mullvad.mullvadvpn.compose.button.MullvadSegmentedStartButton
 import net.mullvad.mullvadvpn.compose.cell.FilterRow
 import net.mullvad.mullvadvpn.compose.communication.CustomListActionResultData
+import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.preview.SelectLocationsUiStatePreviewParameterProvider
@@ -69,7 +74,7 @@ import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationSideEffect
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Preview("Default|Filters|Multihop|Multihop and Filters")
+@Preview("Loading|Default|Filters|Multihop|Multihop and Filters")
 @Composable
 private fun PreviewSelectLocationScreen(
     @PreviewParameter(SelectLocationsUiStatePreviewParameterProvider::class)
@@ -190,6 +195,7 @@ fun SelectLocation(
                 )
             },
         onSelectRelayList = vm::selectRelayList,
+        openDaitaSettings = dropUnlessResumed { navigator.navigate(DaitaDestination) },
     )
 }
 
@@ -216,6 +222,7 @@ fun SelectLocationScreen(
     onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
     onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
     onSelectRelayList: (RelayListType) -> Unit = {},
+    openDaitaSettings: () -> Unit = {},
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
 
@@ -232,14 +239,19 @@ fun SelectLocationScreen(
         },
         snackbarHostState = snackbarHostState,
         actions = {
-            IconButton(onClick = { onSearchClick(state.relayListType) }) {
+            IconButton(
+                enabled = state is SelectLocationUiState.Data,
+                onClick = {
+                    if (state is SelectLocationUiState.Data) onSearchClick(state.relayListType)
+                },
+            ) {
                 Icon(
                     imageVector = Icons.Default.Search,
-                    contentDescription = stringResource(id = R.string.filter),
+                    contentDescription = stringResource(id = R.string.search),
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
-            IconButton(onClick = onFilterClick) {
+            IconButton(enabled = state is SelectLocationUiState.Data, onClick = onFilterClick) {
                 Icon(
                     imageVector = Icons.Default.FilterList,
                     contentDescription = stringResource(id = R.string.filter),
@@ -261,32 +273,51 @@ fun SelectLocationScreen(
             onHideBottomSheet = { locationBottomSheetState = null },
         )
 
-        Column(modifier = modifier.background(backgroundColor).fillMaxSize()) {
-            AnimatedContent(targetState = state.filterChips, label = "Select location top bar") {
-                filterChips ->
-                if (filterChips.isNotEmpty()) {
-                    FilterRow(
-                        filters = filterChips,
-                        onRemoveOwnershipFilter = removeOwnershipFilter,
-                        onRemoveProviderFilter = removeProviderFilter,
+        Column(
+            modifier = modifier.background(backgroundColor).fillMaxSize(),
+            verticalArrangement =
+                when (state) {
+                    SelectLocationUiState.Loading -> Arrangement.Center
+                    is SelectLocationUiState.Data -> Arrangement.Top
+                },
+        ) {
+            when (state) {
+                SelectLocationUiState.Loading -> {
+                    Loading()
+                }
+                is SelectLocationUiState.Data -> {
+                    AnimatedContent(
+                        targetState = state.filterChips,
+                        label = "Select location top bar",
+                    ) { filterChips ->
+                        if (filterChips.isNotEmpty()) {
+                            FilterRow(
+                                filters = filterChips,
+                                onRemoveOwnershipFilter = removeOwnershipFilter,
+                                onRemoveProviderFilter = removeProviderFilter,
+                            )
+                        }
+                    }
+
+                    if (state.multihopEnabled) {
+                        MultihopBar(state.relayListType, onSelectRelayList)
+                    }
+
+                    if (state.filterChips.isNotEmpty() || state.multihopEnabled) {
+                        Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
+                    }
+
+                    RelayLists(
+                        state = state,
+                        backgroundColor = backgroundColor,
+                        onSelectRelay = onSelectRelay,
+                        openDaitaSettings = openDaitaSettings,
+                        onUpdateBottomSheetState = { newState ->
+                            locationBottomSheetState = newState
+                        },
                     )
                 }
             }
-
-            if (state.multihopEnabled) {
-                MultihopBar(state.relayListType, onSelectRelayList)
-            }
-
-            if (state.filterChips.isNotEmpty() || state.multihopEnabled) {
-                Spacer(modifier = Modifier.height(height = Dimens.verticalSpace))
-            }
-
-            RelayLists(
-                state = state,
-                backgroundColor = backgroundColor,
-                onSelectRelay = onSelectRelay,
-                onUpdateBottomSheetState = { newState -> locationBottomSheetState = newState },
-            )
         }
     }
 }
@@ -312,22 +343,15 @@ private fun MultihopBar(relayListType: RelayListType, onSelectRelayList: (RelayL
 
 @Composable
 private fun RelayLists(
-    state: SelectLocationUiState,
+    state: SelectLocationUiState.Data,
     backgroundColor: Color,
     onSelectRelay: (RelayItem) -> Unit,
+    openDaitaSettings: () -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
-    // For multihop we want to start on the entry list.
-    // If multihop is not enabled we want to start on the exit list.
-    // The exit endpoint is what is selected when multihop is disabled.
     val pagerState =
         rememberPagerState(
-            initialPage =
-                if (state.multihopEnabled) {
-                    RelayListType.ENTRY.ordinal
-                } else {
-                    RelayListType.EXIT.ordinal
-                },
+            initialPage = state.relayListType.ordinal,
             pageCount = { RelayListType.entries.size },
         )
     LaunchedEffect(state.relayListType) {
@@ -349,7 +373,13 @@ private fun RelayLists(
             backgroundColor = backgroundColor,
             relayListType = RelayListType.entries[pageIndex],
             onSelectRelay = onSelectRelay,
+            openDaitaSettings = openDaitaSettings,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
     }
+}
+
+@Composable
+private fun ColumnScope.Loading() {
+    MullvadCircularProgressIndicatorLarge(modifier = Modifier.align(Alignment.CenterHorizontally))
 }
