@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
   proxies. The access method is enabled by default.
 - Add multihop which allows the routing of traffic through an entry and exit server, making it
   harder to trace.
+- Enable DAITA to route traffic through servers with DAITA support to enable the use
+  of all servers together with DAITA. This behaviour can be disabled with the use of the
+  "Direct only" setting.
 
 ### Changed
 - Animation has been changed to look better with predictive back.

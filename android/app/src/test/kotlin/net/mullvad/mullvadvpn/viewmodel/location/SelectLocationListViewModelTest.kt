@@ -15,7 +15,9 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayItemSelection
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -36,12 +38,14 @@ class SelectLocationListViewModelTest {
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockRelayListRepository: RelayListRepository = mockk()
     private val mockCustomListRelayItemsUseCase: CustomListsRelayItemUseCase = mockk()
+    private val mockSettingsRepository: SettingsRepository = mockk()
 
     private val filteredRelayList = MutableStateFlow<List<RelayItem.Location.Country>>(emptyList())
     private val selectedLocationFlow = MutableStateFlow<RelayItemSelection>(mockk(relaxed = true))
     private val filteredCustomListRelayItems =
         MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
     private val customListRelayItems = MutableStateFlow<List<RelayItem.CustomList>>(emptyList())
+    private val settings = MutableStateFlow(mockk<Settings>(relaxed = true))
 
     private lateinit var viewModel: SelectLocationListViewModel
 
@@ -57,6 +61,7 @@ class SelectLocationListViewModelTest {
         every { mockFilteredCustomListRelayItemsUseCase(any()) } returns
             filteredCustomListRelayItems
         every { mockCustomListRelayItemsUseCase() } returns customListRelayItems
+        every { mockSettingsRepository.settingsUpdates } returns settings
     }
 
     @Test
@@ -125,6 +130,7 @@ class SelectLocationListViewModelTest {
             wireguardConstraintsRepository = mockWireguardConstraintsRepository,
             relayListRepository = mockRelayListRepository,
             customListsRelayItemUseCase = mockCustomListRelayItemsUseCase,
+            settingsRepository = mockSettingsRepository,
         )
 
     private fun RelayListItem.relayItemId() =

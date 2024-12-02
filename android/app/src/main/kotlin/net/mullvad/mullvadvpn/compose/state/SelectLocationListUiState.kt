@@ -6,6 +6,8 @@ sealed interface SelectLocationListUiState {
 
     data object Loading : SelectLocationListUiState
 
+    data object EntryBlocked : SelectLocationListUiState
+
     data class Content(
         val relayListItems: List<RelayListItem>,
         val customLists: List<RelayItem.CustomList>,

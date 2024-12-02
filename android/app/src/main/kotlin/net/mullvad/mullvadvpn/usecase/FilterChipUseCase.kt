@@ -8,6 +8,7 @@ import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.Providers
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
@@ -38,7 +39,7 @@ class FilterChipUseCase(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,
                 allProviders = allProviders,
-                isDaitaEnabled = settings?.isDaitaEnabled() == true,
+                daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
                 isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                 relayListType = relayListType,
             )
@@ -48,7 +49,7 @@ class FilterChipUseCase(
         selectedOwnership: Constraint<Ownership>,
         selectedConstraintProviders: Constraint<Providers>,
         allProviders: List<Provider>,
-        isDaitaEnabled: Boolean,
+        daitaDirectOnly: Boolean,
         isMultihopEnabled: Boolean,
         relayListType: RelayListType,
     ): List<FilterChip> {
@@ -72,7 +73,7 @@ class FilterChipUseCase(
             }
             if (
                 shouldFilterByDaita(
-                    isDaitaEnabled = isDaitaEnabled,
+                    daitaDirectOnly = daitaDirectOnly,
                     relayListType = relayListType,
                     isMultihopEnabled = isMultihopEnabled,
                 )
@@ -88,6 +89,10 @@ class FilterChipUseCase(
     ): List<Provider> =
         if (selectedOwnership == null) selectedProviders
         else selectedProviders.filter { it.ownership == selectedOwnership }
+
+    private fun Settings.daitaAndDirectOnly() =
+        tunnelOptions.wireguard.daitaSettings.enabled &&
+            tunnelOptions.wireguard.daitaSettings.directOnly
 }
 
 sealed interface FilterChip {

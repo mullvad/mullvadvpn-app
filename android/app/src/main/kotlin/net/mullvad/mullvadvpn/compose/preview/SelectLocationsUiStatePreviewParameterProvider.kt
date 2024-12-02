@@ -12,12 +12,13 @@ class SelectLocationsUiStatePreviewParameterProvider :
     PreviewParameterProvider<SelectLocationUiState> {
     override val values =
         sequenceOf(
-            SelectLocationUiState(
+            SelectLocationUiState.Loading,
+            SelectLocationUiState.Data(
                 filterChips = emptyList(),
                 multihopEnabled = false,
                 relayListType = RelayListType.EXIT,
             ),
-            SelectLocationUiState(
+            SelectLocationUiState.Data(
                 filterChips =
                     listOf(
                         FilterChip.Ownership(ownership = ModelOwnership.Rented),
@@ -26,12 +27,12 @@ class SelectLocationsUiStatePreviewParameterProvider :
                 multihopEnabled = false,
                 relayListType = RelayListType.EXIT,
             ),
-            SelectLocationUiState(
+            SelectLocationUiState.Data(
                 filterChips = emptyList(),
                 multihopEnabled = true,
                 relayListType = RelayListType.ENTRY,
             ),
-            SelectLocationUiState(
+            SelectLocationUiState.Data(
                 filterChips =
                     listOf(
                         FilterChip.Ownership(ownership = ModelOwnership.MullvadOwned),

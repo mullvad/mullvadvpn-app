@@ -93,7 +93,7 @@
     <string name="custom_port_dialog_submit">Määritä portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
-    <string name="daita_info">%1$s (%2$s) piilottaa kuviot salatusta VPN-liikenteestäsi. Jos joku tarkkailee yhteyttäsi, hänen on huomattavasti vaikeampi tunnistaa, millä verkkosivustoilla vierailet. Se tekee tämän lisäämällä varovasti verkkokohinaa ja tekemällä kaikista verkkopaketeista samankokoisia.</string>
+    <string name="daita_description_slide_1_second_paragraph">Käyttämällä edistynyttä tekoälyä on mahdollista analysoida laitteestasi lähtevä ja siihen tuleva datapakettiliikenne (vaikka liikenne olisi salattu).</string>
     <string name="daita_relay_subset_warning">Ominaisuus ei ole käytettävissä kaikilla palvelimilla, joten saatat joutua vaihtamaan sijaintia otettuasi sen käyttöön.</string>
     <string name="daita_warning">Huomioithan, että ominaisuuden käyttöönotto kasvattaa verkkoliikennettäsi kokonaisuudessaan ja voi myös vaikuttaa negatiivisesti verkon nopeuteen ja akun kestoon. Ominaisuuden käyttöönottoa kannattaa harkita tarkkaan, mikäli datapakettisi tiedonsiirtomäärä on rajoitettu.</string>
     <string name="delete">Poista</string>
@@ -109,6 +109,7 @@
     <string name="device_name_info_first_paragraph">Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla.</string>
     <string name="device_name_info_second_paragraph">Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta.</string>
     <string name="device_name_info_third_paragraph">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
+    <string name="direct_only">Vain suora</string>
     <string name="discard">Hylkää</string>
     <string name="discard_changes">Hylätäänkö muokkaukset?</string>
     <string name="disconnect">Katkaise yhteys</string>

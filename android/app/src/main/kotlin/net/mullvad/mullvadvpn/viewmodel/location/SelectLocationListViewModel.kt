@@ -12,7 +12,9 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
+import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationUseCase
@@ -27,16 +29,25 @@ class SelectLocationListViewModel(
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
     private val relayListRepository: RelayListRepository,
     customListsRelayItemUseCase: CustomListsRelayItemUseCase,
+    settingsRepository: SettingsRepository,
 ) : ViewModel() {
     private val _expandedItems: MutableStateFlow<Set<String>> =
         MutableStateFlow(initialExpand(initialSelection()))
 
     val uiState: StateFlow<SelectLocationListUiState> =
-        combine(relayListItems(), customListsRelayItemUseCase()) { relayListItems, customLists ->
-                SelectLocationListUiState.Content(
-                    relayListItems = relayListItems,
-                    customLists = customLists,
-                )
+        combine(
+                relayListItems(),
+                customListsRelayItemUseCase(),
+                settingsRepository.settingsUpdates,
+            ) { relayListItems, customLists, settings ->
+                if (relayListType == RelayListType.ENTRY && settings?.entryBlocked() == true) {
+                    SelectLocationListUiState.EntryBlocked
+                } else {
+                    SelectLocationListUiState.Content(
+                        relayListItems = relayListItems,
+                        customLists = customLists,
+                    )
+                }
             }
             .stateIn(viewModelScope, SharingStarted.Lazily, SelectLocationListUiState.Loading)
 
@@ -86,4 +97,11 @@ class SelectLocationListViewModel(
                 wireguardConstraintsRepository.wireguardConstraints.value?.entryLocation
             RelayListType.EXIT -> relayListRepository.selectedLocation.value
         }?.getOrNull()
+
+    // If Daita is enabled without direct only, it is not possible to manually select the entry
+    // location.
+    private fun Settings.entryBlocked() =
+        tunnelOptions.wireguard.daitaSettings.enabled &&
+            !tunnelOptions.wireguard.daitaSettings.directOnly &&
+            relaySettings.relayConstraints.wireguardConstraints.isMultihopEnabled
 }

@@ -123,6 +123,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData as ModelWireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
+import net.mullvad.mullvadvpn.lib.model.enabled
 import net.mullvad.mullvadvpn.lib.model.entryLocation
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.location
@@ -507,17 +508,12 @@ class ManagementService(
             .mapEmpty()
 
     suspend fun setDaitaEnabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
-        Either.catch {
-                val daitaSettings =
-                    ManagementInterface.DaitaSettings.newBuilder()
-                        .setEnabled(enabled)
-                        // Before Multihop is supported on Android, calling `setDirectOnly` with
-                        // false will cause undefined behaviour. Will be fixed by as part of
-                        // DROID-1412.
-                        .setDirectOnly(true)
-                        .build()
-                grpc.setDaitaSettings(daitaSettings)
-            }
+        Either.catch { grpc.setEnableDaita(BoolValue.of(enabled)) }
+            .mapLeft(SetDaitaSettingsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setDaitaDirectOnly(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
+        Either.catch { grpc.setDaitaDirectOnly(BoolValue.of(enabled)) }
             .mapLeft(SetDaitaSettingsError::Unknown)
             .mapEmpty()
 
