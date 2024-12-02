@@ -2,8 +2,12 @@ package net.mullvad.mullvadvpn.lib.billing
 
 import android.app.Activity
 import arrow.core.Either
+import arrow.core.ensure
+import arrow.core.flatMap
+import arrow.core.left
 import arrow.core.raise.either
 import arrow.core.raise.ensure
+import arrow.core.right
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.Purchase
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +23,7 @@ import net.mullvad.mullvadvpn.lib.billing.extension.toPurchaseResult
 import net.mullvad.mullvadvpn.lib.billing.model.BillingException
 import net.mullvad.mullvadvpn.lib.billing.model.PurchaseEvent
 import net.mullvad.mullvadvpn.lib.model.PlayPurchase
+import net.mullvad.mullvadvpn.lib.model.PlayPurchaseInitError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.payment.PaymentRepository
 import net.mullvad.mullvadvpn.lib.payment.ProductIds
@@ -78,7 +83,7 @@ class BillingPaymentRepository(
         // Get transaction id
         emit(PurchaseResult.FetchingObfuscationId)
         val obfuscatedId: PlayPurchasePaymentToken =
-            initialisePurchase()
+            initializePurchase()
                 .fold(
                     {
                         emit(PurchaseResult.Error.TransactionIdError(productId, null))
@@ -148,7 +153,14 @@ class BillingPaymentRepository(
             .bind()
     }
 
-    private suspend fun initialisePurchase() = playPurchaseRepository.initializePlayPurchase()
+    private suspend fun initializePurchase() =
+        playPurchaseRepository.initializePlayPurchase().flatMap {
+            if (it.value.isNotEmpty()) {
+                it.right()
+            } else {
+                PlayPurchaseInitError.OtherError.left()
+            }
+        }
 
     private suspend fun verifyPurchase(purchase: Purchase) =
         playPurchaseRepository.verifyPlayPurchase(
