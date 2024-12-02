@@ -134,13 +134,11 @@ jobs:
         run: git submodule update --init --depth=1
 
       - name: Install Protoc
-        if: ${{ matrix.config.arch == 'x64' }}
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Calculate Windows libraries cache hash
-        if: ${{ matrix.config.arch == 'x64' }}
         id: windows-modules-hash
         shell: bash
         run: |
@@ -151,7 +149,6 @@ jobs:
           echo "hash=$hash" >> "$GITHUB_OUTPUT"
 
       - name: Cache Windows libraries
-        if: ${{ matrix.config.arch == 'x64' }}
         uses: actions/cache@v2
         id: cache-windows-modules
         with:
@@ -180,7 +177,6 @@ jobs:
           default: true
 
       - name: Install msbuild
-        if: ${{ matrix.config.arch == 'x64' }}
         uses: microsoft/setup-msbuild@v1.0.2
         with:
           vs-version: 16
