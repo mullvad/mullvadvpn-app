@@ -75,7 +75,8 @@
       <ModuleDefinitionFile>cleanup.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo build --target i686-pc-windows-msvc --release -p mullvad-nsis</Command>
+      <Command>powershell.exe -Command "&amp; { Remove-Item Env:VSTEL_MSBuildProjectFullPath; cargo build --target i686-pc-windows-msvc --release -p mullvad-nsis }"
+</Command>
       <Message>Build mullvad-nsis library</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
@@ -105,7 +106,8 @@
       <ModuleDefinitionFile>cleanup.def</ModuleDefinitionFile>
     </Link>
     <PreBuildEvent>
-      <Command>cargo build --target i686-pc-windows-msvc --release -p mullvad-nsis</Command>
+      <Command>powershell.exe -Command "&amp; { Remove-Item Env:VSTEL_MSBuildProjectFullPath; cargo build --target i686-pc-windows-msvc --release -p mullvad-nsis }"
+</Command>
       <Message>Build mullvad-nsis library</Message>
     </PreBuildEvent>
   </ItemDefinitionGroup>
