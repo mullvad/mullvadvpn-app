@@ -8,7 +8,7 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class PrivacyPage internal constructor() : Page() {
     override fun assertIsDisplayed() {
-       // uiDevice.findObjectWithTimeout(By.res("connect_card_header_test_tag"))
+       uiDevice.findObjectWithTimeout(By.text("Privacy"))
     }
 
     fun clickAgreeOnPrivacyDisclaimer() {
