@@ -93,7 +93,7 @@
     <string name="custom_port_dialog_submit">Ustaw port</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
-    <string name="daita_info">%1$s (%2$s) ukrywa wzorce w zaszyfrowanym ruchu VPN. Oznacza to, że jeśli ktoś monitoruje połączenie, identyfikacja odwiedzanych witryn jest znacznie utrudniona. Dzieje się tak poprzez ostrożne dodawanie szumów sieciowych i ustawianie tego samego rozmiaru wszystkich pakietów sieciowych.</string>
+    <string name="daita_description_slide_1_second_paragraph">Dzięki użyciu zaawansowanej sztucznej inteligencji możliwe jest analizowanie ruchu pakietów danych przychodzących i wychodzących z Twojego urządzenia (nawet jeśli ruch jest szyfrowany).</string>
     <string name="daita_relay_subset_warning">Funkcja niedostępna na wszystkich serwerach. Po włączeniu może być konieczna zmiana lokalizacji.</string>
     <string name="daita_warning">Uwaga: ponieważ zwiększa to łączny ruch sieciowy, zachowaj ostrożność, jeśli masz ograniczony pakiet danych. Może to również negatywnie wpłynąć na szybkość sieci i poziom naładowania.</string>
     <string name="delete">Usuń</string>
@@ -109,6 +109,7 @@
     <string name="device_name_info_first_paragraph">Jest to nazwa przypisana do urządzenia. Każde urządzenie zalogowane na koncie Mullvad otrzymuje unikalną nazwę, która pozwala zidentyfikować je podczas zarządzania urządzeniami w aplikacji lub za pośrednictwem witryny internetowej.</string>
     <string name="device_name_info_second_paragraph">Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń.</string>
     <string name="device_name_info_third_paragraph">Przy wylogowaniu urządzenie i jego nazwa zostają usunięte. Po ponownym zalogowaniu urządzenie otrzymuje nową nazwę.</string>
+    <string name="direct_only">Tylko Direct</string>
     <string name="discard">Odrzuć</string>
     <string name="discard_changes">Odrzucić zmiany?</string>
     <string name="disconnect">Rozłącz</string>

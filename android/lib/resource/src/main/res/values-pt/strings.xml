@@ -93,7 +93,7 @@
     <string name="custom_port_dialog_submit">Definir porta</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
-    <string name="daita_info">%1$s (%2$s) oculta padrões no seu tráfego VPN encriptado. Se alguém estiver a monitorizar a sua ligação, isto dificulta significativamente a identificação dos sites que visita. Para tal, adiciona cuidadosamente ruído de rede e torna todos os pacotes de rede do mesmo tamanho.</string>
+    <string name="daita_description_slide_1_second_paragraph">Utilizando uma IA sofisticada, é possível analisar o tráfego de pacotes de dados que entram e saem do seu dispositivo (mesmo que o tráfego esteja encriptado).</string>
     <string name="daita_relay_subset_warning">Esta funcionalidade não está disponível em todos os servidores. Poderá ser necessário alterar a localização após a ativação.</string>
     <string name="daita_warning">Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da rede e a utilização da bateria.</string>
     <string name="delete">Eliminar</string>
@@ -109,6 +109,7 @@
     <string name="device_name_info_first_paragraph">Este é o nome atribuído ao dispositivo. Cada dispositivo com sessão iniciada numa conta Mullvad recebe um nome único que lhe ajuda a identificá-lo quando gere os seus dispositivos na app ou no site.</string>
     <string name="device_name_info_second_paragraph">Pode ter até 5 dispositivos com sessão iniciada numa só conta Mullvad.</string>
     <string name="device_name_info_third_paragraph">Se terminar a sessão, o dispositivo e o nome do dispositivo são removidos. Quando voltar a iniciar sessão, o dispositivo recebe um novo nome.</string>
+    <string name="direct_only">Apenas direta</string>
     <string name="discard">Descartar</string>
     <string name="discard_changes">Descartar alterações?</string>
     <string name="disconnect">Desligar</string>
