@@ -14,51 +14,79 @@ import Operations
 final class ProblemReportInteractor {
     private let apiProxy: APIQuerying
     private let tunnelManager: TunnelManager
-
-    private lazy var consolidatedLog: ConsolidatedApplicationLog = {
-        let securityGroupIdentifier = ApplicationConfiguration.securityGroupIdentifier
-        let redactStrings = [tunnelManager.deviceState.accountData?.number].compactMap { $0 }
-
-        let report = ConsolidatedApplicationLog(
-            redactCustomStrings: redactStrings,
-            redactContainerPathsForSecurityGroupIdentifiers: [securityGroupIdentifier]
-        )
-
-        let logFileURLs = ApplicationTarget.allCases.flatMap {
-            ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
-        }
-        report.addLogFiles(fileURLs: logFileURLs)
-
-        return report
-    }()
-
-    var reportString: String {
-        consolidatedLog.string
-    }
+    private let consolidatedLog: ConsolidatedApplicationLog
+    private var reportedString = ""
 
     init(apiProxy: APIQuerying, tunnelManager: TunnelManager) {
         self.apiProxy = apiProxy
         self.tunnelManager = tunnelManager
+        let redactCustomStrings = [tunnelManager.deviceState.accountData?.number].compactMap { $0 }
+        self.consolidatedLog = ConsolidatedApplicationLog(
+            redactCustomStrings: redactCustomStrings.isEmpty ? nil : redactCustomStrings,
+            redactContainerPathsForSecurityGroupIdentifiers: [ApplicationConfiguration.securityGroupIdentifier],
+            bufferSize: ApplicationConfiguration.logMaximumFileSize
+        )
+    }
+
+    func fetchReportString(completion: @escaping (String) -> Void) {
+        consolidatedLog.addLogFiles(fileURLs: ApplicationTarget.allCases.flatMap {
+            ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
+        }) { [weak self] in
+            guard let self else { return }
+            completion(consolidatedLog.string)
+        }
     }
 
     func sendReport(
         email: String,
         message: String,
         completion: @escaping (Result<Void, Error>) -> Void
-    ) -> Cancellable {
+    ) {
+        let logString = self.consolidatedLog.string
+
+        if logString.isEmpty {
+            fetchReportString { [weak self] updatedLogString in
+                self?.sendProblemReport(
+                    email: email,
+                    message: message,
+                    logString: updatedLogString,
+                    completion: completion
+                )
+            }
+        } else {
+            sendProblemReport(
+                email: email,
+                message: message,
+                logString: logString,
+                completion: completion
+            )
+        }
+    }
+
+    private func sendProblemReport(
+        email: String,
+        message: String,
+        logString: String,
+        completion: @escaping (Result<Void, Error>) -> Void
+    ) {
+        let metadataDict = self.consolidatedLog.metadata.reduce(into: [:]) { output, entry in
+            output[entry.key.rawValue] = entry.value
+        }
+
         let request = REST.ProblemReportRequest(
             address: email,
             message: message,
-            log: consolidatedLog.string,
-            metadata: consolidatedLog.metadata.reduce(into: [:]) { output, entry in
-                output[entry.key.rawValue] = entry.value
-            }
+            log: logString,
+            metadata: metadataDict
         )
 
-        return apiProxy.sendProblemReport(
+        _ = self.apiProxy.sendProblemReport(
             request,
-            retryStrategy: .default,
-            completionHandler: completion
-        )
+            retryStrategy: .default
+        ) { result in
+            DispatchQueue.main.async {
+                completion(result)
+            }
+        }
     }
 }

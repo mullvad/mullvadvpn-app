@@ -47,7 +47,7 @@ public enum SettingsManager {
 
     public static func getLastUsedAccount() throws -> String {
         let data = try store.read(key: .lastUsedAccount)
-        return String(decoding: data, as: UTF8.self)
+        return String(bytes: data, encoding: .utf8) ?? ""
     }
 
     public static func setLastUsedAccount(_ string: String?) throws {
