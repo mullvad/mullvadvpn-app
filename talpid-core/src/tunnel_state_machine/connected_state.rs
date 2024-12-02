@@ -1,30 +1,29 @@
+use futures::channel::{mpsc, oneshot};
+use futures::stream::Fuse;
+use futures::StreamExt;
+
+#[cfg(target_os = "android")]
+use talpid_tunnel::tun_provider::Error;
+use talpid_types::net::{AllowedClients, AllowedEndpoint, TunnelParameters};
+use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
+use talpid_types::{BoxedError, ErrorExt};
+
+#[cfg(target_os = "macos")]
+use crate::dns::DnsConfig;
+use crate::dns::ResolvedDnsConfig;
+use crate::firewall::FirewallPolicy;
+#[cfg(target_os = "macos")]
+use crate::resolver::LOCAL_DNS_RESOLVER;
+#[cfg(windows)]
+use crate::tunnel::TunnelMonitor;
+use crate::tunnel::{TunnelEvent, TunnelMetadata};
+
+use super::connecting_state::TunnelCloseEvent;
 use super::{
     AfterDisconnect, ConnectingState, DisconnectingState, ErrorState, EventConsequence,
     EventResult, SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition,
 };
-use crate::{
-    dns::ResolvedDnsConfig,
-    firewall::FirewallPolicy,
-    tunnel::{TunnelEvent, TunnelMetadata},
-};
-use futures::{
-    channel::{mpsc, oneshot},
-    stream::Fuse,
-    StreamExt,
-};
-#[cfg(target_os = "android")]
-use talpid_tunnel::tun_provider::Error;
-use talpid_types::{
-    net::{AllowedClients, AllowedEndpoint, TunnelParameters},
-    tunnel::{ErrorStateCause, FirewallPolicyError},
-    BoxedError, ErrorExt,
-};
-
-#[cfg(windows)]
-use crate::tunnel::TunnelMonitor;
-
-use super::connecting_state::TunnelCloseEvent;
 
 pub(crate) type TunnelEventsReceiver =
     Fuse<mpsc::UnboundedReceiver<(TunnelEvent, oneshot::Sender<()>)>>;
@@ -171,27 +170,31 @@ impl ConnectedState {
 
         // On macOS, configure only the local DNS resolver
         #[cfg(target_os = "macos")]
-        if !dns_config.is_loopback() {
+        // We do not want to forward DNS queries to *our* local resolver if we do not run a local
+        // DNS resolver *or* if the DNS config points to a loopback address.
+        if dns_config.is_loopback() || !*LOCAL_DNS_RESOLVER {
+            log::debug!("Not enabling local DNS resolver");
+            shared_values
+                .dns_monitor
+                .set(&self.metadata.interface, dns_config)
+                .map_err(BoxedError::new)?;
+        } else {
+            log::debug!("Enabling local DNS resolver");
+            // Tell local DNS resolver to start forwarding DNS queries to whatever `dns_config`
+            // specifies as DNS.
             shared_values.runtime.block_on(
                 shared_values
                     .filtering_resolver
                     .enable_forward(dns_config.addresses().collect()),
             );
+            // Set system DNS to our local DNS resolver
+            let system_dns = DnsConfig::default().resolve(
+                &[std::net::Ipv4Addr::LOCALHOST.into()],
+                shared_values.filtering_resolver.listening_port(),
+            );
             shared_values
                 .dns_monitor
-                .set(
-                    "lo",
-                    crate::dns::DnsConfig::default().resolve(
-                        &[std::net::Ipv4Addr::LOCALHOST.into()],
-                        shared_values.filtering_resolver.listening_port(),
-                    ),
-                )
-                .map_err(BoxedError::new)?;
-        } else {
-            log::debug!("Not enabling DNS forwarding since loopback is used");
-            shared_values
-                .dns_monitor
-                .set(&self.metadata.interface, dns_config)
+                .set("lo", system_dns)
                 .map_err(BoxedError::new)?;
         }
 

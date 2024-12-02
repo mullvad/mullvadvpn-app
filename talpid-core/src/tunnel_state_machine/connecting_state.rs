@@ -1,34 +1,31 @@
+use std::path::{Path, PathBuf};
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::{Duration, Instant};
+
+use futures::channel::{mpsc, oneshot};
+use futures::future::Fuse;
+use futures::{FutureExt, StreamExt};
+use talpid_routing::RouteManagerHandle;
+use talpid_tunnel::tun_provider::TunProvider;
+use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
+use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
+use talpid_types::ErrorExt;
+
+use super::connected_state::TunnelEventsReceiver;
 use super::{
     AfterDisconnect, ConnectedState, DisconnectingState, ErrorState, EventConsequence, EventResult,
     SharedTunnelStateValues, TunnelCommand, TunnelCommandReceiver, TunnelState,
     TunnelStateTransition,
 };
-use crate::{
-    firewall::FirewallPolicy,
-    tunnel::{self, TunnelMonitor},
-};
-use futures::{
-    channel::{mpsc, oneshot},
-    future::Fuse,
-    FutureExt, StreamExt,
-};
-use std::{
-    path::{Path, PathBuf},
-    sync::{Arc, Mutex},
-    thread,
-    time::{Duration, Instant},
-};
-use talpid_routing::RouteManagerHandle;
-use talpid_tunnel::{
-    tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
-};
-use talpid_types::{
-    net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters},
-    tunnel::{ErrorStateCause, FirewallPolicyError},
-    ErrorExt,
-};
 
-use super::connected_state::TunnelEventsReceiver;
+#[cfg(target_os = "macos")]
+use crate::dns::DnsConfig;
+use crate::firewall::FirewallPolicy;
+#[cfg(target_os = "macos")]
+use crate::resolver::LOCAL_DNS_RESOLVER;
+use crate::tunnel::{self, TunnelMonitor};
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
@@ -57,17 +54,23 @@ impl ConnectingState {
         retry_attempt: u32,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
         #[cfg(target_os = "macos")]
-        if let Err(err) = shared_values.dns_monitor.set(
-            "lo",
-            crate::dns::DnsConfig::default().resolve(
+        if *LOCAL_DNS_RESOLVER {
+            // Set system DNS to our local DNS resolver
+            let system_dns = DnsConfig::default().resolve(
                 &[std::net::Ipv4Addr::LOCALHOST.into()],
                 shared_values.filtering_resolver.listening_port(),
-            ),
-        ) {
-            log::error!(
-                "{}",
-                err.display_chain_with_msg("Failed to configure system to use filtering resolver")
             );
+            let _ = shared_values
+                .dns_monitor
+                .set("lo", system_dns)
+                .inspect_err(|err| {
+                    log::error!(
+                        "{}",
+                        err.display_chain_with_msg(
+                            "Failed to configure system to use filtering resolver"
+                        )
+                    );
+                });
         }
 
         if shared_values.connectivity.is_offline() {
