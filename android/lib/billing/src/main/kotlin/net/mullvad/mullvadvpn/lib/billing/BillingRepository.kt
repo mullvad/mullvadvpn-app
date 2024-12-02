@@ -124,6 +124,10 @@ class BillingRepository(context: Context) {
         return try {
             ensureConnected()
 
+            if (obfuscatedId.isEmpty()) {
+                return BillingResult.newBuilder().setResponseCode(BillingResponseCode.ERROR).build()
+            }
+
             val productDetailsParamsList =
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
