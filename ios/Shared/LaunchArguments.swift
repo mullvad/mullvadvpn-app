@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 
 public protocol Taggable {
     static var tag: String { get }
@@ -46,7 +47,9 @@ public extension ProcessInfo {
 extension Encodable {
     public func toJSON(_ encoder: JSONEncoder = JSONEncoder()) throws -> String {
         let data = try encoder.encode(self)
-        let result = String(decoding: data, as: UTF8.self)
+        guard let result = String(bytes: data, encoding: .utf8) else {
+            throw StringDecodingError(data: data)
+        }
         return result
     }
 }
