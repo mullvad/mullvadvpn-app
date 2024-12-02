@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+### Added
+- Add WireGuard over Shadowsocks obfuscation. It can be enabled in "VPN settings". This will
+  also be used automatically when connecting fails with other methods.
 
 ## [2024.10 - 2024-11-20]
 ### Fixed

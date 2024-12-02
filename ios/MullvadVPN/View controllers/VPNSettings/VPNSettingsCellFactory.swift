@@ -146,14 +146,12 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
 
-            #if DEBUG
             cell.detailTitleLabel.text = String(format: NSLocalizedString(
                 "WIREGUARD_OBFUSCATION_UDP_TCP_PORT",
                 tableName: "VPNSettings",
                 value: "Port: %@",
                 comment: ""
             ), viewModel.obfuscationUpdOverTcpPort.description)
-            #endif
 
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
@@ -172,14 +170,12 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
 
-            #if DEBUG
             cell.detailTitleLabel.text = String(format: NSLocalizedString(
                 "WIREGUARD_OBFUSCATION_SHADOWSOCKS_PORT",
                 tableName: "VPNSettings",
                 value: "Port: %@",
                 comment: ""
             ), viewModel.obfuscationShadowsocksPort.description)
-            #endif
 
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
