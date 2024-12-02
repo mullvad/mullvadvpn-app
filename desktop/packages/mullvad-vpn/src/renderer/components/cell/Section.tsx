@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import { useAppContext } from '../../context';
 import { useHistory } from '../../lib/history';
 import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
+import { Colors, Spacings } from '../../tokens';
 import Accordion from '../Accordion';
 import ChevronButton from '../ChevronButton';
 import { buttonText, openSans, sourceSansPro } from '../common-styles';
@@ -22,8 +22,8 @@ interface SectionTitleProps {
 }
 
 export const SectionTitle = styled(Row)<SectionTitleProps>(buttonText, (props) => ({
-  paddingRight: '16px',
-  color: props.disabled ? colors.white20 : colors.white,
+  paddingRight: Spacings.spacing5,
+  color: props.disabled ? Colors.white20 : Colors.white,
   fontWeight: props.$thin ? 400 : 600,
   fontSize: props.$thin ? '15px' : '18px',
   ...(props.$thin ? openSans : sourceSansPro),
@@ -49,7 +49,7 @@ export function Section(props: SectionProps) {
 
 const StyledChevronButton = styled(ChevronButton)({
   padding: 0,
-  marginRight: '16px',
+  marginRight: Spacings.spacing5,
 });
 
 const StyledTitleContainer = styled(Container)({

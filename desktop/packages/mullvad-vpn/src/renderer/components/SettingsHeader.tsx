@@ -1,12 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
-import { hugeText, spacings, tinyText } from './common-styles';
+import { Colors, Spacings } from '../tokens';
+import { LabelTiny, TitleBig } from './common/text';
 
 export const Container = styled.div({
   flex: 0,
-  margin: `${spacings.spacing3} ${spacings.spacing5} ${spacings.spacing4}`,
+  margin: `${Spacings.spacing3} ${Spacings.spacing5} ${Spacings.spacing4}`,
 });
 
 export const ContentWrapper = styled.div({
@@ -15,13 +15,14 @@ export const ContentWrapper = styled.div({
   },
 });
 
-export const HeaderTitle = styled.span(hugeText, {
+export const HeaderTitle = styled(TitleBig)({
   wordWrap: 'break-word',
   hyphens: 'auto',
 });
-export const HeaderSubTitle = styled.span(tinyText, {
-  color: colors.white60,
-});
+
+export const HeaderSubTitle = styled(LabelTiny).attrs({
+  $color: Colors.white60,
+})({});
 
 interface ISettingsHeaderProps {
   children?: React.ReactNode;

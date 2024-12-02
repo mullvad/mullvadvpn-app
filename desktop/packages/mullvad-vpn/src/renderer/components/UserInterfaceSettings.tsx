@@ -9,7 +9,14 @@ import { useSelector } from '../redux/store';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
-import { Layout, SettingsContainer } from './Layout';
+import {
+  LabelStack,
+  Layout,
+  SettingsContainer,
+  SettingsContent,
+  SettingsGroup,
+  SettingsStack,
+} from './Layout';
 import {
   NavigationBar,
   NavigationContainer,
@@ -19,18 +26,7 @@ import {
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-const StyledContent = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '2px',
-});
-
-const StyledCellIcon = styled(Cell.UntintedIcon)({
-  marginRight: '8px',
-});
-
-const StyledAnimateMapSettingsGroup = styled(Cell.Group)({
+const StyledAnimateMapCellGroup = styled(SettingsGroup)({
   '@media (prefers-reduced-motion: reduce)': {
     display: 'none',
   },
@@ -63,35 +59,37 @@ export default function UserInterfaceSettings() {
                 </HeaderTitle>
               </SettingsHeader>
 
-              <StyledContent>
-                <Cell.Group>
-                  <NotificationsSetting />
-                </Cell.Group>
-                <Cell.Group>
-                  <MonochromaticTrayIconSetting />
-                </Cell.Group>
+              <SettingsContent>
+                <SettingsStack>
+                  <SettingsGroup>
+                    <NotificationsSetting />
+                  </SettingsGroup>
+                  <SettingsGroup>
+                    <MonochromaticTrayIconSetting />
+                  </SettingsGroup>
 
-                <Cell.Group>
-                  <LanguageButton />
-                </Cell.Group>
+                  <SettingsGroup>
+                    <LanguageButton />
+                  </SettingsGroup>
 
-                {(window.env.platform === 'win32' ||
-                  (window.env.platform === 'darwin' && window.env.development)) && (
-                  <Cell.Group>
-                    <UnpinnedWindowSetting />
-                  </Cell.Group>
-                )}
+                  {(window.env.platform === 'win32' ||
+                    (window.env.platform === 'darwin' && window.env.development)) && (
+                    <SettingsGroup>
+                      <UnpinnedWindowSetting />
+                    </SettingsGroup>
+                  )}
 
-                {unpinnedWindow && (
-                  <Cell.Group>
-                    <StartMinimizedSetting />
-                  </Cell.Group>
-                )}
+                  {unpinnedWindow && (
+                    <SettingsGroup>
+                      <StartMinimizedSetting />
+                    </SettingsGroup>
+                  )}
 
-                <StyledAnimateMapSettingsGroup>
-                  <AnimateMapSetting />
-                </StyledAnimateMapSettingsGroup>
-              </StyledContent>
+                  <StyledAnimateMapCellGroup>
+                    <AnimateMapSetting />
+                  </StyledAnimateMapCellGroup>
+                </SettingsStack>
+              </SettingsContent>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
@@ -259,13 +257,15 @@ function LanguageButton() {
 
   return (
     <Cell.CellNavigationButton onClick={navigate}>
-      <StyledCellIcon width={24} height={24} source="icon-language" />
-      <Cell.Label>
-        {
-          // TRANSLATORS: Navigation button to the 'Language' settings view
-          messages.pgettext('user-interface-settings-view', 'Language')
-        }
-      </Cell.Label>
+      <LabelStack>
+        <Cell.UntintedIcon width={24} height={24} source="icon-language" />
+        <Cell.Label>
+          {
+            // TRANSLATORS: Navigation button to the 'Language' settings view
+            messages.pgettext('user-interface-settings-view', 'Language')
+          }
+        </Cell.Label>
+      </LabelStack>
       <Cell.SubText>{localeDisplayName}</Cell.SubText>
     </Cell.CellNavigationButton>
   );
