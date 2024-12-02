@@ -1,13 +1,16 @@
 package net.mullvad.mullvadvpn.lib.map
 
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
@@ -50,7 +53,6 @@ fun AnimatedMap(
 
 @Composable
 internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
-
     var view: MapGLSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
@@ -76,7 +78,15 @@ internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
         }
     }
 
-    AndroidView(modifier = modifier, factory = { MapGLSurfaceView(it) }) { glSurfaceView ->
+    AndroidView(
+        modifier =
+            modifier.pointerInput(lifeCycleState) {
+                detectTapGestures(
+                    onTap = { Logger.i("Registered tap $it, isOnGlobe: ${view?.isOnGlobe(it)}") }
+                )
+            },
+        factory = { MapGLSurfaceView(it) },
+    ) { glSurfaceView ->
         view = glSurfaceView
         glSurfaceView.setData(mapViewState)
     }

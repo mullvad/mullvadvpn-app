@@ -2,6 +2,8 @@ package net.mullvad.mullvadvpn.lib.map.internal
 
 import android.content.Context
 import android.opengl.GLSurfaceView
+import androidx.compose.ui.geometry.Offset
+import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.lib.map.BuildConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 
@@ -27,5 +29,11 @@ internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
     fun setData(viewState: MapViewState) {
         renderer.setViewState(viewState)
         requestRender()
+    }
+
+    fun isOnGlobe(offset: Offset): Boolean {
+        return renderer.isOnGlobe(offset).also {
+            Logger.d("Intersected the globe at $it")
+        } != null
     }
 }

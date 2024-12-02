@@ -430,7 +430,7 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
                         Longitude.fromFloat(longitudeAnimation.value),
                     ),
                 zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") },
-                verticalBias = progressIndicatorBias,
+                //verticalBias = progressIndicatorBias,
             ),
         markers = markers + locationMarkers,
         globeColors =
