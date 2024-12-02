@@ -34,6 +34,7 @@ import net.mullvad.mullvadvpn.relaylist.descendants
 import net.mullvad.mullvadvpn.repository.CustomListsRepository
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.repository.RelayListRepository
+import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
@@ -53,6 +54,7 @@ class SelectLocationViewModelTest {
     private val mockCustomListsRepository: CustomListsRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
     private val mockFilterChipUseCase: FilterChipUseCase = mockk()
+    private val mocksSettingsRepository: SettingsRepository = mockk()
 
     private lateinit var viewModel: SelectLocationViewModel
 
@@ -67,6 +69,7 @@ class SelectLocationViewModelTest {
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
         every { mockFilterChipUseCase(any()) } returns filterChips
+        every { mocksSettingsRepository.settingsUpdates } returns MutableStateFlow(null)
 
         mockkStatic(RELAY_LIST_EXTENSIONS)
         mockkStatic(RELAY_ITEM_EXTENSIONS)
@@ -79,6 +82,7 @@ class SelectLocationViewModelTest {
                 customListsRepository = mockCustomListsRepository,
                 filterChipUseCase = mockFilterChipUseCase,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
+                settingsRepository = mocksSettingsRepository,
             )
     }
 
@@ -90,14 +94,7 @@ class SelectLocationViewModelTest {
 
     @Test
     fun `initial state should be correct`() = runTest {
-        Assertions.assertEquals(
-            SelectLocationUiState(
-                filterChips = emptyList(),
-                multihopEnabled = false,
-                relayListType = RelayListType.EXIT,
-            ),
-            viewModel.uiState.value,
-        )
+        Assertions.assertEquals(SelectLocationUiState.Loading, viewModel.uiState.value)
     }
 
     @Test
@@ -134,11 +131,15 @@ class SelectLocationViewModelTest {
                 awaitItem() // Default value
                 viewModel.selectRelayList(RelayListType.ENTRY)
                 // Assert relay list type is entry
-                assertEquals(RelayListType.ENTRY, awaitItem().relayListType)
+                val firstState = awaitItem()
+                assertIs<SelectLocationUiState.Data>(firstState)
+                assertEquals(RelayListType.ENTRY, firstState.relayListType)
                 // Select entry
                 viewModel.selectRelay(mockRelayItem)
-                // Await an empty item
-                assertEquals(RelayListType.EXIT, awaitItem().relayListType)
+                // Assert relay list type is exit
+                val secondState = awaitItem()
+                assertIs<SelectLocationUiState.Data>(secondState)
+                assertEquals(RelayListType.EXIT, secondState.relayListType)
                 coVerify { mockWireguardConstraintsRepository.setEntryLocation(relayItemId) }
             }
         }
