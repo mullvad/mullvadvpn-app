@@ -59,7 +59,7 @@ struct ObfuscatorPortSelector {
 
     private func filterShadowsocksRelays(
         from relays: REST.ServerRelaysResponse,
-        for port: WireGuardObfuscationShadowsockPort
+        for port: WireGuardObfuscationShadowsocksPort
     ) -> REST.ServerRelaysResponse {
         let portRanges = RelaySelector.parseRawPortRanges(relays.wireguard.shadowsocksPortRanges)
 

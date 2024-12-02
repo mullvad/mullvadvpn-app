@@ -22,7 +22,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
 
         SingleChoiceList(
             title: portString,
-            options: [WireGuardObfuscationShadowsockPort.automatic],
+            options: [WireGuardObfuscationShadowsocksPort.automatic],
             value: $viewModel.value,
             itemDescription: { item in NSLocalizedString(
                 "SHADOWSOCKS_PORT_VALUE_\(item)",
@@ -30,7 +30,7 @@ struct ShadowsocksObfuscationSettingsView<VM>: View where VM: ShadowsocksObfusca
                 value: "\(item)",
                 comment: ""
             ) },
-            parseCustomValue: { UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationShadowsockPort.custom($0) : nil }
+            parseCustomValue: { UInt16($0).flatMap { $0 > 0 ? WireGuardObfuscationShadowsocksPort.custom($0) : nil }
             },
             formatCustomValue: {
                 if case let .custom(port) = $0 {
