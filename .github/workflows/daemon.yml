@@ -145,6 +145,7 @@ jobs:
         shell: bash
         run: |
           hash="$(git grep --recurse-submodules --cached -l '' -- './windows/' \
+            | grep -v '\.exe$\|\.md$' \
             | xargs sha1sum \
             | sha1sum \
             | cut -d" " -f1)"
