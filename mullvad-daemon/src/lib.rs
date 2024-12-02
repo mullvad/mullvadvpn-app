@@ -39,8 +39,6 @@ use futures::{
 };
 use geoip::GeoIpHandler;
 use management_interface::ManagementInterfaceServer;
-#[cfg(not(target_os = "android"))]
-use mullvad_api::DefaultDnsResolver;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
@@ -622,10 +620,6 @@ impl Daemon {
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
-            #[cfg(target_os = "android")]
-            android_dns::AndroidDnsResolver::new(connectivity_listener.clone()),
-            #[cfg(not(target_os = "android"))]
-            DefaultDnsResolver,
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
@@ -798,7 +792,7 @@ impl Daemon {
             #[cfg(target_os = "android")]
             android_context,
             #[cfg(target_os = "android")]
-            connectivity_listener,
+            connectivity_listener.clone(),
             #[cfg(target_os = "linux")]
             tunnel_state_machine::LinuxNetworkingIdentifiers {
                 fwmark: mullvad_types::TUNNEL_FWMARK,
@@ -835,7 +829,12 @@ impl Daemon {
         relay_list_updater.update().await;
 
         let location_handler = GeoIpHandler::new(
-            api_runtime.rest_handle(),
+            api_runtime.rest_handle(
+                #[cfg(not(target_os = "android"))]
+                mullvad_api::DefaultDnsResolver,
+                #[cfg(target_os = "android")]
+                android_dns::AndroidDnsResolver::new(connectivity_listener),
+            ),
             internal_event_tx.clone().to_specialized_sender(),
         );
 
