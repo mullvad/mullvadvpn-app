@@ -156,11 +156,11 @@ jobs:
         id: cache-windows-modules
         with:
           path: |
-            ./windows/*/bin/x64-*/*.dll
-            ./windows/*/bin/x64-*/*.lib
-            !./windows/*/bin/x64-*/libcommon.lib
-            !./windows/*/bin/x64-*/libshared.lib
-            !./windows/*/bin/x64-*/libwfp.lib
+            ./windows/*/bin/${{ matrix.config.arch }}-*/*.dll
+            ./windows/*/bin/${{ matrix.config.arch }}-*/*.lib
+            !./windows/*/bin/${{ matrix.config.arch }}-*/libcommon.lib
+            !./windows/*/bin/${{ matrix.config.arch }}-*/libshared.lib
+            !./windows/*/bin/${{ matrix.config.arch }}-*/libwfp.lib
           key: windows-modules-${{ steps.windows-modules-hash.outputs.hash }}
 
       # The x64 toolchain is needed to build talpid-openvpn-plugin
