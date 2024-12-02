@@ -19,7 +19,7 @@ use std::{
 };
 #[cfg(target_os = "linux")]
 use talpid_routing::RequiredRoute;
-use talpid_tunnel::TunnelEvent;
+use talpid_tunnel::EventHook;
 use talpid_types::{
     net::{openvpn, proxy::CustomProxy},
     ErrorExt,
@@ -245,19 +245,13 @@ impl WintunContextImpl {
 impl OpenVpnMonitor<OpenVpnCommand> {
     /// Creates a new `OpenVpnMonitor` with the given listener and using the plugin at the given
     /// path.
-    pub async fn start<L>(
-        on_event: L,
+    pub async fn start(
+        event_hook: EventHook,
         params: &openvpn::TunnelParameters,
         log_path: Option<PathBuf>,
         resource_dir: &Path,
         route_manager: talpid_routing::RouteManagerHandle,
-    ) -> Result<Self>
-    where
-        L: (Fn(TunnelEvent) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + 'static,
-    {
+    ) -> Result<Self> {
         let user_pass_file =
             Self::create_credentials_file(&params.config.username, &params.config.password)
                 .map_err(Error::CredentialsWriteError)?;
@@ -308,7 +302,7 @@ impl OpenVpnMonitor<OpenVpnCommand> {
             cmd,
             openvpn_init_args,
             event_server::OpenvpnEventProxyImpl {
-                on_event,
+                event_hook,
                 user_pass_file_path: user_pass_file_path.clone(),
                 proxy_auth_file_path: proxy_auth_file_path.clone(),
                 abort_server_tx: event_server_abort_tx,
@@ -777,7 +771,7 @@ mod event_server {
         pin::Pin,
         task::{Context, Poll},
     };
-    use talpid_tunnel::TunnelMetadata;
+    use talpid_tunnel::{EventHook, TunnelMetadata};
     #[cfg(any(target_os = "macos", target_os = "windows"))]
     use talpid_types::net::proxy::CustomProxy;
     use talpid_types::ErrorExt;
@@ -808,15 +802,8 @@ mod event_server {
     }
 
     /// Implements a gRPC service used to process events sent to by OpenVPN.
-    pub struct OpenvpnEventProxyImpl<
-        L: (Fn(
-                talpid_tunnel::TunnelEvent,
-            ) -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + 'static,
-    > {
-        pub on_event: L,
+    pub struct OpenvpnEventProxyImpl {
+        pub event_hook: EventHook,
         pub user_pass_file_path: super::PathBuf,
         pub proxy_auth_file_path: Option<super::PathBuf>,
         pub abort_server_tx: triggered::Trigger,
@@ -827,26 +814,19 @@ mod event_server {
         pub ipv6_enabled: bool,
     }
 
-    impl<
-            L: (Fn(
-                    talpid_tunnel::TunnelEvent,
-                )
-                    -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-                + Send
-                + Sync
-                + 'static,
-        > OpenvpnEventProxyImpl<L>
-    {
+    impl OpenvpnEventProxyImpl {
         async fn up_inner(
             &self,
             request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
             let env = request.into_inner().env;
-            (self.on_event)(talpid_tunnel::TunnelEvent::InterfaceUp(
-                Self::get_tunnel_metadata(&env)?,
-                talpid_types::net::AllowedTunnelTraffic::All,
-            ))
-            .await;
+            self.event_hook
+                .clone()
+                .on_event(talpid_tunnel::TunnelEvent::InterfaceUp(
+                    Self::get_tunnel_metadata(&env)?,
+                    talpid_types::net::AllowedTunnelTraffic::All,
+                ))
+                .await;
             Ok(Response::new(()))
         }
 
@@ -916,7 +896,10 @@ mod event_server {
                 return Err(tonic::Status::failed_precondition("Failed to add routes"));
             }
 
-            (self.on_event)(talpid_tunnel::TunnelEvent::Up(metadata)).await;
+            self.event_hook
+                .clone()
+                .on_event(talpid_tunnel::TunnelEvent::Up(metadata))
+                .await;
 
             Ok(Response::new(()))
         }
@@ -970,25 +953,18 @@ mod event_server {
     }
 
     #[tonic::async_trait]
-    impl<
-            L: (Fn(
-                    talpid_tunnel::TunnelEvent,
-                )
-                    -> std::pin::Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-                + Send
-                + Sync
-                + 'static,
-        > OpenvpnEventProxy for OpenvpnEventProxyImpl<L>
-    {
+    impl OpenvpnEventProxy for OpenvpnEventProxyImpl {
         async fn auth_failed(
             &self,
             request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
             let env = request.into_inner().env;
-            (self.on_event)(talpid_tunnel::TunnelEvent::AuthFailed(
-                env.get("auth_failed_reason").cloned(),
-            ))
-            .await;
+            self.event_hook
+                .clone()
+                .on_event(talpid_tunnel::TunnelEvent::AuthFailed(
+                    env.get("auth_failed_reason").cloned(),
+                ))
+                .await;
             Ok(Response::new(()))
         }
 
@@ -1014,7 +990,10 @@ mod event_server {
             &self,
             _request: Request<EventDetails>,
         ) -> std::result::Result<Response<()>, tonic::Status> {
-            (self.on_event)(talpid_tunnel::TunnelEvent::Down).await;
+            self.event_hook
+                .clone()
+                .on_event(talpid_tunnel::TunnelEvent::Down)
+                .await;
             Ok(Response::new(()))
         }
     }

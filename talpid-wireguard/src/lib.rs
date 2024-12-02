@@ -5,7 +5,7 @@
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
-use futures::future::{BoxFuture, Future};
+use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
@@ -24,11 +24,12 @@ use std::{env, sync::LazyLock};
 use talpid_routing::{self, RequiredRoute};
 #[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
-use talpid_tunnel::{tun_provider::TunProvider, TunnelArgs, TunnelEvent, TunnelMetadata};
+use talpid_tunnel::{
+    tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
+};
 
-use talpid_types::net::wireguard::TunnelParameters;
 use talpid_types::{
-    net::{AllowedTunnelTraffic, Endpoint, TransportProtocol},
+    net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
     BoxedError, ErrorExt,
 };
 use tokio::sync::Mutex as AsyncMutex;
@@ -60,7 +61,6 @@ type TunnelType = Box<dyn Tunnel>;
 type TunnelType = WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
-type EventCallback = Box<dyn (Fn(TunnelEvent) -> BoxFuture<'static, ()>) + Send + Sync + 'static>;
 
 /// Errors that can happen in the Wireguard tunnel monitor.
 #[derive(thiserror::Error, Debug)]
@@ -141,7 +141,7 @@ pub struct WireguardMonitor {
     /// Tunnel implementation
     tunnel: Arc<AsyncMutex<Option<TunnelType>>>,
     /// Callback to signal tunnel events
-    event_callback: EventCallback,
+    event_hook: EventHook,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
     pinger_stop_sender: sync_mpsc::Sender<()>,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
@@ -158,19 +158,11 @@ static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
 impl WireguardMonitor {
     /// Starts a WireGuard tunnel with the given config
     #[cfg(not(target_os = "android"))]
-    pub fn start<
-        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + Clone
-            + 'static,
-    >(
+    pub fn start(
         params: &TunnelParameters,
         log_path: Option<&Path>,
-        args: TunnelArgs<'_, F>,
+        args: TunnelArgs<'_>,
     ) -> Result<WireguardMonitor> {
-        let on_event = args.on_event.clone();
-
         #[cfg(any(target_os = "windows", target_os = "linux"))]
         let desired_mtu = args
             .runtime
@@ -225,16 +217,16 @@ impl WireguardMonitor {
         .map_err(Error::ConnectivityMonitorError)?
         .with_cancellation();
 
-        let event_callback = Box::new(on_event.clone());
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
             tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
-            event_callback,
+            event_hook: args.event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: pinger_tx,
             obfuscator,
         };
 
+        let mut event_hook = args.event_hook.clone();
         let moved_tunnel = monitor.tunnel.clone();
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
@@ -249,7 +241,9 @@ impl WireguardMonitor {
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
-            (on_event)(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic)).await;
+            event_hook
+                .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
+                .await;
 
             // Add non-default routes before establishing the tunnel.
             #[cfg(target_os = "linux")]
@@ -281,11 +275,12 @@ impl WireguardMonitor {
                 .await?;
 
                 let metadata = Self::tunnel_metadata(&iface_name, &config);
-                (on_event)(TunnelEvent::InterfaceUp(
-                    metadata,
-                    Self::allowed_traffic_after_tunnel_config(),
-                ))
-                .await;
+                event_hook
+                    .on_event(TunnelEvent::InterfaceUp(
+                        metadata,
+                        Self::allowed_traffic_after_tunnel_config(),
+                    ))
+                    .await;
             }
 
             if detect_mtu {
@@ -350,7 +345,7 @@ impl WireguardMonitor {
                 .map_err(CloseMsg::SetupError)?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            (on_event)(TunnelEvent::Up(metadata)).await;
+            event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
             let monitored_tunnel = Arc::downgrade(&tunnel);
             tokio::task::spawn_blocking(move || {
@@ -395,16 +390,10 @@ impl WireguardMonitor {
     ///   being ready to serve traffic.
     /// - No routes are configured on android.
     #[cfg(target_os = "android")]
-    pub fn start<
-        F: (Fn(TunnelEvent) -> Pin<Box<dyn std::future::Future<Output = ()> + Send>>)
-            + Send
-            + Sync
-            + Clone
-            + 'static,
-    >(
+    pub fn start(
         params: &TunnelParameters,
         log_path: Option<&Path>,
-        args: TunnelArgs<'_, F>,
+        args: TunnelArgs<'_>,
     ) -> Result<WireguardMonitor> {
         let desired_mtu = get_desired_mtu(params);
         let mut config =
@@ -448,10 +437,11 @@ impl WireguardMonitor {
 
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
+        let mut event_hook = args.event_hook;
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
             tunnel: Arc::clone(&tunnel),
-            event_callback: Box::new(args.on_event.clone()),
+            event_hook: event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
             pinger_stop_sender: pinger_tx,
             obfuscator: Arc::new(AsyncMutex::new(obfuscator)),
@@ -465,7 +455,8 @@ impl WireguardMonitor {
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
-            args.on_event.clone()(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
+            event_hook
+                .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
             if should_negotiate_ephemeral_peer {
@@ -482,15 +473,16 @@ impl WireguardMonitor {
                 .await?;
 
                 let metadata = Self::tunnel_metadata(&iface_name, &config);
-                args.on_event.clone()(TunnelEvent::InterfaceUp(
-                    metadata,
-                    Self::allowed_traffic_after_tunnel_config(),
-                ))
-                .await;
+                event_hook
+                    .on_event(TunnelEvent::InterfaceUp(
+                        metadata,
+                        Self::allowed_traffic_after_tunnel_config(),
+                    ))
+                    .await;
             }
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
-            args.on_event.clone()(TunnelEvent::Up(metadata)).await;
+            event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
             // HACK: The tunnel does not need the connectivity::Check anymore, so lets take it
             let connectivity_check = {
@@ -568,7 +560,6 @@ impl WireguardMonitor {
 
     /// Replace `0.0.0.0/0`/`::/0` with the gateway IPs when `gateway_only` is true.
     /// Used to block traffic to other destinations while connecting on Android.
-    ///
     #[cfg(target_os = "android")]
     fn patch_allowed_ips(config: &Config, gateway_only: bool) -> Cow<'_, Config> {
         if gateway_only {
@@ -803,7 +794,7 @@ impl WireguardMonitor {
         let _ = self.pinger_stop_sender.send(());
 
         self.runtime
-            .block_on((self.event_callback)(TunnelEvent::Down));
+            .block_on(self.event_hook.on_event(TunnelEvent::Down));
 
         self.stop_tunnel();
 
