@@ -15,8 +15,8 @@ use crate::block_list::BlockRule;
 
 #[derive(serde::Deserialize, Clone)]
 pub struct NewRule {
-    pub from: IpAddr,
-    pub to: IpAddr,
+    pub src: IpAddr,
+    pub dst: IpAddr,
     pub protocols: Option<BTreeSet<TransportProtocol>>,
     pub label: Uuid,
 }
@@ -48,8 +48,8 @@ pub async fn add_rule(
     let result = tokio::task::spawn_blocking(move || -> anyhow::Result<()> {
         let label = rule.label;
         let rule = BlockRule {
-            src: rule.from,
-            dst: rule.to,
+            src: rule.src,
+            dst: rule.dst,
             protocols: rule.protocols.unwrap_or_default(),
         };
         let Ok(mut fw) = state.block_list.lock() else {
