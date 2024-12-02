@@ -47,7 +47,10 @@ public enum SettingsManager {
 
     public static func getLastUsedAccount() throws -> String {
         let data = try store.read(key: .lastUsedAccount)
-        return String(decoding: data, as: UTF8.self)
+        guard let result = String(bytes: data, encoding: .utf8) else {
+            throw StringDecodingError(data: data)
+        }
+        return result
     }
 
     public static func setLastUsedAccount(_ string: String?) throws {
@@ -218,21 +221,5 @@ public struct UnsupportedSettingsVersionError: LocalizedError {
         Stored settings version was not the same as current version, \
         stored version: \(storedVersion), current version: \(currentVersion)
         """
-    }
-}
-
-public struct StringDecodingError: LocalizedError {
-    public let data: Data
-
-    public var errorDescription: String? {
-        "Failed to decode string from data."
-    }
-}
-
-public struct StringEncodingError: LocalizedError {
-    public let string: String
-
-    public var errorDescription: String? {
-        "Failed to encode string into data."
     }
 }

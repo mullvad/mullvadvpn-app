@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [2024.10 - 2024-11-20]
 ### Fixed
 - Removed deadlock when losing connectivity without entering offline state.
+- Improved log reporting.
 
 ## [2024.9 - 2024-11-07]
 ### Added

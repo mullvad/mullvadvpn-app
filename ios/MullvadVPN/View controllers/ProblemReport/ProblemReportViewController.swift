@@ -131,7 +131,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
     @objc func handleViewLogsButtonTap() {
         let reviewController = ProblemReportReviewViewController(interactor: interactor)
-        let navigationController = UINavigationController(rootViewController: reviewController)
+        let navigationController = CustomNavigationController(rootViewController: reviewController)
 
         present(navigationController, animated: true)
     }
@@ -258,7 +258,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
 
         willSendProblemReport()
 
-        _ = interactor.sendReport(
+        interactor.sendReport(
             email: viewModel.email,
             message: viewModel.message
         ) { completion in
