@@ -94,12 +94,6 @@ function build_nsis_plugins {
     local nsis_root_path="./windows/nsis-plugins"
 
     clean_solution "$nsis_root_path"
-    
-    # NOTE: As of Rust 1.83, msbuild uses the wrong 
-    # When this has reached stable Rust, we can remove this:
-    # https://github.com/rust-lang/cc-rs/issues/1308
-    cargo build --lib --target i686-pc-windows-msvc --release -p mullvad-nsis
-    
     build_solution_config "$nsis_root_path/nsis-plugins.sln" "Release" "x86"
 }
 
