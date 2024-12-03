@@ -184,6 +184,32 @@ class BillingPaymentRepositoryTest {
         }
 
     @Test
+    fun `purchaseProduct should return TransactionIdError when PlayPurchasePaymentToken is empty`() =
+        runTest {
+            // Arrange
+            val mockProductId = ProductId("MOCK")
+            val mockProductDetailsResult = mockk<ProductDetailsResult>()
+            val mockProductDetails: ProductDetails = mockk()
+            every { mockProductDetails.productId } returns mockProductId.value
+            every { mockProductDetailsResult.billingResult.responseCode } returns
+                BillingResponseCode.OK
+            every { mockProductDetailsResult.productDetailsList } returns listOf(mockProductDetails)
+            coEvery { mockBillingRepository.queryProducts(listOf(mockProductId.value)) } returns
+                mockProductDetailsResult
+            coEvery { mockPlayPurchaseRepository.initializePlayPurchase() } returns
+                PlayPurchasePaymentToken("").right()
+
+            // Act, Assert
+            paymentRepository.purchaseProduct(mockProductId, mockk()).test {
+                assertIs<PurchaseResult.FetchingProducts>(awaitItem())
+                assertIs<PurchaseResult.FetchingObfuscationId>(awaitItem())
+                val result = awaitItem()
+                assertIs<PurchaseResult.Error.TransactionIdError>(result)
+                awaitComplete()
+            }
+        }
+
+    @Test
     fun `purchaseProduct should return BillingError on billing unavailable from startPurchaseFlow`() =
         runTest {
             // Arrange

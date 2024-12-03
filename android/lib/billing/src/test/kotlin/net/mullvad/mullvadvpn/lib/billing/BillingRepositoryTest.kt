@@ -206,6 +206,27 @@ class BillingRepositoryTest {
         }
 
     @Test
+    fun `starting purchase flow with empty transaction id should return error`() = runTest {
+        // Arrange
+        val transactionId = ""
+        val mockProductDetails: ProductDetails = mockk(relaxed = true)
+        val mockActivityProvider: () -> Activity = mockk()
+        every { mockBillingClient.isReady } returns true
+        every { mockBillingClient.connectionState } returns BillingClient.ConnectionState.CONNECTED
+
+        // Act
+        val result =
+            billingRepository.startPurchaseFlow(
+                mockProductDetails,
+                transactionId,
+                mockActivityProvider,
+            )
+
+        // Assert
+        assertEquals(BillingResponseCode.ERROR, result.responseCode)
+    }
+
+    @Test
     fun `when billing client query purchases returns OK query purchases should return OK`() =
         runTest {
             // Arrange

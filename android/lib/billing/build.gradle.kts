@@ -62,6 +62,9 @@ dependencies {
     // Management service
     implementation(projects.lib.daemonGrpc)
 
+    // Logger
+    implementation(libs.kermit)
+
     // Test dependencies
     testRuntimeOnly(Dependencies.junitJupiterEngine)
 
