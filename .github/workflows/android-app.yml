@@ -47,7 +47,7 @@ on:
         required: true
         type: string
       e2e_tests_infra_flavor:
-        description: Infra environment to run e2e tests on
+        description: Infra environment to run e2e tests on. If set to 'stagemole' test-related artefacts will be uploaded.
         default: 'stagemole'
         required: true
         type: string
