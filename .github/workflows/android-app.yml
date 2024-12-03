@@ -544,6 +544,7 @@ jobs:
           BILLING_FLAVOR: oss
           INFRA_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor }}
           PARTNER_AUTH: ${{ secrets.STAGEMOLE_PARTNER_AUTH }}
+          INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
