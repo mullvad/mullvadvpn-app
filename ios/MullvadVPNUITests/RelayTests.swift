@@ -80,7 +80,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked() // Allow adding VPN configurations iOS permission
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCannotReachAdServingDomain()
 
@@ -95,7 +95,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
         try Networking.verifyConnectedThroughMullvad()
@@ -163,7 +163,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
 
@@ -204,7 +204,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
 
@@ -253,7 +253,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
             .verifyConnectingOverTCPAfterUDPAttempts()
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .tapDisconnectButton()
     }
 
@@ -282,7 +282,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         TunnelControlPage(app)
             .tapRelayStatusExpandCollapseButton()
             .verifyConnectingToPort("4001")
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .tapDisconnectButton()
     }
 
@@ -363,7 +363,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .verifyConnectingOverMultihop()
             .tapDisconnectButton()
     }
@@ -386,7 +386,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         let relayIPAddress = TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .tapRelayStatusExpandCollapseButton()
             .getInIPAddressFromConnectionStatus()
 
@@ -408,7 +408,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
 

@@ -210,7 +210,7 @@ class ConnectivityTests: LoggedOutUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         HeaderBar(app)
             .tapAccountButton()
