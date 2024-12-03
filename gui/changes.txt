@@ -1,1 +1,3 @@
-[macOS] Fix DNS issue introduced in 2024.6.
+[Linux, macOS] Fix bugs in crash logging
+[Linux] Harden system setting to prevent minor local network information leak
+[Windows] Fix sideloading bug in installer
