@@ -323,7 +323,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .verifyConnectingUsingDAITA()
             .tapDisconnectButton()
     }
