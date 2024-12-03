@@ -14,7 +14,7 @@ class InfoHeaderView: UIView, UITextViewDelegate {
     /// Event handler invoked when user taps on the link.
     var onAbout: (() -> Void)?
 
-    private let textView = UITextView()
+    private let infoLabel = UILabel()
     private let config: InfoHeaderConfig
 
     init(config: InfoHeaderConfig) {
@@ -22,21 +22,15 @@ class InfoHeaderView: UIView, UITextViewDelegate {
 
         super.init(frame: .zero)
 
-        textView.backgroundColor = .clear
-        textView.dataDetectorTypes = .link
-        textView.isSelectable = true
-        textView.isEditable = false
-        textView.isScrollEnabled = false
-        textView.contentInset = .zero
-        textView.textContainerInset = .zero
-        textView.attributedText = makeAttributedString()
-        textView.linkTextAttributes = defaultLinkAttributes
-        textView.textContainer.lineFragmentPadding = 0
-        textView.delegate = self
+        infoLabel.backgroundColor = .clear
+        infoLabel.attributedText = makeAttributedString()
+        infoLabel.numberOfLines = 0
+        infoLabel.accessibilityTraits = .link
 
         directionalLayoutMargins = .zero
 
         addSubviews()
+        addTapGestureRecognizer()
     }
 
     required init?(coder: NSCoder) {
@@ -49,21 +43,19 @@ class InfoHeaderView: UIView, UITextViewDelegate {
     ]
 
     private let defaultLinkAttributes: [NSAttributedString.Key: Any] = [
-        .font: UIFont.systemFont(ofSize: 13),
+        .font: UIFont.boldSystemFont(ofSize: 13),
         .foregroundColor: UIColor.ContentHeading.linkColor,
+        .attachment: "#",
     ]
 
     private func makeAttributedString() -> NSAttributedString {
-        var linkAttributes = defaultLinkAttributes
-        linkAttributes[.link] = "#"
-
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.lineBreakMode = .byWordWrapping
 
         let attributedString = NSMutableAttributedString()
         attributedString.append(NSAttributedString(string: config.body, attributes: defaultTextAttributes))
         attributedString.append(NSAttributedString(string: " ", attributes: defaultTextAttributes))
-        attributedString.append(NSAttributedString(string: config.link, attributes: linkAttributes))
+        attributedString.append(NSAttributedString(string: config.link, attributes: defaultLinkAttributes))
         attributedString.addAttribute(
             .paragraphStyle,
             value: paragraphStyle,
@@ -73,34 +65,18 @@ class InfoHeaderView: UIView, UITextViewDelegate {
     }
 
     private func addSubviews() {
-        addConstrainedSubviews([textView]) {
-            textView.pinEdgesToSuperviewMargins()
+        addConstrainedSubviews([infoLabel]) {
+            infoLabel.pinEdgesToSuperviewMargins()
         }
     }
 
-    func textView(
-        _ textView: UITextView,
-        shouldInteractWith URL: URL,
-        in characterRange: NSRange,
-        interaction: UITextItemInteraction
-    ) -> Bool {
+    private func addTapGestureRecognizer() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTextViewTap))
+        addGestureRecognizer(tapGesture)
+    }
+
+    @objc
+    private func handleTextViewTap() {
         onAbout?()
-        return false
-    }
-
-    @available(iOS 17.0, *)
-    func textView(_ textView: UITextView, menuConfigurationFor textItem: UITextItem, defaultMenu: UIMenu) -> UITextItem
-        .MenuConfiguration? {
-        return nil
-    }
-
-    @available(iOS 17.0, *)
-    func textView(_ textView: UITextView, primaryActionFor textItem: UITextItem, defaultAction: UIAction) -> UIAction? {
-        if case .link = textItem.content {
-            return UIAction { [weak self] _ in
-                self?.onAbout?()
-            }
-        }
-        return nil
     }
 }
