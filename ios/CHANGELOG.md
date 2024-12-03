@@ -21,11 +21,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## Unreleased
+## [2024.11 - 2024-12-12]
 ### Added
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "VPN settings". This will
   also be used automatically when connecting fails with other methods.
 - Add new settings views for DAITA and multihop.
+
+### Fixed
+- When loading logs, a spinner will be shown to indicate the app is busy.
 
 ## [2024.10 - 2024-11-20]
 ### Fixed
