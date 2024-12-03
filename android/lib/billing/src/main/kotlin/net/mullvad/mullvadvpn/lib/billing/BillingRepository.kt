@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.billing
 
 import android.app.Activity
 import android.content.Context
+import co.touchlab.kermit.Logger
 import com.android.billingclient.api.BillingClient
 import com.android.billingclient.api.BillingClient.BillingResponseCode
 import com.android.billingclient.api.BillingClientStateListener
@@ -123,6 +124,11 @@ class BillingRepository(context: Context) {
     ): BillingResult {
         return try {
             ensureConnected()
+
+            if (obfuscatedId.isEmpty()) {
+                Logger.e("Obfuscated id is empty")
+                return BillingResult.newBuilder().setResponseCode(BillingResponseCode.ERROR).build()
+            }
 
             val productDetailsParamsList =
                 listOf(
