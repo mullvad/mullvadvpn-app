@@ -9,7 +9,7 @@
 import UIKit
 
 extension TunnelState {
-    var textColorForSecureLabel: UIColor {
+    var textColorForConnectionStatusLabel: UIColor {
         switch self {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer:
             .white
@@ -32,55 +32,20 @@ extension TunnelState {
 
     var localizedTitleForSecureLabel: String {
         switch self {
-        case let .connecting(_, isPostQuantum, _), let .reconnecting(_, isPostQuantum, _):
-            if isPostQuantum {
-                NSLocalizedString(
-                    "TUNNEL_STATE_PQ_CONNECTING",
-                    tableName: "Main",
-                    value: "Creating quantum secure connection",
-                    comment: ""
-                )
-            } else {
-                NSLocalizedString(
-                    "TUNNEL_STATE_CONNECTING",
-                    tableName: "Main",
-                    value: "Creating secure connection",
-                    comment: ""
-                )
-            }
-
-        case let .negotiatingEphemeralPeer(_, _, isPostQuantum, _):
-            if isPostQuantum {
-                NSLocalizedString(
-                    "TUNNEL_STATE_NEGOTIATING_KEY",
-                    tableName: "Main",
-                    value: "Creating quantum secure connection",
-                    comment: ""
-                )
-            } else {
-                NSLocalizedString(
-                    "TUNNEL_STATE_CONNECTING",
-                    tableName: "Main",
-                    value: "Creating secure connection",
-                    comment: ""
-                )
-            }
-        case let .connected(_, isPostQuantum, _):
-            if isPostQuantum {
-                NSLocalizedString(
-                    "TUNNEL_STATE_PQ_CONNECTED",
-                    tableName: "Main",
-                    value: "Quantum secure connection",
-                    comment: ""
-                )
-            } else {
-                NSLocalizedString(
-                    "TUNNEL_STATE_CONNECTED",
-                    tableName: "Main",
-                    value: "Secure connection",
-                    comment: ""
-                )
-            }
+        case .connecting, .reconnecting, .negotiatingEphemeralPeer:
+            NSLocalizedString(
+                "TUNNEL_STATE_CONNECTING",
+                tableName: "Main",
+                value: "Connecting...",
+                comment: ""
+            )
+        case .connected:
+            NSLocalizedString(
+                "TUNNEL_STATE_CONNECTED",
+                tableName: "Main",
+                value: "Connected",
+                comment: ""
+            )
 
         case .disconnecting(.nothing):
             NSLocalizedString(
@@ -101,7 +66,7 @@ extension TunnelState {
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED",
                 tableName: "Main",
-                value: "Unsecured connection",
+                value: "Disconnected",
                 comment: ""
             )
 
@@ -159,62 +124,33 @@ extension TunnelState {
         }
     }
 
-    func secureConnectionLabel(isPostQuantum: Bool) -> String {
-        if isPostQuantum {
-            NSLocalizedString(
-                "TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Creating quantum secure connection",
-                comment: ""
-            )
-        } else {
+    var localizedAccessibilityLabel: String {
+        switch self {
+        case .connecting, .negotiatingEphemeralPeer:
             NSLocalizedString(
                 "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
                 tableName: "Main",
-                value: "Creating secure connection",
+                value: "Connecting",
                 comment: ""
             )
-        }
-    }
 
-    var localizedAccessibilityLabel: String {
-        switch self {
-        case let .connecting(_, isPostQuantum, _):
-            secureConnectionLabel(isPostQuantum: isPostQuantum)
-
-        case let .negotiatingEphemeralPeer(_, _, isPostQuantum, _):
-            secureConnectionLabel(isPostQuantum: isPostQuantum)
-
-        case let .connected(tunnelInfo, isPostQuantum, _):
-            if isPostQuantum {
-                String(
-                    format: NSLocalizedString(
-                        "TUNNEL_STATE_PQ_CONNECTED_ACCESSIBILITY_LABEL",
-                        tableName: "Main",
-                        value: "Quantum secure connection. Connected to %@, %@",
-                        comment: ""
-                    ),
-                    tunnelInfo.exit.location.city,
-                    tunnelInfo.exit.location.country
-                )
-            } else {
-                String(
-                    format: NSLocalizedString(
-                        "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
-                        tableName: "Main",
-                        value: "Secure connection. Connected to %@, %@",
-                        comment: ""
-                    ),
-                    tunnelInfo.exit.location.city,
-                    tunnelInfo.exit.location.country
-                )
-            }
+        case let .connected(tunnelInfo, _, _):
+            String(
+                format: NSLocalizedString(
+                    "TUNNEL_STATE_CONNECTED_ACCESSIBILITY_LABEL",
+                    tableName: "Main",
+                    value: "Connected to %@, %@",
+                    comment: ""
+                ),
+                tunnelInfo.exit.location.city,
+                tunnelInfo.exit.location.country
+            )
 
         case .disconnected:
             NSLocalizedString(
                 "TUNNEL_STATE_DISCONNECTED_ACCESSIBILITY_LABEL",
                 tableName: "Main",
-                value: "Unsecured connection",
+                value: "Disconnected",
                 comment: ""
             )
 
