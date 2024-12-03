@@ -86,7 +86,7 @@ pub fn get_version_from_path(app_package_path: &Path) -> Result<String, anyhow::
 fn find_app(
     app: &str,
     e2e_bin: bool,
-    package_type: (OsType, Option<PackageType>, Option<Architecture>),
+    package_type: (OsType, Option<PackageType>, Architecture),
     package_dir: Option<&PathBuf>,
 ) -> Result<PathBuf> {
     // If it's a path, use that path
@@ -123,7 +123,7 @@ fn find_app(
         .filter(|(_path, u8_path)| !e2e_bin || u8_path.contains(get_os_name(package_type))) // Filter out irrelevant platforms
         .filter(|(_path, u8_path)| {
             let linux = e2e_bin || package_type.0 == OsType::Linux;
-            let matching_ident = package_type.2.map(|arch| arch.get_identifiers().iter().any(|id| u8_path.contains(id))).unwrap_or(true);
+            let matching_ident = package_type.2.get_identifiers().iter().any(|id| u8_path.contains(id));
             // Skip for non-Linux, because there's only one package
             !linux || matching_ident
         }) // Skip file if it doesn't match the architecture
@@ -143,7 +143,8 @@ fn find_app(
         })
 }
 
-fn get_ext(package_type: (OsType, Option<PackageType>, Option<Architecture>)) -> &'static str {
+// TODO: Move to [`PackageType`]
+fn get_ext(package_type: (OsType, Option<PackageType>, Architecture)) -> &'static str {
     match package_type.0 {
         OsType::Windows => "exe",
         OsType::Macos => "pkg",
@@ -154,7 +155,8 @@ fn get_ext(package_type: (OsType, Option<PackageType>, Option<Architecture>)) ->
     }
 }
 
-fn get_os_name(package_type: (OsType, Option<PackageType>, Option<Architecture>)) -> &'static str {
+// TODO: Move to [`OsType`]
+fn get_os_name(package_type: (OsType, Option<PackageType>, Architecture)) -> &'static str {
     match package_type.0 {
         OsType::Windows => "windows",
         OsType::Macos => "apple",
