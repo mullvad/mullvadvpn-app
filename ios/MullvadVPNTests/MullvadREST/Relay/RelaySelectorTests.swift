@@ -304,7 +304,7 @@ extension RelaySelectorTests {
 
         return try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
-            relays: relays,
+            wireguard: relays.wireguard,
             portConstraint: constraints.port,
             numberOfFailedAttempts: failedAttemptCount
         )

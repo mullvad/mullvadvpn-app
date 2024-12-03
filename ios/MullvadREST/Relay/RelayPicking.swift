@@ -12,7 +12,6 @@ import Network
 
 protocol RelayPicking {
     var obfuscation: ObfuscatorPortSelection { get }
-    var relays: REST.ServerRelaysResponse { get }
     var constraints: RelayConstraints { get }
     var connectionAttemptCount: UInt { get }
     var daitaSettings: DAITASettings { get }
@@ -27,7 +26,7 @@ extension RelayPicking {
     ) throws -> SelectedRelay {
         var match = try RelaySelector.WireGuard.pickCandidate(
             from: candidates,
-            relays: relays,
+            wireguard: obfuscation.wireguard,
             portConstraint: useObfuscatedPortIfAvailable ? obfuscation.port : constraints.port,
             numberOfFailedAttempts: connectionAttemptCount,
             closeTo: location
@@ -46,7 +45,7 @@ extension RelayPicking {
 
     private func applyShadowsocksIpAddress(in match: RelaySelectorMatch) -> RelaySelectorMatch {
         let port = match.endpoint.ipv4Relay.port
-        let portRanges = RelaySelector.parseRawPortRanges(relays.wireguard.shadowsocksPortRanges)
+        let portRanges = RelaySelector.parseRawPortRanges(obfuscation.wireguard.shadowsocksPortRanges)
         let portIsWithinRange = portRanges.contains(where: { $0.contains(port) })
 
         var endpoint = match.endpoint
@@ -76,15 +75,11 @@ struct SinglehopPicker: RelayPicking {
     let connectionAttemptCount: UInt
     let daitaSettings: DAITASettings
 
-    var relays: REST.ServerRelaysResponse {
-        obfuscation.relays
-    }
-
     func pick() throws -> SelectedRelays {
         do {
             let exitCandidates = try RelaySelector.WireGuard.findCandidates(
                 by: constraints.exitLocations,
-                in: relays,
+                in: obfuscation.exitRelays,
                 filterConstraint: constraints.filter,
                 daitaEnabled: daitaSettings.daitaState.isEnabled
             )
@@ -114,14 +109,10 @@ struct MultihopPicker: RelayPicking {
     let connectionAttemptCount: UInt
     let daitaSettings: DAITASettings
 
-    var relays: REST.ServerRelaysResponse {
-        obfuscation.relays
-    }
-
     func pick() throws -> SelectedRelays {
         let exitCandidates = try RelaySelector.WireGuard.findCandidates(
             by: constraints.exitLocations,
-            in: relays,
+            in: obfuscation.exitRelays,
             filterConstraint: constraints.filter,
             daitaEnabled: false
         )
@@ -153,7 +144,7 @@ struct MultihopPicker: RelayPicking {
         do {
             let entryCandidates = try RelaySelector.WireGuard.findCandidates(
                 by: daitaSettings.isAutomaticRouting ? .any : constraints.entryLocations,
-                in: relays,
+                in: obfuscation.entryRelays,
                 filterConstraint: constraints.filter,
                 daitaEnabled: daitaSettings.daitaState.isEnabled
             )

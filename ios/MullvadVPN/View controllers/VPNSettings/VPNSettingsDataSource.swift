@@ -92,14 +92,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
 
         static var wireGuardObfuscation: [Item] {
-            var items: [Item] = [
+            [
                 .wireGuardObfuscationAutomatic,
                 .wireGuardObfuscationShadowsocks,
                 .wireGuardObfuscationUdpOverTcp,
                 .wireGuardObfuscationOff,
             ]
-
-            return items
         }
 
         static var wireGuardObfuscationPort: [Item] {
