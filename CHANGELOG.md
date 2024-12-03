@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+## [2024.8] - 2024-12-04
 ### Security
 - Disable unix signal handler in release builds. The code was not signal safe and could potentially
   cause issues. This mitigates audit issues `MLLVD-CR-24-01` and `MLLVD-CR-24-02`.
