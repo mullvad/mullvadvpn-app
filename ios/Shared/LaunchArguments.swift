@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadTypes
 
 public protocol Taggable {
     static var tag: String { get }
@@ -48,7 +47,10 @@ extension Encodable {
     public func toJSON(_ encoder: JSONEncoder = JSONEncoder()) throws -> String {
         let data = try encoder.encode(self)
         guard let result = String(bytes: data, encoding: .utf8) else {
-            throw StringDecodingError(data: data)
+            throw EncodingError.invalidValue(
+                self,
+                EncodingError.Context(codingPath: [], debugDescription: "Could not encode self to a utf-8 string")
+            )
         }
         return result
     }
