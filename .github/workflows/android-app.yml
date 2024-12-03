@@ -550,6 +550,13 @@ jobs:
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
 
+      - name: Upload e2e instrumentation report
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.test-repeat != 0 }}
+        with:
+          name: e2e-instrumentation-report
+          path: ${{ steps.prepare-report-dir.outputs.report_dir }}
+
   firebase-tests:
     name: Run firebase tests
     if: github.event.inputs.run_firebase_tests == 'true'
