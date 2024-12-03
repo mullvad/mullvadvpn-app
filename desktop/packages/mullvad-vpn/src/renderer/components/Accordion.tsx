@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 interface IProps {
   expanded: boolean;
-  animationDuration: number;
+  animationDuration?: number;
   children?: React.ReactNode;
   onWillExpand?: (contentHeight: number) => void;
   onTransitionEnd?: () => void;
@@ -33,7 +33,6 @@ const Content = styled.div({
 export default class Accordion extends React.Component<IProps, IState> {
   public static defaultProps = {
     expanded: true,
-    animationDuration: 350,
   };
 
   public state: IState = {
@@ -58,7 +57,7 @@ export default class Accordion extends React.Component<IProps, IState> {
         ref={this.containerRef}
         className={this.props.className}
         $height={this.state.containerHeight}
-        $animationDuration={this.props.animationDuration}
+        $animationDuration={this.props.animationDuration ?? 350}
         onTransitionEnd={this.onTransitionEnd}>
         <Content ref={this.contentRef}>{this.state.mountChildren && this.props.children}</Content>
       </Container>

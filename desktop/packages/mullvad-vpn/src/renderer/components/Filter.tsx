@@ -214,7 +214,7 @@ function useProviders(): Record<string, boolean> {
 
 const StyledSelector = styled(Selector)({
   marginBottom: 0,
-});
+}) as typeof Selector;
 
 interface IFilterByOwnershipProps {
   ownership: Ownership;
