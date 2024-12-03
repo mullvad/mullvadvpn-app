@@ -154,8 +154,8 @@ pub struct VmConfig {
     pub package_type: Option<PackageType>,
 
     /// CPU architecture
-    #[arg(long, required_if_eq("os_type", "linux"))]
-    pub architecture: Option<Architecture>,
+    #[arg(long)]
+    pub architecture: Architecture,
 
     /// Tool to use for provisioning
     #[arg(long, default_value = "noop")]
@@ -203,8 +203,8 @@ impl VmConfig {
     pub fn get_default_runner_dir(&self) -> PathBuf {
         let target_dir = self.get_target_dir();
         let subdir = match self.architecture {
-            None | Some(Architecture::X64) => self.get_x64_runner_subdir(),
-            Some(Architecture::Aarch64) => self.get_aarch64_runner_subdir(),
+            Architecture::X64 => self.get_x64_runner_subdir(),
+            Architecture::Aarch64 => self.get_aarch64_runner_subdir(),
         };
 
         target_dir.join(subdir)

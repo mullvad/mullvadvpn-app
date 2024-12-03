@@ -57,7 +57,7 @@ A configuration containing one Debian 12 VM and one Windows 11 VM
             "image_path": "$VM_IMAGES/windows11.qcow2",
             "os_type": "windows",
             "package_type": null,
-            "architecture": null,
+            "architecture": "x64",
             "provisioner": "noop",
             "ssh_user": null,
             "ssh_password": null,
