@@ -28,7 +28,7 @@ private enum TunnelControlActionButton {
 }
 
 final class TunnelControlView: UIView {
-    private let secureLabel = makeBoldTextLabel(ofSize: 20, numberOfLines: 0)
+    private let connectionStatusLabel = makeBoldTextLabel(ofSize: 20, numberOfLines: 0)
     private let cityLabel = makeBoldTextLabel(ofSize: 34)
     private let countryLabel = makeBoldTextLabel(ofSize: 34)
 
@@ -135,8 +135,8 @@ final class TunnelControlView: UIView {
     func update(with model: TunnelControlViewModel) {
         viewModel = model
         let tunnelState = model.tunnelStatus.state
-        secureLabel.text = model.secureLabelText
-        secureLabel.textColor = tunnelState.textColorForSecureLabel
+        connectionStatusLabel.text = model.connectionStatusLabelText
+        connectionStatusLabel.textColor = tunnelState.textColorForConnectionStatusLabel
         selectLocationButtonBlurView.isEnabled = model.enableButtons
         connectButtonBlurView.isEnabled = model.enableButtons
         cityLabel.attributedText = attributedStringForLocation(string: model.city)
@@ -144,7 +144,7 @@ final class TunnelControlView: UIView {
         connectionPanel.connectedRelayName = model.connectedRelaysName
         connectionPanel.dataSource = model.connectionPanel
 
-        updateSecureLabel(tunnelState: tunnelState)
+        updateConnectionStatusLabel(tunnelState: tunnelState)
         updateActionButtons(tunnelState: tunnelState)
         updateTunnelRelays(tunnelStatus: model.tunnelStatus)
     }
@@ -166,17 +166,17 @@ final class TunnelControlView: UIView {
         setArrangedButtons(views)
     }
 
-    private func updateSecureLabel(tunnelState: TunnelState) {
-        secureLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
-        secureLabel.textColor = tunnelState.textColorForSecureLabel
+    private func updateConnectionStatusLabel(tunnelState: TunnelState) {
+        connectionStatusLabel.text = tunnelState.localizedTitleForSecureLabel.uppercased()
+        connectionStatusLabel.textColor = tunnelState.textColorForConnectionStatusLabel
 
         switch tunnelState {
         case .connected:
-            secureLabel.accessibilityIdentifier = .connectionStatusConnectedLabel
+            connectionStatusLabel.accessibilityIdentifier = .connectionStatusConnectedLabel
         case .connecting:
-            secureLabel.accessibilityIdentifier = .connectionStatusConnectingLabel
+            connectionStatusLabel.accessibilityIdentifier = .connectionStatusConnectingLabel
         default:
-            secureLabel.accessibilityIdentifier = .connectionStatusNotConnectedLabel
+            connectionStatusLabel.accessibilityIdentifier = .connectionStatusNotConnectedLabel
         }
     }
 
@@ -185,7 +185,7 @@ final class TunnelControlView: UIView {
             NSLocalizedString(
                 "CONNECT_BUTTON_TITLE",
                 tableName: "Main",
-                value: "Secure connection",
+                value: "Connect",
                 comment: ""
             ), for: .normal
         )
@@ -274,7 +274,7 @@ final class TunnelControlView: UIView {
     // MARK: - Private
 
     private func addSubviews() {
-        for subview in [secureLabel, countryLabel, cityLabel, connectionPanel] {
+        for subview in [connectionStatusLabel, countryLabel, cityLabel, connectionPanel] {
             locationContainerView.addArrangedSubview(subview)
         }
 

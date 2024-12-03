@@ -112,10 +112,10 @@ class TunnelControlPage: Page {
         return self
     }
 
-    @discardableResult func waitForSecureConnectionLabel() -> Self {
+    @discardableResult func waitForConnectedLabel() -> Self {
         let labelFound = app.staticTexts[.connectionStatusConnectedLabel]
             .waitForExistence(timeout: BaseUITestCase.extremelyLongTimeout)
-        XCTAssertTrue(labelFound, "Secure connection label presented")
+        XCTAssertTrue(labelFound, "Connected label presented")
 
         return self
     }
