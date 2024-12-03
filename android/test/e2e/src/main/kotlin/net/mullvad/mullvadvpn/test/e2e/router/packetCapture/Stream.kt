@@ -1,8 +1,9 @@
-package net.mullvad.mullvadvpn.test.e2e.model
+package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import net.mullvad.mullvadvpn.test.e2e.router.NetworkingProtocol
 import org.joda.time.DateTime
 import org.joda.time.Interval
 
@@ -11,7 +12,7 @@ data class Stream(
     @SerialName("peer_addr") private val sourceAddressAndPort: String,
     @SerialName("other_addr") private val destinationAddressAndPort: String,
     @SerialName("flow_id") val flowId: String?,
-    @SerialName("transport_protocol") val transportProtocol: NetworkTransportProtocol,
+    @SerialName("transport_protocol") val transportProtocol: NetworkingProtocol,
     val packets: List<Packet>,
 ) {
     @Transient val sourceHost = Host.fromString(sourceAddressAndPort)
@@ -39,11 +40,4 @@ data class Stream(
     init {
         require(packets.isNotEmpty()) { "Stream must contain at least one packet" }
     }
-}
-
-@Serializable
-enum class NetworkTransportProtocol {
-    @SerialName("tcp") TCP,
-    @SerialName("udp") UDP,
-    @SerialName("icmp") ICMP,
 }

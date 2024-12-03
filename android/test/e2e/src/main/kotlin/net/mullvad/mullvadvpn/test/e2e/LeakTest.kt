@@ -16,9 +16,9 @@ import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
 import net.mullvad.mullvadvpn.test.e2e.misc.LeakCheck
 import net.mullvad.mullvadvpn.test.e2e.misc.NoTrafficToHostRule
-import net.mullvad.mullvadvpn.test.e2e.misc.PacketCapture
-import net.mullvad.mullvadvpn.test.e2e.misc.PacketCaptureResult
 import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
+import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCapture
+import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCaptureResult
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension

@@ -36,7 +36,7 @@ android {
             load(project.file("e2e.properties").inputStream())
             addRequiredPropertyAsBuildConfigField("API_VERSION")
             addRequiredPropertyAsBuildConfigField("TRAFFIC_GENERATION_IP_ADDRESS")
-            addRequiredPropertyAsBuildConfigField("PACKET_CAPTURE_API_HOST")
+            addRequiredPropertyAsBuildConfigField("TEST_ROUTER_API_HOST")
         }
 
         fun MutableMap<String, String>.addOptionalPropertyAsArgument(name: String) {
@@ -52,10 +52,12 @@ android {
         testInstrumentationRunnerArguments +=
             mutableMapOf<String, String>().apply {
                 put("clearPackageData", "true")
-                addOptionalPropertyAsArgument("enable_access_to_local_api_tests")
                 addOptionalPropertyAsArgument("enable_highly_rate_limited_tests")
                 addOptionalPropertyAsArgument("valid_test_account_number")
                 addOptionalPropertyAsArgument("invalid_test_account_number")
+                project.findProperty("test.e2e.enableAccessToLocalApiTests")?.let {
+                    put("enable_access_to_local_api_tests", it.toString())
+                }
             }
     }
 

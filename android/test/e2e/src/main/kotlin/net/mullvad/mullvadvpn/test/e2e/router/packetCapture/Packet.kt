@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.test.e2e.model
+package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName

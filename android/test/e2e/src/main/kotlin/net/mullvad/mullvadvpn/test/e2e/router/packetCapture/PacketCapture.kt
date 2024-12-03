@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.test.e2e.misc
+package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
 import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
@@ -23,7 +23,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.modules.SerializersModule
 import kotlinx.serialization.modules.contextual
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
-import net.mullvad.mullvadvpn.test.e2e.model.Stream
+import net.mullvad.mullvadvpn.test.e2e.misc.Networking
 import net.mullvad.mullvadvpn.test.e2e.serializer.NanoSecondsTimestampSerializer
 import net.mullvad.mullvadvpn.test.e2e.serializer.PacketCaptureSessionSerializer
 import org.junit.jupiter.api.fail
@@ -63,7 +63,7 @@ class PacketCapture {
 
 private fun defaultHttpClient(): HttpClient =
     HttpClient(CIO) {
-        defaultRequest { url("http://${BuildConfig.PACKET_CAPTURE_API_HOST}") }
+        defaultRequest { url("http://${BuildConfig.TEST_ROUTER_API_HOST}") }
 
         install(ContentNegotiation) {
             json(
