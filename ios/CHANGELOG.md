@@ -26,6 +26,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "VPN settings". This will
   also be used automatically when connecting fails with other methods.
 
+### Fixed
+- When loading logs, a spinner will be shown to indicate the app is busy.
+
 ## [2024.10 - 2024-11-20]
 ### Fixed
 - Removed deadlock when losing connectivity without entering offline state.
