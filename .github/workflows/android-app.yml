@@ -346,7 +346,7 @@ jobs:
 
       - name: Build stagemole app
         uses: burrunan/gradle-cache-action@v1
-        if: github.event.inputs.run_firebase_tests == 'true'
+        if: github.event.inputs.e2e_test_repeat != '0'
         with:
           job-id: jdk17
           arguments: assemblePlayStagemoleDebug
@@ -475,7 +475,7 @@ jobs:
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
           TEST_TYPE: ${{ matrix.test-type }}
-          BILLING_FLAVOR: oss
+          BILLING_FLAVOR: play
           INFRA_FLAVOR: prod
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
         run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
