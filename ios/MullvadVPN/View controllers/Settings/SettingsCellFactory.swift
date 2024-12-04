@@ -111,7 +111,14 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 value: "DAITA",
                 comment: ""
             )
-            cell.detailTitleLabel.text = nil
+
+            cell.detailTitleLabel.text = NSLocalizedString(
+                "DAITA_CELL_DETAIL_LABEL",
+                tableName: "Settings",
+                value: viewModel.daitaSettings.daitaState.isEnabled ? "On" : "Off",
+                comment: ""
+            )
+
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .chevron
 
@@ -124,7 +131,14 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 value: "Multihop",
                 comment: ""
             )
-            cell.detailTitleLabel.text = nil
+
+            cell.detailTitleLabel.text = NSLocalizedString(
+                "MULTIHOP_CELL_DETAIL_LABEL",
+                tableName: "Settings",
+                value: viewModel.multihopState.isEnabled ? "On" : "Off",
+                comment: ""
+            )
+
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.disclosureType = .chevron
         }

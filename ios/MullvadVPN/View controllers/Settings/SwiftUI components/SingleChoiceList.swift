@@ -411,4 +411,4 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             )
         }
     }
-}
+} // swiftlint:disable:this file_length
