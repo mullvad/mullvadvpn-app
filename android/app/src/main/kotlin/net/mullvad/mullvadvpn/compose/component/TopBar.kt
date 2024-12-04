@@ -49,6 +49,7 @@ import androidx.compose.ui.unit.dp
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_SETTINGS_BUTTON
+import net.mullvad.mullvadvpn.compose.test.TOP_BAR_TEST_TAG
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 
@@ -117,7 +118,7 @@ fun MullvadTopBar(
     isIconAndLogoVisible: Boolean = true,
 ) {
     TopAppBar(
-        modifier = modifier,
+        modifier = modifier.testTag(TOP_BAR_TEST_TAG),
         title = {
             if (isIconAndLogoVisible) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
