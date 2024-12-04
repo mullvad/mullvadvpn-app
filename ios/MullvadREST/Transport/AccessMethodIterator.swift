@@ -10,7 +10,7 @@ import Combine
 import Foundation
 import MullvadSettings
 
-class AccessMethodIterator {
+final class AccessMethodIterator: @unchecked Sendable {
     private let dataSource: AccessMethodRepositoryDataSource
 
     private var index = 0

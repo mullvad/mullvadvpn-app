@@ -81,7 +81,7 @@ class AddAccessMethodCoordinator: Coordinator, Presentable, Presenting {
     }
 }
 
-extension AddAccessMethodCoordinator: MethodSettingsViewControllerDelegate {
+extension AddAccessMethodCoordinator: @preconcurrency MethodSettingsViewControllerDelegate {
     func accessMethodDidSave(_ accessMethod: PersistentAccessMethod) {
         dismiss(animated: true)
     }

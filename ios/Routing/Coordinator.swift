@@ -15,7 +15,8 @@ import UIKit
  Coordinators help to abstract the navigation and business logic from view controllers making them
  more manageable and reusable.
  */
-open class Coordinator: NSObject {
+@MainActor
+open class Coordinator: NSObject, Sendable {
     /// Private trace log.
     private lazy var logger = Logger(label: "\(Self.self)")
 
@@ -82,7 +83,7 @@ open class Coordinator: NSObject {
 /**
  Protocol describing coordinators that can be presented using modal presentation.
  */
-public protocol Presentable: Coordinator {
+public protocol Presentable: Coordinator, Sendable {
     /**
      View controller that is presented modally. It's expected it to be the topmost view controller
      managed by coordinator.
@@ -177,7 +178,7 @@ extension Presentable {
 
      Automatically removes itself from parent.
      */
-    public func dismiss(animated: Bool, completion: (() -> Void)? = nil) {
+    public func dismiss(animated: Bool, completion: (@MainActor () -> Void)? = nil) {
         removeFromParent()
 
         presentedViewController.dismiss(animated: animated, completion: completion)
@@ -186,7 +187,7 @@ extension Presentable {
     /**
      Add block based observer triggered if coordinator is dismissed via user interaction.
      */
-    public func onInteractiveDismissal(_ handler: @escaping (Coordinator) -> Void) {
+    public func onInteractiveDismissal(_ handler: @escaping @Sendable (Coordinator) -> Void) {
         interactiveDismissalObservers.append(handler)
     }
 }

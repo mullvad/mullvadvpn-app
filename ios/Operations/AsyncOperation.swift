@@ -39,7 +39,7 @@ import Foundation
 }
 
 /// A base implementation of an asynchronous operation
-open class AsyncOperation: Operation {
+open class AsyncOperation: Operation, @unchecked Sendable {
     /// Mutex lock used for guarding critical sections of operation lifecycle.
     private let operationLock = NSRecursiveLock()
 
@@ -199,7 +199,7 @@ open class AsyncOperation: Operation {
 
         state = .evaluatingConditions
 
-        var results = [Bool](repeating: false, count: _conditions.count)
+        nonisolated(unsafe) var results = [Bool](repeating: false, count: _conditions.count)
         let group = DispatchGroup()
 
         for (index, condition) in _conditions.enumerated() {

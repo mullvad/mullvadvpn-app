@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum NoRelaysSatisfyingConstraintsReason {
+public enum NoRelaysSatisfyingConstraintsReason: Sendable {
     case filterConstraintNotMatching
     case invalidPort
     case entryEqualsExit
@@ -19,7 +19,7 @@ public enum NoRelaysSatisfyingConstraintsReason {
     case relayConstraintNotMatching
 }
 
-public struct NoRelaysSatisfyingConstraintsError: LocalizedError {
+public struct NoRelaysSatisfyingConstraintsError: LocalizedError, Sendable {
     public let reason: NoRelaysSatisfyingConstraintsReason
 
     public var errorDescription: String? {

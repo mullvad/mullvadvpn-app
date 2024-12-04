@@ -12,14 +12,18 @@ import WireGuardKitTypes
 
 /// A protocol that formalizes remote service dependency used by `DeviceCheckOperation`.
 protocol DeviceCheckRemoteServiceProtocol {
-    func getAccountData(accountNumber: String, completion: @escaping (Result<Account, Error>) -> Void)
+    func getAccountData(accountNumber: String, completion: @escaping @Sendable (Result<Account, Error>) -> Void)
         -> Cancellable
-    func getDevice(accountNumber: String, identifier: String, completion: @escaping (Result<Device, Error>) -> Void)
+    func getDevice(
+        accountNumber: String,
+        identifier: String,
+        completion: @escaping @Sendable (Result<Device, Error>) -> Void
+    )
         -> Cancellable
     func rotateDeviceKey(
         accountNumber: String,
         identifier: String,
         publicKey: PublicKey,
-        completion: @escaping (Result<Device, Error>) -> Void
+        completion: @escaping @Sendable (Result<Device, Error>) -> Void
     ) -> Cancellable
 }

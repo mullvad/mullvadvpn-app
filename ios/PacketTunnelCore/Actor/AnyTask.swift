@@ -9,7 +9,7 @@
 import Foundation
 
 /// A type-erased `Task`.
-public protocol AnyTask {
+public protocol AnyTask: Sendable {
     /// Cancel task.
     func cancel()
 }

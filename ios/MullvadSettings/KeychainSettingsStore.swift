@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 import Security
 
-public class KeychainSettingsStore: SettingsStore {
+final public class KeychainSettingsStore: SettingsStore, Sendable {
     public let serviceName: String
     public let accessGroup: String
 

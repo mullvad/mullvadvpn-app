@@ -10,12 +10,14 @@ import Combine
 import UIKit
 
 /// Type responsible for handling cells in socks table view section.
+@MainActor
 struct SocksSectionHandler {
     private let authenticationInputMaxLength = 255
 
     let tableStyle: UITableView.Style
     let subject: CurrentValueSubject<AccessMethodViewModel, Never>
 
+    @MainActor
     func configure(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         switch itemIdentifier {
         case .server:

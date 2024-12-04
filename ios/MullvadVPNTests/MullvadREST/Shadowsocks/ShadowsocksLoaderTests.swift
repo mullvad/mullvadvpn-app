@@ -10,7 +10,7 @@
 @testable import MullvadSettings
 @testable import MullvadTypes
 
-import XCTest
+@preconcurrency import XCTest
 
 class ShadowsocksLoaderTests: XCTestCase {
     private let sampleRelays = ServerRelaysResponseStubs.sampleRelays
@@ -91,7 +91,7 @@ class ShadowsocksLoaderTests: XCTestCase {
     }
 }
 
-class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol {
+class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol, @unchecked Sendable {
     var entryBridgeResult: Result<REST.BridgeRelay, Error> = .failure(ShadowsocksRelaySelectorStubError())
     var exitBridgeResult: Result<REST.BridgeRelay, Error> = .failure(ShadowsocksRelaySelectorStubError())
     private let relays: REST.ServerRelaysResponse
@@ -114,7 +114,7 @@ class ShadowsocksRelaySelectorStub: ShadowsocksRelaySelectorProtocol {
     }
 }
 
-class ShadowsocksConfigurationCacheStub: ShadowsocksConfigurationCacheProtocol {
+class ShadowsocksConfigurationCacheStub: ShadowsocksConfigurationCacheProtocol, @unchecked Sendable {
     private(set) var cachedConfiguration: ShadowsocksConfiguration?
 
     func read() throws -> ShadowsocksConfiguration {

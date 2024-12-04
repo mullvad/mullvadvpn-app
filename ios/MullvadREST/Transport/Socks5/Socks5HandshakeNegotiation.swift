@@ -9,11 +9,11 @@ import Foundation
 import Network
 
 /// The object handling a handshake negotiation with socks proxy.
-struct Socks5HandshakeNegotiation {
+struct Socks5HandshakeNegotiation: Sendable {
     let connection: NWConnection
     let handshake: Socks5Handshake
-    let onComplete: (Socks5HandshakeReply) -> Void
-    let onFailure: (Error) -> Void
+    let onComplete: @Sendable (Socks5HandshakeReply) -> Void
+    let onFailure: @Sendable (Error) -> Void
 
     func perform() {
         connection.send(content: handshake.rawData, completion: .contentProcessed { [self] error in

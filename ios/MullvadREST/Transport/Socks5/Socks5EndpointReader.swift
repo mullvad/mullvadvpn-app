@@ -10,7 +10,7 @@ import MullvadTypes
 import Network
 
 /// The object reading the endpoint data from connection.
-struct Socks5EndpointReader {
+struct Socks5EndpointReader: Sendable {
     /// Connection to the socks proxy.
     let connection: NWConnection
 
@@ -18,10 +18,10 @@ struct Socks5EndpointReader {
     let addressType: Socks5AddressType
 
     /// Completion handler called upon success.
-    let onComplete: (Socks5Endpoint) -> Void
+    let onComplete: @Sendable (Socks5Endpoint) -> Void
 
     /// Failure handler.
-    let onFailure: (Error) -> Void
+    let onFailure: @Sendable (Error) -> Void
 
     /// Start reading endpoint from connection.
     func perform() {
@@ -69,7 +69,7 @@ struct Socks5EndpointReader {
         }
     }
 
-    private func readBoundDomainNameLength(completion: @escaping (Int) -> Void) {
+    private func readBoundDomainNameLength(completion: @escaping @Sendable (Int) -> Void) {
         // The length of domain length parameter in bytes.
         let domainLengthLength = MemoryLayout<UInt8>.size
 

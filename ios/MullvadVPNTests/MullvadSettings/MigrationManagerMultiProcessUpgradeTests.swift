@@ -47,7 +47,7 @@ extension MigrationManagerTests {
             }
         }
 
-        wait(for: [backgroundMigrationExpectation, foregroundMigrationExpectation], timeout: .UnitTest.invertedTimeout)
+        wait(for: [backgroundMigrationExpectation, foregroundMigrationExpectation], timeout: .UnitTest.timeout)
 
         // Migration happens either in one process, or the other.
         // This check guarantees it didn't happen in both simultaneously.

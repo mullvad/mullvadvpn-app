@@ -10,6 +10,7 @@
 import Operations
 import XCTest
 
+@MainActor
 class OperationConditionTests: XCTestCase {
     func testTrueCondition() {
         let expectConditionEvaluation = expectation(description: "Expect condition evaluation")

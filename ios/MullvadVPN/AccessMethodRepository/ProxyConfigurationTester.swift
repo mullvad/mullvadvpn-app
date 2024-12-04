@@ -22,7 +22,7 @@ class ProxyConfigurationTester: ProxyConfigurationTesterProtocol {
         self.transportProvider = transportProvider
     }
 
-    func start(configuration: PersistentProxyConfiguration, completion: @escaping (Error?) -> Void) {
+    func start(configuration: PersistentProxyConfiguration, completion: @escaping @Sendable (Error?) -> Void) {
         do {
             let transport = try transportProvider.makeTransport(with: configuration)
             let request = REST.APIAvailabilityTestRequest(transport: transport)

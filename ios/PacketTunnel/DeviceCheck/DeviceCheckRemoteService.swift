@@ -23,7 +23,7 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
 
     func getAccountData(
         accountNumber: String,
-        completion: @escaping (Result<Account, Error>) -> Void
+        completion: @escaping @Sendable (Result<Account, Error>) -> Void
     ) -> Cancellable {
         accountsProxy.getAccountData(accountNumber: accountNumber).execute(completionHandler: completion)
     }
@@ -31,7 +31,7 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
     func getDevice(
         accountNumber: String,
         identifier: String,
-        completion: @escaping (Result<Device, Error>) -> Void
+        completion: @escaping @Sendable (Result<Device, Error>) -> Void
     ) -> Cancellable {
         devicesProxy.getDevice(
             accountNumber: accountNumber,
@@ -45,7 +45,7 @@ struct DeviceCheckRemoteService: DeviceCheckRemoteServiceProtocol {
         accountNumber: String,
         identifier: String,
         publicKey: PublicKey,
-        completion: @escaping (Result<Device, Error>) -> Void
+        completion: @escaping @Sendable (Result<Device, Error>) -> Void
     ) -> Cancellable {
         devicesProxy.rotateDeviceKey(
             accountNumber: accountNumber,
