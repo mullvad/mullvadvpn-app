@@ -12,7 +12,7 @@ import UIKit
 enum HeaderBarStyle {
     case transparent, `default`, unsecured, secured
 
-    fileprivate func backgroundColor() -> UIColor {
+    func backgroundColor() -> UIColor {
         switch self {
         case .transparent:
             return UIColor.clear

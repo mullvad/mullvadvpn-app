@@ -6,7 +6,6 @@
 //  Copyright © 2020 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import UIKit
 
 extension String {
@@ -18,5 +17,10 @@ extension String {
 
         return (0 ..< resultCount)
             .map { dropFirst($0 * length).prefix(length) }
+    }
+
+    func width(using font: UIFont) -> CGFloat {
+        let fontAttributes = [NSAttributedString.Key.font: font]
+        return self.size(withAttributes: fontAttributes).width
     }
 }
