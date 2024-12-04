@@ -84,8 +84,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
         case let .connecting(tunnelRelays, isPostQuantum, isDaita):
             if let tunnelRelays {
                 """
-                connecting \(isPostQuantum ? "(PQ) " : "")\
-                daita: \(isDaita) \
+                connecting \(isPostQuantum ? "(PQ) " : ""), \
+                daita: \(isDaita), \
                 to \(tunnelRelays.exit.hostname)\
                 \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
                 """
@@ -94,8 +94,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
             }
         case let .connected(tunnelRelays, isPostQuantum, isDaita):
             """
-            connected \(isPostQuantum ? "(PQ) " : "")\
-            daita: \(isDaita) \
+            connected \(isPostQuantum ? "(PQ) " : ""), \
+            daita: \(isDaita), \
             to \(tunnelRelays.exit.hostname)\
             \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
             """
@@ -105,8 +105,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
             "disconnected"
         case let .reconnecting(tunnelRelays, isPostQuantum, isDaita):
             """
-            reconnecting \(isPostQuantum ? "(PQ) " : "")\
-            daita: \(isDaita) \
+            reconnecting \(isPostQuantum ? "(PQ) " : ""), \
+            daita: \(isDaita), \
             to \(tunnelRelays.exit.hostname)\
             \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")
             """
@@ -117,8 +117,8 @@ enum TunnelState: Equatable, CustomStringConvertible {
         case let .negotiatingEphemeralPeer(tunnelRelays, _, isPostQuantum, isDaita):
             """
             negotiating key with exit relay: \(tunnelRelays.exit.hostname)\
-            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? "")\
-            , isPostQuantum: \(isPostQuantum), isDaita: \(isDaita)
+            \(tunnelRelays.entry.flatMap { " via \($0.hostname)" } ?? ""), \
+            isPostQuantum: \(isPostQuantum), isDaita: \(isDaita)
             """
         }
     }
