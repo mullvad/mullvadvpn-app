@@ -8,6 +8,9 @@ import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class LoginPage internal constructor() : Page() {
+    private val invalidAccountNumberSelector = By.text("Invalid account number")
+    private val loginSelector = By.text("Login")
+
     fun enterAccountNumber(accountNumber: String) {
         uiDevice.findObjectWithTimeout(By.clazz("android.widget.EditText")).text = accountNumber
     }
@@ -20,10 +23,10 @@ class LoginPage internal constructor() : Page() {
     }
 
     fun verifyShowingInvalidAccount() {
-        uiDevice.findObjectWithTimeout(By.text("Invalid account number"), EXTREMELY_LONG_TIMEOUT)
+        uiDevice.findObjectWithTimeout(invalidAccountNumberSelector, EXTREMELY_LONG_TIMEOUT)
     }
 
     override fun assertIsDisplayed() {
-        uiDevice.findObjectWithTimeout(By.text("Login"))
+        uiDevice.findObjectWithTimeout(loginSelector)
     }
 }

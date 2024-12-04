@@ -3,6 +3,10 @@ package net.mullvad.mullvadvpn.compose.test
 // Top Bar
 const val TOP_BAR_ACCOUNT_BUTTON = "top_bar_account_button"
 const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
+const val TOP_BAR_TEST_TAG = "top_bar_test_tag"
+
+// Settings screen
+const val VPN_SETTINGS_CELL_TEST_TAG = "vpn_settings_cell_test_tag"
 
 // VpnSettingsScreen
 const val LAZY_LIST_VPN_SETTINGS_TEST_TAG = "lazy_list_vpn_settings_test_tag"
@@ -24,6 +28,7 @@ const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
+const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"
 const val CIRCULAR_PROGRESS_INDICATOR = "circular_progress_indicator"
 const val EXPAND_BUTTON_TEST_TAG = "expand_button_test_tag"
 const val LOCATION_CELL_TEST_TAG = "location_cell_test_tag"

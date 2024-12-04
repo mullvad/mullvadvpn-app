@@ -7,12 +7,16 @@ import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class PrivacyPage internal constructor() : Page() {
+    private val privacySelector = By.text("Privacy")
+    private val agreeSelector = By.text("Agree and continue")
+    private val allowSelector = By.text("Allow")
+
     override fun assertIsDisplayed() {
-        uiDevice.findObjectWithTimeout(By.text("Privacy"))
+        uiDevice.findObjectWithTimeout(privacySelector)
     }
 
     fun clickAgreeOnPrivacyDisclaimer() {
-        uiDevice.findObjectWithTimeout(By.text("Agree and continue")).click()
+        uiDevice.findObjectWithTimeout(agreeSelector).click()
     }
 
     fun clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove(
@@ -23,12 +27,10 @@ class PrivacyPage internal constructor() : Page() {
             return
         }
 
-        val selector = By.text("Allow")
-
-        uiDevice.wait(Until.hasObject(selector), timeout)
+        uiDevice.wait(Until.hasObject(allowSelector), timeout)
 
         try {
-            uiDevice.findObjectWithTimeout(selector).click()
+            uiDevice.findObjectWithTimeout(allowSelector).click()
         } catch (e: IllegalArgumentException) {
             throw IllegalArgumentException(
                 "Failed to allow notification permission within timeout ($timeout)"
