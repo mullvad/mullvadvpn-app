@@ -13,9 +13,9 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
+    alias(libs.plugins.rust.android.gradle)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
-    id(Dependencies.rustAndroid)
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
@@ -23,7 +23,7 @@ val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
 val relayListPath = extraAssetsDirectory.file("relays.json").asFile
 val maybenotMachinesFile = extraAssetsDirectory.file("maybenot_machines").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
-//val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
+// val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
 val rustJniLibs = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
@@ -125,7 +125,6 @@ android {
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
-            //jniLibs.srcDirs(rustJniLibs)
         }
     }
 
@@ -241,12 +240,12 @@ android {
 
         // Ensure all relevant assemble tasks depend on our ensure tasks.
         tasks["assemble$capitalizedVariantName"].apply {
-            dependsOn(tasks["ensureRelayListExist"])
-            dependsOn(tasks["ensureMaybenotMachinesExist"])
-            dependsOn(tasks["ensureJniDirectoryExist"])
+            dependsOn(tasks["generateRelayList"])
+            dependsOn("cargoBuild")
             dependsOn(tasks["ensureValidVersionCode"])
+
+            ndkVersion = "25.2.9519653"
         }
-        ndkVersion = "25.2.9519653"
     }
 }
 
@@ -264,14 +263,36 @@ cargo {
     profile = "debug"
     prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
-    //features()
+    // Set this if you get a cargo not found error
+    //rustcCommand = ""
+    //cargoCommand = ""
     targetIncludes = listOf("libmullvad_jni.so").toTypedArray()
     extraCargoBuildArguments = listOf("--package=mullvad-jni")
+}
+afterEvaluate {
+    tasks["cargoBuild"].apply {
+        doLast {
+            copy {
+                from("$repoRootPath/dist-assets/maybenot_machines")
+                into("$extraAssetsDirectory")
+            }
+            // Old ensure exists tasks
+            if (!rustJniLibs.asFile.exists()) {
+                throw GradleException("Missing JNI directory: $rustJniLibs")
+            }
+            if (!maybenotMachinesFile.exists()) {
+                throw GradleException("Missing maybenot machines: $maybenotMachinesFile")
+            }
+        }
+    }
 }
 
 tasks.register<Exec>("generateRelayList") {
     workingDir = File(repoRootPath)
     standardOutput = ByteArrayOutputStream()
+
+    // Set this if you get a cargo not found error
+    //environment =
 
     commandLine("cargo", "run", "--bin", "relay_list")
 
@@ -281,6 +302,11 @@ tasks.register<Exec>("generateRelayList") {
         File("$extraAssetsDirectory").mkdirs()
         File("$extraAssetsDirectory/relays.json").createNewFile()
         FileOutputStream("$extraAssetsDirectory/relays.json").use { it.write(output.toByteArray()) }
+
+        // Old ensure exists tasks
+        if (!relayListPath.exists()) {
+            throw GradleException("Failed to generate relay list")
+        }
     }
 }
 
@@ -303,32 +329,6 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     // path. The alternative would be to suppress specific CVEs, however that could potentially
     // result in suppressed CVEs in project compilation class path.
     skipConfigurations = listOf("lintClassPath")
-}
-
-tasks.register("ensureRelayListExist") {
-    doLast {
-        if (!relayListPath.exists()) {
-            throw GradleException("Missing relay list: $relayListPath")
-        }
-    }
-    dependsOn("generateRelayList")
-}
-
-tasks.register("ensureMaybenotMachinesExist") {
-    doLast {
-        if (!maybenotMachinesFile.exists()) {
-            throw GradleException("Missing maybenot machines: $maybenotMachinesFile")
-        }
-    }
-}
-
-tasks.register("ensureJniDirectoryExist") {
-    doLast {
-        if (!rustJniLibs.asFile.exists()) {
-            throw GradleException("Missing JNI directory: $rustJniLibs")
-        }
-    }
-    dependsOn("cargoBuild")
 }
 
 // This is a safety net to avoid generating too big version codes, since that could potentially be
