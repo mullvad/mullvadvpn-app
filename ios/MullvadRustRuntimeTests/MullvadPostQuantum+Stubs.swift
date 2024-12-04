@@ -12,7 +12,6 @@ import NetworkExtension
 @testable import PacketTunnelCore
 @testable import WireGuardKitTypes
 
-// swiftlint:disable function_parameter_count
 class NWTCPConnectionStub: NWTCPConnection {
     var _isViable = false
     override var isViable: Bool {
@@ -31,8 +30,8 @@ class TunnelProviderStub: TunnelProvider {
         0
     }
 
-    func wgFunctions() -> MullvadTypes.WgFuncPointers {
-        return MullvadTypes.WgFuncPointers(
+    func wgFunctions() -> WgFunctionPointers {
+        return WgFunctionPointers(
             open: { _, _, _ in return 0 },
             close: { _, _ in return 0 },
             receive: { _, _, _, _ in return 0 },
@@ -104,5 +103,3 @@ class SuccessfulNegotiatorStub: EphemeralPeerNegotiating {
         onCancelKeyNegotiation?()
     }
 }
-
-// swiftlint:enable function_parameter_count

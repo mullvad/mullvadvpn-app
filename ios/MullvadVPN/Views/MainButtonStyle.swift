@@ -10,7 +10,8 @@ import SwiftUI
 
 struct MainButtonStyle: ButtonStyle {
     var style: Style
-    @State var disabled: Bool
+    var disabled: Bool
+    @Environment(\.isEnabled) private var isEnabled: Bool
 
     init(_ style: Style, disabled: Bool = false) {
         self.style = style
@@ -18,20 +19,19 @@ struct MainButtonStyle: ButtonStyle {
     }
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(.horizontal, 8)
+        return configuration.label
             .frame(height: 44)
             .foregroundColor(
-                disabled
-                    ? UIColor.primaryTextColor.withAlphaComponent(0.2).color
-                    : UIColor.primaryTextColor.color
+                isEnabled
+                    ? UIColor.primaryTextColor.color
+                    : UIColor.primaryTextColor.withAlphaComponent(0.2).color
             )
             .background(
-                disabled
-                    ? style.disabledColor
-                    : configuration.isPressed
+                isEnabled
+                    ? configuration.isPressed
                         ? style.pressedColor
                         : style.color
+                    : style.disabledColor
             )
             .font(.body.weight(.semibold))
     }
@@ -46,11 +46,11 @@ extension MainButtonStyle {
         var color: Color {
             switch self {
             case .default:
-                Color(UIColor.primaryColor)
+                UIColor.primaryColor.color
             case .danger:
-                Color(UIColor.dangerColor)
+                UIColor.dangerColor.color
             case .success:
-                Color(UIColor.successColor)
+                UIColor.successColor.color
             }
         }
 
