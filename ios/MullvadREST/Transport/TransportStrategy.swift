@@ -11,7 +11,7 @@ import Logging
 import MullvadSettings
 import MullvadTypes
 
-public struct TransportStrategy: Equatable {
+public struct TransportStrategy: Equatable, Sendable {
     /// The different transports suggested by the strategy
     public enum Transport: Equatable {
         /// Connecting a direct connection

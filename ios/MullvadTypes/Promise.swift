@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class Promise<Success, Failure: Error> {
+public final class Promise<Success, Failure: Error>: @unchecked Sendable {
     public typealias Result = Swift.Result<Success, Failure>
 
     private let nslock = NSLock()

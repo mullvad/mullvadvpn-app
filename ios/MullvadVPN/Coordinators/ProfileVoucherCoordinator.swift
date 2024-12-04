@@ -44,7 +44,7 @@ final class ProfileVoucherCoordinator: Coordinator, Presentable {
     }
 }
 
-extension ProfileVoucherCoordinator: RedeemVoucherViewControllerDelegate {
+extension ProfileVoucherCoordinator: @preconcurrency RedeemVoucherViewControllerDelegate {
     func redeemVoucherDidSucceed(
         _ controller: RedeemVoucherViewController,
         with response: REST.SubmitVoucherResponse
@@ -59,7 +59,7 @@ extension ProfileVoucherCoordinator: RedeemVoucherViewControllerDelegate {
     }
 }
 
-extension ProfileVoucherCoordinator: AddCreditSucceededViewControllerDelegate {
+extension ProfileVoucherCoordinator: @preconcurrency AddCreditSucceededViewControllerDelegate {
     func addCreditSucceededViewControllerDidFinish(in controller: AddCreditSucceededViewController) {
         didFinish?(self)
     }

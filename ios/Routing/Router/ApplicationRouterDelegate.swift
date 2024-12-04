@@ -11,7 +11,7 @@ import Foundation
 /**
  Application router delegate
  */
-public protocol ApplicationRouterDelegate<RouteType>: AnyObject {
+public protocol ApplicationRouterDelegate<RouteType>: AnyObject, Sendable {
     associatedtype RouteType: AppRouteProtocol
 
     /**
@@ -21,7 +21,7 @@ public protocol ApplicationRouterDelegate<RouteType>: AnyObject {
         _ router: ApplicationRouter<RouteType>,
         presentWithContext context: RoutePresentationContext<RouteType>,
         animated: Bool,
-        completion: @escaping (Coordinator) -> Void
+        completion: @escaping @Sendable (Coordinator) -> Void
     )
 
     /**
@@ -30,7 +30,7 @@ public protocol ApplicationRouterDelegate<RouteType>: AnyObject {
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         dismissWithContext context: RouteDismissalContext<RouteType>,
-        completion: @escaping () -> Void
+        completion: @escaping @Sendable () -> Void
     )
 
     /**
@@ -57,6 +57,6 @@ public protocol ApplicationRouterDelegate<RouteType>: AnyObject {
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
-        completion: @escaping () -> Void
+        completion: @escaping @Sendable @MainActor () -> Void
     )
 }

@@ -16,6 +16,7 @@ struct SocksSectionHandler {
     let tableStyle: UITableView.Style
     let subject: CurrentValueSubject<AccessMethodViewModel, Never>
 
+    @MainActor
     func configure(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         switch itemIdentifier {
         case .server:
@@ -31,6 +32,7 @@ struct SocksSectionHandler {
         }
     }
 
+    @MainActor
     private func configureServer(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
@@ -42,6 +44,7 @@ struct SocksSectionHandler {
         cell.contentConfiguration = contentConfiguration
     }
 
+    @MainActor
     private func configurePort(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
@@ -55,6 +58,7 @@ struct SocksSectionHandler {
         cell.contentConfiguration = contentConfiguration
     }
 
+    @MainActor
     private func configureAuthentication(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = SwitchCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
@@ -64,6 +68,7 @@ struct SocksSectionHandler {
         cell.contentConfiguration = contentConfiguration
     }
 
+    @MainActor
     private func configureUsername(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text
@@ -76,6 +81,7 @@ struct SocksSectionHandler {
         cell.contentConfiguration = contentConfiguration
     }
 
+    @MainActor
     private func configurePassword(_ cell: UITableViewCell, itemIdentifier: SocksItemIdentifier) {
         var contentConfiguration = TextCellContentConfiguration()
         contentConfiguration.text = itemIdentifier.text

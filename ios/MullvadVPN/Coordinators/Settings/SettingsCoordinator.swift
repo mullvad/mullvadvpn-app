@@ -38,14 +38,18 @@ enum SettingsNavigationRoute: Equatable {
 }
 
 /// Top-level settings coordinator.
+@MainActor
 final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsViewControllerDelegate,
-    UINavigationControllerDelegate {
+    UINavigationControllerDelegate, Sendable {
     private let logger = Logger(label: "SettingsNavigationCoordinator")
 
     private var currentRoute: SettingsNavigationRoute?
-    private var modalRoute: SettingsNavigationRoute?
+    nonisolated(unsafe) private var modalRoute: SettingsNavigationRoute?
     private let interactorFactory: SettingsInteractorFactory
     private var viewControllerFactory: SettingsViewControllerFactory?
+    private let accessMethodRepository: AccessMethodRepositoryProtocol
+    private let proxyConfigurationTester: ProxyConfigurationTesterProtocol
+    private let ipOverrideRepository: IPOverrideRepository
 
     let navigationController: UINavigationController
 
@@ -61,7 +65,7 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     ) -> Void)?
 
     /// Event handler invoked when coordinator and its view hierarchy should be dismissed.
-    var didFinish: ((SettingsCoordinator) -> Void)?
+    nonisolated(unsafe) var didFinish: (@Sendable (SettingsCoordinator) -> Void)?
 
     /// Designated initializer.
     /// - Parameters:
@@ -76,6 +80,9 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     ) {
         self.navigationController = navigationController
         self.interactorFactory = interactorFactory
+        self.accessMethodRepository = accessMethodRepository
+        self.proxyConfigurationTester = proxyConfigurationTester
+        self.ipOverrideRepository = ipOverrideRepository
 
         super.init()
 
@@ -109,7 +116,11 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
     ///   - route: the route to present.
     ///   - animated: whether transition should be animated.
     ///   - completion: a completion handler, typically called immediately for horizontal navigation and
-    func navigate(to route: SettingsNavigationRoute, animated: Bool, completion: (() -> Void)? = nil) {
+    func navigate(
+        to route: SettingsNavigationRoute,
+        animated: Bool,
+        completion: (@Sendable @MainActor () -> Void)? = nil
+    ) {
         switch route {
         case .root:
             popToRoot(animated: animated)
@@ -182,15 +193,17 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
 
     // MARK: - SettingsViewControllerDelegate
 
-    func settingsViewControllerDidFinish(_ controller: SettingsViewController) {
+    nonisolated func settingsViewControllerDidFinish(_ controller: SettingsViewController) {
         didFinish?(self)
     }
 
-    func settingsViewController(
+    nonisolated func settingsViewController(
         _ controller: SettingsViewController,
         didRequestRoutePresentation route: SettingsNavigationRoute
     ) {
-        navigate(to: route, animated: true)
+        Task {
+            await navigate(to: route, animated: true)
+        }
     }
 
     // MARK: - Route handling

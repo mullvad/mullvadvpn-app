@@ -9,15 +9,15 @@
 import Foundation
 import MullvadLogging
 
-public protocol IPOverrideRepositoryProtocol {
+public protocol IPOverrideRepositoryProtocol: Sendable {
     func add(_ overrides: [IPOverride])
     func fetchAll() -> [IPOverride]
     func deleteAll()
     func parse(data: Data) throws -> [IPOverride]
 }
 
-public class IPOverrideRepository: IPOverrideRepositoryProtocol {
-    private let logger = Logger(label: "IPOverrideRepository")
+public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
+    nonisolated(unsafe) private let logger = Logger(label: "IPOverrideRepository")
     private let readWriteLock = NSLock()
 
     public init() {}

@@ -18,6 +18,7 @@ struct AccessMethodProtocolPicker {
     /// - Parameters:
     ///   - currentValue: current selection.
     ///   - completion: a completion handler.
+    @MainActor
     func present(currentValue: AccessMethodKind, completion: @escaping (AccessMethodKind) -> Void) {
         let navigationController = navigationController
 

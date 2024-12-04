@@ -10,6 +10,7 @@ import Combine
 import MullvadTypes
 import UIKit
 
+@MainActor
 struct CustomListCellConfiguration {
     let tableView: UITableView
     let subject: CurrentValueSubject<CustomListViewModel, Never>

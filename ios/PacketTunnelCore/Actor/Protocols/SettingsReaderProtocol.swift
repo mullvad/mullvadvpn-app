@@ -10,7 +10,7 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 import Network
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 /// A type that implements a reader that can return settings required by `PacketTunnelActor` in order to configure the tunnel.
 public protocol SettingsReaderProtocol {
@@ -24,7 +24,7 @@ public protocol SettingsReaderProtocol {
 }
 
 /// Struct holding settings necessary to configure packet tunnel adapter.
-public struct Settings: Equatable {
+public struct Settings: Equatable, Sendable {
     /// Private key used by device.
     public var privateKey: PrivateKey
 
@@ -89,7 +89,7 @@ extension Settings {
 }
 
 /// Enum describing selected DNS servers option.
-public enum SelectedDNSServers: Equatable {
+public enum SelectedDNSServers: Equatable, Sendable {
     /// Custom DNS servers.
     case custom([IPAddress])
     /// Mullvad server acting as a blocking DNS proxy.

@@ -12,14 +12,14 @@ import MullvadTypes
 import NetworkExtension
 import UIKit
 
-protocol TunnelStoreProtocol {
+protocol TunnelStoreProtocol: Sendable {
     associatedtype TunnelType: TunnelProtocol, Equatable
     func getPersistentTunnels() -> [TunnelType]
     func createNewTunnel() -> TunnelType
 }
 
 /// Wrapper around system VPN tunnels.
-final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver {
+final class TunnelStore: TunnelStoreProtocol, TunnelStatusObserver, @unchecked Sendable {
     typealias TunnelType = Tunnel
     private let logger = Logger(label: "TunnelStore")
     private let lock = NSLock()
