@@ -21,6 +21,7 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
+val maybeNotDirectory = "$repoRootPath/dist-assets/"
 val relayListPath = extraAssetsDirectory.file("relays.json").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 // val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
@@ -130,7 +131,7 @@ android {
                 gradleLocalProperties(rootProject.projectDir, providers)
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
-            assets.srcDirs(extraAssetsDirectory, changelogDir)
+            assets.srcDirs(extraAssetsDirectory, changelogDir, maybeNotDirectory)
         }
     }
 
@@ -150,7 +151,7 @@ android {
         freeCompilerArgs =
             listOf(
                 // Opt-in option for Koin annotation of KoinComponent.
-                "-opt-in=kotlin.RequiresOptIn",
+                "-opt-in=kotlin.RequiresOptIn"
             )
     }
 
@@ -223,8 +224,7 @@ android {
         }
 
         val variantName = name
-        val capitalizedVariantName =
-            variantName.toString().capitalized()
+        val capitalizedVariantName = variantName.toString().capitalized()
         val artifactName = "MullvadVPN-${versionName}${artifactSuffix}"
 
         tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
@@ -265,29 +265,28 @@ junitPlatform {
 cargo {
     module = repoRootPath
     libname = "mullvad-jni"
-    targets = listOf("arm", "arm64", "x86", "x86_64")
-    profile = "debug"
+    targets = gradleLocalProperties(rootProject.projectDir, providers)
+        .getProperty("CARGO_TARGETS")?.split(",") ?: listOf("arm", "arm64", "x86", "x86_64")
+    profile = if (gradle.startParameter.getTaskNames().contains("release")) {
+        "release"
+    } else {
+        "debug"
+    }
     prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
     // Set this if you get a cargo not found error
-    //rustcCommand = ""
-    //cargoCommand = ""
+    // rustcCommand = ""
+    // cargoCommand = ""
     targetIncludes = listOf("libmullvad_jni.so").toTypedArray()
     extraCargoBuildArguments = listOf("--package=mullvad-jni")
 }
+
 afterEvaluate {
     tasks["cargoBuild"].apply {
         doLast {
-            copy {
-                from("$repoRootPath/dist-assets/maybenot_machines")
-                into("$extraAssetsDirectory")
-            }
             // Old ensure exists tasks
             if (!rustJniLibs.asFile.exists()) {
                 throw GradleException("Missing JNI directory: $rustJniLibs")
-            }
-            if (!maybenotMachinesFile.exists()) {
-                throw GradleException("Missing maybenot machines: $maybenotMachinesFile")
             }
         }
     }
@@ -298,7 +297,12 @@ tasks.register<Exec>("generateRelayList") {
     standardOutput = ByteArrayOutputStream()
 
     // Set this if you get a cargo not found error
-    //environment =
+    // environment =
+
+    onlyIf {
+        gradle.startParameter.getTaskNames().contains("release") ||
+        !relayListPath.exists()
+    }
 
     commandLine("cargo", "run", "--bin", "relay_list")
 
