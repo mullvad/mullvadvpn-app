@@ -217,6 +217,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     }
 
     companion object {
+        const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 60000L
         const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 60000L
     }
 }
