@@ -3608,6 +3608,7 @@
 				A9D9A4C12C36D53C004088DD /* MullvadRustRuntimeTests */,
 				58CE5E61224146200008646E /* Products */,
 				584F991F2902CBDD001F858D /* Frameworks */,
+				7A0EAE982D01B29E00D3EB8B /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3906,6 +3907,14 @@
 				5827B0A72B0F49EF00CCBBA1 /* ProxyConfigurationInteractorProtocol.swift */,
 			);
 			path = Edit;
+			sourceTree = "<group>";
+		};
+		7A0EAE982D01B29E00D3EB8B /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				7AA1309C2D0072F900640DF9 /* View+Size.swift */,
+			);
+			name = "Recovered References";
 			sourceTree = "<group>";
 		};
 		7A2960F72A964A3500389B82 /* Alert */ = {
