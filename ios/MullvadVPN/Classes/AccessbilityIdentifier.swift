@@ -59,6 +59,7 @@ public enum AccessibilityIdentifier: String {
     case listCustomListDoneButton
     case selectLocationFilterButton
     case relayFilterChipCloseButton
+    case openPortSelectorMenuButton
 
     // Cells
     case deviceCell
