@@ -8,18 +8,18 @@
 
 import UIKit
 
-protocol WelcomeContentViewDelegate: AnyObject {
+protocol WelcomeContentViewDelegate: AnyObject, Sendable {
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton)
     func didTapRedeemVoucherButton(welcomeContentView: WelcomeContentView, button: AppButton)
     func didTapInfoButton(welcomeContentView: WelcomeContentView, button: UIButton)
 }
 
-struct WelcomeViewModel {
+struct WelcomeViewModel: Sendable {
     let deviceName: String
     let accountNumber: String
 }
 
-final class WelcomeContentView: UIView {
+final class WelcomeContentView: UIView, Sendable {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)

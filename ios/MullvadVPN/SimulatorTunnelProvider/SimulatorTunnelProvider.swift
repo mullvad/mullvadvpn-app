@@ -27,11 +27,11 @@ class SimulatorTunnelProviderDelegate {
         }
     }
 
-    func startTunnel(options: [String: NSObject]?, completionHandler: @escaping (Error?) -> Void) {
+    func startTunnel(options: [String: NSObject]?, completionHandler: @escaping @Sendable (Error?) -> Void) {
         completionHandler(nil)
     }
 
-    func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+    func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping @Sendable () -> Void) {
         completionHandler()
     }
 
@@ -40,11 +40,11 @@ class SimulatorTunnelProviderDelegate {
     }
 }
 
-final class SimulatorTunnelProvider {
+final class SimulatorTunnelProvider: Sendable {
     static let shared = SimulatorTunnelProvider()
 
     private let lock = NSLock()
-    private var _delegate: SimulatorTunnelProviderDelegate?
+    nonisolated(unsafe) private var _delegate: SimulatorTunnelProviderDelegate?
 
     var delegate: SimulatorTunnelProviderDelegate! {
         get {

@@ -12,7 +12,7 @@ import Foundation
 import UIKit
 
 @available(iOSApplicationExtension, unavailable)
-public protocol BackgroundTaskProviding {
+public protocol BackgroundTaskProviding: Sendable {
     var backgroundTimeRemaining: TimeInterval { get }
     #if compiler(>=6)
     nonisolated
@@ -31,9 +31,9 @@ public protocol BackgroundTaskProviding {
 }
 
 @available(iOSApplicationExtension, unavailable)
-public class BackgroundTaskProvider: BackgroundTaskProviding {
-    public var backgroundTimeRemaining: TimeInterval
-    weak var application: UIApplication!
+public final class BackgroundTaskProvider: BackgroundTaskProviding {
+    nonisolated(unsafe) public var backgroundTimeRemaining: TimeInterval
+    nonisolated(unsafe) weak var application: UIApplication!
 
     public init(backgroundTimeRemaining: TimeInterval, application: UIApplication) {
         self.backgroundTimeRemaining = backgroundTimeRemaining

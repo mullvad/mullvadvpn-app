@@ -9,7 +9,7 @@
 import Foundation
 
 final class StorePaymentBlockObserver: StorePaymentObserver {
-    typealias BlockHandler = (StorePaymentManager, StorePaymentEvent) -> Void
+    typealias BlockHandler = @Sendable (StorePaymentManager, StorePaymentEvent) -> Void
 
     private let blockHandler: BlockHandler
 

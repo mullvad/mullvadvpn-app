@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MullvadLogging
+@preconcurrency import MullvadLogging
 import MullvadREST
 import MullvadRustRuntime
 import MullvadSettings
@@ -38,11 +38,11 @@ public actor PacketTunnelActor {
 
     @Published internal(set) public var observedState: ObservedState = .initial
 
-    nonisolated let logger = Logger(label: "PacketTunnelActor")
+    nonisolated(unsafe) let logger = Logger(label: "PacketTunnelActor")
 
     let timings: PacketTunnelActorTimings
     let tunnelAdapter: TunnelAdapterProtocol
-    nonisolated let tunnelMonitor: TunnelMonitorProtocol
+    let tunnelMonitor: TunnelMonitorProtocol
     let defaultPathObserver: DefaultPathObserverProtocol
     let blockedStateErrorMapper: BlockedStateErrorMapperProtocol
     public let relaySelector: RelaySelectorProtocol

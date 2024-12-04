@@ -12,7 +12,7 @@ import UIKit.UIColor
 import UIKit.UIFont
 
 final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
-    InAppNotificationProvider {
+    InAppNotificationProvider, @unchecked Sendable {
     // MARK: - private properties
 
     private let tunnelManager: TunnelManager

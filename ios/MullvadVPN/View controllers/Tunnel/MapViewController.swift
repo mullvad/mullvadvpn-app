@@ -233,8 +233,9 @@ final class MapViewController: UIViewController, MKMapViewDelegate {
         cancelOtherAnimations: Bool,
         block: @escaping (_ finish: @escaping () -> Void) -> Void
     ) {
+        nonisolated(unsafe) let nonisolatedBlock = block
         let operation = AsyncBlockOperation(dispatchQueue: .main) { finish in
-            block {
+            nonisolatedBlock {
                 finish(nil)
             }
         }

@@ -8,6 +8,7 @@
 
 import Routing
 
+@MainActor
 struct AlertPresenter {
     weak var context: (any Presenting)?
 

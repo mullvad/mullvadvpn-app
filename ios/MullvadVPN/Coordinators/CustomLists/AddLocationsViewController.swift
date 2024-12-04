@@ -11,7 +11,7 @@ import MullvadSettings
 import MullvadTypes
 import UIKit
 
-protocol AddLocationsViewControllerDelegate: AnyObject {
+protocol AddLocationsViewControllerDelegate: AnyObject, Sendable {
     func didBack()
 }
 
