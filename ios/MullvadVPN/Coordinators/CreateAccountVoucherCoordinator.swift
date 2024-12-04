@@ -50,7 +50,7 @@ public class CreateAccountVoucherCoordinator: Coordinator {
     }
 }
 
-extension CreateAccountVoucherCoordinator: RedeemVoucherViewControllerDelegate {
+extension CreateAccountVoucherCoordinator: @preconcurrency RedeemVoucherViewControllerDelegate {
     func redeemVoucherDidSucceed(_ controller: RedeemVoucherViewController, with response: REST.SubmitVoucherResponse) {
         let coordinator = AddCreditSucceededCoordinator(
             purchaseType: .redeemingVoucher,

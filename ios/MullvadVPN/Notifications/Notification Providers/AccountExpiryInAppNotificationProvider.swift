@@ -10,7 +10,8 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
-final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider {
+final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppNotificationProvider,
+    @unchecked Sendable {
     private var accountExpiry = AccountExpiry()
     private var tunnelObserver: TunnelBlockObserver?
     private var timer: DispatchSourceTimer?

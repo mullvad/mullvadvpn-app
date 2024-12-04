@@ -9,7 +9,7 @@ import Foundation
 import MullvadRustRuntime
 import MullvadTypes
 
-public final class EncryptedDNSTransport: RESTTransport {
+public final class EncryptedDNSTransport: RESTTransport, @unchecked Sendable {
     public var name: String {
         "encrypted-dns-url-session"
     }
@@ -39,7 +39,7 @@ public final class EncryptedDNSTransport: RESTTransport {
     /// most of the time starting the DNS proxy was already spent.
     public func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, (any Error)?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, (any Error)?) -> Void
     ) -> any Cancellable {
         dispatchQueue.async { [weak self] in
             guard let self else { return }
@@ -58,7 +58,7 @@ public final class EncryptedDNSTransport: RESTTransport {
                 return components?.url
             }
 
-            let wrappedCompletionHandler: (Data?, URLResponse?, (any Error)?)
+            let wrappedCompletionHandler: @Sendable (Data?, URLResponse?, (any Error)?)
                 -> Void = { [weak self] data, response, maybeError in
                     if maybeError != nil {
                         self?.encryptedDnsProxy.stop()
@@ -77,7 +77,7 @@ public final class EncryptedDNSTransport: RESTTransport {
         }
 
         return AnyCancellable { [weak self] in
-            self?.dispatchQueue.async {
+            self?.dispatchQueue.async { [weak self] in
                 self?.dnsProxyTask?.cancel()
             }
         }

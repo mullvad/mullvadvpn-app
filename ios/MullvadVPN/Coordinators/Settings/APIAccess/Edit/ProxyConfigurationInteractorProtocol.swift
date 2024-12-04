@@ -18,7 +18,7 @@ protocol ProxyConfigurationInteractorProtocol {
     ///   the UI accordingly.
     ///
     /// - Parameter completion: completion handler receiving `true` if the test succeeded, otherwise `false`.
-    func startProxyConfigurationTest(_ completion: ((Bool) -> Void)?)
+    func startProxyConfigurationTest(_ completion: (@Sendable (Bool) -> Void)?)
 
     /// Cancel currently running configuration test.
     /// The interactor is expected to reset the testing status to the initial.

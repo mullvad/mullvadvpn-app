@@ -13,7 +13,7 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 
-class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse> {
+class RedeemVoucherOperation: ResultOperation<REST.SubmitVoucherResponse>, @unchecked Sendable {
     private let logger = Logger(label: "RedeemVoucherOperation")
     private let interactor: TunnelInteractor
 

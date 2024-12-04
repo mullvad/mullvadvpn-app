@@ -9,6 +9,7 @@
 @testable import Routing
 import XCTest
 
+@MainActor
 final class RoutingTests: XCTestCase {
     private func createDelegate<T: AppRouteProtocol>(shouldPresent: Bool = true) -> RouterBlockDelegate<T> {
         let delegate = RouterBlockDelegate<T>()
@@ -18,11 +19,9 @@ final class RoutingTests: XCTestCase {
 
         return delegate
     }
-}
 
-// MARK: Horizontal flow tests
+    // MARK: Horizontal flow tests
 
-extension RoutingTests {
     func testPresentHorizontalRoute() throws {
         enum TestRoute: AppRouteProtocol {
             case one
@@ -71,11 +70,9 @@ extension RoutingTests {
 
         XCTAssertEqual(router.presentedRoutes[.horizontal]?.count, 1)
     }
-}
 
-// MARK: Modal flow tests
+    // MARK: Modal flow tests
 
-extension RoutingTests {
     func testPresentModalRoutesOfDifferentLevels() throws {
         enum TestRoute: AppRouteProtocol {
             case one, two

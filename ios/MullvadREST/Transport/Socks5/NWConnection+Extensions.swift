@@ -16,7 +16,7 @@ extension NWConnection {
         - exactLength: exact number of bytes to read.
         - completion:  a completion handler.
      */
-    func receive(exactLength: Int, completion: @escaping (Data?, ContentContext?, Bool, NWError?) -> Void) {
+    func receive(exactLength: Int, completion: @Sendable @escaping (Data?, ContentContext?, Bool, NWError?) -> Void) {
         receive(minimumIncompleteLength: exactLength, maximumLength: exactLength, completion: completion)
     }
 }

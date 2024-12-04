@@ -69,7 +69,7 @@ class StartTunnelOperationTests: XCTestCase {
 
     func testSetsReconnectIfDisconnecting() {
         let interactor = makeInteractor(deviceState: loggedInDeviceState, tunnelState: .disconnecting(.nothing))
-        var tunnelStatus = TunnelStatus()
+        nonisolated(unsafe) var tunnelStatus = TunnelStatus()
         interactor.onUpdateTunnelStatus = { status in tunnelStatus = status }
         let expectation = expectation(description: "Tunnel status set to reconnect")
 

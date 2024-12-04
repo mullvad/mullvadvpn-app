@@ -141,7 +141,9 @@ class LoginViewController: UIViewController, RootContainment {
         }
 
         interactor.suggestPreferredAccountNumber = { [weak self] value in
-            self?.contentView.accountInputGroup.setAccount(value)
+            Task { @MainActor in
+                self?.contentView.accountInputGroup.setAccount(value)
+            }
         }
 
         contentView.accountInputGroup.setOnReturnKey { [weak self] _ in

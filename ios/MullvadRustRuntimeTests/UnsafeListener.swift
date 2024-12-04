@@ -9,7 +9,7 @@
 import Network
 
 /// > Warning: Do not use this implementation in production code. See the warning in `start()`.
-class UnsafeListener<T: Connection> {
+class UnsafeListener<T: Connection>: @unchecked Sendable {
     private let dispatchQueue = DispatchQueue(label: "com.test.unsafeListener")
     private let listener: NWListener
 

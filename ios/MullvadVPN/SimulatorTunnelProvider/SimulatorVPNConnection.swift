@@ -12,7 +12,7 @@ import Foundation
 import MullvadREST
 import NetworkExtension
 
-class SimulatorVPNConnection: NSObject, VPNConnectionProtocol {
+class SimulatorVPNConnection: NSObject, VPNConnectionProtocol, @unchecked Sendable {
     // Protocol configuration is automatically synced by `SimulatorTunnelInfo`
     var protocolConfiguration = NEVPNProtocol()
 

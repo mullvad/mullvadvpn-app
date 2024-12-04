@@ -10,7 +10,7 @@ import Combine
 import NetworkExtension
 import PacketTunnelCore
 
-final class PacketTunnelPathObserver: DefaultPathObserverProtocol {
+final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Sendable {
     private weak var packetTunnelProvider: NEPacketTunnelProvider?
     private let stateLock = NSLock()
     private var pathUpdatePublisher: AnyCancellable?
@@ -25,7 +25,7 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol {
         return packetTunnelProvider?.defaultPath
     }
 
-    func start(_ body: @escaping (NetworkPath) -> Void) {
+    func start(_ body: @escaping @Sendable (NetworkPath) -> Void) {
         stateLock.withLock {
             pathUpdatePublisher?.cancel()
 

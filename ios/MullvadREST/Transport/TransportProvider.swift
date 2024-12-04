@@ -10,12 +10,12 @@ import Foundation
 import Logging
 import MullvadTypes
 
-public final class TransportProvider: RESTTransportProvider {
+public final class TransportProvider: RESTTransportProvider, Sendable {
     private let urlSessionTransport: URLSessionTransport
     private let addressCache: REST.AddressCache
-    private var transportStrategy: TransportStrategy
-    private var currentTransport: RESTTransport?
-    private var currentTransportType: TransportStrategy.Transport
+    nonisolated(unsafe) private var transportStrategy: TransportStrategy
+    nonisolated(unsafe) private var currentTransport: RESTTransport?
+    nonisolated(unsafe) private var currentTransportType: TransportStrategy.Transport
     private let parallelRequestsMutex = NSLock()
     private let encryptedDNSTransport: RESTTransport
 
@@ -123,7 +123,7 @@ private extension URLError {
 /// Interstitial implementation of `RESTTransport` that intercepts the completion of the wrapped transport.
 private struct TransportWrapper: RESTTransport {
     let wrapped: RESTTransport
-    let onComplete: (Error?) -> Void
+    let onComplete: @Sendable (Error?) -> Void
 
     var name: String {
         return wrapped.name
@@ -131,7 +131,7 @@ private struct TransportWrapper: RESTTransport {
 
     func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
         return wrapped.sendRequest(request) { data, response, error in
             onComplete(error)

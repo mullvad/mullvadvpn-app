@@ -10,6 +10,7 @@ import MullvadSettings
 import UIKit
 
 /// Type implementing the shadowsocks cipher picker.
+@MainActor
 struct ShadowsocksCipherPicker {
     /// The navigation controller used for presenting the picker.
     let navigationController: UINavigationController

@@ -8,7 +8,7 @@
 
 import MullvadTypes
 
-struct LocationCellViewModel: Hashable {
+struct LocationCellViewModel: Hashable, Sendable {
     let section: LocationSection
     let node: LocationNode
     var indentationLevel = 0

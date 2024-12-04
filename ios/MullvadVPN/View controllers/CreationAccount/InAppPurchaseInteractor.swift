@@ -14,7 +14,7 @@ protocol InAppPurchaseViewControllerDelegate: AnyObject {
     func didEndPayment()
 }
 
-class InAppPurchaseInteractor {
+class InAppPurchaseInteractor: @unchecked Sendable {
     let storePaymentManager: StorePaymentManager
     var didFinishPayment: ((InAppPurchaseInteractor, StorePaymentEvent) -> Void)?
     weak var viewControllerDelegate: InAppPurchaseViewControllerDelegate?

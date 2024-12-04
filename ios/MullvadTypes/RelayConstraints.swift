@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible {
+public struct RelayConstraints: Codable, Equatable, CustomDebugStringConvertible, @unchecked Sendable {
     @available(*, deprecated, renamed: "locations")
     private var location: RelayConstraint<RelayLocation> = .only(.country("se"))
 

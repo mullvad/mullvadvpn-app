@@ -16,7 +16,8 @@ protocol CustomDNSCellEventHandler {
     func showInfo(for button: VPNSettingsInfoButtonItem)
 }
 
-final class CustomDNSCellFactory: CellFactoryProtocol {
+@MainActor
+final class CustomDNSCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
     var viewModel: VPNSettingsViewModel
     var delegate: CustomDNSCellEventHandler?

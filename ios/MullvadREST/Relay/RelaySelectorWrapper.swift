@@ -9,7 +9,7 @@
 import MullvadSettings
 import MullvadTypes
 
-public final class RelaySelectorWrapper: RelaySelectorProtocol {
+public final class RelaySelectorWrapper: RelaySelectorProtocol, Sendable {
     let relayCache: RelayCacheProtocol
 
     public init(relayCache: RelayCacheProtocol) {

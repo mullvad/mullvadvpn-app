@@ -11,6 +11,7 @@ import MullvadTypes
 import Operations
 import XCTest
 
+@MainActor
 final class AsyncBlockOperationTests: XCTestCase {
     let operationQueue = AsyncOperationQueue()
 
