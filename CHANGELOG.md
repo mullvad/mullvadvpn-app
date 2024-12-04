@@ -54,14 +54,22 @@ Line wrap the file at 100 chars.                                              Th
   Note that this fix is not present on macOS versions between 14.6 and 15.1.
 
 ### Security
-- Disable unix signal handler in release builds. The code was not signal safe and could potentially
-  cause issues. This mitigates audit issues `MLLVD-CR-24-01` and `MLLVD-CR-24-02`.
-
 #### Windows
 - Block WSL/Hyper-V traffic in secured states (except the connected state). The normal firewall
   (WFP) filters normally do not apply for VMs. This mitigates the issue by ensuring that it does not
   leak (as easily) when the VPN tunnel is up. Previously, WSL would leak while in the blocked or
   connecting state, or while lockdown mode was active.
+
+
+## [2024.8] - 2024-12-04
+### Security
+- Remove invalidly set up alternative stack for fault signal handlers on unix based systems.
+  This prevents potential stack overflow and heap memory corruption.
+  Fixes audit issue `MLLVD-CR-24-01`.
+- Remove/disable not signal safe code from fault signal handler on unix based systems.
+  Fixes audit issue `MLLVD-CR-24-02`.
+
+#### Windows
 - Fix issue where the installer would allow any executable named `taskkill.exe` in the working
   directory to run as admin. This fixes audit issue `MLLVD-CR-24-06`.
 
