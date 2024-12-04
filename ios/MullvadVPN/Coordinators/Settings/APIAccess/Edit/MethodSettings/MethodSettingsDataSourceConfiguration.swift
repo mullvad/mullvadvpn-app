@@ -20,6 +20,7 @@ class MethodSettingsDataSourceConfiguration {
         self.dataSource = dataSource
     }
 
+    @MainActor
     func updateDataSource(
         previousValue: AccessMethodViewModel?,
         newValue: AccessMethodViewModel,
@@ -100,6 +101,7 @@ class MethodSettingsDataSourceConfiguration {
         dataSource?.apply(snapshot, animatingDifferences: animated, completion: completion)
     }
 
+    @MainActor
     func updateDataSourceWithContentValidationErrors(viewModel: AccessMethodViewModel) {
         guard var snapshot = dataSource?.snapshot() else {
             return

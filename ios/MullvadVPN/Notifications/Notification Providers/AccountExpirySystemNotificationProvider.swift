@@ -10,7 +10,8 @@ import Foundation
 import MullvadSettings
 import UserNotifications
 
-final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider {
+final class AccountExpirySystemNotificationProvider: NotificationProvider, SystemNotificationProvider,
+    @unchecked Sendable {
     private var accountExpiry = AccountExpiry()
     private var tunnelObserver: TunnelBlockObserver?
     private var accountHasExpired = false

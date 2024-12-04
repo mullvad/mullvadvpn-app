@@ -9,7 +9,7 @@ import Foundation
 import Network
 
 /// The object handling bidirectional streaming of data between local and remote connection.
-struct Socks5DataStreamHandler {
+struct Socks5DataStreamHandler: Sendable {
     /// How many bytes the handler can receive at one time, when streaming data between local and remote connection.
     static let maxBytesToRead = Int(UInt16.max)
 
@@ -20,7 +20,7 @@ struct Socks5DataStreamHandler {
     let remoteConnection: NWConnection
 
     /// Error handler.
-    let errorHandler: (Error) -> Void
+    let errorHandler: @Sendable (Error) -> Void
 
     /// Start streaming data between local and remote connection.
     func start() {

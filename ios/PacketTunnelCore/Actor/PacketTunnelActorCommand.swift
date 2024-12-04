@@ -12,7 +12,7 @@ import WireGuardKitTypes
 
 extension PacketTunnelActor {
     /// Describes events that the state machine handles. These can be user commands or non-user-initiated events
-    enum Event {
+    enum Event: Sendable {
         /// Start tunnel.
         case start(StartOptions)
 

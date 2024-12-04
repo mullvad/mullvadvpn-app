@@ -10,7 +10,7 @@ import Foundation
 import Network
 
 /// Tunnel monitor event.
-public enum TunnelMonitorEvent {
+public enum TunnelMonitorEvent: Sendable {
     /// Dispatched after receiving the first ping response
     case connectionEstablished
 
@@ -20,7 +20,7 @@ public enum TunnelMonitorEvent {
 }
 
 /// A type that can provide tunnel monitoring.
-public protocol TunnelMonitorProtocol: AnyObject {
+public protocol TunnelMonitorProtocol: AnyObject, Sendable {
     /// Event handler that starts receiving events after the call to `start(probeAddress:)`.
     var onEvent: ((TunnelMonitorEvent) -> Void)? { get set }
 

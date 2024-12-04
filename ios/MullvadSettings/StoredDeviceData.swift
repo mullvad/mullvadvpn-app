@@ -8,9 +8,9 @@
 
 import Foundation
 import MullvadTypes
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
-public struct StoredDeviceData: Codable, Equatable {
+public struct StoredDeviceData: Codable, Equatable, Sendable {
     /// Device creation date.
     public var creationDate: Date
 

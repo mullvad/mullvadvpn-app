@@ -11,6 +11,7 @@ import Routing
 import SwiftUI
 import UIKit
 
+@MainActor
 struct SettingsViewControllerFactory {
     /// The result of creating a child representing a route.
     enum MakeChildResult {

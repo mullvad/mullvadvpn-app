@@ -57,7 +57,7 @@ class EditAccessMethodCoordinator: Coordinator, Presenting {
     }
 }
 
-extension EditAccessMethodCoordinator: EditAccessMethodViewControllerDelegate {
+extension EditAccessMethodCoordinator: @preconcurrency EditAccessMethodViewControllerDelegate {
     func controllerShouldShowMethodSettings(_ controller: EditAccessMethodViewController) {
         methodSettingsSubject = getViewModelSubjectFromStore()
 
@@ -127,7 +127,7 @@ extension EditAccessMethodCoordinator: EditAccessMethodViewControllerDelegate {
     }
 }
 
-extension EditAccessMethodCoordinator: MethodSettingsViewControllerDelegate {
+extension EditAccessMethodCoordinator: @preconcurrency MethodSettingsViewControllerDelegate {
     func accessMethodDidSave(_ accessMethod: PersistentAccessMethod) {
         editAccessMethodSubject.value = accessMethod.toViewModel()
         navigationController.popViewController(animated: true)

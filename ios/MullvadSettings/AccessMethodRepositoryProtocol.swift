@@ -8,7 +8,7 @@
 
 import Combine
 
-public protocol AccessMethodRepositoryDataSource {
+public protocol AccessMethodRepositoryDataSource: Sendable {
     /// Publisher that propagates a snapshot of all access methods upon modifications.
     var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> { get }
 

@@ -10,7 +10,7 @@ import Foundation
 @testable import MullvadREST
 
 /// Simple API proxy used for testing purposes.
-final class TimeServerProxy: REST.Proxy<REST.ProxyConfiguration> {
+final class TimeServerProxy: REST.Proxy<REST.ProxyConfiguration>, @unchecked Sendable {
     init(configuration: REST.ProxyConfiguration) {
         super.init(
             name: "TimeServerProxy",

@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 /// Struct holding all timings used by tunnel actor.
-public struct PacketTunnelActorTimings {
+public struct PacketTunnelActorTimings: Sendable {
     /// Periodicity at which actor will attempt to restart when an error occurred on system boot when filesystem is locked until device is unlocked or tunnel adapter error.
     public var bootRecoveryPeriodicity: Duration
 

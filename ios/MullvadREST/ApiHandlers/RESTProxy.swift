@@ -10,10 +10,10 @@ import Foundation
 import MullvadTypes
 import Operations
 
-public typealias ProxyCompletionHandler<Success> = (Result<Success, Swift.Error>) -> Void
+public typealias ProxyCompletionHandler<Success: Sendable> = @Sendable (Result<Success, Swift.Error>) -> Void
 
 extension REST {
-    public class Proxy<ConfigurationType: ProxyConfiguration> {
+    public class Proxy<ConfigurationType: ProxyConfiguration>: @unchecked Sendable {
         /// Synchronization queue used by network operations.
         let dispatchQueue: DispatchQueue
 
@@ -43,7 +43,7 @@ extension REST {
             self.responseDecoder = responseDecoder
         }
 
-        func makeRequestExecutor<Success>(
+        func makeRequestExecutor<Success: Sendable>(
             name: String,
             requestHandler: RESTRequestHandler,
             responseHandler: some RESTResponseHandler<Success>
@@ -61,7 +61,7 @@ extension REST {
     }
 
     /// Factory object producing instances of `NetworkOperation`.
-    private struct NetworkOperationFactory<Success, ConfigurationType: ProxyConfiguration> {
+    private struct NetworkOperationFactory<Success: Sendable, ConfigurationType: ProxyConfiguration> {
         let dispatchQueue: DispatchQueue
         let configuration: ConfigurationType
 
@@ -87,7 +87,7 @@ extension REST {
     }
 
     /// Network request executor that supports block-based and async execution flows.
-    private struct RequestExecutor<Success, ConfigurationType: ProxyConfiguration>: RESTRequestExecutor {
+    private struct RequestExecutor<Success: Sendable, ConfigurationType: ProxyConfiguration>: RESTRequestExecutor {
         let operationFactory: NetworkOperationFactory<Success, ConfigurationType>
         let operationQueue: AsyncOperationQueue
 
@@ -120,7 +120,7 @@ extension REST {
             }
         }
 
-        func execute(completionHandler: @escaping ProxyCompletionHandler<Success>) -> Cancellable {
+        func execute(completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>) -> Cancellable {
             return execute(retryStrategy: .noRetry, completionHandler: completionHandler)
         }
 
@@ -129,7 +129,7 @@ extension REST {
         }
     }
 
-    public class ProxyConfiguration {
+    public class ProxyConfiguration: @unchecked Sendable {
         public let transportProvider: RESTTransportProvider
         public let addressCacheStore: AddressCache
 
@@ -142,7 +142,7 @@ extension REST {
         }
     }
 
-    public class AuthProxyConfiguration: ProxyConfiguration {
+    public class AuthProxyConfiguration: ProxyConfiguration, @unchecked Sendable {
         public let accessTokenManager: RESTAccessTokenManagement
 
         public init(

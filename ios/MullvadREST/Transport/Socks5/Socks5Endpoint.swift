@@ -10,7 +10,7 @@ import MullvadTypes
 import Network
 
 /// A network endpoint specified by DNS name and port.
-public struct Socks5HostEndpoint {
+public struct Socks5HostEndpoint: Sendable {
     /// The endpoint's hostname.
     public let hostname: String
 
@@ -43,7 +43,7 @@ public struct Socks5HostEndpoint {
 }
 
 /// The endpoint type used by objects implementing socks protocol.
-public enum Socks5Endpoint {
+public enum Socks5Endpoint: Sendable {
     /// IPv4 endpoint.
     case ipv4(IPv4Endpoint)
 

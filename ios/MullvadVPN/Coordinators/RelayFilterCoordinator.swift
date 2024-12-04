@@ -11,7 +11,7 @@ import MullvadTypes
 import Routing
 import UIKit
 
-class RelayFilterCoordinator: Coordinator, Presentable, RelayCacheTrackerObserver {
+class RelayFilterCoordinator: Coordinator, Presentable, @preconcurrency RelayCacheTrackerObserver {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker
     private var cachedRelays: CachedRelays?
