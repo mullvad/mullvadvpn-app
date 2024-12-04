@@ -12,7 +12,9 @@ struct VisualEffectView: UIViewRepresentable {
     var effect: UIVisualEffect?
 
     func makeUIView(context: UIViewRepresentableContext<Self>) -> UIVisualEffectView {
-        UIVisualEffectView()
+        let effectView = UIVisualEffectView(effect: effect)
+        effectView.translatesAutoresizingMaskIntoConstraints = false
+        return effectView
     }
 
     func updateUIView(_ uiView: UIVisualEffectView, context: UIViewRepresentableContext<Self>) {
