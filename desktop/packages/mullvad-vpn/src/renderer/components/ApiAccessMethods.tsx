@@ -12,7 +12,9 @@ import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { Spacings } from '../tokens';
 import * as Cell from './cell';
+import { Flex } from './common/layout';
 import {
   ContextMenu,
   ContextMenuContainer,
@@ -43,17 +45,11 @@ import { SmallButton, SmallButtonColor, SmallButtonGroup } from './SmallButton';
 const StyledContextMenuButton = styled(Cell.Icon)({
   alignItems: 'center',
   justifyContent: 'center',
-  marginRight: '8px',
+  marginRight: Spacings.spacing3,
 });
 
 const StyledMethodInfoButton = styled(InfoButton)({
-  marginRight: '11px',
-});
-
-const StyledSpinner = styled(ImageView)({
-  height: '10px',
-  width: '10px',
-  marginRight: '6px',
+  marginRight: Spacings.spacing4,
 });
 
 const StyledNameLabel = styled(Cell.Label)({
@@ -68,7 +64,7 @@ const StyledTestResultCircle = styled.div<{ $result: boolean }>((props) => ({
   height: '10px',
   borderRadius: '50%',
   backgroundColor: props.$result ? colors.green : colors.red,
-  marginRight: '6px',
+  marginRight: Spacings.spacing2,
 }));
 
 // This component is the topmost component in the API access methods view.
@@ -258,8 +254,10 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         <StyledNameLabel>{props.method.name}</StyledNameLabel>
         {testing && (
           <Cell.SubLabel>
-            <StyledSpinner source="icon-spinner" />
-            {messages.pgettext('api-access-methods-view', 'Testing...')}
+            <Flex $gap={Spacings.spacing2}>
+              <ImageView source="icon-spinner" width={10} />
+              {messages.pgettext('api-access-methods-view', 'Testing...')}
+            </Flex>
           </Cell.SubLabel>
         )}
         {!testing && testResult !== undefined && (

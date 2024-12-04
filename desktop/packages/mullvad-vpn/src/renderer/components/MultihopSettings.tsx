@@ -1,6 +1,5 @@
 import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
@@ -10,6 +9,7 @@ import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
+import { Flex } from './common/layout';
 import { StyledIllustration } from './DaitaSettings';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -21,13 +21,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-
-const StyledContent = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '2px',
-});
 
 export default function MultihopSettings() {
   const { pop } = useHistory();
@@ -59,11 +52,11 @@ export default function MultihopSettings() {
                 </HeaderSubTitle>
               </SettingsHeader>
 
-              <StyledContent>
+              <Flex $flexDirection="column" $flex={1}>
                 <Cell.Group>
                   <MultihopSetting />
                 </Cell.Group>
-              </StyledContent>
+              </Flex>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>

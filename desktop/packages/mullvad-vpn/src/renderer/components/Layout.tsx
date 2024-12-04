@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { Colors, Spacings } from '../tokens';
-import { Flex } from './common/layout/Flex';
+import { Flex } from './common/layout';
 import { measurements } from './common-styles';
 import HeaderBar from './HeaderBar';
 import { NavigationScrollbars } from './NavigationBar';
@@ -61,19 +61,18 @@ export const SettingsGroup = styled(Flex).attrs({
   $flexDirection: 'column',
 })({});
 
-export const ButtonStack = styled(Flex).attrs(() => ({
+export const ButtonStack = styled(Flex).attrs({
   $flexDirection: 'column',
   $gap: Spacings.spacing5,
-  $margin: `0 ${Spacings.spacing6}`,
-}))({
+})({
   [`${Footer} &&`]: {
     margin: `0 ${Spacings.spacing3}`,
   },
 });
 
-export const LabelStack = styled(Flex).attrs(() => ({
+export const LabelStack = styled(Flex).attrs({
   $flexGrow: 1,
   $flexDirection: 'row',
   $alignItems: 'center',
   $gap: Spacings.spacing3,
-}))({});
+})({});

@@ -18,8 +18,8 @@ import { Colors, Spacings } from '../tokens';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { Flex } from './common/layout';
-import { FootnoteMini } from './common/text';
+import { Flex } from './common/layout/Flex';
+import { FootnoteMini } from './common/text/FootnoteMini';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
@@ -34,12 +34,8 @@ import {
   StyledCellButton,
   StyledCellLabel,
   StyledCellWarningIcon,
-  StyledContent,
-  StyledHeaderTitle,
-  StyledHeaderTitleContainer,
   StyledIcon,
   StyledIconPlaceholder,
-  StyledListContainer,
   StyledNavigationScrollbars,
   StyledNoResult,
   StyledNoResultText,
@@ -71,12 +67,12 @@ export default function SplitTunneling() {
               </NavigationBar>
 
               <StyledNavigationScrollbars ref={scrollbarsRef}>
-                <StyledContent>
+                <Flex $flexDirection="column" $flex={1}>
                   <PlatformSpecificSplitTunnelingSettings
                     setBrowsing={setBrowsing}
                     scrollToTop={scrollToTop}
                   />
-                </StyledContent>
+                </Flex>
               </StyledNavigationScrollbars>
             </NavigationContainer>
           </SettingsContainer>
@@ -463,14 +459,14 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
   return (
     <>
       <SettingsHeader>
-        <StyledHeaderTitleContainer>
-          <StyledHeaderTitle>{strings.splitTunneling}</StyledHeaderTitle>
+        <Flex $justifyContent="space-between" $alignItems="center">
+          <HeaderTitle>{strings.splitTunneling}</HeaderTitle>
           <Switch
             isOn={splitTunnelingEnabled}
             disabled={!splitTunnelingAvailable}
             onChange={setSplitTunnelingState}
           />
-        </StyledHeaderTitleContainer>
+        </Flex>
         <MacOsSplitTunnelingAvailability
           needFullDiskPermissions={
             window.env.platform === 'darwin' && splitTunnelingAvailable === false
@@ -585,14 +581,17 @@ function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>
     );
   } else {
     return (
-      <StyledListContainer data-testid={props['data-testid']}>
+      <Flex
+        $flexDirection="column"
+        $margin={{ bottom: Spacings.spacing5 }}
+        data-testid={props['data-testid']}>
         <List
           data-testid={props['data-testid']}
           items={props.applications.sort((a, b) => a.name.localeCompare(b.name))}
           getKey={applicationGetKey}>
           {props.rowRenderer}
         </List>
-      </StyledListContainer>
+      </Flex>
     );
   }
 }
