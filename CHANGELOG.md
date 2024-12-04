@@ -25,8 +25,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [2024.8] - 2024-12-04
 ### Security
-- Disable unix signal handler in release builds. The code was not signal safe and could potentially
-  cause issues. This mitigates audit issues `MLLVD-CR-24-01` and `MLLVD-CR-24-02`.
+- Remove invalidly set up alternative stack for fault signal handlers on unix based systems.
+  This prevents potential stack overflow and heap memory corruption.
+  Fixes audit issue `MLLVD-CR-24-01`.
+- Remove/disable not signal safe code from fault signal handler on unix based systems.
+  Fixes audit issue `MLLVD-CR-24-02`.
 
 #### Windows
 - Fix issue where the installer would allow any executable named `taskkill.exe` in the working
