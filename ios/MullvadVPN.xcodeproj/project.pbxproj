@@ -655,6 +655,8 @@
 		7AF10EB42ADE85BC00C090B9 /* RelayFilterCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */; };
 		7AF36A9A2CA2964200E1D497 /* AnyIPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */; };
 		7AF6E5F02A95051E00F2679D /* RouterBlockDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */; };
+		7AF84F462D12C5B000C72690 /* SelectedRelaysStub+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF84F452D12C59F00C72690 /* SelectedRelaysStub+Stubs.swift */; };
+		7AF84F482D12C9D400C72690 /* ConnectionViewPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */; };
 		7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */; };
 		7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */; };
 		7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */; };
@@ -1006,7 +1008,7 @@
 		F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */; };
 		F0B495762D02025200CFEC2A /* ChipContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495752D02025200CFEC2A /* ChipContainerView.swift */; };
 		F0B495782D02038B00CFEC2A /* ChipViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */; };
-		F0B4957A2D02F49200CFEC2A /* ChipFeatures.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495792D02F41F00CFEC2A /* ChipFeatures.swift */; };
+		F0B4957A2D02F49200CFEC2A /* ChipFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495792D02F41F00CFEC2A /* ChipFeature.swift */; };
 		F0B4957C2D03154200CFEC2A /* FeatureIndicatorsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B4957B2D03154200CFEC2A /* FeatureIndicatorsView.swift */; };
 		F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */; };
 		F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F02BF751E300817A42 /* RelayWithDistance.swift */; };
@@ -2027,6 +2029,8 @@
 		7AF10EB32ADE85BC00C090B9 /* RelayFilterCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelayFilterCoordinator.swift; sourceTree = "<group>"; };
 		7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPAddressTests.swift; sourceTree = "<group>"; };
 		7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterBlockDelegate.swift; sourceTree = "<group>"; };
+		7AF84F452D12C59F00C72690 /* SelectedRelaysStub+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectedRelaysStub+Stubs.swift"; sourceTree = "<group>"; };
+		7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionViewPreview.swift; sourceTree = "<group>"; };
 		7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilter.swift; sourceTree = "<group>"; };
 		7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModel.swift; sourceTree = "<group>"; };
 		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
@@ -2255,7 +2259,7 @@
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
 		F0B495752D02025200CFEC2A /* ChipContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipContainerView.swift; sourceTree = "<group>"; };
 		F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipViewModelProtocol.swift; sourceTree = "<group>"; };
-		F0B495792D02F41F00CFEC2A /* ChipFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFeatures.swift; sourceTree = "<group>"; };
+		F0B495792D02F41F00CFEC2A /* ChipFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFeature.swift; sourceTree = "<group>"; };
 		F0B4957B2D03154200CFEC2A /* FeatureIndicatorsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureIndicatorsView.swift; sourceTree = "<group>"; };
 		F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithLocation.swift; sourceTree = "<group>"; };
 		F0B894F02BF751E300817A42 /* RelayWithDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithDistance.swift; sourceTree = "<group>"; };
@@ -3645,7 +3649,6 @@
 				A9D9A4C12C36D53C004088DD /* MullvadRustRuntimeTests */,
 				58CE5E61224146200008646E /* Products */,
 				584F991F2902CBDD001F858D /* Frameworks */,
-				7A0EAE982D01B29E00D3EB8B /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -3946,13 +3949,6 @@
 			path = Edit;
 			sourceTree = "<group>";
 		};
-		7A0EAE982D01B29E00D3EB8B /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		7A2960F72A964A3500389B82 /* Alert */ = {
 			isa = PBXGroup;
 			children = (
@@ -4089,8 +4085,8 @@
 			children = (
 				F0ADF1CF2D01B50B00299F09 /* ChipView */,
 				7AFBE3862D084C96002335FC /* ActivityIndicator.swift */,
-				F0B495792D02F41F00CFEC2A /* ChipFeatures.swift */,
 				7AA130982CFF365A00640DF9 /* ConnectionView.swift */,
+				7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */,
 				7A0EAEA32D06DF8200D3EB8B /* ConnectionViewViewModel.swift */,
 				F0B4957B2D03154200CFEC2A /* FeatureIndicatorsView.swift */,
 				F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */,
@@ -4405,6 +4401,7 @@
 				F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */,
 				58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */,
 				A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */,
+				7AF84F452D12C59F00C72690 /* SelectedRelaysStub+Stubs.swift */,
 			);
 			path = MullvadREST;
 			sourceTree = "<group>";
@@ -4422,6 +4419,7 @@
 			isa = PBXGroup;
 			children = (
 				F0B495752D02025200CFEC2A /* ChipContainerView.swift */,
+				F0B495792D02F41F00CFEC2A /* ChipFeature.swift */,
 				F0ADF1D02D01B55C00299F09 /* ChipModel.swift */,
 				F0ADF1D42D01DCFD00299F09 /* ChipView.swift */,
 				F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */,
@@ -5943,6 +5941,7 @@
 				7A27E3CB2CAE861D0088BCFF /* SettingsViewModel.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */,
+				7AF84F482D12C9D400C72690 /* ConnectionViewPreview.swift in Sources */,
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
@@ -6138,7 +6137,7 @@
 				588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */,
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,
-				F0B4957A2D02F49200CFEC2A /* ChipFeatures.swift in Sources */,
+				F0B4957A2D02F49200CFEC2A /* ChipFeature.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
 				7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */,
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
@@ -6526,6 +6525,7 @@
 				F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */,
 				7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */,
+				7AF84F462D12C5B000C72690 /* SelectedRelaysStub+Stubs.swift in Sources */,
 				F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */,
 				F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */,
 			);

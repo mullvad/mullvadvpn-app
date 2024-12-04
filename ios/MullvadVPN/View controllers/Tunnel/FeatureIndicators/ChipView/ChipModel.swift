@@ -11,5 +11,5 @@ import SwiftUI
 
 struct ChipModel: Identifiable {
     let id = UUID()
-    let name: LocalizedStringKey
+    let name: String
 }
