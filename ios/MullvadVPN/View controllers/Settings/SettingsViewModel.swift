@@ -10,12 +10,10 @@ import MullvadSettings
 
 struct SettingsViewModel {
     private(set) var daitaSettings: DAITASettings
-
-    mutating func setDAITASettings(_ newSettings: DAITASettings) {
-        daitaSettings = newSettings
-    }
+    private(set) var multihopState: MultihopState
 
     init(from tunnelSettings: LatestTunnelSettings = LatestTunnelSettings()) {
         daitaSettings = tunnelSettings.daita
+        multihopState = tunnelSettings.tunnelMultihopState
     }
 }

@@ -104,6 +104,14 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         storedAccountData = interactor.deviceState.accountData
     }
 
+    func reload(from tunnelSettings: LatestTunnelSettings) {
+        settingsCellFactory.viewModel = SettingsViewModel(from: tunnelSettings)
+
+        var snapshot = snapshot()
+        snapshot.reconfigureItems(snapshot.itemIdentifiers)
+        apply(snapshot, animatingDifferences: false)
+    }
+
     // MARK: - UITableViewDelegate
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
@@ -170,11 +178,5 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 extension SettingsDataSource: SettingsCellEventHandler {
     func showInfo(for button: SettingsInfoButtonItem) {
         delegate?.showInfo(for: button)
-    }
-
-    private func reloadItem(_ item: Item) {
-        var snapshot = snapshot()
-        snapshot.reloadItems([item])
-        apply(snapshot, animatingDifferences: false)
     }
 }
