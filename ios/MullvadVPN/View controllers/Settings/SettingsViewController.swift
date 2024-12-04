@@ -98,49 +98,6 @@ extension SettingsViewController: SettingsDataSourceDelegate {
 
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
-
-    func showPrompt(
-        for item: DAITASettingsPromptItem,
-        onSave: @escaping () -> Void,
-        onDiscard: @escaping () -> Void
-    ) {
-        let presentation = AlertPresentation(
-            id: "settings-daita-prompt",
-            accessibilityIdentifier: .daitaPromptAlert,
-            icon: .info,
-            message: NSLocalizedString(
-                "SETTINGS_DAITA_ENABLE_TEXT",
-                tableName: "DAITA",
-                value: item.description,
-                comment: ""
-            ),
-            buttons: [
-                AlertAction(
-                    title: String(format: NSLocalizedString(
-                        "SETTINGS_DAITA_ENABLE_OK_ACTION",
-                        tableName: "DAITA",
-                        value: "Enable %@",
-                        comment: ""
-                    ), item.title),
-                    style: .default,
-                    accessibilityId: .daitaConfirmAlertEnableButton,
-                    handler: { onSave() }
-                ),
-                AlertAction(
-                    title: NSLocalizedString(
-                        "SETTINGS_DAITA_ENABLE_CANCEL_ACTION",
-                        tableName: "DAITA",
-                        value: "Back",
-                        comment: ""
-                    ),
-                    style: .default,
-                    handler: { onDiscard() }
-                ),
-            ]
-        )
-
-        alertPresenter.showAlert(presentation: presentation, animated: true)
-    }
 }
 
 extension SettingsDataSource.Item {
@@ -148,7 +105,7 @@ extension SettingsDataSource.Item {
         switch self {
         case .vpnSettings:
             return .vpnSettings
-        case .version, .daita, .daitaDirectOnly:
+        case .version:
             return nil
         case .problemReport:
             return .problemReport
@@ -156,6 +113,10 @@ extension SettingsDataSource.Item {
             return .faq
         case .apiAccess:
             return .apiAccess
+        case .daita:
+            return .daita
+        case .multihop:
+            return .multihop
         }
     }
 }

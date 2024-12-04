@@ -7,6 +7,7 @@
 //
 
 import MullvadTypes
+import SwiftUI
 import UIKit
 
 enum UIMetrics {
@@ -68,6 +69,7 @@ enum UIMetrics {
 
     enum Button {
         static let barButtonSize: CGFloat = 44
+        static let minimumTappableAreaSize = CGSize(width: 44, height: 44)
     }
 
     enum SettingsCell {
@@ -95,6 +97,18 @@ enum UIMetrics {
         static let apiAccessPickerListContentInsetTop: CGFloat = 16
         static let verticalDividerHeight: CGFloat = 22
         static let detailsButtonSize: CGFloat = 60
+        static let infoButtonLeadingMargin: CGFloat = 8
+    }
+
+    enum SettingsInfoView {
+        static let layoutMargins = EdgeInsets(top: 0, leading: 24, bottom: 0, trailing: 24)
+    }
+
+    enum SettingsRowView {
+        static let height: CGFloat = 44
+        static let cornerRadius: CGFloat = 10
+        static let layoutMargins = EdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+        static let footerLayoutMargins = EdgeInsets(top: 5, leading: 16, bottom: 5, trailing: 16)
     }
 
     enum InAppBannerNotification {
@@ -167,7 +181,7 @@ extension UIMetrics {
     static let preferredFormSheetContentSize = CGSize(width: 480, height: 640)
 
     /// Common layout margins for content presentation
-    static let contentLayoutMargins = NSDirectionalEdgeInsets(top: 24, leading: 24, bottom: 24, trailing: 24)
+    static let contentLayoutMargins = contentInsets.toDirectionalInsets
 
     /// Common content margins for content presentation
     static let contentInsets = UIEdgeInsets(top: 24, left: 24, bottom: 24, right: 24)

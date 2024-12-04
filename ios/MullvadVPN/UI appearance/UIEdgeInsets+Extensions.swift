@@ -6,7 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import SwiftUI
 import UIKit
 
 extension UIEdgeInsets {
@@ -18,5 +18,10 @@ extension UIEdgeInsets {
             bottom: bottom,
             trailing: right
         )
+    }
+
+    /// Returns edge insets.
+    var toEdgeInsets: EdgeInsets {
+        EdgeInsets(toDirectionalInsets)
     }
 }
