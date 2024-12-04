@@ -33,6 +33,7 @@ extension UITextField {
             )
         }
 
+        @MainActor
         func apply(to searchBar: UISearchBar) {
             searchBar.setImage(
                 UIImage(named: "IconCloseSml")?.withTintColor(leftViewTintColor),
@@ -43,6 +44,7 @@ extension UITextField {
             apply(to: searchBar.searchTextField)
         }
 
+        @MainActor
         func apply(to textField: UITextField) {
             textField.leftView?.tintColor = leftViewTintColor
             textField.tintColor = textColor

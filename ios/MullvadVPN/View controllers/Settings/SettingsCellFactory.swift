@@ -13,7 +13,8 @@ protocol SettingsCellEventHandler {
     func showInfo(for button: SettingsInfoButtonItem)
 }
 
-final class SettingsCellFactory: CellFactoryProtocol {
+@MainActor
+final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
     let tableView: UITableView
     var delegate: SettingsCellEventHandler?
     var viewModel: SettingsViewModel

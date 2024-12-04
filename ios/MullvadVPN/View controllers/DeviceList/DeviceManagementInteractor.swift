@@ -11,7 +11,7 @@ import MullvadREST
 import MullvadTypes
 import Operations
 
-class DeviceManagementInteractor {
+class DeviceManagementInteractor: @unchecked Sendable {
     private let devicesProxy: DeviceHandling
     private let accountNumber: String
 
@@ -21,7 +21,7 @@ class DeviceManagementInteractor {
     }
 
     @discardableResult
-    func getDevices(_ completionHandler: @escaping (Result<[Device], Error>) -> Void) -> Cancellable {
+    func getDevices(_ completionHandler: @escaping @Sendable (Result<[Device], Error>) -> Void) -> Cancellable {
         devicesProxy.getDevices(
             accountNumber: accountNumber,
             retryStrategy: .default,
@@ -30,7 +30,10 @@ class DeviceManagementInteractor {
     }
 
     @discardableResult
-    func deleteDevice(_ identifier: String, completionHandler: @escaping (Result<Bool, Error>) -> Void) -> Cancellable {
+    func deleteDevice(
+        _ identifier: String,
+        completionHandler: @escaping @Sendable (Result<Bool, Error>) -> Void
+    ) -> Cancellable {
         devicesProxy.deleteDevice(
             accountNumber: accountNumber,
             identifier: identifier,

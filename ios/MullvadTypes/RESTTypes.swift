@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
-public struct Account: Codable, Equatable {
+public struct Account: Codable, Equatable, Sendable {
     public let id: String
     public let expiry: Date
     public let maxDevices: Int
@@ -23,7 +23,7 @@ public struct Account: Codable, Equatable {
     }
 }
 
-public struct Device: Codable, Equatable {
+public struct Device: Codable, Equatable, Sendable {
     public let id: String
     public let name: String
     public let pubkey: PublicKey

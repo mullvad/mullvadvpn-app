@@ -26,7 +26,7 @@ enum AccountDeletionError: LocalizedError {
     }
 }
 
-class AccountDeletionInteractor {
+final class AccountDeletionInteractor: Sendable {
     private let tunnelManager: TunnelManager
     var viewModel: AccountDeletionViewModel {
         AccountDeletionViewModel(

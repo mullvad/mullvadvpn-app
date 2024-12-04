@@ -96,7 +96,7 @@ class CustomDNSViewController: UITableViewController {
     }
 }
 
-extension CustomDNSViewController: DNSSettingsDataSourceDelegate {
+extension CustomDNSViewController: @preconcurrency DNSSettingsDataSourceDelegate {
     func didChangeViewModel(_ viewModel: VPNSettingsViewModel) {
         interactor.updateSettings([.dnsSettings(viewModel.asDNSSettings())])
     }

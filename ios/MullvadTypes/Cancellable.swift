@@ -19,7 +19,7 @@ public final class AnyCancellable: Cancellable {
     private let block: (() -> Void)?
 
     /// Create cancellation token with block handler.
-    public init(block: @escaping () -> Void) {
+    public init(block: @escaping @Sendable () -> Void) {
         self.block = block
     }
 

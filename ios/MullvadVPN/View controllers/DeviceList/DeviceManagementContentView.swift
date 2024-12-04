@@ -97,7 +97,7 @@ class DeviceManagementContentView: UIView {
         return stackView
     }()
 
-    var handleDeviceDeletion: ((DeviceViewModel, @escaping () -> Void) -> Void)?
+    var handleDeviceDeletion: (@Sendable (DeviceViewModel, @escaping @Sendable () -> Void) -> Void)?
 
     private var currentDeviceModels = [DeviceViewModel]()
 
@@ -118,11 +118,11 @@ class DeviceManagementContentView: UIView {
     }
 
     private func addViews() {
-        [scrollView, buttonStackView].forEach(addSubview)
+        try? [scrollView, buttonStackView].forEach(addSubview)
 
         scrollView.addSubview(scrollContentView)
 
-        [statusImageView, titleLabel, messageLabel, deviceStackView]
+        try? [statusImageView, titleLabel, messageLabel, deviceStackView]
             .forEach(scrollContentView.addSubview)
     }
 
@@ -262,7 +262,9 @@ class DeviceManagementContentView: UIView {
             view.showsActivityIndicator = true
 
             self?.handleDeviceDeletion?(view.viewModel) {
-                view.showsActivityIndicator = false
+                Task { @MainActor in
+                    view.showsActivityIndicator = false
+                }
             }
         }
 

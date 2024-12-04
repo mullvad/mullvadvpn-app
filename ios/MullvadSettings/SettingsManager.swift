@@ -15,16 +15,16 @@ private let accountTokenKey = "accountToken"
 private let accountExpiryKey = "accountExpiry"
 
 public enum SettingsManager {
-    private static let logger = Logger(label: "SettingsManager")
+    nonisolated(unsafe) private static let logger = Logger(label: "SettingsManager")
 
     #if DEBUG
-    private static var _store = KeychainSettingsStore(
+    nonisolated(unsafe) private static var _store = KeychainSettingsStore(
         serviceName: keychainServiceName,
         accessGroup: ApplicationConfiguration.securityGroupIdentifier
     )
 
     /// Alternative store used for tests.
-    internal static var unitTestStore: SettingsStore?
+    nonisolated(unsafe) internal static var unitTestStore: SettingsStore?
 
     public static var store: SettingsStore {
         if let unitTestStore { return unitTestStore }

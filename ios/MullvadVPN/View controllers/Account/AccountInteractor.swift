@@ -13,16 +13,16 @@ import MullvadTypes
 import Operations
 import StoreKit
 
-final class AccountInteractor {
+final class AccountInteractor: Sendable {
     private let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
     let accountsProxy: RESTAccountHandling
 
-    var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
-    var didReceiveDeviceState: ((DeviceState) -> Void)?
+    nonisolated(unsafe) var didReceivePaymentEvent: (@Sendable (StorePaymentEvent) -> Void)?
+    nonisolated(unsafe) var didReceiveDeviceState: (@Sendable (DeviceState) -> Void)?
 
-    private var tunnelObserver: TunnelObserver?
-    private var paymentObserver: StorePaymentObserver?
+    nonisolated(unsafe) private var tunnelObserver: TunnelObserver?
+    nonisolated(unsafe) private var paymentObserver: StorePaymentObserver?
 
     init(
         storePaymentManager: StorePaymentManager,
@@ -63,7 +63,7 @@ final class AccountInteractor {
 
     func restorePurchases(
         for accountNumber: String,
-        completionHandler: @escaping (Result<REST.CreateApplePaymentResponse, Error>) -> Void
+        completionHandler: @escaping @Sendable (Result<REST.CreateApplePaymentResponse, Error>) -> Void
     ) -> Cancellable {
         storePaymentManager.restorePurchases(
             for: accountNumber,
@@ -73,7 +73,7 @@ final class AccountInteractor {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
+        completionHandler: @escaping @Sendable (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
         storePaymentManager.requestProducts(
             with: productIdentifiers,

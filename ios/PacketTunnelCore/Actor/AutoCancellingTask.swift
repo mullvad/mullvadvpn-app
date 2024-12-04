@@ -13,7 +13,7 @@ import Foundation
 
  It behaves identical to `Combine.AnyCancellable`.
  */
-public final class AutoCancellingTask {
+public final class AutoCancellingTask: Sendable {
     private let task: AnyTask
 
     init(_ task: AnyTask) {

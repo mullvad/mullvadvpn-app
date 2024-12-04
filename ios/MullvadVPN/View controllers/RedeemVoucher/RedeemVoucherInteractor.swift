@@ -10,7 +10,7 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 
-final class RedeemVoucherInteractor {
+final class RedeemVoucherInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let accountsProxy: RESTAccountHandling
     private let shouldVerifyVoucherAsAccount: Bool
@@ -33,7 +33,7 @@ final class RedeemVoucherInteractor {
 
     func redeemVoucher(
         code: String,
-        completion: @escaping ((Result<REST.SubmitVoucherResponse, Error>) -> Void)
+        completion: @escaping (@Sendable (Result<REST.SubmitVoucherResponse, Error>) -> Void)
     ) {
         tasks.append(tunnelManager.redeemVoucher(code) { [weak self] result in
             guard let self else { return }

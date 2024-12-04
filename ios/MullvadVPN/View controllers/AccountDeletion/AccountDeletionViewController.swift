@@ -14,6 +14,7 @@ protocol AccountDeletionViewControllerDelegate: AnyObject {
     func deleteAccountDidCancel(controller: AccountDeletionViewController)
 }
 
+@MainActor
 class AccountDeletionViewController: UIViewController {
     private lazy var contentView: AccountDeletionContentView = {
         let view = AccountDeletionContentView()
@@ -22,7 +23,7 @@ class AccountDeletionViewController: UIViewController {
     }()
 
     weak var delegate: AccountDeletionViewControllerDelegate?
-    var interactor: AccountDeletionInteractor
+    let interactor: AccountDeletionInteractor
 
     init(interactor: AccountDeletionInteractor) {
         self.interactor = interactor
@@ -75,7 +76,7 @@ class AccountDeletionViewController: UIViewController {
     }
 }
 
-extension AccountDeletionViewController: AccountDeletionContentViewDelegate {
+extension AccountDeletionViewController: @preconcurrency AccountDeletionContentViewDelegate {
     func didTapCancelButton(contentView: AccountDeletionContentView, button: AppButton) {
         contentView.isEditing = false
         delegate?.deleteAccountDidCancel(controller: self)

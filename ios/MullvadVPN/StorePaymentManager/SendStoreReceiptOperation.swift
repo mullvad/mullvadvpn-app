@@ -13,7 +13,8 @@ import MullvadTypes
 import Operations
 import StoreKit
 
-class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse>, SKRequestDelegate {
+class SendStoreReceiptOperation: ResultOperation<REST.CreateApplePaymentResponse>, SKRequestDelegate,
+    @unchecked Sendable {
     private let apiProxy: APIQuerying
     private let accountNumber: String
 

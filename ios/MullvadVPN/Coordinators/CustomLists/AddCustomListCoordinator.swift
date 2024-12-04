@@ -71,7 +71,7 @@ class AddCustomListCoordinator: Coordinator, Presentable, Presenting {
     }
 }
 
-extension AddCustomListCoordinator: CustomListViewControllerDelegate {
+extension AddCustomListCoordinator: @preconcurrency CustomListViewControllerDelegate {
     func customListDidSave(_ list: CustomList) {
         didFinish?(self)
     }

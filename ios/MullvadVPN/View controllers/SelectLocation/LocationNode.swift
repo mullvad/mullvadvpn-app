@@ -9,7 +9,7 @@
 import MullvadSettings
 import MullvadTypes
 
-class LocationNode {
+class LocationNode: @unchecked Sendable {
     let name: String
     var code: String
     var locations: [RelayLocation]
@@ -134,13 +134,13 @@ extension LocationNode: Comparable {
 }
 
 /// Proxy class for building and/or searching node trees.
-class RootLocationNode: LocationNode {
+class RootLocationNode: LocationNode, @unchecked Sendable {
     init(name: String = "", code: String = "", children: [LocationNode] = []) {
         super.init(name: name, code: code, children: children)
     }
 }
 
-class CustomListLocationNode: LocationNode {
+class CustomListLocationNode: LocationNode, @unchecked Sendable {
     let customList: CustomList
 
     init(

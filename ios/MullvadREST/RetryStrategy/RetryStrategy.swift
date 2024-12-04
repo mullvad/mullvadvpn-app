@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 extension REST {
-    public struct RetryStrategy {
+    public struct RetryStrategy: Sendable {
         public var maxRetryCount: Int
         public var delay: RetryDelay
         public var applyJitter: Bool
@@ -42,34 +42,34 @@ extension REST {
         }
 
         /// Strategy configured to never retry.
-        public static var noRetry = RetryStrategy(
+        public static let noRetry = RetryStrategy(
             maxRetryCount: 0,
             delay: .never,
             applyJitter: false
         )
 
         /// Strategy configured with 2 retry attempts and exponential backoff.
-        public static var `default` = RetryStrategy(
+        public static let `default` = RetryStrategy(
             maxRetryCount: 2,
             delay: defaultRetryDelay,
             applyJitter: true
         )
 
         /// Strategy configured with 10 retry attempts and exponential backoff.
-        public static var aggressive = RetryStrategy(
+        public static let aggressive = RetryStrategy(
             maxRetryCount: 10,
             delay: defaultRetryDelay,
             applyJitter: true
         )
 
         /// Default retry delay.
-        public static var defaultRetryDelay: RetryDelay = .exponentialBackoff(
+        public static let defaultRetryDelay: RetryDelay = .exponentialBackoff(
             initial: .seconds(2),
             multiplier: 2,
             maxDelay: .seconds(8)
         )
 
-        public static var postQuantumKeyExchange = RetryStrategy(
+        public static let postQuantumKeyExchange = RetryStrategy(
             maxRetryCount: 10,
             delay: .exponentialBackoff(
                 initial: .seconds(10),
@@ -79,7 +79,7 @@ extension REST {
             applyJitter: true
         )
 
-        public static var failedMigrationRecovery = RetryStrategy(
+        public static let failedMigrationRecovery = RetryStrategy(
             maxRetryCount: .max,
             delay: .exponentialBackoff(
                 initial: .seconds(5),
@@ -90,7 +90,7 @@ extension REST {
         )
     }
 
-    public enum RetryDelay: Equatable {
+    public enum RetryDelay: Equatable, Sendable {
         /// Never wait to retry.
         case never
 
