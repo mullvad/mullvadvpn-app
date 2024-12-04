@@ -1,17 +1,16 @@
 //
-//  ChipFeatures.swift
+//  ChipFeature.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2024-12-06.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
-import Foundation
 import MullvadSettings
 import SwiftUI
 
 protocol ChipFeature {
     var isEnabled: Bool { get }
-    var name: LocalizedStringKey { get }
+    var name: String { get }
 }
 
 struct DaitaFeature: ChipFeature {
@@ -21,8 +20,8 @@ struct DaitaFeature: ChipFeature {
         settings.daita.daitaState.isEnabled
     }
 
-    var name: LocalizedStringKey {
-        LocalizedStringKey("DAITA")
+    var name: String {
+        String("DAITA")
     }
 }
 
@@ -32,8 +31,8 @@ struct QuantumResistanceFeature: ChipFeature {
         settings.tunnelQuantumResistance.isEnabled
     }
 
-    var name: LocalizedStringKey {
-        LocalizedStringKey("Quantum resistance")
+    var name: String {
+        String("Quantum resistance")
     }
 }
 
@@ -43,8 +42,8 @@ struct MultihopFeature: ChipFeature {
         settings.tunnelMultihopState.isEnabled
     }
 
-    var name: LocalizedStringKey {
-        LocalizedStringKey("Multihop")
+    var name: String {
+        String("Multihop")
     }
 }
 
@@ -55,8 +54,8 @@ struct ObfuscationFeature: ChipFeature {
         settings.wireGuardObfuscation.state.isEnabled
     }
 
-    var name: LocalizedStringKey {
-        LocalizedStringKey("Obfuscation")
+    var name: String {
+        String("Obfuscation")
     }
 }
 
@@ -67,11 +66,11 @@ struct DNSFeature: ChipFeature {
         settings.dnsSettings.enableCustomDNS || !settings.dnsSettings.blockingOptions.isEmpty
     }
 
-    var name: LocalizedStringKey {
+    var name: String {
         if !settings.dnsSettings.blockingOptions.isEmpty {
-            return LocalizedStringKey("DNS content blockers")
+            return String("DNS content blockers")
         }
-        return LocalizedStringKey("Custom DNS")
+        return String("Custom DNS")
     }
 }
 
@@ -82,7 +81,7 @@ struct IPOverrideFeature: ChipFeature {
         !overrides.isEmpty
     }
 
-    var name: LocalizedStringKey {
-        LocalizedStringKey("Server IP override")
+    var name: String {
+        String("Server IP override")
     }
 }

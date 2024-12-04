@@ -12,12 +12,12 @@ struct SplitMainButton: View {
     var text: LocalizedStringKey
     var image: ImageResource
     var style: MainButtonStyle.Style
-    var disabled = false
+
+    @State var disabled = false
+    @State private var secondaryButtonWidth: CGFloat = 0
 
     var primaryAction: () -> Void
     var secondaryAction: () -> Void
-
-    @State private var width: CGFloat = 0
 
     var body: some View {
         HStack(spacing: 1) {
@@ -27,16 +27,17 @@ struct SplitMainButton: View {
                     Text(text)
                     Spacer()
                 }
-                .padding(.trailing, -width)
+                .padding(.trailing, -secondaryButtonWidth)
             })
             Button(action: secondaryAction, label: {
                 Image(image)
                     .resizable()
                     .scaledToFit()
-                    .padding(4)
+                    .frame(width: 24, height: 24)
+                    .padding(10)
             })
             .aspectRatio(1, contentMode: .fit)
-            .sizeOfView { width = $0.width }
+            .sizeOfView { secondaryButtonWidth = $0.width }
         }
         .buttonStyle(MainButtonStyle(style, disabled: disabled))
         .cornerRadius(UIMetrics.MainButton.cornerRadius)
