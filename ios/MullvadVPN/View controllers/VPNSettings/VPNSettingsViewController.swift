@@ -73,7 +73,7 @@ class VPNSettingsViewController: UITableViewController {
     }
 }
 
-extension VPNSettingsViewController: VPNSettingsDataSourceDelegate {
+extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelegate {
     func humanReadablePortRepresentation() -> String {
         let ranges = interactor.cachedRelays?.relays.wireguard.portRanges ?? []
         return ranges

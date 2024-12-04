@@ -9,7 +9,7 @@
 import Foundation
 import MullvadSettings
 
-final class TunnelBlockObserver: TunnelObserver {
+final class TunnelBlockObserver: TunnelObserver, @unchecked Sendable {
     typealias DidLoadConfigurationHandler = (TunnelManager) -> Void
     typealias DidUpdateTunnelStatusHandler = (TunnelManager, TunnelStatus) -> Void
     typealias DidUpdateDeviceStateHandler = (

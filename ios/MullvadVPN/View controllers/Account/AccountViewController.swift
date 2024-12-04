@@ -14,7 +14,7 @@ import Operations
 import StoreKit
 import UIKit
 
-enum AccountViewControllerAction {
+enum AccountViewControllerAction: Sendable {
     case deviceInfo
     case finish
     case logOut
@@ -23,7 +23,7 @@ enum AccountViewControllerAction {
     case restorePurchasesInfo
 }
 
-class AccountViewController: UIViewController {
+class AccountViewController: UIViewController, @unchecked Sendable {
     typealias ActionHandler = (AccountViewControllerAction) -> Void
 
     private let interactor: AccountInteractor
@@ -91,11 +91,15 @@ class AccountViewController: UIViewController {
         }
 
         interactor.didReceiveDeviceState = { [weak self] deviceState in
-            self?.updateView(from: deviceState)
+            Task { @MainActor in
+                self?.updateView(from: deviceState)
+            }
         }
 
         interactor.didReceivePaymentEvent = { [weak self] event in
-            self?.didReceivePaymentEvent(event)
+            Task { @MainActor in
+                self?.didReceivePaymentEvent(event)
+            }
         }
         configUI()
         addActions()
@@ -157,10 +161,13 @@ class AccountViewController: UIViewController {
             let productState: ProductState = completion.value?.products.first
                 .map { .received($0) } ?? .failed
 
-            self?.setProductState(productState, animated: true)
+            MainActor.assumeIsolated {
+                self?.setProductState(productState, animated: true)
+            }
         }
     }
 
+    @MainActor
     private func setPaymentState(_ newState: PaymentState, animated: Bool) {
         paymentState = newState
 
@@ -282,18 +289,20 @@ class AccountViewController: UIViewController {
         _ = interactor.restorePurchases(for: accountData.number) { [weak self] completion in
             guard let self else { return }
 
-            switch completion {
-            case let .success(response):
-                errorPresenter.showAlertForResponse(response, context: .restoration)
+            Task { @MainActor in
+                switch completion {
+                case let .success(response):
+                    errorPresenter.showAlertForResponse(response, context: .restoration)
 
-            case let .failure(error as StorePaymentManagerError):
-                errorPresenter.showAlertForError(error, context: .restoration)
+                case let .failure(error as StorePaymentManagerError):
+                    errorPresenter.showAlertForError(error, context: .restoration)
 
-            default:
-                break
+                default:
+                    break
+                }
+
+                setPaymentState(.none, animated: true)
             }
-
-            setPaymentState(.none, animated: true)
         }
     }
 

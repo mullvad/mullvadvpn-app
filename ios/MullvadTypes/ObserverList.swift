@@ -8,12 +8,12 @@
 
 import Foundation
 
-public struct WeakBox<T> {
+public struct WeakBox<T>: Sendable {
     public var value: T? {
         valueProvider()
     }
 
-    private let valueProvider: () -> T?
+    nonisolated(unsafe) private let valueProvider: () -> T?
 
     public init(_ value: T) {
         let reference = value as AnyObject
@@ -28,9 +28,9 @@ public struct WeakBox<T> {
     }
 }
 
-final public class ObserverList<T> {
+final public class ObserverList<T>: Sendable {
     private let lock = NSLock()
-    private var observers = [WeakBox<T>]()
+    nonisolated(unsafe) private var observers = [WeakBox<T>]()
 
     public init() {}
 

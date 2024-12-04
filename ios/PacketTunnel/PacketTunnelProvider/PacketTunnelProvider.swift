@@ -16,7 +16,7 @@ import NetworkExtension
 import PacketTunnelCore
 import WireGuardKitTypes
 
-class PacketTunnelProvider: NEPacketTunnelProvider {
+class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     private let internalQueue = DispatchQueue(label: "PacketTunnel-internalQueue")
     private let providerLogger: Logger
 
@@ -179,7 +179,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
     }
 
     private func performSettingsMigration() {
-        var hasNotMigrated = true
+        nonisolated(unsafe) var hasNotMigrated = true
         repeat {
             migrationManager.migrateSettings(
                 store: SettingsManager.store,

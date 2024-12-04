@@ -16,14 +16,15 @@ import UIKit
 /**
  Application coordinator managing split view and two navigation contexts.
  */
-final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewControllerDelegate,
-    UISplitViewControllerDelegate, ApplicationRouterDelegate, NotificationManagerDelegate {
+final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency RootContainerViewControllerDelegate,
+    UISplitViewControllerDelegate, @preconcurrency ApplicationRouterDelegate,
+    @preconcurrency NotificationManagerDelegate {
     typealias RouteType = AppRoute
 
     /**
      Application router.
      */
-    private(set) var router: ApplicationRouter<AppRoute>!
+    nonisolated(unsafe) private(set) var router: ApplicationRouter<AppRoute>!
 
     /**
      Navigation container.
@@ -109,7 +110,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         _ router: ApplicationRouter<RouteType>,
         presentWithContext context: RoutePresentationContext<RouteType>,
         animated: Bool,
-        completion: @escaping (Coordinator) -> Void
+        completion: @escaping @Sendable (Coordinator) -> Void
     ) {
         switch context.route {
         case .account:
@@ -150,7 +151,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         dismissWithContext context: RouteDismissalContext<RouteType>,
-        completion: @escaping () -> Void
+        completion: @escaping @Sendable () -> Void
     ) {
         let dismissedRoute = context.dismissedRoutes.first!
 
@@ -230,7 +231,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
-        completion: @escaping () -> Void
+        completion: @escaping @Sendable @MainActor () -> Void
     ) {
         switch context.route {
         case let .settings(subRoute):
@@ -385,9 +386,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         coordinator.didFinishPayment = { [weak self] _ in
             guard let self = self else { return }
 
-            if shouldDismissOutOfTime() {
-                router.dismiss(.outOfTime, animated: true)
-                continueFlow(animated: true)
+            Task { @MainActor in
+                if shouldDismissOutOfTime() {
+                    router.dismiss(.outOfTime, animated: true)
+                    continueFlow(animated: true)
+                }
             }
         }
 
@@ -448,10 +451,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
 
         coordinator.didFinish = { [weak self] _ in
-            self?.continueFlow(animated: true)
+            MainActor.assumeIsolated {
+                self?.continueFlow(animated: true)
+            }
         }
         coordinator.didCreateAccount = { [weak self] in
-            self?.appPreferences.isShownOnboarding = false
+            MainActor.assumeIsolated {
+                self?.appPreferences.isShownOnboarding = false
+            }
         }
 
         addChild(coordinator)
@@ -532,7 +539,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinish = { [weak self] _, reason in
-            self?.didDismissAccount(reason)
+            MainActor.assumeIsolated {
+                self?.didDismissAccount(reason)
+            }
         }
 
         coordinator.start(animated: animated)
@@ -550,7 +559,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func presentSettings(
         route: SettingsNavigationRoute?,
         animated: Bool,
-        completion: @escaping (Coordinator) -> Void
+        completion: @escaping @Sendable (Coordinator) -> Void
     ) {
         let interactorFactory = SettingsInteractorFactory(
             storePaymentManager: storePaymentManager,
@@ -574,7 +583,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         coordinator.didFinish = { [weak self] _ in
-            self?.router.dismissAll(.settings, animated: true)
+            Task { @MainActor in
+                self?.router.dismissAll(.settings, animated: true)
+            }
         }
 
         coordinator.willNavigate = { [weak self] _, _, to in
@@ -663,7 +674,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         guard !accountData.isExpired else { return }
 
         let timer = Timer(fire: accountData.expiry, interval: 0, repeats: false, block: { [weak self] _ in
-            self?.router.present(.outOfTime, animated: true)
+            Task { @MainActor in
+                self?.router.present(.outOfTime, animated: true)
+            }
         })
 
         RunLoop.main.add(timer, forMode: .common)

@@ -13,7 +13,7 @@ import UIKit
 
 class AddLocationsDataSource:
     UITableViewDiffableDataSource<LocationSection, LocationCellViewModel>,
-    LocationDiffableDataSourceProtocol {
+    LocationDiffableDataSourceProtocol, @unchecked Sendable {
     private var customListLocationNode: CustomListLocationNode
     private let nodes: [LocationNode]
     private let subject: CurrentValueSubject<CustomListViewModel, Never>
@@ -108,7 +108,7 @@ extension AddLocationsDataSource: UITableViewDelegate {
     }
 }
 
-extension AddLocationsDataSource: LocationCellDelegate {
+extension AddLocationsDataSource: @preconcurrency LocationCellDelegate {
     func toggleExpanding(cell: LocationCell) {
         toggleItems(for: cell) {
             if let indexPath = self.tableView.indexPath(for: cell),

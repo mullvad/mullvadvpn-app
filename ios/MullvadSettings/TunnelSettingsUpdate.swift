@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-public enum TunnelSettingsUpdate {
+public enum TunnelSettingsUpdate: Sendable {
     case dnsSettings(DNSSettings)
     case obfuscation(WireGuardObfuscationSettings)
     case relayConstraints(RelayConstraints)

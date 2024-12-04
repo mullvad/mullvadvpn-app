@@ -9,12 +9,12 @@
 import Routing
 import UIKit
 
-class OutOfTimeCoordinator: Coordinator, Presenting, OutOfTimeViewControllerDelegate, Poppable {
+class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeViewControllerDelegate, Poppable {
     let navigationController: RootContainerViewController
     let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
 
-    var didFinishPayment: ((OutOfTimeCoordinator) -> Void)?
+    nonisolated(unsafe) var didFinishPayment: (@Sendable (OutOfTimeCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController

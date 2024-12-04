@@ -12,23 +12,23 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-import StoreKit
+@preconcurrency import StoreKit
 
-final class OutOfTimeInteractor {
+final class OutOfTimeInteractor: Sendable {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
 
-    private var tunnelObserver: TunnelObserver?
-    private var paymentObserver: StorePaymentObserver?
+    nonisolated(unsafe) private var tunnelObserver: TunnelObserver?
+    nonisolated(unsafe) private var paymentObserver: StorePaymentObserver?
 
-    private let logger = Logger(label: "OutOfTimeInteractor")
+    nonisolated(unsafe) private let logger = Logger(label: "OutOfTimeInteractor")
 
     private let accountUpdateTimerInterval: Duration = .minutes(1)
-    private var accountUpdateTimer: DispatchSourceTimer?
+    nonisolated(unsafe) private var accountUpdateTimer: DispatchSourceTimer?
 
-    var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
-    var didReceiveTunnelStatus: ((TunnelStatus) -> Void)?
-    var didAddMoreCredit: (() -> Void)?
+    nonisolated(unsafe) var didReceivePaymentEvent: (@Sendable (StorePaymentEvent) -> Void)?
+    nonisolated(unsafe) var didReceiveTunnelStatus: (@Sendable (TunnelStatus) -> Void)?
+    nonisolated(unsafe) var didAddMoreCredit: (@Sendable () -> Void)?
 
     init(storePaymentManager: StorePaymentManager, tunnelManager: TunnelManager) {
         self.storePaymentManager = storePaymentManager
@@ -76,7 +76,7 @@ final class OutOfTimeInteractor {
 
     func restorePurchases(
         for accountNumber: String,
-        completionHandler: @escaping (Result<
+        completionHandler: @escaping @Sendable (Result<
             REST.CreateApplePaymentResponse,
             Error
         >) -> Void
@@ -89,7 +89,7 @@ final class OutOfTimeInteractor {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
+        completionHandler: @escaping @Sendable (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
         storePaymentManager.requestProducts(
             with: productIdentifiers,

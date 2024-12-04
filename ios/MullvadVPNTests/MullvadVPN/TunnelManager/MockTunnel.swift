@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 import NetworkExtension
 
-class MockTunnel: TunnelProtocol {
+class MockTunnel: TunnelProtocol, @unchecked Sendable {
     typealias TunnelManagerProtocol = SimulatorTunnelProviderManager
 
     var status: NEVPNStatus

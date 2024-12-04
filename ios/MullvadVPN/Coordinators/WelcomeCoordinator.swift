@@ -80,7 +80,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
     }
 }
 
-extension WelcomeCoordinator: WelcomeViewControllerDelegate {
+extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = NSLocalizedString(
             "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",

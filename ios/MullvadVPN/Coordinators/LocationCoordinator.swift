@@ -204,7 +204,7 @@ extension LocationCoordinator: UIAdaptivePresentationControllerDelegate {
     }
 }
 
-extension LocationCoordinator: RelayCacheTrackerObserver {
+extension LocationCoordinator: @preconcurrency RelayCacheTrackerObserver {
     func relayCacheTracker(
         _ tracker: RelayCacheTracker,
         didUpdateCachedRelays cachedRelays: CachedRelays
@@ -219,7 +219,7 @@ extension LocationCoordinator: RelayCacheTrackerObserver {
     }
 }
 
-extension LocationCoordinator: LocationViewControllerWrapperDelegate {
+extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDelegate {
     func didSelectEntryRelays(_ relays: UserSelectedRelays) {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.entryLocations = .only(relays)

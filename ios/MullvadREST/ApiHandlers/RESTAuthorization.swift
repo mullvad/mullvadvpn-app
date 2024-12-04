@@ -11,7 +11,7 @@ import MullvadTypes
 import Operations
 
 protocol RESTAuthorizationProvider {
-    func getAuthorization(completion: @escaping (Result<REST.Authorization, Swift.Error>) -> Void)
+    func getAuthorization(completion: @escaping @Sendable (Result<REST.Authorization, Swift.Error>) -> Void)
         -> Cancellable
 }
 
@@ -28,7 +28,7 @@ extension REST {
         }
 
         func getAuthorization(
-            completion: @escaping (Result<REST.Authorization, Swift.Error>)
+            completion: @escaping @Sendable (Result<REST.Authorization, Swift.Error>)
                 -> Void
         ) -> Cancellable {
             accessTokenManager.getAccessToken(accountNumber: accountNumber) { result in

@@ -12,7 +12,7 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import Operations
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 enum SetAccountAction {
     /// Set new account.
@@ -37,7 +37,7 @@ enum SetAccountAction {
     }
 }
 
-class SetAccountOperation: ResultOperation<StoredAccountData?> {
+class SetAccountOperation: ResultOperation<StoredAccountData?>, @unchecked Sendable {
     private let interactor: TunnelInteractor
     private let accountsProxy: RESTAccountHandling
     private let devicesProxy: DeviceHandling
@@ -108,7 +108,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
 
      Does nothing if device is already logged out.
      */
-    private func startLogoutFlow(completion: @escaping () -> Void) {
+    private func startLogoutFlow(completion: @escaping @Sendable () -> Void) {
         switch interactor.deviceState {
         case let .loggedIn(accountData, deviceData):
             deleteDevice(accountNumber: accountData.number, deviceIdentifier: deviceData.identifier) { [self] _ in
@@ -129,7 +129,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
      1. Create new account via API.
      2. Call `continueLoginFlow()` passing the result of account creation request.
      */
-    private func startNewAccountFlow(completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
+    private func startNewAccountFlow(completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void) {
         createAccount { [self] result in
             continueLoginFlow(result, completion: completion)
         }
@@ -143,7 +143,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
      */
     private func startExistingAccountFlow(
         accountNumber: String,
-        completion: @escaping (Result<StoredAccountData, Error>) -> Void
+        completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void
     ) {
         getAccount(accountNumber: accountNumber) { [self] result in
             continueLoginFlow(result, completion: completion)
@@ -158,7 +158,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
      */
     private func startDeleteAccountFlow(
         accountNumber: String,
-        completion: @escaping (Result<Void, Error>) -> Void
+        completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
         deleteAccount(accountNumber: accountNumber) { [self] result in
             if result.isSuccess {
@@ -179,7 +179,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
      */
     private func continueLoginFlow(
         _ result: Result<StoredAccountData, Error>,
-        completion: @escaping (Result<StoredAccountData, Error>) -> Void
+        completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void
     ) {
         do {
             let accountData = try result.get()
@@ -234,7 +234,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     /// Create new account and produce `StoredAccountData` upon success.
-    private func createAccount(completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
+    private func createAccount(completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void) {
         logger.debug("Create new account...")
 
         let task = accountsProxy.createAccount(retryStrategy: .default) { [self] result in
@@ -261,7 +261,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     /// Get account data from the API and produce `StoredAccountData` upon success.
-    private func getAccount(accountNumber: String, completion: @escaping (Result<StoredAccountData, Error>) -> Void) {
+    private func getAccount(
+        accountNumber: String,
+        completion: @escaping @Sendable (Result<StoredAccountData, Error>) -> Void
+    ) {
         logger.debug("Request account data...")
 
         let task = accountsProxy.getAccountData(accountNumber: accountNumber).execute(
@@ -290,7 +293,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     /// Delete account.
-    private func deleteAccount(accountNumber: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    private func deleteAccount(accountNumber: String, completion: @escaping @Sendable (Result<Void, Error>) -> Void) {
         logger.debug("Delete account...")
 
         let task = accountsProxy.deleteAccount(
@@ -312,7 +315,11 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     /// Delete device from API.
-    private func deleteDevice(accountNumber: String, deviceIdentifier: String, completion: @escaping (Error?) -> Void) {
+    private func deleteDevice(
+        accountNumber: String,
+        deviceIdentifier: String,
+        completion: @escaping @Sendable (Error?) -> Void
+    ) {
         logger.debug("Delete current device...")
 
         let task = devicesProxy.deleteDevice(
@@ -346,7 +353,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
      2. Reset device staate to logged out and persist it.
      3. Remove VPN configuration and release an instance of `Tunnel` object.
      */
-    private func unsetDeviceState(completion: @escaping () -> Void) {
+    private func unsetDeviceState(completion: @escaping @Sendable () -> Void) {
         // Tell the caller to unsubscribe from VPN status notifications.
         interactor.prepareForVPNConfigurationDeletion()
 
@@ -379,7 +386,10 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     }
 
     /// Create new private key and create new device via API.
-    private func createDevice(accountNumber: String, completion: @escaping (Result<NewDevice, Error>) -> Void) {
+    private func createDevice(
+        accountNumber: String,
+        completion: @escaping @Sendable (Result<NewDevice, Error>) -> Void
+    ) {
         let privateKey = PrivateKey()
         let request = REST.CreateDeviceRequest(publicKey: privateKey.publicKey, hijackDNS: false)
 
@@ -417,7 +427,7 @@ class SetAccountOperation: ResultOperation<StoredAccountData?> {
     private func findDevice(
         accountNumber: String,
         publicKey: PublicKey,
-        completion: @escaping (Result<Device?, Error>) -> Void
+        completion: @escaping @Sendable (Result<Device?, Error>) -> Void
     ) {
         let task = devicesProxy.getDevices(accountNumber: accountNumber, retryStrategy: .default) { [self] result in
             dispatchQueue.async { [self] in
