@@ -12,7 +12,6 @@ import NetworkExtension
 @testable import PacketTunnelCore
 @testable import WireGuardKitTypes
 
-// swiftlint:disable function_parameter_count
 class NWTCPConnectionStub: NWTCPConnection {
     var _isViable = false
     override var isViable: Bool {
@@ -104,5 +103,3 @@ class SuccessfulNegotiatorStub: EphemeralPeerNegotiating {
         onCancelKeyNegotiation?()
     }
 }
-
-// swiftlint:enable function_parameter_count
