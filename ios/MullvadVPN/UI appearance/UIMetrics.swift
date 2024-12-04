@@ -134,6 +134,10 @@ enum UIMetrics {
         static let inRowHeight: CGFloat = 22
         static let outRowHeight: CGFloat = 44
     }
+
+    enum MainButton {
+        static let cornerRadius: CGFloat = 4
+    }
 }
 
 extension UIMetrics {
