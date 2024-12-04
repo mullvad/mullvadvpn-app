@@ -51,7 +51,7 @@ class AddLocationsCoordinator: Coordinator, Presentable, Presenting {
     }
 }
 
-extension AddLocationsCoordinator: AddLocationsViewControllerDelegate {
+extension AddLocationsCoordinator: @preconcurrency AddLocationsViewControllerDelegate {
     func didBack() {
         didFinish?(self)
     }

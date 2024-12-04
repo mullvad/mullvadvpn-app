@@ -11,7 +11,7 @@ import Foundation
 import MullvadLogging
 import MullvadTypes
 
-public class AccessMethodRepository: AccessMethodRepositoryProtocol {
+public class AccessMethodRepository: AccessMethodRepositoryProtocol, @unchecked Sendable {
     public static let directId = UUID(uuidString: "C9DB7457-2A55-42C3-A926-C07F82131994")!
     public static let bridgeId = UUID(uuidString: "8586E75A-CA7B-4432-B70D-EE65F3F95084")!
     public static let encryptedDNSId = UUID(uuidString: "831CB1F8-1829-42DD-B9DC-82902F298EC0")!

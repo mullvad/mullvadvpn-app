@@ -10,6 +10,7 @@ import MullvadSettings
 import UIKit
 
 /// Type implementing the access method protocol picker.
+@MainActor
 struct AccessMethodProtocolPicker {
     /// The navigation controller used for presenting the picker.
     let navigationController: UINavigationController

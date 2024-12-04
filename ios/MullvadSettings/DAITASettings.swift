@@ -9,7 +9,7 @@
 import Foundation
 
 /// Whether DAITA is enabled.
-public enum DAITAState: Codable {
+public enum DAITAState: Codable, Sendable {
     case on
     case off
 
@@ -24,7 +24,7 @@ public enum DAITAState: Codable {
 }
 
 /// Whether "direct only" is enabled, meaning no automatic routing to DAITA relays.
-public enum DirectOnlyState: Codable {
+public enum DirectOnlyState: Codable, Sendable {
     case on
     case off
 
@@ -43,7 +43,7 @@ public enum DAITASettingsCompatibilityError {
     case singlehop, multihop
 }
 
-public struct DAITASettings: Codable, Equatable {
+public struct DAITASettings: Codable, Equatable, Sendable {
     @available(*, deprecated, renamed: "daitaState")
     public let state: DAITAState = .off
 

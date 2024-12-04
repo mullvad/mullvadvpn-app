@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 class MethodSettingsDataSourceConfiguration {
     private let dataSource: UITableViewDiffableDataSource<
         MethodSettingsSectionIdentifier,

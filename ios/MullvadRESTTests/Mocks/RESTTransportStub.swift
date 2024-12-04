@@ -19,7 +19,7 @@ struct RESTTransportStub: RESTTransport {
 
     func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
         completion(data, response, error)
         return AnyCancellable()

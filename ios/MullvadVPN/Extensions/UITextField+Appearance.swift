@@ -9,6 +9,7 @@
 import UIKit
 
 extension UITextField {
+    @MainActor
     struct SearchTextFieldAppearance {
         let placeholderTextColor: UIColor
         let textColor: UIColor

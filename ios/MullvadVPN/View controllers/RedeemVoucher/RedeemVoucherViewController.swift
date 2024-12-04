@@ -10,7 +10,7 @@ import MullvadREST
 import MullvadTypes
 import UIKit
 
-protocol RedeemVoucherViewControllerDelegate: AnyObject {
+protocol RedeemVoucherViewControllerDelegate: AnyObject, Sendable {
     func redeemVoucherDidSucceed(
         _ controller: RedeemVoucherViewController,
         with response: REST.SubmitVoucherResponse
@@ -18,9 +18,10 @@ protocol RedeemVoucherViewControllerDelegate: AnyObject {
     func redeemVoucherDidCancel(_ controller: RedeemVoucherViewController)
 }
 
+@MainActor
 class RedeemVoucherViewController: UIViewController, UINavigationControllerDelegate, RootContainment {
     private let contentView: RedeemVoucherContentView
-    private var interactor: RedeemVoucherInteractor
+    nonisolated(unsafe) private var interactor: RedeemVoucherInteractor
 
     weak var delegate: RedeemVoucherViewControllerDelegate?
 
@@ -115,12 +116,14 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         contentView.isEditing = false
         interactor.redeemVoucher(code: code, completion: { [weak self] result in
             guard let self else { return }
-            switch result {
-            case let .success(value):
-                contentView.state = .success
-                delegate?.redeemVoucherDidSucceed(self, with: value)
-            case let .failure(error):
-                contentView.state = .failure(error)
+            MainActor.assumeIsolated {
+                switch result {
+                case let .success(value):
+                    contentView.state = .success
+                    delegate?.redeemVoucherDidSucceed(self, with: value)
+                case let .failure(error):
+                    contentView.state = .failure(error)
+                }
             }
         })
     }

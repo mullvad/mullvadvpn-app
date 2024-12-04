@@ -136,16 +136,20 @@ final class LocationViewController: UIViewController {
         )
 
         dataSource?.didSelectRelayLocations = { [weak self] relays in
-            self?.delegate?.didSelectRelays(relays: relays)
+            Task { @MainActor in
+                self?.delegate?.didSelectRelays(relays: relays)
+            }
         }
 
         dataSource?.didTapEditCustomLists = { [weak self] in
             guard let self else { return }
 
-            if let relaysWithLocation {
-                let allLocationDataSource = AllLocationDataSource()
-                allLocationDataSource.reload(relaysWithLocation)
-                delegate?.navigateToCustomLists(nodes: allLocationDataSource.nodes)
+            Task { @MainActor in
+                if let relaysWithLocation {
+                    let allLocationDataSource = AllLocationDataSource()
+                    allLocationDataSource.reload(relaysWithLocation)
+                    delegate?.navigateToCustomLists(nodes: allLocationDataSource.nodes)
+                }
             }
         }
 

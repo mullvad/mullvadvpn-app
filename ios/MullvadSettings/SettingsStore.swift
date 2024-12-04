@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum SettingsKey: String, CaseIterable {
+public enum SettingsKey: String, CaseIterable, Sendable {
     case settings = "Settings"
     case deviceState = "DeviceState"
     case apiAccessMethods = "ApiAccessMethods"
@@ -18,7 +18,7 @@ public enum SettingsKey: String, CaseIterable {
     case shouldWipeSettings = "ShouldWipeSettings"
 }
 
-public protocol SettingsStore {
+public protocol SettingsStore: Sendable {
     func read(key: SettingsKey) throws -> Data
     func write(_ data: Data, for key: SettingsKey) throws
     func delete(key: SettingsKey) throws

@@ -9,7 +9,7 @@
 import Foundation
 import protocol Network.IPAddress
 
-public enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible {
+public enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible, @unchecked Sendable {
     case ipv4(IPv4Endpoint)
     case ipv6(IPv6Endpoint)
 

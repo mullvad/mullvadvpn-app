@@ -83,7 +83,7 @@ class WelcomeViewController: UIViewController, RootContainment {
     }
 }
 
-extension WelcomeViewController: WelcomeContentViewDelegate {
+extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
     func didTapInfoButton(welcomeContentView: WelcomeContentView, button: UIButton) {
         delegate?.didRequestToShowInfo(controller: self)
     }
@@ -103,7 +103,7 @@ extension WelcomeViewController: WelcomeContentViewDelegate {
     }
 }
 
-extension WelcomeViewController: InAppPurchaseViewControllerDelegate {
+extension WelcomeViewController: @preconcurrency InAppPurchaseViewControllerDelegate {
     func didBeginPayment() {
         contentView.isPurchasing = true
     }

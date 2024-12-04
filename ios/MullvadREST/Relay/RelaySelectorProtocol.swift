@@ -19,7 +19,7 @@ public protocol RelaySelectorProtocol {
 }
 
 /// Struct describing the selected relay.
-public struct SelectedRelay: Equatable, Codable {
+public struct SelectedRelay: Equatable, Codable, Sendable {
     /// Selected relay endpoint.
     public let endpoint: MullvadEndpoint
 
@@ -43,7 +43,7 @@ extension SelectedRelay: CustomDebugStringConvertible {
     }
 }
 
-public struct SelectedRelays: Equatable, Codable {
+public struct SelectedRelays: Equatable, Codable, Sendable {
     public let entry: SelectedRelay?
     public let exit: SelectedRelay
     public let retryAttempt: UInt

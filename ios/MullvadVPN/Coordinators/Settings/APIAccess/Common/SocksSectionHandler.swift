@@ -10,6 +10,7 @@ import Combine
 import UIKit
 
 /// Type responsible for handling cells in socks table view section.
+@MainActor
 struct SocksSectionHandler {
     private let authenticationInputMaxLength = 255
 

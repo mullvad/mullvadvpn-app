@@ -10,16 +10,16 @@ import Foundation
 import MullvadTypes
 import WireGuardKitTypes
 
-public protocol APIQuerying {
+public protocol APIQuerying: Sendable {
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable
 
     func getRelays(
         etag: String?,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
     ) -> Cancellable
 
     func createApplePayment(
@@ -30,19 +30,19 @@ public protocol APIQuerying {
     func sendProblemReport(
         _ body: REST.ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<Void>
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
     ) -> Cancellable
 
     func submitVoucher(
         voucherCode: String,
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completionHandler: @escaping ProxyCompletionHandler<REST.SubmitVoucherResponse>
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.SubmitVoucherResponse>
     ) -> Cancellable
 }
 
 extension REST {
-    public final class APIProxy: Proxy<AuthProxyConfiguration>, APIQuerying {
+    public final class APIProxy: Proxy<AuthProxyConfiguration>, APIQuerying, @unchecked Sendable {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "APIProxy",
@@ -57,7 +57,7 @@ extension REST {
 
         public func getAddressList(
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 try self.requestFactory.createRequest(
@@ -84,7 +84,7 @@ extension REST {
         public func getRelays(
             etag: String?,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<ServerRelaysCacheResponse>
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<ServerRelaysCacheResponse>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler { endpoint in
                 var requestBuilder = try self.requestFactory.createRequestBuilder(
@@ -240,7 +240,7 @@ extension REST {
             voucherCode: String,
             accountNumber: String,
             retryStrategy: REST.RetryStrategy,
-            completionHandler: @escaping ProxyCompletionHandler<SubmitVoucherResponse>
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<SubmitVoucherResponse>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -283,16 +283,16 @@ extension REST {
 
     // MARK: - Response types
 
-    public enum ServerRelaysCacheResponse {
+    public enum ServerRelaysCacheResponse: Sendable {
         case notModified
         case newContent(_ etag: String?, _ rawData: Data)
     }
 
-    private struct CreateApplePaymentRequest: Encodable {
+    private struct CreateApplePaymentRequest: Encodable, Sendable {
         let receiptString: Data
     }
 
-    public enum CreateApplePaymentResponse {
+    public enum CreateApplePaymentResponse: Sendable {
         case noTimeAdded(_ expiry: Date)
         case timeAdded(_ timeAdded: Int, _ newExpiry: Date)
 
@@ -322,12 +322,12 @@ extension REST {
         }
     }
 
-    private struct CreateApplePaymentRawResponse: Decodable {
+    private struct CreateApplePaymentRawResponse: Decodable, Sendable {
         let timeAdded: Int
         let newExpiry: Date
     }
 
-    public struct ProblemReportRequest: Encodable {
+    public struct ProblemReportRequest: Encodable, Sendable {
         public let address: String
         public let message: String
         public let log: String
@@ -341,11 +341,11 @@ extension REST {
         }
     }
 
-    private struct SubmitVoucherRequest: Encodable {
+    private struct SubmitVoucherRequest: Encodable, Sendable {
         let voucherCode: String
     }
 
-    public struct SubmitVoucherResponse: Decodable {
+    public struct SubmitVoucherResponse: Decodable, Sendable {
         public let timeAdded: Int
         public let newExpiry: Date
 

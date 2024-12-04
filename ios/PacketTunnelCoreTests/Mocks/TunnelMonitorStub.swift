@@ -11,7 +11,7 @@ import Network
 import PacketTunnelCore
 
 /// Tunnel monitor stub that can be configured with block handler to simulate a specific behavior.
-class TunnelMonitorStub: TunnelMonitorProtocol {
+class TunnelMonitorStub: TunnelMonitorProtocol, @unchecked Sendable {
     enum Command {
         case start, stop
     }

@@ -12,7 +12,7 @@ import MullvadSettings
 import MullvadTypes
 
 // this is still very minimal, and will be fleshed out as needed.
-class MockTunnelInteractor: TunnelInteractor {
+final class MockTunnelInteractor: TunnelInteractor, @unchecked Sendable {
     var isConfigurationLoaded: Bool
 
     var settings: LatestTunnelSettings

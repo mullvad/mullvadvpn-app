@@ -9,18 +9,18 @@
 import Routing
 import UIKit
 
-enum AccountDismissReason: Equatable {
+enum AccountDismissReason: Equatable, Sendable {
     case none
     case userLoggedOut
     case accountDeletion
 }
 
-enum AddedMoreCreditOption: Equatable {
+enum AddedMoreCreditOption: Equatable, Sendable {
     case redeemingVoucher
     case inAppPurchase
 }
 
-final class AccountCoordinator: Coordinator, Presentable, Presenting {
+final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked Sendable {
     private let interactor: AccountInteractor
     private var accountController: AccountViewController?
 
@@ -29,7 +29,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
         navigationController
     }
 
-    var didFinish: ((AccountCoordinator, AccountDismissReason) -> Void)?
+    var didFinish: (@MainActor (AccountCoordinator, AccountDismissReason) -> Void)?
 
     init(
         navigationController: UINavigationController,
@@ -101,6 +101,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
         )
     }
 
+    @MainActor
     private func navigateToDeleteAccount() {
         let coordinator = AccountDeletionCoordinator(
             navigationController: CustomNavigationController(),
@@ -109,10 +110,12 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting {
 
         coordinator.start()
         coordinator.didCancel = { accountDeletionCoordinator in
-            accountDeletionCoordinator.dismiss(animated: true)
+            Task { @MainActor in
+                accountDeletionCoordinator.dismiss(animated: true)
+            }
         }
 
-        coordinator.didFinish = { accountDeletionCoordinator in
+        coordinator.didFinish = { @MainActor accountDeletionCoordinator in
             accountDeletionCoordinator.dismiss(animated: true) {
                 self.didFinish?(self, .userLoggedOut)
             }

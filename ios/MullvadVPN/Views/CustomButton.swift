@@ -24,7 +24,7 @@ extension UIControl.State {
 }
 
 /// A custom `UIButton` subclass that implements additional layouts for the image
-class CustomButton: UIButton {
+class CustomButton: UIButton, Sendable {
     var imageAlignment: NSDirectionalRectEdge = .leading {
         didSet {
             self.configuration?.imagePlacement = imageAlignment

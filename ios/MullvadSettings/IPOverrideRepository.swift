@@ -6,10 +6,10 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
+@preconcurrency import Combine
 import MullvadLogging
 
-public protocol IPOverrideRepositoryProtocol {
+public protocol IPOverrideRepositoryProtocol: Sendable {
     var overridesPublisher: AnyPublisher<[IPOverride], Never> { get }
     func add(_ overrides: [IPOverride])
     func fetchAll() -> [IPOverride]
@@ -17,13 +17,13 @@ public protocol IPOverrideRepositoryProtocol {
     func parse(data: Data) throws -> [IPOverride]
 }
 
-public class IPOverrideRepository: IPOverrideRepositoryProtocol {
+public final class IPOverrideRepository: IPOverrideRepositoryProtocol {
     private let overridesSubject: CurrentValueSubject<[IPOverride], Never> = .init([])
     public var overridesPublisher: AnyPublisher<[IPOverride], Never> {
         overridesSubject.eraseToAnyPublisher()
     }
 
-    private let logger = Logger(label: "IPOverrideRepository")
+    nonisolated(unsafe) private let logger = Logger(label: "IPOverrideRepository")
     private let readWriteLock = NSLock()
 
     public init() {}

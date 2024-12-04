@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 extension REST {
-    public struct APIAvailabilityTestRequest {
+    public struct APIAvailabilityTestRequest: Sendable {
         let transport: RESTTransport
 
         public init(transport: RESTTransport) {
@@ -21,7 +21,7 @@ extension REST {
         ///
         /// - Parameter completion: Completes with `nil` if the request was successful, and `Error` otherwise.
         /// - Returns: A cancellable token to cancel the request inflight.
-        public func makeRequest(completion: @escaping (Swift.Error?) -> Void) -> Cancellable {
+        public func makeRequest(completion: @escaping @Sendable (Swift.Error?) -> Void) -> Cancellable {
             do {
                 let factory = RequestFactory(
                     hostname: defaultAPIHostname,

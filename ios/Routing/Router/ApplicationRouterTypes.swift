@@ -11,10 +11,10 @@ import Foundation
 /**
  Struct describing a routing request for presentation or dismissal.
  */
-struct PendingRoute<RouteType: AppRouteProtocol> {
+struct PendingRoute<RouteType: AppRouteProtocol>: Sendable {
     var operation: RouteOperation<RouteType>
     var animated: Bool
-    var metadata: Any?
+    nonisolated(unsafe) var metadata: Any?
 }
 
 extension PendingRoute: Equatable {
@@ -26,7 +26,7 @@ extension PendingRoute: Equatable {
 /**
  Enum type describing an attempt to fulfill the route presentation request.
  **/
-enum PendingPresentationResult {
+enum PendingPresentationResult: Sendable {
     /**
      Successfully presented the route.
      */
@@ -52,7 +52,7 @@ enum PendingPresentationResult {
 /**
  Enum type describing an attempt to fulfill the route dismissal request.
  */
-enum PendingDismissalResult {
+enum PendingDismissalResult: Sendable {
     /**
      Successfully dismissed the route.
      */
@@ -76,7 +76,7 @@ enum PendingDismissalResult {
 /**
  Enum describing operation over the route.
  */
-enum RouteOperation<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringConvertible {
+enum RouteOperation<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringConvertible, Sendable {
     /**
      Present route.
      */
@@ -114,7 +114,7 @@ enum RouteOperation<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringCo
 /**
  Enum type describing a single route or a group of routes requested to be dismissed.
  */
-enum DismissMatch<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringConvertible {
+enum DismissMatch<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringConvertible, Sendable {
     case group(RouteType.RouteGroupType)
     case singleRoute(RouteType)
 
@@ -143,7 +143,7 @@ enum DismissMatch<RouteType: AppRouteProtocol>: Equatable, CustomDebugStringConv
 /**
  Struct describing presented route.
  */
-public struct PresentedRoute<RouteType: AppRouteProtocol>: Equatable {
+public struct PresentedRoute<RouteType: AppRouteProtocol>: Equatable, Sendable {
     public var route: RouteType
     public var coordinator: Coordinator
 }
@@ -171,7 +171,7 @@ public struct RouteDismissalContext<RouteType: AppRouteProtocol> {
 /**
  Struct holding information used by delegate to perform presentation of a specific route.
  */
-public struct RoutePresentationContext<RouteType: AppRouteProtocol> {
+public struct RoutePresentationContext<RouteType: AppRouteProtocol>: Sendable {
     /**
      Route that's being presented.
      */
@@ -185,13 +185,13 @@ public struct RoutePresentationContext<RouteType: AppRouteProtocol> {
     /**
      Metadata associated with the route.
      */
-    public var metadata: Any?
+    nonisolated(unsafe) public var metadata: Any?
 }
 
 /**
  Struct holding information used by delegate to perform sub-navigation of the route in subject.
  */
-public struct RouteSubnavigationContext<RouteType: AppRouteProtocol> {
+public struct RouteSubnavigationContext<RouteType: AppRouteProtocol>: Sendable {
     public var presentedRoute: PresentedRoute<RouteType>
     public var route: RouteType
     public var isAnimated: Bool

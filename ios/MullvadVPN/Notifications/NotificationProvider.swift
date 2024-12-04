@@ -16,7 +16,7 @@ protocol NotificationProviderDelegate: AnyObject {
 }
 
 /// Base class for all notification providers.
-class NotificationProvider: NotificationProviderProtocol {
+class NotificationProvider: NotificationProviderProtocol, @unchecked Sendable {
     weak var delegate: NotificationProviderDelegate?
 
     /**
@@ -51,7 +51,7 @@ class NotificationProvider: NotificationProviderProtocol {
         }
     }
 
-    private func dispatchOnMain(_ block: @escaping () -> Void) {
+    private func dispatchOnMain(_ block: @escaping @Sendable () -> Void) {
         if Thread.isMainThread {
             block()
         } else {
