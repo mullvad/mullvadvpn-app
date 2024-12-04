@@ -99,6 +99,7 @@ public actor PacketTunnelActor {
         }
     }
 
+    // swiftlint:disable:next function_body_length
     func executeEffect(_ effect: Effect) async {
         switch effect {
         case .startDefaultPathObserver:
@@ -136,7 +137,6 @@ public actor PacketTunnelActor {
             state = .disconnected
         case let .configureForErrorState(reason):
             await setErrorStateInternal(with: reason)
-
         case let .cacheActiveKey(lastKeyRotation):
             cacheActiveKey(lastKeyRotation: lastKeyRotation)
         case let .reconfigureForEphemeralPeer(configuration, configurationSemaphore):
