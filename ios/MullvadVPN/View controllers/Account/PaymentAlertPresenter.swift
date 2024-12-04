@@ -9,13 +9,14 @@
 import MullvadREST
 import Routing
 
+@MainActor
 struct PaymentAlertPresenter {
     let alertContext: any Presenting
 
     func showAlertForError(
         _ error: StorePaymentManagerError,
         context: REST.CreateApplePaymentResponse.Context,
-        completion: (() -> Void)? = nil
+        completion: (@Sendable () -> Void)? = nil
     ) {
         let presentation = AlertPresentation(
             id: "payment-error-alert",
@@ -39,7 +40,7 @@ struct PaymentAlertPresenter {
     func showAlertForResponse(
         _ response: REST.CreateApplePaymentResponse,
         context: REST.CreateApplePaymentResponse.Context,
-        completion: (() -> Void)? = nil
+        completion: (@Sendable () -> Void)? = nil
     ) {
         guard case .noTimeAdded = response else {
             completion?()

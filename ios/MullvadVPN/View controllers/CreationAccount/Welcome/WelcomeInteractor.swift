@@ -11,7 +11,7 @@ import MullvadLogging
 import MullvadTypes
 import StoreKit
 
-final class WelcomeInteractor {
+final class WelcomeInteractor: @unchecked Sendable {
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
 

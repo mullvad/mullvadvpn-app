@@ -7,11 +7,11 @@
 //
 
 import Foundation
-public protocol TunnelSettingsStrategyProtocol {
+public protocol TunnelSettingsStrategyProtocol: Sendable {
     func shouldReconnectToNewRelay(oldSettings: LatestTunnelSettings, newSettings: LatestTunnelSettings) -> Bool
 }
 
-public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol {
+public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
     public init() {}
     public func shouldReconnectToNewRelay(
         oldSettings: LatestTunnelSettings,

@@ -8,7 +8,7 @@
 import Foundation
 
 /// Status code used in socks protocol.
-public enum Socks5StatusCode: UInt8 {
+public enum Socks5StatusCode: UInt8, Sendable {
     case succeeded = 0x00
     case failure = 0x01
     case connectionNotAllowedByRuleset = 0x02

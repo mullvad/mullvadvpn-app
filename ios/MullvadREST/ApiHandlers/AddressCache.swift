@@ -11,7 +11,7 @@ import MullvadLogging
 import MullvadTypes
 
 extension REST {
-    public final class AddressCache {
+    public final class AddressCache: @unchecked Sendable {
         /// Logger.
         private let logger = Logger(label: "AddressCache")
 

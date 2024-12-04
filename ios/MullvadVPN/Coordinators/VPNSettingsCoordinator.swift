@@ -42,7 +42,7 @@ class VPNSettingsCoordinator: Coordinator, Presenting, SettingsChildCoordinator 
     }
 }
 
-extension VPNSettingsCoordinator: VPNSettingsViewControllerDelegate {
+extension VPNSettingsCoordinator: @preconcurrency VPNSettingsViewControllerDelegate {
     func showIPOverrides() {
         let coordinator = IPOverrideCoordinator(
             navigationController: navigationController,

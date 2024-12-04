@@ -14,7 +14,7 @@ import MullvadTypes
 import Operations
 import WireGuardKitTypes
 
-class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
+class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData>, @unchecked Sendable {
     private let interactor: TunnelInteractor
     private let devicesProxy: DeviceHandling
 
@@ -42,7 +42,7 @@ class UpdateDeviceDataOperation: ResultOperation<StoredDeviceData> {
             identifier: deviceData.identifier,
             retryStrategy: .default,
             completion: { [weak self] result in
-                self?.dispatchQueue.async {
+                self?.dispatchQueue.async { [weak self] in
                     self?.didReceiveDeviceResponse(result: result)
                 }
             }

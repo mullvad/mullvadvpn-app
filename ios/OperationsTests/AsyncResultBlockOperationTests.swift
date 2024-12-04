@@ -14,7 +14,7 @@ import XCTest
 final class AsyncResultBlockOperationTests: XCTestCase {
     let operationQueue = AsyncOperationQueue()
 
-    func testBlockOperation() {
+    func testBlockOperation() async {
         let expectation = expectation(description: "Should finish")
 
         let operation = ResultBlockOperation<Bool> { finish in
@@ -28,10 +28,10 @@ final class AsyncResultBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: .UnitTest.timeout)
+        await fulfillment(of: [expectation], timeout: .UnitTest.timeout)
     }
 
-    func testThrowingBlockOperation() {
+    func testThrowingBlockOperation() async {
         let expectation = expectation(description: "Should finish")
 
         let operation = ResultBlockOperation {
@@ -47,10 +47,10 @@ final class AsyncResultBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: .UnitTest.timeout)
+        await fulfillment(of: [expectation], timeout: .UnitTest.timeout)
     }
 
-    func testCancellableTaskOperation() {
+    func testCancellableTaskOperation() async {
         let expectation = expectation(description: "Should finish")
 
         let operation = ResultBlockOperation<Bool> { finish -> Cancellable in
@@ -71,6 +71,6 @@ final class AsyncResultBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: .UnitTest.timeout)
+        await fulfillment(of: [expectation], timeout: .UnitTest.timeout)
     }
 }

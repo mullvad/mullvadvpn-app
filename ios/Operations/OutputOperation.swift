@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol OutputOperation: Operation {
-    associatedtype Output
+    associatedtype Output: Sendable
 
     var output: Output? { get }
 }
