@@ -9,8 +9,9 @@
 import SwiftUI
 
 struct MainButton: View {
-    var text: String
+    var text: LocalizedStringKey
     var style: MainButtonStyle.Style
+    var disabled = false
 
     var action: () -> Void
 
@@ -22,13 +23,13 @@ struct MainButton: View {
                 Spacer()
             }
         })
-        .buttonStyle(MainButtonStyle(style))
+        .buttonStyle(MainButtonStyle(style, disabled: disabled))
         .cornerRadius(UIMetrics.MainButton.cornerRadius)
     }
 }
 
 #Preview {
-    MainButton(text: "Connect", style: .default) {
+    MainButton(text: "Connect", style: .success) {
         print("Tapped")
     }
 }

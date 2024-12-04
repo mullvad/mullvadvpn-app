@@ -8,80 +8,80 @@
 
 import SwiftUI
 
-// TODO: Replace all hardcoded values with real values dependent on tunnel state. To be addressed in upcoming PR.
+typealias ButtonAction = (ConnectionViewViewModel.TunnelControlAction) -> Void
 
 struct ConnectionView: View {
-    var body: some View {
-        ZStack {
-            BlurView()
+    @StateObject var viewModel: ConnectionViewViewModel
 
-            VStack(alignment: .leading, spacing: 16) {
-                ConnectionPanel()
-                ButtonPanel()
+    var action: ButtonAction?
+    var onContentUpdate: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: 22) {
+            if viewModel.showsActivityIndicator {
+                CustomProgressView(style: .large)
             }
+
+            ZStack {
+                BlurView(style: .dark)
+
+                VStack(alignment: .leading, spacing: 16) {
+                    ConnectionPanel(viewModel: viewModel)
+                    ButtonPanel(viewModel: viewModel, action: action)
+                }
+                .padding(16)
+            }
+            .cornerRadius(12)
             .padding(16)
         }
-        .cornerRadius(12)
-        .padding(16)
-        // Importing UIView in SwitftUI (see BlurView) has sizing limitations, so we need to help the view
-        // understand its width constraints.
-        .frame(maxWidth: UIScreen.main.bounds.width)
+        .onReceive(viewModel.$tunnelState, perform: { _ in
+            onContentUpdate?()
+        })
+        .onReceive(viewModel.$showsActivityIndicator, perform: { _ in
+            onContentUpdate?()
+        })
     }
 }
 
 #Preview {
-    ConnectionView()
-        .background(UIColor.secondaryColor.color)
-}
-
-private struct BlurView: View {
-    var body: some View {
-        Spacer()
-            .overlay {
-                VisualEffectView(effect: UIBlurEffect(style: .dark))
-                    .opacity(0.8)
-            }
+    ConnectionView(viewModel: ConnectionViewViewModel(tunnelState: .disconnected)) { action in
+        print(action)
     }
+    .background(UIColor.secondaryColor.color)
 }
 
 private struct ConnectionPanel: View {
+    @StateObject var viewModel: ConnectionViewViewModel
+
     var body: some View {
         VStack(alignment: .leading) {
-            Text("Connected")
+            Text(viewModel.localizedTitleForSecureLabel)
                 .textCase(.uppercase)
                 .font(.title3.weight(.semibold))
-                .foregroundStyle(UIColor.successColor.color)
+                .foregroundStyle(viewModel.textColorForSecureLabel.color)
                 .padding(.bottom, 4)
-            Text("Country, City")
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(UIColor.primaryTextColor.color)
-            Text("Server")
-                .font(.body)
-                .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+
+            if let countryAndCity = viewModel.titleForCountryAndCity, let server = viewModel.titleForServer {
+                Text(countryAndCity)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(UIColor.primaryTextColor.color)
+                Text(server)
+                    .font(.body)
+                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+            }
         }
+        .accessibilityLabel(viewModel.localizedAccessibilityLabel)
     }
 }
 
 private struct ButtonPanel: View {
+    @StateObject var viewModel: ConnectionViewViewModel
+    var action: ButtonAction?
+
     var body: some View {
         VStack(spacing: 16) {
-            SplitMainButton(
-                text: "Switch location",
-                image: .iconReload,
-                style: .default,
-                primaryAction: {
-                    print("Switch location tapped")
-                }, secondaryAction: {
-                    print("Reload tapped")
-                }
-            )
-
-            MainButton(
-                text: "Cancel",
-                style: .danger
-            ) {
-                print("Cancel tapped")
-            }
+            viewModel.locationButton(with: action)
+            viewModel.actionButton(with: action)
         }
     }
 }

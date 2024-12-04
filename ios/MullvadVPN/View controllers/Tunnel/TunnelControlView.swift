@@ -20,13 +20,6 @@ enum TunnelControlAction {
     case selectLocation
 }
 
-private enum TunnelControlActionButton {
-    case connect
-    case disconnect
-    case cancel
-    case selectLocation
-}
-
 final class TunnelControlView: UIView {
     private let secureLabel = makeBoldTextLabel(ofSize: 20, numberOfLines: 0)
     private let cityLabel = makeBoldTextLabel(ofSize: 34)
@@ -158,12 +151,11 @@ final class TunnelControlView: UIView {
     }
 
     private func updateActionButtons(tunnelState: TunnelState) {
-        let actionButtons = tunnelState.actionButtons(traitCollection: traitCollection)
-        let views = actionButtons.map { self.view(forActionButton: $0) }
+        let view = view(forActionButton: tunnelState.actionButton)
 
         updateButtonTitles(tunnelState: tunnelState)
         updateButtonEnabledStates(shouldEnableButtons: tunnelState.shouldEnableButtons)
-        setArrangedButtons(views)
+        setArrangedButtons([selectLocationButtonBlurView, view])
     }
 
     private func updateSecureLabel(tunnelState: TunnelState) {
@@ -351,7 +343,7 @@ final class TunnelControlView: UIView {
         }
     }
 
-    private func view(forActionButton actionButton: TunnelControlActionButton) -> UIView {
+    private func view(forActionButton actionButton: TunnelState.TunnelControlActionButton) -> UIView {
         switch actionButton {
         case .connect:
             return connectButton
@@ -359,8 +351,6 @@ final class TunnelControlView: UIView {
             return splitDisconnectButton
         case .cancel:
             return cancelButtonBlurView
-        case .selectLocation:
-            return selectLocationButtonBlurView
         }
     }
 
@@ -405,25 +395,4 @@ final class TunnelControlView: UIView {
     @objc private func handleSelectLocation() {
         actionHandler?(.selectLocation)
     }
-}
-
-private extension TunnelState {
-    func actionButtons(traitCollection: UITraitCollection) -> [TunnelControlActionButton] {
-        switch self {
-        case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
-            [.selectLocation, .connect]
-
-        case .connecting, .pendingReconnect, .disconnecting(.reconnect),
-             .waitingForConnectivity(.noConnection):
-            [.selectLocation, .cancel]
-
-        case .negotiatingEphemeralPeer:
-            [.selectLocation, .cancel]
-
-        case .connected, .reconnecting, .error:
-            [.selectLocation, .disconnect]
-        }
-    }
-
-    // swiftlint:disable:next file_length
 }
