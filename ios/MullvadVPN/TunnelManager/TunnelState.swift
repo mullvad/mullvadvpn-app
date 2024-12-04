@@ -10,10 +10,10 @@ import Foundation
 import MullvadREST
 import MullvadTypes
 import PacketTunnelCore
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 /// A struct describing the tunnel status.
-struct TunnelStatus: Equatable, CustomStringConvertible {
+struct TunnelStatus: Equatable, CustomStringConvertible, Sendable {
     /// Tunnel status returned by tunnel process.
     var observedState: ObservedState = .disconnected
 
@@ -38,7 +38,7 @@ struct TunnelStatus: Equatable, CustomStringConvertible {
 }
 
 /// An enum that describes the tunnel state.
-enum TunnelState: Equatable, CustomStringConvertible {
+enum TunnelState: Equatable, CustomStringConvertible, Sendable {
     enum WaitingForConnectionReason {
         /// Tunnel connection is down.
         case noConnection

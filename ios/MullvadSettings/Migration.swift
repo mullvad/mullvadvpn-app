@@ -12,6 +12,6 @@ public protocol Migration {
     func migrate(
         with store: SettingsStore,
         parser: SettingsParser,
-        completion: @escaping (Error?) -> Void
+        completion: @escaping @Sendable (Error?) -> Void
     )
 }

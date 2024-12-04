@@ -164,9 +164,11 @@ class RelayFilterView: UIView {
             .old,
         ]) { [weak self] _, change in
             guard let self, let newSize = change.newValue else { return }
-            let height = newSize.height == .zero ? 8 : newSize.height
-            collectionViewHeightConstraint.constant = height > 80 ? 80 : height
-            layoutIfNeeded() // Update the layout
+            Task { @MainActor in
+                let height = newSize.height == .zero ? 8 : newSize.height
+                collectionViewHeightConstraint.constant = height > 80 ? 80 : height
+                layoutIfNeeded() // Update the layout
+            }
         }
     }
 }

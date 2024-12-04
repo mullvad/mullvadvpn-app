@@ -34,7 +34,7 @@ struct Transformer<Inner: IteratorProtocol>: IteratorProtocol {
     private var inner: Inner
     private let transformer: (Inner.Element?) -> Inner.Element?
 
-    init(inner: Inner, transform: @escaping (Inner.Element?) -> Inner.Element?) {
+    init(inner: Inner, transform: @escaping @Sendable (Inner.Element?) -> Inner.Element?) {
         self.inner = inner
         self.transformer = transform
     }

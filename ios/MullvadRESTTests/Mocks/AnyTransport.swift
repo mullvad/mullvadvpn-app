@@ -6,12 +6,12 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+@preconcurrency import Foundation
 @testable import MullvadREST
 import MullvadTypes
 
 /// Mock implementation of REST transport that can be used to handle requests without doing any actual networking.
-class AnyTransport: RESTTransport {
+class AnyTransport: RESTTransport, @unchecked Sendable {
     typealias CompletionHandler = (Data?, URLResponse?, Error?) -> Void
 
     private let handleRequest: () -> AnyResponse
@@ -19,7 +19,7 @@ class AnyTransport: RESTTransport {
     private let completionLock = NSLock()
     private var completionHandlers: [UUID: CompletionHandler] = [:]
 
-    init(block: @escaping () -> AnyResponse) {
+    init(block: @escaping @Sendable () -> AnyResponse) {
         handleRequest = block
     }
 
@@ -29,7 +29,7 @@ class AnyTransport: RESTTransport {
 
     func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
         let response = handleRequest()
         let id = storeCompletion(completionHandler: completion)

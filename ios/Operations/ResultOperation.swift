@@ -9,8 +9,8 @@
 import Foundation
 
 /// Base class for operations producing result.
-open class ResultOperation<Success>: AsyncOperation, OutputOperation, @unchecked Sendable {
-    public typealias CompletionHandler = (Result<Success, Error>) -> Void
+open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, @unchecked Sendable {
+    public typealias CompletionHandler = @Sendable (Result<Success, Error>) -> Void
 
     private let nslock = NSLock()
     private var _output: Success?
@@ -118,7 +118,7 @@ open class ResultOperation<Success>: AsyncOperation, OutputOperation, @unchecked
         let completionQueue = _completionQueue
         nslock.unlock()
 
-        let block = {
+        let block: @Sendable () -> Void = {
             // Call completion handler.
             completionHandler?(result)
 

@@ -8,7 +8,8 @@
 
 import UIKit
 
-struct RelayFilterCellFactory: CellFactoryProtocol {
+@MainActor
+struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
 
     func makeCell(for item: RelayFilterDataSource.Item, indexPath: IndexPath) -> UITableViewCell {

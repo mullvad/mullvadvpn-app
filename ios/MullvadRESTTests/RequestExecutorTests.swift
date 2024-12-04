@@ -11,9 +11,10 @@
 @testable import MullvadTypes
 import XCTest
 
+@MainActor
 final class RequestExecutorTests: XCTestCase {
     let addressCache = REST.AddressCache(canWriteToCache: false, fileCache: MemoryCache())
-    var timerServerProxy: TimeServerProxy!
+    nonisolated(unsafe) var timerServerProxy: TimeServerProxy!
 
     override func setUp() {
         super.setUp()

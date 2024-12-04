@@ -24,8 +24,8 @@ extension View {
     }
 }
 
-private struct ViewSizeKey: PreferenceKey {
-    static var defaultValue: CGSize = .zero
+private struct ViewSizeKey: PreferenceKey, Sendable {
+    nonisolated(unsafe) static var defaultValue: CGSize = .zero
 
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
         value = nextValue()

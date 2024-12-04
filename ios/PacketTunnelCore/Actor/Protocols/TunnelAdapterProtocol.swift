@@ -10,10 +10,10 @@ import Foundation
 import MullvadTypes
 import Network
 
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
 /// Protocol describing interface for any kind of adapter implementing a VPN tunnel.
-public protocol TunnelAdapterProtocol {
+public protocol TunnelAdapterProtocol: Sendable {
     /// Start tunnel adapter or update active configuration.
     func start(configuration: TunnelAdapterConfiguration, daita: DaitaConfiguration?) async throws
 
