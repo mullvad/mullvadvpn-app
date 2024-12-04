@@ -25,6 +25,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "VPN settings". This will
   also be used automatically when connecting fails with other methods.
+- Add new settings views for DAITA and multihop.
 
 ## [2024.10 - 2024-11-20]
 ### Fixed

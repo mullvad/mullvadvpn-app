@@ -90,6 +90,8 @@ public enum AccessibilityIdentifier: String {
     case customListLocationCell
     case daitaConfirmAlertBackButton
     case daitaConfirmAlertEnableButton
+    case multihopCell
+    case daitaCell
 
     // Labels
     case accountPageDeviceNameLabel
@@ -144,6 +146,8 @@ public enum AccessibilityIdentifier: String {
     case editCustomListEditLocationsTableView
     case relayFilterChipView
     case dnsSettingsTableView
+    case multihopView
+    case daitaView
 
     // Other UI elements
     case accessMethodEnableSwitch

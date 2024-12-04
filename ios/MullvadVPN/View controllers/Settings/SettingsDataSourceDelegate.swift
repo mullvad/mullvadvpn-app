@@ -12,9 +12,4 @@ import UIKit
 protocol SettingsDataSourceDelegate: AnyObject {
     func didSelectItem(item: SettingsDataSource.Item)
     func showInfo(for: SettingsInfoButtonItem)
-    func showPrompt(
-        for: DAITASettingsPromptItem,
-        onSave: @escaping () -> Void,
-        onDiscard: @escaping () -> Void
-    )
 }

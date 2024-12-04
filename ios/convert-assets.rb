@@ -45,7 +45,7 @@ GRAPHICAL_ASSETS = [
   "icon-close-sml.svg",
   "icon-copy.svg",
   "icon-obscure.svg",
-  "icon-unobscure.svg",
+  "icon-unobscure.svg"
 ]
 
 # graphical assets to resize.
