@@ -6,7 +6,10 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadREST
 import MullvadSettings
+import MullvadTypes
+import Network
 import SwiftUI
 
 typealias ButtonAction = (ConnectionViewViewModel.TunnelControlAction) -> Void
@@ -14,9 +17,11 @@ typealias ButtonAction = (ConnectionViewViewModel.TunnelControlAction) -> Void
 struct ConnectionView: View {
     @StateObject var viewModel: ConnectionViewViewModel
     @StateObject var indicatorsViewModel: FeatureIndicatorsViewModel
+    @State var expandConnectionDetails = false
 
     var action: ButtonAction?
     var onContentUpdate: (() -> Void)?
+    var onChevronToggle: (() -> Void)?
 
     var body: some View {
         VStack(spacing: 22) {
@@ -33,6 +38,17 @@ struct ConnectionView: View {
                     if !indicatorsViewModel.chips.isEmpty {
                         FeatureIndicatorsView(viewModel: indicatorsViewModel)
                     }
+                    ConnectionPanel(viewModel: viewModel, onChevronToggle: {
+                        expandConnectionDetails.toggle()
+                    }, isExpanded: $expandConnectionDetails)
+                    Divider()
+                        .background(UIColor.secondaryTextColor.color)
+                    FeatureIndicatorsScrollContainerView(
+                        isExpanded: $expandConnectionDetails,
+                        content: { Text("Hello") }
+                    )
+                    .frame(maxWidth: .infinity)
+                    .border(.white)
 
                     ButtonPanel(viewModel: viewModel, action: action)
                 }
@@ -60,31 +76,83 @@ struct ConnectionView: View {
         indicatorsViewModel: FeatureIndicatorsViewModel(tunnelSettings: LatestTunnelSettings(), ipOverrides: [])
     ) { action in
         print(action)
+    let selectedRelays = SelectedRelays(
+        entry: nil,
+        exit: SelectedRelay(
+            endpoint: MullvadEndpoint(
+                ipv4Relay: IPv4Endpoint(ip: .loopback, port: 42),
+                ipv4Gateway: IPv4Address.loopback,
+                ipv6Gateway: IPv6Address.loopback,
+                publicKey: Data()
+            ),
+            hostname: "se-got-wg-001",
+            location: Location(
+                country: "Sweden",
+                countryCode: "se",
+                city: "Gothenburg",
+                cityCode: "got",
+                latitude: 42,
+                longitude: 42
+            )
+        ),
+        retryAttempt: 0
+    )
+    let connectedState = TunnelState.connected(selectedRelays, isPostQuantum: true, isDaita: true)
+
+    return ZStack {
+        VStack {
+            HeaderBarSwiftUIHostedView()
+                .frame(maxHeight: 100)
+            ConnectionView(
+                viewModel: ConnectionViewViewModel(tunnelState: connectedState),
+                action: { action in print(action) },
+                onContentUpdate: { print("On content Update") },
+                onChevronToggle: { print("Chevron toggle") }
+            )
+        }
     }
     .background(UIColor.secondaryColor.color)
 }
 
 private struct ConnectionPanel: View {
     @StateObject var viewModel: ConnectionViewViewModel
+    var onChevronToggle: (() -> Void)?
+    var isExpanded: Binding<Bool>
 
     var body: some View {
-        VStack(alignment: .leading) {
-            Text(viewModel.localizedTitleForSecureLabel)
-                .textCase(.uppercase)
-                .font(.title3.weight(.semibold))
-                .foregroundStyle(viewModel.textColorForSecureLabel.color)
-                .padding(.bottom, 4)
-
-            if let countryAndCity = viewModel.titleForCountryAndCity, let server = viewModel.titleForServer {
-                Text(countryAndCity)
+        HStack(alignment: .top) {
+            VStack(alignment: .leading) {
+                Text(viewModel.localizedTitleForSecureLabel)
+                    .textCase(.uppercase)
                     .font(.title3.weight(.semibold))
-                    .foregroundStyle(UIColor.primaryTextColor.color)
-                Text(server)
-                    .font(.body)
-                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                    .foregroundStyle(viewModel.textColorForSecureLabel.color)
+                    .padding(.bottom, 4)
+                if let countryAndCity = viewModel.titleForCountryAndCity, let server = viewModel.titleForServer {
+                    Text(countryAndCity)
+                        .font(.title3.weight(.semibold))
+                        .foregroundStyle(UIColor.primaryTextColor.color)
+                    Text(server)
+                        .font(.body)
+                        .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                }
+            }
+            .accessibilityLabel(viewModel.localizedAccessibilityLabel)
+            if case .connected = viewModel.tunnelState {
+                if let onChevronToggle {
+                    Spacer()
+                    Button(action: onChevronToggle) {
+                        Image(.iconChevron)
+                            .renderingMode(.template)
+                            .rotationEffect(isExpanded.wrappedValue ? .degrees(-90) : .degrees(90))
+                            .frame(width: 44, height: 44, alignment: .topTrailing)
+                            .foregroundStyle(.white)
+                            .transaction { transaction in
+                                transaction.animation = nil
+                            }
+                    }
+                }
             }
         }
-        .accessibilityLabel(viewModel.localizedAccessibilityLabel)
     }
 }
 
