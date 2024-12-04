@@ -5,7 +5,7 @@ import { margin } from './margin';
 import { padding } from './padding';
 import { LayoutSpacings } from './types';
 
-interface LayoutProps {
+export interface LayoutProps {
   $margin?: Spacings | LayoutSpacings;
   $padding?: Spacings | LayoutSpacings;
 }

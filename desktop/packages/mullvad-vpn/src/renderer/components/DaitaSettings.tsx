@@ -8,8 +8,10 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { Spacings } from '../tokens';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
+import { Flex } from './common/layout';
 import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -25,20 +27,8 @@ import PageSlider from './PageSlider';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { SmallButton, SmallButtonColor } from './SmallButton';
 
-const StyledContent = styled.div({
-  display: 'flex',
-  flexDirection: 'column',
-  flex: 1,
-  marginBottom: '2px',
-});
-
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
-  fontWeight: 400,
-
-  '&&:not(:last-child)': {
-    paddingBottom: '18px',
-  },
 });
 
 export const StyledIllustration = styled.img({
@@ -67,70 +57,73 @@ export default function DaitaSettings() {
                   content={[
                     <React.Fragment key="without-daita">
                       <StyledIllustration src="../../assets/images/daita-off-illustration.svg" />
-                      <StyledHeaderSubTitle>
-                        {sprintf(
-                          messages.pgettext(
+                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic.',
+                            ),
+                            { daita: strings.daita, daitaFull: strings.daitaFull },
+                          )}
+                        </StyledHeaderSubTitle>
+                        <StyledHeaderSubTitle>
+                          {messages.pgettext(
                             'wireguard-settings-view',
-                            '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic.',
-                          ),
-                          { daita: strings.daita, daitaFull: strings.daitaFull },
-                        )}
-                      </StyledHeaderSubTitle>
-                      <StyledHeaderSubTitle>
-                        {messages.pgettext(
-                          'wireguard-settings-view',
-                          'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
-                        )}
-                      </StyledHeaderSubTitle>
-                      <StyledHeaderSubTitle>
-                        {sprintf(
-                          messages.pgettext(
-                            'wireguard-settings-view',
-                            'If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.',
-                          ),
-                          { daita: strings.daita },
-                        )}
-                      </StyledHeaderSubTitle>
+                            'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
+                          )}
+                        </StyledHeaderSubTitle>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              'If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.',
+                            ),
+                            { daita: strings.daita },
+                          )}
+                        </StyledHeaderSubTitle>
+                      </Flex>
                     </React.Fragment>,
                     <React.Fragment key="with-daita">
                       <StyledIllustration src="../../assets/images/daita-on-illustration.svg" />
-                      <StyledHeaderSubTitle>
-                        {sprintf(
-                          messages.pgettext(
-                            'wireguard-settings-view',
-                            '%(daita)s does this by carefully adding network noise and making all network packets the same size.',
-                          ),
-                          { daita: strings.daita },
-                        )}
-                      </StyledHeaderSubTitle>
-                      <StyledHeaderSubTitle>
-                        {sprintf(
-                          messages.pgettext(
-                            'wireguard-settings-view',
-                            'Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server.',
-                          ),
-                          { daita: strings.daita },
-                        )}
-                      </StyledHeaderSubTitle>
-                      <StyledHeaderSubTitle>
-                        {sprintf(
-                          messages.pgettext(
-                            'wireguard-settings-view',
-                            'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s.',
-                          ),
-                          { wireguard: strings.wireguard },
-                        )}
-                      </StyledHeaderSubTitle>
+                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              '%(daita)s does this by carefully adding network noise and making all network packets the same size.',
+                            ),
+                            { daita: strings.daita },
+                          )}
+                        </StyledHeaderSubTitle>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              'Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server.',
+                            ),
+                            { daita: strings.daita },
+                          )}
+                        </StyledHeaderSubTitle>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              'wireguard-settings-view',
+                              'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s.',
+                            ),
+                            { wireguard: strings.wireguard },
+                          )}
+                        </StyledHeaderSubTitle>
+                      </Flex>
                     </React.Fragment>,
                   ]}
                 />
               </SettingsHeader>
-
-              <StyledContent>
+              <SettingsContainer>
                 <Cell.Group>
                   <DaitaToggle />
                 </Cell.Group>
-              </StyledContent>
+              </SettingsContainer>
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>

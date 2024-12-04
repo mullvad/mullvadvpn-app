@@ -2,8 +2,9 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Spacings } from '../../../tokens';
+import { Layout, LayoutProps } from './Layout';
 
-export interface FlexProps {
+export interface FlexProps extends LayoutProps {
   $gap?: Spacings;
   $flex?: React.CSSProperties['flex'];
   $flexDirection?: React.CSSProperties['flexDirection'];
@@ -14,7 +15,7 @@ export interface FlexProps {
   children?: React.ReactNode;
 }
 
-export const Flex = styled.div<FlexProps>(
+export const Flex = styled(Layout)<FlexProps>(
   ({ $gap, $flex, $flexDirection, $alignItems, $justifyContent, $flexGrow, $flexShrink }) => ({
     display: 'flex',
     gap: $gap,

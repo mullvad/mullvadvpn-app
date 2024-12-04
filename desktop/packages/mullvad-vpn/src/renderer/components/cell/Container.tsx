@@ -6,6 +6,7 @@ import { Row } from './Row';
 
 const StyledContainer = styled(Row)({
   padding: `0 ${Spacings.spacing5}`,
+  gap: Spacings.spacing5,
 });
 
 export const CellDisabledContext = React.createContext<boolean>(false);
