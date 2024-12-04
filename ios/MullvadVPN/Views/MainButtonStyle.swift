@@ -19,7 +19,6 @@ struct MainButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .padding(.horizontal, 8)
             .frame(height: 44)
             .foregroundColor(
                 disabled

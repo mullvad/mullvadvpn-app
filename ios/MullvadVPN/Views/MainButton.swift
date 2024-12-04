@@ -11,7 +11,8 @@ import SwiftUI
 struct MainButton: View {
     var text: LocalizedStringKey
     var style: MainButtonStyle.Style
-    var disabled = false
+
+    @State var disabled = false
 
     var action: () -> Void
 
