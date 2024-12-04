@@ -303,6 +303,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
+            .verifyDAITAOff()
             .tapDAITACell()
 
         DAITAPage(app)
@@ -313,6 +314,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapBackButton()
 
         SettingsPage(app)
+            .verifyDAITAOn()
             .tapDoneButton()
 
         TunnelControlPage(app)
@@ -343,6 +345,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapSettingsButton()
 
         SettingsPage(app)
+            .verifyMultihopOff()
             .tapMultihopCell()
 
         MultihopPage(app)
@@ -351,6 +354,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapBackButton()
 
         SettingsPage(app)
+            .verifyMultihopOn()
             .tapDoneButton()
 
         TunnelControlPage(app)

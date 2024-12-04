@@ -69,6 +69,10 @@ class SettingsViewController: UITableViewController {
 
         dataSource = SettingsDataSource(tableView: tableView, interactor: interactor)
         dataSource?.delegate = self
+
+        interactor.didUpdateTunnelSettings = { [weak self] newSettings in
+            self?.dataSource?.reload(from: newSettings)
+        }
     }
 }
 

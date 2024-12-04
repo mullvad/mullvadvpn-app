@@ -40,10 +40,50 @@ class SettingsPage: Page {
         return self
     }
 
+    @discardableResult func verifyDAITAOn() -> Self {
+        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.daitaCell]
+            .staticTexts["On"]
+
+        XCTAssertTrue(textElement.exists)
+
+        return self
+    }
+
+    @discardableResult func verifyDAITAOff() -> Self {
+        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.daitaCell]
+            .staticTexts["Off"]
+
+        XCTAssertTrue(textElement.exists)
+
+        return self
+    }
+
     @discardableResult func tapMultihopCell() -> Self {
         app.tables[AccessibilityIdentifier.settingsTableView]
             .cells[AccessibilityIdentifier.multihopCell]
             .tap()
+
+        return self
+    }
+
+    @discardableResult func verifyMultihopOn() -> Self {
+        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.multihopCell]
+            .staticTexts["On"]
+
+        XCTAssertTrue(textElement.exists)
+
+        return self
+    }
+
+    @discardableResult func verifyMultihopOff() -> Self {
+        let textElement = app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.multihopCell]
+            .staticTexts["Off"]
+
+        XCTAssertTrue(textElement.exists)
 
         return self
     }
