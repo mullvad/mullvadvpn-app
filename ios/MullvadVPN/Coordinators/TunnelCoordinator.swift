@@ -12,7 +12,12 @@ import UIKit
 
 class TunnelCoordinator: Coordinator, Presenting {
     private let tunnelManager: TunnelManager
+
+    #if DEBUG
+    private let controller: FI_TunnelViewController
+    #else
     private let controller: TunnelViewController
+    #endif
 
     private var tunnelObserver: TunnelObserver?
 
@@ -39,7 +44,11 @@ class TunnelCoordinator: Coordinator, Presenting {
             ipOverrideRepository: ipOverrideRepository
         )
 
+        #if DEBUG
+        controller = FI_TunnelViewController(interactor: interactor)
+        #else
         controller = TunnelViewController(interactor: interactor)
+        #endif
 
         super.init()
 

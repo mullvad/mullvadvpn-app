@@ -10,46 +10,42 @@ import SwiftUI
 
 struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol {
     @ObservedObject var viewModel: ViewModel
+    @Binding var isExpanded: Bool
 
-    @State var chipHeight: CGFloat = 0
-    @State var fullContainerHeight: CGFloat = 0
-    @State var visibleContainerHeight: CGFloat = 0
+    @State private var chipContainerHeight: CGFloat = .zero
+    private let verticalPadding: CGFloat = 6
 
     var body: some View {
         GeometryReader { geo in
             let containerWidth = geo.size.width
-            let chipsOverflow = !viewModel.isExpanded && (fullContainerHeight > chipHeight)
-            let numberOfChips = chipsOverflow ? 2 : viewModel.chips.count
+
+            let (chipsToAdd, showMoreButton) = if isExpanded {
+                (viewModel.chips, false)
+            } else {
+                viewModel.chipsToAdd(forContainerWidth: containerWidth)
+            }
 
             HStack {
                 ZStack(alignment: .topLeading) {
-                    createChipViews(chips: Array(viewModel.chips.prefix(numberOfChips)), containerWidth: containerWidth)
+                    createChipViews(chips: chipsToAdd, containerWidth: containerWidth)
                 }
-                .sizeOfView { visibleContainerHeight = $0.height }
 
-                if chipsOverflow {
-                    Text(LocalizedStringKey("\(viewModel.chips.count - numberOfChips) more..."))
+                if showMoreButton {
+                    Text(LocalizedStringKey("\(viewModel.chips.count - chipsToAdd.count) more..."))
                         .font(.subheadline)
                         .lineLimit(1)
                         .foregroundStyle(UIColor.primaryTextColor.color)
-                        .padding(.bottom, 12)
+                        .onTapGesture {
+                            isExpanded.toggle()
+                        }
                 }
 
                 Spacer()
             }
-            .background(preRenderViewSize(containerWidth: containerWidth))
-        }.frame(height: visibleContainerHeight)
-    }
-
-    // Renders all chips on screen, in this case specifically to get their combined height.
-    // Used to determine if content would overflow if view was not expanded and should
-    // only be called from a background modifier.
-    private func preRenderViewSize(containerWidth: CGFloat) -> some View {
-        ZStack(alignment: .topLeading) {
-            createChipViews(chips: viewModel.chips, containerWidth: containerWidth)
+            .sizeOfView { chipContainerHeight = $0.height }
         }
-        .hidden()
-        .sizeOfView { fullContainerHeight = $0.height }
+        .frame(height: chipContainerHeight)
+        .padding(.vertical, -(verticalPadding - 1)) // Remove extra padding from chip views on top and bottom.
     }
 
     private func createChipViews(chips: [ChipModel], containerWidth: CGFloat) -> some View {
@@ -58,14 +54,21 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
 
         return ForEach(chips) { data in
             ChipView(item: data)
-                .padding(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 8))
+                .padding(
+                    EdgeInsets(
+                        top: verticalPadding,
+                        leading: 0,
+                        bottom: verticalPadding,
+                        trailing: UIMetrics.FeatureIndicators.chipViewTrailingMargin
+                    )
+                )
                 .alignmentGuide(.leading) { dimension in
                     if abs(width - dimension.width) > containerWidth {
                         width = 0
                         height -= dimension.height
                     }
                     let result = width
-                    if data.id == chips.last!.id {
+                    if data.id == chips.last?.id {
                         width = 0
                     } else {
                         width -= dimension.width
@@ -74,22 +77,27 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                 }
                 .alignmentGuide(.top) { _ in
                     let result = height
-                    if data.id == chips.last!.id {
+                    if data.id == chips.last?.id {
                         height = 0
                     }
                     return result
                 }
-                .sizeOfView { chipHeight = $0.height }
         }
     }
 }
 
 #Preview("Normal") {
-    ChipContainerView(viewModel: MockFeatureIndicatorsViewModel())
-        .background(UIColor.secondaryColor.color)
+    ChipContainerView(
+        viewModel: MockFeatureIndicatorsViewModel(),
+        isExpanded: .constant(false)
+    )
+    .background(UIColor.secondaryColor.color)
 }
 
 #Preview("Expanded") {
-    ChipContainerView(viewModel: MockFeatureIndicatorsViewModel(isExpanded: true))
-        .background(UIColor.secondaryColor.color)
+    ChipContainerView(
+        viewModel: MockFeatureIndicatorsViewModel(),
+        isExpanded: .constant(true)
+    )
+    .background(UIColor.secondaryColor.color)
 }

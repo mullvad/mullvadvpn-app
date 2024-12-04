@@ -138,6 +138,11 @@ enum UIMetrics {
     enum MainButton {
         static let cornerRadius: CGFloat = 4
     }
+
+    enum FeatureIndicators {
+        static let chipViewHorisontalPadding: CGFloat = 8
+        static let chipViewTrailingMargin: CGFloat = 6
+    }
 }
 
 extension UIMetrics {
