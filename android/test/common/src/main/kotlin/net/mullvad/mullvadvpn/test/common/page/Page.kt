@@ -7,6 +7,10 @@ sealed class Page {
     protected val uiDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
 
     abstract fun assertIsDisplayed()
+
+    fun pressBack() {
+        uiDevice.pressBack()
+    }
 }
 
 inline fun <reified T : Page> on(scope: T.() -> Unit = {}) {

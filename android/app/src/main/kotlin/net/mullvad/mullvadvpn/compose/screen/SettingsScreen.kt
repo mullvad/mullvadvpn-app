@@ -43,6 +43,7 @@ import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
+import net.mullvad.mullvadvpn.compose.test.VPN_SETTINGS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -115,6 +116,7 @@ fun SettingsScreen(
                     NavigationComposeCell(
                         title = stringResource(id = R.string.settings_vpn),
                         onClick = onVpnSettingCellClick,
+                        testTag = VPN_SETTINGS_CELL_TEST_TAG,
                     )
                 }
                 item { Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing)) }

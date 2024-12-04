@@ -1,19 +1,17 @@
 package net.mullvad.mullvadvpn.test.e2e
 
-import androidx.test.uiautomator.By
-import androidx.test.uiautomator.Direction
-import androidx.test.uiautomator.Until
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.BuildConfig
-import net.mullvad.mullvadvpn.compose.test.EXPAND_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.SWITCH_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.TOP_BAR_SETTINGS_BUTTON
 import net.mullvad.mullvadvpn.test.common.constant.EXTREMELY_LONG_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
-import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
+import net.mullvad.mullvadvpn.test.common.page.SettingsPage
+import net.mullvad.mullvadvpn.test.common.page.SystemVpnConfigurationAlert
+import net.mullvad.mullvadvpn.test.common.page.TopBar
+import net.mullvad.mullvadvpn.test.common.page.VpnSettingsPage
+import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
@@ -34,19 +32,18 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @JvmField
     val forgetAllVpnAppsInSettingsTestRule = ForgetAllVpnAppsInSettingsTestRule()
 
-    val firewallClient = FirewallClient()
+    private val firewallClient = FirewallClient()
 
     @Test
     fun testConnect() {
         // Given
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
-        // When
-        device.findObjectWithTimeout(By.text("Connect")).click()
-        device.findObjectWithTimeout(By.text("OK")).click()
+        on<ConnectPage> { clickConnect() }
 
-        // Then
-        device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
+        on<SystemVpnConfigurationAlert> { clickOk() }
+
+        on<ConnectPage> { waitForConnectedLabel() }
     }
 
     @Test
@@ -54,15 +51,57 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // Given
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
-        // When
-        device.findObjectWithTimeout(By.text("Connect")).click()
-        device.findObjectWithTimeout(By.text("OK")).click()
-        device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
-        val expected = ConnCheckState(true, app.extractOutIpv4Address())
+        on<ConnectPage> { clickConnect() }
+
+        on<SystemVpnConfigurationAlert> { clickOk() }
+
+        var expectedConnectionState: ConnCheckState? = null
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            expectedConnectionState = ConnCheckState(true, extractOutIpv4Address())
+        }
 
         // Then
         val result = SimpleMullvadHttpClient(targetContext).runConnectionCheck()
-        assertEquals(expected, result)
+        assertEquals(expectedConnectionState, result)
+    }
+
+    @Test
+    @HasDependencyOnLocalAPI
+    @ClearFirewallRules
+    fun testWireGuardObfuscationAutomatic() = runBlocking {
+        app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
+        enableLocalNetworkSharing()
+
+        on<ConnectPage> { clickSelectLocation() }
+
+        on<SelectLocationPage> {
+            clickLocationExpandButton(DEFAULT_COUNTRY)
+            clickLocationExpandButton(DEFAULT_CITY)
+            clickLocationCell(DEFAULT_RELAY)
+        }
+
+        on<SystemVpnConfigurationAlert> { clickOk() }
+
+        var relayIpAddress: String? = null
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            relayIpAddress = extractInIpv4Address()
+            clickDisconnect()
+        }
+
+        // Block UDP traffic to the relay
+        val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
+        firewallClient.createRule(firewallRule)
+
+        on<ConnectPage> {
+            clickConnect()
+            // Currently it takes ~45 seconds to connect with wg obfuscation automatic and UDP
+            // traffic blocked so we need to be very forgiving
+            waitForConnectedLabel(timeout = VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT)
+        }
     }
 
     @Test
@@ -70,41 +109,50 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @ClearFirewallRules
     fun testWireGuardObfuscationOff() = runBlocking {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-
         enableLocalNetworkSharing()
 
-        device.findObjectWithTimeout(By.res(SELECT_LOCATION_BUTTON_TEST_TAG)).click()
-        clickLocationExpandButton(DEFAULT_COUNTRY)
-        clickLocationExpandButton(DEFAULT_CITY)
-        device.findObjectWithTimeout(By.text(DEFAULT_RELAY)).click()
-        device.findObjectWithTimeout(By.text("OK")).click()
-        device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
-        val relayIpAddress = app.extractInIpv4Address()
-        device.findObjectWithTimeout(By.text("Disconnect")).click()
+        on<ConnectPage> { clickSelectLocation() }
 
-        // Disable obfuscation
-        device.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
-        device.findObjectWithTimeout(By.text("VPN settings")).click()
-        val scrollView = device.findObjectWithTimeout(By.res(SETTINGS_SCROLL_VIEW_TEST_TAG))
-        scrollView.scrollUntil(
-            Direction.DOWN,
-            Until.hasObject(By.res(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)),
-        )
-        device.findObjectWithTimeout(By.res(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)).click()
-        device.pressBack()
-        device.pressBack()
+        on<SelectLocationPage> {
+            clickLocationExpandButton(DEFAULT_COUNTRY)
+            clickLocationExpandButton(DEFAULT_CITY)
+            clickLocationCell(DEFAULT_RELAY)
+        }
+
+        on<SystemVpnConfigurationAlert> { clickOk() }
+
+        var relayIpAddress: String? = null
+
+        on<ConnectPage> {
+            waitForConnectedLabel()
+            relayIpAddress = extractInIpv4Address()
+            clickDisconnect()
+        }
 
         // Block UDP traffic to the relay
-        val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress)
+        val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
         firewallClient.createRule(firewallRule)
 
-        // Ensure it is not possible to connect to relay
-        device.findObjectWithTimeout(By.text("Connect")).click()
-        // Give it some time and then verify still unable to connect. This duration must be long
-        // enough to ensure all retry attempts have been made.
-        delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds)
-        device.findObjectWithTimeout(By.text(("CONNECTING...")))
-        device.findObjectWithTimeout(By.text("Cancel")).click()
+        // Enable UDP-over-TCP
+        on<TopBar> { clickSettings() }
+
+        on<SettingsPage> { clickVpnSettings() }
+
+        on<VpnSettingsPage> {
+            scrollUntilWireguardObfuscationOffCell()
+            clickWireguardObfuscationOffCell()
+            pressBack()
+            pressBack()
+        }
+
+        on<ConnectPage> {
+            clickConnect() // Ensure it is not possible to connect to relay
+            // Give it some time and then verify still unable to connect. This duration must be long
+            // enough to ensure all retry attempts have been made.
+            delay(UNSUCCESSFUL_CONNECTION_TIMEOUT.milliseconds)
+            waitForConnectingLabel()
+            clickCancel()
+        }
     }
 
     @Test
@@ -113,68 +161,62 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     fun testUDPOverTCP() =
         runBlocking<Unit> {
             app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-
             enableLocalNetworkSharing()
 
-            device.findObjectWithTimeout(By.res(SELECT_LOCATION_BUTTON_TEST_TAG)).click()
-            clickLocationExpandButton(DEFAULT_COUNTRY)
-            clickLocationExpandButton(DEFAULT_CITY)
-            device.findObjectWithTimeout(By.text(DEFAULT_RELAY)).click()
-            device.findObjectWithTimeout(By.text("OK")).click()
-            device.findObjectWithTimeout(By.text("CONNECTED"), VERY_LONG_TIMEOUT)
-            val relayIpAddress = app.extractInIpv4Address()
-            device.findObjectWithTimeout(By.text("Disconnect")).click()
+            on<ConnectPage> { clickSelectLocation() }
+
+            on<SelectLocationPage> {
+                clickLocationExpandButton(DEFAULT_COUNTRY)
+                clickLocationExpandButton(DEFAULT_CITY)
+                clickLocationCell(DEFAULT_RELAY)
+            }
+
+            on<SystemVpnConfigurationAlert> { clickOk() }
+
+            var relayIpAddress: String? = null
+
+            on<ConnectPage> {
+                waitForConnectedLabel()
+                relayIpAddress = extractInIpv4Address()
+                clickDisconnect()
+            }
 
             // Block UDP traffic to the relay
-            val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress)
+            val firewallRule = DropRule.blockUDPTrafficRule(relayIpAddress!!)
             firewallClient.createRule(firewallRule)
 
             // Enable UDP-over-TCP
-            device.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
-            device.findObjectWithTimeout(By.text("VPN settings")).click()
-            val scrollView2 = device.findObjectWithTimeout(By.res(SETTINGS_SCROLL_VIEW_TEST_TAG))
-            scrollView2.scrollUntil(
-                Direction.DOWN,
-                Until.hasObject(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG)),
-            )
-            device
-                .findObjectWithTimeout(By.res(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG))
-                .click()
-            device.pressBack()
-            device.pressBack()
+            on<TopBar> { clickSettings() }
 
-            // Ensure it is possible to connect by using UDP-over-TCP
-            device.findObjectWithTimeout(By.text("Connect")).click()
-            device.findObjectWithTimeout(By.text("CONNECTED"), EXTREMELY_LONG_TIMEOUT)
-            device.findObjectWithTimeout(By.text("Disconnect")).click()
+            on<SettingsPage> { clickVpnSettings() }
+
+            on<VpnSettingsPage> {
+                scrollUntilWireguardObfuscationUdpOverTcpCell()
+                clickWireguardObfuscationUdpOverTcpCell()
+                pressBack()
+                pressBack()
+            }
+
+            on<ConnectPage> {
+                clickConnect()
+                waitForConnectedLabel(timeout = EXTREMELY_LONG_TIMEOUT)
+                clickDisconnect()
+            }
         }
 
     private fun enableLocalNetworkSharing() {
-        device.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
-        device.findObjectWithTimeout(By.text("VPN settings")).click()
+        on<TopBar> { clickSettings() }
 
-        val localNetworkSharingCell =
-            device.findObjectWithTimeout(By.text("Local network sharing")).parent
-        val localNetworkSharingSwitch =
-            localNetworkSharingCell.findObjectWithTimeout(By.res(SWITCH_TEST_TAG))
+        on<SettingsPage> { clickVpnSettings() }
 
-        localNetworkSharingSwitch.click()
-        device.pressBack()
-        device.pressBack()
-    }
-
-    private fun clickLocationExpandButton(locationName: String) {
-        val locationCell = device.findObjectWithTimeout(By.text(locationName)).parent.parent
-        val expandButton = locationCell.findObjectWithTimeout(By.res(EXPAND_BUTTON_TEST_TAG))
-        expandButton.click()
+        on<VpnSettingsPage> {
+            clickLocalNetworkSharingSwitch()
+            pressBack()
+            pressBack()
+        }
     }
 
     companion object {
-        const val SETTINGS_SCROLL_VIEW_TEST_TAG = "lazy_list_vpn_settings_test_tag"
-        const val WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG =
-            "wireguard_obfuscation_off_cell_test_tag"
-        const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG =
-            "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
         const val UNSUCCESSFUL_CONNECTION_TIMEOUT = 60000L
     }
 }

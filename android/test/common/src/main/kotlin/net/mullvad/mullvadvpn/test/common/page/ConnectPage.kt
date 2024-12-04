@@ -1,10 +1,74 @@
 package net.mullvad.mullvadvpn.test.common.page
 
 import androidx.test.uiautomator.By
+import net.mullvad.mullvadvpn.test.common.constant.VERY_LONG_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 
 class ConnectPage internal constructor() : Page() {
     override fun assertIsDisplayed() {
-        uiDevice.findObjectWithTimeout(By.res("connect_card_header_test_tag"))
+        uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG))
+    }
+
+    fun clickSelectLocation() {
+        uiDevice.findObjectWithTimeout(By.res(SELECT_LOCATION_BUTTON_TEST_TAG)).click()
+    }
+
+    fun clickConnect() {
+        uiDevice.findObjectWithTimeout(By.res(CONNECT_BUTTON_TEST_TAG)).click()
+    }
+
+    fun clickDisconnect() {
+        uiDevice.findObjectWithTimeout(By.text("Disconnect")).click()
+    }
+
+    fun clickCancel() {
+        uiDevice.findObjectWithTimeout(By.text("Cancel")).click()
+    }
+
+    fun waitForConnectedLabel(timeout: Long = VERY_LONG_TIMEOUT) {
+        uiDevice.findObjectWithTimeout(By.text("CONNECTED"), timeout)
+    }
+
+    fun waitForConnectingLabel() {
+        uiDevice.findObjectWithTimeout(By.text(("CONNECTING...")))
+    }
+
+    /**
+     * Extracts the in IPv4 address from the connection card. It is a prerequisite that the
+     * connection card is in collapsed state.
+     */
+    fun extractInIpv4Address(): String {
+        uiDevice.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
+        val inString =
+            uiDevice
+                .findObjectWithTimeout(
+                    By.res("location_info_connection_in_test_tag"),
+                    VERY_LONG_TIMEOUT,
+                )
+                .text
+
+        val extractedIpAddress = inString.split(" ")[0].split(":")[0]
+        return extractedIpAddress
+    }
+
+    /**
+     * Extracts the out IPv4 address from the connection card. It is a prerequisite that the
+     * connection card is in collapsed state.
+     */
+    fun extractOutIpv4Address(): String {
+        uiDevice.findObjectWithTimeout(By.res("connect_card_header_test_tag")).click()
+        return uiDevice
+            .findObjectWithTimeout(
+                // Text exist and contains IP address
+                By.res("location_info_connection_out_test_tag").textContains("."),
+                VERY_LONG_TIMEOUT,
+            )
+            .text
+    }
+
+    companion object {
+        const val CONNECT_CARD_HEADER_TEST_TAG = "connect_card_header_test_tag"
+        const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
+        const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"
     }
 }
