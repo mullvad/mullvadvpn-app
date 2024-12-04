@@ -208,6 +208,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue)\(portString)"
             cell.applySubCellStyling()
+
         case .quantumResistanceAutomatic:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -231,6 +232,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
+
         case .quantumResistanceOff:
             guard let cell = cell as? SelectableSettingsCell else { return }
 
@@ -242,27 +244,6 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             )
             cell.accessibilityIdentifier = item.accessibilityIdentifier
             cell.applySubCellStyling()
-
-        case .multihopSwitch:
-            guard let cell = cell as? SettingsSwitchCell else { return }
-
-            cell.titleLabel.text = NSLocalizedString(
-                "MULTIHOP_LABEL",
-                tableName: "VPNSettings",
-                value: "Multihop",
-                comment: ""
-            )
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
-            cell.setOn(viewModel.multihopState.isEnabled, animated: false)
-
-            cell.infoButtonHandler = { [weak self] in
-                self?.delegate?.showInfo(for: .multihop)
-            }
-
-            cell.action = { [weak self] isEnabled in
-                let state: MultihopState = isEnabled ? .on : .off
-                self?.delegate?.switchMultihop(state)
-            }
         }
     }
 }

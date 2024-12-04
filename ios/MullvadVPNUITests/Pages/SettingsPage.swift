@@ -32,6 +32,22 @@ class SettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapDAITACell() -> Self {
+        app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.daitaCell]
+            .tap()
+
+        return self
+    }
+
+    @discardableResult func tapMultihopCell() -> Self {
+        app.tables[AccessibilityIdentifier.settingsTableView]
+            .cells[AccessibilityIdentifier.multihopCell]
+            .tap()
+
+        return self
+    }
+
     @discardableResult func tapVPNSettingsCell() -> Self {
         app.tables[AccessibilityIdentifier.settingsTableView]
             .cells[AccessibilityIdentifier.vpnSettingsCell]
