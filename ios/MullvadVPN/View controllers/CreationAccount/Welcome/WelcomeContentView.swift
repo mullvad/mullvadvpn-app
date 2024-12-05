@@ -250,12 +250,12 @@ final class WelcomeContentView: UIView {
     }
 
     @objc private func tapped(button: AppButton) {
-        switch AccessibilityIdentifier(rawValue: button.accessibilityIdentifier ?? "") {
-        case .purchaseButton:
+        switch button.accessibilityIdentifier {
+        case AccessibilityIdentifier.purchaseButton.description:
             delegate?.didTapPurchaseButton(welcomeContentView: self, button: button)
-        case .redeemVoucherButton:
+        case AccessibilityIdentifier.redeemVoucherButton.description:
             delegate?.didTapRedeemVoucherButton(welcomeContentView: self, button: button)
-        case .infoButton:
+        case AccessibilityIdentifier.infoButton.description:
             delegate?.didTapInfoButton(welcomeContentView: self, button: button)
         default: return
         }

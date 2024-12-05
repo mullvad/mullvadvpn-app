@@ -56,7 +56,7 @@ struct CustomToggleStyle: ToggleStyle {
                     )
                     .opacity(disabled ? 0.4 : 1)
             }
-            .accessibilityIdentifier(accessibilityId?.rawValue ?? "")
+            .accessibilityIdentifier(accessibilityId?.description ?? "")
             .onTapGesture {
                 toggle(configuration)
             }

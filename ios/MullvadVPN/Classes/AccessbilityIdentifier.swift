@@ -8,7 +8,7 @@
 
 import UIKit
 
-public enum AccessibilityIdentifier: String {
+public enum AccessibilityIdentifier: Equatable {
     // Buttons
     case addAccessMethodButton
     case accessMethodAddButton
@@ -214,8 +214,14 @@ public enum AccessibilityIdentifier: String {
     case unknown
 }
 
+extension AccessibilityIdentifier: CustomStringConvertible {
+    public var description: String {
+        "\(self)"
+    }
+}
+
 extension UIAccessibilityIdentification {
     func setAccessibilityIdentifier(_ value: AccessibilityIdentifier?) {
-        accessibilityIdentifier = value.map { "\($0)" }
+        accessibilityIdentifier = value.map(\.description)
     }
 }

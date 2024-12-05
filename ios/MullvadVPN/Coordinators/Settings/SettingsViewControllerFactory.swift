@@ -103,7 +103,7 @@ struct SettingsViewControllerFactory {
             value: "Multihop",
             comment: ""
         )
-        host.view.accessibilityIdentifier = AccessibilityIdentifier.multihopView.rawValue
+        host.view.setAccessibilityIdentifier(.multihopView)
 
         return .viewController(host)
     }
@@ -129,7 +129,7 @@ struct SettingsViewControllerFactory {
             value: "DAITA",
             comment: ""
         )
-        host.view.accessibilityIdentifier = AccessibilityIdentifier.daitaView.rawValue
+        host.view.setAccessibilityIdentifier(.daitaView)
 
         return .viewController(host)
     }
