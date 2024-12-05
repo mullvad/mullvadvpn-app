@@ -19,7 +19,7 @@ class DeviceManagementPage: Page {
 
     @discardableResult func tapRemoveDeviceButton(cellIndex: Int) -> Self {
         app
-            .otherElements.matching(identifier: AccessibilityIdentifier.deviceCell.description).element(boundBy: cellIndex)
+            .otherElements.matching(identifier: AccessibilityIdentifier.deviceCell.asString).element(boundBy: cellIndex)
             .buttons[AccessibilityIdentifier.deviceCellRemoveButton]
             .tap()
 

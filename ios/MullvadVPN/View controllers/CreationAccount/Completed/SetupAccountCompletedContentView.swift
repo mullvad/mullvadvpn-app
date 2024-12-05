@@ -142,9 +142,9 @@ class SetupAccountCompletedContentView: UIView {
 
     @objc private func tapped(button: AppButton) {
         switch button.accessibilityIdentifier {
-        case AccessibilityIdentifier.learnAboutPrivacyButton.description:
+        case AccessibilityIdentifier.learnAboutPrivacyButton.asString:
             delegate?.didTapPrivacyButton(view: self, button: button)
-        case AccessibilityIdentifier.startUsingTheAppButton.description:
+        case AccessibilityIdentifier.startUsingTheAppButton.asString:
             delegate?.didTapStartingAppButton(view: self, button: button)
         default: return
         }

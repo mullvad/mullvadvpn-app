@@ -15,6 +15,6 @@ extension XCUIElementQuery {
     }
 
     subscript(key: AccessibilityIdentifier) -> XCUIElement {
-        self[key.description]
+        self[key.asString]
     }
 }

@@ -376,9 +376,9 @@ class AccountDeletionContentView: UIView {
 
     @objc private func didPress(button: AppButton) {
         switch button.accessibilityIdentifier {
-        case AccessibilityIdentifier.deleteButton.description:
+        case AccessibilityIdentifier.deleteButton.asString:
             delegate?.didTapDeleteButton(contentView: self, button: button)
-        case AccessibilityIdentifier.cancelButton.description:
+        case AccessibilityIdentifier.cancelButton.asString:
             delegate?.didTapCancelButton(contentView: self, button: button)
         default: return
         }
