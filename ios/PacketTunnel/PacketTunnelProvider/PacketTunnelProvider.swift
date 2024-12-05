@@ -111,8 +111,11 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
             ),
             onUpdateConfiguration: { [unowned self] configuration in
                 let channel = OneshotChannel()
-                actor.changeEphemeralPeerNegotiationState(configuration: configuration, reconfigurationSemaphore: channel)
-                channel.receive()
+                actor.changeEphemeralPeerNegotiationState(
+                    configuration: configuration,
+                    reconfigurationSemaphore: channel
+                )
+                await channel.receive()
             }, onFinish: { [unowned self] in
                 actor.notifyEphemeralPeerNegotiated()
             }
@@ -313,7 +316,10 @@ extension PacketTunnelProvider {
                     lastConnectionAttempt = connectionAttempt
 
                 case let .negotiatingEphemeralPeer(observedConnectionState, privateKey):
-                    ephemeralPeerExchangingPipeline.startNegotiation(observedConnectionState, privateKey: privateKey)
+                    await ephemeralPeerExchangingPipeline.startNegotiation(
+                        observedConnectionState,
+                        privateKey: privateKey
+                    )
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }
@@ -370,12 +376,12 @@ extension PacketTunnelProvider {
 }
 
 extension PacketTunnelProvider: EphemeralPeerReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        ephemeralPeerExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) async {
+        await ephemeralPeerExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
-        ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
+        await ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
     }
 
     func ephemeralPeerExchangeFailed() {
