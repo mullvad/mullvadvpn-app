@@ -5267,6 +5267,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "windows-installer"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
+ "mullvad-version",
+ "tempfile",
+ "windows-sys 0.52.0",
+ "winres",
+]
+
+[[package]]
 name = "windows-interface"
 version = "0.58.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
