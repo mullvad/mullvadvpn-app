@@ -9,13 +9,13 @@ reason = "This package is only used to parse commands run by either us or truste
 # PostCSS line return parsing error
 [[IgnoredVulns]]
 id = "CVE-2023-44270" # GHSA-7fh5-64p2-3v2j
-ignoreUntil = 2024-12-05
+ignoreUntil = 2025-03-05
 reason = "This project does not use PostCSS to parse untrusted CSS"
 
 # braces: Uncontrolled resource consumption
 [[IgnoredVulns]]
 id = "CVE-2024-4068" # GHSA-grv7-fg5c-xmjg
-ignoreUntil = 2024-12-05
+ignoreUntil = 2025-03-05
 reason = "This package is only used to match paths from either us or trusted libraries"
 
 # micromatch (dev): Regular Expression Denial of Service (ReDoS) in micromatch
