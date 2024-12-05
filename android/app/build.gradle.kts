@@ -20,11 +20,9 @@ plugins {
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
-val maybeNotDirectory = "$repoRootPath/dist-assets/"
-val relayListPath = extraAssetsDirectory.file("relays.json").asFile
+val assetsDirectory = layout.projectDirectory.dir("src/main/assets")
+val relayListPath = assetsDirectory.file("relays.json").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
-// val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
 val rustJniLibs = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
@@ -39,6 +37,7 @@ android {
     namespace = "net.mullvad.mullvadvpn"
     compileSdk = Versions.compileSdkVersion
     buildToolsVersion = Versions.buildToolsVersion
+    ndkVersion = "27.1.12297006"
 
     defaultConfig {
         val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
@@ -131,7 +130,7 @@ android {
                 gradleLocalProperties(rootProject.projectDir, providers)
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
-            assets.srcDirs(extraAssetsDirectory, changelogDir, maybeNotDirectory)
+            assets.srcDirs(assetsDirectory, changelogDir)
         }
     }
 
@@ -249,8 +248,6 @@ android {
             dependsOn(tasks["generateRelayList"])
             dependsOn("cargoBuild")
             dependsOn(tasks["ensureValidVersionCode"])
-
-            ndkVersion = "25.2.9519653"
         }
     }
 }
@@ -300,9 +297,9 @@ tasks.register<Exec>("generateRelayList") {
     doLast {
         val output = standardOutput as ByteArrayOutputStream
         // Create file if needed
-        File("$extraAssetsDirectory").mkdirs()
-        File("$extraAssetsDirectory/relays.json").createNewFile()
-        FileOutputStream("$extraAssetsDirectory/relays.json").use { it.write(output.toByteArray()) }
+        File("$assetsDirectory").mkdirs()
+        File("$assetsDirectory/relays.json").createNewFile()
+        FileOutputStream("$assetsDirectory/relays.json").use { it.write(output.toByteArray()) }
 
         // Old ensure exists tasks
         if (!relayListPath.exists()) {
