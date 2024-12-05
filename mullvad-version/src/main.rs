@@ -1,8 +1,7 @@
 use mullvad_version::{PreStableType, Version};
 use std::{env, process::exit};
 
-const ANDROID_VERSION: &str =
-    include_str!(concat!(env!("OUT_DIR"), "/android-product-version.txt"));
+const ANDROID_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/android-version-name.txt"));
 
 fn main() {
     let command = env::args().nth(1);

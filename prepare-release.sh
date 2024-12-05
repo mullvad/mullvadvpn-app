@@ -73,9 +73,10 @@ if [[ "$DESKTOP" == "true" ]]; then
 fi
 
 if [[ "$ANDROID" == "true" ]]; then
-    echo "$PRODUCT_VERSION" > dist-assets/android-product-version.txt
+    echo "$PRODUCT_VERSION" > dist-assets/android-version-name.txt
+    cargo run -q --bin mullvad-version versionCode > dist-assets/android-version-code.txt
     git commit -S -m "Update android app version to $PRODUCT_VERSION" \
-        dist-assets/android-product-version.txt
+        dist-assets/android-version-name.txt
 fi
 
 NEW_TAGS=""

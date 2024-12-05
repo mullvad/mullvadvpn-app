@@ -8,7 +8,7 @@ use std::{
 /// in dev builds.
 const GIT_HASH_DEV_SUFFIX_LEN: usize = 6;
 
-const ANDROID_VERSION_FILE_PATH: &str = "../dist-assets/android-product-version.txt";
+const ANDROID_VERSION_FILE_PATH: &str = "../dist-assets/android-version-name.txt";
 const DESKTOP_VERSION_FILE_PATH: &str = "../dist-assets/desktop-product-version.txt";
 
 #[derive(Debug, Copy, Clone)]
@@ -38,7 +38,7 @@ fn main() {
     let out_dir = PathBuf::from(env::var_os("OUT_DIR").unwrap());
     fs::write(out_dir.join("product-version.txt"), product_version).unwrap();
     fs::write(
-        out_dir.join("android-product-version.txt"),
+        out_dir.join("android-version-name.txt"),
         android_product_version,
     )
     .unwrap();
