@@ -18,7 +18,7 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     let keyExchanger: EphemeralPeerExchangeActorProtocol
     let devicePrivateKey: PrivateKey
     let onFinish: () -> Void
-    let onUpdateConfiguration: (EphemeralPeerNegotiationState) -> Void
+    let onUpdateConfiguration: (EphemeralPeerNegotiationState) async -> Void
     let enablePostQuantum: Bool
     let enableDaita: Bool
 
@@ -28,7 +28,7 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         keyExchanger: EphemeralPeerExchangeActorProtocol,
         enablePostQuantum: Bool,
         enableDaita: Bool,
-        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) -> Void,
+        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) async -> Void,
         onFinish: @escaping () -> Void
     ) {
         self.devicePrivateKey = devicePrivateKey
@@ -40,8 +40,8 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         self.onFinish = onFinish
     }
 
-    func start() {
-        onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
+    func start() async {
+        await onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
             relay: exit,
             configuration: EphemeralPeerConfiguration(
                 privateKey: devicePrivateKey,
@@ -55,8 +55,8 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         )
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralKey: PrivateKey) {
-        onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralKey: PrivateKey) async {
+        await onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
             relay: exit,
             configuration: EphemeralPeerConfiguration(
                 privateKey: ephemeralKey,
@@ -73,8 +73,8 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     func receivePostQuantumKey(
         _ preSharedKey: WireGuardKitTypes.PreSharedKey,
         ephemeralKey: WireGuardKitTypes.PrivateKey
-    ) {
-        onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
+    ) async {
+        await onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
             relay: exit,
             configuration: EphemeralPeerConfiguration(
                 privateKey: ephemeralKey,
