@@ -44,7 +44,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
         guard let cell = cell as? SettingsSwitchCell else { return }
 
         cell.titleLabel.text = title
-        cell.accessibilityIdentifier = preference.accessibilityIdentifier
+        cell.setAccessibilityIdentifier(preference.accessibilityIdentifier)
         cell.applySubCellStyling()
         cell.setOn(toggleSetting, animated: true)
         cell.action = { [weak self] isOn in
@@ -176,7 +176,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
             cell.setOn(viewModel.effectiveEnableCustomDNS, animated: false)
             cell.accessibilityHint = viewModel.customDNSPrecondition
                 .localizedDescription(isEditing: isEditing)
-            cell.accessibilityIdentifier = .dnsSettingsUseCustomDNSCell
+            cell.setAccessibilityIdentifier(.dnsSettingsUseCustomDNSCell)
             cell.action = { [weak self] isOn in
                 self?.delegate?.didChangeState(for: .useCustomDNS, isOn: isOn)
             }
@@ -190,7 +190,7 @@ final class CustomDNSCellFactory: CellFactoryProtocol {
                 value: "Add a server",
                 comment: ""
             )
-            cell.accessibilityIdentifier = .dnsSettingsAddServerCell
+            cell.setAccessibilityIdentifier(.dnsSettingsAddServerCell)
             cell.tapAction = { [weak self] in
                 self?.delegate?.addDNSEntry()
             }

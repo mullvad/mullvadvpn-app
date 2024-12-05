@@ -54,7 +54,7 @@ final class WelcomeContentView: UIView {
 
     private let accountNumberLabel: UILabel = {
         let label = UILabel()
-        label.accessibilityIdentifier = .welcomeAccountNumberLabel
+        label.setAccessibilityIdentifier(.welcomeAccountNumberLabel)
         label.adjustsFontForContentSizeCategory = true
         label.lineBreakMode = .byWordWrapping
         label.numberOfLines = .zero
@@ -76,7 +76,7 @@ final class WelcomeContentView: UIView {
 
     private let infoButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
-        button.accessibilityIdentifier = .infoButton
+        button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
@@ -108,7 +108,7 @@ final class WelcomeContentView: UIView {
 
     private let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
-        button.accessibilityIdentifier = .purchaseButton
+        button.setAccessibilityIdentifier(.purchaseButton)
         let localizedString = NSLocalizedString(
             "BUY_CREDIT_BUTTON",
             tableName: "Welcome",
@@ -121,7 +121,7 @@ final class WelcomeContentView: UIView {
 
     private let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = .redeemVoucherButton
+        button.setAccessibilityIdentifier(.redeemVoucherButton)
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_BUTTON_TITLE",
             tableName: "Account",
@@ -193,7 +193,7 @@ final class WelcomeContentView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        accessibilityIdentifier = .welcomeView
+        setAccessibilityIdentifier(.welcomeView)
         backgroundColor = .primaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
         backgroundColor = .secondaryColor

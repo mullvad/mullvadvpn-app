@@ -76,7 +76,7 @@ class SwitchCellContentView: UIView, UIContentView, UITextFieldDelegate {
     private func configureSwitch() {
         switchContainer.control.isOn = actualConfiguration.isOn
         switchContainer.transform = CGAffineTransform(scaleX: 0.85, y: 0.85)
-        switchContainer.accessibilityIdentifier = actualConfiguration.accessibilityIdentifier
+        switchContainer.setAccessibilityIdentifier(actualConfiguration.accessibilityIdentifier)
     }
 
     private func addSubviews() {

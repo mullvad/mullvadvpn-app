@@ -214,13 +214,7 @@ public enum AccessibilityIdentifier: String {
 }
 
 extension UIAccessibilityIdentification {
-    var accessibilityIdentifier: AccessibilityIdentifier? {
-        get {
-            guard let accessibilityIdentifier else { return nil }
-            return AccessibilityIdentifier(rawValue: accessibilityIdentifier)
-        }
-        set {
-            accessibilityIdentifier = newValue?.rawValue
-        }
+    func setAccessibilityIdentifier(_ value: AccessibilityIdentifier?) {
+        accessibilityIdentifier = value.map { "\($0)" }
     }
 }

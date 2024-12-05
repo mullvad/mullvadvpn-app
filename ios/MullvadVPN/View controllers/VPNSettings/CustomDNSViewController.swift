@@ -32,7 +32,7 @@ class CustomDNSViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.accessibilityIdentifier = .dnsSettingsTableView
+        tableView.setAccessibilityIdentifier(.dnsSettingsTableView)
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension
@@ -50,7 +50,7 @@ class CustomDNSViewController: UITableViewController {
         )
 
         navigationItem.rightBarButtonItem = editButtonItem
-        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .dnsSettingsEditButton
+        navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.dnsSettingsEditButton)
 
         interactor.tunnelSettingsDidChange = { [weak self] newSettings in
             self?.dataSource?.update(from: newSettings)

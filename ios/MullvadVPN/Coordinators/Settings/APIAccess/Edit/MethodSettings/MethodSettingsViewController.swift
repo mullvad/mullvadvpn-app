@@ -76,12 +76,12 @@ class MethodSettingsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.accessibilityIdentifier = .addAccessMethodTableView
+        view.setAccessibilityIdentifier(.addAccessMethodTableView)
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
 
         navigationItem.rightBarButtonItem = saveBarButton
-        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .accessMethodAddButton
+        navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.accessMethodAddButton)
         navigationItem.rightBarButtonItem?.isAccessibilityElement = true
         isModalInPresentation = true
 

@@ -33,7 +33,7 @@ class HeaderBarView: UIView {
         label.font = UIFont.systemFont(ofSize: 14)
         label.textColor = UIColor(white: 1.0, alpha: 0.8)
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
-        label.accessibilityIdentifier = .headerDeviceNameLabel
+        label.setAccessibilityIdentifier(.headerDeviceNameLabel)
         return label
     }()
 
@@ -58,7 +58,7 @@ class HeaderBarView: UIView {
 
     let accountButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
-        button.accessibilityIdentifier = .accountButton
+        button.setAccessibilityIdentifier(.accountButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "HeaderBar",
@@ -72,7 +72,7 @@ class HeaderBarView: UIView {
 
     let settingsButton: UIButton = {
         let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
-        button.accessibilityIdentifier = .settingsButton
+        button.setAccessibilityIdentifier(.settingsButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
             tableName: "HeaderBar",
@@ -170,7 +170,7 @@ class HeaderBarView: UIView {
         )
 
         accessibilityContainerType = .semanticGroup
-        accessibilityIdentifier = .headerBarView
+        setAccessibilityIdentifier(.headerBarView)
 
         let brandImageSize = brandNameImage?.size ?? .zero
         let brandNameAspectRatio = brandImageSize.width / max(brandImageSize.height, 1)

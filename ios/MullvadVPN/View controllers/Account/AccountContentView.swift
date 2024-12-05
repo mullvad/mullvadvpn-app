@@ -11,13 +11,13 @@ import UIKit
 class AccountContentView: UIView {
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
-        button.accessibilityIdentifier = .purchaseButton
+        button.setAccessibilityIdentifier(.purchaseButton)
         return button
     }()
 
     let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = .redeemVoucherButton
+        button.setAccessibilityIdentifier(.redeemVoucherButton)
         button.setTitle(NSLocalizedString(
             "REDEEM_VOUCHER_BUTTON_TITLE",
             tableName: "Account",
@@ -29,7 +29,7 @@ class AccountContentView: UIView {
 
     let logoutButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.accessibilityIdentifier = .logoutButton
+        button.setAccessibilityIdentifier(.logoutButton)
         button.setTitle(NSLocalizedString(
             "LOGOUT_BUTTON_TITLE",
             tableName: "Account",
@@ -41,7 +41,7 @@ class AccountContentView: UIView {
 
     let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.accessibilityIdentifier = .deleteButton
+        button.setAccessibilityIdentifier(.deleteButton)
         button.setTitle(NSLocalizedString(
             "DELETE_BUTTON_TITLE",
             tableName: "Account",
@@ -101,7 +101,7 @@ class AccountContentView: UIView {
         super.init(frame: frame)
 
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
-        accessibilityIdentifier = .accountView
+        setAccessibilityIdentifier(.accountView)
 
         addConstrainedSubviews([contentStackView, buttonStackView]) {
             contentStackView.pinEdgesToSuperviewMargins(.all().excluding(.bottom))

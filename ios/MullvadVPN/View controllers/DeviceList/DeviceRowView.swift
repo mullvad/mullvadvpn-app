@@ -70,7 +70,7 @@ class DeviceRowView: UIView {
 
         super.init(frame: .zero)
 
-        accessibilityIdentifier = .deviceCell
+        setAccessibilityIdentifier(.deviceCell)
         backgroundColor = .primaryColor
         directionalLayoutMargins = UIMetrics.TableView.rowViewLayoutMargins
 
@@ -91,7 +91,7 @@ class DeviceRowView: UIView {
         )
 
         removeButton.addTarget(self, action: #selector(handleButtonTap(_:)), for: .touchUpInside)
-        removeButton.accessibilityIdentifier = .deviceCellRemoveButton
+        removeButton.setAccessibilityIdentifier(.deviceCellRemoveButton)
 
         NSLayoutConstraint.activate([
             textLabel.topAnchor.constraint(equalTo: layoutMarginsGuide.topAnchor),
