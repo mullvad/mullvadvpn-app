@@ -30,7 +30,7 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapCountryLocationCellExpandButton(withIndex: Int) -> Self {
-        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.countryLocationCell.description)
+        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.countryLocationCell.asString)
             .element(boundBy: withIndex)
         let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
         expandButton.tap()
@@ -38,7 +38,7 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapCityLocationCellExpandButton(withIndex: Int) -> Self {
-        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.cityLocationCell.description)
+        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.cityLocationCell.asString)
             .element(boundBy: withIndex)
         let expandButton = cell.buttons[AccessibilityIdentifier.expandButton]
         expandButton.tap()
@@ -46,7 +46,7 @@ class SelectLocationPage: Page {
     }
 
     @discardableResult func tapRelayLocationCell(withIndex: Int) -> Self {
-        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.relayLocationCell.description)
+        let cell = app.cells.containing(.any, identifier: AccessibilityIdentifier.relayLocationCell.asString)
             .element(boundBy: withIndex)
         cell.tap()
         return self
@@ -79,7 +79,7 @@ class SelectLocationPage: Page {
         _ = app.buttons[.openCustomListsMenuButton].waitForExistence(timeout: BaseUITestCase.shortTimeout)
 
         let customListEllipsisButtons = app.buttons
-            .matching(identifier: AccessibilityIdentifier.openCustomListsMenuButton.description).allElementsBoundByIndex
+            .matching(identifier: AccessibilityIdentifier.openCustomListsMenuButton.asString).allElementsBoundByIndex
 
         // This is a workaround for an issue we have with the ellipsis showing up multiple times in the accessibility hieararchy even though in the view hierarchy there is only one
         // Only the actually visual one is hittable, so only the visible button will be tapped
