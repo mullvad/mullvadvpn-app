@@ -19,8 +19,8 @@ class VPNSettingsPage: Page {
         _ subButtonAccessibilityIdentifier: AccessibilityIdentifier
     ) -> XCUIElement {
         let tableView = app.tables[AccessibilityIdentifier.vpnSettingsTableView]
-        let matchingCells = tableView.otherElements[cellAccessiblityIdentifier.rawValue]
-        let expandButton = matchingCells.buttons[subButtonAccessibilityIdentifier]
+        let matchingCells = tableView.otherElements[cellAccessiblityIdentifier.description]
+        let expandButton = matchingCells.buttons[AccessibilityIdentifier.expandButton]
         let lastCell = tableView.cells.allElementsBoundByIndex.last!
         tableView.scrollDownToElement(element: lastCell)
         return expandButton
