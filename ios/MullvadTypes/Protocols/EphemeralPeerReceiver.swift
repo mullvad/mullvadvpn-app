@@ -30,11 +30,21 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     // MARK: - EphemeralPeerReceiving
 
     public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        keyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            await keyReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
 
     public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
-        keyReceiver.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+        let semaphore = DispatchSemaphore(value: 0)
+        Task {
+            await keyReceiver.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+            semaphore.signal()
+        }
+        semaphore.wait()
     }
 
     public func ephemeralPeerExchangeFailed() {
