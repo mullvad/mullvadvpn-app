@@ -105,7 +105,7 @@ final class LocationViewControllerWrapper: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.accessibilityIdentifier = .selectLocationViewWrapper
+        view.setAccessibilityIdentifier(.selectLocationViewWrapper)
         view.backgroundColor = .secondaryColor
 
         setUpNavigation()
@@ -179,7 +179,7 @@ final class LocationViewControllerWrapper: UIViewController {
                 self?.delegate?.navigateToFilter()
             })
         )
-        navigationItem.leftBarButtonItem?.accessibilityIdentifier = .selectLocationFilterButton
+        navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.selectLocationFilterButton)
 
         navigationItem.rightBarButtonItem = UIBarButtonItem(
             systemItem: .done,
@@ -187,7 +187,7 @@ final class LocationViewControllerWrapper: UIViewController {
                 self?.didFinish?()
             })
         )
-        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .closeSelectLocationButton
+        navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.closeSelectLocationButton)
     }
 
     private func setUpSegmentedControl() {

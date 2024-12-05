@@ -57,7 +57,7 @@ final class LocationViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.accessibilityIdentifier = .selectLocationView
+        view.setAccessibilityIdentifier(.selectLocationView)
         view.backgroundColor = .secondaryColor
 
         setUpDataSource()
@@ -162,7 +162,7 @@ final class LocationViewController: UIViewController {
         tableView.sectionHeaderHeight = 56
         tableView.indicatorStyle = .white
         tableView.keyboardDismissMode = .onDrag
-        tableView.accessibilityIdentifier = .selectLocationTableView
+        tableView.setAccessibilityIdentifier(.selectLocationTableView)
     }
 
     private func setUpTopContent() {
@@ -189,7 +189,7 @@ final class LocationViewController: UIViewController {
             value: "Search for...",
             comment: ""
         )
-        searchBar.searchTextField.accessibilityIdentifier = .selectLocationSearchTextField
+        searchBar.searchTextField.setAccessibilityIdentifier(.selectLocationSearchTextField)
 
         UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
     }

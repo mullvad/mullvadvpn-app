@@ -58,7 +58,7 @@ class StatusImageView: UIImageView {
         self.style = style
         super.init(image: style.image)
         image = style.image
-        accessibilityIdentifier = .statusImageView
+        setAccessibilityIdentifier(.statusImageView)
     }
 
     required init?(coder: NSCoder) {

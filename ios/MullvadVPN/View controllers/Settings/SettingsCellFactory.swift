@@ -47,7 +47,7 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
 
         case .version:
@@ -60,7 +60,7 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = Bundle.main.productVersion
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .none
 
         case .problemReport:
@@ -73,7 +73,7 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
 
         case .faq:
@@ -86,7 +86,7 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .externalLink
 
         case .apiAccess:
@@ -99,7 +99,7 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
             cell.detailTitleLabel.text = nil
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
 
         case .daita:
@@ -119,7 +119,7 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
 
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
 
         case .multihop:
@@ -139,7 +139,7 @@ final class SettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
 
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
         }
     }

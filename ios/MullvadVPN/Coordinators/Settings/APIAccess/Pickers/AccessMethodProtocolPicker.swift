@@ -23,7 +23,7 @@ struct AccessMethodProtocolPicker {
 
         let dataSource = AccessMethodProtocolPickerDataSource()
         let controller = ListItemPickerViewController(dataSource: dataSource, selectedItemID: currentValue)
-        controller.view.accessibilityIdentifier = .accessMethodProtocolPickerView
+        controller.view.setAccessibilityIdentifier(.accessMethodProtocolPickerView)
 
         controller.navigationItem.title = NSLocalizedString(
             "SELECT_PROTOCOL_NAV_TITLE",
