@@ -1,5 +1,6 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-[macOS, Windows, linux] To make an entry platform specific, start the line with an angle bracket enclosed comma separated list of platforms to show the entry on.
-Only point out the major changes.
+New API access method: Encrypted DNS Proxy.
+DAITA now overrides Multihop entry.
+[macOS] Easier onboarding for Split Tunneling.
+[macOS] Fix DNS issues on MacOS newer than 15.1.
+[Windows] Quantum-resistant tunnels are now enabled by default!
+[Windows] Fix virtual machines like WSL bypassing the Kill Switch.
