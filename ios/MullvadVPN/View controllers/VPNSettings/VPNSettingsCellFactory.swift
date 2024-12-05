@@ -80,7 +80,8 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             }
 
             cell.titleLabel.text = portString
-            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue) (\(portString))"
+            // TODO: replace this with a tagged AccessibilityIdentifier
+            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.description) (\(portString))"
             cell.applySubCellStyling()
 
         case .wireGuardCustomPort:
