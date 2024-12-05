@@ -54,7 +54,7 @@ kotlinx-serialization = "2.1.0"
 protobuf = "0.9.4"
 
 # Rust Android Gradle
-rust-android-gradle = "0.9.4"
+rust-android-gradle = "0.9.5"
 
 # Misc
 commonsvalidator = "1.9.0"

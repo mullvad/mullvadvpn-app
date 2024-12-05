@@ -168,12 +168,17 @@ fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
     let target_triple = env::var("TARGET").context("Missing 'TARGET'")?;
     let target = AndroidTarget::from_str(&target_triple)?;
 
-    // TODO: Since `libwg.so` is always copied to `android_output_path`, this rerun-directive will
-    // always trigger cargo to rebuild this crate. Some mechanism to detected changes to `android_output_path`
-    // is needed, because some external program may clean it at any time (e.g. gradle).
+    // This will either trigger a rebuild if any changes have been made to the libwg code
+    // or if the libwg.so file has been changed. The latter is required since the
+    // libwg.so file could be deleted. It however means that this build will need
+    // to run two times before it is properly cached.
     println!(
         "cargo::rerun-if-changed={}",
-        android_output_path(target)?.display()
+        android_output_artifact_path(target)?.display()
+    );
+    println!(
+        "cargo::rerun-if-changed={}",
+        libwg_path()?.display()
     );
 
     // Before calling `canonicalize`, the directory we're referring to actually has to exist.
@@ -229,8 +234,9 @@ fn android_move_binary(binary: &Path, output: &Path) -> anyhow::Result<()> {
     ))?;
     std::fs::create_dir_all(parent_of_output)?;
 
-    let mut move_command = Command::new("mv");
+    let mut move_command = Command::new("cp");
     move_command
+        .arg("-p")
         .arg(binary.to_str().unwrap())
         .arg(output.to_str().unwrap());
 
@@ -275,6 +281,21 @@ fn android_arch_name(target: AndroidTarget) -> String {
 fn android_output_path(target: AndroidTarget) -> anyhow::Result<PathBuf> {
     let relative_output_path = Path::new("../android/app/build/rustJniLibs/android").join(android_abi(target));
     std::fs::create_dir_all(relative_output_path.clone())?;
+    let output_path = relative_output_path.canonicalize()?;
+    Ok(output_path)
+}
+
+// Exact path to the libwg.so file so that we can trigger rebbuilds when the file is changed
+fn android_output_artifact_path(target: AndroidTarget) -> anyhow::Result<PathBuf> {
+    let relative_output_path = Path::new("../android/app/build/rustJniLibs/android").join(android_abi(target));
+    std::fs::create_dir_all(relative_output_path.clone())?;
+    let output_path = relative_output_path.canonicalize()?.join("libwg.so");
+    Ok(output_path)
+}
+
+// Return the path of the libwg folder so that we can trigger rebuilds when any code is 
+fn libwg_path() -> anyhow::Result<PathBuf> {
+    let relative_output_path = Path::new("libwg");
     let output_path = relative_output_path.canonicalize()?;
     Ok(output_path)
 }
