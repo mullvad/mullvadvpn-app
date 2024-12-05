@@ -34,13 +34,13 @@ struct RelayFilterCellFactory: CellFactoryProtocol {
         switch item {
         case .ownershipAny:
             title = "Any"
-            cell.accessibilityIdentifier = .ownershipAnyCell
+            cell.setAccessibilityIdentifier(.ownershipAnyCell)
         case .ownershipOwned:
             title = "Mullvad owned only"
-            cell.accessibilityIdentifier = .ownershipMullvadOwnedCell
+            cell.setAccessibilityIdentifier(.ownershipMullvadOwnedCell)
         case .ownershipRented:
             title = "Rented only"
-            cell.accessibilityIdentifier = .ownershipRentedCell
+            cell.setAccessibilityIdentifier(.ownershipRentedCell)
         default:
             assertionFailure("Item mismatch. Got: \(item)")
         }
@@ -80,7 +80,7 @@ struct RelayFilterCellFactory: CellFactoryProtocol {
         )
 
         cell.applySubCellStyling()
-        cell.accessibilityIdentifier = .relayFilterProviderCell
+        cell.setAccessibilityIdentifier(.relayFilterProviderCell)
     }
 
     private func setFontWeight(_ weight: UIFont.Weight, to label: UILabel) {

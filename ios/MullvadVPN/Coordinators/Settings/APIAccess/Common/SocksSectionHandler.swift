@@ -38,7 +38,7 @@ struct SocksSectionHandler {
         contentConfiguration.inputText = subject.value.socks.server
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.socks.server)
-        cell.accessibilityIdentifier = .socks5ServerCell
+        cell.setAccessibilityIdentifier(.socks5ServerCell)
         cell.contentConfiguration = contentConfiguration
     }
 
@@ -51,7 +51,7 @@ struct SocksSectionHandler {
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.socks.port)
         contentConfiguration.textFieldProperties = .withSmartFeaturesDisabled()
         contentConfiguration.textFieldProperties.keyboardType = .numberPad
-        cell.accessibilityIdentifier = .socks5PortCell
+        cell.setAccessibilityIdentifier(.socks5PortCell)
         cell.contentConfiguration = contentConfiguration
     }
 

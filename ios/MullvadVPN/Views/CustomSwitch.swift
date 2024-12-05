@@ -31,7 +31,7 @@ class CustomSwitch: UISwitch {
         onTintColor = .clear
         overrideUserInterfaceStyle = .light
 
-        accessibilityIdentifier = .customSwitch
+        setAccessibilityIdentifier(.customSwitch)
 
         updateThumbColor(isOn: isOn, animated: false)
 

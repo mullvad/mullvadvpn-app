@@ -62,7 +62,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
 
         tableView.registerReusableViews(from: CellReuseIdentifier.self)
 
-        view.accessibilityIdentifier = .apiAccessView
+        view.setAccessibilityIdentifier(.apiAccessView)
 
         let headerView = createHeaderView()
         view.addConstrainedSubviews([headerView, tableView]) {
@@ -115,7 +115,7 @@ class ListAccessMethodViewController: UIViewController, UITableViewDelegate {
         button.addAction(UIAction { [weak self] _ in
             self?.sendAddNew()
         }, for: .touchUpInside)
-        button.accessibilityIdentifier = .addAccessMethodButton
+        button.setAccessibilityIdentifier(.addAccessMethodButton)
 
         let fontSize = button.titleLabel?.font.pointSize ?? 0
         button.titleLabel?.font = UIFont.systemFont(ofSize: fontSize, weight: .regular)

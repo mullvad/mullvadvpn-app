@@ -24,7 +24,7 @@ class RestorePurchasesView: UIView {
 
     private lazy var restoreButton: UILabel = {
         let label = UILabel()
-        label.accessibilityIdentifier = .restorePurchasesButton
+        label.setAccessibilityIdentifier(.restorePurchasesButton)
         label.attributedText = makeAttributedString()
         label.isUserInteractionEnabled = true
         label.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTapRestoreButton)))

@@ -559,7 +559,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         )
 
         let navigationController = CustomNavigationController()
-        navigationController.view.accessibilityIdentifier = .settingsContainerView
+        navigationController.view.setAccessibilityIdentifier(.settingsContainerView)
 
         let configurationTester = ProxyConfigurationTester(transportProvider: configuredTransportProvider)
 
