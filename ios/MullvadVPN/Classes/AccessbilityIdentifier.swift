@@ -213,14 +213,14 @@ public enum AccessibilityIdentifier: Equatable {
     case unknown
 }
 
-extension AccessibilityIdentifier: CustomStringConvertible {
-    public var description: String {
+extension AccessibilityIdentifier {
+    public var asString: String {
         "\(self)"
     }
 }
 
 extension UIAccessibilityIdentification {
     func setAccessibilityIdentifier(_ value: AccessibilityIdentifier?) {
-        accessibilityIdentifier = value.map(\.description)
+        accessibilityIdentifier = value.map(\.asString)
     }
 }
