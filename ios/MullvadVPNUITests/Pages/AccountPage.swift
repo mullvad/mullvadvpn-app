@@ -18,27 +18,27 @@ class AccountPage: Page {
     }
 
     @discardableResult func tapRedeemVoucherButton() -> Self {
-        app.buttons[AccessibilityIdentifier.redeemVoucherButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.redeemVoucherButton.description].tap()
         return self
     }
 
     @discardableResult func tapAdd30DaysTimeButton() -> Self {
-        app.buttons[AccessibilityIdentifier.purchaseButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.purchaseButton.description].tap()
         return self
     }
 
     @discardableResult func tapRestorePurchasesButton() -> Self {
-        app.buttons[AccessibilityIdentifier.restorePurchasesButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.restorePurchasesButton.description].tap()
         return self
     }
 
     @discardableResult func tapLogOutButton() -> Self {
-        app.buttons[AccessibilityIdentifier.logoutButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.logoutButton.description].tap()
         return self
     }
 
     @discardableResult func tapDeleteAccountButton() -> Self {
-        app.buttons[AccessibilityIdentifier.deleteButton.rawValue].tap()
+        app.buttons[AccessibilityIdentifier.deleteButton.description].tap()
         return self
     }
 
