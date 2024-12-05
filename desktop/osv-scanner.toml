@@ -1,11 +1,5 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 
-# yargs-parser Vulnerable to Prototype Pollution
-[[IgnoredVulns]]
-id = "CVE-2020-7608" # GHSA-p9pc-299p-vxgp
-ignoreUntil = 2024-12-05
-reason = "This package is only used to parse commands run by either us or trusted libraries"
-
 # PostCSS line return parsing error
 [[IgnoredVulns]]
 id = "CVE-2023-44270" # GHSA-7fh5-64p2-3v2j
