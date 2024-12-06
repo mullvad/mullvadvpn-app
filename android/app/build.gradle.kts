@@ -260,14 +260,17 @@ junitPlatform {
 }
 
 cargo {
+    val isReleaseBuild = isReleaseBuild()
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
     // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
-    targets = gradleLocalProperties(rootProject.projectDir, providers)
-            .getProperty("CARGO_TARGETS")?.split(",") ?: listOf("arm", "arm64", "x86", "x86_64")
+    targets =
+        gradleLocalProperties(rootProject.projectDir, providers)
+            .getProperty("CARGO_TARGETS")
+            ?.split(",") ?: listOf("arm", "arm64", "x86", "x86_64")
     profile =
-        if (isReleaseBuild()) {
+        if (isReleaseBuild) {
             "release"
         } else {
             "debug"
@@ -277,8 +280,21 @@ cargo {
     // Set this if you get a cargo not found error
     // rustcCommand = ""
     // cargoCommand = ""
-    targetIncludes = listOf("libmullvad_jni.so").toTypedArray()
-    extraCargoBuildArguments = listOf("--package=mullvad-jni")
+    features {
+        if (!isReleaseBuild) {
+            defaultAnd(arrayOf("api-override"))
+        }
+    }
+    targetIncludes = arrayOf("libmullvad_jni.so")
+    extraCargoBuildArguments = buildList {
+        add("--package=mullvad-jni")
+        if (isReleaseBuild) {
+            add("--locked")
+        }
+    }
+    exec = { spec, toolchain ->
+        println(spec.commandLine)
+    }
 }
 
 tasks.register<Exec>("generateRelayList") {
@@ -288,9 +304,7 @@ tasks.register<Exec>("generateRelayList") {
     // Set this if you get a cargo not found error
     // environment =
 
-    onlyIf {
-        isReleaseBuild() || !relayListPath.exists()
-    }
+    onlyIf { isReleaseBuild() || !relayListPath.exists() }
 
     commandLine("cargo", "run", "--bin", "relay_list")
 
