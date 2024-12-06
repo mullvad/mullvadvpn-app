@@ -22,7 +22,7 @@ class SelectableSettingsDetailsCell: SelectableSettingsCell {
             .withRenderingMode(.alwaysOriginal)
             .withTintColor(.white)
         actionButton.configuration = actionButtonConfiguration
-        actionButton.accessibilityIdentifier = .openPortSelectorMenuButton
+        actionButton.setAccessibilityIdentifier(.openPortSelectorMenuButton)
 
         actionButton.addTarget(
             self,
