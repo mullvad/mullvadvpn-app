@@ -77,7 +77,7 @@ git submodule update --init --recursive --depth=1 wireguard-go-rs
 Run the build script in the root of the project to assemble all the native libraries and the app:
 
 ```bash
-./build-apk.sh --dev-build
+./android/build-apk.sh --dev-build
 ```
 
 Once the build is complete you should receive a message looking similar to this:
