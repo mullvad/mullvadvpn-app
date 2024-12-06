@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import WireGuardKitTypes
 
 /**
@@ -64,8 +65,11 @@ extension PacketTunnelActor {
      - Parameter key: the new key
      */
 
-    nonisolated public func changeEphemeralPeerNegotiationState(configuration: EphemeralPeerNegotiationState) {
-        eventChannel.send(.ephemeralPeerNegotiationStateChanged(configuration))
+    nonisolated public func changeEphemeralPeerNegotiationState(
+        configuration: EphemeralPeerNegotiationState,
+        reconfigurationSemaphore: OneshotChannel
+    ) {
+        eventChannel.send(.ephemeralPeerNegotiationStateChanged(configuration, reconfigurationSemaphore))
     }
 
     /**
