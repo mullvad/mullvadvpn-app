@@ -28,8 +28,8 @@ OPTIMIZE="false"
 SIGN="false"
 # If the produced app and pkg should be notarized by apple (macOS only)
 NOTARIZE="false"
-# If a macOS build should create an installer artifact working on both
-# Intel and Apple Silicon Macs
+# If a macOS or Windows build should create an installer artifact working on both
+# x86 and arm64
 UNIVERSAL="false"
 
 while [[ "$#" -gt 0 ]]; do
@@ -38,8 +38,8 @@ while [[ "$#" -gt 0 ]]; do
         --sign)     SIGN="true";;
         --notarize) NOTARIZE="true";;
         --universal)
-            if [[ "$(uname -s)" != "Darwin" ]]; then
-                log_error "--universal only works on macOS"
+            if [[ "$(uname -s)" != "Darwin" && "$(uname -s)" != "MINGW"* ]]; then
+                log_error "--universal only works on macOS and Windows"
                 exit 1
             fi
             UNIVERSAL="true"
@@ -79,7 +79,7 @@ if [[ "$UNIVERSAL" == "true" ]]; then
         log_error "'TARGETS' and '--universal' cannot be specified simultaneously."
         exit 1
     else
-        log_info "Building universal macOS distribution"
+        log_info "Building universal distribution"
     fi
 
     # Universal macOS builds package targets for both aarch64-apple-darwin and x86_64-apple-darwin.
@@ -91,6 +91,8 @@ if [[ "$UNIVERSAL" == "true" ]]; then
     case $HOST in
         x86_64-apple-darwin) TARGETS=("" aarch64-apple-darwin);;
         aarch64-apple-darwin) TARGETS=("" x86_64-apple-darwin);;
+        x86_64-pc-windows-msvc) TARGETS=("" aarch64-pc-windows-msvc);;
+        aarch64-pc-windows-msvc) TARGETS=("" x86_64-pc-windows-msvc);;
     esac
 
     NPM_PACK_ARGS+=(--universal)
@@ -311,7 +313,7 @@ function build {
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
     for t in "${TARGETS[@]:-"$HOST"}"; do
-        case $t in
+        case "${t:-"$HOST"}" in
             x86_64-pc-windows-msvc) CPP_BUILD_TARGET=x64;;
             aarch64-pc-windows-msvc) CPP_BUILD_TARGET=ARM64;;
             *)
@@ -382,6 +384,16 @@ if [[ "$SIGN" == "true" && "$(uname -s)" == "MINGW"* ]]; then
         log_info "Signing $installer_path"
         sign_win "$installer_path"
     done
+fi
+
+# pack universal installer on Windows
+if [[ "$UNIVERSAL" == "true" && "$(uname -s)" == "MINGW"* ]]; then
+    ./scripts/pack-universal-win.sh \
+        --x64-installer "$SCRIPT_DIR/dist/"*"$PRODUCT_VERSION"_x64.exe \
+        --arm64-installer "$SCRIPT_DIR/dist/"*"$PRODUCT_VERSION"_arm64.exe
+    if [[ "$SIGN" == "true" ]]; then
+        sign_win "dist/MullvadVPN-${PRODUCT_VERSION}.exe"
+    fi
 fi
 
 # notarize installer on macOS
