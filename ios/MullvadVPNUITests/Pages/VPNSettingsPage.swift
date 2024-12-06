@@ -14,13 +14,24 @@ class VPNSettingsPage: Page {
         super.init(app)
     }
 
-    private func cellExpandButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
+    private func cellSubButton(
+        _ cellAccessiblityIdentifier: AccessibilityIdentifier,
+        _ subButtonAccessibilityIdentifier: AccessibilityIdentifier
+    ) -> XCUIElement {
         let tableView = app.tables[AccessibilityIdentifier.vpnSettingsTableView]
         let matchingCells = tableView.otherElements[cellAccessiblityIdentifier.asString]
-        let expandButton = matchingCells.buttons[AccessibilityIdentifier.expandButton]
+        let expandButton = matchingCells.buttons[subButtonAccessibilityIdentifier]
         let lastCell = tableView.cells.allElementsBoundByIndex.last!
         tableView.scrollDownToElement(element: lastCell)
         return expandButton
+    }
+
+    private func cellExpandButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
+        return cellSubButton(cellAccessiblityIdentifier, .expandButton)
+    }
+
+    private func cellPortSelectorButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
+        return cellSubButton(cellAccessiblityIdentifier, .openPortSelectorMenuButton)
     }
 
     @discardableResult func tapBackButton() -> Self {
@@ -48,24 +59,40 @@ class VPNSettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapUDPOverTCPPortSelectorButton() -> Self {
+        cellPortSelectorButton(AccessibilityIdentifier.wireGuardObfuscationUdpOverTcp).tap()
+
+        return self
+    }
+
+    @discardableResult func tapShadowsocksPortSelectorButton() -> Self {
+        cellPortSelectorButton(AccessibilityIdentifier.wireGuardObfuscationShadowsocks).tap()
+
+        return self
+    }
+
+    // this button no longer exists
     @discardableResult func tapUDPOverTCPPortExpandButton() -> Self {
         cellExpandButton(AccessibilityIdentifier.udpOverTCPPortCell).tap()
 
         return self
     }
 
+    // this button no longer exists
     @discardableResult func tapUDPOverTCPPortAutomaticCell() -> Self {
         app.cells["\(AccessibilityIdentifier.wireGuardObfuscationPort)Automatic"]
             .tap()
         return self
     }
 
+    // this button no longer exists
     @discardableResult func tapUDPOverTCPPort80Cell() -> Self {
         app.cells["\(AccessibilityIdentifier.wireGuardObfuscationPort)80"]
             .tap()
         return self
     }
 
+    // this button no longer exists
     @discardableResult func tapUDPOverTCPPort5001Cell() -> Self {
         app.cells["\(AccessibilityIdentifier.wireGuardObfuscationPort)5001"]
             .tap()
