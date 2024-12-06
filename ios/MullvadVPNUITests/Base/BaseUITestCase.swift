@@ -248,7 +248,7 @@ class BaseUITestCase: XCTestCase {
 
         // Ensure changelog is no longer shown
         _ = app
-            .otherElements[AccessibilityIdentifier.changeLogAlert.rawValue]
+            .otherElements[AccessibilityIdentifier.changeLogAlert.asString]
             .waitForNonExistence(timeout: Self.shortTimeout)
     }
 

@@ -605,7 +605,7 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 
         header.accessibilityCustomActionName = title
         header.accessibilityValue = "\(enabledBlockersCount)"
-        header.accessibilityIdentifier = .dnsContentBlockersHeaderView
+        header.setAccessibilityIdentifier(.dnsContentBlockersHeaderView)
 
         header.infoButtonHandler = { [weak self] in
             self?.delegate?.showInfo(for: .contentBlockers)

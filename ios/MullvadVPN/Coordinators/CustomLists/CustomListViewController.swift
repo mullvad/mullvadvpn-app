@@ -58,7 +58,7 @@ class CustomListViewController: UIViewController {
             }
         )
         barButtonItem.style = .done
-        barButtonItem.accessibilityIdentifier = AccessibilityIdentifier.saveCreateCustomListButton
+        barButtonItem.setAccessibilityIdentifier(.saveCreateCustomListButton)
 
         return barButtonItem
     }()
@@ -87,7 +87,7 @@ class CustomListViewController: UIViewController {
         navigationItem.rightBarButtonItem = saveBarButton
         view.directionalLayoutMargins = UIMetrics.contentLayoutMargins
         view.backgroundColor = .secondaryColor
-        view.accessibilityIdentifier = .newCustomListView
+        view.setAccessibilityIdentifier(.newCustomListView)
         isModalInPresentation = true
 
         addSubviews()
@@ -104,7 +104,7 @@ class CustomListViewController: UIViewController {
         tableView.delegate = dataSourceConfiguration
         tableView.backgroundColor = .secondaryColor
         tableView.registerReusableViews(from: CustomListItemIdentifier.CellIdentifier.self)
-        tableView.accessibilityIdentifier = AccessibilityIdentifier.customListEditTableView
+        tableView.setAccessibilityIdentifier(.customListEditTableView)
     }
 
     private func configureDataSource() {

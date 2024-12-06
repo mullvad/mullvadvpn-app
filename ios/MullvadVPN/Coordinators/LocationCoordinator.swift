@@ -284,7 +284,7 @@ extension LocationCoordinator: LocationViewControllerWrapperDelegate {
                 self?.showAddCustomList(nodes: nodes)
             }
         )
-        addCustomListAction.accessibilityIdentifier = AccessibilityIdentifier.addNewCustomListButton
+        addCustomListAction.setAccessibilityIdentifier(.addNewCustomListButton)
         actionSheet.addAction(addCustomListAction)
 
         let editAction = UIAlertAction(
@@ -297,7 +297,7 @@ extension LocationCoordinator: LocationViewControllerWrapperDelegate {
             }
         )
         editAction.isEnabled = !customListRepository.fetchAll().isEmpty
-        editAction.accessibilityIdentifier = AccessibilityIdentifier.editCustomListButton
+        editAction.setAccessibilityIdentifier(.editCustomListButton)
         actionSheet.addAction(editAction)
 
         actionSheet.addAction(UIAlertAction(

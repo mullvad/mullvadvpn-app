@@ -58,10 +58,10 @@ class SettingsViewController: UITableViewController {
                 delegate?.settingsViewControllerDidFinish(self)
             })
         )
-        doneButton.accessibilityIdentifier = .settingsDoneButton
+        doneButton.setAccessibilityIdentifier(.settingsDoneButton)
         navigationItem.rightBarButtonItem = doneButton
 
-        tableView.accessibilityIdentifier = .settingsTableView
+        tableView.setAccessibilityIdentifier(.settingsTableView)
         tableView.backgroundColor = .secondaryColor
         tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension

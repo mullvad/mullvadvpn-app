@@ -51,7 +51,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             )
 
             cell.disclosureType = .chevron
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
 
         case .ipOverrides:
             guard let cell = cell as? SettingsCell else { return }
@@ -64,7 +64,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             )
 
             cell.disclosureType = .chevron
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
 
         case let .wireGuardPort(port):
             guard let cell = cell as? SelectableSettingsCell else { return }
@@ -80,7 +80,8 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             }
 
             cell.titleLabel.text = portString
-            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue) (\(portString))"
+            // TODO: replace this with a tagged AccessibilityIdentifier
+            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.asString) (\(portString))"
             cell.applySubCellStyling()
 
         case .wireGuardCustomPort:
@@ -99,8 +100,8 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             )
 
-            cell.textField.accessibilityIdentifier = .customWireGuardPortTextField
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.textField.setAccessibilityIdentifier(.customWireGuardPortTextField)
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
             cell.inputDidChange = { [weak self] text in
@@ -133,7 +134,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: "Automatic",
                 comment: ""
             )
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
         case .wireGuardObfuscationUdpOverTcp:
@@ -153,7 +154,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             ), viewModel.obfuscationUpdOverTcpPort.description)
 
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
             cell.buttonAction = { [weak self] in
@@ -177,7 +178,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 comment: ""
             ), viewModel.obfuscationShadowsocksPort.description)
 
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
             cell.buttonAction = { [weak self] in
@@ -193,7 +194,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: "Off",
                 comment: ""
             )
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
         case let .wireGuardObfuscationPort(port):
@@ -206,7 +207,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: portString,
                 comment: ""
             )
-            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier.rawValue)\(portString)"
+            cell.accessibilityIdentifier = "\(item.accessibilityIdentifier)\(portString)"
             cell.applySubCellStyling()
 
         case .quantumResistanceAutomatic:
@@ -218,7 +219,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: "Automatic",
                 comment: ""
             )
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
         case .quantumResistanceOn:
@@ -230,7 +231,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: "On",
                 comment: ""
             )
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
 
         case .quantumResistanceOff:
@@ -242,7 +243,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
                 value: "Off",
                 comment: ""
             )
-            cell.accessibilityIdentifier = item.accessibilityIdentifier
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.applySubCellStyling()
         }
     }

@@ -47,7 +47,7 @@ class EditAccessMethodViewController: UIViewController {
 
         view.backgroundColor = .secondaryColor
 
-        tableView.accessibilityIdentifier = .editAccessMethodView
+        tableView.setAccessibilityIdentifier(.editAccessMethodView)
         tableView.backgroundColor = .secondaryColor
         tableView.delegate = self
 

@@ -108,7 +108,7 @@ class AlertViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        view.accessibilityIdentifier = presentation.accessibilityIdentifier ?? .alertContainerView
+        view.setAccessibilityIdentifier(presentation.accessibilityIdentifier ?? .alertContainerView)
         view.backgroundColor = .black.withAlphaComponent(0.5)
 
         setContent()
@@ -207,7 +207,7 @@ class AlertViewController: UIViewController {
         label.adjustsFontForContentSizeCategory = true
         label.textAlignment = .center
         label.numberOfLines = 0
-        label.accessibilityIdentifier = .alertTitle
+        label.setAccessibilityIdentifier(.alertTitle)
 
         contentView.addArrangedSubview(label)
         contentView.setCustomSpacing(16, after: label)
@@ -270,7 +270,7 @@ class AlertViewController: UIViewController {
         let button = AppButton(style: style.buttonStyle)
 
         button.setTitle(title, for: .normal)
-        button.accessibilityIdentifier = accessibilityId
+        button.setAccessibilityIdentifier(accessibilityId)
         button.addTarget(self, action: #selector(didTapButton), for: .touchUpInside)
 
         buttonView.addArrangedSubview(button)

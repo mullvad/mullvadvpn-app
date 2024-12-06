@@ -265,7 +265,7 @@ class LocationCell: UITableViewCell {
     private func updateCollapseImage() {
         let image = isExpanded ? chevronUp : chevronDown
 
-        collapseButton.accessibilityIdentifier = isExpanded ? .collapseButton : .expandButton
+        collapseButton.setAccessibilityIdentifier(isExpanded ? .collapseButton : .expandButton)
         collapseButton.setImage(image, for: .normal)
     }
 
@@ -314,7 +314,7 @@ extension LocationCell {
         showsCollapseControl = !item.node.children.isEmpty
         isExpanded = item.node.showsChildren
         accessibilityValue = item.node.code
-        checkboxButton.accessibilityIdentifier = .customListLocationCheckmarkButton
+        checkboxButton.setAccessibilityIdentifier(.customListLocationCheckmarkButton)
 
         for view in checkboxButton.subviews where view is CheckboxView {
             let checkboxView = view as? CheckboxView
@@ -322,19 +322,18 @@ extension LocationCell {
         }
 
         if item.node is CustomListLocationNode {
-            accessibilityIdentifier = .customListLocationCell
+            setAccessibilityIdentifier(.customListLocationCell)
         } else {
             // Only custom list nodes have more than one location. Therefore checking first
             // location here is fine.
-            switch item.node.locations.first {
-            case .country:
-                accessibilityIdentifier = .countryLocationCell
-            case .city:
-                accessibilityIdentifier = .cityLocationCell
-            case .hostname:
-                accessibilityIdentifier = .relayLocationCell
-            case nil:
-                break
+            if let location = item.node.locations.first {
+                // we can probably replace this with a tagged AccessibilityIdentifier and cut this case statement
+                let accessibilityId: AccessibilityIdentifier = switch location {
+                case .country: .countryLocationCell
+                case .city: .cityLocationCell
+                case .hostname: .relayLocationCell
+                }
+                setAccessibilityIdentifier(accessibilityId)
             }
         }
 
