@@ -132,29 +132,25 @@ const config = {
   },
 
   win: {
-    target: [
-      {
-        target: 'nsis',
-        arch: getWindowsTargetArch(),
-      },
-    ],
-    artifactName: getWindowsArtifactName(),
+    target: [],
+    signAndEditExecutable: false,
+    artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     publisherName: 'Mullvad VPN AB',
     extraResources: [
-      { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad.exe')), to: '.' },
+      { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad.exe')), to: '.' },
       {
-        from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad-problem-report.exe')),
+        from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-problem-report.exe')),
         to: '.',
       },
-      { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad-daemon.exe')), to: '.' },
-      { from: distAssets(path.join(getWindowsDistSubdir(), 'talpid_openvpn_plugin.dll')), to: '.' },
+      { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-daemon.exe')), to: '.' },
+      { from: distAssets(path.join('${env.DIST_SUBDIR}', 'talpid_openvpn_plugin.dll')), to: '.' },
       {
         from: root(
           path.join(
             'windows',
             'winfw',
             'bin',
-            getWindowsTargetArch() + '-${env.CPP_BUILD_MODE}',
+            '${env.TARGET_ARCHITECTURE}-${env.CPP_BUILD_MODE}',
             'winfw.dll',
           ),
         ),
@@ -163,22 +159,22 @@ const config = {
       // TODO: OpenVPN does not have an ARM64 build yet.
       { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
       {
-        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'apisocks5.exe')),
+        from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'apisocks5.exe')),
         to: '.',
       },
       {
-        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'wintun/wintun.dll')),
+        from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'wintun/wintun.dll')),
         to: '.',
       },
       {
         from: distAssets(
-          path.join('binaries', getWindowsTargetSubdir(), 'split-tunnel/mullvad-split-tunnel.sys'),
+          path.join('binaries', '${env.TARGET_SUBDIR}', 'split-tunnel/mullvad-split-tunnel.sys'),
         ),
         to: '.',
       },
       {
         from: distAssets(
-          path.join('binaries', getWindowsTargetSubdir(), 'wireguard-nt/mullvad-wireguard.dll'),
+          path.join('binaries', '${env.TARGET_SUBDIR}', 'wireguard-nt/mullvad-wireguard.dll'),
         ),
         to: '.',
       },
@@ -277,11 +273,23 @@ const config = {
   },
 };
 
-function packWin() {
-  return builder.build({
-    targets: builder.Platform.WINDOWS.createTarget(),
-    config: {
+async function packWin() {
+  const DEFAULT_ARCH = targets === 'aarch64-pc-windows-msvc' ? 'arm64' : 'x64';
+
+  function prepareConfig(arch) {
+    return {
       ...config,
+      files: [...config.files],
+      win: {
+        ...config.win,
+        extraResources: [...config.win.extraResources],
+        target: [
+          {
+            target: 'nsis',
+            arch: arch,
+          },
+        ],
+      },
       asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico'],
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
@@ -291,10 +299,14 @@ function packWin() {
           case 'x64':
             process.env.TARGET_TRIPLE = 'x86_64-pc-windows-msvc';
             process.env.SETUP_SUBDIR = '.';
+            process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
+            process.env.DIST_SUBDIR = '';
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
             process.env.SETUP_SUBDIR = 'aarch64-pc-windows-msvc';
+            process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
+            process.env.DIST_SUBDIR = 'aarch64-pc-windows-msvc';
             break;
           default:
             throw new Error('Invalid or unknown target (only one may be specified)');
@@ -320,7 +332,21 @@ function packWin() {
           fs.renameSync(artifactPath, targetArtifactPath);
         }
       },
-    },
+    };
+  }
+
+  if (universal) {
+    // For universal builds, we simply build for all targets. It is up to build.sh to pack the
+    // installers in the same binary.
+    await builder.build({
+      targets: builder.Platform.WINDOWS.createTarget(),
+      config: prepareConfig(DEFAULT_ARCH === 'x64' ? 'arm64' : 'x64'),
+    });
+  }
+
+  return builder.build({
+    targets: builder.Platform.WINDOWS.createTarget(),
+    config: prepareConfig(DEFAULT_ARCH),
   });
 }
 
@@ -439,40 +465,6 @@ function distAssets(relativePath) {
 
 function root(relativePath) {
   return path.join(path.resolve(__dirname, '../../../../'), relativePath);
-}
-
-function getWindowsDistSubdir() {
-  if (targets === 'aarch64-pc-windows-msvc') {
-    return targets;
-  } else {
-    return '';
-  }
-}
-
-function getWindowsTargetArch() {
-  if (targets && process.platform === 'win32') {
-    if (targets === 'aarch64-pc-windows-msvc') {
-      return 'arm64';
-    }
-    throw new Error('Invalid or unknown target (only one may be specified)');
-  }
-  // Use host architecture (we assume this is x64 since building on Arm64 isn't supported).
-  return 'x64';
-}
-
-function getWindowsArtifactName() {
-  return 'MullvadVPN-${version}_${arch}.${ext}';
-}
-
-function getWindowsTargetSubdir() {
-  if (targets && process.platform === 'win32') {
-    if (targets === 'aarch64-pc-windows-msvc') {
-      return targets;
-    }
-    throw new Error('Invalid or unknown target (only one may be specified)');
-  }
-  // Use host architecture (we assume this is x64 since building on Arm64 isn't supported).
-  return 'x86_64-pc-windows-msvc';
 }
 
 function getLinuxTargetArch() {
