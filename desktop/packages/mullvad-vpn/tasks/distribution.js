@@ -458,10 +458,7 @@ function getWindowsTargetArch() {
 }
 
 function getWindowsArtifactName() {
-  if (targets === 'aarch64-pc-windows-msvc') {
-    return 'MullvadVPN-${version}_${arch}.${ext}';
-  }
-  return 'MullvadVPN-${version}.${ext}';
+  return 'MullvadVPN-${version}_${arch}.${ext}';
 }
 
 function getWindowsTargetSubdir() {
