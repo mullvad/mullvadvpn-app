@@ -15,7 +15,7 @@ windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_Li
 tempfile = "3.10"
 anyhow = "1.0"
 
-[build-dependencies]
+[target.build-dependencies.'cfg(target_os = "windows")'.dependencies]
 winres = "0.1"
 anyhow = "1.0"
 windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemServices"] }
