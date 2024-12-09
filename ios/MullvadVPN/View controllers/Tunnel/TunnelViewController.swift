@@ -84,6 +84,9 @@ class TunnelViewController: UIViewController, RootContainment {
             case .disconnect:
                 self?.interactor.stopTunnel()
 
+            case .updateTunnel:
+                self?.interactor.updateTunnel()
+
             case .reconnect:
                 self?.interactor.reconnectTunnel(selectNewRelay: true)
 

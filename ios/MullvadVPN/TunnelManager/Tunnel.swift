@@ -41,6 +41,7 @@ protocol TunnelProtocol: AnyObject {
 
     func saveToPreferences(_ completion: @escaping (Error?) -> Void)
     func removeFromPreferences(completion: @escaping (Error?) -> Void)
+    func updatePreferences(_ completion: @escaping (Error?) -> Void)
 
     func setConfiguration(_ configuration: TunnelConfiguration)
     func start(options: [String: NSObject]?) throws
@@ -146,6 +147,16 @@ final class Tunnel: TunnelProtocol, Equatable {
 
     func setConfiguration(_ configuration: TunnelConfiguration) {
         configuration.apply(to: tunnelProvider)
+    }
+
+    func updatePreferences(_ completion: @escaping (Error?) -> Void) {
+        tunnelProvider.loadFromPreferences { [weak self] error in
+            if let error {
+                completion(error)
+            } else {
+                self?.tunnelProvider.saveToPreferences(completionHandler: completion)
+            }
+        }
     }
 
     func saveToPreferences(_ completion: @escaping (Error?) -> Void) {

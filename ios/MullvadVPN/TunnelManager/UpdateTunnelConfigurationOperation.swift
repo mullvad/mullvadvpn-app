@@ -1,36 +1,27 @@
 //
-//  StartTunnelOperation.swift
+//  UpdateTunnelConfigurationOperation.swift
 //  MullvadVPN
 //
-//  Created by pronebird on 15/12/2021.
-//  Copyright © 2021 Mullvad VPN AB. All rights reserved.
+//  Created by Marco Nikic on 2024-12-09.
+//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadLogging
-import MullvadREST
 import NetworkExtension
 import Operations
 import PacketTunnelCore
 
-class StartTunnelOperation: ResultOperation<Void> {
+class UpdateTunnelConfigurationOperation: ResultOperation<Void> {
     typealias EncodeErrorHandler = (Error) -> Void
 
+    private let logger = Logger(label: "UpdateTunnelOperation")
     private let interactor: TunnelInteractor
-    private let logger = Logger(label: "StartTunnelOperation")
 
-    init(
-        dispatchQueue: DispatchQueue,
-        interactor: TunnelInteractor,
-        completionHandler: @escaping CompletionHandler
-    ) {
+    init(interactor: TunnelInteractor, dispatchQueue: DispatchQueue, completionHandler: @escaping CompletionHandler) {
         self.interactor = interactor
 
-        super.init(
-            dispatchQueue: dispatchQueue,
-            completionQueue: dispatchQueue,
-            completionHandler: completionHandler
-        )
+        super.init(dispatchQueue: dispatchQueue, completionQueue: dispatchQueue, completionHandler: completionHandler)
     }
 
     override func main() {
@@ -40,30 +31,22 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
 
         switch interactor.tunnelStatus.state {
-        case .disconnecting(.nothing):
-            interactor.updateTunnelStatus { tunnelStatus in
-                tunnelStatus = TunnelStatus()
-                tunnelStatus.state = .disconnecting(.reconnect)
-            }
-
+        case .disconnected, .disconnecting:
             finish(result: .success(()))
 
-        case .disconnected, .pendingReconnect:
-            makeTunnelProviderAndStartTunnel { error in
+        case .connected, .error, .waitingForConnectivity, .connecting, .reconnecting, .negotiatingEphemeralPeer,
+             .pendingReconnect:
+            makeTunnelProviderAndUpdateTunnel { error in
                 self.finish(result: error.map { .failure($0) } ?? .success(()))
             }
-
-        default:
-            finish(result: .success(()))
         }
     }
 
-    private func makeTunnelProviderAndStartTunnel(completionHandler: @escaping (Error?) -> Void) {
-        makeTunnelProvider { result in
+    private func makeTunnelProviderAndUpdateTunnel(completionHandler: @escaping (Error?) -> Void) {
+        updateTunnelProvider { result in
             self.dispatchQueue.async {
                 do {
-                    try self.startTunnel(tunnel: result.get())
-                    completionHandler(nil)
+                    try self.updateTunnel(tunnel: result.get())
                 } catch {
                     completionHandler(error)
                 }
@@ -71,7 +54,7 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
     }
 
-    private func startTunnel(tunnel: any TunnelProtocol) throws {
+    private func updateTunnel(tunnel: any TunnelProtocol) throws {
         let selectedRelays = try? interactor.selectRelays()
         var tunnelOptions = PacketTunnelOptions()
 
@@ -86,7 +69,7 @@ class StartTunnelOperation: ResultOperation<Void> {
             )
         }
 
-        interactor.setTunnel(tunnel, shouldRefreshTunnelState: false)
+        interactor.setTunnel(tunnel, shouldRefreshTunnelState: true)
 
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
@@ -97,16 +80,19 @@ class StartTunnelOperation: ResultOperation<Void> {
             )
         }
 
-        try tunnel.start(options: tunnelOptions.rawOptions())
+        _ = tunnel.reconnectTunnel(to: .current) { [weak self] result in
+            self?.finish(result: result)
+        }
     }
 
-    private func makeTunnelProvider(completionHandler: @escaping (Result<any TunnelProtocol, Error>) -> Void) {
+    private func updateTunnelProvider(completionHandler: @escaping (Result<any TunnelProtocol, Error>) -> Void) {
         let persistentTunnels = interactor.getPersistentTunnels()
-        let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
+        let tunnel = persistentTunnels.first!
         let configuration = Self.makeTunnelConfiguration()
 
+//        tunnel.removeFromPreferences(completion: { _ in })
         tunnel.setConfiguration(configuration)
-        tunnel.saveToPreferences { error in
+        tunnel.updatePreferences { error in
             completionHandler(error.map { .failure($0) } ?? .success(tunnel))
         }
     }

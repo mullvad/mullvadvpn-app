@@ -64,6 +64,10 @@ final class TunnelViewControllerInteractor {
         self.tunnelObserver = tunnelObserver
     }
 
+    func updateTunnel() {
+        tunnelManager.updateTunnel()
+    }
+
     func startTunnel() {
         tunnelManager.startTunnel()
     }

@@ -217,6 +217,42 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(loadTunnelOperation)
     }
 
+    func updateTunnel(completionHandler: ((Error?) -> Void)? = nil) {
+        let operation = UpdateTunnelConfigurationOperation(
+            interactor: TunnelInteractorProxy(self),
+            dispatchQueue: internalQueue,
+            completionHandler: { [weak self] result in
+                guard let self else { return }
+
+                DispatchQueue.main.async {
+                    if let error = result.error {
+                        self.logger.error(
+                            error: error,
+                            message: "Failed to Update the tunnel."
+                        )
+
+                        let tunnelError = StartTunnelError(underlyingError: error)
+
+                        self.observerList.notify { observer in
+                            observer.tunnelManager(self, didFailWithError: tunnelError)
+                        }
+                    }
+
+                    completionHandler?(result.error)
+                }
+            }
+        )
+
+        operation.addObserver(BackgroundObserver(
+            backgroundTaskProvider: backgroundTaskProvider,
+            name: "Update tunnel Configuration",
+            cancelUponExpiration: true
+        ))
+        operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
+
+        operationQueue.addOperation(operation)
+    }
+
     func startTunnel(completionHandler: ((Error?) -> Void)? = nil) {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,

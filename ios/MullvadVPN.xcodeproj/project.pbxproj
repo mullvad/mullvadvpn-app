@@ -850,6 +850,8 @@
 		A9B6AC182ADE8F4300F7802A /* MigrationManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */; };
 		A9B6AC1A2ADE8FBB00F7802A /* InMemorySettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */; };
 		A9B6AC1B2ADEA3AD00F7802A /* MemoryCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BDEB9C2A98F69E00F578F2 /* MemoryCache.swift */; };
+		A9B97ECD2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B97ECC2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift */; };
+		A9B97ECE2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9B97ECC2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift */; };
 		A9BA08312BA32FA9005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
 		A9BA08322BA32FB6005A7A2D /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A92962582B1F4FDB00DFB93B /* PrivacyInfo.xcprivacy */; };
 		A9BD4D552CA58C3700C8A0E6 /* RESTTransportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */; };
@@ -2119,6 +2121,7 @@
 		A9A8A8EA2A262AB30086D569 /* FileCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileCache.swift; sourceTree = "<group>"; };
 		A9B6AC172ADE8F4300F7802A /* MigrationManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerTests.swift; sourceTree = "<group>"; };
 		A9B6AC192ADE8FBB00F7802A /* InMemorySettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemorySettingsStore.swift; sourceTree = "<group>"; };
+		A9B97ECC2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateTunnelConfigurationOperation.swift; sourceTree = "<group>"; };
 		A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListsTests.swift; sourceTree = "<group>"; };
 		A9BFB0002BD00B7F00F2BCA1 /* CustomListPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomListPage.swift; sourceTree = "<group>"; };
 		A9C308392C19DDA7008715F1 /* MullvadPostQuantum+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MullvadPostQuantum+Stubs.swift"; sourceTree = "<group>"; };
@@ -2780,6 +2783,7 @@
 				58421031282E42B000F24E46 /* UpdateDeviceDataOperation.swift */,
 				A9F360332AAB626300F53531 /* VPNConnectionProtocol.swift */,
 				581DA2742A1E283E0046ED47 /* WgKeyRotation.swift */,
+				A9B97ECC2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift */,
 			);
 			path = TunnelManager;
 			sourceTree = "<group>";
@@ -5589,6 +5593,7 @@
 				A9A5FA2B2ACB05160083449F /* CustomDateComponentsFormattingTests.swift in Sources */,
 				A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */,
 				A9A5FA2D2ACB05160083449F /* DurationTests.swift in Sources */,
+				A9B97ECE2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift in Sources */,
 				A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */,
 				7A9F28FC2CA69D0C005F2089 /* DAITASettingsTests.swift in Sources */,
 				A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
@@ -6083,6 +6088,7 @@
 				7AF10EB22ADE859200C090B9 /* AlertViewController.swift in Sources */,
 				587D9676288989DB00CD8F1C /* NSLayoutConstraint+Helpers.swift in Sources */,
 				F028A56C2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift in Sources */,
+				A9B97ECD2D072CB70001A3ED /* UpdateTunnelConfigurationOperation.swift in Sources */,
 				58293FAE2510CA58005D0BB5 /* ProblemReportViewController.swift in Sources */,
 				58B9EB152489139B00095626 /* RESTError+Display.swift in Sources */,
 				587B753F2668E5A700DEF7E9 /* NotificationContainerView.swift in Sources */,
@@ -7300,6 +7306,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -7335,6 +7342,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -7978,6 +7986,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSION_INFO_PREFIX = "";
 			};
@@ -8808,6 +8817,7 @@
 				SUPPORTS_MACCATALYST = NO;
 				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = YES;
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VERSION_INFO_PREFIX = "";
 			};

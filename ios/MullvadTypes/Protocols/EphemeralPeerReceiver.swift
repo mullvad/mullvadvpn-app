@@ -22,7 +22,7 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     unowned let tunnelProvider: any TunnelProvider
     let keyReceiver: any EphemeralPeerReceiving
 
-    public init(tunnelProvider: TunnelProvider, keyReceiver: any EphemeralPeerReceiving ) {
+    public init(tunnelProvider: TunnelProvider, keyReceiver: any EphemeralPeerReceiving) {
         self.tunnelProvider = tunnelProvider
         self.keyReceiver = keyReceiver
     }
