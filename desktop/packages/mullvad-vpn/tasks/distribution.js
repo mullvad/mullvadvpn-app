@@ -68,9 +68,12 @@ const config = {
     if (context.arch !== Arch.universal) {
       const resources = context.packager.platformSpecificBuildOptions.extraResources;
       for (const resource of resources) {
-        const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function (match, captureGroup) {
-          return process.env[captureGroup];
-        });
+        const filePath = resource.from.replaceAll(
+          /\$\{env\.(.*?)\}/g,
+          function (match, captureGroup) {
+            return process.env[captureGroup];
+          },
+        );
 
         if (!fs.existsSync(filePath)) {
           throw new Error(`Can't find file: ${filePath}`);
