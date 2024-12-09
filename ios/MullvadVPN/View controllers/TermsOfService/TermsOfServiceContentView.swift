@@ -69,7 +69,7 @@ class TermsOfServiceContentView: UIView {
     let agreeButton: AppButton = {
         let button = AppButton(style: .default)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.accessibilityIdentifier = .agreeButton
+        button.setAccessibilityIdentifier(.agreeButton)
         button.setTitle(NSLocalizedString(
             "CONTINUE_BUTTON_TITLE",
             tableName: "TermsOfService",
@@ -103,7 +103,7 @@ class TermsOfServiceContentView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        self.accessibilityIdentifier = .termsOfServiceView
+        self.setAccessibilityIdentifier(.termsOfServiceView)
 
         addSubviews()
     }

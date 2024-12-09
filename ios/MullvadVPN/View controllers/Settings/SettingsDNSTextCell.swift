@@ -34,7 +34,7 @@ class SettingsDNSTextCell: SettingsCell, UITextFieldDelegate {
             value: "Enter IP",
             comment: ""
         )
-        textField.accessibilityIdentifier = .dnsSettingsEnterIPAddressTextField
+        textField.setAccessibilityIdentifier(.dnsSettingsEnterIPAddressTextField)
         textField.cornerRadius = 0
         textField.keyboardType = .numbersAndPunctuation
         textField.returnKeyType = .done

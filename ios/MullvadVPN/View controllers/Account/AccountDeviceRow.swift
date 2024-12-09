@@ -13,7 +13,7 @@ class AccountDeviceRow: UIView {
         didSet {
             deviceLabel.text = deviceName?.capitalized ?? ""
             accessibilityValue = deviceName
-            accessibilityIdentifier = .accountPageDeviceNameLabel
+            setAccessibilityIdentifier(.accountPageDeviceNameLabel)
         }
     }
 
@@ -41,7 +41,7 @@ class AccountDeviceRow: UIView {
 
     private let infoButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
-        button.accessibilityIdentifier = .infoButton
+        button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
         return button

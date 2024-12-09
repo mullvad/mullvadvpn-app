@@ -25,7 +25,7 @@ class ChipViewCell: UIView, UIContentView {
 
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.accessibilityIdentifier = .relayFilterChipLabel
+        label.setAccessibilityIdentifier(.relayFilterChipLabel)
         label.adjustsFontForContentSizeCategory = true
         label.translatesAutoresizingMaskIntoConstraints = false
         label.numberOfLines = 1
@@ -39,7 +39,7 @@ class ChipViewCell: UIView, UIContentView {
         var buttonConfiguration = UIButton.Configuration.plain()
         buttonConfiguration.image = UIImage(resource: .iconCloseSml).withTintColor(.white.withAlphaComponent(0.6))
         buttonConfiguration.contentInsets = .zero
-        button.accessibilityIdentifier = .relayFilterChipCloseButton
+        button.setAccessibilityIdentifier(.relayFilterChipCloseButton)
         button.configuration = buttonConfiguration
         return button
     }()
@@ -73,7 +73,7 @@ class ChipViewCell: UIView, UIContentView {
     }
 
     func addSubviews() {
-        self.accessibilityIdentifier = .relayFilterChipView
+        self.setAccessibilityIdentifier(.relayFilterChipView)
 
         let stackView = UIStackView(arrangedSubviews: [titleLabel, closeButton])
         stackView.spacing = UIMetrics.FilterView.chipViewLabelSpacing

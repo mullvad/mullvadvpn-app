@@ -139,11 +139,11 @@ class MethodTestingStatusCellContentView: UIView, UIContentView {
         // Set accessibility identifier for the text label based on the status it is indicating
         switch actualConfiguration.status {
         case .reachable:
-            textLabel.accessibilityIdentifier = .addAccessMethodTestStatusReachableLabel
+            textLabel.setAccessibilityIdentifier(.addAccessMethodTestStatusReachableLabel)
         case .unreachable:
-            textLabel.accessibilityIdentifier = .addAccessMethodTestStatusUnreachableLabel
+            textLabel.setAccessibilityIdentifier(.addAccessMethodTestStatusUnreachableLabel)
         case .testing:
-            textLabel.accessibilityIdentifier = .addAccessMethodTestStatusTestingLabel
+            textLabel.setAccessibilityIdentifier(.addAccessMethodTestStatusTestingLabel)
         }
 
         // Text label is always the last one, so only add it into the stack if it's not there yet.

@@ -75,7 +75,7 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-        view.accessibilityIdentifier = .problemReportView
+        view.setAccessibilityIdentifier(.problemReportView)
 
         navigationItem.title = Self.persistentViewModel.navigationTitle
 
@@ -91,8 +91,8 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
         messageTextView.setContentHuggingPriority(.defaultLow, for: .vertical)
         messageTextView.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
 
-        emailTextField.accessibilityIdentifier = .problemReportEmailTextField
-        messageTextView.accessibilityIdentifier = .problemReportMessageTextView
+        emailTextField.setAccessibilityIdentifier(.problemReportEmailTextField)
+        messageTextView.setAccessibilityIdentifier(.problemReportMessageTextView)
 
         addConstraints()
         registerForNotifications()

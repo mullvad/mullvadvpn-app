@@ -81,7 +81,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
 
     private let infoButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.accessibilityIdentifier = .infoButton
+        button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
         button.isHidden = true
