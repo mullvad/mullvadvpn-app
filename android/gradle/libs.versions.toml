@@ -3,7 +3,7 @@
 # The android-gradle-aapt plugin version must be in sync with the android plugin version.
 # Required for Gradle metadata verification to work properly, see:
 # https://github.com/gradle/gradle/issues/19228
-android-gradle-plugin = "8.7.2"
+android-gradle-plugin = "8.7.3"
 android-gradle-aapt = "12006047"
 android-billingclient = "7.1.1"
 android-volley = "1.2.1"
@@ -22,7 +22,7 @@ androidx-testrunner = "1.6.2"
 androidx-uiautomator = "2.4.0-alpha01"
 
 # Arrow
-arrow = "1.2.4"
+arrow = "2.0.0"
 
 # Compose
 compose = "1.7.5"
@@ -33,14 +33,14 @@ compose-material3 = "1.3.1"
 grpc = "1.68.2"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
-grpc-protobuf = "4.29.0"
+grpc-protobuf = "4.29.1"
 
 # Koin
 koin = "4.0.0"
 koin-compose = "4.0.0"
 
 # Ktor
-ktor = "3.0.1"
+ktor = "3.0.2"
 
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
@@ -60,7 +60,7 @@ dependency-versions = "0.51.0"
 detekt = "1.23.7"
 jodatime = "2.13.0"
 kermit = "2.0.5"
-konsist = "0.17.0"
+konsist = "0.17.3"
 ktfmt = "0.21.0"
 leakcanary = "2.14"
 
