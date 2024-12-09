@@ -24,6 +24,13 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.9] - 2024-12-09
+
+### Fixed
+- Detect if we do not get an obfuscated account id and fail the in-app purchase early
+  so that the purchase does not get stuck in limbo with no way to resolve.
+
+
 ## [android/2024.9-beta1] - 2024-11-27
 
 ### Added
@@ -37,6 +44,13 @@ Line wrap the file at 100 chars.                                              Th
 - Fix a bug where the Android account expiry notifications would not be updated if the app was
   running in the background for a long time.
 - Fix ANR due to the tokio runtime being blocked by `getaddrinfo` when dropped.
+
+### Security
+- Remove alternative stack for fault signal handlers on unix based systems. It was implemented
+  incorrectly and could cause stack overflow and heap memory corruption.
+  Fixes audit issue `MLLVD-CR-24-01`.
+- Remove/disable unsafe signal code from fault signal handler on unix based systems.
+  Fixes audit issue `MLLVD-CR-24-02`.
 
 
 ## [android/2024.8] - 2024-11-01
