@@ -24,7 +24,21 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.9] - 2024-12-09
+
+### Fixed 
+- Detect if we do not get an obfuscated account id and fail the in-app purchase early
+  so that the purchase does not get stuck in limbo with no way to resolve.
+
+
 ## [android/2024.9-beta1] - 2024-11-27
+
+### Security
+- Remove invalidly set up alternative stack for fault signal handlers on unix based systems.
+  This prevents potential stack overflow and heap memory corruption.
+  Fixes audit issue `MLLVD-CR-24-01`.
+- Remove/disable not signal safe code from fault signal handler on unix based systems.
+  Fixes audit issue `MLLVD-CR-24-02`.
 
 ### Added
 - Add a new access method: Encrypted DNS Proxy. Encrypted DNS proxy is a way to reach the API via
