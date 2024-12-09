@@ -132,12 +132,7 @@ const config = {
   },
 
   win: {
-    target: [
-      {
-        target: 'nsis',
-        arch: null,
-      },
-    ],
+    target: [],
     signAndEditExecutable: false,
     artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
     publisherName: 'Mullvad VPN AB',
@@ -302,14 +297,12 @@ async function packWin() {
         process.env.TARGET_ARCHITECTURE = options.arch;
         switch (options.arch) {
           case 'x64':
-          case Arch.x64:
             process.env.TARGET_TRIPLE = 'x86_64-pc-windows-msvc';
             process.env.SETUP_SUBDIR = '.';
             process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
             process.env.DIST_SUBDIR = '';
             break;
           case 'arm64':
-          case Arch.arm64:
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
             process.env.SETUP_SUBDIR = 'aarch64-pc-windows-msvc';
             process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
