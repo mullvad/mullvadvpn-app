@@ -13,18 +13,11 @@ fun Project.generateVersionName(localProperties: Properties): String {
 }
 
 private fun Project.execVersionCodeCargoCommand() =
-    execWithOutput { commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionCode") }
-        .toInt()
+    providers.exec {
+        commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionCode")
+    }.standardOutput.asText.get().trim().toInt()
 
-private fun Project.execVersionNameCargoCommand() = execWithOutput {
-    commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionName")
-}
-
-private fun Project.execWithOutput(spec: ExecSpec.() -> Unit) =
-    ByteArrayOutputStream().use { outputStream ->
-        exec {
-            this.spec()
-            this.standardOutput = outputStream
-        }
-        outputStream.toString().trim()
-    }
+private fun Project.execVersionNameCargoCommand() =
+    providers.exec {
+        commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionName")
+    }.standardOutput.asText.get().trim()
