@@ -11,6 +11,7 @@ use anyhow::{bail, Context};
 use std::{
     ffi::{c_ushort, OsStr},
     io::{self, Write},
+    num::NonZero,
     process::{Command, ExitStatus},
     ptr::NonNull,
 };
@@ -72,10 +73,11 @@ fn find_binary_data(architecture: Architecture) -> anyhow::Result<&'static [u8]>
     // which is not available in windows-sys, as it is a macro.
     // `resource_id` is guaranteed by the build script to refer to an actual resource.
     // See https://learn.microsoft.com/en-us/windows/win32/api/libloaderapi/nf-libloaderapi-findresourcew
-    let resource_info = unsafe { FindResourceW(0, resource_id as _, w!("BINARY")) };
-    if resource_info == 0 {
+    let Some(resource_info) =
+        NonZero::new(unsafe { FindResourceW(0, resource_id as _, w!("BINARY")) })
+    else {
         bail!("Failed to find resource: {}", io::Error::last_os_error());
-    }
+    };
 
     // SAFETY: We have a valid resource info handle
     // NOTE: Resources loaded with LoadResource should not be freed.
@@ -85,13 +87,12 @@ fn find_binary_data(architecture: Architecture) -> anyhow::Result<&'static [u8]>
     };
 
     // SAFETY: We have a valid resource info handle
-    let resource_size = unsafe { SizeofResource(0, resource_info) };
-    if resource_size == 0 {
+    let Some(resource_size) = NonZero::new(unsafe { SizeofResource(0, resource_info) }) else {
         bail!(
             "Failed to get resource size: {}",
             io::Error::last_os_error()
         );
-    }
+    };
 
     // SAFETY: We have a valid resource info handle
     // NOTE: We do not need to unload this handle, because it doesn't actually lock anything.
