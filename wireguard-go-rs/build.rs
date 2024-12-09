@@ -174,7 +174,7 @@ fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
     // to run two times before it is properly cached.
     println!(
         "cargo::rerun-if-changed={}",
-        android_output_artifact_path(target)?.display()
+        android_output_path(target)?.join("libwg.so").display()
     );
     println!(
         "cargo::rerun-if-changed={}",
@@ -282,14 +282,6 @@ fn android_output_path(target: AndroidTarget) -> anyhow::Result<PathBuf> {
     let relative_output_path = Path::new("../android/app/build/rustJniLibs/android").join(android_abi(target));
     std::fs::create_dir_all(relative_output_path.clone())?;
     let output_path = relative_output_path.canonicalize()?;
-    Ok(output_path)
-}
-
-// Exact path to the libwg.so file so that we can trigger rebbuilds when the file is changed
-fn android_output_artifact_path(target: AndroidTarget) -> anyhow::Result<PathBuf> {
-    let relative_output_path = Path::new("../android/app/build/rustJniLibs/android").join(android_abi(target));
-    std::fs::create_dir_all(relative_output_path.clone())?;
-    let output_path = relative_output_path.canonicalize()?.join("libwg.so");
     Ok(output_path)
 }
 
