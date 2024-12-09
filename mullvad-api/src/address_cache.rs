@@ -1,7 +1,6 @@
 //! This module keeps track of the last known good API IP address and reads and stores it on disk.
 
-use super::API;
-use crate::DnsResolver;
+use crate::{ApiEndpoint, DnsResolver};
 use async_trait::async_trait;
 use std::{io, net::SocketAddr, path::Path, sync::Arc};
 use tokio::{
@@ -38,42 +37,42 @@ impl DnsResolver for AddressCache {
 
 #[derive(Clone)]
 pub struct AddressCache {
+    hostname: String,
     inner: Arc<Mutex<AddressCacheInner>>,
     write_path: Option<Arc<Path>>,
 }
 
 impl AddressCache {
     /// Initialize cache using the hardcoded address, and write changes to `write_path`.
-    pub fn new(write_path: Option<Box<Path>>) -> Self {
-        Self::new_inner(API.address(), write_path)
-    }
-
-    pub fn with_static_addr(address: SocketAddr) -> Self {
-        Self::new_inner(address, None)
+    pub fn new(endpoint: &ApiEndpoint, write_path: Option<Box<Path>>) -> Self {
+        Self::new_inner(endpoint.address(), endpoint.host().to_owned(), write_path)
     }
 
     /// Initialize cache using `read_path`, and write changes to `write_path`.
-    pub async fn from_file(read_path: &Path, write_path: Option<Box<Path>>) -> Result<Self, Error> {
+    pub async fn from_file(
+        read_path: &Path,
+        write_path: Option<Box<Path>>,
+        hostname: String,
+    ) -> Result<Self, Error> {
         log::debug!("Loading API addresses from {}", read_path.display());
-        Ok(Self::new_inner(
-            read_address_file(read_path).await?,
-            write_path,
-        ))
+        let address = read_address_file(read_path).await?;
+        Ok(Self::new_inner(address, hostname, write_path))
     }
 
-    fn new_inner(address: SocketAddr, write_path: Option<Box<Path>>) -> Self {
+    fn new_inner(address: SocketAddr, hostname: String, write_path: Option<Box<Path>>) -> Self {
         let cache = AddressCacheInner::from_address(address);
         log::debug!("Using API address: {}", cache.address);
 
         Self {
             inner: Arc::new(Mutex::new(cache)),
             write_path: write_path.map(Arc::from),
+            hostname,
         }
     }
 
     /// Returns the address if the hostname equals `API.host`. Otherwise, returns `None`.
     async fn resolve_hostname(&self, hostname: &str) -> Option<SocketAddr> {
-        if hostname.eq_ignore_ascii_case(API.host()) {
+        if hostname.eq_ignore_ascii_case(&self.hostname) {
             Some(self.get_address().await)
         } else {
             None
