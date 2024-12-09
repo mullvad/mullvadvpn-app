@@ -392,7 +392,7 @@ if [[ "$UNIVERSAL" == "true" && "$(uname -s)" == "MINGW"* ]]; then
     if [[ "$OPTIMIZE" == "true" ]]; then
         WIN_PACK_ARGS+=(--optimize)
     fi
-    ./scripts/pack-universal-win.sh \
+    ./desktop/scripts/pack-universal-win.sh \
         --x64-installer "$SCRIPT_DIR/dist/"*"$PRODUCT_VERSION"_x64.exe \
         --arm64-installer "$SCRIPT_DIR/dist/"*"$PRODUCT_VERSION"_arm64.exe \
         "${WIN_PACK_ARGS[@]}"
