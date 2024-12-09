@@ -35,8 +35,9 @@ pub enum Error {
     InvalidCiphertextCount {
         actual: usize,
     },
+    /// Failed to open TCP connection
     #[cfg(target_os = "ios")]
-    TcpConnectionExpired,
+    TcpConnectionOpen,
     #[cfg(target_os = "ios")]
     UnableToCreateRuntime,
 }
@@ -45,7 +46,7 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Error::*;
         match self {
-            GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
+            GrpcConnectError(err) => write!(f, "Failed to connect to config service: {err:?}"),
             GrpcError(status) => write!(f, "RPC failed: {status}"),
             MissingCiphertexts => write!(f, "Found no ciphertexts in response"),
             InvalidCiphertextLength {
@@ -60,7 +61,7 @@ impl std::fmt::Display for Error {
                 write!(f, "Expected 2 ciphertext in the response, got {actual}")
             }
             #[cfg(target_os = "ios")]
-            TcpConnectionExpired => "TCP connection is already shut down".fmt(f),
+            TcpConnectionOpen => "Failed to open TCP connection".fmt(f),
             #[cfg(target_os = "ios")]
             UnableToCreateRuntime => "Unable to create iOS PQ PSK runtime".fmt(f),
         }

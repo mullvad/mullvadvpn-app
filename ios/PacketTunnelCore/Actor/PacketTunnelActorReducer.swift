@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import WireGuardKitTypes
 
 extension PacketTunnelActor {
@@ -25,7 +26,7 @@ extension PacketTunnelActor {
         case stopTunnelAdapter
         case configureForErrorState(BlockedStateReason)
         case cacheActiveKey(Date?)
-        case reconfigureForEphemeralPeer(EphemeralPeerNegotiationState)
+        case reconfigureForEphemeralPeer(EphemeralPeerNegotiationState, OneshotChannel)
         case connectWithEphemeralPeer
 
         // acknowledge that the disconnection process has concluded, go to .disconnected.
@@ -45,7 +46,7 @@ extension PacketTunnelActor {
             case (.stopTunnelAdapter, .stopTunnelAdapter): true
             case let (.configureForErrorState(r0), .configureForErrorState(r1)): r0 == r1
             case let (.cacheActiveKey(d0), .cacheActiveKey(d1)): d0 == d1
-            case let (.reconfigureForEphemeralPeer(eph0), .reconfigureForEphemeralPeer(eph1)): eph0 == eph1
+            case let (.reconfigureForEphemeralPeer(eph0, _), .reconfigureForEphemeralPeer(eph1, _)): eph0 == eph1
             case (.connectWithEphemeralPeer, .connectWithEphemeralPeer): true
             case (.setDisconnectedState, .setDisconnectedState): true
             default: false
@@ -89,8 +90,8 @@ extension PacketTunnelActor {
                 state.mutateAssociatedData { $0.networkReachability = newReachability }
                 return [.updateTunnelMonitorPath(defaultPath)]
 
-            case let .ephemeralPeerNegotiationStateChanged(configuration):
-                return [.reconfigureForEphemeralPeer(configuration)]
+            case let .ephemeralPeerNegotiationStateChanged(configuration, reconfigurationSemaphore):
+                return [.reconfigureForEphemeralPeer(configuration, reconfigurationSemaphore)]
 
             case .notifyEphemeralPeerNegotiated:
                 return [.connectWithEphemeralPeer]

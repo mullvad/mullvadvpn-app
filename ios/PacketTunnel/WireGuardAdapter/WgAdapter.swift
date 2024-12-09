@@ -13,7 +13,7 @@ import NetworkExtension
 import PacketTunnelCore
 import WireGuardKit
 
-struct WgAdapter: TunnelAdapterProtocol {
+class WgAdapter: TunnelAdapterProtocol {
     let logger = Logger(label: "WgAdapter")
     let adapter: WireGuardAdapter
 
@@ -211,4 +211,19 @@ private extension WgStats {
     let value = line.dropFirst(prefixKey.count)
 
     return UInt64(value)
+}
+
+extension WgAdapter: TunnelProvider {
+    public func tunnelHandle() throws -> Int32 {
+        return try self.adapter.tunnelHandle()
+    }
+
+    public func wgFuncs() -> WgFuncPointers {
+        WgFuncPointers(
+            open: adapter.inTunnelTcpOpen,
+            close: adapter.inTunnelTcpClose,
+            receive: adapter.inTunnelTcpRecv,
+            send: adapter.inTunnelTcpSend
+        )
+    }
 }
