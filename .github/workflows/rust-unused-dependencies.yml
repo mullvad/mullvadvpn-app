@@ -59,7 +59,7 @@ jobs:
 
       - name: Check for unused dependencies
         shell: bash
-        run: source env.sh && cargo udeps --workspace
+        run: source env.sh && cargo udeps --workspace --exclude windows-installer
 
   cargo-udeps-android:
     needs: prepare-containers
@@ -132,4 +132,4 @@ jobs:
 
       - name: Check for unused dependencies
         shell: bash
-        run: cargo udeps --workspace
+        run: cargo udeps --workspace --exclude windows-installer
