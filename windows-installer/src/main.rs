@@ -1,4 +1,5 @@
 #![windows_subsystem = "windows"]
+#![warn(clippy::undocumented_unsafe_blocks)]
 
 #[cfg(target_os = "windows")]
 #[path = "windows.rs"]
