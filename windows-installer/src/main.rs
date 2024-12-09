@@ -1,5 +1,6 @@
-//! Universal Windows installer. This can only be built for x86 Windows. This is because the
-//! installer must run on both x86 and ARM64. x86 binaries can run on ARM64, but not vice versa.
+//! Universal Windows installer which contains both an x86 installer package and an ARM package.
+//! This can only be built for x86 Windows. This is because the installer must run on both x86 and
+//! ARM64, and x86 binaries can run on ARM64, but not vice versa.
 //!
 //! Building this requires two inputs into build.rs:
 //! * `WIN_X64_INSTALLER` - a path to the x64 Windows installer
