@@ -39,6 +39,7 @@ use futures::{
 };
 use geoip::GeoIpHandler;
 use management_interface::ManagementInterfaceServer;
+use mullvad_api::ApiEndpoint;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
@@ -596,6 +597,7 @@ impl Daemon {
         cache_dir: PathBuf,
         rpc_socket_path: PathBuf,
         daemon_command_channel: DaemonCommandChannel,
+        endpoint: ApiEndpoint,
         #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
@@ -620,6 +622,7 @@ impl Daemon {
 
         mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
+            &endpoint,
             &cache_dir,
             true,
             #[cfg(target_os = "android")]
@@ -667,6 +670,8 @@ impl Daemon {
             cache_dir.clone(),
             relay_selector.clone(),
             settings.api_access_methods.clone(),
+            #[cfg(feature = "api-override")]
+            endpoint.clone(),
             internal_event_tx.to_specialized_sender(),
             api_runtime.address_cache().clone(),
         )
@@ -679,6 +684,8 @@ impl Daemon {
         tokio::spawn(api_address_updater::run_api_address_fetcher(
             api_runtime.address_cache().clone(),
             api_handle.clone(),
+            #[cfg(feature = "api-override")]
+            endpoint,
         ));
 
         let access_method_handle = access_mode_handler.clone();

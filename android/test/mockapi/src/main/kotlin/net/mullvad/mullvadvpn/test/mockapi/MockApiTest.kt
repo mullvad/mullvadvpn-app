@@ -55,11 +55,6 @@ abstract class MockApiTest {
     }
 
     private fun createEndpoint(port: Int): ApiEndpointOverride {
-        return ApiEndpointOverride(
-            InetAddress.getLocalHost().hostName,
-            port,
-            disableAddressCache = true,
-            disableTls = true,
-        )
+        return ApiEndpointOverride(InetAddress.getLocalHost().hostName, port, disableTls = true)
     }
 }
