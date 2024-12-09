@@ -5,8 +5,6 @@
 //! Building this requires two inputs into build.rs:
 //! * `WIN_X64_INSTALLER` - a path to the x64 Windows installer
 //! * `WIN_ARM64_INSTALLER` - a path to the ARM64 Windows installer
-#![warn(clippy::undocumented_unsafe_blocks)]
-
 use anyhow::{bail, Context};
 use std::{
     ffi::{c_ushort, OsStr},
