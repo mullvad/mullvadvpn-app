@@ -197,7 +197,10 @@ function build_ref {
         build_args+=(--universal --notarize)
     fi
     if [[ "$(uname -s)" == "MINGW"* ]]; then
-        build_args+=(--universal)
+        if [[ -d "$BUILD_DIR/windows-installer" ]]; then
+            # build universal build if supported
+            build_args+=(--universal)
+        fi
     fi
 
     artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
@@ -208,6 +211,11 @@ function build_ref {
 
     case "$(uname -s)" in
         MINGW*|MSYS_NT*)
+            if [[ ! -d "$BUILD_DIR/windows-installer" ]]; then
+                echo "Building ARM64 installers"
+                target=aarch64-pc-windows-msvc artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
+            fi
+
             echo "Packaging all PDB files..."
             find ./windows/ \
                 ./target/release/mullvad-daemon.pdb \
