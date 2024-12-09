@@ -1,4 +1,6 @@
 - Fixed an issue where the app could freeze (ANR).
 - Fixed a few issues related to account expiry notifications and the behavior when the account has expired.
+- Fixed a rare case where a purchase could not be validated.
+- Fixed bugs in crash logging.
 - Improve animations.
 - Added Encrypted DNS Proxy as an API Access Method to help circumvent censorship.
