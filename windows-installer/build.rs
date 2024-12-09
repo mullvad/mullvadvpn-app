@@ -1,5 +1,3 @@
-#![cfg(target_os = "windows")]
-
 use anyhow::Context;
 use std::{io, path::Path};
 
