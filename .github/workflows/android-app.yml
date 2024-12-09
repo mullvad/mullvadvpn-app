@@ -531,7 +531,7 @@ jobs:
 
       - name: Calculate timeout
         id: calculate-timeout
-        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 60 ))" >> $GITHUB_OUTPUT
+        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 15 ))" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run instrumented test script
