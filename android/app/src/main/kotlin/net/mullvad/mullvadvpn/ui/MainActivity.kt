@@ -12,21 +12,29 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import arrow.core.merge
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.screen.MullvadApp
+import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.di.paymentModule
 import net.mullvad.mullvadvpn.di.uiModule
+import net.mullvad.mullvadvpn.lib.common.constant.KEY_REQUEST_VPN_PROFILE
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermissionIfMissing
+import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.model.PrepareError
+import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
-import net.mullvad.mullvadvpn.viewmodel.NoDaemonViewModel
+import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
 import org.koin.androidx.scope.activityScope
@@ -40,9 +48,11 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
             // NotificationManager.areNotificationsEnabled is used to check the state rather than
             // handling the callback value.
         }
+    private val launchVpnPermission =
+        registerForActivityResult(CreateVpnProfile()) { _ -> mullvadAppViewModel.connect() }
 
     private val intentProvider by inject<IntentProvider>()
-    private val noDaemonViewModel by inject<NoDaemonViewModel>()
+    private val mullvadAppViewModel by inject<MullvadAppViewModel>()
     private val privacyDisclaimerRepository by inject<PrivacyDisclaimerRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
@@ -53,7 +63,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     override fun onCreate(savedInstanceState: Bundle?) {
         loadKoinModules(listOf(uiModule, paymentModule))
 
-        lifecycle.addObserver(noDaemonViewModel)
+        lifecycle.addObserver(mullvadAppViewModel)
 
         installSplashScreen().setKeepOnScreenCondition {
             val isReady = isReadyNextDraw
@@ -68,14 +78,13 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
         super.onCreate(savedInstanceState)
 
-        // Needs to be before set content since we want to access the intent in compose
-        if (savedInstanceState == null) {
-            intentProvider.setStartIntent(intent)
-        }
         setContent { AppTheme { MullvadApp() } }
 
         // This is to protect against tapjacking attacks
         window.decorView.filterTouchesWhenObscured = true
+
+        // Needs to be before we start the service, since we need to access the intent there
+        setUpIntentListener()
 
         // We use lifecycleScope here to get less start service in background exceptions
         // Se this article for more information:
@@ -103,11 +112,6 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         }
     }
 
-    override fun onNewIntent(intent: Intent) {
-        super.onNewIntent(intent)
-        intentProvider.setStartIntent(intent)
-    }
-
     fun bindService() {
         requestNotificationPermissionIfMissing(requestNotificationPermissionLauncher)
         serviceConnectionManager.bind()
@@ -121,7 +125,41 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     }
 
     override fun onDestroy() {
-        lifecycle.removeObserver(noDaemonViewModel)
+        lifecycle.removeObserver(mullvadAppViewModel)
         super.onDestroy()
     }
+
+    private fun setUpIntentListener() {
+        lifecycleScope.launch {
+            intents().collect {
+                if (it.action == KEY_REQUEST_VPN_PROFILE) {
+                    handleRequestVpnProfileIntent()
+                } else {
+                    intentProvider.setStartIntent(it)
+                }
+            }
+        }
+    }
+
+    private fun handleRequestVpnProfileIntent() {
+        val prepareResult = prepareVpnSafe().merge()
+        when (prepareResult) {
+            is PrepareError.NotPrepared -> launchVpnPermission.launch(prepareResult.prepareIntent)
+            // If legacy or other always on connect at let daemon generate a error state
+            is PrepareError.OtherLegacyAlwaysOnVpn,
+            is PrepareError.OtherAlwaysOnApp,
+            Prepared -> mullvadAppViewModel.connect()
+        }
+    }
+
+    private fun ComponentActivity.intents() =
+        callbackFlow<Intent> {
+            send(intent)
+
+            val listener: (Intent) -> Unit = { trySend(it) }
+
+            addOnNewIntentListener(listener)
+
+            awaitClose { removeOnNewIntentListener(listener) }
+        }
 }
