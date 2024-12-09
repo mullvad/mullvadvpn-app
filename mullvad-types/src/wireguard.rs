@@ -85,20 +85,9 @@ pub struct QuantumResistantStateParseError;
 pub struct DaitaSettings {
     pub enabled: bool,
 
-    #[cfg_attr(target_os = "android", serde(skip))]
-    #[serde(default = "DaitaSettings::default_use_multihop_if_necessary")]
     /// Whether to use multihop if the selected relay is not DAITA-compatible. Note that this is
     /// the inverse of of "Direct only" in the GUI.
     pub use_multihop_if_necessary: bool,
-}
-
-#[cfg(daita)]
-impl DaitaSettings {
-    /// This setting should be enabled by default, expect on Android where multihop is not
-    /// supported.
-    const fn default_use_multihop_if_necessary() -> bool {
-        cfg!(not(target_os = "android"))
-    }
 }
 
 #[cfg(daita)]
@@ -106,7 +95,7 @@ impl Default for DaitaSettings {
     fn default() -> Self {
         Self {
             enabled: false,
-            use_multihop_if_necessary: Self::default_use_multihop_if_necessary(),
+            use_multihop_if_necessary: true,
         }
     }
 }
