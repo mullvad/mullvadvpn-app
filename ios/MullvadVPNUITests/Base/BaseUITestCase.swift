@@ -214,13 +214,13 @@ class BaseUITestCase: XCTestCase {
     /// Check if currently logged on to an account. Note that it is assumed that we are logged in if login view isn't currently shown.
     func isLoggedIn() -> Bool {
         return !app
-            .otherElements[AccessibilityIdentifier.loginView]
+            .otherElements[.loginView]
             .waitForExistence(timeout: 1.0)
     }
 
     func isPresentingSettings() -> Bool {
         return app
-            .otherElements[AccessibilityIdentifier.settingsContainerView]
+            .otherElements[.settingsContainerView]
             .exists
     }
 
@@ -248,7 +248,7 @@ class BaseUITestCase: XCTestCase {
 
         // Ensure changelog is no longer shown
         _ = app
-            .otherElements[AccessibilityIdentifier.changeLogAlert.asString]
+            .otherElements[.changeLogAlert]
             .waitForNonExistence(timeout: Self.shortTimeout)
     }
 

@@ -327,7 +327,6 @@ extension LocationCell {
             // Only custom list nodes have more than one location. Therefore checking first
             // location here is fine.
             if let location = item.node.locations.first {
-                // we can probably replace this with a tagged AccessibilityIdentifier and cut this case statement
                 let accessibilityId: AccessibilityIdentifier = switch location {
                 case .country: .countryLocationCell
                 case .city: .cityLocationCell
