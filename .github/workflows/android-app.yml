@@ -515,7 +515,7 @@ jobs:
         id: prepare-test-attachments-dir
         if: ${{ matrix.test-repeat != 0 }}
         env:
-          INNER_TEST_ATTACHMENTS_DIR: /tmp/${{ matrix.test-type }}-test-attachments-${{ github.run_id }}-${{ github.run_attempt }}
+          INNER_TEST_ATTACHMENTS_DIR: /tmp/e2e-test-attachments-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           mkdir -p $INNER_TEST_ATTACHMENTS_DIR
           echo "test_attachments_dir=$INNER_TEST_ATTACHMENTS_DIR" >> $GITHUB_OUTPUT
@@ -571,7 +571,7 @@ jobs:
         env:
           TEST_ATTACHMENTS_PATH: "/sdcard/Download/test-attachments"
         shell: bash
-        run: adb pull $TEST_ATTACHMENTS_PATH ${{ steps.prepare-test-attachments-dir.outputs.test_attachments_dir }}/test-attachments
+        run: adb pull "$TEST_ATTACHMENTS_PATH" ${{ steps.prepare-test-attachments-dir.outputs.test_attachments_dir }}/test-attachments
 
       - name: Upload attachments from test device
         uses: actions/upload-artifact@v4
