@@ -112,8 +112,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .dnsSettings
             case .ipOverrides:
                 return .ipOverrides
-            case .wireGuardPort:
-                return .wireGuardPort
+            case let .wireGuardPort(port):
+                return .wireGuardPort(port)
             case .wireGuardCustomPort:
                 return .wireGuardCustomPort
             case .wireGuardObfuscationAutomatic:

@@ -181,7 +181,7 @@ public enum AccessibilityIdentifier: Equatable {
     case wireGuardObfuscationOff
     case wireGuardObfuscationUdpOverTcp
     case wireGuardObfuscationShadowsocks
-    case wireGuardPort
+    case wireGuardPort(UInt16?)
     case udpOverTcpObfuscationSettings
 
     // Custom DNS
