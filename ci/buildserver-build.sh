@@ -196,6 +196,12 @@ function build_ref {
     if [[ "$(uname -s)" == "Darwin" ]]; then
         build_args+=(--universal --notarize)
     fi
+    if [[ "$(uname -s)" == "MINGW"* ]]; then
+        if [[ -d "$BUILD_DIR/windows-installer" ]]; then
+            # build universal build if supported
+            build_args+=(--universal)
+        fi
+    fi
 
     artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
     if [[ "$(uname -s)" == "Linux" ]]; then
@@ -205,8 +211,10 @@ function build_ref {
 
     case "$(uname -s)" in
         MINGW*|MSYS_NT*)
-            echo "Building ARM64 installers"
-            target=aarch64-pc-windows-msvc artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
+            if [[ ! -d "$BUILD_DIR/windows-installer" ]]; then
+                echo "Building ARM64 installers"
+                target=aarch64-pc-windows-msvc artifact_dir=$artifact_dir build "${build_args[@]}" || return 1
+            fi
 
             echo "Packaging all PDB files..."
             find ./windows/ \
@@ -226,7 +234,7 @@ function build_ref {
         # Pipes all matching names and their new name to mv
         pushd "$artifact_dir"
         for original_file in MullvadVPN-*-dev-*{.deb,.rpm,.exe,.pkg}; do
-            new_file=$(echo "$original_file" | perl -pe "s/^(MullvadVPN-.*?)(_arm64|_aarch64|_amd64|_x86_64)?(\.deb|\.rpm|\.exe|\.pkg)$/\1$version_suffix\2\3/p")
+            new_file=$(echo "$original_file" | perl -pe "s/^(MullvadVPN-.*?)(_x64|_arm64|_aarch64|_amd64|_x86_64)?(\.deb|\.rpm|\.exe|\.pkg)$/\1$version_suffix\2\3/p")
             mv "$original_file" "$new_file"
         done
         popd
