@@ -41,8 +41,8 @@ use tokio::{
 };
 use tower::Service;
 
-#[cfg(feature = "api-override")]
-use crate::{proxy::ConnectionDecorator, API};
+#[cfg(any(feature = "api-override", test))]
+use crate::proxy::ConnectionDecorator;
 
 const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
@@ -89,6 +89,7 @@ impl InnerConnectionMode {
         hostname: &str,
         addr: &SocketAddr,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Result<ApiConnection, std::io::Error> {
         match self {
             // Set up a TCP-socket connection.
@@ -101,6 +102,8 @@ impl InnerConnectionMode {
                     make_proxy_stream,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx,
+                    #[cfg(any(feature = "api-override", test))]
+                    disable_tls,
                 )
                 .await
             }
@@ -121,6 +124,8 @@ impl InnerConnectionMode {
                     make_proxy_stream,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx,
+                    #[cfg(any(feature = "api-override", test))]
+                    disable_tls,
                 )
                 .await
             }
@@ -153,6 +158,8 @@ impl InnerConnectionMode {
                     make_proxy_stream,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx,
+                    #[cfg(any(feature = "api-override", test))]
+                    disable_tls,
                 )
                 .await
             }
@@ -168,6 +175,8 @@ impl InnerConnectionMode {
                     make_proxy_stream,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx,
+                    #[cfg(any(feature = "api-override", test))]
+                    disable_tls,
                 )
                 .await
             }
@@ -191,6 +200,7 @@ impl InnerConnectionMode {
         hostname: &str,
         make_proxy_stream: ProxyFactory,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Result<ApiConnection, io::Error>
     where
         ProxyFactory: FnOnce(TcpStream) -> ProxyFuture,
@@ -206,8 +216,8 @@ impl InnerConnectionMode {
 
         let proxy = make_proxy_stream(socket).await?;
 
-        #[cfg(feature = "api-override")]
-        if API.disable_tls {
+        #[cfg(any(feature = "api-override", test))]
+        if disable_tls {
             return Ok(ApiConnection::new(Box::new(ConnectionDecorator(proxy))));
         }
 
@@ -290,6 +300,8 @@ pub struct HttpsConnectorWithSni {
     dns_resolver: Arc<dyn DnsResolver>,
     #[cfg(target_os = "android")]
     socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+    #[cfg(any(feature = "api-override", test))]
+    disable_tls: bool,
 }
 
 struct HttpsConnectorWithSniInner {
@@ -304,6 +316,7 @@ impl HttpsConnectorWithSni {
     pub fn new(
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> (Self, HttpsConnectorWithSniHandle) {
         let (tx, mut rx) = mpsc::unbounded();
         let abort_notify = Arc::new(tokio::sync::Notify::new());
@@ -352,6 +365,8 @@ impl HttpsConnectorWithSni {
                 dns_resolver,
                 #[cfg(target_os = "android")]
                 socket_bypass_tx,
+                #[cfg(any(feature = "api-override", test))]
+                disable_tls,
             },
             HttpsConnectorWithSniHandle { tx },
         )
@@ -435,6 +450,9 @@ impl Service<Uri> for HttpsConnectorWithSni {
         let socket_bypass_tx = self.socket_bypass_tx.clone();
         let dns_resolver = self.dns_resolver.clone();
 
+        #[cfg(any(feature = "api-override", test))]
+        let disable_tls = self.disable_tls;
+
         let fut = async move {
             if uri.scheme() != Some(&Scheme::HTTPS) {
                 return Err(io::Error::new(
@@ -460,6 +478,8 @@ impl Service<Uri> for HttpsConnectorWithSni {
                     &addr,
                     #[cfg(target_os = "android")]
                     socket_bypass_tx.clone(),
+                    #[cfg(any(feature = "api-override", test))]
+                    disable_tls,
                 );
 
                 pin_mut!(stream_fut);
