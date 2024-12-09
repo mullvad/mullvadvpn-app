@@ -8,8 +8,7 @@ use talpid_types::ErrorExt;
 
 #[tokio::main]
 async fn main() {
-    let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current())
-        .expect("Failed to load runtime");
+    let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current());
 
     let relay_list_request =
         RelayListProxy::new(runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()))

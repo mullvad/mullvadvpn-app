@@ -1,3 +1,4 @@
+#![cfg(not(target_os = "android"))]
 use std::{
     ffi::{CStr, CString},
     net::SocketAddr,
@@ -6,8 +7,9 @@ use std::{
 };
 
 use crate::{
+    proxy::ApiConnectionMode,
     rest::{self, MullvadRestHandle},
-    AccountsProxy, DevicesProxy,
+    AccountsProxy, ApiEndpoint, DevicesProxy,
 };
 
 mod device;
@@ -48,13 +50,13 @@ impl MullvadApiClient {
 struct FfiClient {
     tokio_runtime: tokio::runtime::Runtime,
     api_runtime: crate::Runtime,
-    api_hostname: String,
 }
 
 impl FfiClient {
     unsafe fn new(
         api_address_ptr: *const libc::c_char,
         hostname: *const libc::c_char,
+        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> Result<Self, MullvadApiError> {
         // SAFETY: addr_str must be a valid pointer to a null-terminated string.
         let addr_str = unsafe { string_from_raw_ptr(api_address_ptr)? };
@@ -68,12 +70,15 @@ impl FfiClient {
             )
         })?;
 
-        // The call site guarantees that
-        // api_hostname and api_address will never change after the first call to new.
-        std::env::set_var(crate::env::API_HOST_VAR, &api_hostname);
-        std::env::set_var(crate::env::API_ADDR_VAR, &addr_str);
-        std::env::set_var(crate::env::API_FORCE_DIRECT_VAR, "0");
-        std::env::set_var(crate::env::DISABLE_TLS_VAR, "0");
+        let endpoint = ApiEndpoint {
+            host: Some(api_hostname.clone()),
+            address: Some(api_address),
+            #[cfg(feature = "api-override")]
+            force_direct: false,
+            #[cfg(any(feature = "api-override", test))]
+            disable_tls,
+        };
+
         let mut runtime_builder = tokio::runtime::Builder::new_multi_thread();
 
         runtime_builder.worker_threads(2).enable_all();
@@ -84,13 +89,12 @@ impl FfiClient {
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
         let api_runtime = tokio_runtime.block_on(async {
-            crate::Runtime::with_static_addr(tokio_runtime.handle().clone(), api_address)
+            crate::Runtime::with_custom_endpoint(tokio_runtime.handle().clone(), &endpoint)
         });
 
         let context = FfiClient {
             tokio_runtime,
             api_runtime,
-            api_hostname,
         };
 
         Ok(context)
@@ -204,7 +208,7 @@ impl FfiClient {
     fn rest_handle(&self) -> MullvadRestHandle {
         self.tokio_handle().block_on(async {
             self.api_runtime
-                .static_mullvad_rest_handle(self.api_hostname.clone())
+                .mullvad_rest_handle(ApiConnectionMode::Direct.into_provider())
         })
     }
 
@@ -239,8 +243,16 @@ pub unsafe extern "C" fn mullvad_api_client_initialize(
     client_ptr: *mut MullvadApiClient,
     api_address_ptr: *const libc::c_char,
     hostname: *const libc::c_char,
+    #[cfg(any(feature = "api-override", test))] disable_tls: bool,
 ) -> MullvadApiError {
-    match unsafe { FfiClient::new(api_address_ptr, hostname) } {
+    match unsafe {
+        FfiClient::new(
+            api_address_ptr,
+            hostname,
+            #[cfg(any(feature = "api-override", test))]
+            disable_tls,
+        )
+    } {
         Ok(client) => {
             unsafe {
                 std::ptr::write(client_ptr, MullvadApiClient::new(client));
@@ -442,4 +454,59 @@ unsafe fn string_from_raw_ptr(ptr: *const libc::c_char) -> Result<String, Mullva
             )
         })?
         .to_owned())
+}
+
+#[cfg(test)]
+mod test {
+    use httpmock::prelude::*;
+    use std::{mem::MaybeUninit, net::Ipv4Addr};
+
+    use super::*;
+    const STAGING_HOSTNAME: &[u8] = b"api-app.stagemole.eu\0";
+
+    #[test]
+    fn test_initialization() {
+        let _ = create_client(&SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 1));
+    }
+
+    fn create_client(addr: &SocketAddr) -> MullvadApiClient {
+        let mut client = MaybeUninit::<MullvadApiClient>::uninit();
+        let cstr_address = CString::new(addr.to_string()).unwrap();
+        let _client = unsafe {
+            mullvad_api_client_initialize(
+                client.as_mut_ptr(),
+                cstr_address.as_ptr().cast(),
+                STAGING_HOSTNAME.as_ptr().cast(),
+                true,
+            )
+            .unwrap();
+        };
+        unsafe { client.assume_init() }
+    }
+
+    #[test]
+    fn test_create_delete_account() {
+        let server = test_server();
+        let client = create_client(server.address());
+
+        let mut account_buf = vec![0 as libc::c_char; 100];
+        unsafe { mullvad_api_create_account(client, (&account_buf.as_mut_ptr()).cast()).unwrap() };
+    }
+
+    fn test_server() -> MockServer {
+        let server = MockServer::start();
+        let expected_create_account_response = br#"{"id":"085df870-0fc2-47cb-9e8c-cb43c1bdaac0","expiry":"2024-12-11T12:56:32+00:00","max_ports":0,"can_add_ports":false,"max_devices":5,"can_add_devices":true,"number":"6705749539195318"}"#;
+        let _mock = server.mock(|when, then| {
+            when.path("/".to_string() + crate::ACCOUNTS_URL_PREFIX + "/accounts")
+                .method(POST);
+            then.status(201)
+                .body(expected_create_account_response)
+                .header("content-type", "application/json")
+                .header(
+                    "content-length",
+                    &format!("{}", expected_create_account_response.len()),
+                );
+        });
+        server
+    }
 }

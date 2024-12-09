@@ -11,6 +11,7 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.BootCompletedReceiver
@@ -29,6 +30,7 @@ import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.SplitTunnelingRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.service.DaemonConfig
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -223,7 +225,7 @@ val uiModule = module {
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { ReportProblemViewModel(get(), get()) }
+    viewModel { ReportProblemViewModel(get(), get(), get<DaemonConfig>().apiEndpointOverride) }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }
