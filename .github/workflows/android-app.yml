@@ -511,6 +511,15 @@ jobs:
           mkdir -p $INNER_REPORT_DIR
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
+      - name: Prepare test attachments dir
+        id: prepare-test-attachments-dir
+        if: ${{ matrix.test-repeat != 0 }}
+        env:
+          INNER_TEST_ATTACHMENTS_DIR: /tmp/${{ matrix.test-type }}-test-attachments-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          mkdir -p $INNER_TEST_ATTACHMENTS_DIR
+          echo "test_attachments_dir=$INNER_TEST_ATTACHMENTS_DIR" >> $GITHUB_OUTPUT
+
       - name: Checkout repository
         if: ${{ matrix.test-repeat != 0 }}
         uses: actions/checkout@v4
@@ -556,6 +565,20 @@ jobs:
         with:
           name: e2e-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
+
+      - name: Pull attachments from test device
+        if: ${{ always() }} && ${{ matrix.test-repeat != 0 }} && ${{ github.event.inputs.e2e_tests_infra_flavor == 'stagemole' }}
+        env:
+          TEST_ATTACHMENTS_PATH: "/sdcard/Download/test-attachments"
+        shell: bash
+        run: adb pull $TEST_ATTACHMENTS_PATH ${{ steps.prepare-test-attachments-dir.outputs.test_attachments_dir }}/test-attachments
+
+      - name: Upload attachments from test device
+        uses: actions/upload-artifact@v4
+        if: ${{ always() }} && ${{ matrix.test-repeat != 0 }} && ${{ github.event.inputs.e2e_tests_infra_flavor == 'stagemole' }}
+        with:
+          name: e2e-attachments
+          path: ${{ steps.prepare-test-attachments-dir.outputs.test_attachments_dir }}/test-attachments
 
   firebase-tests:
     name: Run firebase tests
