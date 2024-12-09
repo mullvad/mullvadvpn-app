@@ -33,6 +33,7 @@ import net.mullvad.mullvadvpn.repository.UserPreferencesMigration
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesSerializer
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
+import net.mullvad.mullvadvpn.service.DaemonConfig
 import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -129,7 +130,7 @@ val uiModule = module {
     single { ChangelogRepository(get()) }
     single { UserPreferencesRepository(get()) }
     single { SettingsRepository(get()) }
-    single { MullvadProblemReport(get()) }
+    single { MullvadProblemReport(get(), get<DaemonConfig>().apiEndpointOverride, get()) }
     single { RelayOverridesRepository(get()) }
     single { CustomListsRepository(get()) }
     single { RelayListRepository(get(), get()) }

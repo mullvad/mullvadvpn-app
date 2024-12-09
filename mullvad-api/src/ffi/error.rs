@@ -13,6 +13,7 @@ pub enum MullvadApiErrorKind {
 
 /// MullvadApiErrorKind contains a description and an error kind. If the error kind is
 /// `MullvadApiErrorKind` is NoError, the pointer will be nil.
+#[derive(Debug)]
 #[repr(C)]
 pub struct MullvadApiError {
     description: *mut libc::c_char,
@@ -44,6 +45,13 @@ impl MullvadApiError {
         Self {
             description: std::ptr::null_mut(),
             kind: MullvadApiErrorKind::NoError,
+        }
+    }
+
+    pub fn unwrap(&self) {
+        if !matches!(self.kind, MullvadApiErrorKind::NoError) {
+            let desc = unsafe { std::ffi::CStr::from_ptr(self.description) };
+            panic!("API ERROR - {:?} - {}", self.kind, desc.to_str().unwrap());
         }
     }
 
