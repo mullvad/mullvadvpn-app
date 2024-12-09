@@ -10,6 +10,8 @@ use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
 };
+#[cfg(feature = "api-override")]
+use mullvad_api::ApiEndpoint;
 use mullvad_api::{
     availability::ApiAvailability,
     proxy::{ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
@@ -250,6 +252,8 @@ impl ConnectionModeProvider for AccessModeConnectionModeProvider {
 /// or via any supported custom proxy protocol
 /// ([`talpid_types::net::proxy::CustomProxy`]).
 pub struct AccessModeSelector {
+    #[cfg(feature = "api-override")]
+    api_endpoint: ApiEndpoint,
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     cache_dir: PathBuf,
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
@@ -271,6 +275,7 @@ impl AccessModeSelector {
         relay_selector: RelaySelector,
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
+        #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
         access_method_event_sender: DaemonEventSender<(AccessMethodEvent, oneshot::Sender<()>)>,
         address_cache: AddressCache,
     ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
@@ -278,7 +283,7 @@ impl AccessModeSelector {
 
         #[cfg(feature = "api-override")]
         {
-            if mullvad_api::API.force_direct {
+            if api_endpoint.force_direct {
                 access_method_settings
                     .update(|setting| setting.is_direct(), |setting| setting.enable());
             }
@@ -312,6 +317,8 @@ impl AccessModeSelector {
             connection_mode_provider_sender: change_tx,
             current: initial_connection_mode,
             index,
+            #[cfg(feature = "api-override")]
+            api_endpoint,
         };
 
         tokio::spawn(selector.into_future());
@@ -365,7 +372,7 @@ impl AccessModeSelector {
     async fn use_access_method(&mut self, id: Id) {
         #[cfg(feature = "api-override")]
         {
-            if mullvad_api::API.force_direct {
+            if self.api_endpoint.force_direct {
                 log::debug!("API proxies are disabled");
                 return;
             }
@@ -392,7 +399,7 @@ impl AccessModeSelector {
     async fn next_connection_mode(&mut self) -> Result<ApiConnectionMode> {
         #[cfg(feature = "api-override")]
         {
-            if mullvad_api::API.force_direct {
+            if self.api_endpoint.force_direct {
                 log::debug!("API proxies are disabled");
                 return Ok(ApiConnectionMode::Direct);
             }

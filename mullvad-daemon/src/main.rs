@@ -1,5 +1,6 @@
 use std::{path::PathBuf, thread, time::Duration};
 
+use mullvad_api::ApiEndpoint;
 #[cfg(not(windows))]
 use mullvad_daemon::cleanup_old_rpc_socket;
 use mullvad_daemon::{
@@ -221,6 +222,7 @@ async fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
         cache_dir,
         rpc_socket_path,
         daemon_command_channel,
+        ApiEndpoint::from_env_vars(),
     )
     .await
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))

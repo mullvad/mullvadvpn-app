@@ -49,15 +49,15 @@ typedef struct MullvadApiDevice {
  *   struct.
  *
  * * `api_address`: pointer to nul-terminated UTF-8 string containing a socket address
- *   representation
- *   ("143.32.4.32:9090"), the port is mandatory.
+ *   representation ("143.32.4.32:9090"), the port is mandatory.
  *
  * * `hostname`: pointer to a null-terminated UTF-8 string representing the hostname that will be
  *   used for TLS validation.
  */
 struct MullvadApiError mullvad_api_client_initialize(struct MullvadApiClient *client_ptr,
                                                      const char *api_address_ptr,
-                                                     const char *hostname);
+                                                     const char *hostname,
+                                                     bool disable_tls);
 
 /**
  * Removes all devices from a given account
@@ -98,8 +98,8 @@ struct MullvadApiError mullvad_api_get_expiry(struct MullvadApiClient client_ptr
  * * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
  *   account that will have all of it's devices removed.
  *
- * * `device_iter_ptr`: a pointer to a `device::MullvadApiDeviceIterator`. If this function
- *   doesn't return an error, the pointer will be initialized with a valid instance of
+ * * `device_iter_ptr`: a pointer to a `device::MullvadApiDeviceIterator`. If this function doesn't
+ *   return an error, the pointer will be initialized with a valid instance of
  *   `device::MullvadApiDeviceIterator`, which can be used to iterate through the devices.
  */
 struct MullvadApiError mullvad_api_list_devices(struct MullvadApiClient client_ptr,

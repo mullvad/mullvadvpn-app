@@ -12,6 +12,7 @@ use jnix::{
     },
     FromJava, JnixEnv,
 };
+use mullvad_api::ApiEndpoint;
 use mullvad_daemon::{
     cleanup_old_rpc_socket, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
     DaemonCommandChannel, DaemonCommandSender,
@@ -150,7 +151,13 @@ fn start(
         log::warn!("api_endpoint will be ignored since 'api-override' is not enabled");
     }
 
-    spawn_daemon(android_context, rpc_socket, files_dir, cache_dir)
+    spawn_daemon(
+        android_context,
+        rpc_socket,
+        files_dir,
+        cache_dir,
+        api_endpoint.unwrap_or(ApiEndpoint::from_env_vars()),
+    )
 }
 
 fn spawn_daemon(
@@ -158,6 +165,7 @@ fn spawn_daemon(
     rpc_socket: PathBuf,
     files_dir: PathBuf,
     cache_dir: PathBuf,
+    endpoint: ApiEndpoint,
 ) -> Result<DaemonContext, Error> {
     let daemon_command_channel = DaemonCommandChannel::new();
     let daemon_command_tx = daemon_command_channel.sender();
@@ -170,6 +178,7 @@ fn spawn_daemon(
         cache_dir,
         daemon_command_channel,
         android_context,
+        endpoint,
     ))?;
 
     Ok(DaemonContext {
@@ -185,6 +194,7 @@ async fn spawn_daemon_inner(
     cache_dir: PathBuf,
     daemon_command_channel: DaemonCommandChannel,
     android_context: AndroidContext,
+    endpoint: ApiEndpoint,
 ) -> Result<tokio::task::JoinHandle<()>, Error> {
     cleanup_old_rpc_socket(&rpc_socket).await;
 
@@ -195,6 +205,7 @@ async fn spawn_daemon_inner(
         cache_dir,
         rpc_socket,
         daemon_command_channel,
+        endpoint,
         android_context,
     )
     .await
