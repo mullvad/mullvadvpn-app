@@ -82,8 +82,8 @@ if [[ "$UNIVERSAL" == "true" ]]; then
         log_info "Building universal distribution"
     fi
 
-    # Universal macOS builds package targets for both aarch64-apple-darwin and x86_64-apple-darwin.
-    # We leave the target corresponding to the host machine empty to avoid rebuilding multiple times.
+    # Universal builds package targets for both aarch64 and x86_64. We leave the target
+    # corresponding to the host machine empty to avoid rebuilding multiple times.
     # When the --target flag is provided to cargo it always puts the build in the target/$ENV_TARGET
     # folder even when it matches you local machine, as opposed to just the target folder.
     # This causes the cached build not to get used when later running e.g.
