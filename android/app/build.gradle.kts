@@ -267,6 +267,7 @@ junitPlatform {
 
 cargo {
     val isReleaseBuild = isReleaseBuild()
+    val enableApiOverride = !isReleaseBuild || isAlphaOrDevBuild()
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
@@ -287,7 +288,7 @@ cargo {
     // rustcCommand = ""
     // cargoCommand = ""
     features {
-        if (!isReleaseBuild) {
+        if (enableApiOverride) {
             defaultAnd(arrayOf("api-override"))
         }
     }
@@ -328,6 +329,13 @@ tasks.register<Exec>("generateRelayList") {
 
 fun isReleaseBuild() =
     gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
+
+fun isAlphaOrDevBuild() : Boolean {
+    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
+    val versionName = generateVersionName(localProperties)
+    return versionName.contains("dev", ignoreCase = true) ||
+        versionName.contains("alpha", ignoreCase = true)
+}
 
 androidComponents {
     beforeVariants { variantBuilder ->
