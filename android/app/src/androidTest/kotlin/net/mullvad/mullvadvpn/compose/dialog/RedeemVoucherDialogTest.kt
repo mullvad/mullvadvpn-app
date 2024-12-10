@@ -1,15 +1,15 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.mockk
 import io.mockk.mockkObject
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.dialog.RedeemVoucherDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogState
 import net.mullvad.mullvadvpn.compose.state.VoucherDialogUiState
@@ -29,19 +29,28 @@ class RedeemVoucherDialogTest {
         mockkObject(VoucherRegexHelper)
     }
 
+    private fun ComposeContext.initDialog(
+        state: VoucherDialogUiState = VoucherDialogUiState.INITIAL,
+        onVoucherInputChange: (String) -> Unit = {},
+        onRedeem: (voucherCode: String) -> Unit = {},
+        onDismiss: (isTimeAdded: Boolean) -> Unit = {},
+    ) {
+        setContentWithTheme {
+            RedeemVoucherDialog(
+                state = state,
+                onVoucherInputChange = onVoucherInputChange,
+                onRedeem = onRedeem,
+                onDismiss = onDismiss,
+            )
+        }
+    }
+
     @Test
     fun testDismissDialog() =
         composeExtension.use {
             // Arrange
             val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                RedeemVoucherDialog(
-                    state = VoucherDialogUiState.INITIAL,
-                    onVoucherInputChange = {},
-                    onRedeem = {},
-                    onDismiss = mockedClickHandler,
-                )
-            }
+            initDialog(onDismiss = mockedClickHandler)
 
             // Act
             onNodeWithText(CANCEL_BUTTON_TEXT).performClick()
@@ -55,14 +64,10 @@ class RedeemVoucherDialogTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                RedeemVoucherDialog(
-                    state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
-                    onVoucherInputChange = {},
-                    onRedeem = {},
-                    onDismiss = mockedClickHandler,
-                )
-            }
+            initDialog(
+                state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
+                onDismiss = mockedClickHandler,
+            )
 
             // Act
             onNodeWithText(GOT_IT_BUTTON_TEXT).performClick()
@@ -76,14 +81,7 @@ class RedeemVoucherDialogTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                RedeemVoucherDialog(
-                    state = VoucherDialogUiState(),
-                    onVoucherInputChange = mockedClickHandler,
-                    onRedeem = {},
-                    onDismiss = {},
-                )
-            }
+            initDialog(state = VoucherDialogUiState(), onVoucherInputChange = mockedClickHandler)
 
             // Act
             onNodeWithTag(VOUCHER_INPUT_TEST_TAG).performTextInput(DUMMY_VOUCHER)
@@ -96,14 +94,7 @@ class RedeemVoucherDialogTest {
     fun testVerifyingState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                RedeemVoucherDialog(
-                    state = VoucherDialogUiState(voucherState = VoucherDialogState.Verifying),
-                    onVoucherInputChange = {},
-                    onRedeem = {},
-                    onDismiss = {},
-                )
-            }
+            initDialog(state = VoucherDialogUiState(voucherState = VoucherDialogState.Verifying))
 
             // Assert
             onNodeWithText("Verifying voucher…").assertExists()
@@ -113,14 +104,7 @@ class RedeemVoucherDialogTest {
     fun testSuccessState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                RedeemVoucherDialog(
-                    state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)),
-                    onVoucherInputChange = {},
-                    onRedeem = {},
-                    onDismiss = {},
-                )
-            }
+            initDialog(state = VoucherDialogUiState(voucherState = VoucherDialogState.Success(0)))
 
             // Assert
             onNodeWithText("Voucher was successfully redeemed.").assertExists()
@@ -130,18 +114,12 @@ class RedeemVoucherDialogTest {
     fun testErrorState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                RedeemVoucherDialog(
-                    state =
-                        VoucherDialogUiState(
-                            voucherState =
-                                VoucherDialogState.Error(RedeemVoucherError.InvalidVoucher)
-                        ),
-                    onVoucherInputChange = {},
-                    onRedeem = {},
-                    onDismiss = {},
-                )
-            }
+            initDialog(
+                state =
+                    VoucherDialogUiState(
+                        voucherState = VoucherDialogState.Error(RedeemVoucherError.InvalidVoucher)
+                    )
+            )
 
             // Assert
             onNodeWithText(VOUCHER_CODE_INVALID_ERROR_MESSAGE).assertExists()

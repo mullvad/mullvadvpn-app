@@ -46,7 +46,7 @@ private fun PreviewDeviceRevokedScreen(
     @PreviewParameter(DeviceRevokedUiStatePreviewParameterProvider::class)
     state: DeviceRevokedUiState
 ) {
-    AppTheme { DeviceRevokedScreen(state = state) }
+    AppTheme { DeviceRevokedScreen(state = state, {}, {}) }
 }
 
 @Destination<RootGraph>
@@ -76,8 +76,8 @@ fun DeviceRevoked(navigator: DestinationsNavigator) {
 @Composable
 fun DeviceRevokedScreen(
     state: DeviceRevokedUiState,
-    onSettingsClicked: () -> Unit = {},
-    onGoToLoginClicked: () -> Unit = {},
+    onSettingsClicked: () -> Unit,
+    onGoToLoginClicked: () -> Unit,
 ) {
     val topColor =
         if (state == DeviceRevokedUiState.SECURED) {

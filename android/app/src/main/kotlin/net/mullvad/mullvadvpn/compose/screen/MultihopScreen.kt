@@ -33,7 +33,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewMultihopScreen() {
-    AppTheme { MultihopScreen(state = MultihopUiState(false)) }
+    AppTheme { MultihopScreen(state = MultihopUiState(false), {}, {}) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -51,8 +51,8 @@ fun Multihop(navigator: DestinationsNavigator) {
 @Composable
 fun MultihopScreen(
     state: MultihopUiState,
-    onMultihopClick: (enable: Boolean) -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onMultihopClick: (enable: Boolean) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.multihop),

@@ -72,7 +72,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAccountScreen(
     @PreviewParameter(AccountUiStatePreviewParameterProvider::class) state: AccountUiState
 ) {
-    AppTheme { AccountScreen(state = state) }
+    AppTheme { AccountScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {}, {}) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,14 +138,14 @@ fun Account(
 fun AccountScreen(
     state: AccountUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onCopyAccountNumber: (String) -> Unit = {},
-    onRedeemVoucherClick: () -> Unit = {},
-    onManageAccountClick: () -> Unit = {},
-    onLogoutClick: () -> Unit = {},
-    onPurchaseBillingProductClick: (productId: ProductId) -> Unit = { _ -> },
-    navigateToDeviceInfo: () -> Unit = {},
-    navigateToVerificationPendingDialog: () -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onCopyAccountNumber: (String) -> Unit,
+    onRedeemVoucherClick: () -> Unit,
+    onManageAccountClick: () -> Unit,
+    onLogoutClick: () -> Unit,
+    onPurchaseBillingProductClick: (productId: ProductId) -> Unit,
+    navigateToDeviceInfo: () -> Unit,
+    navigateToVerificationPendingDialog: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     // This will enable SECURE_FLAG while this screen is visible to preview screenshot
     SecureScreenWhileInView()

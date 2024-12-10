@@ -31,9 +31,9 @@ private fun PreviewConnectionButton(
 fun ConnectionButton(
     modifier: Modifier = Modifier,
     state: TunnelState,
-    disconnectClick: () -> Unit = {},
-    cancelClick: () -> Unit = {},
-    connectClick: () -> Unit = {},
+    disconnectClick: () -> Unit,
+    cancelClick: () -> Unit,
+    connectClick: () -> Unit,
 ) {
 
     val containerColor =

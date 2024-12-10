@@ -67,7 +67,7 @@ import net.mullvad.mullvadvpn.util.appendHideNavOnPlayBuild
 @Preview
 @Composable
 private fun PreviewAutoConnectAndLockdownModeScreen() {
-    AppTheme { AutoConnectAndLockdownModeScreen() }
+    AppTheme { AutoConnectAndLockdownModeScreen({}) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -77,7 +77,7 @@ fun AutoConnectAndLockdownMode(navigator: DestinationsNavigator) {
 }
 
 @Composable
-fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit = {}) {
+fun AutoConnectAndLockdownModeScreen(onBackClick: () -> Unit) {
     val context = LocalContext.current
     ScaffoldWithLargeTopBarAndButton(
         appBarTitle = stringResource(id = R.string.auto_connect_and_lockdown_mode),
