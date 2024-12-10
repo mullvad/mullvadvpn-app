@@ -242,7 +242,7 @@ export default class AppRenderer {
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
-    this.setChangelog(initialState.changelog, initialState.forceShowChanges);
+    this.setChangelog(initialState.changelog);
     this.setCurrentApiAccessMethod(initialState.currentApiAccessMethod);
     this.reduxActions.userInterface.setIsMacOs13OrNewer(initialState.isMacOs13OrNewer);
 
@@ -1000,9 +1000,8 @@ export default class AppRenderer {
     this.reduxActions.settings.updateAutoStart(autoStart);
   }
 
-  private setChangelog(changelog: IChangelog, forceShowChanges: boolean) {
+  private setChangelog(changelog: IChangelog) {
     this.reduxActions.userInterface.setChangelog(changelog);
-    this.reduxActions.userInterface.setForceShowChanges(forceShowChanges);
   }
 
   private updateLocation() {
