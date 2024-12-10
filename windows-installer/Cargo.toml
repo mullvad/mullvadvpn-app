@@ -1,0 +1,29 @@
+[package]
+name = "windows-installer"
+description = "Pack the Mullvad VPN installer for several platforms into a one executable"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[target.'cfg(all(target_os = "windows", target_arch = "x86_64"))'.dependencies]
+windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemInformation", "Win32_System_Threading"] }
+tempfile = "3.10"
+anyhow = "1.0"
+
+[build-dependencies]
+winres = "0.1"
+anyhow = "1.0"
+windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemServices"] }
+mullvad-version = { path = "../mullvad-version" }
+
+[package.metadata.winres]
+ProductName = "Mullvad VPN"
+CompanyName = "Mullvad VPN AB"
+LegalCopyright = "(c) 2024 Mullvad VPN AB"
+InternalName = "mullvad-installer"
+OriginalFilename = "MullvadVPN.exe"
