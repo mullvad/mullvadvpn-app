@@ -146,7 +146,7 @@ class OutOfTimeUseCaseTest {
 
     @Test
     fun `account that expires without new expiry event should emit true`() =
-        runTest(dispatcher) {
+        scope.runTest {
             // Arrange
             val expiredAccountExpiry =
                 AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
@@ -169,67 +169,69 @@ class OutOfTimeUseCaseTest {
         }
 
     @Test
-    fun `account that is about to expire but is refilled should emit false`() = runTest {
-        // Arrange
-        val initialAccountExpiry =
-            AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
-        val updatedExpiry =
-            AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
+    fun `account that is about to expire but is refilled should emit false`() =
+        scope.runTest {
+            // Arrange
+            val initialAccountExpiry =
+                AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
+            val updatedExpiry =
+                AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
 
-        // Act, Assert
-        outOfTimeUseCase.isOutOfTime.test {
-            // Initial event
-            assertEquals(null, awaitItem())
+            // Act, Assert
+            outOfTimeUseCase.isOutOfTime.test {
+                // Initial event
+                assertEquals(null, awaitItem())
 
-            expiry.emit(initialAccountExpiry)
-            assertEquals(false, awaitItem())
-            advanceTimeBy(90.seconds)
-            expectNoEvents()
+                expiry.emit(initialAccountExpiry)
+                assertEquals(false, awaitItem())
+                advanceTimeBy(90.seconds)
+                expectNoEvents()
 
-            // User fills up with more time 10 seconds before expiry.
-            expiry.emit(updatedExpiry)
-            advanceTimeBy(29.days)
-            expectNoEvents()
+                // User fills up with more time 10 seconds before expiry.
+                expiry.emit(updatedExpiry)
+                advanceTimeBy(29.days)
+                expectNoEvents()
 
-            advanceTimeBy(2.days)
-            assertEquals(true, expectMostRecentItem())
-            expectNoEvents()
+                advanceTimeBy(2.days)
+                assertEquals(true, expectMostRecentItem())
+                expectNoEvents()
+            }
         }
-    }
 
     @Test
-    fun `expired account that is refilled should emit false`() = runTest {
-        // Arrange
-        val initialAccountExpiry =
-            AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
-        val updatedExpiry =
-            AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
-        // Act, Assert
-        outOfTimeUseCase.isOutOfTime.test {
-            // Initial event
-            assertEquals(null, awaitItem())
+    fun `expired account that is refilled should emit false`() =
+        scope.runTest {
+            // Arrange
+            val initialAccountExpiry =
+                AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
+            val updatedExpiry =
+                AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
+            // Act, Assert
+            outOfTimeUseCase.isOutOfTime.test {
+                // Initial event
+                assertEquals(null, awaitItem())
 
-            expiry.emit(initialAccountExpiry)
-            assertEquals(false, awaitItem())
+                expiry.emit(initialAccountExpiry)
+                assertEquals(false, awaitItem())
 
-            // After 100 seconds we expire
-            advanceTimeBy(100.seconds)
-            assertEquals(true, expectMostRecentItem())
-            expectNoEvents()
+                // After 100 seconds we expire
+                advanceTimeBy(100.seconds)
+                assertEquals(true, expectMostRecentItem())
+                expectNoEvents()
 
-            // We then fill up our account and should no longer be out of time
-            expiry.emit(updatedExpiry)
-            assertEquals(false, awaitItem())
-            expectNoEvents()
+                // We then fill up our account and should no longer be out of time
+                expiry.emit(updatedExpiry)
+                assertEquals(false, awaitItem())
+                expectNoEvents()
 
-            // Advance the time to before the updated expiry
-            advanceTimeBy(29.days + 59.minutes)
-            expectNoEvents()
+                // Advance the time to before the updated expiry
+                advanceTimeBy(29.days + 59.minutes)
+                expectNoEvents()
 
-            // Advance the time to the updated expiry
-            advanceTimeBy(30.days + 2.minutes)
-            assertEquals(true, expectMostRecentItem())
-            expectNoEvents()
+                // Advance the time to the updated expiry
+                advanceTimeBy(30.days + 2.minutes)
+                assertEquals(true, expectMostRecentItem())
+                expectNoEvents()
+            }
         }
-    }
 }
