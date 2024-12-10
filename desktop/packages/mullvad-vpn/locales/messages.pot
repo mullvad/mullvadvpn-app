@@ -167,7 +167,6 @@ msgstr ""
 msgid "Go to System Settings"
 msgstr ""
 
-#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr ""
 
@@ -340,6 +339,10 @@ msgstr ""
 
 msgctxt "accessibility"
 msgid "More information"
+msgstr ""
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
 msgstr ""
 
 msgctxt "accessibility"
@@ -578,6 +581,22 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr ""
 
+msgctxt "app-info-view"
+msgid "App info"
+msgstr ""
+
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr ""
+
+msgctxt "app-info-view"
+msgid "App version"
+msgstr ""
+
+msgctxt "app-info-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr ""
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr ""
@@ -595,7 +614,15 @@ msgid "You are logged in with an invalid account number. Please log out and try 
 msgstr ""
 
 msgctxt "changelog"
-msgid "Changes in this version:"
+msgid "See full changelog"
+msgstr ""
+
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr ""
+
+msgctxt "changelog-view"
+msgid "What's new"
 msgstr ""
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
@@ -884,6 +911,10 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr ""
 
+msgctxt "in-app-notifications"
+msgid "Click here to see what's new."
+msgstr ""
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -895,6 +926,10 @@ msgstr ""
 
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
+msgstr ""
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
 msgstr ""
 
 msgctxt "in-app-notifications"
@@ -1522,11 +1557,7 @@ msgid "API access"
 msgstr ""
 
 msgctxt "settings-view"
-msgid "App is out of sync. Please quit and restart."
-msgstr ""
-
-msgctxt "settings-view"
-msgid "App version"
+msgid "App info"
 msgstr ""
 
 msgctxt "settings-view"
@@ -1537,10 +1568,6 @@ msgctxt "settings-view"
 msgid "Support"
 msgstr ""
 
-msgctxt "settings-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr ""
-
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
 msgid "User interface settings"
@@ -1549,6 +1576,10 @@ msgstr ""
 #. Navigation button to the 'VPN settings' view
 msgctxt "settings-view"
 msgid "VPN settings"
+msgstr ""
+
+msgctxt "settings-view"
+msgid "What's new"
 msgstr ""
 
 msgctxt "split-tunneling-view"
@@ -2305,9 +2336,6 @@ msgstr ""
 msgid "Always-on VPN assigned to other VPN"
 msgstr ""
 
-msgid "App info"
-msgstr ""
-
 msgid "At least one method needs to be enabled"
 msgstr ""
 
@@ -2342,6 +2370,9 @@ msgid "Blocking internet (device offline)"
 msgstr ""
 
 msgid "Changelog"
+msgstr ""
+
+msgid "Changes in this version:"
 msgstr ""
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
