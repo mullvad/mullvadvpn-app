@@ -17,8 +17,7 @@ import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
-import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.service.di.vpnServiceModule
@@ -40,7 +39,7 @@ class MullvadVpnService : TalpidVpnService() {
 
     private lateinit var managementService: ManagementService
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
-    private lateinit var intentProvider: IntentProvider
+    private lateinit var apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder
     private lateinit var connectionProxy: ConnectionProxy
     private lateinit var daemonConfig: DaemonConfig
 
@@ -67,7 +66,7 @@ class MullvadVpnService : TalpidVpnService() {
 
             daemonConfig = get()
             migrateSplitTunneling = get()
-            intentProvider = get()
+            apiEndpointFromIntentHolder = get()
             connectionProxy = get()
         }
 
@@ -78,8 +77,7 @@ class MullvadVpnService : TalpidVpnService() {
 
         // If it is a debug build and we have an api override in the intent, use it
         // This is for injecting hostname and port for our mock api tests
-        val intentApiOverride =
-            intentProvider.getLatestIntent()?.getApiEndpointConfigurationExtras()
+        val intentApiOverride = apiEndpointFromIntentHolder.apiEndpointOverride
         val updatedConfig =
             if (BuildConfig.DEBUG && intentApiOverride != null) {
                 daemonConfig.copy(apiEndpointOverride = intentApiOverride)
