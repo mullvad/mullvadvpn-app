@@ -73,7 +73,6 @@ export interface IAppStateSnapshot {
   splitTunnelingApplications?: ISplitTunnelingApplication[];
   macOsScrollbarVisibility?: MacOsScrollbarVisibility;
   changelog: IChangelog;
-  forceShowChanges: boolean;
   navigationHistory?: IHistoryObject;
   currentApiAccessMethod?: AccessMethodSetting;
   isMacOs13OrNewer: boolean;

@@ -787,7 +787,6 @@ class ApplicationMain
       splitTunnelingApplications: this.splitTunnelingApplications,
       macOsScrollbarVisibility: this.macOsScrollbarVisibility,
       changelog: this.changelog ?? [],
-      forceShowChanges: CommandLineOptions.showChanges.match,
       navigationHistory: this.navigationHistory,
       currentApiAccessMethod: this.currentApiAccessMethod,
       isMacOs13OrNewer: isMacOs13OrNewer(),
