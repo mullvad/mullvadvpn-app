@@ -44,7 +44,7 @@ export const ChangelogView = () => {
   const changelog = useSelector((state) => state.userInterface.changelog);
   const version = useSelector((state) => state.version.current);
 
-  const url = links.download;
+  const url = links.changelog;
   const openDownloadLink = useCallback(() => openUrl(url), [openUrl, url]);
   return (
     <BackAction action={pop}>
