@@ -21,6 +21,7 @@ GRADLE_TASKS=(
 )
 EXCLUDED_GRADLE_TASKS=(
     "-xgenerateRelayList"
+    "-xcargoBuild"
 )
 
 export GRADLE_OPTS
