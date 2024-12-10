@@ -243,10 +243,14 @@ android {
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
-        // Ensure all relevant assemble tasks depend on our ensure tasks.
-        tasks["assemble$capitalizedVariantName"].apply {
+        // Ensure that we have all the JNI libs before merging them.
+        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
             dependsOn(tasks["generateRelayList"])
             dependsOn("cargoBuild")
+        }
+
+        // Ensure all relevant assemble tasks depend on our ensure task.
+        tasks["assemble$capitalizedVariantName"].apply {
             dependsOn(tasks["ensureValidVersionCode"])
         }
     }
@@ -292,9 +296,7 @@ cargo {
             add("--locked")
         }
     }
-    exec = { spec, toolchain ->
-        println(spec.commandLine)
-    }
+    exec = { spec, toolchain -> println(spec.commandLine) }
 }
 
 tasks.register<Exec>("generateRelayList") {
@@ -322,7 +324,8 @@ tasks.register<Exec>("generateRelayList") {
     }
 }
 
-fun isReleaseBuild() = gradle.startParameter.getTaskNames().any { it.contains("release") }
+fun isReleaseBuild() =
+    gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
 
 androidComponents {
     beforeVariants { variantBuilder ->
