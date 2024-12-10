@@ -34,23 +34,23 @@ export enum LineHeights {
   mini = '15px',
 }
 
-interface Typography {
+interface TypographyProperties {
   fontFamily: React.CSSProperties['fontFamily'];
   fontSize: React.CSSProperties['fontSize'];
   fontWeight: React.CSSProperties['fontWeight'];
   lineHeight: React.CSSProperties['lineHeight'];
 }
 
-export const typography: Record<
+export type Typography =
   | 'titleBig'
   | 'titleLarge'
   | 'titleMedium'
   | 'bodySmall'
   | 'bodySmallSemibold'
   | 'labelTiny'
-  | 'footnoteMini',
-  Typography
-> = {
+  | 'footnoteMini';
+
+export const typography: Record<Typography, TypographyProperties> = {
   titleBig: {
     fontFamily: Fonts.title,
     fontWeight: FontWeights.bold,
