@@ -17,6 +17,7 @@ struct ConnectionView: View {
 
             VStack(alignment: .leading, spacing: 16) {
                 ConnectionPanel()
+                FeaturesIndicatoresView(viewModel: FeaturesIndicatoresMockViewModel())
                 ButtonPanel()
             }
             .padding(16)
