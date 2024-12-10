@@ -3,7 +3,6 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { smallText } from './common-styles';
-import { MultiButtonCompatibleProps } from './MultiButton';
 
 export enum SmallButtonColor {
   blue,
@@ -83,6 +82,11 @@ const StyledTextOffset = styled.span<{ $width: number }>((props) => ({
   display: 'flex',
   flex: `0 1 ${props.$width}px`,
 }));
+
+export interface MultiButtonCompatibleProps {
+  className?: string;
+  textOffset?: number;
+}
 
 interface SmallButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'color'>,

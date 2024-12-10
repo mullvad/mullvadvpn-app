@@ -363,6 +363,7 @@ class ApplicationMain
       this.daemonRpc.disconnect();
     }
 
+    this.settings.gui.changelogDisplayedForVersion = this.version.currentVersion.gui;
     for (const logger of [log, this.rendererLog]) {
       try {
         logger?.disposeDisposableOutputs();

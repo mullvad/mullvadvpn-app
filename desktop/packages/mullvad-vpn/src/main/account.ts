@@ -13,7 +13,7 @@ import {
   AccountExpiredNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
   SystemNotificationCategory,
-} from '../shared/notifications/notification';
+} from '../shared/notifications';
 import { Scheduler } from '../shared/scheduler';
 import AccountDataCache from './account-data-cache';
 import { DaemonRpc } from './daemon-rpc';
