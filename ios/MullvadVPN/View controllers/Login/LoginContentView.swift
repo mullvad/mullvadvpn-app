@@ -85,7 +85,7 @@ class LoginContentView: UIView {
 
     let createAccountButton: AppButton = {
         let button = AppButton(style: .default)
-        button.accessibilityIdentifier = .createAccountButton
+        button.setAccessibilityIdentifier(.createAccountButton)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setTitle(NSLocalizedString(
             "CREATE_ACCOUNT_BUTTON_LABEL",
@@ -104,9 +104,9 @@ class LoginContentView: UIView {
 
         backgroundColor = .primaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
-        accessibilityIdentifier = .loginView
+        setAccessibilityIdentifier(.loginView)
 
-        accountInputGroup.textField.accessibilityIdentifier = .loginTextField
+        accountInputGroup.textField.setAccessibilityIdentifier(.loginTextField)
 
         keyboardResponder = AutomaticKeyboardResponder(
             targetView: self,

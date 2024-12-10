@@ -50,7 +50,7 @@ class ListCustomListViewController: UIViewController {
         super.viewDidLoad()
 
         view.backgroundColor = .secondaryColor
-        view.accessibilityIdentifier = .listCustomListsView
+        view.setAccessibilityIdentifier(.listCustomListsView)
 
         addSubviews()
         configureNavigationItem()
@@ -89,7 +89,7 @@ class ListCustomListViewController: UIViewController {
         tableView.separatorStyle = .singleLine
         tableView.rowHeight = UIMetrics.SettingsCell.customListsCellHeight
         tableView.registerReusableViews(from: CellReuseIdentifier.self)
-        tableView.accessibilityIdentifier = .listCustomListsTableView
+        tableView.setAccessibilityIdentifier(.listCustomListsTableView)
     }
 
     private func configureNavigationItem() {
@@ -107,7 +107,7 @@ class ListCustomListViewController: UIViewController {
             })
         )
 
-        navigationItem.rightBarButtonItem?.accessibilityIdentifier = .listCustomListDoneButton
+        navigationItem.rightBarButtonItem?.setAccessibilityIdentifier(.listCustomListDoneButton)
     }
 
     private func configureDataSource() {

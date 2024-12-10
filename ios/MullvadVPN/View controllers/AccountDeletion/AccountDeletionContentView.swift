@@ -81,7 +81,7 @@ class AccountDeletionContentView: UIView {
     private lazy var accountTextField: AccountTextField = {
         let groupingStyle = AccountTextField.GroupingStyle.lastPart
         let textField = AccountTextField(groupingStyle: groupingStyle)
-        textField.accessibilityIdentifier = .deleteAccountTextField
+        textField.setAccessibilityIdentifier(.deleteAccountTextField)
         textField.font = .preferredFont(forTextStyle: .body, weight: .bold)
         textField.placeholder = Array(repeating: "X", count: 4).joined()
         textField.placeholderTextColor = .lightGray
@@ -101,7 +101,7 @@ class AccountDeletionContentView: UIView {
 
     private let deleteButton: AppButton = {
         let button = AppButton(style: .danger)
-        button.accessibilityIdentifier = .deleteButton
+        button.setAccessibilityIdentifier(.deleteButton)
         button.setTitle(NSLocalizedString(
             "DELETE_ACCOUNT_BUTTON_TITLE",
             tableName: "Account",
@@ -113,7 +113,7 @@ class AccountDeletionContentView: UIView {
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .default)
-        button.accessibilityIdentifier = .cancelButton
+        button.setAccessibilityIdentifier(.cancelButton)
         button.setTitle(NSLocalizedString(
             "CANCEL_BUTTON_TITLE",
             tableName: "Account",
@@ -347,7 +347,7 @@ class AccountDeletionContentView: UIView {
     }
 
     private func setupAppearance() {
-        accessibilityIdentifier = .deleteAccountView
+        setAccessibilityIdentifier(.deleteAccountView)
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .secondaryColor
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
@@ -375,10 +375,10 @@ class AccountDeletionContentView: UIView {
     }
 
     @objc private func didPress(button: AppButton) {
-        switch AccessibilityIdentifier(rawValue: button.accessibilityIdentifier ?? "") {
-        case .deleteButton:
+        switch button.accessibilityIdentifier {
+        case AccessibilityIdentifier.deleteButton.asString:
             delegate?.didTapDeleteButton(contentView: self, button: button)
-        case .cancelButton:
+        case AccessibilityIdentifier.cancelButton.asString:
             delegate?.didTapCancelButton(contentView: self, button: button)
         default: return
         }

@@ -23,7 +23,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
 
     let infoButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.accessibilityIdentifier = .infoButton
+        button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
         return button
@@ -31,7 +31,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
 
     let collapseButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.accessibilityIdentifier = .expandButton
+        button.setAccessibilityIdentifier(.expandButton)
         button.tintColor = .white
         return button
     }()
@@ -123,7 +123,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         let image = isExpanded ? chevronUp : chevronDown
 
         collapseButton.setImage(image, for: .normal)
-        collapseButton.accessibilityIdentifier = isExpanded ? .collapseButton : .expandButton
+        collapseButton.setAccessibilityIdentifier(isExpanded ? .collapseButton : .expandButton)
     }
 
     private func updateAccessibilityCustomActions() {

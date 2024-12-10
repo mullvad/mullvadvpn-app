@@ -112,8 +112,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return .dnsSettings
             case .ipOverrides:
                 return .ipOverrides
-            case .wireGuardPort:
-                return .wireGuardPort
+            case let .wireGuardPort(port):
+                return .wireGuardPort(port)
             case .wireGuardCustomPort:
                 return .wireGuardCustomPort
             case .wireGuardObfuscationAutomatic:
@@ -475,7 +475,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
-        header.accessibilityIdentifier = .wireGuardPortsCell
+        header.setAccessibilityIdentifier(.wireGuardPortsCell)
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.isExpanded = isExpanded(.wireGuardPorts)
@@ -519,7 +519,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
-        header.accessibilityIdentifier = .wireGuardObfuscationCell
+        header.setAccessibilityIdentifier(.wireGuardObfuscationCell)
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.isExpanded = isExpanded(.wireGuardObfuscation)
@@ -549,7 +549,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
             comment: ""
         )
 
-        header.accessibilityIdentifier = .quantumResistantTunnelCell
+        header.setAccessibilityIdentifier(.quantumResistantTunnelCell)
         header.titleLabel.text = title
         header.accessibilityCustomActionName = title
         header.isExpanded = isExpanded(.quantumResistance)

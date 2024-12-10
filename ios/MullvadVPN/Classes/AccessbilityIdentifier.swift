@@ -8,7 +8,7 @@
 
 import UIKit
 
-public enum AccessibilityIdentifier: String {
+public enum AccessibilityIdentifier: Equatable {
     // Buttons
     case addAccessMethodButton
     case accessMethodAddButton
@@ -181,7 +181,7 @@ public enum AccessibilityIdentifier: String {
     case wireGuardObfuscationOff
     case wireGuardObfuscationUdpOverTcp
     case wireGuardObfuscationShadowsocks
-    case wireGuardPort
+    case wireGuardPort(UInt16?)
     case udpOverTcpObfuscationSettings
 
     // Custom DNS
@@ -214,14 +214,14 @@ public enum AccessibilityIdentifier: String {
     case unknown
 }
 
+extension AccessibilityIdentifier {
+    public var asString: String {
+        "\(self)"
+    }
+}
+
 extension UIAccessibilityIdentification {
-    var accessibilityIdentifier: AccessibilityIdentifier? {
-        get {
-            guard let accessibilityIdentifier else { return nil }
-            return AccessibilityIdentifier(rawValue: accessibilityIdentifier)
-        }
-        set {
-            accessibilityIdentifier = newValue?.rawValue
-        }
+    func setAccessibilityIdentifier(_ value: AccessibilityIdentifier?) {
+        accessibilityIdentifier = value.map(\.asString)
     }
 }

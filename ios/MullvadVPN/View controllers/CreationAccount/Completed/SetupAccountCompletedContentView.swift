@@ -56,7 +56,7 @@ class SetupAccountCompletedContentView: UIView {
 
     private let privacyButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = .learnAboutPrivacyButton
+        button.setAccessibilityIdentifier(.learnAboutPrivacyButton)
         let localizedString = NSLocalizedString(
             "LEARN_ABOUT_PRIVACY_BUTTON",
             tableName: "CreatedAccountConfirmation",
@@ -70,7 +70,7 @@ class SetupAccountCompletedContentView: UIView {
 
     private let startButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = .startUsingTheAppButton
+        button.setAccessibilityIdentifier(.startUsingTheAppButton)
         button.setTitle(NSLocalizedString(
             "START_USING_THE_APP_BUTTON",
             tableName: "CreatedAccountConfirmation",
@@ -141,10 +141,10 @@ class SetupAccountCompletedContentView: UIView {
     }
 
     @objc private func tapped(button: AppButton) {
-        switch AccessibilityIdentifier(rawValue: button.accessibilityIdentifier ?? "") {
-        case .learnAboutPrivacyButton:
+        switch button.accessibilityIdentifier {
+        case AccessibilityIdentifier.learnAboutPrivacyButton.asString:
             delegate?.didTapPrivacyButton(view: self, button: button)
-        case .startUsingTheAppButton:
+        case AccessibilityIdentifier.startUsingTheAppButton.asString:
             delegate?.didTapStartingAppButton(view: self, button: button)
         default: return
         }

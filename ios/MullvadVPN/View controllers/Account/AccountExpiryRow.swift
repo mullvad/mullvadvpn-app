@@ -62,7 +62,7 @@ class AccountExpiryRow: UIView {
         valueLabel.translatesAutoresizingMaskIntoConstraints = false
         valueLabel.font = UIFont.systemFont(ofSize: 17)
         valueLabel.textColor = .white
-        valueLabel.accessibilityIdentifier = .accountPagePaidUntilLabel
+        valueLabel.setAccessibilityIdentifier(.accountPagePaidUntilLabel)
         return valueLabel
     }()
 

@@ -67,21 +67,21 @@ final class TunnelControlView: UIView {
 
     private let connectButton: AppButton = {
         let button = AppButton(style: .success)
-        button.accessibilityIdentifier = .secureConnectionButton
+        button.setAccessibilityIdentifier(.secureConnectionButton)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     private let cancelButton: AppButton = {
         let button = AppButton(style: .translucentDanger)
-        button.accessibilityIdentifier = .cancelButton
+        button.setAccessibilityIdentifier(.cancelButton)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
 
     private let selectLocationButton: AppButton = {
         let button = AppButton(style: .translucentNeutral)
-        button.accessibilityIdentifier = .selectLocationButton
+        button.setAccessibilityIdentifier(.selectLocationButton)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -92,7 +92,7 @@ final class TunnelControlView: UIView {
 
     private let splitDisconnectButton: DisconnectSplitButton = {
         let button = DisconnectSplitButton()
-        button.primaryButton.accessibilityIdentifier = .disconnectButton
+        button.primaryButton.setAccessibilityIdentifier(.disconnectButton)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -122,7 +122,7 @@ final class TunnelControlView: UIView {
         backgroundColor = .clear
         directionalLayoutMargins = UIMetrics.contentLayoutMargins
         accessibilityContainerType = .semanticGroup
-        accessibilityIdentifier = .tunnelControlView
+        setAccessibilityIdentifier(.tunnelControlView)
 
         addSubviews()
         addButtonHandlers()
@@ -172,11 +172,11 @@ final class TunnelControlView: UIView {
 
         switch tunnelState {
         case .connected:
-            secureLabel.accessibilityIdentifier = .connectionStatusConnectedLabel
+            secureLabel.setAccessibilityIdentifier(.connectionStatusConnectedLabel)
         case .connecting:
-            secureLabel.accessibilityIdentifier = .connectionStatusConnectingLabel
+            secureLabel.setAccessibilityIdentifier(.connectionStatusConnectingLabel)
         default:
-            secureLabel.accessibilityIdentifier = .connectionStatusNotConnectedLabel
+            secureLabel.setAccessibilityIdentifier(.connectionStatusNotConnectedLabel)
         }
     }
 

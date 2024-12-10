@@ -113,7 +113,7 @@ class MethodSettingsCellConfiguration {
         contentConfiguration.maxLength = NameInputFormatter.maxLength
         contentConfiguration.editingEvents.onChange = subject.bindTextAction(to: \.name)
 
-        cell.accessibilityIdentifier = .accessMethodNameTextField
+        cell.setAccessibilityIdentifier(.accessMethodNameTextField)
         cell.setDisabled(isTesting)
         cell.contentConfiguration = contentConfiguration
     }
@@ -156,7 +156,7 @@ class MethodSettingsCellConfiguration {
             cell.disclosureType = .chevron
         }
 
-        cell.accessibilityIdentifier = .accessMethodProtocolSelectionCell
+        cell.setAccessibilityIdentifier(.accessMethodProtocolSelectionCell)
         cell.setDisabled(isTesting)
     }
 

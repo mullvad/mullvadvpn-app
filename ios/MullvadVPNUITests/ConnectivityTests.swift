@@ -67,7 +67,7 @@ class ConnectivityTests: LoggedOutUITestCase {
                 .tapSelectLocationButton()
 
             let filterCloseButtons = self.app.buttons
-                .matching(identifier: AccessibilityIdentifier.relayFilterChipCloseButton.rawValue)
+                .matching(identifier: AccessibilityIdentifier.relayFilterChipCloseButton.asString)
                 .allElementsBoundByIndex
 
             for filterCloseButton in filterCloseButtons where filterCloseButton.isHittable {

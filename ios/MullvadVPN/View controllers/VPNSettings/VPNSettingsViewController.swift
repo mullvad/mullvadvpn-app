@@ -39,7 +39,7 @@ class VPNSettingsViewController: UITableViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        tableView.accessibilityIdentifier = .vpnSettingsTableView
+        tableView.setAccessibilityIdentifier(.vpnSettingsTableView)
         tableView.backgroundColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
