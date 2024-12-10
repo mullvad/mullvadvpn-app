@@ -27,7 +27,7 @@ import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermis
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -51,7 +51,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val launchVpnPermission =
         registerForActivityResult(CreateVpnProfile()) { _ -> mullvadAppViewModel.connect() }
 
-    private val intentProvider by inject<IntentProvider>()
+    private val apiEndpointFromIntentHolder by inject<ApiEndpointFromIntentHolder>()
     private val mullvadAppViewModel by inject<MullvadAppViewModel>()
     private val privacyDisclaimerRepository by inject<PrivacyDisclaimerRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
@@ -135,7 +135,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
                 if (it.action == KEY_REQUEST_VPN_PROFILE) {
                     handleRequestVpnProfileIntent()
                 } else {
-                    intentProvider.setStartIntent(it)
+                    apiEndpointFromIntentHolder.handleIntent(it)
                 }
             }
         }

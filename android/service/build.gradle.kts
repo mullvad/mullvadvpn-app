@@ -56,7 +56,6 @@ dependencies {
     implementation(projects.lib.common)
     implementation(projects.lib.daemonGrpc)
     implementation(projects.lib.endpoint)
-    implementation(projects.lib.intentProvider)
     implementation(projects.lib.model)
     implementation(projects.lib.shared)
     implementation(projects.lib.talpid)

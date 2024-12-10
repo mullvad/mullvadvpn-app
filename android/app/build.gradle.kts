@@ -338,7 +338,6 @@ dependencies {
     implementation(projects.lib.common)
     implementation(projects.lib.daemonGrpc)
     implementation(projects.lib.endpoint)
-    implementation(projects.lib.intentProvider)
     implementation(projects.lib.map)
     implementation(projects.lib.model)
     implementation(projects.lib.payment)
