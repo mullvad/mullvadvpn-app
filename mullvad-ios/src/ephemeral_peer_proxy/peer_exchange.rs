@@ -1,17 +1,12 @@
 use super::{ios_tcp_connection::*, EphemeralPeerParameters, PacketTunnelBridge};
-use std::{ffi::CStr, ptr, sync::Mutex, thread};
+use std::{ffi::CStr, sync::Mutex, thread};
 use talpid_tunnel_config_client::{request_ephemeral_peer_with, Error, RelayConfigService};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::{runtime::Handle as TokioHandle, task::JoinHandle};
 use tonic::transport::channel::Endpoint;
 use tower::util::service_fn;
 
-const GRPC_HOST_PTR: *const libc::c_char = {
-    const BYTES: &[u8] = b"10.64.0.1:1337\0";
-    BYTES.as_ptr().cast()
-};
-
-const GRPC_HOST_CSTR: &'static CStr = unsafe { CStr::from_ptr(GRPC_HOST_PTR) };
+const GRPC_HOST_CSTR: &CStr = &c"10.64.0.1:1337";
 
 pub struct ExchangeCancelToken {
     inner: Mutex<CancelToken>,
