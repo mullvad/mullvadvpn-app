@@ -133,6 +133,7 @@ enum UIMetrics {
     enum ConnectionPanelView {
         static let inRowHeight: CGFloat = 22
         static let outRowHeight: CGFloat = 44
+        static let cornerRadius: CGFloat = 8.0
     }
 
     enum MainButton {
