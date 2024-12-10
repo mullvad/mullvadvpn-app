@@ -65,7 +65,7 @@
     "gulp-inject-string": "^1.1.2",
     "gulp-sourcemaps": "^3.0.0",
     "gulp-typescript": "^6.0.0-alpha.1",
-    "mocha": "^10.2.0",
+    "mocha": "^10.8.2",
     "playwright": "^1.41.1",
     "postject": "^1.0.0-alpha.6",
     "sinon": "^14.0.1",
