@@ -31,4 +31,6 @@ export enum RoutePath {
   selectLocation = '/select-location',
   editCustomBridge = '/select-location/edit-custom-bridge',
   filter = '/select-location/filter',
+  appInfo = '/settings/app-info',
+  changelog = '/settings/changelog',
 }
