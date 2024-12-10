@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import arrow.core.merge
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filter
@@ -27,7 +28,8 @@ import net.mullvad.mullvadvpn.lib.common.util.SdkUtils.requestNotificationPermis
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
+import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -51,7 +53,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private val launchVpnPermission =
         registerForActivityResult(CreateVpnProfile()) { _ -> mullvadAppViewModel.connect() }
 
-    private val intentProvider by inject<IntentProvider>()
+    private val apiEndpointFromIntentHolder by inject<ApiEndpointFromIntentHolder>()
     private val mullvadAppViewModel by inject<MullvadAppViewModel>()
     private val privacyDisclaimerRepository by inject<PrivacyDisclaimerRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
@@ -84,7 +86,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         window.decorView.filterTouchesWhenObscured = true
 
         // Needs to be before we start the service, since we need to access the intent there
-        setUpIntentListener()
+        lifecycleScope.launch { intents().collect(::handleIntent) }
 
         // We use lifecycleScope here to get less start service in background exceptions
         // Se this article for more information:
@@ -129,15 +131,14 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         super.onDestroy()
     }
 
-    private fun setUpIntentListener() {
-        lifecycleScope.launch {
-            intents().collect {
-                if (it.action == KEY_REQUEST_VPN_PROFILE) {
-                    handleRequestVpnProfileIntent()
-                } else {
-                    intentProvider.setStartIntent(it)
-                }
-            }
+    private fun handleIntent(intent: Intent) {
+        when (val action = intent.action) {
+            Intent.ACTION_MAIN ->
+                apiEndpointFromIntentHolder.setApiEndpointOverride(
+                    intent.getApiEndpointConfigurationExtras()
+                )
+            KEY_REQUEST_VPN_PROFILE -> handleRequestVpnProfileIntent()
+            else -> Logger.w("Unhandled intent action: $action")
         }
     }
 
