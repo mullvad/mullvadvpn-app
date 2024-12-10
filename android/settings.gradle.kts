@@ -21,7 +21,6 @@ include(
     ":lib:common-test",
     ":lib:daemon-grpc",
     ":lib:endpoint",
-    ":lib:intent-provider",
     ":lib:map",
     ":lib:model",
     ":lib:payment",
