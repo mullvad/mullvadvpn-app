@@ -1238,9 +1238,9 @@ dependencies = [
 
 [[package]]
 name = "hickory-resolver"
-version = "0.24.1"
+version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "28757f23aa75c98f254cf0405e6d8c25b831b32921b050a66692427679b1f243"
+checksum = "0a2e2aba9c389ce5267d31cf1e4dace82390ae276b0b364ea55630b1fa1b44b4"
 dependencies = [
  "cfg-if",
  "futures-util",
@@ -3243,9 +3243,9 @@ dependencies = [
 
 [[package]]
 name = "shadowsocks"
-version = "1.20.3"
+version = "1.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb6a87d691a190af90706a2846b6d53ab16afbbb582eed8b9e6b9dca2d0a633a"
+checksum = "5ecb3780dfbc654de9383758015b9bb95c6e32fecace36ebded09d67e854d130"
 dependencies = [
  "arc-swap",
  "async-trait",
@@ -3278,9 +3278,9 @@ dependencies = [
 
 [[package]]
 name = "shadowsocks-crypto"
-version = "0.5.4"
+version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65da645ff4a6440ba1b52a9d6b4c8792054860ac135cb87f8ad3d2c7a78d41b5"
+checksum = "bc77ecb3a97509d22751b76665894fcffad2d10df8758f4e3f20c92ccde6bf4f"
 dependencies = [
  "aes",
  "aes-gcm",

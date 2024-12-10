@@ -1873,9 +1873,9 @@ dependencies = [
 
 [[package]]
 name = "ipnet"
-version = "2.9.0"
+version = "2.10.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f518f335dce6725a761382244631d86cf0ccb2863413590b31338feb467f9c3"
+checksum = "ddc24109865250148c2e0f3d25d4f0f479571723792d3802153c60922a4fb708"
 
 [[package]]
 name = "ipnetwork"
@@ -2061,7 +2061,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c2a198fb6b0eada2a8df47933734e6d35d350665a33a3593d7164fa52c75c19"
 dependencies = [
  "cfg-if",
- "windows-targets 0.52.6",
+ "windows-targets 0.48.5",
 ]
 
 [[package]]
@@ -3957,9 +3957,9 @@ dependencies = [
 
 [[package]]
 name = "shadowsocks"
-version = "1.20.3"
+version = "1.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fb6a87d691a190af90706a2846b6d53ab16afbbb582eed8b9e6b9dca2d0a633a"
+checksum = "5ecb3780dfbc654de9383758015b9bb95c6e32fecace36ebded09d67e854d130"
 dependencies = [
  "arc-swap",
  "async-trait",
@@ -3992,9 +3992,9 @@ dependencies = [
 
 [[package]]
 name = "shadowsocks-crypto"
-version = "0.5.4"
+version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65da645ff4a6440ba1b52a9d6b4c8792054860ac135cb87f8ad3d2c7a78d41b5"
+checksum = "bc77ecb3a97509d22751b76665894fcffad2d10df8758f4e3f20c92ccde6bf4f"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -4012,9 +4012,9 @@ dependencies = [
 
 [[package]]
 name = "shadowsocks-service"
-version = "1.20.4"
+version = "1.21.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0c0ce5a3a15e2688b7014c37ed3db33dc296d8b8fda36643c053882bf1d5f44"
+checksum = "e79e4f64b489b29e542dea54ea5b4c69e51701e25b222034c257f8b84f74b7e3"
 dependencies = [
  "arc-swap",
  "async-trait",
@@ -4023,6 +4023,7 @@ dependencies = [
  "bytes",
  "cfg-if",
  "futures",
+ "http 1.1.0",
  "http-body-util",
  "httparse",
  "hyper",

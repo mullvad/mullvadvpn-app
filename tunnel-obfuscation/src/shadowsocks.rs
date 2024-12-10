@@ -11,6 +11,7 @@ use shadowsocks::{
     config::{ServerConfig, ServerType},
     context::Context,
     crypto::CipherKind,
+    net::{ConnectOpts, UdpSocket},
     relay::{
         udprelay::proxy_socket::{ProxySocketError, UdpSocketType},
         Address,
@@ -20,7 +21,7 @@ use shadowsocks::{
 #[cfg(any(target_os = "android", target_os = "linux"))]
 use std::os::fd::AsRawFd;
 use std::{io, net::SocketAddr, sync::Arc};
-use tokio::{net::UdpSocket, sync::oneshot};
+use tokio::sync::oneshot;
 
 const SHADOWSOCKS_CIPHER: CipherKind = CipherKind::AES_256_GCM;
 const SHADOWSOCKS_PASSWORD: &str = "mullvad";
@@ -157,7 +158,10 @@ async fn run_forwarding(
     Ok(())
 }
 
-fn connect_shadowsocks(remote_socket: UdpSocket, shadowsocks_endpoint: SocketAddr) -> ProxySocket {
+fn connect_shadowsocks(
+    remote_socket: UdpSocket,
+    shadowsocks_endpoint: SocketAddr,
+) -> ProxySocket<UdpSocket> {
     let ss_context = Context::new_shared(ServerType::Local);
     let ss_config: ServerConfig = ServerConfig::new(
         shadowsocks_endpoint,
@@ -176,7 +180,7 @@ async fn create_shadowsocks_socket(
     } else {
         SocketAddr::new("::".parse().unwrap(), 0)
     };
-    let socket = UdpSocket::bind(random_bind_addr)
+    let socket = UdpSocket::bind_with_opts(&random_bind_addr, &ConnectOpts::default())
         .await
         .map_err(Error::BindRemoteUdp)?;
     #[cfg(target_os = "linux")]
@@ -193,7 +197,7 @@ async fn create_local_udp_socket(ipv4: bool) -> Result<(UdpSocket, SocketAddr)> 
     } else {
         SocketAddr::new("::1".parse().unwrap(), 0)
     };
-    let local_udp_socket = UdpSocket::bind(random_bind_addr)
+    let local_udp_socket = UdpSocket::bind_with_opts(&random_bind_addr, &ConnectOpts::default())
         .await
         .map_err(Error::BindUdp)?;
     let udp_client_addr = local_udp_socket
@@ -213,7 +217,7 @@ async fn wait_for_local_udp_client(udp_listener: &UdpSocket) -> io::Result<()> {
 }
 
 async fn handle_outgoing(
-    ss_write: Arc<ProxySocket>,
+    ss_write: Arc<ProxySocket<UdpSocket>>,
     local_udp_read: Arc<UdpSocket>,
     ss_addr: SocketAddr,
     wg_addr: Address,
@@ -243,7 +247,7 @@ async fn handle_outgoing(
 }
 
 async fn handle_incoming(
-    ss_read: Arc<ProxySocket>,
+    ss_read: Arc<ProxySocket<UdpSocket>>,
     local_udp_write: Arc<UdpSocket>,
     ss_addr: SocketAddr,
     wg_addr: Address,
