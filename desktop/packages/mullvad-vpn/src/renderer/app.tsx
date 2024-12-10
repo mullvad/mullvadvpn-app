@@ -39,7 +39,6 @@ import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
-import { Changelog } from './components/Changelog';
 import ErrorBoundary from './components/ErrorBoundary';
 import KeyboardNavigation from './components/KeyboardNavigation';
 import Lang from './components/Lang';
@@ -297,7 +296,6 @@ export default class AppRenderer {
                     <ModalContainer>
                       <KeyboardNavigation>
                         <AppRouter />
-                        <Changelog />
                       </KeyboardNavigation>
                       {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                     </ModalContainer>
