@@ -1,8 +1,8 @@
-import styled from 'styled-components';
+import { Text, TextProps } from './Text';
+export type LabelTinyProps = Omit<TextProps, 'variant'>;
 
-import { typography } from '../../../tokens';
-import { Text } from './Text';
-
-export const LabelTiny = styled(Text)({
-  ...typography['labelTiny'],
-});
+export const LabelTiny = ({ children, ...props }: LabelTinyProps) => (
+  <Text variant="labelTiny" {...props}>
+    {children}
+  </Text>
+);

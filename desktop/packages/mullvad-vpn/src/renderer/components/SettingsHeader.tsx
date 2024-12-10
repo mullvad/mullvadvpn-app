@@ -11,7 +11,7 @@ export const HeaderTitle = styled(TitleBig)({
 });
 
 export const HeaderSubTitle = styled(LabelTiny).attrs({
-  $color: Colors.white60,
+  color: Colors.white60,
 })({});
 
 interface SettingsHeaderProps {
