@@ -8,7 +8,7 @@ import {
   SystemNotificationCategory,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
-} from '../shared/notifications/notification';
+} from '../shared/notifications';
 import { DaemonRpc } from './daemon-rpc';
 import { IpcMainEventChannel } from './ipc-event-channel';
 import { NotificationSender } from './notification-controller';

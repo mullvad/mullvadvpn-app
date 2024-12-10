@@ -1,3 +1,5 @@
+import { LinkProps } from '../../renderer/components/common/text';
+
 export type NotificationAction = {
   type: 'open-url';
   url: string;
@@ -25,6 +27,10 @@ export type InAppNotificationAction =
   | {
       type: 'close';
       close: () => void;
+    }
+  | {
+      type: 'navigate';
+      link: Pick<LinkProps, 'to' | 'onClick' | 'aria-label'>;
     };
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
@@ -59,9 +65,10 @@ export interface SystemNotification {
 
 export interface InAppNotification {
   indicator?: InAppNotificationIndicatorType;
+  action?: InAppNotificationAction;
   title: string;
   subtitle?: string;
-  action?: InAppNotificationAction;
+  subtitleAction?: InAppNotificationAction;
 }
 
 export interface SystemNotificationProvider extends NotificationProvider {
@@ -71,16 +78,3 @@ export interface SystemNotificationProvider extends NotificationProvider {
 export interface InAppNotificationProvider extends NotificationProvider {
   getInAppNotification(): InAppNotification | undefined;
 }
-
-export * from './account-expired';
-export * from './close-to-account-expiry';
-export * from './block-when-disconnected';
-export * from './connected';
-export * from './connecting';
-export * from './disconnected';
-export * from './daemon-disconnected';
-export * from './error';
-export * from './inconsistent-version';
-export * from './reconnecting';
-export * from './unsupported-version';
-export * from './update-available';
