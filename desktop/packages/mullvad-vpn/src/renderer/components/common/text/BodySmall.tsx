@@ -1,8 +1,9 @@
-import styled from 'styled-components';
+import { Text, TextProps } from './Text';
 
-import { typography } from '../../../tokens';
-import { Text } from './Text';
+export type BodySmallProps = Omit<TextProps, 'variant'>;
 
-export const BodySmall = styled(Text)({
-  ...typography['bodySmall'],
-});
+export const BodySmall = ({ children, ...props }: BodySmallProps) => (
+  <Text variant="bodySmall" {...props}>
+    {children}
+  </Text>
+);

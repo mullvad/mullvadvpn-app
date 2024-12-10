@@ -1,7 +1,8 @@
-import styled from 'styled-components';
+import { Text, TextProps } from './Text';
+export type TitleLargeProps = Omit<TextProps, 'variant'>;
 
-import { typography } from '../../../tokens';
-import { Text } from './Text';
-export const TitleLarge = styled(Text)({
-  ...typography['titleLarge'],
-});
+export const TitleLarge = ({ children, ...props }: TitleLargeProps) => (
+  <Text variant="titleLarge" {...props}>
+    {children}
+  </Text>
+);
