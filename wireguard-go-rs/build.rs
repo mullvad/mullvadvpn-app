@@ -176,10 +176,7 @@ fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
         "cargo::rerun-if-changed={}",
         android_output_path(target)?.join("libwg.so").display()
     );
-    println!(
-        "cargo::rerun-if-changed={}",
-        libwg_path()?.display()
-    );
+    println!("cargo::rerun-if-changed={}", libwg_path()?.display());
 
     // Before calling `canonicalize`, the directory we're referring to actually has to exist.
     std::fs::create_dir_all("../build")?;
@@ -279,13 +276,14 @@ fn android_arch_name(target: AndroidTarget) -> String {
 
 // Returns the path where the Android project expects Rust binaries to be
 fn android_output_path(target: AndroidTarget) -> anyhow::Result<PathBuf> {
-    let relative_output_path = Path::new("../android/app/build/rustJniLibs/android").join(android_abi(target));
+    let relative_output_path =
+        Path::new("../android/app/build/rustJniLibs/android").join(android_abi(target));
     std::fs::create_dir_all(relative_output_path.clone())?;
     let output_path = relative_output_path.canonicalize()?;
     Ok(output_path)
 }
 
-// Return the path of the libwg folder so that we can trigger rebuilds when any code is 
+// Return the path of the libwg folder so that we can trigger rebuilds when any code is
 fn libwg_path() -> anyhow::Result<PathBuf> {
     let relative_output_path = Path::new("libwg");
     let output_path = relative_output_path.canonicalize()?;
