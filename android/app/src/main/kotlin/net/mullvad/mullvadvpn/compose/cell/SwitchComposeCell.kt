@@ -64,7 +64,7 @@ fun NormalSwitchComposeCell(
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     onBackground: Color = MaterialTheme.colorScheme.onSurface,
-    onCellClicked: (Boolean) -> Unit = {},
+    onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,
 ) {
     SwitchComposeCell(
@@ -95,7 +95,7 @@ fun HeaderSwitchComposeCell(
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
     onBackground: Color = MaterialTheme.colorScheme.onPrimary,
-    onCellClicked: (Boolean) -> Unit = {},
+    onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,
 ) {
     SwitchComposeCell(

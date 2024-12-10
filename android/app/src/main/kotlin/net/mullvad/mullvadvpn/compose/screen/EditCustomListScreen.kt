@@ -62,7 +62,7 @@ private fun PreviewEditCustomListScreen(
     @PreviewParameter(EditCustomListUiStatePreviewParameterProvider::class)
     state: EditCustomListUiState
 ) {
-    AppTheme { EditCustomListScreen(state = state) }
+    AppTheme { EditCustomListScreen(state = state, { _, _ -> }, { _, _ -> }, {}, {}) }
 }
 
 data class EditCustomListNavArgs(val customListId: CustomListId)
@@ -116,10 +116,10 @@ fun EditCustomList(
 @Composable
 fun EditCustomListScreen(
     state: EditCustomListUiState,
-    onDeleteList: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
-    onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
-    onLocationsClicked: (CustomListId) -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onDeleteList: (id: CustomListId, name: CustomListName) -> Unit,
+    onNameClicked: (id: CustomListId, name: CustomListName) -> Unit,
+    onLocationsClicked: (CustomListId) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_list),

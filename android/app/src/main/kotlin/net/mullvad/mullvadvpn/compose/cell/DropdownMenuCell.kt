@@ -18,14 +18,14 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Preview
 @Composable
 private fun PreviewThreeDotCell() {
-    AppTheme { ThreeDotCell(text = "Three dots") }
+    AppTheme { ThreeDotCell(text = "Three dots", onClickDots = {}) }
 }
 
 @Composable
 fun ThreeDotCell(
     text: String,
     modifier: Modifier = Modifier,
-    onClickDots: () -> Unit = {},
+    onClickDots: () -> Unit,
     textStyle: TextStyle = MaterialTheme.typography.titleMedium,
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     background: Color = MaterialTheme.colorScheme.primary,

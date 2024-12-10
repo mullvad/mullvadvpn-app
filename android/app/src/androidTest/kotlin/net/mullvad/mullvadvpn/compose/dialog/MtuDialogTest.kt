@@ -1,12 +1,11 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import android.annotation.SuppressLint
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -28,31 +27,32 @@ class MtuDialogTest {
         MockKAnnotations.init(this)
     }
 
-    @SuppressLint("ComposableNaming")
-    @Composable
-    private fun testMtuDialog(
-        mtuInput: String = "",
-        isValidInput: Boolean = true,
-        showResetButton: Boolean = true,
-        onInputChanged: (String) -> Unit = { _ -> },
-        onSaveMtu: (String) -> Unit = { _ -> },
+    private val defaultState =
+        MtuDialogUiState(mtuInput = "", isValidInput = true, showResetToDefault = true)
+
+    private fun ComposeContext.initDialog(
+        state: MtuDialogUiState = defaultState,
+        onInputChanged: (String) -> Unit = {},
+        onSaveMtu: (String) -> Unit = {},
         onResetMtu: () -> Unit = {},
         onDismiss: () -> Unit = {},
     ) {
-        MtuDialog(
-            MtuDialogUiState(mtuInput, isValidInput, showResetButton),
-            onInputChanged = onInputChanged,
-            onSaveMtu = onSaveMtu,
-            onResetMtu = onResetMtu,
-            onDismiss = onDismiss,
-        )
+        setContentWithTheme {
+            MtuDialog(
+                state = state,
+                onInputChanged = onInputChanged,
+                onSaveMtu = onSaveMtu,
+                onResetMtu = onResetMtu,
+                onDismiss = onDismiss,
+            )
+        }
     }
 
     @Test
     fun testMtuDialogWithDefaultValue() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { testMtuDialog() }
+            initDialog()
 
             // Assert
             onNodeWithText(EMPTY_STRING).assertExists()
@@ -62,7 +62,7 @@ class MtuDialogTest {
     fun testMtuDialogWithEditValue() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { testMtuDialog(mtuInput = VALID_DUMMY_MTU_VALUE) }
+            initDialog(defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE))
 
             // Assert
             onNodeWithText(VALID_DUMMY_MTU_VALUE).assertExists()
@@ -73,9 +73,10 @@ class MtuDialogTest {
         composeExtension.use {
             // Arrange
             val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                testMtuDialog(VALID_DUMMY_MTU_VALUE, onSaveMtu = mockedSubmitHandler)
-            }
+            initDialog(
+                defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE),
+                onSaveMtu = mockedSubmitHandler,
+            )
 
             // Act
             onNodeWithText("Submit").assertIsEnabled().performClick()
@@ -88,7 +89,7 @@ class MtuDialogTest {
     fun testMtuDialogSubmitButtonDisabledWhenInvalidInput() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { testMtuDialog(INVALID_DUMMY_MTU_VALUE, false) }
+            initDialog(defaultState.copy(mtuInput = INVALID_DUMMY_MTU_VALUE, isValidInput = false))
 
             // Assert
             onNodeWithText("Submit").assertIsNotEnabled()
@@ -99,9 +100,10 @@ class MtuDialogTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                testMtuDialog(mtuInput = VALID_DUMMY_MTU_VALUE, onResetMtu = mockedClickHandler)
-            }
+            initDialog(
+                defaultState.copy(mtuInput = VALID_DUMMY_MTU_VALUE),
+                onResetMtu = mockedClickHandler,
+            )
 
             // Act
             onNodeWithText("Reset to default").performClick()
@@ -115,7 +117,7 @@ class MtuDialogTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme { testMtuDialog(onDismiss = mockedClickHandler) }
+            initDialog(onDismiss = mockedClickHandler)
 
             // Assert
             onNodeWithText("Cancel").performClick()

@@ -26,7 +26,9 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewRemoveDeviceConfirmationDialog() {
     AppTheme {
         DeleteCustomListConfirmationDialog(
-            state = DeleteCustomListUiState(CustomListName.fromString("My Custom List"), null)
+            state = DeleteCustomListUiState(CustomListName.fromString("My Custom List"), null),
+            {},
+            {},
         )
     }
 }
@@ -59,8 +61,8 @@ fun DeleteCustomList(navigator: ResultBackNavigator<CustomListActionResultData.S
 @Composable
 fun DeleteCustomListConfirmationDialog(
     state: DeleteCustomListUiState,
-    onDelete: () -> Unit = {},
-    onBack: () -> Unit = {},
+    onDelete: () -> Unit,
+    onBack: () -> Unit,
 ) {
     NegativeConfirmationDialog(
         onConfirm = onDelete,

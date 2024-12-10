@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -20,6 +21,7 @@ import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_CUSTOM_LIST_BOTTOM_SHEET_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_LOCATION_BOTTOM_SHEET_TEST_TAG
+import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.performLongClick
 import net.mullvad.mullvadvpn.viewmodel.location.SelectLocationListViewModel
@@ -49,6 +51,53 @@ class SelectLocationScreenTest {
         unmockkAll()
     }
 
+    private fun ComposeContext.initScreen(
+        state: SelectLocationUiState = SelectLocationUiState.Loading,
+        onSelectRelay: (item: RelayItem) -> Unit = {},
+        onSearchClick: (RelayListType) -> Unit = {},
+        onBackClick: () -> Unit = {},
+        onFilterClick: () -> Unit = {},
+        onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
+        onEditCustomLists: () -> Unit = {},
+        removeOwnershipFilter: () -> Unit = {},
+        removeProviderFilter: () -> Unit = {},
+        onAddLocationToList:
+            (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
+            { _, _ ->
+            },
+        onRemoveLocationFromList:
+            (location: RelayItem.Location, customListId: CustomListId) -> Unit =
+            { _, _ ->
+            },
+        onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
+        onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
+        onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
+        onSelectRelayList: (RelayListType) -> Unit = {},
+        openDaitaSettings: () -> Unit = {},
+    ) {
+
+        setContentWithTheme {
+            SelectLocationScreen(
+                state = state,
+                onSelectRelay = onSelectRelay,
+                onSearchClick = onSearchClick,
+                onBackClick = onBackClick,
+                onFilterClick = onFilterClick,
+                onCreateCustomList = onCreateCustomList,
+                onEditCustomLists = onEditCustomLists,
+                removeOwnershipFilter = removeOwnershipFilter,
+                removeProviderFilter = removeProviderFilter,
+                onAddLocationToList = onAddLocationToList,
+                onRemoveLocationFromList = onRemoveLocationFromList,
+                onEditCustomListName = onEditCustomListName,
+                onEditLocationsCustomList = onEditLocationsCustomList,
+                onDeleteCustomList = onDeleteCustomList,
+                onSelectRelayList = onSelectRelayList,
+                openDaitaSettings = openDaitaSettings,
+            )
+        }
+    }
+
     @Test
     fun testShowRelayListState() =
         composeExtension.use {
@@ -61,17 +110,15 @@ class SelectLocationScreenTest {
                         customLists = emptyList(),
                     )
                 )
-            setContentWithTheme {
-                SelectLocationScreen(
-                    state =
-                        SelectLocationUiState.Data(
-                            // searchTerm = "",
-                            filterChips = emptyList(),
-                            multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    SelectLocationUiState.Data(
+                        // searchTerm = "",
+                        filterChips = emptyList(),
+                        multihopEnabled = false,
+                        relayListType = RelayListType.EXIT,
+                    )
+            )
 
             // Assert
             onNodeWithText("Relay Country 1").assertExists()
@@ -93,16 +140,14 @@ class SelectLocationScreenTest {
                         customLists = emptyList(),
                     )
                 )
-            setContentWithTheme {
-                SelectLocationScreen(
-                    state =
-                        SelectLocationUiState.Data(
-                            filterChips = emptyList(),
-                            multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    SelectLocationUiState.Data(
+                        filterChips = emptyList(),
+                        multihopEnabled = false,
+                        relayListType = RelayListType.EXIT,
+                    )
+            )
 
             // Assert
             onNodeWithText(CUSTOM_LISTS_EMPTY_TEXT).assertExists()
@@ -121,17 +166,15 @@ class SelectLocationScreenTest {
                     )
                 )
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                SelectLocationScreen(
-                    state =
-                        SelectLocationUiState.Data(
-                            filterChips = emptyList(),
-                            multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
-                        ),
-                    onSelectRelay = mockedOnSelectRelay,
-                )
-            }
+            initScreen(
+                state =
+                    SelectLocationUiState.Data(
+                        filterChips = emptyList(),
+                        multihopEnabled = false,
+                        relayListType = RelayListType.EXIT,
+                    ),
+                onSelectRelay = mockedOnSelectRelay,
+            )
 
             // Act
             onNodeWithText(customList.name).performClick()
@@ -153,18 +196,16 @@ class SelectLocationScreenTest {
                     )
                 )
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                SelectLocationScreen(
-                    state =
-                        SelectLocationUiState.Data(
-                            // searchTerm = "",
-                            filterChips = emptyList(),
-                            multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
-                        ),
-                    onSelectRelay = mockedOnSelectRelay,
-                )
-            }
+            initScreen(
+                state =
+                    SelectLocationUiState.Data(
+                        // searchTerm = "",
+                        filterChips = emptyList(),
+                        multihopEnabled = false,
+                        relayListType = RelayListType.EXIT,
+                    ),
+                onSelectRelay = mockedOnSelectRelay,
+            )
 
             // Act
             onNodeWithText(customList.name).performLongClick()
@@ -186,17 +227,15 @@ class SelectLocationScreenTest {
                     )
                 )
             val mockedOnSelectRelay: (RelayItem) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                SelectLocationScreen(
-                    state =
-                        SelectLocationUiState.Data(
-                            filterChips = emptyList(),
-                            multihopEnabled = false,
-                            relayListType = RelayListType.EXIT,
-                        ),
-                    onSelectRelay = mockedOnSelectRelay,
-                )
-            }
+            initScreen(
+                state =
+                    SelectLocationUiState.Data(
+                        filterChips = emptyList(),
+                        multihopEnabled = false,
+                        relayListType = RelayListType.EXIT,
+                    ),
+                onSelectRelay = mockedOnSelectRelay,
+            )
 
             // Act
             onNodeWithText(relayItem.name).performLongClick()

@@ -8,15 +8,15 @@ import androidx.compose.material3.SnackbarResult
 suspend fun SnackbarHostState.showSnackbarImmediately(
     message: String,
     actionLabel: String? = null,
-    onAction: (() -> Unit) = {},
+    onAction: (() -> Unit)? = null,
     withDismissAction: Boolean = false,
-    onDismiss: (() -> Unit) = {},
+    onDismiss: (() -> Unit)? = null,
     duration: SnackbarDuration =
         if (actionLabel == null) SnackbarDuration.Short else SnackbarDuration.Indefinite,
 ) {
     currentSnackbarData?.dismiss()
     when (showSnackbar(message, actionLabel, withDismissAction, duration)) {
-        SnackbarResult.ActionPerformed -> onAction()
-        SnackbarResult.Dismissed -> onDismiss()
+        SnackbarResult.ActionPerformed -> onAction?.invoke()
+        SnackbarResult.Dismissed -> onDismiss?.invoke()
     }
 }

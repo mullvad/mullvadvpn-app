@@ -57,7 +57,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewSettingsScreen(
     @PreviewParameter(SettingsUiStatePreviewParameterProvider::class) state: SettingsUiState
 ) {
-    AppTheme { SettingsScreen(state = state) }
+    AppTheme { SettingsScreen(state = state, {}, {}, {}, {}, {}, {}, {}, {}) }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -81,18 +81,17 @@ fun Settings(navigator: DestinationsNavigator) {
     )
 }
 
-@ExperimentalMaterial3Api
 @Composable
 fun SettingsScreen(
     state: SettingsUiState,
-    onVpnSettingCellClick: () -> Unit = {},
-    onSplitTunnelingCellClick: () -> Unit = {},
-    onAppInfoClick: () -> Unit = {},
-    onReportProblemCellClick: () -> Unit = {},
-    onApiAccessClick: () -> Unit = {},
-    onMultihopClick: () -> Unit = {},
-    onDaitaClick: () -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onVpnSettingCellClick: () -> Unit,
+    onSplitTunnelingCellClick: () -> Unit,
+    onAppInfoClick: () -> Unit,
+    onReportProblemCellClick: () -> Unit,
+    onApiAccessClick: () -> Unit,
+    onMultihopClick: () -> Unit,
+    onDaitaClick: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings),
