@@ -18,8 +18,6 @@ BUILD_BUNDLE="no"
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
 RUN_PLAY_PUBLISH_TASKS="no"
 PLAY_PUBLISH_TASKS=()
-CARGO_ARGS=( "--release" )
-CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"target"}
 SKIP_STRIPPING=${SKIP_STRIPPING:-"no"}
 
 while [ -n "${1:-""}" ]; do
