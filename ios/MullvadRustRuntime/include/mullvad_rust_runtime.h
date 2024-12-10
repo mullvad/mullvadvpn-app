@@ -114,9 +114,10 @@ void drop_ephemeral_peer_exchange_token(struct ExchangeCancelToken *sender);
  * # Safety
  * `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
  * They will not be valid after this function is called, and thus must be copied here.
- * `packet_tunnel` and `tcp_connection` must be valid pointers to a packet tunnel and a TCP
- * connection instances.
- * `cancel_token` should be owned by the caller of this function.
+ * `packet_tunnel` must be valid pointers to a packet tunnel, the packet tunnel pointer must
+ * outlive the ephemeral peer exchange. `cancel_token` should be owned by the caller of this
+ * function.
+ *
  */
 struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    const uint8_t *ephemeral_key,

@@ -31,11 +31,6 @@ impl PacketTunnelBridge {
     }
 }
 
-// # Safety
-// This is safe as long as the PacketTunnel class outlives the instance of the PacketTunnelBridge,
-// and thus the ephemeral peer exchange. Since the peer exchange takes place in the packet tunnel
-// process on iOS, it is certain _enough_ this will be the case.
-// It is safe to implement Send for PacketTunnelBridge because the packet_tunnel
 unsafe impl Send for PacketTunnelBridge {}
 
 #[repr(C)]
@@ -80,9 +75,10 @@ pub unsafe extern "C" fn drop_ephemeral_peer_exchange_token(
 /// # Safety
 /// `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
 /// They will not be valid after this function is called, and thus must be copied here.
-/// `packet_tunnel` and `tcp_connection` must be valid pointers to a packet tunnel and a TCP
-/// connection instances.
-/// `cancel_token` should be owned by the caller of this function.
+/// `packet_tunnel` must be valid pointers to a packet tunnel, the packet tunnel pointer must
+/// outlive the ephemeral peer exchange. `cancel_token` should be owned by the caller of this
+/// function.
+///
 #[no_mangle]
 pub unsafe extern "C" fn request_ephemeral_peer(
     public_key: *const u8,

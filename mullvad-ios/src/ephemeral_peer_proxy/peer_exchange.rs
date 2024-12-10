@@ -30,7 +30,6 @@ impl ExchangeCancelToken {
                 task.abort();
                 // CODE STENCH:
                 // Swift can call this function from a tokio context. That *will* crash.
-                // context.
                 let _ = inner.tokio_handle.block_on(task);
             }
         }
