@@ -282,6 +282,10 @@ msgstr ""
 msgid "Kyiv"
 msgstr ""
 
+#. NG LOS
+msgid "Lagos"
+msgstr ""
+
 #. LV
 msgid "Latvia"
 msgstr ""
@@ -380,6 +384,10 @@ msgstr ""
 
 #. CY NIC
 msgid "Nicosia"
+msgstr ""
+
+#. NG
+msgid "Nigeria"
 msgstr ""
 
 #. RS INI
