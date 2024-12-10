@@ -97,7 +97,7 @@ impl EphemeralPeerExchange {
                 let provider = tcp_provider.clone();
                 async move {
                     provider
-                        .connect(&GRPC_HOST_CSTR)
+                        .connect(GRPC_HOST_CSTR)
                         .await
                         .map(hyper_util::rt::tokio::TokioIo::new)
                         .map_err(|_| Error::TcpConnectionOpen)
