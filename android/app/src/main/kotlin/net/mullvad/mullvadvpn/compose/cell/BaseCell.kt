@@ -61,7 +61,7 @@ internal fun BaseCell(
     headlineContent: @Composable RowScope.() -> Unit,
     bodyView: @Composable ColumnScope.() -> Unit = {},
     isRowEnabled: Boolean = true,
-    onCellClicked: () -> Unit = {},
+    onCellClicked: (() -> Unit)? = null,
     background: Color = MaterialTheme.colorScheme.primary,
     startPadding: Dp = Dimens.cellStartPadding,
     endPadding: Dp = Dimens.cellEndPadding,
@@ -76,7 +76,7 @@ internal fun BaseCell(
                 // This is to avoid a crash when a child view is focused and clickable is set to
                 // false on the parent view
                 .then(
-                    if (isRowEnabled) {
+                    if (isRowEnabled && onCellClicked != null) {
                         Modifier.clickable(onClick = onCellClicked)
                     } else {
                         Modifier

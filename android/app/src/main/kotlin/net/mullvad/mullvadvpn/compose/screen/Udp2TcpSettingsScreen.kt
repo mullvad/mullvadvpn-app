@@ -64,6 +64,7 @@ fun Udp2TcpSettingsScreen(
                 InformationComposeCell(
                     title = stringResource(R.string.port),
                     onInfoClicked = navigateUdp2TcpInfo,
+                    onCellClicked = navigateUdp2TcpInfo,
                 )
             }
             itemWithDivider {
