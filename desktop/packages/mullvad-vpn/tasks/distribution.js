@@ -20,265 +20,277 @@ function getOptionValue(option) {
   }
 }
 
-const config = {
-  appId: 'net.mullvad.vpn',
-  copyright: 'Mullvad VPN AB',
-  productName: 'Mullvad VPN',
-  publish: null,
-  asar: true,
-  compression: noCompression ? 'store' : 'normal',
-  extraResources: [
-    { from: distAssets('ca.crt'), to: '.' },
-    { from: buildAssets('relays.json'), to: '.' },
-    { from: root('CHANGELOG.md'), to: '.' },
-  ],
+function newConfig() {
+  return {
+    appId: 'net.mullvad.vpn',
+    copyright: 'Mullvad VPN AB',
+    productName: 'Mullvad VPN',
+    publish: null,
+    asar: true,
+    compression: noCompression ? 'store' : 'normal',
+    extraResources: [
+      { from: distAssets('ca.crt'), to: '.' },
+      { from: buildAssets('relays.json'), to: '.' },
+      { from: root('CHANGELOG.md'), to: '.' },
+    ],
 
-  directories: {
-    buildResources: root('dist-assets'),
-    output: root('dist'),
-  },
+    directories: {
+      buildResources: root('dist-assets'),
+      output: root('dist'),
+    },
 
-  extraMetadata: {
-    name: 'mullvad-vpn',
-    // We have to stick to semver on Windows for now due to:
-    // https://github.com/electron-userland/electron-builder/issues/7173
-    version: productVersion(process.platform === 'win32' ? ['semver'] : []),
-  },
+    extraMetadata: {
+      name: 'mullvad-vpn',
+      // We have to stick to semver on Windows for now due to:
+      // https://github.com/electron-userland/electron-builder/issues/7173
+      version: productVersion(process.platform === 'win32' ? ['semver'] : []),
+    },
 
-  files: [
-    'package.json',
-    'changes.txt',
-    'init.js',
-    'build/',
-    '!build/src/renderer',
-    'build/src/renderer/index.html',
-    'build/src/renderer/bundle.js',
-    'build/src/renderer/preloadBundle.js',
-    '!**/*.tsbuildinfo',
-    '!test/',
-    '!playwright.config.ts',
-    'node_modules/',
-    '!node_modules/grpc-tools',
-    '!node_modules/@types',
-    '!node_modules/nseventforwarder/debug',
-  ],
+    files: [
+      'package.json',
+      'changes.txt',
+      'init.js',
+      'build/',
+      '!build/src/renderer',
+      'build/src/renderer/index.html',
+      'build/src/renderer/bundle.js',
+      'build/src/renderer/preloadBundle.js',
+      '!**/*.tsbuildinfo',
+      '!test/',
+      '!playwright.config.ts',
+      'node_modules/',
+      '!node_modules/grpc-tools',
+      '!node_modules/@types',
+      '!node_modules/nseventforwarder/debug',
+    ],
 
-  // Make sure that all files declared in "extraResources" exists and abort if they don't.
-  afterPack: (context) => {
-    if (context.arch !== Arch.universal) {
-      const resources = context.packager.platformSpecificBuildOptions.extraResources;
-      for (const resource of resources) {
-        const filePath = resource.from.replace(/\$\{env\.(.*)\}/, function (match, captureGroup) {
-          return process.env[captureGroup];
-        });
+    // Make sure that all files declared in "extraResources" exists and abort if they don't.
+    afterPack: (context) => {
+      if (context.arch !== Arch.universal) {
+        const resources = context.packager.platformSpecificBuildOptions.extraResources;
+        for (const resource of resources) {
+          const filePath = resource.from.replaceAll(
+            /\$\{env\.(.*?)\}/g,
+            function (match, captureGroup) {
+              return process.env[captureGroup];
+            },
+          );
 
-        if (!fs.existsSync(filePath)) {
-          throw new Error(`Can't find file: ${filePath}`);
+          if (!fs.existsSync(filePath)) {
+            throw new Error(`Can't find file: ${filePath}`);
+          }
         }
       }
-    }
-  },
-
-  mac: {
-    target: {
-      target: 'pkg',
-      arch: getMacArch(),
     },
-    singleArchFiles: 'node_modules/nseventforwarder/dist/**',
-    artifactName: 'MullvadVPN-${version}.${ext}',
-    category: 'public.app-category.tools',
-    icon: distAssets('icon-macos.icns'),
-    notarize: shouldNotarize,
-    extendInfo: {
-      LSUIElement: true,
-      NSUserNotificationAlertStyle: 'banner',
+
+    mac: {
+      target: {
+        target: 'pkg',
+        arch: getMacArch(),
+      },
+      singleArchFiles: 'node_modules/nseventforwarder/dist/**',
+      artifactName: 'MullvadVPN-${version}.${ext}',
+      category: 'public.app-category.tools',
+      icon: distAssets('icon-macos.icns'),
+      notarize: shouldNotarize,
+      extendInfo: {
+        LSUIElement: true,
+        NSUserNotificationAlertStyle: 'banner',
+      },
+      extraResources: [
+        { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad')), to: '.' },
+        { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-problem-report')), to: '.' },
+        { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-daemon')), to: '.' },
+        { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-setup')), to: '.' },
+        {
+          from: distAssets(path.join('${env.BINARIES_PATH}', 'libtalpid_openvpn_plugin.dylib')),
+          to: '.',
+        },
+        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
+        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
+        { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
+        { from: buildAssets('shell-completions/_mullvad'), to: '.' },
+        { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
+        { from: distAssets('maybenot_machines'), to: '.' },
+      ],
     },
-    extraResources: [
-      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad')), to: '.' },
-      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-problem-report')), to: '.' },
-      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-daemon')), to: '.' },
-      { from: distAssets(path.join('${env.BINARIES_PATH}', 'mullvad-setup')), to: '.' },
-      {
-        from: distAssets(path.join('${env.BINARIES_PATH}', 'libtalpid_openvpn_plugin.dylib')),
-        to: '.',
-      },
-      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
-      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
-      { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
-      { from: buildAssets('shell-completions/_mullvad'), to: '.' },
-      { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
-      { from: distAssets('maybenot_machines'), to: '.' },
-    ],
-  },
 
-  pkg: {
-    allowAnywhere: false,
-    allowCurrentUserHome: false,
-    isRelocatable: false,
-    isVersionChecked: false,
-  },
+    pkg: {
+      allowAnywhere: false,
+      allowCurrentUserHome: false,
+      isRelocatable: false,
+      isVersionChecked: false,
+    },
 
-  nsis: {
-    guid: '2A356FD4-03B7-4F45-99B4-737BE580DC82',
-    oneClick: false,
-    perMachine: true,
-    allowElevation: true,
-    allowToChangeInstallationDirectory: false,
-    include: distAssets('windows/installer.nsh'),
-    installerSidebar: distAssets('windows/installersidebar.bmp'),
-  },
+    nsis: {
+      guid: '2A356FD4-03B7-4F45-99B4-737BE580DC82',
+      oneClick: false,
+      perMachine: true,
+      allowElevation: true,
+      allowToChangeInstallationDirectory: false,
+      include: distAssets('windows/installer.nsh'),
+      installerSidebar: distAssets('windows/installersidebar.bmp'),
+    },
 
-  win: {
-    target: [
-      {
-        target: 'nsis',
-        arch: getWindowsTargetArch(),
-      },
-    ],
-    artifactName: getWindowsArtifactName(),
-    publisherName: 'Mullvad VPN AB',
-    extraResources: [
-      { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad.exe')), to: '.' },
-      {
-        from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad-problem-report.exe')),
-        to: '.',
-      },
-      { from: distAssets(path.join(getWindowsDistSubdir(), 'mullvad-daemon.exe')), to: '.' },
-      { from: distAssets(path.join(getWindowsDistSubdir(), 'talpid_openvpn_plugin.dll')), to: '.' },
-      {
-        from: root(
-          path.join(
-            'windows',
-            'winfw',
-            'bin',
-            getWindowsTargetArch() + '-${env.CPP_BUILD_MODE}',
-            'winfw.dll',
+    win: {
+      target: [],
+      signAndEditExecutable: false,
+      artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
+      publisherName: 'Mullvad VPN AB',
+      extraResources: [
+        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad.exe')), to: '.' },
+        {
+          from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-problem-report.exe')),
+          to: '.',
+        },
+        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'mullvad-daemon.exe')), to: '.' },
+        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'talpid_openvpn_plugin.dll')), to: '.' },
+        {
+          from: root(
+            path.join(
+              'windows',
+              'winfw',
+              'bin',
+              '${env.TARGET_ARCHITECTURE}-${env.CPP_BUILD_MODE}',
+              'winfw.dll',
+            ),
           ),
-        ),
-        to: '.',
-      },
-      // TODO: OpenVPN does not have an ARM64 build yet.
-      { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
-      {
-        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'apisocks5.exe')),
-        to: '.',
-      },
-      {
-        from: distAssets(path.join('binaries', getWindowsTargetSubdir(), 'wintun/wintun.dll')),
-        to: '.',
-      },
-      {
-        from: distAssets(
-          path.join('binaries', getWindowsTargetSubdir(), 'split-tunnel/mullvad-split-tunnel.sys'),
-        ),
-        to: '.',
-      },
-      {
-        from: distAssets(
-          path.join('binaries', getWindowsTargetSubdir(), 'wireguard-nt/mullvad-wireguard.dll'),
-        ),
-        to: '.',
-      },
-      { from: distAssets('maybenot_machines'), to: '.' },
-    ],
-  },
+          to: '.',
+        },
+        // TODO: OpenVPN does not have an ARM64 build yet.
+        { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
+        {
+          from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'apisocks5.exe')),
+          to: '.',
+        },
+        {
+          from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'wintun/wintun.dll')),
+          to: '.',
+        },
+        {
+          from: distAssets(
+            path.join('binaries', '${env.TARGET_SUBDIR}', 'split-tunnel/mullvad-split-tunnel.sys'),
+          ),
+          to: '.',
+        },
+        {
+          from: distAssets(
+            path.join('binaries', '${env.TARGET_SUBDIR}', 'wireguard-nt/mullvad-wireguard.dll'),
+          ),
+          to: '.',
+        },
+        { from: distAssets('maybenot_machines'), to: '.' },
+      ],
+    },
 
-  linux: {
-    target: [
-      {
-        target: 'deb',
-        arch: getLinuxTargetArch(),
-      },
-      {
-        target: 'rpm',
-        arch: getLinuxTargetArch(),
-      },
-    ],
-    artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
-    category: 'Network',
-    icon: distAssets('icon.icns'),
-    extraFiles: [{ from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' }],
-    extraResources: [
-      { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-problem-report')), to: '.' },
-      { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-setup')), to: '.' },
-      {
-        from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')),
-        to: '.',
-      },
-      { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
-      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
-      { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
-      { from: distAssets('maybenot_machines'), to: '.' },
-    ],
-  },
+    linux: {
+      target: [
+        {
+          target: 'deb',
+          arch: getLinuxTargetArch(),
+        },
+        {
+          target: 'rpm',
+          arch: getLinuxTargetArch(),
+        },
+      ],
+      artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
+      category: 'Network',
+      icon: distAssets('icon.icns'),
+      extraFiles: [{ from: distAssets('linux/mullvad-gui-launcher.sh'), to: '.' }],
+      extraResources: [
+        { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-problem-report')), to: '.' },
+        { from: distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-setup')), to: '.' },
+        {
+          from: distAssets(path.join(getLinuxTargetSubdir(), 'libtalpid_openvpn_plugin.so')),
+          to: '.',
+        },
+        { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
+        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
+        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
+        { from: distAssets('maybenot_machines'), to: '.' },
+      ],
+    },
 
-  deb: {
-    fpm: [
-      '--no-depends',
-      '--version',
-      getLinuxVersion(),
-      '--before-install',
-      distAssets('linux/before-install.sh'),
-      '--before-remove',
-      distAssets('linux/before-remove.sh'),
-      distAssets('linux/mullvad-daemon.service') +
-        '=/usr/lib/systemd/system/mullvad-daemon.service',
-      distAssets('linux/mullvad-early-boot-blocking.service') +
-        '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
-      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
-      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
-      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
-      distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
-      buildAssets('shell-completions/mullvad.bash') +
-        '=/usr/share/bash-completion/completions/mullvad',
-      buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
-      buildAssets('shell-completions/mullvad.fish') +
-        '=/usr/share/fish/vendor_completions.d/mullvad.fish',
-    ],
-    afterInstall: distAssets('linux/after-install.sh'),
-    afterRemove: distAssets('linux/after-remove.sh'),
-  },
+    deb: {
+      fpm: [
+        '--no-depends',
+        '--version',
+        getLinuxVersion(),
+        '--before-install',
+        distAssets('linux/before-install.sh'),
+        '--before-remove',
+        distAssets('linux/before-remove.sh'),
+        distAssets('linux/mullvad-daemon.service') +
+          '=/usr/lib/systemd/system/mullvad-daemon.service',
+        distAssets('linux/mullvad-early-boot-blocking.service') +
+          '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
+        distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
+        distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
+        distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
+        distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
+        buildAssets('shell-completions/mullvad.bash') +
+          '=/usr/share/bash-completion/completions/mullvad',
+        buildAssets('shell-completions/_mullvad') + '=/usr/local/share/zsh/site-functions/_mullvad',
+        buildAssets('shell-completions/mullvad.fish') +
+          '=/usr/share/fish/vendor_completions.d/mullvad.fish',
+      ],
+      afterInstall: distAssets('linux/after-install.sh'),
+      afterRemove: distAssets('linux/after-remove.sh'),
+    },
 
-  rpm: {
-    fpm: [
-      '--version',
-      getLinuxVersion(),
-      // Prevents RPM from packaging build-id metadata, some of which is the
-      // same across all electron-builder applications, which causes package
-      // conflicts
-      '--rpm-rpmbuild-define=_build_id_links none',
-      '--directories=/opt/Mullvad VPN/',
-      '--before-install',
-      distAssets('linux/before-install.sh'),
-      '--before-remove',
-      distAssets('linux/before-remove.sh'),
-      '--rpm-posttrans',
-      distAssets('linux/post-transaction.sh'),
-      distAssets('linux/mullvad-daemon.service') +
-        '=/usr/lib/systemd/system/mullvad-daemon.service',
-      distAssets('linux/mullvad-early-boot-blocking.service') +
-        '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
-      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
-      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
-      distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
-      distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
-      buildAssets('shell-completions/mullvad.bash') +
-        '=/usr/share/bash-completion/completions/mullvad',
-      buildAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
-      buildAssets('shell-completions/mullvad.fish') +
-        '=/usr/share/fish/vendor_completions.d/mullvad.fish',
-    ],
-    afterInstall: distAssets('linux/after-install.sh'),
-    afterRemove: distAssets('linux/after-remove.sh'),
-    depends: ['libXScrnSaver', 'libnotify', 'dbus-libs'],
-  },
-};
+    rpm: {
+      fpm: [
+        '--version',
+        getLinuxVersion(),
+        // Prevents RPM from packaging build-id metadata, some of which is the
+        // same across all electron-builder applications, which causes package
+        // conflicts
+        '--rpm-rpmbuild-define=_build_id_links none',
+        '--directories=/opt/Mullvad VPN/',
+        '--before-install',
+        distAssets('linux/before-install.sh'),
+        '--before-remove',
+        distAssets('linux/before-remove.sh'),
+        '--rpm-posttrans',
+        distAssets('linux/post-transaction.sh'),
+        distAssets('linux/mullvad-daemon.service') +
+          '=/usr/lib/systemd/system/mullvad-daemon.service',
+        distAssets('linux/mullvad-early-boot-blocking.service') +
+          '=/usr/lib/systemd/system/mullvad-early-boot-blocking.service',
+        distAssets(path.join(getLinuxTargetSubdir(), 'mullvad')) + '=/usr/bin/',
+        distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-daemon')) + '=/usr/bin/',
+        distAssets(path.join(getLinuxTargetSubdir(), 'mullvad-exclude')) + '=/usr/bin/',
+        distAssets('linux/problem-report-link') + '=/usr/bin/mullvad-problem-report',
+        buildAssets('shell-completions/mullvad.bash') +
+          '=/usr/share/bash-completion/completions/mullvad',
+        buildAssets('shell-completions/_mullvad') + '=/usr/share/zsh/site-functions/_mullvad',
+        buildAssets('shell-completions/mullvad.fish') +
+          '=/usr/share/fish/vendor_completions.d/mullvad.fish',
+      ],
+      afterInstall: distAssets('linux/after-install.sh'),
+      afterRemove: distAssets('linux/after-remove.sh'),
+      depends: ['libXScrnSaver', 'libnotify', 'dbus-libs'],
+    },
+  };
+}
 
-function packWin() {
-  return builder.build({
-    targets: builder.Platform.WINDOWS.createTarget(),
-    config: {
+async function packWin() {
+  const DEFAULT_ARCH = targets === 'aarch64-pc-windows-msvc' ? 'arm64' : 'x64';
+
+  function prepareWinConfig(arch) {
+    const config = newConfig();
+    return {
       ...config,
+      win: {
+        ...config.win,
+        target: [
+          {
+            target: 'nsis',
+            arch: arch,
+          },
+        ],
+      },
       asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico'],
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
@@ -288,10 +300,14 @@ function packWin() {
           case 'x64':
             process.env.TARGET_TRIPLE = 'x86_64-pc-windows-msvc';
             process.env.SETUP_SUBDIR = '.';
+            process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
+            process.env.DIST_SUBDIR = '';
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
             process.env.SETUP_SUBDIR = 'aarch64-pc-windows-msvc';
+            process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
+            process.env.DIST_SUBDIR = 'aarch64-pc-windows-msvc';
             break;
           default:
             throw new Error('Invalid or unknown target (only one may be specified)');
@@ -317,12 +333,27 @@ function packWin() {
           fs.renameSync(artifactPath, targetArtifactPath);
         }
       },
-    },
+    };
+  }
+
+  if (universal) {
+    // For universal builds, we simply build for all targets. It is up to build.sh to pack the
+    // installers in the same binary.
+    await builder.build({
+      targets: builder.Platform.WINDOWS.createTarget(),
+      config: prepareWinConfig(DEFAULT_ARCH === 'x64' ? 'arm64' : 'x64'),
+    });
+  }
+
+  return builder.build({
+    targets: builder.Platform.WINDOWS.createTarget(),
+    config: prepareWinConfig(DEFAULT_ARCH),
   });
 }
 
 function packMac() {
   const appOutDirs = [];
+  const config = newConfig();
 
   return builder.build({
     targets: builder.Platform.MAC.createTarget(),
@@ -383,6 +414,8 @@ function packMac() {
 }
 
 function packLinux() {
+  const config = newConfig();
+
   if (noCompression) {
     config.rpm.fpm.unshift('--rpm-compression', 'none');
   }
@@ -436,43 +469,6 @@ function distAssets(relativePath) {
 
 function root(relativePath) {
   return path.join(path.resolve(__dirname, '../../../../'), relativePath);
-}
-
-function getWindowsDistSubdir() {
-  if (targets === 'aarch64-pc-windows-msvc') {
-    return targets;
-  } else {
-    return '';
-  }
-}
-
-function getWindowsTargetArch() {
-  if (targets && process.platform === 'win32') {
-    if (targets === 'aarch64-pc-windows-msvc') {
-      return 'arm64';
-    }
-    throw new Error('Invalid or unknown target (only one may be specified)');
-  }
-  // Use host architecture (we assume this is x64 since building on Arm64 isn't supported).
-  return 'x64';
-}
-
-function getWindowsArtifactName() {
-  if (targets === 'aarch64-pc-windows-msvc') {
-    return 'MullvadVPN-${version}_${arch}.${ext}';
-  }
-  return 'MullvadVPN-${version}.${ext}';
-}
-
-function getWindowsTargetSubdir() {
-  if (targets && process.platform === 'win32') {
-    if (targets === 'aarch64-pc-windows-msvc') {
-      return targets;
-    }
-    throw new Error('Invalid or unknown target (only one may be specified)');
-  }
-  // Use host architecture (we assume this is x64 since building on Arm64 isn't supported).
-  return 'x86_64-pc-windows-msvc';
 }
 
 function getLinuxTargetArch() {
