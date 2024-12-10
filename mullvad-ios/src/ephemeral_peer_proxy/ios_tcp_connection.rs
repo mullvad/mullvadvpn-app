@@ -103,7 +103,7 @@ pub struct IosTcpConnection {
 #[derive(Debug)]
 pub enum WgTcpError {
     /// Failed to open the socket
-    Open(i32),
+    Open,
     /// Panicked during opening of the socket
     Panic,
 }
@@ -130,7 +130,7 @@ impl IosTcpProvider {
         .map_err(|_| WgTcpError::Panic)?;
 
         if result < 0 {
-            return Err(WgTcpError::Open(result));
+            return Err(WgTcpError::Open);
         }
 
         Ok(IosTcpConnection {
