@@ -12,7 +12,6 @@ export interface IUserInterfaceReduxState {
   connectedToDaemon: boolean;
   daemonAllowed?: boolean;
   changelog: IChangelog;
-  forceShowChanges: boolean;
   isPerformingPostUpgrade: boolean;
   selectLocationView: LocationType;
   isMacOs13OrNewer: boolean;
@@ -26,7 +25,6 @@ const initialState: IUserInterfaceReduxState = {
   connectedToDaemon: false,
   daemonAllowed: undefined,
   changelog: [],
-  forceShowChanges: false,
   isPerformingPostUpgrade: false,
   selectLocationView: LocationType.exit,
   isMacOs13OrNewer: true,
@@ -62,12 +60,6 @@ export default function (
       return {
         ...state,
         changelog: action.changelog,
-      };
-
-    case 'SET_FORCE_SHOW_CHANGES':
-      return {
-        ...state,
-        forceShowChanges: action.forceShowChanges,
       };
 
     case 'SET_IS_PERFORMING_POST_UPGRADE':

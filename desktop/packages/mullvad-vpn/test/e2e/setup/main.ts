@@ -171,7 +171,6 @@ class ApplicationMain {
       splitTunnelingApplications: [],
       macOsScrollbarVisibility: MacOsScrollbarVisibility.whenScrolling,
       changelog: [],
-      forceShowChanges: false,
       navigationHistory: undefined,
       scrollPositions: {},
       isMacOs13OrNewer: true,
