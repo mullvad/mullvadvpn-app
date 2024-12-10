@@ -109,6 +109,9 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
+      - name: Print NDK_TOOLCHAIN_DIR
+        run: echo $NDK_TOOLCHAIN_DIR  
+
       - name: Get date
         id: get-date
         shell: bash
@@ -197,7 +200,7 @@ jobs:
         env:
           cache_hash: ${{ steps.native-lib-cache-hash.outputs.native_lib_hash }}
         with:
-          path: ./android/app/build/rustJniLibs
+          path: ./android/app/build/rustJniLibs/android
           key: android-native-libs-${{ runner.os }}-${{ matrix.abi }}-${{ env.cache_hash }}
 
       - name: Build native libraries
@@ -208,7 +211,7 @@ jobs:
         run: |
           ARCHITECTURES="${{ matrix.abi }}"
           UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/${{ matrix.target }}/$BUILD_TYPE/libmullvad_jni.so"
-          STRIPPED_LIB_PATH="./android/app/build/rustJniLibs/${{ matrix.abi }}/libmullvad_jni.so"
+          STRIPPED_LIB_PATH="./android/app/build/rustJniLibs/android/${{ matrix.abi }}/libmullvad_jni.so"
           NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/llvm-strip"
           cargo build --target ${{ matrix.target }} --verbose --package mullvad-jni --features api-override
           $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
@@ -217,7 +220,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: native-libs-${{ matrix.arch }}
-          path: android/app/build/rustJniLibs
+          path: android/app/build/rustJniLibs/android
           if-no-files-found: error
           retention-days: 7
 
@@ -316,7 +319,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           pattern: native-libs-*
-          path: android/app/build/rustJniLibs
+          path: android/app/build/rustJniLibs/android
           merge-multiple: true
 
       - uses: actions/download-artifact@v4
