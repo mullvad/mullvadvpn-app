@@ -26,7 +26,7 @@ use tokio::{
 };
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
-const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(100);
+const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(500);
 
 static MIN_OS_VERSION: LazyLock<MacosVersion> =
     LazyLock::new(|| MacosVersion::from_raw_version("13.0.0").unwrap());
@@ -128,17 +128,19 @@ async fn parse_logger_status(
 
     let mut find_err = tokio::spawn(async move {
         tokio::select! {
-            Ok(Some(line)) = stderr_lines.next_line() => {
+            result = stderr_lines.next_line() => {
+                let Ok(Some(line)) = result else {
+                    return true;
+                };
                 !matches!(
                     parse_eslogger_error(&line),
                     Some(Error::NeedFullDiskPermissions),
                 )
             }
-            Ok(Some(_)) = stdout_lines.next_line() => {
-                // Received output, but not an err
+            _result = stdout_lines.next_line() => {
+                // Received output, error, or stdout was closed
                 true
             }
-            else => true,
         }
     });
 
@@ -149,12 +151,14 @@ async fn parse_logger_status(
         biased; found_err = &mut find_err => {
             found_err.expect("find_err panicked")
         }
-        // Process exited
-        Ok(Ok(_exit_status)) = proc => {
-            find_err.await.expect("find_err panicked")
+        proc_result = proc => {
+            if let Ok(Ok(_exit_status)) = proc_result {
+                // Process exited
+                return find_err.await.expect("find_err panicked");
+            }
+            // Timeout or `Child::wait`` returned an error
+            true
         }
-        // Timeout
-        else => true,
     }
 }
 
