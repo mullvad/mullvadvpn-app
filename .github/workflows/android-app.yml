@@ -109,9 +109,6 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: Print NDK_PROPERTIES
-        run: cat $ANDROID_NDK_HOME/source.properties
-
       - name: Get date
         id: get-date
         shell: bash
