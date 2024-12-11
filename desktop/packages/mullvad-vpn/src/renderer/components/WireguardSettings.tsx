@@ -195,7 +195,7 @@ function ObfuscationSettings() {
 
   // TRANSLATORS: Text showing currently selected port.
   // TRANSLATORS: Available placeholders:
-  // TRANSLATORS: %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+  // TRANSLATORS: %(port)s - Can be either a number between 1 and 65535 or the text "Automatic".
   const subLabelTemplate = messages.pgettext('wireguard-settings-view', 'Port: %(port)s');
 
   const obfuscationType = obfuscationSettings.selectedObfuscation;
