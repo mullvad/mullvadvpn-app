@@ -1,8 +1,8 @@
 import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../shared/gettext';
-import { capitalizeEveryWord } from '../string-helpers';
-import { InAppNotification, InAppNotificationProvider } from './notification';
+import { messages } from '../../../shared/gettext';
+import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
+import { capitalizeEveryWord } from '../../../shared/string-helpers';
 
 interface NewDeviceNotificationContext {
   shouldDisplay: boolean;

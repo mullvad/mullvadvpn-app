@@ -7,7 +7,6 @@ export * from './disconnected';
 export * from './daemon-disconnected';
 export * from './error';
 export * from './inconsistent-version';
-export * from './new-version';
 export * from './notification';
 export * from './reconnecting';
 export * from './unsupported-version';
