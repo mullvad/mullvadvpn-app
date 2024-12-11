@@ -234,7 +234,7 @@ const fn get_platform() -> proto::DaitaPlatform {
     } else if cfg!(target_os = "ios") {
         DaitaPlatform::IosWgGo
     } else {
-        unimplemented!("This platform does not support DAITA V2")
+        panic!("This platform does not support DAITA V2")
     };
     PLATFORM
 }
