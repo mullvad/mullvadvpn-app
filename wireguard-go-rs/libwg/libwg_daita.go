@@ -19,11 +19,8 @@ import (
 	"golang.zx2c4.com/wireguard/device"
 )
 
-const maxPaddingBytes = 0.0
-const maxBlockingBytes = 0.0
-
 //export wgActivateDaita
-func wgActivateDaita(tunnelHandle C.int32_t, peerPubkey *C.uint8_t, machines *C.char, eventsCapacity C.uint32_t, actionsCapacity C.uint32_t) C.int32_t {
+func wgActivateDaita(tunnelHandle C.int32_t, peerPubkey *C.uint8_t, machines *C.char, maxPaddingFrac C.double, maxBlockingFrac C.double, eventsCapacity C.uint32_t, actionsCapacity C.uint32_t) C.int32_t {
 
 	tunnel, err := tunnels.Get(int32(tunnelHandle))
 	if err != nil {
@@ -46,7 +43,7 @@ func wgActivateDaita(tunnelHandle C.int32_t, peerPubkey *C.uint8_t, machines *C.
 		return ERROR_UNKNOWN_PEER
 	}
 
-	if !peer.EnableDaita(goStringFixed((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity), maxPaddingBytes, maxBlockingBytes) {
+	if !peer.EnableDaita(goStringFixed((*C.char)(machines)), uint(eventsCapacity), uint(actionsCapacity), float64(maxPaddingFrac), float64(maxBlockingFrac)) {
 		return ERROR_ENABLE_DAITA
 	}
 

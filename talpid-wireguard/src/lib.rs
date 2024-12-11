@@ -28,6 +28,8 @@ use talpid_tunnel::{
     tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
 };
 
+#[cfg(not(target_os = "windows"))]
+use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
     BoxedError, ErrorExt,
@@ -196,6 +198,7 @@ impl WireguardMonitor {
             args.runtime.clone(),
             &config,
             log_path,
+            #[cfg(target_os = "windows")]
             args.resource_dir,
             args.tun_provider.clone(),
             #[cfg(target_os = "windows")]
@@ -426,7 +429,6 @@ impl WireguardMonitor {
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,
             log_path,
-            args.resource_dir,
             args.tun_provider.clone(),
             // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
             // that we only allows traffic to/from the gateway. This is only needed on Android
@@ -634,7 +636,7 @@ impl WireguardMonitor {
         runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
-        resource_dir: &Path,
+        #[cfg(windows)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
@@ -646,8 +648,7 @@ impl WireguardMonitor {
             // If DAITA is enabled, wireguard-go has to be used.
             if config.daita {
                 let tunnel =
-                    Self::open_wireguard_go_tunnel(config, log_path, resource_dir, tun_provider)
-                        .map(Box::new)?;
+                    Self::open_wireguard_go_tunnel(config, log_path, tun_provider).map(Box::new)?;
                 return Ok(tunnel);
             }
 
@@ -699,8 +700,6 @@ impl WireguardMonitor {
             let tunnel = Self::open_wireguard_go_tunnel(
                 config,
                 log_path,
-                #[cfg(daita)]
-                resource_dir,
                 tun_provider,
                 #[cfg(target_os = "android")]
                 gateway_only,
@@ -715,7 +714,6 @@ impl WireguardMonitor {
     fn open_wireguard_go_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        #[cfg(daita)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(target_os = "android")] connectivity_check: connectivity::Check<
@@ -733,8 +731,6 @@ impl WireguardMonitor {
             log_path,
             tun_provider,
             routes,
-            #[cfg(daita)]
-            resource_dir,
         )
         .map_err(Error::TunnelError)?;
 
@@ -994,6 +990,9 @@ pub(crate) trait Tunnel: Send {
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
+    #[cfg(not(target_os = "windows"))]
+    fn start_daita(&mut self, settings: DaitaSettings) -> std::result::Result<(), TunnelError>;
+    #[cfg(target_os = "windows")]
     fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
