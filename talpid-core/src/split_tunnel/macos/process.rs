@@ -26,7 +26,7 @@ use tokio::{
 };
 
 const SHUTDOWN_TIMEOUT: Duration = Duration::from_secs(3);
-const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(100);
+const EARLY_FAIL_TIMEOUT: Duration = Duration::from_millis(500);
 
 static MIN_OS_VERSION: LazyLock<MacosVersion> =
     LazyLock::new(|| MacosVersion::from_raw_version("13.0.0").unwrap());
@@ -99,6 +99,7 @@ impl ProcessMonitor {
 }
 
 /// Return whether the process has full-disk access
+/// If it cannot be determined that access is available, it is assumed to be available
 pub async fn has_full_disk_access() -> bool {
     static HAS_TCC_APPROVAL: OnceCell<bool> = OnceCell::const_new();
     *HAS_TCC_APPROVAL
@@ -109,36 +110,48 @@ pub async fn has_full_disk_access() -> bool {
             let stderr = proc.stderr.take().unwrap();
             drop(proc.stdin.take());
 
-            Ok::<bool, Error>(parse_logger_status(proc.wait(), stdout, stderr).await)
+            let has_full_disk_access =
+                parse_logger_status(proc.wait(), stdout, stderr).await == NeedFda::No;
+            Ok::<bool, Error>(has_full_disk_access)
         })
         .await
         .unwrap_or(&true)
 }
 
+#[derive(Debug, PartialEq)]
+enum NeedFda {
+    Yes,
+    No,
+}
+
+/// Return whether `proc` reports that full-disk access is unavailable based on its output
+/// If it cannot be determined that access is available, it is assumed to be available
 async fn parse_logger_status(
     proc: impl Future<Output = io::Result<ExitStatus>>,
     stdout: impl AsyncRead + Unpin + Send + 'static,
     stderr: impl AsyncRead + Unpin + Send + 'static,
-) -> bool {
+) -> NeedFda {
     let stderr = BufReader::new(stderr);
     let mut stderr_lines = stderr.lines();
 
     let stdout = BufReader::new(stdout);
     let mut stdout_lines = stdout.lines();
 
-    let mut find_err = tokio::spawn(async move {
+    let mut need_full_disk_access = tokio::spawn(async move {
         tokio::select! {
-            Ok(Some(line)) = stderr_lines.next_line() => {
-                !matches!(
-                    parse_eslogger_error(&line),
-                    Some(Error::NeedFullDiskPermissions),
-                )
+            biased; result = stderr_lines.next_line() => {
+                let Ok(Some(line)) = result else {
+                    return NeedFda::No;
+                };
+                if let Some(Error::NeedFullDiskPermissions) = parse_eslogger_error(&line) {
+                    return NeedFda::Yes;
+                }
+                NeedFda::No
             }
             Ok(Some(_)) = stdout_lines.next_line() => {
                 // Received output, but not an err
-                true
+                NeedFda::No
             }
-            else => true,
         }
     });
 
@@ -146,15 +159,17 @@ async fn parse_logger_status(
 
     tokio::select! {
         // Received standard err/out
-        biased; found_err = &mut find_err => {
-            found_err.expect("find_err panicked")
+        biased; need_full_disk_access = &mut need_full_disk_access => {
+            need_full_disk_access.unwrap_or(NeedFda::No)
         }
-        // Process exited
-        Ok(Ok(_exit_status)) = proc => {
-            find_err.await.expect("find_err panicked")
+        proc_result = proc => {
+            if let Ok(Ok(_exit_status)) = proc_result {
+                // Process exited
+                return need_full_disk_access.await.unwrap_or(NeedFda::No);
+            }
+            // Timeout or `Child::wait`` returned an error
+            NeedFda::No
         }
-        // Timeout
-        else => true,
     }
 }
 
@@ -548,7 +563,8 @@ fn check_os_version_support_inner(version: MacosVersion) -> Result<(), Error> {
 #[cfg(test)]
 mod test {
     use super::{
-        check_os_version_support_inner, parse_logger_status, EARLY_FAIL_TIMEOUT, MIN_OS_VERSION,
+        check_os_version_support_inner, parse_logger_status, NeedFda, EARLY_FAIL_TIMEOUT,
+        MIN_OS_VERSION,
     };
     use std::{process::ExitStatus, time::Duration};
     use talpid_platform_metadata::MacosVersion;
@@ -573,16 +589,17 @@ mod test {
     /// is denied.
     #[tokio::test]
     async fn test_parse_logger_status_missing_access() {
-        let has_fda = parse_logger_status(
+        let need_fda = parse_logger_status(
             async { Ok(ExitStatus::default()) },
             &[][..],
             b"ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED\n".as_slice(),
         )
         .await;
 
-        assert!(
-            !has_fda,
-            "expected 'false' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED was present"
+        assert_eq!(
+            need_fda,
+            NeedFda::Yes,
+            "expected 'NeedFda::Yes' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED was present"
         );
     }
 
@@ -590,7 +607,7 @@ mod test {
     /// full-disk access is available.
     #[tokio::test]
     async fn test_parse_logger_status_timeout() {
-        let has_fda = parse_logger_status(
+        let need_fda = parse_logger_status(
             async {
                 tokio::time::sleep(EARLY_FAIL_TIMEOUT + Duration::from_secs(10)).await;
                 Ok(ExitStatus::default())
@@ -600,9 +617,10 @@ mod test {
         )
         .await;
 
-        assert!(
-            has_fda,
-            "expected 'true' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED wasn't present"
+        assert_eq!(
+            need_fda,
+            NeedFda::No,
+            "expected 'NeedFda::No' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED wasn't present"
         );
     }
 
@@ -610,13 +628,17 @@ mod test {
     /// is available.
     #[tokio::test]
     async fn test_parse_logger_status_immediate_exit() {
-        let has_fda = parse_logger_status(
+        let need_fda = parse_logger_status(
             async { Ok(ExitStatus::default()) },
             b"nothing to see here\n".as_slice(),
             b"nothing to see here\n".as_slice(),
         )
         .await;
 
-        assert!(has_fda, "expected 'true' on immediate exit");
+        assert_eq!(
+            need_fda,
+            NeedFda::No,
+            "expected 'NeedFda::No' on immediate exit",
+        );
     }
 }
