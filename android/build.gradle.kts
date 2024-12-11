@@ -14,9 +14,11 @@ plugins {
     alias(libs.plugins.kotlin.ksp) apply false
     alias(libs.plugins.kotlin.parcelize) apply false
     alias(libs.plugins.protobuf.core) apply false
+    alias(libs.plugins.rust.android.gradle) apply false
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true
+
 }
 
 buildscript {
@@ -68,6 +70,8 @@ buildscript {
         classpath("$prebuilt:linux-x86_64@tar.gz")
         classpath("$prebuilt:macos-aarch64@tar.gz")
         classpath("$prebuilt:macos-x86_64@tar.gz")
+
+        classpath("org.mozilla.rust-android-gradle:plugin:${libs.versions.rust.android.gradle}")
     }
 }
 

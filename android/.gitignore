@@ -2,3 +2,5 @@ build
 .gradle
 .kotlin
 local.properties
+# We want to generate relays.json not store it
+app/src/main/assets/relays.json
