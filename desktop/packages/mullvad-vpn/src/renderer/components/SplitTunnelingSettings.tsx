@@ -66,12 +66,10 @@ export default function SplitTunneling() {
               </NavigationBar>
 
               <StyledNavigationScrollbars ref={scrollbarsRef}>
-                <Flex $flexDirection="column" $flex={1}>
-                  <PlatformSpecificSplitTunnelingSettings
-                    setBrowsing={setBrowsing}
-                    scrollToTop={scrollToTop}
-                  />
-                </Flex>
+                <PlatformSpecificSplitTunnelingSettings
+                  setBrowsing={setBrowsing}
+                  scrollToTop={scrollToTop}
+                />
               </StyledNavigationScrollbars>
             </NavigationContainer>
           </SettingsContainer>
@@ -325,6 +323,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState<ISplitTunnelingApplication[]>();
 
+  const [loadingDiskPermissions, setLoadingDiskPermissions] = useState(false);
   const [splitTunnelingAvailable, setSplitTunnelingAvailable] = useState(
     window.env.platform === 'darwin' ? undefined : true,
   );
@@ -332,8 +331,10 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
   const splitTunnelingEnabled = splitTunnelingEnabledValue && (splitTunnelingAvailable ?? false);
 
   const fetchNeedFullDiskPermissions = useCallback(async () => {
+    setLoadingDiskPermissions(true);
     const needPermissions = await needFullDiskPermissions();
     setSplitTunnelingAvailable(!needPermissions);
+    setLoadingDiskPermissions(false);
   }, [needFullDiskPermissions]);
 
   useEffect((): void | (() => void) => {
@@ -462,24 +463,33 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
           <HeaderTitle>{strings.splitTunneling}</HeaderTitle>
           <Switch
             isOn={splitTunnelingEnabled}
-            disabled={!splitTunnelingAvailable}
+            disabled={!splitTunnelingAvailable || loadingDiskPermissions}
             onChange={setSplitTunnelingState}
           />
         </Flex>
-        <MacOsSplitTunnelingAvailability
-          needFullDiskPermissions={
-            window.env.platform === 'darwin' && splitTunnelingAvailable === false
-          }
-        />
-        {splitTunnelingAvailable ? (
-          <HeaderSubTitle>
-            {messages.pgettext(
-              'split-tunneling-view',
-              'Choose the apps you want to exclude from the VPN tunnel.',
+        {!loadingDiskPermissions && (
+          <>
+            <MacOsSplitTunnelingAvailability
+              needFullDiskPermissions={
+                window.env.platform === 'darwin' && splitTunnelingAvailable === false
+              }
+            />
+            {splitTunnelingAvailable && (
+              <HeaderSubTitle>
+                {messages.pgettext(
+                  'split-tunneling-view',
+                  'Choose the apps you want to exclude from the VPN tunnel.',
+                )}
+              </HeaderSubTitle>
             )}
-          </HeaderSubTitle>
-        ) : null}
+          </>
+        )}
       </SettingsHeader>
+      {loadingDiskPermissions && (
+        <Flex $justifyContent="center" $margin={{ top: Spacings.spacing6 }}>
+          <ImageView source="icon-spinner" height={48} />
+        </Flex>
+      )}
 
       {splitTunnelingEnabled && (
         <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
