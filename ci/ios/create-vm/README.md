@@ -46,18 +46,18 @@ Enable packer logs by setting the following environment variables (assuming your
 > The logs will be overwritten with each packer command you issue.
 
 You can then check that the templates are valid before running `packer`
-- packer inspect `-var-file="variables.pkrvars.hcl" install-build-dependencies.pkr.hcl`
-- packer validate `-var-file="variables.pkrvars.hcl" install-build-dependencies.pkr.hcl`
+- `packer inspect -var-file="variables.pkrvars.hcl" install-build-dependencies.pkr.hcl`
+- `packer validate -var-file="variables.pkrvars.hcl" install-build-dependencies.pkr.hcl`
 
 You can make sure you are not missing any dependencies with the `init` command
-- packer init `install-vanilla-ventura.pkr.hcl`
+- `packer init install-vanilla-sequoia.pkr.hcl`
 
 ### Create the VM image via Packer
 Once your setup is ready, you just need one command to create a VM. And one more to install Xcode on it.
-- packer build `-var-file="variables.pkrvars.hcl" install-vanilla-ventura.pkr.hcl`
+- `packer build -var-file="variables.pkrvars.hcl" install-vanilla-sequoia.pkr.hcl`
 
 ### Install Xcode on the VM image via Packer
-- packer build `-var-file="variables.pkrvars.hcl" install-build-dependencies.pkr.hcl`
+- `packer build -var-file="variables.pkrvars.hcl" install-build-dependencies.pkr.hcl`
 
 > [!IMPORTANT]
 > At the time of writing this, `tart` does not support VM snapshotting. This means that any action taken by packer will be **permanent** on the VM.

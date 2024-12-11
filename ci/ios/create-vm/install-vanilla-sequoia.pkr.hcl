@@ -1,26 +1,22 @@
 packer {
   required_plugins {
     tart = {
-      version = ">= 1.2.0"
+      version = ">= 1.12.0"
       source  = "github.com/cirruslabs/tart"
     }
   }
 }
 
-variable "vm_name" { type = string }
-
 source "tart-cli" "tart" {
-  # You can find macOS IPSW URLs on various websites like https://ipsw.me/
-  # and https://www.theiphonewiki.com/wiki/Beta_Firmware/Mac/13.x
-  from_ipsw    = "https://updates.cdn-apple.com/2023SummerFCS/fullrestores/042-43686/945D434B-DA5D-48DB-A558-F6D18D11AD69/UniversalMac_13.5.2_22G91_Restore.ipsw"
-  vm_name      = "${var.vm_name}"
+  from_ipsw    = "https://updates.cdn-apple.com/2024FallFCS/fullrestores/072-30094/44BD016F-6EE3-4EE5-8890-6F9AA008C537/UniversalMac_15.1.1_24B91_Restore.ipsw"
+  vm_name      = "app-build-new"
   cpu_count    = 4
   memory_gb    = 8
-  disk_size_gb = 60
+  disk_size_gb = 40
   ssh_password = "admin"
   ssh_username = "admin"
-  ssh_timeout  = "120s"
-   boot_command = [
+  ssh_timeout  = "300s"
+  boot_command = [
     # hello, hola, bonjour, etc.
     "<wait60s><spacebar>",
     # Language: most of the times we have a list of "English"[1], "English (UK)", etc. with
@@ -52,11 +48,11 @@ source "tart-cli" "tart" {
     # Create a Computer Account
     "<wait10s>admin<tab><tab>admin<tab>admin<tab><tab><tab><spacebar>",
     # Enable Location Services
-    "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
+    "<wait120s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Are you sure you don't want to use Location Services?
     "<wait10s><tab><spacebar>",
     # Select Your Time Zone
-    "<wait10s><tab>UTC<enter><leftShiftOn><tab><leftShiftOff><spacebar>",
+    "<wait10s><tab><tab>UTC<enter><leftShiftOn><tab><tab><leftShiftOff><spacebar>",
     # Analytics
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Screen Time
@@ -65,24 +61,23 @@ source "tart-cli" "tart" {
     "<wait10s><tab><spacebar><leftShiftOn><tab><leftShiftOff><spacebar>",
     # Choose Your Look
     "<wait10s><leftShiftOn><tab><leftShiftOff><spacebar>",
-    # Enable Voice Over
-    "<wait10s><leftAltOn><f5><leftAltOff><wait5s><enter>",
+    # Welcome to Mac
+    "<wait10s><spacebar>",
+    # Enable Keyboard navigation
+    # This is so that we can navigate the System Settings app using the keyboard
+    "<wait10s><leftAltOn><spacebar><leftAltOff>Terminal<enter>",
+    "<wait10s>defaults write NSGlobalDomain AppleKeyboardUIMode -int 3<enter>",
+    "<wait10s><leftAltOn>q<leftAltOff>",
     # Now that the installation is done, open "System Settings"
     "<wait10s><leftAltOn><spacebar><leftAltOff>System Settings<enter>",
     # Navigate to "Sharing"
-    "<wait10s><leftAltOn>f<leftAltOff>screen sharing<enter>",
+    "<wait10s><leftAltOn>f<leftAltOff>sharing<enter>",
     # Navigate to "Screen Sharing" and enable it
-    "<wait10s><tab><down><spacebar>",
+    "<wait10s><tab><tab><tab><tab><tab><spacebar>",
     # Navigate to "Remote Login" and enable it
-    "<wait10s><tab><tab><tab><tab><tab><tab><spacebar>",
-    # Open "Remote Login" details
-    "<wait10s><tab><spacebar>",
-    # Enable "Full Disk Access"
-    "<wait10s><tab><spacebar>",
-    # Click "Done"
-    "<wait10s><leftShiftOn><tab><leftShiftOff><leftShiftOn><tab><leftShiftOff><spacebar>",
-    # Disable Voice Over
-    "<leftAltOn><f5><leftAltOff>",
+    "<wait10s><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><tab><spacebar>",
+    # Quit System Settings
+    "<wait10s><leftAltOn>q<leftAltOff>",
   ]
 
   // A (hopefully) temporary workaround for Virtualization.Framework's
@@ -107,23 +102,20 @@ build {
       // Disable screensaver for admin user
       "defaults -currentHost write com.apple.screensaver idleTime 0",
       // Prevent the VM from sleeping
-      "sudo systemsetup -setdisplaysleep Off",
-      "sudo systemsetup -setsleep Off",
-      "sudo systemsetup -setcomputersleep Off",
+      "sudo systemsetup -setsleep Off 2>/dev/null",
       // Launch Safari to populate the defaults
       "/Applications/Safari.app/Contents/MacOS/Safari &",
+      "SAFARI_PID=$!",
+      "disown",
       "sleep 30",
-      "kill -9 %1",
-      // Enable Safari's remote automation and "Develop" menu
+      "kill -9 $SAFARI_PID",
+      // Enable Safari's remote automation
       "sudo safaridriver --enable",
-      "defaults write com.apple.Safari.SandboxBroker ShowDevelopMenu -bool true",
-      "defaults write com.apple.Safari IncludeDevelopMenu -bool true",
       // Disable screen lock
       //
       // Note that this only works if the user is logged-in,
       // i.e. not on login screen.
       "sysadminctl -screenLock off -password admin",
-      "defaults -currentHost write com.apple.screensaver idleTime 0"
     ]
   }
 }
