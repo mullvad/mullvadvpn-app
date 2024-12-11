@@ -6,7 +6,7 @@ import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAME
 import net.mullvad.mullvadvpn.lib.common.constant.GRPC_SOCKET_FILE_NAMED_ARGUMENT
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
-import net.mullvad.mullvadvpn.lib.intent.IntentProvider
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
@@ -33,7 +33,7 @@ val appModule = module {
     single { PrepareVpnUseCase(androidContext()) }
 
     single { BuildVersion(BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE) }
-    single { IntentProvider() }
+    single { ApiEndpointFromIntentHolder() }
     single { AccountRepository(get(), get(), MainScope()) }
     single { DeviceRepository(get()) }
     single { ConnectionProxy(get(), get(), get()) }
