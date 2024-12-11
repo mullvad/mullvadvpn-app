@@ -19,7 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toLowerCase
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -106,7 +108,14 @@ private fun LazyListScope.loading() {
 private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
     item(contentType = ContentType.DESCRIPTION) {
         Text(
-            text = stringResource(R.string.multihop_entry_disabled_description),
+            text =
+                stringResource(
+                    R.string.multihop_entry_disabled_description,
+                    stringResource(R.string.multihop).toLowerCase(Locale.current),
+                    stringResource(id = R.string.daita),
+                    stringResource(R.string.direct_only),
+                    stringResource(id = R.string.daita),
+                ),
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -118,7 +127,8 @@ private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
     }
     item(contentType = ContentType.BUTTON) {
         PrimaryButton(
-            text = stringResource(R.string.open_daita_settings),
+            text =
+                stringResource(R.string.open_feature_settings, stringResource(id = R.string.daita)),
             onClick = openDaitaSettings,
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
         )
