@@ -132,14 +132,14 @@ jobs:
         env:
           RUSTFLAGS: --deny warnings
         run: |
-          mkdir -p android/app/src/main/assets
-          cargo run --bin relay_list > android/app/src/main/assets/relays.json
+          mkdir -p android/app/build/extraAssets/
+          cargo run --bin relay_list > android/app/build/extraAssets/relays.json
 
       - name: Upload
         uses: actions/upload-artifact@v4
         with:
           name: relay-list
-          path: android/app/src/main/assets/relays.json
+          path: android/app/build/extraAssets/relays.json
           if-no-files-found: error
           retention-days: 7
 
@@ -276,9 +276,6 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: Set ANDROID_NDK_ROOT
-        run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_HOME" >> $GITHUB_ENV
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -325,7 +322,7 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: relay-list
-          path: android/app/src/main/assets
+          path: android/app/build/extraAssets
 
       - name: Build app
         uses: burrunan/gradle-cache-action@v1

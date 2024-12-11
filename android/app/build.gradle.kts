@@ -21,7 +21,8 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val assetsDirectory = layout.projectDirectory.dir("src/main/assets")
-val relayListPath = assetsDirectory.file("relays.json").asFile
+val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
+val relayListPath = extraAssetsDirectory.file("relays.json").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibs = layout.buildDirectory.dir("rustJniLibs/android").get()
 
@@ -132,7 +133,7 @@ android {
                 gradleLocalProperties(rootProject.projectDir, providers)
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
-            assets.srcDirs(assetsDirectory, changelogDir)
+            assets.srcDirs(assetsDirectory, extraAssetsDirectory, changelogDir)
         }
     }
 
@@ -284,9 +285,6 @@ cargo {
         }
     prebuiltToolchains = true
     targetDirectory = "$repoRootPath/target"
-    // Set this if you get a cargo not found error
-    // rustcCommand = ""
-    // cargoCommand = ""
     features {
         if (enableApiOverride) {
             defaultAnd(arrayOf("api-override"))
@@ -316,8 +314,8 @@ tasks.register<Exec>("generateRelayList") {
     doLast {
         val output = standardOutput as ByteArrayOutputStream
         // Create file if needed
-        File("$assetsDirectory").mkdirs()
-        File("$assetsDirectory/relays.json").createNewFile()
+        File("$extraAssetsDirectory").mkdirs()
+        File("$extraAssetsDirectory/relays.json").createNewFile()
         FileOutputStream("$assetsDirectory/relays.json").use { it.write(output.toByteArray()) }
 
         // Old ensure exists tasks
