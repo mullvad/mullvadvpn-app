@@ -59,43 +59,50 @@ async fn provision_ssh(
     let user = user.to_owned();
     let password = password.to_owned();
 
-    let remote_dir = match os_type {
-        OsType::Windows => r"C:\testing",
-        OsType::Macos | OsType::Linux => r"/opt/testing",
-    };
-
     let local_runner_dir = local_runner_dir.to_owned();
     let local_app_manifest = local_app_manifest.to_owned();
 
-    tokio::task::spawn_blocking(move || {
+    let remote_dir = tokio::task::spawn_blocking(move || {
         blocking_ssh(
             user,
             password,
             guest_ip,
+            os_type,
             &local_runner_dir,
             local_app_manifest,
-            remote_dir,
         )
     })
     .await
     .context("Failed to join SSH task")??;
 
-    Ok(remote_dir.to_string())
+    Ok(remote_dir)
 }
 
+/// Returns the remote runner directory
 fn blocking_ssh(
     user: String,
     password: String,
     guest_ip: IpAddr,
+    os_type: OsType,
     local_runner_dir: &Path,
     local_app_manifest: package::Manifest,
-    remote_dir: &str,
-) -> Result<()> {
+) -> Result<String> {
+    let remote_dir = match os_type {
+        // FIXME: There is a problem with the `ssh2` crate (both with scp and sftp) that
+        // we can not create new directories, so instead we have to rely on pre-existing
+        // directories if we want to create / upload files to the Windows guest. As a
+        // workaround, use `C:` as a temporary directory.
+        OsType::Windows => "c:",
+        OsType::Macos | OsType::Linux => "/opt/testing",
+    };
+
     // Directory that receives the payload. Any directory that the SSH user has access to.
-    const REMOTE_TEMP_DIR: &str = "/tmp/";
+    let remote_temp_dir = match os_type {
+        OsType::Windows => r"c:\temp",
+        OsType::Macos | OsType::Linux => r"/tmp/",
+    };
 
-    let temp_dir = Path::new(REMOTE_TEMP_DIR);
-
+    std::thread::sleep(std::time::Duration::from_secs(10));
     let stream = TcpStream::connect(SocketAddr::new(guest_ip, 22)).context("TCP connect failed")?;
 
     let mut session = Session::new().context("Failed to connect to SSH server")?;
@@ -106,6 +113,7 @@ fn blocking_ssh(
         .userauth_password(&user, &password)
         .context("SSH auth failed")?;
 
+    let temp_dir = Path::new(remote_temp_dir);
     // Transfer a test runner
     let source = local_runner_dir.join("test-runner");
     ssh_send_file(&session, &source, temp_dir)
@@ -136,34 +144,38 @@ fn blocking_ssh(
 
     // Transfer setup script
     // TODO: Move this name to a constant somewhere?
-    let bootstrap_script_dest = temp_dir.join("ssh-setup.sh");
-    ssh_write(&session, &bootstrap_script_dest, BOOTSTRAP_SCRIPT)
-        .context("failed to send bootstrap script to remote")?;
+    if matches!(os_type, OsType::Linux | OsType::Macos) {
+        let bootstrap_script_dest = temp_dir.join("ssh-setup.sh");
+        ssh_write(&session, &bootstrap_script_dest, BOOTSTRAP_SCRIPT)
+            .context("failed to send bootstrap script to remote")?;
 
-    // Run setup script
-    let app_package_path = local_app_manifest
-        .app_package_path
-        .file_name()
-        .unwrap()
-        .to_string_lossy();
-    let app_package_to_upgrade_from_path = local_app_manifest
-        .app_package_to_upgrade_from_path
-        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
-        .unwrap_or_default();
-    let gui_package_path = local_app_manifest
-        .gui_package_path
-        .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
-        .unwrap_or_default();
+        // Run setup script
+        let app_package_path = local_app_manifest
+            .app_package_path
+            .file_name()
+            .unwrap()
+            .to_string_lossy();
+        let app_package_to_upgrade_from_path = local_app_manifest
+            .app_package_to_upgrade_from_path
+            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+            .unwrap_or_default();
+        let gui_package_path = local_app_manifest
+            .gui_package_path
+            .map(|path| path.file_name().unwrap().to_string_lossy().into_owned())
+            .unwrap_or_default();
 
-    // Run the setup script in the test runner
-    let cmd = format!(
-        r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}" "{UNPRIVILEGED_USER}""#,
-        bootstrap_script_dest.display(),
-    );
-    log::debug!("Running setup script on remote, cmd: {cmd}");
-    ssh_exec(&session, &cmd)
-        .map(drop)
-        .context("Failed to run setup script")
+        // Run the setup script in the test runner
+        let cmd = format!(
+            r#"sudo {} {remote_dir} "{app_package_path}" "{app_package_to_upgrade_from_path}" "{gui_package_path}" "{UNPRIVILEGED_USER}""#,
+            bootstrap_script_dest.display(),
+        );
+        log::debug!("Running setup script on remote, cmd: {cmd}");
+        ssh_exec(&session, &cmd)
+            .map(drop)
+            .context("Failed to run setup script")?;
+    }
+
+    Ok(remote_dir.to_string())
 }
 
 /// Copy a `source` file to `dest_dir` in the test runner.
@@ -196,20 +208,11 @@ fn ssh_send_file<P: AsRef<Path> + Copy>(
 }
 
 /// Analogues to [`std::fs::write`], but over ssh!
-fn ssh_write<P: AsRef<Path>, C: AsRef<[u8]>>(session: &Session, dest: P, source: C) -> Result<()> {
-    let bytes = source.as_ref();
+fn ssh_write<P: AsRef<Path>>(session: &Session, dest: P, mut source: impl Read) -> Result<()> {
+    let sftp = session.sftp()?;
+    let mut remote_file = sftp.create(dest.as_ref())?;
 
-    let source = &mut &bytes[..];
-    let source_len = u64::try_from(bytes.len()).context("File too large, did not fit in a u64")?;
-
-    let mut remote_file = session.scp_send(dest.as_ref(), 0o744, source_len, None)?;
-
-    io::copy(source, &mut remote_file).context("failed to write file")?;
-
-    remote_file.send_eof()?;
-    remote_file.wait_eof()?;
-    remote_file.close()?;
-    remote_file.wait_close()?;
+    io::copy(&mut source, &mut remote_file).context("failed to write file")?;
 
     Ok(())
 }
