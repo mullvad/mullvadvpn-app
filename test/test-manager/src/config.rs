@@ -282,10 +282,10 @@ pub enum Architecture {
 }
 
 impl Architecture {
-    pub fn get_identifiers(&self) -> &[&'static str] {
+    pub fn get_identifiers(self) -> Vec<&'static str> {
         match self {
-            Architecture::X64 => &["x86_64", "amd64"],
-            Architecture::Aarch64 => &["arm64", "aarch64"],
+            Architecture::X64 => vec!["x86_64", "amd64"],
+            Architecture::Aarch64 => vec!["arm64", "aarch64"],
         }
     }
 }
