@@ -46,6 +46,10 @@ public enum WireGuardObfuscationState: Codable {
             self = .off
         }
     }
+
+    public var isEnabled: Bool {
+        [.udpOverTcp, .shadowsocks].contains(self)
+    }
 }
 
 public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomStringConvertible {

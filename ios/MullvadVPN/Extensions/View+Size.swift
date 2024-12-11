@@ -28,6 +28,7 @@ private struct ViewSizeKey: PreferenceKey {
     static var defaultValue: CGSize = .zero
 
     static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-        value = nextValue()
+        value = CGSize(width: value.width + nextValue().width, height: value.height + nextValue().height)
+//        value = nextValue()
     }
 }
