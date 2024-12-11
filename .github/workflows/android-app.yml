@@ -276,14 +276,8 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: Create dumb folder
-        run: mkdir $ANDROID_HOME/ndk
-
-      - name: Move NDK_HOME
-        run: mv $ANDROID_NDK_HOME $ANDROID_HOME/ndk/27.1.12297006
-
-      - name: Fix ANDROID_NDK_HOME
-        run: echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.1.12297006" >> $GITHUB_ENV
+      - name: Set ANDROID_NDK_ROOT
+        run: echo "ANDROID_NDK_ROOT=$ANDROID_NDK_HOME" >> $GITHUB_ENV
 
       - name: Checkout repository
         uses: actions/checkout@v4
