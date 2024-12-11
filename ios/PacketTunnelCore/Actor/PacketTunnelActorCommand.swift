@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import WireGuardKitTypes
 
 extension PacketTunnelActor {
@@ -37,7 +38,7 @@ extension PacketTunnelActor {
         case networkReachability(NetworkPath)
 
         /// Update the device private key, as per post-quantum protocols
-        case ephemeralPeerNegotiationStateChanged(EphemeralPeerNegotiationState)
+        case ephemeralPeerNegotiationStateChanged(EphemeralPeerNegotiationState, OneshotChannel)
 
         /// Notify that an ephemeral peer exchanging took place
         case notifyEphemeralPeerNegotiated

@@ -34,7 +34,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var ephemeralPeerReceiver = {
-        EphemeralPeerReceiver(tunnelProvider: self)
+        EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
     }()
 
     // swiftlint:disable:next function_body_length
@@ -110,7 +110,12 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
             ),
             onUpdateConfiguration: { [unowned self] configuration in
-                actor.changeEphemeralPeerNegotiationState(configuration: configuration)
+                let channel = OneshotChannel()
+                actor.changeEphemeralPeerNegotiationState(
+                    configuration: configuration,
+                    reconfigurationSemaphore: channel
+                )
+                await channel.receive()
             }, onFinish: { [unowned self] in
                 actor.notifyEphemeralPeerNegotiated()
             }
@@ -311,7 +316,10 @@ extension PacketTunnelProvider {
                     lastConnectionAttempt = connectionAttempt
 
                 case let .negotiatingEphemeralPeer(observedConnectionState, privateKey):
-                    ephemeralPeerExchangingPipeline.startNegotiation(observedConnectionState, privateKey: privateKey)
+                    await ephemeralPeerExchangingPipeline.startNegotiation(
+                        observedConnectionState,
+                        privateKey: privateKey
+                    )
                 case .initial, .connected, .disconnecting, .disconnected, .error:
                     break
                 }
@@ -368,12 +376,12 @@ extension PacketTunnelProvider {
 }
 
 extension PacketTunnelProvider: EphemeralPeerReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        ephemeralPeerExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) async {
+        await ephemeralPeerExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
-        ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
+        await ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
     }
 
     func ephemeralPeerExchangeFailed() {

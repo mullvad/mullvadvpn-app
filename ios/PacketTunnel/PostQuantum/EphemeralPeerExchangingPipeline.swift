@@ -13,14 +13,14 @@ import WireGuardKitTypes
 
 final public class EphemeralPeerExchangingPipeline {
     let keyExchanger: EphemeralPeerExchangeActorProtocol
-    let onUpdateConfiguration: (EphemeralPeerNegotiationState) -> Void
+    let onUpdateConfiguration: (EphemeralPeerNegotiationState) async -> Void
     let onFinish: () -> Void
 
     private var ephemeralPeerExchanger: EphemeralPeerExchangingProtocol!
 
     public init(
         _ keyExchanger: EphemeralPeerExchangeActorProtocol,
-        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) -> Void,
+        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) async -> Void,
         onFinish: @escaping () -> Void
     ) {
         self.keyExchanger = keyExchanger
@@ -28,7 +28,7 @@ final public class EphemeralPeerExchangingPipeline {
         self.onFinish = onFinish
     }
 
-    public func startNegotiation(_ connectionState: ObservedConnectionState, privateKey: PrivateKey) {
+    public func startNegotiation(_ connectionState: ObservedConnectionState, privateKey: PrivateKey) async {
         keyExchanger.reset()
         let entryPeer = connectionState.selectedRelays.entry
         let exitPeer = connectionState.selectedRelays.exit
@@ -56,14 +56,14 @@ final public class EphemeralPeerExchangingPipeline {
                 onFinish: onFinish
             )
         }
-        ephemeralPeerExchanger.start()
+        await ephemeralPeerExchanger.start()
     }
 
-    public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        ephemeralPeerExchanger.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    public func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) async {
+        await ephemeralPeerExchanger.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
-        ephemeralPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
+        await ephemeralPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
     }
 }

@@ -47,3 +47,27 @@ public final class Promise<Success, Failure: Error> {
         }
     }
 }
+
+public struct OneshotChannel {
+    private var continuation: AsyncStream<Void>.Continuation?
+    private var stream: AsyncStream<Void>
+
+    public init() {
+        var ownedContinuation: AsyncStream<Void>.Continuation?
+        stream = AsyncStream { continuation in
+            ownedContinuation = continuation
+        }
+        self.continuation = ownedContinuation
+    }
+
+    public func send() {
+        continuation?.yield()
+        continuation?.finish()
+    }
+
+    public func receive() async {
+        for await _ in stream {
+            return
+        }
+    }
+}
