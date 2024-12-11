@@ -28,12 +28,6 @@ yanked = "deny"
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
-
-    # RUSTSEC-2024-0421 - `idna` accepts Punycode labels that do not produce any non-ASCII when decoded
-    # `hickory-proto 0.24.1` uses `idna 0.4`
-    # `url 2.5` uses `idna 0.5.0`
-    # `shadowsocks 1.20.3` uses `url 2.5`
-    "RUSTSEC-2024-0421",
 ]
 
 
