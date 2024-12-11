@@ -23,7 +23,7 @@ import {
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const PORTS: Array<SelectorItem<number>> = [];
-const ALLOWED_RANGE = [1, 65000];
+const ALLOWED_RANGE = [1, 65535];
 
 const StyledContent = styled.div({
   display: 'flex',
