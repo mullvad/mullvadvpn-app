@@ -6,10 +6,11 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import Combine
 import MullvadLogging
 
 public protocol IPOverrideRepositoryProtocol {
+    var overridesPublisher: AnyPublisher<[IPOverride], Never> { get }
     func add(_ overrides: [IPOverride])
     func fetchAll() -> [IPOverride]
     func deleteAll()
@@ -17,6 +18,11 @@ public protocol IPOverrideRepositoryProtocol {
 }
 
 public class IPOverrideRepository: IPOverrideRepositoryProtocol {
+    private let overridesSubject: CurrentValueSubject<[IPOverride], Never> = .init([])
+    public var overridesPublisher: AnyPublisher<[IPOverride], Never> {
+        overridesSubject.eraseToAnyPublisher()
+    }
+
     private let logger = Logger(label: "IPOverrideRepository")
     private let readWriteLock = NSLock()
 
@@ -58,6 +64,7 @@ public class IPOverrideRepository: IPOverrideRepositoryProtocol {
         do {
             try readWriteLock.withLock {
                 try SettingsManager.store.delete(key: .ipOverrides)
+                overridesSubject.send([])
             }
         } catch {
             logger.error("Could not delete all overrides. \nError: \(error)")
@@ -85,6 +92,7 @@ public class IPOverrideRepository: IPOverrideRepositoryProtocol {
 
         try readWriteLock.withLock {
             try SettingsManager.store.write(data, for: .ipOverrides)
+            overridesSubject.send(overrides)
         }
     }
 
