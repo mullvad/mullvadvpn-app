@@ -41,7 +41,7 @@ fun InformationComposeCell(
     title: String,
     isEnabled: Boolean = true,
     background: Color = MaterialTheme.colorScheme.primary,
-    onCellClicked: () -> Unit = {},
+    onCellClicked: (() -> Unit)? = null,
     onInfoClicked: (() -> Unit)? = null,
     testTag: String = "",
 ) {
