@@ -6,7 +6,7 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
+import Combine
 import MullvadSettings
 import MullvadTypes
 
@@ -15,9 +15,13 @@ final class TunnelViewControllerInteractor {
     private let outgoingConnectionService: OutgoingConnectionServiceHandling
     private var tunnelObserver: TunnelObserver?
     private var outgoingConnectionTask: Task<Void, Error>?
+    private var ipOverrideRepository: IPOverrideRepositoryProtocol
+    private var cancellables: Set<Combine.AnyCancellable> = []
 
     var didUpdateTunnelStatus: ((TunnelStatus) -> Void)?
     var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
+    var didUpdateTunnelSettings: ((LatestTunnelSettings) -> Void)?
+    var didUpdateIpOverrides: (([IPOverride]) -> Void)?
     var didGetOutGoingAddress: (@MainActor (OutgoingConnectionInfo) -> Void)?
 
     var tunnelStatus: TunnelStatus {
@@ -28,16 +32,26 @@ final class TunnelViewControllerInteractor {
         tunnelManager.deviceState
     }
 
+    var tunnelSettings: LatestTunnelSettings {
+        tunnelManager.settings
+    }
+
+    var ipOverrides: [IPOverride] {
+        ipOverrideRepository.fetchAll()
+    }
+
     deinit {
         outgoingConnectionTask?.cancel()
     }
 
     init(
         tunnelManager: TunnelManager,
-        outgoingConnectionService: OutgoingConnectionServiceHandling
+        outgoingConnectionService: OutgoingConnectionServiceHandling,
+        ipOverrideRepository: IPOverrideRepositoryProtocol
     ) {
         self.tunnelManager = tunnelManager
         self.outgoingConnectionService = outgoingConnectionService
+        self.ipOverrideRepository = ipOverrideRepository
 
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { [weak self] _, tunnelStatus in
@@ -56,12 +70,21 @@ final class TunnelViewControllerInteractor {
             },
             didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
                 self?.didUpdateDeviceState?(deviceState, previousDeviceState)
+            },
+            didUpdateTunnelSettings: { [weak self] _, tunnelSettings in
+                self?.didUpdateTunnelSettings?(tunnelSettings)
             }
         )
 
         tunnelManager.addObserver(tunnelObserver)
 
         self.tunnelObserver = tunnelObserver
+
+        ipOverrideRepository.overridesPublisher
+            .sink { [weak self] overrides in
+                self?.didUpdateIpOverrides?(overrides)
+            }
+            .store(in: &cancellables)
     }
 
     func startTunnel() {

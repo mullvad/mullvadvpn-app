@@ -22,16 +22,16 @@ struct MainButtonStyle: ButtonStyle {
             .padding(.horizontal, 8)
             .frame(height: 44)
             .foregroundColor(
-                configuration.isPressed
-                    ? UIColor.secondaryTextColor.color
-                    : disabled
-                        ? UIColor.primaryTextColor.withAlphaComponent(0.2).color
-                        : UIColor.primaryTextColor.color
+                disabled
+                    ? UIColor.primaryTextColor.withAlphaComponent(0.2).color
+                    : UIColor.primaryTextColor.color
             )
             .background(
                 disabled
-                    ? style.color.darkened(by: 0.6)
-                    : style.color
+                    ? style.disabledColor
+                    : configuration.isPressed
+                        ? style.pressedColor
+                        : style.color
             )
             .font(.body.weight(.semibold))
     }
@@ -52,6 +52,14 @@ extension MainButtonStyle {
             case .success:
                 Color(UIColor.successColor)
             }
+        }
+
+        var pressedColor: Color {
+            color.darkened(by: 0.4)!
+        }
+
+        var disabledColor: Color {
+            color.darkened(by: 0.6)!
         }
     }
 }
