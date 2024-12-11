@@ -1,7 +1,7 @@
-import { RoutePath } from '../../renderer/lib/routes';
-import { messages } from '../gettext';
-import { IChangelog } from '../ipc-types';
-import { InAppNotification, InAppNotificationProvider } from './notification';
+import { messages } from '../../../shared/gettext';
+import { IChangelog } from '../../../shared/ipc-types';
+import { InAppNotification, InAppNotificationProvider } from '../../../shared/notifications';
+import { RoutePath } from '../routes';
 
 interface NewVersionNotificationContext {
   currentVersion: string;

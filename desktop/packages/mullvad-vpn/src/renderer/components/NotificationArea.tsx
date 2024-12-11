@@ -11,16 +11,18 @@ import {
   InAppNotificationProvider,
   InAppNotificationTroubleshootInfo,
   InconsistentVersionNotificationProvider,
-  NewVersionNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
 } from '../../shared/notifications';
-import { NewDeviceNotificationProvider } from '../../shared/notifications/new-device';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
+import {
+  NewDeviceNotificationProvider,
+  NewVersionNotificationProvider,
+} from '../lib/notifications';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
