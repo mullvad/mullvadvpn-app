@@ -39,11 +39,15 @@ class AppInteractor(
         device.wait(Until.hasObject(By.pkg(targetPackageName).depth(0)), LONG_TIMEOUT)
     }
 
-    fun launchAndEnsureLoggedIn(accountNumber: String) {
+    fun launchAndEnsureOnLoginPage() {
         launch()
         device.clickAgreeOnPrivacyDisclaimer()
         device.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove()
         waitForLoginPrompt()
+    }
+
+    fun launchAndEnsureLoggedIn(accountNumber: String) {
+        launchAndEnsureOnLoginPage()
         attemptLogin(accountNumber)
         device.dismissChangelogDialogIfShown()
         ensureLoggedIn()
