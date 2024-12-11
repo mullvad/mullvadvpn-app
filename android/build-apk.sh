@@ -18,7 +18,6 @@ BUILD_BUNDLE="no"
 BUNDLE_TASKS=(createPlayProdReleaseDistBundle)
 RUN_PLAY_PUBLISH_TASKS="no"
 PLAY_PUBLISH_TASKS=()
-SKIP_STRIPPING=${SKIP_STRIPPING:-"no"}
 
 while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
