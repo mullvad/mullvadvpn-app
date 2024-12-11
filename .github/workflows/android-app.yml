@@ -276,17 +276,11 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: $ANDROID_NDK
-        run: echo $ANDROID_NDK
+      - name: $ANDROID_NDK_VERSION
+        run: echo $ANDROID_NDK_VERSION
 
-      - name: $ANDROID_NDK_HOME
-        run: echo $ANDROID_NDK_HOME
-
-      - name: $ANDROID_NDK_LATEST_HOME
-        run: echo $ANDROID_NDK_LATEST_HOME
-
-      - name: $ANDROID_NDK_ROOT
-        run: echo $ANDROID_NDK_ROOT
+      - name: $ANDROID_HOME/ndk/
+        run: echo ls "$ANDROID_HOME/ndk/"
 
       - name: Checkout repository
         uses: actions/checkout@v4
