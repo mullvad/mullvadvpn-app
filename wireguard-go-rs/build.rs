@@ -231,13 +231,14 @@ fn android_move_binary(binary: &Path, output: &Path) -> anyhow::Result<()> {
     ))?;
     std::fs::create_dir_all(parent_of_output)?;
 
-    let mut move_command = Command::new("cp");
-    move_command
+    let mut copy_command = Command::new("cp");
+    // P command is required to not rebuild this module everytime
+    copy_command
         .arg("-p")
         .arg(binary.to_str().unwrap())
         .arg(output.to_str().unwrap());
 
-    exec(&mut move_command)?;
+    exec(&mut copy_command)?;
 
     Ok(())
 }
