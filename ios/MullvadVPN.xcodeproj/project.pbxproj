@@ -997,7 +997,14 @@
 		F0ADC3722CD3AD1600A1AD97 /* ChipCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADC3712CD3AD1600A1AD97 /* ChipCollectionView.swift */; };
 		F0ADC3742CD3C47400A1AD97 /* ChipFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADC3732CD3C47400A1AD97 /* ChipFlowLayout.swift */; };
 		F0ADF1CD2CFDFF3100299F09 /* StringConversionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */; };
+		F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D02D01B55C00299F09 /* ChipModel.swift */; };
+		F0ADF1D32D01B6B400299F09 /* FeatureChipViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D22D01B6B400299F09 /* FeatureChipViewModel.swift */; };
+		F0ADF1D52D01DCFD00299F09 /* ChipView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1D42D01DCFD00299F09 /* ChipView.swift */; };
 		F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */; };
+		F0B495762D02025200CFEC2A /* ChipContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495752D02025200CFEC2A /* ChipContainerView.swift */; };
+		F0B495782D02038B00CFEC2A /* ChipViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */; };
+		F0B4957A2D02F49200CFEC2A /* ChipFeatures.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495792D02F41F00CFEC2A /* ChipFeatures.swift */; };
+		F0B4957C2D03154200CFEC2A /* FeaturesIndicatoresView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B4957B2D03154200CFEC2A /* FeaturesIndicatoresView.swift */; };
 		F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */; };
 		F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F02BF751E300817A42 /* RelayWithDistance.swift */; };
 		F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */; };
@@ -2236,7 +2243,14 @@
 		F0ADC3712CD3AD1600A1AD97 /* ChipCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipCollectionView.swift; sourceTree = "<group>"; };
 		F0ADC3732CD3C47400A1AD97 /* ChipFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFlowLayout.swift; sourceTree = "<group>"; };
 		F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringConversionError.swift; sourceTree = "<group>"; };
+		F0ADF1D02D01B55C00299F09 /* ChipModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipModel.swift; sourceTree = "<group>"; };
+		F0ADF1D22D01B6B400299F09 /* FeatureChipViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureChipViewModel.swift; sourceTree = "<group>"; };
+		F0ADF1D42D01DCFD00299F09 /* ChipView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipView.swift; sourceTree = "<group>"; };
 		F0B0E6962AFE6E7E001DC66B /* XCTest+Async.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTest+Async.swift"; sourceTree = "<group>"; };
+		F0B495752D02025200CFEC2A /* ChipContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipContainerView.swift; sourceTree = "<group>"; };
+		F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipViewModelProtocol.swift; sourceTree = "<group>"; };
+		F0B495792D02F41F00CFEC2A /* ChipFeatures.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFeatures.swift; sourceTree = "<group>"; };
+		F0B4957B2D03154200CFEC2A /* FeaturesIndicatoresView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeaturesIndicatoresView.swift; sourceTree = "<group>"; };
 		F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithLocation.swift; sourceTree = "<group>"; };
 		F0B894F02BF751E300817A42 /* RelayWithDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithDistance.swift; sourceTree = "<group>"; };
 		F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Wireguard.swift"; sourceTree = "<group>"; };
@@ -4068,6 +4082,10 @@
 			isa = PBXGroup;
 			children = (
 				7AFBE3862D084C96002335FC /* ActivityIndicator.swift */,
+				F0B495792D02F41F00CFEC2A /* ChipFeatures.swift */,
+				F0ADF1CF2D01B50B00299F09 /* ChipsView */,
+				F0ADF1D22D01B6B400299F09 /* FeatureChipViewModel.swift */,
+				F0B4957B2D03154200CFEC2A /* FeaturesIndicatoresView.swift */,
 				7AA130982CFF365A00640DF9 /* ConnectionView.swift */,
 				7A0EAEA32D06DF8200D3EB8B /* ConnectionViewViewModel.swift */,
 				7AFBE3882D08915D002335FC /* FI_TunnelViewController.swift */,
@@ -4390,6 +4408,17 @@
 				449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */,
 			);
 			path = MullvadTypes;
+			sourceTree = "<group>";
+		};
+		F0ADF1CF2D01B50B00299F09 /* ChipsView */ = {
+			isa = PBXGroup;
+			children = (
+				F0B495752D02025200CFEC2A /* ChipContainerView.swift */,
+				F0ADF1D02D01B55C00299F09 /* ChipModel.swift */,
+				F0ADF1D42D01DCFD00299F09 /* ChipView.swift */,
+				F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */,
+			);
+			path = ChipsView;
 			sourceTree = "<group>";
 		};
 		F0DC779F2B2222D20087F09D /* Relay */ = {
@@ -5917,6 +5946,7 @@
 				5878A27129091CF20096FC88 /* AccountInteractor.swift in Sources */,
 				7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */,
 				58CCA010224249A1004F3011 /* TunnelViewController.swift in Sources */,
+				F0B495782D02038B00CFEC2A /* ChipViewModelProtocol.swift in Sources */,
 				58CEB30A2AFD584700E6E088 /* CustomCellDisclosureHandling.swift in Sources */,
 				58B26E22294351EA00D5980C /* InAppNotificationProvider.swift in Sources */,
 				5893716A28817A45004EE76C /* DeviceManagementViewController.swift in Sources */,
@@ -5991,6 +6021,7 @@
 				58293FB3251241B4005D0BB5 /* CustomTextView.swift in Sources */,
 				586A950E290125F3007BAF2B /* ProductsRequestOperation.swift in Sources */,
 				7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */,
+				F0B495762D02025200CFEC2A /* ChipContainerView.swift in Sources */,
 				58F19E35228C15BA00C7710B /* SpinnerActivityIndicatorView.swift in Sources */,
 				7A0EAE9A2D01B41500D3EB8B /* MainButtonStyle.swift in Sources */,
 				58CEB3022AFD365600E6E088 /* SwitchCellContentConfiguration.swift in Sources */,
@@ -6100,6 +6131,7 @@
 				588D7EDE2AF3A585005DF40A /* ListAccessMethodItem.swift in Sources */,
 				5827B0B02B0F4CCD00CCBBA1 /* ListAccessMethodViewControllerDelegate.swift in Sources */,
 				588D7EE02AF3A595005DF40A /* ListAccessMethodInteractor.swift in Sources */,
+				F0B4957A2D02F49200CFEC2A /* ChipFeatures.swift in Sources */,
 				58607A4D2947287800BC467D /* AccountExpiryInAppNotificationProvider.swift in Sources */,
 				7A8A18FD2CE4BE8D000BCB5B /* CustomToggleStyle.swift in Sources */,
 				58C8191829FAA2C400DEB1B4 /* NotificationConfiguration.swift in Sources */,
@@ -6134,8 +6166,10 @@
 				586C0D782B039CC000E7CDD7 /* AccessMethodProtocolPicker.swift in Sources */,
 				58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */,
 				7A9CCCC02A96302800DD6A34 /* ProfileVoucherCoordinator.swift in Sources */,
+				F0B4957C2D03154200CFEC2A /* FeaturesIndicatoresView.swift in Sources */,
 				7A9CCCBC2A96302800DD6A34 /* ChangeLogCoordinator.swift in Sources */,
 				58B26E282943527300D5980C /* SystemNotificationProvider.swift in Sources */,
+				F0ADF1D52D01DCFD00299F09 /* ChipView.swift in Sources */,
 				586C0D932B03D90700E7CDD7 /* ShadowsocksItemIdentifier.swift in Sources */,
 				58EFC7712AFB45E500E9F4CB /* SettingsChildCoordinator.swift in Sources */,
 				7A8A19102CEE391B000BCB5B /* RowSeparator.swift in Sources */,
@@ -6179,6 +6213,7 @@
 				7A9CCCC22A96302800DD6A34 /* SafariCoordinator.swift in Sources */,
 				58CEB3082AFD484100E6E088 /* BasicCell.swift in Sources */,
 				7A5869C12B57D21A00640D27 /* IPOverrideStatusView.swift in Sources */,
+				F0ADF1D32D01B6B400299F09 /* FeatureChipViewModel.swift in Sources */,
 				58CEB2F52AFD0BB500E6E088 /* TextCellContentConfiguration.swift in Sources */,
 				58E20771274672CA00DE5D77 /* LaunchViewController.swift in Sources */,
 				F0E8CC032A4C753B007ED3B4 /* WelcomeViewController.swift in Sources */,
@@ -6198,6 +6233,7 @@
 				A99E5EE02B7628150033F241 /* ProblemReportViewModel.swift in Sources */,
 				58FD5BF024238EB300112C88 /* SKProduct+Formatting.swift in Sources */,
 				58B43C1925F77DB60002C8C3 /* TunnelControlView.swift in Sources */,
+				F0ADF1D12D01B55C00299F09 /* ChipModel.swift in Sources */,
 				F09A297B2A9F8A9B00EA3B6F /* LogoutDialogueView.swift in Sources */,
 				58CEB2FB2AFD13E600E6E088 /* UIListContentConfiguration+Extensions.swift in Sources */,
 				5811DE50239014550011EB53 /* NEVPNStatus+Debug.swift in Sources */,
