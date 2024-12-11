@@ -91,7 +91,7 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
             FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.feature_server_ip_override
             FeatureIndicator.CUSTOM_MTU -> R.string.feature_custom_mtu
-            FeatureIndicator.DAITA -> R.string.feature_daita
+            FeatureIndicator.DAITA -> R.string.daita
             FeatureIndicator.MULTIHOP -> R.string.feature_multihop
         }
     return textResource(resource)

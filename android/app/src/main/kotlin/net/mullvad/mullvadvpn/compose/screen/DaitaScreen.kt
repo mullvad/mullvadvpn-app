@@ -138,25 +138,29 @@ private fun DescriptionPager(pagerState: PagerState) {
                 contentDescription = stringResource(R.string.daita),
             )
             DescriptionText(
-                firstParagraph = page.textFirstParagraph,
-                secondParagraph = page.textSecondParagraph,
-                thirdParagraph = page.textThirdParagraph,
+                firstParagraph = page.textFirstParagraph(),
+                secondParagraph = page.textSecondParagraph(),
+                thirdParagraph = page.textThirdParagraph(),
             )
         }
     }
 }
 
 @Composable
-private fun DescriptionText(firstParagraph: Int, secondParagraph: Int, thirdParagraph: Int) {
+private fun DescriptionText(
+    firstParagraph: String,
+    secondParagraph: String,
+    thirdParagraph: String
+) {
     SwitchComposeSubtitleCell(
         modifier = Modifier.padding(vertical = Dimens.smallPadding),
         text =
             buildString {
-                appendLine(stringResource(firstParagraph))
+                appendLine(firstParagraph)
                 appendLine()
-                appendLine(stringResource(secondParagraph))
+                appendLine(secondParagraph)
                 appendLine()
-                append(stringResource(thirdParagraph))
+                append(thirdParagraph)
             },
     )
 }
@@ -185,20 +189,57 @@ private fun PageIndicator(pagerState: PagerState) {
 
 private enum class DaitaPages(
     val image: Int,
-    val textFirstParagraph: Int,
-    val textSecondParagraph: Int,
-    val textThirdParagraph: Int,
+    val textFirstParagraph: @Composable () -> String,
+    val textSecondParagraph: @Composable () -> String,
+    val textThirdParagraph: @Composable () -> String,
 ) {
     FIRST(
         image = R.drawable.daita_illustration_1,
-        textFirstParagraph = R.string.daita_description_slide_1_first_paragraph,
-        textSecondParagraph = R.string.daita_description_slide_1_second_paragraph,
-        textThirdParagraph = R.string.daita_description_slide_1_third_paragraph,
+        textFirstParagraph =
+            @Composable {
+                stringResource(
+                    R.string.daita_description_slide_1_first_paragraph,
+                    stringResource(id = R.string.daita),
+                    stringResource(id = R.string.daita_full)
+                )
+            },
+        textSecondParagraph =
+            @Composable {
+                stringResource(
+                    R.string.daita_description_slide_1_second_paragraph,
+                    stringResource(id = R.string.daita),
+                )
+            },
+        textThirdParagraph =
+            @Composable {
+                stringResource(
+                    R.string.daita_description_slide_1_third_paragraph,
+                    stringResource(id = R.string.daita),
+                )
+            },
     ),
     SECOND(
         image = R.drawable.daita_illustration_2,
-        textFirstParagraph = R.string.daita_description_slide_2_first_paragraph,
-        textSecondParagraph = R.string.daita_description_slide_2_second_paragraph,
-        textThirdParagraph = R.string.daita_description_slide_2_third_paragraph,
+        textFirstParagraph =
+            @Composable {
+                stringResource(
+                    R.string.daita_description_slide_2_first_paragraph,
+                    stringResource(id = R.string.daita),
+                )
+            },
+        textSecondParagraph =
+            @Composable {
+                stringResource(
+                    R.string.daita_description_slide_2_second_paragraph,
+                    stringResource(id = R.string.daita),
+                )
+            },
+        textThirdParagraph =
+            @Composable {
+                stringResource(
+                    R.string.daita_description_slide_2_third_paragraph,
+                    stringResource(id = R.string.daita),
+                )
+            },
     ),
 }

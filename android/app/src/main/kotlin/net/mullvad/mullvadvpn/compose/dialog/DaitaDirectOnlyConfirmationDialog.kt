@@ -29,11 +29,16 @@ fun DaitaDirectOnlyConfirmation(navigator: ResultBackNavigator<Boolean>) {
     InfoConfirmationDialog(
         navigator = navigator,
         titleType = InfoConfirmationDialogTitleType.IconOnly,
-        confirmButtonTitle = stringResource(R.string.enable_direct_only),
+        confirmButtonTitle =
+            stringResource(R.string.enable_direct_only, stringResource(R.string.direct_only)),
         cancelButtonTitle = stringResource(R.string.cancel),
     ) {
         Text(
-            text = stringResource(id = R.string.direct_only_description),
+            text =
+                stringResource(
+                    id = R.string.direct_only_description,
+                    stringResource(id = R.string.daita)
+                ),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.fillMaxWidth(),
