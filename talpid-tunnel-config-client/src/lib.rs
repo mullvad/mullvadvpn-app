@@ -221,31 +221,22 @@ pub async fn request_ephemeral_peer_with(
 }
 
 #[cfg(all(unix, not(target_os = "ios")))]
-fn get_platform() -> proto::DaitaPlatform {
-    #[cfg(windows)]
-    {
-        proto::DaitaPlatform::WindowsNative
-    }
-
-    #[cfg(target_os = "linux")]
-    {
-        proto::DaitaPlatform::LinuxWgGo
-    }
-
-    #[cfg(target_os = "macos")]
-    {
-        proto::DaitaPlatform::MacosWgGo
-    }
-
-    #[cfg(target_os = "android")]
-    {
-        proto::DaitaPlatform::AndroidWgGo
-    }
-
-    #[cfg(target_os = "ios")]
-    {
-        proto::DaitaPlatform::IosWgGo
-    }
+const fn get_platform() -> proto::DaitaPlatform {
+    use proto::DaitaPlatform;
+    const PLATFORM: DaitaPlatform = if cfg!(target_os = "windows") {
+        DaitaPlatform::WindowsNative
+    } else if cfg!(target_os = "linux") {
+        DaitaPlatform::LinuxWgGo
+    } else if cfg!(target_os = "macos") {
+        DaitaPlatform::MacosWgGo
+    } else if cfg!(target_os = "android") {
+        DaitaPlatform::AndroidWgGo
+    } else if cfg!(target_os = "ios") {
+        DaitaPlatform::IosWgGo
+    } else {
+        unimplemented!("This platform does not support DAITA V2")
+    };
+    PLATFORM
 }
 
 async fn post_quantum_secrets() -> (
