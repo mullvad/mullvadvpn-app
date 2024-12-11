@@ -9,7 +9,7 @@ import { FirewallPolicyErrorType } from '../../src/shared/daemon-rpc-types';
 import {
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
-} from '../../src/shared/notifications/notification';
+} from '../../src/shared/notifications';
 
 function createController() {
   return new NotificationController({

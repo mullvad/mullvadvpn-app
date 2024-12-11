@@ -6,6 +6,7 @@ import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
 import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
+import { IconButton } from './common/molecules';
 import { tinyText } from './common-styles';
 import ImageView from './ImageView';
 
@@ -81,12 +82,14 @@ export function NotificationTroubleshootDialogAction(props: NotificationActionPr
 
 export function NotificationCloseAction(props: NotificationActionProps) {
   return (
-    <NotificationActionButton
+    <IconButton
       aria-describedby={NOTIFICATION_AREA_ID}
       aria-label={messages.pgettext('accessibility', 'Close notification')}
-      onClick={props.onClick}>
-      <NotificationActionButtonInner source="icon-close" width={16} tintColor={colors.white60} />
-    </NotificationActionButton>
+      onClick={props.onClick}
+      icon="icon-close"
+      size="small"
+      variant="secondary"
+    />
   );
 }
 

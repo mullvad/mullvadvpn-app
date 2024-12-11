@@ -1,8 +1,8 @@
-import styled from 'styled-components';
+import { Text, TextProps } from './Text';
+export type TitleMediumProps = Omit<TextProps, 'variant'>;
 
-import { typography } from '../../../tokens';
-import { Text } from './Text';
-
-export const TitleMedium = styled(Text)({
-  ...typography['titleMedium'],
-});
+export const TitleMedium = ({ children, ...props }: TitleMediumProps) => (
+  <Text variant="titleMedium" {...props}>
+    {children}
+  </Text>
+);

@@ -2,20 +2,17 @@ import { useCallback } from 'react';
 
 import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
-import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
-import { Colors } from '../tokens';
-import { RedButton } from './AppButton';
 import * as Cell from './cell';
+import { Button } from './common/molecules/Button';
 import { TitleBig } from './common/text';
 import { BackAction } from './KeyboardNavigation';
 import {
   ButtonStack,
   Footer,
-  LabelStack,
   Layout,
   SettingsContainer,
   SettingsContent,
@@ -86,7 +83,7 @@ export default function Support() {
 
                   <SettingsGroup>
                     <SupportButton />
-                    <AppVersionButton />
+                    <AppInfoButton />
                   </SettingsGroup>
 
                   {window.env.development && (
@@ -204,59 +201,16 @@ function ApiAccessMethodsButton() {
   );
 }
 
-function AppVersionButton() {
+function AppInfoButton() {
+  const history = useHistory();
+  const navigate = useCallback(() => history.push(RoutePath.appInfo), [history]);
   const appVersion = useSelector((state) => state.version.current);
-  const consistentVersion = useSelector((state) => state.version.consistent);
-  const upToDateVersion = useSelector((state) => (state.version.suggestedUpgrade ? false : true));
-  const suggestedIsBeta = useSelector((state) => state.version.suggestedIsBeta ?? false);
-  const isOffline = useSelector((state) => state.connection.isBlocked);
-
-  const { openUrl } = useAppContext();
-  const openDownloadLink = useCallback(
-    () => openUrl(getDownloadUrl(suggestedIsBeta)),
-    [openUrl, suggestedIsBeta],
-  );
-
-  let alertIcon;
-  let footer;
-  if (!consistentVersion || !upToDateVersion) {
-    const inconsistentVersionMessage = messages.pgettext(
-      'settings-view',
-      'App is out of sync. Please quit and restart.',
-    );
-
-    const updateAvailableMessage = messages.pgettext(
-      'settings-view',
-      'Update available. Install the latest app version to stay up to date.',
-    );
-
-    const message = !consistentVersion ? inconsistentVersionMessage : updateAvailableMessage;
-
-    alertIcon = <Cell.UntintedIcon source="icon-alert" width={18} tintColor={Colors.red} />;
-    footer = (
-      <Cell.CellFooter>
-        <Cell.CellFooterText>{message}</Cell.CellFooterText>
-      </Cell.CellFooter>
-    );
-  }
 
   return (
-    <>
-      <Cell.CellNavigationButton
-        disabled={isOffline}
-        onClick={openDownloadLink}
-        icon={{
-          source: 'icon-extLink',
-          'aria-label': messages.pgettext('accessibility', 'Opens externally'),
-        }}>
-        <LabelStack>
-          {alertIcon}
-          <Cell.Label>{messages.pgettext('settings-view', 'App version')}</Cell.Label>
-        </LabelStack>
-        <Cell.SubText>{appVersion}</Cell.SubText>
-      </Cell.CellNavigationButton>
-      {footer}
-    </>
+    <Cell.CellNavigationButton onClick={navigate}>
+      <Cell.Label>{messages.pgettext('settings-view', 'App info')}</Cell.Label>
+      <Cell.SubText>{appVersion}</Cell.SubText>
+    </Cell.CellNavigationButton>
   );
 }
 
@@ -287,10 +241,10 @@ function QuitButton() {
   const tunnelState = useSelector((state) => state.connection.status);
 
   return (
-    <RedButton onClick={quit}>
+    <Button variant="destructive" onClick={quit}>
       {tunnelState.state === 'disconnected'
         ? messages.gettext('Quit')
         : messages.gettext('Disconnect & quit')}
-    </RedButton>
+    </Button>
   );
 }

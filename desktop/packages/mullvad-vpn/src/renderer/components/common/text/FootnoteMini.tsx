@@ -1,8 +1,9 @@
-import styled from 'styled-components';
+import { Text, TextProps } from './Text';
 
-import { typography } from '../../../tokens';
-import { Text } from './Text';
+export type FoonoteMiniProps = Omit<TextProps, 'variant'>;
 
-export const FootnoteMini = styled(Text)({
-  ...typography['footnoteMini'],
-});
+export const FootnoteMini = ({ children, ...props }: FoonoteMiniProps) => (
+  <Text variant="footnoteMini" {...props}>
+    {children}
+  </Text>
+);

@@ -16,7 +16,7 @@ import {
   SystemNotificationCategory,
   SystemNotificationProvider,
   SystemNotificationSeverityType,
-} from '../shared/notifications/notification';
+} from '../shared/notifications';
 import { Scheduler } from '../shared/scheduler';
 
 const THROTTLE_DELAY = 500;
