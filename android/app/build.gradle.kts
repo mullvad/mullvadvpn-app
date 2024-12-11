@@ -37,7 +37,7 @@ android {
     namespace = "net.mullvad.mullvadvpn"
     compileSdk = Versions.compileSdkVersion
     buildToolsVersion = Versions.buildToolsVersion
-    ndkVersion = "27.2.12479018"
+    ndkVersion = Versions.ndkVersion
 
     defaultConfig {
         val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
