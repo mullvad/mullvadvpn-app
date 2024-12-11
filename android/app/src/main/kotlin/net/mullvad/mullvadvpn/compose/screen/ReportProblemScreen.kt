@@ -72,7 +72,7 @@ private fun PreviewReportProblemScreen(
     @PreviewParameter(ReportProblemUiStatePreviewParameterProvider::class)
     state: ReportProblemUiState
 ) {
-    AppTheme { ReportProblemScreen(state = state) }
+    AppTheme { ReportProblemScreen(state = state, {}, {}, {}, {}, {}, {}) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -115,12 +115,12 @@ fun ReportProblem(
 @Composable
 private fun ReportProblemScreen(
     state: ReportProblemUiState,
-    onSendReport: () -> Unit = {},
-    onClearSendResult: () -> Unit = {},
-    onNavigateToViewLogs: () -> Unit = {},
-    onEmailChanged: (String) -> Unit = {},
-    onDescriptionChanged: (String) -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onSendReport: () -> Unit,
+    onClearSendResult: () -> Unit,
+    onNavigateToViewLogs: () -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onBackClick: () -> Unit,
 ) {
 
     ScaffoldWithMediumTopBar(

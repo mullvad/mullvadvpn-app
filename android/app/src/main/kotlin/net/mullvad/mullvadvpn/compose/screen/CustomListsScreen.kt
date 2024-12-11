@@ -60,7 +60,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewAccountScreen(
     @PreviewParameter(CustomListsUiStatePreviewParameterProvider::class) state: CustomListsUiState
 ) {
-    AppTheme { CustomListsScreen(state = state, SnackbarHostState()) }
+    AppTheme { CustomListsScreen(state = state, SnackbarHostState(), {}, { _ -> }, {}) }
 }
 
 @Composable
@@ -112,10 +112,10 @@ fun CustomLists(
 @Composable
 fun CustomListsScreen(
     state: CustomListsUiState,
-    snackbarHostState: SnackbarHostState,
-    addCustomList: () -> Unit = {},
-    openCustomList: (CustomList) -> Unit = {},
-    onBackClick: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    addCustomList: () -> Unit,
+    openCustomList: (CustomList) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.edit_custom_lists),

@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -52,11 +53,41 @@ class ConnectScreenTest {
         unmockkAll()
     }
 
+    private fun ComposeContext.initScreen(
+        state: ConnectUiState = ConnectUiState.INITIAL,
+        onDisconnectClick: () -> Unit = {},
+        onReconnectClick: () -> Unit = {},
+        onConnectClick: () -> Unit = {},
+        onCancelClick: () -> Unit = {},
+        onSwitchLocationClick: () -> Unit = {},
+        onOpenAppListing: () -> Unit = {},
+        onManageAccountClick: () -> Unit = {},
+        onSettingsClick: () -> Unit = {},
+        onAccountClick: () -> Unit = {},
+        onDismissNewDeviceClick: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            ConnectScreen(
+                state = state,
+                onDisconnectClick = onDisconnectClick,
+                onReconnectClick = onReconnectClick,
+                onConnectClick = onConnectClick,
+                onCancelClick = onCancelClick,
+                onSwitchLocationClick = onSwitchLocationClick,
+                onOpenAppListing = onOpenAppListing,
+                onManageAccountClick = onManageAccountClick,
+                onSettingsClick = onSettingsClick,
+                onAccountClick = onAccountClick,
+                onDismissNewDeviceClick = onDismissNewDeviceClick,
+            )
+        }
+    }
+
     @Test
     fun testDefaultState() {
         composeExtension.use {
             // Arrange
-            setContentWithTheme { ConnectScreen(state = ConnectUiState.INITIAL) }
+            initScreen()
 
             // Assert
             onNodeWithText("DISCONNECTED").assertExists()
@@ -68,21 +99,19 @@ class ConnectScreenTest {
     fun testConnectingState() {
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = InAppNotification.TunnelStateBlocked,
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
@@ -98,22 +127,19 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState =
-                                TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("CONNECTED").assertExists()
@@ -127,21 +153,19 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockLocationName = "Home"
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = mockLocationName,
-                            tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
-                            showLocation = true,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = mockLocationName,
+                        tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Nothing),
+                        showLocation = true,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("DISCONNECTED").assertExists()
@@ -155,21 +179,19 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockLocationName = "Home"
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = mockLocationName,
-                            tunnelState = TunnelState.Disconnected(),
-                            showLocation = true,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = mockLocationName,
+                        tunnelState = TunnelState.Disconnected(),
+                        showLocation = true,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("DISCONNECTED").assertExists()
@@ -183,27 +205,23 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockLocationName = "Home"
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = mockLocationName,
-                            tunnelState =
-                                TunnelState.Error(
-                                    ErrorState(ErrorStateCause.StartTunnelError, true)
-                                ),
-                            showLocation = true,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification =
-                                InAppNotification.TunnelStateError(
-                                    ErrorState(ErrorStateCause.StartTunnelError, true)
-                                ),
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = mockLocationName,
+                        tunnelState =
+                            TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, true)),
+                        showLocation = true,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification =
+                            InAppNotification.TunnelStateError(
+                                ErrorState(ErrorStateCause.StartTunnelError, true)
+                            ),
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("BLOCKED CONNECTION").assertExists()
@@ -218,27 +236,23 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockLocationName = "Home"
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = mockLocationName,
-                            tunnelState =
-                                TunnelState.Error(
-                                    ErrorState(ErrorStateCause.StartTunnelError, false)
-                                ),
-                            showLocation = true,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification =
-                                InAppNotification.TunnelStateError(
-                                    ErrorState(ErrorStateCause.StartTunnelError, false)
-                                ),
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = mockLocationName,
+                        tunnelState =
+                            TunnelState.Error(ErrorState(ErrorStateCause.StartTunnelError, false)),
+                        showLocation = true,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification =
+                            InAppNotification.TunnelStateError(
+                                ErrorState(ErrorStateCause.StartTunnelError, false)
+                            ),
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("FAILED TO CONNECT").assertExists()
@@ -253,22 +267,19 @@ class ConnectScreenTest {
     fun testReconnectingState() {
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState =
-                                TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Reconnect),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = InAppNotification.TunnelStateBlocked,
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
@@ -284,21 +295,19 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockLocationName = "Home"
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = mockLocationName,
-                            tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
-                            showLocation = true,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = InAppNotification.TunnelStateBlocked,
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = mockLocationName,
+                        tunnelState = TunnelState.Disconnecting(ActionAfterDisconnect.Block),
+                        showLocation = true,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = InAppNotification.TunnelStateBlocked,
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("CONNECTED").assertExists()
@@ -314,22 +323,20 @@ class ConnectScreenTest {
             // Arrange
             val mockLocationName = "Home"
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = mockLocationName,
-                            tunnelState = TunnelState.Disconnected(),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        ),
-                    onSwitchLocationClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = mockLocationName,
+                        tunnelState = TunnelState.Disconnected(),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    ),
+                onSwitchLocationClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithTag(SELECT_LOCATION_BUTTON_TEST_TAG).performClick()
@@ -345,23 +352,20 @@ class ConnectScreenTest {
             // Arrange
             val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState =
-                                TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        ),
-                    onDisconnectClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    ),
+                onDisconnectClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithTag(CONNECT_BUTTON_TEST_TAG).performClick()
@@ -377,23 +381,20 @@ class ConnectScreenTest {
             // Arrange
             val mockTunnelEndpoint: TunnelEndpoint = mockk(relaxed = true)
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState =
-                                TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        ),
-                    onReconnectClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connected(mockTunnelEndpoint, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    ),
+                onReconnectClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithTag(RECONNECT_BUTTON_TEST_TAG).performClick()
@@ -408,22 +409,20 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Disconnected(),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        ),
-                    onConnectClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Disconnected(),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    ),
+                onConnectClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithTag(CONNECT_BUTTON_TEST_TAG).performClick()
@@ -438,22 +437,20 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        ),
-                    onCancelClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    ),
+                onCancelClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithTag(CONNECT_BUTTON_TEST_TAG).performClick()
@@ -490,26 +487,20 @@ class ConnectScreenTest {
             val outIpv6 = "ipv6address"
             every { mockLocation.ipv6?.hostAddress } returns outIpv6
 
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = mockLocation,
-                            selectedRelayItemTitle = null,
-                            tunnelState =
-                                TunnelState.Connected(
-                                    mockTunnelEndpoint,
-                                    mockLocation,
-                                    emptyList(),
-                                ),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = null,
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = mockLocation,
+                        selectedRelayItemTitle = null,
+                        tunnelState =
+                            TunnelState.Connected(mockTunnelEndpoint, mockLocation, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = null,
+                        isPlayBuild = false,
+                    )
+            )
 
             // Act
             onNodeWithTag(CONNECT_CARD_HEADER_TEST_TAG).performClick()
@@ -532,21 +523,19 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val versionInfo = VersionInfo(currentVersion = "1.0", isSupported = false)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("UNSUPPORTED VERSION").assertExists()
@@ -562,24 +551,20 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val expiryDate = DateTime(2020, 11, 11, 10, 10)
-            setContentWithTheme {
-                ConnectScreen(
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification =
-                                InAppNotification.AccountExpiry(
-                                    Duration(DateTime.now(), expiryDate)
-                                ),
-                            isPlayBuild = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification =
+                            InAppNotification.AccountExpiry(Duration(DateTime.now(), expiryDate)),
+                        isPlayBuild = false,
+                    )
+            )
 
             // Assert
             onNodeWithText("ACCOUNT CREDIT EXPIRES SOON").assertExists()
@@ -593,22 +578,20 @@ class ConnectScreenTest {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             val versionInfo = VersionInfo(isSupported = false, currentVersion = "")
-            setContentWithTheme {
-                ConnectScreen(
-                    onOpenAppListing = mockedClickHandler,
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
-                            isPlayBuild = false,
-                        ),
-                )
-            }
+            initScreen(
+                onOpenAppListing = mockedClickHandler,
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = InAppNotification.UnsupportedVersion(versionInfo),
+                        isPlayBuild = false,
+                    ),
+            )
 
             // Act
             onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
@@ -624,25 +607,21 @@ class ConnectScreenTest {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
             val expiryDate = DateTime(2020, 11, 11, 10, 10)
-            setContentWithTheme {
-                ConnectScreen(
-                    onManageAccountClick = mockedClickHandler,
-                    state =
-                        ConnectUiState(
-                            location = null,
-                            selectedRelayItemTitle = null,
-                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            showLocation = false,
-                            deviceName = "",
-                            daysLeftUntilExpiry = null,
-                            inAppNotification =
-                                InAppNotification.AccountExpiry(
-                                    Duration(DateTime.now(), expiryDate)
-                                ),
-                            isPlayBuild = false,
-                        ),
-                )
-            }
+            initScreen(
+                onManageAccountClick = mockedClickHandler,
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification =
+                            InAppNotification.AccountExpiry(Duration(DateTime.now(), expiryDate)),
+                        isPlayBuild = false,
+                    ),
+            )
 
             // Act
             onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
@@ -657,9 +636,7 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val onAccountClickMockk: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ConnectScreen(state = ConnectUiState.INITIAL, onAccountClick = onAccountClickMockk)
-            }
+            initScreen(state = ConnectUiState.INITIAL, onAccountClick = onAccountClickMockk)
 
             // Assert
             onNodeWithTag(TOP_BAR_ACCOUNT_BUTTON).performClick()

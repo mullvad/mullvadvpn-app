@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,18 +26,25 @@ class ResetServerIPOverridesConfirmationDialogTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initDialog(
+        onClearAllOverrides: () -> Unit = {},
+        onNavigateBack: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            ResetServerIpOverridesConfirmationDialog(
+                onClearAllOverrides = onClearAllOverrides,
+                onNavigateBack = onNavigateBack,
+            )
+        }
+    }
+
     @Test
-    fun ensure_cancel_click_works() =
+    fun ensureCancelClickWorks() =
         composeExtension.use {
             val clickHandler: () -> Unit = mockk(relaxed = true)
 
             // Arrange
-            setContentWithTheme {
-                ResetServerIpOverridesConfirmationDialog(
-                    onNavigateBack = clickHandler,
-                    onClearAllOverrides = {},
-                )
-            }
+            initDialog(onNavigateBack = clickHandler)
 
             // Act
             onNodeWithTag(RESET_SERVER_IP_OVERRIDE_CANCEL_TEST_TAG).performClick()
@@ -46,17 +54,12 @@ class ResetServerIPOverridesConfirmationDialogTest {
         }
 
     @Test
-    fun ensure_reset_click_works() =
+    fun ensureResetClickWorks() =
         composeExtension.use {
             val clickHandler: () -> Unit = mockk(relaxed = true)
 
             // Arrange
-            setContentWithTheme {
-                ResetServerIpOverridesConfirmationDialog(
-                    onNavigateBack = {},
-                    onClearAllOverrides = clickHandler,
-                )
-            }
+            initDialog(onClearAllOverrides = clickHandler)
 
             // Act
             onNodeWithTag(RESET_SERVER_IP_OVERRIDE_RESET_TEST_TAG).performClick()

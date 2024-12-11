@@ -82,7 +82,27 @@ private fun PreviewSelectLocationScreen(
     @PreviewParameter(SelectLocationsUiStatePreviewParameterProvider::class)
     state: SelectLocationUiState
 ) {
-    AppTheme { SelectLocationScreen(state = state) }
+    AppTheme {
+        SelectLocationScreen(
+            state = state,
+            SnackbarHostState(),
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            { _, _ -> },
+            { _, _ -> },
+            {},
+            {},
+            {},
+            {},
+            {},
+        )
+    }
 }
 
 @SuppressLint("CheckResult")
@@ -201,30 +221,26 @@ fun SelectLocation(
     )
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "LongParameterList")
 @Composable
 fun SelectLocationScreen(
     state: SelectLocationUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onSelectRelay: (item: RelayItem) -> Unit = {},
-    onSearchClick: (RelayListType) -> Unit = {},
-    onBackClick: () -> Unit = {},
-    onFilterClick: () -> Unit = {},
-    onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
-    onEditCustomLists: () -> Unit = {},
-    removeOwnershipFilter: () -> Unit = {},
-    removeProviderFilter: () -> Unit = {},
-    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
-        { _, _ ->
-        },
-    onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit =
-        { _, _ ->
-        },
-    onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
-    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
-    onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
-    onSelectRelayList: (RelayListType) -> Unit = {},
-    openDaitaSettings: () -> Unit = {},
+    onSelectRelay: (item: RelayItem) -> Unit,
+    onSearchClick: (RelayListType) -> Unit,
+    onBackClick: () -> Unit,
+    onFilterClick: () -> Unit,
+    onCreateCustomList: (location: RelayItem.Location?) -> Unit,
+    onEditCustomLists: () -> Unit,
+    removeOwnershipFilter: () -> Unit,
+    removeProviderFilter: () -> Unit,
+    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
+    onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
+    onEditCustomListName: (RelayItem.CustomList) -> Unit,
+    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
+    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
+    onSelectRelayList: (RelayListType) -> Unit,
+    openDaitaSettings: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
 

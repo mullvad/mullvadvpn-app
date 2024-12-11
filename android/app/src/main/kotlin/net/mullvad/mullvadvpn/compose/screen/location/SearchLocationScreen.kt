@@ -80,7 +80,25 @@ private fun PreviewSearchLocationScreen(
     @PreviewParameter(SearchLocationsUiStatePreviewParameterProvider::class)
     state: SearchLocationUiState
 ) {
-    AppTheme { SearchLocationScreen(state = state) }
+    AppTheme {
+        SearchLocationScreen(
+            state = state,
+            SnackbarHostState(),
+            {},
+            { _, _, _ -> },
+            {},
+            {},
+            {},
+            { _, _ -> },
+            { _, _ -> },
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+        )
+    }
 }
 
 data class SearchLocationNavArgs(val relayListType: RelayListType)
@@ -198,24 +216,20 @@ fun SearchLocation(
 @Composable
 fun SearchLocationScreen(
     state: SearchLocationUiState,
-    snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onSelectRelay: (RelayItem) -> Unit = {},
-    onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit = { _, _, _ -> },
-    onSearchInputChanged: (String) -> Unit = {},
-    onCreateCustomList: (location: RelayItem.Location?) -> Unit = {},
-    onEditCustomLists: () -> Unit = {},
-    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit =
-        { _, _ ->
-        },
-    onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit =
-        { _, _ ->
-        },
-    onEditCustomListName: (RelayItem.CustomList) -> Unit = {},
-    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit = {},
-    onDeleteCustomList: (RelayItem.CustomList) -> Unit = {},
-    onRemoveOwnershipFilter: () -> Unit = {},
-    onRemoveProviderFilter: () -> Unit = {},
-    onGoBack: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onSelectRelay: (RelayItem) -> Unit,
+    onToggleExpand: (RelayItemId, CustomListId?, Boolean) -> Unit,
+    onSearchInputChanged: (String) -> Unit,
+    onCreateCustomList: (location: RelayItem.Location?) -> Unit,
+    onEditCustomLists: () -> Unit,
+    onAddLocationToList: (location: RelayItem.Location, customList: RelayItem.CustomList) -> Unit,
+    onRemoveLocationFromList: (location: RelayItem.Location, customListId: CustomListId) -> Unit,
+    onEditCustomListName: (RelayItem.CustomList) -> Unit,
+    onEditLocationsCustomList: (RelayItem.CustomList) -> Unit,
+    onDeleteCustomList: (RelayItem.CustomList) -> Unit,
+    onRemoveOwnershipFilter: () -> Unit,
+    onRemoveProviderFilter: () -> Unit,
+    onGoBack: () -> Unit,
 ) {
     val backgroundColor = MaterialTheme.colorScheme.surface
     val onBackgroundColor = MaterialTheme.colorScheme.onSurface

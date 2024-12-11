@@ -77,7 +77,9 @@ private fun PreviewApiAccessMethodDetailsScreen(
     @PreviewParameter(ApiAccessMethodDetailsUiStatePreviewParameterProvider::class)
     state: ApiAccessMethodDetailsUiState
 ) {
-    AppTheme { ApiAccessMethodDetailsScreen(state = state) }
+    AppTheme {
+        ApiAccessMethodDetailsScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {})
+    }
 }
 
 data class ApiAccessMethodDetailsNavArgs(val accessMethodId: ApiAccessMethodId)
@@ -187,14 +189,14 @@ fun ApiAccessMethodDetails(
 @Composable
 fun ApiAccessMethodDetailsScreen(
     state: ApiAccessMethodDetailsUiState,
-    snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onEditMethodClicked: () -> Unit = {},
-    onEnableClicked: (Boolean) -> Unit = {},
-    onTestMethodClicked: () -> Unit = {},
-    onUseMethodClicked: () -> Unit = {},
-    onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit = {},
-    onNavigateToEncryptedDnsInfoDialog: () -> Unit = {},
-    onBackClicked: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onEditMethodClicked: () -> Unit,
+    onEnableClicked: (Boolean) -> Unit,
+    onTestMethodClicked: () -> Unit,
+    onUseMethodClicked: () -> Unit,
+    onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit,
+    onNavigateToEncryptedDnsInfoDialog: () -> Unit,
+    onBackClicked: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = state.name(),

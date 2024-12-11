@@ -74,7 +74,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewDeviceListScreenContent(
     @PreviewParameter(DeviceListUiStatePreviewParameterProvider::class) state: DeviceListUiState
 ) {
-    AppTheme { DeviceListScreen(state = state) }
+    AppTheme { DeviceListScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}) }
 }
 
 data class DeviceListNavArgs(val accountNumber: AccountNumber)
@@ -139,11 +139,11 @@ fun DeviceList(
 fun DeviceListScreen(
     state: DeviceListUiState,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
-    onBackClick: () -> Unit = {},
-    onContinueWithLogin: () -> Unit = {},
-    onSettingsClicked: () -> Unit = {},
-    onTryAgainClicked: () -> Unit = {},
-    navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit = {},
+    onBackClick: () -> Unit,
+    onContinueWithLogin: () -> Unit,
+    onSettingsClicked: () -> Unit,
+    onTryAgainClicked: () -> Unit,
+    navigateToRemoveDeviceConfirmationDialog: (device: Device) -> Unit,
 ) {
 
     ScaffoldWithTopBar(

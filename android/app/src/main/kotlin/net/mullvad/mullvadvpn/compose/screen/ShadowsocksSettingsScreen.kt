@@ -39,7 +39,10 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewShadowsocksSettingsScreen() {
     AppTheme {
         ShadowsocksSettingsScreen(
-            state = ShadowsocksSettingsState(port = Constraint.Any, validPortRanges = emptyList())
+            state = ShadowsocksSettingsState(port = Constraint.Any, validPortRanges = emptyList()),
+            {},
+            {},
+            {},
         )
     }
 }
@@ -82,9 +85,9 @@ fun ShadowsocksSettings(
 @Composable
 fun ShadowsocksSettingsScreen(
     state: ShadowsocksSettingsState,
-    navigateToCustomPortDialog: () -> Unit = {},
-    onObfuscationPortSelected: (Constraint<Port>) -> Unit = {},
-    onBackClick: () -> Unit = {},
+    navigateToCustomPortDialog: () -> Unit,
+    onObfuscationPortSelected: (Constraint<Port>) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.shadowsocks),

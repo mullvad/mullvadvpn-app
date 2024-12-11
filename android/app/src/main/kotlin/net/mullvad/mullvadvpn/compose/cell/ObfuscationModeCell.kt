@@ -57,7 +57,7 @@ fun ObfuscationModeCell(
     port: Constraint<Port>,
     isSelected: Boolean,
     onSelected: (ObfuscationMode) -> Unit,
-    onNavigate: () -> Unit = {},
+    onNavigate: () -> Unit,
     testTag: String? = null,
 ) {
     Row(

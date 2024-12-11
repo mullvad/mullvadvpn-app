@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -32,23 +33,37 @@ class WelcomeScreenTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initScreen(
+        state: WelcomeUiState = WelcomeUiState(),
+        onSitePaymentClick: () -> Unit = {},
+        onRedeemVoucherClick: () -> Unit = {},
+        onSettingsClick: () -> Unit = {},
+        onAccountClick: () -> Unit = {},
+        onPurchaseBillingProductClick: (productId: ProductId) -> Unit = {},
+        onDisconnectClick: () -> Unit = {},
+        navigateToDeviceInfoDialog: () -> Unit = {},
+        navigateToVerificationPendingDialog: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            WelcomeScreen(
+                state = state,
+                onSitePaymentClick = onSitePaymentClick,
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onSettingsClick = onSettingsClick,
+                onAccountClick = onAccountClick,
+                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                navigateToDeviceInfoDialog = navigateToDeviceInfoDialog,
+                navigateToVerificationPendingDialog = navigateToVerificationPendingDialog,
+                onDisconnectClick = onDisconnectClick,
+            )
+        }
+    }
+
     @Test
     fun testDefaultState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                WelcomeScreen(
-                    state = WelcomeUiState(),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen()
 
             // Assert
             onNodeWithText("Congrats!").assertExists()
@@ -59,19 +74,7 @@ class WelcomeScreenTest {
     fun testDisableSitePayment() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                WelcomeScreen(
-                    state = WelcomeUiState(),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen()
 
             // Assert
             onNodeWithText(
@@ -88,19 +91,7 @@ class WelcomeScreenTest {
             // Arrange
             val rawAccountNumber = AccountNumber("1111222233334444")
             val expectedAccountNumber = "1111 2222 3333 4444"
-            setContentWithTheme {
-                WelcomeScreen(
-                    state = WelcomeUiState(accountNumber = rawAccountNumber),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(state = WelcomeUiState(accountNumber = rawAccountNumber))
 
             // Assert
             onNodeWithText(expectedAccountNumber).assertExists()
@@ -111,19 +102,10 @@ class WelcomeScreenTest {
         composeExtension.use {
             // Arrange
             val mockClickListener: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                WelcomeScreen(
-                    state = WelcomeUiState(showSitePayment = true),
-                    onSitePaymentClick = mockClickListener,
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state = WelcomeUiState(showSitePayment = true),
+                onSitePaymentClick = mockClickListener,
+            )
 
             // Act
             onNodeWithText("Buy credit").performClick()
@@ -137,19 +119,7 @@ class WelcomeScreenTest {
         composeExtension.use {
             // Arrange
             val mockClickListener: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                WelcomeScreen(
-                    state = WelcomeUiState(),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = mockClickListener,
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(state = WelcomeUiState(), onRedeemVoucherClick = mockClickListener)
 
             // Act
             onNodeWithText("Redeem voucher").performClick()
@@ -162,19 +132,9 @@ class WelcomeScreenTest {
     fun testShowBillingErrorPaymentButton() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                WelcomeScreen(
-                    state = WelcomeUiState().copy(billingPaymentState = PaymentState.Error.Billing),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state = WelcomeUiState().copy(billingPaymentState = PaymentState.Error.Billing)
+            )
 
             // Assert
             onNodeWithText("Add 30 days time").assertExists()
@@ -187,23 +147,13 @@ class WelcomeScreenTest {
             val mockPaymentProduct: PaymentProduct = mockk()
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns null
-            setContentWithTheme {
-                WelcomeScreen(
-                    state =
-                        WelcomeUiState(
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                        ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state =
+                    WelcomeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    )
+            )
 
             // Assert
             onNodeWithText("Add 30 days time ($10)").assertExists()
@@ -216,24 +166,13 @@ class WelcomeScreenTest {
             val mockPaymentProduct: PaymentProduct = mockk()
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
-            setContentWithTheme {
-                WelcomeScreen(
-                    state =
-                        WelcomeUiState()
-                            .copy(
-                                billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                            ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state =
+                    WelcomeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    )
+            )
 
             // Assert
             onNodeWithText("Google Play payment pending").assertExists()
@@ -247,24 +186,14 @@ class WelcomeScreenTest {
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
             val mockShowPendingInfo = mockk<() -> Unit>(relaxed = true)
-            setContentWithTheme {
-                WelcomeScreen(
-                    state =
-                        WelcomeUiState()
-                            .copy(
-                                billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                            ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToVerificationPendingDialog = mockShowPendingInfo,
-                    navigateToDeviceInfoDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state =
+                    WelcomeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    ),
+                navigateToVerificationPendingDialog = mockShowPendingInfo,
+            )
 
             // Act
             onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
@@ -280,24 +209,14 @@ class WelcomeScreenTest {
             val mockPaymentProduct: PaymentProduct = mockk()
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
-            setContentWithTheme {
-                WelcomeScreen(
-                    state =
-                        WelcomeUiState()
-                            .copy(
-                                billingPaymentState =
-                                    PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                            ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+
+            initScreen(
+                state =
+                    WelcomeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    )
+            )
 
             // Assert
             onNodeWithText("Verifying purchase").assertExists()
@@ -312,23 +231,14 @@ class WelcomeScreenTest {
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.productId } returns ProductId("PRODUCT_ID")
             every { mockPaymentProduct.status } returns null
-            setContentWithTheme {
-                WelcomeScreen(
-                    state =
-                        WelcomeUiState(
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
-                        ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = clickHandler,
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state =
+                    WelcomeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct))
+                    ),
+                onPurchaseBillingProductClick = clickHandler,
+            )
 
             // Act
             onNodeWithText("Add 30 days time ($10)").performClick()
@@ -344,19 +254,10 @@ class WelcomeScreenTest {
             val clickHandler: () -> Unit = mockk(relaxed = true)
             val tunnelState: TunnelState = mockk(relaxed = true)
             every { tunnelState.isSecured() } returns true
-            setContentWithTheme {
-                WelcomeScreen(
-                    state = WelcomeUiState(tunnelState = tunnelState),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = {},
-                    navigateToDeviceInfoDialog = {},
-                    navigateToVerificationPendingDialog = {},
-                    onDisconnectClick = clickHandler,
-                )
-            }
+            initScreen(
+                state = WelcomeUiState(tunnelState = tunnelState),
+                onDisconnectClick = clickHandler,
+            )
 
             // Act
             onNodeWithText("Disconnect").performClick()

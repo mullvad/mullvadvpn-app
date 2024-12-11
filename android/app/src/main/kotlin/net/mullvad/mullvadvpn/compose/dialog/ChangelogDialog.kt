@@ -39,12 +39,12 @@ fun Changelog(navController: NavController) {
 }
 
 @Composable
-fun ChangelogDialog(changeLog: ChangelogUiState, onDismiss: () -> Unit) {
+fun ChangelogDialog(state: ChangelogUiState, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = changeLog.version,
+                text = state.version,
                 style = MaterialTheme.typography.headlineLarge,
                 color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
@@ -64,7 +64,7 @@ fun ChangelogDialog(changeLog: ChangelogUiState, onDismiss: () -> Unit) {
                     modifier = Modifier.fillMaxWidth(),
                 )
 
-                changeLog.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
+                state.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
             }
         },
         confirmButton = {

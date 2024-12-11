@@ -59,7 +59,7 @@ private fun PreviewSplitTunnelingScreen(
     @PreviewParameter(SplitTunnelingUiStatePreviewParameterProvider::class)
     state: SplitTunnelingUiState
 ) {
-    AppTheme { SplitTunnelingScreen(state = state) }
+    AppTheme { SplitTunnelingScreen(state = state, {}, {}, {}, {}, {}, { null }) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -86,12 +86,12 @@ fun SplitTunneling(navigator: DestinationsNavigator) {
 @Composable
 fun SplitTunnelingScreen(
     state: SplitTunnelingUiState,
-    onEnableSplitTunneling: (Boolean) -> Unit = {},
-    onShowSystemAppsClick: (show: Boolean) -> Unit = {},
-    onExcludeAppClick: (packageName: String) -> Unit = {},
-    onIncludeAppClick: (packageName: String) -> Unit = {},
-    onBackClick: () -> Unit = {},
-    onResolveIcon: (String) -> Bitmap? = { null },
+    onEnableSplitTunneling: (Boolean) -> Unit,
+    onShowSystemAppsClick: (show: Boolean) -> Unit,
+    onExcludeAppClick: (packageName: String) -> Unit,
+    onIncludeAppClick: (packageName: String) -> Unit,
+    onBackClick: () -> Unit,
+    onResolveIcon: (String) -> Bitmap?,
 ) {
     val focusManager = LocalFocusManager.current
 

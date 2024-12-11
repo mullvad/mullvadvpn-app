@@ -147,8 +147,8 @@ fun Payment(productId: ProductId, resultBackNavigator: ResultBackNavigator<Boole
 @Composable
 fun PaymentDialog(
     paymentDialogData: PaymentDialogData,
-    retryPurchase: (ProductId) -> Unit = {},
-    onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit = {},
+    retryPurchase: (ProductId) -> Unit,
+    onCloseDialog: (isPaymentSuccessful: Boolean) -> Unit,
 ) {
     val clickResolver: (action: PaymentDialogAction) -> Unit = {
         when (it) {

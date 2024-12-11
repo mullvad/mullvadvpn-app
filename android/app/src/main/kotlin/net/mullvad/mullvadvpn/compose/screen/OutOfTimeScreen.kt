@@ -69,7 +69,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewOutOfTimeScreen(
     @PreviewParameter(OutOfTimeScreenPreviewParameterProvider::class) state: OutOfTimeUiState
 ) {
-    AppTheme { OutOfTimeScreen(state = state) }
+    AppTheme { OutOfTimeScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}, {}, {}) }
 }
 
 @Destination<RootGraph>(style = HomeTransition::class)
@@ -137,14 +137,14 @@ fun OutOfTime(
 @Composable
 fun OutOfTimeScreen(
     state: OutOfTimeUiState,
-    snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onDisconnectClick: () -> Unit = {},
-    onSitePaymentClick: () -> Unit = {},
-    onRedeemVoucherClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    onAccountClick: () -> Unit = {},
-    onPurchaseBillingProductClick: (ProductId) -> Unit = { _ -> },
-    navigateToVerificationPendingDialog: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onDisconnectClick: () -> Unit,
+    onSitePaymentClick: () -> Unit,
+    onRedeemVoucherClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onAccountClick: () -> Unit,
+    onPurchaseBillingProductClick: (ProductId) -> Unit,
+    navigateToVerificationPendingDialog: () -> Unit,
 ) {
 
     val scrollState = rememberScrollState()

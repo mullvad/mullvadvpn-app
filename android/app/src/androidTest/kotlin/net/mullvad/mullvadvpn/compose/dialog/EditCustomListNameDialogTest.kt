@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -31,12 +32,28 @@ class EditCustomListNameDialogTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initDialog(
+        state: EditCustomListNameUiState = EditCustomListNameUiState(),
+        updateName: (String) -> Unit = {},
+        onInputChanged: (String) -> Unit = {},
+        onDismiss: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            EditCustomListNameDialog(
+                state = state,
+                updateName = updateName,
+                onInputChanged = onInputChanged,
+                onDismiss = onDismiss,
+            )
+        }
+    }
+
     @Test
     fun givenNoErrorShouldShowNoErrorMessage() =
         composeExtension.use {
             // Arrange
             val state = EditCustomListNameUiState(error = null)
-            setContentWithTheme { EditCustomListNameDialog(state = state) }
+            initDialog(state = state)
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -51,7 +68,7 @@ class EditCustomListNameDialogTest {
                 EditCustomListNameUiState(
                     error = RenameError(NameAlreadyExists(CustomListName.fromString("name")))
                 )
-            setContentWithTheme { EditCustomListNameDialog(state = state) }
+            initDialog(state = state)
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertExists()
@@ -66,7 +83,7 @@ class EditCustomListNameDialogTest {
                 EditCustomListNameUiState(
                     error = RenameError(UnknownCustomListError(RuntimeException("")))
                 )
-            setContentWithTheme { EditCustomListNameDialog(state = state) }
+            initDialog(state = state)
 
             // Assert
             onNodeWithText(NAME_EXIST_ERROR_TEXT).assertDoesNotExist()
@@ -79,9 +96,7 @@ class EditCustomListNameDialogTest {
             // Arrange
             val mockedOnDismiss: () -> Unit = mockk(relaxed = true)
             val state = EditCustomListNameUiState()
-            setContentWithTheme {
-                EditCustomListNameDialog(state = state, onDismiss = mockedOnDismiss)
-            }
+            initDialog(state = state, onDismiss = mockedOnDismiss)
 
             // Act
             onNodeWithText(CANCEL_BUTTON_TEXT).performClick()
@@ -96,9 +111,7 @@ class EditCustomListNameDialogTest {
             // Arrange
             val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
             val state = EditCustomListNameUiState()
-            setContentWithTheme {
-                EditCustomListNameDialog(state = state, updateName = mockedUpdateName)
-            }
+            initDialog(state = state, updateName = mockedUpdateName)
 
             // Act
             onNodeWithText(SAVE_BUTTON_TEXT).performClick()
@@ -114,9 +127,7 @@ class EditCustomListNameDialogTest {
             val mockedUpdateName: (String) -> Unit = mockk(relaxed = true)
             val inputText = "NEW NAME"
             val state = EditCustomListNameUiState(name = inputText)
-            setContentWithTheme {
-                EditCustomListNameDialog(state = state, updateName = mockedUpdateName)
-            }
+            initDialog(state, updateName = mockedUpdateName)
 
             // Act
             onNodeWithText(SAVE_BUTTON_TEXT).performClick()
@@ -132,9 +143,7 @@ class EditCustomListNameDialogTest {
             val mockedOnInputChanged: (String) -> Unit = mockk(relaxed = true)
             val inputText = "NEW NAME"
             val state = EditCustomListNameUiState()
-            setContentWithTheme {
-                EditCustomListNameDialog(state = state, onInputChanged = mockedOnInputChanged)
-            }
+            initDialog(state, onInputChanged = mockedOnInputChanged)
 
             // Act
             onNodeWithTag(EDIT_CUSTOM_LIST_DIALOG_INPUT_TEST_TAG).performTextInput(inputText)

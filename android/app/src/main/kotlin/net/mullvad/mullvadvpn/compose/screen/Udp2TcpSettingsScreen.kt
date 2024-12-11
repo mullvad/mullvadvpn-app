@@ -31,7 +31,9 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewUdp2TcpSettingsScreen() {
-    AppTheme { Udp2TcpSettingsScreen(state = Udp2TcpSettingsState(port = Constraint.Any)) }
+    AppTheme {
+        Udp2TcpSettingsScreen(state = Udp2TcpSettingsState(port = Constraint.Any), {}, {}, {})
+    }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -51,9 +53,9 @@ fun Udp2TcpSettings(navigator: DestinationsNavigator) {
 @Composable
 fun Udp2TcpSettingsScreen(
     state: Udp2TcpSettingsState,
-    onObfuscationPortSelected: (Constraint<Port>) -> Unit = {},
-    navigateUdp2TcpInfo: () -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onObfuscationPortSelected: (Constraint<Port>) -> Unit,
+    navigateUdp2TcpInfo: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.upd_over_tcp),

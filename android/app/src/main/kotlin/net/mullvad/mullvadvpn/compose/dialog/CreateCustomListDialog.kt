@@ -33,7 +33,7 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewCreateCustomListDialog() {
-    AppTheme { CreateCustomListDialog(state = CreateCustomListUiState()) }
+    AppTheme { CreateCustomListDialog(state = CreateCustomListUiState(), {}, {}, {}) }
 }
 
 @Preview
@@ -44,7 +44,10 @@ private fun PreviewCreateCustomListDialogError() {
             state =
                 CreateCustomListUiState(
                     error = CreateWithLocationsError.Create(CustomListAlreadyExists)
-                )
+                ),
+            {},
+            {},
+            {},
         )
     }
 }
@@ -92,9 +95,9 @@ fun CreateCustomList(
 @Composable
 fun CreateCustomListDialog(
     state: CreateCustomListUiState,
-    createCustomList: (String) -> Unit = {},
-    onInputChanged: () -> Unit = {},
-    onDismiss: () -> Unit = {},
+    createCustomList: (String) -> Unit,
+    onInputChanged: () -> Unit,
+    onDismiss: () -> Unit,
 ) {
     val name = rememberSaveable { mutableStateOf("") }
     val isValidName = name.value.isNotBlank()

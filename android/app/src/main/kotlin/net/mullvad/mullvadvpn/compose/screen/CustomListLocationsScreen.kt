@@ -63,7 +63,7 @@ private fun PreviewCustomListLocationScreen(
     @PreviewParameter(CustomListLocationUiStatePreviewParameterProvider::class)
     state: CustomListLocationsUiState
 ) {
-    AppTheme { CustomListLocationsScreen(state = state) }
+    AppTheme { CustomListLocationsScreen(state = state, {}, {}, { _, _ -> }, { _, _ -> }, {}) }
 }
 
 data class CustomListLocationsNavArgs(val customListId: CustomListId, val newList: Boolean)
@@ -119,11 +119,11 @@ fun CustomListLocations(
 @Composable
 fun CustomListLocationsScreen(
     state: CustomListLocationsUiState,
-    onSearchTermInput: (String) -> Unit = {},
-    onSaveClick: () -> Unit = {},
-    onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
-    onExpand: (RelayItem.Location, selected: Boolean) -> Unit = { _, _ -> },
-    onBackClick: () -> Unit = {},
+    onSearchTermInput: (String) -> Unit,
+    onSaveClick: () -> Unit,
+    onRelaySelectionClick: (RelayItem.Location, selected: Boolean) -> Unit,
+    onExpand: (RelayItem.Location, selected: Boolean) -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithSmallTopBar(
         appBarTitle =

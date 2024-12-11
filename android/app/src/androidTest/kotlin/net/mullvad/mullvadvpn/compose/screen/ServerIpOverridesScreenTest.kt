@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -30,9 +30,7 @@ class ServerIpOverridesScreenTest {
         MockKAnnotations.init(this)
     }
 
-    @Suppress("TestFunctionName")
-    @Composable
-    private fun ScreenWithDefault(
+    private fun ComposeContext.initScreen(
         state: ServerIpOverridesUiState,
         onBackClick: () -> Unit = {},
         onInfoClick: () -> Unit = {},
@@ -40,43 +38,43 @@ class ServerIpOverridesScreenTest {
         onImportByFile: () -> Unit = {},
         onImportByText: () -> Unit = {},
     ) {
-        ServerIpOverridesScreen(
-            state = state,
-            onBackClick = onBackClick,
-            onInfoClick = onInfoClick,
-            onResetOverridesClick = onResetOverridesClick,
-            onImportByFile = onImportByFile,
-            onImportByText = onImportByText,
-        )
+        setContentWithTheme {
+            ServerIpOverridesScreen(
+                state = state,
+                onBackClick = onBackClick,
+                onInfoClick = onInfoClick,
+                onResetOverridesClick = onResetOverridesClick,
+                onImportByFile = onImportByFile,
+                onImportByText = onImportByText,
+            )
+        }
     }
 
     @Test
-    fun ensure_overrides_inactive_is_displayed() =
+    fun ensureOverridesInactiveIsDisplayed() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                ScreenWithDefault(state = ServerIpOverridesUiState.Loaded(false))
-            }
+            initScreen(state = ServerIpOverridesUiState.Loaded(false))
 
             // Assert
             onNodeWithText("Overrides inactive").assertExists()
         }
 
     @Test
-    fun ensure_overrides_active_is_displayed() =
+    fun ensureOverridesActiveIsDisplayed() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { ScreenWithDefault(state = ServerIpOverridesUiState.Loaded(true)) }
+            initScreen(state = ServerIpOverridesUiState.Loaded(true))
 
             // Assert
             onNodeWithText("Overrides active").assertExists()
         }
 
     @Test
-    fun ensure_overrides_active_shows_warning_on_import() =
+    fun ensureOverridesActiveShowsWarningOnImport() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { ScreenWithDefault(state = ServerIpOverridesUiState.Loaded(true)) }
+            initScreen(state = ServerIpOverridesUiState.Loaded(true))
 
             // Act
             onNodeWithTag(testTag = SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
@@ -89,16 +87,11 @@ class ServerIpOverridesScreenTest {
         }
 
     @Test
-    fun ensure_info_click_works() =
+    fun ensureInfoClickWorks() =
         composeExtension.use {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ScreenWithDefault(
-                    state = ServerIpOverridesUiState.Loaded(false),
-                    onInfoClick = clickHandler,
-                )
-            }
+            initScreen(state = ServerIpOverridesUiState.Loaded(false), onInfoClick = clickHandler)
 
             // Act
             onNodeWithTag(SERVER_IP_OVERRIDE_INFO_TEST_TAG).performClick()
@@ -108,16 +101,14 @@ class ServerIpOverridesScreenTest {
         }
 
     @Test
-    fun ensure_reset_click_works() =
+    fun ensureResetClickWorks() =
         composeExtension.use {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ScreenWithDefault(
-                    state = ServerIpOverridesUiState.Loaded(true),
-                    onResetOverridesClick = clickHandler,
-                )
-            }
+            initScreen(
+                state = ServerIpOverridesUiState.Loaded(true),
+                onResetOverridesClick = clickHandler,
+            )
 
             // Act
             onNodeWithTag(SERVER_IP_OVERRIDE_MORE_VERT_TEST_TAG).performClick()
@@ -128,16 +119,14 @@ class ServerIpOverridesScreenTest {
         }
 
     @Test
-    fun ensure_import_by_file_works() =
+    fun ensureImportByFileWorks() =
         composeExtension.use {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ScreenWithDefault(
-                    state = ServerIpOverridesUiState.Loaded(false),
-                    onImportByFile = clickHandler,
-                )
-            }
+            initScreen(
+                state = ServerIpOverridesUiState.Loaded(false),
+                onImportByFile = clickHandler,
+            )
 
             // Act
             onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()
@@ -148,16 +137,14 @@ class ServerIpOverridesScreenTest {
         }
 
     @Test
-    fun ensure_import_by_text() =
+    fun ensureImportByText() =
         composeExtension.use {
             // Arrange
             val clickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ScreenWithDefault(
-                    state = ServerIpOverridesUiState.Loaded(false),
-                    onImportByText = clickHandler,
-                )
-            }
+            initScreen(
+                state = ServerIpOverridesUiState.Loaded(false),
+                onImportByText = clickHandler,
+            )
 
             // Act
             onNodeWithTag(SERVER_IP_OVERRIDE_IMPORT_TEST_TAG).performClick()

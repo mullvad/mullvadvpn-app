@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -22,6 +23,20 @@ class DeviceRevokedScreenTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initScreen(
+        state: DeviceRevokedUiState,
+        onSettingsClicked: () -> Unit = {},
+        onGoToLoginClicked: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            DeviceRevokedScreen(
+                state = state,
+                onSettingsClicked = onSettingsClicked,
+                onGoToLoginClicked = onGoToLoginClicked,
+            )
+        }
+    }
+
     @Test
     fun testUnblockWarningShowingWhenSecured() =
         composeExtension.use {
@@ -29,7 +44,7 @@ class DeviceRevokedScreenTest {
             val state = DeviceRevokedUiState.SECURED
 
             // Act
-            setContentWithTheme { DeviceRevokedScreen(state) }
+            initScreen(state)
 
             // Assert
             onNodeWithText(UNBLOCK_WARNING).assertExists()
@@ -42,7 +57,7 @@ class DeviceRevokedScreenTest {
             val state = DeviceRevokedUiState.UNSECURED
 
             // Act
-            setContentWithTheme { DeviceRevokedScreen(state) }
+            initScreen(state)
 
             // Assert
             onNodeWithText(UNBLOCK_WARNING).assertDoesNotExist()
@@ -54,9 +69,7 @@ class DeviceRevokedScreenTest {
             // Arrange
             val state = DeviceRevokedUiState.UNSECURED
             val mockOnGoToLoginClicked: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                DeviceRevokedScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
-            }
+            initScreen(state = state, onGoToLoginClicked = mockOnGoToLoginClicked)
 
             // Act
             onNodeWithText(GO_TO_LOGIN_BUTTON_TEXT).performClick()

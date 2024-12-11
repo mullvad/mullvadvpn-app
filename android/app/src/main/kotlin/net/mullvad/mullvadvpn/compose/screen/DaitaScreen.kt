@@ -50,7 +50,15 @@ import org.koin.androidx.compose.koinViewModel
 @Preview
 @Composable
 private fun PreviewDaitaScreen() {
-    AppTheme { DaitaScreen(state = DaitaUiState(daitaEnabled = false, directOnly = false)) }
+    AppTheme {
+        DaitaScreen(
+            state = DaitaUiState(daitaEnabled = false, directOnly = false),
+            { _ -> },
+            { _ -> },
+            {},
+            {},
+        )
+    }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -87,10 +95,10 @@ fun Daita(
 @Composable
 fun DaitaScreen(
     state: DaitaUiState,
-    onDaitaEnabled: (enable: Boolean) -> Unit = {},
-    onDirectOnlyClick: (enable: Boolean) -> Unit = {},
-    onDirectOnlyInfoClick: () -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onDaitaEnabled: (enable: Boolean) -> Unit,
+    onDirectOnlyClick: (enable: Boolean) -> Unit,
+    onDirectOnlyInfoClick: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.daita),

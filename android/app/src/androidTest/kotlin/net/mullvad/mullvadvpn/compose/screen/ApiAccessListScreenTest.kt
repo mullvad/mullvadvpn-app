@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
@@ -19,17 +20,32 @@ import org.junit.jupiter.api.extension.RegisterExtension
 class ApiAccessListScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
+    private fun ComposeContext.initScreen(
+        state: ApiAccessListUiState = ApiAccessListUiState(),
+        onAddMethodClick: () -> Unit = {},
+        onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit = {},
+        onApiAccessInfoClick: () -> Unit = {},
+        onBackClick: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            ApiAccessListScreen(
+                state = state,
+                onAddMethodClick = onAddMethodClick,
+                onApiAccessMethodClick = onApiAccessMethodClick,
+                onApiAccessInfoClick = onApiAccessInfoClick,
+                onBackClick = onBackClick,
+            )
+        }
+    }
+
     @Test
     fun shouldShowCurrentApiAccessName() =
         composeExtension.use {
             // Arrange
             val currentApiAccessMethod = DIRECT_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessListScreen(
-                    state =
-                        ApiAccessListUiState(currentApiAccessMethodSetting = currentApiAccessMethod)
-                )
-            }
+            initScreen(
+                state = ApiAccessListUiState(currentApiAccessMethodSetting = currentApiAccessMethod)
+            )
 
             // Assert
             onNodeWithText("Current: ${currentApiAccessMethod.name}")
@@ -40,11 +56,9 @@ class ApiAccessListScreenTest {
         composeExtension.use {
             // Arrange
             val apiAccessMethod = DIRECT_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessListScreen(
-                    state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod))
-                )
-            }
+            initScreen(
+                state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod))
+            )
 
             // Assert
             onNodeWithText(apiAccessMethod.name.value)
@@ -56,12 +70,7 @@ class ApiAccessListScreenTest {
         composeExtension.use {
             // Arrange
             val onAddMethodClick: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ApiAccessListScreen(
-                    state = ApiAccessListUiState(),
-                    onAddMethodClick = onAddMethodClick,
-                )
-            }
+            initScreen(state = ApiAccessListUiState(), onAddMethodClick = onAddMethodClick)
 
             // Act
             onNodeWithText("Add").performClick()
@@ -75,12 +84,7 @@ class ApiAccessListScreenTest {
         composeExtension.use {
             // Arrange
             val onApiAccessInfoClick: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ApiAccessListScreen(
-                    state = ApiAccessListUiState(),
-                    onApiAccessInfoClick = onApiAccessInfoClick,
-                )
-            }
+            initScreen(state = ApiAccessListUiState(), onApiAccessInfoClick = onApiAccessInfoClick)
 
             // Act
             onNodeWithTag(API_ACCESS_LIST_INFO_TEST_TAG).performClick()
@@ -95,12 +99,10 @@ class ApiAccessListScreenTest {
             // Arrange
             val apiAccessMethod = DIRECT_ACCESS_METHOD
             val onApiAccessMethodClick: (ApiAccessMethodSetting) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                ApiAccessListScreen(
-                    state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod)),
-                    onApiAccessMethodClick = onApiAccessMethodClick,
-                )
-            }
+            initScreen(
+                state = ApiAccessListUiState(apiAccessMethodSettings = listOf(apiAccessMethod)),
+                onApiAccessMethodClick = onApiAccessMethodClick,
+            )
 
             // Act
             onNodeWithText(apiAccessMethod.name.value).performClick()

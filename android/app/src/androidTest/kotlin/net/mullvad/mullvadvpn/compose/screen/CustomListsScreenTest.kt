@@ -1,10 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -28,16 +28,28 @@ class CustomListsScreenTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initScreen(
+        state: CustomListsUiState = CustomListsUiState.Loading,
+        addCustomList: () -> Unit = {},
+        openCustomList: (CustomList) -> Unit = {},
+        onBackClick: () -> Unit = {},
+    ) {
+
+        setContentWithTheme {
+            CustomListsScreen(
+                state = state,
+                addCustomList = addCustomList,
+                openCustomList = openCustomList,
+                onBackClick = onBackClick,
+            )
+        }
+    }
+
     @Test
     fun givenLoadingStateShouldShowLoadingSpinner() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                CustomListsScreen(
-                    state = CustomListsUiState.Loading,
-                    snackbarHostState = SnackbarHostState(),
-                )
-            }
+            initScreen(state = CustomListsUiState.Loading)
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
@@ -48,12 +60,7 @@ class CustomListsScreenTest {
         composeExtension.use {
             // Arrange
             val customLists = DUMMY_CUSTOM_LISTS
-            setContentWithTheme {
-                CustomListsScreen(
-                    state = CustomListsUiState.Content(customLists = customLists),
-                    snackbarHostState = SnackbarHostState(),
-                )
-            }
+            initScreen(state = CustomListsUiState.Content(customLists = customLists))
 
             // Assert
             onNodeWithText(customLists[0].name.value).assertExists()
@@ -66,13 +73,10 @@ class CustomListsScreenTest {
             // Arrange
             val customLists = DUMMY_CUSTOM_LISTS
             val mockedAddCustomList: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                CustomListsScreen(
-                    state = CustomListsUiState.Content(customLists = customLists),
-                    snackbarHostState = SnackbarHostState(),
-                    addCustomList = mockedAddCustomList,
-                )
-            }
+            initScreen(
+                state = CustomListsUiState.Content(customLists = customLists),
+                addCustomList = mockedAddCustomList,
+            )
 
             // Act
             onNodeWithTag(NEW_LIST_BUTTON_TEST_TAG).performClick()
@@ -88,13 +92,10 @@ class CustomListsScreenTest {
             val customLists = DUMMY_CUSTOM_LISTS
             val clickedList = DUMMY_CUSTOM_LISTS[0]
             val mockedOpenCustomList: (CustomList) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                CustomListsScreen(
-                    state = CustomListsUiState.Content(customLists = customLists),
-                    snackbarHostState = SnackbarHostState(),
-                    openCustomList = mockedOpenCustomList,
-                )
-            }
+            initScreen(
+                state = CustomListsUiState.Content(customLists = customLists),
+                openCustomList = mockedOpenCustomList,
+            )
 
             // Act
             onNodeWithText(clickedList.name.value).performClick()

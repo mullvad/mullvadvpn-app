@@ -1,12 +1,12 @@
-package net.mullvad.mullvadvpn.compose.screen
+package net.mullvad.mullvadvpn.compose.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
-import net.mullvad.mullvadvpn.compose.dialog.ChangelogDialog
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
@@ -25,16 +25,19 @@ class ChangelogDialogTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initDialog(state: ChangelogUiState, onDismiss: () -> Unit = {}) {
+        setContentWithTheme { ChangelogDialog(state = state, onDismiss = onDismiss) }
+    }
+
     @Test
     fun testShowChangeLogWhenNeeded() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                ChangelogDialog(
+            initDialog(
+                state =
                     ChangelogUiState(changes = listOf(CHANGELOG_ITEM), version = CHANGELOG_VERSION),
-                    onDismiss = {},
-                )
-            }
+                onDismiss = {},
+            )
 
             // Check changelog content showed within dialog
             onNodeWithText(CHANGELOG_ITEM).assertExists()

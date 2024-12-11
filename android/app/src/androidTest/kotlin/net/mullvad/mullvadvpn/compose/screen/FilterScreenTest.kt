@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -23,20 +24,37 @@ class FilterScreenTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initScreen(
+        state: RelayFilterUiState = RelayFilterUiState(),
+        onBackClick: () -> Unit = {},
+        onApplyClick: () -> Unit = {},
+        onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
+        onAllProviderCheckChange: (isChecked: Boolean) -> Unit = {},
+        onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit = { _, _ -> },
+    ) {
+        setContentWithTheme {
+            FilterScreen(
+                state = state,
+                onBackClick = onBackClick,
+                onApplyClick = onApplyClick,
+                onSelectedOwnership = onSelectedOwnership,
+                onAllProviderCheckChange = onAllProviderCheckChange,
+                onSelectedProvider = onSelectedProvider,
+            )
+        }
+    }
+
     @Test
     fun testDefaultState() =
         composeExtension.use {
-            setContentWithTheme {
-                FilterScreen(
-                    state =
-                        RelayFilterUiState(
-                            allProviders = DUMMY_RELAY_ALL_PROVIDERS,
-                            selectedOwnership = null,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
-                        ),
-                    onSelectedProvider = { _, _ -> },
-                )
-            }
+            initScreen(
+                state =
+                    RelayFilterUiState(
+                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        selectedOwnership = null,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                    )
+            )
             onNodeWithText("Ownership").assertExists()
             onNodeWithText("Providers").assertExists()
         }
@@ -44,17 +62,14 @@ class FilterScreenTest {
     @Test
     fun testIsAnyCellShowing() =
         composeExtension.use {
-            setContentWithTheme {
-                FilterScreen(
-                    state =
-                        RelayFilterUiState(
-                            allProviders = DUMMY_RELAY_ALL_PROVIDERS,
-                            selectedOwnership = null,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
-                        ),
-                    onSelectedProvider = { _, _ -> },
-                )
-            }
+            initScreen(
+                state =
+                    RelayFilterUiState(
+                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        selectedOwnership = null,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                    )
+            )
             onNodeWithText("Ownership").performClick()
             onNodeWithText("Any").assertExists()
         }
@@ -62,17 +77,14 @@ class FilterScreenTest {
     @Test
     fun testIsMullvadCellShowing() =
         composeExtension.use {
-            setContentWithTheme {
-                FilterScreen(
-                    state =
-                        RelayFilterUiState(
-                            allProviders = DUMMY_RELAY_ALL_PROVIDERS,
-                            selectedOwnership = Ownership.MullvadOwned,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
-                        ),
-                    onSelectedProvider = { _, _ -> },
-                )
-            }
+            initScreen(
+                state =
+                    RelayFilterUiState(
+                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        selectedOwnership = Ownership.MullvadOwned,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                    )
+            )
             onNodeWithText("Ownership").performClick()
             onNodeWithText("Mullvad owned only").assertExists()
         }
@@ -80,17 +92,14 @@ class FilterScreenTest {
     @Test
     fun testIsRentedCellShowing() =
         composeExtension.use {
-            setContentWithTheme {
-                FilterScreen(
-                    state =
-                        RelayFilterUiState(
-                            allProviders = DUMMY_RELAY_ALL_PROVIDERS,
-                            selectedOwnership = Ownership.Rented,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
-                        ),
-                    onSelectedProvider = { _, _ -> },
-                )
-            }
+            initScreen(
+                state =
+                    RelayFilterUiState(
+                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        selectedOwnership = Ownership.Rented,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                    )
+            )
             onNodeWithText("Ownership").performClick()
             onNodeWithText("Rented only").assertExists()
         }
@@ -98,17 +107,14 @@ class FilterScreenTest {
     @Test
     fun testShowProviders() =
         composeExtension.use {
-            setContentWithTheme {
-                FilterScreen(
-                    state =
-                        RelayFilterUiState(
-                            allProviders = DUMMY_RELAY_ALL_PROVIDERS,
-                            selectedOwnership = null,
-                            selectedProviders = DUMMY_SELECTED_PROVIDERS,
-                        ),
-                    onSelectedProvider = { _, _ -> },
-                )
-            }
+            initScreen(
+                state =
+                    RelayFilterUiState(
+                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        selectedOwnership = null,
+                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                    )
+            )
 
             onNodeWithText("Providers").performClick()
             onNodeWithText("Creanova").assertExists()
@@ -119,19 +125,16 @@ class FilterScreenTest {
     fun testApplyButtonClick() =
         composeExtension.use {
             val mockClickListener: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                FilterScreen(
-                    state =
-                        RelayFilterUiState(
-                            allProviders = listOf(),
-                            selectedOwnership = null,
-                            selectedProviders =
-                                listOf(Provider(ProviderId("31173"), Ownership.MullvadOwned)),
-                        ),
-                    onSelectedProvider = { _, _ -> },
-                    onApplyClick = mockClickListener,
-                )
-            }
+            initScreen(
+                state =
+                    RelayFilterUiState(
+                        allProviders = listOf(),
+                        selectedOwnership = null,
+                        selectedProviders =
+                            listOf(Provider(ProviderId("31173"), Ownership.MullvadOwned)),
+                    ),
+                onApplyClick = mockClickListener,
+            )
             onNodeWithText("Apply").performClick()
             verify { mockClickListener() }
         }

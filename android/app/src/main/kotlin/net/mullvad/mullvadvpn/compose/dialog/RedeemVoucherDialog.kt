@@ -121,7 +121,7 @@ fun RedeemVoucher(resultBackNavigator: ResultBackNavigator<Boolean>) {
 @Composable
 fun RedeemVoucherDialog(
     state: VoucherDialogUiState,
-    onVoucherInputChange: (String) -> Unit = {},
+    onVoucherInputChange: (String) -> Unit,
     onRedeem: (voucherCode: String) -> Unit,
     onDismiss: (isTimeAdded: Boolean) -> Unit,
 ) {
@@ -230,7 +230,7 @@ private fun RedeemSuccessBody(message: String) {
 @Composable
 private fun EnterVoucherBody(
     state: VoucherDialogUiState,
-    onVoucherInputChange: (String) -> Unit = {},
+    onVoucherInputChange: (String) -> Unit,
     onRedeem: (voucherCode: String) -> Unit,
 ) {
     CustomTextField(

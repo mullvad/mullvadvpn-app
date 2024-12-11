@@ -29,11 +29,12 @@ import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.MullvadSmallTopBar
 import net.mullvad.mullvadvpn.compose.textfield.mullvadWhiteTextFieldColors
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
 @Composable
 private fun PreviewImportOverridesByText() {
-    ImportOverridesByTextScreen({}, {})
+    AppTheme { ImportOverridesByTextScreen({}, {}) }
 }
 
 @Destination<RootGraph>(style = DefaultTransition::class)
