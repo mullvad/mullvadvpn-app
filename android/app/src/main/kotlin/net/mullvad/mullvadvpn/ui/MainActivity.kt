@@ -28,6 +28,7 @@ import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
+import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -84,7 +85,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         window.decorView.filterTouchesWhenObscured = true
 
         // Needs to be before we start the service, since we need to access the intent there
-        setUpIntentListener()
+        lifecycleScope.launch { intents().collect(::handleIntent) }
 
         // We use lifecycleScope here to get less start service in background exceptions
         // Se this article for more information:
@@ -129,15 +130,13 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         super.onDestroy()
     }
 
-    private fun setUpIntentListener() {
-        lifecycleScope.launch {
-            intents().collect {
-                if (it.action == KEY_REQUEST_VPN_PROFILE) {
-                    handleRequestVpnProfileIntent()
-                } else {
-                    apiEndpointFromIntentHolder.handleIntent(it)
-                }
-            }
+    private fun handleIntent(intent: Intent) {
+        if (intent.action == KEY_REQUEST_VPN_PROFILE) {
+            handleRequestVpnProfileIntent()
+        } else {
+            apiEndpointFromIntentHolder.setApiEndpointOverride(
+                intent.getApiEndpointConfigurationExtras()
+            )
         }
     }
 
