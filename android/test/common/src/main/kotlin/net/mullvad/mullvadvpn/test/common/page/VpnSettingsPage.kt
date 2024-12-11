@@ -45,12 +45,18 @@ class VpnSettingsPage internal constructor() : Page() {
         scrollView2.scrollUntil(Direction.DOWN, Until.hasObject(By.res(testTag)))
     }
 
+    fun clickWireguardCustomPort() {
+        uiDevice.findObjectWithTimeout(By.res(WIREGUARD_CUSTOM_PORT_CELL_TEST_TAG)).click()
+    }
+
     companion object {
         const val SETTINGS_SCROLL_VIEW_TEST_TAG = "lazy_list_vpn_settings_test_tag"
         const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG =
             "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
         const val WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG =
             "wireguard_obfuscation_off_cell_test_tag"
+        const val WIREGUARD_CUSTOM_PORT_CELL_TEST_TAG =
+            "lazy_list_wireguard_custom_port_text_test_tag"
         const val SWITCH_TEST_TAG = "switch_test_tag"
     }
 }
