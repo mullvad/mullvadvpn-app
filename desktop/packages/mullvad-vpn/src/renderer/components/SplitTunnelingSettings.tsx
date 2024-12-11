@@ -313,9 +313,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     needFullDiskPermissions,
     setSplitTunnelingState,
   } = useAppContext();
-  const splitTunnelingEnabledValue = useSelector(
-    (state: IReduxState) => state.settings.splitTunneling,
-  );
+  const splitTunnelingEnabled = useSelector((state: IReduxState) => state.settings.splitTunneling);
   const splitTunnelingApplications = useSelector(
     (state: IReduxState) => state.settings.splitTunnelingApplications,
   );
@@ -328,7 +326,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     window.env.platform === 'darwin' ? undefined : true,
   );
 
-  const splitTunnelingEnabled = splitTunnelingEnabledValue && (splitTunnelingAvailable ?? false);
+  const canEditSplitTunneling = splitTunnelingEnabled && (splitTunnelingAvailable ?? false);
 
   const fetchNeedFullDiskPermissions = useCallback(async () => {
     setLoadingDiskPermissions(true);
@@ -376,12 +374,12 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
 
   const addApplication = useCallback(
     async (application: ISplitTunnelingApplication | string) => {
-      if (!splitTunnelingEnabled) {
+      if (!canEditSplitTunneling) {
         await setSplitTunnelingState(true);
       }
       await addSplitTunnelingApplication(application);
     },
-    [addSplitTunnelingApplication, splitTunnelingEnabled, setSplitTunnelingState],
+    [addSplitTunnelingApplication, canEditSplitTunneling, setSplitTunnelingState],
   );
 
   const addBrowsedForApplication = useCallback(
@@ -404,12 +402,12 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
 
   const removeApplication = useCallback(
     async (application: ISplitTunnelingApplication) => {
-      if (!splitTunnelingEnabled) {
+      if (!canEditSplitTunneling) {
         await setSplitTunnelingState(true);
       }
       removeSplitTunnelingApplication(application);
     },
-    [removeSplitTunnelingApplication, setSplitTunnelingState, splitTunnelingEnabled],
+    [removeSplitTunnelingApplication, setSplitTunnelingState, canEditSplitTunneling],
   );
 
   const filePickerCallback = useFilePicker(
@@ -441,9 +439,9 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     [addApplication, forgetManuallyAddedApplicationAndUpdate],
   );
 
-  const showSplitSection = splitTunnelingEnabled && filteredSplitApplications.length > 0;
+  const showSplitSection = canEditSplitTunneling && filteredSplitApplications.length > 0;
   const showNonSplitSection =
-    splitTunnelingEnabled &&
+    canEditSplitTunneling &&
     (!filteredNonSplitApplications || filteredNonSplitApplications.length > 0);
 
   const excludedTitle = (
@@ -463,7 +461,9 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
           <HeaderTitle>{strings.splitTunneling}</HeaderTitle>
           <Switch
             isOn={splitTunnelingEnabled}
-            disabled={!splitTunnelingAvailable || loadingDiskPermissions}
+            disabled={
+              !splitTunnelingEnabled && (!splitTunnelingAvailable || loadingDiskPermissions)
+            }
             onChange={setSplitTunnelingState}
           />
         </Flex>
@@ -491,7 +491,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         </Flex>
       )}
 
-      {splitTunnelingEnabled && (
+      {canEditSplitTunneling && (
         <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
       )}
 
@@ -515,7 +515,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         </Cell.Section>
       </Accordion>
 
-      {splitTunnelingEnabled && searchTerm !== '' && !showSplitSection && !showNonSplitSection && (
+      {canEditSplitTunneling && searchTerm !== '' && !showSplitSection && !showNonSplitSection && (
         <StyledNoResult>
           <StyledNoResultText>
             {formatHtml(
@@ -526,7 +526,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         </StyledNoResult>
       )}
 
-      {splitTunnelingEnabled && (
+      {canEditSplitTunneling && (
         <StyledBrowseButton onClick={addWithFilePicker}>
           {messages.pgettext('split-tunneling-view', 'Find another app')}
         </StyledBrowseButton>
