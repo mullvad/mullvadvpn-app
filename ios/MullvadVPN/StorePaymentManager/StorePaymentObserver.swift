@@ -8,7 +8,7 @@
 
 import Foundation
 
-protocol StorePaymentObserver: AnyObject {
+protocol StorePaymentObserver: AnyObject, Sendable {
     func storePaymentManager(
         _ manager: StorePaymentManager,
         didReceiveEvent event: StorePaymentEvent

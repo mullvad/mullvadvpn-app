@@ -10,8 +10,9 @@ import Foundation
 import Routing
 import SafariServices
 
-class SafariCoordinator: Coordinator, Presentable, SFSafariViewControllerDelegate {
-    var didFinish: (() -> Void)?
+@MainActor
+class SafariCoordinator: Coordinator, Presentable, @preconcurrency SFSafariViewControllerDelegate {
+    nonisolated(unsafe) var didFinish: (@Sendable () -> Void)?
 
     var presentedViewController: UIViewController {
         safariController

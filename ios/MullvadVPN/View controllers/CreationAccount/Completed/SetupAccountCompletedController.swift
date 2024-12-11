@@ -8,7 +8,7 @@
 
 import UIKit
 
-protocol SetupAccountCompletedControllerDelegate: AnyObject {
+protocol SetupAccountCompletedControllerDelegate: AnyObject, Sendable {
     func didRequestToSeePrivacy(controller: SetupAccountCompletedController)
     func didRequestToStartTheApp(controller: SetupAccountCompletedController)
 }
@@ -51,7 +51,7 @@ class SetupAccountCompletedController: UIViewController, RootContainment {
     }
 }
 
-extension SetupAccountCompletedController: SetupAccountCompletedContentViewDelegate {
+extension SetupAccountCompletedController: @preconcurrency SetupAccountCompletedContentViewDelegate {
     func didTapPrivacyButton(view: SetupAccountCompletedContentView, button: AppButton) {
         delegate?.didRequestToSeePrivacy(controller: self)
     }

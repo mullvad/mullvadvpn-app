@@ -10,7 +10,7 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
-final class TunnelViewControllerInteractor {
+final class TunnelViewControllerInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let outgoingConnectionService: OutgoingConnectionServiceHandling
     private var tunnelObserver: TunnelObserver?

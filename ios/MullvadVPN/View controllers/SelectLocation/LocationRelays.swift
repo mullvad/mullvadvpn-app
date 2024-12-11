@@ -8,7 +8,7 @@
 
 import MullvadREST
 
-struct LocationRelays {
+struct LocationRelays: Sendable {
     var relays: [REST.ServerRelay]
     var locations: [String: REST.ServerLocation]
 }

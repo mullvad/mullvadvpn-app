@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct ShadowsocksCipherOptions: RawRepresentable, Codable, Hashable {
+public struct ShadowsocksCipherOptions: RawRepresentable, Codable, Hashable, Sendable {
     public let rawValue: CipherIdentifiers
 
     public init(rawValue: CipherIdentifiers) {
@@ -22,7 +22,7 @@ public struct ShadowsocksCipherOptions: RawRepresentable, Codable, Hashable {
     public static let all = CipherIdentifiers.allCases.map { ShadowsocksCipherOptions(rawValue: $0) }
 }
 
-public enum CipherIdentifiers: String, CaseIterable, CustomStringConvertible, Codable {
+public enum CipherIdentifiers: String, CaseIterable, CustomStringConvertible, Codable, Sendable {
     // Stream ciphers.
     case CFB_AES128 = "aes-128-cfb"
     case CFB1_AES128 = "aes-128-cfb1"

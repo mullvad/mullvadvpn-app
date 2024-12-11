@@ -13,16 +13,16 @@ import Operations
 import Routing
 import UIKit
 
-final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewControllerDelegate {
+final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceManagementViewControllerDelegate {
     private let tunnelManager: TunnelManager
     private let devicesProxy: DeviceHandling
 
     private var loginController: LoginViewController?
-    private var lastLoginAction: LoginAction?
+    nonisolated(unsafe) private var lastLoginAction: LoginAction?
     private var subscriptions = Set<Combine.AnyCancellable>()
 
-    var didFinish: ((LoginCoordinator) -> Void)?
-    var didCreateAccount: (() -> Void)?
+    var didFinish: (@Sendable (LoginCoordinator) -> Void)?
+    var didCreateAccount: (@Sendable () -> Void)?
 
     var preferredAccountNumberPublisher: AnyPublisher<String, Never>?
     var presentationContext: UIViewController {
@@ -84,10 +84,11 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
         if case let .useExistingAccount(accountNumber) = action {
             if let error = error as? REST.Error, error.compareErrorCode(.maxDevicesReached) {
                 return .wait(Promise { resolve in
+                    nonisolated(unsafe) let sendableResolve = resolve
                     self.showDeviceList(for: accountNumber) { error in
                         self.lastLoginAction = action
 
-                        resolve(error.map { .failure($0) } ?? .success(()))
+                        sendableResolve(error.map { .failure($0) } ?? .success(()))
                     }
                 })
             } else {
@@ -115,7 +116,7 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
         }
     }
 
-    private func showDeviceList(for accountNumber: String, completion: @escaping (Error?) -> Void) {
+    private func showDeviceList(for accountNumber: String, completion: @escaping @Sendable (Error?) -> Void) {
         let interactor = DeviceManagementInteractor(
             accountNumber: accountNumber,
             devicesProxy: devicesProxy
@@ -131,8 +132,10 @@ final class LoginCoordinator: Coordinator, Presenting, DeviceManagementViewContr
 
             switch result {
             case .success:
-                navigationController.pushViewController(controller, animated: true) {
-                    completion(nil)
+                Task { @MainActor in
+                    navigationController.pushViewController(controller, animated: true) {
+                        completion(nil)
+                    }
                 }
 
             case let .failure(error):

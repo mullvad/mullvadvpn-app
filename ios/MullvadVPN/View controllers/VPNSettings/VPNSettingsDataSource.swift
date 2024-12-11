@@ -600,7 +600,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 }
 
-extension VPNSettingsDataSource: VPNSettingsCellEventHandler {
+extension VPNSettingsDataSource: @preconcurrency VPNSettingsCellEventHandler {
     func showInfo(for button: VPNSettingsInfoButtonItem) {
         delegate?.showInfo(for: button)
     }

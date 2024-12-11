@@ -11,7 +11,7 @@ import MullvadTypes
 import Network
 
 /// A struct describing Mullvad DNS blocking options.
-public struct DNSBlockingOptions: OptionSet, Codable {
+public struct DNSBlockingOptions: OptionSet, Codable, Sendable {
     public let rawValue: UInt32
 
     public static let blockAdvertising = DNSBlockingOptions(rawValue: 1 << 0)
@@ -48,7 +48,7 @@ public struct DNSBlockingOptions: OptionSet, Codable {
 }
 
 /// A struct that holds DNS settings.
-public struct DNSSettings: Codable, Equatable {
+public struct DNSSettings: Codable, Equatable, Sendable {
     /// Maximum number of allowed DNS domains.
     public static let maxAllowedCustomDNSDomains = 3
 

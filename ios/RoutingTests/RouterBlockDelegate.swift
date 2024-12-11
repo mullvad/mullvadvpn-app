@@ -9,26 +9,28 @@
 import Foundation
 import Routing
 
-class RouterBlockDelegate<RouteType: AppRouteProtocol>: ApplicationRouterDelegate {
+final class RouterBlockDelegate<RouteType: AppRouteProtocol>: ApplicationRouterDelegate, @unchecked Sendable {
     var handleRoute: ((RoutePresentationContext<RouteType>, Bool, (Coordinator) -> Void) -> Void)?
     var handleDismiss: ((RouteDismissalContext<RouteType>, () -> Void) -> Void)?
     var shouldPresent: ((RouteType) -> Bool)?
     var shouldDismiss: ((RouteDismissalContext<RouteType>) -> Bool)?
-    var handleSubnavigation: ((RouteSubnavigationContext<RouteType>, () -> Void) -> Void)?
+    var handleSubnavigation: (@Sendable @MainActor (RouteSubnavigationContext<RouteType>, () -> Void) -> Void)?
 
-    func applicationRouter(
+    nonisolated func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         presentWithContext context: RoutePresentationContext<RouteType>,
         animated: Bool,
-        completion: @escaping (Coordinator) -> Void
+        completion: @escaping @Sendable (Coordinator) -> Void
     ) {
-        handleRoute?(context, animated, completion) ?? completion(Coordinator())
+        MainActor.assumeIsolated {
+            handleRoute?(context, animated, completion) ?? completion(Coordinator())
+        }
     }
 
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         dismissWithContext context: RouteDismissalContext<RouteType>,
-        completion: @escaping () -> Void
+        completion: @escaping @Sendable () -> Void
     ) {
         handleDismiss?(context, completion) ?? completion()
     }
@@ -47,8 +49,10 @@ class RouterBlockDelegate<RouteType: AppRouteProtocol>: ApplicationRouterDelegat
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
-        completion: @escaping () -> Void
+        completion: @escaping @Sendable @MainActor () -> Void
     ) {
-        handleSubnavigation?(context, completion) ?? completion()
+        MainActor.assumeIsolated {
+            handleSubnavigation?(context, completion) ?? completion()
+        }
     }
 }

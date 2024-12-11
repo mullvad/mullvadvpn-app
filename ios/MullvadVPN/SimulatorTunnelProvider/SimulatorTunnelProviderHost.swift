@@ -8,7 +8,7 @@
 
 #if targetEnvironment(simulator)
 
-import Foundation
+@preconcurrency import Foundation
 import MullvadLogging
 import MullvadREST
 import MullvadSettings
@@ -16,7 +16,7 @@ import MullvadTypes
 import NetworkExtension
 import PacketTunnelCore
 
-final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
+final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unchecked Sendable {
     private var observedState: ObservedState = .disconnected
     private var selectedRelays: SelectedRelays?
     private let urlRequestProxy: URLRequestProxy
@@ -35,7 +35,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
 
     override func startTunnel(
         options: [String: NSObject]?,
-        completionHandler: @escaping (Error?) -> Void
+        completionHandler: @escaping @Sendable (Error?) -> Void
     ) {
         dispatchQueue.async { [weak self] in
             guard let self else {
@@ -75,7 +75,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping () -> Void) {
+    override func stopTunnel(with reason: NEProviderStopReason, completionHandler: @escaping @Sendable () -> Void) {
         dispatchQueue.async { [weak self] in
             self?.selectedRelays = nil
             self?.observedState = .disconnected
@@ -85,7 +85,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
     }
 
     override func handleAppMessage(_ messageData: Data, completionHandler: ((Data?) -> Void)?) {
-        dispatchQueue.async {
+        dispatchQueue.sync {
             do {
                 let message = try TunnelProviderMessage(messageData: messageData)
 
@@ -101,7 +101,11 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
         }
     }
 
-    private func handleProviderMessage(_ message: TunnelProviderMessage, completionHandler: ((Data?) -> Void)?) {
+    private func handleProviderMessage(
+        _ message: TunnelProviderMessage,
+        completionHandler: ((Data?) -> Void)?
+    ) {
+        nonisolated(unsafe) let handler = completionHandler
         switch message {
         case .getTunnelStatus:
             var reply: Data?
@@ -114,7 +118,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                 )
             }
 
-            completionHandler?(reply)
+            handler?(reply)
 
         case let .reconnectTunnel(nextRelay):
             reasserting = true
@@ -146,7 +150,7 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate {
                         message: "Failed to encode ProxyURLResponse."
                     )
                 }
-                completionHandler?(reply)
+                handler?(reply)
             }
 
         case let .cancelURLRequest(listId):

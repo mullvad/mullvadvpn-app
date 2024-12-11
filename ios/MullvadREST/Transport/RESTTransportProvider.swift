@@ -17,7 +17,7 @@ extension REST {
     public struct AnyTransportProvider: RESTTransportProvider {
         private let block: () -> RESTTransport?
 
-        public init(_ block: @escaping () -> RESTTransport?) {
+        public init(_ block: @escaping @Sendable () -> RESTTransport?) {
             self.block = block
         }
 

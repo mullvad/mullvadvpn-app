@@ -12,12 +12,12 @@ import Foundation
 public typealias LatestTunnelSettings = TunnelSettingsV6
 
 /// Protocol all TunnelSettings must adhere to, for upgrade purposes.
-public protocol TunnelSettings: Codable {
+public protocol TunnelSettings: Codable, Sendable {
     func upgradeToNextVersion() -> any TunnelSettings
 }
 
 /// Settings and device state schema versions.
-public enum SchemaVersion: Int, Equatable {
+public enum SchemaVersion: Int, Equatable, Sendable {
     /// Legacy settings format, stored as `TunnelSettingsV1`.
     case v1 = 1
 

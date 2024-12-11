@@ -9,8 +9,8 @@
 import Foundation
 import MullvadTypes
 
-/// Whether multihop is enabled.
-public enum MultihopState: Codable {
+/// Whether Multi-hop is enabled
+public enum MultihopState: Codable, Sendable {
     case on
     case off
 

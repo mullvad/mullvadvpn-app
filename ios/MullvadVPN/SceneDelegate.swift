@@ -13,7 +13,7 @@ import MullvadTypes
 import Operations
 import UIKit
 
-class SceneDelegate: UIResponder, UIWindowSceneDelegate, SettingsMigrationUIHandler {
+class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency SettingsMigrationUIHandler {
     private let logger = Logger(label: "SceneDelegate")
 
     var window: UIWindow?

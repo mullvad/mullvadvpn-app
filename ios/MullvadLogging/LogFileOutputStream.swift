@@ -13,7 +13,7 @@ import MullvadTypes
 /// the first place, or when writing to it.
 private let reopenFileLogInterval: Duration = .seconds(5)
 
-class LogFileOutputStream: TextOutputStream {
+class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
     private let queue = DispatchQueue(label: "LogFileOutputStreamQueue", qos: .utility)
 
     private let baseFileURL: URL

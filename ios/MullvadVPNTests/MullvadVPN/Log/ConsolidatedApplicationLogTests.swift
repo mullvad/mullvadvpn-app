@@ -8,8 +8,8 @@
 
 import XCTest
 
-class ConsolidatedApplicationLogTests: XCTestCase {
-    var consolidatedLog: ConsolidatedApplicationLog!
+final class ConsolidatedApplicationLogTests: XCTestCase, @unchecked Sendable {
+    nonisolated(unsafe) var consolidatedLog: ConsolidatedApplicationLog!
     let mockRedactStrings = ["sensitive", "secret"]
     let mockSecurityGroupIdentifiers = ["group1", "group2"]
     var createdMockFiles: [URL] = []
@@ -35,7 +35,7 @@ class ConsolidatedApplicationLogTests: XCTestCase {
         createdMockFiles = []
     }
 
-    func testAddLogFiles() {
+    func testAddLogFiles() async {
         var string = ""
         let expectation = self.expectation(description: "Log files added")
         let mockFile = createMockFile(content: content, fileName: "\(generateRandomName()).txt")
@@ -44,7 +44,7 @@ class ConsolidatedApplicationLogTests: XCTestCase {
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [expectation], timeout: 1)
         consolidatedLog.write(to: &string)
         XCTAssertTrue(
             consolidatedLog.string.contains(string),
@@ -52,7 +52,7 @@ class ConsolidatedApplicationLogTests: XCTestCase {
         )
     }
 
-    func testAddError() {
+    func testAddError() async {
         let expectation = self.expectation(description: "Error added to log")
         let errorMessage = "Test error"
         let errorDetails = "A sensitive error occurred"
@@ -61,14 +61,14 @@ class ConsolidatedApplicationLogTests: XCTestCase {
             expectation.fulfill()
         }
 
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [expectation], timeout: 1)
         XCTAssertTrue(
             consolidatedLog.string.contains(errorMessage),
             "Log should include the error message."
         )
     }
 
-    func testStringOutput() {
+    func testStringOutput() async {
         let expectation = self.expectation(description: "Log files added")
         let mockFile = createMockFile(content: content, fileName: "\(generateRandomName()).txt")
         consolidatedLog.addLogFiles(fileURLs: [mockFile]) {
@@ -76,7 +76,7 @@ class ConsolidatedApplicationLogTests: XCTestCase {
             let output = self.consolidatedLog.string
             XCTAssertFalse(output.isEmpty, "Output string should include redacted log content.")
         }
-        waitForExpectations(timeout: 1)
+        await fulfillment(of: [expectation], timeout: 1)
     }
 
     // MARK: - Private functions

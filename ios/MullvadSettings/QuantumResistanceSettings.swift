@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum TunnelQuantumResistance: Codable {
+public enum TunnelQuantumResistance: Codable, Sendable {
     case automatic
     case on
     case off

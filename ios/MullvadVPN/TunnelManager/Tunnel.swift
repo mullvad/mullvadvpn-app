@@ -21,7 +21,7 @@ protocol TunnelStatusObserver {
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus)
 }
 
-protocol TunnelProtocol: AnyObject {
+protocol TunnelProtocol: AnyObject, Sendable {
     associatedtype TunnelManagerProtocol: VPNTunnelProviderManagerProtocol
     var status: NEVPNStatus { get }
     var isOnDemandEnabled: Bool { get set }
@@ -49,7 +49,7 @@ protocol TunnelProtocol: AnyObject {
 }
 
 /// Tunnel wrapper class.
-final class Tunnel: TunnelProtocol, Equatable {
+final class Tunnel: TunnelProtocol, Equatable, @unchecked Sendable {
     /// Unique identifier assigned to instance at the time of creation.
     let identifier = UUID()
 

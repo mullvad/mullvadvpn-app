@@ -9,7 +9,7 @@
 import Routing
 import UIKit
 
-enum HeaderBarStyle {
+enum HeaderBarStyle: Sendable {
     case transparent, `default`, unsecured, secured
 
     fileprivate func backgroundColor() -> UIColor {
@@ -26,7 +26,7 @@ enum HeaderBarStyle {
     }
 }
 
-struct HeaderBarPresentation {
+struct HeaderBarPresentation: Sendable {
     let style: HeaderBarStyle
     let showsDivider: Bool
 
@@ -36,7 +36,8 @@ struct HeaderBarPresentation {
 }
 
 /// A protocol that defines the relationship between the root container and its child controllers
-protocol RootContainment {
+@MainActor
+protocol RootContainment: Sendable {
     /// Return the preferred header bar style
     var preferredHeaderBarPresentation: HeaderBarPresentation { get }
 
@@ -60,7 +61,7 @@ extension RootContainment {
     }
 }
 
-protocol RootContainerViewControllerDelegate: AnyObject {
+protocol RootContainerViewControllerDelegate: AnyObject, Sendable {
     func rootContainerViewControllerShouldShowAccount(
         _ controller: RootContainerViewController,
         animated: Bool

@@ -8,34 +8,34 @@
 
 import Foundation
 import MullvadTypes
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
-public protocol DeviceHandling {
+public protocol DeviceHandling: Sendable {
     func getDevice(
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Device>
+        completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable
 
     func getDevices(
         accountNumber: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<[Device]>
+        completion: @escaping @Sendable ProxyCompletionHandler<[Device]>
     ) -> Cancellable
 
     func createDevice(
         accountNumber: String,
         request: REST.CreateDeviceRequest,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Device>
+        completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable
 
     func deleteDevice(
         accountNumber: String,
         identifier: String,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Bool>
+        completion: @escaping @Sendable ProxyCompletionHandler<Bool>
     ) -> Cancellable
 
     func rotateDeviceKey(
@@ -43,12 +43,12 @@ public protocol DeviceHandling {
         identifier: String,
         publicKey: PublicKey,
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<Device>
+        completion: @escaping @Sendable ProxyCompletionHandler<Device>
     ) -> Cancellable
 }
 
 extension REST {
-    public final class DevicesProxy: Proxy<AuthProxyConfiguration>, DeviceHandling {
+    public final class DevicesProxy: Proxy<AuthProxyConfiguration>, DeviceHandling, @unchecked Sendable {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "DevicesProxy",
@@ -161,7 +161,7 @@ extension REST {
             accountNumber: String,
             request: CreateDeviceRequest,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping ProxyCompletionHandler<Device>
+            completion: @escaping @Sendable ProxyCompletionHandler<Device>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -262,7 +262,7 @@ extension REST {
             identifier: String,
             publicKey: PublicKey,
             retryStrategy: REST.RetryStrategy,
-            completion: @escaping ProxyCompletionHandler<Device>
+            completion: @escaping @Sendable ProxyCompletionHandler<Device>
         ) -> Cancellable {
             let requestHandler = AnyRequestHandler(
                 createURLRequest: { endpoint, authorization in
@@ -310,7 +310,7 @@ extension REST {
         }
     }
 
-    public struct CreateDeviceRequest: Encodable {
+    public struct CreateDeviceRequest: Encodable, Sendable {
         let publicKey: PublicKey
         let hijackDNS: Bool
 
@@ -332,7 +332,7 @@ extension REST {
         }
     }
 
-    private struct RotateDeviceKeyRequest: Encodable {
+    private struct RotateDeviceKeyRequest: Encodable, Sendable {
         let publicKey: PublicKey
 
         private enum CodingKeys: String, CodingKey {

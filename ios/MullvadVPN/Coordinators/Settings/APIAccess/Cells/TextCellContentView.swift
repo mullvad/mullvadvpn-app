@@ -9,7 +9,7 @@
 import UIKit
 
 /// Content view presenting a label and text field.
-class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate {
+class TextCellContentView: UIView, UIContentView, UIGestureRecognizerDelegate, Sendable {
     private var textLabel = UILabel()
     private var textField = CustomTextField()
 
@@ -175,6 +175,7 @@ extension TextCellContentView: UITextFieldDelegate {
 }
 
 extension TextCellContentConfiguration.TextFieldProperties {
+    @MainActor
     func apply(to textField: CustomTextField) {
         textField.font = font
         textField.backgroundColor = .clear
@@ -197,6 +198,7 @@ extension TextCellContentConfiguration.TextFieldProperties {
 }
 
 extension TextCellContentConfiguration.EditingEvents {
+    @MainActor
     func register(in textField: UITextField) {
         onChange.map { textField.addAction($0, for: .editingChanged) }
         onBegin.map { textField.addAction($0, for: .editingDidBegin) }
@@ -204,6 +206,7 @@ extension TextCellContentConfiguration.EditingEvents {
         onEndOnExit.map { textField.addAction($0, for: .editingDidEndOnExit) }
     }
 
+    @MainActor
     func unregister(from textField: UITextField) {
         onChange.map { textField.removeAction($0, for: .editingChanged) }
         onBegin.map { textField.removeAction($0, for: .editingDidBegin) }

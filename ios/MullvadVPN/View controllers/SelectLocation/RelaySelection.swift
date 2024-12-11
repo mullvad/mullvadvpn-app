@@ -8,7 +8,7 @@
 
 import MullvadTypes
 
-struct RelaySelection {
+struct RelaySelection: Sendable {
     var selected: UserSelectedRelays?
     var excluded: UserSelectedRelays?
     var excludedTitle: String?

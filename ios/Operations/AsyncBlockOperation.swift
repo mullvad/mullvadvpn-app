@@ -10,11 +10,14 @@ import Foundation
 import protocol MullvadTypes.Cancellable
 
 /// Asynchronous block operation
-public class AsyncBlockOperation: AsyncOperation {
-    private var executor: ((@escaping (Error?) -> Void) -> Cancellable?)?
+public class AsyncBlockOperation: AsyncOperation, @unchecked Sendable {
+    private var executor: ((@escaping @Sendable (Error?) -> Void) -> Cancellable?)?
     private var cancellableTask: Cancellable?
 
-    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping (@escaping (Error?) -> Void) -> Void) {
+    public init(
+        dispatchQueue: DispatchQueue? = nil,
+        block: @escaping @Sendable (@escaping @Sendable (Error?) -> Void) -> Void
+    ) {
         super.init(dispatchQueue: dispatchQueue)
         executor = { finish in
             block(finish)
@@ -22,7 +25,7 @@ public class AsyncBlockOperation: AsyncOperation {
         }
     }
 
-    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping () -> Void) {
+    public init(dispatchQueue: DispatchQueue? = nil, block: @escaping @Sendable () -> Void) {
         super.init(dispatchQueue: dispatchQueue)
         executor = { finish in
             block()
@@ -33,7 +36,7 @@ public class AsyncBlockOperation: AsyncOperation {
 
     public init(
         dispatchQueue: DispatchQueue? = nil,
-        cancellableTask: @escaping (@escaping (Error?) -> Void) -> Cancellable
+        cancellableTask: @escaping @Sendable (@escaping @Sendable (Error?) -> Void) -> Cancellable
     ) {
         super.init(dispatchQueue: dispatchQueue)
         executor = { cancellableTask($0) }

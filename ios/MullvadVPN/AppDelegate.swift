@@ -18,9 +18,10 @@ import StoreKit
 import UIKit
 import UserNotifications
 
-@UIApplicationMain
-class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate {
-    private var logger: Logger!
+@main
+class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate, StorePaymentManagerDelegate,
+    @unchecked Sendable {
+    nonisolated(unsafe) private var logger: Logger!
 
     #if targetEnvironment(simulator)
     private var simulatorTunnelProviderHost: SimulatorTunnelProviderHost?
@@ -29,22 +30,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private let operationQueue = AsyncOperationQueue.makeSerial()
 
     private(set) var tunnelStore: TunnelStore!
-    private(set) var tunnelManager: TunnelManager!
+    nonisolated(unsafe) private(set) var tunnelManager: TunnelManager!
     private(set) var addressCache: REST.AddressCache!
 
     private var proxyFactory: ProxyFactoryProtocol!
     private(set) var apiProxy: APIQuerying!
     private(set) var accountsProxy: RESTAccountHandling!
-    private(set) var devicesProxy: DeviceHandling!
+    nonisolated(unsafe) private(set) var devicesProxy: DeviceHandling!
 
     private(set) var addressCacheTracker: AddressCacheTracker!
-    private(set) var relayCacheTracker: RelayCacheTracker!
-    private(set) var storePaymentManager: StorePaymentManager!
-    private var transportMonitor: TransportMonitor!
+    nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
+    nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
+    nonisolated(unsafe) private var transportMonitor: TransportMonitor!
     private var settingsObserver: TunnelBlockObserver!
     private var migrationManager: MigrationManager!
 
-    private(set) var accessMethodRepository = AccessMethodRepository()
+    nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository()
     private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
     private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
@@ -277,11 +278,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.appRefresh.identifier,
             using: nil
         ) { [self] task in
+            nonisolated(unsafe) let nonisolatedTask = task
+
             let handle = relayCacheTracker.updateRelays { result in
-                task.setTaskCompleted(success: result.isSuccess)
+                nonisolatedTask.setTaskCompleted(success: result.isSuccess)
             }
 
-            task.expirationHandler = {
+            nonisolatedTask.expirationHandler = {
                 handle.cancel()
             }
 
@@ -300,13 +303,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.privateKeyRotation.identifier,
             using: nil
         ) { [self] task in
+            nonisolated(unsafe) let nonisolatedTask = task
             let handle = tunnelManager.rotatePrivateKey { [self] error in
-                scheduleKeyRotationTask()
+                Task { @MainActor in
+                    scheduleKeyRotationTask()
 
-                task.setTaskCompleted(success: error == nil)
+                    nonisolatedTask.setTaskCompleted(success: error == nil)
+                }
             }
 
-            task.expirationHandler = {
+            nonisolatedTask.expirationHandler = {
                 handle.cancel()
             }
         }
@@ -323,13 +329,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.addressCacheUpdate.identifier,
             using: nil
         ) { [self] task in
-            let handle = addressCacheTracker.updateEndpoints { [self] result in
-                scheduleAddressCacheUpdateTask()
+            nonisolated(unsafe) let nonisolatedTask = task
 
-                task.setTaskCompleted(success: result.isSuccess)
+            let handle = addressCacheTracker.updateEndpoints { [self] result in
+                Task { @MainActor in
+                    scheduleAddressCacheUpdateTask()
+                    nonisolatedTask.setTaskCompleted(success: result.isSuccess)
+                }
             }
 
-            task.expirationHandler = {
+            nonisolatedTask.expirationHandler = {
                 handle.cancel()
             }
         }
@@ -471,48 +480,56 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func getLoadTunnelStoreOperation() -> AsyncBlockOperation {
         AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
-            tunnelStore.loadPersistentTunnels { [self] error in
-                if let error {
-                    logger.error(
-                        error: error,
-                        message: "Failed to load persistent tunnels."
-                    )
+            MainActor.assumeIsolated {
+                tunnelStore.loadPersistentTunnels { [self] error in
+                    if let error {
+                        logger.error(
+                            error: error,
+                            message: "Failed to load persistent tunnels."
+                        )
+                    }
+                    finish(nil)
                 }
-                finish(nil)
             }
         }
     }
 
     private func getMigrateSettingsOperation(application: UIApplication) -> AsyncBlockOperation {
-        AsyncBlockOperation(dispatchQueue: .main) { [self] finish in
-            migrationManager
-                .migrateSettings(store: SettingsManager.store) { [self] migrationResult in
-                    switch migrationResult {
-                    case .success:
-                        // Tell the tunnel to re-read tunnel configuration after migration.
-                        logger.debug("Successful migration from UI Process")
-                        tunnelManager.reconnectTunnel(selectNewRelay: true)
-                        fallthrough
+        AsyncBlockOperation(dispatchQueue: .main, block: { [self] (finish: @escaping @Sendable (Error?) -> Void) in
+            MainActor.assumeIsolated {
+                migrationManager
+                    .migrateSettings(store: SettingsManager.store) { [self] migrationResult in
+                        switch migrationResult {
+                        case .success:
+                            // Tell the tunnel to re-read tunnel configuration after migration.
+                            logger.debug("Successful migration from UI Process")
+                            tunnelManager.reconnectTunnel(selectNewRelay: true)
+                            fallthrough
 
-                    case .nothing:
-                        logger.debug("Attempted migration from UI Process, but found nothing to do")
-                        finish(nil)
+                        case .nothing:
+                            logger.debug("Attempted migration from UI Process, but found nothing to do")
+                            finish(nil)
 
-                    case let .failure(error):
-                        logger.error("Failed migration from UI Process: \(error)")
-                        let migrationUIHandler = application.connectedScenes
-                            .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
+                        case let .failure(error):
+                            logger.error("Failed migration from UI Process: \(error)")
+                            MainActor.assumeIsolated {
+                                let migrationUIHandler = application.connectedScenes
+                                    .first { $0 is SettingsMigrationUIHandler } as? SettingsMigrationUIHandler
 
-                        if let migrationUIHandler {
-                            migrationUIHandler.showMigrationError(error) {
-                                finish(error)
+                                if let migrationUIHandler {
+                                    migrationUIHandler.showMigrationError(error) {
+                                        MainActor.assumeIsolated {
+                                            finish(error)
+                                        }
+                                    }
+                                } else {
+                                    finish(error)
+                                }
                             }
-                        } else {
-                            finish(error)
                         }
                     }
-                }
-        }
+            }
+        })
     }
 
     private func getInitTunnelManagerOperation() -> AsyncBlockOperation {
@@ -576,7 +593,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - StorePaymentManagerDelegate
 
-    func storePaymentManager(_ manager: StorePaymentManager, didRequestAccountTokenFor payment: SKPayment) -> String? {
+    nonisolated func storePaymentManager(
+        _ manager: StorePaymentManager,
+        didRequestAccountTokenFor payment: SKPayment
+    ) -> String? {
         // Since we do not persist the relation between payment and account number between the
         // app launches, we assume that all successful purchases belong to the active account
         // number.
@@ -585,21 +605,24 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // MARK: - UNUserNotificationCenterDelegate
 
-    func userNotificationCenter(
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
         withCompletionHandler completionHandler: @escaping () -> Void
     ) {
-        let blockOperation = AsyncBlockOperation(dispatchQueue: .main) {
-            NotificationManager.shared.handleSystemNotificationResponse(response)
+        nonisolated(unsafe) let nonisolatedResponse = response
+        nonisolated(unsafe) let nonisolatedCompletionHandler = completionHandler
 
-            completionHandler()
+        let blockOperation = AsyncBlockOperation(dispatchQueue: .main) {
+            NotificationManager.shared.handleSystemNotificationResponse(nonisolatedResponse)
+
+            nonisolatedCompletionHandler()
         }
 
         operationQueue.addOperation(blockOperation)
     }
 
-    func userNotificationCenter(
+    nonisolated func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         willPresent notification: UNNotification,
         withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void

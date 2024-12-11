@@ -12,10 +12,10 @@ import Routing
 struct PaymentAlertPresenter {
     let alertContext: any Presenting
 
-    func showAlertForError(
+    @MainActor func showAlertForError(
         _ error: StorePaymentManagerError,
         context: REST.CreateApplePaymentResponse.Context,
-        completion: (() -> Void)? = nil
+        completion: (@Sendable () -> Void)? = nil
     ) {
         let presentation = AlertPresentation(
             id: "payment-error-alert",
@@ -36,10 +36,11 @@ struct PaymentAlertPresenter {
         presenter.showAlert(presentation: presentation, animated: true)
     }
 
+    @MainActor
     func showAlertForResponse(
         _ response: REST.CreateApplePaymentResponse,
         context: REST.CreateApplePaymentResponse.Context,
-        completion: (() -> Void)? = nil
+        completion: (@Sendable () -> Void)? = nil
     ) {
         guard case .noTimeAdded = response else {
             completion?()
