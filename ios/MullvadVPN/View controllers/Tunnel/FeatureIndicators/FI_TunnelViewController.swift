@@ -6,8 +6,10 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MapKit
 import MullvadLogging
+import MullvadSettings
 import MullvadTypes
 import SwiftUI
 
@@ -17,7 +19,8 @@ class FI_TunnelViewController: UIViewController, RootContainment {
     private let logger = Logger(label: "TunnelViewController")
     private let interactor: TunnelViewControllerInteractor
     private var tunnelState: TunnelState = .disconnected
-    private var viewModel = ConnectionViewViewModel(tunnelState: .disconnected)
+    private var connectionViewViewModel: ConnectionViewViewModel
+    private var indicatorsViewViewModel: FeatureIndicatorsViewModel
     private var connectionView: ConnectionView
     private var connectionController: UIHostingController<ConnectionView>?
 
@@ -48,7 +51,18 @@ class FI_TunnelViewController: UIViewController, RootContainment {
 
     init(interactor: TunnelViewControllerInteractor) {
         self.interactor = interactor
-        connectionView = ConnectionView(viewModel: self.viewModel)
+
+        tunnelState = interactor.tunnelStatus.state
+        connectionViewViewModel = ConnectionViewViewModel(tunnelState: tunnelState)
+        indicatorsViewViewModel = FeatureIndicatorsViewModel(
+            tunnelSettings: interactor.tunnelSettings,
+            ipOverrides: interactor.ipOverrides
+        )
+
+        connectionView = ConnectionView(
+            viewModel: self.connectionViewViewModel,
+            indicatorsViewModel: self.indicatorsViewViewModel
+        )
 
         super.init(nibName: nil, bundle: nil)
 
@@ -73,8 +87,15 @@ class FI_TunnelViewController: UIViewController, RootContainment {
 
         interactor.didUpdateTunnelStatus = { [weak self] tunnelStatus in
             self?.setTunnelState(tunnelStatus.state, animated: true)
-            self?.viewModel.tunnelState = tunnelStatus.state
             self?.view.setNeedsLayout()
+        }
+
+        interactor.didUpdateTunnelSettings = { [weak self] tunnelSettings in
+            self?.indicatorsViewViewModel.tunnelSettings = tunnelSettings
+        }
+
+        interactor.didUpdateIpOverrides = { [weak self] overrides in
+            self?.indicatorsViewViewModel.ipOverrides = overrides
         }
 
         connectionView.action = { [weak self] action in
@@ -102,10 +123,6 @@ class FI_TunnelViewController: UIViewController, RootContainment {
 
         addMapController()
         addContentView()
-
-        tunnelState = interactor.tunnelStatus.state
-        viewModel.tunnelState = tunnelState
-
         updateMap(animated: false)
     }
 
@@ -125,6 +142,8 @@ class FI_TunnelViewController: UIViewController, RootContainment {
 
     private func setTunnelState(_ tunnelState: TunnelState, animated: Bool) {
         self.tunnelState = tunnelState
+        connectionViewViewModel.tunnelState = tunnelState
+
         setNeedsHeaderBarStyleAppearanceUpdate()
 
         guard isViewLoaded else { return }
@@ -137,17 +156,17 @@ class FI_TunnelViewController: UIViewController, RootContainment {
         case let .connecting(tunnelRelays, _, _):
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
-            viewModel.showsActivityIndicator = true
+            connectionViewViewModel.showsActivityIndicator = true
 
         case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
-            viewModel.showsActivityIndicator = true
+            connectionViewViewModel.showsActivityIndicator = true
 
         case let .connected(tunnelRelays, _, _):
             let center = tunnelRelays.exit.location.geoCoordinate
             mapViewController.setCenter(center, animated: animated) {
-                self.viewModel.showsActivityIndicator = false
+                self.connectionViewViewModel.showsActivityIndicator = false
 
                 // Connection can change during animation, so make sure we're still connected before adding marker.
                 if case .connected = self.tunnelState {
@@ -157,16 +176,16 @@ class FI_TunnelViewController: UIViewController, RootContainment {
 
         case .pendingReconnect:
             mapViewController.removeLocationMarker()
-            viewModel.showsActivityIndicator = true
+            connectionViewViewModel.showsActivityIndicator = true
 
         case .waitingForConnectivity, .error:
             mapViewController.removeLocationMarker()
-            viewModel.showsActivityIndicator = false
+            connectionViewViewModel.showsActivityIndicator = false
 
         case .disconnected, .disconnecting:
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(nil, animated: animated)
-            viewModel.showsActivityIndicator = false
+            connectionViewViewModel.showsActivityIndicator = false
         }
     }
 

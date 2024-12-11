@@ -486,7 +486,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
     private func makeTunnelCoordinator() -> TunnelCoordinator {
         let tunnelCoordinator = TunnelCoordinator(
             tunnelManager: tunnelManager,
-            outgoingConnectionService: outgoingConnectionService
+            outgoingConnectionService: outgoingConnectionService,
+            ipOverrideRepository: ipOverrideRepository
         )
 
         tunnelCoordinator.showSelectLocationPicker = { [weak self] in
