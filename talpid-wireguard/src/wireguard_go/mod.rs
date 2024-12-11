@@ -114,8 +114,6 @@ impl WgGoTunnel {
         let log_path = state._logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
         let routes = config.get_tunnel_destinations();
-        #[cfg(daita)]
-        let resource_dir = state.resource_dir.clone();
 
         match self {
             WgGoTunnel::Multihop(state) if !config.is_multihop() => {
@@ -125,7 +123,6 @@ impl WgGoTunnel {
                     log_path.as_deref(),
                     tun_provider,
                     routes,
-                    &resource_dir,
                     connectivity_checker,
                 )
             }
@@ -137,7 +134,6 @@ impl WgGoTunnel {
                     log_path.as_deref(),
                     tun_provider,
                     routes,
-                    &resource_dir,
                     connectivity_checker,
                 )
             }
@@ -297,7 +293,6 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(daita)] resource_dir: &Path,
         mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
@@ -328,8 +323,6 @@ impl WgGoTunnel {
             _logging_context: logging_context,
             tun_provider,
             #[cfg(daita)]
-            resource_dir: resource_dir.to_owned(),
-            #[cfg(daita)]
             config: config.clone(),
             connectivity_checker: None,
         });
@@ -347,7 +340,6 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(daita)] resource_dir: &Path,
         mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
@@ -393,8 +385,6 @@ impl WgGoTunnel {
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
             tun_provider,
-            #[cfg(daita)]
-            resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
             connectivity_checker: None,

@@ -753,8 +753,6 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 routes,
-                #[cfg(daita)]
-                resource_dir,
                 connectivity_check,
             )
             .map_err(Error::TunnelError)?
@@ -765,8 +763,6 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 routes,
-                #[cfg(daita)]
-                resource_dir,
                 connectivity_check,
             )
             .map_err(Error::TunnelError)?
