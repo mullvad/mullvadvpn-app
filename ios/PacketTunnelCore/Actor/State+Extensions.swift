@@ -204,7 +204,7 @@ extension BlockedStateReason {
         case .deviceLocked, .tunnelAdapter:
             return true
         case .noRelaysSatisfyingConstraints, .noRelaysSatisfyingFilterConstraints,
-             .multihopEntryEqualsExit,
+             .multihopEntryEqualsExit, .noRelaysSatisfyingObfuscationSettings,
              .noRelaysSatisfyingDaitaConstraints, .readSettings, .invalidAccount, .accountExpired, .deviceRevoked,
              .unknown, .deviceLoggedOut, .outdatedSchema, .invalidRelayPublicKey:
             return false

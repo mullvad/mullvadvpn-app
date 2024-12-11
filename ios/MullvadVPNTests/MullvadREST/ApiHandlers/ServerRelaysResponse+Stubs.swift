@@ -143,8 +143,8 @@ enum ServerRelaysResponseStubs {
                     ipv6AddrIn: .loopback,
                     publicKey: PrivateKey().publicKey.rawValue,
                     includeInCountry: true,
-                    daita: true,
-                    shadowsocksExtraAddrIn: nil
+                    daita: false,
+                    shadowsocksExtraAddrIn: ["0.0.0.0"]
                 ),
                 REST.ServerRelay(
                     hostname: "us-nyc-wg-301",

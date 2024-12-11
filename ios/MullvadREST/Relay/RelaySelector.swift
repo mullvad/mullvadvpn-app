@@ -259,7 +259,7 @@ public enum RelaySelector {
             }
         }
 
-        // If no relays should be included in the matched country, instead accept all.
+        // If no relays are included in the matched country, instead accept all.
         return if filteredRelays.isEmpty {
             relays
         } else {

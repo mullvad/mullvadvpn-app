@@ -656,6 +656,8 @@
 		7AF9BE902A39F26000DBFEDB /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		7AF9BE952A40461100DBFEDB /* RelayFilterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */; };
 		7AF9BE972A41C71F00DBFEDB /* ChipViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE962A41C71F00DBFEDB /* ChipViewCell.swift */; };
+		7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */; };
+		7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */; };
 		850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DA2B503D7700EF8C96 /* RelayTests.swift */; };
 		850201DD2B503D8C00EF8C96 /* SelectLocationPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */; };
 		850201DF2B5040A500EF8C96 /* TunnelControlPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 850201DE2B5040A500EF8C96 /* TunnelControlPage.swift */; };
@@ -2010,6 +2012,8 @@
 		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
 		7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterView.swift; sourceTree = "<group>"; };
 		7AF9BE962A41C71F00DBFEDB /* ChipViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipViewCell.swift; sourceTree = "<group>"; };
+		7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SinglehopPicker.swift; sourceTree = "<group>"; };
+		7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopPicker.swift; sourceTree = "<group>"; };
 		85006A8E2B73EF67004AD8FB /* MullvadVPNUITestsSmoke.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = MullvadVPNUITestsSmoke.xctestplan; sourceTree = "<group>"; };
 		850201DA2B503D7700EF8C96 /* RelayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayTests.swift; sourceTree = "<group>"; };
 		850201DC2B503D8C00EF8C96 /* SelectLocationPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectLocationPage.swift; sourceTree = "<group>"; };
@@ -4094,6 +4098,16 @@
 			path = RelayFilter;
 			sourceTree = "<group>";
 		};
+		7AFBE38E2D09AB4E002335FC /* RelayPicking */ = {
+			isa = PBXGroup;
+			children = (
+				7AFBE38C2D09AB2E002335FC /* MultihopPicker.swift */,
+				7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */,
+				7AFBE38A2D09AAFF002335FC /* SinglehopPicker.swift */,
+			);
+			path = RelayPicking;
+			sourceTree = "<group>";
+		};
 		8518F6392B601910009EB113 /* Base */ = {
 			isa = PBXGroup;
 			children = (
@@ -4357,6 +4371,7 @@
 		F0DC779F2B2222D20087F09D /* Relay */ = {
 			isa = PBXGroup;
 			children = (
+				7AFBE38E2D09AB4E002335FC /* RelayPicking */,
 				7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */,
 				585DA87626B024A600B8C587 /* CachedRelays.swift */,
 				F0DDE4272B220A15006B57A7 /* Haversine.swift */,
@@ -4367,7 +4382,6 @@
 				7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */,
 				7AD63A382CD520FD00445268 /* ObfuscatorPortSelector.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
-				7A3AD5002C1068A800E9AD90 /* RelayPicking.swift */,
 				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
 				F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */,
 				F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */,
@@ -5399,6 +5413,7 @@
 				F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */,
 				A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */,
 				A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */,
+				7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */,
 				7A3AD5012C1068A800E9AD90 /* RelayPicking.swift in Sources */,
 				A90763C52B2858B40045ADF0 /* AnyIPEndpoint+Socks5.swift in Sources */,
 				F06045EC2B2322A500B2D37A /* Jittered.swift in Sources */,
@@ -5418,6 +5433,7 @@
 				F0E5B2F82C9C68CF0007F78C /* EncryptedDNSTransport.swift in Sources */,
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
+				7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */,
 				7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */,
