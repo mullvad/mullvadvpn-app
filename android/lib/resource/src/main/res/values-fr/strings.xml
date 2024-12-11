@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Définir le port</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) masque les schémas de votre trafic VPN chiffré.</string>
     <string name="daita_description_slide_1_second_paragraph">Utiliser une IA sophistiquée peut permettre d\'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</string>
+    <string name="daita_description_slide_1_third_paragraph">Si un observateur surveille ces paquets de données, %1$s rend beaucoup plus difficile l\'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez.</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille.</string>
+    <string name="daita_description_slide_2_second_paragraph">Tous nos serveurs ne sont pas compatibles %1$s. C\'est pourquoi nous utilisons automatiquement le multihop pour activer %2$s avec n\'importe quel serveur.</string>
+    <string name="daita_info">Si vous activez « %1$s », vous devez sélectionner manuellement un serveur avec %2$s activé. Vous risquez alors de vous retrouver dans une situation de blocage tant que vous n\'avez pas sélectionné un serveur compatible dans la vue « Sélectionner une localisation ».</string>
     <string name="daita_relay_subset_warning">Cette fonctionnalité n\'est pas disponible sur tous les serveurs. Vous devrez peut-être changer d\'emplacement après l\'avoir activée.</string>
     <string name="daita_warning">Attention : étant donné que cette opération augmente le trafic total de votre réseau, faites attention si vous disposez d\'un forfait à données limitées. Cela peut également avoir un impact négatif sur la vitesse de votre réseau et l\'utilisation de la batterie.</string>
     <string name="delete">Supprimer</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si vous vous déconnectez, l\'appareil et son nom sont supprimés. Lorsque vous vous reconnectez, l\'appareil reçoit un nouveau nom.</string>
     <string name="direct_only">Directe uniquement</string>
+    <string name="direct_only_description">Tous nos serveurs ne sont pas compatibles %1$s. Pour utiliser l\'internet, vous devrez peut-être sélectionner une nouvelle localisation après activation.</string>
     <string name="discard">Annuler</string>
     <string name="discard_changes">Annuler les modifications ?</string>
     <string name="disconnect">Déconnexion</string>
@@ -129,6 +135,7 @@
     <string name="enable">Activer</string>
     <string name="enable_anyway">Activer quand même</string>
     <string name="enable_custom_dns">Utiliser un serveur DNS personnalisé</string>
+    <string name="enable_direct_only">Activer « %1$s »</string>
     <string name="enable_method">Activer la méthode</string>
     <string name="enter_value_placeholder">Saisir le MTU</string>
     <string name="enter_voucher_code">Saisir un code de bon</string>

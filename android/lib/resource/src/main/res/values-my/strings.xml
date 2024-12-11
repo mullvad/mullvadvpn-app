@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">ပေါ့တ် သတ်မှတ်ရန်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) က သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ဝင်ရောက်ကြည့်ရှုမှုထဲရှိ ပက်တန်များကို ဝှက်ပေးသည်။</string>
     <string name="daita_description_slide_1_second_paragraph">ခေတ်မီဆန်းပြားသော AI ကိုအသုံးပြုခြင်းဖြင့် (အသွားအလာကို ကုဒ်ဝှက်ထားသည့်တိုင်) သင့်စက်၏အဝင်အထွက်ဒေတာပက်ကတ်များ၏ အသွားအလာကို ပိုင်းခြားစိတ်ဖြာနိုင်သည်။</string>
+    <string name="daita_description_slide_1_third_paragraph">အကဲခတ်သူတစ်ဦးက ဤဒေတာပက်ကတ်များကို စောင့်ကြည့်လျှင် %1$s သည် သင်သွားရောက်ကြည့်ရှုနေသော ဝဘ်ဆိုက်များ သို့မဟုတ် သင်ဆက်သွယ်နေသည့်သူများကို ခွဲခြားဖော်ထုတ်ရန် ၎င်းတို့အတွက် သိသိသာသာ ခက်ခဲစေသည်။</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s သည် ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်၍ ထိုသို့လုပ်ဆောင်ခြင်းဖြစ်သည်။</string>
+    <string name="daita_description_slide_2_second_paragraph">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$s ကိုဖွင့်ထားခြင်းမရှိပါ။ ထို့ကြောင့် ကျွန်ုပ်တို့သည် မည်သည့်ဆာဗာနှင့်မဆို %2$s ကိုဖွင့်ရန် မာလ်တီဟော့ပ်ကို အလိုအလျောက်အသုံးပြုပါသည်။</string>
+    <string name="daita_info">“%1$s” ကို ဖွင့်လိုက်လျှင် သင်သည် %2$s ကိုဖွင့်ထားသည့် ဆာဗာကို ကိုယ်တိုင်ရွေးချယ်ရမည်ဖြစ်သည်။ ၎င်းသည် \"တည်နေရာကိုရွေးချယ်ပါ\" မြင်ကွင်းတွင် တွဲဖက်သုံးနိုင်သောဆာဗာကို မရွေးချယ်ရသေးမချင်း ပိတ်ဆို့ခံထားသောအခြေအနေတွင် အဆုံးသတ်စေနိုင်သည်။</string>
     <string name="daita_relay_subset_warning">ဤလုပ်ဆောင်ချက်ကို ဆာဗာအားလုံးတွင် မရရှိနိုင်ပါ။ ဖွင့်ပြီးနောက် တည်နေရာ ပြောင်းလဲရန် လိုအပ်နိုင်သည်။</string>
     <string name="daita_warning">သတိပြုရန်- ၎င်းသည် သင်၏ စုစုပေါင်းကွန်ရက်သုံးစွဲမှုကို တိုးစေသောကြောင့် သင့်ဒေတာပလန်မှာ အကန့်အသတ်ဖြင့်သာ ရှိပါက သတိထားပါ။ ၎င်းသည် သင်၏ကွန်ရက်အမြန်နှုန်းနှင့် ဘက်ထရီအသုံးပြုမှုကိုလည်း ထိခိုက်စေနိုင်သည်။</string>
     <string name="delete">ဖျက်ရန်</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">Mullvad အကောင့်တစ်ခုတွင် စက် 5 ခုအထိ ဝင်ရောက်ထားနိုင်ပါသည်။</string>
     <string name="device_name_info_third_paragraph">ထွက်လိုက်ပါက စက်နှင့် စက်အမည်ကို ဖယ်ရှားပါသည်။ နောက်တစ်ကြိမ် ပြန်ဝင်ရောက်သည့်အခါ စက်သည် အမည်သစ်တစ်ခု ရရှိပါမည်။</string>
     <string name="direct_only">တိုက်ရိုက်သာ</string>
+    <string name="direct_only_description">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$s ကိုဖွင့်ထားခြင်းမရှိပါ။ အင်တာနက်အသုံးပြုရန်အတွက် သင်သည် ၎င်းကို ဖွင့်ပြီးနောက် တည်နေရာအသစ်တစ်ခုကို ရွေးချယ်ရပေမည်။</string>
     <string name="discard">ပယ်ဖျက်မည်</string>
     <string name="discard_changes">အပြောင်းအလဲများကို ပယ်ဖျက်မည်လား။</string>
     <string name="disconnect">ချိတ်ဆက်မှုဖြုတ်ရန်</string>
@@ -129,6 +135,7 @@
     <string name="enable">ဖွင့်ရန်</string>
     <string name="enable_anyway">မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
+    <string name="enable_direct_only">\"%1$s\" ကို ဖွင့်ရန်</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
     <string name="enter_value_placeholder">MTU ကို ရိုက်ထည့်ရန်</string>
     <string name="enter_voucher_code">ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်</string>
