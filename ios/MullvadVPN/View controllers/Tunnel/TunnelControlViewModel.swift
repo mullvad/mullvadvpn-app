@@ -10,7 +10,7 @@ import Foundation
 
 struct TunnelControlViewModel {
     let tunnelStatus: TunnelStatus
-    let secureLabelText: String
+    let connectionStatusLabelText: String
     let enableButtons: Bool
     let city: String
     let country: String
@@ -37,7 +37,7 @@ struct TunnelControlViewModel {
     static var empty: Self {
         TunnelControlViewModel(
             tunnelStatus: TunnelStatus(),
-            secureLabelText: "",
+            connectionStatusLabelText: "",
             enableButtons: true,
             city: "",
             country: "",
@@ -49,7 +49,7 @@ struct TunnelControlViewModel {
     func update(status: TunnelStatus) -> TunnelControlViewModel {
         TunnelControlViewModel(
             tunnelStatus: status,
-            secureLabelText: secureLabelText,
+            connectionStatusLabelText: connectionStatusLabelText,
             enableButtons: enableButtons,
             city: city,
             country: country,
@@ -61,7 +61,7 @@ struct TunnelControlViewModel {
     func update(outgoingConnectionInfo: OutgoingConnectionInfo) -> TunnelControlViewModel {
         TunnelControlViewModel(
             tunnelStatus: tunnelStatus,
-            secureLabelText: secureLabelText,
+            connectionStatusLabelText: connectionStatusLabelText,
             enableButtons: enableButtons,
             city: city,
             country: country,
