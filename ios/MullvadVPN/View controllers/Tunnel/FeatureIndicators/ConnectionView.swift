@@ -11,12 +11,15 @@ import SwiftUI
 // TODO: Replace all hardcoded values with real values dependent on tunnel state. To be addressed in upcoming PR.
 
 struct ConnectionView: View {
+    @ObservedObject var viewModel: FeaturesIndicatoresMockViewModel
+
     var body: some View {
         ZStack {
             BlurView()
 
             VStack(alignment: .leading, spacing: 16) {
                 ConnectionPanel()
+                FeatureIndicatorsView(viewModel: viewModel)
                 ButtonPanel()
             }
             .padding(16)
@@ -30,8 +33,13 @@ struct ConnectionView: View {
 }
 
 #Preview {
-    ConnectionView()
+    @ObservedObject var viewModel = FeaturesIndicatoresMockViewModel()
+
+    ConnectionView(viewModel: viewModel)
         .background(UIColor.secondaryColor.color)
+        .onTapGesture {
+            viewModel.isExpanded.toggle()
+        }
 }
 
 private struct BlurView: View {
