@@ -9,7 +9,7 @@ packer {
 
 source "tart-cli" "tart" {
   from_ipsw    = "https://updates.cdn-apple.com/2024FallFCS/fullrestores/072-30094/44BD016F-6EE3-4EE5-8890-6F9AA008C537/UniversalMac_15.1.1_24B91_Restore.ipsw"
-  vm_name      = "app-build-new"
+  vm_name      = "ios-build-new"
   cpu_count    = 4
   memory_gb    = 8
   disk_size_gb = 40
