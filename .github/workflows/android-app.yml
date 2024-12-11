@@ -280,7 +280,7 @@ jobs:
         run: echo $ANDROID_NDK_VERSION
 
       - name: $ANDROID_HOME/ndk/
-        run: echo ls "$ANDROID_HOME/ndk/"
+        run: ls "$ANDROID_HOME/ndk/"
 
       - name: Checkout repository
         uses: actions/checkout@v4
