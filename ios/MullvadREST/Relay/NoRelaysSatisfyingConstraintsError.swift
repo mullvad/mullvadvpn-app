@@ -15,6 +15,7 @@ public enum NoRelaysSatisfyingConstraintsReason {
     case multihopInvalidFlow
     case noActiveRelaysFound
     case noDaitaRelaysFound
+    case noObfuscatedRelaysFound
     case relayConstraintNotMatching
 }
 
@@ -35,6 +36,8 @@ public struct NoRelaysSatisfyingConstraintsError: LocalizedError {
             "No active relays found"
         case .noDaitaRelaysFound:
             "No DAITA relays found"
+        case .noObfuscatedRelaysFound:
+            "No obfuscated relays found"
         case .relayConstraintNotMatching:
             "Invalid constraint created to pick a relay"
         }

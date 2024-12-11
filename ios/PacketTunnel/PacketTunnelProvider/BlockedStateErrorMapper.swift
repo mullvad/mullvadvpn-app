@@ -56,6 +56,8 @@ public struct BlockedStateErrorMapper: BlockedStateErrorMapperProtocol {
                 .multihopEntryEqualsExit
             case .noDaitaRelaysFound:
                 .noRelaysSatisfyingDaitaConstraints
+            case .noObfuscatedRelaysFound:
+                .noRelaysSatisfyingObfuscationSettings
             default:
                 .noRelaysSatisfyingConstraints
             }

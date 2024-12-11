@@ -207,6 +207,9 @@ public enum BlockedStateReason: String, Codable, Equatable {
     /// No relays satisfying DAITA constraints.
     case noRelaysSatisfyingDaitaConstraints
 
+    /// No relays satisfying DAITA constraints.
+    case noRelaysSatisfyingObfuscationSettings
+
     /// Any other failure when reading settings.
     case readSettings
 
