@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -352,33 +353,44 @@ private fun RelayLists(
     openDaitaSettings: () -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
-    val pagerState =
-        rememberPagerState(
-            initialPage = state.relayListType.ordinal,
-            pageCount = { RelayListType.entries.size },
-        )
-    LaunchedEffect(state.relayListType) {
-        val index = state.relayListType.ordinal
-        pagerState.animateScrollToPage(index)
-    }
-
-    HorizontalPager(
-        state = pagerState,
-        userScrollEnabled = false,
-        beyondViewportPageCount =
-            if (state.multihopEnabled) {
-                1
-            } else {
-                0
-            },
-    ) { pageIndex ->
+    val configuration = LocalContext.current.resources.configuration
+    if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
             backgroundColor = backgroundColor,
-            relayListType = RelayListType.entries[pageIndex],
+            relayListType = state.relayListType,
             onSelectRelay = onSelectRelay,
             openDaitaSettings = openDaitaSettings,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
+    } else {
+        val pagerState =
+            rememberPagerState(
+                initialPage = state.relayListType.ordinal,
+                pageCount = { RelayListType.entries.size },
+            )
+        LaunchedEffect(state.relayListType) {
+            val index = state.relayListType.ordinal
+            pagerState.animateScrollToPage(index)
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            userScrollEnabled = false,
+            beyondViewportPageCount =
+                if (state.multihopEnabled) {
+                    1
+                } else {
+                    0
+                },
+        ) { pageIndex ->
+            SelectLocationList(
+                backgroundColor = backgroundColor,
+                relayListType = RelayListType.entries[pageIndex],
+                onSelectRelay = onSelectRelay,
+                openDaitaSettings = openDaitaSettings,
+                onUpdateBottomSheetState = onUpdateBottomSheetState,
+            )
+        }
     }
 }
 
