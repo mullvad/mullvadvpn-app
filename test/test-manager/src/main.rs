@@ -13,6 +13,7 @@ use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Result};
 use clap::{builder::PossibleValuesParser, Parser};
+use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
 use vm::provision;
 
@@ -270,22 +271,10 @@ async fn main() -> Result<()> {
             log::debug!("Mullvad host: {mullvad_host}");
 
             let vm_config = vm::get_vm_config(&config, &vm).context("Cannot get VM config")?;
-
-            let summary_logger = match test_report {
-                Some(path) => Some(
-                    summary::SummaryLogger::new(
-                        &vm,
-                        test_rpc::meta::Os::from(vm_config.os_type),
-                        &path,
-                    )
-                    .await
-                    .context("Failed to create summary logger")?,
-                ),
-                None => None,
-            };
+            let test_runner = TargetInfo::try_from(vm_config)?;
 
             let manifest = package::get_app_manifest(
-                vm_config,
+                test_runner,
                 app_package,
                 app_package_to_upgrade_from,
                 gui_package,
@@ -336,6 +325,19 @@ async fn main() -> Result<()> {
             .await?;
 
             let skip_wait = vm_config.provisioner != config::Provisioner::Noop;
+
+            let summary_logger = match test_report {
+                Some(path) => Some(
+                    summary::SummaryLogger::new(
+                        &vm,
+                        test_rpc::meta::Os::from(vm_config.os_type),
+                        &path,
+                    )
+                    .await
+                    .context("Failed to create summary logger")?,
+                ),
+                None => None,
+            };
 
             let result = run_tests::run(&*instance, tests, skip_wait, !verbose, summary_logger)
                 .await

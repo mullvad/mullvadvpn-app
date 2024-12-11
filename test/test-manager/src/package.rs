@@ -1,5 +1,5 @@
 use crate::config::{Architecture, OsType, PackageType, VmConfig};
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use itertools::Itertools;
 use regex::Regex;
 use std::{
@@ -14,24 +14,38 @@ pub struct Manifest {
     pub gui_package_path: Option<PathBuf>,
 }
 
+/// Basic metadata about the test runner target platform such as OS, architecture and package
+/// manager.
+#[derive(Debug, Clone, Copy)]
+pub enum TargetInfo {
+    Windows {
+        arch: Architecture,
+    },
+    Macos {
+        arch: Architecture,
+    },
+    Linux {
+        arch: Architecture,
+        package_type: PackageType,
+    },
+}
+
 /// Obtain app packages and their filenames
 /// If it's a path, use the path.
 /// If it corresponds to a file in packages/, use that package.
 /// TODO: If it's a git tag or rev, download it.
 pub fn get_app_manifest(
-    config: &VmConfig,
+    test_runner: TargetInfo,
     app_package: String,
     app_package_to_upgrade_from: Option<String>,
     gui_package: Option<String>,
     package_dir: Option<PathBuf>,
 ) -> Result<Manifest> {
-    let package_type = (config.os_type, config.package_type, config.architecture);
-
-    let app_package_path = find_app(&app_package, false, package_type, package_dir.as_ref())?;
+    let app_package_path = find_app(&app_package, false, test_runner, package_dir.as_ref())?;
     log::info!("App package: {}", app_package_path.display());
 
     let app_package_to_upgrade_from_path = app_package_to_upgrade_from
-        .map(|app| find_app(&app, false, package_type, package_dir.as_ref()))
+        .map(|app| find_app(&app, false, test_runner, package_dir.as_ref()))
         .transpose()?;
     log::info!("App package to upgrade from: {app_package_to_upgrade_from_path:?}");
 
@@ -52,7 +66,7 @@ pub fn get_app_manifest(
             None => &app_version,
         },
         true,
-        package_type,
+        test_runner,
         Some(&ui_e2e_package_dir),
     );
 
@@ -86,7 +100,7 @@ pub fn get_version_from_path(app_package_path: &Path) -> Result<String, anyhow::
 fn find_app(
     app: &str,
     e2e_bin: bool,
-    package_type: (OsType, Option<PackageType>, Architecture),
+    test_runner: TargetInfo,
     package_dir: Option<&PathBuf>,
 ) -> Result<PathBuf> {
     // If it's a path, use that path
@@ -112,7 +126,7 @@ fn find_app(
             e2e_bin ||
             path
                 .extension()
-                .map(|m_ext| m_ext.eq_ignore_ascii_case(get_ext(package_type)))
+                .map(|m_ext| m_ext.eq_ignore_ascii_case(test_runner.get_ext()))
                 .unwrap_or(false)
         }) // Filter out irrelevant platforms
         .map(|path| {
@@ -120,10 +134,10 @@ fn find_app(
             (path, u8_path)
         })
         .filter(|(_path, u8_path)| !(e2e_bin ^ u8_path.contains("app-e2e-tests"))) // Skip non-UI-e2e binaries or vice versa
-        .filter(|(_path, u8_path)| !e2e_bin || u8_path.contains(get_os_name(package_type))) // Filter out irrelevant platforms
+        .filter(|(_path, u8_path)| !e2e_bin || u8_path.contains(test_runner.get_os_name())) // Filter out irrelevant platforms
         .filter(|(_path, u8_path)| {
-            let linux = e2e_bin || package_type.0 == OsType::Linux;
-            let matching_ident = package_type.2.get_identifiers().iter().any(|id| u8_path.contains(id));
+            let linux = e2e_bin || test_runner.is_linux();
+            let matching_ident = test_runner.get_identifiers().any(|id| u8_path.contains(id));
             // Skip for non-Linux, because there's only one package
             !linux || matching_ident
         }) // Skip file if it doesn't match the architecture
@@ -143,24 +157,61 @@ fn find_app(
         })
 }
 
-// TODO: Move to [`PackageType`]
-fn get_ext(package_type: (OsType, Option<PackageType>, Architecture)) -> &'static str {
-    match package_type.0 {
-        OsType::Windows => "exe",
-        OsType::Macos => "pkg",
-        OsType::Linux => match package_type.1.expect("must specify package type") {
-            PackageType::Deb => "deb",
-            PackageType::Rpm => "rpm",
-        },
+impl TargetInfo {
+    const fn is_linux(self) -> bool {
+        matches!(self, TargetInfo::Linux { .. })
+    }
+
+    const fn get_ext(self) -> &'static str {
+        match self {
+            TargetInfo::Windows { .. } => "exe",
+            TargetInfo::Macos { .. } => "pkg",
+            TargetInfo::Linux { package_type, .. } => match package_type {
+                PackageType::Deb => "deb",
+                PackageType::Rpm => "rpm",
+            },
+        }
+    }
+
+    const fn get_os_name(self) -> &'static str {
+        match self {
+            TargetInfo::Windows { .. } => "windows",
+            TargetInfo::Macos { .. } => "apple",
+            TargetInfo::Linux { .. } => "linux",
+        }
+    }
+
+    fn get_identifiers(self) -> impl Iterator<Item = &'static str> {
+        match self {
+            TargetInfo::Windows { arch }
+            | TargetInfo::Macos { arch }
+            | TargetInfo::Linux { arch, .. } => arch.get_identifiers().into_iter(),
+        }
     }
 }
 
-// TODO: Move to [`OsType`]
-fn get_os_name(package_type: (OsType, Option<PackageType>, Architecture)) -> &'static str {
-    match package_type.0 {
-        OsType::Windows => "windows",
-        OsType::Macos => "apple",
-        OsType::Linux => "linux",
+impl TryFrom<&VmConfig> for TargetInfo {
+    type Error = anyhow::Error;
+
+    fn try_from(config: &VmConfig) -> std::result::Result<Self, Self::Error> {
+        let target_info = match config.os_type {
+            OsType::Windows => TargetInfo::Windows {
+                arch: config.architecture,
+            },
+            OsType::Macos => TargetInfo::Macos {
+                arch: config.architecture,
+            },
+            OsType::Linux => {
+                let Some(package_type) = config.package_type else {
+                    bail!("Linux VM configuration did not specify any package type (Deb|Rpm)!");
+                };
+                TargetInfo::Linux {
+                    arch: config.architecture,
+                    package_type,
+                }
+            }
+        };
+        Ok(target_info)
     }
 }
 
