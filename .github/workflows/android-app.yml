@@ -276,8 +276,8 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: Copy NDK_HOME
-        run: cp -r $ANDROID_NDK_HOME $ANDROID_HOME/ndk/27.1.12297006
+      - name: Move NDK_HOME
+        run: mv $ANDROID_NDK_HOME $ANDROID_HOME/ndk/27.1.12297006
 
       - name: Fix ANDROID_NDK_HOME
         run: echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.1.12297006" >> $GITHUB_ENV
