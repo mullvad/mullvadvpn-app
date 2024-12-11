@@ -106,7 +106,14 @@ private fun LazyListScope.loading() {
 private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
     item(contentType = ContentType.DESCRIPTION) {
         Text(
-            text = stringResource(R.string.multihop_entry_disabled_description),
+            text =
+                stringResource(
+                    R.string.multihop_entry_disabled_description,
+                    stringResource(R.string.multihop),
+                    stringResource(id = R.string.daita),
+                    stringResource(R.string.direct_only),
+                    stringResource(id = R.string.daita),
+                ),
             style = MaterialTheme.typography.labelMedium,
             textAlign = TextAlign.Center,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -118,7 +125,8 @@ private fun LazyListScope.entryBlocked(openDaitaSettings: () -> Unit) {
     }
     item(contentType = ContentType.BUTTON) {
         PrimaryButton(
-            text = stringResource(R.string.open_daita_settings),
+            text =
+                stringResource(R.string.open_feature_settings, stringResource(id = R.string.daita)),
             onClick = openDaitaSettings,
             modifier = Modifier.padding(horizontal = Dimens.mediumPadding),
         )
