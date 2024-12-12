@@ -68,6 +68,9 @@ ENV AR_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/llvm-ar \
     CC_x86_64_linux_android=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang \
     CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER=${NDK_TOOLCHAIN_DIR}/x86_64-linux-android${MIN_SDK_VERSION}-clang
 
+# Set up python3 path for rust gradle plugin
+ENV RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
+
 # === Install/set up the image ===
 
 RUN apt-get update -y && apt-get install -y \
