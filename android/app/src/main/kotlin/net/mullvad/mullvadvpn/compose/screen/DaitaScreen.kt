@@ -150,7 +150,7 @@ private fun DescriptionPager(pagerState: PagerState) {
 private fun DescriptionText(
     firstParagraph: String,
     secondParagraph: String,
-    thirdParagraph: String
+    thirdParagraph: String,
 ) {
     SwitchComposeSubtitleCell(
         modifier = Modifier.padding(vertical = Dimens.smallPadding),
@@ -200,7 +200,7 @@ private enum class DaitaPages(
                 stringResource(
                     R.string.daita_description_slide_1_first_paragraph,
                     stringResource(id = R.string.daita),
-                    stringResource(id = R.string.daita_full)
+                    stringResource(id = R.string.daita_full),
                 )
             },
         textSecondParagraph =
@@ -232,7 +232,7 @@ private enum class DaitaPages(
                 stringResource(
                     R.string.daita_description_slide_2_second_paragraph,
                     stringResource(id = R.string.daita),
-                    stringResource(id = R.string.daita)
+                    stringResource(id = R.string.daita),
                 )
             },
         textThirdParagraph =

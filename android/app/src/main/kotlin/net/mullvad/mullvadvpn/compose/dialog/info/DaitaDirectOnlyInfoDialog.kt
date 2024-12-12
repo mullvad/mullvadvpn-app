@@ -26,7 +26,7 @@ fun DaitaDirectOnlyInfo(navigator: DestinationsNavigator) {
             stringResource(
                 id = R.string.daita_info,
                 stringResource(id = R.string.direct_only),
-                stringResource(id = R.string.daita)
+                stringResource(id = R.string.daita),
             ),
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )

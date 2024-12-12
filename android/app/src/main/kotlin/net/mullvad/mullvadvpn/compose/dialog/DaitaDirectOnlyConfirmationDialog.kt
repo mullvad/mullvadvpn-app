@@ -37,7 +37,7 @@ fun DaitaDirectOnlyConfirmation(navigator: ResultBackNavigator<Boolean>) {
             text =
                 stringResource(
                     id = R.string.direct_only_description,
-                    stringResource(id = R.string.daita)
+                    stringResource(id = R.string.daita),
                 ),
             color = MaterialTheme.colorScheme.onSurface,
             style = MaterialTheme.typography.bodySmall,
