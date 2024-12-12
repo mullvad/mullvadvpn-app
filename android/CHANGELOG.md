@@ -23,6 +23,10 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+### Changed
+- Update to DAITA v2. The main difference is that many different machines are provided by relays
+  instead of a bundled list.
+
 
 ## [android/2024.9] - 2024-12-09
 
