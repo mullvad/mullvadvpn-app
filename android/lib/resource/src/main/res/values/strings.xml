@@ -419,6 +419,6 @@
     <string name="enable_direct_only">Enable \"%s\"</string>
     <string name="direct_only_description">Not all our servers are %s-enabled. In order to use the internet, you might have to select a new location after enabling.</string>
     <string name="multihop_entry_disabled_description">The entry server for %s is currently overridden by %s. To select an entry server, please first enable “%s” or disable \"%s\" in the settings.</string>
-    <string name="open_feature_settings">Go to %s settings</string>
+    <string name="open_feature_settings">Open %s settings</string>
     <string name="search">Search</string>
 </resources>
