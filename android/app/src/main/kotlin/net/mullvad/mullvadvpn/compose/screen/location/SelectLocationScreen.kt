@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
 import android.annotation.SuppressLint
+import android.content.res.Configuration
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -352,33 +353,46 @@ private fun RelayLists(
     openDaitaSettings: () -> Unit,
     onUpdateBottomSheetState: (LocationBottomSheetState) -> Unit,
 ) {
-    val pagerState =
-        rememberPagerState(
-            initialPage = state.relayListType.ordinal,
-            pageCount = { RelayListType.entries.size },
-        )
-    LaunchedEffect(state.relayListType) {
-        val index = state.relayListType.ordinal
-        pagerState.animateScrollToPage(index)
-    }
-
-    HorizontalPager(
-        state = pagerState,
-        userScrollEnabled = false,
-        beyondViewportPageCount =
-            if (state.multihopEnabled) {
-                1
-            } else {
-                0
-            },
-    ) { pageIndex ->
+    // This is a workaround for the HorizontalPager being broken on Android TV when it contains
+    // focusable views and you navigate with the D-pad. Remove this code once DROID-1639 is fixed.
+    val configuration = LocalContext.current.resources.configuration
+    if (configuration.navigation == Configuration.NAVIGATION_DPAD) {
         SelectLocationList(
             backgroundColor = backgroundColor,
-            relayListType = RelayListType.entries[pageIndex],
+            relayListType = state.relayListType,
             onSelectRelay = onSelectRelay,
             openDaitaSettings = openDaitaSettings,
             onUpdateBottomSheetState = onUpdateBottomSheetState,
         )
+    } else {
+        val pagerState =
+            rememberPagerState(
+                initialPage = state.relayListType.ordinal,
+                pageCount = { RelayListType.entries.size },
+            )
+        LaunchedEffect(state.relayListType) {
+            val index = state.relayListType.ordinal
+            pagerState.animateScrollToPage(index)
+        }
+
+        HorizontalPager(
+            state = pagerState,
+            userScrollEnabled = false,
+            beyondViewportPageCount =
+                if (state.multihopEnabled) {
+                    1
+                } else {
+                    0
+                },
+        ) { pageIndex ->
+            SelectLocationList(
+                backgroundColor = backgroundColor,
+                relayListType = RelayListType.entries[pageIndex],
+                onSelectRelay = onSelectRelay,
+                openDaitaSettings = openDaitaSettings,
+                onUpdateBottomSheetState = onUpdateBottomSheetState,
+            )
+        }
     }
 }
 
