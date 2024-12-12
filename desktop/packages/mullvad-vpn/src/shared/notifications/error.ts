@@ -13,6 +13,7 @@ import {
   InAppNotification,
   InAppNotificationAction,
   InAppNotificationProvider,
+  InAppNotificationTroubleshootButton,
   SystemNotification,
   SystemNotificationCategory,
   SystemNotificationProvider,
@@ -23,6 +24,7 @@ interface ErrorNotificationContext {
   tunnelState: TunnelState;
   hasExcludedApps: boolean;
   showFullDiskAccessSettings?: () => void;
+  disableSplitTunneling?: () => void;
 }
 
 export class ErrorNotificationProvider
@@ -276,12 +278,18 @@ export class ErrorNotificationProvider
         },
       };
     } else if (errorState.cause === ErrorStateCause.needFullDiskPermissions) {
-      let troubleshootButtons = undefined;
+      let troubleshootButtons: InAppNotificationTroubleshootButton[] | undefined = undefined;
       if (this.context.showFullDiskAccessSettings) {
         troubleshootButtons = [
           {
             label: messages.pgettext('troubleshoot', 'Open system settings'),
             action: () => this.context.showFullDiskAccessSettings?.(),
+            variant: 'success',
+          },
+          {
+            label: messages.pgettext('troubleshoot', 'Disable split tunneling'),
+            action: () => this.context.disableSplitTunneling?.(),
+            variant: 'destructive',
           },
         ];
       }
