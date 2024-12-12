@@ -151,15 +151,14 @@ impl DnsMonitorHolder {
     ) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
-            Resolvconf(ref mut resolvconf) => resolvconf.set_dns(interface, servers)?,
-            StaticResolvConf(ref mut static_resolv_conf) => {
-                static_resolv_conf.set_dns(servers.to_vec())?
-            }
-            SystemdResolved(ref mut systemd_resolved) => handle
-                .block_on(systemd_resolved.set_dns(route_manager.clone(), interface, servers))?,
-            NetworkManager(ref mut network_manager) => {
-                network_manager.set_dns(interface, servers)?
-            }
+            Resolvconf(resolvconf) => resolvconf.set_dns(interface, servers)?,
+            StaticResolvConf(static_resolv_conf) => static_resolv_conf.set_dns(servers.to_vec())?,
+            SystemdResolved(systemd_resolved) => handle.block_on(systemd_resolved.set_dns(
+                route_manager.clone(),
+                interface,
+                servers,
+            ))?,
+            NetworkManager(network_manager) => network_manager.set_dns(interface, servers)?,
         }
         Ok(())
     }
@@ -167,12 +166,10 @@ impl DnsMonitorHolder {
     fn reset(&mut self, handle: &tokio::runtime::Handle) -> Result<()> {
         use self::DnsMonitorHolder::*;
         match self {
-            Resolvconf(ref mut resolvconf) => resolvconf.reset()?,
-            StaticResolvConf(ref mut static_resolv_conf) => static_resolv_conf.reset()?,
-            SystemdResolved(ref mut systemd_resolved) => {
-                handle.block_on(systemd_resolved.reset())?
-            }
-            NetworkManager(ref mut network_manager) => network_manager.reset()?,
+            Resolvconf(resolvconf) => resolvconf.reset()?,
+            StaticResolvConf(static_resolv_conf) => static_resolv_conf.reset()?,
+            SystemdResolved(systemd_resolved) => handle.block_on(systemd_resolved.reset())?,
+            NetworkManager(network_manager) => network_manager.reset()?,
         }
         Ok(())
     }

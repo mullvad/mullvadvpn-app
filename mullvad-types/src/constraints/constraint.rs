@@ -107,7 +107,7 @@ impl<T> Constraint<T> {
     pub const fn as_ref(&self) -> Constraint<&T> {
         match self {
             Constraint::Any => Constraint::Any,
-            Constraint::Only(ref value) => Constraint::Only(value),
+            Constraint::Only(value) => Constraint::Only(value),
         }
     }
 
@@ -128,7 +128,7 @@ impl<T: PartialEq> Constraint<T> {
     pub fn matches_eq(&self, other: &T) -> bool {
         match self {
             Constraint::Any => true,
-            Constraint::Only(ref value) => value == other,
+            Constraint::Only(value) => value == other,
         }
     }
 }

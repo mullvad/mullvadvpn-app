@@ -141,7 +141,7 @@ impl Error {
     #[cfg(target_os = "windows")]
     pub fn get_tunnel_device_error(&self) -> Option<&io::Error> {
         match self {
-            Error::WintunCreateAdapterError(ref error) => Some(error),
+            Error::WintunCreateAdapterError(error) => Some(error),
             _ => None,
         }
     }
@@ -542,7 +542,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
     fn create_proxy_auth_file(
         proxy_settings: &Option<CustomProxy>,
     ) -> std::result::Result<Option<mktemp::TempFile>, io::Error> {
-        if let Some(CustomProxy::Socks5Remote(ref remote_proxy)) = proxy_settings {
+        if let Some(CustomProxy::Socks5Remote(remote_proxy)) = proxy_settings {
             if let Some(ref proxy_auth) = remote_proxy.auth {
                 return Ok(Some(Self::create_credentials_file(
                     proxy_auth.username(),
@@ -558,7 +558,7 @@ impl<C: OpenVpnBuilder + Send + 'static> OpenVpnMonitor<C> {
         proxy_settings: &Option<CustomProxy>,
         #[cfg(target_os = "linux")] fwmark: u32,
     ) -> Result<Option<Box<dyn ProxyMonitor>>> {
-        if let Some(ref settings) = proxy_settings {
+        if let Some(settings) = proxy_settings {
             let proxy_monitor = proxy::start_proxy(
                 settings,
                 #[cfg(target_os = "linux")]
@@ -837,7 +837,7 @@ mod event_server {
             let env = request.into_inner().env;
 
             let _ = tokio::fs::remove_file(&self.user_pass_file_path).await;
-            if let Some(ref file_path) = &self.proxy_auth_file_path {
+            if let Some(file_path) = &self.proxy_auth_file_path {
                 let _ = tokio::fs::remove_file(file_path).await;
             }
 
