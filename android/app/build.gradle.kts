@@ -295,7 +295,7 @@ cargo {
             add("--locked")
         }
     }
-    exec = { spec, toolchain -> println(spec.commandLine) }
+    exec = { spec, _ -> println(spec.commandLine) }
 }
 
 tasks.register<Exec>("generateRelayList") {
