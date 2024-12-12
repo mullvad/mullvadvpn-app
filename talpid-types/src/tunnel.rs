@@ -160,19 +160,19 @@ pub enum FirewallPolicyError {
 impl fmt::Display for ErrorStateCause {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use self::ErrorStateCause::*;
-        let description = match *self {
-            AuthFailed(ref reason) => {
+        let description = match self {
+            AuthFailed(reason) => {
                 return write!(
                     f,
                     "Authentication with remote server failed: {}",
                     match reason {
-                        Some(ref reason) => reason.as_str(),
+                        Some(reason) => reason.as_str(),
                         None => "No reason provided",
                     }
                 );
             }
             Ipv6Unavailable => "Failed to configure IPv6 because it's disabled in the platform",
-            SetFirewallPolicyError(ref err) => {
+            SetFirewallPolicyError(err) => {
                 return match err {
                     #[cfg(windows)]
                     FirewallPolicyError::Locked(Some(value)) => {
@@ -183,7 +183,7 @@ impl fmt::Display for ErrorStateCause {
             }
             SetDnsError => "Failed to set system DNS server",
             #[cfg(target_os = "android")]
-            InvalidDnsServers(ref addresses) => {
+            InvalidDnsServers(addresses) => {
                 return write!(
                     f,
                     "Invalid DNS server addresses used in tunnel configuration: {}",
@@ -201,9 +201,9 @@ impl fmt::Display for ErrorStateCause {
             } => return write!(f, "Failed to create tunnel device: {error}"),
             #[cfg(target_os = "windows")]
             CreateTunnelDevice { os_error: None } => {
-                return write!(f, "Failed to create tunnel device")
+                return write!(f, "Failed to create tunnel device");
             }
-            TunnelParameterError(ref err) => {
+            TunnelParameterError(err) => {
                 return write!(f, "Failure to generate tunnel parameters: {err}");
             }
             IsOffline => "This device is offline, no tunnels can be established",

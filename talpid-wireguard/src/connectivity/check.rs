@@ -376,11 +376,7 @@ impl ConnState {
     }
 
     pub fn reset_after_suspension(&mut self, now: Instant) {
-        if let ConnState::Connected {
-            ref mut rx_timestamp,
-            ..
-        } = self
-        {
+        if let ConnState::Connected { rx_timestamp, .. } = self {
             *rx_timestamp = now;
         }
     }

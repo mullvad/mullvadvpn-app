@@ -236,7 +236,7 @@ impl TunnelMonitor {
         parameters: &TunnelParameters,
         log_dir: &Option<path::PathBuf>,
     ) -> Result<Option<path::PathBuf>> {
-        if let Some(ref log_dir) = log_dir {
+        if let Some(log_dir) = log_dir {
             match parameters {
                 TunnelParameters::OpenVpn(_) => {
                     let tunnel_log = log_dir.join(OPENVPN_LOG_FILENAME);
@@ -255,7 +255,7 @@ impl TunnelMonitor {
         parameters: &TunnelParameters,
         log_dir: &Option<path::PathBuf>,
     ) -> Result<Option<path::PathBuf>> {
-        if let Some(ref log_dir) = log_dir {
+        if let Some(log_dir) = log_dir {
             let filename = match parameters {
                 TunnelParameters::OpenVpn(_) => OPENVPN_LOG_FILENAME,
                 TunnelParameters::Wireguard(_) => WIREGUARD_LOG_FILENAME,
