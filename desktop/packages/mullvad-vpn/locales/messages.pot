@@ -1429,7 +1429,6 @@ msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
 msgstr ""
 
-#. This refers to our VPN relays/servers
 msgctxt "select-location-view"
 msgid "Relay"
 msgstr ""
