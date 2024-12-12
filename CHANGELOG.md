@@ -30,6 +30,10 @@ Line wrap the file at 100 chars.                                              Th
 - (Linux and macOS only) Update to DAITA v2. The main difference is that many different machines are
   provided by relays instead of a bundled list. The bundled `maybenot_machines` file was removed.
 
+### Fixed
+#### macOS
+- Fix GUI getting stuck when opening the split tunneling view.
+
 
 ## [2024.9-beta1] - 2024-12-05
 ### Added
