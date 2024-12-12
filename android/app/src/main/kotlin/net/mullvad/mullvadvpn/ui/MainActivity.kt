@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import arrow.core.merge
+import co.touchlab.kermit.Logger
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.filter
@@ -131,12 +132,13 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     }
 
     private fun handleIntent(intent: Intent) {
-        if (intent.action == KEY_REQUEST_VPN_PROFILE) {
-            handleRequestVpnProfileIntent()
-        } else {
-            apiEndpointFromIntentHolder.setApiEndpointOverride(
-                intent.getApiEndpointConfigurationExtras()
-            )
+        when (val action = intent.action) {
+            Intent.ACTION_MAIN ->
+                apiEndpointFromIntentHolder.setApiEndpointOverride(
+                    intent.getApiEndpointConfigurationExtras()
+                )
+            KEY_REQUEST_VPN_PROFILE -> handleRequestVpnProfileIntent()
+            else -> Logger.w("Unhandled intent action: $action")
         }
     }
 
