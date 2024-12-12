@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 8.7.3" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.3)" variant="all" version="8.7.3">
+
+    <issue
+        id="StringFormatCount"
+        message="Inconsistent number of arguments in formatting string `daita_description_slide_2_second_paragraph`; found both 1 here and 2 in values/strings.xml"
+        errorLine1="    &lt;string name=&quot;daita_description_slide_2_second_paragraph&quot;>Daher verwenden wir automatisch Multihop, um %1$s mit jedem Server zu aktivieren.&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values-de/strings.xml"
+            line="100"
+            column="5"/>
+        <location
+            file="src/main/res/values/strings.xml"
+            line="416"
+            column="5"
+            message="Conflicting number of arguments (2) here"/>
+    </issue>
+
+</issues>
