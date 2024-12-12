@@ -2539,6 +2539,9 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
+msgid "Open %s settings"
+msgstr ""
+
 msgid "Overrides active"
 msgstr ""
 
