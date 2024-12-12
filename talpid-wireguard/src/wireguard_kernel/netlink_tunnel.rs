@@ -1,6 +1,7 @@
 use std::pin::Pin;
 
 use futures::Future;
+use talpid_tunnel_config_client::DaitaSettings;
 
 use crate::config::MULLVAD_INTERFACE_NAME;
 
@@ -131,7 +132,7 @@ impl Tunnel for NetlinkTunnel {
     }
 
     /// Outright fail to start - this tunnel type does not support DAITA.
-    fn start_daita(&mut self) -> std::result::Result<(), TunnelError> {
+    fn start_daita(&mut self, _: DaitaSettings) -> std::result::Result<(), TunnelError> {
         Err(TunnelError::DaitaNotSupported)
     }
 }

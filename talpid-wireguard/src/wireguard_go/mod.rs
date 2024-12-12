@@ -13,19 +13,18 @@ use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
-use once_cell::sync::OnceCell;
-#[cfg(daita)]
-use std::{ffi::CString, fs, path::PathBuf};
+use std::ffi::CString;
 use std::{
     future::Future,
     os::unix::io::{AsRawFd, RawFd},
-    path::Path,
+    path::{Path, PathBuf},
     pin::Pin,
     sync::{Arc, Mutex},
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
+use talpid_tunnel_config_client::DaitaSettings;
 #[cfg(target_os = "android")]
 use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::BoxedError;
@@ -34,11 +33,11 @@ const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 /// Maximum number of events that can be stored in the underlying buffer
 #[cfg(daita)]
-const DAITA_EVENTS_CAPACITY: u32 = 1000;
+const DAITA_EVENTS_CAPACITY: u32 = 2048;
 
 /// Maximum number of actions that can be stored in the underlying buffer
 #[cfg(daita)]
-const DAITA_ACTIONS_CAPACITY: u32 = 1000;
+const DAITA_ACTIONS_CAPACITY: u32 = 1024;
 
 type Result<T> = std::result::Result<T, TunnelError>;
 
@@ -115,8 +114,6 @@ impl WgGoTunnel {
         let log_path = state._logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
         let routes = config.get_tunnel_destinations();
-        #[cfg(daita)]
-        let resource_dir = state.resource_dir.clone();
 
         match self {
             WgGoTunnel::Multihop(state) if !config.is_multihop() => {
@@ -126,7 +123,6 @@ impl WgGoTunnel {
                     log_path.as_deref(),
                     tun_provider,
                     routes,
-                    &resource_dir,
                     connectivity_checker,
                 )
             }
@@ -138,7 +134,6 @@ impl WgGoTunnel {
                     log_path.as_deref(),
                     tun_provider,
                     routes,
-                    &resource_dir,
                     connectivity_checker,
                 )
             }
@@ -168,8 +163,6 @@ pub(crate) struct WgGoTunnelState {
     _logging_context: LoggingContext,
     #[cfg(target_os = "android")]
     tun_provider: Arc<Mutex<TunProvider>>,
-    #[cfg(daita)]
-    resource_dir: PathBuf,
     #[cfg(daita)]
     config: Config,
     // HACK: Check is not Clone, so we have to pass this around ..
@@ -224,7 +217,6 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(daita)] resource_dir: &Path,
     ) -> Result<Self> {
         let (tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
 
@@ -250,8 +242,6 @@ impl WgGoTunnel {
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
-            #[cfg(daita)]
-            resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
         }))
@@ -303,7 +293,6 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(daita)] resource_dir: &Path,
         mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
@@ -334,8 +323,6 @@ impl WgGoTunnel {
             _logging_context: logging_context,
             tun_provider,
             #[cfg(daita)]
-            resource_dir: resource_dir.to_owned(),
-            #[cfg(daita)]
             config: config.clone(),
             connectivity_checker: None,
         });
@@ -353,7 +340,6 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(daita)] resource_dir: &Path,
         mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
@@ -399,8 +385,6 @@ impl WgGoTunnel {
             _tunnel_device: tunnel_device,
             _logging_context: logging_context,
             tun_provider,
-            #[cfg(daita)]
-            resource_dir: resource_dir.to_owned(),
             #[cfg(daita)]
             config: config.clone(),
             connectivity_checker: None,
@@ -477,56 +461,28 @@ impl Tunnel for WgGoTunnel {
     }
 
     #[cfg(daita)]
-    fn start_daita(&mut self) -> Result<()> {
-        static MAYBENOT_MACHINES: OnceCell<CString> = OnceCell::new();
-        let machines = MAYBENOT_MACHINES
-            .get_or_try_init(|| load_maybenot_machines(&self.as_state().resource_dir))?;
-
+    fn start_daita(&mut self, settings: DaitaSettings) -> Result<()> {
         log::info!("Initializing DAITA for wireguard device");
         let config = &self.as_state().config;
         let peer_public_key = &config.entry_peer.public_key;
+
+        let machines = settings.client_machines.join("\n");
+        let machines =
+            CString::new(machines).map_err(|err| TunnelError::StartDaita(Box::new(err)))?;
 
         self.as_state()
             .tunnel_handle
             .activate_daita(
                 peer_public_key.as_bytes(),
-                machines,
+                &machines,
+                settings.max_padding_frac,
+                settings.max_blocking_frac,
                 DAITA_EVENTS_CAPACITY,
                 DAITA_ACTIONS_CAPACITY,
             )
             .map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
 
         Ok(())
-    }
-}
-
-#[cfg(daita)]
-fn load_maybenot_machines(resource_dir: &Path) -> Result<CString> {
-    let path = resource_dir.join("maybenot_machines");
-    log::debug!("Reading maybenot machines from {}", path.display());
-
-    let machines = fs::read_to_string(path).map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
-    let machines = CString::new(machines).map_err(|e| TunnelError::StartDaita(Box::new(e)))?;
-    Ok(machines)
-}
-
-#[cfg(test)]
-mod test {
-    /// Test whether `maybenot_machines` in dist-assets contains valid machines.
-    /// TODO: Remove when switching to dynamic machines.
-    #[cfg(daita)]
-    #[test]
-    fn test_load_maybenot_machines() {
-        use super::load_maybenot_machines;
-        use std::path::PathBuf;
-
-        let dist_assets = std::env::var("CARGO_MANIFEST_DIR")
-            .map(PathBuf::from)
-            .expect("CARGO_MANIFEST_DIR env var not set")
-            .join("..")
-            .join("dist-assets");
-        let machines = load_maybenot_machines(&dist_assets).unwrap();
-        wireguard_go_rs::validate_maybenot_machines(&machines).unwrap();
     }
 }
 

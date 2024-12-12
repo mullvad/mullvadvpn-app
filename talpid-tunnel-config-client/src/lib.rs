@@ -22,6 +22,9 @@ mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
 
+#[cfg(all(unix, not(target_os = "ios")))]
+const DAITA_VERSION: u32 = 2;
+
 #[derive(Debug)]
 pub enum Error {
     GrpcConnectError(tonic::transport::Error),
@@ -35,6 +38,7 @@ pub enum Error {
     InvalidCiphertextCount {
         actual: usize,
     },
+    MissingDaitaResponse,
     #[cfg(target_os = "ios")]
     TcpConnectionExpired,
     #[cfg(target_os = "ios")]
@@ -59,6 +63,7 @@ impl std::fmt::Display for Error {
             InvalidCiphertextCount { actual } => {
                 write!(f, "Expected 2 ciphertext in the response, got {actual}")
             }
+            MissingDaitaResponse => "Expected DAITA configuration in response".fmt(f),
             #[cfg(target_os = "ios")]
             TcpConnectionExpired => "TCP connection is already shut down".fmt(f),
             #[cfg(target_os = "ios")]
@@ -83,6 +88,14 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
 pub struct EphemeralPeer {
     pub psk: Option<PresharedKey>,
+    #[cfg(all(unix, not(target_os = "ios")))]
+    pub daita: Option<DaitaSettings>,
+}
+
+pub struct DaitaSettings {
+    pub client_machines: Vec<String>,
+    pub max_padding_frac: f64,
+    pub max_blocking_frac: f64,
 }
 
 /// Negotiate a short-lived peer with a PQ-safe PSK or with DAITA enabled.
@@ -125,16 +138,28 @@ pub async fn request_ephemeral_peer_with(
             wg_parent_pubkey: parent_pubkey.as_bytes().to_vec(),
             wg_ephemeral_peer_pubkey: ephemeral_pubkey.as_bytes().to_vec(),
             post_quantum: pq_request,
+            #[cfg(any(windows, target_os = "ios"))]
             daita: Some(proto::DaitaRequestV1 {
                 activate_daita: enable_daita,
+            }),
+            #[cfg(any(windows, target_os = "ios"))]
+            daita_v2: None,
+            #[cfg(all(unix, not(target_os = "ios")))]
+            daita: None,
+            #[cfg(all(unix, not(target_os = "ios")))]
+            daita_v2: enable_daita.then(|| proto::DaitaRequestV2 {
+                level: i32::from(proto::DaitaLevel::LevelDefault),
+                platform: i32::from(get_platform()),
+                version: DAITA_VERSION,
             }),
         })
         .await
         .map_err(Error::GrpcError)?;
 
+    let response = response.into_inner();
+
     let psk = if let Some((cme_kem_secret, ml_kem_secret)) = kem_secrets {
         let ciphertexts = response
-            .into_inner()
             .post_quantum
             .ok_or(Error::MissingCiphertexts)?
             .ciphertexts;
@@ -176,7 +201,42 @@ pub async fn request_ephemeral_peer_with(
         None
     };
 
-    Ok(EphemeralPeer { psk })
+    #[cfg(all(unix, not(target_os = "ios")))]
+    {
+        let daita = response.daita.map(|daita| DaitaSettings {
+            client_machines: daita.client_machines,
+            max_padding_frac: daita.max_padding_frac,
+            max_blocking_frac: daita.max_blocking_frac,
+        });
+        if daita.is_none() && enable_daita {
+            return Err(Error::MissingDaitaResponse);
+        }
+        Ok(EphemeralPeer { psk, daita })
+    }
+
+    #[cfg(any(windows, target_os = "ios"))]
+    {
+        Ok(EphemeralPeer { psk })
+    }
+}
+
+#[cfg(all(unix, not(target_os = "ios")))]
+const fn get_platform() -> proto::DaitaPlatform {
+    use proto::DaitaPlatform;
+    const PLATFORM: DaitaPlatform = if cfg!(target_os = "windows") {
+        DaitaPlatform::WindowsNative
+    } else if cfg!(target_os = "linux") {
+        DaitaPlatform::LinuxWgGo
+    } else if cfg!(target_os = "macos") {
+        DaitaPlatform::MacosWgGo
+    } else if cfg!(target_os = "android") {
+        DaitaPlatform::AndroidWgGo
+    } else if cfg!(target_os = "ios") {
+        DaitaPlatform::IosWgGo
+    } else {
+        panic!("This platform does not support DAITA V2")
+    };
+    PLATFORM
 }
 
 async fn post_quantum_secrets() -> (
