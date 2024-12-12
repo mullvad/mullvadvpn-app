@@ -5,6 +5,7 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import co.touchlab.kermit.Logger
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -45,6 +46,7 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
         connectivityManager
             .defaultNetworkFlow()
             .filterIsInstance<NetworkEvent.LinkPropertiesChanged>()
+            .onEach { Logger.d("Link properties changed") }
             .map { it.linkProperties.dnsServersWithoutFallback() }
 
     private fun currentDnsServers(): List<InetAddress> =
@@ -66,11 +68,18 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
             .networkFlow(request)
             .scan(setOf<Network>()) { networks, event ->
                 when (event) {
-                    is NetworkEvent.Available -> networks + event.network
-                    is NetworkEvent.Lost -> networks - event.network
+                    is NetworkEvent.Available -> {
+                        Logger.d("Network available")
+                        networks + event.network
+                    }
+                    is NetworkEvent.Lost -> {
+                        Logger.d("Network lost")
+                        networks - event.network
+                    }
                     else -> networks
                 }
             }
+            .onEach { Logger.d("Number of networks: ${it.size}") }
             .map { it.isNotEmpty() }
             .distinctUntilChanged()
     }
