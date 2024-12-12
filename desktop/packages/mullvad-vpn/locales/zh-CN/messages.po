@@ -2136,7 +2136,7 @@ msgstr "端口"
 
 #. Text showing currently selected port.
 #. Available placeholders:
-#. %(port)s - Can be either a number between 1 and 65000 or the text "Automatic".
+#. %(port)s - Can be either a number between 1 and 65535 or the text "Automatic".
 msgctxt "wireguard-settings-view"
 msgid "Port: %(port)s"
 msgstr "端口：%(port)s"
