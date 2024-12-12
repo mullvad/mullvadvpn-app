@@ -48,6 +48,9 @@ android {
 
         lint {
             lintConfig = file("${rootProject.projectDir}/config/lint.xml")
+            // Temporary baseline to silence a translation issue which has been reported to Crowdin.
+            // Remove baseline as part of: DROID-1645
+            baseline = file("lint-baseline.xml")
             abortOnError = true
             warningsAsErrors = true
             checkDependencies = true

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.3" type="baseline" client="gradle" dependencies="false" name="AGP (8.7.3)" variant="all" version="8.7.3">
+<issues format="6" by="lint 8.7.3" type="baseline" client="gradle" dependencies="true" name="AGP (8.7.3)" variant="all" version="8.7.3">
 
     <issue
         id="StringFormatCount"
