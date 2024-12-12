@@ -204,12 +204,7 @@ private enum class DaitaPages(
                 )
             },
         textSecondParagraph =
-            @Composable {
-                stringResource(
-                    R.string.daita_description_slide_1_second_paragraph,
-                    stringResource(id = R.string.daita),
-                )
-            },
+            @Composable { stringResource(R.string.daita_description_slide_1_second_paragraph) },
         textThirdParagraph =
             @Composable {
                 stringResource(
