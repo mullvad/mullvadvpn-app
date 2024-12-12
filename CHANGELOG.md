@@ -55,6 +55,7 @@ Line wrap the file at 100 chars.                                              Th
 - Fix packets being duplicated on LAN when split tunneling is enabled.
 - Fix DNS issues caused by forcibly using a local DNS resolver in all states.
   Note that this fix is not present on macOS versions between 14.6 and 15.1.
+- Fix GUI getting stuck when opening the split tunneling view.
 
 ### Security
 #### Windows
