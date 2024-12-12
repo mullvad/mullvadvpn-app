@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Port festlegen</string>
     <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) verbirgt Muster in Ihrem verschlüsselten VPN-Traffic.</string>
     <string name="daita_description_slide_1_second_paragraph">Durch den Einsatz hochentwickelter KI ist es möglich, den Traffic von Datenpaketen zu analysieren, die auf Ihrem Gerät ein- und ausgehen (selbst wenn der Verkehr verschlüsselt ist).</string>
+    <string name="daita_description_slide_1_third_paragraph">Wenn ein Beobachter diese Datenpakete überwacht, macht %1$s es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen oder mit wem Sie kommunizieren.</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s tut dies, indem es Netzwerkrauschen gezielt hinzufügt und alle Netzwerkpakete gleich groß macht.</string>
+    <string name="daita_description_slide_2_second_paragraph">Daher verwenden wir automatisch Multihop, um %1$s mit jedem Server zu aktivieren.</string>
+    <string name="daita_info">Wenn Sie „%1$s“ aktivieren, müssen Sie manuell einen Server auswählen, der %2$s-fähig ist. Dies kann dazu führen, dass Sie in einem blockierten Zustand landen, bis Sie einen kompatiblen Server in der Ansicht „Standort auswählen“ ausgewählt haben.</string>
     <string name="daita_relay_subset_warning">Diese Funktion ist nicht auf allen Servern verfügbar. Möglicherweise müssen Sie nach der Aktivierung den Standort wechseln.</string>
     <string name="daita_warning">Achtung! Da dies Ihren gesamten Netzwerk-Traffic erhöht, sollten Sie vorsichtig sein, wenn Sie einen begrenzten Datentarif haben. Es kann sich auch negativ auf Ihre Netzwerkgeschwindigkeit und den Akkuverbrauch auswirken.</string>
     <string name="delete">Löschen</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">Es sind pro Mullvad-Konto bis zu 5 angemeldete Geräte möglich.</string>
     <string name="device_name_info_third_paragraph">Wenn Sie sich abmelden, werden das Gerät und der Gerätename entfernt. Wenn Sie sich wieder anmelden, erhält das Gerät einen neuen Namen.</string>
     <string name="direct_only">Nur direkt</string>
+    <string name="direct_only_description">Nicht alle unsere Server sind %1$s-fähig. Um das Internet nutzen zu können, müssen Sie nach der Aktivierung möglicherweise einen neuen Standort auswählen.</string>
     <string name="discard">Verwerfen</string>
     <string name="discard_changes">Änderungen verwerfen?</string>
     <string name="disconnect">Verbindung trennen</string>

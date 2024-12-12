@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Konfigurer port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) skjuler mønstre i din krypterte VPN-trafikk.</string>
     <string name="daita_description_slide_1_second_paragraph">Ved hjelp av avansert kunstig intelligens er det mulig å analysere trafikken av datapakker som går inn og ut av enheten din (selv om trafikken er kryptert).</string>
+    <string name="daita_description_slide_1_third_paragraph">Hvis en observatør overvåker disse datapakkene, gjør %1$s det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker, eller hvem du kommuniserer med.</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s gjør det ved å legge til nettverkstøy på en forsiktig måte og sørge for at alle nettverkspakker har den samme størrelsen.</string>
+    <string name="daita_description_slide_2_second_paragraph">Ikke alle serverne våre er %1$s-aktiverte. Derfor bruker vi automatisk multihopp for å aktivere %2$s med alle servere.</string>
+    <string name="daita_info">Hvis du aktiverer «%1$s», må du manuelt velge en server som har aktivert %2$s. Dette kan føre til at du havner i en blokkert tilstand inntil du har valgt en kompatibel server under «Velg plassering».</string>
     <string name="daita_relay_subset_warning">Denne funksjonen er ikke tilgjengelig på alle servere. Det kan hende du må endre plassering etter aktivering.</string>
     <string name="daita_warning">Merk: Siden dette øker den totale nettverkstrafikken, bør du være forsiktig hvis du har et abonnement med begrenset data. Det kan også negativt påvirke nettverkshastigheten og batteribruken.</string>
     <string name="delete">Slett</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Hvis du logger ut, vil enheten og enhetsnavnet bli fjernet. Når du logger inn igjen, vil enheten få et nytt navn.</string>
     <string name="direct_only">Kun direkte</string>
+    <string name="direct_only_description">Ikke alle serverne våre er %1$s-aktiverte. For å kunne bruke internettet må du kanskje velge en ny plassering etter aktivering.</string>
     <string name="discard">Forkast</string>
     <string name="discard_changes">Forkaste endringer?</string>
     <string name="disconnect">Koble fra</string>

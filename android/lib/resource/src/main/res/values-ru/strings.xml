@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Установить порт</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) скрывает характерные признаки в зашифрованном VPN-трафике.</string>
     <string name="daita_description_slide_1_second_paragraph">С помощью сложных ИИ-алгоритмов можно анализировать входящий и исходящий трафик пакетов данных вашего устройства (даже если трафик зашифрован).</string>
+    <string name="daita_description_slide_1_third_paragraph">В случае, если наблюдатель отслеживает пакеты данных, %1$s значительно затрудняет определение того, какие веб-сайты вы посещаете или с кем общаетесь.</string>
+    <string name="daita_description_slide_2_first_paragraph">Для этого %1$s добавляет в трафик сетевой шум, а все пакеты приводятся к одному размеру.</string>
+    <string name="daita_description_slide_2_second_paragraph">%1$s поддерживается не на всех серверах. Поэтому, чтобы функция %2$s работала с любым сервером, мы автоматически используем многократный переход.</string>
+    <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
     <string name="daita_relay_subset_warning">Эта функция доступна не на всех серверах. Возможно, после ее включения придется сменить местоположение.</string>
     <string name="daita_warning">Внимание! При использовании этой функции общий сетевой трафик увеличивается. Имейте это в виду, если у вас тарифный план с ограничением по трафику. Также может снизиться скорость сети и повыситься расход заряда аккумулятора.</string>
     <string name="delete">Удалить</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
     <string name="device_name_info_third_paragraph">Если вы выйдете, устройство и его имя удалятся. При повторном входе устройство получит новое имя.</string>
     <string name="direct_only">Только напрямую</string>
+    <string name="direct_only_description">%1$s поддерживается не на всех серверах. Поэтому, чтобы выйти онлайн после включения этой функции, вам, возможно, придется выбрать новое местоположение.</string>
     <string name="discard">Сбросить</string>
     <string name="discard_changes">Сбросить изменения?</string>
     <string name="disconnect">Отключить</string>

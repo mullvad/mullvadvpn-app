@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Poort instellen</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) verbergt patronen in uw versleutelde VPN-verkeer.</string>
     <string name="daita_description_slide_1_second_paragraph">Door gebruik te maken van geavanceerde AI is het mogelijk om het verkeer van datapakketten te analyseren die uw apparaat in- en uitgaan (zelfs als het verkeer versleuteld is).</string>
+    <string name="daita_description_slide_1_third_paragraph">Als een waarnemer deze gegevenspakketten in de gaten houdt, maakt %1$s het aanzienlijk moeilijker voor diegene om vast te stellen welke websites u bezoekt of met wie u communiceert.</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s doet dit door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
+    <string name="daita_description_slide_2_second_paragraph">Niet al onze servers zijn geschikt voor %1$s. Daarom gebruiken we automatisch multihop om %2$s in te schakelen bij elke server.</string>
+    <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
     <string name="daita_relay_subset_warning">Deze functie is niet op alle servers beschikbaar. Mogelijk moet u na het inschakelen van locatie veranderen.</string>
     <string name="daita_warning">Let op: omdat dit het totale netwerkverkeer verhoogt, moet u voorzichtig zijn als u een beperkt data-abonnement hebt. Ook kan het uw netwerksnelheid en batterijgebruik beïnvloeden.</string>
     <string name="delete">Verwijderen</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
     <string name="device_name_info_third_paragraph">Als u zich afmeldt, worden het apparaat en de apparaatnaam verwijderd. Wanneer u zich weer aanmeldt, krijgt het apparaat een nieuwe naam.</string>
     <string name="direct_only">Alleen rechtstreeks</string>
+    <string name="direct_only_description">Niet al onze servers zijn geschikt voor %1$s. Om het internet te kunnen gebruiken, moet u na het inschakelen mogelijk een nieuwe locatie selecteren.</string>
     <string name="discard">Verwerpen</string>
     <string name="discard_changes">Wijzigingen verwerpen?</string>
     <string name="disconnect">Verbinding verbreken</string>
