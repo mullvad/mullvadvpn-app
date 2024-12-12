@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Määritä portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) piilottaa kuviot salatusta VPN-liikenteestäsi.</string>
     <string name="daita_description_slide_1_second_paragraph">Käyttämällä edistynyttä tekoälyä on mahdollista analysoida laitteestasi lähtevä ja siihen tuleva datapakettiliikenne (vaikka liikenne olisi salattu).</string>
+    <string name="daita_description_slide_1_third_paragraph">Jos havaitsija valvoo näitä datapaketteja, %1$s tekee hänelle huomattavasti hankalammaksi tunnistaa, millä verkkosivuilla käyt tai kenen kanssa viestit.</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s tekee tämän lisäämällä varovasti verkkokohinaa ja tekemällä kaikista paketeista saman kokoisia.</string>
+    <string name="daita_description_slide_2_second_paragraph">Kaikissa palvelimissamme ei ole %1$s-tukea. Siksi käytämme multihopia automaattisesti mahdollistaaksemme %2$s:n millä tahansa palvelimella.</string>
+    <string name="daita_info">Kun \"%1$s\" otetaan käyttöön, sinun on valittava manuaalisesti palvelin, jossa on %2$s-tuki. Tämä voi aiheuttaa sen, että päädyt estettyyn tilaan, kunnes olet valinnut yhteensopivan palvelimen \"Valitse sijainti\" -näkymästä.</string>
     <string name="daita_relay_subset_warning">Ominaisuus ei ole käytettävissä kaikilla palvelimilla, joten saatat joutua vaihtamaan sijaintia otettuasi sen käyttöön.</string>
     <string name="daita_warning">Huomioithan, että ominaisuuden käyttöönotto kasvattaa verkkoliikennettäsi kokonaisuudessaan ja voi myös vaikuttaa negatiivisesti verkon nopeuteen ja akun kestoon. Ominaisuuden käyttöönottoa kannattaa harkita tarkkaan, mikäli datapakettisi tiedonsiirtomäärä on rajoitettu.</string>
     <string name="delete">Poista</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta.</string>
     <string name="device_name_info_third_paragraph">Jos kirjaudut ulos, laite ja laitteen nimi poistetaan. Kun kirjaudut sisään uudelleen, laitteelle annetaan uusi nimi.</string>
     <string name="direct_only">Vain suora</string>
+    <string name="direct_only_description">Kaikissa palvelimissamme ei ole %1$s-tukea. Käyttääksesi internetiä sinun on ehkä valittava uusi sijainti käyttöönoton jälkeen.</string>
     <string name="discard">Hylkää</string>
     <string name="discard_changes">Hylätäänkö muokkaukset?</string>
     <string name="disconnect">Katkaise yhteys</string>
@@ -129,6 +135,7 @@
     <string name="enable">Ota käyttöön</string>
     <string name="enable_anyway">Ota silti käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
+    <string name="enable_direct_only">Ota käyttöön \"%1$s\"</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
