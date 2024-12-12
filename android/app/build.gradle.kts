@@ -20,11 +20,9 @@ plugins {
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-val assetsDirectory = layout.projectDirectory.dir("src/main/assets")
 val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
 val relayListPath = extraAssetsDirectory.file("relays.json").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
-val rustJniLibs = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
 val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
@@ -131,7 +129,7 @@ android {
                 gradleLocalProperties(rootProject.projectDir, providers)
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
-            assets.srcDirs(assetsDirectory, extraAssetsDirectory, changelogDir)
+            assets.srcDirs(extraAssetsDirectory, changelogDir)
         }
     }
 
@@ -314,7 +312,7 @@ tasks.register<Exec>("generateRelayList") {
         // Create file if needed
         File("$extraAssetsDirectory").mkdirs()
         File("$extraAssetsDirectory/relays.json").createNewFile()
-        FileOutputStream("$assetsDirectory/relays.json").use { it.write(output.toByteArray()) }
+        FileOutputStream("$extraAssetsDirectory/relays.json").use { it.write(output.toByteArray()) }
 
         // Old ensure exists tasks
         if (!relayListPath.exists()) {
