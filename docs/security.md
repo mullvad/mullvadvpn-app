@@ -294,7 +294,7 @@ during app install and is then always running in the background, even when the u
 quits the GUI and when no tunnels are running.
 
 This system service can be controlled via a management interface, exposed locally
-via unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
+via Unix domain sockets (UDS) on Linux and macOS and via named pipes on Windows.
 This management interface can be reached by any process running on the device.
 Locally running malicious programs are outside of the app's threat model.
 
@@ -330,7 +330,7 @@ started during early boot that applies a blocking policy that persists until the
 ## Desktop Electron GUI
 
 The graphical frontend for the app on desktop is an Electron app. This app only ever loads
-local resources in the form of html, CSS and Javascript directly from the installation
+local resources in the form of html, CSS and JavaScript directly from the installation
 directory of the app, and never from remote sources.
 
 The GUI only communicates with the system service (`mullvad-daemon`), it makes no other
