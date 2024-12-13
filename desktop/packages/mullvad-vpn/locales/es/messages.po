@@ -162,9 +162,6 @@ msgstr "Editar"
 msgid "Enable"
 msgstr "Habilitar"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "Habilitar «%(directOnly)s»"
-
 msgid "Enable anyway"
 msgstr "Habilitar de todos modos"
 

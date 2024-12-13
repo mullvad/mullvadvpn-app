@@ -162,9 +162,6 @@ msgstr "Bewerken"
 msgid "Enable"
 msgstr "Inschakelen"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "\"%(directOnly)s\" inschakelen"
-
 msgid "Enable anyway"
 msgstr "Toch inschakelen"
 

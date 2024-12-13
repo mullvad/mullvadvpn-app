@@ -174,9 +174,6 @@ msgstr "Edytuj"
 msgid "Enable"
 msgstr "Włącz"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "Włącz metodę „%(directOnly)s”"
-
 msgid "Enable anyway"
 msgstr "Mimo to włącz"
 

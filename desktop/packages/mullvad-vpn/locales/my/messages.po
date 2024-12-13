@@ -156,9 +156,6 @@ msgstr "တည်းဖြတ်ရန်"
 msgid "Enable"
 msgstr "ဖွင့်ရန်"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "\"%(directOnly)s\" ကို ဖွင့်ရန်"
-
 msgid "Enable anyway"
 msgstr "မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်"
 

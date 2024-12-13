@@ -174,9 +174,6 @@ msgstr "Изменить"
 msgid "Enable"
 msgstr "Включить"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "Включить параметр «%(directOnly)s»"
-
 msgid "Enable anyway"
 msgstr "Всё равно включить"
 
