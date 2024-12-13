@@ -110,7 +110,7 @@ unused_async = "deny"
 hickory-proto = "0.24.2"
 hickory-resolver = "0.24.2"
 hickory-server = { version = "0.24.2", features = ["resolver"] }
-tokio = { version = "1.8" }
+tokio = { version = "1.42" }
 parity-tokio-ipc = "0.9"
 futures = "0.3.15"
 # Tonic and related crates
