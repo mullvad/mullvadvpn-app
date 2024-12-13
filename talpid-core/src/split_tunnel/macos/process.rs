@@ -10,10 +10,9 @@ use libc::pid_t;
 use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
-    future::Future,
     io,
     path::PathBuf,
-    process::{ExitStatus, Stdio},
+    process::Stdio,
     sync::{Arc, LazyLock, Mutex},
     time::Duration,
 };
@@ -110,8 +109,7 @@ pub async fn has_full_disk_access() -> bool {
             let stderr = proc.stderr.take().unwrap();
             drop(proc.stdin.take());
 
-            let has_full_disk_access =
-                parse_logger_status(proc.wait(), stdout, stderr).await == NeedFda::No;
+            let has_full_disk_access = parse_logger_status(stdout, stderr).await == NeedFda::No;
             Ok::<bool, Error>(has_full_disk_access)
         })
         .await
@@ -127,7 +125,6 @@ enum NeedFda {
 /// Return whether `proc` reports that full-disk access is unavailable based on its output
 /// If it cannot be determined that access is available, it is assumed to be available
 async fn parse_logger_status(
-    proc: impl Future<Output = io::Result<ExitStatus>>,
     stdout: impl AsyncRead + Unpin + Send + 'static,
     stderr: impl AsyncRead + Unpin + Send + 'static,
 ) -> NeedFda {
@@ -155,21 +152,15 @@ async fn parse_logger_status(
         }
     });
 
-    let proc = tokio::time::timeout(EARLY_FAIL_TIMEOUT, proc);
+    let deadline = tokio::time::sleep(EARLY_FAIL_TIMEOUT);
 
     tokio::select! {
         // Received standard err/out
         biased; need_full_disk_access = &mut need_full_disk_access => {
             need_full_disk_access.unwrap_or(NeedFda::No)
         }
-        proc_result = proc => {
-            if let Ok(Ok(_exit_status)) = proc_result {
-                // Process exited
-                return need_full_disk_access.await.unwrap_or(NeedFda::No);
-            }
-            // Timeout or `Child::wait`` returned an error
-            NeedFda::No
-        }
+        // Timed out while checking for full-disk access
+        _ = deadline => NeedFda::No,
     }
 }
 
@@ -562,11 +553,7 @@ fn check_os_version_support_inner(version: MacosVersion) -> Result<(), Error> {
 
 #[cfg(test)]
 mod test {
-    use super::{
-        check_os_version_support_inner, parse_logger_status, NeedFda, EARLY_FAIL_TIMEOUT,
-        MIN_OS_VERSION,
-    };
-    use std::{process::ExitStatus, time::Duration};
+    use super::{check_os_version_support_inner, parse_logger_status, NeedFda, MIN_OS_VERSION};
     use talpid_platform_metadata::MacosVersion;
 
     #[test]
@@ -590,7 +577,6 @@ mod test {
     #[tokio::test]
     async fn test_parse_logger_status_missing_access() {
         let need_fda = parse_logger_status(
-            async { Ok(ExitStatus::default()) },
             &[][..],
             b"ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED\n".as_slice(),
         )
@@ -608,10 +594,6 @@ mod test {
     #[tokio::test]
     async fn test_parse_logger_status_timeout() {
         let need_fda = parse_logger_status(
-            async {
-                tokio::time::sleep(EARLY_FAIL_TIMEOUT + Duration::from_secs(10)).await;
-                Ok(ExitStatus::default())
-            },
             b"nothing to see here\n".as_slice(),
             b"nothing to see here\n".as_slice(),
         )
@@ -629,7 +611,6 @@ mod test {
     #[tokio::test]
     async fn test_parse_logger_status_immediate_exit() {
         let need_fda = parse_logger_status(
-            async { Ok(ExitStatus::default()) },
             b"nothing to see here\n".as_slice(),
             b"nothing to see here\n".as_slice(),
         )
