@@ -553,8 +553,28 @@ fn check_os_version_support_inner(version: MacosVersion) -> Result<(), Error> {
 
 #[cfg(test)]
 mod test {
-    use super::{check_os_version_support_inner, parse_logger_status, NeedFda, MIN_OS_VERSION};
+    use super::*;
+
+    use std::time::Duration;
     use talpid_platform_metadata::MacosVersion;
+    use tokio::io::{simplex, AsyncWriteExt};
+
+    /// A mock-version of std{out,err}. [tokio::io::SimplexStream] implements [AsyncRead], so it can be used to test
+    /// [parse_logger_status].
+    fn output(msg: &'static str, lag: Duration) -> impl AsyncRead + Unpin + Send + 'static {
+        // Ensure that 'msg' contains a newline to prevent user errors
+        assert!(
+            msg.contains('\n'),
+            "Message does not contain a newline!! Make sure to add a newline to '{msg}'"
+        );
+        let (stdout_read, mut stdout_write) = simplex(msg.as_bytes().len());
+        //  "print" to "stdout" after `duration`.
+        tokio::spawn(async move {
+            tokio::time::sleep(lag).await;
+            stdout_write.write_all(msg.as_bytes()).await.unwrap();
+        });
+        stdout_read
+    }
 
     #[test]
     fn test_min_os_version() {
@@ -620,6 +640,49 @@ mod test {
             need_fda,
             NeedFda::No,
             "expected 'NeedFda::No' on immediate exit",
+        );
+    }
+
+    /// Check that [parse_logger_status] returns within a reasonable timeframe.
+    /// "Reasonable" being within [EARLY_FAIL_TIMEOUT].
+    #[tokio::test]
+    async fn test_parse_logger_status_responsive() {
+        tokio::time::pause();
+        let start = tokio::time::Instant::now();
+        let stdout = output("This will never be printed\n", Duration::MAX);
+        let stderr = output(
+            "ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED\n",
+            EARLY_FAIL_TIMEOUT / 2,
+        );
+        tokio::time::resume();
+
+        let need_fda = parse_logger_status(stdout, stderr).await;
+
+        tokio::time::pause();
+
+        assert_eq!(
+            need_fda,
+            NeedFda::Yes,
+            "expected 'NeedFda::Yes' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED was eventually printed to stderr"
+        );
+
+        // Assert that we did not spend more time waiting than we should
+        assert!(start.elapsed() < EARLY_FAIL_TIMEOUT);
+    }
+
+    /// Check that [parse_logger_status] doesn't get stuck because nothing is ever output
+    /// to std{out,err}.
+    #[tokio::test]
+    async fn test_parse_logger_status_hogged() {
+        let stdout = output("This will never be printed\n", Duration::MAX);
+        let stderr = output("This will never be printed\n", Duration::MAX);
+
+        let need_fda = parse_logger_status(stdout, stderr).await;
+
+        assert_eq!(
+            need_fda,
+            NeedFda::No,
+            "expected 'NeedFda::No' when nothing was ever printed to stdout or stderr"
         );
     }
 }

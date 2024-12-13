@@ -103,3 +103,7 @@ features = [
 
 [build-dependencies]
 tonic-build = { workspace = true, default-features = false, features = ["transport", "prost"] }
+
+
+[dev-dependencies]
+tokio = { workspace = true, features = [ "io-util", "test-util", "time" ] }
