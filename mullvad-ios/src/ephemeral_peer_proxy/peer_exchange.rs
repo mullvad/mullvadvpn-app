@@ -28,8 +28,6 @@ impl ExchangeCancelToken {
         if let Ok(mut inner) = self.inner.lock() {
             if let Some(task) = inner.task.take() {
                 task.abort();
-                // CODE STENCH:
-                // Swift can call this function from a tokio context. That *will* crash.
                 let _ = inner.tokio_handle.block_on(task);
             }
         }
