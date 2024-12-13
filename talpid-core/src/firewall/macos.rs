@@ -439,6 +439,8 @@ impl Firewall {
                 }
 
                 rules.push(self.get_allow_relay_rule(peer_endpoint)?);
+
+                // TODO: do we need this?
                 //rules.push(self.get_block_relay_rule(peer_endpoint)?);
 
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
