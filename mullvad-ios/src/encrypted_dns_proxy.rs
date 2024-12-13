@@ -1,8 +1,10 @@
 use crate::ProxyHandle;
 
 use libc::c_char;
-use mullvad_encrypted_dns_proxy::state::{EncryptedDnsProxyState as State, FetchConfigError};
-use mullvad_encrypted_dns_proxy::Forwarder;
+use mullvad_encrypted_dns_proxy::{
+    state::{EncryptedDnsProxyState as State, FetchConfigError},
+    Forwarder,
+};
 use std::{
     io, mem,
     net::{Ipv4Addr, SocketAddr},

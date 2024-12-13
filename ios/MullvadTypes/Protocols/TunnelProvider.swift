@@ -10,12 +10,25 @@ import Foundation
 import NetworkExtension
 
 public protocol TunnelProvider: AnyObject {
-    func createTCPConnectionThroughTunnel(
-        to remoteEndpoint: NWEndpoint,
-        enableTLS: Bool,
-        tlsParameters TLSParameters: NWTLSParameters?,
-        delegate: Any?
-    ) -> NWTCPConnection
+    func tunnelHandle() throws -> Int32
+    func wgFuncs() -> WgFuncPointers
 }
 
-extension NEPacketTunnelProvider: TunnelProvider {}
+public typealias TcpOpenFunc = @convention(c) (Int32, UnsafePointer<CChar>?, UInt64) -> Int32
+public typealias TcpCloseFunc = @convention(c) (Int32, Int32) -> Int32
+public typealias TcpSendFunc = @convention(c) (Int32, Int32, UnsafePointer<UInt8>?, Int32) -> Int32
+public typealias TcpRecvFunc = @convention(c) (Int32, Int32, UnsafeMutablePointer<UInt8>?, Int32) -> Int32
+
+public struct WgFuncPointers {
+    public let open: TcpOpenFunc
+    public let close: TcpCloseFunc
+    public let receive: TcpRecvFunc
+    public let send: TcpSendFunc
+
+    public init(open: TcpOpenFunc, close: TcpCloseFunc, receive: TcpRecvFunc, send: TcpSendFunc) {
+        self.open = open
+        self.close = close
+        self.receive = receive
+        self.send = send
+    }
+}

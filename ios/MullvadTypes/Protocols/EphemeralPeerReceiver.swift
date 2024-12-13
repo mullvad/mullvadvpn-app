@@ -11,10 +11,20 @@ import NetworkExtension
 import WireGuardKitTypes
 
 public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
-    unowned let tunnelProvider: NEPacketTunnelProvider
+    public func tunnelHandle() throws -> Int32 {
+        try tunnelProvider.tunnelHandle()
+    }
 
-    public init(tunnelProvider: NEPacketTunnelProvider) {
+    public func wgFuncs() -> WgFuncPointers {
+        tunnelProvider.wgFuncs()
+    }
+
+    unowned let tunnelProvider: any TunnelProvider
+    let keyReceiver: any EphemeralPeerReceiving
+
+    public init(tunnelProvider: TunnelProvider, keyReceiver: any EphemeralPeerReceiving) {
         self.tunnelProvider = tunnelProvider
+        self.keyReceiver = keyReceiver
     }
 
     // MARK: - EphemeralPeerReceiving
@@ -32,21 +42,5 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     public func ephemeralPeerExchangeFailed() {
         guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
         receiver.ephemeralPeerExchangeFailed()
-    }
-
-    // MARK: - TunnelProvider
-
-    public func createTCPConnectionThroughTunnel(
-        to remoteEndpoint: NWEndpoint,
-        enableTLS: Bool,
-        tlsParameters TLSParameters: NWTLSParameters?,
-        delegate: Any?
-    ) -> NWTCPConnection {
-        tunnelProvider.createTCPConnectionThroughTunnel(
-            to: remoteEndpoint,
-            enableTLS: enableTLS,
-            tlsParameters: TLSParameters,
-            delegate: delegate
-        )
     }
 }

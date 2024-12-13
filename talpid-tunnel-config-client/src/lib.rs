@@ -40,7 +40,7 @@ pub enum Error {
     },
     MissingDaitaResponse,
     #[cfg(target_os = "ios")]
-    TcpConnectionExpired,
+    TcpConnectionOpen,
     #[cfg(target_os = "ios")]
     UnableToCreateRuntime,
 }
@@ -49,7 +49,7 @@ impl std::fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         use Error::*;
         match self {
-            GrpcConnectError(_) => "Failed to connect to config service".fmt(f),
+            GrpcConnectError(err) => write!(f, "Failed to connect to config service: {err:?}"),
             GrpcError(status) => write!(f, "RPC failed: {status}"),
             MissingCiphertexts => write!(f, "Found no ciphertexts in response"),
             InvalidCiphertextLength {
@@ -65,7 +65,7 @@ impl std::fmt::Display for Error {
             }
             MissingDaitaResponse => "Expected DAITA configuration in response".fmt(f),
             #[cfg(target_os = "ios")]
-            TcpConnectionExpired => "TCP connection is already shut down".fmt(f),
+            TcpConnectionOpen => "Failed to open TCP connection".fmt(f),
             #[cfg(target_os = "ios")]
             UnableToCreateRuntime => "Unable to create iOS PQ PSK runtime".fmt(f),
         }
