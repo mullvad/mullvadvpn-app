@@ -12,15 +12,15 @@
 
 struct KeyExchangingResultStub: EphemeralPeerReceiving {
     var onFailure: (() -> Void)?
-    var onReceivePostQuantumKey: ((PreSharedKey, PrivateKey) -> Void)?
-    var onReceiveEphemeralPeerPrivateKey: ((PrivateKey) -> Void)?
+    var onReceivePostQuantumKey: ((PreSharedKey, PrivateKey) async -> Void)?
+    var onReceiveEphemeralPeerPrivateKey: ((PrivateKey) async -> Void)?
 
-    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) {
-        onReceivePostQuantumKey?(key, ephemeralKey)
+    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) async {
+        await onReceivePostQuantumKey?(key, ephemeralKey)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
-        onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey)
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
+        await onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey)
     }
 
     func ephemeralPeerExchangeFailed() {
