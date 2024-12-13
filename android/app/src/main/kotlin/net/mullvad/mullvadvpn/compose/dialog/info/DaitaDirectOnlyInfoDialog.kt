@@ -22,7 +22,12 @@ private fun PreviewDaitaDirectOnlyInfoDialog() {
 @Composable
 fun DaitaDirectOnlyInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message = stringResource(id = R.string.daita_info),
+        message =
+            stringResource(
+                id = R.string.daita_info,
+                stringResource(id = R.string.direct_only),
+                stringResource(id = R.string.daita),
+            ),
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }

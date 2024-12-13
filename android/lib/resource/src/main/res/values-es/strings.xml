@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Establecer puerto</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">No se puede resolver el host del túnel personalizado. Pruebe a cambiar la configuración.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) oculta los patrones en su tráfico VPN cifrado.</string>
     <string name="daita_description_slide_1_second_paragraph">Al utilizar IA sofisticada, se puede analizar el tráfico de paquetes de datos que entran y salen de su dispositivo (incluso si el tráfico está cifrado).</string>
+    <string name="daita_description_slide_1_third_paragraph">Si un observador supervisa estos paquetes de datos, %1$s les dificulta notablemente la tarea de identificar qué sitios web está visitando o con quién se está comunicando.</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
+    <string name="daita_description_slide_2_second_paragraph">No todos nuestros servidores están habilitados para %1$s. Por lo tanto, utilizamos el salto múltiple de forma automática para habilitar %2$s con cualquier servidor.</string>
+    <string name="daita_info">Si habilita «%1$s», deberá seleccionar manualmente un servidor que esté habilitado para %2$s. Esto puede provocar que termine bloqueado hasta que seleccione un servidor compatible en la vista «Seleccionar ubicación».</string>
     <string name="daita_relay_subset_warning">Esta característica no está disponible en todos los servidores. Podría tener que cambiar de ubicación tras habilitarla.</string>
     <string name="daita_warning">Atención: Como esto aumenta el tráfico total de su red, tenga cuidado si tiene un plan de datos limitado. También puede afectar negativamente a la velocidad de su red y al uso de la batería.</string>
     <string name="delete">Eliminar</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>
     <string name="device_name_info_third_paragraph">Si cierra sesión, se quita el dispositivo y el nombre del dispositivo. Cuando vuelve a iniciar sesión, el dispositivo recibirá un nombre nuevo.</string>
     <string name="direct_only">Conexión directa</string>
+    <string name="direct_only_description">No todos nuestros servidores están habilitados para %1$s. Para usar Internet, quizá deba seleccionar una nueva ubicación tras habilitar esta característica.</string>
     <string name="discard">Descartar</string>
     <string name="discard_changes">¿Descartar los cambios?</string>
     <string name="disconnect">Desconectar</string>

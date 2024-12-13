@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">Ställ in port</string>
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) döljer mönster i din krypterade VPN-trafik.</string>
     <string name="daita_description_slide_1_second_paragraph">Med sofistikerad AI är det möjligt att analysera trafiken för datapaket som går in och ut från din enhet (även om trafiken är krypterad).</string>
+    <string name="daita_description_slide_1_third_paragraph">Om dessa datapaket övervakas av en observatör, gör %1$s det svårare för dem att identifiera vilka webbplatser du besöker eller vem du kommunicerar med.</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
+    <string name="daita_description_slide_2_second_paragraph">Det är inte alla våra servrar som är %1$s-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %2$s med alla servrar.</string>
+    <string name="daita_info">Om du aktiverar \"%1$s\" måste du manuellt välja en server som är %2$s-aktiverad. Det kan leda till ett blockerat tillstånd tills du väljer en kompatibel server i \"Välj plats\"-vyn.</string>
     <string name="daita_relay_subset_warning">Det här funktionen är inte tillgänglig på alla servrar. Du kanske måste ändra plats efter aktivering.</string>
     <string name="daita_warning">Obs! Detta ökar nätverkstrafiken så var försiktig om du har ett abonnemang med begränsad mängd data. Det kan även ha en negativ påverkan på din nätverkshastighet och batterianvändning.</string>
     <string name="delete">Ta bort</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">Upp till fem enheter kan vara inloggade på ett Mullvad-konto.</string>
     <string name="device_name_info_third_paragraph">Om du loggar ut tas enheten och enhetsnamnet bort. När du loggar in igen får enheten ett nytt namn.</string>
     <string name="direct_only">Endast direkt</string>
+    <string name="direct_only_description">Det är inte alla våra servrar som är %1$s-aktiverade. Om du vill använda internet kanske du måste välja en ny plats efter aktivering.</string>
     <string name="discard">Ignorera</string>
     <string name="discard_changes">Ignorera ändringarna?</string>
     <string name="disconnect">Koppla från</string>
