@@ -66,7 +66,8 @@ baseurl=$repository_server_url/$remote_repo_dir/\$basearch
 type=rpm
 enabled=1
 gpgcheck=1
-gpgkey=$repository_server_url/rpm/mullvad-keyring.asc" > "$repository_dir/mullvad.repo"
+gpgkey=$repository_server_url/rpm/mullvad-keyring.asc
+includepkgs=mullvad-vpn,mullvad-browser" > "$repository_dir/mullvad.repo"
 }
 
 for artifact_dir in "${artifact_dirs[@]}"; do
