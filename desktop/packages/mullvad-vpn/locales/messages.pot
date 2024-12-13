@@ -1414,15 +1414,15 @@ msgid "Filtered:"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr ""
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr ""
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -2540,9 +2540,6 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
-msgstr ""
-
-msgid "Open %s settings"
 msgstr ""
 
 msgid "Overrides active"
