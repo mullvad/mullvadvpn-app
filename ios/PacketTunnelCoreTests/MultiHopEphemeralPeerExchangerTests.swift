@@ -59,7 +59,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         )
     }
 
-    func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() {
+    func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() async {
         let expectedNegotiationFailure = expectation(description: "Negotiation failed.")
 
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
@@ -88,7 +88,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             expectedNegotiationFailure.fulfill()
         }
 
-        multiHopExchanger.start()
+        await multiHopExchanger.start()
 
         wait(
             for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
@@ -96,7 +96,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         )
     }
 
-    func testEphemeralPeerExchangeSuccessWhenPostQuantumNegotiationStarts() throws {
+    func testEphemeralPeerExchangeSuccessWhenPostQuantumNegotiationStarts() async throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
 
@@ -124,9 +124,9 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         }
 
         peerExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, ephemeralKey in
-            multiHopPeerExchanger.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
+            await multiHopPeerExchanger.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
         })
-        multiHopPeerExchanger.start()
+        await multiHopPeerExchanger.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
@@ -134,7 +134,7 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         )
     }
 
-    func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() throws {
+    func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() async throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
 
@@ -162,9 +162,9 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
         }
 
         peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey in
-            multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
+            await multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
         })
-        multiHopPeerExchanger.start()
+        await multiHopPeerExchanger.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
