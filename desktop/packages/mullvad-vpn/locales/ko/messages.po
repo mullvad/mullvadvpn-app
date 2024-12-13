@@ -156,7 +156,7 @@ msgstr "편집"
 msgid "Enable"
 msgstr "사용"
 
-msgid "Enable \"%(directOnly)s\""
+msgid "Enable %(directOnly)s"
 msgstr "\"%(directOnly)s\" 활성화"
 
 msgid "Enable anyway"

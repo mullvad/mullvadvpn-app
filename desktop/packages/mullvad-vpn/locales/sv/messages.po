@@ -162,7 +162,7 @@ msgstr "Redigera"
 msgid "Enable"
 msgstr "Aktivera"
 
-msgid "Enable \"%(directOnly)s\""
+msgid "Enable %(directOnly)s"
 msgstr "Aktivera \"%(directOnly)s\""
 
 msgid "Enable anyway"

@@ -152,7 +152,7 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Enable \"%(directOnly)s\""
+msgid "Enable %(directOnly)s"
 msgstr ""
 
 msgid "Enable anyway"
