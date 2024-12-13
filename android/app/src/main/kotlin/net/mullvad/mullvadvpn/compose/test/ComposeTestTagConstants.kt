@@ -7,6 +7,10 @@ const val TOP_BAR_TEST_TAG = "top_bar_test_tag"
 
 // Settings screen
 const val VPN_SETTINGS_CELL_TEST_TAG = "vpn_settings_cell_test_tag"
+const val DAITA_CELL_TEST_TAG = "data_cell_test_tag"
+
+// DAITA settings screen
+const val DAITA_SCREEN_TEST_TAG = "daita_screen_test_tag"
 
 // VpnSettingsScreen
 const val LAZY_LIST_VPN_SETTINGS_TEST_TAG = "lazy_list_vpn_settings_test_tag"
@@ -24,8 +28,10 @@ const val LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG =
     "lazy_list_wireguard_obfuscation_title_test_tag"
 const val SWITCH_TEST_TAG = "switch_test_tag"
 const val WIREGUARD_OBFUSCATION_OFF_CELL = "wireguard_obfuscation_off_cell_test_tag"
+const val WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL = "wireguard_obfuscation_shadowsocks_cell_test_tag"
 const val WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL =
     "wireguard_obfuscation_udp_over_tcp_cell_test_tag"
+const val QUANTUM_RESISTANCE_OFF_CELL = "quantum_resistance_off_cell_test_tag"
 
 // SelectLocationScreen, ConnectScreen, CustomListLocationsScreen
 const val SELECT_LOCATION_SCREEN_TEST_TAG = "select_location_screen_test_tag"

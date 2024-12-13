@@ -11,6 +11,10 @@ class LoginPage internal constructor() : Page() {
     private val invalidAccountNumberSelector = By.text("Invalid account number")
     private val loginSelector = By.text("Login")
 
+    fun clickSettings() {
+        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
+    }
+
     fun enterAccountNumber(accountNumber: String) {
         uiDevice.findObjectWithTimeout(By.clazz("android.widget.EditText")).text = accountNumber
     }
@@ -28,5 +32,9 @@ class LoginPage internal constructor() : Page() {
 
     override fun assertIsDisplayed() {
         uiDevice.findObjectWithTimeout(loginSelector)
+    }
+
+    companion object {
+        const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
     }
 }
