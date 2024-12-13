@@ -14,14 +14,10 @@ import WireGuardKitTypes
 // swiftlint:disable function_parameter_count
 public protocol EphemeralPeerNegotiating {
     func startNegotiation(
-        gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
         peerReceiver: any TunnelProvider,
-        tcpConnection: NWTCPConnection,
-        peerExchangeTimeout: Duration,
-        enablePostQuantum: Bool,
-        enableDaita: Bool
+        ephemeralPeerParams: EphemeralPeerParameters
     ) -> Bool
 
     func cancelKeyNegotiation()
@@ -33,35 +29,30 @@ public protocol EphemeralPeerNegotiating {
 public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     required public init() {}
 
-    var cancelToken: EphemeralPeerCancelToken?
+    var cancelToken: OpaquePointer?
 
     public func startNegotiation(
-        gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
         peerReceiver: any TunnelProvider,
-        tcpConnection: NWTCPConnection,
-        peerExchangeTimeout: Duration,
-        enablePostQuantum: Bool,
-        enableDaita: Bool
+        ephemeralPeerParams: EphemeralPeerParameters
     ) -> Bool {
         // swiftlint:disable:next force_cast
         let ephemeralPeerReceiver = Unmanaged.passUnretained(peerReceiver as! EphemeralPeerReceiver)
             .toOpaque()
-        let opaqueConnection = Unmanaged.passUnretained(tcpConnection).toOpaque()
-        var cancelToken = EphemeralPeerCancelToken()
 
-        let result = request_ephemeral_peer(
+        guard let tunnelHandle = try? peerReceiver.tunnelHandle() else {
+            return false
+        }
+
+        let cancelToken = request_ephemeral_peer(
             devicePublicKey.rawValue.map { $0 },
             presharedKey.rawValue.map { $0 },
             ephemeralPeerReceiver,
-            opaqueConnection,
-            &cancelToken,
-            UInt64(peerExchangeTimeout.timeInterval),
-            enablePostQuantum,
-            enableDaita
+            tunnelHandle,
+            ephemeralPeerParams
         )
-        guard result == 0 else {
+        guard let cancelToken else {
             return false
         }
         self.cancelToken = cancelToken
@@ -69,13 +60,14 @@ public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     }
 
     public func cancelKeyNegotiation() {
-        guard var cancelToken else { return }
-        cancel_ephemeral_peer_exchange(&cancelToken)
+        guard let cancelToken else { return }
+        cancel_ephemeral_peer_exchange(cancelToken)
+        self.cancelToken = nil
     }
 
     deinit {
-        guard var cancelToken else { return }
-        drop_ephemeral_peer_exchange_token(&cancelToken)
+        guard let cancelToken else { return }
+        drop_ephemeral_peer_exchange_token(cancelToken)
     }
 }
 

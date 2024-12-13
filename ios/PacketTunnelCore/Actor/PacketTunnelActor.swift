@@ -48,6 +48,7 @@ public actor PacketTunnelActor {
     public let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
+//    private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
 
     nonisolated let eventChannel = EventChannel()
 
@@ -139,13 +140,14 @@ public actor PacketTunnelActor {
 
         case let .cacheActiveKey(lastKeyRotation):
             cacheActiveKey(lastKeyRotation: lastKeyRotation)
-        case let .reconfigureForEphemeralPeer(configuration):
+        case let .reconfigureForEphemeralPeer(configuration, configurationSemaphore):
             do {
                 try await updateEphemeralPeerNegotiationState(configuration: configuration)
             } catch {
                 logger.error(error: error, message: "Failed to reconfigure tunnel after each hop negotiation.")
                 await setErrorStateInternal(with: error)
             }
+            configurationSemaphore.send()
         case .connectWithEphemeralPeer:
             await connectWithEphemeralPeer()
         case .setDisconnectedState:

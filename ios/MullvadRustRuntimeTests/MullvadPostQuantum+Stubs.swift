@@ -27,6 +27,19 @@ class NWTCPConnectionStub: NWTCPConnection {
 }
 
 class TunnelProviderStub: TunnelProvider {
+    func tunnelHandle() throws -> Int32 {
+        0
+    }
+
+    func wgFuncs() -> MullvadTypes.WgFuncPointers {
+        return MullvadTypes.WgFuncPointers(
+            open: { _, _, _ in return 0 },
+            close: { _, _ in return 0 },
+            receive: { _, _, _, _ in return 0 },
+            send: { _, _, _, _ in return 0 }
+        )
+    }
+
     let tcpConnection: NWTCPConnectionStub
 
     init(tcpConnection: NWTCPConnectionStub) {
@@ -55,15 +68,13 @@ class FailedNegotiatorStub: EphemeralPeerNegotiating {
     }
 
     func startNegotiation(
-        gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        peerReceiver packetTunnel: any MullvadTypes.TunnelProvider,
-        tcpConnection: NWTCPConnection,
-        peerExchangeTimeout: MullvadTypes.Duration,
-        enablePostQuantum: Bool,
-        enableDaita: Bool
-    ) -> Bool { false }
+        peerReceiver: any MullvadTypes.TunnelProvider,
+        ephemeralPeerParams: EphemeralPeerParameters
+    ) -> Bool {
+        false
+    }
 
     func cancelKeyNegotiation() {
         onCancelKeyNegotiation?()
@@ -81,15 +92,13 @@ class SuccessfulNegotiatorStub: EphemeralPeerNegotiating {
     }
 
     func startNegotiation(
-        gatewayIP: IPv4Address,
         devicePublicKey: WireGuardKitTypes.PublicKey,
         presharedKey: WireGuardKitTypes.PrivateKey,
-        peerReceiver packetTunnel: any MullvadTypes.TunnelProvider,
-        tcpConnection: NWTCPConnection,
-        peerExchangeTimeout: MullvadTypes.Duration,
-        enablePostQuantum: Bool,
-        enableDaita: Bool
-    ) -> Bool { true }
+        peerReceiver: any MullvadTypes.TunnelProvider,
+        ephemeralPeerParams: EphemeralPeerParameters
+    ) -> Bool {
+        true
+    }
 
     func cancelKeyNegotiation() {
         onCancelKeyNegotiation?()

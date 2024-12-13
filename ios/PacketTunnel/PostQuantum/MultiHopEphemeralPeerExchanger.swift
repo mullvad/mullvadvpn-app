@@ -19,7 +19,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
     let keyExchanger: EphemeralPeerExchangeActorProtocol
     let devicePrivateKey: PrivateKey
     let onFinish: () -> Void
-    let onUpdateConfiguration: (EphemeralPeerNegotiationState) -> Void
+    let onUpdateConfiguration: (EphemeralPeerNegotiationState) async -> Void
     let enablePostQuantum: Bool
     let enableDaita: Bool
 
@@ -48,7 +48,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         keyExchanger: EphemeralPeerExchangeActorProtocol,
         enablePostQuantum: Bool,
         enableDaita: Bool,
-        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) -> Void,
+        onUpdateConfiguration: @escaping (EphemeralPeerNegotiationState) async -> Void,
         onFinish: @escaping () -> Void
     ) {
         self.entry = entry
@@ -61,37 +61,37 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         self.onFinish = onFinish
     }
 
-    func start() {
+    func start() async {
         guard state == .initial else { return }
-        negotiateWithEntry()
+        await negotiateWithEntry()
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) {
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
         if state == .negotiatingWithEntry {
             entryPeerKey = EphemeralPeerKey(ephemeralKey: ephemeralPeerPrivateKey)
-            negotiateBetweenEntryAndExit()
+            await negotiateBetweenEntryAndExit()
         } else if state == .negotiatingBetweenEntryAndExit {
             exitPeerKey = EphemeralPeerKey(ephemeralKey: ephemeralPeerPrivateKey)
-            makeConnection()
+            await makeConnection()
         }
     }
 
     func receivePostQuantumKey(
         _ preSharedKey: PreSharedKey,
         ephemeralKey: PrivateKey
-    ) {
+    ) async {
         if state == .negotiatingWithEntry {
             entryPeerKey = EphemeralPeerKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
-            negotiateBetweenEntryAndExit()
+            await negotiateBetweenEntryAndExit()
         } else if state == .negotiatingBetweenEntryAndExit {
             exitPeerKey = EphemeralPeerKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
-            makeConnection()
+            await makeConnection()
         }
     }
 
-    private func negotiateWithEntry() {
+    private func negotiateWithEntry() async {
         state = .negotiatingWithEntry
-        onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
+        await onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
             relay: entry,
             configuration: EphemeralPeerConfiguration(
                 privateKey: devicePrivateKey,
@@ -105,9 +105,9 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         )
     }
 
-    private func negotiateBetweenEntryAndExit() {
+    private func negotiateBetweenEntryAndExit() async {
         state = .negotiatingBetweenEntryAndExit
-        onUpdateConfiguration(.multi(
+        await onUpdateConfiguration(.multi(
             entry: EphemeralPeerRelayConfiguration(
                 relay: entry,
                 configuration: EphemeralPeerConfiguration(
@@ -132,9 +132,9 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         )
     }
 
-    private func makeConnection() {
+    private func makeConnection() async {
         state = .makeConnection
-        onUpdateConfiguration(.multi(
+        await onUpdateConfiguration(.multi(
             entry: EphemeralPeerRelayConfiguration(
                 relay: entry,
                 configuration: EphemeralPeerConfiguration(
