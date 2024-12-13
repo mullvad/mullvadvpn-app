@@ -322,30 +322,19 @@ impl Firewall {
         }
 
         // no nat to [vpn ip]
-        //let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
-        //    .action(pfctl::NatRuleAction::NoNat)
-        //    .to(peer_endpoint.endpoint.address)
-        //    .user(Uid::from(0))
-        //    .build()?;
-        //rules.push(no_nat_to_vpn_server);
+        let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
+            .action(pfctl::NatRuleAction::NoNat)
+            .to(peer_endpoint.endpoint.address)
+            .user(Uid::from(0))
+            .build()?;
+        rules.push(no_nat_to_vpn_server);
 
-        //for ip in &tunnel.ips {
-        //    rules.push(
-        //        pfctl::NatRuleBuilder::default()
-        //            .action(pfctl::NatRuleAction::Nat {
-        //                nat_to: pfctl::NatEndpoint::from(pfctl::Ip::from(*ip)),
-        //            })
-        //            .to(peer_endpoint.endpoint.address.ip())
-        //            .build()?,
-        //    );
-        //}
-
-        //// no nat on [tun interface]
-        //let no_nat_on_tun = pfctl::NatRuleBuilder::default()
-        //    .action(pfctl::NatRuleAction::NoNat)
-        //    .interface(&tunnel.interface)
-        //    .build()?;
-        //rules.push(no_nat_on_tun);
+        // no nat on [tun interface]
+        let no_nat_on_tun = pfctl::NatRuleBuilder::default()
+            .action(pfctl::NatRuleAction::NoNat)
+            .interface(&tunnel.interface)
+            .build()?;
+        rules.push(no_nat_on_tun);
 
         // Masquerade other traffic via VPN utun
         for ip in &tunnel.ips {
