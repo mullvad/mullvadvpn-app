@@ -112,7 +112,23 @@ impl Task {
             tokio::time::sleep(std::time::Duration::from_millis(500)).await;
 
             let ping_destination = tunnel.endpoint.address.ip();
-            //let ping_destination = Ipv4Addr::new(185, 213, 154, 218);
+
+            // TODO (linux):
+            // Use get_destination_route(ip, Some(fwmark)) to figure out default interface.
+            // where ip is some unused example public ip, or maybe the relay ip
+
+            // TODO (android):
+            // Maybe connectivity monitor?
+            // It should be possible somehow. `ifconfig` can print interfaces.
+            // needs further investigation
+
+            // TODO (macos):
+            // get_default_route in route manager
+
+            // TODO (windows):
+            // Use default route monitor thingy. It should contain interfaces.
+            // Can maybe use callback to subscribe for updates
+            // get_best_route
 
             let interface = "wlan0"; // TODO
 
