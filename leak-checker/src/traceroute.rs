@@ -139,14 +139,21 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> eyre::Result<LeakStatus> 
             send_udp_probes(opt, &mut udp_socket).await?;
         }
 
-        // Never return
-        pending::<eyre::Result<Infallible>>().await
+        eyre::Ok(())
     };
 
     // error if sending the probes takes longer than SEND_TIMEOUT
-    let send_probes = timeout(SEND_TIMEOUT, send_probes)
-        .map_err(|_timeout| eyre!("Timed out while trying to send probe packet"))
-        .and_then(ready);
+    //let send_probes = timeout(SEND_TIMEOUT, send_probes)
+    //    .map_err(|_timeout| eyre!("Timed out while trying to send probe packet"))
+    //    .and_then(ready) // flatten the result
+    //    .and_then(|_| pending::<Result<Infallible, _>>());
+
+    let send_probes = async {
+        timeout(SEND_TIMEOUT, send_probes)
+            .await
+            .map_err(|_timeout| eyre!("Timed out while trying to send probe packet"))??;
+        Ok(pending::<Infallible>().await)
+    };
 
     let recv_probe_responses = icmp_socket.recv_ttl_responses(opt);
 
