@@ -93,7 +93,12 @@
     <string name="custom_port_dialog_submit">ตั้งค่าพอร์ต</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
+    <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ</string>
     <string name="daita_description_slide_1_second_paragraph">โดยการใช้ AI ที่ซับซ้อน จึงเป็นไปได้ที่จะวิเคราะห์ปริมาณการรับส่งข้อมูล ที่เข้าออกอุปกรณ์ของคุณได้ (แม้ว่าการรับส่งข้อมูลจะเข้ารหัสไว้ก็ตาม)</string>
+    <string name="daita_description_slide_1_third_paragraph">หากผู้สังเกตการณ์เฝ้าดูแพ็กเก็ตข้อมูลเหล่านี้ %1$s จะทำให้พวกเขาระบุเว็บไซต์ที่คุณกำลังเยี่ยมชม หรือผู้ที่คุณกำลังติดต่อสื่อสารด้วยได้ยากขึ้นอย่างมาก</string>
+    <string name="daita_description_slide_2_first_paragraph">%1$s ได้ดำเนินการนี้ ด้วยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากัน</string>
+    <string name="daita_description_slide_2_second_paragraph">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %2$s กับทุกเซิร์ฟเวอร์</string>
+    <string name="daita_info">โดยการเปิดใช้งาน “%1$s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\"</string>
     <string name="daita_relay_subset_warning">คุณลักษณะนี้ไม่พร้อมใช้งานบนทุกเซิร์ฟเวอร์ คุณอาจต้องต้องเปลี่ยนตำแหน่งที่ตั้ง หลังจากเปิดใช้งาน</string>
     <string name="daita_warning">โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลที่มีปริมาณจำกัด เนื่องจากการดำเนินการนี้ จะเพิ่มการรับส่งข้อมูลโดยรวมของคุณขึ้น การดำเนินการนี้ อาจส่งผลเชิงลบต่อความเร็วเครือข่าย และการใช้งานแบตเตอรี่ของคุณได้</string>
     <string name="delete">ลบ</string>
@@ -110,6 +115,7 @@
     <string name="device_name_info_second_paragraph">คุณสามารถลงชื่อเข้าใช้อุปกรณ์ได้สูงสุด 5 เครื่อง กับบัญชี Mullvad หนึ่งบัญชี</string>
     <string name="device_name_info_third_paragraph">หากคุณออกจากระบบ อุปกรณ์และชื่ออุปกรณ์จะถูกลบออก และเมื่อคุณลงชื่อเข้าใช้อีกครั้ง อุปกรณ์จะได้รับชื่อใหม่</string>
     <string name="direct_only">โดยตรงเท่านั้น</string>
+    <string name="direct_only_description">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s คุณอาจต้องเลือกตำแหน่งที่ตั้งใหม่หลังจากเปิดใช้งาน เพื่อใช้งานอินเทอร์เน็ต</string>
     <string name="discard">ละทิ้ง</string>
     <string name="discard_changes">ละทิ้งการเปลี่ยนแปลงหรือไม่</string>
     <string name="disconnect">ตัดการเชื่อมต่อ</string>
