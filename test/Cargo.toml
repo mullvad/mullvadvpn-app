@@ -37,7 +37,7 @@ unused_async = "deny"
 
 [workspace.dependencies]
 futures = "0.3"
-tokio = { version = "1.8", features = [
+tokio = { version = "1.42", features = [
   "macros",
   "rt",
   "process",
