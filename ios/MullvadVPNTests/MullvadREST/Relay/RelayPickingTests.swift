@@ -226,7 +226,7 @@ class RelayPickingTests: XCTestCase {
 
     // MARK: Obfuscation
 
-    func testObfuscationOnSinglehop() throws {
+    func testObfuscationForSinglehop() throws {
         let constraints = RelayConstraints(entryLocations: .any, exitLocations: .any, port: .only(5000))
         let tunnelSettings = LatestTunnelSettings(
             wireGuardObfuscation: WireGuardObfuscationSettings(
@@ -247,11 +247,44 @@ class RelayPickingTests: XCTestCase {
 
         let selectedRelays = try picker.pick()
 
-        XCTAssertNil(selectedRelays.entry?.endpoint.ipv4Relay.port)
+        XCTAssertNil(selectedRelays.entry)
         XCTAssertEqual(selectedRelays.exit.endpoint.ipv4Relay.port, 80)
     }
 
-    func testObfuscationOnMultihop() throws {
+    // If DAITA is on, the selected relay has DAITA and shadowsocks obfuscation yields no compatible relays,
+    // we should make sure that .noObfuscatedRelaysFound is thrown rather than triggering smart routing.
+    func testIncompatibleShadowsocksObfuscationNotTriggeringMultihop() throws {
+        let constraints = RelayConstraints(
+            entryLocations: .any,
+            exitLocations: .only(UserSelectedRelays(locations: [.country("us")])),
+            port: .only(5000)
+        )
+        let tunnelSettings = LatestTunnelSettings(
+            wireGuardObfuscation: WireGuardObfuscationSettings(
+                state: .shadowsocks,
+                shadowsocksPort: .custom(1)
+            )
+        )
+
+        obfuscation = try ObfuscatorPortSelector(relays: sampleRelays)
+            .obfuscate(tunnelSettings: tunnelSettings, connectionAttemptCount: 0)
+
+        let picker = SinglehopPicker(
+            obfuscation: obfuscation,
+            constraints: constraints,
+            connectionAttemptCount: 0,
+            daitaSettings: DAITASettings(daitaState: .on)
+        )
+
+        do {
+            _ = try picker.pick()
+            XCTFail("Should have thrown error due to incompatible shadowsocks obfuscation")
+        } catch let error as NoRelaysSatisfyingConstraintsError {
+            XCTAssertEqual(error.reason, .noObfuscatedRelaysFound)
+        }
+    }
+
+    func testObfuscationForMultihop() throws {
         let constraints = RelayConstraints(entryLocations: .any, exitLocations: .any, port: .only(5000))
         let tunnelSettings = LatestTunnelSettings(
             wireGuardObfuscation: WireGuardObfuscationSettings(
