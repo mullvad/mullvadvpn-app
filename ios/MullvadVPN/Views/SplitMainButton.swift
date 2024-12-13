@@ -9,9 +9,10 @@
 import SwiftUI
 
 struct SplitMainButton: View {
-    var text: String
+    var text: LocalizedStringKey
     var image: ImageResource
     var style: MainButtonStyle.Style
+    var disabled = false
 
     var primaryAction: () -> Void
     var secondaryAction: () -> Void
@@ -37,14 +38,14 @@ struct SplitMainButton: View {
             .aspectRatio(1, contentMode: .fit)
             .sizeOfView { width = $0.width }
         }
-        .buttonStyle(MainButtonStyle(style))
+        .buttonStyle(MainButtonStyle(style, disabled: disabled))
         .cornerRadius(UIMetrics.MainButton.cornerRadius)
     }
 }
 
 #Preview {
     SplitMainButton(
-        text: "Connect",
+        text: "Select location",
         image: .iconReload,
         style: .default,
         primaryAction: {
@@ -54,5 +55,4 @@ struct SplitMainButton: View {
             print("Tapped secondary")
         }
     )
-    .frame(maxWidth: .infinity)
 }

@@ -9,10 +9,12 @@
 import SwiftUI
 
 struct MainButtonStyle: ButtonStyle {
-    @State var style: Style
+    var style: Style
+    @State var disabled: Bool
 
-    init(_ style: Style) {
+    init(_ style: Style, disabled: Bool = false) {
         self.style = style
+        self.disabled = disabled
     }
 
     func makeBody(configuration: Configuration) -> some View {
@@ -22,9 +24,15 @@ struct MainButtonStyle: ButtonStyle {
             .foregroundColor(
                 configuration.isPressed
                     ? UIColor.secondaryTextColor.color
-                    : UIColor.primaryTextColor.color
+                    : disabled
+                        ? UIColor.primaryTextColor.withAlphaComponent(0.2).color
+                        : UIColor.primaryTextColor.color
             )
-            .background(style.color)
+            .background(
+                disabled
+                    ? style.color.darkened(by: 0.6)
+                    : style.color
+            )
             .font(.body.weight(.semibold))
     }
 }

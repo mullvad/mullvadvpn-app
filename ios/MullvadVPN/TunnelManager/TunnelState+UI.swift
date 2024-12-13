@@ -9,14 +9,18 @@
 import UIKit
 
 extension TunnelState {
+    enum TunnelControlActionButton {
+        case connect
+        case disconnect
+        case cancel
+    }
+
     var textColorForSecureLabel: UIColor {
         switch self {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer:
             .white
-
         case .connected:
             .successColor
-
         case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork), .error:
             .dangerColor
         }
@@ -65,6 +69,7 @@ extension TunnelState {
                     comment: ""
                 )
             }
+
         case let .connected(_, isPostQuantum, _):
             if isPostQuantum {
                 NSLocalizedString(
@@ -77,7 +82,7 @@ extension TunnelState {
                 NSLocalizedString(
                     "TUNNEL_STATE_CONNECTED",
                     tableName: "Main",
-                    value: "Secure connection",
+                    value: "Connected",
                     comment: ""
                 )
             }
@@ -89,6 +94,7 @@ extension TunnelState {
                 value: "Disconnecting",
                 comment: ""
             )
+
         case .disconnecting(.reconnect), .pendingReconnect:
             NSLocalizedString(
                 "TUNNEL_STATE_PENDING_RECONNECT",
@@ -123,7 +129,7 @@ extension TunnelState {
         }
     }
 
-    var localizedTitleForSelectLocationButton: String? {
+    var localizedTitleForSelectLocationButton: String {
         switch self {
         case .disconnecting(.reconnect), .pendingReconnect:
             NSLocalizedString(
@@ -154,24 +160,6 @@ extension TunnelState {
                 "SWITCH_LOCATION_BUTTON_TITLE",
                 tableName: "Main",
                 value: "Switch location",
-                comment: ""
-            )
-        }
-    }
-
-    func secureConnectionLabel(isPostQuantum: Bool) -> String {
-        if isPostQuantum {
-            NSLocalizedString(
-                "TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Creating quantum secure connection",
-                comment: ""
-            )
-        } else {
-            NSLocalizedString(
-                "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
-                tableName: "Main",
-                value: "Creating secure connection",
                 comment: ""
             )
         }
@@ -259,6 +247,71 @@ extension TunnelState {
                 "TUNNEL_STATE_PENDING_RECONNECT_ACCESSIBILITY_LABEL",
                 tableName: "Main",
                 value: "Reconnecting",
+                comment: ""
+            )
+        }
+    }
+
+    var actionButton: TunnelControlActionButton {
+        switch self {
+        case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
+            .connect
+        case .connecting, .pendingReconnect, .disconnecting(.reconnect), .waitingForConnectivity(.noConnection):
+            .cancel
+        case .negotiatingEphemeralPeer:
+            .cancel
+        case .connected, .reconnecting, .error:
+            .disconnect
+        }
+    }
+
+    var titleForCountryAndCity: String? {
+        guard isSecured, let tunnelRelays = relays else {
+            return nil
+        }
+
+        return "\(tunnelRelays.exit.location.country), \(tunnelRelays.exit.location.city)"
+    }
+
+    func titleForServer(daitaEnabled: Bool) -> String? {
+        guard isSecured, let tunnelRelays = relays else {
+            return nil
+        }
+
+        let exitName = tunnelRelays.exit.hostname
+        let entryName = tunnelRelays.entry?.hostname
+        let usingDaita = daitaEnabled == true
+
+        return if let entryName {
+            String(format: NSLocalizedString(
+                "CONNECT_PANEL_TITLE",
+                tableName: "Main",
+                value: "%@ via %@\(usingDaita ? " using DAITA" : "")",
+                comment: ""
+            ), exitName, entryName)
+        } else {
+            String(format: NSLocalizedString(
+                "CONNECT_PANEL_TITLE",
+                tableName: "Main",
+                value: "%@\(usingDaita ? " using DAITA" : "")",
+                comment: ""
+            ), exitName)
+        }
+    }
+
+    func secureConnectionLabel(isPostQuantum: Bool) -> String {
+        if isPostQuantum {
+            NSLocalizedString(
+                "TUNNEL_STATE_PQ_CONNECTING_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Creating quantum secure connection",
+                comment: ""
+            )
+        } else {
+            NSLocalizedString(
+                "TUNNEL_STATE_CONNECTING_ACCESSIBILITY_LABEL",
+                tableName: "Main",
+                value: "Creating secure connection",
                 comment: ""
             )
         }
