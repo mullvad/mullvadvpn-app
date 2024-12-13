@@ -206,7 +206,16 @@ jobs:
           vs-version: 16
       - name: Build app
         shell: bash
-        run: ./build.sh
+        run: |
+          ./build.sh
+          # FIXME: Strip architecture-specific suffix. The remaining steps assume that the windows installer has no
+          # arch-suffix. This should probably be addressed when we add a Windows arm runner. Or maybe it will just keep
+          # on working ¯\_(ツ)_/¯
+          pushd dist
+          original_file=$(find *.exe)
+          new_file=$(echo $original_file | perl -pe "s/^(MullvadVPN-.*?)(_x64|_arm64)?(\.exe)$/\1\3/p")
+          mv "$original_file" "$new_file"
+          popd
       - name: Build test executable
         shell: bash
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
