@@ -44,9 +44,9 @@ impl LeakChecker {
             callbacks: vec![],
         };
 
-        // TODO: fix task.run() not being Send
-        //tokio::task::spawn(task.run());
-        tokio::task::spawn_blocking(|| Handle::current().block_on(task.run()));
+        tokio::task::spawn(task.run());
+        // TODO: remove this if the above compiles on macos and android
+        //tokio::task::spawn_blocking(|| Handle::current().block_on(task.run()));
 
         LeakChecker { task_event_tx }
     }
