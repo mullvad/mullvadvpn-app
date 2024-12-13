@@ -65,16 +65,6 @@ impl LeakChecker {
             panic!("LeakChecker unexpectedly closed");
         }
     }
-
-    ///// Wait until the leak detector detects a leak.
-    /////
-    ///// Ideally, this should never return.
-    //pub async fn wait_for_leak(&self) -> LeakInfo {
-    //    self.leak_rx
-    //        .recv()
-    //        .await
-    //        .expect("LeakChecker unexpectedly closed")
-    //}
 }
 
 impl Task {
@@ -104,7 +94,6 @@ impl Task {
         mut tunnel_state: TunnelStateTransition,
     ) -> ControlFlow<()> {
         'leak_test: loop {
-            //let TunnelStateTransition::Connected(tunnel) = &tunnel_state else {
             let TunnelStateTransition::Connected(tunnel) = &tunnel_state else {
                 return ControlFlow::Continue(());
             };
@@ -189,52 +178,6 @@ async fn check_for_leaks(interface: &str, destination: IpAddr) -> anyhow::Result
         leak_checker::LeakStatus::LeakDetected(info) => Some(info),
     })
 }
-
-// async fn check_for_leaks(interface: &str, destination: IpAddr) -> anyhow::Result<Option<LeakInfo>> {
-//     use std::mem::ManuallyDrop;
-//     use std::os::fd::FromRawFd;
-//     let client = surge_ping::Client::new(&surge_ping::Config {
-//         sock_type_hint: socket2::Type::DGRAM,
-//         kind: surge_ping::ICMP::V4,
-//
-//         // On desktop linux, we can bind directly to the interface.
-//         interface: cfg!(target_os = "linux").then(|| interface.to_string()),
-//
-//         // On other systems, we resord to binding to the interfaces IP address instead.
-//         bind: cfg!(not(target_os = "linux")).then(|| get_interface_ip(interface)),
-//
-//         ttl: None,
-//         fib: None,
-//     })
-//     .context("Failed to create ping client")?;
-//
-//     // TODO: additional configuration?
-//     let socket = client.get_socket();
-//
-//     // SAFETY: socket.get_native_sock returns an open fd.
-//     // The socket2 socket is not used after we drop the client.
-//     // We wrap the socket2 socket in a ManuallyDrop to prevent it from dropping the socket.
-//     let socket = unsafe { socket2::Socket::from_raw_fd(socket.get_native_sock()) };
-//     let socket = ManuallyDrop::new(socket);
-//     let mut pinger = client.pinger(destination, PingIdentifier(12345)).await;
-//
-//     for ttl in 1..=5u16 {
-//         let ping_seq = ttl;
-//
-//         socket
-//             .set_ttl(u32::from(ttl))
-//             .context("Failed to set TTL")?;
-//
-//         let (reply, _duration) = pinger
-//             .ping(PingSequence(ping_seq), b"ABCDEFGHIJKLMNOP")
-//             .await
-//             .context("Failed to send ping")?;
-//
-//         println!("icmp_reply: {reply:?}");
-//     }
-//
-//     todo!()
-// }
 
 impl<T> LeakCheckerCallback for T
 where
