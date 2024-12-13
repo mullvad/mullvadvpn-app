@@ -45,6 +45,7 @@ shadowsocks = { workspace = true,  features = [ "stream-cipher" ] }
 [dev-dependencies]
 talpid-time = { path = "../talpid-time", features = ["test"] }
 tokio = { workspace = true, features = ["test-util", "time"] }
+mockito = "1.6.1"
 
 [build-dependencies]
 cbindgen = { version = "0.24.3", default-features = false }
@@ -55,3 +56,8 @@ uuid = { version = "1.4.1", features = ["v4"] }
 [lib]
 crate-type = [ "rlib", "staticlib" ]
 bench = false
+
+[[test]]
+name = "ffi"
+# required-features = [ "api-override" ]
+features = [ "api-override" ]
