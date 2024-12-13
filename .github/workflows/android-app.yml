@@ -240,7 +240,7 @@ jobs:
               :lib:shared:testDebugUnitTest
           - gradle-task: :test:arch:test --rerun-tasks
           - gradle-task: detekt
-          - gradle-task: lint
+          - gradle-task: :app:lint
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
