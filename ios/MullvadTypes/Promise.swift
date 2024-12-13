@@ -47,3 +47,19 @@ public final class Promise<Success, Failure: Error> {
         }
     }
 }
+
+
+public struct OneshotChannel {
+    private let semaphore = DispatchSemaphore(value: 0)
+    
+    public init() {
+    }
+    
+    public mutating func send() {
+        semaphore.signal()
+    }
+    
+    public func receive() {
+        semaphore.wait()
+    }
+}

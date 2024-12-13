@@ -22,9 +22,9 @@ final class EphemeralPeerExchangeActorStub: EphemeralPeerExchangeActorProtocol {
         switch result {
         case let .success((preSharedKey, ephemeralKey)):
             if enablePostQuantum {
-                delegate?.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
+                Task { await delegate?.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey) }
             } else {
-                delegate?.receiveEphemeralPeerPrivateKey(ephemeralKey)
+                Task { await delegate?.receiveEphemeralPeerPrivateKey(ephemeralKey) }
             }
         case .failure:
             delegate?.ephemeralPeerExchangeFailed()

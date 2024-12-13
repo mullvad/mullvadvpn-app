@@ -34,7 +34,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
 
     private let tunnelSettingsListener = TunnelSettingsListener()
     private lazy var ephemeralPeerReceiver = {
-        EphemeralPeerReceiver(tunnelProvider: self)
+        EphemeralPeerReceiver(tunnelProvider: adapter, keyReceiver: self)
     }()
 
     // swiftlint:disable:next function_body_length
@@ -110,7 +110,9 @@ class PacketTunnelProvider: NEPacketTunnelProvider {
                 iteratorProvider: { REST.RetryStrategy.postQuantumKeyExchange.makeDelayIterator() }
             ),
             onUpdateConfiguration: { [unowned self] configuration in
-                actor.changeEphemeralPeerNegotiationState(configuration: configuration)
+                let channel = OneshotChannel()
+                actor.changeEphemeralPeerNegotiationState(configuration: configuration, reconfigurationSemaphore: channel)
+                channel.receive()
             }, onFinish: { [unowned self] in
                 actor.notifyEphemeralPeerNegotiated()
             }
