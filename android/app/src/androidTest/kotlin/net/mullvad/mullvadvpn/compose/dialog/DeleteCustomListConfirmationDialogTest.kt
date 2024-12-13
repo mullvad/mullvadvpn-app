@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.dialog
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -25,16 +26,23 @@ class DeleteCustomListConfirmationDialogTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initDialog(
+        state: DeleteCustomListUiState =
+            DeleteCustomListUiState(CustomListName.fromString("My Custom List"), null),
+        onDelete: () -> Unit = {},
+        onBack: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            DeleteCustomListConfirmationDialog(state = state, onDelete = onDelete, onBack = onBack)
+        }
+    }
+
     @Test
     fun givenNameShouldShowDeleteNameTitle() =
         composeExtension.use {
             // Arrange
             val name = CustomListName.fromString("List should be deleted")
-            setContentWithTheme {
-                DeleteCustomListConfirmationDialog(
-                    state = DeleteCustomListUiState(name = name, deleteError = null)
-                )
-            }
+            initDialog(state = DeleteCustomListUiState(name = name, deleteError = null))
 
             // Assert
             onNodeWithText(DELETE_TITLE.format(name)).assertExists()
@@ -46,12 +54,10 @@ class DeleteCustomListConfirmationDialogTest {
             // Arrange
             val name = CustomListName.fromString("List should be deleted")
             val mockedOnDelete: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                DeleteCustomListConfirmationDialog(
-                    state = DeleteCustomListUiState(name = name, deleteError = null),
-                    onDelete = mockedOnDelete,
-                )
-            }
+            initDialog(
+                state = DeleteCustomListUiState(name = name, deleteError = null),
+                onDelete = mockedOnDelete,
+            )
 
             // Act
             onNodeWithText(DELETE_BUTTON_TEXT).performClick()
@@ -66,12 +72,10 @@ class DeleteCustomListConfirmationDialogTest {
             // Arrange
             val name = CustomListName.fromString("List should be deleted")
             val mockedOnBack: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                DeleteCustomListConfirmationDialog(
-                    state = DeleteCustomListUiState(name = name, deleteError = null),
-                    onBack = mockedOnBack,
-                )
-            }
+            initDialog(
+                state = DeleteCustomListUiState(name = name, deleteError = null),
+                onBack = mockedOnBack,
+            )
 
             // Act
             onNodeWithText(CANCEL_BUTTON_TEXT).performClick()

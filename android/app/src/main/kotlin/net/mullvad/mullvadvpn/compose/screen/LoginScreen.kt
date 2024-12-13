@@ -95,7 +95,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewLoginScreen(
     @PreviewParameter(LoginUiStatePreviewParameterProvider::class) state: LoginUiState
 ) {
-    AppTheme { LoginScreen(state = state) }
+    AppTheme { LoginScreen(state = state, SnackbarHostState(), {}, {}, {}, {}, {}) }
 }
 
 private const val TOP_SPACER_WEIGHT = 1f
@@ -172,11 +172,11 @@ fun Login(
 private fun LoginScreen(
     state: LoginUiState,
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onLoginClick: (String) -> Unit = {},
-    onCreateAccountClick: () -> Unit = {},
-    onDeleteHistoryClick: () -> Unit = {},
-    onAccountNumberChange: (String) -> Unit = {},
-    onSettingsClick: () -> Unit = {},
+    onLoginClick: (String) -> Unit,
+    onCreateAccountClick: () -> Unit,
+    onDeleteHistoryClick: () -> Unit,
+    onAccountNumberChange: (String) -> Unit,
+    onSettingsClick: () -> Unit,
 ) {
     ScaffoldWithTopBar(
         snackbarHostState = snackbarHostState,

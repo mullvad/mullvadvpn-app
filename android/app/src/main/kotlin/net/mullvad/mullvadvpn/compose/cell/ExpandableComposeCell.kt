@@ -53,7 +53,7 @@ fun ExpandableComposeCell(
     testTag: String = "",
     textColor: Color = MaterialTheme.colorScheme.onPrimary,
     background: Color = MaterialTheme.colorScheme.primary,
-    onCellClicked: (Boolean) -> Unit = {},
+    onCellClicked: (Boolean) -> Unit,
     onInfoClicked: (() -> Unit)? = null,
 ) {
     val titleModifier = Modifier.alpha(if (isEnabled) AlphaVisible else AlphaInactive)

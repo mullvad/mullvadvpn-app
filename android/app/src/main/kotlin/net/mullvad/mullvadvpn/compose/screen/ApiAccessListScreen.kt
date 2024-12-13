@@ -51,7 +51,7 @@ private fun PreviewApiAccessList(
     @PreviewParameter(ApiAccessListUiStatePreviewParameterProvider::class)
     state: ApiAccessListUiState
 ) {
-    AppTheme { ApiAccessListScreen(state = state) }
+    AppTheme { ApiAccessListScreen(state = state, {}, { _ -> }, {}, {}) }
 }
 
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -78,10 +78,10 @@ fun ApiAccessList(navigator: DestinationsNavigator) {
 @Composable
 fun ApiAccessListScreen(
     state: ApiAccessListUiState,
-    onAddMethodClick: () -> Unit = {},
-    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit = {},
-    onApiAccessInfoClick: () -> Unit = {},
-    onBackClick: () -> Unit = {},
+    onAddMethodClick: () -> Unit,
+    onApiAccessMethodClick: (apiAccessMethodSetting: ApiAccessMethodSetting) -> Unit,
+    onApiAccessInfoClick: () -> Unit,
+    onBackClick: () -> Unit,
 ) {
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.settings_api_access),

@@ -48,12 +48,16 @@ private fun PreviewTunnelingCell() {
                 packageName = "",
                 isSelected = false,
                 enabled = true,
+                onCellClicked = {},
+                onResolveIcon = { null },
             )
             SplitTunnelingCell(
                 title = "Mullvad VPN",
                 packageName = "",
                 isSelected = true,
                 enabled = true,
+                onCellClicked = {},
+                onResolveIcon = { null },
             )
         }
     }
@@ -67,8 +71,8 @@ fun SplitTunnelingCell(
     enabled: Boolean,
     modifier: Modifier = Modifier,
     backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainerHigh,
-    onResolveIcon: (String) -> Bitmap? = { null },
-    onCellClicked: () -> Unit = {},
+    onResolveIcon: (String) -> Bitmap?,
+    onCellClicked: () -> Unit,
 ) {
     var icon by remember(packageName) { mutableStateOf<ImageBitmap?>(null) }
     LaunchedEffect(packageName) {

@@ -1,9 +1,11 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
@@ -31,20 +33,36 @@ class OutOfTimeScreenTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initScreen(
+        state: OutOfTimeUiState = OutOfTimeUiState(),
+        onDisconnectClick: () -> Unit = {},
+        onSitePaymentClick: () -> Unit = {},
+        onRedeemVoucherClick: () -> Unit = {},
+        onSettingsClick: () -> Unit = {},
+        onAccountClick: () -> Unit = {},
+        onPurchaseBillingProductClick: (ProductId) -> Unit = {},
+        navigateToVerificationPendingDialog: () -> Unit = {},
+    ) {
+
+        setContentWithTheme {
+            OutOfTimeScreen(
+                state = state,
+                onDisconnectClick = onDisconnectClick,
+                onSitePaymentClick = onSitePaymentClick,
+                onRedeemVoucherClick = onRedeemVoucherClick,
+                onSettingsClick = onSettingsClick,
+                onAccountClick = onAccountClick,
+                onPurchaseBillingProductClick = onPurchaseBillingProductClick,
+                navigateToVerificationPendingDialog = navigateToVerificationPendingDialog,
+            )
+        }
+    }
+
     @Test
     fun testDisableSitePayment() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state = OutOfTimeUiState(deviceName = ""),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(state = OutOfTimeUiState(deviceName = ""))
 
             // Assert
             onNodeWithText(
@@ -58,20 +76,18 @@ class OutOfTimeScreenTest {
     @Test
     fun testOpenAccountView() =
         composeExtension.use {
+            val mockClickListener: () -> Unit = mockk(relaxed = true)
+
             // Arrange
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+                onAccountClick = mockClickListener,
+            )
+
+            onNodeWithContentDescription(label = "Account").performClick()
 
             // Assert
-            onNodeWithText("Congrats!").assertDoesNotExist()
+            verify(exactly = 1) { mockClickListener.invoke() }
         }
 
     @Test
@@ -79,16 +95,10 @@ class OutOfTimeScreenTest {
         composeExtension.use {
             // Arrange
             val mockClickListener: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
-                    onSitePaymentClick = mockClickListener,
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+                onSitePaymentClick = mockClickListener,
+            )
 
             // Act
             onNodeWithText("Buy credit").performClick()
@@ -102,16 +112,10 @@ class OutOfTimeScreenTest {
         composeExtension.use {
             // Arrange
             val mockClickListener: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = mockClickListener,
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onDisconnectClick = {},
-                )
-            }
+            initScreen(
+                state = OutOfTimeUiState(deviceName = "", showSitePayment = true),
+                onRedeemVoucherClick = mockClickListener,
+            )
 
             // Act
             onNodeWithText("Redeem voucher").performClick()
@@ -125,21 +129,15 @@ class OutOfTimeScreenTest {
         composeExtension.use {
             // Arrange
             val mockClickListener: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state =
-                        OutOfTimeUiState(
-                            tunnelState = TunnelState.Connecting(null, null, emptyList()),
-                            deviceName = "",
-                            showSitePayment = true,
-                        ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onDisconnectClick = mockClickListener,
-                )
-            }
+            initScreen(
+                state =
+                    OutOfTimeUiState(
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        deviceName = "",
+                        showSitePayment = true,
+                    ),
+                onDisconnectClick = mockClickListener,
+            )
 
             // Act
             onNodeWithText("Disconnect").performClick()
@@ -152,20 +150,13 @@ class OutOfTimeScreenTest {
     fun testShowBillingErrorPaymentButton() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state =
-                        OutOfTimeUiState(
-                            showSitePayment = true,
-                            billingPaymentState = PaymentState.Error.Billing,
-                        ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                )
-            }
+            initScreen(
+                state =
+                    OutOfTimeUiState(
+                        showSitePayment = true,
+                        billingPaymentState = PaymentState.Error.Billing,
+                    )
+            )
 
             // Assert
             onNodeWithText("Add 30 days time").assertExists()
@@ -178,21 +169,14 @@ class OutOfTimeScreenTest {
             val mockPaymentProduct: PaymentProduct = mockk()
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns null
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state =
-                        OutOfTimeUiState(
-                            showSitePayment = true,
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                        ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = { _ -> },
-                )
-            }
+            initScreen(
+                state =
+                    OutOfTimeUiState(
+                        showSitePayment = true,
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                    )
+            )
 
             // Assert
             onNodeWithText("Add 30 days time ($10)").assertExists()
@@ -205,16 +189,14 @@ class OutOfTimeScreenTest {
             val mockPaymentProduct: PaymentProduct = mockk()
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state =
-                        OutOfTimeUiState(
-                            showSitePayment = true,
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    OutOfTimeUiState(
+                        showSitePayment = true,
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                    )
+            )
 
             // Assert
             onNodeWithText("Google Play payment pending").assertExists()
@@ -228,17 +210,15 @@ class OutOfTimeScreenTest {
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns PaymentStatus.PENDING
             val mockNavigateToVerificationPending: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state =
-                        OutOfTimeUiState(
-                            showSitePayment = true,
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                        ),
-                    navigateToVerificationPendingDialog = mockNavigateToVerificationPending,
-                )
-            }
+            initScreen(
+                state =
+                    OutOfTimeUiState(
+                        showSitePayment = true,
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                    ),
+                navigateToVerificationPendingDialog = mockNavigateToVerificationPending,
+            )
 
             // Act
             onNodeWithTag(PLAY_PAYMENT_INFO_ICON_TEST_TAG).performClick()
@@ -255,16 +235,14 @@ class OutOfTimeScreenTest {
             val mockPaymentProduct: PaymentProduct = mockk()
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.status } returns PaymentStatus.VERIFICATION_IN_PROGRESS
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state =
-                        OutOfTimeUiState(
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                            showSitePayment = true,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    OutOfTimeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                        showSitePayment = true,
+                    )
+            )
 
             // Assert
             onNodeWithText("Verifying purchase").assertExists()
@@ -279,21 +257,15 @@ class OutOfTimeScreenTest {
             every { mockPaymentProduct.price } returns ProductPrice("$10")
             every { mockPaymentProduct.productId } returns ProductId("PRODUCT_ID")
             every { mockPaymentProduct.status } returns null
-            setContentWithTheme {
-                OutOfTimeScreen(
-                    state =
-                        OutOfTimeUiState(
-                            billingPaymentState =
-                                PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
-                            showSitePayment = true,
-                        ),
-                    onSitePaymentClick = {},
-                    onRedeemVoucherClick = {},
-                    onSettingsClick = {},
-                    onAccountClick = {},
-                    onPurchaseBillingProductClick = clickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    OutOfTimeUiState(
+                        billingPaymentState =
+                            PaymentState.PaymentAvailable(listOf(mockPaymentProduct)),
+                        showSitePayment = true,
+                    ),
+                onPurchaseBillingProductClick = clickHandler,
+            )
 
             // Act
             onNodeWithText("Add 30 days time ($10)").performClick()

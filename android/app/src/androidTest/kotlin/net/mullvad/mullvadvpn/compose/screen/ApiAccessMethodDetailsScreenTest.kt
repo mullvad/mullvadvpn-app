@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.mockk
 import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
@@ -23,22 +24,44 @@ import org.junit.jupiter.api.extension.RegisterExtension
 class ApiAccessMethodDetailsScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
+    private fun ComposeContext.initScreen(
+        state: ApiAccessMethodDetailsUiState,
+        onEditMethodClicked: () -> Unit = {},
+        onEnableClicked: (Boolean) -> Unit = {},
+        onTestMethodClicked: () -> Unit = {},
+        onUseMethodClicked: () -> Unit = {},
+        onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit = {},
+        onNavigateToEncryptedDnsInfoDialog: () -> Unit = {},
+        onBackClicked: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            ApiAccessMethodDetailsScreen(
+                state = state,
+                onEditMethodClicked = onEditMethodClicked,
+                onEnableClicked = onEnableClicked,
+                onTestMethodClicked = onTestMethodClicked,
+                onUseMethodClicked = onUseMethodClicked,
+                onDeleteApiAccessMethodClicked = onDeleteApiAccessMethodClicked,
+                onNavigateToEncryptedDnsInfoDialog = onNavigateToEncryptedDnsInfoDialog,
+                onBackClicked = onBackClicked,
+            )
+        }
+    }
+
     @Test
     fun whenApiAccessMethodIsNotEditableShouldNotShowDeleteAndEdit() =
         composeExtension.use {
             // Arrange
             val apiAccessMethod = DIRECT_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessMethodDetailsScreen(
-                    state =
-                        ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodSetting = apiAccessMethod,
-                            isDisableable = true,
-                            isCurrentMethod = true,
-                            isTestingAccessMethod = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodSetting = apiAccessMethod,
+                        isDisableable = true,
+                        isCurrentMethod = true,
+                        isTestingAccessMethod = false,
+                    )
+            )
 
             // Assert
             onNodeWithTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).assertDoesNotExist()
@@ -51,18 +74,16 @@ class ApiAccessMethodDetailsScreenTest {
             // Arrange
             val onEnableClicked: (Boolean) -> Unit = mockk(relaxed = true)
             val apiAccessMethod = DIRECT_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessMethodDetailsScreen(
-                    state =
-                        ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodSetting = apiAccessMethod,
-                            isDisableable = false,
-                            isCurrentMethod = true,
-                            isTestingAccessMethod = false,
-                        ),
-                    onEnableClicked = onEnableClicked,
-                )
-            }
+            initScreen(
+                state =
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodSetting = apiAccessMethod,
+                        isDisableable = false,
+                        isCurrentMethod = true,
+                        isTestingAccessMethod = false,
+                    ),
+                onEnableClicked = onEnableClicked,
+            )
 
             // Act
             onNodeWithText("Enable method").performClick()
@@ -78,18 +99,16 @@ class ApiAccessMethodDetailsScreenTest {
             // Arrange
             val onDeleteApiAccessMethodClicked: (ApiAccessMethodId) -> Unit = mockk(relaxed = true)
             val apiAccessMethod = CUSTOM_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessMethodDetailsScreen(
-                    state =
-                        ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodSetting = apiAccessMethod,
-                            isDisableable = false,
-                            isCurrentMethod = true,
-                            isTestingAccessMethod = false,
-                        ),
-                    onDeleteApiAccessMethodClicked = onDeleteApiAccessMethodClicked,
-                )
-            }
+            initScreen(
+                state =
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodSetting = apiAccessMethod,
+                        isDisableable = false,
+                        isCurrentMethod = true,
+                        isTestingAccessMethod = false,
+                    ),
+                onDeleteApiAccessMethodClicked = onDeleteApiAccessMethodClicked,
+            )
 
             // Act
             onNodeWithTag(API_ACCESS_DETAILS_TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).performClick()
@@ -105,18 +124,16 @@ class ApiAccessMethodDetailsScreenTest {
             // Arrange
             val onEditMethodClicked: () -> Unit = mockk(relaxed = true)
             val apiAccessMethod = CUSTOM_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessMethodDetailsScreen(
-                    state =
-                        ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodSetting = apiAccessMethod,
-                            isDisableable = false,
-                            isCurrentMethod = true,
-                            isTestingAccessMethod = false,
-                        ),
-                    onEditMethodClicked = onEditMethodClicked,
-                )
-            }
+            initScreen(
+                state =
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodSetting = apiAccessMethod,
+                        isDisableable = false,
+                        isCurrentMethod = true,
+                        isTestingAccessMethod = false,
+                    ),
+                onEditMethodClicked = onEditMethodClicked,
+            )
 
             // Act
             onNodeWithTag(API_ACCESS_DETAILS_EDIT_BUTTON).performClick()
@@ -131,18 +148,16 @@ class ApiAccessMethodDetailsScreenTest {
             // Arrange
             val onEnableClicked: (Boolean) -> Unit = mockk(relaxed = true)
             val apiAccessMethod = DIRECT_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessMethodDetailsScreen(
-                    state =
-                        ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodSetting = apiAccessMethod,
-                            isDisableable = true,
-                            isCurrentMethod = true,
-                            isTestingAccessMethod = false,
-                        ),
-                    onEnableClicked = onEnableClicked,
-                )
-            }
+            initScreen(
+                state =
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodSetting = apiAccessMethod,
+                        isDisableable = true,
+                        isCurrentMethod = true,
+                        isTestingAccessMethod = false,
+                    ),
+                onEnableClicked = onEnableClicked,
+            )
 
             // Act
             onNodeWithText("Enable method").performClick()
@@ -157,18 +172,16 @@ class ApiAccessMethodDetailsScreenTest {
             // Arrange
             val onTestMethodClicked: () -> Unit = mockk(relaxed = true)
             val apiAccessMethod = DIRECT_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessMethodDetailsScreen(
-                    state =
-                        ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodSetting = apiAccessMethod,
-                            isDisableable = true,
-                            isCurrentMethod = true,
-                            isTestingAccessMethod = false,
-                        ),
-                    onTestMethodClicked = onTestMethodClicked,
-                )
-            }
+            initScreen(
+                state =
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodSetting = apiAccessMethod,
+                        isDisableable = true,
+                        isCurrentMethod = true,
+                        isTestingAccessMethod = false,
+                    ),
+                onTestMethodClicked = onTestMethodClicked,
+            )
 
             // Act
             onNodeWithTag(API_ACCESS_TEST_METHOD_BUTTON).performClick()
@@ -183,18 +196,16 @@ class ApiAccessMethodDetailsScreenTest {
             // Arrange
             val onUseMethodClicked: () -> Unit = mockk(relaxed = true)
             val apiAccessMethod = DIRECT_ACCESS_METHOD
-            setContentWithTheme {
-                ApiAccessMethodDetailsScreen(
-                    state =
-                        ApiAccessMethodDetailsUiState.Content(
-                            apiAccessMethodSetting = apiAccessMethod,
-                            isDisableable = true,
-                            isCurrentMethod = false,
-                            isTestingAccessMethod = false,
-                        ),
-                    onUseMethodClicked = onUseMethodClicked,
-                )
-            }
+            initScreen(
+                state =
+                    ApiAccessMethodDetailsUiState.Content(
+                        apiAccessMethodSetting = apiAccessMethod,
+                        isDisableable = true,
+                        isCurrentMethod = false,
+                        isTestingAccessMethod = false,
+                    ),
+                onUseMethodClicked = onUseMethodClicked,
+            )
 
             // Act
             onNodeWithTag(API_ACCESS_USE_METHOD_BUTTON).performClick()

@@ -64,6 +64,8 @@ private fun PreviewFilterScreen(
             onSelectedOwnership = {},
             onSelectedProvider = { _, _ -> },
             onAllProviderCheckChange = {},
+            onBackClick = {},
+            onApplyClick = {},
         )
     }
 }
@@ -92,11 +94,11 @@ fun Filter(navigator: DestinationsNavigator) {
 @Composable
 fun FilterScreen(
     state: RelayFilterUiState,
-    onBackClick: () -> Unit = {},
-    onApplyClick: () -> Unit = {},
-    onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
-    onAllProviderCheckChange: (isChecked: Boolean) -> Unit = {},
-    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit = { _, _ -> },
+    onBackClick: () -> Unit,
+    onApplyClick: () -> Unit,
+    onSelectedOwnership: (ownership: Ownership?) -> Unit,
+    onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
+    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit,
 ) {
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var ownershipExpanded by rememberSaveable { mutableStateOf(false) }

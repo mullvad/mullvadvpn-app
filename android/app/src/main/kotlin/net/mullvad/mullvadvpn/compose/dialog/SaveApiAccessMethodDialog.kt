@@ -42,7 +42,7 @@ private fun PreviewSaveApiAccessMethodDialog(
     @PreviewParameter(SaveApiAccessMethodUiStatePreviewParameterProvider::class)
     state: SaveApiAccessMethodUiState
 ) {
-    AppTheme { SaveApiAccessMethodDialog(state = state) }
+    AppTheme { SaveApiAccessMethodDialog(state = state, {}, {}) }
 }
 
 data class SaveApiAccessMethodNavArgs(
@@ -79,8 +79,8 @@ fun SaveApiAccessMethod(backNavigator: ResultBackNavigator<Boolean>) {
 @Composable
 fun SaveApiAccessMethodDialog(
     state: SaveApiAccessMethodUiState,
-    onCancel: () -> Unit = {},
-    onSave: () -> Unit = {},
+    onCancel: () -> Unit,
+    onSave: () -> Unit,
 ) {
     AlertDialog(
         icon = {

@@ -1,7 +1,5 @@
 package net.mullvad.mullvadvpn.compose.dialog
 
-import android.annotation.SuppressLint
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -13,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -36,30 +35,30 @@ class CustomPortDialogTest {
         MockKAnnotations.init(this)
     }
 
-    @SuppressLint("ComposableNaming")
-    @Composable
-    private fun testWireguardCustomPortDialog(
+    private fun ComposeContext.initDialog(
         title: String = "",
         portInput: String = "",
         isValidInput: Boolean = false,
-        showResetToDefault: Boolean = false,
         allowedPortRanges: List<PortRange> = emptyList(),
+        showResetToDefault: Boolean = false,
         onInputChanged: (String) -> Unit = { _ -> },
         onSavePort: (String) -> Unit = { _ -> },
         onResetPort: () -> Unit = {},
         onDismiss: () -> Unit = {},
     ) {
-        CustomPortDialog(
-            title = title,
-            portInput = portInput,
-            isValidInput = isValidInput,
-            showResetToDefault = showResetToDefault,
-            allowedPortRanges = allowedPortRanges,
-            onInputChanged = onInputChanged,
-            onSavePort = onSavePort,
-            onDismiss = onDismiss,
-            onResetPort = onResetPort,
-        )
+        setContentWithTheme {
+            CustomPortDialog(
+                title = title,
+                portInput = portInput,
+                isValidInput = isValidInput,
+                allowedPortRanges = allowedPortRanges,
+                showResetToDefault = showResetToDefault,
+                onInputChanged = onInputChanged,
+                onSavePort = onSavePort,
+                onDismiss = onDismiss,
+                onResetPort = onResetPort,
+            )
+        }
     }
 
     @Test
@@ -71,7 +70,17 @@ class CustomPortDialogTest {
             // Arrange
             setContentWithTheme {
                 var input by remember { mutableStateOf("") }
-                testWireguardCustomPortDialog(portInput = input, onInputChanged = { input = it })
+                CustomPortDialog(
+                    title = "",
+                    portInput = input,
+                    isValidInput = false,
+                    allowedPortRanges = emptyList(),
+                    showResetToDefault = false,
+                    onInputChanged = { input = it },
+                    onSavePort = {},
+                    onDismiss = {},
+                    onResetPort = {},
+                )
             }
 
             // Act
@@ -86,7 +95,7 @@ class CustomPortDialogTest {
     fun testEmptyInputResultsInSetPortButtonBeingDisabled() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { testWireguardCustomPortDialog(isValidInput = false) }
+            initDialog(isValidInput = false)
 
             // Assert
             onNodeWithText("Set port").assertIsNotEnabled()
@@ -96,9 +105,7 @@ class CustomPortDialogTest {
     fun testValidInputResultsInSetPortButtonBeingEnabled() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                testWireguardCustomPortDialog(portInput = VALID_CUSTOM_PORT, isValidInput = true)
-            }
+            initDialog(portInput = VALID_CUSTOM_PORT, isValidInput = true)
 
             // Assert
             onNodeWithText("Set port").assertIsEnabled()
@@ -109,9 +116,7 @@ class CustomPortDialogTest {
     fun testInvalidInputResultsInSetPortButtonBeingDisabled() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                testWireguardCustomPortDialog(portInput = INVALID_CUSTOM_PORT, isValidInput = false)
-            }
+            initDialog(portInput = INVALID_CUSTOM_PORT, isValidInput = false)
 
             // Assert
             onNodeWithText("Set port").assertIsNotEnabled()
@@ -122,13 +127,11 @@ class CustomPortDialogTest {
         composeExtension.use {
             // Arrange
             val mockedSubmitHandler: (String) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                testWireguardCustomPortDialog(
-                    portInput = VALID_CUSTOM_PORT,
-                    isValidInput = true,
-                    onSavePort = mockedSubmitHandler,
-                )
-            }
+            initDialog(
+                portInput = VALID_CUSTOM_PORT,
+                isValidInput = true,
+                onSavePort = mockedSubmitHandler,
+            )
 
             // Act
             onNodeWithText("Set port").assertIsEnabled().performClick()
@@ -142,14 +145,12 @@ class CustomPortDialogTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                testWireguardCustomPortDialog(
-                    portInput = VALID_CUSTOM_PORT,
-                    isValidInput = true,
-                    showResetToDefault = true,
-                    onResetPort = mockedClickHandler,
-                )
-            }
+            initDialog(
+                portInput = VALID_CUSTOM_PORT,
+                isValidInput = true,
+                showResetToDefault = true,
+                onResetPort = mockedClickHandler,
+            )
 
             // Act
             onNodeWithText("Remove custom port").performClick()
@@ -163,7 +164,7 @@ class CustomPortDialogTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            setContentWithTheme { testWireguardCustomPortDialog(onDismiss = mockedClickHandler) }
+            initDialog(onDismiss = mockedClickHandler)
 
             // Assert
             onNodeWithText("Cancel").performClick()

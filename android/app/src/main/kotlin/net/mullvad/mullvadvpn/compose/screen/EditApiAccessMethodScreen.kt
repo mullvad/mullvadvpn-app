@@ -79,7 +79,23 @@ private fun PreviewEditApiAccessMethodScreen(
     @PreviewParameter(EditApiAccessMethodUiStatePreviewParameterProvider::class)
     state: EditApiAccessMethodUiState
 ) {
-    AppTheme { EditApiAccessMethodScreen(state = state) }
+    AppTheme {
+        EditApiAccessMethodScreen(
+            state = state,
+            SnackbarHostState(),
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+        )
+    }
 }
 
 data class EditApiAccessMethodNavArgs(val accessMethodId: ApiAccessMethodId?)
@@ -192,17 +208,17 @@ fun EditApiAccessMethod(
 fun EditApiAccessMethodScreen(
     state: EditApiAccessMethodUiState,
     snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onNameChanged: (String) -> Unit = {},
-    onTypeSelected: (ApiAccessMethodTypes) -> Unit = {},
-    onIpChanged: (String) -> Unit = {},
-    onPortChanged: (String) -> Unit = {},
-    onPasswordChanged: (String) -> Unit = {},
-    onCipherChange: (Cipher) -> Unit = {},
-    onToggleAuthenticationEnabled: (Boolean) -> Unit = {},
-    onUsernameChanged: (String) -> Unit = {},
-    onTestMethod: () -> Unit = {},
-    onAddMethod: () -> Unit = {},
-    onNavigateBack: () -> Unit = {},
+    onNameChanged: (String) -> Unit,
+    onTypeSelected: (ApiAccessMethodTypes) -> Unit,
+    onIpChanged: (String) -> Unit,
+    onPortChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onCipherChange: (Cipher) -> Unit,
+    onToggleAuthenticationEnabled: (Boolean) -> Unit,
+    onUsernameChanged: (String) -> Unit,
+    onTestMethod: () -> Unit,
+    onAddMethod: () -> Unit,
+    onNavigateBack: () -> Unit,
 ) {
     ScaffoldWithSmallTopBar(
         snackbarHostState = snackbarHostState,
