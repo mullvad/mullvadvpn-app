@@ -30,7 +30,12 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 @Composable
 private fun PreviewDeleteConfirmationDialog() {
     AppTheme {
-        NegativeConfirmationDialog(message = "Do you want to delete Cookie?", errorMessage = null)
+        NegativeConfirmationDialog(
+            message = "Do you want to delete Cookie?",
+            errorMessage = null,
+            onConfirm = {},
+            onBack = {},
+        )
     }
 }
 
@@ -41,6 +46,8 @@ private fun PreviewDeleteConfirmationDialogError() {
         NegativeConfirmationDialog(
             message = "Do you want to delete Cookie?",
             errorMessage = "An error occured",
+            onConfirm = {},
+            onBack = {},
         )
     }
 }
@@ -52,8 +59,8 @@ fun NegativeConfirmationDialog(
     errorMessage: String? = null,
     confirmationText: String = stringResource(id = R.string.delete),
     cancelText: String = stringResource(id = R.string.cancel),
-    onConfirm: () -> Unit = {},
-    onBack: () -> Unit = {},
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
 ) {
     NegativeConfirmationDialog(
         message = AnnotatedString(message),
@@ -73,8 +80,8 @@ fun NegativeConfirmationDialog(
     errorMessage: String? = null,
     confirmationText: String = stringResource(id = R.string.delete),
     cancelText: String = stringResource(id = R.string.cancel),
-    onConfirm: () -> Unit = {},
-    onBack: () -> Unit = {},
+    onConfirm: () -> Unit,
+    onBack: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onBack,

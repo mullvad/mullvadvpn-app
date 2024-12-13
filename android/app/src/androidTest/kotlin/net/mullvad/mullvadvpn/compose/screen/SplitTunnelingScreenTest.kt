@@ -1,8 +1,10 @@
 package net.mullvad.mullvadvpn.compose.screen
 
+import android.graphics.Bitmap
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.unmockkAll
@@ -30,13 +32,33 @@ class SplitTunnelingScreenTest {
         unmockkAll()
     }
 
+    private fun ComposeContext.initScreen(
+        state: SplitTunnelingUiState,
+        onEnableSplitTunneling: (Boolean) -> Unit = {},
+        onShowSystemAppsClick: (show: Boolean) -> Unit = {},
+        onExcludeAppClick: (packageName: String) -> Unit = {},
+        onIncludeAppClick: (packageName: String) -> Unit = {},
+        onBackClick: () -> Unit = {},
+        onResolveIcon: (String) -> Bitmap? = { null },
+    ) {
+        setContentWithTheme {
+            SplitTunnelingScreen(
+                state = state,
+                onEnableSplitTunneling = onEnableSplitTunneling,
+                onShowSystemAppsClick = onShowSystemAppsClick,
+                onExcludeAppClick = onExcludeAppClick,
+                onIncludeAppClick = onIncludeAppClick,
+                onBackClick = onBackClick,
+                onResolveIcon = onResolveIcon,
+            )
+        }
+    }
+
     @Test
     fun testLoadingState() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme {
-                SplitTunnelingScreen(state = SplitTunnelingUiState.Loading(enabled = true))
-            }
+            initScreen(state = SplitTunnelingUiState.Loading(enabled = true))
 
             // Assert
             onNodeWithText(TITLE).assertExists()
@@ -62,17 +84,15 @@ class SplitTunnelingScreenTest {
                     iconRes = 0,
                     name = INCLUDED_APP_NAME,
                 )
-            setContentWithTheme {
-                SplitTunnelingScreen(
-                    state =
-                        SplitTunnelingUiState.ShowAppList(
-                            enabled = true,
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    SplitTunnelingUiState.ShowAppList(
+                        enabled = true,
+                        excludedApps = listOf(excludedApp),
+                        includedApps = listOf(includedApp),
+                        showSystemApps = false,
+                    )
+            )
 
             // Assert
             onNodeWithText(TITLE).assertExists()
@@ -94,17 +114,15 @@ class SplitTunnelingScreenTest {
                     iconRes = 0,
                     name = INCLUDED_APP_NAME,
                 )
-            setContentWithTheme {
-                SplitTunnelingScreen(
-                    state =
-                        SplitTunnelingUiState.ShowAppList(
-                            enabled = true,
-                            excludedApps = emptyList(),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    SplitTunnelingUiState.ShowAppList(
+                        enabled = true,
+                        excludedApps = emptyList(),
+                        includedApps = listOf(includedApp),
+                        showSystemApps = false,
+                    )
+            )
 
             // Assert
             onNodeWithText(TITLE).assertExists()
@@ -133,18 +151,16 @@ class SplitTunnelingScreenTest {
                     name = INCLUDED_APP_NAME,
                 )
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                SplitTunnelingScreen(
-                    state =
-                        SplitTunnelingUiState.ShowAppList(
-                            enabled = true,
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false,
-                        ),
-                    onExcludeAppClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    SplitTunnelingUiState.ShowAppList(
+                        enabled = true,
+                        excludedApps = listOf(excludedApp),
+                        includedApps = listOf(includedApp),
+                        showSystemApps = false,
+                    ),
+                onExcludeAppClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithText(INCLUDED_APP_NAME).performClick()
@@ -170,18 +186,16 @@ class SplitTunnelingScreenTest {
                     name = INCLUDED_APP_NAME,
                 )
             val mockedClickHandler: (String) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                SplitTunnelingScreen(
-                    state =
-                        SplitTunnelingUiState.ShowAppList(
-                            enabled = true,
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false,
-                        ),
-                    onIncludeAppClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    SplitTunnelingUiState.ShowAppList(
+                        enabled = true,
+                        excludedApps = listOf(excludedApp),
+                        includedApps = listOf(includedApp),
+                        showSystemApps = false,
+                    ),
+                onIncludeAppClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithText(EXCLUDED_APP_NAME).performClick()
@@ -207,18 +221,16 @@ class SplitTunnelingScreenTest {
                     name = INCLUDED_APP_NAME,
                 )
             val mockedClickHandler: (Boolean) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                SplitTunnelingScreen(
-                    state =
-                        SplitTunnelingUiState.ShowAppList(
-                            enabled = true,
-                            excludedApps = listOf(excludedApp),
-                            includedApps = listOf(includedApp),
-                            showSystemApps = false,
-                        ),
-                    onShowSystemAppsClick = mockedClickHandler,
-                )
-            }
+            initScreen(
+                state =
+                    SplitTunnelingUiState.ShowAppList(
+                        enabled = true,
+                        excludedApps = listOf(excludedApp),
+                        includedApps = listOf(includedApp),
+                        showSystemApps = false,
+                    ),
+                onShowSystemAppsClick = mockedClickHandler,
+            )
 
             // Act
             onNodeWithText(SHOW_SYSTEM_APPS).performClick()

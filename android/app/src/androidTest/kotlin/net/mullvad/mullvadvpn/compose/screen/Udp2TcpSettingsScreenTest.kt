@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.coVerify
 import io.mockk.mockk
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
@@ -18,17 +19,31 @@ import org.junit.jupiter.api.extension.RegisterExtension
 class Udp2TcpSettingsScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
+    private fun ComposeContext.initScreen(
+        state: Udp2TcpSettingsState = Udp2TcpSettingsState(),
+        onObfuscationPortSelected: (Constraint<Port>) -> Unit = {},
+        navigateUdp2TcpInfo: () -> Unit = {},
+        onBackClick: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            Udp2TcpSettingsScreen(
+                state = state,
+                onObfuscationPortSelected = onObfuscationPortSelected,
+                navigateUdp2TcpInfo = navigateUdp2TcpInfo,
+                onBackClick = onBackClick,
+            )
+        }
+    }
+
     @Test
     fun testSelectTcpOverUdpPortOption() =
         composeExtension.use {
             // Arrange
             val onObfuscationPortSelected: (Constraint<Port>) -> Unit = mockk(relaxed = true)
-            setContentWithTheme {
-                Udp2TcpSettingsScreen(
-                    state = Udp2TcpSettingsState(port = Constraint.Any),
-                    onObfuscationPortSelected = onObfuscationPortSelected,
-                )
-            }
+            initScreen(
+                state = Udp2TcpSettingsState(port = Constraint.Any),
+                onObfuscationPortSelected = onObfuscationPortSelected,
+            )
 
             // Act
             onNodeWithTagAndText(

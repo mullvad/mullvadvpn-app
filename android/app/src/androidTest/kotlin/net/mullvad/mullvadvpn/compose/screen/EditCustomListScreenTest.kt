@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.mockk
 import io.mockk.verify
@@ -29,11 +30,29 @@ class EditCustomListScreenTest {
         MockKAnnotations.init(this)
     }
 
+    private fun ComposeContext.initScreen(
+        state: EditCustomListUiState = EditCustomListUiState.Loading,
+        onDeleteList: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
+        onNameClicked: (id: CustomListId, name: CustomListName) -> Unit = { _, _ -> },
+        onLocationsClicked: (CustomListId) -> Unit = {},
+        onBackClick: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            EditCustomListScreen(
+                state = state,
+                onDeleteList = onDeleteList,
+                onNameClicked = onNameClicked,
+                onLocationsClicked = onLocationsClicked,
+                onBackClick = onBackClick,
+            )
+        }
+    }
+
     @Test
     fun givenLoadingStateShouldShowLoadingSpinner() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { EditCustomListScreen(state = EditCustomListUiState.Loading) }
+            initScreen()
 
             // Assert
             onNodeWithTag(CIRCULAR_PROGRESS_INDICATOR).assertExists()
@@ -43,7 +62,7 @@ class EditCustomListScreenTest {
     fun givenNotFoundStateShouldShowNotFound() =
         composeExtension.use {
             // Arrange
-            setContentWithTheme { EditCustomListScreen(state = EditCustomListUiState.NotFound) }
+            initScreen(state = EditCustomListUiState.NotFound)
 
             // Assert
             onNodeWithText(NOT_FOUND_TEXT).assertExists()
@@ -54,16 +73,15 @@ class EditCustomListScreenTest {
         composeExtension.use {
             // Arrange
             val customList = DUMMY_CUSTOM_LISTS[0]
-            setContentWithTheme {
-                EditCustomListScreen(
-                    state =
-                        EditCustomListUiState.Content(
-                            id = customList.id,
-                            name = customList.name,
-                            locations = customList.locations,
-                        )
-                )
-            }
+
+            initScreen(
+                state =
+                    EditCustomListUiState.Content(
+                        id = customList.id,
+                        name = customList.name,
+                        locations = customList.locations,
+                    )
+            )
 
             // Assert
             onNodeWithText(customList.name.value)
@@ -74,16 +92,14 @@ class EditCustomListScreenTest {
         composeExtension.use {
             // Arrange
             val customList = DUMMY_CUSTOM_LISTS[0]
-            setContentWithTheme {
-                EditCustomListScreen(
-                    state =
-                        EditCustomListUiState.Content(
-                            id = customList.id,
-                            name = customList.name,
-                            locations = customList.locations,
-                        )
-                )
-            }
+            initScreen(
+                state =
+                    EditCustomListUiState.Content(
+                        id = customList.id,
+                        name = customList.name,
+                        locations = customList.locations,
+                    )
+            )
 
             // Assert
             onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size))
@@ -95,17 +111,15 @@ class EditCustomListScreenTest {
             // Arrange
             val mockedOnDelete: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
-            setContentWithTheme {
-                EditCustomListScreen(
-                    state =
-                        EditCustomListUiState.Content(
-                            id = customList.id,
-                            name = customList.name,
-                            locations = customList.locations,
-                        ),
-                    onDeleteList = mockedOnDelete,
-                )
-            }
+            initScreen(
+                state =
+                    EditCustomListUiState.Content(
+                        id = customList.id,
+                        name = customList.name,
+                        locations = customList.locations,
+                    ),
+                onDeleteList = mockedOnDelete,
+            )
 
             // Act
             onNodeWithTag(TOP_BAR_DROPDOWN_BUTTON_TEST_TAG).performClick()
@@ -121,17 +135,15 @@ class EditCustomListScreenTest {
             // Arrange
             val mockedOnNameClicked: (CustomListId, CustomListName) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
-            setContentWithTheme {
-                EditCustomListScreen(
-                    state =
-                        EditCustomListUiState.Content(
-                            id = customList.id,
-                            name = customList.name,
-                            locations = customList.locations,
-                        ),
-                    onNameClicked = mockedOnNameClicked,
-                )
-            }
+            initScreen(
+                state =
+                    EditCustomListUiState.Content(
+                        id = customList.id,
+                        name = customList.name,
+                        locations = customList.locations,
+                    ),
+                onNameClicked = mockedOnNameClicked,
+            )
 
             // Act
             onNodeWithText(customList.name.value).performClick()
@@ -146,17 +158,15 @@ class EditCustomListScreenTest {
             // Arrange
             val mockedOnLocationsClicked: (CustomListId) -> Unit = mockk(relaxed = true)
             val customList = DUMMY_CUSTOM_LISTS[0]
-            setContentWithTheme {
-                EditCustomListScreen(
-                    state =
-                        EditCustomListUiState.Content(
-                            id = customList.id,
-                            name = customList.name,
-                            locations = customList.locations,
-                        ),
-                    onLocationsClicked = mockedOnLocationsClicked,
-                )
-            }
+            initScreen(
+                state =
+                    EditCustomListUiState.Content(
+                        id = customList.id,
+                        name = customList.name,
+                        locations = customList.locations,
+                    ),
+                onLocationsClicked = mockedOnLocationsClicked,
+            )
 
             // Act
             onNodeWithText(LOCATIONS_TEXT.format(customList.locations.size)).performClick()

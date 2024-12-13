@@ -125,7 +125,22 @@ private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
 private fun PreviewAccountScreen(
     @PreviewParameter(ConnectUiStatePreviewParameterProvider::class) state: ConnectUiState
 ) {
-    AppTheme { ConnectScreen(state = state) }
+    AppTheme {
+        ConnectScreen(
+            state = state,
+            snackbarHostState = SnackbarHostState(),
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+            {},
+        )
+    }
 }
 
 @Destination<RootGraph>(style = HomeTransition::class)
@@ -228,17 +243,17 @@ fun Connect(
 @Composable
 fun ConnectScreen(
     state: ConnectUiState,
-    snackbarHostState: SnackbarHostState = SnackbarHostState(),
-    onDisconnectClick: () -> Unit = {},
-    onReconnectClick: () -> Unit = {},
-    onConnectClick: () -> Unit = {},
-    onCancelClick: () -> Unit = {},
-    onSwitchLocationClick: () -> Unit = {},
-    onOpenAppListing: () -> Unit = {},
-    onManageAccountClick: () -> Unit = {},
-    onSettingsClick: () -> Unit = {},
-    onAccountClick: () -> Unit = {},
-    onDismissNewDeviceClick: () -> Unit = {},
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    onDisconnectClick: () -> Unit,
+    onReconnectClick: () -> Unit,
+    onConnectClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onSwitchLocationClick: () -> Unit,
+    onOpenAppListing: () -> Unit,
+    onManageAccountClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onAccountClick: () -> Unit,
+    onDismissNewDeviceClick: () -> Unit,
 ) {
 
     ScaffoldWithTopBarAndDeviceName(
