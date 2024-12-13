@@ -22,12 +22,20 @@ class VpnSettingsPage internal constructor() : Page() {
         localNetworkSharingSwitch.click()
     }
 
-    fun scrollUntilWireguardObfuscationUdpOverTcpCell() {
+    fun scrollUntilWireGuardObfuscationUdpOverTcpCell() {
         scrollUntilCell(WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL_TEST_TAG)
     }
 
-    fun scrollUntilWireguardObfuscationOffCell() {
+    fun scrollUntilWireGuardObfuscationOffCell() {
         scrollUntilCell(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)
+    }
+
+    fun scrollUntilPostQuantumOffCell() {
+        scrollUntilCell(QUANTUM_RESISTANCE_OFF_CELL_TEST_TAG)
+    }
+
+    fun scrollUntilWireGuardObfuscationShadowsocksCell() {
+        scrollUntilCell(WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG)
     }
 
     fun clickWireguardObfuscationUdpOverTcpCell() {
@@ -36,8 +44,16 @@ class VpnSettingsPage internal constructor() : Page() {
             .click()
     }
 
-    fun clickWireguardObfuscationOffCell() {
+    fun clickWireGuardObfuscationOffCell() {
         uiDevice.findObjectWithTimeout(By.res(WIREGUARD_OBFUSCATION_OFF_CELL_TEST_TAG)).click()
+    }
+
+    fun clickPostQuantumOffCell() {
+        uiDevice.findObjectWithTimeout(By.res(QUANTUM_RESISTANCE_OFF_CELL_TEST_TAG)).click()
+    }
+
+    fun clickWireGuardObfuscationShadowsocksCell() {
+        uiDevice.findObjectWithTimeout(By.res(WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG)).click()
     }
 
     private fun scrollUntilCell(testTag: String) {
@@ -57,6 +73,10 @@ class VpnSettingsPage internal constructor() : Page() {
             "wireguard_obfuscation_off_cell_test_tag"
         const val WIREGUARD_CUSTOM_PORT_CELL_TEST_TAG =
             "lazy_list_wireguard_custom_port_text_test_tag"
+        const val WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL_TEST_TAG =
+            "wireguard_obfuscation_shadowsocks_cell_test_tag"
         const val SWITCH_TEST_TAG = "switch_test_tag"
+        const val QUANTUM_RESISTANCE_OFF_CELL_TEST_TAG = "lazy_list_quantum_item_off_test_tag"
+
     }
 }

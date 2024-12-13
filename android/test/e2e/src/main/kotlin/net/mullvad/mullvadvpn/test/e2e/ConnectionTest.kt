@@ -72,7 +72,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @ClearFirewallRules
     fun testWireGuardObfuscationAutomatic() = runBlocking {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-        enableLocalNetworkSharing()
+        app.enableLocalNetworkSharing()
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -109,7 +109,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     @ClearFirewallRules
     fun testWireGuardObfuscationOff() = runBlocking {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-        enableLocalNetworkSharing()
+        app.enableLocalNetworkSharing()
 
         on<ConnectPage> { clickSelectLocation() }
 
@@ -139,8 +139,8 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         on<SettingsPage> { clickVpnSettings() }
 
         on<VpnSettingsPage> {
-            scrollUntilWireguardObfuscationOffCell()
-            clickWireguardObfuscationOffCell()
+            scrollUntilWireGuardObfuscationOffCell()
+            clickWireGuardObfuscationOffCell()
         }
 
         device.pressBack()
@@ -162,7 +162,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     fun testUDPOverTCP() =
         runBlocking<Unit> {
             app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
-            enableLocalNetworkSharing()
+            app.enableLocalNetworkSharing()
 
             on<ConnectPage> { clickSelectLocation() }
 
@@ -192,7 +192,7 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             on<SettingsPage> { clickVpnSettings() }
 
             on<VpnSettingsPage> {
-                scrollUntilWireguardObfuscationUdpOverTcpCell()
+                scrollUntilWireGuardObfuscationUdpOverTcpCell()
                 clickWireguardObfuscationUdpOverTcpCell()
             }
 
@@ -205,17 +205,6 @@ class ConnectionTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
                 clickDisconnect()
             }
         }
-
-    private fun enableLocalNetworkSharing() {
-        on<TopBar> { clickSettings() }
-
-        on<SettingsPage> { clickVpnSettings() }
-
-        on<VpnSettingsPage> { clickLocalNetworkSharingSwitch() }
-
-        device.pressBack()
-        device.pressBack()
-    }
 
     companion object {
         const val VERY_FORGIVING_WIREGUARD_OFF_CONNECTION_TIMEOUT = 60000L

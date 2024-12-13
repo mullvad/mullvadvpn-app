@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -40,6 +41,7 @@ import net.mullvad.mullvadvpn.compose.cell.SwitchComposeSubtitleCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.state.DaitaUiState
+import net.mullvad.mullvadvpn.compose.test.DAITA_SCREEN_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
@@ -103,6 +105,7 @@ fun DaitaScreen(
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.daita),
         navigationIcon = { NavigateBackIconButton { onBackClick() } },
+        modifier = Modifier.testTag(DAITA_SCREEN_TEST_TAG)
     ) { modifier ->
         Column(modifier = modifier) {
             val pagerState = rememberPagerState(pageCount = { DaitaPages.entries.size })
