@@ -62,10 +62,6 @@ public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
         endCurrentNegotiation()
         let negotiator = negotiationProvider.init()
 
-        let gatewayAddress = LocalNetworkIPs.gatewayAddress.rawValue
-        let IPv4Gateway = IPv4Address(gatewayAddress)!
-        let endpoint = NWHostEndpoint(hostname: gatewayAddress, port: "\(CONFIG_SERVICE_PORT)")
-
         // This will become the new private key of the device
         let ephemeralSharedKey = PrivateKey()
 
@@ -79,7 +75,6 @@ public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
         )
 
         if !negotiator.startNegotiation(
-            gatewayIP: IPv4Gateway,
             devicePublicKey: privateKey.publicKey,
             presharedKey: ephemeralSharedKey,
             peerReceiver: packetTunnel,

@@ -14,7 +14,6 @@ import WireGuardKitTypes
 // swiftlint:disable function_parameter_count
 public protocol EphemeralPeerNegotiating {
     func startNegotiation(
-        gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
         peerReceiver: any TunnelProvider,
@@ -33,7 +32,6 @@ public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
     var cancelToken: OpaquePointer?
 
     public func startNegotiation(
-        gatewayIP: IPv4Address,
         devicePublicKey: PublicKey,
         presharedKey: PrivateKey,
         peerReceiver: any TunnelProvider,

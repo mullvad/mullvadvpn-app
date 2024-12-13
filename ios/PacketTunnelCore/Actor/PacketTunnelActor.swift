@@ -140,7 +140,7 @@ public actor PacketTunnelActor {
 
         case let .cacheActiveKey(lastKeyRotation):
             cacheActiveKey(lastKeyRotation: lastKeyRotation)
-        case var .reconfigureForEphemeralPeer(configuration, configurationSemaphore):
+        case let .reconfigureForEphemeralPeer(configuration, configurationSemaphore):
             do {
                 try await updateEphemeralPeerNegotiationState(configuration: configuration)
             } catch {
