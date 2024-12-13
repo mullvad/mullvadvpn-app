@@ -42,6 +42,7 @@ import net.mullvad.mullvadvpn.compose.extensions.createUriHook
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.preview.SettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.SettingsUiState
+import net.mullvad.mullvadvpn.compose.test.DAITA_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.VPN_SETTINGS_CELL_TEST_TAG
 import net.mullvad.mullvadvpn.compose.transitions.TopLevelTransition
@@ -241,6 +242,7 @@ private fun DaitaCell(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
                 }
             ),
         onCellClicked = onDaitaClick,
+        modifier = Modifier.testTag(DAITA_CELL_TEST_TAG),
     )
 }
 

@@ -19,7 +19,12 @@ class SettingsPage internal constructor() : Page() {
         uiDevice.findObjectWithTimeout(faqAndGuidesSelector).click()
     }
 
+    fun clickDaita() {
+        uiDevice.findObjectWithTimeout(By.res(DAITA_CELL_TEST_TAG)).click()
+    }
+
     companion object {
         const val VPN_SETTINGS_CELL_TEST_TAG = "vpn_settings_cell_test_tag"
+        const val DAITA_CELL_TEST_TAG = "data_cell_test_tag"
     }
 }

@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import net.mullvad.mullvadvpn.test.common.annotation.SkipForFlavors
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.MullvadWebsite
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.TopBar
@@ -13,7 +15,7 @@ class WebLinkTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     fun testOpenFaqFromApp() {
         app.launchAndEnsureOnLoginPage()
 
-        on<TopBar> { clickSettings() }
+        on<LoginPage> { clickSettings() }
 
         on<SettingsPage> { clickFaqAndGuides() }
 

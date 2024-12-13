@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.e2e
 
 import net.mullvad.mullvadvpn.test.common.page.AccountPage
+import net.mullvad.mullvadvpn.test.common.page.ConnectPage
 import net.mullvad.mullvadvpn.test.common.page.LoginPage
 import net.mullvad.mullvadvpn.test.common.page.TopBar
 import net.mullvad.mullvadvpn.test.common.page.on
@@ -17,7 +18,7 @@ class LogoutTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
         // Given
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
-        on<TopBar> { clickAccount() }
+        on<ConnectPage> { clickAccount() }
 
         on<AccountPage> { clickLogOut() }
 

@@ -5,6 +5,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import net.mullvad.mullvadvpn.test.common.page.ConnectPage
+import net.mullvad.mullvadvpn.test.common.page.DaitaSettingsPage
 import net.mullvad.mullvadvpn.test.common.page.SelectLocationPage
 import net.mullvad.mullvadvpn.test.common.page.SettingsPage
 import net.mullvad.mullvadvpn.test.common.page.SystemVpnConfigurationAlert
@@ -36,7 +37,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
     fun setupVPNSettings() {
         app.launchAndEnsureLoggedIn(accountTestRule.validAccountNumber)
 
-        on<TopBar> { clickSettings() }
+        on<ConnectPage> { clickSettings() }
 
         on<SettingsPage> { clickVpnSettings() }
 
@@ -159,4 +160,98 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             val leakRules = listOf(NoTrafficToHostRule(targetIpAddress))
             LeakCheck.assertLeaks(capturedStreams, leakRules)
         }
+
+    @Test
+    @HasDependencyOnLocalAPI
+    fun testLeakWhenVpnSettingsChange() = runBlocking<Unit> {
+        app.launch()
+        // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
+        disableObfuscation()
+        disablePostQuantum()
+
+        on<ConnectPage> { clickSelectLocation() }
+
+        on<SelectLocationPage> {
+            clickLocationExpandButton(DAITA_COMPATIBLE_COUNTRY)
+            clickLocationExpandButton(DAITA_COMPATIBLE_CITY)
+            clickLocationCell(DAITA_COMPATIBLE_RELAY)
+        }
+
+        on<SystemVpnConfigurationAlert> { clickOk() }
+
+        on<ConnectPage> { waitForConnectedLabel() }
+
+        // Capture generated traffic to a specific host
+        val targetIpAddress = BuildConfig.TRAFFIC_GENERATION_IP_ADDRESS
+        val targetPort = 80
+        val captureResult: PacketCaptureResult =
+            PacketCapture().capturePackets {
+                TrafficGenerator(targetIpAddress, targetPort).generateTraffic(10.milliseconds) {
+                    delay(
+                        1000.milliseconds
+                    ) // Give it some time for generating traffic in tunnel before changing settings
+
+                    enableDAITA()
+                    enableShadowsocks()
+
+                    on<ConnectPage> { waitForConnectedLabel() }
+
+                    delay(
+                        1000.milliseconds
+                    ) // Give it some time for generating traffic in tunnel after enabling settings
+                }
+            }
+
+        val capturedStreams = captureResult.streams
+        val capturedPcap = captureResult.pcap
+        val timestamp = System.currentTimeMillis()
+        Attachment.saveAttachment("capture-testLeakWhenVpnSettingsChange-$timestamp.pcap", capturedPcap)
+
+        val leakRules = listOf(NoTrafficToHostRule(targetIpAddress))
+        LeakCheck.assertLeaks(capturedStreams, leakRules)
+    }
+
+    private fun disableObfuscation() {
+        on<ConnectPage> { clickSettings() }
+        on<SettingsPage> { clickVpnSettings() }
+        on<VpnSettingsPage> {
+            scrollUntilWireGuardObfuscationUdpOverTcpCell()
+            clickWireGuardObfuscationOffCell()
+        }
+
+        device.pressBack()
+        device.pressBack()
+    }
+
+    private fun disablePostQuantum() {
+        on<ConnectPage> { clickSettings() }
+        on<SettingsPage> { clickVpnSettings() }
+        on<VpnSettingsPage> {
+            scrollUntilPostQuantumOffCell()
+            clickPostQuantumOffCell()
+        }
+
+        device.pressBack()
+        device.pressBack()
+    }
+
+    private fun enableShadowsocks() {
+        on<ConnectPage> { clickSettings() }
+        on<SettingsPage> { clickVpnSettings() }
+        on<VpnSettingsPage> {
+            scrollUntilWireGuardObfuscationShadowsocksCell()
+            clickWireGuardObfuscationShadowsocksCell()
+        }
+
+        device.pressBack()
+        device.pressBack()
+    }
+
+    private fun enableDAITA() {
+        on<ConnectPage> { clickSettings() }
+        on<SettingsPage> { clickDaita() }
+        on<DaitaSettingsPage> { clickEnableSwitch() }
+        device.pressBack()
+        device.pressBack()
+    }
 }
