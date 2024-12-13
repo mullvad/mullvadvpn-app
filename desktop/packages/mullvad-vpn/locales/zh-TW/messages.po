@@ -156,9 +156,6 @@ msgstr "編輯"
 msgid "Enable"
 msgstr "啟用"
 
-msgid "Enable %(directOnly)s"
-msgstr "啟用「%(directOnly)s」"
-
 msgid "Enable anyway"
 msgstr "仍然啟用"
 

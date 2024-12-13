@@ -152,10 +152,10 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Enable %(directOnly)s"
+msgid "Enable anyway"
 msgstr ""
 
-msgid "Enable anyway"
+msgid "Enable direct only"
 msgstr ""
 
 msgid "FAILED TO SECURE CONNECTION"

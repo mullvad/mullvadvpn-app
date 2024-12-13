@@ -162,9 +162,6 @@ msgstr "Muokkaa"
 msgid "Enable"
 msgstr "Ota käyttöön"
 
-msgid "Enable %(directOnly)s"
-msgstr "Ota käyttöön \"%(directOnly)s\""
-
 msgid "Enable anyway"
 msgstr "Ota silti käyttöön"
 

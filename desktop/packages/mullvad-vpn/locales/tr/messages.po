@@ -162,9 +162,6 @@ msgstr "Düzenle"
 msgid "Enable"
 msgstr "Etkinleştir"
 
-msgid "Enable %(directOnly)s"
-msgstr "\"%(directOnly)s\" seçeneğini etkinleştir"
-
 msgid "Enable anyway"
 msgstr "Yine de etkinleştir"
 
