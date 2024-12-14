@@ -22,6 +22,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add multihop which allows the routing of traffic through an entry and exit server, making it
+  harder to trace.
+- Enable DAITA to route traffic through servers with DAITA support to enable the use
+  of all servers together with DAITA. This behaviour can be disabled with the use of the
+  "Direct only" setting.
 
 ### Changed
 - Update to DAITA v2. The main difference is that many different machines are provided by relays
@@ -29,21 +35,14 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [android/2024.9] - 2024-12-09
-
 ### Changed
 - Improve detection and logging of a potential rare in-app purchase limbo state.
 
 
 ## [android/2024.9-beta1] - 2024-11-27
-
 ### Added
 - Add a new access method: Encrypted DNS Proxy. Encrypted DNS proxy is a way to reach the API via
   proxies. The access method is enabled by default.
-- Add multihop which allows the routing of traffic through an entry and exit server, making it
-  harder to trace.
-- Enable DAITA to route traffic through servers with DAITA support to enable the use
-  of all servers together with DAITA. This behaviour can be disabled with the use of the
-  "Direct only" setting.
 
 ### Changed
 - Animation has been changed to look better with predictive back.
@@ -63,14 +62,12 @@ Line wrap the file at 100 chars.                                              Th
 
 
 ## [android/2024.8] - 2024-11-01
-
 ### Fixed
 - Fix the account number input keyboard being broken on Amazon FireStick by adding a workaround.
   This should eventually be fixed by Amazon since the FireStick behavior is broken.
 
 
 ## [android/2024.8-beta2] - 2024-10-25
-
 ### Fixed
 - Improve connection stability when roaming while using Shadowsocks.
 - Fix MTU calculation to avoid connectivity issues when using some specific settings.
