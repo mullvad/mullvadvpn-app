@@ -101,6 +101,7 @@ public actor PacketTunnelActor {
     }
 
     func executeEffect(_ effect: Effect) async {
+        logger.debug("exeucting \(effect) at state \(self.state)")
         switch effect {
         case .startDefaultPathObserver:
             startDefaultPathObserver()
