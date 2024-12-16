@@ -410,6 +410,7 @@ jobs:
           arguments: |
             ${{ matrix.assemble-command }}
             -x cargoBuild
+            -x generateRelayList
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: false
