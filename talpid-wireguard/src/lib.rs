@@ -271,6 +271,8 @@ impl WireguardMonitor {
                     args.retry_attempt,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
+                    #[cfg(force_wireguard_handshake)]
+                    &mut connectivity_monitor,
                 )
                 .await?;
 
