@@ -441,7 +441,7 @@ function DisabledEntrySelection() {
         )}
       </StyledSelectionUnavailableText>
       <StyledDaitaSettingsButton onClick={navigateToDaitaSettings}>
-        {sprintf(messages.pgettext('select-location-view', 'Go to %(daita)s settings'), {
+        {sprintf(messages.pgettext('select-location-view', 'Open %(daita)s settings'), {
           daita: strings.daita,
         })}
       </StyledDaitaSettingsButton>

@@ -152,10 +152,11 @@ msgstr ""
 msgid "Enable"
 msgstr ""
 
-msgid "Enable \"%(directOnly)s\""
+msgid "Enable anyway"
 msgstr ""
 
-msgid "Enable anyway"
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
 msgstr ""
 
 msgid "FAILED TO SECURE CONNECTION"
@@ -1414,15 +1415,15 @@ msgid "Filtered:"
 msgstr ""
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr ""
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr ""
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
+msgstr ""
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
 msgstr ""
 
 msgctxt "select-location-view"
@@ -2540,9 +2541,6 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
-msgstr ""
-
-msgid "Open %s settings"
 msgstr ""
 
 msgid "Overrides active"

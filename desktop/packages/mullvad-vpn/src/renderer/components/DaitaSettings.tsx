@@ -208,7 +208,10 @@ function DaitaToggle() {
             key="confirm"
             onClick={confirmEnableDirectOnly}
             color={SmallButtonColor.blue}>
-            {sprintf(messages.gettext('Enable "%(directOnly)s"'), { directOnly: directOnlyString })}
+            {
+              // TRANSLATORS: A toggle that refers to the setting "Direct only".
+              messages.gettext('Enable direct only')
+            }
           </SmallButton>,
           <SmallButton key="cancel" onClick={hideConfirmationDialog} color={SmallButtonColor.blue}>
             {messages.pgettext('wireguard-settings-view', 'Cancel')}

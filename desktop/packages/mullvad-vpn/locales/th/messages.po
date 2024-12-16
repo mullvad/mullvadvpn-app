@@ -156,9 +156,6 @@ msgstr "แก้ไข"
 msgid "Enable"
 msgstr "เปิดใช้งาน"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "เปิดใช้งาน \"%(directOnly)s\""
-
 msgid "Enable anyway"
 msgstr "เปิดใช้งานต่อไป"
 
