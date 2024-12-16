@@ -6,7 +6,7 @@ use std::{
     ptr::null_mut,
 };
 
-use eyre::{bail, eyre, Context};
+use anyhow::{bail, anyhow, Context};
 use socket2::Socket;
 use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 
@@ -28,15 +28,15 @@ impl Traceroute for TracerouteWindows {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = AsyncUdpSocketWindows;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> eyre::Result<()> {
+    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
         common::bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
         get_interface_ip(interface)
     }
 
-    fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> eyre::Result<()> {
+    fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> anyhow::Result<()> {
         configure_icmp_socket(socket)
     }
 }
@@ -50,10 +50,10 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
         AsyncIcmpSocketImpl(tokio_socket)
     }
 
-    fn set_ttl(&self, ttl: u32) -> eyre::Result<()> {
+    fn set_ttl(&self, ttl: u32) -> anyhow::Result<()> {
         self.0
             .set_ttl(ttl)
-            .wrap_err("Failed to set TTL value for ICMP socket")
+            .context("Failed to set TTL value for ICMP socket")
     }
 
     async fn send_to(&self, packet: &[u8], destination: impl Into<IpAddr>) -> io::Result<usize> {
@@ -65,7 +65,7 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
         Ok((n, source.ip()))
     }
 
-    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> eyre::Result<LeakStatus> {
+    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
         common::recv_ttl_responses(self, &opt.interface).await
     }
 }
@@ -78,10 +78,10 @@ impl AsyncUdpSocket for AsyncUdpSocketWindows {
         AsyncUdpSocketWindows(udp_socket)
     }
 
-    fn set_ttl(&self, ttl: u32) -> eyre::Result<()> {
+    fn set_ttl(&self, ttl: u32) -> anyhow::Result<()> {
         self.0
             .set_ttl(ttl)
-            .wrap_err("Failed to set TTL value for UDP socket")
+            .context("Failed to set TTL value for UDP socket")
     }
 
     async fn send_to(
@@ -93,12 +93,12 @@ impl AsyncUdpSocket for AsyncUdpSocketWindows {
     }
 }
 
-pub fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+pub fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
     let interface_luid = luid_from_alias(interface)?;
 
     // TODO: ipv6
     let interface_ip = get_ip_address_for_interface(AddressFamily::Ipv4, interface_luid)?
-        .ok_or(eyre!("No IP for interface {interface:?}"))?;
+        .ok_or(anyhow!("No IP for interface {interface:?}"))?;
 
     Ok(interface_ip)
 }
@@ -106,7 +106,7 @@ pub fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
 /// Configure the raw socket we use for listening to ICMP responses.
 ///
 /// This will set the `SIO_RCVALL`-option.
-pub fn configure_icmp_socket(socket: &Socket) -> eyre::Result<()> {
+pub fn configure_icmp_socket(socket: &Socket) -> anyhow::Result<()> {
     let j = 1;
     let mut _in: u32 = 0;
     let result = unsafe {

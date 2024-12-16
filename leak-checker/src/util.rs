@@ -7,8 +7,8 @@ use std::net::IpAddr;
 
 match_cfg! {
     #[cfg(target_os = "windows")] => {
-        pub fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
-            use eyre::eyre;
+        pub fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
+            use anyhow::anyhow;
 
             use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 
@@ -16,13 +16,13 @@ match_cfg! {
 
             // TODO: ipv6
             let interface_ip = get_ip_address_for_interface(AddressFamily::Ipv4, interface_luid)?
-                .ok_or(eyre!("No IP for interface {interface:?}"))?;
+                .ok_or(anyhow!("No IP for interface {interface:?}"))?;
 
             Ok(interface_ip)
         }
     }
     #[cfg(any(target_os = "macos", target_os = "android"))] => {
-        pub fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+        pub fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
             for interface_address in nix::ifaddrs::getifaddrs()? {
                 if interface_address.interface_name != interface { continue };
                 let Some(address) = interface_address.address else { continue };
@@ -33,7 +33,7 @@ match_cfg! {
                 return Ok(address.ip().into());
             }
 
-            eyre::bail!("Interface {interface:?} has no valid IP to bind to");
+            anyhow::bail!("Interface {interface:?} has no valid IP to bind to");
         }
     }
 }

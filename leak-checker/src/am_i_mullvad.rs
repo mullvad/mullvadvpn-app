@@ -1,4 +1,4 @@
-use eyre::{eyre, Context};
+use anyhow::{anyhow, Context};
 use futures::TryFutureExt;
 use match_cfg::match_cfg;
 use reqwest::{Client, ClientBuilder};
@@ -24,7 +24,7 @@ pub async fn run_leak_test(opt: &AmIMullvadOpt) -> LeakStatus {
 }
 
 /// Check if connected to Mullvad and print the result to stdout
-pub async fn try_run_leak_test(opt: &AmIMullvadOpt) -> eyre::Result<LeakStatus> {
+pub async fn try_run_leak_test(opt: &AmIMullvadOpt) -> anyhow::Result<LeakStatus> {
     #[derive(Debug, Deserialize)]
     struct Response {
         ip: String,
@@ -37,14 +37,14 @@ pub async fn try_run_leak_test(opt: &AmIMullvadOpt) -> eyre::Result<LeakStatus> 
         client = bind_client_to_interface(client, interface)?;
     }
 
-    let client = client.build().wrap_err("Failed to create HTTP client")?;
+    let client = client.build().context("Failed to create HTTP client")?;
     let response: Response = client
         .get(AM_I_MULLVAD_URL)
         //.timeout(Duration::from_secs(opt.timeout))
         .send()
         .and_then(|r| r.json())
         .await
-        .wrap_err_with(|| eyre!("Failed to GET {AM_I_MULLVAD_URL}"))?;
+        .with_context(|| anyhow!("Failed to GET {AM_I_MULLVAD_URL}"))?;
 
     if let Some(server) = &response.mullvad_exit_ip_hostname {
         log::debug!(
@@ -59,7 +59,7 @@ pub async fn try_run_leak_test(opt: &AmIMullvadOpt) -> eyre::Result<LeakStatus> 
             response.ip
         );
         Ok(LeakStatus::LeakDetected(LeakInfo::AmIMullvad {
-            ip: response.ip.parse().wrap_err("Malformed IP")?,
+            ip: response.ip.parse().context("Malformed IP")?,
         }))
     }
 }
@@ -69,7 +69,7 @@ match_cfg! {
         fn bind_client_to_interface(
             builder: ClientBuilder,
             interface: &str
-        ) -> eyre::Result<ClientBuilder> {
+        ) -> anyhow::Result<ClientBuilder> {
             log::debug!("Binding HTTP client to {interface}");
             Ok(builder.interface(interface))
         }
@@ -78,7 +78,7 @@ match_cfg! {
         fn bind_client_to_interface(
             builder: ClientBuilder,
             interface: &str
-        ) -> eyre::Result<ClientBuilder> {
+        ) -> anyhow::Result<ClientBuilder> {
             use crate::util::get_interface_ip;
 
             let ip = get_interface_ip(interface)?;

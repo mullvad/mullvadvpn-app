@@ -12,16 +12,16 @@ impl Traceroute for TracerouteAndroid {
     type AsyncIcmpSocket = linux::AsyncIcmpSocketImpl;
     type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> eyre::Result<()> {
+    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
         // can't use the same method as desktop-linux here beacuse reasons
         super::common::bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
         super::unix::get_interface_ip(interface)
     }
 
-    fn configure_icmp_socket(socket: &socket2::Socket, opt: &TracerouteOpt) -> eyre::Result<()> {
+    fn configure_icmp_socket(socket: &socket2::Socket, opt: &TracerouteOpt) -> anyhow::Result<()> {
         TracerouteLinux::configure_icmp_socket(socket, opt)
     }
 }

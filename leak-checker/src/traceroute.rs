@@ -8,7 +8,7 @@ use std::{
     time::Duration,
 };
 
-use eyre::{bail, ensure, eyre, OptionExt, WrapErr};
+use anyhow::{anyhow, bail, ensure, Context};
 use futures::{future::pending, select, stream, FutureExt, StreamExt, TryFutureExt, TryStreamExt};
 use pnet_packet::{
     icmp::{
@@ -97,7 +97,7 @@ pub async fn run_leak_test(opt: &TracerouteOpt) -> LeakStatus {
 ///
 /// This test needs a raw socket to be able to listen for the ICMP responses, therefore it requires
 /// root/admin priviliges.
-pub async fn try_run_leak_test(opt: &TracerouteOpt) -> eyre::Result<LeakStatus> {
+pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
     // create the socket used for receiving the ICMP/TimeExceeded responses
 
     // don't ask me why, but this is how it must be.
@@ -108,11 +108,11 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> eyre::Result<LeakStatus> 
     };
 
     let icmp_socket = Socket::new(Domain::IPV4, icmp_socket_type, Some(Protocol::ICMPV4))
-        .wrap_err("Failed to open ICMP socket")?;
+        .context("Failed to open ICMP socket")?;
 
     icmp_socket
         .set_nonblocking(true)
-        .wrap_err("Failed to set icmp_socket to nonblocking")?;
+        .context("Failed to set icmp_socket to nonblocking")?;
 
     Impl::bind_socket_to_interface(&icmp_socket, &opt.interface)?;
     Impl::configure_icmp_socket(&icmp_socket, opt)?;
@@ -125,33 +125,33 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> eyre::Result<LeakStatus> 
         } else {
             // create the socket used for sending the UDP probing packets
             let udp_socket = Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP))
-                .wrap_err("Failed to open UDP socket")?;
+                .context("Failed to open UDP socket")?;
 
             Impl::bind_socket_to_interface(&udp_socket, &opt.interface)
-                .wrap_err("Failed to bind UDP socket to interface")?;
+                .context("Failed to bind UDP socket to interface")?;
 
             udp_socket
                 .set_nonblocking(true)
-                .wrap_err("Failed to set udp_socket to nonblocking")?;
+                .context("Failed to set udp_socket to nonblocking")?;
 
             let mut udp_socket = AsyncUdpSocketImpl::from_socket2(udp_socket);
 
             send_udp_probes(opt, &mut udp_socket).await?;
         }
 
-        eyre::Ok(())
+        anyhow::Ok(())
     };
 
     // error if sending the probes takes longer than SEND_TIMEOUT
     //let send_probes = timeout(SEND_TIMEOUT, send_probes)
-    //    .map_err(|_timeout| eyre!("Timed out while trying to send probe packet"))
+    //    .map_err(|_timeout| anyhow!("Timed out while trying to send probe packet"))
     //    .and_then(ready) // flatten the result
     //    .and_then(|_| pending::<Result<Infallible, _>>());
 
     let send_probes = async {
         timeout(SEND_TIMEOUT, send_probes)
             .await
-            .map_err(|_timeout| eyre!("Timed out while trying to send probe packet"))??;
+            .map_err(|_timeout| anyhow!("Timed out while trying to send probe packet"))??;
         Ok(pending::<Infallible>().await)
     };
 
@@ -171,7 +171,10 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> eyre::Result<LeakStatus> 
 /// Send ICMP/Echo packets with a very low TTL to `opt.destination`.
 ///
 /// Use [AsyncIcmpSocket::recv_ttl_responses] to receive replies.
-async fn send_icmp_probes(opt: &TracerouteOpt, socket: &impl AsyncIcmpSocket) -> eyre::Result<()> {
+async fn send_icmp_probes(
+    opt: &TracerouteOpt,
+    socket: &impl AsyncIcmpSocket,
+) -> anyhow::Result<()> {
     use pnet_packet::icmp::{echo_request::*, *};
 
     for ttl in DEFAULT_TTL_RANGE {
@@ -179,7 +182,7 @@ async fn send_icmp_probes(opt: &TracerouteOpt, socket: &impl AsyncIcmpSocket) ->
 
         socket
             .set_ttl(ttl.into())
-            .wrap_err("Failed to set TTL on socket")?;
+            .context("Failed to set TTL on socket")?;
 
         // the first packet will sometimes get dropped on MacOS, thus we send two packets
         let number_of_sends = if cfg!(target_os = "macos") { 2 } else { 1 };
@@ -210,7 +213,7 @@ async fn send_icmp_probes(opt: &TracerouteOpt, socket: &impl AsyncIcmpSocket) ->
                 // Linux returns this error if our packet was rejected by nftables.
                 log::debug!("send_to failed with 'permission denied'");
             }
-            _ => return Err(e).wrap_err("Failed to send packet")?,
+            _ => return Err(e).context("Failed to send packet")?,
         }
     }
 
@@ -223,7 +226,7 @@ async fn send_icmp_probes(opt: &TracerouteOpt, socket: &impl AsyncIcmpSocket) ->
 async fn send_udp_probes(
     opt: &TracerouteOpt,
     socket: &mut impl AsyncUdpSocket,
-) -> eyre::Result<()> {
+) -> anyhow::Result<()> {
     // ensure we don't send anything to `opt.exclude_port`
     let ports = DEFAULT_PORT_RANGE
         // skip the excluded port
@@ -236,7 +239,7 @@ async fn send_udp_probes(
 
         socket
             .set_ttl(ttl.into())
-            .wrap_err("Failed to set TTL on socket")?;
+            .context("Failed to set TTL on socket")?;
 
         // the first packet will sometimes get dropped on MacOS, thus we send two packets
         let number_of_sends = if cfg!(target_os = "macos") { 2 } else { 1 };
@@ -254,7 +257,7 @@ async fn send_udp_probes(
                 // Linux returns this error if our packet was rejected by nftables.
                 log::debug!("send_to failed with 'permission denied'");
             }
-            _ => return Err(e).wrap_err("Failed to send packet")?,
+            _ => return Err(e).context("Failed to send packet")?,
         }
     }
 
@@ -264,10 +267,10 @@ async fn send_udp_probes(
 /// Try to parse the bytes as an IPv4 packet.
 ///
 /// This only valdiates the IPv4 header, not the payload.
-fn parse_ipv4(packet: &[u8]) -> eyre::Result<Ipv4Packet<'_>> {
+fn parse_ipv4(packet: &[u8]) -> anyhow::Result<Ipv4Packet<'_>> {
     let ip_packet = Ipv4Packet::new(packet).ok_or_else(too_small)?;
     ensure!(ip_packet.get_version() == 4, "Not IPv4");
-    eyre::Ok(ip_packet)
+    anyhow::Ok(ip_packet)
 }
 
 /// Try to parse an [Ipv4Packet] as an ICMP/TimeExceeded response to a packet sent by
@@ -276,7 +279,7 @@ fn parse_ipv4(packet: &[u8]) -> eyre::Result<Ipv4Packet<'_>> {
 ///
 /// If the packet fails to parse, or is not a reply to a packet sent by us, this function returns
 /// an error.
-fn parse_icmp_time_exceeded(ip_packet: &Ipv4Packet<'_>) -> eyre::Result<Ipv4Addr> {
+fn parse_icmp_time_exceeded(ip_packet: &Ipv4Packet<'_>) -> anyhow::Result<Ipv4Addr> {
     let ip_protocol = ip_packet.get_next_level_protocol();
     ensure!(ip_protocol == IpProtocol::Icmp, "Not ICMP");
     parse_icmp_time_exceeded_raw(ip_packet.payload())?;
@@ -288,8 +291,8 @@ fn parse_icmp_time_exceeded(ip_packet: &Ipv4Packet<'_>) -> eyre::Result<Ipv4Addr
 ///
 /// If the packet fails to parse, or is not a reply to a packet sent by us, this function returns
 /// an error.
-fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> eyre::Result<()> {
-    let icmp_packet = IcmpPacket::new(bytes).ok_or(eyre!("Too small"))?;
+fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> anyhow::Result<()> {
+    let icmp_packet = IcmpPacket::new(bytes).ok_or(anyhow!("Too small"))?;
 
     let correct_type = icmp_packet.get_icmp_type() == IcmpTypes::TimeExceeded;
     ensure!(correct_type, "Not ICMP/TimeExceeded");
@@ -312,7 +315,7 @@ fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> eyre::Result<()> {
                 let udp_payload = udp_len
                     .checked_sub(UdpPacket::minimum_packet_size())
                     .and_then(|len| original_udp_packet.payload().get(..len))
-                    .ok_or_eyre("Invalid UDP length")?;
+                    .ok_or(anyhow!("Invalid UDP length"))?;
                 if udp_payload != PROBE_PAYLOAD {
                     let udp_payload: String = udp_payload
                         .iter()
@@ -356,7 +359,7 @@ fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> eyre::Result<()> {
     }
 }
 
-fn parse_icmp_echo(ip_packet: &Ipv4Packet<'_>) -> eyre::Result<()> {
+fn parse_icmp_echo(ip_packet: &Ipv4Packet<'_>) -> anyhow::Result<()> {
     let ip_protocol = ip_packet.get_next_level_protocol();
 
     match ip_protocol {
@@ -365,7 +368,7 @@ fn parse_icmp_echo(ip_packet: &Ipv4Packet<'_>) -> eyre::Result<()> {
     }
 }
 
-fn parse_icmp_echo_raw(icmp_bytes: &[u8]) -> eyre::Result<()> {
+fn parse_icmp_echo_raw(icmp_bytes: &[u8]) -> anyhow::Result<()> {
     let echo_packet = EchoRequestPacket::new(icmp_bytes).ok_or_else(too_small)?;
 
     ensure!(
@@ -390,6 +393,6 @@ fn parse_icmp_echo_raw(icmp_bytes: &[u8]) -> eyre::Result<()> {
     Ok(())
 }
 
-fn too_small() -> eyre::Report {
-    eyre!("Too small")
+fn too_small() -> anyhow::Error {
+    anyhow!("Too small")
 }

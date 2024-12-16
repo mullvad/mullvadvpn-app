@@ -2,7 +2,7 @@ use std::io::{self, IoSliceMut};
 use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd};
 use std::{net::IpAddr, time::Duration};
 
-use eyre::{bail, WrapErr};
+use anyhow::{bail, Context};
 use nix::errno::Errno;
 use nix::sys::socket::sockopt::Ipv4RecvErr;
 use nix::sys::socket::{setsockopt, ControlMessageOwned, MsgFlags, SockaddrIn};
@@ -26,17 +26,17 @@ impl Traceroute for TracerouteLinux {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> eyre::Result<()> {
+    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
         bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
         super::unix::get_interface_ip(interface)
     }
 
-    fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> eyre::Result<()> {
+    fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> anyhow::Result<()> {
         // IP_RECVERR tells Linux to pass any error packets received over ICMP to us through `recvmsg` control messages.
-        setsockopt(socket, Ipv4RecvErr, &true).wrap_err("Failed to set IP_RECVERR")
+        setsockopt(socket, Ipv4RecvErr, &true).context("Failed to set IP_RECVERR")
     }
 }
 
@@ -48,10 +48,10 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
         AsyncIcmpSocketImpl(tokio_socket)
     }
 
-    fn set_ttl(&self, ttl: u32) -> eyre::Result<()> {
+    fn set_ttl(&self, ttl: u32) -> anyhow::Result<()> {
         self.0
             .set_ttl(ttl)
-            .wrap_err("Failed to set TTL value for socket")
+            .context("Failed to set TTL value for socket")
     }
 
     async fn send_to(&self, packet: &[u8], destination: impl Into<IpAddr>) -> io::Result<usize> {
@@ -65,17 +65,17 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
             .map(|(n, source)| (n, source.ip()))
     }
 
-    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> eyre::Result<LeakStatus> {
+    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
         recv_ttl_responses(opt.destination, &opt.interface, &self.0).await
     }
 }
 
-fn bind_socket_to_interface(socket: &Socket, interface: &str) -> eyre::Result<()> {
+fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
     log::info!("Binding socket to {interface:?}");
 
     socket
         .bind_device(Some(interface.as_bytes()))
-        .wrap_err("Failed to bind socket to interface")?;
+        .context("Failed to bind socket to interface")?;
 
     Ok(())
 }
@@ -88,7 +88,7 @@ async fn recv_ttl_responses(
     destination: IpAddr,
     interface: &str,
     socket: &impl AsRawFd,
-) -> eyre::Result<LeakStatus> {
+) -> anyhow::Result<LeakStatus> {
     // the list of node IP addresses from which we received a response to our probe packets.
     let mut reachable_nodes = vec![];
 
@@ -147,7 +147,7 @@ async fn recv_ttl_responses(
 
         let mut control_messages = recv
             .cmsgs()
-            .wrap_err("Failed to decode cmsgs from recvmsg")?;
+            .context("Failed to decode cmsgs from recvmsg")?;
 
         let error_source = match control_messages.next() {
             Some(ControlMessageOwned::Ipv6RecvErr(_socket_error, _source_addr)) => {
@@ -197,7 +197,7 @@ async fn recv_ttl_responses(
 
         // Ensure that this is the original Echo packet that we sent.
         // TODO: skip on error
-        parse_icmp_echo_raw(packet).wrap_err("")?;
+        parse_icmp_echo_raw(packet).context("")?;
 
         log::debug!("Got a probe response, we are leaking!");
         timeout_at.get_or_insert_with(|| Instant::now() + RECV_TIMEOUT);

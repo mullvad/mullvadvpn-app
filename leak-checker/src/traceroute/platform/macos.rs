@@ -2,7 +2,7 @@ use std::io;
 use std::net::IpAddr;
 use std::os::fd::{FromRawFd, IntoRawFd};
 
-use eyre::{OptionExt, WrapErr};
+use anyhow::Context;
 use socket2::Socket;
 
 use crate::traceroute::TracerouteOpt;
@@ -18,16 +18,19 @@ impl Traceroute for TracerouteMacos {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> eyre::Result<()> {
+    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
         // can't use the same method as desktop-linux here beacuse reasons
         bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
         super::unix::get_interface_ip(interface)
     }
 
-    fn configure_icmp_socket(_socket: &socket2::Socket, _opt: &TracerouteOpt) -> eyre::Result<()> {
+    fn configure_icmp_socket(
+        _socket: &socket2::Socket,
+        _opt: &TracerouteOpt,
+    ) -> anyhow::Result<()> {
         Ok(())
         // TODO: not sure if we need to do anything here
     }
@@ -41,10 +44,10 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
         AsyncIcmpSocketImpl(tokio_socket)
     }
 
-    fn set_ttl(&self, ttl: u32) -> eyre::Result<()> {
+    fn set_ttl(&self, ttl: u32) -> anyhow::Result<()> {
         self.0
             .set_ttl(ttl)
-            .wrap_err("Failed to set TTL value for socket")
+            .context("Failed to set TTL value for socket")
     }
 
     async fn send_to(&self, packet: &[u8], destination: impl Into<IpAddr>) -> io::Result<usize> {
@@ -58,21 +61,21 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
             .map(|(n, source)| (n, source.ip()))
     }
 
-    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> eyre::Result<LeakStatus> {
+    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
         common::recv_ttl_responses(self, &opt.interface).await
     }
 }
 
-pub fn bind_socket_to_interface(socket: &Socket, interface: &str) -> eyre::Result<()> {
+pub fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
     use nix::net::if_::if_nametoindex;
     use std::num::NonZero;
 
     log::info!("Binding socket to {interface:?}");
 
     let interface_index = if_nametoindex(interface)
-        .map_err(eyre::Report::from)
-        .and_then(|code| NonZero::new(code).ok_or_eyre("Non-zero error code"))
-        .wrap_err("Failed to get interface index")?;
+        .map_err(anyhow::Report::from)
+        .and_then(|code| NonZero::new(code).ok_or_anyhow("Non-zero error code"))
+        .context("Failed to get interface index")?;
 
     socket.bind_device_by_index_v4(Some(interface_index))?;
     Ok(())

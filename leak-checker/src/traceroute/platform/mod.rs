@@ -32,22 +32,22 @@ pub trait Traceroute {
     type AsyncIcmpSocket: AsyncIcmpSocket;
     type AsyncUdpSocket: AsyncUdpSocket;
 
-    fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr>;
+    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr>;
 
-    fn bind_socket_to_interface(socket: &socket2::Socket, interface: &str) -> eyre::Result<()>;
+    fn bind_socket_to_interface(socket: &socket2::Socket, interface: &str) -> anyhow::Result<()>;
 
     /// Configure an ICMP socket to allow reception of ICMP/TimeExceeded errors.
     // TODO: consider moving into AsyncIcmpSocket constructor
-    fn configure_icmp_socket(socket: &socket2::Socket, opt: &TracerouteOpt) -> eyre::Result<()>;
+    fn configure_icmp_socket(socket: &socket2::Socket, opt: &TracerouteOpt) -> anyhow::Result<()>;
 }
 
 pub trait AsyncIcmpSocket {
     fn from_socket2(socket: socket2::Socket) -> Self;
 
-    fn set_ttl(&self, ttl: u32) -> eyre::Result<()>;
+    fn set_ttl(&self, ttl: u32) -> anyhow::Result<()>;
 
     /// Send an ICMP packet to the destination.
-    // TODO: eyre?
+    // TODO: anyhow?
     async fn send_to(&self, packet: &[u8], destination: impl Into<IpAddr>) -> io::Result<usize>;
 
     /// Receive an ICMP packet
@@ -55,16 +55,16 @@ pub trait AsyncIcmpSocket {
 
     /// Try to read ICMP/TimeExceeded error packets.
     // TODO: this should be renamed, or not return a LeakStatus
-    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> eyre::Result<LeakStatus>;
+    async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus>;
 }
 
 pub trait AsyncUdpSocket {
     fn from_socket2(socket: socket2::Socket) -> Self;
 
-    fn set_ttl(&self, ttl: u32) -> eyre::Result<()>;
+    fn set_ttl(&self, ttl: u32) -> anyhow::Result<()>;
 
     /// Send an UDP packet to the destination.
-    // TODO: eyre?
+    // TODO: anyhow?
     async fn send_to(&self, packet: &[u8], destination: impl Into<SocketAddr>)
         -> io::Result<usize>;
 }
