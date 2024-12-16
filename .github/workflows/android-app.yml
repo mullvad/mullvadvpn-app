@@ -155,15 +155,19 @@ jobs:
           - arch: "x86_64"
             abi: "x86_64"
             target: "x86_64-linux-android"
+            task: "cargoBuildX86_64"
           - arch: "i686"
             abi: "x86"
             target: "i686-linux-android"
+            task: "cargoBuildX86"
           - arch: "aarch64"
             abi: "arm64-v8a"
             target: "aarch64-linux-android"
+            task: "cargoBuildArm64"
           - arch: "armv7"
             abi: "armeabi-v7a"
             target: "armv7-linux-androideabi"
+            task: "cargoBuildArm"
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -202,16 +206,17 @@ jobs:
 
       - name: Build native libraries
         if: steps.cache-native-libs.outputs.cache-hit != 'true'
-        env:
-          RUSTFLAGS: --deny warnings
-          BUILD_TYPE: debug
-        run: |
-          ARCHITECTURES="${{ matrix.abi }}"
-          UNSTRIPPED_LIB_PATH="$CARGO_TARGET_DIR/${{ matrix.target }}/$BUILD_TYPE/libmullvad_jni.so"
-          STRIPPED_LIB_PATH="./android/app/build/rustJniLibs/android/${{ matrix.abi }}/libmullvad_jni.so"
-          NDK_TOOLCHAIN_STRIP_TOOL="$NDK_TOOLCHAIN_DIR/llvm-strip"
-          cargo build --target ${{ matrix.target }} --verbose --package mullvad-jni --features api-override
-          $NDK_TOOLCHAIN_STRIP_TOOL --strip-debug --strip-unneeded -o "$STRIPPED_LIB_PATH" "$UNSTRIPPED_LIB_PATH"
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          arguments: ${{ matrix.task }}
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: false
+          # Disable if logs are hard to follow.
+          concurrent: true
+          read-only: ${{ github.ref != 'refs/heads/main' }}
+
 
       - name: Upload native libs
         uses: actions/upload-artifact@v4
@@ -281,11 +286,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Checkout wireguard-go-rs recursively
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
-
       - uses: actions/download-artifact@v4
         with:
           name: debug-keystore
@@ -295,7 +295,9 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk17
-          arguments: compileOssProdDebugKotlin
+          arguments: |
+            compileOssProdDebugKotlin
+            -x cargoBuild
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: false
@@ -333,7 +335,9 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk17
-          arguments: assembleOssProdDebug
+          arguments: |
+            assembleOssProdDebug
+            -x cargoBuild
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: true
@@ -346,7 +350,9 @@ jobs:
         if: github.event.inputs.run_firebase_tests == 'true'
         with:
           job-id: jdk17
-          arguments: assemblePlayStagemoleDebug
+          arguments: |
+            assemblePlayStagemoleDebug
+            -x cargoBuild
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: true
