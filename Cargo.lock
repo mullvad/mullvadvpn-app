@@ -2596,6 +2596,7 @@ dependencies = [
  "talpid-dbus",
  "talpid-future",
  "talpid-platform-metadata",
+ "talpid-routing",
  "talpid-time",
  "talpid-types",
  "talpid-windows",

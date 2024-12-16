@@ -84,6 +84,7 @@ use talpid_core::{
     split_tunnel,
     tunnel_state_machine::{self, TunnelCommand, TunnelStateMachineHandle},
 };
+use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
@@ -182,6 +183,10 @@ pub enum Error {
 
     #[error("Tunnel state machine error")]
     TunnelError(#[source] tunnel_state_machine::Error),
+
+    /// Errors from [talpid_routing::RouteManagerHandle].
+    #[error("Route manager error")]
+    RouteManager(#[source] talpid_routing::Error),
 
     /// Custom list already exists
     #[error("Custom list error: {0}")]
@@ -780,6 +785,15 @@ impl Daemon {
             let _ = settings_changed_event_sender.send(InternalDaemonEvent::SettingsChanged);
         });
 
+        let route_manager = RouteManagerHandle::spawn(
+            #[cfg(target_os = "linux")]
+            mullvad_types::TUNNEL_FWMARK,
+            #[cfg(target_os = "linux")]
+            mullvad_types::TUNNEL_TABLE_ID,
+        )
+        .await
+        .map_err(Error::RouteManager)?;
+
         let (offline_state_tx, offline_state_rx) = mpsc::unbounded();
         #[cfg(target_os = "windows")]
         let (volume_update_tx, volume_update_rx) = mpsc::unbounded();
@@ -803,6 +817,7 @@ impl Daemon {
             config.resource_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
+            route_manager.clone(),
             #[cfg(target_os = "windows")]
             volume_update_rx,
             #[cfg(target_os = "android")]
@@ -855,7 +870,7 @@ impl Daemon {
         );
 
         let leak_checker = {
-            let mut leak_checker = LeakChecker::new();
+            let mut leak_checker = LeakChecker::new(route_manager);
             let internal_event_tx = internal_event_tx.clone();
             leak_checker.add_leak_callback(move |info| {
                 internal_event_tx
