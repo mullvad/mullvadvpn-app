@@ -407,7 +407,9 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk17
-          arguments: ${{ matrix.assemble-command }}
+          arguments: |
+            ${{ matrix.assemble-command }}
+            -x cargoBuild
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: false
