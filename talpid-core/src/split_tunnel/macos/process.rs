@@ -10,10 +10,9 @@ use libc::pid_t;
 use serde::Deserialize;
 use std::{
     collections::{HashMap, HashSet},
-    future::Future,
     io,
     path::PathBuf,
-    process::{ExitStatus, Stdio},
+    process::Stdio,
     sync::{Arc, LazyLock, Mutex},
     time::Duration,
 };
@@ -110,8 +109,7 @@ pub async fn has_full_disk_access() -> bool {
             let stderr = proc.stderr.take().unwrap();
             drop(proc.stdin.take());
 
-            let has_full_disk_access =
-                parse_logger_status(proc.wait(), stdout, stderr).await == NeedFda::No;
+            let has_full_disk_access = parse_logger_status(stdout, stderr).await == NeedFda::No;
             Ok::<bool, Error>(has_full_disk_access)
         })
         .await
@@ -127,7 +125,6 @@ enum NeedFda {
 /// Return whether `proc` reports that full-disk access is unavailable based on its output
 /// If it cannot be determined that access is available, it is assumed to be available
 async fn parse_logger_status(
-    proc: impl Future<Output = io::Result<ExitStatus>>,
     stdout: impl AsyncRead + Unpin + Send + 'static,
     stderr: impl AsyncRead + Unpin + Send + 'static,
 ) -> NeedFda {
@@ -155,21 +152,15 @@ async fn parse_logger_status(
         }
     });
 
-    let proc = tokio::time::timeout(EARLY_FAIL_TIMEOUT, proc);
+    let deadline = tokio::time::sleep(EARLY_FAIL_TIMEOUT);
 
     tokio::select! {
         // Received standard err/out
         biased; need_full_disk_access = &mut need_full_disk_access => {
             need_full_disk_access.unwrap_or(NeedFda::No)
         }
-        proc_result = proc => {
-            if let Ok(Ok(_exit_status)) = proc_result {
-                // Process exited
-                return need_full_disk_access.await.unwrap_or(NeedFda::No);
-            }
-            // Timeout or `Child::wait`` returned an error
-            NeedFda::No
-        }
+        // Timed out while checking for full-disk access
+        _ = deadline => NeedFda::No,
     }
 }
 
@@ -562,12 +553,28 @@ fn check_os_version_support_inner(version: MacosVersion) -> Result<(), Error> {
 
 #[cfg(test)]
 mod test {
-    use super::{
-        check_os_version_support_inner, parse_logger_status, NeedFda, EARLY_FAIL_TIMEOUT,
-        MIN_OS_VERSION,
-    };
-    use std::{process::ExitStatus, time::Duration};
+    use super::*;
+
+    use std::time::Duration;
     use talpid_platform_metadata::MacosVersion;
+    use tokio::io::{simplex, AsyncWriteExt};
+
+    /// A mock-version of std{out,err}. [tokio::io::SimplexStream] implements [AsyncRead], so it can be used to test
+    /// [parse_logger_status].
+    fn output(msg: &'static str, lag: Duration) -> impl AsyncRead + Unpin + Send + 'static {
+        // Ensure that 'msg' contains a newline to prevent user errors
+        assert!(
+            msg.contains('\n'),
+            "Message does not contain a newline!! Make sure to add a newline to '{msg}'"
+        );
+        let (stdout_read, mut stdout_write) = simplex(msg.as_bytes().len());
+        //  "print" to "stdout" after `duration`.
+        tokio::spawn(async move {
+            tokio::time::sleep(lag).await;
+            stdout_write.write_all(msg.as_bytes()).await.unwrap();
+        });
+        stdout_read
+    }
 
     #[test]
     fn test_min_os_version() {
@@ -590,7 +597,6 @@ mod test {
     #[tokio::test]
     async fn test_parse_logger_status_missing_access() {
         let need_fda = parse_logger_status(
-            async { Ok(ExitStatus::default()) },
             &[][..],
             b"ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED\n".as_slice(),
         )
@@ -603,33 +609,11 @@ mod test {
         );
     }
 
-    /// If the check times out and 'ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED' is not in stderr, assume
-    /// full-disk access is available.
-    #[tokio::test]
-    async fn test_parse_logger_status_timeout() {
-        let need_fda = parse_logger_status(
-            async {
-                tokio::time::sleep(EARLY_FAIL_TIMEOUT + Duration::from_secs(10)).await;
-                Ok(ExitStatus::default())
-            },
-            b"nothing to see here\n".as_slice(),
-            b"nothing to see here\n".as_slice(),
-        )
-        .await;
-
-        assert_eq!(
-            need_fda,
-            NeedFda::No,
-            "expected 'NeedFda::No' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED wasn't present"
-        );
-    }
-
     /// If process exits without 'ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED', assume full-disk access
     /// is available.
     #[tokio::test]
     async fn test_parse_logger_status_immediate_exit() {
         let need_fda = parse_logger_status(
-            async { Ok(ExitStatus::default()) },
             b"nothing to see here\n".as_slice(),
             b"nothing to see here\n".as_slice(),
         )
@@ -639,6 +623,48 @@ mod test {
             need_fda,
             NeedFda::No,
             "expected 'NeedFda::No' on immediate exit",
+        );
+    }
+
+    /// Check that [parse_logger_status] returns within a reasonable timeframe.
+    /// "Reasonable" being within [EARLY_FAIL_TIMEOUT].
+    #[tokio::test(start_paused = true)]
+    async fn test_parse_logger_status_responsive() {
+        let start = tokio::time::Instant::now();
+        let stdout = output("This will never be printed\n", Duration::MAX);
+        let stderr = output(
+            "ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED\n",
+            EARLY_FAIL_TIMEOUT / 2,
+        );
+        tokio::time::resume();
+
+        let need_fda = parse_logger_status(stdout, stderr).await;
+
+        tokio::time::pause();
+
+        assert_eq!(
+            need_fda,
+            NeedFda::Yes,
+            "expected 'NeedFda::Yes' when ES_NEW_CLIENT_RESULT_ERR_NOT_PERMITTED was eventually printed to stderr"
+        );
+
+        // Assert that we did not spend more time waiting than we should
+        assert!(start.elapsed() < EARLY_FAIL_TIMEOUT);
+    }
+
+    /// Check that [parse_logger_status] doesn't get stuck because nothing is ever output
+    /// to std{out,err}. It should time out with the assumption that full-disk access is available.
+    #[tokio::test]
+    async fn test_parse_logger_status_timeout() {
+        let stdout = output("This will never be printed\n", Duration::MAX);
+        let stderr = output("This will never be printed\n", Duration::MAX);
+
+        let need_fda = parse_logger_status(stdout, stderr).await;
+
+        assert_eq!(
+            need_fda,
+            NeedFda::No,
+            "expected 'NeedFda::No' when nothing was ever printed to stdout or stderr"
         );
     }
 }
