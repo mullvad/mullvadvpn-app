@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Spacings } from '../../../tokens';
+import { Spacings } from '../variables';
 import { Flex, FlexProps } from './Flex';
 
 export interface ContainerProps extends FlexProps {

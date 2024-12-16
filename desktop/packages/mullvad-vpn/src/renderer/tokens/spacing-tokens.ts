@@ -1,4 +1,4 @@
-export enum Spacings {
+export enum SpacingTokens {
   spacing1 = '4px',
   spacing2 = '6px',
   spacing3 = '8px',

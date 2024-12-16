@@ -1,4 +1,4 @@
-import { Spacings } from '../../../tokens';
+import { Spacings } from '../variables';
 
 export interface LayoutSpacings {
   all?: 'string';

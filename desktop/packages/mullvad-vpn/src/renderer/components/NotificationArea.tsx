@@ -26,9 +26,9 @@ import {
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
-import { Colors } from '../tokens';
 import * as AppButton from './AppButton';
 import { Link } from './common/text';
+import { Colors } from './common/variables';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,

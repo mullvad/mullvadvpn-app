@@ -6,11 +6,11 @@ import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
-import { Colors, Spacings } from '../../../tokens';
 import { Flex } from '../../common/layout';
 import { Container } from '../../common/layout/Container';
-import { Button } from '../../common/molecules/Button';
+import { Button } from '../../common/molecules/';
 import { BodySmall, TitleBig, TitleLarge } from '../../common/text';
+import { Colors, Spacings } from '../../common/variables';
 import ImageView from '../../ImageView';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
@@ -75,7 +75,7 @@ export const ChangelogView = () => {
                       ))}
                     </StyledList>
                   ) : (
-                    <BodySmall>
+                    <BodySmall color={Colors.white60}>
                       {messages.pgettext(
                         'changelog-view',
                         'No updates or changes were made in this release for this platform.',
