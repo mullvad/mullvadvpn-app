@@ -16,7 +16,6 @@ api-override = ["mullvad-api/api-override"]
 
 [dependencies]
 anyhow = "*" # TODO: do we want this?
-surge-ping = "0.8.0" # TODO: workspace dep?
 chrono = { workspace = true }
 thiserror = { workspace = true }
 either = "1.11"

@@ -2608,7 +2608,6 @@ dependencies = [
  "serde_json",
  "simple-signal",
  "socket2",
- "surge-ping",
  "talpid-core",
  "talpid-dbus",
  "talpid-future",
