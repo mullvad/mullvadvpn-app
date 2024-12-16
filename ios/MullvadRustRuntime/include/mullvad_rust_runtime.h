@@ -99,8 +99,8 @@ int32_t encrypted_dns_proxy_stop(struct ProxyHandle *proxy_config);
 void cancel_ephemeral_peer_exchange(struct ExchangeCancelToken *sender);
 
 /**
- * Called by the Swift side to signal that the Rust `EphemeralPeerCancelToken` can be safely dropped
- * from memory.
+ * Called by the Swift side to signal that the Rust `EphemeralPeerCancelToken` can be safely
+ * dropped from memory.
  *
  * # Safety
  * `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
@@ -117,7 +117,6 @@ void drop_ephemeral_peer_exchange_token(struct ExchangeCancelToken *sender);
  * `packet_tunnel` must be valid pointers to a packet tunnel, the packet tunnel pointer must
  * outlive the ephemeral peer exchange. `cancel_token` should be owned by the caller of this
  * function.
- *
  */
 struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    const uint8_t *ephemeral_key,
