@@ -188,19 +188,19 @@ async fn check_for_leaks(
     // It should be possible somehow. `ifconfig` can print interfaces.
     // needs further investigation
     #[cfg(target_os = "android")]
-    let interface = todo!("get default interface");
+    let interface: &str = todo!("get default interface");
 
     // TODO (macos):
     // get_default_route in route manager
     #[cfg(target_os = "macos")]
-    let interface = todo!("get default interface");
+    let interface: &str = todo!("get default interface");
 
     // TODO (windows):
     // Use default route monitor thingy. It should contain interfaces.
     // Can maybe use callback to subscribe for updates
     // get_best_route
     #[cfg(target_os = "macos")]
-    let interface = todo!("get default interface");
+    let interface: &str = todo!("get default interface");
 
     log::debug!("attempting to leak traffic on interface {interface:?} to {destination}");
 
