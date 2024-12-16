@@ -180,7 +180,7 @@ ExecStart=/usr/bin/mullvad-daemon --disable-stdout-timestamps {verbosity}"#
     if let Some(parent) = override_path.parent() {
         tokio::fs::create_dir_all(parent)
             .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+            .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
     }
 
     let mut file = tokio::fs::OpenOptions::new()
@@ -189,17 +189,17 @@ ExecStart=/usr/bin/mullvad-daemon --disable-stdout-timestamps {verbosity}"#
         .write(true)
         .open(override_path)
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     file.write_all(systemd_service_file_content.as_bytes())
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     tokio::process::Command::new("systemctl")
         .args(["daemon-reload"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
 
     restart_app().await?;
     Ok(())
@@ -214,7 +214,7 @@ pub async fn restart_app() -> Result<(), test_rpc::Error> {
         .args(["restart", "mullvad-daemon"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
     wait_for_service_state(ServiceState::Running).await?;
     Ok(())
 }
@@ -228,7 +228,7 @@ pub async fn stop_app() -> Result<(), test_rpc::Error> {
         .args(["stop", "mullvad-daemon"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
     wait_for_service_state(ServiceState::Inactive).await?;
 
     Ok(())
@@ -243,7 +243,7 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
         .args(["start", "mullvad-daemon"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
     wait_for_service_state(ServiceState::Running).await?;
     Ok(())
 }
@@ -267,7 +267,7 @@ pub async fn stop_app() -> Result<(), test_rpc::Error> {
         .args(["stop", "mullvadvpn"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
     Ok(())
 }
 
@@ -280,7 +280,7 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
         .args(["start", "mullvadvpn"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
     Ok(())
 }
 
@@ -325,7 +325,7 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
     };
 
     let manager = ServiceManager::local_computer(None::<&str>, ServiceManagerAccess::CONNECT)
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
     let service = manager
         .open_service(
             "mullvadvpn",
@@ -334,23 +334,23 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
                 | ServiceAccess::START
                 | ServiceAccess::STOP,
         )
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     // Stop the service
     // TODO: Extract to separate function.
     service
         .stop()
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
     tokio::process::Command::new("net")
         .args(["stop", "mullvadvpn"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
 
     // Get the current service configuration
     let config = service
         .query_config()
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     let executable_path = "C:\\Program Files\\Mullvad VPN\\resources\\mullvad-daemon.exe";
     let launch_arguments = vec![
@@ -375,13 +375,13 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
     // Apply the updated configuration
     service
         .change_config(&updated_config)
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     // Start the service
     // TODO: Extract to separate function.
     service
         .start::<String>(&[])
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     Ok(())
 }
@@ -445,19 +445,19 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
         .map(|env_var| env_var.to_systemd_string())
     {
         writeln!(&mut override_content, "{env_var}")
-            .map_err(|err| test_rpc::Error::Service(err.to_string()))?;
+            .map_err(|err| test_rpc::Error::ServiceChange(err.to_string()))?;
     }
 
     let override_path = std::path::Path::new(SYSTEMD_OVERRIDE_FILE);
     if let Some(parent) = override_path.parent() {
         tokio::fs::create_dir_all(parent)
             .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+            .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
     }
 
     tokio::fs::write(override_path, override_content)
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     if tokio::process::Command::new("systemctl")
         .args(["daemon-reload"])
@@ -467,7 +467,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
         .success()
         .not()
     {
-        return Err(test_rpc::Error::Service(
+        return Err(test_rpc::Error::ServiceChange(
             "Daemon service could not be reloaded".to_owned(),
         ));
     };
@@ -480,7 +480,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
         .success()
         .not()
     {
-        return Err(test_rpc::Error::Service(
+        return Err(test_rpc::Error::ServiceStart(
             "Daemon service could not be restarted".to_owned(),
         ));
     };
@@ -707,7 +707,7 @@ async fn wait_for_service_state(awaited_state: ServiceState) -> Result<(), test_
     loop {
         attempt += 1;
         if attempt > RETRY_ATTEMPTS {
-            return Err(test_rpc::Error::Service(String::from(
+            return Err(test_rpc::Error::ServiceStart(String::from(
                 "Awaiting new service state timed out",
             )));
         }
@@ -716,7 +716,7 @@ async fn wait_for_service_state(awaited_state: ServiceState) -> Result<(), test_
             .args(["status", "mullvad-daemon"])
             .output()
             .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?
+            .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?
             .stdout;
         let output = String::from_utf8_lossy(&output);
 
