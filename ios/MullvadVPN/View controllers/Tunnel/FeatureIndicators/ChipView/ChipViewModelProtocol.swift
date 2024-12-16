@@ -10,7 +10,6 @@ import SwiftUI
 
 protocol ChipViewModelProtocol: ObservableObject {
     var chips: [ChipModel] { get }
-    var isExpanded: Bool { get set }
 }
 
 class MockFeatureIndicatorsViewModel: ChipViewModelProtocol {
@@ -23,10 +22,4 @@ class MockFeatureIndicatorsViewModel: ChipViewModelProtocol {
         ChipModel(name: LocalizedStringKey("Custom DNS")),
         ChipModel(name: LocalizedStringKey("Server IP override")),
     ]
-
-    @Published var isExpanded: Bool
-
-    init(isExpanded: Bool = false) {
-        self.isExpanded = isExpanded
-    }
 }

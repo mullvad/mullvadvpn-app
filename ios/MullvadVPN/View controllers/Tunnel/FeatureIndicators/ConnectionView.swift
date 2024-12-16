@@ -17,13 +17,15 @@ typealias ButtonAction = (ConnectionViewViewModel.TunnelControlAction) -> Void
 struct ConnectionView: View {
     @StateObject var viewModel: ConnectionViewViewModel
     @StateObject var indicatorsViewModel: FeatureIndicatorsViewModel
-    @State var expandConnectionDetails = false
+
+    @State private(set) var isExpanded: Bool = false
+    @State private var scrollViewHeight: CGFloat = 0
 
     var action: ButtonAction?
     var onContentUpdate: (() -> Void)?
-    var onChevronToggle: (() -> Void)?
 
     var body: some View {
+        Spacer()
         VStack(spacing: 22) {
             if viewModel.showsActivityIndicator {
                 CustomProgressView(style: .large)
@@ -33,22 +35,37 @@ struct ConnectionView: View {
                 BlurView(style: .dark)
 
                 VStack(alignment: .leading, spacing: 16) {
-                    ConnectionPanel(viewModel: viewModel)
+                    ConnectionInfo(viewModel: viewModel, isExpanded: $isExpanded)
 
-                    if !indicatorsViewModel.chips.isEmpty {
-                        FeatureIndicatorsView(viewModel: indicatorsViewModel)
+                    if isExpanded {
+                        Divider()
+                            .background(UIColor.secondaryTextColor.color)
                     }
-                    ConnectionPanel(viewModel: viewModel, onChevronToggle: {
-                        expandConnectionDetails.toggle()
-                    }, isExpanded: $expandConnectionDetails)
-                    Divider()
-                        .background(UIColor.secondaryTextColor.color)
-                    FeatureIndicatorsScrollContainerView(
-                        isExpanded: $expandConnectionDetails,
-                        content: { Text("Hello") }
-                    )
-                    .frame(maxWidth: .infinity)
-                    .border(.white)
+
+                    // This geometry reader is somewhat of a workaround. It's "smart" in that it takes up as much
+                    // space as it can and thereby helps the view to understand the maximum allowed height when
+                    // placed in a UIKit context. If ConnectionView would ever be placed as a subview of SwiftUI
+                    // parent, this reader could probably be removed.
+                    if viewModel.isConnected {
+                        GeometryReader { _ in
+                            ScrollView {
+                                VStack(spacing: 16) {
+                                    if !indicatorsViewModel.chips.isEmpty {
+                                        FeatureIndicatorsView(
+                                            viewModel: indicatorsViewModel,
+                                            isExpanded: $isExpanded
+                                        )
+                                    }
+
+                                    if isExpanded {
+                                        ConnectionDetails(viewModel: viewModel)
+                                    }
+                                }
+                                .sizeOfView { scrollViewHeight = $0.height }
+                            }
+                        }
+                        .frame(maxHeight: scrollViewHeight)
+                    }
 
                     ButtonPanel(viewModel: viewModel, action: action)
                 }
@@ -57,101 +74,118 @@ struct ConnectionView: View {
             .cornerRadius(12)
             .padding(16)
         }
-        .padding(.bottom, 8) // Adding some spacing so to not overlap with the map legal link.
-        .onReceive(
-            indicatorsViewModel.$isExpanded
-                .combineLatest(
-                    viewModel.$tunnelState,
-                    viewModel.$showsActivityIndicator
-                )
-        ) { _ in
+        .padding(.bottom, 8) // Adding some spacing so as not to overlap with the map legal link.
+        .onChange(of: isExpanded) { _ in
             onContentUpdate?()
         }
-    }
-}
+        .onReceive(viewModel.combinedState) { (tunnelStatus, _) in
+            onContentUpdate?()
 
-#Preview {
-    ConnectionView(
-        viewModel: ConnectionViewViewModel(tunnelState: .disconnected),
-        indicatorsViewModel: FeatureIndicatorsViewModel(tunnelSettings: LatestTunnelSettings(), ipOverrides: [])
-    ) { action in
-        print(action)
-    let selectedRelays = SelectedRelays(
-        entry: nil,
-        exit: SelectedRelay(
-            endpoint: MullvadEndpoint(
-                ipv4Relay: IPv4Endpoint(ip: .loopback, port: 42),
-                ipv4Gateway: IPv4Address.loopback,
-                ipv6Gateway: IPv6Address.loopback,
-                publicKey: Data()
-            ),
-            hostname: "se-got-wg-001",
-            location: Location(
-                country: "Sweden",
-                countryCode: "se",
-                city: "Gothenburg",
-                cityCode: "got",
-                latitude: 42,
-                longitude: 42
-            )
-        ),
-        retryAttempt: 0
-    )
-    let connectedState = TunnelState.connected(selectedRelays, isPostQuantum: true, isDaita: true)
-
-    return ZStack {
-        VStack {
-            HeaderBarSwiftUIHostedView()
-                .frame(maxHeight: 100)
-            ConnectionView(
-                viewModel: ConnectionViewViewModel(tunnelState: connectedState),
-                action: { action in print(action) },
-                onContentUpdate: { print("On content Update") },
-                onChevronToggle: { print("Chevron toggle") }
-            )
+            if tunnelStatus.state == .disconnected {
+                isExpanded = false
+            }
         }
     }
-    .background(UIColor.secondaryColor.color)
 }
 
-private struct ConnectionPanel: View {
+#Preview("ConnectionView (Normal)") {
+    ConnectionViewPreview(configuration: .normal).make()
+}
+
+#Preview("ConnectionView (Normal, no indicators)") {
+    ConnectionViewPreview(configuration: .normalNoIndicators).make()
+}
+
+#Preview("ConnectionView (Expanded)") {
+    ConnectionViewPreview(configuration: .expanded).make()
+}
+
+#Preview("ConnectionView (Expanded, no indicators)") {
+    ConnectionViewPreview(configuration: .expandedNoIndicators).make()
+}
+
+private struct ConnectionInfo: View {
     @StateObject var viewModel: ConnectionViewViewModel
-    var onChevronToggle: (() -> Void)?
-    var isExpanded: Binding<Bool>
+    @Binding var isExpanded: Bool
 
     var body: some View {
         HStack(alignment: .top) {
-            VStack(alignment: .leading) {
+            VStack(alignment: .leading, spacing: 0) {
                 Text(viewModel.localizedTitleForSecureLabel)
                     .textCase(.uppercase)
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(viewModel.textColorForSecureLabel.color)
-                    .padding(.bottom, 4)
+
                 if let countryAndCity = viewModel.titleForCountryAndCity, let server = viewModel.titleForServer {
                     Text(countryAndCity)
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(UIColor.primaryTextColor.color)
+                        .padding(.top, 4)
                     Text(server)
                         .font(.body)
                         .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                 }
             }
             .accessibilityLabel(viewModel.localizedAccessibilityLabel)
-            if case .connected = viewModel.tunnelState {
-                if let onChevronToggle {
-                    Spacer()
-                    Button(action: onChevronToggle) {
+
+            if viewModel.isConnected {
+                Spacer()
+                Button(
+                    action: { isExpanded.toggle() },
+                    label: {
                         Image(.iconChevron)
                             .renderingMode(.template)
-                            .rotationEffect(isExpanded.wrappedValue ? .degrees(-90) : .degrees(90))
+                            .rotationEffect(isExpanded ? .degrees(-90) : .degrees(90))
                             .frame(width: 44, height: 44, alignment: .topTrailing)
                             .foregroundStyle(.white)
                             .transaction { transaction in
                                 transaction.animation = nil
                             }
                     }
+                )
+            }
+        }
+    }
+}
+
+private struct ConnectionDetails: View {
+    @StateObject var viewModel: ConnectionViewViewModel
+    @State private var columnWidth: CGFloat = 0
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Text(LocalizedStringKey("Connection details"))
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                Spacer()
+            }
+
+            VStack(alignment: .leading, spacing: 0) {
+                if let inAddress = viewModel.inAddress {
+                    connectionDetailRow(title: LocalizedStringKey("In"), value: inAddress)
+                }
+                if let outAddressIpv4 = viewModel.outAddressIpv4 {
+                    connectionDetailRow(title: LocalizedStringKey("Out IPv4"), value: outAddressIpv4)
+                }
+                if let outAddressIpv6 = viewModel.outAddressIpv6 {
+                    connectionDetailRow(title: LocalizedStringKey("Out IPv6"), value: outAddressIpv6)
                 }
             }
+        }
+    }
+
+    @ViewBuilder
+    private func connectionDetailRow(title: LocalizedStringKey, value: LocalizedStringKey) -> some View {
+        HStack(alignment: .top, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                .frame(minWidth: columnWidth, alignment: .leading)
+                .sizeOfView { columnWidth = max(columnWidth, $0.width) }
+            Text(value)
+                .font(.subheadline)
+                .foregroundStyle(UIColor.primaryTextColor.color)
         }
     }
 }
@@ -169,7 +203,7 @@ private struct ButtonPanel: View {
 
     @ViewBuilder
     private func locationButton(with action: ButtonAction?) -> some View {
-        switch viewModel.tunnelState {
+        switch viewModel.tunnelStatus.state {
         case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
             SplitMainButton(
                 text: viewModel.localizedTitleForSelectLocationButton,
@@ -209,7 +243,7 @@ private struct ButtonPanel: View {
         case .cancel:
             MainButton(
                 text: LocalizedStringKey(
-                    viewModel.tunnelState == .waitingForConnectivity(.noConnection)
+                    viewModel.tunnelStatus.state == .waitingForConnectivity(.noConnection)
                         ? "Disconnect"
                         : "Cancel"
                 ),

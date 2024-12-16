@@ -53,7 +53,7 @@ class FI_TunnelViewController: UIViewController, RootContainment {
         self.interactor = interactor
 
         tunnelState = interactor.tunnelStatus.state
-        connectionViewViewModel = ConnectionViewViewModel(tunnelState: tunnelState)
+        connectionViewViewModel = ConnectionViewViewModel(tunnelStatus: interactor.tunnelStatus)
         indicatorsViewViewModel = FeatureIndicatorsViewModel(
             tunnelSettings: interactor.tunnelSettings,
             ipOverrides: interactor.ipOverrides
@@ -86,6 +86,7 @@ class FI_TunnelViewController: UIViewController, RootContainment {
         }
 
         interactor.didUpdateTunnelStatus = { [weak self] tunnelStatus in
+            self?.connectionViewViewModel.tunnelStatus = tunnelStatus
             self?.setTunnelState(tunnelStatus.state, animated: true)
             self?.view.setNeedsLayout()
         }
@@ -142,7 +143,6 @@ class FI_TunnelViewController: UIViewController, RootContainment {
 
     private func setTunnelState(_ tunnelState: TunnelState, animated: Bool) {
         self.tunnelState = tunnelState
-        connectionViewViewModel.tunnelState = tunnelState
 
         setNeedsHeaderBarStyleAppearanceUpdate()
 
@@ -211,7 +211,7 @@ class FI_TunnelViewController: UIViewController, RootContainment {
         connectionController.didMove(toParent: self)
 
         view.addConstrainedSubviews([connectionViewProxy]) {
-            connectionViewProxy.pinEdgesToSuperview(.all().excluding(.top))
+            connectionViewProxy.pinEdgesToSuperview(.all())
         }
     }
 }

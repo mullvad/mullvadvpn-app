@@ -6,18 +6,16 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
-import Foundation
 import MullvadSettings
+import SwiftUI
 
 class FeatureIndicatorsViewModel: ChipViewModelProtocol {
     @Published var tunnelSettings: LatestTunnelSettings
     @Published var ipOverrides: [IPOverride]
-    @Published var isExpanded = false
 
-    init(tunnelSettings: LatestTunnelSettings, ipOverrides: [IPOverride], isExpanded: Bool = false) {
+    init(tunnelSettings: LatestTunnelSettings, ipOverrides: [IPOverride]) {
         self.tunnelSettings = tunnelSettings
         self.ipOverrides = ipOverrides
-        self.isExpanded = isExpanded
     }
 
     var chips: [ChipModel] {

@@ -1,11 +1,10 @@
 //
-//  ChipFeatures.swift
+//  ChipFeature.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2024-12-06.
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
-import Foundation
 import MullvadSettings
 import SwiftUI
 

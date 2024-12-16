@@ -6,6 +6,7 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 
 class ConnectionViewViewModel: ObservableObject {
@@ -23,17 +24,28 @@ class ConnectionViewViewModel: ObservableObject {
         case selectLocation
     }
 
-    @Published var tunnelState: TunnelState
+    @Published var tunnelStatus: TunnelStatus
     @Published var showsActivityIndicator = false
 
-    init(tunnelState: TunnelState) {
-        self.tunnelState = tunnelState
+    var combinedState: Publishers.CombineLatest<
+        Published<TunnelStatus>.Publisher,
+        Published<Bool>.Publisher
+    > {
+        $tunnelStatus.combineLatest($showsActivityIndicator)
+    }
+
+    var isConnected: Bool {
+        tunnelStatus.state != .disconnected
+    }
+
+    init(tunnelStatus: TunnelStatus) {
+        self.tunnelStatus = tunnelStatus
     }
 }
 
 extension ConnectionViewViewModel {
     var textColorForSecureLabel: UIColor {
-        switch tunnelState {
+        switch tunnelStatus.state {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer:
             .white
         case .connected:
@@ -44,7 +56,7 @@ extension ConnectionViewViewModel {
     }
 
     var disableButtons: Bool {
-        if case .waitingForConnectivity(.noNetwork) = tunnelState {
+        if case .waitingForConnectivity(.noNetwork) = tunnelStatus.state {
             return true
         }
 
@@ -52,7 +64,7 @@ extension ConnectionViewViewModel {
     }
 
     var localizedTitleForSecureLabel: LocalizedStringKey {
-        switch tunnelState {
+        switch tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer:
             LocalizedStringKey("Connecting")
         case .connected:
@@ -71,7 +83,7 @@ extension ConnectionViewViewModel {
     }
 
     var localizedTitleForSelectLocationButton: LocalizedStringKey {
-        switch tunnelState {
+        switch tunnelStatus.state {
         case .disconnecting, .pendingReconnect, .disconnected:
             LocalizedStringKey("Select location")
         case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
@@ -80,7 +92,7 @@ extension ConnectionViewViewModel {
     }
 
     var localizedAccessibilityLabel: LocalizedStringKey {
-        switch tunnelState {
+        switch tunnelStatus.state {
         case .disconnected, .waitingForConnectivity, .disconnecting, .pendingReconnect, .error:
             localizedTitleForSecureLabel
         case let .connected(tunnelInfo, _, _):
@@ -99,7 +111,7 @@ extension ConnectionViewViewModel {
     }
 
     var actionButton: TunnelControlActionButton {
-        switch tunnelState {
+        switch tunnelStatus.state {
         case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
             .connect
         case .connecting, .pendingReconnect, .disconnecting(.reconnect), .waitingForConnectivity(.noConnection),
@@ -111,7 +123,7 @@ extension ConnectionViewViewModel {
     }
 
     var titleForCountryAndCity: LocalizedStringKey? {
-        guard tunnelState.isSecured, let tunnelRelays = tunnelState.relays else {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
 
@@ -119,7 +131,7 @@ extension ConnectionViewViewModel {
     }
 
     var titleForServer: LocalizedStringKey? {
-        guard tunnelState.isSecured, let tunnelRelays = tunnelState.relays else {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
 
@@ -131,5 +143,44 @@ extension ConnectionViewViewModel {
         } else {
             LocalizedStringKey("\(exitName)")
         }
+    }
+
+    var inAddress: LocalizedStringKey? {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
+            return nil
+        }
+
+        let observedTunnelState = tunnelStatus.observedState
+
+        var portAndTransport = ""
+        if let inPort = observedTunnelState.connectionState?.remotePort {
+            let protocolLayer = observedTunnelState.connectionState?.transportLayer == .tcp ? "TCP" : "UDP"
+            portAndTransport = ":\(inPort) \(protocolLayer)"
+        }
+
+        guard
+            let address = tunnelRelays.entry?.endpoint.ipv4Relay.description
+                ?? tunnelStatus.state.relays?.exit.endpoint.ipv4Relay.description
+        else {
+            return nil
+        }
+
+        return LocalizedStringKey("\(address)\(portAndTransport)")
+    }
+
+    var outAddressIpv4: LocalizedStringKey? {
+        guard let address = tunnelStatus.state.relays?.exit.endpoint.ipv4Relay.description else {
+            return nil
+        }
+
+        return LocalizedStringKey("\(address)")
+    }
+
+    var outAddressIpv6: LocalizedStringKey? {
+        guard let address = tunnelStatus.state.relays?.exit.endpoint.ipv6Relay?.description else {
+            return nil
+        }
+
+        return LocalizedStringKey("\(address)")
     }
 }
