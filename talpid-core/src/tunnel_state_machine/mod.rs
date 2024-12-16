@@ -130,6 +130,7 @@ pub async fn spawn(
     resource_dir: PathBuf,
     state_change_listener: impl Sender<TunnelStateTransition> + Send + 'static,
     offline_state_listener: mpsc::UnboundedSender<Connectivity>,
+    route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")] volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")] android_context: AndroidContext,
     #[cfg(target_os = "android")] connectivity_listener: ConnectivityListener,
@@ -157,6 +158,7 @@ pub async fn spawn(
         log_dir,
         resource_dir,
         commands_rx: command_rx,
+        route_manager,
         #[cfg(target_os = "windows")]
         volume_update_rx,
         #[cfg(target_os = "android")]
@@ -254,6 +256,7 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     log_dir: Option<PathBuf>,
     resource_dir: PathBuf,
     commands_rx: mpsc::UnboundedReceiver<TunnelCommand>,
+    route_manager: RouteManagerHandle,
     #[cfg(target_os = "windows")]
     volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")]
@@ -275,15 +278,6 @@ impl TunnelStateMachine {
 
         #[cfg(target_os = "macos")]
         let filtering_resolver = crate::resolver::start_resolver().await?;
-
-        let route_manager = RouteManagerHandle::spawn(
-            #[cfg(target_os = "linux")]
-            args.linux_ids.fwmark,
-            #[cfg(target_os = "linux")]
-            args.linux_ids.table_id,
-        )
-        .await
-        .map_err(Error::InitRouteManagerError)?;
 
         #[cfg(windows)]
         let split_tunnel = split_tunnel::SplitTunnel::new(
@@ -322,7 +316,7 @@ impl TunnelStateMachine {
             #[cfg(target_os = "linux")]
             runtime.clone(),
             #[cfg(target_os = "linux")]
-            route_manager.clone(),
+            args.route_manager.clone(),
         )
         .map_err(Error::InitDnsMonitorError)?;
 
@@ -341,7 +335,7 @@ impl TunnelStateMachine {
         let offline_monitor = offline::spawn_monitor(
             offline_tx,
             #[cfg(not(target_os = "android"))]
-            route_manager.clone(),
+            args.route_manager.clone(),
             #[cfg(target_os = "linux")]
             Some(args.linux_ids.fwmark),
             #[cfg(target_os = "android")]
@@ -381,7 +375,7 @@ impl TunnelStateMachine {
             runtime,
             firewall,
             dns_monitor,
-            route_manager,
+            route_manager: args.route_manager,
             _offline_monitor: offline_monitor,
             allow_lan: args.settings.allow_lan,
             #[cfg(not(target_os = "android"))]

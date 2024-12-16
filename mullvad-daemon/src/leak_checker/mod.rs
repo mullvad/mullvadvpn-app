@@ -2,8 +2,10 @@ use anyhow::anyhow;
 use futures::{select, FutureExt};
 use leak_checker::traceroute::TracerouteOpt;
 pub use leak_checker::LeakInfo;
+use mullvad_types::TUNNEL_FWMARK;
 use std::net::IpAddr;
 use std::time::Duration;
+use talpid_routing::RouteManagerHandle;
 use talpid_types::tunnel::TunnelStateTransition;
 use tokio::sync::mpsc;
 
@@ -15,6 +17,7 @@ pub struct LeakChecker {
 /// [LeakChecker] internal task state.
 struct Task {
     events_rx: mpsc::UnboundedReceiver<TaskEvent>,
+    route_manager: RouteManagerHandle,
     callbacks: Vec<Box<dyn LeakCheckerCallback>>,
 }
 
@@ -36,11 +39,12 @@ pub trait LeakCheckerCallback: Send + 'static {
 }
 
 impl LeakChecker {
-    pub fn new() -> Self {
+    pub fn new(route_manager: RouteManagerHandle) -> Self {
         let (task_event_tx, events_rx) = mpsc::unbounded_channel();
 
         let task = Task {
             events_rx,
+            route_manager,
             callbacks: vec![],
         };
 
@@ -56,10 +60,12 @@ impl LeakChecker {
         self.send(TaskEvent::NewTunnelState(tunnel_state))
     }
 
+    /// Call `callback` if a leak is detected.
     pub fn add_leak_callback(&mut self, callback: impl LeakCheckerCallback) {
         self.send(TaskEvent::AddCallback(Box::new(callback)))
     }
 
+    /// Send a [TaskEvent] to the running [Task];
     fn send(&mut self, event: TaskEvent) {
         if self.task_event_tx.send(event).is_err() {
             panic!("LeakChecker unexpectedly closed");
@@ -92,25 +98,15 @@ impl Task {
             };
 
             let ping_destination = tunnel.endpoint.address.ip();
+            let route_manager = self.route_manager.clone();
+            let leak_test = async {
+                // Give the connection a little time to settle before starting the test.
+                // TODO: is this necessary? is there some better way?
+                // TODO: ether remove this or add some concrete motivation.
+                tokio::time::sleep(Duration::from_millis(500)).await;
 
-            // TODO (linux):
-            // Use get_destination_route(ip, Some(fwmark)) to figure out default interface.
-            // where ip is some unused example public ip, or maybe the relay ip
-
-            // TODO (android):
-            // Maybe connectivity monitor?
-            // It should be possible somehow. `ifconfig` can print interfaces.
-            // needs further investigation
-
-            // TODO (macos):
-            // get_default_route in route manager
-
-            // TODO (windows):
-            // Use default route monitor thingy. It should contain interfaces.
-            // Can maybe use callback to subscribe for updates
-            // get_best_route
-
-            let interface = "wlan0"; // TODO
+                check_for_leaks(&route_manager, ping_destination).await
+            };
 
             // Make sure the tunnel state doesn't change while we're doing the leak test.
             // If that happens, then our results might be invalid.
@@ -132,15 +128,6 @@ impl Task {
                         break 'listen_for_events;
                     }
                 }
-            };
-
-            let leak_test = async {
-                // Give the connection a little time to settle before starting the test.
-                // TODO: is this necessary? is there some better way?
-                // TODO: ether remove this or add some concrete motivation.
-                tokio::time::sleep(Duration::from_millis(500)).await;
-
-                check_for_leaks(interface, ping_destination).await
             };
 
             let leak_result = select! {
@@ -173,7 +160,51 @@ impl Task {
     }
 }
 
-async fn check_for_leaks(interface: &str, destination: IpAddr) -> anyhow::Result<Option<LeakInfo>> {
+async fn check_for_leaks(
+    route_manager: &RouteManagerHandle,
+    destination: IpAddr,
+) -> anyhow::Result<Option<LeakInfo>> {
+    // TODO (linux):
+    // Use get_destination_route(ip, Some(fwmark)) to figure out default interface.
+    // where ip is some unused example public ip, or maybe the relay ip
+    #[cfg(target_os = "linux")]
+    let interface = {
+        let Ok(Some(route)) = route_manager
+            .get_destination_route(destination, Some(TUNNEL_FWMARK))
+            .await
+        else {
+            todo!("no route to relay?");
+        };
+
+        route
+            .get_node()
+            .get_device()
+            .expect("no device for default route??")
+            .to_string()
+    };
+
+    // TODO (android):
+    // Maybe connectivity monitor?
+    // It should be possible somehow. `ifconfig` can print interfaces.
+    // needs further investigation
+    #[cfg(target_os = "android")]
+    let interface = todo!("get default interface");
+
+    // TODO (macos):
+    // get_default_route in route manager
+    #[cfg(target_os = "macos")]
+    let interface = todo!("get default interface");
+
+    // TODO (windows):
+    // Use default route monitor thingy. It should contain interfaces.
+    // Can maybe use callback to subscribe for updates
+    // get_best_route
+    #[cfg(target_os = "macos")]
+    let interface = todo!("get default interface");
+
+    log::debug!("attempting to leak traffic on interface {interface:?} to {destination}");
+
+    // TODO: use UDP on windows
     leak_checker::traceroute::try_run_leak_test(&TracerouteOpt {
         interface: interface.to_string(),
         destination,

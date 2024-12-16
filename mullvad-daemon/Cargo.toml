@@ -42,6 +42,7 @@ talpid-future = { path = "../talpid-future" }
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }
+talpid-routing = { path = "../talpid-routing" }
 
 leak-checker = { path = "../leak-checker" }
 
