@@ -1,11 +1,11 @@
 use std::net::{IpAddr, SocketAddr};
 use std::os::fd::{FromRawFd, IntoRawFd};
 
-use eyre::Context;
+use anyhow::Context;
 
 use super::AsyncUdpSocket;
 
-pub fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
+pub fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
     for interface_address in nix::ifaddrs::getifaddrs()? {
         if interface_address.interface_name != interface {
             continue;
@@ -23,7 +23,7 @@ pub fn get_interface_ip(interface: &str) -> eyre::Result<IpAddr> {
         return Ok(address.ip().into());
     }
 
-    eyre::bail!("Interface {interface:?} has no valid IP to bind to");
+    anyhow::bail!("Interface {interface:?} has no valid IP to bind to");
 }
 
 pub struct AsyncUdpSocketUnix(tokio::net::UdpSocket);
@@ -37,10 +37,10 @@ impl AsyncUdpSocket for AsyncUdpSocketUnix {
         AsyncUdpSocketUnix(udp_socket)
     }
 
-    fn set_ttl(&self, ttl: u32) -> eyre::Result<()> {
+    fn set_ttl(&self, ttl: u32) -> anyhow::Result<()> {
         self.0
             .set_ttl(ttl)
-            .wrap_err("Failed to set TTL value for UDP socket")
+            .context("Failed to set TTL value for UDP socket")
     }
 
     async fn send_to(
