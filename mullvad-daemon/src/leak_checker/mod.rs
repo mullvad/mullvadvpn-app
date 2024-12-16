@@ -2,7 +2,6 @@ use anyhow::anyhow;
 use futures::{select, FutureExt};
 use leak_checker::traceroute::TracerouteOpt;
 pub use leak_checker::LeakInfo;
-use mullvad_types::TUNNEL_FWMARK;
 use std::net::IpAddr;
 use std::time::Duration;
 use talpid_routing::RouteManagerHandle;
@@ -170,7 +169,7 @@ async fn check_for_leaks(
     #[cfg(target_os = "linux")]
     let interface = {
         let Ok(Some(route)) = route_manager
-            .get_destination_route(destination, Some(TUNNEL_FWMARK))
+            .get_destination_route(destination, Some(mullvad_types::TUNNEL_FWMARK))
             .await
         else {
             todo!("no route to relay?");
@@ -199,7 +198,7 @@ async fn check_for_leaks(
     // Use default route monitor thingy. It should contain interfaces.
     // Can maybe use callback to subscribe for updates
     // get_best_route
-    #[cfg(target_os = "macos")]
+    #[cfg(target_os = "windows")]
     let interface: &str = todo!("get default interface");
 
     log::debug!("attempting to leak traffic on interface {interface:?} to {destination}");

@@ -289,7 +289,7 @@ impl TunnelStateMachine {
             args.resource_dir.clone(),
             args.command_tx.clone(),
             volume_update_rx,
-            route_manager.clone(),
+            args.route_manager.clone(),
         )
         .map_err(Error::InitSplitTunneling)?;
 
