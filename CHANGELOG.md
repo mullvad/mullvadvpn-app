@@ -31,6 +31,8 @@ Line wrap the file at 100 chars.                                              Th
   provided by relays instead of a bundled list. The bundled `maybenot_machines` file was removed.
 
 ### Fixed
+- Fix some timeout issues for PQ.
+
 #### macOS
 - Fix GUI getting stuck when opening the split tunneling view.
 
