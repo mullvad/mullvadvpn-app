@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 
-import { Colors, Radius, Spacings } from '../../../tokens';
 import { Flex } from '../layout';
 import { buttonReset } from '../mixins';
 import { BodySmallSemiBold } from '../text';
+import { Colors, Radius, Spacings } from '../variables';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'destructive';
@@ -79,7 +79,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {...props}>
         <Flex
           $flex={1}
-          $gap={Spacings.spacing4}
+          $gap={Spacings.spacing3}
           $justifyContent="space-between"
           $padding={{
             horizontal: Spacings.spacing3,

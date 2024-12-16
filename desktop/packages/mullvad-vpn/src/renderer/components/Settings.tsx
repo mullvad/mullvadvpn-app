@@ -7,7 +7,7 @@ import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import * as Cell from './cell';
-import { Button } from './common/molecules/Button';
+import { Button } from './common/molecules';
 import { TitleBig } from './common/text';
 import { BackAction } from './KeyboardNavigation';
 import {

@@ -1,4 +1,4 @@
-export enum Colors {
+export enum ColorTokens {
   darkerBlue = 'rgba(25, 38, 56, 0.95)',
   darkBlue = 'rgb(25, 46, 69)',
   blue = 'rgb(41, 77, 115)',

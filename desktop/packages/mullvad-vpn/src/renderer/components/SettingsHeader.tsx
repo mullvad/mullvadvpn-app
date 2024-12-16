@@ -1,9 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../tokens';
 import { Flex } from './common/layout';
 import { LabelTiny, TitleBig } from './common/text';
+import { Colors, Spacings } from './common/variables';
 
 export const HeaderTitle = styled(TitleBig)({
   wordWrap: 'break-word',

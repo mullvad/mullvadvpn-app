@@ -4,8 +4,8 @@ import { messages } from '../../../../../shared/gettext';
 import { getDownloadUrl } from '../../../../../shared/version';
 import { useAppContext } from '../../../../context';
 import { useSelector } from '../../../../redux/store';
-import { Colors } from '../../../../tokens';
 import * as Cell from '../../../cell';
+import { Colors } from '../../../common/variables';
 import { LabelStack } from '../../../Layout';
 
 export function AppVersionListItem() {

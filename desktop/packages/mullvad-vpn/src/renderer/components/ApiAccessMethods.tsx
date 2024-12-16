@@ -12,9 +12,9 @@ import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
-import { Spacings } from '../tokens';
 import * as Cell from './cell';
 import { Flex } from './common/layout';
+import { Spacings } from './common/variables';
 import {
   ContextMenu,
   ContextMenuContainer,

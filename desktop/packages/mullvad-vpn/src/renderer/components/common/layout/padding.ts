@@ -1,4 +1,4 @@
-import { Spacings } from '../../../tokens';
+import { Spacings } from '../variables';
 import { LayoutSpacings } from './types';
 
 export const all = (padding: Spacings) => ({ padding });

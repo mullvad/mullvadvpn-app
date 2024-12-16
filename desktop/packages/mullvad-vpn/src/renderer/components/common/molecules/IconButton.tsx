@@ -1,9 +1,9 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../../../tokens';
 import ImageView from '../../ImageView';
 import { buttonReset } from '../mixins';
+import { Colors } from '../variables';
 
 export interface IconButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
