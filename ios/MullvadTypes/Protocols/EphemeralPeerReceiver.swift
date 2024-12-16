@@ -48,7 +48,6 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
     }
 
     public func ephemeralPeerExchangeFailed() {
-        guard let receiver = tunnelProvider as? EphemeralPeerReceiving else { return }
-        receiver.ephemeralPeerExchangeFailed()
+        keyReceiver.ephemeralPeerExchangeFailed()
     }
 }
