@@ -9,6 +9,8 @@
     </issue>
     <!-- We are currently not using the ellipsis character -->
     <issue id="TypographyEllipsis" severity="ignore" />
+    <!-- Tracked externally (DROID-245) since the same texts are used across multiple platforms. -->
+    <issue id="ImpliedQuantity" severity="ignore" />
     <!-- Temporarily ignore the below checks while migrating to version catalogs. -->
     <issue id="GradleDependency" severity="ignore" />
     <issue id="AndroidGradlePluginVersion" severity="ignore" />
