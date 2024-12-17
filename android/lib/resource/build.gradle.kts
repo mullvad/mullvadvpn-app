@@ -22,7 +22,8 @@ android {
     }
 
     lint {
-        lintConfig = file("lint.xml")
+        baseline = file("${rootProject.projectDir}/config/lint-baseline.xml")
+        lintConfig = file("${rootProject.projectDir}/config/lint.xml")
         abortOnError = true
         warningsAsErrors = true
     }

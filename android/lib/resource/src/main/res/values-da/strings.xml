@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API tilgængelig, tilføjer metode...</string>
     <string name="api_unreachable">API utilgængelig</string>
     <string name="api_unreachable_save_anyway">API utilgængelig, gemme metode alligevel?</string>
-    <string name="app_version">App-version</string>
     <string name="apply">Anvend</string>
     <string name="at_least_on_method_needs_to_enabled">Mindst én metode skal aktiveres</string>
     <string name="auth_failed">Kan ikke godkende konto. Indsend en problemrapport.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Indstillingerne for automatisk forbindelse og Lockdown-tilstand kan findes i Android- systemindstillingerne. Følg denne vejledning for at aktivere en eller begge.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Auto-tilslutning kaldes Altid-til VPN i Android-systemindstillingerne, og det sørger for, at du konstant er forbundet til VPN-tunnelen og automatisk forbinder efter genstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">her</string>
-    <string name="auto_connect_legacy">Automatisk forbindelse (ældre metode)</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tilbage</string>
     <string name="block_ads_title">Annoncer</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Blokerer internettet</string>
     <string name="blocking_internet_device_offline">Blokering af internet (enhed offline)</string>
     <string name="buy_credit">Køb kredit</string>
-    <string name="buy_more_credit">Køb mere kredit</string>
     <string name="cancel">Annuller</string>
     <string name="changes_dialog_subtitle">Ændringer i denne version:</string>
     <string name="cipher">Chiffer</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s gør dette ved omhyggeligt at tilføje netværksstøj og gøre alle netværkspakker lige store.</string>
     <string name="daita_description_slide_2_second_paragraph">Ikke alle vores servere er %1$s-kompatible. Derfor bruger vi automatisk multihop til at aktivere %2$s med enhver server.</string>
     <string name="daita_info">Hvis du aktiverer \"%1$s\", skal du manuelt vælge en server, der er %2$s-aktiveret. Det kan medføre, at du ender i en blokeret tilstand, indtil du har valgt en kompatibel server i visningen \"Vælg placering\".</string>
-    <string name="daita_relay_subset_warning">Denne funktion er ikke tilgængelig på alle servere. Du skal muligvis ændre placering efter aktivering.</string>
-    <string name="daita_warning">Bemærk: Da dette øger din samlede netværkstrafik, skal du være forsigtig, hvis du har et abonnement med begrænset datamængde. Det kan også påvirke din netværkshastighed og dit batteriforbrug negativt.</string>
     <string name="delete">Slet</string>
     <string name="delete_custom_list_confirmation_description">Vil du slette \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" blev slettet</string>

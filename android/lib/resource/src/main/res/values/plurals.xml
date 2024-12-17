@@ -3,34 +3,9 @@
         <item quantity="one">1 year left</item>
         <item quantity="other">%d years left</item>
     </plurals>
-    <plurals name="months_left">
-        <item quantity="one">1 month left</item>
-        <item quantity="other">%d months left</item>
-    </plurals>
     <plurals name="days_left">
         <item quantity="one">1 day left</item>
         <item quantity="other">%d days left</item>
-    </plurals>
-    <plurals name="minutes_ago">
-        <item quantity="zero">less than a minute ago</item>
-        <item quantity="one">a minute ago</item>
-        <item quantity="other">%d minutes ago</item>
-    </plurals>
-    <plurals name="hours_ago">
-        <item quantity="one">an hour ago</item>
-        <item quantity="other">%d hours ago</item>
-    </plurals>
-    <plurals name="days_ago">
-        <item quantity="one">a day ago</item>
-        <item quantity="other">%d days ago</item>
-    </plurals>
-    <plurals name="months_ago">
-        <item quantity="one">a month ago</item>
-        <item quantity="other">%d months ago</item>
-    </plurals>
-    <plurals name="years_ago">
-        <item quantity="one">a year ago</item>
-        <item quantity="other">%d years ago</item>
     </plurals>
     <plurals name="account_credit_expires_in_days">
         <item quantity="one">Account credit expires in a day</item>

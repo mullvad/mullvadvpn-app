@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API နှင့် ချိတ်၍ရသည်၊ နည်းလမ်း ထည့်နေဆဲ…</string>
     <string name="api_unreachable">API ဝင်ရောက် သုံးစွဲ၍ မရနိုင်ပါ</string>
     <string name="api_unreachable_save_anyway">API နှင့် ချိတ်၍မရပါ၊ မည်သို့ပင်ဖြစ်စေ နည်းလမ်းကို သိမ်းမလား။</string>
-    <string name="app_version">အက်ပ်ဗားရှင်း</string>
     <string name="apply">သုံးရန်</string>
     <string name="at_least_on_method_needs_to_enabled">အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်</string>
     <string name="auth_failed">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">အော်တို ချိတ်ဆက်မှုနှင့် လော့ခ်ဒေါင်းစနစ် ဆက်တင်များကို Android စနစ် ဆက်တင်များတွင် ရှာတွေ့နိုင်ပြီး တစ်ခု သို့မဟုတ် နှစ်ခုလုံးကို ဖွင့်ရန် ဤလမ်းညွှန်ချက်ကို လိုက်နာပါ။</string>
     <string name="auto_connect_carousel_second_slide_top_text">Android စနစ် ဆက်တင်တွင် အော်တိုချိတ်ဆက်မှုကို အမြဲဖွင့် VPN ဟုခေါ်ပြီး VPN Tunnel ကို အမြဲချိတ်ဆက်ထားကြောင်း သေချာစေပြီး အစမှ ပြန်ဖွင့်ပြီးနောက် အော်တို ချိတ်ဆက်ပါသည်။</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ဤနေရာတွင် ပိုမိုဖတ်ရှုနိုင်ပါသည်</string>
-    <string name="auto_connect_legacy">အော်တို ချိတ်ဆက်ရန် (ပင်မ)</string>
     <string name="automatic">အလိုအလျောက်</string>
     <string name="back">နောက်သို့</string>
     <string name="block_ads_title">ကြောငြာများ</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့နေပါသည်</string>
     <string name="blocking_internet_device_offline">အင်တာနက် ပိတ်ဆို့နေဆဲ (စက် အော့ဖ်လိုင်း)</string>
     <string name="buy_credit">ခရက်ဒစ် ဝယ်ရန်</string>
-    <string name="buy_more_credit">ခရက်ဒစ်များ ဝယ်ရန်</string>
     <string name="cancel">မလုပ်တော့ပါ</string>
     <string name="changes_dialog_subtitle">ဤဗားရှင်းတွင် ပြောင်းလဲမှုများ-</string>
     <string name="cipher">ဝှက်စာ</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s သည် ကွန်ရက် အနှောင့်အယှက်လျှပ်လိုင်းကို ဂရုတစိုက် ထည့်ပြီး ကွန်ရက် ပက်ကက်အားလုံးကို အရွယ်အစားတူညီအောင် ပြုလုပ်၍ ထိုသို့လုပ်ဆောင်ခြင်းဖြစ်သည်။</string>
     <string name="daita_description_slide_2_second_paragraph">ကျွန်ုပ်တို့၏ဆာဗာအားလုံးတွင် %1$s ကိုဖွင့်ထားခြင်းမရှိပါ။ ထို့ကြောင့် ကျွန်ုပ်တို့သည် မည်သည့်ဆာဗာနှင့်မဆို %2$s ကိုဖွင့်ရန် မာလ်တီဟော့ပ်ကို အလိုအလျောက်အသုံးပြုပါသည်။</string>
     <string name="daita_info">“%1$s” ကို ဖွင့်လိုက်လျှင် သင်သည် %2$s ကိုဖွင့်ထားသည့် ဆာဗာကို ကိုယ်တိုင်ရွေးချယ်ရမည်ဖြစ်သည်။ ၎င်းသည် \"တည်နေရာကိုရွေးချယ်ပါ\" မြင်ကွင်းတွင် တွဲဖက်သုံးနိုင်သောဆာဗာကို မရွေးချယ်ရသေးမချင်း ပိတ်ဆို့ခံထားသောအခြေအနေတွင် အဆုံးသတ်စေနိုင်သည်။</string>
-    <string name="daita_relay_subset_warning">ဤလုပ်ဆောင်ချက်ကို ဆာဗာအားလုံးတွင် မရရှိနိုင်ပါ။ ဖွင့်ပြီးနောက် တည်နေရာ ပြောင်းလဲရန် လိုအပ်နိုင်သည်။</string>
-    <string name="daita_warning">သတိပြုရန်- ၎င်းသည် သင်၏ စုစုပေါင်းကွန်ရက်သုံးစွဲမှုကို တိုးစေသောကြောင့် သင့်ဒေတာပလန်မှာ အကန့်အသတ်ဖြင့်သာ ရှိပါက သတိထားပါ။ ၎င်းသည် သင်၏ကွန်ရက်အမြန်နှုန်းနှင့် ဘက်ထရီအသုံးပြုမှုကိုလည်း ထိခိုက်စေနိုင်သည်။</string>
     <string name="delete">ဖျက်ရန်</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" ကို ဖျက်မည်လား။</string>
     <string name="delete_custom_list_message">\"%1$s\" ကို ဖျက်ပြီးပါပြီ</string>

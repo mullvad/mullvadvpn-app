@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API bereikbaar, methode toevoegen ...</string>
     <string name="api_unreachable">API onbereikbaar</string>
     <string name="api_unreachable_save_anyway">API onbereikbaar, methode toch opslaan?</string>
-    <string name="app_version">Appversie</string>
     <string name="apply">Toevoegen</string>
     <string name="at_least_on_method_needs_to_enabled">Er moet minimaal één methode ingeschakeld zijn</string>
     <string name="auth_failed">Kan account niet verifiëren. Stuur een probleemrapport.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">De instellingen Automatisch verbinden en Lockdownmodus zijn te vinden in de Android-systeeminstellingen, volg deze gids om een of beide in te schakelen.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatisch verbinden heet Altijd-aan VPN in de Android-systeeminstellingen en zorgt ervoor dat u altijd verbonden bent met de VPN-tunnel en automatisch verbinding maakt na een herstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">hier</string>
-    <string name="auto_connect_legacy">Automatisch verbinden (verouderd)</string>
     <string name="automatic">Automatisch</string>
     <string name="back">Terug</string>
     <string name="block_ads_title">Advertenties</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Internet blokkeren</string>
     <string name="blocking_internet_device_offline">Internet wordt geblokkeerd (apparaat offline)</string>
     <string name="buy_credit">Krediet kopen</string>
-    <string name="buy_more_credit">Meer krediet kopen</string>
     <string name="cancel">Annuleren</string>
     <string name="changes_dialog_subtitle">Wijzigingen in deze versie:</string>
     <string name="cipher">Versleuteling</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s doet dit door zorgvuldig netwerkruis toe te voegen en alle netwerkpakketten even groot te maken.</string>
     <string name="daita_description_slide_2_second_paragraph">Niet al onze servers zijn geschikt voor %1$s. Daarom gebruiken we automatisch multihop om %2$s in te schakelen bij elke server.</string>
     <string name="daita_info">Als u \"%1$s\" inschakelt, moet u handmatig een server selecteren die %2$s ondersteunt. Hierdoor kunt u in een geblokkeerde toestand terechtkomen totdat u een compatibele server hebt geselecteerd in het dialoogvenster \"Locatie selecteren\".</string>
-    <string name="daita_relay_subset_warning">Deze functie is niet op alle servers beschikbaar. Mogelijk moet u na het inschakelen van locatie veranderen.</string>
-    <string name="daita_warning">Let op: omdat dit het totale netwerkverkeer verhoogt, moet u voorzichtig zijn als u een beperkt data-abonnement hebt. Ook kan het uw netwerksnelheid en batterijgebruik beïnvloeden.</string>
     <string name="delete">Verwijderen</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" verwijderen?</string>
     <string name="delete_custom_list_message">\"%1$s\" is verwijderd</string>

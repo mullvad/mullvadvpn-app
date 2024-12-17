@@ -4,15 +4,18 @@
     <issue id="ExtraTranslation" severity="ignore" />
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="Typos" severity="ignore" />
-    <issue id="UnusedResources">
-        <ignore path="res/values/strings.xml" />
-    </issue>
     <!-- We are currently not using the ellipsis character -->
     <issue id="TypographyEllipsis" severity="ignore" />
+    <!-- Tracked externally (DROID-245) since the same texts are used across multiple platforms. -->
+    <issue id="ImpliedQuantity" severity="ignore" />
     <!-- Temporarily ignore the below checks while migrating to version catalogs. -->
     <issue id="GradleDependency" severity="ignore" />
     <issue id="AndroidGradlePluginVersion" severity="ignore" />
     <!-- Temporarily ignored since a dependency is checked with older version of lint -->
     <issue id="ObsoleteLintCustomCheck" severity="ignore" />
     <issue id="NewerVersionAvailable" severity="ignore" />
+    <!-- Ignored, see more: https://github.com/grpc/grpc-java/blob/e8ff6da2cf57a39a62497e9f317e6976b5bfb98c/core/src/main/java/io/grpc/internal/JndiResourceResolverFactory.java#L199 -->
+    <issue id="InvalidPackage">
+      <ignore path="**/io.grpc/grpc-core/1.69.0/7dad3419dfb91a77788afcdf79e0477172784910/grpc-core-1.69.0.jar" />
+    </issue>
 </lint>

@@ -2349,16 +2349,10 @@ msgstr ""
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr ""
 
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
-msgstr ""
-
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr ""
 
 msgid "Auto-connect & Lockdown mode"
-msgstr ""
-
-msgid "Auto-connect (legacy)"
 msgstr ""
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
@@ -2637,9 +2631,6 @@ msgstr ""
 msgid "Search"
 msgstr ""
 
-msgid "Search results"
-msgstr ""
-
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr ""
 
@@ -2686,9 +2677,6 @@ msgid "The local DNS server will not work unless you enable \"Local Network Shar
 msgstr ""
 
 msgid "This address has already been entered."
-msgstr ""
-
-msgid "This feature isn’t available on all servers. You might need to change location after enabling."
 msgstr ""
 
 msgid "This field is required"
@@ -2824,30 +2812,5 @@ msgstr[1] ""
 
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] ""
-msgstr[1] ""
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
 msgstr[0] ""
 msgstr[1] ""

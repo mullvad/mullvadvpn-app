@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">เข้าถึง API ได้ กำลังเพิ่มวิธีการ...</string>
     <string name="api_unreachable">ไม่สามารถเข้าถึง API ได้</string>
     <string name="api_unreachable_save_anyway">เข้าถึง API ไม่ได้ บันทึกวิธีการหรือไม่</string>
-    <string name="app_version">เวอร์ชันแอป</string>
     <string name="apply">ใช้</string>
     <string name="at_least_on_method_needs_to_enabled">จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ</string>
     <string name="auth_failed">ไม่สามารถตรวจสอบความถูกต้องของบัญชีได้ โปรดส่งรายงานปัญหา</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">การตั้งค่าการเชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์ อยู่ในการตั้งค่าระบบ Android โปรดทำตามคำแนะนำนี้ เพื่อเปิดใช้งานโหมดใดโหมดหนึ่ง หรือทั้งสองโหมด</string>
     <string name="auto_connect_carousel_second_slide_top_text">การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ที่นี่</string>
-    <string name="auto_connect_legacy">เชื่อมต่ออัตโนมัติ (เดิม)</string>
     <string name="automatic">อัตโนมัติ</string>
     <string name="back">ย้อนกลับ</string>
     <string name="block_ads_title">โฆษณา</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">กำลังบล็อกอินเทอร์เน็ต</string>
     <string name="blocking_internet_device_offline">กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)</string>
     <string name="buy_credit">ซื้อเครดิต</string>
-    <string name="buy_more_credit">ซื้อเครดิตเพิ่ม</string>
     <string name="cancel">ยกเลิก</string>
     <string name="changes_dialog_subtitle">การเปลี่ยนแปลงในเวอร์ชันนี้:</string>
     <string name="cipher">เข้ารหัส</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s ได้ดำเนินการนี้ ด้วยการเพิ่มสัญญาณรบกวนเครือข่ายอย่างระมัดระวัง และทำให้แพ็กเก็ตเครือข่ายทั้งหมดมีขนาดเท่ากัน</string>
     <string name="daita_description_slide_2_second_paragraph">ไม่ใช่ทุกเซิร์ฟเวอร์ของเราที่เปิดใช้งาน %1$s ด้วยเหตุนี้เอง เราจึงใช้การมัลติฮอปอัตโนมัติ เพื่อเปิดใช้งาน %2$s กับทุกเซิร์ฟเวอร์</string>
     <string name="daita_info">โดยการเปิดใช้งาน “%1$s” คุณจะต้องเลือกเซิร์ฟเวอร์ที่เปิดใช้งาน %2$s ด้วยตนเอง ซึ่งอาจทำให้คุณอยู่ในสถานะถูกบล็อก จนกว่าคุณจะเลือกเซิร์ฟเวอร์ที่เข้ากันได้ในมุมมอง \"เลือกตำแหน่งที่ตั้ง\"</string>
-    <string name="daita_relay_subset_warning">คุณลักษณะนี้ไม่พร้อมใช้งานบนทุกเซิร์ฟเวอร์ คุณอาจต้องต้องเปลี่ยนตำแหน่งที่ตั้ง หลังจากเปิดใช้งาน</string>
-    <string name="daita_warning">โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลที่มีปริมาณจำกัด เนื่องจากการดำเนินการนี้ จะเพิ่มการรับส่งข้อมูลโดยรวมของคุณขึ้น การดำเนินการนี้ อาจส่งผลเชิงลบต่อความเร็วเครือข่าย และการใช้งานแบตเตอรี่ของคุณได้</string>
     <string name="delete">ลบ</string>
     <string name="delete_custom_list_confirmation_description">ลบ \"%1$s\" หรือไม่</string>
     <string name="delete_custom_list_message">\"%1$s\" ถูกลบแล้ว</string>
