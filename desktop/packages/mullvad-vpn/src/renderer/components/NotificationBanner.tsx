@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
+import { IconButton } from '../lib/components';
 import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
-import { IconButton } from './common/molecules';
 import { tinyText } from './common-styles';
 import ImageView from './ImageView';
 

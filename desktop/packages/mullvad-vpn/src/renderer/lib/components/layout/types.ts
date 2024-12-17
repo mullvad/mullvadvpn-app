@@ -1,4 +1,4 @@
-import { Spacings } from '../variables';
+import { Spacings } from '../../foundations';
 
 export interface LayoutSpacings {
   all?: 'string';

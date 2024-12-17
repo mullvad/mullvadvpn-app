@@ -1,4 +1,4 @@
-import { ColorTokens } from '../../../tokens';
+import { ColorTokens } from '../tokens';
 
 export const colors = {
   '--color-darker-blue': ColorTokens.darkBlue,

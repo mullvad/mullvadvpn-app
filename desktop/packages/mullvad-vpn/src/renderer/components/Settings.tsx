@@ -3,12 +3,11 @@ import { useCallback } from 'react';
 import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { Button, TitleBig } from '../lib/components';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import * as Cell from './cell';
-import { Button } from './common/molecules';
-import { TitleBig } from './common/text';
 import { BackAction } from './KeyboardNavigation';
 import {
   ButtonStack,

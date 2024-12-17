@@ -1,4 +1,4 @@
-import { SpacingTokens } from '../../../tokens';
+import { SpacingTokens } from '../tokens';
 
 export const spacings = {
   '--spacing-1': SpacingTokens.spacing1,

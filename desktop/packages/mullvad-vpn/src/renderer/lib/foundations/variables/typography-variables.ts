@@ -1,9 +1,4 @@
-import {
-  FontFamilyTokens,
-  FontSizeTokens,
-  FontWeightTokens,
-  LineHeightTokens,
-} from '../../../tokens';
+import { FontFamilyTokens, FontSizeTokens, FontWeightTokens, LineHeightTokens } from '../tokens';
 
 export const fontFamilies = {
   '--font-family-open-sans': FontFamilyTokens.openSans,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { createGlobalStyle } from 'styled-components';
 
-import { colors, fontFamilies, fontSizes, fontWeights, lineHeights, radius, spacings } from './';
+import { colors, fontFamilies, fontSizes, fontWeights, lineHeights, radius, spacings } from '.';
 
 type VariablesProps = React.PropsWithChildren<object>;
 

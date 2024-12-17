@@ -1,4 +1,4 @@
-import { Spacings } from '../variables';
+import { Spacings } from '../../foundations';
 import { LayoutSpacings } from './types';
 
 export const all = (margin: Spacings) => ({ margin });

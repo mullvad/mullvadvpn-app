@@ -5,11 +5,11 @@ import { ICustomList } from '../../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
+import { Button, ButtonProps } from '../../lib/components';
 import { transitions, useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
-import { Button, ButtonProps } from '../common/molecules';
 import ImageView from '../ImageView';
 import { MultiButton } from '../MultiButton';
 

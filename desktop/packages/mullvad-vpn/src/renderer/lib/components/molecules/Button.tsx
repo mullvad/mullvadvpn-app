@@ -1,10 +1,10 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 
+import { Colors, Radius, Spacings } from '../../foundations';
 import { Flex } from '../layout';
 import { buttonReset } from '../mixins';
-import { BodySmallSemiBold } from '../text';
-import { Colors, Radius, Spacings } from '../variables';
+import { BodySmallSemiBold } from '../typography';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'destructive';

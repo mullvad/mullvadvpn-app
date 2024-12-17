@@ -3,9 +3,9 @@ import { useCallback } from 'react';
 import { messages } from '../../../../../shared/gettext';
 import { getDownloadUrl } from '../../../../../shared/version';
 import { useAppContext } from '../../../../context';
+import { Colors } from '../../../../lib/foundations';
 import { useSelector } from '../../../../redux/store';
 import * as Cell from '../../../cell';
-import { Colors } from '../../../common/variables';
 import { LabelStack } from '../../../Layout';
 
 export function AppVersionListItem() {
