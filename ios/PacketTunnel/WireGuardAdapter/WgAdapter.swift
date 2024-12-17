@@ -218,8 +218,8 @@ extension WgAdapter: TunnelProvider {
         return try self.adapter.tunnelHandle()
     }
 
-    public func wgFuncs() -> WgFuncPointers {
-        WgFuncPointers(
+    public func wgFunctions() -> WgFunctionPointers {
+        WgFunctionPointers(
             open: adapter.inTunnelTcpOpen,
             close: adapter.inTunnelTcpClose,
             receive: adapter.inTunnelTcpRecv,

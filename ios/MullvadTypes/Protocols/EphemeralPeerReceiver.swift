@@ -15,8 +15,8 @@ public class EphemeralPeerReceiver: EphemeralPeerReceiving, TunnelProvider {
         try tunnelProvider.tunnelHandle()
     }
 
-    public func wgFuncs() -> WgFuncPointers {
-        tunnelProvider.wgFuncs()
+    public func wgFunctions() -> WgFunctionPointers {
+        tunnelProvider.wgFunctions()
     }
 
     unowned let tunnelProvider: any TunnelProvider

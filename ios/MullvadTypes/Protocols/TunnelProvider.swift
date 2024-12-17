@@ -11,21 +11,21 @@ import NetworkExtension
 
 public protocol TunnelProvider: AnyObject {
     func tunnelHandle() throws -> Int32
-    func wgFuncs() -> WgFuncPointers
+    func wgFunctions() -> WgFunctionPointers
 }
 
-public typealias TcpOpenFunc = @convention(c) (Int32, UnsafePointer<CChar>?, UInt64) -> Int32
-public typealias TcpCloseFunc = @convention(c) (Int32, Int32) -> Int32
-public typealias TcpSendFunc = @convention(c) (Int32, Int32, UnsafePointer<UInt8>?, Int32) -> Int32
-public typealias TcpRecvFunc = @convention(c) (Int32, Int32, UnsafeMutablePointer<UInt8>?, Int32) -> Int32
+public typealias TcpOpenFunction = @convention(c) (Int32, UnsafePointer<CChar>?, UInt64) -> Int32
+public typealias TcpCloseFunction = @convention(c) (Int32, Int32) -> Int32
+public typealias TcpSendFunction = @convention(c) (Int32, Int32, UnsafePointer<UInt8>?, Int32) -> Int32
+public typealias TcpRecvFunction = @convention(c) (Int32, Int32, UnsafeMutablePointer<UInt8>?, Int32) -> Int32
 
-public struct WgFuncPointers {
-    public let open: TcpOpenFunc
-    public let close: TcpCloseFunc
-    public let receive: TcpRecvFunc
-    public let send: TcpSendFunc
+public struct WgFunctionPointers {
+    public let open: TcpOpenFunction
+    public let close: TcpCloseFunction
+    public let receive: TcpRecvFunction
+    public let send: TcpSendFunction
 
-    public init(open: TcpOpenFunc, close: TcpCloseFunc, receive: TcpRecvFunc, send: TcpSendFunc) {
+    public init(open: TcpOpenFunction, close: TcpCloseFunction, receive: TcpRecvFunction, send: TcpSendFunction) {
         self.open = open
         self.close = close
         self.receive = receive

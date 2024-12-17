@@ -39,7 +39,7 @@ pub struct EphemeralPeerParameters {
     pub peer_exchange_timeout: u64,
     pub enable_post_quantum: bool,
     pub enable_daita: bool,
-    pub funcs: ios_tcp_connection::WgTcpConnectionFuncs,
+    pub funcs: ios_tcp_connection::WgTcpConnectionFunctions,
 }
 
 /// Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.

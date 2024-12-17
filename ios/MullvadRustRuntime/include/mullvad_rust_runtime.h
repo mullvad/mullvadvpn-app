@@ -27,18 +27,18 @@ typedef struct ProxyHandle {
   uint16_t port;
 } ProxyHandle;
 
-typedef struct WgTcpConnectionFuncs {
+typedef struct WgTcpConnectionFunctions {
   int32_t (*open_fn)(int32_t tunnelHandle, const char *address, uint64_t timeout);
   int32_t (*close_fn)(int32_t tunnelHandle, int32_t socketHandle);
   int32_t (*recv_fn)(int32_t tunnelHandle, int32_t socketHandle, uint8_t *data, int32_t len);
   int32_t (*send_fn)(int32_t tunnelHandle, int32_t socketHandle, const uint8_t *data, int32_t len);
-} WgTcpConnectionFuncs;
+} WgTcpConnectionFunctions;
 
 typedef struct EphemeralPeerParameters {
   uint64_t peer_exchange_timeout;
   bool enable_post_quantum;
   bool enable_daita;
-  struct WgTcpConnectionFuncs funcs;
+  struct WgTcpConnectionFunctions funcs;
 } EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;

@@ -17,7 +17,7 @@ fn connection_closed_err() -> io::Error {
 
 #[derive(Clone, Copy)]
 #[repr(C)]
-pub struct WgTcpConnectionFuncs {
+pub struct WgTcpConnectionFunctions {
     pub open_fn:
         unsafe extern "C" fn(tunnelHandle: i32, address: *const libc::c_char, timeout: u64) -> i32,
     pub close_fn: unsafe extern "C" fn(tunnelHandle: i32, socketHandle: i32) -> i32,
@@ -31,7 +31,7 @@ pub struct WgTcpConnectionFuncs {
     ) -> i32,
 }
 
-impl WgTcpConnectionFuncs {
+impl WgTcpConnectionFunctions {
     /// # Safety
     /// This function is safe to call so long as the function pointer is valid for its declared
     /// signature.
@@ -89,7 +89,7 @@ extern "C" {
 pub struct IosTcpProvider {
     tunnel_handle: i32,
     timeout: Duration,
-    funcs: WgTcpConnectionFuncs,
+    funcs: WgTcpConnectionFunctions,
 }
 
 type InFlightIoTask = Option<Pin<Box<tokio::task::JoinHandle<io::Result<Vec<u8>>>>>>;
@@ -97,7 +97,7 @@ type InFlightIoTask = Option<Pin<Box<tokio::task::JoinHandle<io::Result<Vec<u8>>
 pub struct IosTcpConnection {
     tunnel_handle: i32,
     socket_handle: i32,
-    funcs: WgTcpConnectionFuncs,
+    funcs: WgTcpConnectionFunctions,
     in_flight_read: InFlightIoTask,
     in_flight_write: InFlightIoTask,
 }

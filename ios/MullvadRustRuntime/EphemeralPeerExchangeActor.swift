@@ -71,7 +71,7 @@ public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
             peer_exchange_timeout: UInt64(tcpConnectionTimeout.timeInterval),
             enable_post_quantum: enablePostQuantum,
             enable_daita: enableDaita,
-            funcs: mapWgFuncs(funcs: packetTunnel.wgFuncs())
+            funcs: mapWgFunctions(functions: packetTunnel.wgFunctions())
         )
 
         if !negotiator.startNegotiation(
@@ -91,15 +91,15 @@ public class EphemeralPeerExchangeActor: EphemeralPeerExchangeActorProtocol {
         )
     }
 
-    private func mapWgFuncs(funcs: WgFuncPointers) -> WgTcpConnectionFuncs {
-        var mappedFuncs = WgTcpConnectionFuncs()
+    private func mapWgFunctions(functions: WgFunctionPointers) -> WgTcpConnectionFunctions {
+        var mappedFunctions = WgTcpConnectionFunctions()
 
-        mappedFuncs.close_fn = funcs.close
-        mappedFuncs.open_fn = funcs.open
-        mappedFuncs.send_fn = funcs.send
-        mappedFuncs.recv_fn = funcs.receive
+        mappedFunctions.close_fn = functions.close
+        mappedFunctions.open_fn = functions.open
+        mappedFunctions.send_fn = functions.send
+        mappedFunctions.recv_fn = functions.receive
 
-        return mappedFuncs
+        return mappedFunctions
     }
 
     /// Cancels the ongoing key exchange.
