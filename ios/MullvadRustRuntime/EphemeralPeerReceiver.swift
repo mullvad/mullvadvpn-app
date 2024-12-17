@@ -1,5 +1,5 @@
 //
-//  PacketTunnelProvider+TCPConnection.swift
+//  EphemeralPeerReceiver.swift
 //  PacketTunnel
 //
 //  Created by Marco Nikic on 2024-02-15.
