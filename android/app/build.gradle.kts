@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
+    alias(libs.plugins.protobuf.core)
     alias(libs.plugins.rust.android.gradle)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
@@ -240,16 +241,14 @@ android {
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
+        // Ensure we have relay list ready before merging assets.
+        tasks["merge${capitalizedVariantName}Assets"].dependsOn(tasks["generateRelayList"])
+
         // Ensure that we have all the JNI libs before merging them.
-        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
-            dependsOn(tasks["generateRelayList"])
-            dependsOn("cargoBuild")
-        }
+        tasks["merge${capitalizedVariantName}JniLibFolders"].dependsOn("cargoBuild")
 
         // Ensure all relevant assemble tasks depend on our ensure task.
-        tasks["assemble$capitalizedVariantName"].apply {
-            dependsOn(tasks["ensureValidVersionCode"])
-        }
+        tasks["assemble$capitalizedVariantName"].dependsOn(tasks["ensureValidVersionCode"])
     }
 }
 
@@ -291,7 +290,6 @@ cargo {
             add("--locked")
         }
     }
-    exec = { spec, _ -> println(spec.commandLine) }
 }
 
 tasks.register<Exec>("generateRelayList") {
@@ -308,25 +306,34 @@ tasks.register<Exec>("generateRelayList") {
     doLast {
         val output = standardOutput as ByteArrayOutputStream
         // Create file if needed
-        File("$extraAssetsDirectory").mkdirs()
-        File("$extraAssetsDirectory/relays.json").createNewFile()
-        FileOutputStream("$extraAssetsDirectory/relays.json").use { it.write(output.toByteArray()) }
-
-        // Old ensure exists tasks
-        if (!relayListPath.exists()) {
-            throw GradleException("Failed to generate relay list")
-        }
+        relayListPath.parentFile.mkdirs()
+        relayListPath.createNewFile()
+        FileOutputStream(relayListPath).use { it.write(output.toByteArray()) }
     }
 }
 
+tasks.register<Exec>("cargoClean") {
+    workingDir = File(repoRootPath)
+    commandLine("cargo", "clean")
+}
+
+if (
+    gradleLocalProperties(rootProject.projectDir, providers)
+        .getProperty("CLEAN_CARGO_BUILD")
+        ?.toBoolean() != false
+) {
+    tasks["clean"].dependsOn("cargoClean")
+}
+
+// This is a hack and will not work correctly under all scenarios.
+// See DROID-1696 for how we can improve this.
 fun isReleaseBuild() =
     gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
 
-fun isAlphaOrDevBuild() : Boolean {
+fun isAlphaOrDevBuild(): Boolean {
     val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
     val versionName = generateVersionName(localProperties)
-    return versionName.contains("dev", ignoreCase = true) ||
-        versionName.contains("alpha", ignoreCase = true)
+    return versionName.contains("dev") || versionName.contains("alpha")
 }
 
 androidComponents {

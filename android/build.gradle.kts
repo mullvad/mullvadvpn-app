@@ -18,7 +18,6 @@ plugins {
 
     alias(libs.plugins.detekt) apply true
     alias(libs.plugins.dependency.versions) apply true
-
 }
 
 buildscript {

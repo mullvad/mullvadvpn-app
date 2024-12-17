@@ -18,7 +18,7 @@ case $platform in
         shift 1
     ;;
     android)
-        build_command=("./android/build-apk.sh")
+        build_command=("./android/build.sh")
         shift 1
     ;;
     *)

@@ -172,6 +172,7 @@ fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
     // or if the libwg.so file has been changed. The latter is required since the
     // libwg.so file could be deleted. It however means that this build will need
     // to run two times before it is properly cached.
+    // FIXME: Figure out a way to do this better. This is tracked in DROID-1697.
     println!(
         "cargo::rerun-if-changed={}",
         android_output_path(target)?.join("libwg.so").display()
@@ -232,7 +233,8 @@ fn android_move_binary(binary: &Path, output: &Path) -> anyhow::Result<()> {
     std::fs::create_dir_all(parent_of_output)?;
 
     let mut copy_command = Command::new("cp");
-    // P command is required to not rebuild this module everytime
+    // -p command is required to preserve ownership and timestamp of the file to prevent a
+    // rebuild of this module everytime.
     copy_command
         .arg("-p")
         .arg(binary.to_str().unwrap())
