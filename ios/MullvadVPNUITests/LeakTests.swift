@@ -14,7 +14,7 @@ class LeakTests: LoggedInWithTimeUITestCase {
     }
 
     /// Send UDP traffic to a host, connect to relay and make sure while connected to relay no traffic  leaked went directly to the host
-    func testNegativeLeaks() throws {
+    func testNoLeak() throws {
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         FirewallAPIClient().createRule(try FirewallRule.makeBlockAllTrafficRule(toIPAddress: targetIPAddress))
 
@@ -41,36 +41,56 @@ class LeakTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
 
         // Keep the capture open for a while
-        Thread.sleep(forTimeInterval: 3.0)
+        Thread.sleep(forTimeInterval: 5.0)
         trafficGenerator.stopGeneratingUDPTraffic()
 
         let capturedStreams = stopPacketCapture()
         LeakCheck.assertNoLeaks(streams: capturedStreams, rules: [NoTrafficToHostLeakRule(host: targetIPAddress)])
+    }
 
-        /*do {
-            let relayConnectionDateInterval = try capturedStreamCollection
-                .getConnectedThroughRelayDateInterval(
-                    relayIPAddress: relayIPAddress
-                )
+    /// Send UDP traffic to a host, connect to relay and then disconnect to intentionally leak traffic and make sure that the test catches the leak
+    func testShouldLeak() throws {
+        let targetIPAddress = Networking.getAlwaysReachableIPAddress()
+        FirewallAPIClient().createRule(try FirewallRule.makeBlockAllTrafficRule(toIPAddress: targetIPAddress))
 
-            // Get traffic from time window of connection with some leeway
-            let secondsLeeway = 2.0
-            let connectedDateWithLeeway = relayConnectionDateInterval.start.addingTimeInterval(secondsLeeway)
-            let disconnectedDateWithLeeway = relayConnectionDateInterval.end.addingTimeInterval(-secondsLeeway)
-            let connectedToRelayDateIntervalWithLeeway = DateInterval(
-                start: connectedDateWithLeeway,
-                end: disconnectedDateWithLeeway
-            )
-            let connectedThroughRelayStreamCollection = capturedStreamCollection.extractStreamCollectionFrom(
-                connectedToRelayDateIntervalWithLeeway,
-                cutOffPacketsOverflow: true
-            )
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
 
-            // Treat any traffic to the test IP address during the connected time window as leak
-            connectedThroughRelayStreamCollection.dontAllowTrafficFromTestDevice(to: testIpAddress)
-            connectedThroughRelayStreamCollection.verifyDontHaveLeaks()
-        } catch {
-            XCTFail("Unexpectedly didn't find any traffic between test device and relay")
-        }*/
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForSecureConnectionLabel()
+
+        startPacketCapture()
+        let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
+        trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
+
+        Thread.sleep(forTimeInterval: 2.0)
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+
+        // Give it some time to generate traffic outside of tunnel
+        Thread.sleep(forTimeInterval: 3.0)
+
+        TunnelControlPage(app)
+            .tapSecureConnectionButton()
+
+        let relayIPAddress = TunnelControlPage(app)
+            .getInIPAddressFromConnectionStatus()
+
+        // Keep the tunnel connection for a while
+        Thread.sleep(forTimeInterval: 5.0)
+
+        app.launch()
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+
+        // Keep the capture open for a while
+        Thread.sleep(forTimeInterval: 5.0)
+        trafficGenerator.stopGeneratingUDPTraffic()
+
+        let capturedStreams = stopPacketCapture()
+        LeakCheck.assertNoLeaks(streams: capturedStreams, rules: [NoTrafficToHostLeakRule(host: targetIPAddress)])
     }
 }

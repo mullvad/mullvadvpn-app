@@ -142,7 +142,7 @@ class BaseUITestCase: XCTestCase {
     func allowAddVPNConfigurationsIfAsked() {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
-        if springboard.buttons["Allowi"].waitForExistence(timeout: Self.shortTimeout) {
+        if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
             let alertAllowButton = springboard.buttons.element(boundBy: 0)
             if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
                 alertAllowButton.tap()
@@ -181,7 +181,6 @@ class BaseUITestCase: XCTestCase {
         guard let packetCaptureSession else {
             XCTFail("Trying to stop capture when there is no active capture")
             return []
-            //return StreamCollection(streams: [])
         }
 
         let packetCaptureAPIClient = PacketCapture()
@@ -189,7 +188,6 @@ class BaseUITestCase: XCTestCase {
         let capturedData = packetCaptureAPIClient.getParsedCaptureObjects(session: packetCaptureSession)
 
         return capturedData
-        //return StreamCollection(streams: capturedData)
     }
 
     // MARK: - Setup & teardown
