@@ -165,7 +165,7 @@ jobs:
             taskVariant: "Arm64"
           - abi: "armeabi-v7a"
             taskVariant: "Arm"
-    id: build-native-${{ matrix.abi }}        
+    # name: build-native-${{ matrix.abi }}
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
