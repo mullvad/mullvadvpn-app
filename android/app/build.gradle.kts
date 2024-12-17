@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
+    alias(libs.plugins.protobuf.core)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -55,11 +56,7 @@ android {
         }
     }
 
-    playConfigs {
-        register("playStagemoleRelease") {
-            enabled = true
-        }
-    }
+    playConfigs { register("playStagemoleRelease") { enabled = true } }
 
     androidResources {
         @Suppress("UnstableApiUsage")
@@ -222,8 +219,7 @@ android {
         }
 
         val variantName = name
-        val capitalizedVariantName =
-            variantName.toString().capitalized()
+        val capitalizedVariantName = variantName.toString().capitalized()
         val artifactName = "MullvadVPN-${versionName}${artifactSuffix}"
 
         tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
@@ -316,7 +312,8 @@ tasks.create("printVersion") {
 
 play {
     serviceAccountCredentials.set(file("$credentialsPath/play-api-key.json"))
-    // Disable for all flavors by default. Only specific flavors should be enabled using PlayConfigs.
+    // Disable for all flavors by default. Only specific flavors should be enabled using
+    // PlayConfigs.
     enabled = false
     // This property refers to the Publishing API (not git).
     commit = true
@@ -324,6 +321,19 @@ play {
     track = "internal"
     releaseStatus = ReleaseStatus.COMPLETED
     userFraction = 1.0
+}
+
+protobuf {
+    protoc { artifact = libs.plugins.protobuf.protoc.get().toString() }
+    plugins {
+        create("java") { artifact = libs.plugins.grpc.protoc.gen.grpc.java.get().toString() }
+    }
+    generateProtoTasks {
+        all().forEach {
+            it.plugins { create("java") { option("lite") } }
+            it.builtins { create("kotlin") { option("lite") } }
+        }
+    }
 }
 
 dependencies {
@@ -345,6 +355,7 @@ dependencies {
 
     implementation(libs.commons.validator)
     implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.datastore)
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.coresplashscreen)
     implementation(libs.androidx.lifecycle.runtime)
@@ -370,6 +381,7 @@ dependencies {
     implementation(libs.kotlin.reflect)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.protobuf.kotlin.lite)
 
     // UI tooling
     implementation(libs.compose.ui.tooling.preview)
