@@ -1,12 +1,14 @@
 use std::io;
 use std::net::IpAddr;
+use std::num::NonZero;
 use std::os::fd::{FromRawFd, IntoRawFd};
 
-use anyhow::Context;
+use anyhow::{anyhow, Context};
+use nix::net::if_::if_nametoindex;
 use socket2::Socket;
 
 use crate::traceroute::TracerouteOpt;
-use crate::LeakStatus;
+use crate::{Interface, LeakStatus};
 
 use super::{common, unix, AsyncIcmpSocket, Traceroute};
 
@@ -18,12 +20,12 @@ impl Traceroute for TracerouteMacos {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
+    fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
         // can't use the same method as desktop-linux here beacuse reasons
         bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
+    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
         super::unix::get_interface_ip(interface)
     }
 
@@ -66,15 +68,14 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
     }
 }
 
-pub fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
-    use nix::net::if_::if_nametoindex;
-    use std::num::NonZero;
+pub fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
+    let Interface::Name(interface) = interface;
 
     log::info!("Binding socket to {interface:?}");
 
-    let interface_index = if_nametoindex(interface)
-        .map_err(anyhow::Report::from)
-        .and_then(|code| NonZero::new(code).ok_or_anyhow("Non-zero error code"))
+    let interface_index = if_nametoindex(interface.as_str())
+        .map_err(anyhow::Error::from)
+        .and_then(|code| NonZero::new(code).ok_or(anyhow!("Non-zero error code")))
         .context("Failed to get interface index")?;
 
     socket.bind_device_by_index_v4(Some(interface_index))?;

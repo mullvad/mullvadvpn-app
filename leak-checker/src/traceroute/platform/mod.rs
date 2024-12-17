@@ -3,7 +3,7 @@ use std::{
     net::{IpAddr, SocketAddr},
 };
 
-use crate::LeakStatus;
+use crate::{Interface, LeakStatus};
 
 use super::TracerouteOpt;
 
@@ -32,9 +32,12 @@ pub trait Traceroute {
     type AsyncIcmpSocket: AsyncIcmpSocket;
     type AsyncUdpSocket: AsyncUdpSocket;
 
-    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr>;
+    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr>;
 
-    fn bind_socket_to_interface(socket: &socket2::Socket, interface: &str) -> anyhow::Result<()>;
+    fn bind_socket_to_interface(
+        socket: &socket2::Socket,
+        interface: &Interface,
+    ) -> anyhow::Result<()>;
 
     /// Configure an ICMP socket to allow reception of ICMP/TimeExceeded errors.
     // TODO: consider moving into AsyncIcmpSocket constructor

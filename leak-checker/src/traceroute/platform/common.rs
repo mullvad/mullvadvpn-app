@@ -14,12 +14,12 @@ use tokio::{
 
 use crate::{
     traceroute::{parse_icmp_time_exceeded, parse_ipv4, RECV_TIMEOUT},
-    LeakInfo, LeakStatus,
+    Interface, LeakInfo, LeakStatus,
 };
 
 use super::{AsyncIcmpSocket, Impl, Traceroute};
 
-pub fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
+pub fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
     let interface_ip = Impl::get_interface_ip(interface)?;
 
     log::info!("Binding socket to {interface_ip} ({interface:?})");
@@ -33,7 +33,7 @@ pub fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Res
 
 pub async fn recv_ttl_responses(
     socket: &impl AsyncIcmpSocket,
-    interface: &str,
+    interface: &Interface,
 ) -> anyhow::Result<LeakStatus> {
     // the list of node IP addresses from which we received a response to our probe packets.
     let mut reachable_nodes = vec![];
@@ -68,7 +68,7 @@ pub async fn recv_ttl_responses(
             _timeout = timer => {
                 return Ok(LeakStatus::LeakDetected(LeakInfo::NodeReachableOnInterface {
                     reachable_nodes,
-                    interface: interface.to_string(),
+                    interface: interface.clone(),
                 }));
             }
         };

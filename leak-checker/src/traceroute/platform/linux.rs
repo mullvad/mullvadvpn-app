@@ -14,7 +14,7 @@ use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
 use crate::traceroute::{parse_icmp_echo_raw, TracerouteOpt, RECV_TIMEOUT};
-use crate::{LeakInfo, LeakStatus};
+use crate::{Interface, LeakInfo, LeakStatus};
 
 use super::{unix, AsyncIcmpSocket, Traceroute};
 
@@ -26,11 +26,11 @@ impl Traceroute for TracerouteLinux {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
+    fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
         bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
+    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
         super::unix::get_interface_ip(interface)
     }
 
@@ -70,8 +70,10 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
     }
 }
 
-fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
+fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
     log::info!("Binding socket to {interface:?}");
+
+    let Interface::Name(interface) = interface;
 
     socket
         .bind_device(Some(interface.as_bytes()))
@@ -86,7 +88,7 @@ fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<
 // TODO: double check if this works on MacOS
 async fn recv_ttl_responses(
     destination: IpAddr,
-    interface: &str,
+    interface: &Interface,
     socket: &impl AsRawFd,
 ) -> anyhow::Result<LeakStatus> {
     // the list of node IP addresses from which we received a response to our probe packets.
@@ -209,7 +211,7 @@ async fn recv_ttl_responses(
     Ok(LeakStatus::LeakDetected(
         LeakInfo::NodeReachableOnInterface {
             reachable_nodes,
-            interface: interface.to_string(),
+            interface: interface.clone(),
         },
     ))
 }

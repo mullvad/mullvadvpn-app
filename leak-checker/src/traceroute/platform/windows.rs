@@ -6,7 +6,7 @@ use std::{
     ptr::null_mut,
 };
 
-use anyhow::{bail, anyhow, Context};
+use anyhow::{anyhow, bail, Context};
 use socket2::Socket;
 use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 
@@ -14,7 +14,7 @@ use windows_sys::Win32::Networking::WinSock::{
     WSAGetLastError, WSAIoctl, SIO_RCVALL, SOCKET, SOCKET_ERROR,
 };
 
-use crate::{traceroute::TracerouteOpt, LeakStatus};
+use crate::{traceroute::TracerouteOpt, Interface, LeakStatus};
 
 use super::{common, AsyncIcmpSocket, AsyncUdpSocket, Traceroute};
 
@@ -28,11 +28,11 @@ impl Traceroute for TracerouteWindows {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = AsyncUdpSocketWindows;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &str) -> anyhow::Result<()> {
+    fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
         common::bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
+    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
         get_interface_ip(interface)
     }
 
@@ -93,8 +93,11 @@ impl AsyncUdpSocket for AsyncUdpSocketWindows {
     }
 }
 
-pub fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
-    let interface_luid = luid_from_alias(interface)?;
+pub fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
+    let interface_luid = match interface {
+        Interface::Name(name) => luid_from_alias(name)?,
+        Interface::Luid(luid) => *luid,
+    };
 
     // TODO: ipv6
     let interface_ip = get_ip_address_for_interface(AddressFamily::Ipv4, interface_luid)?
