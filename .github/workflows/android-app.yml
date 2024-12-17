@@ -129,11 +129,16 @@ jobs:
 
       - name: Generate
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        env:
-          RUSTFLAGS: --deny warnings
-        run: |
-          mkdir -p android/app/build/extraAssets
-          cargo run --bin relay_list > android/app/build/extraAssets/relays.json
+        uses: burrunan/gradle-cache-action@v1
+        with:
+          job-id: jdk17
+          arguments: generateRelayList
+          gradle-version: wrapper
+          build-root-directory: android
+          execution-only-caches: false
+          # Disable if logs are hard to follow.
+          concurrent: true
+          read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Upload
         uses: actions/upload-artifact@v4
@@ -154,20 +159,17 @@ jobs:
         include:
           - arch: "x86_64"
             abi: "x86_64"
-            target: "x86_64-linux-android"
-            task: "cargoBuildX86_64"
+            taskVariant: "X86_64"
           - arch: "i686"
             abi: "x86"
-            target: "i686-linux-android"
-            task: "cargoBuildX86"
+            taskVariant: "X86"
           - arch: "aarch64"
             abi: "arm64-v8a"
-            target: "aarch64-linux-android"
-            task: "cargoBuildArm64"
+            taskVariant: "Arm64"
           - arch: "armv7"
             abi: "armeabi-v7a"
-            target: "armv7-linux-androideabi"
-            task: "cargoBuildArm"
+            taskVariant: "Arm"
+    # name: build-native-${{ matrix.abi }}
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -209,7 +211,7 @@ jobs:
         uses: burrunan/gradle-cache-action@v1
         with:
           job-id: jdk17
-          arguments: ${{ matrix.task }}
+          arguments: cargoBuild${{ matrix.taskVariant }}
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: false
@@ -312,6 +314,7 @@ jobs:
             [
               {
                 "workflowFile": "android-app.yml",
+                "jobMatchMode": "prefix",
                 "jobName": "build-native"
               },
               {
