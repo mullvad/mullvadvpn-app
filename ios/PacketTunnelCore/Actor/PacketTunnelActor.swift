@@ -48,7 +48,6 @@ public actor PacketTunnelActor {
     public let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
-//    private var ephemeralPeerExchangingPipeline: EphemeralPeerExchangingPipeline!
 
     nonisolated let eventChannel = EventChannel()
 
