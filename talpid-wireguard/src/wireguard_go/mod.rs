@@ -107,9 +107,11 @@ impl WgGoTunnel {
     }
 
     pub fn set_config(mut self, config: &Config) -> Result<Self> {
-        let connectivity_checker = self
-            .take_checker()
-            .expect("connectivity checker unexpectedly dropped");
+        let take_checker = || {
+            self
+                .take_checker()
+                .expect("connectivity checker unexpectedly dropped")
+        };
         let state = self.as_state();
         let log_path = state._logging_context.path.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
@@ -117,6 +119,7 @@ impl WgGoTunnel {
 
         match self {
             WgGoTunnel::Multihop(state) if !config.is_multihop() => {
+                let connectivity_checker = take_checker();
                 state.stop()?;
                 Self::start_tunnel(
                     config,
@@ -127,6 +130,7 @@ impl WgGoTunnel {
                 )
             }
             WgGoTunnel::Singlehop(state) if config.is_multihop() => {
+                let connectivity_checker = take_checker();
                 state.stop()?;
                 Self::start_multihop_tunnel(
                     config,
