@@ -1,15 +1,10 @@
 import { useCallback } from 'react';
-import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { useSelector } from '../../redux/store';
-import { SmallButton, SmallButtonColor } from '../SmallButton';
-
-const StyledConnectionButton = styled(SmallButton)({
-  margin: 0,
-});
+import { Button } from '../common/molecules';
 
 export default function ConnectionActionButton() {
   const tunnelState = useSelector((state) => state.connection.status.state);
@@ -21,7 +16,7 @@ export default function ConnectionActionButton() {
   }
 }
 
-function ConnectButton(props: Partial<Parameters<typeof SmallButton>[0]>) {
+function ConnectButton(props: Partial<Parameters<typeof Button>[0]>) {
   const { connectTunnel } = useAppContext();
 
   const onConnect = useCallback(async () => {
@@ -34,9 +29,9 @@ function ConnectButton(props: Partial<Parameters<typeof SmallButton>[0]>) {
   }, [connectTunnel]);
 
   return (
-    <StyledConnectionButton color={SmallButtonColor.green} onClick={onConnect} {...props}>
+    <Button variant="success" size="full" onClick={onConnect} {...props}>
       {messages.pgettext('tunnel-control', 'Connect')}
-    </StyledConnectionButton>
+    </Button>
   );
 }
 
@@ -56,8 +51,8 @@ function DisconnectButton() {
   const displayAsCancel = tunnelState !== 'connected';
 
   return (
-    <StyledConnectionButton color={SmallButtonColor.red} onClick={onDisconnect}>
+    <Button variant="destructive" size="full" onClick={onDisconnect}>
       {displayAsCancel ? messages.gettext('Cancel') : messages.gettext('Disconnect')}
-    </StyledConnectionButton>
+    </Button>
   );
 }

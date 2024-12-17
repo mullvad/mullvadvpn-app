@@ -17,7 +17,10 @@ export class InconsistentVersionNotificationProvider
 {
   public constructor(private context: InconsistentVersionNotificationContext) {}
 
-  public mayDisplay = () => !this.context.consistent;
+  public mayDisplay = () =>
+    !this.context.consistent &&
+    process.env.NODE_ENV !== undefined &&
+    process.env.NODE_ENV !== 'development';
 
   public getSystemNotification(): SystemNotification {
     return {

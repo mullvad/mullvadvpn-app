@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../../tokens';
 import { Center } from '../common/layout';
+import { Colors, Spacings } from '../common/variables';
 import { IImageViewProps } from '../ImageView';
 import { CellDisabledContext } from './Container';
 import { Icon } from './Label';

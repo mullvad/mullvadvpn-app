@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Spacings } from '../../../tokens';
+import { Spacings } from '../variables';
 import { margin } from './margin';
 import { padding } from './padding';
 import { LayoutSpacings } from './types';

@@ -1,9 +1,7 @@
 import { useCallback, useState } from 'react';
-import { useSelector } from 'react-redux';
 
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
-import { NewDeviceNotificationProvider } from '../../shared/notifications/new-device';
 import {
   BlockWhenDisconnectedNotificationProvider,
   CloseToAccountExpiryNotificationProvider,
@@ -16,15 +14,21 @@ import {
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
   UpdateAvailableNotificationProvider,
-} from '../../shared/notifications/notification';
+} from '../../shared/notifications';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
+import {
+  NewDeviceNotificationProvider,
+  NewVersionNotificationProvider,
+} from '../lib/notifications';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
-import { IReduxState } from '../redux/store';
+import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
+import { Link } from './common/text';
+import { Colors } from './common/variables';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
@@ -59,6 +63,18 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
+  const { setDisplayedChangelog } = useAppContext();
+
+  const currentVersion = useSelector((state) => state.version.current);
+  const displayedForVersion = useSelector(
+    (state) => state.settings.guiSettings.changelogDisplayedForVersion,
+  );
+  const changelog = useSelector((state) => state.userInterface.changelog);
+
+  const close = useCallback(() => {
+    setDisplayedChangelog();
+  }, [setDisplayedChangelog]);
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
@@ -84,6 +100,12 @@ export default function NotificationArea(props: IProps) {
       deviceName: account.deviceName ?? '',
       close: hideNewDeviceBanner,
     }),
+    new NewVersionNotificationProvider({
+      currentVersion,
+      displayedForVersion,
+      changelog,
+      close,
+    }),
     new UpdateAvailableNotificationProvider(version),
   );
 
@@ -106,7 +128,16 @@ export default function NotificationArea(props: IProps) {
               {notification.title}
             </NotificationTitle>
             <NotificationSubtitle data-testid="notificationSubTitle">
-              {formatHtml(notification.subtitle ?? '')}
+              {notification.subtitleAction?.type === 'navigate' ? (
+                <Link
+                  variant="labelTiny"
+                  color={Colors.white60}
+                  {...notification.subtitleAction.link}>
+                  {formatHtml(notification.subtitle ?? '')}
+                </Link>
+              ) : (
+                formatHtml(notification.subtitle ?? '')
+              )}
             </NotificationSubtitle>
           </NotificationContent>
           {notification.action && <NotificationActionWrapper action={notification.action} />}

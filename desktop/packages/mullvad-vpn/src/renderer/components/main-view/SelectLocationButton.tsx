@@ -1,6 +1,5 @@
 import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
-import styled from 'styled-components';
 
 import { ICustomList } from '../../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../shared/gettext';
@@ -10,17 +9,9 @@ import { transitions, useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
+import { Button, ButtonProps } from '../common/molecules';
 import ImageView from '../ImageView';
-import { MultiButton, MultiButtonCompatibleProps } from '../MultiButton';
-import { SmallButton, SmallButtonColor } from '../SmallButton';
-
-const StyledSmallButton = styled(SmallButton)({
-  margin: 0,
-});
-
-const StyledReconnectButton = styled(StyledSmallButton)({
-  padding: '4px 8px 4px 8px',
-});
+import { MultiButton } from '../MultiButton';
 
 export default function SelectLocationButtons() {
   const tunnelState = useSelector((state) => state.connection.status.state);
@@ -32,7 +23,7 @@ export default function SelectLocationButtons() {
   }
 }
 
-function SelectLocationButton(props: MultiButtonCompatibleProps) {
+function SelectLocationButton(props: ButtonProps) {
   const { push } = useHistory();
 
   const tunnelState = useSelector((state) => state.connection.status.state);
@@ -50,8 +41,9 @@ function SelectLocationButton(props: MultiButtonCompatibleProps) {
   }, [push]);
 
   return (
-    <StyledSmallButton
-      color={SmallButtonColor.blue}
+    <Button
+      variant="primary"
+      size="full"
       onClick={onSelectLocation}
       aria-label={sprintf(
         messages.pgettext('accessibility', 'Select location. Current location is %(location)s'),
@@ -61,7 +53,7 @@ function SelectLocationButton(props: MultiButtonCompatibleProps) {
       {tunnelState === 'disconnected'
         ? selectedRelayName
         : messages.pgettext('tunnel-control', 'Switch location')}
-    </StyledSmallButton>
+    </Button>
   );
 }
 
@@ -119,7 +111,7 @@ function getRelayName(
   }
 }
 
-function ReconnectButton(props: MultiButtonCompatibleProps) {
+function ReconnectButton(props: ButtonProps) {
   const { reconnectTunnel } = useAppContext();
 
   const onReconnect = useCallback(async () => {
@@ -132,12 +124,8 @@ function ReconnectButton(props: MultiButtonCompatibleProps) {
   }, [reconnectTunnel]);
 
   return (
-    <StyledReconnectButton
-      color={SmallButtonColor.blue}
-      onClick={onReconnect}
-      aria-label={messages.gettext('Reconnect')}
-      {...props}>
+    <Button onClick={onReconnect} size="tiny" aria-label={messages.gettext('Reconnect')} {...props}>
       <ImageView height={24} width={24} source="icon-reload" tintColor="white" />
-    </StyledReconnectButton>
+    </Button>
   );
 }

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../tokens';
 import { Flex } from './common/layout';
+import { Colors, Spacings } from './common/variables';
 import { measurements } from './common-styles';
 import HeaderBar from './HeaderBar';
 import { NavigationScrollbars } from './NavigationBar';

@@ -14,12 +14,12 @@ import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { IReduxState } from '../redux/store';
-import { Colors, Spacings } from '../tokens';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { Flex } from './common/layout/Flex';
 import { FootnoteMini } from './common/text/FootnoteMini';
+import { Colors, Spacings } from './common/variables';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
@@ -551,7 +551,7 @@ function MacOsSplitTunnelingAvailability({
           <WideSmallButton onClick={showFullDiskAccessSettings}>
             {messages.pgettext('split-tunneling-view', 'Open System Settings')}
           </WideSmallButton>
-          <FootnoteMini $color={Colors.white60}>
+          <FootnoteMini color={Colors.white60}>
             {messages.pgettext(
               'split-tunneling-view',
               'Enabled "Full disk access" and still having issues?',

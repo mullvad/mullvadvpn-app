@@ -39,7 +39,7 @@ import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
-import { Changelog } from './components/Changelog';
+import { VariablesGlobalStyle } from './components/common/variables';
 import ErrorBoundary from './components/ErrorBoundary';
 import KeyboardNavigation from './components/KeyboardNavigation';
 import Lang from './components/Lang';
@@ -243,7 +243,7 @@ export default class AppRenderer {
     this.setUpgradeVersion(initialState.upgradeVersion);
     this.setGuiSettings(initialState.guiSettings);
     this.storeAutoStart(initialState.autoStart);
-    this.setChangelog(initialState.changelog, initialState.forceShowChanges);
+    this.setChangelog(initialState.changelog);
     this.setCurrentApiAccessMethod(initialState.currentApiAccessMethod);
     this.reduxActions.userInterface.setIsMacOs13OrNewer(initialState.isMacOs13OrNewer);
 
@@ -296,8 +296,9 @@ export default class AppRenderer {
                   <ErrorBoundary>
                     <ModalContainer>
                       <KeyboardNavigation>
-                        <AppRouter />
-                        <Changelog />
+                        <VariablesGlobalStyle>
+                          <AppRouter />
+                        </VariablesGlobalStyle>
                       </KeyboardNavigation>
                       {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                     </ModalContainer>
@@ -1002,9 +1003,8 @@ export default class AppRenderer {
     this.reduxActions.settings.updateAutoStart(autoStart);
   }
 
-  private setChangelog(changelog: IChangelog, forceShowChanges: boolean) {
+  private setChangelog(changelog: IChangelog) {
     this.reduxActions.userInterface.setChangelog(changelog);
-    this.reduxActions.userInterface.setForceShowChanges(forceShowChanges);
   }
 
   private updateLocation() {

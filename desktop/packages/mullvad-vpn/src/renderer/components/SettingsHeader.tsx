@@ -1,9 +1,9 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../tokens';
 import { Flex } from './common/layout';
 import { LabelTiny, TitleBig } from './common/text';
+import { Colors, Spacings } from './common/variables';
 
 export const HeaderTitle = styled(TitleBig)({
   wordWrap: 'break-word',
@@ -11,7 +11,7 @@ export const HeaderTitle = styled(TitleBig)({
 });
 
 export const HeaderSubTitle = styled(LabelTiny).attrs({
-  $color: Colors.white60,
+  color: Colors.white60,
 })({});
 
 interface SettingsHeaderProps {

@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Spacings } from '../../../tokens';
+import { Spacings } from '../variables';
 import { Layout, LayoutProps } from './Layout';
 
 export interface FlexProps extends LayoutProps {
@@ -12,11 +12,21 @@ export interface FlexProps extends LayoutProps {
   $justifyContent?: React.CSSProperties['justifyContent'];
   $flexGrow?: React.CSSProperties['flexGrow'];
   $flexShrink?: React.CSSProperties['flexShrink'];
+  $flexBasis?: React.CSSProperties['flexBasis'];
   children?: React.ReactNode;
 }
 
 export const Flex = styled(Layout)<FlexProps>(
-  ({ $gap, $flex, $flexDirection, $alignItems, $justifyContent, $flexGrow, $flexShrink }) => ({
+  ({
+    $gap,
+    $flex,
+    $flexDirection,
+    $alignItems,
+    $justifyContent,
+    $flexGrow,
+    $flexShrink,
+    $flexBasis,
+  }) => ({
     display: 'flex',
     gap: $gap,
     flex: $flex,
@@ -25,5 +35,6 @@ export const Flex = styled(Layout)<FlexProps>(
     justifyContent: $justifyContent,
     flexGrow: $flexGrow,
     flexShrink: $flexShrink,
+    flexBasis: $flexBasis,
   }),
 );
