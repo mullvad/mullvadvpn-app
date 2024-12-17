@@ -10,6 +10,7 @@ import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 import com.ramcosta.composedestinations.navigation.EmptyDestinationsNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
+import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
 
 @Preview
 @Composable
@@ -21,7 +22,12 @@ private fun PreviewObfuscationInfoDialog() {
 @Composable
 fun ObfuscationInfo(navigator: DestinationsNavigator) {
     InfoDialog(
-        message = stringResource(id = R.string.obfuscation_info),
+        message =
+            buildString {
+                appendLine(stringResource(id = R.string.obfuscation_info))
+                append(NEWLINE_STRING)
+                append(stringResource(R.string.obfuscation_info_shadowsocks_batteryusage))
+            },
         onDismiss = dropUnlessResumed { navigator.navigateUp() },
     )
 }
