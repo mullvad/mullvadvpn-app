@@ -119,7 +119,7 @@ async fn config_ephemeral_peers_inner(
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
     #[cfg(force_wireguard_handshake)]
-    establish_tunnel_connection(tunnel, connectivity).await?;
+    let _ = establish_tunnel_connection(tunnel, connectivity).await;
 
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
