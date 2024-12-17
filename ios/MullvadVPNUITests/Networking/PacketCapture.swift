@@ -70,16 +70,6 @@ class Stream: Codable, Equatable {
         determineDateInterval()
     }
 
-    public func getAcceptableLeakCount() -> Int {
-        let packetsWithAcceptableLeak = packets.filter { $0.leakStatus == .acceptableLeak }
-        return packetsWithAcceptableLeak.count
-    }
-
-    public func getLeakCount() -> Int {
-        let packetsWithLeak = packets.filter { $0.leakStatus == .leak }
-        return packetsWithLeak.count
-    }
-
     /// Determine the stream's date interval from the time between first to the last packet
     private func determineDateInterval() {
         guard let firstPackageDate = packets.first?.date else {
@@ -124,7 +114,6 @@ class Packet: Codable, Equatable {
     private var timestamp: Int64
 
     public var date: Date
-    public var leakStatus: LeakStatus = .unknown
 
     enum CodingKeys: String, CodingKey {
         case fromPeer = "from_peer"

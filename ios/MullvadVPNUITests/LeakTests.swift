@@ -15,11 +15,8 @@ class LeakTests: LoggedInWithTimeUITestCase {
 
     /// Send UDP traffic to a host, connect to relay and make sure while connected to relay no traffic  leaked went directly to the host
     func testNegativeLeaks() throws {
-        let testIpAddress = Networking.getAlwaysReachableIPAddress()
-        FirewallAPIClient().createRule(try FirewallRule.makeBlockAllTrafficRule(toIPAddress: testIpAddress))
-        startPacketCapture()
-        let trafficGenerator = TrafficGenerator(destinationHost: testIpAddress, port: 80)
-        trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
+        let targetIPAddress = Networking.getAlwaysReachableIPAddress()
+        FirewallAPIClient().createRule(try FirewallRule.makeBlockAllTrafficRule(toIPAddress: targetIPAddress))
 
         TunnelControlPage(app)
             .tapSecureConnectionButton()
@@ -28,7 +25,10 @@ class LeakTests: LoggedInWithTimeUITestCase {
 
         TunnelControlPage(app)
             .waitForSecureConnectionLabel()
-        let connectedDate = Date()
+
+        startPacketCapture()
+        let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
+        trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
 
         let relayIPAddress = TunnelControlPage(app)
             .getInIPAddressFromConnectionStatus()
@@ -39,15 +39,15 @@ class LeakTests: LoggedInWithTimeUITestCase {
         app.launch()
         TunnelControlPage(app)
             .tapDisconnectButton()
-        let disconnectedDate = Date()
 
         // Keep the capture open for a while
         Thread.sleep(forTimeInterval: 3.0)
         trafficGenerator.stopGeneratingUDPTraffic()
 
-        let capturedStreamCollection = stopPacketCapture()
+        let capturedStreams = stopPacketCapture()
+        LeakCheck.assertNoLeaks(streams: capturedStreams, rules: [NoTrafficToHostLeakRule(host: targetIPAddress)])
 
-        do {
+        /*do {
             let relayConnectionDateInterval = try capturedStreamCollection
                 .getConnectedThroughRelayDateInterval(
                     relayIPAddress: relayIPAddress
@@ -71,6 +71,6 @@ class LeakTests: LoggedInWithTimeUITestCase {
             connectedThroughRelayStreamCollection.verifyDontHaveLeaks()
         } catch {
             XCTFail("Unexpectedly didn't find any traffic between test device and relay")
-        }
+        }*/
     }
 }

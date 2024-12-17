@@ -28,6 +28,51 @@ struct DNSServerEntry: Decodable {
 
 /// Class with methods for verifying network connectivity
 class Networking {
+    static func getIPAddress() throws -> String {
+        var ipAddress: String
+        // Get list of all interfaces on the local machine:
+        var interfaceList: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&interfaceList) == 0, let firstInterfaceAddress = interfaceList else {
+            throw NetworkingError.internalError(reason: "Failed to locate local networking interface")
+        }
+
+        // For each interface
+        for interfacePointer in sequence(first: firstInterfaceAddress, next: { $0.pointee.ifa_next }) {
+            let flags = Int32(interfacePointer.pointee.ifa_flags)
+            let interfaceAddress = interfacePointer.pointee.ifa_addr.pointee
+
+            // Check for running IPv4 interfaces. Skip the loopback interface.
+            if (
+                flags &
+                    (IFF_UP | IFF_RUNNING | IFF_LOOPBACK)
+            ) == (IFF_UP | IFF_RUNNING),
+                interfaceAddress.sa_family == UInt8(AF_INET) {
+                // Check if interface is en0 which is the WiFi connection on the iPhone
+                let name = String(cString: interfacePointer.pointee.ifa_name)
+                if name == "en0" {
+                    // Convert interface address to a human readable string:
+                    var hostname = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+                    if getnameinfo(
+                        interfacePointer.pointee.ifa_addr,
+                        socklen_t(interfaceAddress.sa_len),
+                        &hostname,
+                        socklen_t(hostname.count),
+                        nil,
+                        socklen_t(0),
+                        NI_NUMERICHOST
+                    ) == 0 {
+                        ipAddress = String(cString: hostname)
+                        return ipAddress
+                    }
+                }
+            }
+        }
+
+        freeifaddrs(interfaceList)
+
+        throw NetworkingError.internalError(reason: "Failed to determine device's IP address")
+    }
+
     /// Get configured ad serving domain
     private static func getAdServingDomain() throws -> String {
         guard let adServingDomain = Bundle(for: Networking.self)

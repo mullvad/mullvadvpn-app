@@ -175,19 +175,21 @@ class BaseUITestCase: XCTestCase {
         packetCaptureSession = packetCaptureClient.startCapture()
     }
 
-    /// Stop the current packet capture and return captured data
-    func stopPacketCapture() -> StreamCollection {
+    /// Stop the current packet capture and return captured traffic
+    func stopPacketCapture() -> [Stream] {
         packetCaptureSessionIsActive = false
         guard let packetCaptureSession else {
             XCTFail("Trying to stop capture when there is no active capture")
-            return StreamCollection(streams: [])
+            return []
+            //return StreamCollection(streams: [])
         }
 
         let packetCaptureAPIClient = PacketCapture()
         packetCaptureAPIClient.stopCapture(session: packetCaptureSession)
         let capturedData = packetCaptureAPIClient.getParsedCaptureObjects(session: packetCaptureSession)
 
-        return StreamCollection(streams: capturedData)
+        return capturedData
+        //return StreamCollection(streams: capturedData)
     }
 
     // MARK: - Setup & teardown
