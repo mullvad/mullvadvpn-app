@@ -1,7 +1,9 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
+import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 
@@ -12,6 +14,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
+    alias(libs.plugins.rust.android.gradle)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -20,7 +23,6 @@ val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
 val relayListPath = extraAssetsDirectory.file("relays.json").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
-val extraJniDirectory = layout.buildDirectory.dir("extraJni").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
 val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
@@ -34,6 +36,7 @@ android {
     namespace = "net.mullvad.mullvadvpn"
     compileSdk = Versions.compileSdkVersion
     buildToolsVersion = Versions.buildToolsVersion
+    ndkVersion = Versions.ndkVersion
 
     defaultConfig {
         val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
@@ -129,7 +132,6 @@ android {
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
             assets.srcDirs(extraAssetsDirectory, changelogDir)
-            jniLibs.srcDirs(extraJniDirectory)
         }
     }
 
@@ -222,8 +224,7 @@ android {
         }
 
         val variantName = name
-        val capitalizedVariantName =
-            variantName.toString().capitalized()
+        val capitalizedVariantName = variantName.toString().capitalized()
         val artifactName = "MullvadVPN-${versionName}${artifactSuffix}"
 
         tasks.register<Copy>("create${capitalizedVariantName}DistApk") {
@@ -243,10 +244,14 @@ android {
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
-        // Ensure all relevant assemble tasks depend on our ensure tasks.
+        // Ensure that we have all the JNI libs before merging them.
+        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
+            dependsOn(tasks["generateRelayList"])
+            dependsOn("cargoBuild")
+        }
+
+        // Ensure all relevant assemble tasks depend on our ensure task.
         tasks["assemble$capitalizedVariantName"].apply {
-            dependsOn(tasks["ensureRelayListExist"])
-            dependsOn(tasks["ensureJniDirectoryExist"])
             dependsOn(tasks["ensureValidVersionCode"])
         }
     }
@@ -257,6 +262,75 @@ junitPlatform {
         version.set(Versions.junit5Android)
         includeExtensions.set(true)
     }
+}
+
+cargo {
+    val isReleaseBuild = isReleaseBuild()
+    val enableApiOverride = !isReleaseBuild || isAlphaOrDevBuild()
+    module = repoRootPath
+    libname = "mullvad-jni"
+    // All available targets:
+    // https://github.com/mozilla/rust-android-gradle/tree/master?tab=readme-ov-file#targets
+    targets =
+        gradleLocalProperties(rootProject.projectDir, providers)
+            .getProperty("CARGO_TARGETS")
+            ?.split(",") ?: listOf("arm", "arm64", "x86", "x86_64")
+    profile =
+        if (isReleaseBuild) {
+            "release"
+        } else {
+            "debug"
+        }
+    prebuiltToolchains = true
+    targetDirectory = "$repoRootPath/target"
+    features {
+        if (enableApiOverride) {
+            defaultAnd(arrayOf("api-override"))
+        }
+    }
+    targetIncludes = arrayOf("libmullvad_jni.so")
+    extraCargoBuildArguments = buildList {
+        add("--package=mullvad-jni")
+        if (isReleaseBuild) {
+            add("--locked")
+        }
+    }
+    exec = { spec, _ -> println(spec.commandLine) }
+}
+
+tasks.register<Exec>("generateRelayList") {
+    workingDir = File(repoRootPath)
+    standardOutput = ByteArrayOutputStream()
+
+    // Set this if you get a cargo not found error
+    // environment =
+
+    onlyIf { isReleaseBuild() || !relayListPath.exists() }
+
+    commandLine("cargo", "run", "--bin", "relay_list")
+
+    doLast {
+        val output = standardOutput as ByteArrayOutputStream
+        // Create file if needed
+        File("$extraAssetsDirectory").mkdirs()
+        File("$extraAssetsDirectory/relays.json").createNewFile()
+        FileOutputStream("$extraAssetsDirectory/relays.json").use { it.write(output.toByteArray()) }
+
+        // Old ensure exists tasks
+        if (!relayListPath.exists()) {
+            throw GradleException("Failed to generate relay list")
+        }
+    }
+}
+
+fun isReleaseBuild() =
+    gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
+
+fun isAlphaOrDevBuild() : Boolean {
+    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
+    val versionName = generateVersionName(localProperties)
+    return versionName.contains("dev", ignoreCase = true) ||
+        versionName.contains("alpha", ignoreCase = true)
 }
 
 androidComponents {
@@ -278,22 +352,6 @@ configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
     // path. The alternative would be to suppress specific CVEs, however that could potentially
     // result in suppressed CVEs in project compilation class path.
     skipConfigurations = listOf("lintClassPath")
-}
-
-tasks.register("ensureRelayListExist") {
-    doLast {
-        if (!relayListPath.exists()) {
-            throw GradleException("Missing relay list: $relayListPath")
-        }
-    }
-}
-
-tasks.register("ensureJniDirectoryExist") {
-    doLast {
-        if (!extraJniDirectory.asFile.exists()) {
-            throw GradleException("Missing JNI directory: $extraJniDirectory")
-        }
-    }
 }
 
 // This is a safety net to avoid generating too big version codes, since that could potentially be
