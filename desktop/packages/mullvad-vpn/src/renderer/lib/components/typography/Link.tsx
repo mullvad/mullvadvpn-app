@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Colors, Radius } from '../../foundations';
 import { useHistory } from '../../history';
 import { RoutePath } from '../../routes';
-import { buttonReset } from '../mixins';
+import { buttonReset } from '../../styles';
 import { Text, TextProps } from './Text';
 
 export interface LinkProps extends TextProps, Omit<React.HtmlHTMLAttributes<'button'>, 'color'> {
