@@ -2327,6 +2327,9 @@ msgstr ""
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr ""
 
+msgid "Attention: using Shadowsocks increases battery consumption with heavy data usage."
+msgstr ""
+
 msgid "Auto-connect & Lockdown mode"
 msgstr ""
 
