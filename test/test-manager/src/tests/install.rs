@@ -28,16 +28,14 @@ pub async fn test_upgrade_app(
     _mullvad_client: MullvadClientArgument,
 ) -> anyhow::Result<()> {
     // Install the older version of the app and verify that it is running.
-    install_app(
-        &rpc,
-        TEST_CONFIG
-            .app_package_to_upgrade_from_filename
-            .as_ref()
-            .unwrap(),
-        &ctx.rpc_provider,
-    )
-    .await
-    .context("Failed to install previous app version")?;
+    let old_version = TEST_CONFIG
+        .app_package_to_upgrade_from_filename
+        .as_ref()
+        .context("Could not find previous app version")?;
+    log::debug!("Installing app version {old_version}");
+    install_app(&rpc, old_version, &ctx.rpc_provider)
+        .await
+        .context("Failed to install previous app version")?;
 
     // Verify that daemon is running
     if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
