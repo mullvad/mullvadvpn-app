@@ -16,13 +16,13 @@ import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
+import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 
 data class SplashScreenState(val splashComplete: Boolean = false)
 
 class SplashViewModel(
-    private val privacyDisclaimerRepository: PrivacyDisclaimerRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
     private val splashCompleteRepository: SplashCompleteRepository,
@@ -37,7 +37,7 @@ class SplashViewModel(
     val uiState: StateFlow<SplashScreenState> = _uiState
 
     private suspend fun getStartDestination(): SplashUiSideEffect {
-        if (!privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+        if (!userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
             return SplashUiSideEffect.NavigateToPrivacyDisclaimer
         }
 
