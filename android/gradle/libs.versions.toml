@@ -13,6 +13,7 @@ androidx-activitycompose = "1.9.3"
 androidx-appcompat = "1.7.0"
 androidx-ktx = "1.15.0"
 androidx-coresplashscreen = "1.1.0-rc01"
+androidx-datastore = "1.1.1"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.8.7"
 androidx-test = "1.6.1"
@@ -33,7 +34,6 @@ compose-material3 = "1.3.1"
 grpc = "1.69.0"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
-grpc-protobuf = "4.29.1"
 
 # Koin
 koin = "4.0.0"
@@ -51,7 +51,8 @@ kotlinx = "1.9.0"
 kotlinx-serialization = "2.1.0"
 
 # Protobuf
-protobuf = "0.9.4"
+protobuf-gradle-plugin = "0.9.4"
+protobuf = "4.29.1"
 
 # Misc
 commonsvalidator = "1.9.0"
@@ -81,6 +82,7 @@ android-volley = { module = "com.android.volley:volley", version.ref = "android-
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activitycompose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-coresplashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coresplashscreen" }
+androidx-datastore = { module = "androidx.datastore:datastore", version.ref = "androidx-datastore" }
 androidx-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-espresso" }
 androidx-ktx = { module = "androidx.core:core-ktx", version.ref = "androidx-ktx" }
 androidx-lifecycle-runtime = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
@@ -119,7 +121,9 @@ grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
 grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
-grpc-protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "grpc-protobuf" }
+
+# Protobuf
+protobuf-kotlin-lite = { module = "com.google.protobuf:protobuf-kotlin-lite", version.ref = "protobuf" }
 
 # Koin
 koin = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -177,8 +181,8 @@ kotlin-ksp = { id = "com.google.devtools.ksp", version.ref = "kotlin-ksp" }
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
 
 # Protobuf
-protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf" }
-protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "grpc-protobuf" }
+protobuf-core = { id = "com.google.protobuf", version.ref = "protobuf-gradle-plugin" }
+protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" }
 
 # gRPC
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
