@@ -314,19 +314,8 @@ jobs:
               },
               {
                 "workflowFile": "android-app.yml",
-                "jobName": "build-native-x86"
-              },
-              {
-                "workflowFile": "android-app.yml",
-                "jobName": "build-native-arm64-v8a"
-              },
-              {
-                "workflowFile": "android-app.yml",
-                "jobName": "build-native-armeabi-v7a"
-              },
-              {
-                "workflowFile": "android-app.yml",
-                "jobName": "generate-relay-list"
+                "jobMatchMode": "prefix",
+                "jobName": "build-native"
               }
             ]
 
