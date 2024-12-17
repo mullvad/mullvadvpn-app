@@ -125,6 +125,8 @@ impl<S: Strategy> Check<S> {
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successful at the start of a connection.
     pub fn establish_connectivity(&mut self, tunnel_handle: &TunnelType) -> Result<bool, Error> {
+        self.conn_state = ConnState::new(Instant::now(), Default::default());
+
         // Send initial ping to prod WireGuard into connecting.
         self.ping_state
             .pinger
