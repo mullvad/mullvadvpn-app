@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API accesible, añadiendo método...</string>
     <string name="api_unreachable">API inaccesible</string>
     <string name="api_unreachable_save_anyway">API inaccesible, ¿guardar el método de todos modos?</string>
-    <string name="app_version">Versión de la aplicación</string>
     <string name="apply">Aplicar</string>
     <string name="at_least_on_method_needs_to_enabled">Se debe habilitar al menos un método</string>
     <string name="auth_failed">No se puede autenticar la cuenta. Envíe un informe de problemas.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">La configuración del modo de bloqueo y de la conexión automática puede encontrarse en la configuración del sistema Android, siga esta guía para habilitar uno o ambos.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La conexión automática se llama VPN siempre activa en la configuración del sistema Android y asegura estar conectado constantemente al túnel de la VPN y conectarse automáticamente después de cada reinicio.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">aquí</string>
-    <string name="auto_connect_legacy">Conexión automática (heredada)</string>
     <string name="automatic">Automático</string>
     <string name="back">Volver</string>
     <string name="block_ads_title">Anuncios</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Internet bloqueado</string>
     <string name="blocking_internet_device_offline">Bloqueo de Internet (dispositivo sin conexión)</string>
     <string name="buy_credit">Comprar créditos</string>
-    <string name="buy_more_credit">Comprar más créditos</string>
     <string name="cancel">Cancelar</string>
     <string name="changes_dialog_subtitle">Cambios en esta versión:</string>
     <string name="cipher">Cifrado</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s lo realiza añadiendo con cuidado ruido de red y haciendo que todos los paquetes de red tengan el mismo tamaño.</string>
     <string name="daita_description_slide_2_second_paragraph">No todos nuestros servidores están habilitados para %1$s. Por lo tanto, utilizamos el salto múltiple de forma automática para habilitar %2$s con cualquier servidor.</string>
     <string name="daita_info">Si habilita «%1$s», deberá seleccionar manualmente un servidor que esté habilitado para %2$s. Esto puede provocar que termine bloqueado hasta que seleccione un servidor compatible en la vista «Seleccionar ubicación».</string>
-    <string name="daita_relay_subset_warning">Esta característica no está disponible en todos los servidores. Podría tener que cambiar de ubicación tras habilitarla.</string>
-    <string name="daita_warning">Atención: Como esto aumenta el tráfico total de su red, tenga cuidado si tiene un plan de datos limitado. También puede afectar negativamente a la velocidad de su red y al uso de la batería.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">¿Eliminar «%1$s»?</string>
     <string name="delete_custom_list_message">Se ha eliminado «%1$s»</string>

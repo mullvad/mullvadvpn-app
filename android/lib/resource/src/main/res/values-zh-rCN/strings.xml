@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">可通过 API 访问，正在添加方法…</string>
     <string name="api_unreachable">无法通过 API 访问</string>
     <string name="api_unreachable_save_anyway">无法通过 API 访问，是否仍然保存方法？</string>
-    <string name="app_version">应用版本</string>
     <string name="apply">应用</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要启用一个方法</string>
     <string name="auth_failed">无法验证帐户。请发送问题报告。</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">（点击此处）</string>
-    <string name="auto_connect_legacy">自动连接（旧）</string>
     <string name="automatic">自动</string>
     <string name="back">返回</string>
     <string name="block_ads_title">广告</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">正在阻止网络</string>
     <string name="blocking_internet_device_offline">正在阻止网络（设备离线）</string>
     <string name="buy_credit">购买额度</string>
-    <string name="buy_more_credit">购买更多额度</string>
     <string name="cancel">取消</string>
     <string name="changes_dialog_subtitle">此版本中的变更：</string>
     <string name="cipher">加密方式</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s 的实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。</string>
     <string name="daita_description_slide_2_second_paragraph">我们的部分服务器未启用 %1$s。因此，我们使用多跳自动为任何服务器启用 %2$s。</string>
     <string name="daita_info">启用“%1$s”后，您需要手动选择启用了 %2$s 的服务器。这可能导致您在“选择位置”视图中选择兼容服务器之前处于阻止状态。</string>
-    <string name="daita_relay_subset_warning">此功能并非在所有服务器上都可用。启用后，您可能需要更改位置。</string>
-    <string name="daita_warning">注意：这样会增加您的网络总流量，因此，如果您的数据套餐流量有限，请谨慎使用。这种方式还会对网速和电池用量产生负面影响。</string>
     <string name="delete">删除</string>
     <string name="delete_custom_list_confirmation_description">删除“%1$s”？</string>
     <string name="delete_custom_list_message">“%1$s”已被删除</string>

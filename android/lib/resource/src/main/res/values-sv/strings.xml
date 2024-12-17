@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API kan nås, lägger till metod ...</string>
     <string name="api_unreachable">API kan inte nås</string>
     <string name="api_unreachable_save_anyway">API kan inte nås, spara metod ändå?</string>
-    <string name="app_version">Appversion</string>
     <string name="apply">Använd</string>
     <string name="at_least_on_method_needs_to_enabled">Minst en metod måste vara aktiverad</string>
     <string name="auth_failed">Det går inte att autentisera kontot. Skicka en problemrapport.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Inställningar för Anslut automatiskt och Låsningsläge finns i Androids systeminställningar. Följ guiden för att aktivera en av dem eller båda.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Anslut automatiskt kallas Alltid på-VPN i Androids systeminställningar och ser till att du är ansluten till VPN-tunneln oavbrutet och ansluter automatiskt efter omstart.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">här</string>
-    <string name="auto_connect_legacy">Anslut automatiskt (äldre)</string>
     <string name="automatic">Automatisk</string>
     <string name="back">Tillbaka</string>
     <string name="block_ads_title">Annonser</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Blockerar internet</string>
     <string name="blocking_internet_device_offline">Blockerar internet (enheten är offline)</string>
     <string name="buy_credit">Köp kredit</string>
-    <string name="buy_more_credit">Köp mer kredit</string>
     <string name="cancel">Avbryt</string>
     <string name="changes_dialog_subtitle">Ändringar i den här versionen:</string>
     <string name="cipher">Chiffrering</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek.</string>
     <string name="daita_description_slide_2_second_paragraph">Det är inte alla våra servrar som är %1$s-aktiverade. Därför använder vi multihopp automatiskt för att aktivera %2$s med alla servrar.</string>
     <string name="daita_info">Om du aktiverar \"%1$s\" måste du manuellt välja en server som är %2$s-aktiverad. Det kan leda till ett blockerat tillstånd tills du väljer en kompatibel server i \"Välj plats\"-vyn.</string>
-    <string name="daita_relay_subset_warning">Det här funktionen är inte tillgänglig på alla servrar. Du kanske måste ändra plats efter aktivering.</string>
-    <string name="daita_warning">Obs! Detta ökar nätverkstrafiken så var försiktig om du har ett abonnemang med begränsad mängd data. Det kan även ha en negativ påverkan på din nätverkshastighet och batterianvändning.</string>
     <string name="delete">Ta bort</string>
     <string name="delete_custom_list_confirmation_description">Ta bort \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" har tagits bort</string>

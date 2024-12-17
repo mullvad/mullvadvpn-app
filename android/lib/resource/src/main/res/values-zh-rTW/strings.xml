@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">可透過 API 存取，正在新增方式…</string>
     <string name="api_unreachable">無法透過 API 存取</string>
     <string name="api_unreachable_save_anyway">無法透過 API 存取，仍要儲存方式嗎？</string>
-    <string name="app_version">應用程式版本</string>
     <string name="apply">套用</string>
     <string name="at_least_on_method_needs_to_enabled">至少需要啟用一種方式</string>
     <string name="auth_failed">無法驗證帳戶。請傳送問題回報。</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動連線和鎖定模式設定皆可在 Android 系統設定中找到，請按照本指南的指示，啟用其中一項或兩項設定。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">此處</string>
-    <string name="auto_connect_legacy">自動連線 (舊)</string>
     <string name="automatic">自動</string>
     <string name="back">返回</string>
     <string name="block_ads_title">廣告</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">正在封鎖網路</string>
     <string name="blocking_internet_device_offline">封鎖網際網路 (裝置離線)</string>
     <string name="buy_credit">購買點數</string>
-    <string name="buy_more_credit">購買更多點數</string>
     <string name="cancel">取消</string>
     <string name="changes_dialog_subtitle">此版本中的變更：</string>
     <string name="cipher">加密方式</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s 會仔細加入網路噪音，讓所有網路資料封包大小皆相同，以達到此目的。</string>
     <string name="daita_description_slide_2_second_paragraph">我們有些伺服器並未啟用 %1$s。因此，我們使用多點跳躍自動來為任意伺服器啟用 %2$s 。</string>
     <string name="daita_info">啟用「%1$s」後，您必須手動選取已啟用 %2$s 的伺服器。這有可能導致您後來處於封鎖狀態，直到您在「選取位置」檢視圖中選到相容的伺服器為止。</string>
-    <string name="daita_relay_subset_warning">此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。</string>
-    <string name="daita_warning">注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度和電池使用情況產生負面影響。</string>
     <string name="delete">刪除</string>
     <string name="delete_custom_list_confirmation_description">要刪除「%1$s」嗎？</string>
     <string name="delete_custom_list_message">「%1$s」已刪除</string>

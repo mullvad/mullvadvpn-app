@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API に到達可能です。方法を追加しています...</string>
     <string name="api_unreachable">API到達不能</string>
     <string name="api_unreachable_save_anyway">API に到達できません。方法を保存しますか？</string>
-    <string name="app_version">アプリのバージョン</string>
     <string name="apply">適用</string>
     <string name="at_least_on_method_needs_to_enabled">方法は少なくとも 1 つは有効化する必要があります</string>
     <string name="auth_failed">アカウントを認証できません。問題の報告を送信してください。</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。</string>
     <string name="auto_connect_carousel_second_slide_top_text">自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">こちらをご覧ください。</string>
-    <string name="auto_connect_legacy">自動接続 (レガシー)</string>
     <string name="automatic">自動</string>
     <string name="back">戻る</string>
     <string name="block_ads_title">広告</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">インターネットをブロック中</string>
     <string name="blocking_internet_device_offline">インターネットをブロック中 (デバイスがオフライン)</string>
     <string name="buy_credit">クレジットを購入</string>
-    <string name="buy_more_credit">追加クレジットを購入</string>
     <string name="cancel">キャンセル</string>
     <string name="changes_dialog_subtitle">このバージョンでの変更内容:</string>
     <string name="cipher">暗号化</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$sはネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。</string>
     <string name="daita_description_slide_2_second_paragraph">すべてのサーバーが%1$sに対応しているわけではないため、どのサーバーでも%2$sが有効になるようにマルチホップを自動的に使用しています。</string>
     <string name="daita_info">“%1$s” を有効化した場合、%2$s対応のサーバーを手動で選択する必要があります。これにより、“場所を選択する” で互換性のあるサーバーを選択するまでブロック状態となる可能性があります。</string>
-    <string name="daita_relay_subset_warning">この機能はすべてのサーバーでご利用いただけるわけではありません。有効にした後に場所の変更が必要となる可能性があります。</string>
-    <string name="daita_warning">注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワークの速度とバッテリー使用量にも悪影響を及ぼす可能性があります。</string>
     <string name="delete">削除</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" を削除しますか？</string>
     <string name="delete_custom_list_message">\"%1$s\" は削除されました</string>

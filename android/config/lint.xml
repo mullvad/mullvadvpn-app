@@ -4,9 +4,6 @@
     <issue id="ExtraTranslation" severity="ignore" />
     <issue id="MissingTranslation" severity="ignore" />
     <issue id="Typos" severity="ignore" />
-    <issue id="UnusedResources">
-        <ignore path="res/values/strings.xml" />
-    </issue>
     <!-- We are currently not using the ellipsis character -->
     <issue id="TypographyEllipsis" severity="ignore" />
     <!-- Tracked externally (DROID-245) since the same texts are used across multiple platforms. -->

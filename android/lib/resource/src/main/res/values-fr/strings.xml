@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API joignable, ajout de la méthode...</string>
     <string name="api_unreachable">API injoignable</string>
     <string name="api_unreachable_save_anyway">API injoignable, enregistrer quand même la méthode ?</string>
-    <string name="app_version">Version de l\'application</string>
     <string name="apply">Appliquer</string>
     <string name="at_least_on_method_needs_to_enabled">Au moins une méthode doit être activée</string>
     <string name="auth_failed">Impossible d\'authentifier le compte. Veuillez envoyer un rapport de problème.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Les paramètres de la connexion automatique et du mode Verrouillage se trouvent dans les paramètres du système Android, suivez ce guide pour activer l\'un, l\'autre ou les deux.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connexion automatique est appelée VPN toujours actif dans les paramètres du système Android et elle s\'assure que vous êtes constamment connecté au tunnel VPN et se connecte automatiquement après le redémarrage.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">ici</string>
-    <string name="auto_connect_legacy">Connexion automatique (obsolète)</string>
     <string name="automatic">Automatique</string>
     <string name="back">Retour</string>
     <string name="block_ads_title">Publicités</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Internet bloqué</string>
     <string name="blocking_internet_device_offline">Internet bloqué (appareil hors ligne)</string>
     <string name="buy_credit">Acheter des crédits</string>
-    <string name="buy_more_credit">Acheter plus de crédits</string>
     <string name="cancel">Annuler</string>
     <string name="changes_dialog_subtitle">Modifications dans cette version :</string>
     <string name="cipher">Chiffre</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s y parvient en ajoutant soigneusement du bruit au réseau et en faisant en sorte que tous les paquets du réseau aient la même taille.</string>
     <string name="daita_description_slide_2_second_paragraph">Tous nos serveurs ne sont pas compatibles %1$s. C\'est pourquoi nous utilisons automatiquement le multihop pour activer %2$s avec n\'importe quel serveur.</string>
     <string name="daita_info">Si vous activez « %1$s », vous devez sélectionner manuellement un serveur avec %2$s activé. Vous risquez alors de vous retrouver dans une situation de blocage tant que vous n\'avez pas sélectionné un serveur compatible dans la vue « Sélectionner une localisation ».</string>
-    <string name="daita_relay_subset_warning">Cette fonctionnalité n\'est pas disponible sur tous les serveurs. Vous devrez peut-être changer d\'emplacement après l\'avoir activée.</string>
-    <string name="daita_warning">Attention : étant donné que cette opération augmente le trafic total de votre réseau, faites attention si vous disposez d\'un forfait à données limitées. Cela peut également avoir un impact négatif sur la vitesse de votre réseau et l\'utilisation de la batterie.</string>
     <string name="delete">Supprimer</string>
     <string name="delete_custom_list_confirmation_description">Supprimer « %1$s » ?</string>
     <string name="delete_custom_list_message">« %1$s » a été supprimé</string>

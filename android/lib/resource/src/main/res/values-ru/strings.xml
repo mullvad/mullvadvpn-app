@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">Есть доступ к API, добавляем метод...</string>
     <string name="api_unreachable">Нет доступа к API</string>
     <string name="api_unreachable_save_anyway">Нет доступа к API. Сохранить метод?</string>
-    <string name="app_version">Версия приложения</string>
     <string name="apply">Применить</string>
     <string name="at_least_on_method_needs_to_enabled">Должен быть включен хотя бы один метод</string>
     <string name="auth_failed">Не удается произвести аутентификацию учетной записи. Отправьте сообщение о проблеме.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Настройки автоподключения и режима блокировки можно найти в системных настройках Android. Чтобы включить их, следуйте этой инструкции.</string>
     <string name="auto_connect_carousel_second_slide_top_text">В системных настройках Android автоподключение называется «Постоянная VPN». Эта опция обеспечивает постоянное подключение к туннелю VPN и автоподключение после перезапуска.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">здесь</string>
-    <string name="auto_connect_legacy">Автоподключение (устаревшее)</string>
     <string name="automatic">Автоматически</string>
     <string name="back">Назад</string>
     <string name="block_ads_title">Реклама</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Блокируется доступ в Интернет</string>
     <string name="blocking_internet_device_offline">Блокируется доступ в Интернет (устройство офлайн)</string>
     <string name="buy_credit">Пополнить баланс</string>
-    <string name="buy_more_credit">Пополнить баланс</string>
     <string name="cancel">Отмена</string>
     <string name="changes_dialog_subtitle">Изменения в этой версии:</string>
     <string name="cipher">Шифр</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">Для этого %1$s добавляет в трафик сетевой шум, а все пакеты приводятся к одному размеру.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s поддерживается не на всех серверах. Поэтому, чтобы функция %2$s работала с любым сервером, мы автоматически используем многократный переход.</string>
     <string name="daita_info">После включения параметра «%1$s» вы должны будете вручную выбрать сервер, который поддерживает %2$s. В результате вы можете оказаться заблокированы, пока не выберете совместимый сервер в окне выбора местоположения.</string>
-    <string name="daita_relay_subset_warning">Эта функция доступна не на всех серверах. Возможно, после ее включения придется сменить местоположение.</string>
-    <string name="daita_warning">Внимание! При использовании этой функции общий сетевой трафик увеличивается. Имейте это в виду, если у вас тарифный план с ограничением по трафику. Также может снизиться скорость сети и повыситься расход заряда аккумулятора.</string>
     <string name="delete">Удалить</string>
     <string name="delete_custom_list_confirmation_description">Удалить список «%1$s»?</string>
     <string name="delete_custom_list_message">Список «%1$s» удален</string>

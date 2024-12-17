@@ -26,7 +26,6 @@
     <string name="here_is_your_account_number">Here’s your account number. Save it!</string>
     <string name="pay_to_start_using">To start using the app, you first need to add time to your account.</string>
     <string name="buy_credit">Buy credit</string>
-    <string name="buy_more_credit">Buy more credit</string>
     <string name="redeem_voucher">Redeem voucher</string>
     <string name="enter_voucher_code">Enter voucher code</string>
     <string name="redeem">Redeem</string>
@@ -43,7 +42,6 @@
     <string name="out_of_time">Out of time</string>
     <string name="add_time_to_account">Either buy credit on our website or redeem a voucher.</string>
     <string name="settings_vpn">VPN settings</string>
-    <string name="app_version">App version</string>
     <string name="report_a_problem">Report a problem</string>
     <string name="faqs_and_guides">FAQs &amp; Guides</string>
     <string name="privacy_policy_label">Privacy policy</string>
@@ -256,7 +254,6 @@
     <string name="loading_connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>
     <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
-    <string name="auto_connect_legacy">Auto-connect (legacy)</string>
     <string name="custom_lists">Custom lists</string>
     <string name="all_locations">All locations</string>
     <string name="edit_lists">Edit lists</string>
@@ -360,10 +357,8 @@
     <string name="location_was_removed_from_list">%s was removed from \"%s\"</string>
     <string name="create_custom_list_message">\"%s\" was created</string>
     <string name="daita_info">By enabling “%1$s” you will have to manually select a server that is %2$s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.</string>
-    <string name="daita_warning">Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage.</string>
     <string name="setting_chip">Setting: %s</string>
     <string name="enable_anyway">Enable anyway</string>
-    <string name="daita_relay_subset_warning">This feature isn’t available on all servers. You might need to change location after enabling.</string>
     <string name="upd_over_tcp">UDP-over-TCP</string>
     <string name="port_x">Port: %s</string>
     <string name="connect_panel_active_features">Active features</string>
@@ -406,7 +401,6 @@
     <string name="clear_input">Clear input</string>
     <string name="x_entry">%s (Entry)</string>
     <string name="x_exit">%s (Exit)</string>
-    <string name="search_results">Search results</string>
     <string name="filters">Filters:</string>
     <string name="search_query_empty">Type at least 2 characters to start searching.</string>
     <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) hides patterns in your encrypted VPN traffic.</string>

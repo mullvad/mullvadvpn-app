@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API raggiungibile, aggiunta del metodo...</string>
     <string name="api_unreachable">API non raggiungibile</string>
     <string name="api_unreachable_save_anyway">API non raggiungibile, salvare comunque il metodo?</string>
-    <string name="app_version">Versione app</string>
     <string name="apply">Applica</string>
     <string name="at_least_on_method_needs_to_enabled">È necessario abilitare almeno un metodo</string>
     <string name="auth_failed">Impossibile autenticare l\'account. Invia una segnalazione del problema.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Le impostazioni della modalità di Connessione automatica e di Blocco si trovano nelle impostazioni del sistema Android. Segui questa guida per abilitare una o entrambe.</string>
     <string name="auto_connect_carousel_second_slide_top_text">La connessione automatica è denominata VPN sempre attiva nelle impostazioni del sistema Android e garantisce di essere costantemente connessi al tunnel VPN e di connettersi automaticamente dopo il riavvio.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">qui</string>
-    <string name="auto_connect_legacy">Connessione automatica (precedente)</string>
     <string name="automatic">Automatico</string>
     <string name="back">Indietro</string>
     <string name="block_ads_title">Annunci</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Blocco di Internet</string>
     <string name="blocking_internet_device_offline">Blocco di Internet (dispositivo offline)</string>
     <string name="buy_credit">Acquista credito</string>
-    <string name="buy_more_credit">Acquista altro credito</string>
     <string name="cancel">Annulla</string>
     <string name="changes_dialog_subtitle">Modifiche in questa versione:</string>
     <string name="cipher">Codice</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s lo fa aggiungendo con attenzione rumore di rete e rendendo tutti i pacchetti di rete della stessa dimensione.</string>
     <string name="daita_description_slide_2_second_paragraph">Non tutti i nostri server sono abilitati per %1$s. Pertanto, utilizziamo automaticamente il multihop per abilitare %2$s con un server qualsiasi.</string>
     <string name="daita_info">Abilitando “%1$s” dovrai selezionare manualmente un server abilitato per %2$s. Questo può comportare uno stato di blocco finché non selezioni un server compatibile nella vista “Seleziona posizione”.</string>
-    <string name="daita_relay_subset_warning">Questa funzionalità non è disponibile su tutti i server. Potrebbe essere necessario modificare la posizione dopo l\'abilitazione.</string>
-    <string name="daita_warning">Attenzione: poiché questa operazione aumenta il traffico di rete totale, usala con cautela se disponi di un piano dati limitato. Può anche avere un impatto negativo sulla velocità della rete e sul consumo della batteria.</string>
     <string name="delete">Elimina</string>
     <string name="delete_custom_list_confirmation_description">Eliminare \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" eliminato</string>
