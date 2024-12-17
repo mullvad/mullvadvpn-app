@@ -22,7 +22,7 @@ use pnet_packet::{
 use socket2::{Domain, Protocol, Socket, Type};
 use tokio::time::{sleep, timeout};
 
-use crate::LeakStatus;
+use crate::{Interface, LeakStatus};
 
 mod platform;
 
@@ -34,7 +34,7 @@ use platform::{
 pub struct TracerouteOpt {
     /// Try to bind to a specific interface
     #[clap(short, long)]
-    pub interface: String,
+    pub interface: Interface,
 
     /// Destination IP of the probe packets
     #[clap(short, long)]

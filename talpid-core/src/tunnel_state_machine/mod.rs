@@ -295,7 +295,7 @@ impl TunnelStateMachine {
 
         #[cfg(target_os = "macos")]
         let split_tunnel =
-            split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), route_manager.clone());
+            split_tunnel::SplitTunnel::spawn(args.command_tx.clone(), args.route_manager.clone());
 
         let fw_args = FirewallArguments {
             #[cfg(not(target_os = "android"))]

@@ -325,7 +325,6 @@ impl Firewall {
         let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
             .action(pfctl::NatRuleAction::NoNat)
             .to(peer_endpoint.endpoint.address)
-            .user(Uid::from(0))
             .build()?;
         rules.push(no_nat_to_vpn_server);
 
@@ -596,10 +595,7 @@ impl Firewall {
     }
 
     /// Block traffic to relay_endpoint ip. Should come after [Self::get_allow_relay_rule].
-    fn get_block_relay_rule(
-        &self,
-        relay_endpoint: &net::AllowedEndpoint,
-    ) -> Result<pfctl::FilterRule> {
+    fn get_block_relay_rule(&self, relay_endpoint: &AllowedEndpoint) -> Result<pfctl::FilterRule> {
         let mut builder = self.create_rule_builder(FilterRuleAction::Drop(DropAction::Return));
         builder
             .direction(pfctl::Direction::Out)

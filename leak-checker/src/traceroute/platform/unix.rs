@@ -3,11 +3,15 @@ use std::os::fd::{FromRawFd, IntoRawFd};
 
 use anyhow::Context;
 
+use crate::Interface;
+
 use super::AsyncUdpSocket;
 
-pub fn get_interface_ip(interface: &str) -> anyhow::Result<IpAddr> {
+pub fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
+    let Interface::Name(interface) = interface;
+
     for interface_address in nix::ifaddrs::getifaddrs()? {
-        if interface_address.interface_name != interface {
+        if &interface_address.interface_name != interface {
             continue;
         };
         let Some(address) = interface_address.address else {
