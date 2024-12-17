@@ -45,7 +45,7 @@ import Lang from './components/Lang';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';
 import { AppContext } from './context';
-import { VariablesGlobalStyle } from './lib/foundations';
+import { Theme } from './lib/components';
 import History, { ITransitionSpecification, transitions } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
@@ -296,9 +296,9 @@ export default class AppRenderer {
                   <ErrorBoundary>
                     <ModalContainer>
                       <KeyboardNavigation>
-                        <VariablesGlobalStyle>
+                        <Theme>
                           <AppRouter />
-                        </VariablesGlobalStyle>
+                        </Theme>
                       </KeyboardNavigation>
                       {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                     </ModalContainer>

@@ -1,11 +1,25 @@
 import React from 'react';
 import { createGlobalStyle } from 'styled-components';
 
-import { colors, fontFamilies, fontSizes, fontWeights, lineHeights, radius, spacings } from '.';
+import {
+  colors,
+  fontFamilies,
+  fontSizes,
+  fontWeights,
+  lineHeights,
+  radius,
+  spacings,
+} from '../../foundations/variables';
 
 type VariablesProps = React.PropsWithChildren<object>;
 
-const GlobalStyle = createGlobalStyle`
+const Reset = createGlobalStyle`
+  button {
+    all: unset;
+  }
+`;
+
+const VariablesGlobalStyle = createGlobalStyle`
   :root {
     ${Object.entries({
       ...colors,
@@ -19,10 +33,11 @@ const GlobalStyle = createGlobalStyle`
   }
 `;
 
-export const VariablesGlobalStyle = ({ children }: VariablesProps) => {
+export const Theme = ({ children }: VariablesProps) => {
   return (
     <>
-      <GlobalStyle />
+      <Reset />
+      <VariablesGlobalStyle />
       {children}
     </>
   );
