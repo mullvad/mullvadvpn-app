@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">API alcançável, a adicionar método...</string>
     <string name="api_unreachable">API inalcançável</string>
     <string name="api_unreachable_save_anyway">API inalcançável, guardar o método mesmo assim?</string>
-    <string name="app_version">Versão da app</string>
     <string name="apply">Aplicar</string>
     <string name="at_least_on_method_needs_to_enabled">É necessário ativar pelo menos um método</string>
     <string name="auth_failed">Não foi possível autenticar a conta. Envie um relatório do problema.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">As definições da ligação automática e do modo de bloqueio podem ser encontradas nas definições do sistema Android. Siga este guia para ativar uma ou ambas as funcionalidades.</string>
     <string name="auto_connect_carousel_second_slide_top_text">A ligação automática é designada por VPN sempre ligada nas definições do sistema Android e assegura que está constantemente ligado ao túnel VPN e ligar-se-á automaticamente após o reinício.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">aqui</string>
-    <string name="auto_connect_legacy">Ligação automática (método antigo)</string>
     <string name="automatic">Automático</string>
     <string name="back">Retroceder</string>
     <string name="block_ads_title">Anúncios</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">A bloquear a Internet</string>
     <string name="blocking_internet_device_offline">Bloqueio de Internet (dispositivo offline)</string>
     <string name="buy_credit">Comprar crédito</string>
-    <string name="buy_more_credit">Comprar mais crédito</string>
     <string name="cancel">Cancelar</string>
     <string name="changes_dialog_subtitle">Alterações nesta versão:</string>
     <string name="cipher">Cifra</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s consegue-o ao adicionar cuidadosamente ruído de rede e ao tornar todos os pacotes de rede do mesmo tamanho.</string>
     <string name="daita_description_slide_2_second_paragraph">Nem todos os servidores suportam %1$s. Por isso, utilizamos multihop automaticamente para ativar %2$s em qualquer servidor.</string>
     <string name="daita_info">Ao ativar “%1$s”, terá de selecionar manualmente um servidor que tenha %2$s ativada, o que pode fazer com que fique num estado bloqueado até selecionar um servidor compatível na vista \"Selecionar localização\".</string>
-    <string name="daita_relay_subset_warning">Esta funcionalidade não está disponível em todos os servidores. Poderá ser necessário alterar a localização após a ativação.</string>
-    <string name="daita_warning">Atenção: visto que isto aumenta o tráfego total da sua rede, tenha cuidado se tiver um plano de dados limitado. Também pode afetar negativamente a velocidade da rede e a utilização da bateria.</string>
     <string name="delete">Eliminar</string>
     <string name="delete_custom_list_confirmation_description">Eliminar \"%1$s\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" foi eliminada</string>

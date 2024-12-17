@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">Interfejs API osiągalny, dodawanie metody...</string>
     <string name="api_unreachable">API nieosiągalny</string>
     <string name="api_unreachable_save_anyway">Interfejs API nieosiągalny, zapisać metodę mimo to?</string>
-    <string name="app_version">Wersja aplikacji</string>
     <string name="apply">Zastosuj</string>
     <string name="at_least_on_method_needs_to_enabled">Należy włączyć co najmniej jedną metodę</string>
     <string name="auth_failed">Nie można uwierzytelnić konta. Wyślij zgłoszenie problemu.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Ustawienia trybu automatycznego łączenia i trybu Lockdown można znaleźć w ustawieniach systemu Android. Aby włączyć jeden lub oba tryby, postępuj zgodnie z niniejszym poradnikiem.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Automatyczne łączenie w ustawieniach systemu Android nazywa się „Zawsze włączony VPN” i zapewnia stałe połączenie z tunelem VPN oraz automatyczne łączenie po ponownym uruchomieniu.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">tutaj</string>
-    <string name="auto_connect_legacy">Automatyczne łączenie (starsza wersja)</string>
     <string name="automatic">Automatycznie</string>
     <string name="back">Wstecz</string>
     <string name="block_ads_title">Reklamy</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">Blokowanie Internetu</string>
     <string name="blocking_internet_device_offline">Blokowanie Internetu (urządzenie rozłączone)</string>
     <string name="buy_credit">Kup doładowanie</string>
-    <string name="buy_more_credit">Doładuj konto</string>
     <string name="cancel">Anuluj</string>
     <string name="changes_dialog_subtitle">Zmiany w tej wersji:</string>
     <string name="cipher">Szyfrowanie</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s w tym celu ostrożnie dodaje szum sieciowy i nadaje ten sam rozmiar wszystkim pakietom sieciowym.</string>
     <string name="daita_description_slide_2_second_paragraph">Nie wszystkie nasze serwery obsługują %1$s. Dlatego automatycznie używamy funkcji wielokrotnego przeskoku, aby umożliwić działanie %2$s z dowolnym serwerem.</string>
     <string name="daita_info">Po włączeniu opcji „%1$s” trzeba ręcznie wybrać serwer, który obsługuje %2$s. Może to skutkować zablokowaniem, dopóki nie wybierzesz zgodnego serwera w widoku „Wybierz lokalizację”.</string>
-    <string name="daita_relay_subset_warning">Funkcja niedostępna na wszystkich serwerach. Po włączeniu może być konieczna zmiana lokalizacji.</string>
-    <string name="daita_warning">Uwaga: ponieważ zwiększa to łączny ruch sieciowy, zachowaj ostrożność, jeśli masz ograniczony pakiet danych. Może to również negatywnie wpłynąć na szybkość sieci i poziom naładowania.</string>
     <string name="delete">Usuń</string>
     <string name="delete_custom_list_confirmation_description">Usunąć „%1$s”?</string>
     <string name="delete_custom_list_message">Usunięto „%1$s”</string>

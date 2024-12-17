@@ -32,7 +32,6 @@
     <string name="api_reachable_adding_method">Erişilebilir API, yöntem ekleniyor...</string>
     <string name="api_unreachable">Erişilemez API</string>
     <string name="api_unreachable_save_anyway">API\'ye erişilemiyor, yöntem yine de kaydedilsin mi?</string>
-    <string name="app_version">Uygulama sürümü</string>
     <string name="apply">Uygula</string>
     <string name="at_least_on_method_needs_to_enabled">En az bir yöntemin etkinleştirilmesi gerekiyor</string>
     <string name="auth_failed">Hesap doğrulanamıyor. Lütfen bir hata raporu gönderin.</string>
@@ -42,7 +41,6 @@
     <string name="auto_connect_carousel_first_slide_top_text">Otomatik Bağlantı ve Kilitleme modu ayarları Android sistem ayarlarında yer alır. Bu ayarlardan birini veya her ikisini de etkinleştirmek için bu kılavuza göz atın.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar.</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">burada</string>
-    <string name="auto_connect_legacy">Otomatik bağlan (eski)</string>
     <string name="automatic">Otomatik</string>
     <string name="back">Geri</string>
     <string name="block_ads_title">Reklamlar</string>
@@ -55,7 +53,6 @@
     <string name="blocking_internet">İnternet bağlantısı engelleniyor</string>
     <string name="blocking_internet_device_offline">İnternet bağlantısı engelleniyor (cihaz çevrimdışı)</string>
     <string name="buy_credit">Kredi satın alın</string>
-    <string name="buy_more_credit">Daha fazla kredi satın alın</string>
     <string name="cancel">İptal et</string>
     <string name="changes_dialog_subtitle">Bu sürümdeki değişiklikler:</string>
     <string name="cipher">Şifre</string>
@@ -99,8 +96,6 @@
     <string name="daita_description_slide_2_first_paragraph">%1$s, dikkatli bir şekilde ağ paraziti ekleyerek ve tüm ağ paketlerini aynı boyuta getirerek sizi izlenmekten korur.</string>
     <string name="daita_description_slide_2_second_paragraph">%1$s, tüm sunucularımızda etkin değildir. Bu nedenle, %2$s özelliğini herhangi bir sunucuda etkinleştirmek için otomatik olarak çoklu geçişi kullanırız.</string>
     <string name="daita_info">\"%1$s\" seçeneğini etkinleştirdiğinizde %2$s özellikli bir sunucuyu manuel olarak seçmeniz gerekir. Bu, \"Konum seç\" görünümünde uyumlu bir sunucu seçilene kadar engellenmiş durumda kalmanıza neden olabilir.</string>
-    <string name="daita_relay_subset_warning">Bu özellik tüm sunucularda mevcut değildir. Etkinleştirdikten sonra konumu değiştirmeniz gerekebilir.</string>
-    <string name="daita_warning">Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından sınırlı bir veri planınız varsa dikkatli olun. Ağ hızınız ve pil kullanımınız da bu durumdan olumsuz etkilenebilir.</string>
     <string name="delete">Sil</string>
     <string name="delete_custom_list_confirmation_description">\"%1$s\" silinsin mi\"?</string>
     <string name="delete_custom_list_message">\"%1$s\" silindi</string>
