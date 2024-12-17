@@ -421,4 +421,5 @@
     <string name="multihop_entry_disabled_description">The entry server for %1$s is currently overridden by %2$s. To select an entry server, please first enable “%3$s” or disable \"%4$s\" in the settings.</string>
     <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
 </resources>
