@@ -10,6 +10,8 @@ import {
 } from '../../shared/application-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { Flex, FootnoteMini } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
@@ -17,9 +19,6 @@ import { IReduxState } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { Flex } from './common/layout/Flex';
-import { FootnoteMini } from './common/text/FootnoteMini';
-import { Colors, Spacings } from './common/variables';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';

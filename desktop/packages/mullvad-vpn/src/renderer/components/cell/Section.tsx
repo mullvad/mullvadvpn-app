@@ -2,11 +2,11 @@ import React, { useEffect } from 'react';
 import styled from 'styled-components';
 
 import { useAppContext } from '../../context';
+import { Colors, Spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import Accordion from '../Accordion';
 import ChevronButton from '../ChevronButton';
-import { Colors, Spacings } from '../common/variables';
 import { buttonText, openSans, sourceSansPro } from '../common-styles';
 import { Container } from './Container';
 import { Row } from './Row';

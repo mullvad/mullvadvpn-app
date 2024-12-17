@@ -39,13 +39,13 @@ import log, { ConsoleOutput } from '../shared/logging';
 import { LogLevel } from '../shared/logging-types';
 import { Scheduler } from '../shared/scheduler';
 import AppRouter from './components/AppRouter';
-import { VariablesGlobalStyle } from './components/common/variables';
 import ErrorBoundary from './components/ErrorBoundary';
 import KeyboardNavigation from './components/KeyboardNavigation';
 import Lang from './components/Lang';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
 import { ModalContainer } from './components/Modal';
 import { AppContext } from './context';
+import { Theme } from './lib/components';
 import History, { ITransitionSpecification, transitions } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
@@ -296,9 +296,9 @@ export default class AppRenderer {
                   <ErrorBoundary>
                     <ModalContainer>
                       <KeyboardNavigation>
-                        <VariablesGlobalStyle>
+                        <Theme>
                           <AppRouter />
-                        </VariablesGlobalStyle>
+                        </Theme>
                       </KeyboardNavigation>
                       {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                     </ModalContainer>

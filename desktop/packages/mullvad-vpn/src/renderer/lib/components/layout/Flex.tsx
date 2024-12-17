@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Spacings } from '../variables';
+import { Spacings } from '../../foundations';
 import { Layout, LayoutProps } from './Layout';
 
 export interface FlexProps extends LayoutProps {

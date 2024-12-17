@@ -1,4 +1,4 @@
-import { LinkProps } from '../../renderer/components/common/text';
+import { LinkProps } from '../../renderer/lib/components';
 
 export type NotificationAction = {
   type: 'open-url';

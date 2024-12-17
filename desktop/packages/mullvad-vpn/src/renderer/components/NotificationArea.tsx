@@ -17,6 +17,8 @@ import {
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
+import { Link } from '../lib/components';
+import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import {
@@ -27,8 +29,6 @@ import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
-import { Link } from './common/text';
-import { Colors } from './common/variables';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,

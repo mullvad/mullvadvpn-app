@@ -1,4 +1,4 @@
-import { RadiusTokens } from '../../../tokens';
+import { RadiusTokens } from '../tokens';
 
 export const radius = {
   '--radius-4': RadiusTokens.radius4,

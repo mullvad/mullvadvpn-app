@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Colors, Spacings } from './common/variables';
+import { Colors, Spacings } from '../lib/foundations';
 
 export const openSans: React.CSSProperties = {
   fontFamily: 'Open Sans',

@@ -1,10 +1,10 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { useHistory } from '../../../lib/history';
-import { RoutePath } from '../../../lib/routes';
+import { Colors, Radius } from '../../foundations';
+import { useHistory } from '../../history';
+import { RoutePath } from '../../routes';
 import { buttonReset } from '../mixins';
-import { Colors, Radius } from '../variables';
 import { Text, TextProps } from './Text';
 
 export interface LinkProps extends TextProps, Omit<React.HtmlHTMLAttributes<'button'>, 'color'> {

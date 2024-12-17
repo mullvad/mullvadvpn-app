@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
+import { Spacings } from '../lib/foundations';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { Spacings } from './common/variables';
 import { measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationBar';
