@@ -132,12 +132,22 @@ class SettingsMigrationTests: BaseUITestCase {
             .tapCustomWireGuardPortTextField()
             .enterText(wireGuardPort)
             .dismissKeyboard()
-            .tapWireGuardObfuscationExpandButton()
-            .tapWireGuardObfuscationUdpOverTcpCell()
-            .tapUDPOverTCPPortExpandButton()
-            .tapUDPOverTCPPort80Cell()
             .tapQuantumResistantTunnelExpandButton()
             .tapQuantumResistantTunnelOnCell()
+            .tapWireGuardObfuscationExpandButton()
+            .tapUDPOverTCPPortSelectorButton()
+
+        UDPOverTCPObfuscationSettingsPage(app)
+            .tapPortCell(2)
+            .tapPortCell(1)
+            .tapBackButton()
+        VPNSettingsPage(app)
+            .tapShadowsocksPortSelectorButton()
+        ShadowsocksObfuscationSettingsPage(app)
+            .tapPortCell(0)
+            .tapCustomCell()
+            .enterText("1234")
+            .tapBackButton()
     }
 
     func testVerifySettingsStillChanged() {
