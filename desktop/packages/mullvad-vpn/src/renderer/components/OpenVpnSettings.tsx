@@ -16,14 +16,13 @@ import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
-import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
+import { ModalMessage } from './Modal';
 import {
   NavigationBar,
   NavigationContainer,
@@ -32,7 +31,6 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
-import { SmallButton } from './SmallButton';
 
 const MIN_MSSFIX_VALUE = 1000;
 const MAX_MSSFIX_VALUE = 1450;
@@ -279,8 +277,6 @@ function BridgeModeSelector() {
     [tunnelProtocol, transportProtocol],
   );
 
-  const [confirmationDialogVisible, showConfirmationDialog, hideConfirmationDialog] = useBoolean();
-
   const setBridgeState = useCallback(
     async (bridgeState: BridgeState) => {
       try {
@@ -295,19 +291,10 @@ function BridgeModeSelector() {
 
   const onSelectBridgeState = useCallback(
     async (newValue: BridgeState) => {
-      if (newValue === 'on') {
-        showConfirmationDialog();
-      } else {
-        await setBridgeState(newValue);
-      }
+      await setBridgeState(newValue);
     },
-    [showConfirmationDialog, setBridgeState],
+    [setBridgeState],
   );
-
-  const confirmBridgeState = useCallback(async () => {
-    hideConfirmationDialog();
-    await setBridgeState('on');
-  }, [hideConfirmationDialog, setBridgeState]);
 
   const footerText = bridgeModeFooterText(bridgeState === 'on', tunnelProtocol, transportProtocol);
 
@@ -355,25 +342,6 @@ function BridgeModeSelector() {
           </Cell.CellFooter>
         )}
       </AriaInputGroup>
-      <ModalAlert
-        isOpen={confirmationDialogVisible}
-        type={ModalAlertType.caution}
-        title={messages.pgettext('openvpn-settings-view', 'Enable bridge mode?')}
-        message={
-          // TRANSLATORS: Warning shown in dialog to users when they enable setting that increases
-          // TRANSLATORS: network latency (decreases performance).
-          messages.gettext('This setting increases latency. Use only if needed.')
-        }
-        gridButtons={[
-          <SmallButton key="cancel" onClick={hideConfirmationDialog}>
-            {messages.gettext('Cancel')}
-          </SmallButton>,
-          <SmallButton key="confirm" onClick={confirmBridgeState} data-testid="enable-confirm">
-            {messages.gettext('Enable')}
-          </SmallButton>,
-        ]}
-        close={hideConfirmationDialog}
-      />
     </>
   );
 }
