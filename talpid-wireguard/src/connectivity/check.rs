@@ -160,10 +160,8 @@ impl<S: Strategy> Check<S> {
             return Ok(true);
         }
 
-        let check_timeout = cmp::min(
-            max_timeout,
-            timeout_initial.saturating_mul(timeout_multiplier.saturating_pow(retry_attempt)),
-        );
+        let check_timeout = max_timeout
+            .min(timeout_initial.saturating_mul(timeout_multiplier.saturating_pow(retry_attempt)));
 
         let start = Instant::now();
         while start.elapsed() < check_timeout {
