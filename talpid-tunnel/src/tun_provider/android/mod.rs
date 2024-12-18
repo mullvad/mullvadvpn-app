@@ -382,8 +382,8 @@ enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
     TunnelDeviceError,
-    LegacyLockdown,
-    AlwaysOnApp { app_name: String },
+    OtherLegacyAlwaysOnVpn,
+    OtherAlwaysOnApp { app_name: String },
     NotPrepared,
 }
 
@@ -394,10 +394,12 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::LegacyLockdown => Err(Error::OtherLegacyAlwaysOnVpn),
-            CreateTunResult::NotPrepared => Err(Error::NotPrepared),
-            CreateTunResult::AlwaysOnApp { app_name } => Err(Error::OtherAlwaysOnApp { app_name }),
             CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
+            CreateTunResult::OtherLegacyAlwaysOnVpn => Err(Error::OtherLegacyAlwaysOnVpn),
+            CreateTunResult::OtherAlwaysOnApp { app_name } => {
+                Err(Error::OtherAlwaysOnApp { app_name })
+            }
+            CreateTunResult::NotPrepared => Err(Error::NotPrepared),
         }
     }
 }
