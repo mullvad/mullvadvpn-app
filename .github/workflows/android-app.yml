@@ -320,7 +320,7 @@ jobs:
                 "workflowFile": "android-app.yml",
                 "jobName": "Generate relay list"
               }
-            ]      
+            ]
 
       - uses: actions/download-artifact@v4
         with:
