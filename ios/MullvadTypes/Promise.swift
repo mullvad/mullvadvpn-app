@@ -48,6 +48,10 @@ public final class Promise<Success, Failure: Error> {
     }
 }
 
+// This object can be used like an async semaphore with exactly 1 writer. It
+// allows the waiter to wait to `receive()` from another operation
+// asynchronously. It is important not to forget to call `send`, otherwise this
+// operation will block indefinitely.
 public struct OneshotChannel {
     private var continuation: AsyncStream<Void>.Continuation?
     private var stream: AsyncStream<Void>
