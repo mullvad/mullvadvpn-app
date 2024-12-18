@@ -1749,6 +1749,10 @@ msgid "Connecting. %(location)s"
 msgstr ""
 
 msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr ""
+
+msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
 msgstr ""
 

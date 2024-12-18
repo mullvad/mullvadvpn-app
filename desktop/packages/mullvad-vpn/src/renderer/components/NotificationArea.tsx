@@ -11,7 +11,6 @@ import {
   ErrorNotificationProvider,
   InAppNotificationAction,
   InAppNotificationProvider,
-  InAppNotificationTroubleshootInfo,
   InconsistentVersionNotificationProvider,
   ReconnectingNotificationProvider,
   UnsupportedVersionNotificationProvider,
@@ -43,7 +42,7 @@ interface IProps {
 }
 
 export default function NotificationArea(props: IProps) {
-  const { showFullDiskAccessSettings } = useAppContext();
+  const { showFullDiskAccessSettings, reconnectTunnel } = useAppContext();
 
   const account = useSelector((state: IReduxState) => state.account);
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
@@ -59,6 +58,15 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const { setSplitTunnelingState } = useAppContext();
+  const disableSplitTunneling = useCallback(async () => {
+    setIsModalOpen(false);
+    await setSplitTunnelingState(false);
+    await reconnectTunnel();
+  }, [reconnectTunnel, setSplitTunnelingState]);
+
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
     new ReconnectingNotificationProvider(tunnelState),
@@ -67,7 +75,13 @@ export default function NotificationArea(props: IProps) {
       blockWhenDisconnected,
       hasExcludedApps,
     }),
-    new ErrorNotificationProvider({ tunnelState, hasExcludedApps, showFullDiskAccessSettings }),
+
+    new ErrorNotificationProvider({
+      tunnelState,
+      hasExcludedApps,
+      showFullDiskAccessSettings,
+      disableSplitTunneling,
+    }),
     new InconsistentVersionNotificationProvider({ consistent: version.consistent }),
     new UnsupportedVersionNotificationProvider(version),
   ];
@@ -109,7 +123,13 @@ export default function NotificationArea(props: IProps) {
               {formatHtml(notification.subtitle ?? '')}
             </NotificationSubtitle>
           </NotificationContent>
-          {notification.action && <NotificationActionWrapper action={notification.action} />}
+          {notification.action && (
+            <NotificationActionWrapper
+              action={notification.action}
+              isModalOpen={isModalOpen}
+              setIsModalOpen={setIsModalOpen}
+            />
+          )}
         </NotificationBanner>
       );
     } else {
@@ -122,46 +142,51 @@ export default function NotificationArea(props: IProps) {
   return <NotificationBanner className={props.className} aria-hidden={true} />;
 }
 
-interface INotificationActionWrapperProps {
+interface NotificationActionWrapperProps {
   action: InAppNotificationAction;
+  isModalOpen: boolean;
+  setIsModalOpen: (isOpen: boolean) => void;
 }
 
-function NotificationActionWrapper(props: INotificationActionWrapperProps) {
+function NotificationActionWrapper({
+  action,
+  isModalOpen,
+  setIsModalOpen,
+}: NotificationActionWrapperProps) {
   const { push } = useHistory();
   const { openLinkWithAuth, openUrl } = useAppContext();
-  const [troubleshootInfo, setTroubleshootInfo] = useState<InAppNotificationTroubleshootInfo>();
+
+  const closeTroubleshootModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
 
   const handleClick = useCallback(() => {
-    if (props.action) {
-      switch (props.action.type) {
+    if (action) {
+      switch (action.type) {
         case 'open-url':
-          if (props.action.withAuth) {
-            return openLinkWithAuth(props.action.url);
+          if (action.withAuth) {
+            return openLinkWithAuth(action.url);
           } else {
-            return openUrl(props.action.url);
+            return openUrl(action.url);
           }
         case 'troubleshoot-dialog':
-          setTroubleshootInfo(props.action.troubleshoot);
+          setIsModalOpen(true);
           break;
         case 'close':
-          props.action.close();
+          action.close();
           break;
       }
     }
 
     return Promise.resolve();
-  }, [openLinkWithAuth, openUrl, props.action]);
+  }, [action, setIsModalOpen, openLinkWithAuth, openUrl]);
 
   const goToProblemReport = useCallback(() => {
-    setTroubleshootInfo(undefined);
+    closeTroubleshootModal();
     push(RoutePath.problemReport, { transition: transitions.show });
-  }, [push]);
-
-  const closeTroubleshootInfo = useCallback(() => setTroubleshootInfo(undefined), []);
+  }, [closeTroubleshootModal, push]);
 
   let actionComponent: React.ReactElement | undefined;
-  if (props.action) {
-    switch (props.action.type) {
+  if (action) {
+    switch (action.type) {
       case 'open-url':
         actionComponent = <NotificationOpenLinkAction onClick={handleClick} />;
         break;
@@ -177,7 +202,11 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
     }
   }
 
-  const problemReportButton = troubleshootInfo?.buttons ? (
+  if (action.type !== 'troubleshoot-dialog') {
+    return <NotificationActions>{actionComponent}</NotificationActions>;
+  }
+
+  const problemReportButton = action.troubleshoot?.buttons ? (
     <AppButton.BlueButton key="problem-report" onClick={goToProblemReport}>
       {messages.pgettext('in-app-notifications', 'Send problem report')}
     </AppButton.BlueButton>
@@ -189,17 +218,32 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
 
   let buttons = [
     problemReportButton,
-    <AppButton.BlueButton key="back" onClick={closeTroubleshootInfo}>
+    <AppButton.BlueButton key="back" onClick={closeTroubleshootModal}>
       {messages.gettext('Back')}
     </AppButton.BlueButton>,
   ];
 
-  if (troubleshootInfo?.buttons) {
-    const actionButtons = troubleshootInfo.buttons.map((button) => (
-      <AppButton.GreenButton key={button.label} onClick={button.action}>
-        {button.label}
-      </AppButton.GreenButton>
-    ));
+  if (action.troubleshoot?.buttons) {
+    const actionButtons = action.troubleshoot.buttons.map(({ variant, label, action }) => {
+      if (variant === 'success')
+        return (
+          <AppButton.GreenButton key={label} onClick={action}>
+            {label}
+          </AppButton.GreenButton>
+        );
+      else if (variant === 'destructive')
+        return (
+          <AppButton.RedButton key={label} onClick={action}>
+            {label}
+          </AppButton.RedButton>
+        );
+      else
+        return (
+          <AppButton.BlueButton key={label} onClick={action}>
+            {label}
+          </AppButton.BlueButton>
+        );
+    });
 
     buttons = actionButtons.concat(buttons);
   }
@@ -208,14 +252,14 @@ function NotificationActionWrapper(props: INotificationActionWrapperProps) {
     <>
       <NotificationActions>{actionComponent}</NotificationActions>
       <ModalAlert
-        isOpen={troubleshootInfo !== undefined}
+        isOpen={isModalOpen}
         type={ModalAlertType.info}
         buttons={buttons}
-        close={closeTroubleshootInfo}>
-        <ModalMessage>{troubleshootInfo?.details}</ModalMessage>
+        close={closeTroubleshootModal}>
+        <ModalMessage>{action.troubleshoot?.details}</ModalMessage>
         <ModalMessage>
           <ModalMessageList>
-            {troubleshootInfo?.steps.map((step) => <li key={step}>{step}</li>)}
+            {action.troubleshoot?.steps.map((step) => <li key={step}>{step}</li>)}
           </ModalMessageList>
         </ModalMessage>
         <ModalMessage>

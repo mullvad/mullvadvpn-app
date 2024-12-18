@@ -136,3 +136,9 @@ export const WideSmallButton = styled(SmallButton)({
 export const Spacing = styled.div<{ height: string }>((props) => ({
   height: props.height,
 }));
+
+export const StyledFdaSpinner = styled.div({
+  display: 'flex',
+  justifyContent: 'center',
+  marginTop: '24px',
+});
