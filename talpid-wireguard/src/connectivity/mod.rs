@@ -6,7 +6,6 @@ mod mock;
 mod monitor;
 mod pinger;
 
-pub use check::Cancellable;
-pub use check::Check;
+pub use check::{Cancellable, Check};
 pub use error::Error;
 pub use monitor::Monitor;
