@@ -283,7 +283,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-     - name: Wait for native (extra)
+      - name: Wait for native (extra)
         uses: kachick/wait-other-jobs@v2.0.3
         with:
           wait-list: |
