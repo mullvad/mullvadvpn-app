@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [android/2024.10-beta1] - 2024-12-19
 ### Added
 - Add multihop which allows the routing of traffic through an entry and exit server, making it
   harder to trace.
