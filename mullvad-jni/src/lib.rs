@@ -15,7 +15,7 @@ use jnix::{
 use mullvad_api::ApiEndpoint;
 use mullvad_daemon::{
     cleanup_old_rpc_socket, exception_logging, logging, runtime::new_multi_thread, version, Daemon,
-    DaemonCommandChannel, DaemonCommandSender,
+    DaemonCommandChannel, DaemonCommandSender, DaemonConfig,
 };
 use std::{
     io,
@@ -139,13 +139,6 @@ fn start(
     start_logging(&files_dir).map_err(Error::InitializeLogging)?;
     version::log_version();
 
-    #[cfg(feature = "api-override")]
-    if let Some(api_endpoint) = api_endpoint {
-        log::debug!("Overriding API endpoint: {api_endpoint:?}");
-        if mullvad_api::API.override_init(api_endpoint).is_err() {
-            log::warn!("Ignoring API settings (already initialized)");
-        }
-    }
     #[cfg(not(feature = "api-override"))]
     if api_endpoint.is_some() {
         log::warn!("api_endpoint will be ignored since 'api-override' is not enabled");
@@ -172,14 +165,18 @@ fn spawn_daemon(
 
     let runtime = new_multi_thread().build().map_err(Error::InitTokio)?;
 
-    let running_daemon = runtime.block_on(spawn_daemon_inner(
-        rpc_socket,
-        files_dir,
+    let daemon_config = DaemonConfig {
+        rpc_socket_path: rpc_socket,
+        log_dir: Some(files_dir.clone()),
+        resource_dir: files_dir.clone(),
+        settings_dir: files_dir,
         cache_dir,
-        daemon_command_channel,
         android_context,
         endpoint,
-    ))?;
+    };
+
+    let running_daemon =
+        runtime.block_on(spawn_daemon_inner(daemon_config, daemon_command_channel))?;
 
     Ok(DaemonContext {
         runtime,
@@ -189,27 +186,14 @@ fn spawn_daemon(
 }
 
 async fn spawn_daemon_inner(
-    rpc_socket: PathBuf,
-    files_dir: PathBuf,
-    cache_dir: PathBuf,
+    daemon_config: DaemonConfig,
     daemon_command_channel: DaemonCommandChannel,
-    android_context: AndroidContext,
-    endpoint: ApiEndpoint,
 ) -> Result<tokio::task::JoinHandle<()>, Error> {
-    cleanup_old_rpc_socket(&rpc_socket).await;
+    cleanup_old_rpc_socket(&daemon_config.rpc_socket_path).await;
 
-    let daemon = Daemon::start(
-        Some(files_dir.clone()),
-        files_dir.clone(),
-        files_dir,
-        cache_dir,
-        rpc_socket,
-        daemon_command_channel,
-        endpoint,
-        android_context,
-    )
-    .await
-    .map_err(Error::InitializeDaemon)?;
+    let daemon = Daemon::start(daemon_config, daemon_command_channel)
+        .await
+        .map_err(Error::InitializeDaemon)?;
 
     let running_daemon = tokio::spawn(async move {
         match daemon.run().await {
