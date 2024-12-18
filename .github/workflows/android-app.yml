@@ -157,13 +157,17 @@ jobs:
     strategy:
       matrix:
         include:
-          - abi: "x86_64"
+          - arch: "x86_64"
+            abi: "x86_64"
             taskVariant: "X86_64"
+          - arch: "i686"
           - abi: "x86"
             taskVariant: "X86"
-          - abi: "arm64-v8a"
+          - arch: "aarch64"
+            abi: "arm64-v8a"
             taskVariant: "Arm64"
-          - abi: "armeabi-v7a"
+          - arch: "armv7"
+            abi: "armeabi-v7a"
             taskVariant: "Arm"
     # name: build-native-${{ matrix.abi }}
     steps:
@@ -310,12 +314,12 @@ jobs:
             [
               {
                 "workflowFile": "android-app.yml",
-                "jobName": "build-native-x86_64"
+                "jobMatchMode": "prefix",
+                "jobName": "build-native"
               },
               {
                 "workflowFile": "android-app.yml",
-                "jobMatchMode": "prefix",
-                "jobName": "build-native"
+                "jobName": "generate-relay-list"
               }
             ]
 
