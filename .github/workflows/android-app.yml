@@ -309,6 +309,7 @@ jobs:
       - name: Wait for other jobs (native, relay list)
         uses: kachick/wait-other-jobs@v3.5.0
         with:
+          wait-seconds-before-first-polling: '1'
           wait-list: |
             [
               {
