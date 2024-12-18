@@ -43,6 +43,7 @@ Line wrap the file at 100 chars.                                              Th
 - Make Smart Routing override multihop if both are enabled. To manually set the entry relay,
   explicitly enable the "Direct only" option in the DAITA settings.
 - Update maybenot from 1.1.3 to 2.0.1.
+- Test tunnel before ephemeral peer exchange. This is an attempt to fix timeout issues.
 
 #### Windows
 - Enable quantum-resistant tunnels by default (when set to `auto`).
