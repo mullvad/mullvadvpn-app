@@ -1,10 +1,12 @@
 use byteorder::{NetworkEndian, WriteBytesExt};
 use rand::Rng;
 use socket2::{Domain, Protocol, Socket, Type};
+use tokio::net::UdpSocket;
 
 use std::{
     io::{self, Write},
     net::{Ipv4Addr, SocketAddr},
+    os::windows::io::FromRawSocket,
     thread,
     time::Duration,
 };
@@ -30,6 +32,10 @@ pub enum Error {
     #[error("Failed to write to socket")]
     Write(#[source] io::Error),
 
+    /// Failed to convert to tokio socket
+    #[error("Failed to convert to tokio socket")]
+    ConvertSocket(#[source] io::Error),
+
     /// Failed to get device index
     #[cfg(target_os = "macos")]
     #[error("Failed to obtain device index")]
@@ -43,16 +49,12 @@ pub enum Error {
     /// ICMP buffer too small
     #[error("ICMP message buffer too small")]
     BufferTooSmall,
-
-    /// Interface name contains null bytes
-    #[error("Interface name contains a null byte")]
-    InterfaceNameContainsNull,
 }
 
 type Result<T> = std::result::Result<T, Error>;
 
 pub struct Pinger {
-    sock: Socket,
+    sock: UdpSocket,
     addr: SocketAddr,
     id: u16,
     seq: u16,
@@ -77,7 +79,7 @@ impl Pinger {
         Self::set_device_index(&sock, &interface_name)?;
 
         Ok(Self {
-            sock,
+            sock: into_tokio_socket(sock).map_err(Error::ConvertSocket)?,
             addr,
             id: rand::random(),
             seq: 0,
@@ -96,25 +98,19 @@ impl Pinger {
         Ok(())
     }
 
-    fn send_ping_request(&mut self, message: &[u8], destination: SocketAddr) -> Result<()> {
+    async fn send_ping_request(&mut self, message: &[u8], destination: SocketAddr) -> Result<()> {
         let mut tries = 0;
-        let mut result = Ok(());
-        while tries < SEND_RETRY_ATTEMPTS {
-            match self.sock.send_to(message, &destination.into()) {
-                Ok(_) => {
-                    return Ok(());
-                }
-                Err(err) => {
-                    if Some(10065) != err.raw_os_error() {
-                        return Err(Error::Write(err));
-                    }
-                    result = Err(Error::Write(err));
-                }
+        loop {
+            let Err(error) = self.sock.send_to(message, destination).await else {
+                return Ok(());
+            };
+            if tries >= SEND_RETRY_ATTEMPTS || !should_retry_send(&error) {
+                return Err(Error::Write(error));
             }
-            thread::sleep(Duration::from_secs(1));
+
+            tokio::time::sleep(Duration::from_secs(1)).await;
             tries += 1;
         }
-        result
     }
 
     fn construct_icmpv4_packet(&mut self, buffer: &mut [u8]) -> Result<()> {
@@ -125,11 +121,43 @@ impl Pinger {
     }
 }
 
+#[cfg(windows)]
+fn should_retry_send(err: &io::Error) -> bool {
+    // Winsock error for when there is no route
+    // NOTE: It's unclear if we need to check this on Windows anymore, or why specifically on Windows
+    const WSAEHOSTUNREACH: i32 = 10065;
+    err.raw_os_error() == Some(WSAEHOSTUNREACH)
+}
+
+#[cfg(unix)]
+fn should_retry_send(err: &io::Error) -> bool {
+    false
+}
+
+#[cfg(windows)]
+fn into_tokio_socket(sock: Socket) -> io::Result<UdpSocket> {
+    use std::os::windows::io::IntoRawSocket;
+
+    debug_assert_eq!(sock.r#type().unwrap(), Type::RAW);
+
+    // SAFETY: This looks sketchy, as we're treating a raw socket as a DGRAM socket. But none of the
+    // socket ops will do anything worse than fail if this assumption fails, as far as I can tell.
+    UdpSocket::from_std(unsafe { std::net::UdpSocket::from_raw_socket(sock.into_raw_socket()) })
+}
+
+#[cfg(unix)]
+fn into_tokio_socket(sock: Socket) -> io::Result<UdpSocket> {
+    // SAFETY: This looks sketchy, as we're treating a raw socket as a DGRAM socket. But none of the
+    // socket ops will do anything worse than fail if this assumption fails, as far as I can tell.
+    UdpSocket::from_std(unsafe { std::net::UdpSocket::from_raw_fd(socket.into_raw_fd()) })
+}
+
+#[async_trait::async_trait]
 impl super::Pinger for Pinger {
-    fn send_icmp(&mut self) -> Result<()> {
+    async fn send_icmp(&mut self) -> Result<()> {
         let mut message = [0u8; 50];
         self.construct_icmpv4_packet(&mut message)?;
-        self.send_ping_request(&message, self.addr)
+        self.send_ping_request(&message, self.addr).await
     }
 }
 
