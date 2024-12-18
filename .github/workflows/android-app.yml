@@ -77,23 +77,6 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
-
-      - name: Wait for native (extra)
-        uses: kachick/wait-other-jobs@v3.5.0
-        with:
-          wait-list: |
-            [
-              {
-                "workflowFile": "android-app.yml",
-                "jobMatchMode": "prefix",
-                "jobName": "Build native"
-              },
-              {
-                "workflowFile": "android-app.yml",
-                "jobName": "Generate relay list"
-              }
-            ]
-
       - name: Generate keystore
         run: >-
           keytool -genkey
@@ -324,20 +307,20 @@ jobs:
           read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Wait for other jobs (native, relay list)
-        uses: kachick/wait-other-jobs@v2.0.3
+        uses: kachick/wait-other-jobs@v3.5.0
         with:
           wait-list: |
             [
               {
                 "workflowFile": "android-app.yml",
                 "jobMatchMode": "prefix",
-                "jobName": "build-native"
+                "jobName": "Build native"
               },
               {
                 "workflowFile": "android-app.yml",
-                "jobName": "generate-relay-list"
+                "jobName": "Generate relay list"
               }
-            ]
+            ]      
 
       - uses: actions/download-artifact@v4
         with:
