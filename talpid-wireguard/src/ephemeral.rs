@@ -226,6 +226,7 @@ async fn reconfigure_tunnel(
 
         let updated_tunnel = tunnel
             .set_config(&config)
+            .await
             .map_err(Error::TunnelError)
             .map_err(CloseMsg::SetupError)?;
 

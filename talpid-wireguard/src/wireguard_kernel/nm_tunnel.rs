@@ -28,7 +28,6 @@ pub struct NetworkManagerTunnel {
     network_manager: NetworkManager,
     tunnel: Option<WireguardTunnel>,
     netlink_connections: Handle,
-    tokio_handle: tokio::runtime::Handle,
     interface_name: String,
 }
 
@@ -58,12 +57,12 @@ impl NetworkManagerTunnel {
             network_manager,
             tunnel: Some(tunnel),
             netlink_connections,
-            tokio_handle,
             interface_name,
         })
     }
 }
 
+#[async_trait::async_trait]
 impl Tunnel for NetworkManagerTunnel {
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
@@ -82,18 +81,16 @@ impl Tunnel for NetworkManagerTunnel {
         }
     }
 
-    fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
+    async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
         let mut wg = self.netlink_connections.wg_handle.clone();
-        self.tokio_handle.block_on(async move {
-            let device = wg
-                .get_by_name(self.interface_name.clone())
-                .await
-                .map_err(|err| {
-                    log::error!("Failed to fetch WireGuard device config: {}", err);
-                    TunnelError::GetConfigError
-                })?;
-            Ok(Stats::parse_device_message(&device))
-        })
+        let device = wg
+            .get_by_name(self.interface_name.clone())
+            .await
+            .map_err(|err| {
+                log::error!("Failed to fetch WireGuard device config: {}", err);
+                TunnelError::GetConfigError
+            })?;
+        Ok(Stats::parse_device_message(&device))
     }
 
     fn set_config(

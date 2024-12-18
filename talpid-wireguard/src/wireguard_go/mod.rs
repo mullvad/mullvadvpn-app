@@ -1,7 +1,5 @@
 #[cfg(target_os = "android")]
 use super::config;
-#[cfg(target_os = "android")]
-use super::Error;
 use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
@@ -106,32 +104,26 @@ impl WgGoTunnel {
         }
     }
 
-    pub fn set_config(self, config: &Config) -> Result<Self> {
+    pub async fn set_config(self, config: &Config) -> Result<Self> {
         let state = self.as_state();
         let log_path = state._logging_context.path.clone();
+        let cancel_receiver = state.cancel_receiver.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
         let routes = config.get_tunnel_destinations();
 
         match self {
-            WgGoTunnel::Multihop(mut state) if !config.is_multihop() => {
-                let connectivity_checker = state
-                    .connectivity_checker
-                    .take()
-                    .expect("connectivity checker unexpectedly dropped");
+            WgGoTunnel::Multihop(state) if !config.is_multihop() => {
                 state.stop()?;
                 Self::start_tunnel(
                     config,
                     log_path.as_deref(),
                     tun_provider,
                     routes,
-                    connectivity_checker,
+                    cancel_receiver,
                 )
+                .await
             }
-            WgGoTunnel::Singlehop(mut state) if config.is_multihop() => {
-                let connectivity_checker = state
-                    .connectivity_checker
-                    .take()
-                    .expect("connectivity checker unexpectedly dropped");
+            WgGoTunnel::Singlehop(state) if config.is_multihop() => {
                 state.stop()?;
                 Self::start_multihop_tunnel(
                     config,
@@ -139,34 +131,18 @@ impl WgGoTunnel {
                     log_path.as_deref(),
                     tun_provider,
                     routes,
-                    connectivity_checker,
+                    cancel_receiver,
                 )
+                .await
             }
             WgGoTunnel::Singlehop(mut state) => {
                 state.set_config(config.clone())?;
-
-                // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-                let mut connectivity_checker = state
-                    .connectivity_checker
-                    .take()
-                    .expect("connectivity checker unexpectedly dropped");
-                let mut new_state = WgGoTunnel::Singlehop(state);
-                new_state.ensure_tunnel_is_running(&mut connectivity_checker)?;
-                new_state.as_state_mut().connectivity_checker = Some(connectivity_checker);
+                let new_state = WgGoTunnel::Singlehop(state);
                 Ok(new_state)
             }
             WgGoTunnel::Multihop(mut state) => {
                 state.set_config(config.clone())?;
-
-                // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-                let mut connectivity_checker = state
-                    .connectivity_checker
-                    .take()
-                    .expect("connectivity checker unexpectedly dropped");
-                let mut new_state = WgGoTunnel::Multihop(state);
-                new_state.ensure_tunnel_is_running(&mut connectivity_checker)?;
-                new_state.as_state_mut().connectivity_checker = Some(connectivity_checker);
-
+                let new_state = WgGoTunnel::Multihop(state);
                 Ok(new_state)
             }
         }
@@ -189,13 +165,9 @@ pub(crate) struct WgGoTunnelState {
     tun_provider: Arc<Mutex<TunProvider>>,
     #[cfg(daita)]
     config: Config,
-    // HACK: Check is not Clone, so we have to pass this around ..
-    // This is conceptually the connection between this Tunnel and the currently running
-    // WireguardMonitor, and it is used to allow WireguardMonitor to cancel the setup of
-    // a new Tunnel during the "ensure_connectivity"  phase. This field should be removed
-    // as soon as we implement a better way to cancel Check asynchronously.
+    /// This is used to cancel the connectivity checks that occur when toggling multihop
     #[cfg(target_os = "android")]
-    connectivity_checker: Option<connectivity::Check<connectivity::Cancellable>>,
+    cancel_receiver: connectivity::CancelReceiver,
 }
 
 impl WgGoTunnelState {
@@ -317,12 +289,12 @@ impl WgGoTunnel {
 
 #[cfg(target_os = "android")]
 impl WgGoTunnel {
-    pub fn start_tunnel(
+    pub async fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
+        cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -345,7 +317,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        let mut tunnel = WgGoTunnel::Singlehop(WgGoTunnelState {
+        let tunnel = WgGoTunnel::Singlehop(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -353,23 +325,22 @@ impl WgGoTunnel {
             tun_provider,
             #[cfg(daita)]
             config: config.clone(),
-            connectivity_checker: None,
+            cancel_receiver,
         });
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        tunnel.ensure_tunnel_is_running(&mut connectivity_check)?;
-        tunnel.as_state_mut().connectivity_checker = Some(connectivity_check);
+        tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
     }
 
-    pub fn start_multihop_tunnel(
+    pub async fn start_multihop_tunnel(
         config: &Config,
         exit_peer: &PeerConfig,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
+        cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -408,7 +379,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        let mut tunnel = WgGoTunnel::Multihop(WgGoTunnelState {
+        let tunnel = WgGoTunnel::Multihop(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -416,12 +387,11 @@ impl WgGoTunnel {
             tun_provider,
             #[cfg(daita)]
             config: config.clone(),
-            connectivity_checker: None,
+            cancel_receiver: cancel_receiver.clone(),
         });
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        tunnel.ensure_tunnel_is_running(&mut connectivity_check)?;
-        tunnel.as_state_mut().connectivity_checker = Some(connectivity_check);
+        tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
     }
@@ -439,30 +409,34 @@ impl WgGoTunnel {
         Ok(())
     }
 
-    pub fn take_checker(&mut self) -> Option<connectivity::Check<connectivity::Cancellable>> {
-        self.as_state_mut().connectivity_checker.take()
-    }
-
     /// There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
     /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
-    fn ensure_tunnel_is_running(
-        &self,
-        checker: &mut connectivity::Check<connectivity::Cancellable>,
-    ) -> Result<()> {
-        let connection_established = checker
+    async fn ensure_tunnel_is_running(&self) -> Result<()> {
+        let state = self.as_state();
+        let addr = state.config.ipv4_gateway;
+        let cancel_receiver = state.cancel_receiver.clone();
+        let mut check = connectivity::Check::new(addr, 0, cancel_receiver)
+            .map_err(|err| TunnelError::RecoverableStartWireguardError(Box::new(err)))?;
+
+        // TODO: retry attempt?
+
+        let connection_established = check
             .establish_connectivity(self)
+            .await
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
         // Timed out
         if !connection_established {
             return Err(TunnelError::RecoverableStartWireguardError(Box::new(
-                Error::TimeoutError,
+                super::Error::TimeoutError,
             )));
         }
+
         Ok(())
     }
 }
 
+#[async_trait::async_trait]
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> String {
         self.as_state().interface_name.clone()
@@ -472,14 +446,16 @@ impl Tunnel for WgGoTunnel {
         self.into_state().stop()
     }
 
-    fn get_tunnel_stats(&self) -> Result<StatsMap> {
-        self.as_state()
-            .tunnel_handle
-            .get_config(|cstr| {
-                Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
-            })
-            .ok_or(TunnelError::GetConfigError)?
-            .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
+    async fn get_tunnel_stats(&self) -> Result<StatsMap> {
+        tokio::task::block_in_place(|| {
+            self.as_state()
+                .tunnel_handle
+                .get_config(|cstr| {
+                    Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
+                })
+                .ok_or(TunnelError::GetConfigError)?
+                .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
+        })
     }
 
     fn set_config(
