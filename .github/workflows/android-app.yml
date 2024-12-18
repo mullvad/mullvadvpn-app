@@ -290,7 +290,6 @@ jobs:
             [
               {
                 "workflowFile": "android-app.yml",
-                "jobMatchMode": "prefix",
                 "jobName": "build-native"
               },
               {
