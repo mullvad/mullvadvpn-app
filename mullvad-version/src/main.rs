@@ -1,16 +1,24 @@
 use mullvad_version::{PreStableType, Version};
+use std::env::VarError;
 use std::{env, process::exit};
 
 const ANDROID_VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/android-version-name.txt"));
 
 fn main() {
+    let android_version_env = env::var("ANDROID_VERSION");
+    if matches!(android_version_env, Err(VarError::NotUnicode(_))) {
+        eprintln!("ANDROID_VERSION is not valid unicode.");
+        exit(1);
+    }
+    let android_version = android_version_env.unwrap_or(ANDROID_VERSION.to_string());
+
     let command = env::args().nth(1);
     match command.as_deref() {
         None => println!("{}", mullvad_version::VERSION),
         Some("semver") => println!("{}", to_semver(mullvad_version::VERSION)),
         Some("version.h") => println!("{}", to_windows_h_format(mullvad_version::VERSION)),
-        Some("versionName") => println!("{ANDROID_VERSION}"),
-        Some("versionCode") => println!("{}", to_android_version_code(ANDROID_VERSION)),
+        Some("versionName") => println!("{android_version}"),
+        Some("versionCode") => println!("{}", to_android_version_code(&android_version)),
         Some(command) => {
             eprintln!("Unknown command: {command}");
             exit(1);
