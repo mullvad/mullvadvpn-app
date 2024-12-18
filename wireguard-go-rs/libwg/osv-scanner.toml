@@ -2,17 +2,17 @@
 # Stack exhaustion in Decoder.Decode in encoding/gob
 [[IgnoredVulns]]
 id = "CVE-2024-34156" # GO-2024-3106
-ignoreUntil = 2024-12-18
+ignoreUntil = 2025-03-18
 reason = "wireguard-go does not use the affected code"
 
 # Stack exhaustion in Parse in go/build/constraint
 [[IgnoredVulns]]
 id = "CVE-2024-34158" # GO-2024-3107
-ignoreUntil = 2024-12-18
+ignoreUntil = 2025-03-18
 reason = "wireguard-go does not use the affected code"
 
 # Stack exhaustion in all Parse functions in go/parser
 [[IgnoredVulns]]
 id = "CVE-2024-34155" # GO-2024-3105
-ignoreUntil = 2024-12-18
+ignoreUntil = 2025-03-18
 reason = "wireguard-go does not use the affected code"
