@@ -145,7 +145,7 @@ pub struct WireguardMonitor {
     /// Callback to signal tunnel events
     event_hook: EventHook,
     close_msg_receiver: sync_mpsc::Receiver<CloseMsg>,
-    pinger_stop_sender: sync_mpsc::Sender<()>,
+    pinger_stop_sender: connectivity::CancelToken,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
@@ -217,8 +217,7 @@ impl WireguardMonitor {
             iface_name.clone(),
             args.retry_attempt,
         )
-        .map_err(Error::ConnectivityMonitorError)?
-        .with_cancellation();
+        .map_err(Error::ConnectivityMonitorError)?;
 
         let monitor = WireguardMonitor {
             runtime: args.runtime.clone(),
@@ -333,28 +332,26 @@ impl WireguardMonitor {
                 });
             }
 
-            let cloned_tunnel = Arc::clone(&tunnel);
-
-            let connectivity_check = tokio::task::spawn_blocking(move || {
-                let lock = cloned_tunnel.blocking_lock();
-                let tunnel = lock.as_ref().expect("The tunnel was dropped unexpectedly");
-                match connectivity_monitor.establish_connectivity(tunnel) {
-                    Ok(true) => Ok(connectivity_monitor),
-                    Ok(false) => {
-                        log::warn!("Timeout while checking tunnel connection");
-                        Err(CloseMsg::PingErr)
-                    }
-                    Err(error) => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg("Failed to check tunnel connection")
-                        );
-                        Err(CloseMsg::PingErr)
-                    }
+            let lock = tunnel.lock().await;
+            let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
+            match connectivity_monitor
+                .establish_connectivity(borrowed_tun)
+                .await
+            {
+                Ok(true) => Ok(()),
+                Ok(false) => {
+                    log::warn!("Timeout while checking tunnel connection");
+                    Err(CloseMsg::PingErr)
                 }
-            })
-            .await
-            .unwrap()?;
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to check tunnel connection")
+                    );
+                    Err(CloseMsg::PingErr)
+                }
+            }?;
+            drop(lock);
 
             // Add any default route(s) that may exist.
             args.route_manager
@@ -366,19 +363,15 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
-            let monitored_tunnel = Arc::downgrade(&tunnel);
-            tokio::task::spawn_blocking(move || {
-                if let Err(error) =
-                    connectivity::Monitor::init(connectivity_check).run(monitored_tunnel)
-                {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Connectivity monitor failed")
-                    );
-                }
-            })
-            .await
-            .unwrap();
+            if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
+                .run(Arc::downgrade(&tunnel))
+                .await
+            {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Connectivity monitor failed")
+                );
+            }
 
             Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
         };
@@ -732,9 +725,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
-        #[cfg(target_os = "android")] connectivity_check: connectivity::Check<
-            connectivity::Cancellable,
-        >,
+        #[cfg(target_os = "android")] connectivity_check: connectivity::Check,
     ) -> Result<WgGoTunnel> {
         let routes = config
             .get_tunnel_destinations()
@@ -799,7 +790,7 @@ impl WireguardMonitor {
             Err(_) => Ok(()),
         };
 
-        let _ = self.pinger_stop_sender.send(());
+        self.pinger_stop_sender.close();
 
         self.runtime
             .block_on(self.event_hook.on_event(TunnelEvent::Down));
@@ -992,7 +983,7 @@ enum CloseMsg {
 }
 
 #[allow(unused)]
-pub(crate) trait Tunnel: Send {
+pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;

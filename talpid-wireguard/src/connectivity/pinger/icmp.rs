@@ -7,7 +7,6 @@ use std::{
     io::{self, Write},
     net::{Ipv4Addr, SocketAddr},
     os::windows::io::FromRawSocket,
-    thread,
     time::Duration,
 };
 

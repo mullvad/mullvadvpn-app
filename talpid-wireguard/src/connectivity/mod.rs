@@ -6,8 +6,6 @@ mod mock;
 mod monitor;
 mod pinger;
 
-#[cfg(force_wireguard_handshake)]
-pub use check::Cancellable;
-pub use check::Check;
+pub use check::{CancelToken, Check};
 pub use error::Error;
 pub use monitor::Monitor;

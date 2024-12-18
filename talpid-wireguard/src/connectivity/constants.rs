@@ -1,7 +1,5 @@
 use std::time::Duration;
 
-/// Sleep time used when initially establishing connectivity
-pub(crate) const DELAY_ON_INITIAL_SETUP: Duration = Duration::from_millis(50);
 /// Timeout for waiting on receiving traffic after sending outgoing traffic.  Once this timeout is
 /// hit, a ping will be sent every `SECONDS_PER_PING` until `PING_TIMEOUT` is reached, or traffic
 /// is received.
