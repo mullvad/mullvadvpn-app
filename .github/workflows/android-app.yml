@@ -77,6 +77,23 @@ jobs:
     needs: prepare
     runs-on: ubuntu-latest
     steps:
+
+      - name: Wait for native (extra)
+        uses: kachick/wait-other-jobs@v3.5.0
+        with:
+          wait-list: |
+            [
+              {
+                "workflowFile": "android-app.yml",
+                "jobMatchMode": "prefix",
+                "jobName": "build-native"
+              },
+              {
+                "workflowFile": "android-app.yml",
+                "jobName": "Generate relay list"
+              }
+            ]
+
       - name: Generate keystore
         run: >-
           keytool -genkey
@@ -282,22 +299,6 @@ jobs:
       # https://github.com/actions/runner/issues/863
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
-
-      - name: Wait for native (extra)
-        uses: kachick/wait-other-jobs@v3.5.0
-        with:
-          wait-list: |
-            [
-              {
-                "workflowFile": "android-app.yml",
-                "jobMatchMode": "prefix",
-                "jobName": "build-native"
-              },
-              {
-                "workflowFile": "android-app.yml",
-                "jobName": "generate-relay-list"
-              }
-            ]
 
       - name: Checkout repository
         uses: actions/checkout@v4
