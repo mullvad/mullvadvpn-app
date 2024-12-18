@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
 
-import { NonTransientProps } from '../lib/styles';
+import { NonTransientProps } from '../lib/types';
 
 export interface IImageViewProps
   extends NonTransientProps<IImageMaskProps, 'tintColor' | 'tintHoverColor'> {

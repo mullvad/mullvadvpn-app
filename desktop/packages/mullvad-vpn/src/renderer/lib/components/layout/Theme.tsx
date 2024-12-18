@@ -13,12 +13,6 @@ import {
 
 type VariablesProps = React.PropsWithChildren<object>;
 
-const Reset = createGlobalStyle`
-  button {
-    all: unset;
-  }
-`;
-
 const VariablesGlobalStyle = createGlobalStyle`
   :root {
     ${Object.entries({
@@ -36,7 +30,6 @@ const VariablesGlobalStyle = createGlobalStyle`
 export const Theme = ({ children }: VariablesProps) => {
   return (
     <>
-      <Reset />
       <VariablesGlobalStyle />
       {children}
     </>

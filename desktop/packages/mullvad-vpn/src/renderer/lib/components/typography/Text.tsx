@@ -2,7 +2,7 @@ import { forwardRef } from 'react';
 import styled from 'styled-components';
 
 import { Colors, Typography, typography, TypographyProperties } from '../../foundations';
-import { TransientProps } from '../../styles';
+import { TransientProps } from '../../types';
 
 export type TextProps = React.PropsWithChildren<{
   variant?: Typography;

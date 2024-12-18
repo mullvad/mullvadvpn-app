@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import ImageView from '../../../components/ImageView';
 import { Colors } from '../../foundations';
-import { buttonReset } from '../mixins';
+import { buttonReset } from '../../styles';
 
 export interface IconButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
