@@ -284,7 +284,7 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
 
       - name: Wait for native (extra)
-        uses: kachick/wait-other-jobs@v2.0.3
+        uses: kachick/wait-other-jobs@v3.5.0
         with:
           wait-list: |
             [
