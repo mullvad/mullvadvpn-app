@@ -118,6 +118,8 @@ async fn config_ephemeral_peers_inner(
     >,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
+    // NOTE: This one often fails with multihop on Windows, even though the handshake afterwards
+    // succeeds. So we try anyway if it fails.
     #[cfg(force_wireguard_handshake)]
     let _ = establish_tunnel_connection(tunnel, connectivity).await;
 
