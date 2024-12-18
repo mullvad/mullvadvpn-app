@@ -260,8 +260,6 @@ msgstr ""
 msgid "Test"
 msgstr ""
 
-#. Warning shown in dialog to users when they enable setting that increases
-#. network latency (decreases performance).
 msgid "This setting increases latency. Use only if needed."
 msgstr ""
 
@@ -1279,10 +1277,6 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr ""
 
-msgctxt "openvpn-settings-view"
-msgid "Enable bridge mode?"
-msgstr ""
-
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -2039,13 +2033,6 @@ msgstr ""
 
 msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
-msgstr ""
-
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
 msgstr ""
 
 msgctxt "vpn-settings-view"
