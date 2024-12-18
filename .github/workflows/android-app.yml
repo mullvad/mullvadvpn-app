@@ -149,7 +149,7 @@ jobs:
           retention-days: 7
 
   build-native:
-    name: Build native
+    # name: Build native
     needs: prepare
     runs-on: ubuntu-latest
     container:
@@ -169,7 +169,7 @@ jobs:
           - arch: "armv7"
             abi: "armeabi-v7a"
             taskVariant: "Arm"
-    # name: build-native-${{ matrix.abi }}
+    name: build-native-${{ matrix.arch }}
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
