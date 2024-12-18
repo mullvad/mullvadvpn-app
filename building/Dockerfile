@@ -48,6 +48,8 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     rpm \
     # For cross-compiling/linting towards Windows
     gcc-mingw-w64-x86-64 \
+    # For building Arch Linux packages
+    libarchive-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # === Rust ===
