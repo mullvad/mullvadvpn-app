@@ -48,6 +48,8 @@ RUN dpkg --add-architecture arm64 && apt-get update -y && apt-get install -y \
     rpm \
     # For cross-compiling/linting towards Windows
     gcc-mingw-w64-x86-64 \
+    # For building Arch Linux packages
+    libarchive-tools \
     && rm -rf /var/lib/apt/lists/*
 
 # === Rust ===
@@ -101,7 +103,7 @@ RUN apt-get update -y && \
 ENV PATH=/root/.volta/bin:$PATH
 # volta seemingly does not have a way to explicitly install the toolchain
 # versions from package.json, but `node --version` triggers an install
-COPY desktop/packages/mullvad-vpn/package.json .
+COPY desktop/package.json .
 RUN curl https://get.volta.sh | bash && node --version && rm package.json
 
 # === Golang ===
