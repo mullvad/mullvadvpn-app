@@ -588,30 +588,34 @@ pub struct Daemon {
     volume_update_tx: mpsc::UnboundedSender<()>,
     location_handler: GeoIpHandler,
 }
+pub struct DaemonConfig {
+    pub log_dir: Option<PathBuf>,
+    pub resource_dir: PathBuf,
+    pub settings_dir: PathBuf,
+    pub cache_dir: PathBuf,
+    pub rpc_socket_path: PathBuf,
+    pub endpoint: ApiEndpoint,
+    #[cfg(target_os = "android")]
+    pub android_context: AndroidContext,
+}
 
 impl Daemon {
     pub async fn start(
-        log_dir: Option<PathBuf>,
-        resource_dir: PathBuf,
-        settings_dir: PathBuf,
-        cache_dir: PathBuf,
-        rpc_socket_path: PathBuf,
+        config: DaemonConfig,
         daemon_command_channel: DaemonCommandChannel,
-        endpoint: ApiEndpoint,
-        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         #[cfg(target_os = "macos")]
         macos::bump_filehandle_limit();
 
         let command_sender = daemon_command_channel.sender();
         let management_interface =
-            ManagementInterfaceServer::start(command_sender, rpc_socket_path)
+            ManagementInterfaceServer::start(command_sender, config.rpc_socket_path)
                 .map_err(Error::ManagementInterfaceError)?;
 
         let (internal_event_tx, internal_event_rx) = daemon_command_channel.destructure();
 
         #[cfg(target_os = "android")]
-        let connectivity_listener = ConnectivityListener::new(android_context.clone())
+        let connectivity_listener = ConnectivityListener::new(config.android_context.clone())
             .inspect_err(|error| {
                 log::error!(
                     "{}",
@@ -620,10 +624,10 @@ impl Daemon {
             })
             .map_err(|_| Error::DaemonUnavailable)?;
 
-        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&cache_dir).await;
+        mullvad_api::proxy::ApiConnectionMode::try_delete_cache(&config.cache_dir).await;
         let api_runtime = mullvad_api::Runtime::with_cache(
-            &endpoint,
-            &cache_dir,
+            &config.endpoint,
+            &config.cache_dir,
             true,
             #[cfg(target_os = "android")]
             api::create_bypass_tx(&internal_event_tx),
@@ -634,7 +638,7 @@ impl Daemon {
         let api_availability = api_runtime.availability_handle();
         api_availability.suspend();
 
-        let migration_data = migrations::migrate_all(&cache_dir, &settings_dir)
+        let migration_data = migrations::migrate_all(&config.cache_dir, &config.settings_dir)
             .await
             .unwrap_or_else(|error| {
                 log::error!(
@@ -645,7 +649,7 @@ impl Daemon {
             });
 
         let settings_event_listener = management_interface.notifier().clone();
-        let mut settings = SettingsPersister::load(&settings_dir).await;
+        let mut settings = SettingsPersister::load(&config.settings_dir).await;
         settings.register_change_listener(move |settings| {
             // Notify management interface server of changes to the settings
             settings_event_listener.notify_settings(settings.to_owned());
@@ -654,8 +658,8 @@ impl Daemon {
         let initial_selector_config = SelectorConfig::from_settings(&settings);
         let relay_selector = RelaySelector::new(
             initial_selector_config,
-            resource_dir.join(RELAYS_FILENAME),
-            cache_dir.join(RELAYS_FILENAME),
+            config.resource_dir.join(RELAYS_FILENAME),
+            config.cache_dir.join(RELAYS_FILENAME),
         );
 
         let settings_relay_selector = relay_selector.clone();
@@ -667,11 +671,11 @@ impl Daemon {
         });
 
         let (access_mode_handler, access_mode_provider) = api::AccessModeSelector::spawn(
-            cache_dir.clone(),
+            config.cache_dir.clone(),
             relay_selector.clone(),
             settings.api_access_methods.clone(),
             #[cfg(feature = "api-override")]
-            endpoint.clone(),
+            config.endpoint.clone(),
             internal_event_tx.to_specialized_sender(),
             api_runtime.address_cache().clone(),
         )
@@ -685,7 +689,7 @@ impl Daemon {
             api_runtime.address_cache().clone(),
             api_handle.clone(),
             #[cfg(feature = "api-override")]
-            endpoint,
+            config.endpoint.clone(),
         ));
 
         let access_method_handle = access_mode_handler.clone();
@@ -709,7 +713,7 @@ impl Daemon {
 
         let (account_manager, data) = device::AccountManager::spawn(
             api_handle.clone(),
-            &settings_dir,
+            &config.settings_dir,
             settings
                 .tunnel_options
                 .wireguard
@@ -721,7 +725,7 @@ impl Daemon {
         .map_err(Error::LoadAccountManager)?;
 
         let account_history = account_history::AccountHistory::new(
-            &settings_dir,
+            &config.settings_dir,
             data.device().map(|device| device.account_number.clone()),
         )
         .await
@@ -729,9 +733,9 @@ impl Daemon {
 
         let target_state = if settings.auto_connect {
             log::info!("Automatically connecting since auto-connect is turned on");
-            PersistentTargetState::new_secured(&cache_dir).await
+            PersistentTargetState::new_secured(&config.cache_dir).await
         } else {
-            PersistentTargetState::new(&cache_dir).await
+            PersistentTargetState::new(&config.cache_dir).await
         };
 
         #[cfg(any(windows, target_os = "android", target_os = "macos"))]
@@ -790,14 +794,14 @@ impl Daemon {
                 exclude_paths,
             },
             parameters_generator.clone(),
-            log_dir,
-            resource_dir.clone(),
+            config.log_dir,
+            config.resource_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             offline_state_tx,
             #[cfg(target_os = "windows")]
             volume_update_rx,
             #[cfg(target_os = "android")]
-            android_context,
+            config.android_context,
             #[cfg(target_os = "android")]
             connectivity_listener.clone(),
             #[cfg(target_os = "linux")]
@@ -819,14 +823,14 @@ impl Daemon {
         let mut relay_list_updater = RelayListUpdater::spawn(
             relay_selector.clone(),
             api_handle.clone(),
-            &cache_dir,
+            &config.cache_dir,
             on_relay_list_update,
         );
 
         let version_updater_handle = version_check::VersionUpdater::spawn(
             api_handle.clone(),
             api_availability.clone(),
-            cache_dir.clone(),
+            config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
         )
