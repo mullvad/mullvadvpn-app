@@ -102,9 +102,10 @@ pub async fn test_upgrade_app(
     tokio::time::sleep(Duration::from_secs(3)).await;
 
     // verify that daemon is running
-    if rpc.mullvad_daemon_get_status().await? != ServiceStatus::Running {
-        bail!(Error::DaemonNotRunning);
-    }
+    ensure!(
+        rpc.mullvad_daemon_get_status().await? == ServiceStatus::Running,
+        Error::DaemonNotRunning
+    );
 
     // Verify that the correct version was installed
     let running_daemon_version = rpc.mullvad_daemon_version().await?;
