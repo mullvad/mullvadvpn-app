@@ -1037,13 +1037,20 @@ unsafe fn deserialize_config(
     Ok((interface, peers))
 }
 
+#[async_trait::async_trait]
 impl Tunnel for WgNtTunnel {
     fn get_interface_name(&self) -> String {
         self.interface_name.clone()
     }
 
-    fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, super::TunnelError> {
-        if let Some(ref device) = self.device {
+    async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, super::TunnelError> {
+        let Some(ref device) = self.device else {
+            log::error!("Failed to obtain tunnel stats as device no longer exists");
+            return Err(super::TunnelError::GetConfigError);
+        };
+
+        let device = device.clone();
+        tokio::task::spawn_blocking(move || {
             let mut map = StatsMap::new();
             let (_interface, peers) = device.get_config().map_err(|error| {
                 log::error!(
@@ -1062,10 +1069,9 @@ impl Tunnel for WgNtTunnel {
                 );
             }
             Ok(map)
-        } else {
-            log::error!("Failed to obtain tunnel stats as device no longer exists");
-            Err(super::TunnelError::GetConfigError)
-        }
+        })
+        .await
+        .unwrap()
     }
 
     fn stop(mut self: Box<Self>) -> std::result::Result<(), super::TunnelError> {

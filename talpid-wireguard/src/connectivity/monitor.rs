@@ -1,69 +1,73 @@
-use std::{
-    sync::Weak,
-    time::{Duration, Instant},
-};
+use std::{sync::Weak, time::Duration};
 
 use tokio::sync::Mutex;
+use tokio::time::{Instant, MissedTickBehavior};
 
 use crate::TunnelType;
 
-use super::check::{Cancellable, Check};
+use super::check::Check;
 use super::error::Error;
 
 /// Sleep time used when checking if an established connection is still working.
 const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
 
+/// Reset the checker if the last check occurred this long ago
+const SUSPEND_TIMEOUT: Duration = Duration::from_secs(6);
+
 pub struct Monitor {
-    connectivity_check: Check<Cancellable>,
+    connectivity_check: Check,
 }
 
 impl Monitor {
-    pub fn init(connectivity_check: Check<Cancellable>) -> Self {
+    pub fn init(connectivity_check: Check) -> Self {
         Self { connectivity_check }
     }
 
-    pub fn run(self, tunnel_handle: Weak<Mutex<Option<TunnelType>>>) -> Result<(), Error> {
-        self.wait_loop(REGULAR_LOOP_SLEEP, tunnel_handle)
-    }
-
-    fn wait_loop(
+    pub async fn run(
         mut self,
-        iter_delay: Duration,
         tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
     ) -> Result<(), Error> {
-        let mut last_iteration = Instant::now();
-        while !self.connectivity_check.should_shut_down(iter_delay) {
-            let mut current_iteration = Instant::now();
-            let time_slept = current_iteration - last_iteration;
-            if time_slept < (iter_delay * 2) {
-                let Some(tunnel) = tunnel_handle.upgrade() else {
-                    return Ok(());
-                };
-                let lock = tunnel.blocking_lock();
-                let Some(tunnel) = lock.as_ref() else {
-                    return Ok(());
-                };
+        let mut last_check = Instant::now();
 
-                if !self
-                    .connectivity_check
-                    .check_connectivity(Instant::now(), tunnel)?
-                {
-                    return Ok(());
-                }
-                drop(lock);
+        let mut interval = tokio::time::interval(REGULAR_LOOP_SLEEP);
+        interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
 
-                let end = Instant::now();
-                if end - current_iteration > Duration::from_secs(1) {
-                    current_iteration = end;
-                }
-            } else {
-                // Loop was suspended for too long, so it's safer to assume that the host still has
-                // connectivity.
-                self.connectivity_check.reset(current_iteration);
+        loop {
+            if self.connectivity_check.should_shut_down() {
+                return Ok(());
             }
-            last_iteration = current_iteration;
+
+            let now = Instant::now();
+            let time_slept = now - last_check;
+            last_check = now;
+
+            if time_slept >= SUSPEND_TIMEOUT {
+                self.connectivity_check.reset(now).await;
+            } else if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
+                return Ok(());
+            }
+
+            interval.tick().await;
         }
-        Ok(())
+    }
+
+    async fn tunnel_exists_and_is_connected(
+        &mut self,
+        tunnel_handle: &Weak<Mutex<Option<TunnelType>>>,
+    ) -> Result<bool, Error> {
+        let Some(tunnel) = tunnel_handle.upgrade() else {
+            // Tunnel closed
+            return Ok(false);
+        };
+        let lock = tunnel.lock().await;
+        let Some(tunnel) = lock.as_ref() else {
+            // Tunnel closed
+            return Ok(false);
+        };
+
+        self.connectivity_check
+            .check_connectivity(Instant::now(), tunnel)
+            .await
     }
 }
 
@@ -71,54 +75,52 @@ impl Monitor {
 mod test {
     use super::*;
 
-    // TODO: Port to async + tokio to reduce cost of testing?
     use std::sync::atomic::{AtomicBool, Ordering};
-    use std::sync::mpsc;
     use std::sync::Arc;
     use std::time::Duration;
-    use std::time::Instant;
 
+    use tokio::sync::mpsc;
     use tokio::sync::Mutex;
 
     use crate::connectivity::constants::*;
     use crate::connectivity::mock::*;
 
-    #[test]
+    #[tokio::test(start_paused = true)]
     /// Verify that the connectivity monitor doesn't fail if the tunnel constantly sends traffic,
     /// and it shuts down properly.
-    fn test_wait_loop() {
-        use std::sync::mpsc;
-        let (result_tx, result_rx) = mpsc::channel();
+    async fn test_wait_loop() {
+        let (result_tx, mut result_rx) = mpsc::channel(1);
         let tunnel = MockTunnel::always_incrementing().boxed();
         let pinger = MockPinger::default();
         let (mut checker, stop_tx) = {
             let now = Instant::now();
             let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-            mock_checker(start, Box::new(pinger)).with_cancellation()
+            mock_checker(start, Box::new(pinger))
         };
-        std::thread::spawn(move || {
-            let start_result = checker.establish_connectivity(&tunnel);
-            result_tx.send(start_result).unwrap();
+
+        tokio::spawn(async move {
+            let start_result = checker.establish_connectivity(&tunnel).await;
+            result_tx.send(start_result).await.unwrap();
             // Pointer dance
             let tunnel = Arc::new(Mutex::new(Some(tunnel)));
             let _tunnel = Arc::downgrade(&tunnel);
-            let result = Monitor::init(checker).run(_tunnel).map(|_| true);
-            result_tx.send(result).unwrap();
+            let result = Monitor::init(checker).run(_tunnel).await.map(|_| true);
+            result_tx.send(result).await.unwrap();
         });
 
-        std::thread::sleep(Duration::from_secs(1));
+        tokio::time::sleep(Duration::from_secs(1)).await;
         assert!(result_rx.try_recv().unwrap().unwrap());
-        stop_tx.send(()).unwrap();
-        std::thread::sleep(Duration::from_secs(1));
+        stop_tx.close();
+        tokio::time::sleep(Duration::from_secs(2)).await;
         assert!(result_rx.try_recv().unwrap().is_ok());
     }
 
-    #[test]
+    #[tokio::test(start_paused = true)]
     /// Verify that the connectivity monitor detects the tunnel timing out after no longer than
     /// `BYTES_RX_TIMEOUT` and `PING_TIMEOUT` combined.
-    fn test_wait_loop_timeout() {
-        let should_stop = Arc::new(AtomicBool::new(false));
-        let should_stop_inner = should_stop.clone();
+    async fn test_wait_loop_timeout() {
+        let stop_bytes_rx = Arc::new(AtomicBool::new(false));
+        let stop_bytes_rx_inner = stop_bytes_rx.clone();
 
         let mut map = StatsMap::new();
         map.insert(
@@ -133,7 +135,7 @@ mod test {
         let pinger = MockPinger::default();
         let tunnel = MockTunnel::new(move || {
             let mut tunnel_stats = tunnel_stats.lock().unwrap();
-            if !should_stop_inner.load(Ordering::SeqCst) {
+            if !stop_bytes_rx_inner.load(Ordering::SeqCst) {
                 for traffic in tunnel_stats.values_mut() {
                     traffic.rx_bytes += 1;
                 }
@@ -145,30 +147,41 @@ mod test {
         })
         .boxed();
 
-        let (result_tx, result_rx) = mpsc::channel();
+        let (result_tx, mut result_rx) = mpsc::channel(1);
 
-        std::thread::spawn(move || {
+        tokio::spawn(async move {
             let (mut checker, _cancellation_token) = {
                 let now = Instant::now();
                 let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-                mock_checker(start, Box::new(pinger)).with_cancellation()
+                mock_checker(start, Box::new(pinger))
             };
-            let start_result = checker.establish_connectivity(&tunnel);
-            result_tx.send(start_result).unwrap();
+            let start_result = checker.establish_connectivity(&tunnel).await;
+            result_tx.send(start_result).await.unwrap();
             // Pointer dance
             let _tunnel = Arc::new(Mutex::new(Some(tunnel)));
             let tunnel = Arc::downgrade(&_tunnel);
-            let end_result = Monitor::init(checker).run(tunnel).map(|_| true);
-            result_tx.send(end_result).expect("Failed to send result");
+            let end_result = Monitor::init(checker).run(tunnel).await.map(|_| true);
+            result_tx
+                .send(end_result)
+                .await
+                .expect("Failed to send result");
         });
-        assert!(result_rx
-            .recv_timeout(Duration::from_secs(1))
-            .unwrap()
-            .unwrap());
-        should_stop.store(true, Ordering::SeqCst);
-        assert!(result_rx
-            .recv_timeout(BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2))
-            .unwrap()
-            .is_ok());
+
+        assert!(
+            tokio::time::timeout(Duration::from_secs(1), result_rx.recv())
+                .await
+                .unwrap()
+                .unwrap()
+                .unwrap()
+        );
+        stop_bytes_rx.store(true, Ordering::SeqCst);
+        assert!(tokio::time::timeout(
+            BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2),
+            result_rx.recv()
+        )
+        .await
+        .unwrap()
+        .unwrap()
+        .is_ok());
     }
 }

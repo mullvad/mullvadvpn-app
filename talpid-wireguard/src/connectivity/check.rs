@@ -1,7 +1,9 @@
-use std::cmp;
 use std::net::Ipv4Addr;
-use std::sync::mpsc;
-use std::time::{Duration, Instant};
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
+use std::time::Duration;
+use tokio::sync::broadcast;
+use tokio::time::Instant;
 
 use super::constants::*;
 use super::error::Error;
@@ -35,52 +37,70 @@ use pinger::Pinger;
 ///
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
-pub struct Check<Strategy = Timeout> {
+pub struct Check {
     conn_state: ConnState,
     ping_state: PingState,
-    strategy: Strategy,
+    cancel_receiver: CancelReceiver,
     retry_attempt: u32,
 }
 
-// Define the type state of [Check]
-pub(crate) trait Strategy {
-    fn should_shut_down(&mut self, timeout: Duration) -> bool;
+/// A handle that can be used to shut down the connectivity monitor.
+/// The monitor will also be shut down if all tokens are dropped.
+#[derive(Debug, Clone)]
+pub struct CancelToken {
+    closed: Arc<AtomicBool>,
+    tx: broadcast::Sender<()>,
 }
 
-/// An uncancellable [Check] that will run [Check::establish_connectivity] until
-/// completion or until it times out.
-pub struct Timeout;
+/// A handle that can be passed to a [Check]. The corresponding [CancelToken] causes the [Check] to
+/// be stopped. Any [CancelToken] will cancel all receivers
+#[derive(Debug)]
+pub struct CancelReceiver {
+    closed: Arc<AtomicBool>,
+    rx: broadcast::Receiver<()>,
+}
 
-impl Strategy for Timeout {
-    /// The Timeout strategy cannot receive shut down signals so this function always returns false.
-    fn should_shut_down(&mut self, _timeout: Duration) -> bool {
-        false
+impl CancelReceiver {
+    fn closed(&self) -> bool {
+        self.closed.load(Ordering::SeqCst)
     }
 }
 
-/// A cancellable [Check] may be cancelled before it will time out by sending
-/// a signal on the channel returned by [Check::with_cancellation]. Otherwise,
-/// it behaves as [Timeout].
-pub struct Cancellable {
-    close_receiver: mpsc::Receiver<()>,
-}
-
-impl Strategy for Cancellable {
-    /// Returns true if monitor should be shut down
-    fn should_shut_down(&mut self, timeout: Duration) -> bool {
-        match self.close_receiver.recv_timeout(timeout) {
-            Ok(()) | Err(mpsc::RecvTimeoutError::Disconnected) => true,
-            Err(mpsc::RecvTimeoutError::Timeout) => false,
+impl Clone for CancelReceiver {
+    fn clone(&self) -> Self {
+        Self {
+            closed: self.closed.clone(),
+            rx: self.rx.resubscribe(),
         }
     }
 }
 
-impl Check<Timeout> {
+impl CancelToken {
+    pub fn new() -> (Self, CancelReceiver) {
+        let (tx, rx) = broadcast::channel(1);
+        let closed = Arc::new(AtomicBool::new(false));
+        (
+            CancelToken {
+                closed: closed.clone(),
+                tx,
+            },
+            CancelReceiver { closed, rx },
+        )
+    }
+
+    pub fn close(&self) {
+        self.closed.store(true, Ordering::SeqCst);
+        let _ = self.tx.send(());
+    }
+}
+
+impl Check {
     pub fn new(
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
         retry_attempt: u32,
-    ) -> Result<Check<Timeout>, Error> {
+        cancel_receiver: CancelReceiver,
+    ) -> Result<Check, Error> {
         Ok(Check {
             conn_state: ConnState::new(Instant::now(), Default::default()),
             ping_state: PingState::new(
@@ -88,47 +108,37 @@ impl Check<Timeout> {
                 #[cfg(any(target_os = "macos", target_os = "linux"))]
                 interface,
             )?,
-            strategy: Timeout,
             retry_attempt,
+            cancel_receiver,
         })
     }
 
-    /// Cancel a [Check] preemptively by sennding a message on the channel or by dropping
-    /// the returned channel.
-    pub fn with_cancellation(self) -> (Check<Cancellable>, mpsc::Sender<()>) {
-        let (cancellation_tx, cancellation_rx) = mpsc::channel();
-        let check = Check {
-            conn_state: self.conn_state,
-            ping_state: self.ping_state,
-            strategy: Cancellable {
-                close_receiver: cancellation_rx,
-            },
-            retry_attempt: self.retry_attempt,
-        };
-        (check, cancellation_tx)
-    }
-
     #[cfg(test)]
-    /// Create a new [Check] with a custom initial state. To use the [Cancellable] strategy,
-    /// see [Check::with_cancellation].
-    pub(super) fn mock(conn_state: ConnState, ping_state: PingState) -> Self {
-        Check {
-            conn_state,
-            ping_state,
-            strategy: Timeout,
-            retry_attempt: 0,
-        }
+    /// Create a new [Check] with a custom initial state.
+    pub(super) fn mock(conn_state: ConnState, ping_state: PingState) -> (Self, CancelToken) {
+        let (cancel_token, cancel_receiver) = CancelToken::new();
+        (
+            Check {
+                conn_state,
+                ping_state,
+                retry_attempt: 0,
+                cancel_receiver,
+            },
+            cancel_token,
+        )
     }
-}
 
-impl<S: Strategy> Check<S> {
     // checks if the tunnel has ever worked. Intended to check if a connection to a tunnel is
     // successful at the start of a connection.
-    pub fn establish_connectivity(&mut self, tunnel_handle: &TunnelType) -> Result<bool, Error> {
+    pub async fn establish_connectivity(
+        &mut self,
+        tunnel_handle: &TunnelType,
+    ) -> Result<bool, Error> {
         // Send initial ping to prod WireGuard into connecting.
         self.ping_state
             .pinger
             .send_icmp()
+            .await
             .map_err(Error::PingError)?;
         self.establish_connectivity_inner(
             self.retry_attempt,
@@ -137,18 +147,15 @@ impl<S: Strategy> Check<S> {
             MAX_ESTABLISH_TIMEOUT,
             tunnel_handle,
         )
+        .await
     }
 
-    pub(crate) fn reset(&mut self, current_iteration: Instant) {
-        self.ping_state.reset();
+    pub(crate) async fn reset(&mut self, current_iteration: Instant) {
+        self.ping_state.reset().await;
         self.conn_state.reset_after_suspension(current_iteration);
     }
 
-    pub(crate) fn should_shut_down(&mut self, timeout: Duration) -> bool {
-        self.strategy.should_shut_down(timeout)
-    }
-
-    fn establish_connectivity_inner(
+    async fn establish_connectivity_inner(
         &mut self,
         retry_attempt: u32,
         timeout_initial: Duration,
@@ -160,59 +167,96 @@ impl<S: Strategy> Check<S> {
             return Ok(true);
         }
 
-        let check_timeout = cmp::min(
-            max_timeout,
-            timeout_initial.saturating_mul(timeout_multiplier.saturating_pow(retry_attempt)),
-        );
+        let check_timeout = max_timeout
+            .min(timeout_initial.saturating_mul(timeout_multiplier.saturating_pow(retry_attempt)));
 
-        let start = Instant::now();
-        while start.elapsed() < check_timeout {
-            if self.check_connectivity_interval(Instant::now(), check_timeout, tunnel_handle)? {
-                return Ok(true);
+        // Begin polling tunnel traffic stats periodically
+        let poll_check = async {
+            loop {
+                if Self::check_connectivity_interval(
+                    &mut self.conn_state,
+                    &mut self.ping_state,
+                    Instant::now(),
+                    check_timeout,
+                    tunnel_handle,
+                )
+                .await?
+                {
+                    return Ok(true);
+                }
+                tokio::time::sleep(Duration::from_millis(20)).await;
             }
-            if self.should_shut_down(DELAY_ON_INITIAL_SETUP) {
-                return Ok(false);
+        };
+
+        let timeout = tokio::time::sleep(check_timeout);
+
+        tokio::select! {
+            // Tunnel status polling returned a result
+            result = poll_check => {
+                result
+            }
+
+            // Cancel token signal
+            _ = self.cancel_receiver.rx.recv() => {
+                Ok(false)
+            }
+
+            // Give up if the timeout is hit
+            _ = timeout => {
+                Ok(false)
             }
         }
-        Ok(false)
+    }
+
+    pub(crate) fn should_shut_down(&self) -> bool {
+        self.cancel_receiver.closed()
     }
 
     /// Returns true if connection is established
-    pub(crate) fn check_connectivity(
+    pub(crate) async fn check_connectivity(
         &mut self,
         now: Instant,
         tunnel_handle: &TunnelType,
     ) -> Result<bool, Error> {
-        self.check_connectivity_interval(now, PING_TIMEOUT, tunnel_handle)
+        Self::check_connectivity_interval(
+            &mut self.conn_state,
+            &mut self.ping_state,
+            now,
+            PING_TIMEOUT,
+            tunnel_handle,
+        )
+        .await
     }
 
     /// Returns true if connection is established
-    fn check_connectivity_interval(
-        &mut self,
+    async fn check_connectivity_interval(
+        conn_state: &mut ConnState,
+        ping_state: &mut PingState,
         now: Instant,
         timeout: Duration,
         tunnel_handle: &TunnelType,
     ) -> Result<bool, Error> {
-        match Self::get_stats(tunnel_handle).map_err(Error::ConfigReadError)? {
+        match Self::get_stats(tunnel_handle)
+            .await
+            .map_err(Error::ConfigReadError)?
+        {
             None => Ok(false),
             Some(new_stats) => {
-                if self.conn_state.update(now, new_stats) {
-                    self.ping_state.reset();
+                if conn_state.update(now, new_stats) {
+                    ping_state.reset().await;
                     return Ok(true);
                 }
 
-                self.maybe_send_ping(now)?;
-                Ok(!self.ping_state.ping_timed_out(timeout) && self.conn_state.connected())
+                Self::maybe_send_ping(conn_state, ping_state, now).await?;
+                Ok(!ping_state.ping_timed_out(timeout) && conn_state.connected())
             }
         }
     }
 
     /// If None is returned, then the underlying tunnel has already been closed and all subsequent
     /// calls will also return None.
-    ///
-    /// NOTE: will panic if called from within a tokio runtime.
-    fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
-        let stats = tunnel_handle.get_tunnel_stats()?;
+    async fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
+        let stats = tunnel_handle.get_tunnel_stats().await?;
         if stats.is_empty() {
             log::error!("Tunnel unexpectedly shut down");
             Ok(None)
@@ -221,28 +265,31 @@ impl<S: Strategy> Check<S> {
         }
     }
 
-    fn maybe_send_ping(&mut self, now: Instant) -> Result<(), Error> {
+    async fn maybe_send_ping(
+        conn_state: &mut ConnState,
+        ping_state: &mut PingState,
+        now: Instant,
+    ) -> Result<(), Error> {
         // Only send out a ping if we haven't received a byte in a while or no traffic has flowed
         // in the last 2 minutes, but if a ping already has been sent out, only send one out every
         // 3 seconds.
-        if (self.conn_state.rx_timed_out() || self.conn_state.traffic_timed_out())
-            && self
-                .ping_state
+        if (conn_state.rx_timed_out() || conn_state.traffic_timed_out())
+            && ping_state
                 .initial_ping_timestamp
                 .map(|initial_ping_timestamp| {
-                    initial_ping_timestamp.elapsed() / self.ping_state.num_pings_sent
-                        < SECONDS_PER_PING
+                    initial_ping_timestamp.elapsed() / ping_state.num_pings_sent < SECONDS_PER_PING
                 })
                 .unwrap_or(true)
         {
-            self.ping_state
+            ping_state
                 .pinger
                 .send_icmp()
+                .await
                 .map_err(Error::PingError)?;
-            if self.ping_state.initial_ping_timestamp.is_none() {
-                self.ping_state.initial_ping_timestamp = Some(now);
+            if ping_state.initial_ping_timestamp.is_none() {
+                ping_state.initial_ping_timestamp = Some(now);
             }
-            self.ping_state.num_pings_sent += 1;
+            ping_state.num_pings_sent += 1;
         }
         Ok(())
     }
@@ -284,10 +331,10 @@ impl PingState {
     }
 
     /// Reset timeouts - assume that the last time bytes were received is now.
-    fn reset(&mut self) {
+    async fn reset(&mut self) {
         self.initial_ping_timestamp = None;
         self.num_pings_sent = 0;
-        self.pinger.reset();
+        self.pinger.reset().await;
     }
 }
 
@@ -420,6 +467,8 @@ impl ConnState {
 
 #[cfg(test)]
 mod test {
+    use tokio::sync::mpsc;
+
     use super::*;
     use crate::connectivity::mock::*;
 
@@ -527,100 +576,115 @@ mod test {
         assert!(!conn_state.traffic_timed_out());
     }
 
-    #[test]
+    #[tokio::test]
     /// Verify that `check_connectivity()` returns `false` if the tunnel is connected and traffic is
     /// not flowing after `BYTES_RX_TIMEOUT` and `PING_TIMEOUT`.
-    fn test_ping_times_out() {
+    async fn test_ping_times_out() {
         let tunnel = MockTunnel::never_incrementing().boxed();
         let pinger = MockPinger::default();
         let now = Instant::now();
         let start = now
             .checked_sub(BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(10))
             .unwrap();
-        let mut checker = mock_checker(start, Box::new(pinger));
+        let (mut checker, _cancel_token) = mock_checker(start, Box::new(pinger));
 
         // Mock the state - connectivity has been established
         checker.conn_state = connected_state(start);
         // A ping was sent to verify connectivity
-        checker.maybe_send_ping(start).unwrap();
-        assert!(!checker.check_connectivity(now, &tunnel).unwrap())
+        Check::maybe_send_ping(&mut checker.conn_state, &mut checker.ping_state, start)
+            .await
+            .unwrap();
+        assert!(!checker.check_connectivity(now, &tunnel).await.unwrap())
     }
 
-    #[test]
+    #[tokio::test]
     /// Verify that `check_connectivity()` returns `true` if the tunnel is connected and traffic is
     /// flowing constantly.
-    fn test_no_connection_on_start() {
+    async fn test_no_connection_on_start() {
         let tunnel = MockTunnel::never_incrementing().boxed();
         let pinger = MockPinger::default();
         let now = Instant::now();
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-        let mut monitor = mock_checker(start, Box::new(pinger));
+        let (mut checker, _cancel_token) = mock_checker(start, Box::new(pinger));
 
-        assert!(!monitor.check_connectivity(now, &tunnel).unwrap())
+        assert!(!checker.check_connectivity(now, &tunnel).await.unwrap())
     }
 
-    #[test]
+    #[tokio::test]
     /// Verify that `check_connectivity()` returns `true` if the tunnel is connected and traffic is
     /// flowing constantly.
-    fn test_connection_works() {
+    async fn test_connection_works() {
         let tunnel = MockTunnel::always_incrementing().boxed();
         let pinger = MockPinger::default();
         let now = Instant::now();
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-        let mut monitor = mock_checker(start, Box::new(pinger));
+        let (mut checker, _cancel_token) = mock_checker(start, Box::new(pinger));
 
         // Mock the state - connectivity has been established
-        monitor.conn_state = connected_state(start);
+        checker.conn_state = connected_state(start);
 
-        assert!(monitor.check_connectivity(now, &tunnel).unwrap())
+        assert!(checker.check_connectivity(now, &tunnel).await.unwrap())
     }
 
-    #[test]
+    #[tokio::test(start_paused = true)]
     /// Verify that the timeout for setting up a tunnel works as expected.
-    fn test_establish_timeout() {
-        let pinger = MockPinger::default();
-        let tunnel = {
-            let mut tunnel_stats = StatsMap::new();
-            tunnel_stats.insert(
-                [0u8; 32],
-                Stats {
-                    tx_bytes: 0,
-                    rx_bytes: 0,
-                },
-            );
-            MockTunnel::new(move || Ok(tunnel_stats.clone())).boxed()
-        };
+    async fn test_establish_timeout() {
+        const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;
+        const ESTABLISH_TIMEOUT: Duration = Duration::from_millis(500);
+        const MAX_ESTABLISH_TIMEOUT: Duration = Duration::from_secs(2);
 
-        let (result_tx, result_rx) = mpsc::channel();
+        let (result_tx, mut result_rx) = mpsc::channel(1);
 
-        std::thread::spawn(move || {
+        tokio::spawn(async move {
+            let pinger = MockPinger::default();
             let now = Instant::now();
             let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-            let mut monitor = mock_checker(start, Box::new(pinger));
+            let (mut monitor, _cancel_token) = mock_checker(start, Box::new(pinger));
 
-            const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;
-            const ESTABLISH_TIMEOUT: Duration = Duration::from_millis(500);
-            const MAX_ESTABLISH_TIMEOUT: Duration = Duration::from_secs(2);
+            let tunnel = {
+                let mut tunnel_stats = StatsMap::new();
+                tunnel_stats.insert(
+                    [0u8; 32],
+                    Stats {
+                        tx_bytes: 0,
+                        rx_bytes: 0,
+                    },
+                );
+                MockTunnel::new(move || Ok(tunnel_stats.clone())).boxed()
+            };
 
-            for attempt in 0..4 {
-                result_tx
-                    .send(monitor.establish_connectivity_inner(
-                        attempt,
-                        ESTABLISH_TIMEOUT,
-                        ESTABLISH_TIMEOUT_MULTIPLIER,
-                        MAX_ESTABLISH_TIMEOUT,
-                        &tunnel,
-                    ))
-                    .unwrap();
-            }
+            result_tx
+                .send(
+                    monitor
+                        .establish_connectivity_inner(
+                            0,
+                            ESTABLISH_TIMEOUT,
+                            ESTABLISH_TIMEOUT_MULTIPLIER,
+                            MAX_ESTABLISH_TIMEOUT,
+                            &tunnel,
+                        )
+                        .await,
+                )
+                .await
+                .unwrap();
         });
-        let err = DELAY_ON_INITIAL_SETUP + Duration::from_millis(350);
-        let assert_rx = |recv_timeout: Duration| {
-            assert!(!result_rx.recv_timeout(recv_timeout + err).unwrap().unwrap());
-        };
-        assert_rx(Duration::from_millis(500));
-        assert_rx(Duration::from_secs(1));
-        assert_rx(Duration::from_secs(2));
-        assert_rx(Duration::from_secs(2));
+
+        tokio::time::timeout(
+            ESTABLISH_TIMEOUT - Duration::from_millis(100),
+            result_rx.recv(),
+        )
+        .await
+        .expect_err("expected timeout");
+
+        // Should assume no connectivity after timeout
+        let connected = tokio::time::timeout(
+            ESTABLISH_TIMEOUT + Duration::from_millis(100),
+            result_rx.recv(),
+        )
+        .await
+        .expect("expected no timeout")
+        .unwrap()
+        .unwrap();
+        assert!(!connected);
     }
 }
