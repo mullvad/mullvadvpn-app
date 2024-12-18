@@ -16,6 +16,7 @@ export interface InAppNotificationTroubleshootInfo {
 export interface InAppNotificationTroubleshootButton {
   label: string;
   action: () => void;
+  variant?: 'primary' | 'success' | 'destructive';
 }
 
 export type InAppNotificationAction =
