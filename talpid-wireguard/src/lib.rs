@@ -268,14 +268,13 @@ impl WireguardMonitor {
 
             let ephemeral_obfs_sender = close_obfs_sender.clone();
             if config.quantum_resistant || config.daita {
-                ephemeral::config_ephemeral_peers(
+                connectivity_monitor = ephemeral::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
-                    #[cfg(force_wireguard_handshake)]
-                    &mut connectivity_monitor,
+                    connectivity_monitor,
                 )
                 .await?;
 
