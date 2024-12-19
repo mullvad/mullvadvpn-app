@@ -242,8 +242,10 @@ android {
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
         // Ensure that we have all the JNI libs before merging them.
-        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
+        tasks["merge${capitalizedVariantName}Assets"].apply {
             dependsOn(tasks["generateRelayList"])
+        }
+        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
             dependsOn("cargoBuild")
         }
 
