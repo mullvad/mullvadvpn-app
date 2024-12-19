@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.kotlin.parcelize)
     alias(libs.plugins.kotlin.ksp)
     alias(libs.plugins.compose)
+    alias(libs.plugins.protobuf.core)
     alias(libs.plugins.rust.android.gradle)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
