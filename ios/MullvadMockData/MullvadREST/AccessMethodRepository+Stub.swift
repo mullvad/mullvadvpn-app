@@ -9,7 +9,7 @@
 import Combine
 import MullvadSettings
 
-public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource {
+public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unchecked Sendable {
     public var directAccess: PersistentAccessMethod
 
     public var accessMethodsPublisher: AnyPublisher<[PersistentAccessMethod], Never> {

@@ -14,7 +14,7 @@ extension CurrentValueSubject {
     ///
     /// - Parameter keyPath: the key path to the field that should be updated.
     /// - Returns: an instance of `UIAction`.
-    func bindTextAction(to keyPath: WritableKeyPath<Output, String>) -> UIAction {
+    @MainActor func bindTextAction(to keyPath: WritableKeyPath<Output, String>) -> UIAction {
         UIAction { action in
             guard let textField = action.sender as? UITextField else { return }
 
@@ -26,7 +26,7 @@ extension CurrentValueSubject {
     ///
     /// - Parameter keyPath: the key path to the field that should be updated.
     /// - Returns: an instance of `UIAction`.
-    func bindSwitchAction(to keyPath: WritableKeyPath<Output, Bool>) -> UIAction {
+    @MainActor func bindSwitchAction(to keyPath: WritableKeyPath<Output, Bool>) -> UIAction {
         UIAction { action in
             guard let toggle = action.sender as? UISwitch else { return }
 

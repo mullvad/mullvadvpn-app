@@ -8,11 +8,13 @@
 
 import UIKit
 
+@MainActor
 class SpinnerActivityIndicatorView: UIView {
     private static let rotationAnimationKey = "rotation"
     private static let animationDuration = 0.6
 
-    enum Style {
+    @MainActor
+    enum Style: Sendable {
         case small, medium, large, custom
 
         var intrinsicSize: CGSize {
@@ -57,7 +59,9 @@ class SpinnerActivityIndicatorView: UIView {
     }
 
     deinit {
-        unregisterSceneActivationObserver()
+        MainActor.assumeIsolated {
+            unregisterSceneActivationObserver()
+        }
     }
 
     override func didMoveToWindow() {
@@ -110,7 +114,9 @@ class SpinnerActivityIndicatorView: UIView {
             forName: UIScene.willEnterForegroundNotification,
             object: window?.windowScene,
             queue: .main, using: { [weak self] _ in
-                self?.restartAnimationIfNeeded()
+                MainActor.assumeIsolated {
+                    self?.restartAnimationIfNeeded()
+                }
             }
         )
     }

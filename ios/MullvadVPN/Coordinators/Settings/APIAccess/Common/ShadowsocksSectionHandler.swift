@@ -10,6 +10,7 @@ import Combine
 import UIKit
 
 /// Type responsible for handling cells in shadowsocks table view section.
+@MainActor
 struct ShadowsocksSectionHandler {
     private let authenticationInputMaxLength = 2048
 

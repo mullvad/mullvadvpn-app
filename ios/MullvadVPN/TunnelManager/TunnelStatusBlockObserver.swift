@@ -9,7 +9,7 @@
 import Foundation
 import NetworkExtension
 
-final class TunnelStatusBlockObserver: TunnelStatusObserver {
+final class TunnelStatusBlockObserver: TunnelStatusObserver, @unchecked Sendable {
     typealias Handler = (any TunnelProtocol, NEVPNStatus) -> Void
 
     private weak var tunnel: (any TunnelProtocol)?
@@ -27,7 +27,7 @@ final class TunnelStatusBlockObserver: TunnelStatusObserver {
     }
 
     func tunnel(_ tunnel: any TunnelProtocol, didReceiveStatus status: NEVPNStatus) {
-        let block = {
+        let block: @Sendable () -> Void = {
             self.handler(tunnel, status)
         }
 

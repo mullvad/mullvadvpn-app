@@ -6,7 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
-import Combine
+@preconcurrency import Combine
 import Foundation
 import MullvadSettings
 
@@ -25,7 +25,7 @@ struct EditAccessMethodInteractor: EditAccessMethodInteractorProtocol {
         repository.delete(id: subject.value.id)
     }
 
-    func startProxyConfigurationTest(_ completion: ((Bool) -> Void)?) {
+    func startProxyConfigurationTest(_ completion: (@Sendable (Bool) -> Void)?) {
         guard let config = try? subject.value.intoPersistentProxyConfiguration() else { return }
 
         let subject = subject

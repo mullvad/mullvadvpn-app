@@ -9,24 +9,24 @@
 import Foundation
 import protocol MullvadTypes.Cancellable
 
-public final class ResultBlockOperation<Success>: ResultOperation<Success> {
-    private var executor: ((@escaping (Result<Success, Error>) -> Void) -> Cancellable?)?
+public final class ResultBlockOperation<Success: Sendable>: ResultOperation<Success>, @unchecked Sendable {
+    private var executor: ((@escaping @Sendable (Result<Success, Error>) -> Void) -> Cancellable?)?
     private var cancellableTask: Cancellable?
 
     public init(
         dispatchQueue: DispatchQueue? = nil,
-        executionBlock: @escaping (_ finish: @escaping (Result<Success, Error>) -> Void) -> Void
+        executionBlock: @escaping @Sendable (_ finish: @escaping (Result<Success, Error>) -> Void) -> Void
     ) {
         super.init(dispatchQueue: dispatchQueue)
-        executor = { finish in
+        executor = { @Sendable finish in
             executionBlock(finish)
             return nil
         }
     }
 
-    public init(dispatchQueue: DispatchQueue? = nil, executionBlock: @escaping () throws -> Success) {
+    public init(dispatchQueue: DispatchQueue? = nil, executionBlock: @escaping @Sendable () throws -> Success) {
         super.init(dispatchQueue: dispatchQueue)
-        executor = { finish in
+        executor = { @Sendable finish in
             finish(Result { try executionBlock() })
             return nil
         }
@@ -34,7 +34,7 @@ public final class ResultBlockOperation<Success>: ResultOperation<Success> {
 
     public init(
         dispatchQueue: DispatchQueue? = nil,
-        cancellableTask: @escaping (_ finish: @escaping (Result<Success, Error>) -> Void) -> Cancellable
+        cancellableTask: @escaping (_ finish: @escaping @Sendable (Result<Success, Error>) -> Void) -> Cancellable
     ) {
         super.init(dispatchQueue: dispatchQueue)
         executor = { cancellableTask($0) }

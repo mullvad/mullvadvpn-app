@@ -9,7 +9,7 @@
 import Foundation
 import MullvadSettings
 
-protocol TunnelObserver: AnyObject {
+protocol TunnelObserver: AnyObject, Sendable {
     func tunnelManagerDidLoadConfiguration(_ manager: TunnelManager)
     func tunnelManager(_ manager: TunnelManager, didUpdateTunnelStatus tunnelStatus: TunnelStatus)
     func tunnelManager(

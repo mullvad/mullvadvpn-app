@@ -175,7 +175,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     }
 }
 
-extension SettingsDataSource: SettingsCellEventHandler {
+extension SettingsDataSource: @preconcurrency SettingsCellEventHandler {
     func showInfo(for button: SettingsInfoButtonItem) {
         delegate?.showInfo(for: button)
     }

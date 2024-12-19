@@ -20,7 +20,7 @@ private let connectingStateWaitDelay: Duration = .seconds(5)
 /// Default timeout in seconds.
 private let defaultTimeout: Duration = .seconds(5)
 
-final class SendTunnelProviderMessageOperation<Output>: ResultOperation<Output> {
+final class SendTunnelProviderMessageOperation<Output: Sendable>: ResultOperation<Output>, @unchecked Sendable {
     typealias DecoderHandler = (Data?) throws -> Output
 
     private let backgroundTaskProvider: BackgroundTaskProviding

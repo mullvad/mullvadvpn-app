@@ -44,7 +44,7 @@ public final class ShadowsocksTransport: RESTTransport {
 
     public func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Swift.Error?) -> Void
     ) -> Cancellable {
         // Start the Shadowsocks proxy in order to get a local port
         shadowsocksProxy.start()

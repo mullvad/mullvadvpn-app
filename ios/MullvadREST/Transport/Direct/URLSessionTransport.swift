@@ -24,7 +24,7 @@ public final class URLSessionTransport: RESTTransport {
 
     public func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Swift.Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Swift.Error?) -> Void
     ) -> Cancellable {
         let dataTask = urlSession.dataTask(with: request, completionHandler: completion)
         dataTask.resume()

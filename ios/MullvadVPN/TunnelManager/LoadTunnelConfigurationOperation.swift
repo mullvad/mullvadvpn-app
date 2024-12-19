@@ -12,7 +12,7 @@ import MullvadSettings
 import MullvadTypes
 import Operations
 
-class LoadTunnelConfigurationOperation: ResultOperation<Void> {
+class LoadTunnelConfigurationOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "LoadTunnelConfigurationOperation")
     private let interactor: TunnelInteractor
 

@@ -35,7 +35,7 @@ final class AddCreditSucceededCoordinator: Coordinator {
     }
 }
 
-extension AddCreditSucceededCoordinator: AddCreditSucceededViewControllerDelegate {
+extension AddCreditSucceededCoordinator: @preconcurrency AddCreditSucceededViewControllerDelegate {
     func header(in controller: AddCreditSucceededViewController) -> String {
         switch paymentType {
         case .inAppPurchase:

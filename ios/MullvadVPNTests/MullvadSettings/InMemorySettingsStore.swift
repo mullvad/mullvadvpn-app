@@ -13,7 +13,7 @@ protocol Instantiable {
     init()
 }
 
-class InMemorySettingsStore<ThrownError: Error>: SettingsStore where ThrownError: Instantiable {
+class InMemorySettingsStore<ThrownError: Error>: SettingsStore, @unchecked Sendable where ThrownError: Instantiable {
     private var settings = [SettingsKey: Data]()
 
     func read(key: SettingsKey) throws -> Data {
