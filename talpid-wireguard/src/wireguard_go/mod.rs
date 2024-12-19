@@ -1,7 +1,5 @@
 #[cfg(target_os = "android")]
 use super::config;
-#[cfg(target_os = "android")]
-use super::Error;
 use super::{
     stats::{Stats, StatsMap},
     Config, Tunnel, TunnelError,
@@ -114,7 +112,7 @@ impl WgGoTunnel {
         let routes = config.get_tunnel_destinations();
 
         match self {
-            WgGoTunnel::Multihop(mut state) if !config.is_multihop() => {
+            WgGoTunnel::Multihop(state) if !config.is_multihop() => {
                 state.stop()?;
                 Self::start_tunnel(
                     config,
@@ -124,7 +122,7 @@ impl WgGoTunnel {
                     cancel_receiver,
                 )
             }
-            WgGoTunnel::Singlehop(mut state) if config.is_multihop() => {
+            WgGoTunnel::Singlehop(state) if config.is_multihop() => {
                 state.stop()?;
                 Self::start_multihop_tunnel(
                     config,
@@ -310,7 +308,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        let mut tunnel = WgGoTunnel::Singlehop(WgGoTunnelState {
+        let tunnel = WgGoTunnel::Singlehop(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -372,7 +370,7 @@ impl WgGoTunnel {
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
 
-        let mut tunnel = WgGoTunnel::Multihop(WgGoTunnelState {
+        let tunnel = WgGoTunnel::Multihop(WgGoTunnelState {
             interface_name,
             tunnel_handle: handle,
             _tunnel_device: tunnel_device,
@@ -406,6 +404,16 @@ impl WgGoTunnel {
     /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
     fn ensure_tunnel_is_running(&self) -> Result<()> {
         // TODO: create new checker, reuse cancel token
+
+        let state = self.as_state();
+        let addr = state.config.ipv4_gateway;
+        let cancel_receiver = state.cancel_receiver.clone();
+        let mut check = connectivity::Check::new(addr, 0, cancel_receiver)
+            .map_err(|err| TunnelError::RecoverableStartWireguardError(Box::new(err)))?;
+
+        // TODO: retry attempt?
+
+        check.establish_connectivity(self);
 
         /*
         let connection_established = checker
