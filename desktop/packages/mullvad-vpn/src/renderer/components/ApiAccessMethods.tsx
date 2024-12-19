@@ -7,7 +7,7 @@ import { AccessMethodSetting } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
-import { Flex } from '../lib/components';
+import { Container, Flex } from '../lib/components';
 import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
@@ -24,13 +24,7 @@ import {
 import ImageView from './ImageView';
 import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsNavigationScrollbars,
-  SettingsStack,
-} from './Layout';
+import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import {
   NavigationBar,
@@ -40,7 +34,7 @@ import {
   TitleBarItem,
 } from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
-import { SmallButton, SmallButtonColor, SmallButtonGroup } from './SmallButton';
+import { SmallButton, SmallButtonColor } from './SmallButton';
 
 const StyledContextMenuButton = styled(Cell.Icon)({
   alignItems: 'center',
@@ -127,7 +121,7 @@ export default function ApiAccessMethods() {
                   </HeaderSubTitle>
                 </SettingsHeader>
 
-                <SettingsStack>
+                <Flex $flexDirection="column" $gap={Spacings.spacing6}>
                   <Cell.Group $noMarginBottom>
                     <ApiAccessMethod
                       method={methods.direct}
@@ -150,11 +144,10 @@ export default function ApiAccessMethods() {
                       />
                     ))}
                   </Cell.Group>
-
-                  <SmallButtonGroup $noMarginTop>
+                  <Container size="4" $flex={1} $justifyContent="flex-end">
                     <SmallButton onClick={navigateToNew}>{messages.gettext('Add')}</SmallButton>
-                  </SmallButtonGroup>
-                </SettingsStack>
+                  </Container>
+                </Flex>
               </SettingsContent>
             </SettingsNavigationScrollbars>
           </NavigationContainer>
