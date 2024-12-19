@@ -236,13 +236,19 @@ impl FfiClient {
 ///
 /// * `hostname`: pointer to a null-terminated UTF-8 string representing the hostname that will be
 ///   used for TLS validation.
+/// * `disable_tls`: only valid when built for tests, can be ignored when consumed by Swift.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_api_client_initialize(
     client_ptr: *mut MullvadApiClient,
     api_address_ptr: *const libc::c_char,
     hostname: *const libc::c_char,
-    #[cfg(any(feature = "api-override", test))] disable_tls: bool,
+    disable_tls: bool,
 ) -> MullvadApiError {
+    #[cfg(not(any(feature = "api-override", test)))]
+    if disable_tls {
+        log::error!("disable_tls has no effect when mullvad-api is built without api-override");
+    }
+
     match unsafe {
         FfiClient::new(
             api_address_ptr,
