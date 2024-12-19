@@ -38,7 +38,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         exitRelay = SelectedRelay(endpoint: match.endpoint, hostname: match.relay.hostname, location: match.location)
     }
 
-    func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() {
+    func testEphemeralPeerExchangeFailsWhenNegotiationCannotStart() async {
         let expectedNegotiationFailure = expectation(description: "Negotiation failed.")
 
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
@@ -66,7 +66,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
             expectedNegotiationFailure.fulfill()
         }
 
-        singleHopPostQuantumKeyExchanging.start()
+        await singleHopPostQuantumKeyExchanging.start()
 
         wait(
             for: [expectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
@@ -74,7 +74,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         )
     }
 
-    func testEphemeralPeerExchangeSuccessWhenPostQuantumNegotiationStarts() throws {
+    func testEphemeralPeerExchangeSuccessWhenPostQuantumNegotiationStarts() async throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
 
@@ -101,9 +101,9 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         }
 
         keyExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, ephemeralKey in
-            singleHopPostQuantumKeyExchanging.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
+            await singleHopPostQuantumKeyExchanging.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
         })
-        singleHopPostQuantumKeyExchanging.start()
+        await singleHopPostQuantumKeyExchanging.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
@@ -111,7 +111,7 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         )
     }
 
-    func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() throws {
+    func testEphemeralPeerExchangeSuccessWhenDaitaNegotiationStarts() async throws {
         let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
         unexpectedNegotiationFailure.isInverted = true
 
@@ -138,9 +138,9 @@ final class SingleHopEphemeralPeerExchangerTests: XCTestCase {
         }
 
         peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey in
-            multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
+            await multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
         })
-        multiHopPeerExchanger.start()
+        await multiHopPeerExchanger.start()
 
         wait(
             for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
