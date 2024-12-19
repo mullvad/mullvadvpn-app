@@ -120,7 +120,7 @@ async fn config_ephemeral_peers_inner(
     // NOTE: This one often fails with multihop on Windows, even though the handshake afterwards
     // succeeds. So we try anyway if it fails.
     #[cfg(force_wireguard_handshake)]
-    let _ = establish_tunnel_connection(tunnel, connectivity).await;
+    let _ = establish_tunnel_connection(tunnel, connectivity);
 
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
@@ -158,7 +158,7 @@ async fn config_ephemeral_peers_inner(
         .await?;
 
         #[cfg(force_wireguard_handshake)]
-        establish_tunnel_connection(tunnel, connectivity).await?;
+        establish_tunnel_connection(tunnel, connectivity)?;
 
         let entry_psk = request_ephemeral_peer(
             retry_attempt,
@@ -279,16 +279,17 @@ async fn reconfigure_tunnel(
 /// Ensure that the WireGuard tunnel works. This is useful after updating the WireGuard config, to
 /// force a WireGuard handshake. This should reduce the number of PQ timeouts.
 #[cfg(force_wireguard_handshake)]
-async fn establish_tunnel_connection(
+fn establish_tunnel_connection(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     connectivity: &mut connectivity::Check<connectivity::Cancellable>,
 ) -> Result<(), CloseMsg> {
     use talpid_types::ErrorExt;
 
-    let shared_tunnel = tunnel.lock().await;
-    let tunnel = shared_tunnel.as_ref().expect("tunnel was None");
-    let ping_result = connectivity.establish_connectivity(tunnel);
-    drop(shared_tunnel);
+    let ping_result = tokio::task::block_in_place(|| {
+        let shared_tunnel = tunnel.blocking_lock();
+        let tunnel = shared_tunnel.as_ref().expect("tunnel was None");
+        connectivity.establish_connectivity(tunnel)
+    });
 
     match ping_result {
         Ok(true) => Ok(()),
