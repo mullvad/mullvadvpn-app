@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 
@@ -56,7 +55,8 @@ private fun generateRelayItemRelay(
     RelayItem.Location.Relay(
         id = GeoLocationId.Hostname(city = cityCode, code = hostName),
         active = active,
-        provider = Provider(ProviderId("Provider"), Ownership.MullvadOwned),
+        provider = ProviderId("Provider"),
+        ownership = Ownership.MullvadOwned,
         daita = daita,
     )
 

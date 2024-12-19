@@ -13,7 +13,8 @@ class AvailableProvidersUseCase(private val relayListRepository: RelayListReposi
             relayList
                 .flatMap(RelayItem.Location.Country::cities)
                 .flatMap(RelayItem.Location.City::relays)
-                .map(RelayItem.Location.Relay::provider)
-                .distinct()
+                .groupBy({ it.provider }, { it.ownership })
+                .map { (provider, ownerships) -> Provider(provider, ownerships.toSet()) }
+                .sortedBy { it.providerId.value.uppercase() }
         }
 }

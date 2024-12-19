@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.compose.state
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 
 fun Ownership?.toOwnershipConstraint(): Constraint<Ownership> =
@@ -20,9 +21,9 @@ fun Constraint<Providers>.toSelectedProviders(allProviders: List<Provider>): Lis
             }
     }
 
-fun List<Provider>.toConstraintProviders(allProviders: List<Provider>): Constraint<Providers> =
+fun List<ProviderId>.toConstraintProviders(allProviders: List<ProviderId>): Constraint<Providers> =
     if (size == allProviders.size) {
         Constraint.Any
     } else {
-        Constraint.Only(Providers(map { provider -> provider.providerId }.toHashSet()))
+        Constraint.Only(Providers(toHashSet()))
     }

@@ -87,8 +87,11 @@ class FilterChipUseCase(
         selectedProviders: List<Provider>,
         selectedOwnership: Ownership?,
     ): List<Provider> =
-        if (selectedOwnership == null) selectedProviders
-        else selectedProviders.filter { it.ownership == selectedOwnership }
+        if (selectedOwnership != null) {
+            selectedProviders.filter { it.ownership.contains(selectedOwnership) }
+        } else {
+            selectedProviders
+        }
 
     private fun Settings.daitaAndDirectOnly() =
         tunnelOptions.wireguard.daitaSettings.enabled &&

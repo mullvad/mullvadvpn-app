@@ -56,7 +56,8 @@ sealed interface RelayItem {
         @optics
         data class Relay(
             override val id: GeoLocationId.Hostname,
-            val provider: Provider,
+            val provider: ProviderId,
+            val ownership: Ownership,
             override val active: Boolean,
             val daita: Boolean,
         ) : Location {
