@@ -23,6 +23,7 @@ struct UDPOverTCPObfuscationSettingsView<VM>: View where VM: UDPOverTCPObfuscati
             title: portString,
             options: [WireGuardObfuscationUdpOverTcpPort.automatic, .port80, .port5001],
             value: $viewModel.value,
+            tableAccessibilityIdentifier: AccessibilityIdentifier.wireGuardObfuscationUdpOverTcpTable.asString,
             itemDescription: { item in NSLocalizedString(
                 "UDP_TCP_PORT_VALUE_\(item)",
                 tableName: "UdpToTcp",

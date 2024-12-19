@@ -56,8 +56,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     private let options: [OptionSpec]
     var value: Binding<Value>
     @State var initialValue: Value?
+    let tableAccessibilityIdentifier: String
     let itemDescription: (Value) -> String
-    let itemAccessibilityIdentifier: (Value) -> String
     let customFieldMode: CustomFieldMode
 
     /// The configuration for the field for a custom value row
@@ -84,7 +84,6 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             // this row consists of a text field into which the user can enter a custom value, which may yield a valid Value. This has accompanying text, and functions to translate between text field contents and the Value. (The fromValue method only needs to give a non-nil value if its input is a custom value that could have come from this row.)
             case custom(
                 label: String,
-                accessibilityIdentifier: String,
                 prompt: String,
                 legend: String?,
                 minInputWidth: CGFloat?,
@@ -103,15 +102,15 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         title: String,
         optionSpecs: [OptionSpec.OptValue],
         value: Binding<Value>,
+        tableAccessibilityIdentifier: String?,
         itemDescription: ((Value) -> String)? = nil,
-        itemAccessibilityIdentifier: ((Value) -> String)? = nil,
         customFieldMode: CustomFieldMode = .freeText
     ) {
         self.title = title
         self.options = optionSpecs.enumerated().map { OptionSpec(id: $0.offset, value: $0.element) }
         self.value = value
         self.itemDescription = itemDescription ?? { "\($0)" }
-        self.itemAccessibilityIdentifier = itemAccessibilityIdentifier ?? { "\($0)" }
+        self.tableAccessibilityIdentifier = tableAccessibilityIdentifier ?? "SingleChoiceList"
         self.customFieldMode = customFieldMode
         self.initialValue = value.wrappedValue
     }
@@ -122,11 +121,11 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     ///   - title: The title of the list, which is typically the name of the item being chosen.
     ///   - options:  A list of `Value`s to be presented.
     ///   - itemDescription: An optional function that, when given a `Value`, returns the string representation to present in the list. If not provided, this will be generated naïvely using string interpolation.
-    ///   - itemAccessibilityIdentifier: An optional function that, when given a `Value`, returns the accessibility identifier for the value's list item. If not provided, this will be generated naïvely using string interpolation.
     init(
         title: String,
         options: [Value],
         value: Binding<Value>,
+        tableAccessibilityIdentifier: String? = nil,
         itemDescription: ((Value) -> String)? = nil,
         itemAccessibilityIdentifier: ((Value) -> String)? = nil
     ) {
@@ -134,8 +133,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             title: title,
             optionSpecs: options.map { .literal($0) },
             value: value,
-            itemDescription: itemDescription,
-            itemAccessibilityIdentifier: itemAccessibilityIdentifier
+            tableAccessibilityIdentifier: tableAccessibilityIdentifier,
+            itemDescription: itemDescription
         )
     }
 
@@ -144,12 +143,11 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     /// - Parameters:
     ///   - title: The title of the list, which is typically the name of the item being chosen.
     ///   - options:  A list of fixed `Value`s to be presented.
+    ///   - tableAccessibilityIdentifier: an optional string value for the accessibility identifier of the table element enclosing the list. If not present, it will be "SingleChoiceList"
     ///   - itemDescription: An optional function that, when given a `Value`, returns the string representation to present in the list. If not provided, this will be generated naïvely using string interpolation. This is only used for the non-custom values.
-    ///   - itemAccessibilityIdentifier: An optional function that, when given a `Value`, returns the accessibility identifier for the value's list item. If not provided, this will be generated naïvely using string interpolation.
     ///   - parseCustomValue: A function that attempts to parse the text entered into the text field and produce a `Value` (typically the tagged custom value with an argument applied to it). If the text is not valid for a value, it should return `nil`
     ///   - formatCustomValue: A function that, when passed a `Value` containing user-entered custom data, formats that data into a string, which should match what the user would have entered. This function can expect to only be called for the custom value, and should return `nil` in the event of its argument not being a valid custom value.
     ///   - customLabel: The caption to display in the custom row, next to the text field.
-    ///   - customAccessibilityIdentifier: The accessibility identifier to use for the custom row. If not provided, "customValue" will be used. The accessibility identifier for the text field will be this value with ".input" appended.
     ///   - customPrompt: The text to display, greyed, in the text field when it is empty. This also serves to set the width of the field, and should be right-padded with spaces as appropriate.
     ///   - customLegend: Optional text to display below the custom field, i.e., to explain sensible values
     ///   - customInputWidth: An optional minimum width (in pseudo-pixels) for the custom input field
@@ -159,12 +157,11 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         title: String,
         options: [Value],
         value: Binding<Value>,
+        tableAccessibilityIdentifier: String? = nil,
         itemDescription: ((Value) -> String)? = nil,
-        itemAccessibilityIdentifier: ((Value) -> String)? = nil,
         parseCustomValue: @escaping ((String) -> Value?),
         formatCustomValue: @escaping ((Value) -> String?),
         customLabel: String,
-        customAccessibilityIdentifier: String = "customValue",
         customPrompt: String,
         customLegend: String? = nil,
         customInputMinWidth: CGFloat? = nil,
@@ -175,7 +172,6 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             title: title,
             optionSpecs: options.map { .literal($0) } + [.custom(
                 label: customLabel,
-                accessibilityIdentifier: customAccessibilityIdentifier,
                 prompt: customPrompt,
                 legend: customLegend,
                 minInputWidth: customInputMinWidth,
@@ -184,8 +180,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 fromValue: formatCustomValue
             )],
             value: value,
+            tableAccessibilityIdentifier: tableAccessibilityIdentifier,
             itemDescription: itemDescription,
-            itemAccessibilityIdentifier: itemAccessibilityIdentifier,
             customFieldMode: customFieldMode
         )
     }
@@ -220,14 +216,12 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             customValueIsFocused = false
             customValueInput = ""
         }
-        .accessibilityIdentifier(itemAccessibilityIdentifier(item))
     }
 
     // Construct the one row with a custom input field for a custom value
     // swiftlint:disable function_body_length
     private func customRow(
         label: String,
-        accessibilityIdentifier: String,
         prompt: String,
         inputWidth: CGFloat?,
         maxInputLength: Int?,
@@ -308,7 +302,6 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                     customValueInput = valueText
                 }
             }
-            .accessibilityIdentifier(accessibilityIdentifier + ".input")
         }
         .onTapGesture {
             if let v = toValue(customValueInput) {
@@ -317,7 +310,6 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                 customValueIsFocused = true
             }
         }
-        .accessibilityIdentifier(accessibilityIdentifier)
     }
 
     // swiftlint:enable function_body_length
@@ -331,6 +323,10 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         }
         .padding(.horizontal, UIMetrics.SettingsCell.layoutMargins.leading)
         .padding(.vertical, 4)
+        .background(
+            Color(.secondaryColor)
+        )
+        .foregroundColor(Color(UIColor.Cell.titleTextColor))
     }
 
     var body: some View {
@@ -341,34 +337,41 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             }
             .padding(EdgeInsets(UIMetrics.SettingsCell.layoutMargins))
             .background(Color(UIColor.Cell.Background.normal))
-            ForEach(options) { opt in
-                switch opt.value {
-                case let .literal(v):
-                    literalRow(v)
-                case let .custom(
-                    label,
-                    accessibilityIdentifier,
-                    prompt,
-                    legend,
-                    inputWidth,
-                    maxInputLength,
-                    toValue,
-                    fromValue
-                ):
-                    customRow(
-                        label: label,
-                        accessibilityIdentifier: accessibilityIdentifier,
-                        prompt: prompt,
-                        inputWidth: inputWidth,
-                        maxInputLength: maxInputLength,
-                        toValue: toValue,
-                        fromValue: fromValue
-                    )
-                    if let legend {
-                        subtitleRow(legend)
+            List {
+                Section {
+                    ForEach(options) { opt in
+                        switch opt.value {
+                        case let .literal(v):
+                            literalRow(v)
+                        case let .custom(
+                            label,
+                            prompt,
+                            legend,
+                            inputWidth,
+                            maxInputLength,
+                            toValue,
+                            fromValue
+                        ):
+                            customRow(
+                                label: label,
+                                prompt: prompt,
+                                inputWidth: inputWidth,
+                                maxInputLength: maxInputLength,
+                                toValue: toValue,
+                                fromValue: fromValue
+                            )
+                            if let legend {
+                                subtitleRow(legend)
+                            }
+                        }
                     }
                 }
+                .listRowInsets(.init()) // remove insets
             }
+            .accessibilityIdentifier(tableAccessibilityIdentifier)
+            .listStyle(.plain)
+            .listRowSpacing(UIMetrics.TableView.separatorHeight)
+            .environment(\.defaultMinListRowHeight, 0)
             Spacer()
         }
         .padding(EdgeInsets(top: 24, leading: 0, bottom: 0, trailing: 0))
