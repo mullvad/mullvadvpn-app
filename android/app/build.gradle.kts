@@ -241,18 +241,14 @@ android {
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
+        // Ensure we have relay list ready before merging assets.
+        tasks["merge${capitalizedVariantName}Assets"].dependsOn(tasks["generateRelayList"])
+
         // Ensure that we have all the JNI libs before merging them.
-        tasks["merge${capitalizedVariantName}Assets"].apply {
-            dependsOn(tasks["generateRelayList"])
-        }
-        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
-            dependsOn("cargoBuild")
-        }
+        tasks["merge${capitalizedVariantName}JniLibFolders"].dependsOn("cargoBuild")
 
         // Ensure all relevant assemble tasks depend on our ensure task.
-        tasks["assemble$capitalizedVariantName"].apply {
-            dependsOn(tasks["ensureValidVersionCode"])
-        }
+        tasks["assemble$capitalizedVariantName"].dependsOn(tasks["ensureValidVersionCode"])
     }
 }
 
@@ -321,8 +317,11 @@ tasks.register<Exec>("cargoClean") {
     commandLine("cargo", "clean")
 }
 
-if(gradleLocalProperties(rootProject.projectDir, providers)
-    .getProperty("CLEAN_CARGO_BUILD")?.toBoolean() != false) {
+if (
+    gradleLocalProperties(rootProject.projectDir, providers)
+        .getProperty("CLEAN_CARGO_BUILD")
+        ?.toBoolean() != false
+) {
     tasks["clean"].dependsOn("cargoClean")
 }
 
@@ -331,11 +330,10 @@ if(gradleLocalProperties(rootProject.projectDir, providers)
 fun isReleaseBuild() =
     gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
 
-fun isAlphaOrDevBuild() : Boolean {
+fun isAlphaOrDevBuild(): Boolean {
     val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
     val versionName = generateVersionName(localProperties)
-    return versionName.contains("dev") ||
-        versionName.contains("alpha")
+    return versionName.contains("dev") || versionName.contains("alpha")
 }
 
 androidComponents {
