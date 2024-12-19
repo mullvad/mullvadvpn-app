@@ -5,6 +5,7 @@ import java.io.File
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 
 const val PROBLEM_REPORT_LOGS_FILE = "problem_report.txt"
 
@@ -39,7 +40,10 @@ class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher
             collectReport(logDirectory.absolutePath, logsPath.absolutePath)
         }
 
-    suspend fun sendReport(userReport: UserReport): SendProblemReportResult {
+    suspend fun sendReport(
+        userReport: UserReport,
+        apiEndpointOverride: ApiEndpointOverride?,
+    ): SendProblemReportResult {
         // If report is not collected then, collect it, if it fails then return error
         if (!logsExists() && !collectLogs()) {
             return SendProblemReportResult.Error.CollectLog
@@ -52,6 +56,7 @@ class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher
                     userReport.description,
                     logsPath.absolutePath,
                     cacheDirectory.absolutePath,
+                    apiEndpointOverride
                 )
             }
 
@@ -89,5 +94,6 @@ class MullvadProblemReport(context: Context, val dispatcher: CoroutineDispatcher
         userMessage: String,
         reportPath: String,
         cacheDirectory: String,
+        apiEndpointOverride: ApiEndpointOverride?,
     ): Boolean
 }

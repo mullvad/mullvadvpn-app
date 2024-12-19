@@ -278,9 +278,8 @@ pub async fn clear_devices(device_client: &DevicesProxy) -> anyhow::Result<()> {
 }
 
 pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
-    use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint, API};
+    use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint};
 
-    let api_endpoint = ApiEndpoint::from_env_vars();
     let api_host = format!("api.{}", TEST_CONFIG.mullvad_host);
 
     let api_host_with_port = format!("{api_host}:443");
@@ -289,14 +288,10 @@ pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
         .context("failed to resolve API host")?;
 
     // Override the API endpoint to use the one specified in the test config
-    let _ = API.override_init(ApiEndpoint {
-        host: Some(api_host),
-        address: Some(api_address),
-        ..api_endpoint
-    });
+    let endpoint = ApiEndpoint::new(api_host, api_address, false);
 
-    let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current())
-        .expect("failed to create api runtime");
+    let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &endpoint);
+
     let rest_handle = api.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider());
     Ok(DevicesProxy::new(rest_handle))
 }

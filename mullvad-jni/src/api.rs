@@ -20,7 +20,6 @@ pub fn api_endpoint_from_java(
     Some(mullvad_api::ApiEndpoint {
         host: Some(hostname),
         address,
-        disable_address_cache: disable_address_cache_from_java(env, endpoint_override),
         disable_tls: disable_tls_from_java(env, endpoint_override),
         force_direct: force_direct_from_java(env, endpoint_override),
     })
@@ -71,16 +70,8 @@ fn port_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> u16 {
 }
 
 #[cfg(feature = "api-override")]
-fn disable_address_cache_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
-    env.call_method(endpoint_override, "component3", "()Z", &[])
-        .expect("missing ApiEndpointOverride.disableAddressCache")
-        .z()
-        .expect("ApiEndpointOverride.disableAddressCache is not a bool")
-}
-
-#[cfg(feature = "api-override")]
 fn disable_tls_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
-    env.call_method(endpoint_override, "component4", "()Z", &[])
+    env.call_method(endpoint_override, "component3", "()Z", &[])
         .expect("missing ApiEndpointOverride.disableTls")
         .z()
         .expect("ApiEndpointOverride.disableTls is not a bool")
@@ -88,7 +79,7 @@ fn disable_tls_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> b
 
 #[cfg(feature = "api-override")]
 fn force_direct_from_java(env: &JnixEnv<'_>, endpoint_override: JObject<'_>) -> bool {
-    env.call_method(endpoint_override, "component5", "()Z", &[])
+    env.call_method(endpoint_override, "component4", "()Z", &[])
         .expect("missing ApiEndpointOverride.forceDirectConnection")
         .z()
         .expect("ApiEndpointOverride.forceDirectConnection is not a bool")
