@@ -2,13 +2,18 @@
 //! Used by the installer artifact packer to bundle the latest available
 //! relay list at the time of creating the installer.
 
-use mullvad_api::{proxy::ApiConnectionMode, rest::Error as RestError, RelayListProxy};
+use mullvad_api::{
+    proxy::ApiConnectionMode, rest::Error as RestError, ApiEndpoint, RelayListProxy,
+};
 use std::process;
 use talpid_types::ErrorExt;
 
 #[tokio::main]
 async fn main() {
-    let runtime = mullvad_api::Runtime::new(tokio::runtime::Handle::current());
+    let runtime = mullvad_api::Runtime::new(
+        tokio::runtime::Handle::current(),
+        &ApiEndpoint::from_env_vars(),
+    );
 
     let relay_list_request =
         RelayListProxy::new(runtime.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider()))

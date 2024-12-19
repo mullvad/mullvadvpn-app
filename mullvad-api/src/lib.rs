@@ -349,20 +349,8 @@ pub enum Error {
 }
 
 impl Runtime {
-    /// Create a new `Runtime`.
-    /// Will either infer the API endpoint from environment variables, if set, otherwise will use
-    /// the default production endpoint.
-    pub fn new(handle: tokio::runtime::Handle) -> Self {
-        Self::with_custom_endpoint(
-            handle,
-            &ApiEndpoint::from_env_vars(),
-            #[cfg(target_os = "android")]
-            None,
-        )
-    }
-
     /// Will create a new Runtime without a cache with the provided API endpoint.
-    pub fn with_custom_endpoint(
+    pub fn new(
         handle: tokio::runtime::Handle,
         endpoint: &ApiEndpoint,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
@@ -390,7 +378,7 @@ impl Runtime {
 
         #[cfg(feature = "api-override")]
         if endpoint.should_disable_address_cache() {
-            return Ok(Self::with_custom_endpoint(
+            return Ok(Self::new(
                 handle,
                 endpoint,
                 #[cfg(target_os = "android")]

@@ -88,9 +88,8 @@ impl FfiClient {
 
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
-        let api_runtime = tokio_runtime.block_on(async {
-            crate::Runtime::with_custom_endpoint(tokio_runtime.handle().clone(), &endpoint)
-        });
+        let api_runtime = tokio_runtime
+            .block_on(async { crate::Runtime::new(tokio_runtime.handle().clone(), &endpoint) });
 
         let context = FfiClient {
             tokio_runtime,
