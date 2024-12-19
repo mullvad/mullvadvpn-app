@@ -117,8 +117,8 @@ mod test {
     /// Verify that the connectivity monitor detects the tunnel timing out after no longer than
     /// `BYTES_RX_TIMEOUT` and `PING_TIMEOUT` combined.
     async fn test_wait_loop_timeout() {
-        let receive_bytes = Arc::new(AtomicBool::new(false));
-        let receive_bytes_inner = receive_bytes.clone();
+        let stop_bytes_rx = Arc::new(AtomicBool::new(false));
+        let stop_bytes_rx_inner = stop_bytes_rx.clone();
 
         let mut map = StatsMap::new();
         map.insert(
@@ -133,7 +133,7 @@ mod test {
         let pinger = MockPinger::default();
         let tunnel = MockTunnel::new(move || {
             let mut tunnel_stats = tunnel_stats.lock().unwrap();
-            if !receive_bytes_inner.load(Ordering::SeqCst) {
+            if !stop_bytes_rx_inner.load(Ordering::SeqCst) {
                 for traffic in tunnel_stats.values_mut() {
                     traffic.rx_bytes += 1;
                 }
@@ -172,7 +172,7 @@ mod test {
                 .unwrap()
                 .unwrap()
         );
-        receive_bytes.store(true, Ordering::SeqCst);
+        stop_bytes_rx.store(true, Ordering::SeqCst);
         assert!(tokio::time::timeout(
             BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2),
             result_rx.recv()
