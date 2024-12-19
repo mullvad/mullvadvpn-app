@@ -162,7 +162,7 @@ Run the following command to download wireguard-go-rs submodule: `git submodule 
 ### Debug build
 Run the following command to build a debug build:
 ```bash
-../android/build-apk.sh --dev-build
+../android/build.sh --dev-build
 ```
 
 ### Release build
@@ -170,7 +170,7 @@ Run the following command to build a debug build:
 2. Move, copy or symlink the directory from step 1 to [./credentials/](./credentials/) (`<repository>/android/credentials/`).
 3. Run the following command to build:
    ```bash
-   ../android/build-apk.sh --app-bundle
+   ../android/build.sh --app-bundle
    ```
 
 ## Configure signing key
