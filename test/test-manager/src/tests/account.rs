@@ -290,8 +290,7 @@ pub async fn new_device_client() -> anyhow::Result<DevicesProxy> {
     // Override the API endpoint to use the one specified in the test config
     let endpoint = ApiEndpoint::new(api_host, api_address, false);
 
-    let api =
-        mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &endpoint);
+    let api = mullvad_api::Runtime::new(tokio::runtime::Handle::current(), &endpoint);
 
     let rest_handle = api.mullvad_rest_handle(ApiConnectionMode::Direct.into_provider());
     Ok(DevicesProxy::new(rest_handle))
