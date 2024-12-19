@@ -1,4 +1,4 @@
-use anyhow::anyhow;
+use anyhow::{anyhow, Context};
 use futures::{select, FutureExt};
 use leak_checker::traceroute::TracerouteOpt;
 pub use leak_checker::LeakInfo;
@@ -189,10 +189,19 @@ async fn check_for_leaks(
     #[cfg(target_os = "android")]
     let interface = todo!("get default interface");
 
-    // TODO (macos):
-    // get_default_route in route manager
     #[cfg(target_os = "macos")]
-    let interface = todo!("get default interface");
+    let interface = {
+        let (v4_route, v6_route) = route_manager.get_default_routes().await
+            .context("Failed to get default interface")?;
+        if destination.address.is_ipv4() {
+            let v4_route = v4_route.context("Missing IPv4 default interface")?;
+            v4_route.interface.into()
+        } else {
+            let v6_route = v6_route.context("Missing IPv6 default interface")?;
+            v6_route.interface.into()
+        }
+        // TODO: use route.interface_index?
+    };
 
     // TODO (windows):
     // Use default route monitor thingy. It should contain interfaces.
