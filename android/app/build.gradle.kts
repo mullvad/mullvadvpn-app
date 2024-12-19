@@ -323,6 +323,16 @@ tasks.register<Exec>("generateRelayList") {
     }
 }
 
+tasks.register<Exec>("cargoClean") {
+    workingDir = File(repoRootPath)
+    commandLine("cargo", "clean")
+}
+
+if(gradleLocalProperties(rootProject.projectDir, providers)
+    .getProperty("CLEAN_CARGO_BUILD")?.toBoolean() != false) {
+    tasks["clean"].dependsOn("cargoClean")
+}
+
 fun isReleaseBuild() =
     gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
 
