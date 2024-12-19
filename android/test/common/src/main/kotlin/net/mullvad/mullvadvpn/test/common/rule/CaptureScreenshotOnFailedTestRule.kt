@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Environment
+import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.os.Environment.DIRECTORY_PICTURES
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
@@ -16,6 +17,7 @@ import java.io.IOException
 import java.nio.file.Paths
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
+import net.mullvad.mullvadvpn.test.common.misc.Attachment
 import org.junit.jupiter.api.extension.ExtensionContext
 import org.junit.jupiter.api.extension.TestWatcher
 
@@ -55,7 +57,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
     ) {
         contentValues.apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(MediaStore.Images.Media.RELATIVE_PATH, "$DIRECTORY_PICTURES/$baseDir")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "${Attachment.DIRECTORY_PATH}/$baseDir")
         }
 
         val uri =
@@ -78,7 +80,7 @@ class CaptureScreenshotOnFailedTestRule(private val testTag: String) : TestWatch
     private fun Bitmap.writeToExternalStorage(baseDir: String, filename: String) {
         val screenshotBaseDirectory =
             Paths.get(
-                    Environment.getExternalStoragePublicDirectory(DIRECTORY_PICTURES).path,
+                    Environment.getExternalStoragePublicDirectory(Attachment.DIRECTORY_PATH).path,
                     baseDir,
                 )
                 .toFile()
