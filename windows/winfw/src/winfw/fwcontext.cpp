@@ -15,6 +15,7 @@
 #include "rules/baseline/permitvpntunnelservice.h"
 #include "rules/baseline/permitdns.h"
 #include "rules/baseline/permitendpoint.h"
+#include "rules/baseline/permiticmpttl.h"
 #include "rules/dns/blockall.h"
 #include "rules/dns/permitloopback.h"
 #include "rules/dns/permittunnel.h"
@@ -314,6 +315,8 @@ bool FwContext::applyPolicyConnected
 		tunnelInterfaceAlias,
 		std::nullopt
 	));
+
+	ruleset.emplace_back(std::make_unique<baseline::PermitIcmpTtl>(relayClient));
 
 	const auto status = applyRuleset(ruleset);
 
