@@ -219,7 +219,10 @@ impl Check {
         timeout: Duration,
         tunnel_handle: &TunnelType,
     ) -> Result<bool, Error> {
-        match Self::get_stats(tunnel_handle).map_err(Error::ConfigReadError)? {
+        match Self::get_stats(tunnel_handle)
+            .await
+            .map_err(Error::ConfigReadError)?
+        {
             None => Ok(false),
             Some(new_stats) => {
                 if conn_state.update(now, new_stats) {
@@ -237,8 +240,8 @@ impl Check {
     /// calls will also return None.
     ///
     /// NOTE: will panic if called from within a tokio runtime.
-    fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
-        let stats = tunnel_handle.get_tunnel_stats()?;
+    async fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
+        let stats = tokio::task::block_in_place(|| tunnel_handle.get_tunnel_stats())?;
         if stats.is_empty() {
             log::error!("Tunnel unexpectedly shut down");
             Ok(None)
