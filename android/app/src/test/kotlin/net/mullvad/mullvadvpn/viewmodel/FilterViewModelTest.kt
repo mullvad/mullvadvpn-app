@@ -19,11 +19,10 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
+import net.mullvad.mullvadvpn.usecase.ProviderOwnershipUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,30 +30,30 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class FilterViewModelTest {
-    private val mockAvailableProvidersUseCase: AvailableProvidersUseCase = mockk(relaxed = true)
+    private val mockProvidersOwnershipUseCase: ProviderOwnershipUseCase = mockk(relaxed = true)
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private lateinit var viewModel: FilterViewModel
     private val selectedOwnership =
         MutableStateFlow<Constraint<Ownership>>(Constraint.Only(Ownership.MullvadOwned))
     private val dummyListOfAllProviders =
-        listOf(
-            Provider(ProviderId("31173"), setOf(Ownership.MullvadOwned)),
-            Provider(ProviderId("100TB"), setOf(Ownership.Rented)),
-            Provider(ProviderId("Blix"), setOf(Ownership.MullvadOwned)),
-            Provider(ProviderId("Creanova"), setOf(Ownership.MullvadOwned)),
-            Provider(ProviderId("DataPacket"), setOf(Ownership.Rented, Ownership.MullvadOwned)),
-            Provider(ProviderId("HostRoyale"), setOf(Ownership.Rented)),
-            Provider(ProviderId("hostuniversal"), setOf(Ownership.Rented)),
-            Provider(ProviderId("iRegister"), setOf(Ownership.Rented)),
-            Provider(ProviderId("M247"), setOf(Ownership.Rented)),
-            Provider(ProviderId("Makonix"), setOf(Ownership.Rented)),
-            Provider(ProviderId("PrivateLayer"), setOf(Ownership.Rented)),
-            Provider(ProviderId("ptisp"), setOf(Ownership.Rented)),
-            Provider(ProviderId("Qnax"), setOf(Ownership.Rented)),
-            Provider(ProviderId("Quadranet"), setOf(Ownership.Rented)),
-            Provider(ProviderId("techfutures"), setOf(Ownership.Rented)),
-            Provider(ProviderId("Tzulo"), setOf(Ownership.Rented)),
-            Provider(ProviderId("xtom"), setOf(Ownership.Rented)),
+        mapOf(
+            ProviderId("31173") to setOf(Ownership.MullvadOwned),
+            ProviderId("100TB") to setOf(Ownership.Rented),
+            ProviderId("Blix") to setOf(Ownership.MullvadOwned),
+            ProviderId("Creanova") to setOf(Ownership.MullvadOwned),
+            ProviderId("DataPacket") to setOf(Ownership.Rented, Ownership.MullvadOwned),
+            ProviderId("HostRoyale") to setOf(Ownership.Rented),
+            ProviderId("hostuniversal") to setOf(Ownership.Rented),
+            ProviderId("iRegister") to setOf(Ownership.Rented),
+            ProviderId("M247") to setOf(Ownership.Rented),
+            ProviderId("Makonix") to setOf(Ownership.Rented),
+            ProviderId("PrivateLayer") to setOf(Ownership.Rented),
+            ProviderId("ptisp") to setOf(Ownership.Rented),
+            ProviderId("Qnax") to setOf(Ownership.Rented),
+            ProviderId("Quadranet") to setOf(Ownership.Rented),
+            ProviderId("techfutures") to setOf(Ownership.Rented),
+            ProviderId("Tzulo") to setOf(Ownership.Rented),
+            ProviderId("xtom") to setOf(Ownership.Rented),
         )
     private val mockSelectedProviders: List<ProviderId> =
         listOf(ProviderId("31173"), ProviderId("Blix"), ProviderId("Creanova"))
@@ -62,12 +61,12 @@ class FilterViewModelTest {
     @BeforeEach
     fun setup() {
         every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
-        every { mockAvailableProvidersUseCase() } returns flowOf(dummyListOfAllProviders)
+        every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
         every { mockRelayListFilterRepository.selectedProviders } returns
             MutableStateFlow(Constraint.Only(Providers(mockSelectedProviders.toHashSet())))
         viewModel =
             FilterViewModel(
-                availableProvidersUseCase = mockAvailableProvidersUseCase,
+                providerOwnershipUseCase = mockProvidersOwnershipUseCase,
                 relayListFilterRepository = mockRelayListFilterRepository,
             )
     }
@@ -111,7 +110,7 @@ class FilterViewModelTest {
     fun `setAllProvider with true should emit uiState with selectedProviders includes all providers`() =
         runTest {
             // Arrange
-            val mockProvidersList = dummyListOfAllProviders.map { it.providerId }
+            val mockProvidersList = dummyListOfAllProviders.keys.toList()
             // Act
             viewModel.setAllProviders(true)
             // Assert
@@ -127,9 +126,7 @@ class FilterViewModelTest {
             // Arrange
             val mockOwnership = Ownership.MullvadOwned.toOwnershipConstraint()
             val mockSelectedProviders =
-                mockSelectedProviders.toConstraintProviders(
-                    dummyListOfAllProviders.map { it.providerId }
-                )
+                mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders.keys.toList())
             coEvery {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
@@ -152,7 +149,7 @@ class FilterViewModelTest {
     @Test
     fun `ensure that providers with multiple ownership are only returned once`() = runTest {
         // Arrange
-        val expectedProviderList = dummyListOfAllProviders.map { it.providerId }
+        val expectedProviderList = dummyListOfAllProviders.keys.toList()
 
         // Assert
         viewModel.uiState.test {

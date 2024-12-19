@@ -17,7 +17,7 @@ typealias ModelOwnership = Ownership
 
 class FilterChipUseCase(
     private val relayListFilterRepository: RelayListFilterRepository,
-    private val providerOwnership: ProviderOwnershipUseCase,
+    private val providerOwnershipUseCase: ProviderOwnershipUseCase,
     private val settingsRepository: SettingsRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
@@ -25,7 +25,7 @@ class FilterChipUseCase(
         combine(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
-            providerOwnership(),
+            providerOwnershipUseCase(),
             settingsRepository.settingsUpdates,
             wireguardConstraintsRepository.wireguardConstraints,
         ) {
