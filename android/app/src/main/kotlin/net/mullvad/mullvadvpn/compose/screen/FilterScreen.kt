@@ -139,7 +139,7 @@ fun FilterScreen(
                     AllProviders(state, onAllProviderCheckChange)
                 }
                 itemsWithDivider(
-                    key = { it.providerId.value },
+                    key = { it.providerId.value + it.ownership.stringResource() },
                     contentType = { ContentType.ITEM },
                     items = state.filteredProvidersByOwnership,
                 ) { provider ->
