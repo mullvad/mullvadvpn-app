@@ -16,7 +16,7 @@ import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
 
@@ -28,7 +28,7 @@ class FilterViewModel(
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val selectedOwnership = MutableStateFlow<Ownership?>(null)
-    private val selectedProviders = MutableStateFlow<List<Provider>>(emptyList())
+    private val selectedProviders = MutableStateFlow<List<ProviderId>>(emptyList())
 
     init {
         viewModelScope.launch {
@@ -36,7 +36,9 @@ class FilterViewModel(
                 combine(availableProvidersUseCase(), relayListFilterRepository.selectedProviders) {
                         allProviders,
                         selectedConstraintProviders ->
-                        selectedConstraintProviders.toSelectedProviders(allProviders)
+                        selectedConstraintProviders.toSelectedProviders(allProviders).map {
+                            it.providerId
+                        }
                     }
                     .first()
 
@@ -51,26 +53,36 @@ class FilterViewModel(
                 allProviders,
                 selectedProviders ->
                 RelayFilterUiState(
+                    filteredOwnershipByProviders =
+                        if (selectedProviders.isEmpty()) {
+                            Ownership.entries
+                        } else {
+                            Ownership.entries.filter { ownership ->
+                                selectedProviders.any { providerId ->
+                                    allProviders.any {
+                                        it.providerId == providerId && ownership in it.ownership
+                                    }
+                                }
+                            }
+                        },
                     selectedOwnership = selectedOwnership,
-                    allProviders = allProviders,
+                    filteredProvidersByOwnership =
+                        if (selectedOwnership != null)
+                            allProviders
+                                .filter { provider -> selectedOwnership in provider.ownership }
+                                .map { it.providerId }
+                        else allProviders.map { it.providerId },
+                    allProviders = allProviders.map { it.providerId },
                     selectedProviders = selectedProviders,
                 )
             }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                RelayFilterUiState(
-                    allProviders = emptyList(),
-                    selectedOwnership = null,
-                    selectedProviders = emptyList(),
-                ),
-            )
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), RelayFilterUiState())
 
     fun setSelectedOwnership(ownership: Ownership?) {
         selectedOwnership.value = ownership
     }
 
-    fun setSelectedProvider(checked: Boolean, provider: Provider) {
+    fun setSelectedProvider(checked: Boolean, provider: ProviderId) {
         selectedProviders.value =
             if (checked) {
                 selectedProviders.value + provider
@@ -83,7 +95,7 @@ class FilterViewModel(
         viewModelScope.launch {
             selectedProviders.value =
                 if (isChecked) {
-                    availableProvidersUseCase().first()
+                    availableProvidersUseCase().first().map { it.providerId }
                 } else {
                     emptyList()
                 }
@@ -92,8 +104,11 @@ class FilterViewModel(
 
     fun onApplyButtonClicked() {
         val newSelectedOwnership = selectedOwnership.value.toOwnershipConstraint()
+        // TODO should be all providers?!
         val newSelectedProviders =
-            selectedProviders.value.toConstraintProviders(uiState.value.allProviders)
+            selectedProviders.value.toConstraintProviders(
+                uiState.value.filteredProvidersByOwnership
+            )
 
         viewModelScope.launch {
             relayListFilterRepository.updateSelectedOwnershipAndProviderFilter(

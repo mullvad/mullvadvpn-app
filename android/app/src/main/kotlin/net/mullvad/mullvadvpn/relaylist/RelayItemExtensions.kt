@@ -35,7 +35,7 @@ private fun RelayItem.Location.hasOwnership(ownershipConstraint: Constraint<Owne
         when (this) {
             is RelayItem.Location.Country -> cities.any { it.hasOwnership(ownershipConstraint) }
             is RelayItem.Location.City -> relays.any { it.hasOwnership(ownershipConstraint) }
-            is RelayItem.Location.Relay -> this.provider.ownership == ownershipConstraint.value
+            is RelayItem.Location.Relay -> ownershipConstraint.value == ownership
         }
     } else {
         true
@@ -46,8 +46,7 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         when (this) {
             is RelayItem.Location.Country -> cities.any { it.hasProvider(providersConstraint) }
             is RelayItem.Location.City -> relays.any { it.hasProvider(providersConstraint) }
-            is RelayItem.Location.Relay ->
-                providersConstraint.value.providers.contains(provider.providerId)
+            is RelayItem.Location.Relay -> providersConstraint.value.providers.contains(provider)
         }
     } else {
         true
