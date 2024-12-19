@@ -6,12 +6,14 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadSettings
 import SwiftUI
 
 typealias ButtonAction = (ConnectionViewViewModel.TunnelControlAction) -> Void
 
 struct ConnectionView: View {
     @StateObject var viewModel: ConnectionViewViewModel
+    @StateObject var indicatorsViewModel: FeatureIndicatorsViewModel
 
     var action: ButtonAction?
     var onContentUpdate: (() -> Void)?
@@ -27,6 +29,11 @@ struct ConnectionView: View {
 
                 VStack(alignment: .leading, spacing: 16) {
                     ConnectionPanel(viewModel: viewModel)
+
+                    if !indicatorsViewModel.chips.isEmpty {
+                        FeatureIndicatorsView(viewModel: indicatorsViewModel)
+                    }
+
                     ButtonPanel(viewModel: viewModel, action: action)
                 }
                 .padding(16)
@@ -34,17 +41,24 @@ struct ConnectionView: View {
             .cornerRadius(12)
             .padding(16)
         }
-        .onReceive(viewModel.$tunnelState, perform: { _ in
+        .padding(.bottom, 8) // Adding some spacing so to not overlap with the map legal link.
+        .onReceive(
+            indicatorsViewModel.$isExpanded
+                .combineLatest(
+                    viewModel.$tunnelState,
+                    viewModel.$showsActivityIndicator
+                )
+        ) { _ in
             onContentUpdate?()
-        })
-        .onReceive(viewModel.$showsActivityIndicator, perform: { _ in
-            onContentUpdate?()
-        })
+        }
     }
 }
 
 #Preview {
-    ConnectionView(viewModel: ConnectionViewViewModel(tunnelState: .disconnected)) { action in
+    ConnectionView(
+        viewModel: ConnectionViewViewModel(tunnelState: .disconnected),
+        indicatorsViewModel: FeatureIndicatorsViewModel(tunnelSettings: LatestTunnelSettings(), ipOverrides: [])
+    ) { action in
         print(action)
     }
     .background(UIColor.secondaryColor.color)
