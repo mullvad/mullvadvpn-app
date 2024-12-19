@@ -311,7 +311,7 @@ tasks.register<Exec>("generateRelayList") {
     doLast {
         val output = standardOutput as ByteArrayOutputStream
         // Create file if needed
-        File("$extraAssetsDirectory").mkdirs()
+        relayListPath.mkdirs()
         relayListPath.createNewFile()
         FileOutputStream(relayListPath).use { it.write(output.toByteArray()) }
     }
