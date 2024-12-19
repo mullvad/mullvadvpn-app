@@ -2399,7 +2399,6 @@ dependencies = [
  "thiserror",
  "tokio",
  "tokio-stream",
- "winapi",
  "windows-service",
  "windows-sys 0.52.0",
  "winres",
