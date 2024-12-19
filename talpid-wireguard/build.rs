@@ -19,7 +19,7 @@ fn main() {
     // This is useful after updating the WireGuard config, to force a WireGuard handshake. This
     // should reduce the number of PQ timeouts.
     println!("cargo::rustc-check-cfg=cfg(force_wireguard_handshake)");
-    if matches!(target_os.as_str(), "linux" | "macos" | "windows") {
+    if target_os.as_str() == "windows" {
         println!("cargo::rustc-cfg=force_wireguard_handshake");
     }
 }
