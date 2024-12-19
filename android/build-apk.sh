@@ -52,16 +52,11 @@ if [[ "$BUILD_TYPE" == "release" ]]; then
         BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
     elif [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
         echo "Removing old Rust build artifacts"
-        cargo clean
         GRADLE_TASKS+=(createPlayStagemoleReleaseDistApk)
         BUNDLE_TASKS+=(createPlayStagemoleReleaseDistBundle)
         PLAY_PUBLISH_TASKS=(publishPlayStagemoleReleaseBundle)
-    else
-        cargo clean
     fi
 fi
-
-pushd "$SCRIPT_DIR"
 
 # Fallback to the system-wide gradle command if the gradlew script is removed.
 # It is removed by the F-Droid build process before the build starts.
@@ -76,7 +71,6 @@ else
 fi
 
 $GRADLE_CMD --console plain clean
-popd
 
 $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
 
