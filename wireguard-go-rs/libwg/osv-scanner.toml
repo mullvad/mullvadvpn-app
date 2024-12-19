@@ -16,3 +16,15 @@ reason = "wireguard-go does not use the affected code"
 id = "CVE-2024-34155" # GO-2024-3105
 ignoreUntil = 2025-03-18
 reason = "wireguard-go does not use the affected code"
+
+# Denial of service in HTML Parse function in go/net/html
+[[IgnoredVulns]]
+id = "CVE-2024-45338" # GO-2024-3333
+ignoreUntil = 2025-03-19
+reason = "wireguard-go does not use the affected code"
+
+# Denial of service in HTML Parse function in go/net/html
+[[IgnoredVulns]]
+id = "GHSA-w32m-9786-jp63" # GO-2024-3333
+ignoreUntil = 2025-03-19
+reason = "wireguard-go does not use the affected code"
