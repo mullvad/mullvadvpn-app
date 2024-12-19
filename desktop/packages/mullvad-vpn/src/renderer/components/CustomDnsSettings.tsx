@@ -1,15 +1,12 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { sprintf } from 'sprintf-js';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { colors, strings } from '../../config.json';
+import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatHtml } from '../lib/html-formatter';
-import { IpAddress } from '../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
-import * as AppButton from './AppButton';
 import {
   AriaDescribed,
   AriaDescription,
@@ -30,9 +27,6 @@ import {
   StyledRemoveIcon,
 } from './CustomDnsSettingsStyles';
 import List, { stringValueAsKey } from './List';
-import { ModalAlert, ModalAlertType } from './Modal';
-
-const manualLocal = window.env.platform === 'win32' || window.env.platform === 'linux';
 
 export default function CustomDnsSettings() {
   const { setDnsOptions } = useAppContext();
@@ -40,11 +34,8 @@ export default function CustomDnsSettings() {
 
   const [inputVisible, showInput, hideInput] = useBoolean(false);
   const [invalid, setInvalid, setValid] = useBoolean(false);
-  const [confirmAction, setConfirmAction] = useState<() => Promise<void>>();
   const [savingAdd, setSavingAdd] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
-  const willShowConfirmationDialog = useRef(false);
-  const addingLocalIp = useRef(false);
 
   const featureAvailable = useMemo(
     () =>
@@ -61,14 +52,6 @@ export default function CustomDnsSettings() {
   const switchRef = useStyledRef<HTMLDivElement>();
   const addButtonRef = useStyledRef<HTMLButtonElement>();
   const inputContainerRef = useStyledRef<HTMLDivElement>();
-
-  const confirm = useCallback(() => {
-    void confirmAction?.();
-    setConfirmAction(undefined);
-  }, [confirmAction]);
-  const abortConfirmation = useCallback(() => {
-    setConfirmAction(undefined);
-  }, []);
 
   const setCustomDnsEnabled = useCallback(
     async (enabled: boolean) => {
@@ -97,7 +80,7 @@ export default function CustomDnsSettings() {
           inputContainerRef.current?.contains(relatedTarget))
       ) {
         event?.target.focus();
-      } else if (!willShowConfirmationDialog.current) {
+      } else {
         hideInput();
       }
     },
@@ -109,7 +92,7 @@ export default function CustomDnsSettings() {
       if (dns.customOptions.addresses.includes(address)) {
         setInvalid();
       } else {
-        const add = async () => {
+        try {
           await setDnsOptions({
             ...dns,
             state: dns.state === 'custom' || inputVisible ? 'custom' : 'default',
@@ -120,28 +103,6 @@ export default function CustomDnsSettings() {
 
           setSavingAdd(true);
           hideInput();
-        };
-
-        try {
-          const ipAddress = IpAddress.fromString(address);
-          addingLocalIp.current = ipAddress.isLocal();
-          if (addingLocalIp.current) {
-            if (manualLocal) {
-              willShowConfirmationDialog.current = true;
-              setConfirmAction(() => async () => {
-                willShowConfirmationDialog.current = false;
-                await add();
-              });
-            } else {
-              await add();
-            }
-          } else {
-            willShowConfirmationDialog.current = true;
-            setConfirmAction(() => async () => {
-              willShowConfirmationDialog.current = false;
-              await add();
-            });
-          }
         } catch {
           setInvalid();
         }
@@ -151,47 +112,21 @@ export default function CustomDnsSettings() {
   );
 
   const onEdit = useCallback(
-    (oldAddress: string, newAddress: string) => {
+    async (oldAddress: string, newAddress: string) => {
       if (oldAddress !== newAddress && dns.customOptions.addresses.includes(newAddress)) {
         throw new Error('Duplicate address');
       }
 
-      const edit = async () => {
-        setSavingEdit(true);
+      setSavingEdit(true);
 
-        const addresses = dns.customOptions.addresses.map((address) =>
-          oldAddress === address ? newAddress : address,
-        );
-        await setDnsOptions({
-          ...dns,
-          customOptions: {
-            addresses,
-          },
-        });
-      };
-
-      const ipAddress = IpAddress.fromString(newAddress);
-      return new Promise<void>((resolve) => {
-        addingLocalIp.current = ipAddress.isLocal();
-        if (addingLocalIp.current) {
-          if (manualLocal) {
-            willShowConfirmationDialog.current = true;
-            setConfirmAction(() => async () => {
-              willShowConfirmationDialog.current = false;
-              await edit();
-              resolve();
-            });
-          } else {
-            void edit().then(resolve);
-          }
-        } else {
-          willShowConfirmationDialog.current = true;
-          setConfirmAction(() => async () => {
-            willShowConfirmationDialog.current = false;
-            await edit();
-            resolve();
-          });
-        }
+      const addresses = dns.customOptions.addresses.map((address) =>
+        oldAddress === address ? newAddress : address,
+      );
+      await setDnsOptions({
+        ...dns,
+        customOptions: {
+          addresses,
+        },
       });
     },
     [dns, setDnsOptions],
@@ -242,10 +177,7 @@ export default function CustomDnsSettings() {
             skipAddTransition={true}
             skipRemoveTransition={savingEdit}>
             {(item) => (
-              <CellListItem
-                onRemove={onRemove}
-                onChange={onEdit}
-                willShowConfirmationDialog={willShowConfirmationDialog}>
+              <CellListItem onRemove={onRemove} onChange={onEdit}>
                 {item}
               </CellListItem>
             )}
@@ -301,25 +233,17 @@ export default function CustomDnsSettings() {
               )}
         </Cell.CellFooterText>
       </StyledCustomDnsFooter>
-
-      <ConfirmationDialog
-        isOpen={confirmAction !== undefined}
-        isLocal={addingLocalIp}
-        confirm={confirm}
-        abort={abortConfirmation}
-      />
     </>
   );
 }
 
-interface ICellListItemProps {
-  willShowConfirmationDialog: React.RefObject<boolean>;
+interface CellListItemPropos {
   onRemove: (application: string) => void;
   onChange: (value: string, newValue: string) => Promise<void>;
   children: string;
 }
 
-function CellListItem(props: ICellListItemProps) {
+function CellListItem(props: CellListItemPropos) {
   const { onRemove: propsOnRemove, onChange } = props;
 
   const [editing, startEditing, stopEditing] = useBoolean(false);
@@ -356,11 +280,11 @@ function CellListItem(props: ICellListItemProps) {
       const relatedTarget = event?.relatedTarget as Node | undefined;
       if (relatedTarget && inputContainerRef.current?.contains(relatedTarget)) {
         event?.target.focus();
-      } else if (!props.willShowConfirmationDialog.current) {
+      } else {
         stopEditing();
       }
     },
-    [inputContainerRef, props.willShowConfirmationDialog, stopEditing],
+    [inputContainerRef, stopEditing],
   );
 
   return (
@@ -400,51 +324,5 @@ function CellListItem(props: ICellListItemProps) {
         </StyledContainer>
       )}
     </AriaDescriptionGroup>
-  );
-}
-
-interface IConfirmationDialogProps {
-  isOpen: boolean;
-  isLocal: React.RefObject<boolean>;
-  confirm: () => void;
-  abort: () => void;
-}
-
-function ConfirmationDialog(props: IConfirmationDialogProps) {
-  let message;
-  if (props.isLocal.current) {
-    message = messages.pgettext(
-      'vpn-settings-view',
-      'The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it.',
-    );
-  } else {
-    message = sprintf(
-      // TRANSLATORS: Available placeholders:
-      // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
-      // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
-      messages.pgettext(
-        'vpn-settings-view',
-        'The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the "%(tunnelProtocol)s" (in Advanced settings) to %(wireguard)s.',
-      ),
-      {
-        wireguard: strings.wireguard,
-        tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
-      },
-    );
-  }
-  return (
-    <ModalAlert
-      isOpen={props.isOpen}
-      type={ModalAlertType.caution}
-      buttons={[
-        <AppButton.RedButton key="confirm" onClick={props.confirm}>
-          {messages.pgettext('vpn-settings-view', 'Add anyway')}
-        </AppButton.RedButton>,
-        <AppButton.BlueButton key="back" onClick={props.abort}>
-          {messages.gettext('Back')}
-        </AppButton.BlueButton>,
-      ]}
-      close={props.abort}
-      message={message}></ModalAlert>
   );
 }
