@@ -656,7 +656,7 @@ impl WireguardMonitor {
             }
 
             if will_nm_manage_dns() {
-                match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
+                match wireguard_kernel::NetworkManagerTunnel::new(runtime.clone(), config) {
                     Ok(tunnel) => {
                         log::debug!("Using NetworkManager to use kernel WireGuard implementation");
                         return Ok(Box::new(tunnel));
@@ -671,7 +671,7 @@ impl WireguardMonitor {
                     }
                 };
             } else {
-                match wireguard_kernel::NetlinkTunnel::new(runtime, config) {
+                match wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config) {
                     Ok(tunnel) => {
                         log::debug!("Using kernel WireGuard implementation");
                         return Ok(Box::new(tunnel));
