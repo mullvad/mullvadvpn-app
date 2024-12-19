@@ -7,9 +7,9 @@
 //
 
 import Foundation
-import WireGuardKitTypes
+@preconcurrency import WireGuardKitTypes
 
-public struct StoredWgKeyData: Codable, Equatable {
+public struct StoredWgKeyData: Codable, Equatable, Sendable {
     /// Private key creation date.
     public var creationDate: Date
 

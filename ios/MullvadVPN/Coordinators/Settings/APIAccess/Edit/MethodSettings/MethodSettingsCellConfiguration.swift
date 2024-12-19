@@ -10,6 +10,7 @@ import Combine
 import MullvadTypes
 import UIKit
 
+@MainActor
 class MethodSettingsCellConfiguration {
     private let subject: CurrentValueSubject<AccessMethodViewModel, Never>
     private let tableView: UITableView
@@ -25,7 +26,7 @@ class MethodSettingsCellConfiguration {
         self.subject = subject
     }
 
-    func dequeueCell(
+    @MainActor func dequeueCell(
         at indexPath: IndexPath,
         for itemIdentifier: MethodSettingsItemIdentifier,
         contentValidationErrors: [AccessMethodFieldValidationError]

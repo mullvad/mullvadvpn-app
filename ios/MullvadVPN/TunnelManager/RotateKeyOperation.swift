@@ -14,7 +14,7 @@ import MullvadTypes
 import Operations
 import WireGuardKitTypes
 
-class RotateKeyOperation: ResultOperation<Void> {
+class RotateKeyOperation: ResultOperation<Void>, @unchecked Sendable {
     private let logger = Logger(label: "RotateKeyOperation")
     private let interactor: TunnelInteractor
     private let devicesProxy: DeviceHandling
@@ -35,7 +35,7 @@ class RotateKeyOperation: ResultOperation<Void> {
         }
 
         // Create key rotation.
-        var keyRotation = WgKeyRotation(data: deviceData)
+        nonisolated(unsafe) var keyRotation = WgKeyRotation(data: deviceData)
 
         // Check if key rotation can take place.
         guard keyRotation.shouldRotate else {

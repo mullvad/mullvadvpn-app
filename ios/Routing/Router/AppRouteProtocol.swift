@@ -11,7 +11,7 @@ import Foundation
 /**
  Formal protocol describing a group of routes.
  */
-public protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable {
+public protocol AppRouteGroupProtocol: Comparable, Equatable, Hashable, Sendable {
     /**
      Returns `true` if group is presented modally, otherwise `false` if group is a part of root view
      controller.
@@ -44,7 +44,7 @@ extension AppRouteGroupProtocol {
 /**
  Formal protocol describing a single route.
  */
-public protocol AppRouteProtocol: Equatable, Hashable {
+public protocol AppRouteProtocol: Equatable, Hashable, Sendable {
     associatedtype RouteGroupType: AppRouteGroupProtocol
 
     /**

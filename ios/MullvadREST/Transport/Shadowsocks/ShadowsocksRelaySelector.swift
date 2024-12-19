@@ -10,7 +10,7 @@ import Foundation
 import MullvadSettings
 import MullvadTypes
 
-public protocol ShadowsocksRelaySelectorProtocol {
+public protocol ShadowsocksRelaySelectorProtocol: Sendable {
     func selectRelay(with settings: LatestTunnelSettings) throws -> REST.BridgeRelay?
 
     func getBridges() throws -> REST.ServerShadowsocks?

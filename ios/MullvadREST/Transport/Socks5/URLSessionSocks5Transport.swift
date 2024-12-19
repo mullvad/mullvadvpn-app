@@ -11,7 +11,7 @@ import MullvadLogging
 import MullvadTypes
 
 /// Transport that passes URL requests over the local socks forwarding proxy.
-public class URLSessionSocks5Transport: RESTTransport {
+public final class URLSessionSocks5Transport: RESTTransport, Sendable {
     /// Socks5 forwarding proxy.
     private let socksProxy: Socks5ForwardingProxy
 
@@ -25,7 +25,7 @@ public class URLSessionSocks5Transport: RESTTransport {
         "socks5-url-session"
     }
 
-    private let logger = Logger(label: "URLSessionSocks5Transport")
+    nonisolated(unsafe) private let logger = Logger(label: "URLSessionSocks5Transport")
 
     /**
      Instantiates new socks5 transport.
@@ -57,7 +57,7 @@ public class URLSessionSocks5Transport: RESTTransport {
 
     public func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
         // Listen port should be set when socks proxy is ready. Otherwise start proxy and only then start the data task.
         if let localPort = socksProxy.listenPort {
@@ -70,9 +70,9 @@ public class URLSessionSocks5Transport: RESTTransport {
     /// Starts socks proxy then executes the data task.
     private func sendDeferred(
         request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
-        let chain = CancellableChain()
+        nonisolated(unsafe) let chain = CancellableChain()
 
         socksProxy.start { [weak self, weak socksProxy] error in
             if let error {
@@ -94,7 +94,7 @@ public class URLSessionSocks5Transport: RESTTransport {
     private func startDataTask(
         request: URLRequest,
         localPort: UInt16,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
         // Copy the URL request and rewrite the host and port to point to the socks5 forwarding proxy instance
         var newRequest = request

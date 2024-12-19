@@ -130,7 +130,7 @@ class ListAccessMethodCoordinator: Coordinator, Presenting, SettingsChildCoordin
     }
 }
 
-extension ListAccessMethodCoordinator: ListAccessMethodViewControllerDelegate {
+extension ListAccessMethodCoordinator: @preconcurrency ListAccessMethodViewControllerDelegate {
     func controllerShouldShowAbout(_ controller: ListAccessMethodViewController) {
         about()
     }

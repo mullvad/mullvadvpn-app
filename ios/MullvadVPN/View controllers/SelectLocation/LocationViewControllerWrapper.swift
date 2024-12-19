@@ -280,7 +280,7 @@ final class LocationViewControllerWrapper: UIViewController {
     }
 }
 
-extension LocationViewControllerWrapper: LocationViewControllerDelegate {
+extension LocationViewControllerWrapper: @preconcurrency LocationViewControllerDelegate {
     func navigateToCustomLists(nodes: [LocationNode]) {
         delegate?.navigateToCustomLists(nodes: nodes)
     }

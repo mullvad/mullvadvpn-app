@@ -48,7 +48,7 @@ final class NotificationManager: NotificationProviderDelegate {
         }
     }
 
-    static let shared = NotificationManager()
+    nonisolated(unsafe) static let shared = NotificationManager()
 
     private init() {}
 

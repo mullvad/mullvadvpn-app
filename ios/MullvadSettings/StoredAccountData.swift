@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct StoredAccountData: Codable, Equatable {
+public struct StoredAccountData: Codable, Equatable, Sendable {
     /// Account identifier.
     public var identifier: String
 

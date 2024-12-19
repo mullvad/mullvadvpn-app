@@ -8,6 +8,7 @@
 
 import UIKit
 
+@MainActor
 class CustomListDataSourceConfiguration: NSObject {
     let dataSource: UITableViewDiffableDataSource<CustomListSectionIdentifier, CustomListItemIdentifier>
     var validationErrors: Set<CustomListFieldValidationError> = []

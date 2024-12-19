@@ -9,8 +9,9 @@
 import Foundation
 import MullvadTypes
 
-public protocol RESTTransport {
+public protocol RESTTransport: Sendable {
     var name: String { get }
 
-    func sendRequest(_ request: URLRequest, completion: @escaping (Data?, URLResponse?, Error?) -> Void) -> Cancellable
+    func sendRequest(_ request: URLRequest, completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void)
+        -> Cancellable
 }

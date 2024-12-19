@@ -14,13 +14,13 @@ enum Socks5AuthenticationMethod: UInt8 {
     case usernamePassword = 0x02
 }
 
-struct Socks5Authentication {
+struct Socks5Authentication: Sendable {
     let connection: NWConnection
     let endpoint: Socks5Endpoint
     let configuration: Socks5Configuration
 
-    typealias AuthenticationComplete = () -> Void
-    typealias AuthenticationFailure = (Error) -> Void
+    typealias AuthenticationComplete = @Sendable () -> Void
+    typealias AuthenticationFailure = @Sendable (Error) -> Void
 
     func authenticate(onComplete: @escaping AuthenticationComplete, onFailure: @escaping AuthenticationFailure) {
         guard let username = configuration.username, let password = configuration.password else {

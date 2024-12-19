@@ -13,10 +13,10 @@ import MullvadTypes
 import Operations
 import UIKit
 
-protocol RelayCacheTrackerProtocol {
+protocol RelayCacheTrackerProtocol: Sendable {
     func startPeriodicUpdates()
     func stopPeriodicUpdates()
-    func updateRelays(completionHandler: ((Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
+    func updateRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
     func getCachedRelays() throws -> CachedRelays
     func getNextUpdateDate() -> Date
     func addObserver(_ observer: RelayCacheTrackerObserver)
@@ -24,12 +24,12 @@ protocol RelayCacheTrackerProtocol {
     func refreshCachedRelays() throws
 }
 
-final class RelayCacheTracker: RelayCacheTrackerProtocol {
+final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     /// Relay update interval.
     static let relayUpdateInterval: Duration = .hours(1)
 
     /// Tracker log.
-    private let logger = Logger(label: "RelayCacheTracker")
+    nonisolated(unsafe) private let logger = Logger(label: "RelayCacheTracker")
 
     /// Relay cache.
     private let cache: RelayCacheProtocol
@@ -164,7 +164,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol {
         timerSource = nil
     }
 
-    func updateRelays(completionHandler: ((Result<RelaysFetchResult, Error>) -> Void)? = nil)
+    func updateRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)? = nil)
         -> Cancellable {
         let operation = ResultBlockOperation<RelaysFetchResult> { finish in
             let cachedRelays = try? self.getCachedRelays()

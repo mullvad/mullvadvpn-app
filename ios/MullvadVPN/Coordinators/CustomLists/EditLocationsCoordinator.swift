@@ -12,12 +12,13 @@ import MullvadTypes
 import Routing
 import UIKit
 
-class EditLocationsCoordinator: Coordinator, Presentable, Presenting {
+@MainActor
+class EditLocationsCoordinator: Coordinator, Presentable, Presenting, Sendable {
     private let navigationController: UINavigationController
     private let nodes: [LocationNode]
     private var subject: CurrentValueSubject<CustomListViewModel, Never>
 
-    var didFinish: ((EditLocationsCoordinator) -> Void)?
+    nonisolated(unsafe) var didFinish: (@Sendable (EditLocationsCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
         navigationController
@@ -51,7 +52,7 @@ class EditLocationsCoordinator: Coordinator, Presentable, Presenting {
 }
 
 extension EditLocationsCoordinator: AddLocationsViewControllerDelegate {
-    func didBack() {
+    nonisolated func didBack() {
         didFinish?(self)
     }
 }

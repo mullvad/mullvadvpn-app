@@ -262,7 +262,9 @@ final class ProblemReportViewController: UIViewController, UITextFieldDelegate {
             email: viewModel.email,
             message: viewModel.message
         ) { completion in
-            self.didSendProblemReport(viewModel: viewModel, completion: completion)
+            Task { @MainActor in
+                self.didSendProblemReport(viewModel: viewModel, completion: completion)
+            }
         }
     }
 

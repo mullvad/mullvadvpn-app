@@ -15,7 +15,7 @@ permissions: {}
 jobs:
   test:
     name: Take screenshots
-    runs-on: macos-13-xlarge
+    runs-on: macos-15-xlarge
     env:
       SOURCE_PACKAGES_PATH: .spm
       TEST_ACCOUNT: ${{ secrets.IOS_TEST_ACCOUNT_NUMBER }}
@@ -28,15 +28,10 @@ jobs:
         with:
           go-version: 1.21.13
 
-      - name: Set up yeetd to workaround XCode being slow in CI
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
       - name: Configure Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.0.1'
+          xcode-version: '16.1'
       - name: Configure Rust
         run: |
           rustup default stable

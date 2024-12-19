@@ -25,7 +25,7 @@ struct PacketTunnelTransport: RESTTransport {
 
     func sendRequest(
         _ request: URLRequest,
-        completion: @escaping (Data?, URLResponse?, Error?) -> Void
+        completion: @escaping @Sendable (Data?, URLResponse?, Error?) -> Void
     ) -> Cancellable {
         let proxyRequest = ProxyURLRequest(
             id: UUID(),

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum TransportLayer: Codable {
+public enum TransportLayer: Codable, Sendable {
     case udp
     case tcp
 }

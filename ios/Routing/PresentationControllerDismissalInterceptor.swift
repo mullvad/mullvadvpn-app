@@ -15,7 +15,7 @@ import UIKit
 final class PresentationControllerDismissalInterceptor: NSObject,
     UIAdaptivePresentationControllerDelegate {
     private let dismissHandler: (UIPresentationController) -> Void
-    private let forwardingTarget: UIAdaptivePresentationControllerDelegate?
+    nonisolated(unsafe) private let forwardingTarget: UIAdaptivePresentationControllerDelegate?
     private let protocolSelectors: [Selector]
 
     init(

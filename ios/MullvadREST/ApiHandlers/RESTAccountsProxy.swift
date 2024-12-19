@@ -9,10 +9,10 @@
 import Foundation
 import MullvadTypes
 
-public protocol RESTAccountHandling {
+public protocol RESTAccountHandling: Sendable {
     func createAccount(
         retryStrategy: REST.RetryStrategy,
-        completion: @escaping ProxyCompletionHandler<REST.NewAccountData>
+        completion: @escaping @Sendable ProxyCompletionHandler<REST.NewAccountData>
     ) -> Cancellable
 
     func getAccountData(accountNumber: String) -> any RESTRequestExecutor<Account>
@@ -25,7 +25,7 @@ public protocol RESTAccountHandling {
 }
 
 extension REST {
-    public final class AccountsProxy: Proxy<AuthProxyConfiguration>, RESTAccountHandling {
+    public final class AccountsProxy: Proxy<AuthProxyConfiguration>, RESTAccountHandling, @unchecked Sendable {
         public init(configuration: AuthProxyConfiguration) {
             super.init(
                 name: "AccountsProxy",
@@ -135,7 +135,7 @@ extension REST {
         }
     }
 
-    public struct NewAccountData: Decodable {
+    public struct NewAccountData: Decodable, Sendable {
         public let id: String
         public let expiry: Date
         public let maxPorts: Int

@@ -9,7 +9,7 @@ import Foundation
 import Network
 
 /// The errors returned by objects implementing socks proxy.
-public enum Socks5Error: Error {
+public enum Socks5Error: Error, Sendable {
     /// Unexpected end of stream.
     case unexpectedEndOfStream
 
