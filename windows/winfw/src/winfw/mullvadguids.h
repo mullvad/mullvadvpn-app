@@ -71,6 +71,9 @@ public:
 
 	static const GUID &Filter_Baseline_PermitEndpoint();
 
+	static const GUID &Filter_Baseline_PermitIcmpTtl();
+	static const GUID &Filter_Baseline_PermitIcmpTtlV6();
+
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1();
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1();
 	static const GUID &Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2();
