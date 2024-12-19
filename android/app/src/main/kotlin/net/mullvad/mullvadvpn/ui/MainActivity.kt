@@ -33,8 +33,8 @@ import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
-import net.mullvad.mullvadvpn.repository.PrivacyDisclaimerRepository
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
+import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.android.ext.android.inject
@@ -55,7 +55,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
     private val apiEndpointFromIntentHolder by inject<ApiEndpointFromIntentHolder>()
     private val mullvadAppViewModel by inject<MullvadAppViewModel>()
-    private val privacyDisclaimerRepository by inject<PrivacyDisclaimerRepository>()
+    private val userPreferencesRepository by inject<UserPreferencesRepository>()
     private val serviceConnectionManager by inject<ServiceConnectionManager>()
     private val splashCompleteRepository by inject<SplashCompleteRepository>()
     private val managementService by inject<ManagementService>()
@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         // https://medium.com/@lepicekmichal/android-background-service-without-hiccup-501e4479110f
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
-                if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+                if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
                     bindService()
                 }
             }
@@ -103,7 +103,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         lifecycleScope.launch {
-            if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
+            if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
                 // If service is to be started wait for it to be connected before dismissing Splash
                 // screen
                 managementService.connectionState
@@ -121,8 +121,10 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
     override fun onStop() {
         super.onStop()
-        if (privacyDisclaimerRepository.hasAcceptedPrivacyDisclosure()) {
-            serviceConnectionManager.unbind()
+        lifecycleScope.launch {
+            if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
+                serviceConnectionManager.unbind()
+            }
         }
     }
 
