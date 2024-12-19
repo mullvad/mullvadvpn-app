@@ -121,7 +121,7 @@ async fn config_ephemeral_peers_inner(
     // NOTE: This one often fails with multihop on Windows, even though the handshake afterwards
     // succeeds. So we try anyway if it fails.
     #[cfg(force_wireguard_handshake)]
-    let _ = establish_tunnel_connection(tunnel, connectivity).await;
+    let _ = establish_tunnel_connection(tunnel, connectivity);
 
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
@@ -162,7 +162,7 @@ async fn config_ephemeral_peers_inner(
         .await?;
 
         #[cfg(force_wireguard_handshake)]
-        establish_tunnel_connection(tunnel, connectivity).await?;
+        establish_tunnel_connection(tunnel, connectivity)?;
 
         let entry_ephemeral_peer = request_ephemeral_peer(
             retry_attempt,
@@ -300,7 +300,7 @@ async fn reconfigure_tunnel(
 /// Ensure that the WireGuard tunnel works. This is useful after updating the WireGuard config, to
 /// force a WireGuard handshake. This should reduce the number of PQ timeouts.
 #[cfg(force_wireguard_handshake)]
-async fn establish_tunnel_connection(
+fn establish_tunnel_connection(
     tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
     connectivity: &mut connectivity::Check<connectivity::Cancellable>,
 ) -> Result<(), CloseMsg> {
