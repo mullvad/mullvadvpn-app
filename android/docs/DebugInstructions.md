@@ -1,7 +1,7 @@
 ## Debugging the native libraries in Android Studio with LLDB
 
-1. Make sure the native libraries have been built with debug symbols. If using the `build-apk.sh`
-   script, run `SKIP_STRIPPING=yes ../build-apk.sh --dev-build`.
+1. Make sure the native libraries have been built with debug symbols. If using the `android/build.sh`
+   script, run `SKIP_STRIPPING=yes ./android/build.sh --dev-build`.
 2. In Android Studio, go to `Run -> Edit configurations...`
 3. Make sure the `app` configuration is selected.
 4. In the `Debugger` tab, select `Dual (Java + Native)`
