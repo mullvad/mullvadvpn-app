@@ -612,7 +612,7 @@ mod test {
         assert!(checker.check_connectivity(now, &tunnel).await.unwrap())
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     /// Verify that the timeout for setting up a tunnel works as expected.
     async fn test_establish_timeout() {
         const ESTABLISH_TIMEOUT_MULTIPLIER: u32 = 2;

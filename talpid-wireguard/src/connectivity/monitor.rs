@@ -86,12 +86,11 @@ mod test {
     use crate::connectivity::constants::*;
     use crate::connectivity::mock::*;
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     /// Verify that the connectivity monitor doesn't fail if the tunnel constantly sends traffic,
     /// and it shuts down properly.
     async fn test_wait_loop() {
-        use std::sync::mpsc;
-        let (result_tx, result_rx) = mpsc::channel();
+        let (result_tx, mut result_rx) = mpsc::channel(1);
         let tunnel = MockTunnel::always_incrementing().boxed();
         let pinger = MockPinger::default();
         let (mut checker, stop_tx) = {
@@ -102,12 +101,12 @@ mod test {
 
         tokio::spawn(async move {
             let start_result = checker.establish_connectivity(&tunnel).await;
-            result_tx.send(start_result).unwrap();
+            result_tx.send(start_result).await.unwrap();
             // Pointer dance
             let tunnel = Arc::new(Mutex::new(Some(tunnel)));
             let _tunnel = Arc::downgrade(&tunnel);
             let result = Monitor::init(checker).run(_tunnel).await.map(|_| true);
-            result_tx.send(result).unwrap();
+            result_tx.send(result).await.unwrap();
         });
 
         tokio::time::sleep(Duration::from_secs(1)).await;
@@ -117,12 +116,12 @@ mod test {
         assert!(result_rx.try_recv().unwrap().is_ok());
     }
 
-    #[tokio::test]
+    #[tokio::test(start_paused = true)]
     /// Verify that the connectivity monitor detects the tunnel timing out after no longer than
     /// `BYTES_RX_TIMEOUT` and `PING_TIMEOUT` combined.
     async fn test_wait_loop_timeout() {
-        let should_stop = Arc::new(AtomicBool::new(false));
-        let should_stop_inner = should_stop.clone();
+        let receive_bytes = Arc::new(AtomicBool::new(false));
+        let receive_bytes_inner = receive_bytes.clone();
 
         let mut map = StatsMap::new();
         map.insert(
@@ -137,7 +136,7 @@ mod test {
         let pinger = MockPinger::default();
         let tunnel = MockTunnel::new(move || {
             let mut tunnel_stats = tunnel_stats.lock().unwrap();
-            if !should_stop_inner.load(Ordering::SeqCst) {
+            if !receive_bytes_inner.load(Ordering::SeqCst) {
                 for traffic in tunnel_stats.values_mut() {
                     traffic.rx_bytes += 1;
                 }
@@ -176,7 +175,7 @@ mod test {
                 .unwrap()
                 .unwrap()
         );
-        should_stop.store(true, Ordering::SeqCst);
+        receive_bytes.store(true, Ordering::SeqCst);
         assert!(tokio::time::timeout(
             BYTES_RX_TIMEOUT + PING_TIMEOUT + Duration::from_secs(2),
             result_rx.recv()
