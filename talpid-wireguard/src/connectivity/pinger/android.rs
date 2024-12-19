@@ -14,43 +14,46 @@ pub enum Error {
 
 /// A pinger that sends ICMP requests without waiting for responses
 pub struct Pinger {
-    addr: Ipv4Addr,
-    processes: Vec<duct::Handle>,
+    //addr: Ipv4Addr,
+    //processes: Vec<duct::Handle>,
 }
 
 impl Pinger {
     /// Creates a new pinger that will send ICMP requests only through the specified interface
     pub fn new(addr: Ipv4Addr) -> Result<Self, Error> {
-        Ok(Self {
+        /*Ok(Self {
             processes: vec![],
             addr,
-        })
+        })*/
+        Ok(Self {})
     }
 
     fn try_deplete_process_list(&mut self) {
-        self.processes.retain(|child| {
+        /*self.processes.retain(|child| {
             match child.try_wait() {
                 // child has terminated, doesn't have to be retained
                 Ok(Some(_)) => false,
                 _ => true,
             }
-        });
+        });*/
     }
 }
 
+// FIXME
+#[async_trait::async_trait]
 impl super::Pinger for Pinger {
     // Send an ICMP packet without waiting for a reply
-    fn send_icmp(&mut self) -> Result<(), Error> {
-        self.try_deplete_process_list();
+    async fn send_icmp(&mut self) -> Result<(), Error> {
+        /*self.try_deplete_process_list();
 
         let cmd = ping_cmd(self.addr, 1);
         let handle = cmd.start().map_err(Error::PingError)?;
-        self.processes.push(handle);
+        self.processes.push(handle);*/
         Ok(())
     }
 
-    fn reset(&mut self) {
-        let processes = std::mem::take(&mut self.processes);
+    async fn reset(&mut self) {
+        /*let processes = std::mem::take(&mut self.processes);
         for proc in processes {
             if proc
                 .try_wait()
@@ -61,17 +64,17 @@ impl super::Pinger for Pinger {
                     log::error!("Failed to kill ping process: {}", err);
                 }
             }
-        }
+        }*/
     }
 }
 
 impl Drop for Pinger {
     fn drop(&mut self) {
-        for child in self.processes.iter_mut() {
+        /*for child in self.processes.iter_mut() {
             if let Err(e) = child.kill() {
                 log::error!("Failed to kill ping process: {}", e);
             }
-        }
+        }*/
     }
 }
 
@@ -79,6 +82,8 @@ fn ping_cmd(ip: Ipv4Addr, timeout_secs: u16) -> duct::Expression {
     let timeout_secs = timeout_secs.to_string();
     let ip = ip.to_string();
     let args = ["-n", "-i", "1", "-w", &timeout_secs, &ip];
+
+    // FIXME: tokio proc
 
     duct::cmd("ping", args)
         .stdin_null()
