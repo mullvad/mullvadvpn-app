@@ -17,7 +17,7 @@ brew install --cask android-studio
 
 Install the following packages:
 ```bash
-brew install protobuf gcc go openjdk@17 rustup-init
+brew install protobuf gcc go openjdk@17 rustup-init python3
 ```
 
 > __*NOTE:*__ Ensure that you setup `openjdk@17` to be the active JDK, follow instructions in
@@ -74,6 +74,19 @@ git submodule update --init --recursive --depth=1 wireguard-go-rs
 ```
 
 ## 4. Debug build
+
+### Android Studio
+
+Create the file `android/local.properties` if it does not exist and add the following line:
+
+```bash
+rust.pythonCommand=/opt/homebrew/bin/python3
+```
+
+You should now be able to run the app directly from Android Studio.
+
+### `android/build.sh`
+
 Run the build script in the root of the project to assemble all the native libraries and the app:
 
 ```bash
@@ -91,9 +104,6 @@ Once the build is complete you should receive a message looking similar to this:
 
 **********************************
 ```
-
-Your native binaries have now been built, any subsequent builds that does not have changes to the
-native code can be done in Android Studio or using gradle.
 
 # Build options and configuration
 
