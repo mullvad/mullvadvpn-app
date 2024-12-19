@@ -76,8 +76,8 @@ class FilterChipUseCaseTest {
         selectedProviders.value = Constraint.Only(expectedProviders)
         availableProviders.value =
             listOf(
-                Provider(ProviderId("1"), Ownership.MullvadOwned),
-                Provider(ProviderId("2"), Ownership.Rented),
+                Provider(ProviderId("1"), setOf(Ownership.MullvadOwned)),
+                Provider(ProviderId("2"), setOf(Ownership.Rented)),
             )
 
         filterChipUseCase(RelayListType.EXIT).test {
@@ -95,8 +95,8 @@ class FilterChipUseCaseTest {
             selectedOwnership.value = Constraint.Only(expectedOwnership)
             availableProviders.value =
                 listOf(
-                    Provider(ProviderId("1"), Ownership.MullvadOwned),
-                    Provider(ProviderId("2"), Ownership.Rented),
+                    Provider(ProviderId("1"), setOf(Ownership.MullvadOwned)),
+                    Provider(ProviderId("2"), setOf(Ownership.Rented)),
                 )
 
             filterChipUseCase(RelayListType.EXIT).test {
