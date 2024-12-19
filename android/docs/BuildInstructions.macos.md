@@ -38,7 +38,7 @@ Open Android Studio -> Tools -> SDK Manager, and install `Android SDK Command-li
 
 Install the necessary Android SDK tools
 ```bash
-~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools" "ndk;27.1.12297006"
+~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools" "ndk;27.2.12479018"
 ```
 
 Install Android targets
@@ -50,7 +50,7 @@ Export the following environmental variables, and possibly store them for exampl
 `~/.zprofile` or `~/.zshrc` file:
 ```bash
 export ANDROID_HOME="$HOME/Library/Android/sdk"
-export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.1.12297006"
+export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
 export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin"
 export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
 export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
