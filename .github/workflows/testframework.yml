@@ -10,7 +10,6 @@ on:
       - '.github/workflows/daemon.yml'
       - '!android/**'
       - '!audits/**'
-      - '!build-apk.sh'
       - '!build.sh'
       - '!ci/**'
       - '!clippy.toml'
