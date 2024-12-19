@@ -73,7 +73,7 @@ dependencies {
     implementation(libs.grpc.android)
     implementation(libs.grpc.kotlin.stub)
     implementation(libs.grpc.protobuf.lite)
-    implementation(libs.grpc.protobuf.kotlin.lite)
+    implementation(libs.protobuf.kotlin.lite)
 
     implementation(libs.arrow)
     implementation(libs.arrow.optics)
