@@ -6,7 +6,6 @@ use tokio::net::UdpSocket;
 use std::{
     io::{self, Write},
     net::{Ipv4Addr, SocketAddr},
-    os::windows::io::FromRawSocket,
     time::Duration,
 };
 
@@ -129,13 +128,13 @@ fn should_retry_send(err: &io::Error) -> bool {
 }
 
 #[cfg(unix)]
-fn should_retry_send(err: &io::Error) -> bool {
+fn should_retry_send(_err: &io::Error) -> bool {
     false
 }
 
 #[cfg(windows)]
 fn into_tokio_socket(sock: Socket) -> io::Result<UdpSocket> {
-    use std::os::windows::io::IntoRawSocket;
+    use std::os::windows::io::{FromRawSocket, IntoRawSocket};
 
     debug_assert_eq!(sock.r#type().unwrap(), Type::RAW);
 
@@ -146,9 +145,13 @@ fn into_tokio_socket(sock: Socket) -> io::Result<UdpSocket> {
 
 #[cfg(unix)]
 fn into_tokio_socket(sock: Socket) -> io::Result<UdpSocket> {
+    use std::os::fd::{FromRawFd, IntoRawFd};
+
+    debug_assert_eq!(sock.r#type().unwrap(), Type::RAW);
+
     // SAFETY: This looks sketchy, as we're treating a raw socket as a DGRAM socket. But none of the
     // socket ops will do anything worse than fail if this assumption fails, as far as I can tell.
-    UdpSocket::from_std(unsafe { std::net::UdpSocket::from_raw_fd(socket.into_raw_fd()) })
+    UdpSocket::from_std(unsafe { std::net::UdpSocket::from_raw_fd(sock.into_raw_fd()) })
 }
 
 #[async_trait::async_trait]
