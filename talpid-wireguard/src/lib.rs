@@ -211,11 +211,13 @@ impl WireguardMonitor {
         let obfuscator = Arc::new(AsyncMutex::new(obfuscator));
 
         let gateway = config.ipv4_gateway;
-        let (mut connectivity_monitor, pinger_tx) = connectivity::Check::new(
+        let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
+        let mut connectivity_monitor = connectivity::Check::new(
             gateway,
             #[cfg(any(target_os = "macos", target_os = "linux"))]
             iface_name.clone(),
             args.retry_attempt,
+            cancel_receiver,
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
@@ -224,7 +226,7 @@ impl WireguardMonitor {
             tunnel: Arc::new(AsyncMutex::new(Some(tunnel))),
             event_hook: args.event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
-            pinger_stop_sender: pinger_tx,
+            pinger_stop_sender: cancel_token,
             obfuscator,
         };
 
@@ -427,11 +429,11 @@ impl WireguardMonitor {
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
-
-        let (connectivity_check, pinger_tx) =
-            connectivity::Check::new(config.ipv4_gateway, args.retry_attempt)
-                .map_err(Error::ConnectivityMonitorError)?
-                .with_cancellation();
+        
+        let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
+        let connectivity_check =
+            connectivity::Check::new(config.ipv4_gateway, args.retry_attempt, cancel_receiver)
+                .map_err(Error::ConnectivityMonitorError)?;
 
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,
@@ -452,7 +454,7 @@ impl WireguardMonitor {
             tunnel: Arc::clone(&tunnel),
             event_hook: event_hook.clone(),
             close_msg_receiver: close_obfs_listener,
-            pinger_stop_sender: pinger_tx,
+            pinger_stop_sender: cancel_token,
             obfuscator: Arc::new(AsyncMutex::new(obfuscator)),
         };
 

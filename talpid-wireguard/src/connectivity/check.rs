@@ -2,7 +2,7 @@ use std::net::Ipv4Addr;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
-use tokio::sync::mpsc;
+use tokio::sync::broadcast;
 use tokio::time::Instant;
 
 use super::constants::*;
@@ -37,38 +37,60 @@ use pinger::Pinger;
 ///
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
+
 pub struct Check {
     conn_state: ConnState,
     ping_state: PingState,
-    close_receiver: mpsc::UnboundedReceiver<()>,
-    closed: Arc<AtomicBool>,
+    cancel_receiver: CancelReceiver,
     retry_attempt: u32,
 }
 
 /// A handle that can be used to shut down the connectivity monitor.
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct CancelToken {
     closed: Arc<AtomicBool>,
-    close_sender: mpsc::UnboundedSender<()>,
+    tx: broadcast::Sender<()>,
+}
+
+/// A handle that can be passed to a [Check]. The corresponding [CancelToken] causes the [Check] to
+/// be stopped. Any [CancelToken] will cancel all receivers
+#[derive(Debug)]
+pub struct CancelReceiver {
+    closed: Arc<AtomicBool>,
+    rx: broadcast::Receiver<()>,
+}
+
+impl CancelReceiver {
+    fn closed(&self) -> bool {
+        self.closed.load(Ordering::SeqCst)
+    }
+}
+
+impl Clone for CancelReceiver {
+    fn clone(&self) -> Self {
+        Self {
+            closed: self.closed.clone(),
+            rx: self.rx.resubscribe(),
+        }
+    }
 }
 
 impl CancelToken {
-    fn new() -> (Self, mpsc::UnboundedReceiver<()>, Arc<AtomicBool>) {
-        let (tx, rx) = mpsc::unbounded_channel();
+    pub fn new() -> (Self, CancelReceiver) {
+        let (tx, rx) = broadcast::channel(1);
         let closed = Arc::new(AtomicBool::new(false));
         (
             CancelToken {
-                close_sender: tx,
                 closed: closed.clone(),
+                tx,
             },
-            rx,
-            closed,
+            CancelReceiver { closed, rx },
         )
     }
 
     pub fn close(&self) {
         self.closed.store(true, Ordering::SeqCst);
-        let _ = self.close_sender.send(());
+        let _ = self.tx.send(());
     }
 }
 
@@ -77,38 +99,33 @@ impl Check {
         addr: Ipv4Addr,
         #[cfg(any(target_os = "macos", target_os = "linux"))] interface: String,
         retry_attempt: u32,
-    ) -> Result<(Check, CancelToken), Error> {
-        let (token, close_receiver, closed) = CancelToken::new();
-        Ok((
-            Check {
-                conn_state: ConnState::new(Instant::now(), Default::default()),
-                ping_state: PingState::new(
-                    addr,
-                    #[cfg(any(target_os = "macos", target_os = "linux"))]
-                    interface,
-                )?,
-                retry_attempt,
-                close_receiver,
-                closed,
-            },
-            token,
-        ))
+        cancel_receiver: CancelReceiver,
+    ) -> Result<Check, Error> {
+        Ok(Check {
+            conn_state: ConnState::new(Instant::now(), Default::default()),
+            ping_state: PingState::new(
+                addr,
+                #[cfg(any(target_os = "macos", target_os = "linux"))]
+                interface,
+            )?,
+            retry_attempt,
+            cancel_receiver,
+        })
     }
 
     #[cfg(test)]
     /// Create a new [Check] with a custom initial state. To use the [Cancellable] strategy,
     /// see [Check::with_cancellation].
     pub(super) fn mock(conn_state: ConnState, ping_state: PingState) -> (Self, CancelToken) {
-        let (token, close_receiver, closed) = CancelToken::new();
+        let (cancel_token, cancel_receiver) = CancelToken::new();
         (
             Check {
                 conn_state,
                 ping_state,
                 retry_attempt: 0,
-                close_receiver,
-                closed,
+                cancel_receiver,
             },
-            token,
+            cancel_token,
         )
     }
 
@@ -181,7 +198,7 @@ impl Check {
             }
 
             // Cancel token signal
-            _ = self.close_receiver.recv() => {
+            _ = self.cancel_receiver.rx.recv() => {
                 Ok(false)
             }
 
@@ -193,7 +210,7 @@ impl Check {
     }
 
     pub(crate) fn should_shut_down(&self) -> bool {
-        self.closed.load(Ordering::SeqCst) || self.close_receiver.is_closed()
+        self.cancel_receiver.closed()
     }
 
     /// Returns true if connection is established
