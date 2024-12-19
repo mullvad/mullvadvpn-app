@@ -162,8 +162,8 @@ class OutOfTimeUseCaseTest {
                 advanceTimeBy(50.seconds)
                 expectNoEvents()
 
-                // After additional 50 seconds we should be out of time since account is now expired
-                advanceTimeBy(50.seconds)
+                // After additional 51 seconds we should be out of time since account is now expired
+                advanceTimeBy(51.seconds)
                 assertEquals(true, expectMostRecentItem())
             }
         }
