@@ -34,7 +34,7 @@ mod imp;
 
 pub use imp::Error as PlatformError;
 
-/// Errors that can be encountered whilst initializing route manager
+/// Errors that can be encountered whilst interacting with a [RouteManagerHandle].
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     /// Route manager thread may have panicked

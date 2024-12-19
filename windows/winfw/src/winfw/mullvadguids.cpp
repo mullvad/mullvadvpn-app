@@ -130,6 +130,8 @@ MullvadGuids::DetailedIdentityRegistry MullvadGuids::DetailedRegistry(IdentityQu
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitDhcpServer_Outbound_Response_Ipv4()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnRelay()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitEndpoint()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitIcmpTtl()));
+	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitIcmpTtlV6()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_1()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv6_1()));
 	registry.insert(std::make_pair(WfpObjectType::Filter, Filter_Baseline_PermitVpnTunnel_Outbound_Ipv4_2()));
@@ -661,6 +663,34 @@ const GUID &MullvadGuids::Filter_Baseline_PermitEndpoint()
 		0x8520,
 		0x41be,
 		{ 0xbf, 0xab, 0x0c, 0x9, 0xbf, 0x12, 0xeb, 0 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitIcmpTtl()
+{
+	static const GUID g =
+	{
+		0x7e415a22,
+		0x1633,
+		0x48bd,
+		{ 0x94, 0x28, 0xab, 0x69, 0x2c, 0xa3, 0x7c, 0x44 }
+	};
+
+	return g;
+}
+
+//static
+const GUID &MullvadGuids::Filter_Baseline_PermitIcmpTtlV6()
+{
+	static const GUID g =
+	{
+		0x7e415a22,
+		0x1633,
+		0x48bd,
+		{ 0x94, 0x28, 0xab, 0x69, 0x2c, 0xa3, 0x7c, 0x45 }
 	};
 
 	return g;
