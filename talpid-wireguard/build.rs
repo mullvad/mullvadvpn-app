@@ -14,14 +14,6 @@ fn main() {
     // Enable DAITA by default on desktop and android
     println!("cargo::rustc-check-cfg=cfg(daita)");
     println!("cargo::rustc-cfg=daita");
-
-    // Ensure that the WireGuard tunnel works before exchanging ephemeral peers.
-    // This is useful after updating the WireGuard config, to force a WireGuard handshake. This
-    // should reduce the number of PQ timeouts.
-    println!("cargo::rustc-check-cfg=cfg(force_wireguard_handshake)");
-    if matches!(target_os.as_str(), "linux" | "macos" | "windows") {
-        println!("cargo::rustc-cfg=force_wireguard_handshake");
-    }
 }
 
 fn declare_libs_dir(base: &str) {
