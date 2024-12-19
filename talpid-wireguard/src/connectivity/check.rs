@@ -241,7 +241,7 @@ impl Check {
     ///
     /// NOTE: will panic if called from within a tokio runtime.
     async fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
-        let stats = tokio::task::block_in_place(|| tunnel_handle.get_tunnel_stats())?;
+        let stats = tunnel_handle.get_tunnel_stats().await?;
         if stats.is_empty() {
             log::error!("Tunnel unexpectedly shut down");
             Ok(None)

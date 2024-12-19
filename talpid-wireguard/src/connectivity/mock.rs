@@ -97,6 +97,7 @@ impl MockTunnel {
     }
 }
 
+#[async_trait::async_trait]
 impl Tunnel for MockTunnel {
     fn get_interface_name(&self) -> String {
         "mock-tunnel".to_string()
@@ -106,7 +107,7 @@ impl Tunnel for MockTunnel {
         Ok(())
     }
 
-    fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
+    async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
         (self.on_get_stats)()
     }
 

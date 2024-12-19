@@ -439,6 +439,7 @@ impl WgGoTunnel {
     }
 }
 
+#[async_trait::async_trait]
 impl Tunnel for WgGoTunnel {
     fn get_interface_name(&self) -> String {
         self.as_state().interface_name.clone()
@@ -448,14 +449,16 @@ impl Tunnel for WgGoTunnel {
         self.into_state().stop()
     }
 
-    fn get_tunnel_stats(&self) -> Result<StatsMap> {
-        self.as_state()
-            .tunnel_handle
-            .get_config(|cstr| {
-                Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
-            })
-            .ok_or(TunnelError::GetConfigError)?
-            .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
+    async fn get_tunnel_stats(&self) -> Result<StatsMap> {
+        tokio::task::block_in_place(|| {
+            self.as_state()
+                .tunnel_handle
+                .get_config(|cstr| {
+                    Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
+                })
+                .ok_or(TunnelError::GetConfigError)?
+                .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
+        })
     }
 
     fn set_config(
