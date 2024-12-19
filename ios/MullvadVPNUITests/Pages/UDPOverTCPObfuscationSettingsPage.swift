@@ -22,8 +22,18 @@ class UDPOverTCPObfuscationSettingsPage: Page {
         table.cells.element(boundBy: index)
     }
 
-    @discardableResult func tapPortCell(_ index: Int) -> Self {
-        portCell(index).tap()
+    @discardableResult func tapAutomaticPortCell() -> Self {
+        portCell(0).tap()
+        return self
+    }
+
+    @discardableResult func tapPort80Cell() -> Self {
+        portCell(1).tap()
+        return self
+    }
+
+    @discardableResult func tapPort5001Cell() -> Self {
+        portCell(2).tap()
         return self
     }
 

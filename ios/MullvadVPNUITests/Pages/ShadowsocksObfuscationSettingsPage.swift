@@ -31,8 +31,8 @@ class ShadowsocksObfuscationSettingsPage: Page {
         customCell.textFields.firstMatch
     }
 
-    @discardableResult func tapPortCell(_ index: Int) -> Self {
-        portCell(index).tap()
+    @discardableResult func tapAutomaticPortCell() -> Self {
+        portCell(0).tap()
         return self
     }
 

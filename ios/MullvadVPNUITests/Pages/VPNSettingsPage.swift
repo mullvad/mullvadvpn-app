@@ -180,7 +180,7 @@ class VPNSettingsPage: Page {
 
     @discardableResult func verifyUDPOverTCPPort80Selected() -> Self {
         let detailLabel = app.staticTexts[AccessibilityIdentifier.wireGuardObfuscationUdpOverTcpPort]
-        XCTAssertTrue(detailLabel.label.hasSuffix("80"))
+        XCTAssertTrue(detailLabel.label.hasSuffix(" 80"))
         return self
     }
 
