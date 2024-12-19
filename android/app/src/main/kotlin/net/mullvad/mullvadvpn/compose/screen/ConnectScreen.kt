@@ -378,16 +378,16 @@ private fun ConnectionCard(
 
             Logger.d("Tunnelstate: ${state.tunnelState}, expanded: $expanded")
             AnimatedContent(
-                (state.tunnelState as? TunnelState.Connected)?.featureIndicators,
+                (state.tunnelState as? TunnelState.Connected)?.featureIndicators to expanded,
                 modifier = Modifier.weight(1f, fill = false),
                 label = "connection_card_connection_details",
-            ) { featureIndicators ->
+            ) { (featureIndicators, exp) ->
                 if (featureIndicators != null) {
                     ConnectionInfo(
                         featureIndicators,
                         (state.tunnelState as? TunnelState.Connected)?.toConnectionsDetails(),
-                        expanded,
-                        onToggleExpand = { expanded = !expanded },
+                        exp,
+                        onToggleExpand = { expanded = !exp },
                     )
                 } else {
                     Spacer(Modifier.height(Dimens.smallSpacer))
