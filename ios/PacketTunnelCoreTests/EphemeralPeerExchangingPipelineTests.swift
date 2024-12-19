@@ -60,7 +60,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         )
     }
 
-    func testSingleHopPostQuantumKeyExchange() throws {
+    func testSingleHopPostQuantumKeyExchange() async throws {
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
         reconfigurationExpectation.expectedFulfillmentCount = 2
 
@@ -78,11 +78,11 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         }
 
         keyExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, privateKey in
-            postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
+            await postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
         })
 
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: true, enableDaita: false)
-        postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
         wait(
             for: [reconfigurationExpectation, negotiationSuccessful],
@@ -90,7 +90,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         )
     }
 
-    func testSingleHopDaitaPeerExchange() throws {
+    func testSingleHopDaitaPeerExchange() async throws {
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
         reconfigurationExpectation.expectedFulfillmentCount = 2
 
@@ -108,11 +108,11 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         }
 
         keyExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey in
-            postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
+            await postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
         })
 
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: false, enableDaita: true)
-        postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
         wait(
             for: [reconfigurationExpectation, negotiationSuccessful],
@@ -120,7 +120,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         )
     }
 
-    func testMultiHopPostQuantumKeyExchange() throws {
+    func testMultiHopPostQuantumKeyExchange() async throws {
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
         reconfigurationExpectation.expectedFulfillmentCount = 3
 
@@ -138,11 +138,11 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         }
 
         keyExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, privateKey in
-            postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
+            await postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
         })
 
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: true, enableDaita: false)
-        postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
         wait(
             for: [reconfigurationExpectation, negotiationSuccessful],
@@ -150,7 +150,7 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         )
     }
 
-    func testMultiHopDaitaExchange() throws {
+    func testMultiHopDaitaExchange() async throws {
         let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
         reconfigurationExpectation.expectedFulfillmentCount = 3
 
@@ -168,11 +168,11 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
         }
 
         keyExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey in
-            postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
+            await postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
         })
 
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: false, enableDaita: true)
-        postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
+        await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
 
         wait(
             for: [reconfigurationExpectation, negotiationSuccessful],
