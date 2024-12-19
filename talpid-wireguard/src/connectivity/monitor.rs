@@ -1,7 +1,4 @@
-use std::{
-    sync::Weak,
-    time::Duration,
-};
+use std::{sync::Weak, time::Duration};
 
 use tokio::sync::Mutex;
 use tokio::time::Instant;
