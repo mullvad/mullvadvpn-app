@@ -11,14 +11,14 @@ use std::{
 };
 use talpid_types::ErrorExt;
 use talpid_windows::process::{ModuleEntry, ProcessSnapshot};
-use winapi::vc::excpt::EXCEPTION_EXECUTE_HANDLER;
 use windows_sys::Win32::{
     Foundation::HANDLE,
     System::{
         Diagnostics::{
             Debug::{
                 MiniDumpNormal, MiniDumpWriteDump, SetUnhandledExceptionFilter, CONTEXT,
-                EXCEPTION_POINTERS, EXCEPTION_RECORD, MINIDUMP_EXCEPTION_INFORMATION,
+                EXCEPTION_EXECUTE_HANDLER, EXCEPTION_POINTERS, EXCEPTION_RECORD,
+                MINIDUMP_EXCEPTION_INFORMATION,
             },
             ToolHelp::TH32CS_SNAPMODULE,
         },
@@ -211,11 +211,13 @@ unsafe extern "system" fn logging_exception_filter(info_ptr: *const EXCEPTION_PO
 
 #[cfg(target_arch = "aarch64")]
 fn get_context_info(context: &CONTEXT) -> String {
-    use winapi::um::winnt::{CONTEXT_CONTROL, CONTEXT_FLOATING_POINT, CONTEXT_INTEGER};
+    use windows_sys::Win32::System::Diagnostics::Debug::{
+        CONTEXT_CONTROL_ARM64, CONTEXT_FLOATING_POINT_ARM64, CONTEXT_INTEGER_ARM64,
+    };
 
     let mut context_str = "Context:\n".to_string();
 
-    if context.ContextFlags & CONTEXT_CONTROL != 0 {
+    if context.ContextFlags & CONTEXT_CONTROL_ARM64 != 0 {
         writeln!(
             &mut context_str,
             "\n\tFp: {:#x?}\n \
@@ -232,7 +234,7 @@ fn get_context_info(context: &CONTEXT) -> String {
         .unwrap();
     }
 
-    if context.ContextFlags & CONTEXT_INTEGER != 0 {
+    if context.ContextFlags & CONTEXT_INTEGER_ARM64 != 0 {
         context_str.push('\n');
         for x in 0..=28 {
             writeln!(&mut context_str, "\tX{}: {:#x?}", x, unsafe {
@@ -241,7 +243,7 @@ fn get_context_info(context: &CONTEXT) -> String {
             .unwrap();
         }
     }
-    if context.ContextFlags & CONTEXT_FLOATING_POINT != 0 {
+    if context.ContextFlags & CONTEXT_FLOATING_POINT_ARM64 != 0 {
         writeln!(
             &mut context_str,
             "\n\tFpcr: {:#x?}\n \
@@ -260,13 +262,15 @@ fn get_context_info(context: &CONTEXT) -> String {
     context_str
 }
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 fn get_context_info(context: &CONTEXT) -> String {
-    use winapi::um::winnt::{CONTEXT_CONTROL, CONTEXT_INTEGER, CONTEXT_SEGMENTS};
+    use windows_sys::Win32::System::Diagnostics::Debug::{
+        CONTEXT_CONTROL_AMD64, CONTEXT_INTEGER_AMD64, CONTEXT_SEGMENTS_AMD64,
+    };
 
     let mut context_str = "Context:\n".to_string();
 
-    if context.ContextFlags & CONTEXT_CONTROL != 0 {
+    if context.ContextFlags & CONTEXT_CONTROL_AMD64 != 0 {
         writeln!(
             &mut context_str,
             "\n\tSegSs: {:#x?}\n \
@@ -279,7 +283,7 @@ fn get_context_info(context: &CONTEXT) -> String {
         .unwrap();
     }
 
-    if context.ContextFlags & CONTEXT_INTEGER != 0 {
+    if context.ContextFlags & CONTEXT_INTEGER_AMD64 != 0 {
         writeln!(
             &mut context_str,
             "\n\tRax: {:#x?}\n \
@@ -316,7 +320,7 @@ fn get_context_info(context: &CONTEXT) -> String {
         .unwrap();
     }
 
-    if context.ContextFlags & CONTEXT_SEGMENTS != 0 {
+    if context.ContextFlags & CONTEXT_SEGMENTS_AMD64 != 0 {
         writeln!(
             &mut context_str,
             "\n\tSegDs: {:#x?}\n \
