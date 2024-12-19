@@ -619,45 +619,41 @@ mod test {
         const ESTABLISH_TIMEOUT: Duration = Duration::from_millis(500);
         const MAX_ESTABLISH_TIMEOUT: Duration = Duration::from_secs(2);
 
-        let (result_tx, mut result_rx) = mpsc::channel(10);
+        let (result_tx, mut result_rx) = mpsc::channel(1);
 
-        let spawn_attempt = |attempt| {
-            tokio::spawn(async move {
-                let pinger = MockPinger::default();
-                let now = Instant::now();
-                let start = now.checked_sub(Duration::from_secs(1)).unwrap();
-                let (mut monitor, _cancel_token) = mock_checker(start, Box::new(pinger));
+        tokio::spawn(async move {
+            let pinger = MockPinger::default();
+            let now = Instant::now();
+            let start = now.checked_sub(Duration::from_secs(1)).unwrap();
+            let (mut monitor, _cancel_token) = mock_checker(start, Box::new(pinger));
 
-                let tunnel = {
-                    let mut tunnel_stats = StatsMap::new();
-                    tunnel_stats.insert(
-                        [0u8; 32],
-                        Stats {
-                            tx_bytes: 0,
-                            rx_bytes: 0,
-                        },
-                    );
-                    MockTunnel::new(move || Ok(tunnel_stats.clone())).boxed()
-                };
+            let tunnel = {
+                let mut tunnel_stats = StatsMap::new();
+                tunnel_stats.insert(
+                    [0u8; 32],
+                    Stats {
+                        tx_bytes: 0,
+                        rx_bytes: 0,
+                    },
+                );
+                MockTunnel::new(move || Ok(tunnel_stats.clone())).boxed()
+            };
 
-                result_tx
-                    .send(
-                        monitor
-                            .establish_connectivity_inner(
-                                attempt,
-                                ESTABLISH_TIMEOUT,
-                                ESTABLISH_TIMEOUT_MULTIPLIER,
-                                MAX_ESTABLISH_TIMEOUT,
-                                &tunnel,
-                            )
-                            .await,
-                    )
-                    .await
-                    .unwrap();
-            });
-        };
-
-        spawn_attempt(0);
+            result_tx
+                .send(
+                    monitor
+                        .establish_connectivity_inner(
+                            0,
+                            ESTABLISH_TIMEOUT,
+                            ESTABLISH_TIMEOUT_MULTIPLIER,
+                            MAX_ESTABLISH_TIMEOUT,
+                            &tunnel,
+                        )
+                        .await,
+                )
+                .await
+                .unwrap();
+        });
 
         tokio::time::timeout(
             ESTABLISH_TIMEOUT - Duration::from_millis(100),
