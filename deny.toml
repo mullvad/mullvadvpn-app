@@ -90,6 +90,7 @@ deny = [
     { name = "clap", version = "2" },
     { name = "clap", version = "3" },
     { name = "hyper", version = "0" },
+    { name = "tokio", version = "0" },
     { name = "time", version = "0.1"},
 ]
 
