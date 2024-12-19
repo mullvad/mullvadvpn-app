@@ -429,11 +429,14 @@ impl WireguardMonitor {
         }
 
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
-        
+
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
-        let connectivity_check =
-            connectivity::Check::new(config.ipv4_gateway, args.retry_attempt, cancel_receiver)
-                .map_err(Error::ConnectivityMonitorError)?;
+        let connectivity_check = connectivity::Check::new(
+            config.ipv4_gateway,
+            args.retry_attempt,
+            cancel_receiver.clone(),
+        )
+        .map_err(Error::ConnectivityMonitorError)?;
 
         let tunnel = Self::open_wireguard_go_tunnel(
             &config,
@@ -443,10 +446,10 @@ impl WireguardMonitor {
             // that we only allows traffic to/from the gateway. This is only needed on Android
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
-            connectivity_check,
+            cancel_receiver,
         )?;
 
-        let iface_name = args.runtime.block_on(tunnel.get_interface_name());
+        let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
         let mut event_hook = args.event_hook;
         let monitor = WireguardMonitor {
@@ -494,18 +497,6 @@ impl WireguardMonitor {
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
-
-            // HACK: The tunnel does not need the connectivity::Check anymore, so lets take it
-            let connectivity_check = {
-                let mut tunnel_lock = tunnel.lock().await;
-                let Some(tunnel) = tunnel_lock.as_mut() else {
-                    log::debug!("Tunnel is no longer running");
-                    return Err::<Infallible, CloseMsg>(CloseMsg::PingErr);
-                };
-                tunnel
-                    .take_checker()
-                    .expect("connectivity checker unexpectedly dropped")
-            };
 
             if let Err(error) = connectivity::Monitor::init(connectivity_check)
                 .run(Arc::downgrade(&tunnel))
@@ -723,7 +714,7 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(target_os = "android")] gateway_only: bool,
-        #[cfg(target_os = "android")] connectivity_check: connectivity::Check,
+        #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<WgGoTunnel> {
         let routes = config
             .get_tunnel_destinations()
@@ -758,7 +749,7 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 routes,
-                connectivity_check,
+                cancel_receiver,
             )
             .map_err(Error::TunnelError)?
         } else {
@@ -768,7 +759,7 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 routes,
-                connectivity_check,
+                cancel_receiver,
             )
             .map_err(Error::TunnelError)?
         };
