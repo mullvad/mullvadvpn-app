@@ -6,7 +6,7 @@ mod mock;
 mod monitor;
 mod pinger;
 
-#[cfg(any(target_os = "android", force_wireguard_handshake))]
+#[cfg(target_os = "android")]
 pub use check::Cancellable;
 pub use check::Check;
 pub use error::Error;
