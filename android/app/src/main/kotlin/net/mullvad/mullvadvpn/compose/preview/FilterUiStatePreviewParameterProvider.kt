@@ -13,8 +13,8 @@ class FilterUiStatePreviewParameterProvider : PreviewParameterProvider<RelayFilt
     override val values =
         sequenceOf(
             RelayFilterUiState(
+                providerOwnershipMap = mapOf(PROVIDER.providerId to setOf(Ownership.MullvadOwned)),
                 selectedOwnership = Ownership.MullvadOwned,
-                filteredProvidersByOwnership = listOf(PROVIDER.providerId),
                 selectedProviders = listOf(PROVIDER.providerId),
             )
         )

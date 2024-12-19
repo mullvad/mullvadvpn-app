@@ -46,7 +46,6 @@ import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -127,7 +126,7 @@ fun FilterScreen(
                 itemsWithDivider(
                     key = { it.name },
                     contentType = { ContentType.ITEM },
-                    items = state.filteredOwnershipByProviders,
+                    items = state.selectableOwnerships,
                 ) { ownership ->
                     Ownership(ownership, state, onSelectedOwnership)
                 }
@@ -142,7 +141,7 @@ fun FilterScreen(
                 itemsWithDivider(
                     key = { it.value },
                     contentType = { ContentType.ITEM },
-                    items = state.filteredProvidersByOwnership,
+                    items = state.selectableProviders,
                 ) { provider ->
                     Provider(provider, state, onSelectedProvider)
                 }
