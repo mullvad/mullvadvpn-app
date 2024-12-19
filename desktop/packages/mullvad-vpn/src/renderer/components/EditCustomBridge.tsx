@@ -8,13 +8,7 @@ import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsNavigationScrollbars,
-  SettingsStack,
-} from './Layout';
+import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import { ProxyForm } from './ProxyForm';
@@ -84,14 +78,12 @@ function CustomBridgeForm() {
                   <HeaderTitle>{title}</HeaderTitle>
                 </SettingsHeader>
 
-                <SettingsStack>
-                  <ProxyForm
-                    proxy={bridgeSettings.custom}
-                    onSave={onSave}
-                    onCancel={pop}
-                    onDelete={bridgeSettings.custom === undefined ? undefined : showDeleteDialog}
-                  />
-                </SettingsStack>
+                <ProxyForm
+                  proxy={bridgeSettings.custom}
+                  onSave={onSave}
+                  onCancel={pop}
+                  onDelete={bridgeSettings.custom === undefined ? undefined : showDeleteDialog}
+                />
 
                 <ModalAlert
                   isOpen={deleteDialogVisible}
