@@ -176,7 +176,7 @@ pub(crate) struct WgGoTunnelState {
     // a new Tunnel during the "ensure_connectivity"  phase. This field should be removed
     // as soon as we implement a better way to cancel Check asynchronously.
     #[cfg(target_os = "android")]
-    connectivity_checker: Option<connectivity::Check<connectivity::Cancellable>>,
+    connectivity_checker: Option<connectivity::Check>,
 }
 
 impl WgGoTunnelState {
@@ -298,7 +298,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
+        mut connectivity_check: connectivity::Check,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -345,7 +345,7 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        mut connectivity_check: connectivity::Check<connectivity::Cancellable>,
+        mut connectivity_check: connectivity::Check,
     ) -> Result<Self> {
         let (mut tunnel_device, tunnel_fd) =
             Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
@@ -415,7 +415,7 @@ impl WgGoTunnel {
         Ok(())
     }
 
-    pub fn take_checker(&mut self) -> Option<connectivity::Check<connectivity::Cancellable>> {
+    pub fn take_checker(&mut self) -> Option<connectivity::Check> {
         self.as_state_mut().connectivity_checker.take()
     }
 
@@ -423,7 +423,7 @@ impl WgGoTunnel {
     /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
     fn ensure_tunnel_is_running(
         &self,
-        checker: &mut connectivity::Check<connectivity::Cancellable>,
+        checker: &mut connectivity::Check,
     ) -> Result<()> {
         let connection_established = checker
             .establish_connectivity(self)

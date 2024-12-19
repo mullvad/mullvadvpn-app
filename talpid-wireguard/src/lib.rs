@@ -444,7 +444,7 @@ impl WireguardMonitor {
             connectivity_check,
         )?;
 
-        let iface_name = tunnel.get_interface_name();
+        let iface_name = args.runtime.block_on(tunnel.get_interface_name());
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
         let mut event_hook = args.event_hook;
         let monitor = WireguardMonitor {
@@ -505,17 +505,15 @@ impl WireguardMonitor {
                     .expect("connectivity checker unexpectedly dropped")
             };
 
-            tokio::task::spawn_blocking(move || {
-                let tunnel = Arc::downgrade(&tunnel);
-                if let Err(error) = connectivity::Monitor::init(connectivity_check).run(tunnel) {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Connectivity monitor failed")
-                    );
-                }
-            })
-            .await
-            .unwrap();
+            if let Err(error) = connectivity::Monitor::init(connectivity_check)
+                .run(Arc::downgrade(&tunnel))
+                .await
+            {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Connectivity monitor failed")
+                );
+            }
 
             Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
         };
