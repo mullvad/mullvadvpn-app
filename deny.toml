@@ -80,8 +80,14 @@ deny = [
     { name = "openssl-sys" },
     { name = "openssl-src" },
     { name = "openssl-probe" },
+    # We are using clap 4, and want to avoid multiple versions
     { name = "clap", version = "2" },
     { name = "clap", version = "3" },
+    # We are using tokio as our asynchronous runtime. Having multiple async runtimes
+    # is both error prone and too expensive (dependency chain, binary size etc)
+    { name = "async-std" },
+    # We have managed to upgrade to hyper 1 and don't want to carry both
+    { name = "hyper", version = "0" },
     { name = "time", version = "0.1"},
 ]
 
