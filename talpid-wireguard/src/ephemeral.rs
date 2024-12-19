@@ -306,10 +306,11 @@ async fn establish_tunnel_connection(
 ) -> Result<(), CloseMsg> {
     use talpid_types::ErrorExt;
 
-    let shared_tunnel = tunnel.lock().await;
-    let tunnel = shared_tunnel.as_ref().expect("tunnel was None");
-    let ping_result = connectivity.establish_connectivity(tunnel);
-    drop(shared_tunnel);
+    let ping_result = tokio::task::block_in_place(|| {
+        let shared_tunnel = tunnel.blocking_lock();
+        let tunnel = shared_tunnel.as_ref().expect("tunnel was None");
+        connectivity.establish_connectivity(tunnel)
+    });
 
     match ping_result {
         Ok(true) => Ok(()),
