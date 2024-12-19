@@ -23,9 +23,18 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
-
 #### Windows
 - Add experimental support for Windows ARM64.
+
+## [2024.9-beta2] - 2024-12-19
+### Changed
+#### Windows
+- Test tunnel before ephemeral peer exchange. This is an attempt to fix timeout issues.
+
+### Fixed
+#### macOS
+- Fix GUI getting stuck when opening the split tunneling view.
+
 
 ## [2024.9-beta1] - 2024-12-05
 ### Added
@@ -46,7 +55,6 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Enable quantum-resistant tunnels by default (when set to `auto`).
-- Test tunnel before ephemeral peer exchange. This is an attempt to fix timeout issues.
 
 ### Fixed
 - Handle network switching better when using WG over Shadowsocks.
@@ -56,7 +64,6 @@ Line wrap the file at 100 chars.                                              Th
 - Fix packets being duplicated on LAN when split tunneling is enabled.
 - Fix DNS issues caused by forcibly using a local DNS resolver in all states.
   Note that this fix is not present on macOS versions between 14.6 and 15.1.
-- Fix GUI getting stuck when opening the split tunneling view.
 
 ### Security
 #### Windows
