@@ -175,7 +175,6 @@ class SettingsMigrationTests: BaseUITestCase {
             .verifyCustomWireGuardPortSelected(portNumber: wireGuardPort)
             .tapWireGuardObfuscationExpandButton()
             .verifyWireGuardObfuscationOnSelected()
-            .tapUDPOverTCPPortExpandButton()
             .verifyUDPOverTCPPort80Selected()
             .tapQuantumResistantTunnelExpandButton()
             .verifyQuantumResistantTunnelOnSelected()
