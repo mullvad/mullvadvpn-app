@@ -262,7 +262,7 @@ fn get_context_info(context: &CONTEXT) -> String {
     context_str
 }
 
-#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+#[cfg(target_arch = "x86_64")]
 fn get_context_info(context: &CONTEXT) -> String {
     use windows_sys::Win32::System::Diagnostics::Debug::{
         CONTEXT_CONTROL_AMD64, CONTEXT_INTEGER_AMD64, CONTEXT_SEGMENTS_AMD64,
