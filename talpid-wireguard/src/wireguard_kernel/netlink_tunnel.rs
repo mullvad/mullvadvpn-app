@@ -106,15 +106,11 @@ impl Tunnel for NetlinkTunnel {
 
     async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
         let interface_index = self.interface_index;
-        let device = self
-            .netlink_connections
-            .wg_handle
-            .get_by_index(interface_index)
-            .await
-            .map_err(|err| {
-                log::error!("Failed to fetch WireGuard device config: {}", err);
-                TunnelError::GetConfigError
-            })?;
+        let mut wg = self.netlink_connections.wg_handle.clone();
+        let device = wg.get_by_index(interface_index).await.map_err(|err| {
+            log::error!("Failed to fetch WireGuard device config: {}", err);
+            TunnelError::GetConfigError
+        })?;
         Ok(Stats::parse_device_message(&device))
     }
 

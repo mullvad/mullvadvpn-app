@@ -28,7 +28,6 @@ pub struct NetworkManagerTunnel {
     network_manager: NetworkManager,
     tunnel: Option<WireguardTunnel>,
     netlink_connections: Handle,
-    tokio_handle: tokio::runtime::Handle,
     interface_name: String,
 }
 
@@ -58,7 +57,6 @@ impl NetworkManagerTunnel {
             network_manager,
             tunnel: Some(tunnel),
             netlink_connections,
-            tokio_handle,
             interface_name,
         })
     }
@@ -84,9 +82,8 @@ impl Tunnel for NetworkManagerTunnel {
     }
 
     async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
-        let device = self
-            .netlink_connections
-            .wg_handle
+        let mut wg = self.netlink_connections.wg_handle.clone();
+        let device = wg
             .get_by_name(self.interface_name.clone())
             .await
             .map_err(|err| {
