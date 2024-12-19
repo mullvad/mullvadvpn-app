@@ -17,7 +17,7 @@ brew install --cask android-studio
 
 Install the following packages:
 ```bash
-brew install protobuf gcc go openjdk@17 rustup-init
+brew install protobuf gcc go openjdk@17 rustup-init python3
 ```
 
 > __*NOTE:*__ Ensure that you setup `openjdk@17` to be the active JDK, follow instructions in
@@ -38,7 +38,7 @@ Open Android Studio -> Tools -> SDK Manager, and install `Android SDK Command-li
 
 Install the necessary Android SDK tools
 ```bash
-~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools" "ndk;27.1.12297006"
+~/Library/Android/sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-35" "build-tools;35.0.0" "platform-tools" "ndk;27.2.12479018"
 ```
 
 Install Android targets
@@ -50,7 +50,7 @@ Export the following environmental variables, and possibly store them for exampl
 `~/.zprofile` or `~/.zshrc` file:
 ```bash
 export ANDROID_HOME="$HOME/Library/Android/sdk"
-export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.1.12297006"
+export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
 export NDK_TOOLCHAIN_DIR="$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/darwin-x86_64/bin"
 export AR_aarch64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
 export AR_armv7_linux_androideabi="$NDK_TOOLCHAIN_DIR/llvm-ar"
@@ -74,10 +74,23 @@ git submodule update --init --recursive --depth=1 wireguard-go-rs
 ```
 
 ## 4. Debug build
+
+### Android Studio
+
+Create the file `android/local.properties` if it does not exist and add the following line:
+
+```bash
+rust.pythonCommand=/opt/homebrew/bin/python3
+```
+
+You should now be able to run the app directly from Android Studio.
+
+### `android/build.sh`
+
 Run the build script in the root of the project to assemble all the native libraries and the app:
 
 ```bash
-./build-apk.sh --dev-build
+./android/build.sh --dev-build
 ```
 
 Once the build is complete you should receive a message looking similar to this:
@@ -91,9 +104,6 @@ Once the build is complete you should receive a message looking similar to this:
 
 **********************************
 ```
-
-Your native binaries have now been built, any subsequent builds that does not have changes to the
-native code can be done in Android Studio or using gradle.
 
 # Build options and configuration
 

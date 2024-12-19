@@ -20,8 +20,8 @@ GRADLE_TASKS=(
     "lint"
 )
 EXCLUDED_GRADLE_TASKS=(
-    "-xensureRelayListExist"
-    "-xensureJniDirectoryExist"
+    "-xgenerateRelayList"
+    "-xcargoBuild"
 )
 
 export GRADLE_OPTS
