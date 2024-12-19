@@ -295,7 +295,6 @@ cargo {
             add("--locked")
         }
     }
-    exec = { spec, _ -> println(spec.commandLine) }
 }
 
 tasks.register<Exec>("generateRelayList") {
@@ -313,13 +312,8 @@ tasks.register<Exec>("generateRelayList") {
         val output = standardOutput as ByteArrayOutputStream
         // Create file if needed
         File("$extraAssetsDirectory").mkdirs()
-        File("$extraAssetsDirectory/relays.json").createNewFile()
-        FileOutputStream("$extraAssetsDirectory/relays.json").use { it.write(output.toByteArray()) }
-
-        // Old ensure exists tasks
-        if (!relayListPath.exists()) {
-            throw GradleException("Failed to generate relay list")
-        }
+        relayListPath.createNewFile()
+        FileOutputStream(relayListPath).use { it.write(output.toByteArray()) }
     }
 }
 
@@ -333,14 +327,16 @@ if(gradleLocalProperties(rootProject.projectDir, providers)
     tasks["clean"].dependsOn("cargoClean")
 }
 
+// This is a hack and will not work correctly under all scenarios.
+// See DROID-1696 for how we can improve this.
 fun isReleaseBuild() =
     gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
 
 fun isAlphaOrDevBuild() : Boolean {
     val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
     val versionName = generateVersionName(localProperties)
-    return versionName.contains("dev", ignoreCase = true) ||
-        versionName.contains("alpha", ignoreCase = true)
+    return versionName.contains("dev") ||
+        versionName.contains("alpha")
 }
 
 androidComponents {
