@@ -1,8 +1,9 @@
 use std::net::Ipv4Addr;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Duration;
 use tokio::sync::mpsc;
+use tokio::time::Instant;
 
 use super::constants::*;
 use super::error::Error;

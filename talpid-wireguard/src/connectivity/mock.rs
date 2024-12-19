@@ -1,6 +1,6 @@
 use std::future::Future;
 use std::pin::Pin;
-use std::time::Instant;
+use tokio::time::Instant;
 
 use super::check::{CancelToken, ConnState, PingState};
 use super::pinger;

@@ -1,9 +1,10 @@
 use std::{
     sync::Weak,
-    time::{Duration, Instant},
+    time::Duration,
 };
 
 use tokio::sync::Mutex;
+use tokio::time::Instant;
 
 use crate::TunnelType;
 
@@ -78,7 +79,6 @@ mod test {
     use std::sync::atomic::{AtomicBool, Ordering};
     use std::sync::Arc;
     use std::time::Duration;
-    use std::time::Instant;
 
     use tokio::sync::mpsc;
     use tokio::sync::Mutex;
