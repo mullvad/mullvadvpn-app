@@ -1,5 +1,7 @@
 //! A small updater that keeps the API IP address cache up to date by fetching changes from the
 //! Mullvad API.
+#[cfg(feature = "api-override")]
+use mullvad_api::ApiEndpoint;
 use mullvad_api::{rest::MullvadRestHandle, AddressCache, ApiProxy};
 use std::time::Duration;
 
@@ -7,9 +9,13 @@ const API_IP_CHECK_INITIAL: Duration = Duration::from_secs(15 * 60);
 const API_IP_CHECK_INTERVAL: Duration = Duration::from_secs(24 * 60 * 60);
 const API_IP_CHECK_ERROR_INTERVAL: Duration = Duration::from_secs(15 * 60);
 
-pub async fn run_api_address_fetcher(address_cache: AddressCache, handle: MullvadRestHandle) {
+pub async fn run_api_address_fetcher(
+    address_cache: AddressCache,
+    handle: MullvadRestHandle,
+    #[cfg(feature = "api-override")] endpoint: ApiEndpoint,
+) {
     #[cfg(feature = "api-override")]
-    if mullvad_api::API.disable_address_cache {
+    if endpoint.should_disable_address_cache() {
         return;
     }
 

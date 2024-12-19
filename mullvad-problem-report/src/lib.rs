@@ -1,4 +1,4 @@
-use mullvad_api::proxy::ApiConnectionMode;
+use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint};
 use regex::Regex;
 use std::{
     borrow::Cow,
@@ -261,6 +261,7 @@ pub fn send_problem_report(
     user_message: &str,
     report_path: &Path,
     cache_dir: &Path,
+    endpoint: ApiEndpoint,
 ) -> Result<(), Error> {
     let report_content = normalize_newlines(
         read_file_lossy(report_path, REPORT_MAX_SIZE).map_err(|source| {
@@ -281,6 +282,7 @@ pub fn send_problem_report(
         user_message,
         &report_content,
         cache_dir,
+        &endpoint,
     ))
 }
 
@@ -289,9 +291,11 @@ async fn send_problem_report_inner(
     user_message: &str,
     report_content: &str,
     cache_dir: &Path,
+    endpoint: &ApiEndpoint,
 ) -> Result<(), Error> {
     let metadata = ProblemReport::parse_metadata(report_content).unwrap_or_else(metadata::collect);
     let api_runtime = mullvad_api::Runtime::with_cache(
+        endpoint,
         cache_dir,
         false,
         #[cfg(target_os = "android")]

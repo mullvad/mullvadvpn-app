@@ -56,7 +56,8 @@ class MullvadApi {
         let result = mullvad_api_client_initialize(
             &clientContext,
             apiAddress,
-            hostname
+            hostname,
+            false
         )
         try ApiError(result).throwIfErr()
     }
