@@ -75,18 +75,20 @@ wildcards = "warn"
 highlight = "all"
 
 deny = [
-    # We are using Rustls for TLS. We don't want to accidentally pull in
-    # anything OpenSSL related
+    ## Alternative ecosystems that we don't want to accidentally pull in.
+    ## Having multiple large ecosystems solving the same problem can often be problematic,
+    ## and also expensive from a compile time/binary size/supply chain security perspective.
+
+    # We are using Rustls, so we want to avoid OpenSSL
     { name = "openssl-sys" },
     { name = "openssl-src" },
     { name = "openssl-probe" },
-    # We are using clap 4, and want to avoid multiple versions
+    # We are using tokio, so we want to avoid async-std
+    { name = "async-std" },
+
+    ## Older versions of crates where we only want to use the newer variants
     { name = "clap", version = "2" },
     { name = "clap", version = "3" },
-    # We are using tokio as our asynchronous runtime. Having multiple async runtimes
-    # is both error prone and too expensive (dependency chain, binary size etc)
-    { name = "async-std" },
-    # We have managed to upgrade to hyper 1 and don't want to carry both
     { name = "hyper", version = "0" },
     { name = "time", version = "0.1"},
 ]
