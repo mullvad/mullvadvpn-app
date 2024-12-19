@@ -1,5 +1,6 @@
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import React from 'react';
+import styled from 'styled-components';
 
 import {
   CustomProxy,
@@ -156,6 +157,12 @@ interface ProxyFormButtonsProps {
   new: boolean;
 }
 
+// TODO: Temporary fix, should be replaced with a flex or shared component
+const ActionGroup = styled.div({
+  display: 'flex',
+  gap: '12px',
+});
+
 export function ProxyFormButtons(props: ProxyFormButtonsProps) {
   const { onSave, onCancel, onDelete } = useContext(proxyFormContext);
 
@@ -171,10 +178,12 @@ export function ProxyFormButtons(props: ProxyFormButtonsProps) {
           </SmallButton>
         </SmallButtonGroupStart>
       )}
-      <SmallButton onClick={onCancel}>{messages.gettext('Cancel')}</SmallButton>
-      <SmallButton onClick={onSave} disabled={!formSubmittable}>
-        {props.new ? messages.gettext('Add') : messages.gettext('Save')}
-      </SmallButton>
+      <ActionGroup>
+        <SmallButton onClick={onCancel}>{messages.gettext('Cancel')}</SmallButton>
+        <SmallButton onClick={onSave} disabled={!formSubmittable}>
+          {props.new ? messages.gettext('Add') : messages.gettext('Save')}
+        </SmallButton>
+      </ActionGroup>
     </SmallButtonGroup>
   );
 }
