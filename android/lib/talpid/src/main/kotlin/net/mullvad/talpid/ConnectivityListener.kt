@@ -70,16 +70,19 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
                 when (event) {
                     is NetworkEvent.Available -> {
                         Logger.d("Network available ${event.network}")
-                        networks + event.network
+                        (networks + event.network).also {
+                            Logger.d("Number of networks: ${it.size}")
+                        }
                     }
                     is NetworkEvent.Lost -> {
                         Logger.d("Network lost ${event.network}")
-                        networks - event.network
+                        (networks - event.network).also {
+                            Logger.d("Number of networks: ${it.size}")
+                        }
                     }
                     else -> networks
                 }
             }
-            .onEach { Logger.d("Number of networks: ${it.size}") }
             .map { it.isNotEmpty() }
             .distinctUntilChanged()
     }
