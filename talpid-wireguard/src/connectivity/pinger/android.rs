@@ -40,7 +40,6 @@ impl Pinger {
     }
 }
 
-// FIXME
 #[async_trait::async_trait]
 impl super::Pinger for Pinger {
     // Send an ICMP packet without waiting for a reply
@@ -53,28 +52,7 @@ impl super::Pinger for Pinger {
     }
 
     async fn reset(&mut self) {
-        /*let processes = std::mem::take(&mut self.processes);
-        for proc in processes {
-            if proc
-                .try_wait()
-                .map(|maybe_stopped| maybe_stopped.is_none())
-                .unwrap_or(false)
-            {
-                if let Err(err) = proc.kill() {
-                    log::error!("Failed to kill ping process: {}", err);
-                }
-            }
-        }*/
-    }
-}
-
-impl Drop for Pinger {
-    fn drop(&mut self) {
-        /*for child in self.processes.iter_mut() {
-            if let Err(e) = child.kill() {
-                log::error!("Failed to kill ping process: {}", e);
-            }
-        }*/
+        self.processes.clear();
     }
 }
 
