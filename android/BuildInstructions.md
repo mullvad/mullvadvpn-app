@@ -118,10 +118,10 @@ Linux distro:
 
   ```bash
   cd "$ANDROID_HOME"  # Or some other directory to place the Android NDK
-  wget https://dl.google.com/android/repository/android-ndk-r27b-linux.zip
-  unzip android-ndk-r27b-linux.zip
+  wget https://dl.google.com/android/repository/android-ndk-r27c-linux.zip
+  unzip android-ndk-r27c-linux.zip
 
-  cd android-ndk-r27b
+  cd android-ndk-r27c
   export ANDROID_NDK_HOME="$PWD"
   ```
 
