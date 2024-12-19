@@ -104,7 +104,7 @@ impl WgGoTunnel {
         }
     }
 
-    pub fn set_config(self, config: &Config) -> Result<Self> {
+    pub async fn set_config(self, config: &Config) -> Result<Self> {
         let state = self.as_state();
         let log_path = state._logging_context.path.clone();
         let cancel_receiver = state.cancel_receiver.clone();
@@ -121,6 +121,7 @@ impl WgGoTunnel {
                     routes,
                     cancel_receiver,
                 )
+                .await
             }
             WgGoTunnel::Singlehop(state) if config.is_multihop() => {
                 state.stop()?;
@@ -132,6 +133,7 @@ impl WgGoTunnel {
                     routes,
                     cancel_receiver,
                 )
+                .await
             }
             WgGoTunnel::Singlehop(mut state) => {
                 state.set_config(config.clone())?;
@@ -280,7 +282,7 @@ impl WgGoTunnel {
 
 #[cfg(target_os = "android")]
 impl WgGoTunnel {
-    pub fn start_tunnel(
+    pub async fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
@@ -320,12 +322,12 @@ impl WgGoTunnel {
         });
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        tunnel.ensure_tunnel_is_running()?;
+        tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
     }
 
-    pub fn start_multihop_tunnel(
+    pub async fn start_multihop_tunnel(
         config: &Config,
         exit_peer: &PeerConfig,
         log_path: Option<&Path>,
@@ -382,7 +384,7 @@ impl WgGoTunnel {
         });
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        tunnel.ensure_tunnel_is_running()?;
+        tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
     }
@@ -402,9 +404,7 @@ impl WgGoTunnel {
 
     /// There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
     /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
-    fn ensure_tunnel_is_running(&self) -> Result<()> {
-        // TODO: create new checker, reuse cancel token
-
+    async fn ensure_tunnel_is_running(&self) -> Result<()> {
         let state = self.as_state();
         let addr = state.config.ipv4_gateway;
         let cancel_receiver = state.cancel_receiver.clone();
@@ -413,20 +413,18 @@ impl WgGoTunnel {
 
         // TODO: retry attempt?
 
-        check.establish_connectivity(self);
-
-        /*
-        let connection_established = checker
+        let connection_established = check
             .establish_connectivity(self)
+            .await
             .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
         // Timed out
         if !connection_established {
             return Err(TunnelError::RecoverableStartWireguardError(Box::new(
-                Error::TimeoutError,
+                super::Error::TimeoutError,
             )));
         }
-         */
+
         Ok(())
     }
 }

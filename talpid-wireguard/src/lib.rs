@@ -438,7 +438,7 @@ impl WireguardMonitor {
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
-        let tunnel = Self::open_wireguard_go_tunnel(
+        let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
             &config,
             log_path,
             args.tun_provider.clone(),
@@ -447,7 +447,7 @@ impl WireguardMonitor {
             // since we lack a firewall there.
             should_negotiate_ephemeral_peer,
             cancel_receiver,
-        )?;
+        ))?;
 
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
@@ -645,8 +645,13 @@ impl WireguardMonitor {
         if !*FORCE_USERSPACE_WIREGUARD {
             // If DAITA is enabled, wireguard-go has to be used.
             if config.daita {
-                let tunnel =
-                    Self::open_wireguard_go_tunnel(config, log_path, tun_provider).map(Box::new)?;
+                let tunnel = runtime
+                    .block_on(Self::open_wireguard_go_tunnel(
+                        config,
+                        log_path,
+                        tun_provider,
+                    ))
+                    .map(Box::new)?;
                 return Ok(tunnel);
             }
 
@@ -695,21 +700,22 @@ impl WireguardMonitor {
             #[cfg(target_os = "linux")]
             log::debug!("Using userspace WireGuard implementation");
 
-            let tunnel = Self::open_wireguard_go_tunnel(
-                config,
-                log_path,
-                tun_provider,
-                #[cfg(target_os = "android")]
-                gateway_only,
-            )
-            .map(Box::new)?;
+            let tunnel = runtime
+                .block_on(Self::open_wireguard_go_tunnel(
+                    config,
+                    log_path,
+                    tun_provider,
+                    #[cfg(target_os = "android")]
+                    gateway_only,
+                ))
+                .map(Box::new)?;
             Ok(tunnel)
         }
     }
 
     /// Configure and start a Wireguard-go tunnel.
     #[cfg(wireguard_go)]
-    fn open_wireguard_go_tunnel(
+    async fn open_wireguard_go_tunnel(
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
@@ -751,6 +757,7 @@ impl WireguardMonitor {
                 routes,
                 cancel_receiver,
             )
+            .await
             .map_err(Error::TunnelError)?
         } else {
             WgGoTunnel::start_tunnel(
@@ -761,6 +768,7 @@ impl WireguardMonitor {
                 routes,
                 cancel_receiver,
             )
+            .await
             .map_err(Error::TunnelError)?
         };
 
