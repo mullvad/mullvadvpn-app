@@ -137,6 +137,25 @@ class FilterScreenTest {
             verify { mockClickListener() }
         }
 
+    @Test
+    fun ensureSelectedProviderIsShowEvenThoughItIsNotInAllProviders() =
+        composeExtension.use {
+            // Arrange
+            initScreen(
+                state =
+                    RelayFilterUiState(
+                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
+                        selectedOwnership = null,
+                        selectedProviders = listOf(ProviderId("1RemovedProvider")),
+                    )
+            )
+
+            // Act
+            onNodeWithText("Providers").performClick()
+            // Asset
+            onNodeWithText("1RemovedProvider (removed)").assertExists()
+        }
+
     companion object {
         private val DUMMY_RELAY_ALL_PROVIDERS =
             mapOf(

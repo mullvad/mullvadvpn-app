@@ -184,4 +184,27 @@ class FilterChipUseCaseTest {
 
             filterChipUseCase(RelayListType.EXIT).test { assertLists(emptyList(), awaitItem()) }
         }
+
+    @Test
+    fun `ensure that a selected provider that is not in the provider list is still counted`() =
+        runTest {
+            // Arrange
+            val expectedProviders = Providers(providers = setOf(ProviderId("1")))
+            val expectedOwnership = Ownership.MullvadOwned
+            selectedProviders.value = Constraint.Only(expectedProviders)
+            selectedOwnership.value = Constraint.Only(expectedOwnership)
+            providerToOwnerships.value =
+                mapOf(
+                    ProviderId("2") to setOf(Ownership.MullvadOwned),
+                    ProviderId("3") to setOf(Ownership.Rented),
+                )
+
+            // Act, Assert
+            filterChipUseCase(RelayListType.EXIT).test {
+                assertLists(
+                    listOf(FilterChip.Ownership(expectedOwnership), FilterChip.Provider(1)),
+                    awaitItem(),
+                )
+            }
+        }
 }
