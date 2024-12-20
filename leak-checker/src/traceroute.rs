@@ -108,7 +108,7 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
     return try_run_leak_test_impl::<platform::macos::TracerouteMacos>(opt).await;
 
     #[cfg(target_os = "windows")]
-    return try_run_leak_test_impl::<platform::windows::TracerouteWindows>(opt).await;
+    return platform::windows::traceroute_using_ping(opt).await;
 }
 
 pub async fn try_run_leak_test_impl<Impl: Traceroute>(
