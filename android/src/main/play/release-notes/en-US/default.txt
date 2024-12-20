@@ -1,3 +1,1 @@
-- Added support for multihop which allows routing traffic through an entry location to an exit location.
-- Added support for using DAITA with locations lacking DAITA support by automatically routing the traffic via a DAITA enabled location. This behaviour can be disabled using the "Direct only" setting.
-- Updated DAITA to v2 which supports flexible configuration.
+- Fixed a crash that would occur because a Provider would be listed twice in the filter screen.
