@@ -7,7 +7,9 @@ public struct Maybenot {
 02eNqFjDkOgDAMBL056PkEJTVdvsY/+URKmojDmwiBUDyStbJ35DLuy5anWRrlqLTDcA0AkTXVkDt01ZAHwLFwludZeMsLLILlRRax4+lKcnrnl/8HJzqIIG0=
 02eNpdjr0LQVEYxt9zGES5o4myKVksFM45lEHKx0LJYDAZ5C+QRTHIaGETViYDKYPp3ijFYLj3KkmGK2WwuVwiv3rrrafnA1Jm16ijKBQ+6NRDGPJ2E0Xe6YnAD0hFD9nm/ObIHumlv4imZ3Mm8DwvtaxB0Jy1IUex0pYIIB30lhuCYkYvwW6nQFSV41R1L8vkmwlgEOONVvEaYt1SwLhdhxn8gdBgEfXU7RFmzeR9YtPPxrbqOVkLsd29XJhIJfbqRomGheLcYUWeFgxQodrq9wcP1E88/w==
 """
-    public let maximumEvents: UInt32 = 1000
-    public let maximumActions: UInt32 = 1000
+    public let maximumEvents: UInt32 = 2048
+    public let maximumActions: UInt32 = 1024
+    public let maximumPadding: Double = 1.0
+    public let maximumBlocking: Double = 1.0
 }
 // swiftlint:enable line_length

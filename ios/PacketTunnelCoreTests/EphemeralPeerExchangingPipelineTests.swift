@@ -77,9 +77,14 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             negotiationSuccessful.fulfill()
         }
 
-        keyExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, privateKey in
-            await postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
-        })
+        keyExchangeActor
+            .delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, privateKey, daita in
+                await postQuantumKeyExchangingPipeline.receivePostQuantumKey(
+                    preSharedKey,
+                    ephemeralKey: privateKey,
+                    daitaParameters: daita
+                )
+            })
 
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: true, enableDaita: false)
         await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
@@ -107,9 +112,13 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             negotiationSuccessful.fulfill()
         }
 
-        keyExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey in
-            await postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
-        })
+        keyExchangeActor
+            .delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey, daitaParameters in
+                await postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(
+                    privateKey,
+                    daitaParameters: daitaParameters
+                )
+            })
 
         let connectionState = stubConnectionState(enableMultiHop: false, enablePostQuantum: false, enableDaita: true)
         await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
@@ -137,9 +146,14 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             negotiationSuccessful.fulfill()
         }
 
-        keyExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, privateKey in
-            await postQuantumKeyExchangingPipeline.receivePostQuantumKey(preSharedKey, ephemeralKey: privateKey)
-        })
+        keyExchangeActor
+            .delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, privateKey, daita in
+                await postQuantumKeyExchangingPipeline.receivePostQuantumKey(
+                    preSharedKey,
+                    ephemeralKey: privateKey,
+                    daitaParameters: daita
+                )
+            })
 
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: true, enableDaita: false)
         await postQuantumKeyExchangingPipeline.startNegotiation(connectionState, privateKey: PrivateKey())
@@ -167,8 +181,8 @@ final class EphemeralPeerExchangingPipelineTests: XCTestCase {
             negotiationSuccessful.fulfill()
         }
 
-        keyExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey in
-            await postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey)
+        keyExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { privateKey, daita in
+            await postQuantumKeyExchangingPipeline.receiveEphemeralPeerPrivateKey(privateKey, daitaParameters: daita)
         })
 
         let connectionState = stubConnectionState(enableMultiHop: true, enablePostQuantum: false, enableDaita: true)

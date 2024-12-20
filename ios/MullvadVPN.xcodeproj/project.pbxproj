@@ -739,18 +739,19 @@
 		A932D9F52B5EBB9D00999395 /* RESTTransportStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A932D9F42B5EBB9D00999395 /* RESTTransportStub.swift */; };
 		A935594C2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */; };
 		A939661B2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */; };
+		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
 		A95EEE382B722DFC00A8A39B /* PingStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE372B722DFC00A8A39B /* PingStats.swift */; };
 		A970C89D2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */; };
+		A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */; };
 		A97D25AE2B0BB18100946B2D /* ProtocolObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */; };
 		A97D25B02B0BB5C400946B2D /* ProtocolObfuscationStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25AF2B0BB5C400946B2D /* ProtocolObfuscationStub.swift */; };
 		A97D25B22B0CB02D00946B2D /* ProtocolObfuscatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25B12B0CB02D00946B2D /* ProtocolObfuscatorTests.swift */; };
 		A97D25B42B0CB59300946B2D /* TunnelObfuscationStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25B32B0CB59300946B2D /* TunnelObfuscationStub.swift */; };
 		A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D30162AE6B5E90045C0E4 /* StoredWgKeyData.swift */; };
 		A97FF5502A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97FF54F2A0D2FFC00900996 /* NSFileCoordinator+Extensions.swift */; };
-		A9840BB42C69F78A0030F05E /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
 		A98502032B627B120061901E /* LocalNetworkProbe.swift in Sources */ = {isa = PBXBuildFile; fileRef = A98502022B627B120061901E /* LocalNetworkProbe.swift */; };
 		A988A3E22AFE54AC0008D2C7 /* AccountExpiry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6F2FA62AFBB9AE006D0856 /* AccountExpiry.swift */; };
 		A988DF272ADE86ED00D807EF /* WireGuardObfuscationSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */; };
@@ -2120,6 +2121,7 @@
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
 		A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5UsernamePasswordCommand.swift; sourceTree = "<group>"; };
+		A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaV2Parameters.swift; sourceTree = "<group>"; };
 		A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolObfuscator.swift; sourceTree = "<group>"; };
 		A97D25AF2B0BB5C400946B2D /* ProtocolObfuscationStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolObfuscationStub.swift; sourceTree = "<group>"; };
 		A97D25B12B0CB02D00946B2D /* ProtocolObfuscatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolObfuscatorTests.swift; sourceTree = "<group>"; };
@@ -2714,6 +2716,7 @@
 				449EBA252B975B9700DFA4EB /* EphemeralPeerReceiving.swift */,
 				A90C48662C36BC2600DCB94C /* EphemeralPeerReceiver.swift */,
 				A90C48682C36BF3900DCB94C /* TunnelProvider.swift */,
+				A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -4721,7 +4724,6 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 58C7A44B2A863F4A0060C66F /* Build configuration list for PBXNativeTarget "PacketTunnelCore" */;
 			buildPhases = (
-				A9840BB22C69F7290030F05E /* Import maybenot_machines */,
 				58C7A4312A863F440060C66F /* Headers */,
 				58C7A4322A863F440060C66F /* Sources */,
 				58C7A4332A863F440060C66F /* Frameworks */,
@@ -4973,6 +4975,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = A992DA252C24709F00DE7CE5 /* Build configuration list for PBXNativeTarget "MullvadRustRuntime" */;
 			buildPhases = (
+				A93969802CE603110032A7A0 /* Import maybenot_machines */,
 				A992DA2A2C2470B300DE7CE5 /* Build MullvadRustRuntime */,
 				A992DA182C24709F00DE7CE5 /* Headers */,
 				A992DA192C24709F00DE7CE5 /* Sources */,
@@ -5351,7 +5354,7 @@
 			shellPath = /bin/sh;
 			shellScript = "if [[ \"$(uname -m)\" == arm64 ]]; then\n    export PATH=\"/opt/homebrew/bin:$PATH\"\nfi\n\nif which swiftlint > /dev/null; then\n  swiftlint PacketTunnel/**/*.swift\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
 		};
-		A9840BB22C69F7290030F05E /* Import maybenot_machines */ = {
+		A93969802CE603110032A7A0 /* Import maybenot_machines */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -5367,7 +5370,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "MAYBENOT_MACHINES=`cat ${SRCROOT}/../dist-assets/maybenot_machines`\ncat > ${SRCROOT}/PacketTunnelCore/Daita/Maybenot.swift << EOF\n// swiftlint:disable line_length\n// This is an autogenerated file, do not edit\npublic struct Maybenot {\n    public let machines=\"\"\"\n$MAYBENOT_MACHINES\n\"\"\"\n    public let maximumEvents: UInt32 = 1000\n    public let maximumActions: UInt32 = 1000\n}\n// swiftlint:enable line_length\nEOF\n";
+			shellScript = "MAYBENOT_MACHINES=`cat ${SRCROOT}/../dist-assets/maybenot_machines`\ncat > ${SRCROOT}/PacketTunnelCore/Daita/Maybenot.swift << EOF\n// swiftlint:disable line_length\n// This is an autogenerated file, do not edit\npublic struct Maybenot {\n    public let machines=\"\"\"\n$MAYBENOT_MACHINES\n\"\"\"\n    public let maximumEvents: UInt32 = 2048\n    public let maximumActions: UInt32 = 1024\n    public let maximumPadding: Double = 1.0\n    public let maximumBlocking: Double = 1.0\n}\n// swiftlint:enable line_length\nEOF\n";
 		};
 		A992DA2A2C2470B300DE7CE5 /* Build MullvadRustRuntime */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5775,7 +5778,6 @@
 				583832272AC3193600EA2071 /* PacketTunnelActor+SleepCycle.swift in Sources */,
 				58FE25DC2AA72A8F003D1918 /* AnyTask.swift in Sources */,
 				F04AF92D2C466013004A8314 /* EphemeralPeerNegotiationState.swift in Sources */,
-				A9840BB42C69F78A0030F05E /* Maybenot.swift in Sources */,
 				58FE25D92AA72A8F003D1918 /* AutoCancellingTask.swift in Sources */,
 				58FE25E12AA72A9B003D1918 /* SettingsReaderProtocol.swift in Sources */,
 				58C7A4582A863FB90060C66F /* TunnelMonitorProtocol.swift in Sources */,
@@ -6313,6 +6315,7 @@
 				58D22412294C90210029F5F8 /* RelayConstraint.swift in Sources */,
 				7A7AD14F2BF21EF200B30B3C /* NameInputFormatter.swift in Sources */,
 				58D22413294C90210029F5F8 /* RelayConstraints.swift in Sources */,
+				A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */,
 				7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */,
 				58D22414294C90210029F5F8 /* RelayLocation.swift in Sources */,
 				581DA2732A1E227D0046ED47 /* RESTTypes.swift in Sources */,
@@ -6447,6 +6450,7 @@
 				A9D9A4BB2C36D397004088DD /* EphemeralPeerNegotiator.swift in Sources */,
 				A9D9A4B22C36D12D004088DD /* TunnelObfuscator.swift in Sources */,
 				A9173C322C36CCDD00F6A08C /* EphemeralPeerReceiver.swift in Sources */,
+				A93969812CE606190032A7A0 /* Maybenot.swift in Sources */,
 				F05919802C45515200C301F3 /* EphemeralPeerExchangeActor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

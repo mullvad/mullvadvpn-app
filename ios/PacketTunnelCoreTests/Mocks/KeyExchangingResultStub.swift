@@ -12,15 +12,22 @@
 
 struct KeyExchangingResultStub: EphemeralPeerReceiving {
     var onFailure: (() -> Void)?
-    var onReceivePostQuantumKey: ((PreSharedKey, PrivateKey) async -> Void)?
-    var onReceiveEphemeralPeerPrivateKey: ((PrivateKey) async -> Void)?
+    var onReceivePostQuantumKey: ((PreSharedKey, PrivateKey, DaitaV2Parameters?) async -> Void)?
+    var onReceiveEphemeralPeerPrivateKey: ((PrivateKey, DaitaV2Parameters?) async -> Void)?
 
-    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) async {
-        await onReceivePostQuantumKey?(key, ephemeralKey)
+    func receivePostQuantumKey(
+        _ key: PreSharedKey,
+        ephemeralKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
+    ) async {
+        await onReceivePostQuantumKey?(key, ephemeralKey, daitaParameters)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
-        await onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey)
+    public func receiveEphemeralPeerPrivateKey(
+        _ ephemeralPeerPrivateKey: PrivateKey,
+        daitaParameters daitaParamters: MullvadTypes.DaitaV2Parameters?
+    ) async {
+        await onReceiveEphemeralPeerPrivateKey?(ephemeralPeerPrivateKey, daitaParamters)
     }
 
     func ephemeralPeerExchangeFailed() {

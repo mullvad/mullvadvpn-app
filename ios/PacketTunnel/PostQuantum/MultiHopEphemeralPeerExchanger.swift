@@ -25,6 +25,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
 
     private var entryPeerKey: EphemeralPeerKey!
     private var exitPeerKey: EphemeralPeerKey!
+    private var daitaParameters: DaitaV2Parameters?
 
     private let defaultGatewayAddressRange = [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/32")!]
     private let allTrafficRange = [
@@ -66,7 +67,11 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         await negotiateWithEntry()
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
+    public func receiveEphemeralPeerPrivateKey(
+        _ ephemeralPeerPrivateKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
+    ) async {
+        self.daitaParameters = daitaParameters
         if state == .negotiatingWithEntry {
             entryPeerKey = EphemeralPeerKey(ephemeralKey: ephemeralPeerPrivateKey)
             await negotiateBetweenEntryAndExit()
@@ -78,8 +83,10 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
 
     func receivePostQuantumKey(
         _ preSharedKey: PreSharedKey,
-        ephemeralKey: PrivateKey
+        ephemeralKey: PrivateKey,
+        daitaParameters: DaitaV2Parameters?
     ) async {
+        self.daitaParameters = daitaParameters
         if state == .negotiatingWithEntry {
             entryPeerKey = EphemeralPeerKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
             await negotiateBetweenEntryAndExit()
@@ -95,7 +102,8 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
             relay: entry,
             configuration: EphemeralPeerConfiguration(
                 privateKey: devicePrivateKey,
-                allowedIPs: defaultGatewayAddressRange
+                allowedIPs: defaultGatewayAddressRange,
+                daitaParameters: daitaParameters
             )
         )))
         keyExchanger.startNegotiation(
@@ -113,14 +121,16 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                 configuration: EphemeralPeerConfiguration(
                     privateKey: entryPeerKey.ephemeralKey,
                     preSharedKey: entryPeerKey.preSharedKey,
-                    allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!]
+                    allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!],
+                    daitaParameters: self.daitaParameters
                 )
             ),
             exit: EphemeralPeerRelayConfiguration(
                 relay: exit,
                 configuration: EphemeralPeerConfiguration(
                     privateKey: devicePrivateKey,
-                    allowedIPs: defaultGatewayAddressRange
+                    allowedIPs: defaultGatewayAddressRange,
+                    daitaParameters: self.daitaParameters
                 )
             )
         ))
@@ -140,7 +150,8 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                 configuration: EphemeralPeerConfiguration(
                     privateKey: entryPeerKey.ephemeralKey,
                     preSharedKey: entryPeerKey.preSharedKey,
-                    allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!]
+                    allowedIPs: [IPAddressRange(from: "\(exit.endpoint.ipv4Relay.ip)/32")!],
+                    daitaParameters: self.daitaParameters
                 )
             ),
             exit: EphemeralPeerRelayConfiguration(
@@ -148,7 +159,8 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                 configuration: EphemeralPeerConfiguration(
                     privateKey: exitPeerKey.ephemeralKey,
                     preSharedKey: exitPeerKey.preSharedKey,
-                    allowedIPs: allTrafficRange
+                    allowedIPs: allTrafficRange,
+                    daitaParameters: self.daitaParameters
                 )
             )
         ))
