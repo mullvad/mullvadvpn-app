@@ -31,8 +31,8 @@ class TunnelProviderStub: TunnelProvider {
         0
     }
 
-    func wgFunctions() -> MullvadTypes.WgFuncPointers {
-        return MullvadTypes.WgFuncPointers(
+    func wgFunctions() -> MullvadTypes.WgFunctionPointers {
+        return MullvadTypes.WgFunctionPointers(
             open: { _, _, _ in return 0 },
             close: { _, _ in return 0 },
             receive: { _, _, _, _ in return 0 },
