@@ -141,6 +141,14 @@ fun FilterScreen(
                 itemsWithDivider(
                     key = { it.value },
                     contentType = { ContentType.ITEM },
+                    items = state.removedProviders,
+                ) { provider ->
+                    RemovedProvider(provider, state, onSelectedProvider)
+                }
+
+                itemsWithDivider(
+                    key = { it.value },
+                    contentType = { ContentType.ITEM },
                     items = state.selectableProviders,
                 ) { provider ->
                     Provider(provider, state, onSelectedProvider)
@@ -223,6 +231,22 @@ private fun LazyItemScope.Provider(
     CheckboxCell(
         title = providerId.value,
         checked = providerId in state.selectedProviders,
+        onCheckedChange = { checked -> onSelectedProvider(checked, providerId) },
+        modifier = Modifier.animateItem(),
+    )
+}
+
+@Composable
+private fun LazyItemScope.RemovedProvider(
+    providerId: ProviderId,
+    state: RelayFilterUiState,
+    onSelectedProvider: (checked: Boolean, providerId: ProviderId) -> Unit,
+) {
+    val checked = providerId in state.selectedProviders
+    CheckboxCell(
+        title = stringResource(R.string.removed_provider, providerId.value),
+        checked = checked,
+        enabled = checked,
         onCheckedChange = { checked -> onSelectedProvider(checked, providerId) },
         modifier = Modifier.animateItem(),
     )

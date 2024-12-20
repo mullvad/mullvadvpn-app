@@ -402,6 +402,7 @@
     <string name="x_entry">%s (Entry)</string>
     <string name="x_exit">%s (Exit)</string>
     <string name="filters">Filters:</string>
+    <string name="removed_provider">%s (removed)</string>
     <string name="search_query_empty">Type at least 2 characters to start searching.</string>
     <string name="daita_description_slide_1_first_paragraph">%1$s (%2$s) hides patterns in your encrypted VPN traffic.</string>
     <string name="daita_description_slide_1_second_paragraph">By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).</string>

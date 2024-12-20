@@ -31,6 +31,7 @@ internal fun CheckboxCell(
     modifier: Modifier = Modifier,
     title: String,
     checked: Boolean,
+    enabled: Boolean = true,
     onCheckedChange: (Boolean) -> Unit,
     background: Color = MaterialTheme.colorScheme.surfaceContainerLow,
     startPadding: Dp = Dimens.mediumPadding,
@@ -41,7 +42,7 @@ internal fun CheckboxCell(
         verticalAlignment = Alignment.CenterVertically,
         modifier =
             modifier
-                .clickable { onCheckedChange(!checked) }
+                .clickable(enabled) { onCheckedChange(!checked) }
                 .defaultMinSize(minHeight = minHeight)
                 .fillMaxWidth()
                 .background(background)

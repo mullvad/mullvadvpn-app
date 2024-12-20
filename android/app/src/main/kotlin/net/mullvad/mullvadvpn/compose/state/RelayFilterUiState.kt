@@ -29,6 +29,8 @@ data class RelayFilterUiState(
             allProviders
         }
 
+    val removedProviders: List<ProviderId> = selectedProviders - allProviders
+
     val isApplyButtonEnabled = selectedProviders.isNotEmpty()
 
     val isAllProvidersChecked = allProviders.size == selectedProviders.size
