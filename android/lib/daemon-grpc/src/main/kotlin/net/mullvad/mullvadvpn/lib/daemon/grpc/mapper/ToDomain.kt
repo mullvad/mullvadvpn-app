@@ -52,7 +52,6 @@ import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
 import net.mullvad.mullvadvpn.lib.model.PlayPurchasePaymentToken
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -565,11 +564,8 @@ internal fun ManagementInterface.Relay.toDomain(
     RelayItem.Location.Relay(
         id = GeoLocationId.Hostname(cityCode, hostname),
         active = active,
-        provider =
-            Provider(
-                ProviderId(provider),
-                ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
-            ),
+        provider = ProviderId(provider),
+        ownership = if (owned) Ownership.MullvadOwned else Ownership.Rented,
         daita =
             if (
                 hasEndpointData() && endpointType == ManagementInterface.Relay.RelayType.WIREGUARD

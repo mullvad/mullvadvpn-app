@@ -22,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.model.CustomListId
 import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.relaylist.descendants
@@ -357,11 +356,8 @@ class CustomListLocationsViewModelTest {
                                                     "gbg-1",
                                                 ),
                                             active = true,
-                                            provider =
-                                                Provider(
-                                                    ProviderId("Provider"),
-                                                    ownership = Ownership.MullvadOwned,
-                                                ),
+                                            provider = ProviderId("Provider"),
+                                            ownership = Ownership.MullvadOwned,
                                             daita = false,
                                         )
                                     ),
@@ -377,7 +373,8 @@ class CustomListLocationsViewModelTest {
                         "cph-1",
                     ),
                 active = true,
-                provider = Provider(ProviderId("Provider"), ownership = Ownership.MullvadOwned),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
     }
