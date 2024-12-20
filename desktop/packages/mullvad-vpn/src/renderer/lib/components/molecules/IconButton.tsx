@@ -44,11 +44,20 @@ const StyledButton = styled.button({
 });
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, variant = 'primary', size: sizeProp = 'regular', disabled, ...props }, ref) => {
+  ({ icon, variant = 'primary', size: sizeProp = 'regular', disabled, style, ...props }, ref) => {
     const styles = variants[variant];
     const size = sizes[sizeProp];
     return (
-      <StyledButton ref={ref} disabled={disabled} {...props}>
+      <StyledButton
+        ref={ref}
+        disabled={disabled}
+        style={
+          {
+            '--size': `${size}px`,
+            ...style,
+          } as React.CSSProperties
+        }
+        {...props}>
         <ImageView
           source={icon}
           tintColor={styles.background}
