@@ -983,7 +983,8 @@ impl WireguardMonitor {
 
 async fn log_tunnel_data_usage(config: &Config, tunnel: &Arc<AsyncMutex<Option<TunnelType>>>) {
     let tunnel = tunnel.lock().await;
-    let Ok(tunnel_stats) = tunnel.as_ref().unwrap().get_tunnel_stats() else {
+    let Some(tunnel) = &*tunnel else { return };
+    let Ok(tunnel_stats) = tunnel.get_tunnel_stats() else {
         return;
     };
     if let Some(stats) = config
