@@ -37,7 +37,7 @@ class FilterChipUseCase(
             filterChips(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,
-                providerOwnershipRelationship = providerOwnership,
+                providerToOwnerships = providerOwnership,
                 daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
                 isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                 relayListType = relayListType,
@@ -47,7 +47,7 @@ class FilterChipUseCase(
     private fun filterChips(
         selectedOwnership: Constraint<Ownership>,
         selectedConstraintProviders: Constraint<Providers>,
-        providerOwnershipRelationship: Map<ProviderId, Set<Ownership>>,
+        providerToOwnerships: Map<ProviderId, Set<Ownership>>,
         daitaDirectOnly: Boolean,
         isMultihopEnabled: Boolean,
         relayListType: RelayListType,
@@ -62,9 +62,16 @@ class FilterChipUseCase(
                             if (ownershipFilter == null) {
                                 true
                             } else {
-                                providerOwnershipRelationship[providerId]!!.contains(
-                                    ownershipFilter
-                                )
+                                val providerOwnerships = providerToOwnerships[providerId]
+                                // If the provider has been removed from the relay list we add it
+                                // so it is visible for the user. Because we won't know what
+                                // ownerships it
+                                // had
+                                if (providerOwnerships == null) {
+                                    true
+                                } else {
+                                    providerOwnerships.contains(ownershipFilter)
+                                }
                             }
                         }
                         .size
