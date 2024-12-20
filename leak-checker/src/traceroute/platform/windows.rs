@@ -24,12 +24,54 @@ pub struct AsyncIcmpSocketImpl(tokio::net::UdpSocket);
 
 pub struct AsyncUdpSocketWindows(tokio::net::UdpSocket);
 
+/// Implementation of traceroute using `ping.exe`
+pub async fn traceroute_using_ping(opt: &TracerouteOpt) {
+    let interface_ip = get_interface_ip(&opt.interface)?;
+
+    // TODO: parameterise
+    for ttl in 1..=5 {
+        // TODO: tokio
+        let output = std::process::Command::new(r"C:\Windows\System32\ping.exe")
+            .args(["-i", &ttl.to_string()])
+            .args(["-n", "1"])
+            .args(["-w", "1000"]) // TODO: parameterise
+            .args(["-S", &interface_ip.to_string()])
+            .arg(opt.destination.to_string())
+            .output()
+            .unwrap(); // TODO
+
+        let stdout = String::from_utf8(output.stdout).unwrap(); // TODO
+        let _stderr = String::from_utf8(output.stderr).unwrap(); // TODO
+
+        log::info!("ping stdout: {stdout}"); // TODO
+        log::info!("ping stderr: {_stderr}"); // TODO
+
+        if !stdout.contains("TTL expired") {
+            continue;
+        }
+
+        let (_, s) = stdout.split_once("Reply from ").unwrap();
+        let (ip, _) = stdout.split_once(": TTL expired").unwrap();
+        let ip: IpAddr = ip.parse().unwrap();
+        log::error!("leaking to {ip}");
+
+        return Ok(LeakStatus::LeakDetected(
+            crate::LeakInfo::NodeReachableOnInterface {
+                reachable_nodes: vec![ip],
+                interface: opt.interface.clone(),
+            },
+        ));
+    }
+
+    Ok(LeakStatus::NoLeak)
+}
+
 impl Traceroute for TracerouteWindows {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = AsyncUdpSocketWindows;
 
     fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
-        common::bind_socket_to_interface(socket, interface)
+        common::bind_socket_to_interface::<Self>(socket, interface)
     }
 
     fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
@@ -66,48 +108,7 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
     }
 
     async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
-        //common::recv_ttl_responses(self, &opt.interface).await
-
-        // \\ // \\ // \\ // big fat HACK below \\ // \\ // \\ // \\
-        //  \\/   \\/   \\/                      \//   \//   \//  \\
-        //   V     V     V                        V     V     V   \\
-
-        let interface_ip = get_interface_ip(&opt.interface)?;
-
-        for ttl in 1..=5 {
-            let output = std::process::Command::new(r"C:\Windows\System32\ping.exe")
-                .args(["-i", &ttl.to_string()])
-                .args(["-n", "1"])
-                .args(["-w", "1000"])
-                .args(["-S", &interface_ip.to_string()])
-                .arg(opt.destination.to_string())
-                .output()
-                .unwrap();
-
-            let stdout = String::from_utf8(output.stdout).unwrap();
-            let _stderr = String::from_utf8(output.stderr).unwrap();
-
-            log::info!("ping stdout: {stdout}");
-            log::info!("ping stderr: {_stderr}");
-
-            if !stdout.contains("TTL expired") {
-                continue;
-            }
-
-            let (_, s) = stdout.split_once("Reply from ").unwrap();
-            let (ip, _) = stdout.split_once(": TTL").unwrap();
-            let ip: IpAddr = ip.parse().unwrap();
-            log::error!("leaking to {ip}");
-
-            return Ok(LeakStatus::LeakDetected(
-                crate::LeakInfo::NodeReachableOnInterface {
-                    reachable_nodes: vec![ip],
-                    interface: opt.interface.clone(),
-                },
-            ));
-        }
-
-        Ok(LeakStatus::NoLeak)
+        common::recv_ttl_responses(self, &opt.interface).await
     }
 }
 

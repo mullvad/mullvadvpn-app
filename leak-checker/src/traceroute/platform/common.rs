@@ -17,9 +17,12 @@ use crate::{
     Interface, LeakInfo, LeakStatus,
 };
 
-use super::{AsyncIcmpSocket, Impl, Traceroute};
+use super::{AsyncIcmpSocket, Traceroute};
 
-pub fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
+pub fn bind_socket_to_interface<Impl: Traceroute>(
+    socket: &Socket,
+    interface: &Interface,
+) -> anyhow::Result<()> {
     let interface_ip = Impl::get_interface_ip(interface)?;
 
     log::info!("Binding socket to {interface_ip} ({interface:?})");
