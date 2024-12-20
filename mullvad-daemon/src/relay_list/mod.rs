@@ -90,7 +90,7 @@ impl RelayListUpdater {
             api_availability,
         };
 
-        tokio::spawn(updater.run(cmd_rx));
+        //tokio::spawn(updater.run(cmd_rx));
 
         RelayListUpdaterHandle { tx }
     }
