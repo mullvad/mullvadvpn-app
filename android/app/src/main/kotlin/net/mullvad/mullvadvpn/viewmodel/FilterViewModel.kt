@@ -16,27 +16,30 @@ import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
+import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 
 class FilterViewModel(
-    private val availableProvidersUseCase: AvailableProvidersUseCase,
+    private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val relayListFilterRepository: RelayListFilterRepository,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<FilterScreenSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     private val selectedOwnership = MutableStateFlow<Ownership?>(null)
-    private val selectedProviders = MutableStateFlow<List<Provider>>(emptyList())
+    private val selectedProviders = MutableStateFlow<List<ProviderId>>(emptyList())
 
     init {
         viewModelScope.launch {
             selectedProviders.value =
-                combine(availableProvidersUseCase(), relayListFilterRepository.selectedProviders) {
-                        allProviders,
-                        selectedConstraintProviders ->
-                        selectedConstraintProviders.toSelectedProviders(allProviders)
+                combine(
+                        providerToOwnershipsUseCase(),
+                        relayListFilterRepository.selectedProviders,
+                    ) { providerToOwnerships, selectedConstraintProviders ->
+                        selectedConstraintProviders.toSelectedProviders(
+                            providerToOwnerships.keys.toList()
+                        )
                     }
                     .first()
 
@@ -46,31 +49,25 @@ class FilterViewModel(
     }
 
     val uiState: StateFlow<RelayFilterUiState> =
-        combine(selectedOwnership, availableProvidersUseCase(), selectedProviders) {
-                selectedOwnership,
-                allProviders,
-                selectedProviders ->
-                RelayFilterUiState(
-                    selectedOwnership = selectedOwnership,
-                    allProviders = allProviders,
-                    selectedProviders = selectedProviders,
-                )
-            }
-            .stateIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                RelayFilterUiState(
-                    allProviders = emptyList(),
-                    selectedOwnership = null,
-                    selectedProviders = emptyList(),
-                ),
-            )
+        combine(providerToOwnershipsUseCase(), selectedOwnership, selectedProviders, ::createState)
+            .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), RelayFilterUiState())
+
+    private fun createState(
+        providerToOwnerships: Map<ProviderId, Set<Ownership>>,
+        selectedOwnership: Ownership?,
+        selectedProviders: List<ProviderId>,
+    ): RelayFilterUiState =
+        RelayFilterUiState(
+            providerToOwnerships = providerToOwnerships,
+            selectedOwnership = selectedOwnership,
+            selectedProviders = selectedProviders,
+        )
 
     fun setSelectedOwnership(ownership: Ownership?) {
         selectedOwnership.value = ownership
     }
 
-    fun setSelectedProvider(checked: Boolean, provider: Provider) {
+    fun setSelectedProvider(checked: Boolean, provider: ProviderId) {
         selectedProviders.value =
             if (checked) {
                 selectedProviders.value + provider
@@ -83,7 +80,7 @@ class FilterViewModel(
         viewModelScope.launch {
             selectedProviders.value =
                 if (isChecked) {
-                    availableProvidersUseCase().first()
+                    providerToOwnershipsUseCase().first().keys.toList()
                 } else {
                     emptyList()
                 }
