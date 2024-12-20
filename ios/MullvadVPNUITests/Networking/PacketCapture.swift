@@ -10,7 +10,13 @@ import Foundation
 import XCTest
 
 struct PacketCaptureSession {
-    var identifier = UUID().uuidString
+    var identifier: String
+
+    init(identifier: String = UUID().uuidString) {
+        self.identifier = identifier
+
+        print("Current Packet Capture session identifier is: \(identifier)")
+    }
 }
 
 /// Represents a stream in packet capture

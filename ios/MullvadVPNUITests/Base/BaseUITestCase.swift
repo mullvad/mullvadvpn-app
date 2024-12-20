@@ -97,7 +97,7 @@ class BaseUITestCase: XCTestCase {
 
     /// Create temporary account without time. Will be created using partner API if token is configured, else falling back to app API
     func createTemporaryAccountWithoutTime() -> String {
-        if let partnerApiToken {
+        if partnerApiToken != nil {
             let partnerAPIClient = PartnerAPIClient()
             return partnerAPIClient.createAccount()
         } else {
@@ -401,4 +401,5 @@ class BaseUITestCase: XCTestCase {
             XCTFail("Failed to find 'Delete'")
         }
     }
+    // swiftlint:disable:next file_length
 }
