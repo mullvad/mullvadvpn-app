@@ -4,6 +4,7 @@ use std::{
     net::{IpAddr, SocketAddr},
     os::windows::io::{AsRawSocket, AsSocket, FromRawSocket, IntoRawSocket},
     ptr::null_mut,
+    str,
 };
 
 use anyhow::{anyhow, bail, Context};
@@ -14,7 +15,10 @@ use windows_sys::Win32::Networking::WinSock::{
     WSAGetLastError, WSAIoctl, SIO_RCVALL, SOCKET, SOCKET_ERROR,
 };
 
-use crate::{traceroute::TracerouteOpt, Interface, LeakStatus};
+use crate::{
+    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, SEND_TIMEOUT},
+    Interface, LeakStatus,
+};
 
 use super::{common, AsyncIcmpSocket, AsyncUdpSocket, Traceroute};
 
@@ -25,35 +29,42 @@ pub struct AsyncIcmpSocketImpl(tokio::net::UdpSocket);
 pub struct AsyncUdpSocketWindows(tokio::net::UdpSocket);
 
 /// Implementation of traceroute using `ping.exe`
-pub async fn traceroute_using_ping(opt: &TracerouteOpt) {
+pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
     let interface_ip = get_interface_ip(&opt.interface)?;
 
-    // TODO: parameterise
-    for ttl in 1..=5 {
-        // TODO: tokio
-        let output = std::process::Command::new(r"C:\Windows\System32\ping.exe")
+    for ttl in DEFAULT_TTL_RANGE {
+        let ping_path = r"C:\Windows\System32\ping.exe";
+        let output = tokio::process::Command::new(ping_path)
             .args(["-i", &ttl.to_string()])
             .args(["-n", "1"])
-            .args(["-w", "1000"]) // TODO: parameterise
+            .args(["-w", &SEND_TIMEOUT.as_millis().to_string()])
             .args(["-S", &interface_ip.to_string()])
             .arg(opt.destination.to_string())
             .output()
-            .unwrap(); // TODO
+            .await
+            .context(anyhow!("Failed to execute {ping_path}"))?;
 
-        let stdout = String::from_utf8(output.stdout).unwrap(); // TODO
-        let _stderr = String::from_utf8(output.stderr).unwrap(); // TODO
+        let output_err = || anyhow!("Unexpected output from `ping.exe`");
 
-        log::info!("ping stdout: {stdout}"); // TODO
-        log::info!("ping stderr: {_stderr}"); // TODO
+        let stdout = str::from_utf8(&output.stdout).with_context(output_err)?;
+        let _stderr = str::from_utf8(&output.stderr).with_context(output_err)?;
+
+        log::trace!("ping stdout: {stdout}");
+        log::trace!("ping stderr: {_stderr}");
+
+        // Dumbly search stdout for a line that looks like this:
+        // Reply from <ip>: TTL expired
 
         if !stdout.contains("TTL expired") {
+            // No "TTL expired" means we did not
             continue;
         }
+        let (ip, ..) = stdout
+            .split_once("Reply from ")
+            .and_then(|(.., s)| s.split_once(": TTL expired"))
+            .with_context(output_err)?;
 
-        let (_, s) = stdout.split_once("Reply from ").unwrap();
-        let (ip, _) = stdout.split_once(": TTL expired").unwrap();
         let ip: IpAddr = ip.parse().unwrap();
-        log::error!("leaking to {ip}");
 
         return Ok(LeakStatus::LeakDetected(
             crate::LeakInfo::NodeReachableOnInterface {
