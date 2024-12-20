@@ -13,7 +13,7 @@ use tokio::{
 };
 
 use crate::{
-    traceroute::{parse_icmp_time_exceeded, parse_ipv4, RECV_TIMEOUT},
+    traceroute::{parse_icmp_time_exceeded, parse_ipv4, RECV_GRACE_TIME},
     Interface, LeakInfo, LeakStatus,
 };
 
@@ -88,7 +88,7 @@ pub async fn recv_ttl_responses(
         match result {
             Ok(ip) => {
                 log::debug!("Got a probe response, we are leaking!");
-                timeout_at.get_or_insert_with(|| Instant::now() + RECV_TIMEOUT);
+                timeout_at.get_or_insert_with(|| Instant::now() + RECV_GRACE_TIME);
                 let ip = IpAddr::from(ip);
                 if !reachable_nodes.contains(&ip) {
                     reachable_nodes.push(ip);
