@@ -7,6 +7,7 @@
 //
 
 import MullvadREST
+import MullvadTypes
 import WireGuardKitTypes
 
 public enum EphemeralPeerNegotiationState: Equatable {
@@ -43,11 +44,18 @@ public struct EphemeralPeerConfiguration: Equatable, CustomDebugStringConvertibl
     public let privateKey: PrivateKey
     public let preSharedKey: PreSharedKey?
     public let allowedIPs: [IPAddressRange]
+    public let daitaParameters: DaitaV2Parameters?
 
-    public init(privateKey: PrivateKey, preSharedKey: PreSharedKey? = nil, allowedIPs: [IPAddressRange]) {
+    public init(
+        privateKey: PrivateKey,
+        preSharedKey: PreSharedKey? = nil,
+        allowedIPs: [IPAddressRange],
+        daitaParameters: DaitaV2Parameters?
+    ) {
         self.privateKey = privateKey
         self.preSharedKey = preSharedKey
         self.allowedIPs = allowedIPs
+        self.daitaParameters = daitaParameters
     }
 
     public var debugDescription: String {

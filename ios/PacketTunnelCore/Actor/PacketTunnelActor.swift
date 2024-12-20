@@ -307,20 +307,11 @@ extension PacketTunnelActor {
             startDefaultPathObserver(notifyObserverWithCurrentPath: true)
         }
 
-        var daitaConfiguration: DaitaConfiguration?
-        if settings.daita.daitaState.isEnabled {
-            let maybeNot = Maybenot()
-            daitaConfiguration = DaitaConfiguration(
-                machines: maybeNot.machines,
-                maxEvents: maybeNot.maximumEvents,
-                maxActions: maybeNot.maximumActions
-            )
-        }
-
+        // Daita parameters are gotten from an ephemeral peer
         try await tunnelAdapter.startMultihop(
             entryConfiguration: configuration.entryConfiguration,
             exitConfiguration: configuration.exitConfiguration,
-            daita: daitaConfiguration
+            daita: nil
         )
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
