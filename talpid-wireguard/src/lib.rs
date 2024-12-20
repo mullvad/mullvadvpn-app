@@ -265,14 +265,22 @@ impl WireguardMonitor {
 
             let ephemeral_obfs_sender = close_obfs_sender.clone();
             if config.quantum_resistant || config.daita {
-                ephemeral::config_ephemeral_peers(
+                if let Err(e) = ephemeral::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
                     obfuscator.clone(),
                     ephemeral_obfs_sender,
                 )
-                .await?;
+                .await
+                {
+                    // We have received a small amount of reports about ephemeral peer nogationation
+                    // timing out on Windows for 2024.9-beta1. These verbose data usage logs are
+                    // a temporary measure to help us understand the issue. They can be removed
+                    // if the issue is resolved.
+                    log_tunnel_data_usage(&config, &tunnel).await;
+                    return Err(e);
+                }
 
                 let metadata = Self::tunnel_metadata(&iface_name, &config);
                 event_hook
@@ -462,7 +470,7 @@ impl WireguardMonitor {
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
 
-                ephemeral::config_ephemeral_peers(
+                if let Err(e) = ephemeral::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
@@ -470,7 +478,15 @@ impl WireguardMonitor {
                     ephemeral_obfs_sender,
                     args.tun_provider,
                 )
-                .await?;
+                .await
+                {
+                    // We have received a small amount of reports about ephemeral peer nogationation
+                    // timing out on Windows for 2024.9-beta1. These verbose data usage logs are
+                    // a temporary measure to help us understand the issue. They can be removed
+                    // if the issue is resolved.
+                    log_tunnel_data_usage(&config, &tunnel).await;
+                    return Err(e);
+                }
 
                 let metadata = Self::tunnel_metadata(&iface_name, &config);
                 event_hook
@@ -970,6 +986,26 @@ impl WireguardMonitor {
             ipv4_gateway: config.ipv4_gateway,
             ipv6_gateway: config.ipv6_gateway,
         }
+    }
+}
+
+async fn log_tunnel_data_usage(config: &Config, tunnel: &Arc<AsyncMutex<Option<TunnelType>>>) {
+    let tunnel = tunnel.lock().await;
+    let Some(tunnel) = &*tunnel else { return };
+    let Ok(tunnel_stats) = tunnel.get_tunnel_stats() else {
+        return;
+    };
+    if let Some(stats) = config
+        .exit_peer
+        .as_ref()
+        .map(|peer| peer.public_key.as_bytes())
+        .and_then(|pubkey| tunnel_stats.get(pubkey))
+    {
+        log::warn!("Exit peer stats: {:?}", stats);
+    };
+    let pubkey = config.entry_peer.public_key.as_bytes();
+    if let Some(stats) = tunnel_stats.get(pubkey) {
+        log::warn!("Entry peer stats: {:?}", stats);
     }
 }
 

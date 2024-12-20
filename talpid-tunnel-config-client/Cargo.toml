@@ -14,7 +14,6 @@ workspace = true
 log = { workspace = true }
 rand = "0.8"
 talpid-types = { path = "../talpid-types" }
-futures = { workspace = true }
 tonic = { workspace = true }
 tower = { workspace = true }
 prost = { workspace = true }
