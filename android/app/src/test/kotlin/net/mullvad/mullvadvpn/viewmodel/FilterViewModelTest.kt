@@ -20,7 +20,6 @@ import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
-import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import org.junit.jupiter.api.AfterEach
@@ -63,7 +62,7 @@ class FilterViewModelTest {
         every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
         every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
         every { mockRelayListFilterRepository.selectedProviders } returns
-            MutableStateFlow(Constraint.Only(Providers(mockSelectedProviders.toHashSet())))
+            MutableStateFlow(Constraint.Only(mockSelectedProviders))
         viewModel =
             FilterViewModel(
                 providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
@@ -84,9 +83,9 @@ class FilterViewModelTest {
             val mockOwnership = Ownership.Rented
             // Assert
             viewModel.uiState.test {
-                assertEquals(awaitItem().selectedOwnership, Ownership.MullvadOwned)
-                viewModel.setSelectedOwnership(mockOwnership)
-                assertEquals(mockOwnership, awaitItem().selectedOwnership)
+                assertEquals(Constraint.Only(Ownership.MullvadOwned), awaitItem().selectedOwnership)
+                viewModel.setSelectedOwnership(Constraint.Only(mockOwnership))
+                assertEquals(Constraint.Only(mockOwnership), awaitItem().selectedOwnership)
             }
         }
 
@@ -97,11 +96,11 @@ class FilterViewModelTest {
             val mockSelectedProvidersList = ProviderId("ptisp")
             // Assert
             viewModel.uiState.test {
-                assertLists(awaitItem().selectedProviders, mockSelectedProviders)
+                assertLists(mockSelectedProviders, awaitItem().selectedProviders.getOrNull()!!)
                 viewModel.setSelectedProvider(true, mockSelectedProvidersList)
                 assertLists(
                     listOf(mockSelectedProvidersList) + mockSelectedProviders,
-                    awaitItem().selectedProviders,
+                    awaitItem().selectedProviders.getOrNull()!!,
                 )
             }
         }
@@ -109,14 +108,12 @@ class FilterViewModelTest {
     @Test
     fun `setAllProvider with true should emit uiState with selectedProviders includes all providers`() =
         runTest {
-            // Arrange
-            val mockProvidersList = dummyListOfAllProviders.keys.toList()
             // Act
             viewModel.setAllProviders(true)
             // Assert
             viewModel.uiState.test {
                 val state = awaitItem()
-                assertEquals(mockProvidersList, state.selectedProviders)
+                assertEquals(Constraint.Any, state.selectedProviders)
             }
         }
 
