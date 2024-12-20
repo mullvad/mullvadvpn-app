@@ -7,11 +7,12 @@ import java.io.IOException
 import org.junit.jupiter.api.fail
 
 object Attachment {
-    private const val DIRECTORY_NAME = "test-attachments"
+    val DIRECTORY_PATH = "${Environment.DIRECTORY_DOWNLOADS}/test-outputs/attachments"
+
     private val testAttachmentsDirectory =
         File(
             Environment.getExternalStorageDirectory(),
-            "${Environment.DIRECTORY_DOWNLOADS}/$DIRECTORY_NAME",
+            DIRECTORY_PATH,
         )
 
     fun saveAttachment(fileName: String, data: ByteArray) {
