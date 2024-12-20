@@ -64,9 +64,8 @@ class FilterChipUseCase(
                             } else {
                                 val providerOwnerships = providerToOwnerships[providerId]
                                 // If the provider has been removed from the relay list we add it
-                                // so it is visible for the user. Because we won't know what
-                                // ownerships it
-                                // had
+                                // so it is visible for the user, because we won't know what
+                                // ownerships it had.
                                 if (providerOwnerships == null) {
                                     true
                                 } else {
