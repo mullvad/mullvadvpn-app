@@ -4,7 +4,6 @@ import io.mockk.mockk
 import io.mockk.unmockkAll
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import org.junit.jupiter.api.AfterEach
@@ -24,22 +23,16 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se9-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay10 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se10-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 
@@ -52,22 +45,16 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se9-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay9b =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se9-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 
@@ -81,44 +68,32 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "001"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay1 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "1"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay3 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "3"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay100 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "100"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 
@@ -134,22 +109,16 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay9b =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 
@@ -163,22 +132,16 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se001-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay005 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se005-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 
@@ -191,44 +154,32 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "ar2-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relayAr8 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "ar8-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relaySe5 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se5-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relaySe10 =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se10-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 
@@ -243,22 +194,16 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se2-cloud"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay2w =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se2-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 
@@ -271,22 +216,16 @@ class RelayNameComparatorTest {
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se22"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
         val relay22b =
             RelayItem.Location.Relay(
                 id = GeoLocationId.Hostname(city = mockk(), "se22-wireguard"),
                 active = false,
-                provider =
-                    Provider(
-                        providerId = ProviderId("Provider"),
-                        ownership = Ownership.MullvadOwned,
-                    ),
+                provider = ProviderId("Provider"),
+                ownership = Ownership.MullvadOwned,
                 daita = false,
             )
 

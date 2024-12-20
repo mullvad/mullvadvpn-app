@@ -3,8 +3,6 @@ package net.mullvad.mullvadvpn.compose.preview
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationUiState
-import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.usecase.FilterChip
 import net.mullvad.mullvadvpn.usecase.ModelOwnership
 

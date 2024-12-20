@@ -19,11 +19,10 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
-import net.mullvad.mullvadvpn.usecase.AvailableProvidersUseCase
+import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -31,49 +30,43 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestCoroutineRule::class)
 class FilterViewModelTest {
-    private val mockAvailableProvidersUseCase: AvailableProvidersUseCase = mockk(relaxed = true)
+    private val mockProvidersOwnershipUseCase: ProviderToOwnershipsUseCase = mockk(relaxed = true)
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
     private lateinit var viewModel: FilterViewModel
     private val selectedOwnership =
         MutableStateFlow<Constraint<Ownership>>(Constraint.Only(Ownership.MullvadOwned))
     private val dummyListOfAllProviders =
-        listOf(
-            Provider(ProviderId("31173"), Ownership.MullvadOwned),
-            Provider(ProviderId("100TB"), Ownership.Rented),
-            Provider(ProviderId("Blix"), Ownership.MullvadOwned),
-            Provider(ProviderId("Creanova"), Ownership.MullvadOwned),
-            Provider(ProviderId("DataPacket"), Ownership.Rented),
-            Provider(ProviderId("HostRoyale"), Ownership.Rented),
-            Provider(ProviderId("hostuniversal"), Ownership.Rented),
-            Provider(ProviderId("iRegister"), Ownership.Rented),
-            Provider(ProviderId("M247"), Ownership.Rented),
-            Provider(ProviderId("Makonix"), Ownership.Rented),
-            Provider(ProviderId("PrivateLayer"), Ownership.Rented),
-            Provider(ProviderId("ptisp"), Ownership.Rented),
-            Provider(ProviderId("Qnax"), Ownership.Rented),
-            Provider(ProviderId("Quadranet"), Ownership.Rented),
-            Provider(ProviderId("techfutures"), Ownership.Rented),
-            Provider(ProviderId("Tzulo"), Ownership.Rented),
-            Provider(ProviderId("xtom"), Ownership.Rented),
+        mapOf(
+            ProviderId("31173") to setOf(Ownership.MullvadOwned),
+            ProviderId("100TB") to setOf(Ownership.Rented),
+            ProviderId("Blix") to setOf(Ownership.MullvadOwned),
+            ProviderId("Creanova") to setOf(Ownership.MullvadOwned),
+            ProviderId("DataPacket") to setOf(Ownership.Rented, Ownership.MullvadOwned),
+            ProviderId("HostRoyale") to setOf(Ownership.Rented),
+            ProviderId("hostuniversal") to setOf(Ownership.Rented),
+            ProviderId("iRegister") to setOf(Ownership.Rented),
+            ProviderId("M247") to setOf(Ownership.Rented),
+            ProviderId("Makonix") to setOf(Ownership.Rented),
+            ProviderId("PrivateLayer") to setOf(Ownership.Rented),
+            ProviderId("ptisp") to setOf(Ownership.Rented),
+            ProviderId("Qnax") to setOf(Ownership.Rented),
+            ProviderId("Quadranet") to setOf(Ownership.Rented),
+            ProviderId("techfutures") to setOf(Ownership.Rented),
+            ProviderId("Tzulo") to setOf(Ownership.Rented),
+            ProviderId("xtom") to setOf(Ownership.Rented),
         )
-    private val mockSelectedProviders: List<Provider> =
-        listOf(
-            Provider(ProviderId("31173"), Ownership.MullvadOwned),
-            Provider(ProviderId("Blix"), Ownership.MullvadOwned),
-            Provider(ProviderId("Creanova"), Ownership.MullvadOwned),
-        )
+    private val mockSelectedProviders: List<ProviderId> =
+        listOf(ProviderId("31173"), ProviderId("Blix"), ProviderId("Creanova"))
 
     @BeforeEach
     fun setup() {
         every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
-        every { mockAvailableProvidersUseCase() } returns flowOf(dummyListOfAllProviders)
+        every { mockProvidersOwnershipUseCase() } returns flowOf(dummyListOfAllProviders)
         every { mockRelayListFilterRepository.selectedProviders } returns
-            MutableStateFlow(
-                Constraint.Only(Providers(mockSelectedProviders.map { it.providerId }.toSet()))
-            )
+            MutableStateFlow(Constraint.Only(Providers(mockSelectedProviders.toHashSet())))
         viewModel =
             FilterViewModel(
-                availableProvidersUseCase = mockAvailableProvidersUseCase,
+                providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
                 relayListFilterRepository = mockRelayListFilterRepository,
             )
     }
@@ -101,7 +94,7 @@ class FilterViewModelTest {
     fun `setSelectionProvider should emit uiState where selectedProviders include the selected provider`() =
         runTest {
             // Arrange
-            val mockSelectedProvidersList = Provider(ProviderId("ptisp"), Ownership.Rented)
+            val mockSelectedProvidersList = ProviderId("ptisp")
             // Assert
             viewModel.uiState.test {
                 assertLists(awaitItem().selectedProviders, mockSelectedProviders)
@@ -117,7 +110,7 @@ class FilterViewModelTest {
     fun `setAllProvider with true should emit uiState with selectedProviders includes all providers`() =
         runTest {
             // Arrange
-            val mockProvidersList = dummyListOfAllProviders
+            val mockProvidersList = dummyListOfAllProviders.keys.toList()
             // Act
             viewModel.setAllProviders(true)
             // Assert
@@ -133,7 +126,7 @@ class FilterViewModelTest {
             // Arrange
             val mockOwnership = Ownership.MullvadOwned.toOwnershipConstraint()
             val mockSelectedProviders =
-                mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders)
+                mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders.keys.toList())
             coEvery {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,

@@ -9,7 +9,6 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.common.test.assertLists
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.Settings
@@ -23,13 +22,13 @@ import org.junit.jupiter.api.Test
 class FilterChipUseCaseTest {
 
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
-    private val mockAvailableProvidersUseCase: AvailableProvidersUseCase = mockk()
+    private val mockProvidersOwnershipUseCase: ProviderToOwnershipsUseCase = mockk()
     private val mockSettingRepository: SettingsRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
 
     private val selectedOwnership = MutableStateFlow<Constraint<Ownership>>(Constraint.Any)
     private val selectedProviders = MutableStateFlow<Constraint<Providers>>(Constraint.Any)
-    private val availableProviders = MutableStateFlow<List<Provider>>(emptyList())
+    private val providerToOwnerships = MutableStateFlow<Map<ProviderId, Set<Ownership>>>(emptyMap())
     private val settings = MutableStateFlow<Settings>(mockk(relaxed = true))
     private val wireguardConstraints = MutableStateFlow<WireguardConstraints>(mockk(relaxed = true))
 
@@ -39,7 +38,7 @@ class FilterChipUseCaseTest {
     fun setUp() {
         every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
         every { mockRelayListFilterRepository.selectedProviders } returns selectedProviders
-        every { mockAvailableProvidersUseCase() } returns availableProviders
+        every { mockProvidersOwnershipUseCase() } returns providerToOwnerships
         every { mockSettingRepository.settingsUpdates } returns settings
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
@@ -47,7 +46,7 @@ class FilterChipUseCaseTest {
         filterChipUseCase =
             FilterChipUseCase(
                 relayListFilterRepository = mockRelayListFilterRepository,
-                availableProvidersUseCase = mockAvailableProvidersUseCase,
+                providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
                 settingsRepository = mockSettingRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
             )
@@ -74,10 +73,10 @@ class FilterChipUseCaseTest {
         // Arrange
         val expectedProviders = Providers(providers = setOf(ProviderId("1"), ProviderId("2")))
         selectedProviders.value = Constraint.Only(expectedProviders)
-        availableProviders.value =
-            listOf(
-                Provider(ProviderId("1"), Ownership.MullvadOwned),
-                Provider(ProviderId("2"), Ownership.Rented),
+        providerToOwnerships.value =
+            mapOf(
+                ProviderId("1") to setOf(Ownership.MullvadOwned),
+                ProviderId("2") to setOf(Ownership.Rented),
             )
 
         filterChipUseCase(RelayListType.EXIT).test {
@@ -93,10 +92,10 @@ class FilterChipUseCaseTest {
             val expectedOwnership = Ownership.MullvadOwned
             selectedProviders.value = Constraint.Only(expectedProviders)
             selectedOwnership.value = Constraint.Only(expectedOwnership)
-            availableProviders.value =
-                listOf(
-                    Provider(ProviderId("1"), Ownership.MullvadOwned),
-                    Provider(ProviderId("2"), Ownership.Rented),
+            providerToOwnerships.value =
+                mapOf(
+                    ProviderId("1") to setOf(Ownership.MullvadOwned),
+                    ProviderId("2") to setOf(Ownership.Rented),
                 )
 
             filterChipUseCase(RelayListType.EXIT).test {
