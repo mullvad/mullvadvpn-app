@@ -3,10 +3,9 @@ package net.mullvad.mullvadvpn.usecase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import net.mullvad.mullvadvpn.compose.state.RelayListType
-import net.mullvad.mullvadvpn.compose.state.toSelectedProviders
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
@@ -18,7 +17,7 @@ typealias ModelOwnership = Ownership
 
 class FilterChipUseCase(
     private val relayListFilterRepository: RelayListFilterRepository,
-    private val availableProvidersUseCase: AvailableProvidersUseCase,
+    private val providerToOwnershipsUseCase: ProviderToOwnershipsUseCase,
     private val settingsRepository: SettingsRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
 ) {
@@ -26,19 +25,19 @@ class FilterChipUseCase(
         combine(
             relayListFilterRepository.selectedOwnership,
             relayListFilterRepository.selectedProviders,
-            availableProvidersUseCase(),
+            providerToOwnershipsUseCase(),
             settingsRepository.settingsUpdates,
             wireguardConstraintsRepository.wireguardConstraints,
         ) {
             selectedOwnership,
             selectedConstraintProviders,
-            allProviders,
+            providerOwnership,
             settings,
             wireguardConstraints ->
             filterChips(
                 selectedOwnership = selectedOwnership,
                 selectedConstraintProviders = selectedConstraintProviders,
-                allProviders = allProviders,
+                providerToOwnerships = providerOwnership,
                 daitaDirectOnly = settings?.daitaAndDirectOnly() == true,
                 isMultihopEnabled = wireguardConstraints?.isMultihopEnabled == true,
                 relayListType = relayListType,
@@ -48,7 +47,7 @@ class FilterChipUseCase(
     private fun filterChips(
         selectedOwnership: Constraint<Ownership>,
         selectedConstraintProviders: Constraint<Providers>,
-        allProviders: List<Provider>,
+        providerToOwnerships: Map<ProviderId, Set<Ownership>>,
         daitaDirectOnly: Boolean,
         isMultihopEnabled: Boolean,
         relayListType: RelayListType,
@@ -58,10 +57,22 @@ class FilterChipUseCase(
             when (selectedConstraintProviders) {
                 is Constraint.Any -> null
                 is Constraint.Only ->
-                    filterSelectedProvidersByOwnership(
-                            selectedConstraintProviders.toSelectedProviders(allProviders),
-                            ownershipFilter,
-                        )
+                    selectedConstraintProviders.value.providers
+                        .filter { providerId ->
+                            if (ownershipFilter == null) {
+                                true
+                            } else {
+                                val providerOwnerships = providerToOwnerships[providerId]
+                                // If the provider has been removed from the relay list we add it
+                                // so it is visible for the user, because we won't know what
+                                // ownerships it had.
+                                if (providerOwnerships == null) {
+                                    true
+                                } else {
+                                    providerOwnerships.contains(ownershipFilter)
+                                }
+                            }
+                        }
                         .size
             }
         return buildList {
@@ -82,13 +93,6 @@ class FilterChipUseCase(
             }
         }
     }
-
-    private fun filterSelectedProvidersByOwnership(
-        selectedProviders: List<Provider>,
-        selectedOwnership: Ownership?,
-    ): List<Provider> =
-        if (selectedOwnership == null) selectedProviders
-        else selectedProviders.filter { it.ownership == selectedOwnership }
 
     private fun Settings.daitaAndDirectOnly() =
         tunnelOptions.wireguard.daitaSettings.enabled &&
