@@ -145,4 +145,16 @@ class FilterViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `ensure that providers with multiple ownership are only returned once`() = runTest {
+        // Arrange
+        val expectedProviderList = dummyListOfAllProviders.keys.toList()
+
+        // Assert
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertLists(expectedProviderList, state.allProviders)
+        }
+    }
 }
