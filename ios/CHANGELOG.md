@@ -21,6 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
+## Unreleased
+### Added
+- Update to DAITA v2 - now machines are provided by relays dynamically instead
+  of using bundled ones.
+
 ## [2024.11 - 2024-12-12]
 ### Added
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "VPN settings". This will
