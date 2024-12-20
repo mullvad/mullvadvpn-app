@@ -27,6 +27,12 @@ typedef struct ProxyHandle {
   uint16_t port;
 } ProxyHandle;
 
+typedef struct DaitaParameters {
+  uint8_t *machines;
+  double max_padding_frac;
+  double max_blocking_frac;
+} DaitaParameters;
+
 typedef struct WgTcpConnectionFunctions {
   int32_t (*open_fn)(int32_t tunnelHandle, const char *address, uint64_t timeout);
   int32_t (*close_fn)(int32_t tunnelHandle, int32_t socketHandle);
@@ -89,6 +95,22 @@ int32_t encrypted_dns_proxy_start(struct EncryptedDnsProxyState *encrypted_dns_p
 int32_t encrypted_dns_proxy_stop(struct ProxyHandle *proxy_config);
 
 /**
+ * To be called when ephemeral peer exchange has finished. All parameters except
+ * `raw_packet_tunnel` are optional.
+ *
+ * # Safety:
+ * If the key exchange failed, all pointers except `raw_packet_tunnel` must be null. If the
+ * key exchange was successful, `raw_ephemeral_private_key` must be a valid pointer to 32
+ * bytes for the lifetime of this call. If PQ was enabled, `raw_preshared_key` must be a valid
+ * pointer to 32 bytes for the lifetime of this call. If DAITA was requested, the
+ * `daita_prameters` must point to a valid instance of `DaitaParameters`.
+ */
+extern void swift_ephemeral_peer_ready(const void *raw_packet_tunnel,
+                                       const uint8_t *raw_preshared_key,
+                                       const uint8_t *raw_ephemeral_private_key,
+                                       const struct DaitaParameters *daita_parameters);
+
+/**
  * Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.
  * After this call, the cancel token is no longer valid.
  *
@@ -112,28 +134,17 @@ void drop_ephemeral_peer_exchange_token(struct ExchangeCancelToken *sender);
  * Entry point for requesting ephemeral peers on iOS.
  * The TCP connection must be created to go through the tunnel.
  * # Safety
- * `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types.
- * They will not be valid after this function is called, and thus must be copied here.
- * `packet_tunnel` must be valid pointers to a packet tunnel, the packet tunnel pointer must
- * outlive the ephemeral peer exchange. `cancel_token` should be owned by the caller of this
- * function.
+ * `public_key` and `ephemeral_key` must be valid respective `PublicKey` and `PrivateKey` types,
+ * specifically, they must be valid pointers to 32 bytes. They will not be valid after this
+ * function is called, and thus must be copied here. `packet_tunnel` must be valid pointers to a
+ * packet tunnel, the packet tunnel pointer must outlive the ephemeral peer exchange.
+ * `cancel_token` should be owned by the caller of this function.
  */
 struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    const uint8_t *ephemeral_key,
                                                    const void *packet_tunnel,
                                                    int32_t tunnel_handle,
                                                    struct EphemeralPeerParameters peer_parameters);
-
-/**
- * Called when the preshared post quantum key is ready,
- * or when a Daita peer has been successfully requested.
- * `raw_preshared_key` will be NULL if:
- * - The post quantum key negotiation failed
- * - A Daita peer has been requested without enabling post quantum keys.
- */
-extern void swift_ephemeral_peer_ready(const void *raw_packet_tunnel,
-                                       const uint8_t *raw_preshared_key,
-                                       const uint8_t *raw_ephemeral_private_key);
 
 /**
  * # Safety

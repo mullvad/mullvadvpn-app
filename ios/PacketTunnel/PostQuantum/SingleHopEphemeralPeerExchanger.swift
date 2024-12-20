@@ -45,7 +45,8 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
             relay: exit,
             configuration: EphemeralPeerConfiguration(
                 privateKey: devicePrivateKey,
-                allowedIPs: [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/32")!]
+                allowedIPs: [IPAddressRange(from: "\(LocalNetworkIPs.gatewayAddress.rawValue)/32")!],
+                daitaParameters: nil
             )
         )))
         keyExchanger.startNegotiation(
@@ -55,7 +56,7 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         )
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralKey: PrivateKey) async {
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralKey: PrivateKey, daitaParameters: DaitaV2Parameters?) async {
         await onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
             relay: exit,
             configuration: EphemeralPeerConfiguration(
@@ -64,7 +65,8 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                 allowedIPs: [
                     IPAddressRange(from: "\(LocalNetworkIPs.defaultRouteIpV4.rawValue)/0")!,
                     IPAddressRange(from: "\(LocalNetworkIPs.defaultRouteIpV6.rawValue)/0")!,
-                ]
+                ],
+                daitaParameters: daitaParameters
             )
         )))
         self.onFinish()
@@ -72,7 +74,8 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
 
     func receivePostQuantumKey(
         _ preSharedKey: WireGuardKitTypes.PreSharedKey,
-        ephemeralKey: WireGuardKitTypes.PrivateKey
+        ephemeralKey: WireGuardKitTypes.PrivateKey,
+        daitaParameters: DaitaV2Parameters?
     ) async {
         await onUpdateConfiguration(.single(EphemeralPeerRelayConfiguration(
             relay: exit,
@@ -82,7 +85,8 @@ struct SingleHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                 allowedIPs: [
                     IPAddressRange(from: "\(LocalNetworkIPs.defaultRouteIpV4.rawValue)/0")!,
                     IPAddressRange(from: "\(LocalNetworkIPs.defaultRouteIpV6.rawValue)/0")!,
-                ]
+                ],
+                daitaParameters: daitaParameters
             )
         )))
         self.onFinish()
