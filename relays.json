@@ -20,7 +20,7 @@
               "include_in_country": true,
               "active": true,
               "owned": false,
-              "provider": "iRegister",
+              "provider": "Kalles serverhall",
               "weight": 100,
               "endpoint_data": {
                 "wireguard": {
