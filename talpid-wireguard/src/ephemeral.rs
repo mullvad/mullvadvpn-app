@@ -1,8 +1,6 @@
 //! This module takes care of obtaining ephemeral peers, updating the WireGuard configuration and
 //! restarting obfuscation and WG tunnels when necessary.
 
-#[cfg(force_wireguard_handshake)]
-use super::connectivity;
 #[cfg(target_os = "android")] // On Android, the Tunnel trait is not imported by default.
 use super::Tunnel;
 use super::{config::Config, obfuscation::ObfuscatorHandle, CloseMsg, Error, TunnelType};
@@ -33,9 +31,6 @@ pub async fn config_ephemeral_peers(
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(force_wireguard_handshake)] connectivity: &mut connectivity::Check<
-        connectivity::Cancellable,
-    >,
 ) -> std::result::Result<(), CloseMsg> {
     let iface_name = {
         let tunnel = tunnel.lock().await;
@@ -49,16 +44,8 @@ pub async fn config_ephemeral_peers(
     log::trace!("Temporarily lowering tunnel MTU before ephemeral peer config");
     try_set_ipv4_mtu(&iface_name, talpid_tunnel::MIN_IPV4_MTU);
 
-    config_ephemeral_peers_inner(
-        tunnel,
-        config,
-        retry_attempt,
-        obfuscator,
-        close_obfs_sender,
-        #[cfg(force_wireguard_handshake)]
-        connectivity,
-    )
-    .await?;
+    config_ephemeral_peers_inner(tunnel, config, retry_attempt, obfuscator, close_obfs_sender)
+        .await?;
 
     log::trace!("Resetting tunnel MTU");
     try_set_ipv4_mtu(&iface_name, config.mtu);
@@ -88,9 +75,6 @@ pub async fn config_ephemeral_peers(
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(force_wireguard_handshake)] connectivity: &mut connectivity::Check<
-        connectivity::Cancellable,
-    >,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
     config_ephemeral_peers_inner(
@@ -99,8 +83,6 @@ pub async fn config_ephemeral_peers(
         retry_attempt,
         obfuscator,
         close_obfs_sender,
-        #[cfg(force_wireguard_handshake)]
-        connectivity,
         #[cfg(target_os = "android")]
         tun_provider,
     )
@@ -113,16 +95,8 @@ async fn config_ephemeral_peers_inner(
     retry_attempt: u32,
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
     close_obfs_sender: sync_mpsc::Sender<CloseMsg>,
-    #[cfg(force_wireguard_handshake)] connectivity: &mut connectivity::Check<
-        connectivity::Cancellable,
-    >,
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<(), CloseMsg> {
-    // NOTE: This one often fails with multihop on Windows, even though the handshake afterwards
-    // succeeds. So we try anyway if it fails.
-    #[cfg(force_wireguard_handshake)]
-    let _ = establish_tunnel_connection(tunnel, connectivity);
-
     let ephemeral_private_key = PrivateKey::new_from_random();
     let close_obfs_sender = close_obfs_sender.clone();
 
@@ -160,10 +134,6 @@ async fn config_ephemeral_peers_inner(
             &tun_provider,
         )
         .await?;
-
-        #[cfg(force_wireguard_handshake)]
-        establish_tunnel_connection(tunnel, connectivity)?;
-
         let entry_ephemeral_peer = request_ephemeral_peer(
             retry_attempt,
             &entry_config,
@@ -244,6 +214,7 @@ async fn reconfigure_tunnel(
         *obfs_guard = super::obfuscation::apply_obfuscation_config(
             &mut config,
             close_obfs_sender,
+            #[cfg(target_os = "android")]
             tun_provider.clone(),
         )
         .await
@@ -295,37 +266,6 @@ async fn reconfigure_tunnel(
     }
 
     Ok(config)
-}
-
-/// Ensure that the WireGuard tunnel works. This is useful after updating the WireGuard config, to
-/// force a WireGuard handshake. This should reduce the number of PQ timeouts.
-#[cfg(force_wireguard_handshake)]
-fn establish_tunnel_connection(
-    tunnel: &Arc<AsyncMutex<Option<TunnelType>>>,
-    connectivity: &mut connectivity::Check<connectivity::Cancellable>,
-) -> Result<(), CloseMsg> {
-    use talpid_types::ErrorExt;
-
-    let ping_result = tokio::task::block_in_place(|| {
-        let shared_tunnel = tunnel.blocking_lock();
-        let tunnel = shared_tunnel.as_ref().expect("tunnel was None");
-        connectivity.establish_connectivity(tunnel)
-    });
-
-    match ping_result {
-        Ok(true) => Ok(()),
-        Ok(false) => {
-            log::warn!("Timeout while checking tunnel connection");
-            Err(CloseMsg::PingErr)
-        }
-        Err(error) => {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to check tunnel connection")
-            );
-            Err(CloseMsg::PingErr)
-        }
-    }
 }
 
 async fn request_ephemeral_peer(
