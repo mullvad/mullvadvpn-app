@@ -7,10 +7,11 @@ import { closeToExpiry, formatRemainingTime, hasExpired } from '../../shared/acc
 import { TunnelState } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
+import { Flex, FootnoteMini, IconButton } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
-import { tinyText } from './common-styles';
 import { FocusFallback } from './Focus';
 import ImageView from './ImageView';
 
@@ -28,26 +29,18 @@ const headerBarStyleColorMap = {
   [HeaderBarStyle.success]: colors.green,
 };
 
-interface IHeaderBarContainerProps {
+const StyledHeader = styled.header<{
   $barStyle?: HeaderBarStyle;
   $accountInfoVisible: boolean;
-  $unpinnedWindow: boolean;
-}
+}>(({ $accountInfoVisible, $barStyle }) => ({
+  height: $accountInfoVisible ? '80px' : '68px',
+  minHeight: $accountInfoVisible ? '80px' : '68px',
 
-const HeaderBarContainer = styled.header<IHeaderBarContainerProps>((props) => ({
-  padding: '15px 11px 0px 16px',
-  minHeight: props.$accountInfoVisible ? '80px' : '68px',
-  height: props.$accountInfoVisible ? '80px' : '68px',
-  backgroundColor: headerBarStyleColorMap[props.$barStyle ?? HeaderBarStyle.default],
-  transitionProperty: 'height, min-height',
-  transitionDuration: '250ms',
-  transitionTimingFunction: 'ease-in-out',
+  backgroundColor: headerBarStyleColorMap[$barStyle ?? HeaderBarStyle.default],
+  transition: 'height 250ms ease-in-out, min-height 250ms ease-in-out',
 }));
 
-const HeaderBarContent = styled.div({
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'flex-end',
+const StyledLogoRow = styled(Flex)({
   height: '38px',
 });
 
@@ -59,58 +52,48 @@ interface IHeaderBarProps {
 }
 
 export default function HeaderBar(props: IHeaderBarProps) {
-  const unpinnedWindow = useSelector((state) => state.settings.guiSettings.unpinnedWindow);
-
   return (
-    <HeaderBarContainer
+    <StyledHeader
       $barStyle={props.barStyle}
-      className={props.className}
       $accountInfoVisible={props.showAccountInfo ?? false}
-      $unpinnedWindow={unpinnedWindow}>
-      <HeaderBarContent>{props.children}</HeaderBarContent>
-      {props.showAccountInfo && <HeaderBarDeviceInfo />}
-    </HeaderBarContainer>
+      className={props.className}>
+      <Flex
+        $flexDirection="column"
+        $justifyContent="center"
+        $margin={{
+          horizontal: Spacings.spacing5,
+          top: Spacings.spacing5,
+          bottom: Spacings.spacing3,
+        }}>
+        <StyledLogoRow $justifyContent="space-between" $alignItems="center">
+          {props.children}
+        </StyledLogoRow>
+        {props.showAccountInfo && <HeaderBarDeviceInfo />}
+      </Flex>
+    </StyledHeader>
   );
 }
-
-const BrandContainer = styled.div({
-  display: 'flex',
-  flex: 1,
-  alignItems: 'center',
-});
-
-const Title = styled(ImageView)({
-  opacity: 0.8,
-  marginLeft: '9px',
-});
 
 export function Brand(props: React.HTMLAttributes<HTMLDivElement>) {
   return (
-    <BrandContainer {...props}>
+    <Flex $flex={1} $alignItems="center" $gap={Spacings.spacing3} {...props}>
       <ImageView width={38} height={38} source="logo-icon" />
-      <Title height={15.4} source="logo-text" />
-    </BrandContainer>
+      <ImageView height={15.4} source="logo-text" />
+    </Flex>
   );
 }
 
-const StyledAccountInfo = styled.div({
-  display: 'flex',
-  marginTop: '2px',
-  maxWidth: '100%',
+const StyledDeviceInfoContainer = styled(Flex)({
+  minHeight: '18px',
 });
 
-const StyledDeviceLabel = styled.div(tinyText, {
-  fontSize: '10px',
-  color: colors.white80,
+const StyledDeviceLabel = styled(FootnoteMini)({
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 });
 
-const StyledTimeLeftLabel = styled.div(tinyText, {
-  fontSize: '10px',
-  color: colors.white80,
-  marginLeft: '16px',
+const StyledTimeLeftLabel = styled(FootnoteMini)({
   whiteSpace: 'nowrap',
 });
 
@@ -125,8 +108,8 @@ function HeaderBarDeviceInfo() {
       : '';
 
   return (
-    <StyledAccountInfo>
-      <StyledDeviceLabel>
+    <StyledDeviceInfoContainer $flex={1} $alignItems="flex-end" $gap={Spacings.spacing6}>
+      <StyledDeviceLabel color={Colors.white80}>
         {sprintf(
           // TRANSLATORS: A label that will display the newly created device name to inform the user
           // TRANSLATORS: about it.
@@ -139,33 +122,15 @@ function HeaderBarDeviceInfo() {
         )}
       </StyledDeviceLabel>
       {accountExpiry && !closeToExpiry(accountExpiry) && !isOutOfTime && (
-        <StyledTimeLeftLabel>
+        <StyledTimeLeftLabel color={Colors.white80}>
           {sprintf(messages.pgettext('device-management', 'Time left: %(timeLeft)s'), {
             timeLeft: formattedExpiry,
           })}
         </StyledTimeLeftLabel>
       )}
-    </StyledAccountInfo>
+    </StyledDeviceInfoContainer>
   );
 }
-
-const HeaderBarSettingsButtonContainer = styled.button({
-  cursor: 'default',
-  padding: '5px',
-  marginLeft: '3px',
-  backgroundColor: 'transparent',
-  border: 'none',
-});
-
-const HeaderBarAccountButtonContainer = styled(HeaderBarSettingsButtonContainer)({
-  marginRight: '11px',
-});
-
-const StyledHeaderBarImageView = styled(ImageView)((props) => ({
-  [`${HeaderBarSettingsButtonContainer}:hover &&`]: {
-    backgroundColor: props.tintHoverColor,
-  },
-}));
 
 interface IHeaderBarSettingsButtonProps {
   disabled?: boolean;
@@ -181,17 +146,12 @@ export function HeaderBarSettingsButton(props: IHeaderBarSettingsButtonProps) {
   }, [history, props.disabled]);
 
   return (
-    <HeaderBarSettingsButtonContainer
+    <IconButton
+      icon="icon-settings"
+      variant="secondary"
       onClick={openSettings}
-      aria-label={messages.gettext('Settings')}>
-      <StyledHeaderBarImageView
-        height={24}
-        width={24}
-        source="icon-settings"
-        tintColor={props.disabled ? colors.white40 : colors.white60}
-        tintHoverColor={props.disabled ? colors.white40 : colors.white80}
-      />
-    </HeaderBarSettingsButtonContainer>
+      aria-label={messages.gettext('Settings')}
+    />
   );
 }
 
@@ -203,18 +163,13 @@ export function HeaderBarAccountButton() {
   );
 
   return (
-    <HeaderBarAccountButtonContainer
+    <IconButton
+      icon="icon-account"
+      variant="secondary"
       onClick={openAccount}
       data-testid="account-button"
-      aria-label={messages.gettext('Account settings')}>
-      <StyledHeaderBarImageView
-        height={24}
-        width={24}
-        source="icon-account"
-        tintColor={colors.white60}
-        tintHoverColor={colors.white80}
-      />
-    </HeaderBarAccountButtonContainer>
+      aria-label={messages.gettext('Account settings')}
+    />
   );
 }
 
@@ -226,8 +181,10 @@ export function DefaultHeaderBar(props: IHeaderBarProps) {
       <FocusFallback>
         <Brand />
       </FocusFallback>
-      {loggedIn && <HeaderBarAccountButton />}
-      <HeaderBarSettingsButton />
+      <Flex $gap={Spacings.spacing5} $alignItems="center">
+        {loggedIn && <HeaderBarAccountButton />}
+        <HeaderBarSettingsButton />
+      </Flex>
     </HeaderBar>
   );
 }
