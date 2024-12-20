@@ -2371,9 +2371,6 @@ msgstr ""
 msgid "Blocking internet (device offline)"
 msgstr ""
 
-msgid "Changelog"
-msgstr ""
-
 msgid "Changes in this version:"
 msgstr ""
 
