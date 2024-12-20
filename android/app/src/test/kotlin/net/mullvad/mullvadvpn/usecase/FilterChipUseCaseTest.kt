@@ -71,7 +71,7 @@ class FilterChipUseCaseTest {
     @Test
     fun `when provider filter is applied should return correct number of providers`() = runTest {
         // Arrange
-        val expectedProviders = Providers(providers = setOf(ProviderId("1"), ProviderId("2")))
+        val expectedProviders = setOf(ProviderId("1"), ProviderId("2"))
         selectedProviders.value = Constraint.Only(expectedProviders)
         providerToOwnerships.value =
             mapOf(
@@ -88,7 +88,7 @@ class FilterChipUseCaseTest {
     fun `when provider and ownership filter is applied should return correct filter chips`() =
         runTest {
             // Arrange
-            val expectedProviders = Providers(providers = setOf(ProviderId("1")))
+            val expectedProviders = setOf(ProviderId("1"))
             val expectedOwnership = Ownership.MullvadOwned
             selectedProviders.value = Constraint.Only(expectedProviders)
             selectedOwnership.value = Constraint.Only(expectedOwnership)

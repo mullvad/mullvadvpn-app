@@ -45,8 +45,10 @@ import net.mullvad.mullvadvpn.compose.preview.FilterUiStatePreviewParameterProvi
 import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.FilterScreenSideEffect
@@ -96,7 +98,7 @@ fun FilterScreen(
     state: RelayFilterUiState,
     onBackClick: () -> Unit,
     onApplyClick: () -> Unit,
-    onSelectedOwnership: (ownership: Ownership?) -> Unit,
+    onSelectedOwnership: (ownership: Constraint<Ownership>) -> Unit,
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
     onSelectedProvider: (checked: Boolean, provider: ProviderId) -> Unit,
 ) {
@@ -121,14 +123,14 @@ fun FilterScreen(
             }
             if (ownershipExpanded) {
                 item(key = Keys.OWNERSHIP_ALL, contentType = ContentType.ITEM) {
-                    AnyOwnership(state, onSelectedOwnership)
+                    AnyOwnership(state, { onSelectedOwnership(Constraint.Any) })
                 }
                 itemsWithDivider(
                     key = { it.name },
                     contentType = { ContentType.ITEM },
                     items = state.selectableOwnerships,
                 ) { ownership ->
-                    Ownership(ownership, state, onSelectedOwnership)
+                    Ownership(ownership, state, { onSelectedOwnership(Constraint.Only(it)) })
                 }
             }
             itemWithDivider(key = Keys.PROVIDERS_TITLE, contentType = ContentType.HEADER) {
@@ -171,14 +173,11 @@ private fun LazyItemScope.OwnershipHeader(expanded: Boolean, onToggleExpanded: (
 }
 
 @Composable
-private fun LazyItemScope.AnyOwnership(
-    state: RelayFilterUiState,
-    onSelectedOwnership: (ownership: Ownership?) -> Unit,
-) {
+private fun LazyItemScope.AnyOwnership(state: RelayFilterUiState, onSelectedOwnership: () -> Unit) {
     SelectableCell(
         title = stringResource(id = R.string.any),
-        isSelected = state.selectedOwnership == null,
-        onCellClicked = { onSelectedOwnership(null) },
+        isSelected = state.selectedOwnership is Constraint.Any,
+        onCellClicked = { onSelectedOwnership() },
         modifier = Modifier.animateItem(),
     )
 }
@@ -187,11 +186,11 @@ private fun LazyItemScope.AnyOwnership(
 private fun LazyItemScope.Ownership(
     ownership: Ownership,
     state: RelayFilterUiState,
-    onSelectedOwnership: (ownership: Ownership?) -> Unit,
+    onSelectedOwnership: (ownership: Ownership) -> Unit,
 ) {
     SelectableCell(
         title = stringResource(id = ownership.stringResource()),
-        isSelected = ownership == state.selectedOwnership,
+        isSelected = ownership == state.selectedOwnership.getOrNull(),
         onCellClicked = { onSelectedOwnership(ownership) },
         modifier = Modifier.animateItem(),
     )
@@ -230,11 +229,17 @@ private fun LazyItemScope.Provider(
 ) {
     CheckboxCell(
         title = providerId.value,
-        checked = providerId in state.selectedProviders,
+        checked = providerId.isChecked(state.selectedProviders),
         onCheckedChange = { checked -> onSelectedProvider(checked, providerId) },
         modifier = Modifier.animateItem(),
     )
 }
+
+private fun ProviderId.isChecked(constraint: Constraint<Providers>) =
+    when (constraint) {
+        Constraint.Any -> true
+        is Constraint.Only -> this in constraint.value
+    }
 
 @Composable
 private fun LazyItemScope.RemovedProvider(

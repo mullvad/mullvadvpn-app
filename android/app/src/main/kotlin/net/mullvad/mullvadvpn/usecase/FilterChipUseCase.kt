@@ -57,7 +57,7 @@ class FilterChipUseCase(
             when (selectedConstraintProviders) {
                 is Constraint.Any -> null
                 is Constraint.Only ->
-                    selectedConstraintProviders.value.providers
+                    selectedConstraintProviders.value
                         .filter { providerId ->
                             if (ownershipFilter == null) {
                                 true
