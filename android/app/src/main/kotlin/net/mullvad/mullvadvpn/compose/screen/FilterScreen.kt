@@ -46,7 +46,7 @@ import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.FilterScreenSideEffect
@@ -98,7 +98,7 @@ fun FilterScreen(
     onApplyClick: () -> Unit,
     onSelectedOwnership: (ownership: Ownership?) -> Unit,
     onAllProviderCheckChange: (isChecked: Boolean) -> Unit,
-    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit,
+    onSelectedProvider: (checked: Boolean, provider: ProviderId) -> Unit,
 ) {
     var providerExpanded by rememberSaveable { mutableStateOf(false) }
     var ownershipExpanded by rememberSaveable { mutableStateOf(false) }
@@ -126,7 +126,7 @@ fun FilterScreen(
                 itemsWithDivider(
                     key = { it.name },
                     contentType = { ContentType.ITEM },
-                    items = state.filteredOwnershipByProviders,
+                    items = state.selectableOwnerships,
                 ) { ownership ->
                     Ownership(ownership, state, onSelectedOwnership)
                 }
@@ -139,9 +139,9 @@ fun FilterScreen(
                     AllProviders(state, onAllProviderCheckChange)
                 }
                 itemsWithDivider(
-                    key = { it.providerId.value },
+                    key = { it.value },
                     contentType = { ContentType.ITEM },
-                    items = state.filteredProvidersByOwnership,
+                    items = state.selectableProviders,
                 ) { provider ->
                     Provider(provider, state, onSelectedProvider)
                 }
@@ -216,14 +216,14 @@ private fun LazyItemScope.AllProviders(
 
 @Composable
 private fun LazyItemScope.Provider(
-    provider: Provider,
+    providerId: ProviderId,
     state: RelayFilterUiState,
-    onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit,
+    onSelectedProvider: (checked: Boolean, providerId: ProviderId) -> Unit,
 ) {
     CheckboxCell(
-        title = provider.providerId.value,
-        checked = provider in state.selectedProviders,
-        onCheckedChange = { checked -> onSelectedProvider(checked, provider) },
+        title = providerId.value,
+        checked = providerId in state.selectedProviders,
+        onCheckedChange = { checked -> onSelectedProvider(checked, providerId) },
         modifier = Modifier.animateItem(),
     )
 }

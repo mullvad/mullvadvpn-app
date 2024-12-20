@@ -6,7 +6,6 @@ import net.mullvad.mullvadvpn.lib.model.CustomListName
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.PortRange
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.RelayItem
 import net.mullvad.mullvadvpn.lib.model.RelayList
@@ -20,8 +19,8 @@ private val DUMMY_RELAY_1 =
                 "Relay host 1",
             ),
         active = true,
-        provider =
-            Provider(providerId = ProviderId("PROVIDER RENTED"), ownership = Ownership.Rented),
+        provider = ProviderId("PROVIDER RENTED"),
+        ownership = Ownership.Rented,
         daita = false,
     )
 private val DUMMY_RELAY_2 =
@@ -32,8 +31,8 @@ private val DUMMY_RELAY_2 =
                 "Relay host 2",
             ),
         active = true,
-        provider =
-            Provider(providerId = ProviderId("PROVIDER OWNED"), ownership = Ownership.MullvadOwned),
+        provider = ProviderId("PROVIDER OWNED"),
+        ownership = Ownership.MullvadOwned,
         daita = false,
     )
 private val DUMMY_RELAY_CITY_1 =

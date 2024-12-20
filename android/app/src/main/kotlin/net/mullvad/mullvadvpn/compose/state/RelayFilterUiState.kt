@@ -1,26 +1,35 @@
 package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
+import net.mullvad.mullvadvpn.lib.model.ProviderId
 
 data class RelayFilterUiState(
+    private val providerToOwnerships: Map<ProviderId, Set<Ownership>> = emptyMap(),
     val selectedOwnership: Ownership? = null,
-    val allProviders: List<Provider> = emptyList(),
-    val selectedProviders: List<Provider> = allProviders,
+    val selectedProviders: List<ProviderId> = emptyList(),
 ) {
-    val isApplyButtonEnabled = selectedProviders.isNotEmpty()
+    val allProviders: List<ProviderId> = providerToOwnerships.keys.toList().sorted()
 
-    val filteredOwnershipByProviders =
+    val selectableOwnerships: List<Ownership> =
         if (selectedProviders.isEmpty()) {
-            Ownership.entries
-        } else {
-            Ownership.entries.filter { ownership ->
-                selectedProviders.any { provider -> provider.ownership == ownership }
+                Ownership.entries
+            } else {
+                providerToOwnerships
+                    .filterKeys { it in selectedProviders }
+                    .values
+                    .flatten()
+                    .distinct()
             }
+            .sorted()
+
+    val selectableProviders: List<ProviderId> =
+        if (selectedOwnership != null) {
+            providerToOwnerships.filterValues { selectedOwnership in it }.keys.toList().sorted()
+        } else {
+            allProviders
         }
-    val filteredProvidersByOwnership =
-        if (selectedOwnership == null) allProviders
-        else allProviders.filter { provider -> provider.ownership == selectedOwnership }
+
+    val isApplyButtonEnabled = selectedProviders.isNotEmpty()
 
     val isAllProvidersChecked = allProviders.size == selectedProviders.size
 }

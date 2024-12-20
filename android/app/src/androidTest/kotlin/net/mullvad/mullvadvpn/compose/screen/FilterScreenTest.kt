@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.Provider
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
@@ -30,7 +29,7 @@ class FilterScreenTest {
         onApplyClick: () -> Unit = {},
         onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
         onAllProviderCheckChange: (isChecked: Boolean) -> Unit = {},
-        onSelectedProvider: (checked: Boolean, provider: Provider) -> Unit = { _, _ -> },
+        onSelectedProvider: (checked: Boolean, provider: ProviderId) -> Unit = { _, _ -> },
     ) {
         setContentWithTheme {
             FilterScreen(
@@ -50,7 +49,7 @@ class FilterScreenTest {
             initScreen(
                 state =
                     RelayFilterUiState(
-                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = null,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS,
                     )
@@ -65,7 +64,7 @@ class FilterScreenTest {
             initScreen(
                 state =
                     RelayFilterUiState(
-                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = null,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS,
                     )
@@ -80,7 +79,7 @@ class FilterScreenTest {
             initScreen(
                 state =
                     RelayFilterUiState(
-                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Ownership.MullvadOwned,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS,
                     )
@@ -95,7 +94,7 @@ class FilterScreenTest {
             initScreen(
                 state =
                     RelayFilterUiState(
-                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Ownership.Rented,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS,
                     )
@@ -110,7 +109,7 @@ class FilterScreenTest {
             initScreen(
                 state =
                     RelayFilterUiState(
-                        allProviders = DUMMY_RELAY_ALL_PROVIDERS,
+                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = null,
                         selectedProviders = DUMMY_SELECTED_PROVIDERS,
                     )
@@ -128,10 +127,9 @@ class FilterScreenTest {
             initScreen(
                 state =
                     RelayFilterUiState(
-                        allProviders = listOf(),
+                        providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = null,
-                        selectedProviders =
-                            listOf(Provider(ProviderId("31173"), Ownership.MullvadOwned)),
+                        selectedProviders = listOf(ProviderId("31173")),
                     ),
                 onApplyClick = mockClickListener,
             )
@@ -141,45 +139,26 @@ class FilterScreenTest {
 
     companion object {
         private val DUMMY_RELAY_ALL_PROVIDERS =
-            listOf(
-                Provider(ProviderId("31173"), Ownership.MullvadOwned),
-                Provider(ProviderId("100TB"), Ownership.Rented),
-                Provider(ProviderId("Blix"), Ownership.MullvadOwned),
-                Provider(ProviderId("Creanova"), Ownership.MullvadOwned),
-                Provider(ProviderId("DataPacket"), Ownership.Rented),
-                Provider(ProviderId("HostRoyale"), Ownership.Rented),
-                Provider(ProviderId("hostuniversal"), Ownership.Rented),
-                Provider(ProviderId("iRegister"), Ownership.Rented),
-                Provider(ProviderId("M247"), Ownership.Rented),
-                Provider(ProviderId("Makonix"), Ownership.Rented),
-                Provider(ProviderId("PrivateLayer"), Ownership.Rented),
-                Provider(ProviderId("ptisp"), Ownership.Rented),
-                Provider(ProviderId("Qnax"), Ownership.Rented),
-                Provider(ProviderId("Quadranet"), Ownership.Rented),
-                Provider(ProviderId("techfutures"), Ownership.Rented),
-                Provider(ProviderId("Tzulo"), Ownership.Rented),
-                Provider(ProviderId("xtom"), Ownership.Rented),
+            mapOf(
+                ProviderId("31173") to setOf(Ownership.MullvadOwned),
+                ProviderId("100TB") to setOf(Ownership.Rented),
+                ProviderId("Blix") to setOf(Ownership.MullvadOwned),
+                ProviderId("Creanova") to setOf(Ownership.MullvadOwned),
+                ProviderId("DataPacket") to setOf(Ownership.Rented),
+                ProviderId("HostRoyale") to setOf(Ownership.Rented),
+                ProviderId("hostuniversal") to setOf(Ownership.Rented),
+                ProviderId("iRegister") to setOf(Ownership.Rented),
+                ProviderId("M247") to setOf(Ownership.Rented),
+                ProviderId("Makonix") to setOf(Ownership.Rented),
+                ProviderId("PrivateLayer") to setOf(Ownership.Rented),
+                ProviderId("ptisp") to setOf(Ownership.Rented),
+                ProviderId("Qnax") to setOf(Ownership.Rented),
+                ProviderId("Quadranet") to setOf(Ownership.Rented),
+                ProviderId("techfutures") to setOf(Ownership.Rented),
+                ProviderId("Tzulo") to setOf(Ownership.Rented),
+                ProviderId("xtom") to setOf(Ownership.Rented),
             )
 
-        private val DUMMY_SELECTED_PROVIDERS =
-            listOf(
-                Provider(ProviderId("31173"), Ownership.MullvadOwned),
-                Provider(ProviderId("100TB"), Ownership.Rented),
-                Provider(ProviderId("Blix"), Ownership.MullvadOwned),
-                Provider(ProviderId("Creanova"), Ownership.MullvadOwned),
-                Provider(ProviderId("DataPacket"), Ownership.Rented),
-                Provider(ProviderId("HostRoyale"), Ownership.Rented),
-                Provider(ProviderId("hostuniversal"), Ownership.Rented),
-                Provider(ProviderId("iRegister"), Ownership.Rented),
-                Provider(ProviderId("M247"), Ownership.Rented),
-                Provider(ProviderId("Makonix"), Ownership.Rented),
-                Provider(ProviderId("PrivateLayer"), Ownership.Rented),
-                Provider(ProviderId("ptisp"), Ownership.Rented),
-                Provider(ProviderId("Qnax"), Ownership.Rented),
-                Provider(ProviderId("Quadranet"), Ownership.Rented),
-                Provider(ProviderId("techfutures"), Ownership.Rented),
-                Provider(ProviderId("Tzulo"), Ownership.Rented),
-                Provider(ProviderId("xtom"), Ownership.Rented),
-            )
+        private val DUMMY_SELECTED_PROVIDERS = DUMMY_RELAY_ALL_PROVIDERS.keys.toList()
     }
 }
