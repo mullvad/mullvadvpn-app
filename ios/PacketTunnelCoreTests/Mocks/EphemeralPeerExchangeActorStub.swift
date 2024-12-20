@@ -19,12 +19,25 @@ final class EphemeralPeerExchangeActorStub: EphemeralPeerExchangeActorProtocol {
     var delegate: EphemeralPeerReceiving?
 
     func startNegotiation(with privateKey: PrivateKey, enablePostQuantum: Bool, enableDaita: Bool) {
+        let daita = enableDaita
+            ? DaitaV2Parameters(
+                machines: "test",
+                maximumEvents: 1,
+                maximumActions: 1,
+                maximumPadding: 1.0,
+                maximumBlocking: 1.0
+            )
+            : nil
         switch result {
         case let .success((preSharedKey, ephemeralKey)):
             if enablePostQuantum {
-                Task { await delegate?.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey) }
+                Task { await delegate?.receivePostQuantumKey(
+                    preSharedKey,
+                    ephemeralKey: ephemeralKey,
+                    daitaParameters: daita
+                ) }
             } else {
-                Task { await delegate?.receiveEphemeralPeerPrivateKey(ephemeralKey) }
+                Task { await delegate?.receiveEphemeralPeerPrivateKey(ephemeralKey, daitaParameters: daita) }
             }
         case .failure:
             delegate?.ephemeralPeerExchangeFailed()
