@@ -71,18 +71,3 @@ pub trait AsyncUdpSocket {
     async fn send_to(&self, packet: &[u8], destination: impl Into<SocketAddr>)
         -> io::Result<usize>;
 }
-
-#[cfg(target_os = "android")]
-pub type Impl = platform::android::TracerouteAndroid;
-
-#[cfg(target_os = "linux")]
-pub type Impl = linux::TracerouteLinux;
-
-#[cfg(target_os = "macos")]
-pub type Impl = macos::TracerouteMacos;
-
-#[cfg(target_os = "windows")]
-pub type Impl = windows::TracerouteWindows;
-
-pub type AsyncIcmpSocketImpl = <Impl as Traceroute>::AsyncIcmpSocket;
-pub type AsyncUdpSocketImpl = <Impl as Traceroute>::AsyncUdpSocket;
