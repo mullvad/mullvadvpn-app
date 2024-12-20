@@ -27,10 +27,6 @@ Line wrap the file at 100 chars.                                              Th
 - Add experimental support for Windows ARM64.
 
 ## [2024.9-beta2] - 2024-12-19
-### Changed
-#### Windows
-- Test tunnel before ephemeral peer exchange. This is an attempt to fix timeout issues.
-
 ### Fixed
 #### macOS
 - Fix GUI getting stuck when opening the split tunneling view.
