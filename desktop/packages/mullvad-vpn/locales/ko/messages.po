@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2024-10-23 06:33\n"
+"PO-Revision-Date: 2024-12-20 14:20\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -155,6 +155,9 @@ msgstr "편집"
 
 msgid "Enable"
 msgstr "사용"
+
+msgid "Enable \"%(directOnly)s\""
+msgstr "\"%(directOnly)s\" 활성화"
 
 msgid "Enable anyway"
 msgstr "그래도 사용"
@@ -468,6 +471,10 @@ msgid "Enter port"
 msgstr "포트 입력"
 
 msgctxt "api-access-methods-view"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
+msgstr "당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare, Google 등의 제공업체에서 호스팅합니다."
+
+msgctxt "api-access-methods-view"
 msgid "In use"
 msgstr "사용 중"
 
@@ -566,6 +573,10 @@ msgstr "전송 프로토콜"
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
 msgstr "\"직접\" 방법을 사용하면 앱이 중간 프록시 없이 Mullvad API 서버와 직접 통신합니다."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
+msgstr "앱은 \"암호화된 DNS 프록시\" 방식을 사용하여 프록시 주소를 통해 Mullvad API와 통신합니다. 이는 DoH(DNS over HTTPS) 서버에서 주소를 검색한 다음, 그 주소를 사용해 당사 API 서버에 도달하는 방식으로 이루어집니다."
 
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
@@ -1407,6 +1418,10 @@ msgid "Filtered:"
 msgstr "필터링됨:"
 
 msgctxt "select-location-view"
+msgid "Go to %(daita)s settings"
+msgstr "%(daita)s 설정으로 이동"
+
+msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "목록 이름은 고유해야 합니다."
 
@@ -1431,12 +1446,8 @@ msgid "The app selects a random bridge server, but servers have a higher probabi
 msgstr "앱에서 임의의 브리지 서버를 선택하지만, 사용자에게 가까운 서버일수록 확률이 더 높습니다."
 
 msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
-msgstr "연결되어 있는 동안 트래픽은 시작 지점(브리지 서버)과 종료 지점(VPN 서버)의 두 가지 안전한 위치를 통해 라우팅됩니다."
-
-msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
-msgstr "연결된 동안 트래픽이 시작 지점과 종료 지점(서로 다른 두 VPN 서버여야 함)의 두 보안 위치를 통해 라우팅됩니다."
+msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
+msgstr "%(multihop)s 진입 서버가 현재 %(daita)s에 의해 재정의되었습니다. 진입 서버를 선택하려면 먼저 설정에서 \"%(directOnly)s\"을 활성화하거나 \"%(daita)s\"를 비활성화하세요."
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -1565,6 +1576,10 @@ msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel unti
 msgstr "앱을 클릭하여 실행하세요. 트래픽은 사용자가 닫을 때까지 VPN 터널을 우회합니다."
 
 msgctxt "split-tunneling-view"
+msgid "Enabled \"Full disk access\" and still having issues?"
+msgstr "\"전체 디스크 액세스\"를 활성화했는데도 계속 문제가 발생하나요?"
+
+msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "제외된 앱"
 
@@ -1580,6 +1595,10 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "실행"
 
+msgctxt "split-tunneling-view"
+msgid "Open System Settings"
+msgstr "시스템 설정 열기"
+
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
@@ -1592,6 +1611,14 @@ msgstr "문제 보고서를 보내주세요."
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "다시 시도하거나 문제 보고서를 보내주세요."
+
+msgctxt "split-tunneling-view"
+msgid "Restart Mullvad Service"
+msgstr "Mullvad 서비스 다시 시작"
+
+msgctxt "split-tunneling-view"
+msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
+msgstr "분할 터널링을 사용하려면 macOS 시스템 설정에서 \"Mullvad VPN\"에 대해 \"전체 디스크 액세스\"를 활성화하세요."
 
 #. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
@@ -2198,14 +2225,20 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다."
 
-msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%s(%s)는 암호화된 VPN 트래픽의 패턴을 숨깁니다. 누군가 사용자의 연결을 모니터링하고 있다면 이 기능은 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다. 이는 정교하게 네트워크 노이즈를 추가하고 모든 네트워크 패킷을 동일한 사이즈로 만드는 방식으로 달성됩니다."
+msgid "%s (Entry)"
+msgstr "%s(진입)"
+
+msgid "%s (Exit)"
+msgstr "%s(종료)"
 
 msgid "%s (added)"
 msgstr "%s(추가됨)"
 
-msgid "%s using %s"
-msgstr "%s, %s 사용 중"
+msgid "%s custom port"
+msgstr "%s 사용자 지정 포트"
+
+msgid "%s more..."
+msgstr "%s개 더 보기..."
 
 msgid "%s was added to \"%s\""
 msgstr "%s이(가) \"%s\"에 추가되었습니다"
@@ -2216,14 +2249,14 @@ msgstr "%s이(가) 계정에 추가되었습니다."
 msgid "%s was removed from \"%s\""
 msgstr "%s이(가) \"%s\"에서 제거되었습니다"
 
-msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
-msgstr "1. 아래의 <b>VPN 설정으로 이동</b> 버튼을 클릭한 후 <b>Mullvad VPN</b> 이름 옆의 톱니바퀴를 클릭합니다."
+msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
+msgstr "1. 아래의 \"VPN 설정으로 이동\" 버튼을 클릭한 후 \"Mullvad VPN\" 이름 옆의 톱니바퀴를 클릭합니다."
 
-msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
-msgstr "2. 자동 연결을 활성화하려면 <b>상시 접속 VPN</b> 옆에 있는 토글을 클릭합니다."
+msgid "2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\"."
+msgstr "2. 자동 연결을 활성화하려면 \"상시 접속 VPN\" 옆에 있는 토글을 클릭합니다."
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
-msgstr "3. 잠금 모드를 활성화하려면 <b>VPN 없이 연결 차단</b> 옆에 있는 토글을 클릭합니다.<br /><br /><b>경고: 이 설정은 분할 앱과 로컬 네트워크 공유 기능을 차단합니다.</b>"
+msgid "3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. 잠금 모드를 활성화하려면 \"VPN 없이 연결 차단\" 옆에 있는 토글을 클릭합니다.<br /><br /><b>경고: 이 설정은 분할 앱과 로컬 네트워크 공유 기능을 차단합니다.</b>"
 
 msgid "30 days was added to your account."
 msgstr "귀하의 계정에 30일이 추가되었습니다."
@@ -2270,17 +2303,23 @@ msgstr "모든 애플리케이션"
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
 msgstr "모든 재정의가 초기화되며 위치 선택 보기의 서버 IP 주소는 기본값으로 돌아갑니다."
 
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "공유, 인쇄 등을 위해 동일한 네트워크의 다른 장치에 액세스할 수 있습니다."
+msgid "Always-on VPN assigned to %s"
+msgstr "상시 접속 VPN이 %s에 할당됨"
 
-msgid "Always-on VPN assigned to other app"
-msgstr "상시 접속 VPN이 다른 앱에 할당됨"
+msgid "Always-on VPN assigned to other VPN"
+msgstr "상시 접속 VPN이 다른 VPN에 할당됨"
 
-msgid "Always-on VPN might be enabled for another app"
-msgstr "상시 접속 VPN이 다른 앱에 활성화되었을 수 있습니다."
+msgid "App info"
+msgstr "앱 정보"
 
 msgid "At least one method needs to be enabled"
 msgstr "1개 이상의 방법이 활성화되어 있어야 합니다"
+
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
+msgstr "주의: 이 기능은 네트워크 트래픽을 증가시키므로 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다."
+
+msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
+msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \"로컬 네트워크 공유\"가 작동하지 않습니다."
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되면, 분할 앱에 인터넷이 연결되지 않습니다. 분할 터널링 시 개인 정보가 위험해질 수 있음에 항상 유의하시기 바랍니다."
@@ -2288,8 +2327,8 @@ msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되면, 분할 앱에 �
 msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
 msgstr "주의: 이러한 방식은 총 네트워크 트래픽을 증가시키므로, 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다. 또한 네트워크 속도와 배터리 사용에 부정적인 영향을 미칠 수 있습니다."
 
-msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "주의: 이 설정은 <b>사용자 지정 DNS 서버 사용</b>과 함께 사용할 수 없습니다."
+msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
+msgstr "주의: 이 설정은 \"사용자 지정 DNS 서버 사용\"과 함께 사용할 수 없습니다."
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "자동 연결 및 잠금 모드"
@@ -2300,14 +2339,26 @@ msgstr "자동 연결(레거시)"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "자동 연결은 Android 시스템 설정에서 상시 접속 VPN이라고 하며 VPN 터널에 지속적으로 연결되고 다시 시작한 후 자동 연결되게 해줍니다."
 
-msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr "앱 실행 시 자동으로 연결합니다. 이 설정은 이후 업데이트에서 장치 시작 기능에 대한 새로운 연결로 대체됩니다."
+msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
+msgstr "장치 시작 시 자동으로 연결됩니다. 앱에 VPN 권한이 부여된 경우에만 작동됩니다."
 
 msgid "Blocking internet (device offline)"
 msgstr "인터넷 차단(장치 오프라인)"
 
+msgid "Changelog"
+msgstr "변경 로그"
+
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다."
+
+msgid "Clear input"
+msgstr "입력 지우기"
+
+msgid "Collapse"
+msgstr "접기"
+
+msgid "Connect on device start-up"
+msgstr "장치 시작 시 연결"
 
 msgid "Connecting..."
 msgstr "연결 중..."
@@ -2318,11 +2369,14 @@ msgstr "클립보드에 Mullvad 계정 번호 복사됨"
 msgid "Copied logs to clipboard"
 msgstr "로그를 클립보드에 복사했습니다."
 
-msgid "Copied to clipboard"
-msgstr "클립보드에 복사됨"
+msgid "Copy"
+msgstr "복사"
 
 msgid "Create"
 msgstr "생성"
+
+msgid "Create new account"
+msgstr "새 계정 생성"
 
 msgid "Create new list"
 msgstr "새 목록 생성"
@@ -2348,8 +2402,11 @@ msgstr "방법 삭제"
 msgid "Delete method?"
 msgstr "이 방법을 삭제하시겠습니까?"
 
-msgid "Disable all <b>%s</b> above to activate this setting."
-msgstr "이 설정을 활성화하려면 위의 모든 <b>%s</b>을(를) 비활성화하세요."
+msgid "Disable \"%s\" below to activate these settings."
+msgstr "이 설정을 활성화하려면 아래의 \"%s\"를 비활성화하세요."
+
+msgid "Disable all \"%s\" above to activate this setting."
+msgstr "이 설정을 활성화하려면 위의 모든 \"%s\"를 비활성화하세요."
 
 msgid "Discard"
 msgstr "취소"
@@ -2357,8 +2414,17 @@ msgstr "취소"
 msgid "Discard changes?"
 msgstr "변경 사항을 취소하시겠습니까?"
 
+msgid "Disconnected (No VPN permission)"
+msgstr "연결되지 않음(VPN 권한 없음)"
+
+msgid "Disconnecting..."
+msgstr "연결 해제 중..."
+
 msgid "Dismiss"
 msgstr "해제"
+
+msgid "Do you want to create a new account?"
+msgstr "새 계정을 만들고 싶으신가요?"
 
 msgid "Edit custom lists"
 msgstr "사용자 지정 목록 편집"
@@ -2375,6 +2441,9 @@ msgstr "위치 편집"
 msgid "Edit name"
 msgstr "이름 편집"
 
+msgid "Enable %s"
+msgstr "%s 활성화"
+
 msgid "Enable method"
 msgstr "방법 활성화"
 
@@ -2383,6 +2452,12 @@ msgstr "MTU 입력"
 
 msgid "Excluded applications"
 msgstr "제외된 애플리케이션"
+
+msgid "Expand"
+msgstr "펼치기"
+
+msgid "FAILED TO CONNECT"
+msgstr "연결 실패"
 
 msgid "Failed to apply patch"
 msgstr "패치 적용 실패"
@@ -2395,6 +2470,9 @@ msgstr "현재로 설정하지 못함 - 알 수 없는 이유"
 
 msgid "File"
 msgstr "파일"
+
+msgid "Filters:"
+msgstr "필터:"
 
 msgid "Go to VPN settings"
 msgstr "VPN 설정으로 이동"
@@ -2444,9 +2522,6 @@ msgstr "장치가 항상 VPN 터널에 있어야 합니다."
 msgid "Manage account"
 msgstr "계정 관리"
 
-msgid "Mullvad account number"
-msgstr "Mullvad 계정 번호"
-
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 서비스 사용 불가"
 
@@ -2465,11 +2540,14 @@ msgstr "인터넷에 연결되지 않음"
 msgid "No locations found"
 msgstr "위치를 찾을 수 없음"
 
+msgid "No result for \"%s\", please try a different search"
+msgstr "\"%s\" 검색 결과가 없습니다. 다른 검색어를 시도하세요"
+
 msgid "Not found"
 msgstr "찾을 수 없음"
 
-msgid "On (UDP-over-TCP)"
-msgstr "켜기(UDP-over-TCP)"
+msgid "Open %s settings"
+msgstr "%s 설정 열기"
 
 msgid "Overrides active"
 msgstr "재정의 활성화"
@@ -2495,17 +2573,17 @@ msgstr "유효한 IPv4 또는 IPv6 주소를 입력하세요"
 msgid "Please enter a valid remote server port"
 msgstr "유효한 원격 서버 포트를 입력하세요"
 
-msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr "위의 <b>%s</b> 가이드에 따라 <b>상시 접속</b> 시스템 설정을 대신 사용하세요."
-
-msgid "Preferences"
-msgstr "환경 설정"
+msgid "Please press connect to request VPN permission"
+msgstr "VPN 권한을 요청하려면 연결을 누르세요"
 
 msgid "Privacy"
 msgstr "개인 정보 보호"
 
 msgid "Privacy policy"
 msgstr "개인정보 보호정책"
+
+msgid "Reconnecting..."
+msgstr "다시 연결 중..."
 
 msgid "Recursion limit"
 msgstr "반복 제한"
@@ -2531,17 +2609,20 @@ msgstr "재정의 초기화"
 msgid "Reset to default"
 msgstr "기본값으로 재설정"
 
-msgid "Secure my connection"
-msgstr "내 연결 보안 유지"
+msgid "Search"
+msgstr "검색"
 
-msgid "Secured"
-msgstr "보안"
+msgid "Search results"
+msgstr "검색 결과"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %d ~ %d"
 
 msgid "Set port"
 msgstr "포트 설정"
+
+msgid "Share…"
+msgstr "공유…"
 
 msgid "Show system apps"
 msgstr "시스템 앱 표시"
@@ -2551,6 +2632,9 @@ msgstr "현재 VPN 터널 상태 표시"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "계정 시간이 만료되려고 할 때 알림 표시"
+
+msgid "Split tunneling"
+msgstr "분할 터널링"
 
 msgid "Submit"
 msgstr "제출"
@@ -2567,17 +2651,14 @@ msgstr "텍스트"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "자동 연결 및 잠금 모드 설정은 Android 시스템 설정에서 찾을 수 있습니다. 이 가이드에 따라 하나 또는 둘 다를 활성화하세요."
 
-msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "잠금 모드는 Android 시스템 설정에서 <b>VPN 없이 연결 차단</b>이라고 합니다. 유출을 최소화하는 데 도움이 되지만, 몇 가지 알려진 제한 사항이 있습니다. 다음에서 자세한 내용을 확인하세요."
+msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "잠금 모드는 Android 시스템 설정에서 \"VPN 없이 연결 차단\"이라고 합니다. 유출을 최소화하는 데 도움이 되지만, 몇 가지 알려진 제한 사항이 있습니다. 다음에서 자세한 내용을 확인하세요."
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"현재\" 방법은 앱이 API에 연결하기 위해 사용하는 방법을 나타냅니다."
 
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "환경 설정에서 ”로컬 네트워크 공유”를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
-
-msgid "There is no VPN settings on your device"
-msgstr "장치에 VPN 설정이 없습니다"
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
+msgstr "VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않으면 로컬 DNS 서버가 작동하지 않습니다."
 
 msgid "This address has already been entered."
 msgstr "이 주소는 이미 입력되었습니다."
@@ -2603,11 +2684,17 @@ msgstr "가장 안전한 버전인지 확인하고 현재 실행 중인 버전�
 msgid "Toggle VPN"
 msgstr "VPN 전환"
 
+msgid "Type at least 2 characters to start searching."
+msgstr "검색을 시작하려면 2자 이상 입력하세요."
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "방화벽 규칙을 적용할 수 없습니다. 문제를 해결하거나 문제 보고서를 보내주세요."
 
 msgid "Unable to parse patch"
 msgstr "패치를 파싱할 수 없음"
+
+msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
+msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 상시 접속 VPN을 비활성화하세요."
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "터널 연결을 시작할 수 없습니다. Mullvad VPN을 사용하기 전에 <b>%s</b>에 대한 상시 접속 VPN을 비활성화하세요."
@@ -2618,17 +2705,8 @@ msgstr "실행 취소"
 msgid "Unknown or prohibited key \"%s\""
 msgstr "알 수 없거나 금지된 키 \"%s\""
 
-msgid "Unsecured"
-msgstr "비보안"
-
-msgid "Unsecured (No VPN permission)"
-msgstr "비보안(VPN 권한 없음)"
-
 msgid "Update DNS server"
 msgstr "DNS 서버 업데이트"
-
-msgid "Update available, download to remain safe."
-msgstr "업데이트를 사용할 수 있습니다. 안전을 유지하기 위해 다운로드하세요."
 
 msgid "Update list name"
 msgstr "목록 이름 업데이트"
@@ -2663,8 +2741,8 @@ msgstr "구매 확인 중..."
 msgid "Verifying voucher…"
 msgstr "바우처 확인 중…"
 
-msgid "Virtual adapter error"
-msgstr "가상 어댑터 오류"
+msgid "Version"
+msgstr "버전"
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다."
@@ -2675,14 +2753,8 @@ msgstr "결제 프로세스를 시작할 수 없습니다. Google Play가 최신
 msgid "We were unable to start the payment process, please try again later."
 msgstr "결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요."
 
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "연결되어 있는 동안 실제 위치는 선택한 지역의 안전한 비공개 위치로 마스킹됩니다."
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard custom port"
-msgstr "WireGuard 사용자 지정 포트"
 
 msgid "WireGuard obfuscation"
 msgstr "WireGuard 난독화"
@@ -2690,11 +2762,8 @@ msgstr "WireGuard 난독화"
 msgid "WireGuard port"
 msgstr "WireGuard 포트"
 
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "네트워크 트래픽이 유출될 수 있습니다."
-
-msgid "You are running an unsupported app version."
-msgstr "지원되지 않는 앱 버전을 실행 중입니다."
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "이미 저장한 계정 번호가 있습니다. 새 계정을 생성하면 저장된 계정 번호가 이 장치에서 삭제됩니다. 이 작업은 되돌릴 수 없습니다."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\"이(가) 생성되었습니다"
@@ -2704,9 +2773,6 @@ msgstr "\"%s\"이(가) 삭제되었습니다"
 
 msgid "here"
 msgstr "여기"
-
-msgid "less than a minute ago"
-msgstr "1분 이내"
 
 msgid "less than one day"
 msgstr "1일 미만"
