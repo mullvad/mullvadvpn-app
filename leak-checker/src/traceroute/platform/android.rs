@@ -14,7 +14,7 @@ impl Traceroute for TracerouteAndroid {
 
     fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
         // can't use the same method as desktop-linux here beacuse reasons
-        super::common::bind_socket_to_interface(socket, interface)
+        super::common::bind_socket_to_interface::<Self>(socket, interface)
     }
 
     fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {

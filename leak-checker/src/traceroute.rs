@@ -25,9 +25,7 @@ use crate::{Interface, LeakStatus};
 
 mod platform;
 
-use platform::{
-    AsyncIcmpSocket, AsyncIcmpSocketImpl, AsyncUdpSocket, AsyncUdpSocketImpl, Impl, Traceroute,
-};
+use platform::{AsyncIcmpSocket, AsyncUdpSocket, Traceroute};
 
 #[derive(Clone, clap::Args)]
 pub struct TracerouteOpt {
@@ -100,6 +98,22 @@ pub async fn run_leak_test(opt: &TracerouteOpt) -> LeakStatus {
 /// This test needs a raw socket to be able to listen for the ICMP responses, therefore it requires
 /// root/admin priviliges.
 pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
+    #[cfg(target_os = "android")]
+    return try_run_leak_test_impl::<platform::android::TracerouteAndroid>(opt).await;
+
+    #[cfg(target_os = "linux")]
+    return try_run_leak_test_impl::<platform::linux::TracerouteLinux>(opt).await;
+
+    #[cfg(target_os = "macos")]
+    return try_run_leak_test_impl::<platform::macos::TracerouteMacos>(opt).await;
+
+    #[cfg(target_os = "windows")]
+    return try_run_leak_test_impl::<platform::linux::TracerouteWindows>(opt).await;
+}
+
+pub async fn try_run_leak_test_impl<Impl: Traceroute>(
+    opt: &TracerouteOpt,
+) -> anyhow::Result<LeakStatus> {
     // create the socket used for receiving the ICMP/TimeExceeded responses
 
     // don't ask me why, but this is how it must be.
@@ -119,7 +133,7 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
     Impl::bind_socket_to_interface(&icmp_socket, &opt.interface)?;
     Impl::configure_icmp_socket(&icmp_socket, opt)?;
 
-    let icmp_socket = AsyncIcmpSocketImpl::from_socket2(icmp_socket);
+    let icmp_socket = Impl::AsyncIcmpSocket::from_socket2(icmp_socket);
 
     let send_probes = async {
         if opt.icmp {
@@ -136,7 +150,7 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
                 .set_nonblocking(true)
                 .context("Failed to set udp_socket to nonblocking")?;
 
-            let mut udp_socket = AsyncUdpSocketImpl::from_socket2(udp_socket);
+            let mut udp_socket = Impl::AsyncUdpSocket::from_socket2(udp_socket);
 
             send_udp_probes(opt, &mut udp_socket).await?;
         }
