@@ -19,7 +19,7 @@ class LeakTests: LoggedInWithTimeUITestCase {
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         startPacketCapture()
         let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
-        trafficGenerator.startGeneratingUDPTraffic(interval: 30.0)
+        trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
 
         TunnelControlPage(app)
             .tapSecureConnectionButton()
