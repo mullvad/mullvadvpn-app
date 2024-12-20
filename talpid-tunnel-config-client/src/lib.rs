@@ -107,7 +107,9 @@ pub async fn request_ephemeral_peer(
     enable_post_quantum: bool,
     enable_daita: bool,
 ) -> Result<EphemeralPeer, Error> {
+    log::debug!("Connecting to relay config service at {service_address}");
     let client = connect_relay_config_client(service_address).await?;
+    log::debug!("Connected to relay config service at {service_address}");
 
     request_ephemeral_peer_with(
         client,
@@ -128,6 +130,7 @@ pub async fn request_ephemeral_peer_with(
 ) -> Result<EphemeralPeer, Error> {
     let (pq_request, kem_secrets) = if enable_quantum_resistant {
         let (pq_request, kem_secrets) = post_quantum_secrets().await;
+        log::debug!("Generated PQ secrets");
         (Some(pq_request), Some(kem_secrets))
     } else {
         (None, None)
@@ -275,7 +278,7 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
 /// value has been speficically lowered, to avoid MTU issues. See the `socket` module.
 #[cfg(not(target_os = "ios"))]
 async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService, Error> {
-    use futures::TryFutureExt;
+    use hyper_util::rt::tokio::TokioIo;
 
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
     let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
@@ -283,12 +286,84 @@ async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService,
     let connection = endpoint
         .connect_with_connector(service_fn(move |_| async move {
             let sock = socket::TcpSocket::new()?;
-            sock.connect(addr)
-                .map_ok(hyper_util::rt::tokio::TokioIo::new)
-                .await
+            let stream = sock.connect(addr).await?;
+            let sniffer = socket_sniffer::SocketSniffer {
+                s: stream,
+                rx_bytes: 0,
+                tx_bytes: 0,
+                start_time: std::time::Instant::now(),
+            };
+            Ok::<_, std::io::Error>(TokioIo::new(sniffer))
         }))
         .await
         .map_err(Error::GrpcConnectError)?;
 
     Ok(RelayConfigService::new(connection))
+}
+
+mod socket_sniffer {
+    pub struct SocketSniffer<S> {
+        pub s: S,
+        pub rx_bytes: usize,
+        pub tx_bytes: usize,
+        pub start_time: std::time::Instant,
+    }
+    use std::{
+        io,
+        pin::Pin,
+        task::{Context, Poll},
+    };
+
+    use tokio::io::AsyncWrite;
+
+    use tokio::io::{AsyncRead, ReadBuf};
+
+    impl<S> Drop for SocketSniffer<S> {
+        fn drop(&mut self) {
+            let duration = self.start_time.elapsed();
+            log::debug!(
+                "Tunnel config client connection ended. RX: {} bytes, TX: {} bytes, duration: {} s",
+                self.rx_bytes,
+                self.tx_bytes,
+                duration.as_secs()
+            );
+        }
+    }
+
+    impl<S: AsyncRead + AsyncWrite + Unpin> AsyncRead for SocketSniffer<S> {
+        fn poll_read(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+            buf: &mut ReadBuf<'_>,
+        ) -> Poll<io::Result<()>> {
+            let initial_data = buf.filled().len();
+            let bytes = std::task::ready!(Pin::new(&mut self.s).poll_read(cx, buf));
+            if bytes.is_ok() {
+                self.rx_bytes += buf.filled().len().saturating_sub(initial_data);
+            }
+            Poll::Ready(bytes)
+        }
+    }
+
+    impl<S: AsyncRead + AsyncWrite + Unpin> AsyncWrite for SocketSniffer<S> {
+        fn poll_write(
+            mut self: Pin<&mut Self>,
+            cx: &mut Context<'_>,
+            buf: &[u8],
+        ) -> Poll<io::Result<usize>> {
+            let bytes = std::task::ready!(Pin::new(&mut self.s).poll_write(cx, buf));
+            if let Ok(bytes) = bytes {
+                self.tx_bytes += bytes;
+            }
+            Poll::Ready(bytes)
+        }
+
+        fn poll_flush(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+            Pin::new(&mut self.s).poll_flush(cx)
+        }
+
+        fn poll_shutdown(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<io::Result<()>> {
+            Pin::new(&mut self.s).poll_shutdown(cx)
+        }
+    }
 }
