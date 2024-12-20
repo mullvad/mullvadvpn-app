@@ -34,7 +34,6 @@ impl Traceroute for TracerouteMacos {
         _opt: &TracerouteOpt,
     ) -> anyhow::Result<()> {
         Ok(())
-        // TODO: not sure if we need to do anything here
     }
 }
 
