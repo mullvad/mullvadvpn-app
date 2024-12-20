@@ -472,7 +472,7 @@ impl WireguardMonitor {
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
 
-                ephemeral::config_ephemeral_peers(
+                if let Err(e) = ephemeral::config_ephemeral_peers(
                     &tunnel,
                     &mut config,
                     args.retry_attempt,
@@ -480,7 +480,15 @@ impl WireguardMonitor {
                     ephemeral_obfs_sender,
                     args.tun_provider,
                 )
-                .await?;
+                .await
+                {
+                    // We have received a small amount of reports about ephemeral peer nogationation
+                    // timing out on Windows for 2024.9-beta1. These verbose data usage logs are
+                    // a temporary measure to help us understand the issue. They can be removed
+                    // if the issue is resolved.
+                    log_tunnel_data_usage(&config, &tunnel).await;
+                    return Err(e);
+                }
 
                 let metadata = Self::tunnel_metadata(&iface_name, &config);
                 event_hook
