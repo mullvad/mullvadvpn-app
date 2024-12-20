@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
 import net.mullvad.mullvadvpn.receiver.BootCompletedReceiver
@@ -134,7 +133,7 @@ val uiModule = module {
         )
     }
     single { SettingsRepository(get()) }
-    single { MullvadProblemReport(get()) }
+    single { MullvadProblemReport(get(), get<DaemonConfig>().apiEndpointOverride, get()) }
     single { RelayOverridesRepository(get()) }
     single { CustomListsRepository(get()) }
     single { RelayListRepository(get(), get()) }
@@ -225,7 +224,7 @@ val uiModule = module {
     viewModel { VoucherDialogViewModel(get()) }
     viewModel { VpnSettingsViewModel(get(), get(), get(), get(), get()) }
     viewModel { WelcomeViewModel(get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
-    viewModel { ReportProblemViewModel(get(), get(), get<DaemonConfig>().apiEndpointOverride) }
+    viewModel { ReportProblemViewModel(get(), get()) }
     viewModel { ViewLogsViewModel(get()) }
     viewModel { OutOfTimeViewModel(get(), get(), get(), get(), get(), isPlayBuild = IS_PLAY_BUILD) }
     viewModel { PaymentViewModel(get()) }

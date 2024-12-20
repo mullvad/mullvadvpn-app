@@ -15,7 +15,6 @@ import net.mullvad.mullvadvpn.constant.MINIMUM_LOADING_TIME_MILLIS
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.dataproxy.SendProblemReportResult
 import net.mullvad.mullvadvpn.dataproxy.UserReport
-import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.repository.ProblemReportRepository
 
 data class ReportProblemUiState(
@@ -39,7 +38,6 @@ sealed interface ReportProblemSideEffect {
 class ReportProblemViewModel(
     private val mullvadProblemReporter: MullvadProblemReport,
     private val problemReportRepository: ProblemReportRepository,
-    private val apiEndpointOverride: ApiEndpointOverride?,
 ) : ViewModel() {
 
     private val sendingState: MutableStateFlow<SendingReportUiState?> = MutableStateFlow(null)
@@ -70,7 +68,6 @@ class ReportProblemViewModel(
                 val deferredResult = async {
                     mullvadProblemReporter.sendReport(
                         UserReport(nullableEmail, description),
-                        apiEndpointOverride,
                     )
                 }
                 delay(MINIMUM_LOADING_TIME_MILLIS)
