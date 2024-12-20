@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Context};
+use anyhow::{anyhow, Context};
 use futures::{select, FutureExt};
 use leak_checker::traceroute::TracerouteOpt;
 pub use leak_checker::LeakInfo;
