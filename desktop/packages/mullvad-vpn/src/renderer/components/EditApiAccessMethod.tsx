@@ -16,13 +16,7 @@ import { useLastDefinedValue } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
-import {
-  Layout,
-  SettingsContainer,
-  SettingsContent,
-  SettingsNavigationScrollbars,
-  SettingsStack,
-} from './Layout';
+import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
 import { NamedProxyForm } from './ProxyForm';
@@ -114,13 +108,11 @@ function AccessMethodForm() {
                   <HeaderSubTitle>{subtitle}</HeaderSubTitle>
                 </SettingsHeader>
 
-                <SettingsStack>
-                  {id !== undefined && method === undefined ? (
-                    <span>Failed to open method</span>
-                  ) : (
-                    <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop} />
-                  )}
-                </SettingsStack>
+                {id !== undefined && method === undefined ? (
+                  <span>Failed to open method</span>
+                ) : (
+                  <NamedProxyForm proxy={method} onSave={onSave} onCancel={pop} />
+                )}
 
                 <TestingDialog
                   name={updatedMethod?.name ?? ''}
