@@ -53,6 +53,7 @@ typedef struct MullvadApiDevice {
  *
  * * `hostname`: pointer to a null-terminated UTF-8 string representing the hostname that will be
  *   used for TLS validation.
+ * * `disable_tls`: only valid when built for tests, can be ignored when consumed by Swift.
  */
 struct MullvadApiError mullvad_api_client_initialize(struct MullvadApiClient *client_ptr,
                                                      const char *api_address_ptr,
