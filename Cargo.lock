@@ -4495,7 +4495,6 @@ name = "talpid-tunnel-config-client"
 version = "0.0.0"
 dependencies = [
  "classic-mceliece-rust",
- "futures",
  "hyper-util",
  "libc",
  "log",
