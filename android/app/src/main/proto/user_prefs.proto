@@ -4,6 +4,6 @@ option java_package = "net.mullvad.mullvadvpn.repository";
 option java_multiple_files = true;
 
 message UserPreferences {
-    bool is_privacy_disclosure_accepted = 1;
-    int32 version_code_for_latest_shown_changelog_notification = 2;
+  bool is_privacy_disclosure_accepted = 1;
+  int32 version_code_for_latest_shown_changelog_notification = 2;
 }
