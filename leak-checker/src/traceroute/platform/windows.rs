@@ -8,15 +8,17 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context};
+use futures::{select, stream::FuturesUnordered, FutureExt, StreamExt};
 use socket2::Socket;
 use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 
+use tokio::time::sleep;
 use windows_sys::Win32::Networking::WinSock::{
     WSAGetLastError, WSAIoctl, SIO_RCVALL, SOCKET, SOCKET_ERROR,
 };
 
 use crate::{
-    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, SEND_TIMEOUT},
+    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT},
     Interface, LeakStatus,
 };
 
@@ -32,49 +34,67 @@ pub struct AsyncUdpSocketWindows(tokio::net::UdpSocket);
 pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
     let interface_ip = get_interface_ip(&opt.interface)?;
 
-    for ttl in DEFAULT_TTL_RANGE {
-        let ping_path = r"C:\Windows\System32\ping.exe";
-        let output = tokio::process::Command::new(ping_path)
-            .args(["-i", &ttl.to_string()])
-            .args(["-n", "1"])
-            .args(["-w", &SEND_TIMEOUT.as_millis().to_string()])
-            .args(["-S", &interface_ip.to_string()])
-            .arg(opt.destination.to_string())
-            .output()
-            .await
-            .context(anyhow!("Failed to execute {ping_path}"))?;
+    let mut ping_tasks = FuturesUnordered::new();
 
-        let output_err = || anyhow!("Unexpected output from `ping.exe`");
+    for (i, ttl) in DEFAULT_TTL_RANGE.enumerate() {
+        // Don't send all pings at once, wait a bit in between
+        // each one to avoid sending more than necessary
+        let probe_delay = PROBE_INTERVAL * i as u32;
 
-        let stdout = str::from_utf8(&output.stdout).with_context(output_err)?;
-        let _stderr = str::from_utf8(&output.stderr).with_context(output_err)?;
+        ping_tasks.push(async move {
+            sleep(probe_delay).await;
 
-        log::trace!("ping stdout: {stdout}");
-        log::trace!("ping stderr: {_stderr}");
+            let ping_path = r"C:\Windows\System32\ping.exe";
+            let output = tokio::process::Command::new(ping_path)
+                .args(["-i", &ttl.to_string()])
+                .args(["-n", "1"])
+                .args(["-w", &SEND_TIMEOUT.as_millis().to_string()])
+                .args(["-S", &interface_ip.to_string()])
+                .arg(opt.destination.to_string())
+                .kill_on_drop(true)
+                .output()
+                .await
+                .context(anyhow!("Failed to execute {ping_path}"))?;
 
-        // Dumbly search stdout for a line that looks like this:
-        // Reply from <ip>: TTL expired
+            let output_err = || anyhow!("Unexpected output from `ping.exe`");
 
-        if !stdout.contains("TTL expired") {
-            // No "TTL expired" means we did not
-            continue;
-        }
-        let (ip, ..) = stdout
-            .split_once("Reply from ")
-            .and_then(|(.., s)| s.split_once(": TTL expired"))
-            .with_context(output_err)?;
+            let stdout = str::from_utf8(&output.stdout).with_context(output_err)?;
+            let _stderr = str::from_utf8(&output.stderr).with_context(output_err)?;
 
-        let ip: IpAddr = ip.parse().unwrap();
+            log::trace!("ping stdout: {stdout}");
+            log::trace!("ping stderr: {_stderr}");
 
-        return Ok(LeakStatus::LeakDetected(
-            crate::LeakInfo::NodeReachableOnInterface {
-                reachable_nodes: vec![ip],
-                interface: opt.interface.clone(),
-            },
-        ));
+            // Dumbly search stdout for a line that looks like this:
+            // Reply from <ip>: TTL expired
+
+            if !stdout.contains("TTL expired") {
+                // No "TTL expired" means we did not
+                return Ok(None);
+            }
+            let (ip, ..) = stdout
+                .split_once("Reply from ")
+                .and_then(|(.., s)| s.split_once(": TTL expired"))
+                .with_context(output_err)?;
+
+            let ip: IpAddr = ip.parse().unwrap();
+
+            anyhow::Ok(Some(ip))
+        });
     }
 
-    Ok(LeakStatus::NoLeak)
+    select! {
+        _ = sleep(LEAK_TIMEOUT).fuse() => Ok(LeakStatus::NoLeak),
+
+        result = ping_tasks.next().fuse() => match result.expect("set of futures is not empty")? {
+            None => Ok(LeakStatus::NoLeak),
+            Some(ip) => Ok(LeakStatus::LeakDetected(
+                crate::LeakInfo::NodeReachableOnInterface {
+                    reachable_nodes: vec![ip],
+                    interface: opt.interface.clone(),
+                },
+            )),
+        }
+    }
 }
 
 impl Traceroute for TracerouteWindows {
