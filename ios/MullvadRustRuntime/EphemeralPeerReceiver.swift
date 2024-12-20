@@ -24,11 +24,13 @@ import WireGuardKitTypes
 ///   - rawEphemeralPeerReceiver: A raw pointer to the running instance of `NEPacketTunnelProvider`
 ///   - rawPresharedKey: A raw pointer to the quantum-secure pre shared key
 ///   - rawEphemeralKey: A raw pointer to the ephemeral private key of the device
-@_cdecl("swift_ephemeral_peer_ready")
+///   - rawDaitaParameters: A raw pointer to negotiated DAITA parameters
+@_silgen_name("swift_ephemeral_peer_ready")
 func receivePostQuantumKey(
     rawEphemeralPeerReceiver: UnsafeMutableRawPointer?,
     rawPresharedKey: UnsafeMutableRawPointer?,
-    rawEphemeralKey: UnsafeMutableRawPointer?
+    rawEphemeralKey: UnsafeMutableRawPointer?,
+    rawDaitaParameters: UnsafePointer<DaitaV2Parameters>?
 ) {
     guard let rawEphemeralPeerReceiver else { return }
     let ephemeralPeerReceiver = Unmanaged<EphemeralPeerReceiver>.fromOpaque(rawEphemeralPeerReceiver)
@@ -41,12 +43,29 @@ func receivePostQuantumKey(
         return
     }
 
+    let maybeNot = Maybenot()
+    let daitaParameters: DaitaV2Parameters? = rawDaitaParameters?.withMemoryRebound(
+        to: DaitaParameters.self,
+        capacity: 1
+    ) { body in
+        let params = body.pointee
+        guard params.machines != nil else { return nil }
+        let machines = String(cString: params.machines)
+        return DaitaV2Parameters(
+            machines: machines,
+            maximumEvents: maybeNot.maximumEvents,
+            maximumActions: maybeNot.maximumActions,
+            maximumPadding: params.max_padding_frac,
+            maximumBlocking: params.max_blocking_frac
+        )
+    }
+
     // If there is a pre-shared key, an ephemeral peer was negotiated with Post Quantum options
     // Otherwise, a Daita enabled ephemeral peer was requested
     if let rawPresharedKey, let key = PreSharedKey(rawValue: Data(bytes: rawPresharedKey, count: 32)) {
-        ephemeralPeerReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+        ephemeralPeerReceiver.receivePostQuantumKey(key, ephemeralKey: ephemeralKey, daitaParameters: daitaParameters)
     } else {
-        ephemeralPeerReceiver.receiveEphemeralPeerPrivateKey(ephemeralKey)
+        ephemeralPeerReceiver.receiveEphemeralPeerPrivateKey(ephemeralKey, daitaParameters: daitaParameters)
     }
     return
 }

@@ -2,11 +2,11 @@
 pub mod ios_tcp_connection;
 pub mod peer_exchange;
 
-use ios_tcp_connection::swift_ephemeral_peer_ready;
 use libc::c_void;
 use peer_exchange::EphemeralPeerExchange;
 
-use std::{ptr, sync::Once};
+use std::{ffi::CString, ptr, sync::Once};
+use talpid_tunnel_config_client::DaitaSettings;
 static INIT_LOGGING: Once = Once::new();
 
 #[derive(Clone)]
@@ -17,17 +17,31 @@ pub struct PacketTunnelBridge {
 
 impl PacketTunnelBridge {
     fn fail_exchange(self) {
-        unsafe { swift_ephemeral_peer_ready(self.packet_tunnel, ptr::null(), ptr::null()) };
+        unsafe {
+            swift_ephemeral_peer_ready(self.packet_tunnel, ptr::null(), ptr::null(), ptr::null())
+        };
     }
 
-    fn succeed_exchange(self, ephemeral_key: [u8; 32], preshared_key: Option<[u8; 32]>) {
+    fn succeed_exchange(
+        self,
+        ephemeral_key: [u8; 32],
+        preshared_key: Option<[u8; 32]>,
+        daita: Option<DaitaParameters>,
+    ) {
         let ephemeral_ptr = ephemeral_key.as_ptr();
         let preshared_ptr = preshared_key
             .as_ref()
             .map(|key| key.as_ptr())
             .unwrap_or(ptr::null());
 
-        unsafe { swift_ephemeral_peer_ready(self.packet_tunnel, preshared_ptr, ephemeral_ptr) };
+        let daita_ptr = daita
+            .as_ref()
+            .map(|params| params as *const _)
+            .unwrap_or(ptr::null());
+
+        unsafe {
+            swift_ephemeral_peer_ready(self.packet_tunnel, preshared_ptr, ephemeral_ptr, daita_ptr)
+        };
     }
 }
 
@@ -40,6 +54,50 @@ pub struct EphemeralPeerParameters {
     pub enable_post_quantum: bool,
     pub enable_daita: bool,
     pub funcs: ios_tcp_connection::WgTcpConnectionFunctions,
+}
+
+#[repr(C)]
+pub struct DaitaParameters {
+    pub machines: *mut u8,
+    pub max_padding_frac: f64,
+    pub max_blocking_frac: f64,
+}
+
+impl DaitaParameters {
+    fn new(settings: DaitaSettings) -> Option<Self> {
+        let machines_string = settings.client_machines.join("\n");
+        let machines = CString::new(machines_string).ok()?.into_raw().cast();
+        Some(Self {
+            machines,
+            max_padding_frac: settings.max_padding_frac,
+            max_blocking_frac: settings.max_blocking_frac,
+        })
+    }
+}
+
+impl Drop for DaitaParameters {
+    fn drop(&mut self) {
+        // Safety:
+        // `machines` pointer must be a valid pointer to a CString. This can be achieved by
+        // ensuring that `DaitaParameters` are constructed via `DaitaParameters::new` and the
+        // `machines` pointer is never written to.
+        let _ = unsafe { CString::from_raw(self.machines.cast()) };
+    }
+}
+
+extern "C" {
+    /// Called when the preshared post quantum key is ready,
+    /// or when a Daita peer has been successfully requested.
+    /// `raw_preshared_key` will be NULL if:
+    /// - The post quantum key negotiation failed
+    /// - A Daita peer has been requested without enabling post quantum keys.
+    pub fn swift_ephemeral_peer_ready(
+        raw_packet_tunnel: *const c_void,
+        raw_preshared_key: *const u8,
+        raw_ephemeral_private_key: *const u8,
+        daita_parameters: *const DaitaParameters,
+    );
+
 }
 
 /// Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.

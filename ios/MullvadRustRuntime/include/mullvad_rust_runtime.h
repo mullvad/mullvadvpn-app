@@ -27,6 +27,12 @@ typedef struct ProxyHandle {
   uint16_t port;
 } ProxyHandle;
 
+typedef struct DaitaParameters {
+  uint8_t *machines;
+  double max_padding_frac;
+  double max_blocking_frac;
+} DaitaParameters;
+
 typedef struct WgTcpConnectionFunctions {
   int32_t (*open_fn)(int32_t tunnelHandle, const char *address, uint64_t timeout);
   int32_t (*close_fn)(int32_t tunnelHandle, int32_t socketHandle);
@@ -89,6 +95,18 @@ int32_t encrypted_dns_proxy_start(struct EncryptedDnsProxyState *encrypted_dns_p
 int32_t encrypted_dns_proxy_stop(struct ProxyHandle *proxy_config);
 
 /**
+ * Called when the preshared post quantum key is ready,
+ * or when a Daita peer has been successfully requested.
+ * `raw_preshared_key` will be NULL if:
+ * - The post quantum key negotiation failed
+ * - A Daita peer has been requested without enabling post quantum keys.
+ */
+extern void swift_ephemeral_peer_ready(const void *raw_packet_tunnel,
+                                       const uint8_t *raw_preshared_key,
+                                       const uint8_t *raw_ephemeral_private_key,
+                                       const struct DaitaParameters *daita_parameters);
+
+/**
  * Called by the Swift side to signal that the ephemeral peer exchange should be cancelled.
  * After this call, the cancel token is no longer valid.
  *
@@ -123,17 +141,6 @@ struct ExchangeCancelToken *request_ephemeral_peer(const uint8_t *public_key,
                                                    const void *packet_tunnel,
                                                    int32_t tunnel_handle,
                                                    struct EphemeralPeerParameters peer_parameters);
-
-/**
- * Called when the preshared post quantum key is ready,
- * or when a Daita peer has been successfully requested.
- * `raw_preshared_key` will be NULL if:
- * - The post quantum key negotiation failed
- * - A Daita peer has been requested without enabling post quantum keys.
- */
-extern void swift_ephemeral_peer_ready(const void *raw_packet_tunnel,
-                                       const uint8_t *raw_preshared_key,
-                                       const uint8_t *raw_ephemeral_private_key);
 
 /**
  * # Safety

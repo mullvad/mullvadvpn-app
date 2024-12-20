@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadTypes
 import WireGuardKitTypes
 
 extension PacketTunnelActor {
@@ -65,14 +66,6 @@ extension PacketTunnelActor {
         }
 
         var daitaConfiguration: DaitaConfiguration?
-        if settings.daita.daitaState.isEnabled {
-            let maybeNot = Maybenot()
-            daitaConfiguration = DaitaConfiguration(
-                machines: maybeNot.machines,
-                maxEvents: maybeNot.maximumEvents,
-                maxActions: maybeNot.maximumActions
-            )
-        }
 
         switch configuration {
         case let .single(hop):
@@ -81,6 +74,9 @@ extension PacketTunnelActor {
                 settings: settings,
                 connectionData: connectionData
             ).make().exitConfiguration
+            if settings.daita.daitaState.isEnabled, let daitaSettings = hop.configuration.daitaParameters {
+                daitaConfiguration = DaitaConfiguration(daita: daitaSettings)
+            }
             try await tunnelAdapter.start(configuration: exitConfiguration, daita: daitaConfiguration)
 
         case let .multi(firstHop, secondHop):
@@ -90,10 +86,26 @@ extension PacketTunnelActor {
                 connectionData: connectionData
             ).make()
 
+            if settings.daita.daitaState.isEnabled, let daitaSettings = firstHop.configuration.daitaParameters {
+                daitaConfiguration = DaitaConfiguration(daita: daitaSettings)
+            }
+
             try await tunnelAdapter.startMultihop(
                 entryConfiguration: connectionConfiguration.entryConfiguration,
                 exitConfiguration: connectionConfiguration.exitConfiguration, daita: daitaConfiguration
             )
         }
+    }
+}
+
+extension DaitaConfiguration {
+    init(daita: DaitaV2Parameters) {
+        self = DaitaConfiguration(
+            machines: daita.machines,
+            maxEvents: daita.maximumEvents,
+            maxActions: daita.maximumActions,
+            maxPadding: daita.maximumPadding,
+            maxBlocking: daita.maximumBlocking
+        )
     }
 }

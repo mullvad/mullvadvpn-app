@@ -376,12 +376,12 @@ extension PacketTunnelProvider {
 }
 
 extension PacketTunnelProvider: EphemeralPeerReceiving {
-    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey) async {
-        await ephemeralPeerExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey)
+    func receivePostQuantumKey(_ key: PreSharedKey, ephemeralKey: PrivateKey, daitaParameters: MullvadTypes.DaitaV2Parameters?) async {
+        await ephemeralPeerExchangingPipeline.receivePostQuantumKey(key, ephemeralKey: ephemeralKey, daitaParameters: daitaParameters)
     }
 
-    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey) async {
-        await ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey)
+    public func receiveEphemeralPeerPrivateKey(_ ephemeralPeerPrivateKey: PrivateKey, daitaParameters: MullvadTypes.DaitaV2Parameters?) async {
+        await ephemeralPeerExchangingPipeline.receiveEphemeralPeerPrivateKey(ephemeralPeerPrivateKey, daitaParameters: daitaParameters)
     }
 
     func ephemeralPeerExchangeFailed() {

@@ -1,4 +1,3 @@
-use libc::c_void;
 use std::{
     ffi::CStr,
     future::Future,
@@ -71,19 +70,6 @@ impl WgTcpConnectionFunctions {
     }
 }
 
-extern "C" {
-    /// Called when the preshared post quantum key is ready,
-    /// or when a Daita peer has been successfully requested.
-    /// `raw_preshared_key` will be NULL if:
-    /// - The post quantum key negotiation failed
-    /// - A Daita peer has been requested without enabling post quantum keys.
-    pub fn swift_ephemeral_peer_ready(
-        raw_packet_tunnel: *const c_void,
-        raw_preshared_key: *const u8,
-        raw_ephemeral_private_key: *const u8,
-    );
-
-}
 
 #[derive(Clone)]
 pub struct IosTcpProvider {
