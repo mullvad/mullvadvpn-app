@@ -476,7 +476,7 @@ mod test {
     fn create_client(addr: &SocketAddr) -> MullvadApiClient {
         let mut client = MaybeUninit::<MullvadApiClient>::uninit();
         let cstr_address = CString::new(addr.to_string()).unwrap();
-        let _client = unsafe {
+        unsafe {
             mullvad_api_client_initialize(
                 client.as_mut_ptr(),
                 cstr_address.as_ptr().cast(),
@@ -494,7 +494,7 @@ mod test {
         let client = create_client(&server.socket_address());
 
         let mut account_buf = vec![0 as libc::c_char; 100];
-        unsafe { mullvad_api_create_account(client, (&account_buf.as_mut_ptr()).cast()).unwrap() };
+        unsafe { mullvad_api_create_account(client, account_buf.as_mut_ptr().cast()).unwrap() };
     }
 
     fn test_server() -> ServerGuard {
