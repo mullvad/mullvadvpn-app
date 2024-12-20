@@ -336,9 +336,10 @@ mod socket_sniffer {
             cx: &mut Context<'_>,
             buf: &mut ReadBuf<'_>,
         ) -> Poll<io::Result<()>> {
+            let initial_data = buf.filled().len();
             let bytes = std::task::ready!(Pin::new(&mut self.s).poll_read(cx, buf));
             if bytes.is_ok() {
-                self.rx_bytes += buf.filled().len();
+                self.rx_bytes += buf.filled().len().saturating_sub(initial_data);
             }
             Poll::Ready(bytes)
         }
@@ -351,8 +352,8 @@ mod socket_sniffer {
             buf: &[u8],
         ) -> Poll<io::Result<usize>> {
             let bytes = std::task::ready!(Pin::new(&mut self.s).poll_write(cx, buf));
-            if bytes.is_ok() {
-                self.tx_bytes += buf.len();
+            if let Ok(bytes) = bytes {
+                self.tx_bytes += bytes;
             }
             Poll::Ready(bytes)
         }
