@@ -24,6 +24,11 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.10-beta2] - 2024-12-20
+### Fixed
+- Fix a crash that would occur because a Provider would be listed twice in the filter screen.
+
+
 ## [android/2024.10-beta1] - 2024-12-19
 ### Added
 - Add multihop which allows the routing of traffic through an entry and exit server, making it
@@ -35,9 +40,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Update to DAITA v2. The main difference is that many different machines are provided by relays
   instead of a bundled list.
-
-### Fixed
-- Fix a crash that would occur because a Provider would be listed twice in the filter screen.
 
 
 ## [android/2024.9] - 2024-12-09
