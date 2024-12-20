@@ -234,7 +234,7 @@ fn android_move_binary(binary: &Path, output: &Path) -> anyhow::Result<()> {
 
     let mut copy_command = Command::new("cp");
     // -p command is required to preserve ownership and timestamp of the file to prevent a
-    // rebuild of this module everytime.
+    // rebuild of this module every time.
     copy_command
         .arg("-p")
         .arg(binary.to_str().unwrap())

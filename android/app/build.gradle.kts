@@ -296,9 +296,6 @@ tasks.register<Exec>("generateRelayList") {
     workingDir = File(repoRootPath)
     standardOutput = ByteArrayOutputStream()
 
-    // Set this if you get a cargo not found error
-    // environment =
-
     onlyIf { isReleaseBuild() || !relayListPath.exists() }
 
     commandLine("cargo", "run", "--bin", "relay_list")
