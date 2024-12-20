@@ -1,3 +1,1 @@
-- Added support for multihop which allows routing traffic through an entry location to an exit location.
-- Added support for using DAITA with locations lacking DAITA support by automatically routing the traffic via a DAITA enabled location. This behaviour can be disabled using the "Direct only" setting.
-- Updated DAITA to v2 which supports flexible configuration.
+- Update bundled server list to address a UI bug in the filter screen.
