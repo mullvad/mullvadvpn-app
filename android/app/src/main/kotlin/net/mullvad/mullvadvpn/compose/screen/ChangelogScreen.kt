@@ -1,14 +1,10 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.screen
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,59 +16,47 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
-import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.button.PrimaryButton
+import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Destination<RootGraph>(style = DestinationStyle.Dialog::class)
+@Destination<RootGraph>(style = SlideInFromRightTransition::class)
 @Composable
 fun Changelog(navController: NavController) {
     val viewModel = koinViewModel<ChangelogViewModel>()
     val uiState = viewModel.uiState.collectAsStateWithLifecycle()
 
-    ChangelogDialog(uiState.value, onDismiss = { navController.navigateUp() })
+    ChangelogScreen(uiState.value, onBackClick = { navController.navigateUp() })
+
+    viewModel.dismissChangelogNotification()
 }
 
 @Composable
-fun ChangelogDialog(state: ChangelogUiState, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
+fun ChangelogScreen(state: ChangelogUiState, onBackClick: () -> Unit) {
+
+    ScaffoldWithMediumTopBar(
+        appBarTitle = stringResource(id = R.string.changelog_title),
+        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+    ) { modifier ->
+        Column(
+            modifier = modifier.padding(horizontal = Dimens.mediumPadding),
+            verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
+        ) {
             Text(
                 text = state.version,
-                style = MaterialTheme.typography.headlineLarge,
+                style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
             )
-        },
-        text = {
-            val scrollState: ScrollState = rememberScrollState()
-            Column(
-                modifier = Modifier.fillMaxWidth().verticalScroll(scrollState),
-                verticalArrangement = Arrangement.spacedBy(Dimens.smallPadding),
-            ) {
-                Text(
-                    text = stringResource(R.string.changes_dialog_subtitle),
-                    style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.fillMaxWidth(),
-                )
 
-                state.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
-            }
-        },
-        confirmButton = {
-            PrimaryButton(text = stringResource(R.string.got_it), onClick = onDismiss)
-        },
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-    )
+            state.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
+        }
+    }
 }
 
 @Composable
@@ -82,14 +66,14 @@ private fun ChangeListItem(text: String) {
             Text(
                 text = "•",
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.width(Dimens.buttonSpacing),
                 textAlign = TextAlign.Center,
             )
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
     }
@@ -99,9 +83,9 @@ private fun ChangeListItem(text: String) {
 @Composable
 private fun PreviewChangelogDialogWithSingleShortItem() {
     AppTheme {
-        ChangelogDialog(
+        ChangelogScreen(
             ChangelogUiState(changes = listOf("Item 1"), version = "1111.1"),
-            onDismiss = {},
+            onBackClick = {},
         )
     }
 }
@@ -115,12 +99,12 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
             "in multiple lines in the changelog dialog."
 
     AppTheme {
-        ChangelogDialog(
+        ChangelogScreen(
             ChangelogUiState(
                 changes = listOf(longPreviewText, longPreviewText),
                 version = "1111.1",
             ),
-            onDismiss = {},
+            onBackClick = {},
         )
     }
 }
@@ -129,7 +113,7 @@ private fun PreviewChangelogDialogWithTwoLongItems() {
 @Composable
 private fun PreviewChangelogDialogWithTenShortItems() {
     AppTheme {
-        ChangelogDialog(
+        ChangelogScreen(
             ChangelogUiState(
                 changes =
                     listOf(
@@ -146,7 +130,7 @@ private fun PreviewChangelogDialogWithTenShortItems() {
                     ),
                 version = "1111.1",
             ),
-            onDismiss = {},
+            onBackClick = {},
         )
     }
 }

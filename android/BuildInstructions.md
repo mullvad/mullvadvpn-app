@@ -219,13 +219,6 @@ rm ./gradle/verification-metadata.xml
 ## Gradle properties
 Some gradle properties can be set to simplify development. These are listed below.
 
-### Always show changelog
-For development purposes, `ALWAYS_SHOW_CHANGELOG` can be set in `local.properties` to always show
-the changelog dialog on each app start. For example:
-```
-ALWAYS_SHOW_CHANGELOG=true
-```
-
 ### Override version code and version name
 To avoid or override the rust based version generation, the `OVERRIDE_VERSION_CODE` and
 `OVERRIDE_VERSION_NAME` properties can be set in `local.properties`. For example:
