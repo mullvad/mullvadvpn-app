@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { sprintf } from 'sprintf-js';
 
-import { colors, strings } from '../../config.json';
+import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatHtml } from '../lib/html-formatter';
@@ -44,7 +43,6 @@ export default function CustomDnsSettings() {
   const [savingAdd, setSavingAdd] = useState(false);
   const [savingEdit, setSavingEdit] = useState(false);
   const willShowConfirmationDialog = useRef(false);
-  const addingLocalIp = useRef(false);
 
   const featureAvailable = useMemo(
     () =>
@@ -63,11 +61,13 @@ export default function CustomDnsSettings() {
   const inputContainerRef = useStyledRef<HTMLDivElement>();
 
   const confirm = useCallback(() => {
+    willShowConfirmationDialog.current = false;
     void confirmAction?.();
     setConfirmAction(undefined);
   }, [confirmAction]);
   const abortConfirmation = useCallback(() => {
     setConfirmAction(undefined);
+    willShowConfirmationDialog.current = false;
   }, []);
 
   const setCustomDnsEnabled = useCallback(
@@ -124,23 +124,11 @@ export default function CustomDnsSettings() {
 
         try {
           const ipAddress = IpAddress.fromString(address);
-          addingLocalIp.current = ipAddress.isLocal();
-          if (addingLocalIp.current) {
-            if (manualLocal) {
-              willShowConfirmationDialog.current = true;
-              setConfirmAction(() => async () => {
-                willShowConfirmationDialog.current = false;
-                await add();
-              });
-            } else {
-              await add();
-            }
-          } else {
+          if (ipAddress.isLocal() && manualLocal) {
             willShowConfirmationDialog.current = true;
-            setConfirmAction(() => async () => {
-              willShowConfirmationDialog.current = false;
-              await add();
-            });
+            setConfirmAction(() => add);
+          } else {
+            await add();
           }
         } catch {
           setInvalid();
@@ -172,25 +160,14 @@ export default function CustomDnsSettings() {
 
       const ipAddress = IpAddress.fromString(newAddress);
       return new Promise<void>((resolve) => {
-        addingLocalIp.current = ipAddress.isLocal();
-        if (addingLocalIp.current) {
-          if (manualLocal) {
-            willShowConfirmationDialog.current = true;
-            setConfirmAction(() => async () => {
-              willShowConfirmationDialog.current = false;
-              await edit();
-              resolve();
-            });
-          } else {
-            void edit().then(resolve);
-          }
-        } else {
+        if (ipAddress.isLocal() && manualLocal) {
           willShowConfirmationDialog.current = true;
           setConfirmAction(() => async () => {
-            willShowConfirmationDialog.current = false;
             await edit();
             resolve();
           });
+        } else {
+          void edit().then(resolve);
         }
       });
     },
@@ -304,7 +281,6 @@ export default function CustomDnsSettings() {
 
       <ConfirmationDialog
         isOpen={confirmAction !== undefined}
-        isLocal={addingLocalIp}
         confirm={confirm}
         abort={abortConfirmation}
       />
@@ -405,33 +381,15 @@ function CellListItem(props: ICellListItemProps) {
 
 interface IConfirmationDialogProps {
   isOpen: boolean;
-  isLocal: React.RefObject<boolean>;
   confirm: () => void;
   abort: () => void;
 }
 
 function ConfirmationDialog(props: IConfirmationDialogProps) {
-  let message;
-  if (props.isLocal.current) {
-    message = messages.pgettext(
-      'vpn-settings-view',
-      'The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it.',
-    );
-  } else {
-    message = sprintf(
-      // TRANSLATORS: Available placeholders:
-      // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
-      // TRANSLATORS: %(wireguard)s - will be replaced with "WireGuard"
-      messages.pgettext(
-        'vpn-settings-view',
-        'The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the "%(tunnelProtocol)s" (in Advanced settings) to %(wireguard)s.',
-      ),
-      {
-        wireguard: strings.wireguard,
-        tunnelProtocol: messages.pgettext('vpn-settings-view', 'Tunnel protocol'),
-      },
-    );
-  }
+  const message = messages.pgettext(
+    'vpn-settings-view',
+    'The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it.',
+  );
   return (
     <ModalAlert
       isOpen={props.isOpen}
@@ -445,6 +403,7 @@ function ConfirmationDialog(props: IConfirmationDialogProps) {
         </AppButton.BlueButton>,
       ]}
       close={props.abort}
-      message={message}></ModalAlert>
+      message={message}
+    />
   );
 }
