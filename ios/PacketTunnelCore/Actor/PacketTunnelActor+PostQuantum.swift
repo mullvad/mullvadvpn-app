@@ -103,9 +103,7 @@ extension DaitaConfiguration {
         self = DaitaConfiguration(
             machines: daita.machines,
             maxEvents: daita.maximumEvents,
-            maxActions: daita.maximumActions,
-            maxPadding: daita.maximumPadding,
-            maxBlocking: daita.maximumBlocking
+            maxActions: daita.maximumActions
         )
     }
 }
