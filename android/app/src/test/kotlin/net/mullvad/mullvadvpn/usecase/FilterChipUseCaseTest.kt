@@ -22,7 +22,7 @@ import org.junit.jupiter.api.Test
 class FilterChipUseCaseTest {
 
     private val mockRelayListFilterRepository: RelayListFilterRepository = mockk()
-    private val mockProvidersOwnershipUseCase: ProviderToOwnershipsUseCase = mockk()
+    private val mockProviderToOwnershipsUseCase: ProviderToOwnershipsUseCase = mockk()
     private val mockSettingRepository: SettingsRepository = mockk()
     private val mockWireguardConstraintsRepository: WireguardConstraintsRepository = mockk()
 
@@ -38,7 +38,7 @@ class FilterChipUseCaseTest {
     fun setUp() {
         every { mockRelayListFilterRepository.selectedOwnership } returns selectedOwnership
         every { mockRelayListFilterRepository.selectedProviders } returns selectedProviders
-        every { mockProvidersOwnershipUseCase() } returns providerToOwnerships
+        every { mockProviderToOwnershipsUseCase() } returns providerToOwnerships
         every { mockSettingRepository.settingsUpdates } returns settings
         every { mockWireguardConstraintsRepository.wireguardConstraints } returns
             wireguardConstraints
@@ -46,7 +46,7 @@ class FilterChipUseCaseTest {
         filterChipUseCase =
             FilterChipUseCase(
                 relayListFilterRepository = mockRelayListFilterRepository,
-                providerToOwnershipsUseCase = mockProvidersOwnershipUseCase,
+                providerToOwnershipsUseCase = mockProviderToOwnershipsUseCase,
                 settingsRepository = mockSettingRepository,
                 wireguardConstraintsRepository = mockWireguardConstraintsRepository,
             )
