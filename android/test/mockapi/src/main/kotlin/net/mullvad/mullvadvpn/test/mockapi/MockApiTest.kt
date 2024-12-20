@@ -58,7 +58,6 @@ abstract class MockApiTest {
         return ApiEndpointOverride(
             InetAddress.getLocalHost().hostName,
             port,
-            disableAddressCache = true,
             disableTls = true,
         )
     }

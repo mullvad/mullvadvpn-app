@@ -66,9 +66,7 @@ class ReportProblemViewModel(
 
                 // Ensure we show loading for at least MINIMUM_LOADING_TIME_MILLIS
                 val deferredResult = async {
-                    mullvadProblemReporter.sendReport(
-                        UserReport(nullableEmail, description),
-                    )
+                    mullvadProblemReporter.sendReport(UserReport(nullableEmail, description))
                 }
                 delay(MINIMUM_LOADING_TIME_MILLIS)
 
