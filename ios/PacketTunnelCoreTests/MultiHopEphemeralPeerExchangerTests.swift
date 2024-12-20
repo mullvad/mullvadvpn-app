@@ -123,9 +123,14 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             negotiationSuccessful.fulfill()
         }
 
-        peerExchangeActor.delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, ephemeralKey in
-            await multiHopPeerExchanger.receivePostQuantumKey(preSharedKey, ephemeralKey: ephemeralKey)
-        })
+        peerExchangeActor
+            .delegate = KeyExchangingResultStub(onReceivePostQuantumKey: { preSharedKey, ephemeralKey, daita in
+                await multiHopPeerExchanger.receivePostQuantumKey(
+                    preSharedKey,
+                    ephemeralKey: ephemeralKey,
+                    daitaParameters: daita
+                )
+            })
         await multiHopPeerExchanger.start()
 
         wait(
@@ -161,8 +166,8 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             negotiationSuccessful.fulfill()
         }
 
-        peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey in
-            await multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey)
+        peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey, daita in
+            await multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey, daitaParameters: daita)
         })
         await multiHopPeerExchanger.start()
 

@@ -22,7 +22,7 @@ mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
 
-#[cfg(all(unix, not(target_os = "ios")))]
+#[cfg(unix)]
 const DAITA_VERSION: u32 = 2;
 
 #[derive(Debug)]
@@ -88,7 +88,7 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
 pub struct EphemeralPeer {
     pub psk: Option<PresharedKey>,
-    #[cfg(all(unix, not(target_os = "ios")))]
+    #[cfg(unix)]
     pub daita: Option<DaitaSettings>,
 }
 
@@ -141,15 +141,15 @@ pub async fn request_ephemeral_peer_with(
             wg_parent_pubkey: parent_pubkey.as_bytes().to_vec(),
             wg_ephemeral_peer_pubkey: ephemeral_pubkey.as_bytes().to_vec(),
             post_quantum: pq_request,
-            #[cfg(any(windows, target_os = "ios"))]
+            #[cfg(windows)]
             daita: Some(proto::DaitaRequestV1 {
                 activate_daita: enable_daita,
             }),
-            #[cfg(any(windows, target_os = "ios"))]
+            #[cfg(windows)]
             daita_v2: None,
-            #[cfg(all(unix, not(target_os = "ios")))]
+            #[cfg(unix)]
             daita: None,
-            #[cfg(all(unix, not(target_os = "ios")))]
+            #[cfg(unix)]
             daita_v2: enable_daita.then(|| proto::DaitaRequestV2 {
                 level: i32::from(proto::DaitaLevel::LevelDefault),
                 platform: i32::from(get_platform()),
@@ -204,7 +204,7 @@ pub async fn request_ephemeral_peer_with(
         None
     };
 
-    #[cfg(all(unix, not(target_os = "ios")))]
+    #[cfg(unix)]
     {
         let daita = response.daita.map(|daita| DaitaSettings {
             client_machines: daita.client_machines,
@@ -217,13 +217,13 @@ pub async fn request_ephemeral_peer_with(
         Ok(EphemeralPeer { psk, daita })
     }
 
-    #[cfg(any(windows, target_os = "ios"))]
+    #[cfg(windows)]
     {
         Ok(EphemeralPeer { psk })
     }
 }
 
-#[cfg(all(unix, not(target_os = "ios")))]
+#[cfg(unix)]
 const fn get_platform() -> proto::DaitaPlatform {
     use proto::DaitaPlatform;
     const PLATFORM: DaitaPlatform = if cfg!(target_os = "windows") {
