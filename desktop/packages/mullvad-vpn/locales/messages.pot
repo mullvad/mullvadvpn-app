@@ -2230,6 +2230,9 @@ msgstr ""
 msgid "%s (added)"
 msgstr ""
 
+msgid "%s (removed)"
+msgstr ""
+
 msgid "%s custom port"
 msgstr ""
 

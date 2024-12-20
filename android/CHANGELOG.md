@@ -36,6 +36,9 @@ Line wrap the file at 100 chars.                                              Th
 - Update to DAITA v2. The main difference is that many different machines are provided by relays
   instead of a bundled list.
 
+### Fixed
+- Fix a crash that would occur because a Provider would be listed twice in the filter screen.
+
 
 ## [android/2024.9] - 2024-12-09
 ### Changed
