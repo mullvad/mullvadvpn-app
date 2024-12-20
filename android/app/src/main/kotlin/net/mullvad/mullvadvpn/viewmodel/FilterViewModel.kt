@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
+import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -75,11 +76,7 @@ class FilterViewModel(
             is Constraint.Any -> Constraint.Any
             is Constraint.Only -> {
                 val newProviderList = value + provider
-                if (allProviders.size == newProviderList.size) {
-                    Constraint.Any
-                } else {
-                    Constraint.Only(newProviderList)
-                }
+                newProviderList.toConstraintProviders(allProviders)
             }
         }
     }

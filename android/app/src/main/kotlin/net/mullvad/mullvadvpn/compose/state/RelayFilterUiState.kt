@@ -34,6 +34,13 @@ data class RelayFilterUiState(
                 providerToOwnerships.filterValues { selectedOwnership.value in it }.keys
         }.sorted()
 
+    val removedProviders: List<ProviderId> =
+        if (selectedProviders is Constraint.Only) {
+            selectedProviders.value.toList() - allProviders
+        } else {
+            emptyList()
+        }
+
     val isApplyButtonEnabled = selectedProviders.getOrNull()?.isNotEmpty() != false
 
     val isAllProvidersChecked = selectedProviders is Constraint.Any
