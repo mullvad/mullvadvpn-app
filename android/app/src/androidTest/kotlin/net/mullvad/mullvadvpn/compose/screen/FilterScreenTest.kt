@@ -10,6 +10,7 @@ import io.mockk.verify
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 import org.junit.jupiter.api.Test
@@ -27,7 +28,7 @@ class FilterScreenTest {
         state: RelayFilterUiState = RelayFilterUiState(),
         onBackClick: () -> Unit = {},
         onApplyClick: () -> Unit = {},
-        onSelectedOwnership: (ownership: Ownership?) -> Unit = {},
+        onSelectedOwnership: (ownership: Constraint<Ownership>) -> Unit = {},
         onAllProviderCheckChange: (isChecked: Boolean) -> Unit = {},
         onSelectedProvider: (checked: Boolean, provider: ProviderId) -> Unit = { _, _ -> },
     ) {
@@ -50,8 +51,8 @@ class FilterScreenTest {
                 state =
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = null,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedOwnership = Constraint.Any,
+                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     )
             )
             onNodeWithText("Ownership").assertExists()
@@ -65,8 +66,8 @@ class FilterScreenTest {
                 state =
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = null,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedOwnership = Constraint.Any,
+                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     )
             )
             onNodeWithText("Ownership").performClick()
@@ -80,8 +81,8 @@ class FilterScreenTest {
                 state =
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Ownership.MullvadOwned,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
+                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     )
             )
             onNodeWithText("Ownership").performClick()
@@ -95,8 +96,8 @@ class FilterScreenTest {
                 state =
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = Ownership.Rented,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedOwnership = Constraint.Only(Ownership.Rented),
+                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     )
             )
             onNodeWithText("Ownership").performClick()
@@ -110,8 +111,8 @@ class FilterScreenTest {
                 state =
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = null,
-                        selectedProviders = DUMMY_SELECTED_PROVIDERS,
+                        selectedOwnership = Constraint.Any,
+                        selectedProviders = Constraint.Only(DUMMY_SELECTED_PROVIDERS),
                     )
             )
 
@@ -128,8 +129,8 @@ class FilterScreenTest {
                 state =
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = null,
-                        selectedProviders = listOf(ProviderId("31173")),
+                        selectedOwnership = Constraint.Any,
+                        selectedProviders = Constraint.Only(listOf(ProviderId("31173"))),
                     ),
                 onApplyClick = mockClickListener,
             )
@@ -159,6 +160,6 @@ class FilterScreenTest {
                 ProviderId("xtom") to setOf(Ownership.Rented),
             )
 
-        private val DUMMY_SELECTED_PROVIDERS = DUMMY_RELAY_ALL_PROVIDERS.keys.toList()
+        private val DUMMY_SELECTED_PROVIDERS = DUMMY_RELAY_ALL_PROVIDERS.keys.toList().dropLast(3)
     }
 }
