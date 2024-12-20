@@ -59,7 +59,7 @@ class RelayListFilterRepositoryTest {
     fun `when settings is updated selected providers should update`() = runTest {
         // Arrange
         val mockSettings: Settings = mockk()
-        val selectedProviders: Constraint<Providers> = Constraint.Only(listOf(ProviderId("Prove")))
+        val selectedProviders: Constraint<Providers> = Constraint.Only(setOf(ProviderId("Prove")))
         every { mockSettings.relaySettings.relayConstraints.providers } returns selectedProviders
 
         // Act, Assert
@@ -146,7 +146,7 @@ class RelayListFilterRepositoryTest {
     @Test
     fun `when successfully updating selected providers should return successful`() = runTest {
         // Arrange
-        val providers = Constraint.Only(listOf(ProviderId("Mopp")))
+        val providers = Constraint.Only(setOf(ProviderId("Mopp")))
         coEvery { mockManagementService.setProviders(providers) } returns Unit.right()
 
         // Act
@@ -161,7 +161,7 @@ class RelayListFilterRepositoryTest {
     fun `when failing to update selected providers should return SetWireguardConstraintsError`() =
         runTest {
             // Arrange
-            val providers = Constraint.Only(listOf(ProviderId("Mopp")))
+            val providers = Constraint.Only(setOf(ProviderId("Mopp")))
             val error = SetWireguardConstraintsError.Unknown(mockk())
             coEvery { mockManagementService.setProviders(providers) } returns error.left()
 

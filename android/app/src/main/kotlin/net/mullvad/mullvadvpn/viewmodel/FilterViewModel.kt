@@ -100,7 +100,7 @@ class FilterViewModel(
                 if (isChecked) {
                     Constraint.Any
                 } else {
-                    Constraint.Only(emptyList())
+                    Constraint.Only(emptySet())
                 }
         }
     }

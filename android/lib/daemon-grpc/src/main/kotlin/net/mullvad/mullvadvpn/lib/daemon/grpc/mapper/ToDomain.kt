@@ -365,7 +365,7 @@ internal fun ManagementInterface.GeographicLocationConstraint.toDomain(): GeoLoc
 }
 
 internal fun List<String>.toDomain(): Constraint<Providers> =
-    if (isEmpty()) Constraint.Any else Constraint.Only(map { ProviderId(it) })
+    if (isEmpty()) Constraint.Any else Constraint.Only(map { ProviderId(it) }.toSet())
 
 internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConstraints =
     WireguardConstraints(

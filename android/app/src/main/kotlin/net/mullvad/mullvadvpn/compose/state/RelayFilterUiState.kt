@@ -3,13 +3,14 @@ package net.mullvad.mullvadvpn.compose.state
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.Providers
 
 data class RelayFilterUiState(
     private val providerToOwnerships: Map<ProviderId, Set<Ownership>> = emptyMap(),
     val selectedOwnership: Constraint<Ownership> = Constraint.Any,
-    val selectedProviders: Constraint<List<ProviderId>> = Constraint.Any,
+    val selectedProviders: Constraint<Providers> = Constraint.Any,
 ) {
-    val allProviders: List<ProviderId> = providerToOwnerships.keys.toList().sorted()
+    val allProviders: Set<ProviderId> = providerToOwnerships.keys
 
     val selectableOwnerships: List<Ownership> =
         when (selectedProviders) {
@@ -28,14 +29,10 @@ data class RelayFilterUiState(
 
     val selectableProviders: List<ProviderId> =
         when (selectedOwnership) {
-            Constraint.Any -> allProviders
+            Constraint.Any -> allProviders.toList()
             is Constraint.Only ->
-                providerToOwnerships
-                    .filterValues { selectedOwnership.value in it }
-                    .keys
-                    .toList()
-                    .sorted()
-        }
+                providerToOwnerships.filterValues { selectedOwnership.value in it }.keys
+        }.sorted()
 
     val isApplyButtonEnabled = selectedProviders.getOrNull()?.isNotEmpty() != false
 

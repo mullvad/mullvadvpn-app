@@ -16,7 +16,7 @@ import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.compose.state.toConstraintProviders
 import net.mullvad.mullvadvpn.compose.state.toOwnershipConstraint
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.common.test.assertLists
+import net.mullvad.mullvadvpn.lib.common.test.assertSet
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
@@ -54,8 +54,8 @@ class FilterViewModelTest {
             ProviderId("Tzulo") to setOf(Ownership.Rented),
             ProviderId("xtom") to setOf(Ownership.Rented),
         )
-    private val mockSelectedProviders: List<ProviderId> =
-        listOf(ProviderId("31173"), ProviderId("Blix"), ProviderId("Creanova"))
+    private val mockSelectedProviders: Set<ProviderId> =
+        setOf(ProviderId("31173"), ProviderId("Blix"), ProviderId("Creanova"))
 
     @BeforeEach
     fun setup() {
@@ -96,10 +96,10 @@ class FilterViewModelTest {
             val mockSelectedProvidersList = ProviderId("ptisp")
             // Assert
             viewModel.uiState.test {
-                assertLists(mockSelectedProviders, awaitItem().selectedProviders.getOrNull()!!)
+                assertSet(mockSelectedProviders, awaitItem().selectedProviders.getOrNull()!!)
                 viewModel.setSelectedProvider(true, mockSelectedProvidersList)
-                assertLists(
-                    listOf(mockSelectedProvidersList) + mockSelectedProviders,
+                assertSet(
+                    setOf(mockSelectedProvidersList) + mockSelectedProviders,
                     awaitItem().selectedProviders.getOrNull()!!,
                 )
             }
@@ -123,7 +123,7 @@ class FilterViewModelTest {
             // Arrange
             val mockOwnership = Ownership.MullvadOwned.toOwnershipConstraint()
             val mockSelectedProviders =
-                mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders.keys.toList())
+                mockSelectedProviders.toConstraintProviders(dummyListOfAllProviders.keys)
             coEvery {
                 mockRelayListFilterRepository.updateSelectedOwnershipAndProviderFilter(
                     mockOwnership,
@@ -146,12 +146,12 @@ class FilterViewModelTest {
     @Test
     fun `ensure that providers with multiple ownership are only returned once`() = runTest {
         // Arrange
-        val expectedProviderList = dummyListOfAllProviders.keys.toList()
+        val expectedProviderList = dummyListOfAllProviders.keys
 
         // Assert
         viewModel.uiState.test {
             val state = awaitItem()
-            assertLists(expectedProviderList, state.allProviders)
+            assertSet(expectedProviderList, state.allProviders)
         }
     }
 
@@ -160,7 +160,7 @@ class FilterViewModelTest {
         // Assert
         viewModel.uiState.test {
             val state = awaitItem()
-            assertEquals(state.allProviders.sorted(), state.allProviders)
+            assertSet(state.allProviders, state.allProviders)
             assertEquals(state.selectableProviders.sorted(), state.selectableProviders)
         }
     }

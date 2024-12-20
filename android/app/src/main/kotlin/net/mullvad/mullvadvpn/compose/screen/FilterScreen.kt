@@ -48,6 +48,7 @@ import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.FilterScreenSideEffect
@@ -226,7 +227,7 @@ private fun LazyItemScope.Provider(
     )
 }
 
-private fun ProviderId.isChecked(constraint: Constraint<List<ProviderId>>) =
+private fun ProviderId.isChecked(constraint: Constraint<Providers>) =
     when (constraint) {
         Constraint.Any -> true
         is Constraint.Only -> this in constraint.value

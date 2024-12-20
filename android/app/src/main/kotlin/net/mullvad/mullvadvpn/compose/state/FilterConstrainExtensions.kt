@@ -11,7 +11,7 @@ fun Ownership?.toOwnershipConstraint(): Constraint<Ownership> =
         else -> Constraint.Only(this)
     }
 
-fun List<ProviderId>.toConstraintProviders(allProviders: List<ProviderId>): Constraint<Providers> =
+fun Providers.toConstraintProviders(allProviders: Providers): Constraint<Providers> =
     if (size == allProviders.size) {
         Constraint.Any
     } else {

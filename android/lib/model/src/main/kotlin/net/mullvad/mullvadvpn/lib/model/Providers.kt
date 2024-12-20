@@ -1,3 +1,3 @@
 package net.mullvad.mullvadvpn.lib.model
 
-typealias Providers = List<ProviderId>
+typealias Providers = Set<ProviderId>
