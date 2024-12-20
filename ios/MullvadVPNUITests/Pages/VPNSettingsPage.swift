@@ -19,7 +19,7 @@ class VPNSettingsPage: Page {
         _ subButtonAccessibilityIdentifier: AccessibilityIdentifier
     ) -> XCUIElement {
         let tableView = app.tables[AccessibilityIdentifier.vpnSettingsTableView]
-        let matchingCells = tableView.otherElements[cellAccessiblityIdentifier.asString]
+        let matchingCells = tableView.cells[cellAccessiblityIdentifier]
         let expandButton = matchingCells.buttons[subButtonAccessibilityIdentifier]
         let lastCell = tableView.cells.allElementsBoundByIndex.last!
         tableView.scrollDownToElement(element: lastCell)
@@ -27,7 +27,12 @@ class VPNSettingsPage: Page {
     }
 
     private func cellExpandButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
-        return cellSubButton(cellAccessiblityIdentifier, .expandButton)
+        let tableView = app.tables[AccessibilityIdentifier.vpnSettingsTableView]
+        let matchingCells = tableView.otherElements[cellAccessiblityIdentifier]
+        let expandButton = matchingCells.buttons[.expandButton]
+        let lastCell = tableView.cells.allElementsBoundByIndex.last!
+        tableView.scrollDownToElement(element: lastCell)
+        return expandButton
     }
 
     private func cellPortSelectorButton(_ cellAccessiblityIdentifier: AccessibilityIdentifier) -> XCUIElement {
@@ -174,8 +179,8 @@ class VPNSettingsPage: Page {
     }
 
     @discardableResult func verifyUDPOverTCPPort80Selected() -> Self {
-        let cell = app.cells["\(AccessibilityIdentifier.wireGuardObfuscationPort)80"]
-        XCTAssertTrue(cell.isSelected)
+        let detailLabel = app.staticTexts[AccessibilityIdentifier.wireGuardObfuscationUdpOverTcpPort]
+        XCTAssertTrue(detailLabel.label.hasSuffix(" 80"))
         return self
     }
 
