@@ -19,15 +19,15 @@ class LeakTests: LoggedInWithTimeUITestCase {
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         startPacketCapture()
         let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
-        trafficGenerator.startGeneratingUDPTraffic(interval: 30.0)
+        trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         // Keep the tunnel connection for a while
         Thread.sleep(forTimeInterval: 30.0)
@@ -51,33 +51,33 @@ class LeakTests: LoggedInWithTimeUITestCase {
         trafficGenerator.startGeneratingUDPTraffic(interval: 1.0)
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
-        Thread.sleep(forTimeInterval: 2.0)
+        RunLoop.current.run(until: .now + 2)
 
         TunnelControlPage(app)
             .tapDisconnectButton()
 
         // Give it some time to generate traffic outside of tunnel
-        Thread.sleep(forTimeInterval: 5.0)
+        RunLoop.current.run(until: .now + 5)
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         // Keep the tunnel connection for a while
-        Thread.sleep(forTimeInterval: 5.0)
+        RunLoop.current.run(until: .now + 5)
 
         app.launch()
         TunnelControlPage(app)
             .tapDisconnectButton()
 
         // Keep the capture open for a while
-        Thread.sleep(forTimeInterval: 15.0)
+        RunLoop.current.run(until: .now + 15)
         trafficGenerator.stopGeneratingUDPTraffic()
 
         var capturedStreams = stopPacketCapture()
