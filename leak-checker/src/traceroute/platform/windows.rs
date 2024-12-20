@@ -19,7 +19,7 @@ use windows_sys::Win32::Networking::WinSock::{
 
 use crate::{
     traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT},
-    Interface, LeakStatus,
+    Interface, LeakInfo, LeakStatus,
 };
 
 use super::{common, AsyncIcmpSocket, AsyncUdpSocket, Traceroute};
@@ -82,18 +82,27 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
         });
     }
 
+    let wait_for_first_leak = async move {
+        while let Some(result) = ping_tasks.next().await {
+            match result? {
+                Some(ip) => {
+                    return Ok(LeakStatus::LeakDetected(
+                        LeakInfo::NodeReachableOnInterface {
+                            reachable_nodes: vec![ip],
+                            interface: opt.interface.clone(),
+                        },
+                    ))
+                }
+                None => continue,
+            }
+        }
+
+        anyhow::Ok(LeakStatus::NoLeak)
+    };
+
     select! {
         _ = sleep(LEAK_TIMEOUT).fuse() => Ok(LeakStatus::NoLeak),
-
-        result = ping_tasks.next().fuse() => match result.expect("set of futures is not empty")? {
-            None => Ok(LeakStatus::NoLeak),
-            Some(ip) => Ok(LeakStatus::LeakDetected(
-                crate::LeakInfo::NodeReachableOnInterface {
-                    reachable_nodes: vec![ip],
-                    interface: opt.interface.clone(),
-                },
-            )),
-        }
+        result = wait_for_first_leak.fuse() => result,
     }
 }
 
