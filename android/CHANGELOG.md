@@ -24,6 +24,12 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
+## [android/2024.10-beta2] - 2024-12-20
+
+### Fixed
+- Update bundled relay list to address a UI bug in the filter screen.
+
+
 ## [android/2024.10-beta1] - 2024-12-19
 ### Added
 - Add multihop which allows the routing of traffic through an entry and exit server, making it
