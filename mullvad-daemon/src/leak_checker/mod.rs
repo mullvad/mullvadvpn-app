@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Context};
+use anyhow::{anyhow, bail, Context};
 use futures::{select, FutureExt};
 use leak_checker::traceroute::TracerouteOpt;
 pub use leak_checker::LeakInfo;
@@ -167,12 +167,11 @@ async fn check_for_leaks(
     // where ip is some unused example public ip, or maybe the relay ip
     #[cfg(target_os = "linux")]
     let interface = {
-        let Ok(Some(route)) = route_manager
+        let route = route_manager
             .get_destination_route(destination.address.ip(), Some(mullvad_types::TUNNEL_FWMARK))
             .await
-        else {
-            todo!("no route to relay?");
-        };
+            .context("Failed to get route to relay")?
+            .ok_or(anyhow!("No route to relay"))?;
 
         route
             .get_node()
@@ -191,7 +190,9 @@ async fn check_for_leaks(
 
     #[cfg(target_os = "macos")]
     let interface = {
-        let (v4_route, v6_route) = route_manager.get_default_routes().await
+        let (v4_route, v6_route) = route_manager
+            .get_default_routes()
+            .await
             .context("Failed to get default interface")?;
         if destination.address.is_ipv4() {
             let v4_route = v4_route.context("Missing IPv4 default interface")?;
