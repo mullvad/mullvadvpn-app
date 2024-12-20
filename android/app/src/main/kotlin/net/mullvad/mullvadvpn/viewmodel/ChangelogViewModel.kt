@@ -8,12 +8,18 @@ import kotlinx.parcelize.Parcelize
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.repository.ChangelogRepository
 
-class ChangelogViewModel(changelogRepository: ChangelogRepository, buildVersion: BuildVersion) :
-    ViewModel() {
+class ChangelogViewModel(
+    private val changelogRepository: ChangelogRepository,
+    buildVersion: BuildVersion,
+) : ViewModel() {
     val uiState: StateFlow<ChangelogUiState> =
         MutableStateFlow(
             ChangelogUiState(buildVersion.name, changelogRepository.getLastVersionChanges())
         )
+
+    fun dismissChangelogNotification() {
+        changelogRepository.setDismissNewChangelogNotification()
+    }
 }
 
 @Parcelize data class ChangelogUiState(val version: String, val changes: List<String>) : Parcelable
