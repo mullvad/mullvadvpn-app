@@ -256,6 +256,12 @@ async fn request_ephemeral_peer(
 ) -> std::result::Result<Option<PresharedKey>, CloseMsg> {
     log::debug!("Requesting ephemeral peer");
 
+    #[cfg(target_os = "windows")]
+    {
+        log::info!("Sleeping for 100ms before requesting ephemeral peer");
+        tokio::time::sleep(Duration::from_millis(100)).await;
+    }
+
     let timeout = std::cmp::min(
         MAX_PSK_EXCHANGE_TIMEOUT,
         INITIAL_PSK_EXCHANGE_TIMEOUT
