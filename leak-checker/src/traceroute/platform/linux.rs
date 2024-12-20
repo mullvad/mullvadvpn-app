@@ -13,7 +13,7 @@ use pnet_packet::icmp::{IcmpCode, IcmpType};
 use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
-use crate::traceroute::{parse_icmp_echo_raw, TracerouteOpt, RECV_TIMEOUT};
+use crate::traceroute::{parse_icmp_echo_raw, TracerouteOpt, RECV_GRACE_TIME};
 use crate::{Interface, LeakInfo, LeakStatus};
 
 use super::{unix, AsyncIcmpSocket, Traceroute};
@@ -202,7 +202,7 @@ async fn recv_ttl_responses(
         parse_icmp_echo_raw(packet).context("")?;
 
         log::debug!("Got a probe response, we are leaking!");
-        timeout_at.get_or_insert_with(|| Instant::now() + RECV_TIMEOUT);
+        timeout_at.get_or_insert_with(|| Instant::now() + RECV_GRACE_TIME);
         reachable_nodes.push(IpAddr::from(error_source.ip()));
     }
 
