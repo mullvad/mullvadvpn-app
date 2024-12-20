@@ -154,11 +154,14 @@ impl<T: ConnectionModeProvider + 'static> RequestService<T> {
         connection_mode_provider: T,
         dns_resolver: Arc<dyn DnsResolver>,
         #[cfg(target_os = "android")] socket_bypass_tx: Option<mpsc::Sender<SocketBypassRequest>>,
+        #[cfg(any(feature = "api-override", test))] disable_tls: bool,
     ) -> RequestServiceHandle {
         let (connector, connector_handle) = HttpsConnectorWithSni::new(
             dns_resolver,
             #[cfg(target_os = "android")]
             socket_bypass_tx.clone(),
+            #[cfg(any(feature = "api-override", test))]
+            disable_tls,
         );
 
         connector_handle.set_connection_mode(connection_mode_provider.initial());
@@ -461,7 +464,6 @@ where
         }
 
         // Parse unexpected responses and errors
-
         let response = response?;
 
         if !self.expected_status.contains(&response.status()) {
