@@ -31,6 +31,11 @@ pub struct AsyncIcmpSocketImpl(tokio::net::UdpSocket);
 pub struct AsyncUdpSocketWindows(tokio::net::UdpSocket);
 
 /// Implementation of traceroute using `ping.exe`
+///
+/// This monstrosity exists because the Windows firewall is not helpful enough to allow us to
+/// permit a process (the daemon) to receive ICMP TimeExceeded packets. We can get around this by
+/// using `ping.exe`, which does work for some reason. My best guess is that it has special kernel
+/// access to be able to do this.
 pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
     let interface_ip = get_interface_ip(&opt.interface)?;
 
@@ -44,12 +49,16 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
         ping_tasks.push(async move {
             sleep(probe_delay).await;
 
+            log::debug!("sending probe packet (ttl={ttl})");
+
+            // ping.exe will send ICMP Echo packets to the destination, and since it's running in
+            // the kernel it will be able to receive TimeExceeded responses.
             let ping_path = r"C:\Windows\System32\ping.exe";
             let output = tokio::process::Command::new(ping_path)
                 .args(["-i", &ttl.to_string()])
-                .args(["-n", "1"])
+                .args(["-n", "1"]) // number of pings
                 .args(["-w", &SEND_TIMEOUT.as_millis().to_string()])
-                .args(["-S", &interface_ip.to_string()])
+                .args(["-S", &interface_ip.to_string()]) // bind to interface IP
                 .arg(opt.destination.to_string())
                 .kill_on_drop(true)
                 .output()
@@ -64,7 +73,7 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
             log::trace!("ping stdout: {stdout}");
             log::trace!("ping stderr: {_stderr}");
 
-            // Dumbly search stdout for a line that looks like this:
+            // Dumbly parse stdout for a line that looks like this:
             // Reply from <ip>: TTL expired
 
             if !stdout.contains("TTL expired") {
