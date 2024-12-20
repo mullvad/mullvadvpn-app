@@ -60,7 +60,16 @@ const StyledButton = styled.button({
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    { variant = 'primary', size = 'regular', leading, trailing, children, disabled, ...props },
+    {
+      variant = 'primary',
+      size = 'regular',
+      leading,
+      trailing,
+      children,
+      disabled,
+      style,
+      ...props
+    },
     ref,
   ) => {
     const styles = variants[variant];
@@ -73,6 +82,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             '--hover': styles.hover,
             '--disabled': styles.disabled,
             '--size': sizes[size],
+            ...style,
           } as React.CSSProperties
         }
         disabled={disabled}
