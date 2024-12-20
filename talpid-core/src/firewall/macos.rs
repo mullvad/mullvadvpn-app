@@ -7,7 +7,6 @@ use std::sync::LazyLock;
 use ipnetwork::IpNetwork;
 use libc::{c_int, sysctlbyname};
 use pfctl::{DropAction, FilterRuleAction, Ip, RedirectRule, Uid};
-use subslice::SubsliceExt;
 use talpid_types::net::{
     AllowedEndpoint, AllowedTunnelTraffic, TransportProtocol, ALLOWED_LAN_MULTICAST_NETS,
     ALLOWED_LAN_NETS,
@@ -936,21 +935,13 @@ impl Firewall {
         self.pf.try_enable()
     }
 
-    fn is_enabled(&self) -> bool {
-        let cmd = duct::cmd!("/sbin/pfctl", "-s", "info")
-            .stderr_null()
-            .stdout_capture();
-        const EXPECTED_OUTPUT: &[u8] = b"Status: Enabled";
-        match cmd.run() {
-            Ok(output) => output.stdout.as_slice().find(EXPECTED_OUTPUT).is_some(),
-            Err(err) => {
-                log::error!(
-                    "Failed to execute pfctl, assuming pf is not enabled: {}",
-                    err
-                );
-                false
-            }
-        }
+    fn is_enabled(&mut self) -> bool {
+        // If we can't know for sure whether pf is enabled or not, err on the side of caution and
+        // return false.
+        self.pf
+            .is_enabled()
+            .inspect_err(|err| log::error!("Unable to determine if pf is enabled: {err}"))
+            .unwrap_or(false)
     }
 
     fn restore_state(&mut self) -> Result<()> {
