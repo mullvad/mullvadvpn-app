@@ -182,12 +182,6 @@ android {
     }
 
     applicationVariants.configureEach {
-        val alwaysShowChangelog =
-            gradleLocalProperties(rootProject.projectDir, providers)
-                .getProperty("ALWAYS_SHOW_CHANGELOG") ?: "false"
-
-        buildConfigField("boolean", "ALWAYS_SHOW_CHANGELOG", alwaysShowChangelog)
-
         val enableInAppVersionNotifications =
             gradleLocalProperties(rootProject.projectDir, providers)
                 .getProperty("ENABLE_IN_APP_VERSION_NOTIFICATIONS") ?: "true"
