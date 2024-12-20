@@ -5,6 +5,7 @@ use std::net::SocketAddr;
 #[cfg(not(target_os = "ios"))]
 use std::net::{IpAddr, Ipv4Addr};
 use talpid_types::net::wireguard::{PresharedKey, PublicKey};
+use tokio::io::{AsyncRead, AsyncWrite};
 use tonic::transport::Channel;
 #[cfg(not(target_os = "ios"))]
 use tonic::transport::Endpoint;
@@ -107,7 +108,9 @@ pub async fn request_ephemeral_peer(
     enable_post_quantum: bool,
     enable_daita: bool,
 ) -> Result<EphemeralPeer, Error> {
+    log::debug!("Connecting to relay config service at {service_address}");
     let client = connect_relay_config_client(service_address).await?;
+    log::debug!("Connected to relay config service at {service_address}");
 
     request_ephemeral_peer_with(
         client,
@@ -128,6 +131,7 @@ pub async fn request_ephemeral_peer_with(
 ) -> Result<EphemeralPeer, Error> {
     let (pq_request, kem_secrets) = if enable_quantum_resistant {
         let (pq_request, kem_secrets) = post_quantum_secrets().await;
+        log::debug!("Generated PQ secrets");
         (Some(pq_request), Some(kem_secrets))
     } else {
         (None, None)
@@ -275,20 +279,84 @@ fn xor_assign(dst: &mut [u8; 32], src: &[u8; 32]) {
 /// value has been speficically lowered, to avoid MTU issues. See the `socket` module.
 #[cfg(not(target_os = "ios"))]
 async fn connect_relay_config_client(ip: Ipv4Addr) -> Result<RelayConfigService, Error> {
-    use futures::TryFutureExt;
-
     let endpoint = Endpoint::from_static("tcp://0.0.0.0:0");
     let addr = SocketAddr::new(IpAddr::V4(ip), CONFIG_SERVICE_PORT);
 
     let connection = endpoint
         .connect_with_connector(service_fn(move |_| async move {
             let sock = socket::TcpSocket::new()?;
-            sock.connect(addr)
-                .map_ok(hyper_util::rt::tokio::TokioIo::new)
-                .await
+            let stream = sock.connect(addr).await?;
+            let sniffer = SocketSniffer {
+                s: stream,
+                rx_bytes: 0,
+                tx_bytes: 0,
+                start_time: std::time::Instant::now(),
+            };
+            Ok::<_, std::io::Error>(hyper_util::rt::tokio::TokioIo::new(sniffer))
         }))
         .await
         .map_err(Error::GrpcConnectError)?;
 
     Ok(RelayConfigService::new(connection))
+}
+
+struct SocketSniffer<S> {
+    s: S,
+    rx_bytes: usize,
+    tx_bytes: usize,
+    start_time: std::time::Instant,
+}
+
+impl<S> Drop for SocketSniffer<S> {
+    fn drop(&mut self) {
+        let duration = self.start_time.elapsed();
+        log::debug!(
+            "Tunnel config client connection ended. RX: {} bytes, TX: {} bytes, duration: {} s",
+            self.rx_bytes,
+            self.tx_bytes,
+            duration.as_secs()
+        );
+    }
+}
+
+impl<S: AsyncRead + AsyncWrite + std::marker::Unpin> AsyncRead for SocketSniffer<S> {
+    fn poll_read(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &mut tokio::io::ReadBuf<'_>,
+    ) -> std::task::Poll<std::io::Result<()>> {
+        let bytes = std::task::ready!(std::pin::Pin::new(&mut self.s).poll_read(cx, buf));
+        if bytes.is_ok() {
+            self.rx_bytes += buf.filled().len();
+        }
+        std::task::Poll::Ready(bytes)
+    }
+}
+
+impl<S: AsyncRead + AsyncWrite + std::marker::Unpin> AsyncWrite for SocketSniffer<S> {
+    fn poll_write(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &[u8],
+    ) -> std::task::Poll<std::io::Result<usize>> {
+        let bytes = std::task::ready!(std::pin::Pin::new(&mut self.s).poll_write(cx, buf));
+        if bytes.is_ok() {
+            self.tx_bytes += buf.len();
+        }
+        std::task::Poll::Ready(bytes)
+    }
+
+    fn poll_flush(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<std::io::Result<()>> {
+        std::pin::Pin::new(&mut self.s).poll_flush(cx)
+    }
+
+    fn poll_shutdown(
+        mut self: std::pin::Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> std::task::Poll<std::io::Result<()>> {
+        std::pin::Pin::new(&mut self.s).poll_shutdown(cx)
+    }
 }
