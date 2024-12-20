@@ -157,4 +157,14 @@ class FilterViewModelTest {
             assertLists(expectedProviderList, state.allProviders)
         }
     }
+
+    @Test
+    fun `ensure that providers are sorted by name`() = runTest {
+        // Assert
+        viewModel.uiState.test {
+            val state = awaitItem()
+            assertEquals(state.allProviders.sorted(), state.allProviders)
+            assertEquals(state.selectableProviders.sorted(), state.selectableProviders)
+        }
+    }
 }
