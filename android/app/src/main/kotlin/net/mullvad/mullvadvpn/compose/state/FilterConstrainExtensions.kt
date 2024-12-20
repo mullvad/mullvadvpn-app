@@ -2,7 +2,6 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
-import net.mullvad.mullvadvpn.lib.model.ProviderId
 import net.mullvad.mullvadvpn.lib.model.Providers
 
 fun Ownership?.toOwnershipConstraint(): Constraint<Ownership> =

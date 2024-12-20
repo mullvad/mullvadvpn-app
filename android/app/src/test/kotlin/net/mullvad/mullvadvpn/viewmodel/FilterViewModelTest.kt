@@ -20,6 +20,7 @@ import net.mullvad.mullvadvpn.lib.common.test.assertSet
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
+import net.mullvad.mullvadvpn.lib.model.Providers
 import net.mullvad.mullvadvpn.repository.RelayListFilterRepository
 import net.mullvad.mullvadvpn.usecase.ProviderToOwnershipsUseCase
 import org.junit.jupiter.api.AfterEach
@@ -54,7 +55,7 @@ class FilterViewModelTest {
             ProviderId("Tzulo") to setOf(Ownership.Rented),
             ProviderId("xtom") to setOf(Ownership.Rented),
         )
-    private val mockSelectedProviders: Set<ProviderId> =
+    private val mockSelectedProviders: Providers =
         setOf(ProviderId("31173"), ProviderId("Blix"), ProviderId("Creanova"))
 
     @BeforeEach

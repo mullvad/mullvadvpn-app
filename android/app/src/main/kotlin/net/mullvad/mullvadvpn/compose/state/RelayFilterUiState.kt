@@ -10,7 +10,7 @@ data class RelayFilterUiState(
     val selectedOwnership: Constraint<Ownership> = Constraint.Any,
     val selectedProviders: Constraint<Providers> = Constraint.Any,
 ) {
-    val allProviders: Set<ProviderId> = providerToOwnerships.keys
+    val allProviders: Providers = providerToOwnerships.keys
 
     val selectableOwnerships: List<Ownership> =
         when (selectedProviders) {
