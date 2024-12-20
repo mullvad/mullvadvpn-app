@@ -1,7 +1,6 @@
 use std::{
     ascii::escape_default,
     convert::Infallible,
-    future::ready,
     io,
     net::{IpAddr, Ipv4Addr},
     ops::{Range, RangeFrom},
@@ -9,7 +8,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Context};
-use futures::{future::pending, select, stream, FutureExt, StreamExt, TryFutureExt, TryStreamExt};
+use futures::{future::pending, select, stream, FutureExt, StreamExt, TryStreamExt};
 use pnet_packet::{
     icmp::{
         echo_request::EchoRequestPacket, time_exceeded::TimeExceededPacket, IcmpPacket, IcmpTypes,
@@ -66,7 +65,10 @@ const LEAK_TIMEOUT: Duration = Duration::from_secs(5);
 const SEND_TIMEOUT: Duration = Duration::from_secs(1);
 
 /// Timeout of receiving additional probe packets after the first one
-const RECV_TIMEOUT: Duration = Duration::from_secs(1);
+const RECV_GRACE_TIME: Duration = Duration::from_millis(200);
+
+/// Time in-between send of each probe packet.
+const PROBE_INTERVAL: Duration = Duration::from_millis(100);
 
 /// Default range of ports for the probe packets. Stolen from `traceroute`.
 const DEFAULT_PORT_RANGE: RangeFrom<u16> = 33434..;
@@ -142,12 +144,6 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
         anyhow::Ok(())
     };
 
-    // error if sending the probes takes longer than SEND_TIMEOUT
-    //let send_probes = timeout(SEND_TIMEOUT, send_probes)
-    //    .map_err(|_timeout| anyhow!("Timed out while trying to send probe packet"))
-    //    .and_then(ready) // flatten the result
-    //    .and_then(|_| pending::<Result<Infallible, _>>());
-
     let send_probes = async {
         timeout(SEND_TIMEOUT, send_probes)
             .await
@@ -207,7 +203,12 @@ async fn send_icmp_probes(
             .try_collect() // abort on the first error
             .await;
 
-        let Err(e) = result else { continue };
+        // if there was an error, handle it, otherwise continue probing.
+        let Err(e) = result else {
+            sleep(PROBE_INTERVAL).await;
+            continue;
+        };
+
         match e.kind() {
             io::ErrorKind::PermissionDenied => {
                 // Linux returns this error if our packet was rejected by nftables.
