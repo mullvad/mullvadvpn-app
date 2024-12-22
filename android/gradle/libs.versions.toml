@@ -40,7 +40,7 @@ koin = "4.0.0"
 koin-compose = "4.0.0"
 
 # Ktor
-ktor = "3.0.2"
+ktor = "3.0.3"
 
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
