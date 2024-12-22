@@ -52,7 +52,7 @@ kotlinx-serialization = "2.1.0"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.4"
-protobuf = "4.29.1"
+protobuf = "4.29.2"
 
 # Misc
 commonsvalidator = "1.9.0"
