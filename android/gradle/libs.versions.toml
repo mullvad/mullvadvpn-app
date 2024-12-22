@@ -27,7 +27,7 @@ arrow = "2.0.0"
 
 # Compose
 compose = "1.7.6"
-compose-destinations = "2.1.0-beta14"
+compose-destinations = "2.1.0-beta15"
 compose-constraintlayout = "1.1.0"
 compose-material3 = "1.3.1"
 
