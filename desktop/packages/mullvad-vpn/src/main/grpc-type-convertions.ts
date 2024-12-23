@@ -1,3 +1,5 @@
+import { types as grpcTypes } from 'management-interface';
+
 import {
   AccessMethod,
   AccessMethodSetting,
@@ -58,7 +60,6 @@ import {
   TunnelType,
   wrapConstraint,
 } from '../shared/daemon-rpc-types';
-import * as grpcTypes from './management_interface/management_interface_pb';
 
 export class ResponseParseError extends Error {
   constructor(message: string) {

@@ -1,0 +1,21 @@
+{
+  "name": "management-interface",
+  "version": "0.0.0",
+  "author": "Mullvad VPN",
+  "license": "GPL-3.0",
+  "description": "Mullvad VPN IPC. Contains types and functions for IPC with daemon.",
+  "main": "./dist/index.js",
+  "devDependencies": {
+    "grpc_tools_node_protoc_ts": "^5.3.3"
+  },
+  "optionalDependencies": {
+    "grpc-tools": "^1.12.4"
+  },
+  "peerDependencies": {
+    "google-protobuf": "*"
+  },
+  "scripts": {
+    "postinstall": "npm run build",
+    "build": "./build.sh && tsc"
+  }
+}
