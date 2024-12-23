@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.calculateEndPadding
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -39,6 +41,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -271,7 +274,14 @@ fun ConnectScreen(
             if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
             else TALL_SCREEN_INDICATOR_BIAS
 
-        Box(Modifier.padding(it).fillMaxSize()) {
+        Box(
+            Modifier.padding(
+                    top = it.calculateTopPadding(),
+                    start = it.calculateStartPadding(LocalLayoutDirection.current),
+                    end = it.calculateEndPadding(LocalLayoutDirection.current),
+                )
+                .fillMaxSize()
+        ) {
             MullvadMap(state, indicatorPercentOffset)
 
             MullvadCircularProgressIndicatorLarge(
@@ -293,22 +303,24 @@ fun ConnectScreen(
                         .testTag(CIRCULAR_PROGRESS_INDICATOR),
             )
 
-            NotificationBanner(
-                notification = state.inAppNotification,
-                isPlayBuild = state.isPlayBuild,
-                openAppListing = onOpenAppListing,
-                onClickShowAccount = onManageAccountClick,
-                onClickDismissNewDevice = onDismissNewDeviceClick,
-            )
-            ConnectionCard(
-                state = state,
-                modifier = Modifier.align(Alignment.BottomCenter),
-                onSwitchLocationClick,
-                onDisconnectClick,
-                onReconnectClick,
-                onCancelClick,
-                onConnectClick,
-            )
+            Box(modifier = Modifier.fillMaxSize().padding(bottom = it.calculateBottomPadding())) {
+                NotificationBanner(
+                    notification = state.inAppNotification,
+                    isPlayBuild = state.isPlayBuild,
+                    openAppListing = onOpenAppListing,
+                    onClickShowAccount = onManageAccountClick,
+                    onClickDismissNewDevice = onDismissNewDeviceClick,
+                )
+                ConnectionCard(
+                    state = state,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    onSwitchLocationClick = onSwitchLocationClick,
+                    onDisconnectClick = onDisconnectClick,
+                    onReconnectClick = onReconnectClick,
+                    onCancelClick = onCancelClick,
+                    onConnectClick = onConnectClick,
+                )
+            }
         }
     }
 }
@@ -365,18 +377,9 @@ private fun ConnectionCard(
         Shapes.large,
         colors = CardDefaults.cardColors(containerColor = containerColor.value),
     ) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    top = Dimens.mediumPadding,
-                    start = Dimens.mediumPadding,
-                    end = Dimens.mediumPadding,
-                    bottom = Dimens.smallPadding,
-                )
-        ) {
+        Column(modifier = Modifier.padding(all = Dimens.mediumPadding)) {
             ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
 
-            Logger.d("Tunnelstate: ${state.tunnelState}, expanded: $expanded")
             AnimatedContent(
                 (state.tunnelState as? TunnelState.Connected)?.featureIndicators to expanded,
                 modifier = Modifier.weight(1f, fill = false),
