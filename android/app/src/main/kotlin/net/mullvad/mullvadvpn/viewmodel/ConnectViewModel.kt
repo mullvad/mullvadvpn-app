@@ -95,7 +95,7 @@ class ConnectViewModel(
                     tunnelState = tunnelState,
                     showLocation =
                         when (tunnelState) {
-                            is TunnelState.Disconnected -> true
+                            is TunnelState.Disconnected -> tunnelState.location != null
                             is TunnelState.Disconnecting -> {
                                 when (tunnelState.actionAfterDisconnect) {
                                     ActionAfterDisconnect.Nothing -> false
