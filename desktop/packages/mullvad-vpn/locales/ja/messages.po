@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2024-10-23 06:33\n"
+"PO-Revision-Date: 2024-12-20 14:20\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -155,6 +155,9 @@ msgstr "編集"
 
 msgid "Enable"
 msgstr "有効にする"
+
+msgid "Enable \"%(directOnly)s\""
+msgstr "\"%(directOnly)s\"を有効化"
 
 msgid "Enable anyway"
 msgstr "それでも有効にする"
@@ -468,6 +471,10 @@ msgid "Enter port"
 msgstr "ポートを入力"
 
 msgctxt "api-access-methods-view"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
+msgstr "当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーはQuad 9、CloudFlare、またはGoogleのいずれかによってホストされます。"
+
+msgctxt "api-access-methods-view"
 msgid "In use"
 msgstr "使用中"
 
@@ -566,6 +573,10 @@ msgstr "転送プロトコル"
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
 msgstr "「ダイレクト」方法の場合、アプリは中間プロキシを使わずにMullvad APIサーバーと直接通信します。"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
+msgstr "[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
@@ -1407,6 +1418,10 @@ msgid "Filtered:"
 msgstr "絞り込み結果:"
 
 msgctxt "select-location-view"
+msgid "Go to %(daita)s settings"
+msgstr "%(daita)s設定に移動"
+
+msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "リスト名は一意である必要があります。"
 
@@ -1431,12 +1446,8 @@ msgid "The app selects a random bridge server, but servers have a higher probabi
 msgstr "ブリッジサーバーはアプリによってランダムに選択されますが、現在地に近いサーバーほど高い確率で選択されます。"
 
 msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
-msgstr "接続中、あなたのトラフィックはセキュリティで保護された2つの場所、入口 (ブリッジサーバー) および出口 (VPNサーバー) 経由で転送されます。"
-
-msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
-msgstr "接続中のトラフィックは、セキュリティで保護された入口ポイントと出口ポイント (これらのポイントは2つの異なるVPNサーバーである必要があります) の2箇所を経由して転送されます。"
+msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
+msgstr "%(multihop)sの入口サーバーは現在、%(daita)sによってオーバーライドされています。入口サーバーを選択するには、設定で [%(directOnly)s] を有効にするか、[%(daita)s] を無効にしてください。"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -1565,6 +1576,10 @@ msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel unti
 msgstr "アプリをクリックして起動します。そのトラフィックは、アプリを閉じるまでVPNトンネルをバイパスします。"
 
 msgctxt "split-tunneling-view"
+msgid "Enabled \"Full disk access\" and still having issues?"
+msgstr "[フルディスクアクセス] を有効にしても問題が解決しませんか？"
+
+msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "除外対象アプリ"
 
@@ -1580,6 +1595,10 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "起動する"
 
+msgctxt "split-tunneling-view"
+msgid "Open System Settings"
+msgstr "システム設定を開く"
+
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
@@ -1592,6 +1611,14 @@ msgstr "問題の報告を送信してください。"
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "再試行するか、問題の報告を送信してください。"
+
+msgctxt "split-tunneling-view"
+msgid "Restart Mullvad Service"
+msgstr "Mullvadサービスを再起動"
+
+msgctxt "split-tunneling-view"
+msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
+msgstr "スプリットトンネリングを使用するには、macOSのシステム設定で「Mullvad VPN」の「フルディスクアクセス」を有効にしてください。"
 
 #. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
@@ -2198,14 +2225,20 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。"
 
-msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%s (%s) は暗号化されたVPNトラフィックのパターンを隠します。これにより、接続が監視されている場合でもアクセス先のウェブサイトを特定するのを極めて困難にします。ネットワークノイズを入念に追加し、すべてのネットワークパケットを同じサイズにすることによってこれを実現しています。"
+msgid "%s (Entry)"
+msgstr "%s (入口)"
+
+msgid "%s (Exit)"
+msgstr "%s (出口)"
 
 msgid "%s (added)"
 msgstr "%s (追加済み)"
 
-msgid "%s using %s"
-msgstr "%s、%sを使用中"
+msgid "%s custom port"
+msgstr "%sカスタムポート"
+
+msgid "%s more..."
+msgstr "その他%s件…"
 
 msgid "%s was added to \"%s\""
 msgstr "%s が \"%s\" に追加されました"
@@ -2216,14 +2249,14 @@ msgstr "ご利用のアカウントに %s が追加されました。"
 msgid "%s was removed from \"%s\""
 msgstr "%sが \"%s\" から削除されました"
 
-msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
-msgstr "1. 下の [<b>VPN設定に移動</b>] ボタンをクリックし、<b>Mullvad VPN</b>名の横にある歯車をクリックします。"
+msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
+msgstr "1. 下の [VPN設定に移動] ボタンをクリックし、[Mullvad VPN] 名の横にある歯車をクリックします。"
 
-msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
-msgstr "2. 自動接続を有効にするには、[<b>Always-on VPN</b>] の横のトグルボタンをクリックします。"
+msgid "2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\"."
+msgstr "2. 自動接続を有効にするには、[Always-on VPN] の横のトグルボタンをクリックします。"
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
-msgstr "3. ロックダウンモードを有効にするには、<b>VPN を使用していない接続をブロックする</b>の横にあるトグルボタンをクリックします。<br /><br /><b>警告: この設定では、分割アプリとローカルネットワークの共有機能がブロックされます。</b>"
+msgid "3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. ロックダウンモードを有効にするには、[VPN 以外の接続のブロック] の横にあるトグルボタンをクリックします。<br /><br /><b>警告: この設定では、分割アプリとローカルネットワーク共有の機能がブロックされます。</b>"
 
 msgid "30 days was added to your account."
 msgstr "アカウントに30日分が追加されました。"
@@ -2270,17 +2303,23 @@ msgstr "すべてのアプリケーション"
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
 msgstr "すべてのオーバーライドはリセットされ、場所の選択ビューのサーバーの IP アドレスはデフォルトに戻ります。"
 
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "共有や印刷などのため、同一ネットワーク上の他のデバイスへのアクセスを許可します。"
+msgid "Always-on VPN assigned to %s"
+msgstr "Always-on VPNは%sに割り当てられました"
 
-msgid "Always-on VPN assigned to other app"
-msgstr "Always-on VPNは他のアプリに割り当てられています"
+msgid "Always-on VPN assigned to other VPN"
+msgstr "Always-on VPNは他のVPNに割り当てられました"
 
-msgid "Always-on VPN might be enabled for another app"
-msgstr "Always-on VPNが別のアプリで有効になっている可能性があります"
+msgid "App info"
+msgstr "アプリ情報"
 
 msgid "At least one method needs to be enabled"
 msgstr "方法は少なくとも 1 つは有効化する必要があります"
+
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
+msgstr "注意: この機能はネットワークトラフィックを増加させるため、上限付きのデータプランをご利用の場合はご注意ください。"
+
+msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
+msgstr "注意: [VPN 以外の接続のブロック] が有効の場合、[ローカルネットワーク共有] は機能しません。"
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意: [VPNを使用していない接続をブロックする] が有効な場合、スプリット対象のアプリはインターネットを使用できません。スプリットトンネリングにはプライバシーのリスクがあることに常に注意してください。"
@@ -2288,8 +2327,8 @@ msgstr "注意: [VPNを使用していない接続をブロックする] が有�
 msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
 msgstr "注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワークの速度とバッテリー使用量にも悪影響を及ぼす可能性があります。"
 
-msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "注意: この設定を [<b>カスタムDNSサーバーを使う</b>] と一緒に使用することはできません。"
+msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
+msgstr "注意: この設定を [カスタムDNSサーバーを使う] と一緒に使用することはできません。"
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "自動接続とロックダウンモード"
@@ -2300,14 +2339,26 @@ msgstr "自動接続 (レガシー)"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。"
 
-msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr "アプリの起動時に自動的に接続します。この設定は、今後のアップデートで新しい \"デバイスの起動時に接続\" 機能に置き換えられます。"
+msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
+msgstr "デバイスの起動時に自動接続します。これはアプリにVPNへのアクセス許可が付与されている場合にのみ機能します。"
 
 msgid "Blocking internet (device offline)"
 msgstr "インターネットをブロック中 (デバイスがオフライン)"
 
+msgid "Changelog"
+msgstr "変更履歴"
+
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。"
+
+msgid "Clear input"
+msgstr "入力をクリア"
+
+msgid "Collapse"
+msgstr "折りたたむ"
+
+msgid "Connect on device start-up"
+msgstr "デバイス起動時に接続"
 
 msgid "Connecting..."
 msgstr "接続中..."
@@ -2318,11 +2369,14 @@ msgstr "Mullvadアカウント番号をクリップボードにコピーしま�
 msgid "Copied logs to clipboard"
 msgstr "ログをクリップボードにコピーしました"
 
-msgid "Copied to clipboard"
-msgstr "クリップボードにコピーしました"
+msgid "Copy"
+msgstr "コピー"
 
 msgid "Create"
 msgstr "作成"
+
+msgid "Create new account"
+msgstr "新規アカウントを作成"
 
 msgid "Create new list"
 msgstr "リストの新規作成"
@@ -2348,8 +2402,11 @@ msgstr "方法を削除"
 msgid "Delete method?"
 msgstr "方法を削除しますか？"
 
-msgid "Disable all <b>%s</b> above to activate this setting."
-msgstr "この設定を有効にするには、上記のすべての<b>%s</b>を無効にしてください。"
+msgid "Disable \"%s\" below to activate these settings."
+msgstr "これらの設定を有効にするには、下の [%s] を無効にしてください。"
+
+msgid "Disable all \"%s\" above to activate this setting."
+msgstr "この設定を有効にするには、上の [%s] をすべて無効にしてください。"
 
 msgid "Discard"
 msgstr "破棄"
@@ -2357,8 +2414,17 @@ msgstr "破棄"
 msgid "Discard changes?"
 msgstr "変更内容を破棄しますか？"
 
+msgid "Disconnected (No VPN permission)"
+msgstr "接続が解除されました (VPN のアクセス許可なし)"
+
+msgid "Disconnecting..."
+msgstr "接続解除中..."
+
 msgid "Dismiss"
 msgstr "閉じる"
+
+msgid "Do you want to create a new account?"
+msgstr "新規アカウントを作成しますか？"
 
 msgid "Edit custom lists"
 msgstr "カスタムリストを編集する"
@@ -2375,6 +2441,9 @@ msgstr "場所の編集"
 msgid "Edit name"
 msgstr "名前を編集"
 
+msgid "Enable %s"
+msgstr "%sを有効にする"
+
 msgid "Enable method"
 msgstr "方法を有効化する"
 
@@ -2383,6 +2452,12 @@ msgstr "MTU を入力"
 
 msgid "Excluded applications"
 msgstr "除外対象アプリケーション"
+
+msgid "Expand"
+msgstr "展開"
+
+msgid "FAILED TO CONNECT"
+msgstr "接続に失敗しました"
 
 msgid "Failed to apply patch"
 msgstr "パッチを適用できませんでした"
@@ -2395,6 +2470,9 @@ msgstr "現在の設定に設定できません。原因は不明です"
 
 msgid "File"
 msgstr "ファイル"
+
+msgid "Filters:"
+msgstr "絞り込み:"
 
 msgid "Go to VPN settings"
 msgstr "VPN設定に移動"
@@ -2444,9 +2522,6 @@ msgstr "デバイスが必ずVPNトンネルを使用するようにします。
 msgid "Manage account"
 msgstr "アカウントを管理する"
 
-msgid "Mullvad account number"
-msgstr "Mullvadアカウント番号"
-
 msgid "Mullvad services unavailable"
 msgstr "Mullvadサービスを使用できません"
 
@@ -2465,11 +2540,14 @@ msgstr "インターネット接続がありません"
 msgid "No locations found"
 msgstr "場所が見つかりませんでした"
 
+msgid "No result for \"%s\", please try a different search"
+msgstr "「%s」の結果はありません。別の検索をお試しください。"
+
 msgid "Not found"
 msgstr "見つかりませんでした"
 
-msgid "On (UDP-over-TCP)"
-msgstr "オン (UDP-over-TCP)"
+msgid "Open %s settings"
+msgstr "%s設定を開く"
 
 msgid "Overrides active"
 msgstr "オーバーライドは有効です"
@@ -2495,17 +2573,17 @@ msgstr "有効な IPv4 または IPv6 アドレスを入力してください"
 msgid "Please enter a valid remote server port"
 msgstr "有効なリモートサーバーのポートを入力してください"
 
-msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr "上の \"<b>%s</b>\" のガイドに従い、\"<b>Always-on</b>\" システム設定を代わりに使用してください。"
-
-msgid "Preferences"
-msgstr "環境設定"
+msgid "Please press connect to request VPN permission"
+msgstr "[接続] を押してVPNへのアクセス許可をリクエストしてください"
 
 msgid "Privacy"
 msgstr "プライバシー"
 
 msgid "Privacy policy"
 msgstr "プライバシーポリシー"
+
+msgid "Reconnecting..."
+msgstr "再接続中…"
 
 msgid "Recursion limit"
 msgstr "繰り返しの制限"
@@ -2531,17 +2609,20 @@ msgstr "オーバーライドをリセット"
 msgid "Reset to default"
 msgstr "デフォルトにリセット"
 
-msgid "Secure my connection"
-msgstr "接続を保護する"
+msgid "Search"
+msgstr "検索"
 
-msgid "Secured"
-msgstr "セキュリティ保護"
+msgid "Search results"
+msgstr "検索結果"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTUの値を設定します。有効範囲: %d ～ %d"
 
 msgid "Set port"
 msgstr "ポートを設定"
+
+msgid "Share…"
+msgstr "共有…"
 
 msgid "Show system apps"
 msgstr "システムアプリの表示"
@@ -2551,6 +2632,9 @@ msgstr "現在のVPNトンネルのステータスを表示します"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "アカウントの期限切れが迫っているときにリマインダーを表示します"
+
+msgid "Split tunneling"
+msgstr "スプリットトンネリング"
 
 msgid "Submit"
 msgstr "送信"
@@ -2567,17 +2651,14 @@ msgstr "テキスト"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "自動接続とロックダウンモードの設定はAndroidシステム設定にあります。どちらか、または両方をこのガイドに従って有効にしてください。"
 
-msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "このロックダウンモードは、Androidのシステム設定では [<b>VPNを使用していない接続をブロック</b>] と呼ばれています。情報漏洩の可能性を低減することが可能ですが、既知の制限がいくつかあります。制限については、"
+msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "このロックダウンモードは、Androidのシステム設定では [VPN以外の接続のブロック] と呼ばれています。情報漏洩の可能性を低減することが可能ですが、既知の制限がいくつかあります。制限については、"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"現在の設定\" の方法は、アプリが API に到達するために使用する方法を指しています。"
 
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "環境設定で \"ローカルネットワーク共有\" を有効にしない限り、ローカルDNSサーバーは機能しません。"
-
-msgid "There is no VPN settings on your device"
-msgstr "デバイスにVPN設定がありません"
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
+msgstr "VPN設定で [ローカルネットワーク共有] を有効にしない限り、ローカルDNSサーバーは機能しません。"
 
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
@@ -2603,11 +2684,17 @@ msgstr "このアプリは最も安全なバージョンを使用しているこ
 msgid "Toggle VPN"
 msgstr "VPNの切り替え"
 
+msgid "Type at least 2 characters to start searching."
+msgstr "検索を開始するには2文字以上を入力してください。"
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "ファイアウォールのルールを適用できません。問題に対処するか、問題の報告を送信してください。"
 
 msgid "Unable to parse patch"
 msgstr "パッチを解析できません"
+
+msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
+msgstr "トンネル接続を開始できません。Mullvad VPNを使用する前にAlways-on VPNを無効にしてください。"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "トンネル接続を開始できません。Mullvad VPNを使用する前に<b>%s</b>のAlways-on VPNを無効にしてください。"
@@ -2618,17 +2705,8 @@ msgstr "元に戻す"
 msgid "Unknown or prohibited key \"%s\""
 msgstr "キー \"%s\" は不明であるか、禁止されています"
 
-msgid "Unsecured"
-msgstr "セキュリティ保護なし"
-
-msgid "Unsecured (No VPN permission)"
-msgstr "セキュリティ保護なし (VPN のアクセス許可なし)"
-
 msgid "Update DNS server"
 msgstr "DNS サーバーを更新"
-
-msgid "Update available, download to remain safe."
-msgstr "アップデートできます。セキュリティを維持するにはダウンロードしてしてください。"
 
 msgid "Update list name"
 msgstr "リスト名の更新"
@@ -2663,8 +2741,8 @@ msgstr "購入を確認中..."
 msgid "Verifying voucher…"
 msgstr "バウチャーを確認中…"
 
-msgid "Virtual adapter error"
-msgstr "仮想アダプタのエラー"
+msgid "Version"
+msgstr "バージョン"
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。"
@@ -2675,14 +2753,8 @@ msgstr "決済処理を開始できませんでした。最新バージョンの
 msgid "We were unable to start the payment process, please try again later."
 msgstr "決済処理を開始できませんでした。後でもう一度お試しください。"
 
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "接続中、あなたの実際の場所は選択した地域内の非公開かつセキュリティ保護された場所で隠されます。"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard custom port"
-msgstr "WireGuardカスタムポート"
 
 msgid "WireGuard obfuscation"
 msgstr "WireGuardの難読化"
@@ -2690,11 +2762,8 @@ msgstr "WireGuardの難読化"
 msgid "WireGuard port"
 msgstr "WireGuardポート"
 
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "ネットワーク通信が漏洩している可能性があります"
-
-msgid "You are running an unsupported app version."
-msgstr "サポート対象外バージョンのアプリを実行しています。"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "すでに保存済みのアカウント番号があります。新規アカウントを作成すると、保存済みのアカウント番号がこのデバイスから削除されます。この操作は取り消せません。"
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" が作成されました"
@@ -2704,9 +2773,6 @@ msgstr "\"%s\" は削除されました"
 
 msgid "here"
 msgstr "こちらをご覧ください。"
-
-msgid "less than a minute ago"
-msgstr "1分未満前"
 
 msgid "less than one day"
 msgstr "1日未満"

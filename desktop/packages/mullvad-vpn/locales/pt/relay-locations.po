@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Portuguese\n"
 "Language: pt_PT\n"
-"PO-Revision-Date: 2024-10-23 06:33\n"
+"PO-Revision-Date: 2024-12-20 14:20\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -292,6 +292,10 @@ msgstr "Kiev"
 msgid "Kyiv"
 msgstr "Kiev"
 
+#. NG LOS
+msgid "Lagos"
+msgstr "Lagos"
+
 #. LV
 msgid "Latvia"
 msgstr "Letónia"
@@ -391,6 +395,10 @@ msgstr "Nova Zelândia"
 #. CY NIC
 msgid "Nicosia"
 msgstr "Nicósia"
+
+#. NG
+msgid "Nigeria"
+msgstr "Nigéria"
 
 #. RS INI
 msgid "Nis"
