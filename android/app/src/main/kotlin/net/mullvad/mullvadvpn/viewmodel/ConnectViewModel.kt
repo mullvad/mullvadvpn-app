@@ -8,7 +8,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -105,7 +104,6 @@ class ConnectViewModel(
                     isPlayBuild = isPlayBuild,
                 )
             }
-            .debounce(UI_STATE_DEBOUNCE_DURATION_MILLIS)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
     init {
