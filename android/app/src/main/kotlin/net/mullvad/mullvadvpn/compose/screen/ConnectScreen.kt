@@ -367,18 +367,9 @@ private fun ConnectionCard(
         Shapes.large,
         colors = CardDefaults.cardColors(containerColor = containerColor.value),
     ) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    top = Dimens.mediumPadding,
-                    start = Dimens.mediumPadding,
-                    end = Dimens.mediumPadding,
-                    bottom = Dimens.smallPadding,
-                )
-        ) {
+        Column(modifier = Modifier.padding(all = Dimens.mediumPadding)) {
             ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
 
-            Logger.d("Tunnelstate: ${state.tunnelState}, expanded: $expanded")
             AnimatedContent(
                 (state.tunnelState as? TunnelState.Connected)?.featureIndicators to expanded,
                 modifier = Modifier.weight(1f, fill = false),
