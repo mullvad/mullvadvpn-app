@@ -89,11 +89,19 @@ fun ChangelogScreen(
             ) {
                 Text(
                     text = state.version,
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                state.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
+                if(state.changes.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.changelog_empty),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                } else {
+                    state.changes.forEach { changeItem -> ChangeListItem(text = changeItem) }
+                }
             }
             Box(modifier = Modifier.padding(Dimens.mediumPadding).fillMaxWidth()) {
                 PrimaryButton(

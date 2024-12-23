@@ -2547,6 +2547,9 @@ msgstr ""
 msgid "New list"
 msgstr ""
 
+msgid "No changelog was added for this version"
+msgstr ""
+
 msgid "No custom lists available"
 msgstr ""
 
