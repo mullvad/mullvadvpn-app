@@ -238,7 +238,8 @@ fun Connect(
         onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
         onOpenAppListing = connectViewModel::openAppListing,
         onManageAccountClick = connectViewModel::onManageAccountClick,
-        onChangelogClick = dropUnlessResumed { navigator.navigate(ChangelogDestination) },
+        onChangelogClick =
+            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs(true))) },
         onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },

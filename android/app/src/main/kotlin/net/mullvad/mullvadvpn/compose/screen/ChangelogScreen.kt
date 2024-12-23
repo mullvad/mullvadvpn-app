@@ -26,6 +26,7 @@ import com.ramcosta.composedestinations.annotation.RootGraph
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
+import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenFullChangeLogHook
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
@@ -37,7 +38,12 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.androidx.compose.koinViewModel
 
-@Destination<RootGraph>(style = SlideInFromRightTransition::class)
+data class ChangelogNavArgs(val isModal: Boolean = false)
+
+@Destination<RootGraph>(
+    style = SlideInFromRightTransition::class,
+    navArgs = ChangelogNavArgs::class,
+)
 @Composable
 fun Changelog(navController: NavController) {
     val viewModel = koinViewModel<ChangelogViewModel>()
@@ -68,7 +74,13 @@ fun ChangelogScreen(
 
     ScaffoldWithMediumTopBar(
         appBarTitle = stringResource(id = R.string.changelog_title),
-        navigationIcon = { NavigateBackIconButton(onNavigateBack = onBackClick) },
+        navigationIcon = {
+            if (state.isModal) {
+                NavigateCloseIconButton(onBackClick)
+            } else {
+                NavigateBackIconButton(onNavigateBack = onBackClick)
+            }
+        },
     ) { modifier ->
         Column(modifier = modifier.padding(horizontal = Dimens.mediumPadding)) {
             Column(

@@ -1,8 +1,10 @@
 package net.mullvad.mullvadvpn.viewmodel
 
 import android.os.Parcelable
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,14 +16,20 @@ import net.mullvad.mullvadvpn.repository.ChangelogRepository
 
 class ChangelogViewModel(
     private val changelogRepository: ChangelogRepository,
+    savedStateHandle: SavedStateHandle,
     buildVersion: BuildVersion,
 ) : ViewModel() {
+    private val navArgs = ChangelogDestination.argsFrom(savedStateHandle)
     private val _uiSideEffect = Channel<ChangeLogSideEffect>()
     val uiSideEffect = _uiSideEffect.receiveAsFlow()
 
     val uiState: StateFlow<ChangelogUiState> =
         MutableStateFlow(
-            ChangelogUiState(buildVersion.name, changelogRepository.getLastVersionChanges())
+            ChangelogUiState(
+                navArgs.isModal,
+                buildVersion.name,
+                changelogRepository.getLastVersionChanges(),
+            )
         )
 
     fun dismissChangelogNotification() =
@@ -35,4 +43,9 @@ sealed interface ChangeLogSideEffect {
     object OpenFullChangelog : ChangeLogSideEffect
 }
 
-@Parcelize data class ChangelogUiState(val version: String, val changes: List<String>) : Parcelable
+@Parcelize
+data class ChangelogUiState(
+    val isModal: Boolean = false,
+    val version: String,
+    val changes: List<String>,
+) : Parcelable

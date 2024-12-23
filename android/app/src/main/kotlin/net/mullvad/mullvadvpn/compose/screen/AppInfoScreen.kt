@@ -71,7 +71,8 @@ fun AppInfo(navigator: DestinationsNavigator) {
     AppInfo(
         state = state,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        navigateToChangelog = dropUnlessResumed { navigator.navigate(ChangelogDestination) },
+        navigateToChangelog =
+            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs())) },
         openAppListing = dropUnlessResumed { vm.openAppListing() },
     )
 }
