@@ -17,6 +17,7 @@ final class AccountInteractor {
     private let storePaymentManager: StorePaymentManager
     let tunnelManager: TunnelManager
     let accountsProxy: RESTAccountHandling
+    let apiProxy: APIQuerying
 
     var didReceivePaymentEvent: ((StorePaymentEvent) -> Void)?
     var didReceiveDeviceState: ((DeviceState) -> Void)?
@@ -27,11 +28,13 @@ final class AccountInteractor {
     init(
         storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager,
-        accountsProxy: RESTAccountHandling
+        accountsProxy: RESTAccountHandling,
+        apiProxy: APIQuerying
     ) {
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
         self.accountsProxy = accountsProxy
+        self.apiProxy = apiProxy
 
         let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, _ in
@@ -59,6 +62,13 @@ final class AccountInteractor {
 
     func addPayment(_ payment: SKPayment, for accountNumber: String) {
         storePaymentManager.addPayment(payment, for: accountNumber)
+    }
+
+    func sendStoreKitReceipt(_ transaction: VerificationResult<Transaction>, for accountNumber: String) async throws {
+        try await apiProxy.createApplePayment(
+            accountNumber: accountNumber,
+            receiptString: transaction.jwsRepresentation.data(using: .utf8)!
+        ).execute()
     }
 
     func restorePurchases(
