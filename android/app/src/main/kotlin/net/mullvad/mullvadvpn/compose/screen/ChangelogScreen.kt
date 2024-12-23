@@ -93,10 +93,9 @@ fun ChangelogScreen(
                     .fillMaxWidth()
                     .drawVerticalScrollbar(
                         scrollState,
-                        MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar),
                     )
-                    .verticalScroll(scrollState)
-                ,
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
             ) {
                 Text(

@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.repository
 
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -16,7 +18,7 @@ class ChangelogRepository(
     private val dataProvider: IChangelogDataProvider,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val buildVersion: BuildVersion,
-    scope: CoroutineScope,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) {
     val hasUnreadChangelog: StateFlow<Boolean> =
         userPreferencesRepository.preferencesFlow
@@ -24,7 +26,11 @@ class ChangelogRepository(
                 getLastVersionChanges().isNotEmpty() &&
                     buildVersion.code > it.versionCodeForLatestShownChangelogNotification
             }
-            .stateIn(scope, started = SharingStarted.Eagerly, initialValue = false)
+            .stateIn(
+                CoroutineScope(dispatcher),
+                started = SharingStarted.Eagerly,
+                initialValue = false,
+            )
 
     suspend fun setDismissNewChangelogNotification() {
         userPreferencesRepository.setHasDisplayedChangelogNotification()

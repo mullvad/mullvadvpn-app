@@ -127,7 +127,7 @@ val uiModule = module {
     single { androidContext().assets }
     single { androidContext().contentResolver }
 
-    single { ChangelogRepository(get(), get(), get(), MainScope()) }
+    single { ChangelogRepository(get(), get(), get()) }
     single { UserPreferencesRepository(get(), get()) }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
