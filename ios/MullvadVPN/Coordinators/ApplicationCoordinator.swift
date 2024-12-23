@@ -521,7 +521,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, RootContainerViewCo
         let accountInteractor = AccountInteractor(
             storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager,
-            accountsProxy: accountsProxy
+            accountsProxy: accountsProxy,
+            apiProxy: apiProxy
         )
 
         let coordinator = AccountCoordinator(
