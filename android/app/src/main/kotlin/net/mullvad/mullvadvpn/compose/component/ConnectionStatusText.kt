@@ -47,8 +47,8 @@ private fun TunnelState.text() =
         is TunnelState.Disconnected -> textResource(id = R.string.disconnected)
         is TunnelState.Disconnecting ->
             when (actionAfterDisconnect) {
-                ActionAfterDisconnect.Nothing -> textResource(id = R.string.disconnected)
-                ActionAfterDisconnect.Block -> textResource(id = R.string.connected)
+                ActionAfterDisconnect.Nothing -> textResource(id = R.string.disconnecting)
+                ActionAfterDisconnect.Block -> textResource(id = R.string.blocking)
                 ActionAfterDisconnect.Reconnect -> textResource(id = R.string.connecting)
             }
         is TunnelState.Error ->
