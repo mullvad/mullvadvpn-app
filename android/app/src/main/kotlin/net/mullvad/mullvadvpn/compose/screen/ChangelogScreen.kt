@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.androidx.compose.koinViewModel
 
-
 @Destination<RootGraph>(
     style = SlideInFromRightTransition::class,
     navArgs = ChangelogNavArgs::class,
