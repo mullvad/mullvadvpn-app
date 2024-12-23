@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">İnternet bağlantısı engelleniyor (cihaz çevrimdışı)</string>
     <string name="buy_credit">Kredi satın alın</string>
     <string name="cancel">İptal et</string>
-    <string name="changes_dialog_subtitle">Bu sürümdeki değişiklikler:</string>
     <string name="cipher">Şifre</string>
     <string name="close">Kapat</string>
     <string name="confirm_no_email">Sorun raporunu, size geri dönüş yapmamıza imkan vermeyen bir şekilde göndermek üzeresiniz. Sorununuz için yanıt almak istiyorsanız bir e-posta adresi girmelisiniz.</string>

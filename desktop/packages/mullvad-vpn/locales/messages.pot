@@ -2361,9 +2361,6 @@ msgstr ""
 msgid "Blocking internet (device offline)"
 msgstr ""
 
-msgid "Changes in this version:"
-msgstr ""
-
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr ""
 

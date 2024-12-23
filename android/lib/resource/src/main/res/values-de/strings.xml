@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Internet sperren (Gerät offline)</string>
     <string name="buy_credit">Guthaben erwerben</string>
     <string name="cancel">Abbrechen</string>
-    <string name="changes_dialog_subtitle">Änderungen in dieser Version:</string>
     <string name="cipher">Chiffre</string>
     <string name="close">Schließen</string>
     <string name="confirm_no_email">Sie wollen einen Problembericht senden, ohne uns die Möglichkeit zu geben, Sie zu erreichen. Wenn Sie sich eine Antwort zu Ihrem Problem wünschen, müssen Sie eine E-Mail-Adresse eingeben.</string>

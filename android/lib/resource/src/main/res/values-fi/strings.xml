@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Internetyhteys on estetty (laite on offline-tilassa)</string>
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="cancel">Peruuta</string>
-    <string name="changes_dialog_subtitle">Muutokset tässä versiossa:</string>
     <string name="cipher">Salaus</string>
     <string name="close">Sulje</string>
     <string name="confirm_no_email">Olet aikeissa lähettää ongelmaraportin ilman yhteystietojasi. Mikäli haluat vastauksen raporttiisi, anna sähköpostosoite.</string>

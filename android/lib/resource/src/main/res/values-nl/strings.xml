@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Internet wordt geblokkeerd (apparaat offline)</string>
     <string name="buy_credit">Krediet kopen</string>
     <string name="cancel">Annuleren</string>
-    <string name="changes_dialog_subtitle">Wijzigingen in deze versie:</string>
     <string name="cipher">Versleuteling</string>
     <string name="close">Sluiten</string>
     <string name="confirm_no_email">U staat op het punt om het probleemrapport te verzenden zonder een contactmethode op te geven. Voer een e-mailadres in als u een antwoord wenst op het rapport.</string>
