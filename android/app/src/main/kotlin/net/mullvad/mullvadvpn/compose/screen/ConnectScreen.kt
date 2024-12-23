@@ -271,7 +271,7 @@ fun ConnectScreen(
             if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
             else TALL_SCREEN_INDICATOR_BIAS
 
-        Box(Modifier.padding(it).fillMaxSize()) {
+        Box(Modifier.fillMaxSize()) {
             MullvadMap(state, indicatorPercentOffset)
 
             MullvadCircularProgressIndicatorLarge(
@@ -293,22 +293,24 @@ fun ConnectScreen(
                         .testTag(CIRCULAR_PROGRESS_INDICATOR),
             )
 
-            NotificationBanner(
-                notification = state.inAppNotification,
-                isPlayBuild = state.isPlayBuild,
-                openAppListing = onOpenAppListing,
-                onClickShowAccount = onManageAccountClick,
-                onClickDismissNewDevice = onDismissNewDeviceClick,
-            )
-            ConnectionCard(
-                state = state,
-                modifier = Modifier.align(Alignment.BottomCenter),
-                onSwitchLocationClick,
-                onDisconnectClick,
-                onReconnectClick,
-                onCancelClick,
-                onConnectClick,
-            )
+            Box(modifier = Modifier.fillMaxSize().padding(it)) {
+                NotificationBanner(
+                    notification = state.inAppNotification,
+                    isPlayBuild = state.isPlayBuild,
+                    openAppListing = onOpenAppListing,
+                    onClickShowAccount = onManageAccountClick,
+                    onClickDismissNewDevice = onDismissNewDeviceClick,
+                )
+                ConnectionCard(
+                    state = state,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    onSwitchLocationClick = onSwitchLocationClick,
+                    onDisconnectClick = onDisconnectClick,
+                    onReconnectClick = onReconnectClick,
+                    onCancelClick = onCancelClick,
+                    onConnectClick = onConnectClick,
+                )
+            }
         }
     }
 }
