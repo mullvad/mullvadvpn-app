@@ -60,7 +60,7 @@ fun ConnectionButton(
                     is TunnelState.Connected -> R.string.disconnect
                     is TunnelState.Error -> {
                         if (state.errorState.isBlocking) {
-                            R.string.disconnect
+                            R.string.unblock
                         } else {
                             R.string.dismiss
                         }
