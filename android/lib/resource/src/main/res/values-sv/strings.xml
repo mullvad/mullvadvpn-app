@@ -317,6 +317,7 @@
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern.</string>
+    <string name="unblock">Avblockera</string>
     <string name="undo">Ångra</string>
     <string name="unsupported_version">VERSION UTAN STÖD</string>
     <string name="unsupported_version_description">Din sekretess kan vara utsatt för risk med den här appversionen som inte stöds. Uppdatera nu.</string>

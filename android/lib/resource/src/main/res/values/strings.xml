@@ -1,7 +1,7 @@
 <resources>
     <string name="connecting">Connecting...</string>
-    <string name="reconnecting">Reconnecting...</string>
     <string name="disconnecting">Disconnecting...</string>
+    <string name="blocking">Blocking...</string>
     <string name="critical_error">Critical error (your attention is required)</string>
     <string name="foreground_notification_channel_name">VPN tunnel status</string>
     <string name="foreground_notification_channel_description">Shows current VPN tunnel status</string>
@@ -417,4 +417,5 @@
     <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
+    <string name="unblock">Unblock</string>
 </resources>

@@ -317,6 +317,7 @@
     <string name="type">ประเภท</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">พอร์ต TCP ใดที่โพรโทคอลการทำให้ข้อมูลยุ่งเหยิง UDP-ผ่าน-TCP ควรเชื่อมต่อบนเซิร์ฟเวอร์ VPN</string>
+    <string name="unblock">ปลดบล็อก</string>
     <string name="undo">เลิกทำ</string>
     <string name="unsupported_version">เวอร์ชันที่ไม่รองรับ</string>
     <string name="unsupported_version_description">ความเป็นส่วนตัวของคุณอาจมีความเสี่ยง ในขณะที่ใช้งานเวอร์ชันแอปที่ไม่ได้รับการสนับสนุนนี้ โปรดอัปเดตตอนนี้เลย</string>

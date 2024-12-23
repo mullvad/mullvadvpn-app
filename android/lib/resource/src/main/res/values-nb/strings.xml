@@ -317,6 +317,7 @@
     <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-porten som UDP-over-TCP-tilsløringen skal koble til på VPN-serveren.</string>
+    <string name="unblock">Fjern blokkering</string>
     <string name="undo">Angre</string>
     <string name="unsupported_version">VERSJON UTEN STØTTE</string>
     <string name="unsupported_version_description">Personvernet ditt kan være i fare med denne appversjonen som ikke støttes. Oppdater nå.</string>

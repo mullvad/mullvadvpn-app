@@ -317,6 +317,7 @@
     <string name="type">Tür</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP üzerinden UDP gizleme protokolünün VPN sunucusunda hangi TCP portuna bağlanması gerekiyor.</string>
+    <string name="unblock">Engeli kaldır</string>
     <string name="undo">Geri al</string>
     <string name="unsupported_version">DESTEKLENMEYEN SÜRÜM</string>
     <string name="unsupported_version_description">Bu desteklenmeyen uygulama sürümüyle gizliliğiniz risk altında olabilir. Lütfen hemen güncelleyin.</string>

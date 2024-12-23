@@ -317,6 +317,7 @@
     <string name="type">Tyyppi</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Määrittää, mihin VPN-palvelimen TCP-porttiin \"UDP TCP:n kautta\" -hämäysteknologia-protokollan tulee muodostaa yhteys.</string>
+    <string name="unblock">Poista esto</string>
     <string name="undo">Kumoa</string>
     <string name="unsupported_version">EI-TUETTU VERSIO</string>
     <string name="unsupported_version_description">Yksityisyytesi saattaa olla vaarassa tämän sovellusversion, jota ei tueta, vuoksi. Päivitä versio heti.</string>

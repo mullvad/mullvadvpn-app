@@ -317,6 +317,7 @@
     <string name="type">类型</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。</string>
+    <string name="unblock">解除阻止</string>
     <string name="undo">撤消</string>
     <string name="unsupported_version">不受支持的版本</string>
     <string name="unsupported_version_description">此应用版本不受支持，因此您的隐私可能存在风险。请立即更新。</string>

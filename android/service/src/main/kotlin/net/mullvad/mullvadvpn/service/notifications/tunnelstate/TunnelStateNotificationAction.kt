@@ -48,8 +48,8 @@ private fun NotificationTunnelState.contentTitleResourceId(context: Context): St
             }
         }
         NotificationTunnelState.Disconnecting -> context.getString(R.string.disconnecting)
-        NotificationTunnelState.Reconnecting -> context.getString(R.string.reconnecting)
-        NotificationTunnelState.Error.Blocking -> context.getString(R.string.blocking_internet)
+        NotificationTunnelState.Blocking -> context.getString(R.string.blocking)
+        NotificationTunnelState.Error.Blocked -> context.getString(R.string.blocking_internet)
         is NotificationTunnelState.Error.Critical -> context.getString(R.string.critical_error)
         NotificationTunnelState.Error.DeviceOffline ->
             context.getString(R.string.blocking_internet_device_offline)
@@ -93,6 +93,7 @@ fun NotificationAction.Tunnel.titleResource() =
         is NotificationAction.Tunnel.RequestVpnProfile -> R.string.connect
         NotificationAction.Tunnel.Disconnect -> R.string.disconnect
         NotificationAction.Tunnel.Dismiss -> R.string.dismiss
+        NotificationAction.Tunnel.Unblock -> R.string.unblock
     }
 
 fun NotificationAction.Tunnel.toKey() =
@@ -101,6 +102,7 @@ fun NotificationAction.Tunnel.toKey() =
         is NotificationAction.Tunnel.RequestVpnProfile -> KEY_REQUEST_VPN_PROFILE
         NotificationAction.Tunnel.Cancel,
         NotificationAction.Tunnel.Disconnect,
+        NotificationAction.Tunnel.Unblock,
         NotificationAction.Tunnel.Dismiss -> KEY_DISCONNECT_ACTION
     }
 

@@ -317,6 +317,7 @@
     <string name="type">Тип</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
+    <string name="unblock">Разблокировать</string>
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>

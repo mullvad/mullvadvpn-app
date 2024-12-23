@@ -317,6 +317,7 @@
     <string name="type">Type</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Le port TCP auquel le protocole de dissimulation UDP sur TCP doit se connecter sur le serveur VPN.</string>
+    <string name="unblock">Débloquer</string>
     <string name="undo">Annuler</string>
     <string name="unsupported_version">VERSION NON PRISE EN CHARGE</string>
     <string name="unsupported_version_description">Votre confidentialité peut être en danger avec cette version non prise en charge de l\'application. Veuillez la mettre à jour maintenant.</string>

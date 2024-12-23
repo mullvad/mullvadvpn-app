@@ -317,6 +317,7 @@
     <string name="type">Tipo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">El puerto TCP al que se conectará el protocolo de ofuscación de UDP sobre TCP en el servidor VPN.</string>
+    <string name="unblock">Desbloquear</string>
     <string name="undo">Deshacer</string>
     <string name="unsupported_version">VERSIÓN NO ADMITIDA</string>
     <string name="unsupported_version_description">Al usar esta versión obsoleta de la aplicación, es posible que su privacidad esté en riesgo. Actualice ahora.</string>
