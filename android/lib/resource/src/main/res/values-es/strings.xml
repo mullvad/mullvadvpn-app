@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Lo hace al realizar un intercambio de claves adicional usando un algoritmo cuántico seguro y combinando el resultado en el cifrado normal de WireGuard. Este paso extra utiliza aproximadamente 500 kiB de tráfico cada vez que se establece un nuevo túnel.</string>
     <string name="quantum_resistant_title">Túnel con resistencia cuántica</string>
     <string name="reconnect">Reconectar</string>
-    <string name="reconnecting">Volviendo a establecer la conexión...</string>
     <string name="redeem">Canjear</string>
     <string name="redeem_voucher">Canjear cupón</string>
     <string name="remove_button">Quitar</string>

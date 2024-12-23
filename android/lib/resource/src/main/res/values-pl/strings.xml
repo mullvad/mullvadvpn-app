@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Jest to wykonywane poprzez dodatkową wymianę kluczy przy użyciu algorytmu odpornego na ataki z użyciem komputerów kwantowych i zmieszanie wyniku ze zwykłym szyfrowaniem WireGuard. Ten dodatkowy krok zużywa około 500 kB ruchu za każdym razem, gdy ustanawiany jest nowy tunel.</string>
     <string name="quantum_resistant_title">Tunel odporny na ataki z użyciem komputerów kwantowych</string>
     <string name="reconnect">Połącz ponownie</string>
-    <string name="reconnecting">Ponowne łączenie...</string>
     <string name="redeem">Zrealizuj</string>
     <string name="redeem_voucher">Zrealizuj kupon</string>
     <string name="remove_button">Usuń</string>

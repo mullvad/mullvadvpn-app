@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Tunneli torjuu hyökkäykset suorittamalla ylimääräisen avaimenvaihdon käyttämällä ensin kvanttiturvallista algoritmia, jonka tuloksen se sekoittaa WireGuardin tavalliseen salaukseen. Tämä ylimääräinen vaihe käyttää noin 500 kiB liikennettä joka kerta, kun uusi tunneli luodaan.</string>
     <string name="quantum_resistant_title">Kvanttihyökkäyksiä kestävä tunneli</string>
     <string name="reconnect">Yhdistä uudelleen</string>
-    <string name="reconnecting">Yhdistetään uudelleen...</string>
     <string name="redeem">Lunasta</string>
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>
