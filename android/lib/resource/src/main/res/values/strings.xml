@@ -176,7 +176,7 @@
         <![CDATA[Welcome, this device is now called <b>%s</b>. For more details see the info button in Account.]]>
     </string>
     <string name="new_changelog_notification_title">NEW VERSION INSTALLED</string>
-    <string name="new_changelog_notification_message">Click here to see what\'s new.</string>
+    <string name="new_changelog_notification_message">Click here to see what’s new.</string>
     <string name="agree_and_continue">Agree and continue</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_disclaimer_body_first_paragraph">To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.</string>
@@ -389,7 +389,7 @@
     <string name="copy">Copy</string>
     <string name="share">Share…</string>
     <string name="app_info">App info</string>
-    <string name="changelog_title">What\'s new</string>
+    <string name="changelog_title">What’s new</string>
     <string name="version">Version</string>
     <string name="local_network_sharing_info_block_connections_warning">Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work.</string>
     <string name="encrypted_dns_proxy_info_message_part1">With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</string>

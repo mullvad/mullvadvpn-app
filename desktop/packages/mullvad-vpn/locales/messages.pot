@@ -2370,6 +2370,9 @@ msgstr ""
 msgid "Clear input"
 msgstr ""
 
+msgid "Click here to see what’s new."
+msgstr ""
+
 msgid "Collapse"
 msgstr ""
 
@@ -2758,6 +2761,9 @@ msgid "We were unable to start the payment process, please make sure you have th
 msgstr ""
 
 msgid "We were unable to start the payment process, please try again later."
+msgstr ""
+
+msgid "What’s new"
 msgstr ""
 
 msgid "WireGuard MTU"
