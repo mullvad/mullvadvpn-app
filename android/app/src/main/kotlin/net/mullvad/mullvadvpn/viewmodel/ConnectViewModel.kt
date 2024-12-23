@@ -8,7 +8,6 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
@@ -80,7 +79,12 @@ class ConnectViewModel(
                                 tunnelState.location ?: lastKnownDisconnectedLocation
                             is TunnelState.Connecting -> tunnelState.location
                             is TunnelState.Connected -> tunnelState.location
-                            is TunnelState.Disconnecting -> lastKnownDisconnectedLocation
+                            is TunnelState.Disconnecting ->
+                                when (tunnelState.actionAfterDisconnect) {
+                                    ActionAfterDisconnect.Nothing -> lastKnownDisconnectedLocation
+                                    ActionAfterDisconnect.Block -> lastKnownDisconnectedLocation
+                                    ActionAfterDisconnect.Reconnect -> uiState.value.location
+                                }
                             is TunnelState.Error -> lastKnownDisconnectedLocation
                         },
                     selectedRelayItemTitle = selectedRelayItemTitle,
@@ -105,7 +109,6 @@ class ConnectViewModel(
                     isPlayBuild = isPlayBuild,
                 )
             }
-            .debounce(UI_STATE_DEBOUNCE_DURATION_MILLIS)
             .stateIn(viewModelScope, SharingStarted.WhileSubscribed(), ConnectUiState.INITIAL)
 
     init {
