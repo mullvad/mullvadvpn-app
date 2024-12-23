@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">인터넷 차단(장치 오프라인)</string>
     <string name="buy_credit">크레딧 구매</string>
     <string name="cancel">취소</string>
-    <string name="changes_dialog_subtitle">이 버전의 변경 사항:</string>
     <string name="cipher">암호</string>
     <string name="close">닫기</string>
     <string name="confirm_no_email">연락처 없이 문제 보고서를 보내려고 합니다. 보고서에 대한 답변을 원하면 이메일 주소를 입력해야 합니다.</string>

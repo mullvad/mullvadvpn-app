@@ -1,8 +1,7 @@
-package net.mullvad.mullvadvpn.compose.dialog
+package net.mullvad.mullvadvpn.compose.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import de.mannodermaus.junit5.compose.ComposeContext
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.RegisterExtension
 
 @OptIn(ExperimentalTestApi::class)
-class ChangelogDialogTest {
+class ChangelogScreenTest {
     @JvmField @RegisterExtension val composeExtension = createEdgeToEdgeComposeExtension()
 
     @MockK lateinit var mockedViewModel: AppInfoViewModel
@@ -25,29 +24,38 @@ class ChangelogDialogTest {
         MockKAnnotations.init(this)
     }
 
-    private fun ComposeContext.initDialog(state: ChangelogUiState, onDismiss: () -> Unit = {}) {
-        setContentWithTheme { ChangelogDialog(state = state, onDismiss = onDismiss) }
+    private fun ComposeContext.initScreen(
+        state: ChangelogUiState,
+        onSeeFullChangelog: () -> Unit = {},
+        onBackClick: () -> Unit = {},
+    ) {
+        setContentWithTheme {
+            ChangelogScreen(
+                state = state,
+                onSeeFullChangelog = onSeeFullChangelog,
+                onBackClick = onBackClick,
+            )
+        }
     }
 
     @Test
     fun testShowChangeLogWhenNeeded() =
         composeExtension.use {
             // Arrange
-            initDialog(
+            initScreen(
                 state =
                     ChangelogUiState(changes = listOf(CHANGELOG_ITEM), version = CHANGELOG_VERSION),
-                onDismiss = {},
+                onBackClick = {},
             )
+
+            // Check changelog version shown
+            onNodeWithText(CHANGELOG_VERSION).assertExists()
 
             // Check changelog content showed within dialog
             onNodeWithText(CHANGELOG_ITEM).assertExists()
-
-            // perform click on Got It button to check if dismiss occur
-            onNodeWithText(CHANGELOG_BUTTON_TEXT).performClick()
         }
 
     companion object {
-        private const val CHANGELOG_BUTTON_TEXT = "Got it!"
         private const val CHANGELOG_ITEM = "Changelog item"
         private const val CHANGELOG_VERSION = "1234.5"
     }

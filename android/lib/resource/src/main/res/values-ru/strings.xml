@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Блокируется доступ в Интернет (устройство офлайн)</string>
     <string name="buy_credit">Пополнить баланс</string>
     <string name="cancel">Отмена</string>
-    <string name="changes_dialog_subtitle">Изменения в этой версии:</string>
     <string name="cipher">Шифр</string>
     <string name="close">Закрыть</string>
     <string name="confirm_no_email">Вы собираетесь отправить отчет о проблеме, не оставив контакты. Если вы хотите получить ответ, введите свой адрес электронной почты.</string>

@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Blokkerer internett (enhet frakoblet)</string>
     <string name="buy_credit">Kjøp kreditt</string>
     <string name="cancel">Avbryt</string>
-    <string name="changes_dialog_subtitle">Endringer i denne versjonen:</string>
     <string name="cipher">Chiffer</string>
     <string name="close">Lukk</string>
     <string name="confirm_no_email">Problemrapporten blir nå sendt uten en måte for oss å kontakte deg på. Hvis du ønsker svar på rapporten, må du oppgi en e-postadresse.</string>
