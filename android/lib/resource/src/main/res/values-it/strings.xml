@@ -317,6 +317,7 @@
     <string name="type">Tipo</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">A quale porta TCP deve connettersi il protocollo di offuscamento UDP-over-TCP sul server VPN.</string>
+    <string name="unblock">Sblocca</string>
     <string name="undo">Annulla</string>
     <string name="unsupported_version">VERSIONE NON SUPPORTATA</string>
     <string name="unsupported_version_description">La tua privacy potrebbe essere a rischio con questa versione dell\'app non supportata. Aggiornala subito.</string>

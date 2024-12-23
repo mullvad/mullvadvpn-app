@@ -317,6 +317,7 @@
     <string name="type">種類</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
+    <string name="unblock">ブロックを解除</string>
     <string name="undo">元に戻す</string>
     <string name="unsupported_version">未対応のバージョン</string>
     <string name="unsupported_version_description">このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。</string>
