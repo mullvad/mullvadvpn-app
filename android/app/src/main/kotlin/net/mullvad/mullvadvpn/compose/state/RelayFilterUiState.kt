@@ -35,7 +35,11 @@ data class RelayFilterUiState(
         }.sorted()
 
     val isApplyButtonEnabled = selectedProviders.getOrNull()?.isNotEmpty() != false
-    val removedProviders: List<ProviderId> = selectedProviders - allProviders
+    val removedProviders: List<ProviderId> =
+        when (selectedProviders) {
+            Constraint.Any -> emptyList()
+            is Constraint.Only -> selectedProviders.value.toList() - allProviders
+        }
 
     val isAllProvidersChecked = selectedProviders is Constraint.Any
 }

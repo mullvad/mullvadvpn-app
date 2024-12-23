@@ -247,7 +247,8 @@ private fun LazyItemScope.RemovedProvider(
     state: RelayFilterUiState,
     onSelectedProvider: (checked: Boolean, providerId: ProviderId) -> Unit,
 ) {
-    val checked = providerId in state.selectedProviders
+    val checked =
+        state.selectedProviders is Constraint.Only && providerId in state.selectedProviders.value
     CheckboxCell(
         title = stringResource(R.string.removed_provider, providerId.value),
         checked = checked,
