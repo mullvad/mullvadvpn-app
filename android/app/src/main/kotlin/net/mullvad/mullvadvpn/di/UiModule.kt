@@ -127,7 +127,7 @@ val uiModule = module {
     single { androidContext().assets }
     single { androidContext().contentResolver }
 
-    single { ChangelogRepository(get()) }
+    single { ChangelogRepository(get(), get(), get(), MainScope()) }
     single { UserPreferencesRepository(get(), get()) }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get()) }
@@ -152,7 +152,7 @@ val uiModule = module {
     single { TunnelStateNotificationUseCase(get()) }
     single { VersionNotificationUseCase(get(), BuildConfig.ENABLE_IN_APP_VERSION_NOTIFICATIONS) }
     single { NewDeviceNotificationUseCase(get(), get()) }
-    single { NewChangelogNotificationUseCase(get(), get(), get()) }
+    single { NewChangelogNotificationUseCase(get()) }
     single { OutOfTimeUseCase(get(), get(), MainScope()) }
     single { InternetAvailableUseCase(get()) }
     single { SystemVpnSettingsAvailableUseCase(androidContext()) }

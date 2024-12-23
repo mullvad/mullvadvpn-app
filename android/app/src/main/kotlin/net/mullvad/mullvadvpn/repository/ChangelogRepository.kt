@@ -1,24 +1,33 @@
 package net.mullvad.mullvadvpn.repository
 
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.model.BuildVersion
 import net.mullvad.mullvadvpn.util.IChangelogDataProvider
 import net.mullvad.mullvadvpn.util.trimAll
 
 private const val NEWLINE_CHAR = '\n'
 private const val BULLET_POINT_CHAR = '-'
 
-class ChangelogRepository(private val dataProvider: IChangelogDataProvider) {
-    private val _showNewChangelogNotification = MutableStateFlow(false)
+class ChangelogRepository(
+    private val dataProvider: IChangelogDataProvider,
+    private val userPreferencesRepository: UserPreferencesRepository,
+    private val buildVersion: BuildVersion,
+    scope: CoroutineScope,
+) {
+    val hasUnreadChangelog: StateFlow<Boolean> =
+        userPreferencesRepository.preferencesFlow
+            .map {
+                getLastVersionChanges().isNotEmpty() &&
+                    buildVersion.code > it.versionCodeForLatestShownChangelogNotification
+            }
+            .stateIn(scope, started = SharingStarted.Eagerly, initialValue = false)
 
-    val showNewChangelogNotification: StateFlow<Boolean> = _showNewChangelogNotification
-
-    fun setShowNewChangelogNotification() {
-        _showNewChangelogNotification.value = true
-    }
-
-    fun setDismissNewChangelogNotification() {
-        _showNewChangelogNotification.value = false
+    suspend fun setDismissNewChangelogNotification() {
+        userPreferencesRepository.setHasDisplayedChangelogNotification()
     }
 
     fun getLastVersionChanges(): List<String> =

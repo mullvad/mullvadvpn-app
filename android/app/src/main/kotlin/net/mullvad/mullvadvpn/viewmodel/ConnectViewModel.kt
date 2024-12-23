@@ -187,9 +187,8 @@ class ConnectViewModel(
         newDeviceRepository.clearNewDeviceCreatedNotification()
     }
 
-    fun dismissNewChangelogNotification() {
-        changelogRepository.setDismissNewChangelogNotification()
-    }
+    fun dismissNewChangelogNotification() =
+        viewModelScope.launch { changelogRepository.setDismissNewChangelogNotification() }
 
     private fun outOfTimeEffect() =
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }

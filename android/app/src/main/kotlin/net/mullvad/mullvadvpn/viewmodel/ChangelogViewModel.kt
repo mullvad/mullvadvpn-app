@@ -24,9 +24,8 @@ class ChangelogViewModel(
             ChangelogUiState(buildVersion.name, changelogRepository.getLastVersionChanges())
         )
 
-    fun dismissChangelogNotification() {
-        changelogRepository.setDismissNewChangelogNotification()
-    }
+    fun dismissChangelogNotification() =
+        viewModelScope.launch { changelogRepository.setDismissNewChangelogNotification() }
 
     fun onSeeFullChangelog() =
         viewModelScope.launch { _uiSideEffect.send(ChangeLogSideEffect.OpenFullChangelog) }
