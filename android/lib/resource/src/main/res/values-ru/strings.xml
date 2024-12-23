@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Для этого функция выполняет дополнительный обмен ключами с использованием квантово-устойчивого алгоритма и добавляет результат к обычному шифрованию WireGuard. Эта дополнительная мера использует примерно 500 КиБ трафика при каждом создании нового туннеля.</string>
     <string name="quantum_resistant_title">Квантово-устойчивый туннель</string>
     <string name="reconnect">Переподключить</string>
-    <string name="reconnecting">Идет переподключение...</string>
     <string name="redeem">Погасить</string>
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
@@ -358,6 +357,7 @@
     <string name="type">Тип</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">TCP-порт, к которому должен подключаться протокол обфускации UDP через TCP на VPN-сервере.</string>
+    <string name="unblock">Разблокировать</string>
     <string name="undo">Отменить</string>
     <string name="unsupported_version">НЕПОДДЕРЖИВАЕМАЯ ВЕРСИЯ</string>
     <string name="unsupported_version_description">Эта версия приложения не поддерживается, что может угрожать неприкосновенности ваших данных. Обновите приложение.</string>

@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Dazu wird ein zusätzlicher Schlüsselaustausch mit einem quantensicheren Algorithmus durchgeführt und das Ergebnis mit der regulären Verschlüsselung von WireGuard vermischt. Dieser zusätzliche Schritt verbraucht jedes Mal, wenn ein neuer Tunnel aufgebaut wird, etwa 500 KiB an Datenverkehr.</string>
     <string name="quantum_resistant_title">Quantenresistenter Tunnel</string>
     <string name="reconnect">Erneut verbinden</string>
-    <string name="reconnecting">Wiederherstellen der Verbindung …</string>
     <string name="redeem">Einlösen</string>
     <string name="redeem_voucher">Gutschein einlösen</string>
     <string name="remove_button">Entfernen</string>
@@ -358,6 +357,7 @@
     <string name="type">Typ</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">Mit welchem TCP-Port sich das UDP-über-TCP-Verschleierungsprotokoll auf dem VPN-Server verbinden soll.</string>
+    <string name="unblock">Entsperren</string>
     <string name="undo">Rückgängig</string>
     <string name="unsupported_version">NICHT UNTERSTÜTZTE VERSION</string>
     <string name="unsupported_version_description">Ihre Privatsphäre könnte mit dieser nicht unterstützen Version der App gefährdet sein. Bitte aktualisieren Sie sie.</string>

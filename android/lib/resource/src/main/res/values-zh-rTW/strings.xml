@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">實現方法是使用量子安全演算法執行額外的金鑰交換，並將結果混合至 WireGuard 的常規加密。每次建立新通道時，這一額外步驟都會使用約 500 kiB 流量。</string>
     <string name="quantum_resistant_title">抗量子通道</string>
     <string name="reconnect">重新連線</string>
-    <string name="reconnecting">正在重新連線…</string>
     <string name="redeem">兌換</string>
     <string name="redeem_voucher">兌換憑證</string>
     <string name="remove_button">移除</string>
@@ -358,6 +357,7 @@
     <string name="type">類型</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 混淆通訊協定應連線到 VPN 伺服器上的哪個 TCP 連接埠。</string>
+    <string name="unblock">解除封鎖</string>
     <string name="undo">復原</string>
     <string name="unsupported_version">不支援的版本</string>
     <string name="unsupported_version_description">此應用程式版本不受支援，因此您的隱私可能存在風險。請立即更新。</string>

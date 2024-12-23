@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Quantum Safe အယ်လဂိုရီသမ်တစ်ခုကို သုံး၍ ထပ်ဆောင်း ကီးဖလှယ်မှုတစ်ခုကို ဆောင်ရွက်ပြီး WireGuard ၏ ပုံမှန် ကုဒ်ပြောင်းဝှက်မှုအတွင်း ရလဒ်ကို ရောနှောခြင်းအားဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။ ဤထပ်ဆောင်းအဆင့်သည် Tunnel အသစ်တစ်ခု တည်ဆောက်တိုင်း ဒေတာ 500 kiB ခန့်ကို သုံးပါသည်။</string>
     <string name="quantum_resistant_title">Quantum-resistant Tunnel</string>
     <string name="reconnect">ပြန်ချိတ်ဆက်ရန်</string>
-    <string name="reconnecting">ပြန်ချိတ်ဆက်နေသည်...</string>
     <string name="redeem">လဲယူရန်</string>
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
@@ -358,6 +357,7 @@
     <string name="type">အမျိုးအစား</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">VPN ဆာဗာကို ဖွင့်ရန် ၎င်း TCP ပေါ့တ် UDP-over-TCP Obfuscation ပရိုတိုကောလ်နှင့် ချိတ်ဆက်ထားသင့်ပါသည်။</string>
+    <string name="unblock">ပိတ်ဆို့မှုမှ ဖယ်ရန်</string>
     <string name="undo">မလုပ်တော့ပါ</string>
     <string name="unsupported_version">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဗားရှင်း</string>
     <string name="unsupported_version_description">တွဲဖက်မလုပ်ဆောင်နိုင်သည့် ဤအက်ပ်ဗားရှင်းကြောင့် သင့်ကိုယ်ရေးအချက်အလက်များ အန္တရာယ် ရှိနိုင်ပါသည်။ ယခုပင် အပ်ဒိတ်လုပ်ပေးပါ။</string>

@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
     <string name="quantum_resistant_title">양자 저항 터널</string>
     <string name="reconnect">다시 연결</string>
-    <string name="reconnecting">다시 연결 중...</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>
@@ -358,6 +357,7 @@
     <string name="type">유형</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP 난독 처리 프로토콜이 VPN 서버에서 연결해야 하는 TCP 포트입니다.</string>
+    <string name="unblock">차단 해제</string>
     <string name="undo">실행 취소</string>
     <string name="unsupported_version">지원되지 않는 버전</string>
     <string name="unsupported_version_description">지원되지 않는 이 앱 버전으로 인해 개인 정보가 위험할 수 있습니다. 지금 업데이트하세요.</string>

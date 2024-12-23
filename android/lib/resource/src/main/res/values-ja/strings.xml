@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
     <string name="quantum_resistant_title">耐量子トンネル</string>
     <string name="reconnect">再接続</string>
-    <string name="reconnecting">再接続中…</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>
@@ -358,6 +357,7 @@
     <string name="type">種類</string>
     <string name="udp">UDP</string>
     <string name="udp_over_tcp_port_info">UDP-over-TCP難読化プロトコルで接続する必要のあるVPNサーバーのTCPポートです。</string>
+    <string name="unblock">ブロックを解除</string>
     <string name="undo">元に戻す</string>
     <string name="unsupported_version">未対応のバージョン</string>
     <string name="unsupported_version_description">このアプリバージョンはサポートされていないため、プライバシーが危険にさらされる可能性があります。今すぐアップデートしてください。</string>
