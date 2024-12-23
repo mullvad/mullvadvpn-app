@@ -1,6 +1,8 @@
-use super::{ios_tcp_connection::*, EphemeralPeerParameters, PacketTunnelBridge};
+use super::{ios_tcp_connection::*, DaitaParameters, EphemeralPeerParameters, PacketTunnelBridge};
 use std::{ffi::CStr, sync::Mutex, thread};
-use talpid_tunnel_config_client::{request_ephemeral_peer_with, Error, RelayConfigService};
+use talpid_tunnel_config_client::{
+    request_ephemeral_peer_with, EphemeralPeer, Error, RelayConfigService,
+};
 use talpid_types::net::wireguard::{PrivateKey, PublicKey};
 use tokio::{runtime::Handle as TokioHandle, task::JoinHandle};
 use tonic::transport::channel::Endpoint;
@@ -139,24 +141,15 @@ impl EphemeralPeerExchange {
                 self.peer_parameters.enable_daita,
             ) =>  {
                 match ephemeral_peer {
-                    Ok(peer) => {
-                        match peer.psk {
-                            Some(preshared_key) => {
-                                let preshared_key_bytes = *preshared_key.as_bytes();
-                                thread::spawn(move || {
-                                    let Self{ ephemeral_key, packet_tunnel, .. } = self;
-                                    packet_tunnel.succeed_exchange(ephemeral_key, Some(preshared_key_bytes));
-                                });
-
-                            },
-                            None => {
-                                // Daita peer was requested, but without enabling post quantum keys
-                                thread::spawn(move || {
-                                    let Self{ ephemeral_key, packet_tunnel, .. } = self;
-                                    packet_tunnel.succeed_exchange(ephemeral_key, None);
-                                });
-                            }
-                        }
+                    Ok(EphemeralPeer { psk, daita }) => {
+                        thread::spawn(move || {
+                            let Self{ ephemeral_key, packet_tunnel,  .. } = self;
+                            packet_tunnel.succeed_exchange(
+                                ephemeral_key,
+                                psk.map(|psk| *psk.as_bytes()),
+                                daita.and_then(DaitaParameters::new)
+                            );
+                        });
                     },
                     Err(error) => {
                         log::error!("Key exchange failed {}", error);
