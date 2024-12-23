@@ -144,6 +144,8 @@ class AccountViewController: UIViewController {
         contentView.logoutButton.addTarget(self, action: #selector(logOut), for: .touchUpInside)
 
         contentView.deleteButton.addTarget(self, action: #selector(deleteAccount), for: .touchUpInside)
+
+        contentView.storeKit2Button.addTarget(self, action: #selector(handleStoreKit2Purchase), for: .touchUpInside)
     }
 
     private func requestStoreProducts() {
@@ -202,6 +204,7 @@ class AccountViewController: UIViewController {
         contentView.logoutButton.isEnabled = isInteractionEnabled
         contentView.redeemVoucherButton.isEnabled = isInteractionEnabled
         contentView.deleteButton.isEnabled = isInteractionEnabled
+        contentView.storeKit2Button.isEnabled = isInteractionEnabled
         navigationItem.rightBarButtonItem?.isEnabled = isInteractionEnabled
 
         view.isUserInteractionEnabled = isInteractionEnabled
@@ -293,4 +296,63 @@ class AccountViewController: UIViewController {
             setPaymentState(.none, animated: true)
         }
     }
+
+    @objc private func handleStoreKit2Purchase() {
+        guard case let .received(oldProduct) = productState,
+              let accountData = interactor.deviceState.accountData
+        else {
+            return
+        }
+
+        setPaymentState(.makingStoreKit2Purchase, animated: true)
+
+        Task {
+            do {
+                let product = try await Product.products(for: [oldProduct.productIdentifier]).first!
+                let result = try await product.purchase()
+
+                switch result {
+                case let .success(verification):
+                    let transaction = try checkVerified(verification)
+                    await sendReceiptToAPI(accountNumber: accountData.identifier, receipt: verification)
+                    await transaction.finish()
+
+                case .userCancelled:
+                    print("User cancelled the purchase")
+                case .pending:
+                    print("Purchase is pending")
+                @unknown default:
+                    print("Unknown purchase result")
+                }
+            } catch {
+                print("Error: \(error)")
+                errorPresenter.showAlertForStoreKitError(error, context: .purchase)
+            }
+
+            setPaymentState(.none, animated: true)
+        }
+    }
+
+    private func checkVerified<T>(_ result: VerificationResult<T>) throws -> T {
+        switch result {
+        case .unverified:
+            throw StoreKit2Error.verificationFailed
+        case let .verified(safe):
+            return safe
+        }
+    }
+
+    private func sendReceiptToAPI(accountNumber: String, receipt: VerificationResult<Transaction>) async {
+        do {
+            try await interactor.sendStoreKitReceipt(receipt, for: accountNumber)
+            print("Receipt sent successfully")
+        } catch {
+            print("Error sending receipt: \(error)")
+            errorPresenter.showAlertForStoreKitError(error, context: .purchase)
+        }
+    }
+}
+
+private enum StoreKit2Error: Error {
+    case verificationFailed
 }
