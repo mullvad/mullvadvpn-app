@@ -38,6 +38,7 @@ public enum AccessibilityIdentifier: Equatable {
     case loginTextFieldButton
     case logoutButton
     case purchaseButton
+    case storekit2Button
     case redeemVoucherButton
     case restorePurchasesButton
     case secureConnectionButton
