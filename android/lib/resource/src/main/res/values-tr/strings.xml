@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Bu işlemi, bir kuantum güvenlik algoritmasıyla ekstra bir anahtar değişimi gerçekleştirdikten sonra sonucu WireGuard\'ın normal şifrelemesiyle karıştırarak yapar. Bu ekstra adım, her yeni tünel kurulduğunda yaklaşık 500 kiB trafik kullanır.</string>
     <string name="quantum_resistant_title">Kuantuma dayanıklı tünel</string>
     <string name="reconnect">Yeniden Bağlan</string>
-    <string name="reconnecting">Yeniden bağlanılıyor...</string>
     <string name="redeem">Kullan</string>
     <string name="redeem_voucher">Kuponu kullan</string>
     <string name="remove_button">Kaldır</string>

@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">ระบบจะดำเนินการสิ่งนี้ผ่านการแลกเปลี่ยนคีย์เพิ่มเติม โดยการใช้อัลกอริทึมแบบควอนตัมที่ปลอดภัย และผสมผลลัพธ์เข้ากับการเข้ารหัสตามปกติของ WireGuard และขั้นตอนพิเศษนี้ใช้การรับส่งข้อมูลประมาณ 500 kiB ในทุกครั้งที่สร้างช่องทางใหม่</string>
     <string name="quantum_resistant_title">ช่องทางการสกัดกั้นควอนตัม</string>
     <string name="reconnect">เชื่อมต่อใหม่</string>
-    <string name="reconnecting">กำลังเชื่อมต่อใหม่...</string>
     <string name="redeem">แลกรับ</string>
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>

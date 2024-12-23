@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Den gör det genom att göra ett extra nyckelutbyte med en kvantsäker algoritm och kombinera resultatet med WireGuards vanliga kryptering. Det här extra steget använder ungefär 500 KiB i trafik varje gång en ny tunnel upprättas.</string>
     <string name="quantum_resistant_title">Kvantresistent tunnel</string>
     <string name="reconnect">Återanslut</string>
-    <string name="reconnecting">Återansluter ...</string>
     <string name="redeem">Lös in</string>
     <string name="redeem_voucher">Lös in kupong</string>
     <string name="remove_button">Ta bort</string>

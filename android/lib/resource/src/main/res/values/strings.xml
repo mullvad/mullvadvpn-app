@@ -1,7 +1,7 @@
 <resources>
     <string name="connecting">Connecting...</string>
-    <string name="reconnecting">Reconnecting...</string>
     <string name="disconnecting">Disconnecting...</string>
+    <string name="blocking">Blocking...</string>
     <string name="critical_error">Critical error (your attention is required)</string>
     <string name="foreground_notification_channel_name">VPN tunnel status</string>
     <string name="foreground_notification_channel_description">Shows current VPN tunnel status</string>
