@@ -11,6 +11,8 @@ sealed interface NotificationAction {
 
         data object Disconnect : Tunnel
 
+        data object Unblock : Tunnel
+
         data object Cancel : Tunnel
 
         data object Dismiss : Tunnel
