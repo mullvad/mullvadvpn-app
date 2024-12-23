@@ -6,16 +6,17 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 
 class ConnectionViewViewModel: ObservableObject {
-    enum TunnelControlActionButton {
+    enum TunnelActionButton {
         case connect
         case disconnect
         case cancel
     }
 
-    enum TunnelControlAction {
+    enum TunnelAction {
         case connect
         case disconnect
         case cancel
@@ -23,42 +24,69 @@ class ConnectionViewViewModel: ObservableObject {
         case selectLocation
     }
 
-    @Published var tunnelState: TunnelState
+    @Published var tunnelStatus: TunnelStatus
+    @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
     @Published var showsActivityIndicator = false
 
-    init(tunnelState: TunnelState) {
-        self.tunnelState = tunnelState
+    var combinedState: Publishers.CombineLatest<
+        Published<TunnelStatus>.Publisher,
+        Published<Bool>.Publisher
+    > {
+        $tunnelStatus.combineLatest($showsActivityIndicator)
+    }
+
+    var tunnelIsConnected: Bool {
+        if case .connected = tunnelStatus.state {
+            true
+        } else {
+            false
+        }
+    }
+
+    init(tunnelStatus: TunnelStatus) {
+        self.tunnelStatus = tunnelStatus
     }
 }
 
 extension ConnectionViewViewModel {
+    var showConnectionDetails: Bool {
+        switch tunnelStatus.state {
+        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer,
+             .connected, .pendingReconnect, .waitingForConnectivity(.noNetwork):
+            true
+        case .disconnecting, .disconnected, .error:
+            false
+        }
+    }
+
     var textColorForSecureLabel: UIColor {
-        switch tunnelState {
-        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer:
+        switch tunnelStatus.state {
+        case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer,
+             .pendingReconnect, .disconnecting:
             .white
         case .connected:
             .successColor
-        case .disconnecting, .disconnected, .pendingReconnect, .waitingForConnectivity(.noNetwork), .error:
+        case .disconnected, .waitingForConnectivity(.noNetwork), .error:
             .dangerColor
         }
     }
 
     var disableButtons: Bool {
-        if case .waitingForConnectivity(.noNetwork) = tunnelState {
-            return true
+        if case .waitingForConnectivity(.noNetwork) = tunnelStatus.state {
+            true
+        } else {
+            false
         }
-
-        return false
     }
 
     var localizedTitleForSecureLabel: LocalizedStringKey {
-        switch tunnelState {
+        switch tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer:
-            LocalizedStringKey("Connecting")
+            LocalizedStringKey("Connecting...")
         case .connected:
             LocalizedStringKey("Connected")
         case .disconnecting(.nothing):
-            LocalizedStringKey("Disconnecting")
+            LocalizedStringKey("Disconnecting...")
         case .disconnecting(.reconnect), .pendingReconnect:
             LocalizedStringKey("Reconnecting")
         case .disconnected:
@@ -70,17 +98,19 @@ extension ConnectionViewViewModel {
         }
     }
 
-    var localizedTitleForSelectLocationButton: LocalizedStringKey {
-        switch tunnelState {
-        case .disconnecting, .pendingReconnect, .disconnected:
-            LocalizedStringKey("Select location")
-        case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
-            LocalizedStringKey("Switch location")
+    var accessibilityIdForSecureLabel: AccessibilityIdentifier {
+        switch tunnelStatus.state {
+        case .connected:
+            .connectionStatusConnectedLabel
+        case .connecting:
+            .connectionStatusConnectingLabel
+        default:
+            .connectionStatusNotConnectedLabel
         }
     }
 
-    var localizedAccessibilityLabel: LocalizedStringKey {
-        switch tunnelState {
+    var localizedAccessibilityLabelForSecureLabel: LocalizedStringKey {
+        switch tunnelStatus.state {
         case .disconnected, .waitingForConnectivity, .disconnecting, .pendingReconnect, .error:
             localizedTitleForSecureLabel
         case let .connected(tunnelInfo, _, _):
@@ -98,8 +128,17 @@ extension ConnectionViewViewModel {
         }
     }
 
-    var actionButton: TunnelControlActionButton {
-        switch tunnelState {
+    var localizedTitleForSelectLocationButton: LocalizedStringKey {
+        switch tunnelStatus.state {
+        case .disconnecting, .pendingReconnect, .disconnected:
+            LocalizedStringKey("Select location")
+        case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
+            LocalizedStringKey("Switch location")
+        }
+    }
+
+    var actionButton: TunnelActionButton {
+        switch tunnelStatus.state {
         case .disconnected, .disconnecting(.nothing), .waitingForConnectivity(.noNetwork):
             .connect
         case .connecting, .pendingReconnect, .disconnecting(.reconnect), .waitingForConnectivity(.noConnection),
@@ -111,7 +150,7 @@ extension ConnectionViewViewModel {
     }
 
     var titleForCountryAndCity: LocalizedStringKey? {
-        guard tunnelState.isSecured, let tunnelRelays = tunnelState.relays else {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
 
@@ -119,7 +158,7 @@ extension ConnectionViewViewModel {
     }
 
     var titleForServer: LocalizedStringKey? {
-        guard tunnelState.isSecured, let tunnelRelays = tunnelState.relays else {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
             return nil
         }
 
@@ -131,5 +170,51 @@ extension ConnectionViewViewModel {
         } else {
             LocalizedStringKey("\(exitName)")
         }
+    }
+
+    var inAddress: String? {
+        guard let tunnelRelays = tunnelStatus.state.relays else {
+            return nil
+        }
+
+        let observedTunnelState = tunnelStatus.observedState
+
+        var portAndTransport = ""
+        if let inPort = observedTunnelState.connectionState?.remotePort {
+            let protocolLayer = observedTunnelState.connectionState?.transportLayer == .tcp ? "TCP" : "UDP"
+            portAndTransport = ":\(inPort) \(protocolLayer)"
+        }
+
+        guard
+            let address = tunnelRelays.entry?.endpoint.ipv4Relay.ip
+            ?? tunnelStatus.state.relays?.exit.endpoint.ipv4Relay.ip
+        else {
+            return nil
+        }
+
+        return "\(address)\(portAndTransport)"
+    }
+
+    var outAddressIpv4: String? {
+        guard
+            let outgoingConnectionInfo,
+            let address = outgoingConnectionInfo.ipv4.exitIP ? outgoingConnectionInfo.ipv4.ip : nil
+        else {
+            return nil
+        }
+
+        return "\(address)"
+    }
+
+    var outAddressIpv6: String? {
+        guard
+            let outgoingConnectionInfo,
+            let ipv6 = outgoingConnectionInfo.ipv6,
+            let address = ipv6.exitIP ? ipv6.ip : nil
+        else {
+            return nil
+        }
+
+        return "\(address)"
     }
 }

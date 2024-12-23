@@ -11,7 +11,6 @@ import MullvadTypes
 import NetworkExtension
 import WireGuardKitTypes
 
-// swiftlint:disable function_parameter_count
 public protocol EphemeralPeerNegotiating {
     func startNegotiation(
         devicePublicKey: PublicKey,
@@ -70,5 +69,3 @@ public class EphemeralPeerNegotiator: EphemeralPeerNegotiating {
         drop_ephemeral_peer_exchange_token(cancelToken)
     }
 }
-
-// swiftlint:enable function_parameter_count

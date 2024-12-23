@@ -6,9 +6,15 @@
 //  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MullvadSettings
 
 struct IPOverrideRepositoryStub: IPOverrideRepositoryProtocol {
+    let passthroughSubject: CurrentValueSubject<[IPOverride], Never> = CurrentValueSubject([])
+    var overridesPublisher: AnyPublisher<[IPOverride], Never> {
+        passthroughSubject.eraseToAnyPublisher()
+    }
+
     let overrides: [IPOverride]
 
     init(overrides: [IPOverride] = []) {

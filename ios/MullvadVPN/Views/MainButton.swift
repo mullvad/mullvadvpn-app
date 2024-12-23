@@ -11,7 +11,6 @@ import SwiftUI
 struct MainButton: View {
     var text: LocalizedStringKey
     var style: MainButtonStyle.Style
-    var disabled = false
 
     var action: () -> Void
 
@@ -23,7 +22,7 @@ struct MainButton: View {
                 Spacer()
             }
         })
-        .buttonStyle(MainButtonStyle(style, disabled: disabled))
+        .buttonStyle(MainButtonStyle(style))
         .cornerRadius(UIMetrics.MainButton.cornerRadius)
     }
 }
