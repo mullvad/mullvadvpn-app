@@ -9,12 +9,10 @@ class AppInfoUiStatePreviewParameterProvider : PreviewParameterProvider<AppInfoU
         sequenceOf(
             AppInfoUiState(
                 version = VersionInfo(currentVersion = "2024.9", isSupported = true),
-                changes = listOf("More betterer app"),
                 isPlayBuild = true,
             ),
             AppInfoUiState(
                 version = VersionInfo(currentVersion = "2024.9", isSupported = false),
-                changes = listOf("More betterer app"),
                 isPlayBuild = true,
             ),
         )
