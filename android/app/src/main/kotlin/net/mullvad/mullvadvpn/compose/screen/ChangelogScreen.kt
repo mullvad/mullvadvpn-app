@@ -93,7 +93,7 @@ fun ChangelogScreen(
                     color = MaterialTheme.colorScheme.onSurface,
                 )
 
-                if(state.changes.isEmpty()) {
+                if (state.changes.isEmpty()) {
                     Text(
                         text = stringResource(R.string.changelog_empty),
                         style = MaterialTheme.typography.labelMedium,
