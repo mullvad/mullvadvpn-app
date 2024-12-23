@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material3.Icon
@@ -28,11 +30,13 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.NavigateCloseIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.extensions.createOpenFullChangeLogHook
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
+import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.viewmodel.ChangeLogSideEffect
 import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
@@ -83,8 +87,16 @@ fun ChangelogScreen(
         },
     ) { modifier ->
         Column(modifier = modifier.padding(horizontal = Dimens.mediumPadding)) {
+            val scrollState = rememberScrollState()
             Column(
-                Modifier.weight(1f),
+                Modifier.weight(1f)
+                    .fillMaxWidth()
+                    .drawVerticalScrollbar(
+                        scrollState,
+                        MaterialTheme.colorScheme.onSurface.copy(alpha = AlphaScrollbar)
+                    )
+                    .verticalScroll(scrollState)
+                ,
                 verticalArrangement = Arrangement.spacedBy(Dimens.mediumPadding),
             ) {
                 Text(
