@@ -42,7 +42,6 @@ import net.mullvad.mullvadvpn.viewmodel.ChangelogUiState
 import net.mullvad.mullvadvpn.viewmodel.ChangelogViewModel
 import org.koin.androidx.compose.koinViewModel
 
-data class ChangelogNavArgs(val isModal: Boolean = false)
 
 @Destination<RootGraph>(
     style = SlideInFromRightTransition::class,
@@ -68,6 +67,8 @@ fun Changelog(navController: NavController) {
         onSeeFullChangelog = viewModel::onSeeFullChangelog,
     )
 }
+
+data class ChangelogNavArgs(val isModal: Boolean = false)
 
 @Composable
 fun ChangelogScreen(
