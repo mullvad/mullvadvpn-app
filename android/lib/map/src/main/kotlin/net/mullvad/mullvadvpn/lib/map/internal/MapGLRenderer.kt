@@ -178,7 +178,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         tapScreenY: Float,
         nearPlaneDistance: Float = 1.0f
     ): Vector3 {
-        val halfHeight = tan(fovy / 2.0f) * nearPlaneDistance
+        val halfHeight = tan(fovy.toRadians() / 2.0f) * nearPlaneDistance
         val halfWidth = halfHeight * aspectRatio
         val x = (2.0f * tapScreenX / viewportWidth - 1.0f) * halfWidth
         val y = (1.0f - 2.0f * tapScreenY / viewportHeight) * halfHeight
