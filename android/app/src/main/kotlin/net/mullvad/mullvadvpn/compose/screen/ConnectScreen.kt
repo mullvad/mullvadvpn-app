@@ -1,8 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -28,11 +26,13 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -283,7 +283,18 @@ fun ConnectScreen(
             else TALL_SCREEN_INDICATOR_BIAS
 
         Box(Modifier.padding(it).fillMaxSize()) {
-            MullvadMap(state, indicatorPercentOffset)
+            var sliderValue by remember { mutableFloatStateOf(1f) }
+            MullvadMap(state, sliderValue, indicatorPercentOffset)
+
+
+
+            Slider(
+                value = sliderValue,
+                onValueChange = { sliderValue = it },
+                valueRange = 1f..5f,
+                steps = 100,
+                modifier = Modifier.padding(Dimens.smallPadding),
+            )
 
             MullvadCircularProgressIndicatorLarge(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -325,7 +336,7 @@ fun ConnectScreen(
 }
 
 @Composable
-private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
+private fun MullvadMap(state: ConnectUiState, slider: Float, progressIndicatorBias: Float) {
 
     // Distance to marker when secure/unsecure
     val baseZoom =
@@ -341,7 +352,6 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
     val longitudeAnimation = remember { Animatable(locationLatLng.longitude.value) }
     val latitudeAnimation = remember { Animatable(locationLatLng.latitude.value) }
     val userZoom = remember { Animatable(1f) }
-
 
     LaunchedEffect(state.tunnelState.location()) {
         launch {
@@ -429,8 +439,8 @@ private fun MullvadMap(state: ConnectUiState, progressIndicatorBias: Float) {
                         Latitude.fromFloat(latitudeAnimation.value),
                         Longitude.fromFloat(longitudeAnimation.value),
                     ),
-                zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") },
-                //verticalBias = progressIndicatorBias,
+                zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") } * slider,
+                // verticalBias = progressIndicatorBias,
             ),
         markers = markers + locationMarkers,
         globeColors =
