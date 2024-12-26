@@ -130,7 +130,7 @@ class FilterScreenTest {
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
                         selectedOwnership = Constraint.Any,
-                        selectedProviders = Constraint.Only(listOf(ProviderId("31173"))),
+                        selectedProviders = Constraint.Only(setOf(ProviderId("31173"))),
                     ),
                 onApplyClick = mockClickListener,
             )
@@ -146,8 +146,8 @@ class FilterScreenTest {
                 state =
                     RelayFilterUiState(
                         providerToOwnerships = DUMMY_RELAY_ALL_PROVIDERS,
-                        selectedOwnership = null,
-                        selectedProviders = listOf(ProviderId("1RemovedProvider")),
+                        selectedOwnership = Constraint.Any,
+                        selectedProviders = Constraint.Only(setOf(ProviderId("1RemovedProvider"))),
                     )
             )
 
@@ -179,6 +179,6 @@ class FilterScreenTest {
                 ProviderId("xtom") to setOf(Ownership.Rented),
             )
 
-        private val DUMMY_SELECTED_PROVIDERS = DUMMY_RELAY_ALL_PROVIDERS.keys.toList().dropLast(3)
+        private val DUMMY_SELECTED_PROVIDERS = DUMMY_RELAY_ALL_PROVIDERS.keys.drop(3).toSet()
     }
 }

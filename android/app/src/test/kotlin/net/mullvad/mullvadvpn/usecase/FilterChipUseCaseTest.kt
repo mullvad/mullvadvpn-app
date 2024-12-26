@@ -189,7 +189,7 @@ class FilterChipUseCaseTest {
     fun `ensure that a selected provider that is not in the provider list is still counted`() =
         runTest {
             // Arrange
-            val expectedProviders = Providers(providers = setOf(ProviderId("1")))
+            val expectedProviders = setOf(ProviderId("1"))
             val expectedOwnership = Ownership.MullvadOwned
             selectedProviders.value = Constraint.Only(expectedProviders)
             selectedOwnership.value = Constraint.Only(expectedOwnership)
