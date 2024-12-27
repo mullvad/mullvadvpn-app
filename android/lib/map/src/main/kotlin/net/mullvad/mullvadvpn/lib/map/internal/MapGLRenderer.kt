@@ -96,7 +96,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
     }
 
     private fun toOffsetY(cameraPosition: CameraPosition): Float {
-        //        val percent = cameraPosition.verticalBias
+        val percent = cameraPosition.verticalBias
         val z = cameraPosition.zoom - 1f
 
         // Calculate the size of the plane at the current z position
@@ -106,7 +106,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         val planeStartY = planeSizeY / 2f
 
         // Return offset based on the bias
-        return 0f // planeStartY - planeSizeY * percent
+        return planeStartY - planeSizeY * percent
     }
 
     private fun clear() {
@@ -148,7 +148,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
     fun closestMarker(offset: Offset): Pair<Marker?, Float>? {
         val cameraz = -viewState.cameraPosition.zoom
         val camerax = 0f
-        val cameray = 0f
+        val cameray = toOffsetY(viewState.cameraPosition)
 
         val camera = Vector3(camerax, cameray, cameraz)
 

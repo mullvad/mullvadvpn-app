@@ -138,8 +138,8 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 private val SCREEN_HEIGHT_THRESHOLD = 700.dp
-private const val SHORT_SCREEN_INDICATOR_BIAS = 0.5f
-private const val TALL_SCREEN_INDICATOR_BIAS = 0.5f
+private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
+private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
 
 @Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
@@ -529,6 +529,7 @@ private fun MullvadMap(
                         Latitude.fromFloat(latitudeAnimation.value),
                         Longitude.fromFloat(longitudeAnimation.value),
                     ),
+                verticalBias = progressIndicatorBias,
                 zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") },
             ),
         markers = markers + locationMarkers,

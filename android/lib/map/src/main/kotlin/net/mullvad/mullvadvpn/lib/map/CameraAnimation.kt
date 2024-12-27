@@ -88,6 +88,7 @@ fun animatedCameraPosition(
 
     return CameraPosition(
         zoom = baseZoom * zoomOutMultiplier.value,
+        verticalBias = cameraVerticalBias,
         latLong =
             LatLong(
                 Latitude(latitudeAnimation.value),
