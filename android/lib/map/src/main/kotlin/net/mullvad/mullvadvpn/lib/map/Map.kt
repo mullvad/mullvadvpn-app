@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.internal.MapGLSurfaceView
 import net.mullvad.mullvadvpn.lib.model.LatLong
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 @Composable
 fun Map(
@@ -24,9 +25,10 @@ fun Map(
     cameraLocation: CameraPosition,
     markers: List<Marker>,
     globeColors: GlobeColors,
+    onClickRelayItemId: (RelayItemId) -> Unit,
 ) {
     val mapViewState = MapViewState(cameraLocation, markers, globeColors)
-    Map(modifier = modifier, mapViewState = mapViewState)
+    Map(modifier = modifier, mapViewState = mapViewState, onClickRelayItemId)
 }
 
 @Composable
@@ -37,6 +39,7 @@ fun AnimatedMap(
     cameraVerticalBias: Float,
     markers: List<Marker>,
     globeColors: GlobeColors,
+    onClickRelayItemId: (RelayItemId) -> Unit
 ) {
     Map(
         modifier = modifier,
@@ -48,11 +51,16 @@ fun AnimatedMap(
             ),
         markers = markers,
         globeColors,
+        onClickRelayItemId = onClickRelayItemId
     )
 }
 
 @Composable
-internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
+internal fun Map(
+    modifier: Modifier = Modifier,
+    mapViewState: MapViewState,
+    onClickRelayItemId: (RelayItemId) -> Unit,
+) {
     var view: MapGLSurfaceView? = remember { null }
 
     val lifeCycleState = LocalLifecycleOwner.current.lifecycle
@@ -82,7 +90,11 @@ internal fun Map(modifier: Modifier = Modifier, mapViewState: MapViewState) {
         modifier =
             modifier.pointerInput(lifeCycleState) {
                 detectTapGestures(
-                    onTap = { Logger.i("Registered tap $it, isOnGlobe: ${view?.isOnGlobe(it)}") }
+                    onTap = {
+                        val result = view?.onMapClick(it) ?: return@detectTapGestures
+                        Logger.i("Registered marker click: $result")
+                        onClickRelayItemId(result)
+                    }
                 )
             },
         factory = { MapGLSurfaceView(it) },

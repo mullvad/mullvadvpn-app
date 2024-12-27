@@ -23,7 +23,9 @@ import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.PrepareError
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -31,6 +33,7 @@ import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
+import net.mullvad.mullvadvpn.repository.RelayListRepository
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
@@ -55,6 +58,7 @@ class ConnectViewModel(
     private val filteredRelayListUseCase: FilteredRelayListUseCase,
     private val isPlayBuild: Boolean,
     private val packageName: String,
+    private val relayListRepository: RelayListRepository
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
 
@@ -65,6 +69,7 @@ class ConnectViewModel(
     val uiState: StateFlow<ConnectUiState> =
         combine(
                 selectedLocationTitleUseCase(),
+            relayListRepository.selectedLocation,
                 inAppNotificationController.notifications,
                 connectionProxy.tunnelState,
                 lastKnownLocationUseCase.lastKnownDisconnectedLocation,
@@ -73,6 +78,7 @@ class ConnectViewModel(
                 filteredRelayListUseCase(RelayListType.EXIT).map { countries -> countries.flatMap { it.cities } },
             ) {
                 selectedRelayItemTitle,
+                selectedLocation,
                 notifications,
                 tunnelState,
                 lastKnownDisconnectedLocation,
@@ -90,6 +96,7 @@ class ConnectViewModel(
                             is TunnelState.Error -> lastKnownDisconnectedLocation
                         },
                     selectedRelayItemTitle = selectedRelayItemTitle,
+                    selectedGeoLocationId = selectedLocation.getOrNull() as? GeoLocationId,
                     tunnelState = tunnelState,
                     showLocation =
                         when (tunnelState) {
@@ -178,6 +185,11 @@ class ConnectViewModel(
         }
     }
 
+    fun onSelectRelay(id: RelayItemId) {
+        viewModelScope.launch {
+            relayListRepository.updateSelectedRelayLocation(id)
+        }
+    }
     fun openAppListing() =
         viewModelScope.launch {
             val uri =

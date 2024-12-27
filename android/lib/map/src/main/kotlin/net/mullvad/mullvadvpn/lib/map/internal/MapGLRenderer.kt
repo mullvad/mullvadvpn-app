@@ -144,7 +144,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
 
     var markerVector = mapOf<Vector3, Marker>()
 
-    fun isOnGlobe(offset: Offset): Vector3? {
+    fun closestMarker(offset: Offset): Pair<Marker?, Float>? {
         val cameraz = -viewState.cameraPosition.zoom
         val camerax = 0f
         val cameray = 0f
@@ -186,20 +186,17 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
                     .rotateAroundX(-viewState.cameraPosition.latLong.latitude.value)
                     .rotateAroundY(viewState.cameraPosition.latLong.longitude.value)
 
-
             Logger.d("Intersection point2: $point2")
             Logger.d("Intersection real vector: $newPosition")
             Logger.d("Clicked lat lng: ${newPosition.toLatLng()}")
 
-            markerVector
-                .minBy { it.key.distanceTo(newPosition) }
-                .let {
-                    Logger.d(
-                        "Closest marker: ${it.value}, distance ${it.key.distanceTo(newPosition)}"
-                    )
-                }
+            val closestMarker = markerVector.minByOrNull { it.key.distanceTo(newPosition) }
 
-            return ray.origin + ray.direction * t
+            if (closestMarker != null) {
+                return closestMarker.value to closestMarker.key.distanceTo(newPosition)
+            }
+
+            return null
         }
     }
 

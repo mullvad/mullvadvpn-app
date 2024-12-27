@@ -3,10 +3,9 @@ package net.mullvad.mullvadvpn.lib.map.internal
 import android.content.Context
 import android.opengl.GLSurfaceView
 import androidx.compose.ui.geometry.Offset
-import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.lib.map.BuildConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
-import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
 internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -32,15 +31,10 @@ internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
         requestRender()
     }
 
-    fun isOnGlobe(offset: Offset): Boolean {
-        return renderer.isOnGlobe(offset).also {
-            Logger.d("Intersected the globe at $it")
-        } != null
-    }
-
-    fun closestMarker(offset: Offset): Marker? {
-        return renderer.isOnGlobe(offset).also {
-            Logger.d("Intersected the globe at $it")
-        } != null
+    fun onMapClick(offset: Offset): RelayItemId? {
+        val (marker, distance) = renderer.closestMarker(offset) ?: return null
+        if (distance < 0.02f) {
+            return marker?.id
+        } else return null
     }
 }

@@ -26,13 +26,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Slider
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -107,10 +105,12 @@ import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.PrepareError
+import net.mullvad.mullvadvpn.lib.model.RelayItemId
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -120,6 +120,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.Alpha80
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInvisible
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
+import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 import net.mullvad.mullvadvpn.lib.theme.typeface.hostname
 import net.mullvad.mullvadvpn.util.removeHtmlTags
@@ -128,8 +129,8 @@ import org.koin.androidx.compose.koinViewModel
 
 private const val CONNECT_BUTTON_THROTTLE_MILLIS = 1000
 private val SCREEN_HEIGHT_THRESHOLD = 700.dp
-private const val SHORT_SCREEN_INDICATOR_BIAS = 0.2f
-private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
+private const val SHORT_SCREEN_INDICATOR_BIAS = 0.5f
+private const val TALL_SCREEN_INDICATOR_BIAS = 0.5f
 
 @Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
@@ -140,6 +141,7 @@ private fun PreviewAccountScreen(
         ConnectScreen(
             state = state,
             snackbarHostState = SnackbarHostState(),
+            {},
             {},
             {},
             {},
@@ -248,6 +250,7 @@ fun Connect(
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
+        onSelectRelay = connectViewModel::onSelectRelay,
     )
 }
 
@@ -265,6 +268,7 @@ fun ConnectScreen(
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
+    onSelectRelay: (RelayItemId) -> Unit,
 ) {
 
     ScaffoldWithTopBarAndDeviceName(
@@ -283,18 +287,7 @@ fun ConnectScreen(
             else TALL_SCREEN_INDICATOR_BIAS
 
         Box(Modifier.padding(it).fillMaxSize()) {
-            var sliderValue by remember { mutableFloatStateOf(1f) }
-            MullvadMap(state, sliderValue, indicatorPercentOffset)
-
-
-
-            Slider(
-                value = sliderValue,
-                onValueChange = { sliderValue = it },
-                valueRange = 1f..5f,
-                steps = 100,
-                modifier = Modifier.padding(Dimens.smallPadding),
-            )
+            MullvadMap(state, indicatorPercentOffset, onSelectRelay = onSelectRelay)
 
             MullvadCircularProgressIndicatorLarge(
                 color = MaterialTheme.colorScheme.onSurface,
@@ -336,7 +329,11 @@ fun ConnectScreen(
 }
 
 @Composable
-private fun MullvadMap(state: ConnectUiState, slider: Float, progressIndicatorBias: Float) {
+private fun MullvadMap(
+    state: ConnectUiState,
+    progressIndicatorBias: Float,
+    onSelectRelay: (RelayItemId) -> Unit,
+) {
 
     // Distance to marker when secure/unsecure
     val baseZoom =
@@ -353,28 +350,36 @@ private fun MullvadMap(state: ConnectUiState, slider: Float, progressIndicatorBi
     val latitudeAnimation = remember { Animatable(locationLatLng.latitude.value) }
     val userZoom = remember { Animatable(1f) }
 
-    LaunchedEffect(state.tunnelState.location()) {
-        launch {
-            longitudeAnimation.animateTo(state.tunnelState.location()?.longitude?.toFloat() ?: 0f)
-        }
-        launch {
-            latitudeAnimation.animateTo(state.tunnelState.location()?.latitude?.toFloat() ?: 0f)
-        }
+    LaunchedEffect(state.location) {
+        launch { longitudeAnimation.animateTo(state.location?.longitude?.toFloat() ?: 0f) }
+        launch { latitudeAnimation.animateTo(state.location?.latitude?.toFloat() ?: 0f) }
         launch { userZoom.animateTo(1f) }
     }
 
     val locationMarkers =
         state.relayLocations.map {
-            Marker(
-                it.latLong,
-                colors =
+            val isSelected =
+                when (state.selectedGeoLocationId) {
+                    is GeoLocationId.City -> state.selectedGeoLocationId == it.id
+                    is GeoLocationId.Country -> state.selectedGeoLocationId == it.id.country
+                    is GeoLocationId.Hostname -> state.selectedGeoLocationId.city == it.id
+                    else -> false
+                }
+            val colors =
+                if (isSelected) {
+                    LocationMarkerColors(
+                        perimeterColors = null,
+                        centerColor = MaterialTheme.colorScheme.warning,
+                        ringBorderColor = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
                     LocationMarkerColors(
                         perimeterColors = null,
                         centerColor = MaterialTheme.colorScheme.primary,
                         ringBorderColor = MaterialTheme.colorScheme.onPrimary,
-                    ),
-                id = it.name,
-            )
+                    )
+                }
+            Marker(it.latLong, colors = colors, id = it.id)
         }
 
     val tracker = remember { VelocityTracker() }
@@ -440,7 +445,7 @@ private fun MullvadMap(state: ConnectUiState, slider: Float, progressIndicatorBi
                         Latitude.fromFloat(latitudeAnimation.value),
                         Longitude.fromFloat(longitudeAnimation.value),
                     ),
-                zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") } * slider,
+                zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") },
                 // verticalBias = progressIndicatorBias,
             ),
         markers = markers + locationMarkers,
@@ -449,6 +454,7 @@ private fun MullvadMap(state: ConnectUiState, slider: Float, progressIndicatorBi
                 landColor = MaterialTheme.colorScheme.primary,
                 oceanColor = MaterialTheme.colorScheme.surface,
             ),
+        onClickRelayItemId = onSelectRelay,
     )
 }
 
