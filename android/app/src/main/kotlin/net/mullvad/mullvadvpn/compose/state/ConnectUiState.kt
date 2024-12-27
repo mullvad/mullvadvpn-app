@@ -10,7 +10,7 @@ data class ConnectUiState(
     val location: GeoIpLocation?,
     val relayLocations: List<RelayItem.Location.City> = emptyList(),
     val selectedRelayItemTitle: String?,
-    val selectedGeoLocationId: GeoLocationId?,
+    val selectedGeoLocationId: List<GeoLocationId>,
     val tunnelState: TunnelState,
     val showLocation: Boolean,
     val inAppNotification: InAppNotification?,
@@ -27,7 +27,7 @@ data class ConnectUiState(
             ConnectUiState(
                 location = null,
                 selectedRelayItemTitle = null,
-                selectedGeoLocationId = null,
+                selectedGeoLocationId = emptyList(),
                 tunnelState = TunnelState.Disconnected(),
                 showLocation = false,
                 inAppNotification = null,

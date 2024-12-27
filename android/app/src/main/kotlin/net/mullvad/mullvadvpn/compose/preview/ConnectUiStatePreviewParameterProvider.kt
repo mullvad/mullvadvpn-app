@@ -45,7 +45,7 @@ private fun generateOtherStates(): Sequence<ConnectUiState> =
                 inAppNotification = null,
                 deviceName = "Cool Beans",
                 daysLeftUntilExpiry = 42,
-                selectedGeoLocationId = null,
+                selectedGeoLocationId = emptyList(),
                 isPlayBuild = true,
             )
         }

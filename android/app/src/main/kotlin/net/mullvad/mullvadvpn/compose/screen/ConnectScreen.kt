@@ -351,19 +351,21 @@ private fun MullvadMap(
     val userZoom = remember { Animatable(1f) }
 
     LaunchedEffect(state.location) {
-        launch { longitudeAnimation.animateTo(state.location?.longitude?.toFloat() ?: 0f) }
-        launch { latitudeAnimation.animateTo(state.location?.latitude?.toFloat() ?: 0f) }
-        launch { userZoom.animateTo(1f) }
+        launch { longitudeAnimation.animateTo(state.location?.longitude?.toFloat() ?: fallbackLatLong.longitude.value, animationSpec = tween(1500)) }
+        launch { latitudeAnimation.animateTo(state.location?.latitude?.toFloat() ?: fallbackLatLong.latitude.value, animationSpec = tween(1500)) }
+        launch { userZoom.animateTo(1f, animationSpec = tween(1500)) }
     }
 
     val locationMarkers =
-        state.relayLocations.map {
+        state.relayLocations.map { location ->
             val isSelected =
-                when (state.selectedGeoLocationId) {
-                    is GeoLocationId.City -> state.selectedGeoLocationId == it.id
-                    is GeoLocationId.Country -> state.selectedGeoLocationId == it.id.country
-                    is GeoLocationId.Hostname -> state.selectedGeoLocationId.city == it.id
-                    else -> false
+                state.selectedGeoLocationId.any {
+                    when (it) {
+                        is GeoLocationId.City -> it == location.id
+                        is GeoLocationId.Country -> it == location.id.country
+                        is GeoLocationId.Hostname -> it.city == location.id
+                        else -> false
+                    }
                 }
             val colors =
                 if (isSelected) {
@@ -379,7 +381,7 @@ private fun MullvadMap(
                         ringBorderColor = MaterialTheme.colorScheme.onPrimary,
                     )
                 }
-            Marker(it.latLong, colors = colors, id = it.id)
+            Marker(location.latLong, colors = colors, id = location.id)
         }
 
     val tracker = remember { VelocityTracker() }
