@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
 import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.internal.MapGLSurfaceView
+import net.mullvad.mullvadvpn.lib.model.GeoLocationId
 import net.mullvad.mullvadvpn.lib.model.LatLong
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
@@ -26,8 +27,8 @@ fun Map(
     cameraLocation: CameraPosition,
     markers: List<Marker>,
     globeColors: GlobeColors,
-    onClickRelayItemId: (RelayItemId) -> Unit,
-    onLongClickRelayItemId: (Offset, RelayItemId) -> Unit,
+    onClickRelayItemId: (GeoLocationId) -> Unit,
+    onLongClickRelayItemId: (Offset, GeoLocationId) -> Unit,
 ) {
     val mapViewState = MapViewState(cameraLocation, markers, globeColors)
     Map(modifier = modifier, mapViewState = mapViewState, onClickRelayItemId, onLongClickRelayItemId)
@@ -63,8 +64,8 @@ fun AnimatedMap(
 internal fun Map(
     modifier: Modifier = Modifier,
     mapViewState: MapViewState,
-    onClickRelayItemId: (RelayItemId) -> Unit,
-    onLongClickRelayItemId: (Offset, RelayItemId) -> Unit,
+    onClickRelayItemId: (GeoLocationId) -> Unit,
+    onLongClickRelayItemId: (Offset, GeoLocationId) -> Unit,
 ) {
     var view: MapGLSurfaceView? = remember { null }
 

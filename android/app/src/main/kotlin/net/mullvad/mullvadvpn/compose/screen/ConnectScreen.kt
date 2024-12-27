@@ -433,24 +433,47 @@ private fun MullvadMap(
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
 
     val density = LocalDensity.current
-    val dropDownPosition = remember { mutableStateOf<DpOffset?>(null) }
-    if (dropDownPosition.value != null) {
+    val dropdownPosition = remember { mutableStateOf<DpOffset>(DpOffset(0.dp, 0.dp)) }
+    val showDropdown = remember { mutableStateOf(false) }
+    val locationName = remember { mutableStateOf<GeoLocationId?>(null) }
+
+    if (showDropdown.value) {
         DropdownMenu(
             expanded = true,
-            onDismissRequest = { dropDownPosition.value = null },
-            offset = dropDownPosition.value!!,
+            onDismissRequest = { showDropdown.value = false },
+            offset = dropdownPosition.value,
         ) {
-            DropdownMenuItem(
-                text = { Text(text = "<Location name>") },
-                onClick = { dropDownPosition.value = null },
+            val text =
+                when (val geolocation = locationName.value) {
+                    is GeoLocationId.City -> "${geolocation.country.code}-${geolocation.code}"
+                    is GeoLocationId.Country -> geolocation.toString()
+                    is GeoLocationId.Hostname -> geolocation.toString()
+                    else -> ""
+                }
+
+            Text(
+                style = MaterialTheme.typography.bodyLarge,
+                color = Color.White.copy(Alpha80),
+                text = text,
+                modifier =
+                    Modifier.padding(
+                        horizontal = Dimens.mediumPadding,
+                        vertical = Dimens.smallPadding,
+                    ),
             )
             DropdownMenuItem(
                 text = { Text(text = "Set as Entry") },
-                onClick = { dropDownPosition.value = null },
+                onClick = {
+                    locationName.value?.let { onSelectRelay(it) }
+                    showDropdown.value = false
+                },
             )
             DropdownMenuItem(
                 text = { Text(text = "Set as Exit") },
-                onClick = { dropDownPosition.value = null },
+                onClick = {
+                    locationName.value?.let { onSelectRelay(it) }
+                    showDropdown.value = false
+                },
             )
         }
     }
@@ -507,7 +530,6 @@ private fun MullvadMap(
                         Longitude.fromFloat(longitudeAnimation.value),
                     ),
                 zoom = (baseZoom.value * userZoom.value).also { Logger.d("Zoom: $it") },
-                // verticalBias = progressIndicatorBias,
             ),
         markers = markers + locationMarkers,
         globeColors =
@@ -516,13 +538,14 @@ private fun MullvadMap(
                 oceanColor = MaterialTheme.colorScheme.surface,
             ),
         onClickRelayItemId = onSelectRelay,
-        onLongClickRelayItemId = { offset, relayItemId ->
+        onLongClickRelayItemId = { offset, geolocationId ->
             with(density) {
                 DpOffset(x = offset.x.toDp(), y = offset.y.toDp()).also {
-                    dropDownPosition.value = it
+                    dropdownPosition.value = it
+                    locationName.value = geolocationId
+                    showDropdown.value = true
                 }
             }
-            Logger.d("Long click on $relayItemId at $offset")
         },
     )
 }
