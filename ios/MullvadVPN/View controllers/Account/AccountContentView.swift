@@ -23,7 +23,7 @@ class AccountContentView: UIView {
             value: "Make a purchase with StoreKit2",
             comment: ""
         ), for: .normal)
-        button.setAccessibilityIdentifier(.storekit2Button)
+        button.setAccessibilityIdentifier(.storeKit2Button)
         return button
     }()
 

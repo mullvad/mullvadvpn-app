@@ -298,9 +298,6 @@ class AccountViewController: UIViewController {
     }
 
     @objc private func handleStoreKit2Purchase() {
-        guard let accountData = interactor.deviceState.accountData else {
-            return
-        }
         guard case let .received(oldProduct) = productState,
               let accountData = interactor.deviceState.accountData
         else {
