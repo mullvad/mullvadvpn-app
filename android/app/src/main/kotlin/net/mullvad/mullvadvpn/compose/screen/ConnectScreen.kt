@@ -490,7 +490,7 @@ private fun MullvadMap(
                     onGesture = { centroid: Offset, pan: Offset, newZoom: Float, rotation: Float ->
                         Logger.d { "Animation onGesture" }
 
-                        val longitude = longitudeAnimation.value - pan.x * userZoom.value / 40f
+                        val longitude = longitudeAnimation.value - pan.x * userZoom.value / 50f
                         val latitude =
                             (latitudeAnimation.value - -pan.y * userZoom.value / 40f).coerceIn(
                                 -40f,
