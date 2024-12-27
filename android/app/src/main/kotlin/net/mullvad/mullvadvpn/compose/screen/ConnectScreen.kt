@@ -496,7 +496,7 @@ private fun MullvadMap(
                                 -40f,
                                 80f,
                             )
-                        val newZoom = (userZoom.value / newZoom).coerceIn(1f, 2f)
+                        val newZoom = (userZoom.value + (1 - newZoom) * 0.5f).coerceIn(1f, 2f)
 
                         scope.launch {
                             userZoom.snapTo(newZoom)
