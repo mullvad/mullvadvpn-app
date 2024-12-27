@@ -12,7 +12,7 @@ workspace = true
 
 [dependencies]
 async-trait = "0.1"
-boringtun = "0.5.3"
+boringtun = { version = "0.5.3", feature = ["log"] }
 thiserror = { workspace = true }
 futures = { workspace = true }
 hex = "0.4"
