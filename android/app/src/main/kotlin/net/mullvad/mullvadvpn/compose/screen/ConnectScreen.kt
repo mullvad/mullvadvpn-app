@@ -373,6 +373,7 @@ private fun MullvadMap(state: ConnectUiState, slider: Float, progressIndicatorBi
                         centerColor = MaterialTheme.colorScheme.primary,
                         ringBorderColor = MaterialTheme.colorScheme.onPrimary,
                     ),
+                id = it.name,
             )
         }
 

@@ -6,6 +6,7 @@ import androidx.compose.ui.geometry.Offset
 import co.touchlab.kermit.Logger
 import net.mullvad.mullvadvpn.lib.map.BuildConfig
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.Marker
 
 internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
 
@@ -32,6 +33,12 @@ internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
     }
 
     fun isOnGlobe(offset: Offset): Boolean {
+        return renderer.isOnGlobe(offset).also {
+            Logger.d("Intersected the globe at $it")
+        } != null
+    }
+
+    fun closestMarker(offset: Offset): Marker? {
         return renderer.isOnGlobe(offset).also {
             Logger.d("Intersected the globe at $it")
         } != null

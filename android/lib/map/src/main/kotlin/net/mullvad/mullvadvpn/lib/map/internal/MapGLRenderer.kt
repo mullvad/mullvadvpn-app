@@ -16,11 +16,17 @@ import kotlin.math.tan
 import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.MapViewState
+import net.mullvad.mullvadvpn.lib.map.data.Marker
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.Globe
 import net.mullvad.mullvadvpn.lib.map.internal.shapes.LocationMarker
+import net.mullvad.mullvadvpn.lib.model.map.Ray
+import net.mullvad.mullvadvpn.lib.model.map.Sphere
+import net.mullvad.mullvadvpn.lib.model.map.Vector3
+import net.mullvad.mullvadvpn.lib.model.map.rotateAroundX
+import net.mullvad.mullvadvpn.lib.model.map.rotateAroundY
+import net.mullvad.mullvadvpn.lib.model.map.toLatLng
+import net.mullvad.mullvadvpn.lib.model.map.toVector3
 import net.mullvad.mullvadvpn.lib.model.toRadians
-
-typealias Point3D = Triple<Float, Float, Float>
 
 internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.Renderer {
 
@@ -133,7 +139,10 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
 
     fun setViewState(viewState: MapViewState) {
         this.viewState = viewState
+        markerVector = viewState.locationMarker.map { it.latLong.toVector3() to it }.toMap()
     }
+
+    var markerVector = mapOf<Vector3, Marker>()
 
     fun isOnGlobe(offset: Offset): Vector3? {
         val cameraz = -viewState.cameraPosition.zoom
@@ -145,8 +154,16 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         val sphere = Sphere(Vector3(0f, 0f, 0f), 1f)
         val ratio: Float = viewPortSize.width.toFloat() / viewPortSize.height.toFloat()
 
-        val directionVector = calculateDirectionVector(viewState.cameraPosition.fov,
-        ratio, viewPortSize.width, viewPortSize.height, offset.x, offset.y, nearPlaneDistance = PERSPECTIVE_Z_NEAR)
+        val directionVector =
+            calculateDirectionVector(
+                viewState.cameraPosition.fov,
+                ratio,
+                viewPortSize.width,
+                viewPortSize.height,
+                offset.x,
+                offset.y,
+                nearPlaneDistance = PERSPECTIVE_Z_NEAR,
+            )
 
         val ray = Ray(camera, directionVector)
 
@@ -162,9 +179,26 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
             val t = (-b - sqrt(discriminant)) / (2f * a) // Closest intersection point
             val t2 = (-b + sqrt(discriminant)) / (2f * a) // Closest intersection point
             Logger.d("Intersection t1: $t, t2: $t2")
-            val point1 =  ray.origin + ray.direction * t
-            val point2 =  ray.origin + ray.direction * t2
-            Logger.d("Intersection point1: $point1, point2: $point2")
+            val point2 = ray.origin + ray.direction * t2
+
+            val newPosition =
+                point2
+                    .rotateAroundX(-viewState.cameraPosition.latLong.latitude.value)
+                    .rotateAroundY(viewState.cameraPosition.latLong.longitude.value)
+
+
+            Logger.d("Intersection point2: $point2")
+            Logger.d("Intersection real vector: $newPosition")
+            Logger.d("Clicked lat lng: ${newPosition.toLatLng()}")
+
+            markerVector
+                .minBy { it.key.distanceTo(newPosition) }
+                .let {
+                    Logger.d(
+                        "Closest marker: ${it.value}, distance ${it.key.distanceTo(newPosition)}"
+                    )
+                }
+
             return ray.origin + ray.direction * t
         }
     }
@@ -176,19 +210,14 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         viewportHeight: Float,
         tapScreenX: Float,
         tapScreenY: Float,
-        nearPlaneDistance: Float = 1.0f
+        nearPlaneDistance: Float = 1.0f,
     ): Vector3 {
         val halfHeight = tan(fovy.toRadians() / 2.0f) * nearPlaneDistance
         val halfWidth = halfHeight * aspectRatio
         val x = (2.0f * tapScreenX / viewportWidth - 1.0f) * halfWidth
         val y = (1.0f - 2.0f * tapScreenY / viewportHeight) * halfHeight
         val z = -nearPlaneDistance
-        return normalize(Vector3(x, y, z))
-    }
-
-    fun normalize(vector: Vector3): Vector3 {
-        val length = sqrt(vector.x * vector.x + vector.y * vector.y + vector.z * vector.z)
-        return Vector3(vector.x / length, vector.y / length, vector.z / length)
+        return Vector3(x, y, z).normalize()
     }
 
     companion object {
@@ -197,25 +226,3 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         private const val FIELD_OF_VIEW = 70f
     }
 }
-
-
-data class Vector3(val x: Float, val y: Float, val z: Float) {
-    fun dot(other: Vector3): Float {
-        return x * other.x + y * other.y + z * other.z
-    }
-
-    operator fun minus(other: Vector3): Vector3 {
-        return Vector3(x - other.x, y - other.y, z - other.z)
-    }
-
-    operator fun times(scalar: Float): Vector3 {
-        return Vector3(x * scalar, y * scalar, z * scalar)
-    }
-
-    operator fun plus(other: Vector3): Vector3 {
-        return Vector3(x + other.x, y + other.y, z + other.z)
-    }
-}
-data class Ray(val origin: Vector3, val direction: Vector3)
-data class Sphere(val center: Vector3, val radius: Float)
-
