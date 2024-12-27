@@ -207,7 +207,7 @@ val uiModule = module {
             get(),
             IS_PLAY_BUILD,
             get(named(SELF_PACKAGE_NAME)),
-            get()
+            get(),
         )
     }
     viewModel { DeviceListViewModel(get(), get()) }

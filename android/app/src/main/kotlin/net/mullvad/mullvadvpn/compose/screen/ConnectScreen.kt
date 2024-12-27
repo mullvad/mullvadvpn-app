@@ -5,11 +5,12 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.exponentialDecay
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -47,12 +50,14 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -103,6 +108,10 @@ import net.mullvad.mullvadvpn.lib.map.data.CameraPosition
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
 import net.mullvad.mullvadvpn.lib.map.data.Marker
+import net.mullvad.mullvadvpn.lib.map.internal.FAR_ANIMATION_MAX_ZOOM_MULTIPLIER
+import net.mullvad.mullvadvpn.lib.map.internal.MAX_MULTIPLIER_PEAK_TIMING
+import net.mullvad.mullvadvpn.lib.map.internal.SHORT_ANIMATION_CUTOFF_MILLIS
+import net.mullvad.mullvadvpn.lib.map.toAnimationDurationMillis
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -350,10 +359,44 @@ private fun MullvadMap(
     val latitudeAnimation = remember { Animatable(locationLatLng.latitude.value) }
     val userZoom = remember { Animatable(1f) }
 
-    LaunchedEffect(state.location) {
-        launch { longitudeAnimation.animateTo(state.location?.longitude?.toFloat() ?: fallbackLatLong.longitude.value, animationSpec = tween(1500)) }
-        launch { latitudeAnimation.animateTo(state.location?.latitude?.toFloat() ?: fallbackLatLong.latitude.value, animationSpec = tween(1500)) }
-        launch { userZoom.animateTo(1f, animationSpec = tween(1500)) }
+    LaunchedEffect(locationLatLng) {
+        val currentPosition =
+            LatLong(
+                Latitude.fromFloat(latitudeAnimation.value),
+                Longitude.fromFloat(longitudeAnimation.value),
+            )
+        val distance = locationLatLng.seppDistanceTo(currentPosition)
+        val duration = distance.toAnimationDurationMillis()
+        launch {
+            longitudeAnimation.animateTo(
+                state.location?.longitude?.toFloat() ?: fallbackLatLong.longitude.value,
+                animationSpec = tween(duration),
+            )
+        }
+        launch {
+            latitudeAnimation.animateTo(
+                state.location?.latitude?.toFloat() ?: fallbackLatLong.latitude.value,
+                animationSpec = tween(duration),
+            )
+        }
+        launch {
+            userZoom.animateTo(
+                targetValue = 1f,
+                animationSpec =
+                    keyframes {
+                        if (duration < SHORT_ANIMATION_CUTOFF_MILLIS) {
+                            durationMillis = duration
+                            1f at duration using EaseInOut
+                        } else {
+                            durationMillis = duration
+                            FAR_ANIMATION_MAX_ZOOM_MULTIPLIER at
+                                (duration * MAX_MULTIPLIER_PEAK_TIMING).toInt() using
+                                EaseInOut
+                            1f at duration using EaseInOut
+                        }
+                    },
+            )
+        }
     }
 
     val locationMarkers =
@@ -388,58 +431,74 @@ private fun MullvadMap(
     val scope = rememberCoroutineScope()
 
     val markers = state.tunnelState.toMarker(state.location)?.let { listOf(it) } ?: emptyList()
+
+    val density = LocalDensity.current
+    val dropDownPosition = remember { mutableStateOf<DpOffset?>(null) }
+    if (dropDownPosition.value != null) {
+        DropdownMenu(
+            expanded = true,
+            onDismissRequest = { dropDownPosition.value = null },
+            offset = dropDownPosition.value!!,
+        ) {
+            DropdownMenuItem(
+                text = { Text(text = "<Location name>") },
+                onClick = { dropDownPosition.value = null },
+            )
+            DropdownMenuItem(
+                text = { Text(text = "Set as Entry") },
+                onClick = { dropDownPosition.value = null },
+            )
+            DropdownMenuItem(
+                text = { Text(text = "Set as Exit") },
+                onClick = { dropDownPosition.value = null },
+            )
+        }
+    }
     Map(
         modifier =
             Modifier.pointerInput(Unit) {
-                    detectTransformGesturesWithEnd(
-                        true,
-                        onGestureStart = {
-                            Logger.d { "Animation onGestureStart" }
-                            tracker.resetTracking()
-                            scope.launch { longitudeAnimation.stop() }
-                        },
-                        onGesture = { centroid: Offset, pan: Offset, newZoom: Float, rotation: Float
-                            ->
-                            Logger.d { "Animation onGesture" }
+                detectTransformGesturesWithEnd(
+                    true,
+                    onGestureStart = {
+                        Logger.d { "Animation onGestureStart" }
+                        tracker.resetTracking()
+                        scope.launch { longitudeAnimation.stop() }
+                    },
+                    onGesture = { centroid: Offset, pan: Offset, newZoom: Float, rotation: Float ->
+                        Logger.d { "Animation onGesture" }
 
-                            val longitude = longitudeAnimation.value - pan.x * userZoom.value / 40f
-                            val latitude =
-                                (latitudeAnimation.value - -pan.y * userZoom.value / 40f).coerceIn(
-                                    -40f,
-                                    80f,
-                                )
-                            val newZoom = (userZoom.value / newZoom).coerceIn(1f, 2f)
+                        val longitude = longitudeAnimation.value - pan.x * userZoom.value / 40f
+                        val latitude =
+                            (latitudeAnimation.value - -pan.y * userZoom.value / 40f).coerceIn(
+                                -40f,
+                                80f,
+                            )
+                        val newZoom = (userZoom.value / newZoom).coerceIn(1f, 2f)
 
-                            scope.launch {
-                                userZoom.snapTo(newZoom)
-                                longitudeAnimation.snapTo(longitude)
-                                latitudeAnimation.snapTo(latitude)
+                        scope.launch {
+                            userZoom.snapTo(newZoom)
+                            longitudeAnimation.snapTo(longitude)
+                            latitudeAnimation.snapTo(latitude)
 
-                                tracker.addPosition(
-                                    System.currentTimeMillis(),
-                                    Offset(longitude, latitude),
-                                )
-                            }
-                        },
-                        onGestureEnd = {
-                            Logger.d { "Animation onGestureEnd" }
-                            // Longitude
-                            val velocity = tracker.calculateVelocity()
-                            scope.launch {
-                                longitudeAnimation.animateDecay(velocity.x, exponentialDecay(0.4f))
-                            }
-                            scope.launch {
-                                latitudeAnimation.animateDecay(velocity.y, exponentialDecay(0.4f))
-                            }
-                        },
-                    )
-                }
-                .pointerInput(Unit) {
-                    detectTapGestures {
-                        //                        Logger.d("The user tapped $it,
-                        // ${tracker.calculateVelocity()}")
-                    }
-                },
+                            tracker.addPosition(
+                                System.currentTimeMillis(),
+                                Offset(longitude, latitude),
+                            )
+                        }
+                    },
+                    onGestureEnd = {
+                        Logger.d { "Animation onGestureEnd" }
+                        // Longitude
+                        val velocity = tracker.calculateVelocity()
+                        scope.launch {
+                            longitudeAnimation.animateDecay(velocity.x, exponentialDecay(0.4f))
+                        }
+                        scope.launch {
+                            latitudeAnimation.animateDecay(velocity.y, exponentialDecay(0.4f))
+                        }
+                    },
+                )
+            },
         cameraLocation =
             CameraPosition(
                 latLong =
@@ -457,6 +516,14 @@ private fun MullvadMap(
                 oceanColor = MaterialTheme.colorScheme.surface,
             ),
         onClickRelayItemId = onSelectRelay,
+        onLongClickRelayItemId = { offset, relayItemId ->
+            with(density) {
+                DpOffset(x = offset.x.toDp(), y = offset.y.toDp()).also {
+                    dropDownPosition.value = it
+                }
+            }
+            Logger.d("Long click on $relayItemId at $offset")
+        },
     )
 }
 

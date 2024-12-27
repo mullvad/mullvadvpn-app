@@ -93,11 +93,11 @@ fun animatedCameraPosition(
                 Latitude(latitudeAnimation.value),
                 Longitude.fromFloat(longitudeAnimation.value),
             ),
-//        verticalBias = cameraVerticalBias,
+        //        verticalBias = cameraVerticalBias,
     )
 }
 
-private fun Float.toAnimationDurationMillis(): Int =
+fun Float.toAnimationDurationMillis(): Int =
     (this * DISTANCE_DURATION_SCALE_FACTOR)
         .toInt()
         .coerceIn(MIN_ANIMATION_MILLIS, MAX_ANIMATION_MILLIS)

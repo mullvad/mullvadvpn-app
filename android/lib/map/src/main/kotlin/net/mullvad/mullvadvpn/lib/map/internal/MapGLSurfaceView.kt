@@ -31,10 +31,10 @@ internal class MapGLSurfaceView(context: Context) : GLSurfaceView(context) {
         requestRender()
     }
 
-    fun onMapClick(offset: Offset): RelayItemId? {
+    fun onMapClick(offset: Offset): Pair<RelayItemId, Offset>? {
         val (marker, distance) = renderer.closestMarker(offset) ?: return null
         if (distance < 0.02f) {
-            return marker?.id
+            return marker?.id?.let { it to offset }
         } else return null
     }
 }

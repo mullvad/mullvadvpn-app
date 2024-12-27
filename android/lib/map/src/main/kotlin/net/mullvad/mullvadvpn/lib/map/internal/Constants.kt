@@ -12,9 +12,9 @@ internal const val MIN_ANIMATION_MILLIS = 1300
 internal const val MAX_ANIMATION_MILLIS = 2500
 // The cut off where we go from a short animation (camera pans) to a far animation (camera pans +
 // zoom out)
-internal const val SHORT_ANIMATION_CUTOFF_MILLIS = 1700
+const val SHORT_ANIMATION_CUTOFF_MILLIS = 1700
 
 // Multiplier for the zoom out animation
-internal const val FAR_ANIMATION_MAX_ZOOM_MULTIPLIER = 1.30f
+const val FAR_ANIMATION_MAX_ZOOM_MULTIPLIER = 1.80f
 // When in the far animation we reach the MAX_ZOOM_MULTIPLIER, value is between 0 and 1
-internal const val MAX_MULTIPLIER_PEAK_TIMING = .35f
+const val MAX_MULTIPLIER_PEAK_TIMING = .35f

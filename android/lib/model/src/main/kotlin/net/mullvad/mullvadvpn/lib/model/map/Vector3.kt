@@ -1,7 +1,7 @@
 package net.mullvad.mullvadvpn.lib.model.map
 
 import kotlin.math.acos
-import kotlin.math.atan
+import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.math.sqrt
@@ -10,7 +10,6 @@ import net.mullvad.mullvadvpn.lib.model.Latitude
 import net.mullvad.mullvadvpn.lib.model.Longitude
 import net.mullvad.mullvadvpn.lib.model.toDegrees
 import net.mullvad.mullvadvpn.lib.model.toRadians
-import kotlin.math.atan2
 
 data class Vector3(val x: Float, val y: Float, val z: Float) {
     fun dot(other: Vector3): Float {

@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
@@ -26,9 +27,10 @@ fun Map(
     markers: List<Marker>,
     globeColors: GlobeColors,
     onClickRelayItemId: (RelayItemId) -> Unit,
+    onLongClickRelayItemId: (Offset, RelayItemId) -> Unit,
 ) {
     val mapViewState = MapViewState(cameraLocation, markers, globeColors)
-    Map(modifier = modifier, mapViewState = mapViewState, onClickRelayItemId)
+    Map(modifier = modifier, mapViewState = mapViewState, onClickRelayItemId, onLongClickRelayItemId)
 }
 
 @Composable
@@ -39,7 +41,8 @@ fun AnimatedMap(
     cameraVerticalBias: Float,
     markers: List<Marker>,
     globeColors: GlobeColors,
-    onClickRelayItemId: (RelayItemId) -> Unit
+    onClickRelayItemId: (RelayItemId) -> Unit,
+    onLongClickRelayItemId: (Offset, RelayItemId) -> Unit
 ) {
     Map(
         modifier = modifier,
@@ -51,7 +54,8 @@ fun AnimatedMap(
             ),
         markers = markers,
         globeColors,
-        onClickRelayItemId = onClickRelayItemId
+        onClickRelayItemId = onClickRelayItemId,
+        onLongClickRelayItemId = onLongClickRelayItemId,
     )
 }
 
@@ -60,6 +64,7 @@ internal fun Map(
     modifier: Modifier = Modifier,
     mapViewState: MapViewState,
     onClickRelayItemId: (RelayItemId) -> Unit,
+    onLongClickRelayItemId: (Offset, RelayItemId) -> Unit,
 ) {
     var view: MapGLSurfaceView? = remember { null }
 
@@ -88,15 +93,21 @@ internal fun Map(
 
     AndroidView(
         modifier =
-            modifier.pointerInput(lifeCycleState) {
+        Modifier.pointerInput(lifeCycleState) {
                 detectTapGestures(
                     onTap = {
+                        Logger.i("Registered marker click: $it")
                         val result = view?.onMapClick(it) ?: return@detectTapGestures
-                        Logger.i("Registered marker click: $result")
-                        onClickRelayItemId(result)
-                    }
+                        onClickRelayItemId(result.first)
+                    },
+                    onLongPress = {
+                        Logger.i("Registered marker long click")
+                        val result = view?.onMapClick(it) ?: return@detectTapGestures
+
+                        onLongClickRelayItemId(result.second, result.first)
+                    },
                 )
-            },
+            }.then(modifier),
         factory = { MapGLSurfaceView(it) },
     ) { glSurfaceView ->
         view = glSurfaceView

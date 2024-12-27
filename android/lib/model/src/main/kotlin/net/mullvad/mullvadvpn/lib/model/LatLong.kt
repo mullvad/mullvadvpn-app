@@ -46,4 +46,5 @@ data class LatLong(val latitude: Latitude, val longitude: Longitude) {
 const val COMPLETE_ANGLE = 360f
 
 fun Float.toRadians() = this * Math.PI.toFloat() / (COMPLETE_ANGLE / 2)
+
 fun Float.toDegrees() = this * ((COMPLETE_ANGLE / 2) / Math.PI.toFloat())

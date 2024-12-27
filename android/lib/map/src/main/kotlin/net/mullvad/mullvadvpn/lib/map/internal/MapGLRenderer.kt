@@ -49,6 +49,8 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         }
 
     private lateinit var viewState: MapViewState
+    private val projectionMatrix = newIdentityMatrix()
+    private var globalViewMatrix = newIdentityMatrix()
 
     override fun onSurfaceCreated(unused: GL10, config: EGLConfig) {
         globe = Globe(resources)
@@ -66,8 +68,6 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA)
     }
 
-    private val projectionMatrix = newIdentityMatrix()
-
     override fun onDrawFrame(gl10: GL10) {
         // Clear canvas
         clear()
@@ -82,6 +82,7 @@ internal class MapGLRenderer(private val resources: Resources) : GLSurfaceView.R
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.latitude.value, 1f, 0f, 0f)
         Matrix.rotateM(viewMatrix, 0, viewState.cameraPosition.latLong.longitude.value, 0f, -1f, 0f)
 
+        globalViewMatrix = viewMatrix.copyOf()
         globe.draw(projectionMatrix, viewMatrix, viewState.globeColors)
 
         // Draw location markers
