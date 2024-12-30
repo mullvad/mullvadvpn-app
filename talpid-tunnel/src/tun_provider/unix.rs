@@ -163,31 +163,24 @@ impl TunnelDevice {
             IpAddr::V6(ipv6) => {
                 #[cfg(target_os = "linux")]
                 {
-                    duct::cmd!(
-                        "ip",
-                        "-6",
-                        "addr",
-                        "add",
-                        ipv6.to_string(),
-                        "dev",
-                        self.dev.name()
-                    )
-                    .run()
-                    .map(|_| ())
-                    .map_err(Error::SetIpv6)
+                    use std::process::Command;
+                    // ip -6 addr add <ipv6 address> dev <device>
+                    let address = ipv6.to_string();
+                    let device = self.dev.name();
+                    let mut ip = Command::new("ip");
+                    ip.args(["-6", "addr", "add", &address, "dev", device]);
+                    ip.output().map_err(Error::SetIpv6)?;
+                    Ok(())
                 }
                 #[cfg(target_os = "macos")]
                 {
-                    duct::cmd!(
-                        "ifconfig",
-                        self.dev.name(),
-                        "inet6",
-                        ipv6.to_string(),
-                        "alias"
-                    )
-                    .run()
-                    .map(|_| ())
-                    .map_err(Error::SetIpv6)
+                    // ifconfig <device> inet6 <ipv6 address> alias
+                    let address = ipv6.to_string();
+                    let device = self.dev.name();
+                    let mut ifconfig = Command::new("ifconfig");
+                    ifconfig.args([device, "inet6", &address, "alias"]);
+                    ifconfig.output().map_err(Error::SetIpv6)?;
+                    Ok(())
                 }
             }
         }

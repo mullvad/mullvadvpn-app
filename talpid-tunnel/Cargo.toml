@@ -20,7 +20,6 @@ futures = { workspace = true }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 
 [target.'cfg(all(unix, not(target_os = "android")))'.dependencies]
-duct = "0.13"
 nix = "0.23"
 
 [target.'cfg(target_os = "android")'.dependencies]
