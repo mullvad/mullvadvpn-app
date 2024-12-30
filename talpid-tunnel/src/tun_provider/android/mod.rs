@@ -339,8 +339,8 @@ pub struct VpnServiceTun {
 
 impl VpnServiceTun {
     /// Retrieve the tunnel interface name.
-    pub fn interface_name(&self) -> &str {
-        "tun"
+    pub fn interface_name(&self) -> Result<String, Error> {
+        Ok("tun".to_string())
     }
 
     /// Allow a socket to bypass the tunnel.
