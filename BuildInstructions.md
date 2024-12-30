@@ -116,7 +116,7 @@ The host has to have the following installed:
 
 [Git for Windows]: https://git-scm.com/download/win
 
-### Experimental: Cross-compiling for ARM64
+### Cross-compiling for ARM64
 
 By default, the app will build for the host platform. It is also possible to cross-compile the app
 for ARM64 on x64. This requires:
@@ -194,11 +194,9 @@ variable to `aarch64-unknown-linux-gnu`:
 TARGETS="aarch64-unknown-linux-gnu" ./build.sh
 ```
 
-### Experimental: Windows
+### Windows
 
-ARM64 Windows is not yet fully working or supported.
-
-To cross-compile for ARM64 rather than the current architecture, set the `TARGETS` environment
+To cross-compile for ARM64 from another host architecture, set the `TARGETS` environment
 variable to `aarch64-pc-windows-msvc`:
 
 ```bash
