@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Blokering af internet (enhed offline)</string>
     <string name="buy_credit">Køb kredit</string>
     <string name="cancel">Annuller</string>
-    <string name="changes_dialog_subtitle">Ændringer i denne version:</string>
     <string name="cipher">Chiffer</string>
     <string name="close">Luk</string>
     <string name="confirm_no_email">Du er ved at sende rapporten om problemet, men har ikke angivet hvordan vi kan kontakte dig. Hvis du ønsker et svar på din rapport, skal du indtaste en e-mail-adresse.</string>

@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.NewChangelogNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
@@ -47,11 +48,17 @@ sealed class InAppNotification {
         override val statusLevel = StatusLevel.Info
         override val priority: Long = 1001
     }
+
+    data object NewVersionChangelog : InAppNotification() {
+        override val statusLevel = StatusLevel.Info
+        override val priority: Long = 1001
+    }
 }
 
 class InAppNotificationController(
     accountExpiryInAppNotificationUseCase: AccountExpiryInAppNotificationUseCase,
     newDeviceNotificationUseCase: NewDeviceNotificationUseCase,
+    newChangelogNotificationUseCase: NewChangelogNotificationUseCase,
     versionNotificationUseCase: VersionNotificationUseCase,
     tunnelStateNotificationUseCase: TunnelStateNotificationUseCase,
     scope: CoroutineScope,
@@ -63,8 +70,9 @@ class InAppNotificationController(
                 versionNotificationUseCase(),
                 accountExpiryInAppNotificationUseCase(),
                 newDeviceNotificationUseCase(),
-            ) { a, b, c, d ->
-                a + b + c + d
+                newChangelogNotificationUseCase(),
+            ) { a, b, c, d, e ->
+                a + b + c + d + e
             }
             .map {
                 it.sortedWith(

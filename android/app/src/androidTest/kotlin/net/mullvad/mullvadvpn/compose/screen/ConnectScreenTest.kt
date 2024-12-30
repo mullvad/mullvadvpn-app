@@ -17,6 +17,7 @@ import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
+import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_TEXT_ACTION
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
@@ -53,6 +54,7 @@ class ConnectScreenTest {
         unmockkAll()
     }
 
+    @Suppress("LongParameterList")
     private fun ComposeContext.initScreen(
         state: ConnectUiState = ConnectUiState.INITIAL,
         onDisconnectClick: () -> Unit = {},
@@ -65,6 +67,8 @@ class ConnectScreenTest {
         onSettingsClick: () -> Unit = {},
         onAccountClick: () -> Unit = {},
         onDismissNewDeviceClick: () -> Unit = {},
+        onChangelogClick: () -> Unit = {},
+        onDismissChangelogClick: () -> Unit = {},
     ) {
         setContentWithTheme {
             ConnectScreen(
@@ -79,6 +83,8 @@ class ConnectScreenTest {
                 onSettingsClick = onSettingsClick,
                 onAccountClick = onAccountClick,
                 onDismissNewDeviceClick = onDismissNewDeviceClick,
+                onChangelogClick = onChangelogClick,
+                onDismissChangelogClick = onDismissChangelogClick,
             )
         }
     }
@@ -625,6 +631,34 @@ class ConnectScreenTest {
 
             // Act
             onNodeWithTag(NOTIFICATION_BANNER_ACTION).performClick()
+
+            // Assert
+            verify { mockedClickHandler.invoke() }
+        }
+    }
+
+    @Test
+    fun testOnNewChangelogMessageClick() {
+        composeExtension.use {
+            // Arrange
+            val mockedClickHandler: () -> Unit = mockk(relaxed = true)
+            initScreen(
+                onChangelogClick = mockedClickHandler,
+                state =
+                    ConnectUiState(
+                        location = null,
+                        selectedRelayItemTitle = null,
+                        tunnelState = TunnelState.Connecting(null, null, emptyList()),
+                        showLocation = false,
+                        deviceName = "",
+                        daysLeftUntilExpiry = null,
+                        inAppNotification = InAppNotification.NewVersionChangelog,
+                        isPlayBuild = false,
+                    ),
+            )
+
+            // Act
+            onNodeWithTag(NOTIFICATION_BANNER_TEXT_ACTION).performClick()
 
             // Assert
             verify { mockedClickHandler.invoke() }

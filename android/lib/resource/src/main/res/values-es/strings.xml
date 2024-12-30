@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Bloqueo de Internet (dispositivo sin conexión)</string>
     <string name="buy_credit">Comprar créditos</string>
     <string name="cancel">Cancelar</string>
-    <string name="changes_dialog_subtitle">Cambios en esta versión:</string>
     <string name="cipher">Cifrado</string>
     <string name="close">Cerrar</string>
     <string name="confirm_no_email">Va a enviar el informe de problemas sin indicar una forma de contacto. Para obtener una respuesta sobre el informe, necesita especificar su dirección de correo electrónico.</string>

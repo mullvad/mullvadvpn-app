@@ -34,16 +34,12 @@ class AppInfoViewModel(
                 flowOf(changelogRepository.getLastVersionChanges()),
                 flowOf(isPlayBuild),
             ) { versionInfo, changes, isPlayBuild ->
-                AppInfoUiState(versionInfo, changes, isPlayBuild)
+                AppInfoUiState(versionInfo, isPlayBuild)
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(),
-                AppInfoUiState(
-                    appVersionInfoRepository.versionInfo.value,
-                    changelogRepository.getLastVersionChanges(),
-                    true,
-                ),
+                AppInfoUiState(appVersionInfoRepository.versionInfo.value, true),
             )
 
     fun openAppListing() =
@@ -58,11 +54,7 @@ class AppInfoViewModel(
         }
 }
 
-data class AppInfoUiState(
-    val version: VersionInfo,
-    val changes: List<String>,
-    val isPlayBuild: Boolean,
-)
+data class AppInfoUiState(val version: VersionInfo, val isPlayBuild: Boolean)
 
 sealed interface AppInfoSideEffect {
     data class OpenUri(val uri: Uri) : AppInfoSideEffect

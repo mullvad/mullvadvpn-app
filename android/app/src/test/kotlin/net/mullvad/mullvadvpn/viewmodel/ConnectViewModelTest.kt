@@ -30,6 +30,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
@@ -64,6 +65,9 @@ class ConnectViewModelTest {
 
     // Device Repository
     private val mockDeviceRepository: DeviceRepository = mockk()
+
+    // Changelog Repository
+    private val mockChangelogRepository: ChangelogRepository = mockk()
 
     // In App Notifications
     private val mockInAppNotificationController: InAppNotificationController = mockk()
@@ -113,6 +117,7 @@ class ConnectViewModelTest {
             ConnectViewModel(
                 accountRepository = mockAccountRepository,
                 deviceRepository = mockDeviceRepository,
+                changelogRepository = mockChangelogRepository,
                 inAppNotificationController = mockInAppNotificationController,
                 newDeviceRepository = mockk(),
                 outOfTimeUseCase = outOfTimeUseCase,

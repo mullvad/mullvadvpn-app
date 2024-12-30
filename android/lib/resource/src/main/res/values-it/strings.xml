@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Blocco di Internet (dispositivo offline)</string>
     <string name="buy_credit">Acquista credito</string>
     <string name="cancel">Annulla</string>
-    <string name="changes_dialog_subtitle">Modifiche in questa versione:</string>
     <string name="cipher">Codice</string>
     <string name="close">Chiudi</string>
     <string name="confirm_no_email">Stai inviando la segnalazione di un problema senza averci indicato un modo per ricontattarti. Se desideri ricevere risposta, inserisci un indirizzo e-mail.</string>

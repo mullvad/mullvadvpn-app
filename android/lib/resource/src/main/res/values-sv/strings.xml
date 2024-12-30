@@ -54,7 +54,6 @@
     <string name="blocking_internet_device_offline">Blockerar internet (enheten är offline)</string>
     <string name="buy_credit">Köp kredit</string>
     <string name="cancel">Avbryt</string>
-    <string name="changes_dialog_subtitle">Ändringar i den här versionen:</string>
     <string name="cipher">Chiffrering</string>
     <string name="close">Stäng</string>
     <string name="confirm_no_email">Du är på väg att skicka problemrapporten utan att vi har möjlighet att besvara dig. Om du vill ha svar på din rapport måste du ange en e-postadress.</string>
