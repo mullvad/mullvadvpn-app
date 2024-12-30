@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 ### Added
 #### Windows
-- Add experimental support for Windows ARM64.
+- Add support for Windows ARM64.
 
 ### Changed
 - (Linux and macOS only) Update to DAITA v2. The main difference is that many different machines are
