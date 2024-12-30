@@ -4526,7 +4526,6 @@ name = "talpid-tunnel"
 version = "0.0.0"
 dependencies = [
  "cfg-if",
- "duct",
  "futures",
  "ipnetwork",
  "jnix",
