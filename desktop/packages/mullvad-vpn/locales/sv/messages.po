@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2024-10-23 06:33\n"
+"PO-Revision-Date: 2024-12-20 14:20\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d till ..."
@@ -477,6 +477,10 @@ msgid "Enter port"
 msgstr "Ange port"
 
 msgctxt "api-access-methods-view"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
+msgstr "Om du inte är ansluten till VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9, CloudFlare eller Google."
+
+msgctxt "api-access-methods-view"
 msgid "In use"
 msgstr "Används"
 
@@ -575,6 +579,10 @@ msgstr "Transportprotokoll"
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
 msgstr "Med metoden \"Direkt\" kommunicerar appen med en Mullvad API-server direkt utan mellanliggande proxyservrar."
+
+msgctxt "api-access-methods-view"
+msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
+msgstr "Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad API via en proxyadress. Den gör det genom att hämta en adress från en DNS over HTTPS-server (DoH) och sedan använda den för att nå våra API-servrar."
 
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
@@ -1416,6 +1424,10 @@ msgid "Filtered:"
 msgstr "Filtrerat:"
 
 msgctxt "select-location-view"
+msgid "Go to %(daita)s settings"
+msgstr "Gå till %(daita)s-inställningarna"
+
+msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "Listnamnen måste vara unika."
 
@@ -1440,12 +1452,8 @@ msgid "The app selects a random bridge server, but servers have a higher probabi
 msgstr "Appen väljer en slumpmässig bryggserver, men ju närmare servrarna ligger desto större sannolikhet är det att de väljs."
 
 msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
-msgstr "Medan du är ansluten kommer din trafik att dirigeras genom två säkra platser: startpunkten (en broserver) och slutpunkten (en VPN-server)."
-
-msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
-msgstr "Medan du är ansluten kommer din trafik att dirigeras genom två säkra platser: startpunkten och slutpunkten (måste vara två olika VPN-servrar)."
+msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
+msgstr "Startservern för %(multihop)s åsidosätts för tillfället av %(daita)s. Om du vill välja en startserver ska du först aktivera \"%(directOnly)s\" eller inaktivera \"%(daita)s\" i inställningarna."
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -1574,6 +1582,10 @@ msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel unti
 msgstr "Klicka på ett program för att starta det. Dess trafik förbigår VPN-tunneln tills du stänger det."
 
 msgctxt "split-tunneling-view"
+msgid "Enabled \"Full disk access\" and still having issues?"
+msgstr "Har du aktiverat \"Fullständig diskåtkomst\" och har fortfarande problem?"
+
+msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "Exkluderade appar"
 
@@ -1589,6 +1601,10 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "Starta"
 
+msgctxt "split-tunneling-view"
+msgid "Open System Settings"
+msgstr "Öppna systeminställningarna"
+
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
@@ -1601,6 +1617,14 @@ msgstr "Skicka en problemrapport."
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "Försök igen eller skicka en problemrapport."
+
+msgctxt "split-tunneling-view"
+msgid "Restart Mullvad Service"
+msgstr "Starta om Mullvad-tjänsten"
+
+msgctxt "split-tunneling-view"
+msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
+msgstr "Om du vill använda split tunneling ska du ge \"Fullständig diskåtkomst\" till \"Mullvad VPN\" i macOS-systeminställningarna."
 
 #. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
@@ -2207,14 +2231,20 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "Vilken TCP-port som UDP-över-TCP-obfuskeringsprotokoll bör ansluta till på VPN-servern."
 
-msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%s (%s) döljer mönster i din krypterade VPN-trafik. Om någon övervakar din anslutning blir det mycket svårare för hen att identifiera vilka webbplatser du besöker. Den gör det genom att noggrant lägga till nätverksbrus och se till så att alla nätverkspaket har samma storlek."
+msgid "%s (Entry)"
+msgstr "%s (start)"
+
+msgid "%s (Exit)"
+msgstr "%s (slut)"
 
 msgid "%s (added)"
 msgstr "%s (har lagts till)"
 
-msgid "%s using %s"
-msgstr "%s använder %s"
+msgid "%s custom port"
+msgstr "Anpassad %s-port"
+
+msgid "%s more..."
+msgstr "%s till ..."
 
 msgid "%s was added to \"%s\""
 msgstr "%s har lagts till i \"%s\""
@@ -2225,14 +2255,14 @@ msgstr "%s har lagts till i ditt konto."
 msgid "%s was removed from \"%s\""
 msgstr "%s har tagits bort från \"%s\""
 
-msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
-msgstr "1. Efter att du har klickat på <b>Gå till VPN-inställningar</b> nedan klickar du på kugghjulet bredvid namnet <b>Mullvad VPN</b>."
+msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
+msgstr "1. Efter att du har klickat på \"Gå till VPN-inställningar\" nedan klickar du på kugghjulet bredvid namnet \"Mullvad VPN\"."
 
-msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
-msgstr "2. Om du vill aktivera Anslut automatiskt klickar du på växlingsknappen bredvid <b>Alltid på-VPN</b>."
+msgid "2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\"."
+msgstr "2. Om du vill aktivera Anslut automatiskt klickar du på växlingsknappen bredvid \"Alltid på-VPN\"."
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
-msgstr "3. Om du vill aktivera Låsningsläge klickar du på växlingsknappen bredvid <b>Blockera anslutningar utan VPN</b>.<br /><br /><b>Varning! Den här inställningen blockerar delade appar och funktionen Lokal nätverksdelning.</b>"
+msgid "3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. Om du vill aktivera Låsningsläge klickar du på växlingsknappen bredvid \"Blockera anslutningar utan VPN\".<br /><br /><b>Varning! Den här inställningen blockerar delade appar och funktionen Lokal nätverksdelning.</b>"
 
 msgid "30 days was added to your account."
 msgstr "30 dagar har lagts till i ditt konto."
@@ -2279,17 +2309,23 @@ msgstr "Alla applikationer"
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
 msgstr "Alla åsidosättningar återställs och servrarnas IP-adresser i vyn Välj plats återgår till standard."
 
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "Tillåter åtkomst till andra enheter på samma nätverk för delning, utskrift osv."
+msgid "Always-on VPN assigned to %s"
+msgstr "Alltid på-VPN har tilldelats %s"
 
-msgid "Always-on VPN assigned to other app"
-msgstr "VPN som alltid är på har tilldelats till annan app"
+msgid "Always-on VPN assigned to other VPN"
+msgstr "Alltid på-VPN har tilldelats en annan VPN"
 
-msgid "Always-on VPN might be enabled for another app"
-msgstr "VPN som alltid är på kan ha aktiverats för annan app"
+msgid "App info"
+msgstr "Appinfo"
 
 msgid "At least one method needs to be enabled"
 msgstr "Minst en metod måste vara aktiverad"
+
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
+msgstr "Obs! Var försiktig om du har ett abonnemang med begränsad mängd data eftersom detta ökar nätverkstrafiken."
+
+msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
+msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat fungerar inte \"Lokal nätverksdelning\"."
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte delade appar att ha internet. Kom ihåg att det alltid finns en säkerhetsrisk med delade tunnlar."
@@ -2297,8 +2333,8 @@ msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte del
 msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
 msgstr "Obs! Detta ökar nätverkstrafiken så var försiktig om du har ett abonnemang med begränsad mängd data. Det kan även ha en negativ påverkan på din nätverkshastighet och batterianvändning."
 
-msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "Obs! Den här inställningen kan inte användas tillsammans med <b>Använd anpassad DNS-server</b>."
+msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
+msgstr "Obs! Den här inställningen kan inte användas tillsammans med \"Använd anpassad DNS-server\"."
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "Anslut automatiskt och Låsningsläge"
@@ -2309,14 +2345,26 @@ msgstr "Anslut automatiskt (äldre)"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Anslut automatiskt kallas Alltid på-VPN i Androids systeminställningar och ser till att du är ansluten till VPN-tunneln oavbrutet och ansluter automatiskt efter omstart."
 
-msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr "Ansluts automatiskt när appen startar. Inställningen kommer i en kommande uppdatering ersättas av en ny funktion som ansluter enheten när den startas."
+msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
+msgstr "Anslut automatiskt när enheten startar. Fungerar bara om appen har beviljats VPN-behörighet."
 
 msgid "Blocking internet (device offline)"
 msgstr "Blockerar internet (enheten är offline)"
 
+msgid "Changelog"
+msgstr "Ändringslogg"
+
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "Ändringar i DNS-relaterade inställningar kanske inte börjar gälla direkt på grund av cachade resultat."
+
+msgid "Clear input"
+msgstr "Rensa inmatning"
+
+msgid "Collapse"
+msgstr "Dölj"
+
+msgid "Connect on device start-up"
+msgstr "Anslut när enheten startas"
 
 msgid "Connecting..."
 msgstr "Ansluter ..."
@@ -2327,11 +2375,14 @@ msgstr "Kopierade Mullvad-kontonummer till urklipp"
 msgid "Copied logs to clipboard"
 msgstr "Loggarna har kopierats till urklipp"
 
-msgid "Copied to clipboard"
-msgstr "Kopierat till urklipp"
+msgid "Copy"
+msgstr "Kopiera"
 
 msgid "Create"
 msgstr "Skapa"
+
+msgid "Create new account"
+msgstr "Skapa nytt konto"
 
 msgid "Create new list"
 msgstr "Skapa ny lista"
@@ -2357,8 +2408,11 @@ msgstr "Radera metod"
 msgid "Delete method?"
 msgstr "Radera metod?"
 
-msgid "Disable all <b>%s</b> above to activate this setting."
-msgstr "Inaktivera alla <b>%s</b> ovan för att aktivera inställningen."
+msgid "Disable \"%s\" below to activate these settings."
+msgstr "Inaktivera \"%s\" nedan för att aktivera dessa inställningar."
+
+msgid "Disable all \"%s\" above to activate this setting."
+msgstr "Inaktivera alla \"%s\" ovan för att aktivera inställningen."
 
 msgid "Discard"
 msgstr "Ignorera"
@@ -2366,8 +2420,17 @@ msgstr "Ignorera"
 msgid "Discard changes?"
 msgstr "Ignorera ändringarna?"
 
+msgid "Disconnected (No VPN permission)"
+msgstr "Frånkopplad (VPN-behörighet saknas)"
+
+msgid "Disconnecting..."
+msgstr "Kopplar från ..."
+
 msgid "Dismiss"
 msgstr "Ignorera"
+
+msgid "Do you want to create a new account?"
+msgstr "Vill du skapa ett nytt konto?"
 
 msgid "Edit custom lists"
 msgstr "Redigera anpassade listor"
@@ -2384,6 +2447,9 @@ msgstr "Redigera platser"
 msgid "Edit name"
 msgstr "Redigera namn"
 
+msgid "Enable %s"
+msgstr "Aktivera %s"
+
 msgid "Enable method"
 msgstr "Aktivera metod"
 
@@ -2392,6 +2458,12 @@ msgstr "Ange MTU"
 
 msgid "Excluded applications"
 msgstr "Exkluderade applikationer"
+
+msgid "Expand"
+msgstr "Visa"
+
+msgid "FAILED TO CONNECT"
+msgstr "DET GICK INTE ATT ANSLUTA"
 
 msgid "Failed to apply patch"
 msgstr "Konfigurationsfilen kunde inte tillämpas"
@@ -2404,6 +2476,9 @@ msgstr "Kan inte ställas in som aktuell – Okänd anledning"
 
 msgid "File"
 msgstr "Fil"
+
+msgid "Filters:"
+msgstr "Filter:"
 
 msgid "Go to VPN settings"
 msgstr "Gå till VPN-inställningar"
@@ -2453,9 +2528,6 @@ msgstr "Ser till att enheten alltid är i VPN-tunneln."
 msgid "Manage account"
 msgstr "Hantera konto"
 
-msgid "Mullvad account number"
-msgstr "Mullvad-kontonummer"
-
 msgid "Mullvad services unavailable"
 msgstr "Mullvad-tjänster är inte tillgängliga"
 
@@ -2474,11 +2546,14 @@ msgstr "Ingen internetanslutning"
 msgid "No locations found"
 msgstr "Inga platser hittades"
 
+msgid "No result for \"%s\", please try a different search"
+msgstr "Inga resultat hittades för \"%s\", försök med en annan sökning"
+
 msgid "Not found"
 msgstr "Hittades inte"
 
-msgid "On (UDP-over-TCP)"
-msgstr "På (UDP över TCP)"
+msgid "Open %s settings"
+msgstr "Öppna %s-inställningarna"
 
 msgid "Overrides active"
 msgstr "Åsidosättningar aktiva"
@@ -2504,17 +2579,17 @@ msgstr "Ange en giltig IPv4- eller IPv6-adress"
 msgid "Please enter a valid remote server port"
 msgstr "Ange en giltig fjärrserverport"
 
-msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr "Använd systeminställningen <b>Alltid aktiverat</b> istället genom att följa guiden i <b>%s</b> ovan."
-
-msgid "Preferences"
-msgstr "Inställningar"
+msgid "Please press connect to request VPN permission"
+msgstr "Tryck på anslut för att begära VPN-behörighet"
 
 msgid "Privacy"
 msgstr "Sekretess"
 
 msgid "Privacy policy"
 msgstr "Sekretesspolicy"
+
+msgid "Reconnecting..."
+msgstr "Återansluter ..."
 
 msgid "Recursion limit"
 msgstr "Rekursionsgräns"
@@ -2540,17 +2615,20 @@ msgstr "Återställ åsidosättningar"
 msgid "Reset to default"
 msgstr "Återställ till standard"
 
-msgid "Secure my connection"
-msgstr "Skydda min anslutning"
+msgid "Search"
+msgstr "Sök"
 
-msgid "Secured"
-msgstr "Skyddad"
+msgid "Search results"
+msgstr "Sökresultat"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Ange WireGuard MTU-värde. Giltigt intervall: %d–%d."
 
 msgid "Set port"
 msgstr "Ställ in port"
+
+msgid "Share…"
+msgstr "Dela …"
 
 msgid "Show system apps"
 msgstr "Visa systemappar"
@@ -2560,6 +2638,9 @@ msgstr "Visar nuvarande status för VPN-tunnel"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "Visar påminnelser när kontots tidsgräns uppnås"
+
+msgid "Split tunneling"
+msgstr "Split tunneling"
 
 msgid "Submit"
 msgstr "Skicka"
@@ -2576,17 +2657,14 @@ msgstr "Text"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "Inställningar för Anslut automatiskt och Låsningsläge finns i Androids systeminställningar. Följ guiden för att aktivera en av dem eller båda."
 
-msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "Låsningsläget kallas <b>Blockera anslutningar utan VPN</b> i systeminställningarna på Android. Det minimerar läckor men det finns några kända begränsningar som du kan läsa mer om"
+msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "Låsningsläget kallas \"Blockera anslutningar utan VPN\" i systeminställningarna på Android. Det minimerar läckor men det finns några kända begränsningar som du kan läsa mer om"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "\"Aktuell\" metod representerar vilken metod appen använder för att nå API."
 
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "Den lokala DNS-servern fungerar inte om du inte aktiverar \"Lokal nätverksdelning\" under Inställningar."
-
-msgid "There is no VPN settings on your device"
-msgstr "Det finns inga VPN-inställningar på din enhet"
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
+msgstr "Den lokala DNS-servern fungerar inte om du inte aktiverar \"Lokal nätverksdelning\" under VPN-inställningar."
 
 msgid "This address has already been entered."
 msgstr "Adressen har redan angetts."
@@ -2612,14 +2690,20 @@ msgstr "Appen genomför automatiska versionskontroller för att se till att du h
 msgid "Toggle VPN"
 msgstr "Växla VPN"
 
+msgid "Type at least 2 characters to start searching."
+msgstr "Ange minst två tecken för att börja söka."
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "Det går inte att tillämpa brandväggsregler. Felsök eller skicka en problemrapport."
 
 msgid "Unable to parse patch"
 msgstr "Det går inte att parsa korrigering"
 
+msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
+msgstr "Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN innan du använder Mullvad VPN."
+
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
-msgstr "Det går inte att starta tunnelanslutning. Aktivera VPN som alltid är på för <b>%s</b> innan du använder Mullvad VPN."
+msgstr "Det går inte att starta tunnelanslutning. Inaktivera Alltid på-VPN för <b>%s</b> innan du använder Mullvad VPN."
 
 msgid "Undo"
 msgstr "Ångra"
@@ -2627,17 +2711,8 @@ msgstr "Ångra"
 msgid "Unknown or prohibited key \"%s\""
 msgstr "Okänd eller förbjuden nyckel \"%s\""
 
-msgid "Unsecured"
-msgstr "Oskyddad"
-
-msgid "Unsecured (No VPN permission)"
-msgstr "Oskyddad (VPN-behörighet saknas)"
-
 msgid "Update DNS server"
 msgstr "Uppdatera DNS-server"
-
-msgid "Update available, download to remain safe."
-msgstr "Uppdatering tillgänglig. Ladda ned för att vara säker."
 
 msgid "Update list name"
 msgstr "Uppdatera listnamn"
@@ -2672,8 +2747,8 @@ msgstr "Verifierar köp ..."
 msgid "Verifying voucher…"
 msgstr "Verifierar kupong …"
 
-msgid "Virtual adapter error"
-msgstr "Fel med virtuell adapter"
+msgid "Version"
+msgstr "Version"
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "Vi verifierar ditt köp just nu och det kan ta en stund. Din tid läggs till om verifieringen lyckas."
@@ -2684,14 +2759,8 @@ msgstr "Vi kunde inte starta betalningsprocessen. Se till att du har den senaste
 msgid "We were unable to start the payment process, please try again later."
 msgstr "Vi kunde inte starta betalningsprocessen, försök igen senare."
 
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "Medan du är ansluten maskeras din riktiga plats med en privat och säker plats i den valda regionen."
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard custom port"
-msgstr "Anpassad WireGuard-port"
 
 msgid "WireGuard obfuscation"
 msgstr "WireGuard-obfuskering"
@@ -2699,11 +2768,8 @@ msgstr "WireGuard-obfuskering"
 msgid "WireGuard port"
 msgstr "WireGuard-port"
 
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "DU KANSKE HAR LÄCKAGE I NÄTVERKSTRAFIKEN"
-
-msgid "You are running an unsupported app version."
-msgstr "Du kör en appversion som inte stöds."
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "Du har redan ett sparat kontonummer. Om du skapar ett nytt konto tas det sparade kontonumret bort från enheten. Det går inte att ångra detta."
 
 msgid "\"%s\" was created"
 msgstr "\"%s\" har skapats"
@@ -2713,9 +2779,6 @@ msgstr "\"%s\" har tagits bort"
 
 msgid "here"
 msgstr "här"
-
-msgid "less than a minute ago"
-msgstr "mindre än en minut sedan"
 
 msgid "less than one day"
 msgstr "mindre än en dag"

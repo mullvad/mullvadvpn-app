@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Simplified\n"
 "Language: zh_CN\n"
-"PO-Revision-Date: 2024-10-23 06:33\n"
+"PO-Revision-Date: 2024-12-20 14:20\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 个…"
@@ -471,6 +471,10 @@ msgid "Enter port"
 msgstr "输入端口"
 
 msgctxt "api-access-methods-view"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
+msgstr "如果您未连接到我们的 VPN，加密 DNS 代理将在连接时使用您自己的非 VPN IP。DoH 服务器由下列提供商之一托管：Quad 9、CloudFlare 或 Google。"
+
+msgctxt "api-access-methods-view"
 msgid "In use"
 msgstr "正在使用"
 
@@ -569,6 +573,10 @@ msgstr "传输协议"
 msgctxt "api-access-methods-view"
 msgid "With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies."
 msgstr "使用“直接”方法，应用将直接与 Mulvad API 服务器通信，无需任何中间代理。"
+
+msgctxt "api-access-methods-view"
+msgid "With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers."
+msgstr "利用“加密 DNS 代理”方法，应用将通过代理地址与我们的 Mullvad API 进行通信。通信时，应用从 DNS over HTTPS (DoH) 服务器获取地址，然后使用该地址连接我们的 API 服务器。"
 
 msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
@@ -1410,6 +1418,10 @@ msgid "Filtered:"
 msgstr "已筛选："
 
 msgctxt "select-location-view"
+msgid "Go to %(daita)s settings"
+msgstr "前往 %(daita)s 设置"
+
+msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "列表名称必须唯一。"
 
@@ -1434,12 +1446,8 @@ msgid "The app selects a random bridge server, but servers have a higher probabi
 msgstr "应用会随机选择一个桥接服务器，但服务器离您越近，被选中的概率就越高。"
 
 msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point (a bridge server) and the exit point (a VPN server)."
-msgstr "连接时，您的流量将通过两个安全位置路由，即入口点（桥接服务器）和出口点（VPN 服务器）。"
-
-msgctxt "select-location-view"
-msgid "While connected, your traffic will be routed through two secure locations, the entry point and the exit point (needs to be two different VPN servers)."
-msgstr "连接时，您的流量将经过两个安全位置，即入口点和出口点（需要是两个不同的 VPN 服务器）。"
+msgid "The entry server for %(multihop)s is currently overridden by %(daita)s. To select an entry server, please first enable “%(directOnly)s” or disable \"%(daita)s\" in the settings."
+msgstr "%(multihop)s的入口服务器目前被 %(daita)s 覆盖。要选择入口服务器，请先在设置中启用“%(directOnly)s”或禁用“%(daita)s”。"
 
 msgctxt "settings-import"
 msgid "Clear all overrides"
@@ -1568,6 +1576,10 @@ msgid "Click on an app to launch it. Its traffic will bypass the VPN tunnel unti
 msgstr "点击应用以启动。它的流量会绕开 VPN 隧道，直到您将其关闭。"
 
 msgctxt "split-tunneling-view"
+msgid "Enabled \"Full disk access\" and still having issues?"
+msgstr "已启用“完全磁盘访问权限”，仍有问题？"
+
+msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr "排除的应用"
 
@@ -1583,6 +1595,10 @@ msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr "启动"
 
+msgctxt "split-tunneling-view"
+msgid "Open System Settings"
+msgstr "打开系统设置"
+
 #. This error message is shown if the user tries to launch a Linux desktop
 #. entry file that doesn't contain the required 'Exec' value.
 msgctxt "split-tunneling-view"
@@ -1595,6 +1611,14 @@ msgstr "请发送问题报告。"
 msgctxt "split-tunneling-view"
 msgid "Please try again or send a problem report."
 msgstr "请重试或发送问题报告。"
+
+msgctxt "split-tunneling-view"
+msgid "Restart Mullvad Service"
+msgstr "重新启动 Mullvad 服务"
+
+msgctxt "split-tunneling-view"
+msgid "To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings."
+msgstr "要使用分割隧道，请在 macOS 系统设置中为“Mullvad VPN”启用“完全磁盘访问权限”。"
 
 #. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
@@ -2201,14 +2225,20 @@ msgctxt "wireguard-settings-view"
 msgid "Which TCP port the UDP-over-TCP obfuscation protocol should connect to on the VPN server."
 msgstr "UDP-over-TCP 混淆协议应连接到 VPN 服务器上的哪个 TCP 端口。"
 
-msgid "%s (%s) hides patterns in your encrypted VPN traffic. If anyone is monitoring your connection, this makes it significantly harder for them to identify what websites you are visiting. It does this by carefully adding network noise and making all network packets the same size."
-msgstr "%s (%s) 会隐藏您的加密 VPN 流量中的模式。如果有人在监视您的连接，这会大大提高他们识别您所访问的网站的难度。实现方法是精心添加网络噪声并将所有网络数据包处理为相同的大小。"
+msgid "%s (Entry)"
+msgstr "%s（入口）"
+
+msgid "%s (Exit)"
+msgstr "%s（出口）"
 
 msgid "%s (added)"
 msgstr "%s（已添加）"
 
-msgid "%s using %s"
-msgstr "%s，使用 %s"
+msgid "%s custom port"
+msgstr "%s 自定义端口"
+
+msgid "%s more..."
+msgstr "其他 %s 个…"
 
 msgid "%s was added to \"%s\""
 msgstr "%s已添加到“%s”中"
@@ -2219,14 +2249,14 @@ msgstr "%s已添加到您的帐户中。"
 msgid "%s was removed from \"%s\""
 msgstr "“%s”已从“%s”中移除"
 
-msgid "1. After clicking on the <b>Go to VPN settings</b> button below, click on the cogwheel next to the <b>Mullvad VPN</b> name."
-msgstr "1. 点击下方的<b>前往 VPN 设置</b>按钮后，点击 <b>Mullvad VPN</b> 名称旁边的齿轮。"
+msgid "1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name."
+msgstr "1. 点击下方的“前往 VPN 设置”按钮后，点击“Mullvad VPN”名称旁边的齿轮。"
 
-msgid "2. To enable Auto-connect, click on the toggle next to <b>Always-on VPN</b>."
-msgstr "2. 要启用自动连接，请点击<b>始终开启 VPN</b> 旁的开关。"
+msgid "2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\"."
+msgstr "2. 要启用自动连接，请点击“始终开启 VPN”旁边的开关。"
 
-msgid "3. To enable Lockdown mode, click on the toggle next to <b>Block connections without VPN</b>.<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
-msgstr "3. 要启用锁定模式，请点击<b>屏蔽未使用 VPN 的所有连接</b>旁的开关。<br /><br /><b>警告：此设置会屏蔽分割应用和“本地网络共享”功能。</b>"
+msgid "3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>"
+msgstr "3. 要启用锁定模式，请点击“屏蔽未使用 VPN 的所有连接”旁边的开关。<br /><br /><b>警告：此设置会屏蔽分割应用和“本地网络共享”功能。</b>"
 
 msgid "30 days was added to your account."
 msgstr "已向您的帐户增加 30 天。"
@@ -2273,17 +2303,23 @@ msgstr "所有应用程序"
 msgid "All overrides will be reset and servers IP addresses, in the Select location view, will go back to default."
 msgstr "所有覆盖设置都会被重置，并且在“选择位置”视图中，服务器 IP 地址将恢复为默认设置。"
 
-msgid "Allows access to other devices on the same network for sharing, printing etc."
-msgstr "允许访问同一网络上的其他设备，以进行共享、打印等"
+msgid "Always-on VPN assigned to %s"
+msgstr "“始终开启 VPN”已分配给 %s"
 
-msgid "Always-on VPN assigned to other app"
-msgstr "“始终开启 VPN”已分配给其他应用"
+msgid "Always-on VPN assigned to other VPN"
+msgstr "“始终开启 VPN”已分配给其他 VPN"
 
-msgid "Always-on VPN might be enabled for another app"
-msgstr "可能为另一个应用启用了“始终开启 VPN”"
+msgid "App info"
+msgstr "应用信息"
 
 msgid "At least one method needs to be enabled"
 msgstr "至少需要启用一个方法"
+
+msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
+msgstr "注意：如果您的数据套餐流量有限，请谨慎使用，因为此功能将增加您的网络流量。"
+
+msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
+msgstr "注意：如果启用了“屏蔽未使用 VPN 的所有连接”，将无法使用“本地网络共享”功能。"
 
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意：如果启用了“屏蔽未使用 VPN 的所有连接”，分割应用将无法连接互联网。请牢记，分割隧道存在隐私风险。"
@@ -2291,8 +2327,8 @@ msgstr "注意：如果启用了“屏蔽未使用 VPN 的所有连接”，分�
 msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
 msgstr "注意：这样会增加您的网络总流量，因此，如果您的数据套餐流量有限，请谨慎使用。这种方式还会对网速和电池用量产生负面影响。"
 
-msgid "Attention: this setting cannot be used in combination with <b>Use custom DNS server</b>."
-msgstr "注意：此设置不能与<b>使用自定义 DNS 服务器</b>结合使用。"
+msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
+msgstr "注意：此设置不能与“使用自定义 DNS 服务器”结合使用。"
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "自动连接和锁定模式"
@@ -2303,14 +2339,26 @@ msgstr "自动连接（旧）"
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自动连接在 Android 系统设置中称为“始终开启 VPN”，此功能可确保您始终连接到 VPN 隧道并在重新启动后自动连接。"
 
-msgid "Automatically connect when the app launches. This setting will be replaced with a new connect on device start-up feature in a future update."
-msgstr "当应用启动时自动连接。在今后的更新中，此设置将被替换为新的“设备启动时连接”功能。"
+msgid "Automatically connect on device start-up. Only works if the app has been granted the VPN permission."
+msgstr "设备启动时自动连接。仅适用于已为应用授予 VPN 权限的情况。"
 
 msgid "Blocking internet (device offline)"
 msgstr "正在阻止网络（设备离线）"
 
+msgid "Changelog"
+msgstr "变更日志"
+
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "由于缓存结果，对 DNS 相关设置的更改可能不会立即生效。"
+
+msgid "Clear input"
+msgstr "清除输入"
+
+msgid "Collapse"
+msgstr "收起"
+
+msgid "Connect on device start-up"
+msgstr "设备启动时连接"
 
 msgid "Connecting..."
 msgstr "正在连接…"
@@ -2321,11 +2369,14 @@ msgstr "已将 Mullvad 帐号复制到剪贴板"
 msgid "Copied logs to clipboard"
 msgstr "已将日志复制到剪贴板"
 
-msgid "Copied to clipboard"
-msgstr "已复制到剪贴板"
+msgid "Copy"
+msgstr "复制"
 
 msgid "Create"
 msgstr "创建"
+
+msgid "Create new account"
+msgstr "创建新帐户"
 
 msgid "Create new list"
 msgstr "创建新列表"
@@ -2351,8 +2402,11 @@ msgstr "删除方法"
 msgid "Delete method?"
 msgstr "是否删除方法？"
 
-msgid "Disable all <b>%s</b> above to activate this setting."
-msgstr "禁用以上所有 <b>%s</b>，以激活此设置。"
+msgid "Disable \"%s\" below to activate these settings."
+msgstr "禁用下方的“%s”以激活这些设置。"
+
+msgid "Disable all \"%s\" above to activate this setting."
+msgstr "禁用上方的所有“%s”以激活此设置。"
 
 msgid "Discard"
 msgstr "舍弃"
@@ -2360,8 +2414,17 @@ msgstr "舍弃"
 msgid "Discard changes?"
 msgstr "舍弃更改？"
 
+msgid "Disconnected (No VPN permission)"
+msgstr "已断开连接（无 VPN 权限）"
+
+msgid "Disconnecting..."
+msgstr "正在断开连接…"
+
 msgid "Dismiss"
 msgstr "关闭"
+
+msgid "Do you want to create a new account?"
+msgstr "要创建新帐户吗？"
 
 msgid "Edit custom lists"
 msgstr "编辑自定义列表"
@@ -2378,6 +2441,9 @@ msgstr "编辑位置"
 msgid "Edit name"
 msgstr "编辑名称"
 
+msgid "Enable %s"
+msgstr "启用“%s”"
+
 msgid "Enable method"
 msgstr "启用方法"
 
@@ -2386,6 +2452,12 @@ msgstr "输入 MTU"
 
 msgid "Excluded applications"
 msgstr "排除的应用程序"
+
+msgid "Expand"
+msgstr "展开"
+
+msgid "FAILED TO CONNECT"
+msgstr "无法连接"
 
 msgid "Failed to apply patch"
 msgstr "无法应用补丁"
@@ -2398,6 +2470,9 @@ msgstr "无法设置为当前方法 – 未知原因"
 
 msgid "File"
 msgstr "文件"
+
+msgid "Filters:"
+msgstr "筛选器："
 
 msgid "Go to VPN settings"
 msgstr "前往“VPN 设置”"
@@ -2447,9 +2522,6 @@ msgstr "确保设备始终位于 VPN 隧道上。"
 msgid "Manage account"
 msgstr "管理帐户"
 
-msgid "Mullvad account number"
-msgstr "Mullvad 帐号"
-
 msgid "Mullvad services unavailable"
 msgstr "Mullvad 服务不可用"
 
@@ -2468,11 +2540,14 @@ msgstr "没有互联网连接"
 msgid "No locations found"
 msgstr "找不到位置"
 
+msgid "No result for \"%s\", please try a different search"
+msgstr "“%s”无结果，请尝试其他搜索"
+
 msgid "Not found"
 msgstr "找不到"
 
-msgid "On (UDP-over-TCP)"
-msgstr "开 (UDP-over-TCP)"
+msgid "Open %s settings"
+msgstr "打开 %s 设置"
 
 msgid "Overrides active"
 msgstr "覆盖设置已激活"
@@ -2498,17 +2573,17 @@ msgstr "请输入有效的 IPv4 或 IPv6 地址"
 msgid "Please enter a valid remote server port"
 msgstr "请输入有效的远程服务器端口"
 
-msgid "Please use the <b>Always-on</b> system setting instead by following the guide in <b>%s</b> above."
-msgstr "请按照上述<b>%s</b>中的指南操作，改用<b>始终开启</b>系统设置。"
-
-msgid "Preferences"
-msgstr "偏好设置"
+msgid "Please press connect to request VPN permission"
+msgstr "请按“连接”以请求 VPN 权限"
 
 msgid "Privacy"
 msgstr "隐私"
 
 msgid "Privacy policy"
 msgstr "隐私政策"
+
+msgid "Reconnecting..."
+msgstr "正在重新连接…"
 
 msgid "Recursion limit"
 msgstr "递归限制"
@@ -2534,17 +2609,20 @@ msgstr "重置覆盖设置"
 msgid "Reset to default"
 msgstr "重置为默认值"
 
-msgid "Secure my connection"
-msgstr "保护我的连接"
+msgid "Search"
+msgstr "搜索"
 
-msgid "Secured"
-msgstr "已受保护"
+msgid "Search results"
+msgstr "搜索结果"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "设置 WireGuard MTU 值。有效范围：%d - %d。"
 
 msgid "Set port"
 msgstr "设置端口"
+
+msgid "Share…"
+msgstr "共享…"
 
 msgid "Show system apps"
 msgstr "显示系统应用"
@@ -2554,6 +2632,9 @@ msgstr "显示当前的 VPN 隧道状态"
 
 msgid "Shows reminders when the account time is about to expire"
 msgstr "在帐户时间即将到期时显示提醒"
+
+msgid "Split tunneling"
+msgstr "分割隧道"
 
 msgid "Submit"
 msgstr "提交"
@@ -2570,17 +2651,14 @@ msgstr "文本"
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr "自动连接和锁定模式设置可以在 Android 系统设置中找到，请按照本指南启用其中一项或两项。"
 
-msgid "The Lockdown mode is called <b>Block connections without VPN</b> in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
-msgstr "在 Android 系统设置中，锁定模式被称为<b>屏蔽未使用 VPN 的所有连接</b>。该模式可以最大限度地减少泄露，但是也有一些已知的限制，您可以详细了解相关信息"
+msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
+msgstr "在 Android 系统设置中，锁定模式被称为“屏蔽未使用 VPN 的所有连接”。该模式可以最大限度地减少泄露，但是也有一些已知的限制，要了解详情，请点击"
 
 msgid "The \"Current\" method represent which method the app is using to reach the API."
 msgstr "“当前”方法表示应用用来访问 API 的方法。"
 
-msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under Preferences."
-msgstr "除非您在“偏好设置”下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
-
-msgid "There is no VPN settings on your device"
-msgstr "您的设备上没有 VPN 设置"
+msgid "The local DNS server will not work unless you enable \"Local Network Sharing\" under VPN settings."
+msgstr "除非您在 VPN 设置下启用“本地网络共享”，否则本地 DNS 服务器将不会运行。"
 
 msgid "This address has already been entered."
 msgstr "此地址已输入过。"
@@ -2606,11 +2684,17 @@ msgstr "为确保您使用的是最安全的版本并通知您当前运行的版
 msgid "Toggle VPN"
 msgstr "切换 VPN"
 
+msgid "Type at least 2 characters to start searching."
+msgstr "至少输入 2 个字符以开始搜索。"
+
 msgid "Unable to apply firewall rules. Please troubleshoot or send a problem report."
 msgstr "无法应用防火墙规则。请排查问题或发送问题报告。"
 
 msgid "Unable to parse patch"
 msgstr "无法解析补丁"
+
+msgid "Unable to start tunnel connection. Please disable Always-on VPN before using Mullvad VPN."
+msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请禁用“始终开启 VPN”。"
 
 msgid "Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN."
 msgstr "无法启动隧道连接。在使用 Mullvad VPN 之前，请为 <b>%s</b> 禁用“始终开启 VPN”。"
@@ -2621,17 +2705,8 @@ msgstr "撤消"
 msgid "Unknown or prohibited key \"%s\""
 msgstr "未知或禁止的键“%s”"
 
-msgid "Unsecured"
-msgstr "未受保护"
-
-msgid "Unsecured (No VPN permission)"
-msgstr "未受保护（无 VPN 权限）"
-
 msgid "Update DNS server"
 msgstr "更新 DNS 服务器"
-
-msgid "Update available, download to remain safe."
-msgstr "有可用更新，请下载以保持安全。"
 
 msgid "Update list name"
 msgstr "更新列表名称"
@@ -2666,8 +2741,8 @@ msgstr "正在验证购买…"
 msgid "Verifying voucher…"
 msgstr "正在验证优惠券…"
 
-msgid "Virtual adapter error"
-msgstr "虚拟适配器错误"
+msgid "Version"
+msgstr "版本"
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
 msgstr "我们目前正在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将增加。"
@@ -2678,14 +2753,8 @@ msgstr "我们无法启动付款流程，请确保拥有最新版本的 Google P
 msgid "We were unable to start the payment process, please try again later."
 msgstr "我们无法启动付款流程，请稍后再试。"
 
-msgid "While connected, your real location is masked with a private and secure location in the selected region."
-msgstr "连接时，将使用所选区域中一个私密且安全的位置隐藏您的真实位置。"
-
 msgid "WireGuard MTU"
 msgstr "WireGuard MTU"
-
-msgid "WireGuard custom port"
-msgstr "WireGuard 自定义端口"
 
 msgid "WireGuard obfuscation"
 msgstr "WireGuard 混淆"
@@ -2693,11 +2762,8 @@ msgstr "WireGuard 混淆"
 msgid "WireGuard port"
 msgstr "WireGuard 端口"
 
-msgid "YOU MIGHT BE LEAKING NETWORK TRAFFIC"
-msgstr "您的网络流量可能在泄露"
-
-msgid "You are running an unsupported app version."
-msgstr "您正在运行不受支持的应用版本。"
+msgid "You already have a saved account number, by creating a new account the saved account number will be removed from this device. This cannot be undone."
+msgstr "您已经拥有保存的帐号，创建新帐户后，保存的帐号将从此设备中移除。此操作无法撤消。"
 
 msgid "\"%s\" was created"
 msgstr "“%s”已创建"
@@ -2707,9 +2773,6 @@ msgstr "“%s”已被删除"
 
 msgid "here"
 msgstr "（点击此处）"
-
-msgid "less than a minute ago"
-msgstr "不到 1 分钟前"
 
 msgid "less than one day"
 msgstr "不足 1 天"

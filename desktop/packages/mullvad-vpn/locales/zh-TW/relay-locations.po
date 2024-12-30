@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2024-10-23 06:33\n"
+"PO-Revision-Date: 2024-12-20 14:20\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -292,6 +292,10 @@ msgstr "基輔"
 msgid "Kyiv"
 msgstr "基輔"
 
+#. NG LOS
+msgid "Lagos"
+msgstr "拉哥斯"
+
 #. LV
 msgid "Latvia"
 msgstr "拉脫維亞"
@@ -391,6 +395,10 @@ msgstr "紐西蘭"
 #. CY NIC
 msgid "Nicosia"
 msgstr "尼克西亞"
+
+#. NG
+msgid "Nigeria"
+msgstr "奈及利亞"
 
 #. RS INI
 msgid "Nis"
