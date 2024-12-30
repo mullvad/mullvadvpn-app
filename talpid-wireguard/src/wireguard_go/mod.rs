@@ -225,7 +225,9 @@ impl WgGoTunnel {
     ) -> Result<Self> {
         let (tunnel_device, tunnel_fd) = Self::get_tunnel(tun_provider, config, routes)?;
 
-        let interface_name: String = tunnel_device.interface_name().to_string();
+        let interface_name = tunnel_device
+            .interface_name()
+            .map_err(TunnelError::SetupTunnelDevice)?;
         let wg_config_str = config.to_userspace_format();
         let logging_context = initialize_logging(log_path)
             .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
