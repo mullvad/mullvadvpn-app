@@ -112,6 +112,7 @@ pub struct TunnelDevice {
 /// A tunnel device builder.
 ///
 /// Call [`Self::create`] to create [`TunnelDevice`] from the config.
+#[derive(Default)]
 pub struct TunnelDeviceBuilder {
     config: Configuration,
 }
@@ -149,13 +150,6 @@ impl TunnelDeviceBuilder {
             config.packet_information(true);
         });
         self
-    }
-}
-
-impl Default for TunnelDeviceBuilder {
-    fn default() -> Self {
-        let config = Configuration::default();
-        Self { config }
     }
 }
 
