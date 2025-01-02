@@ -24,6 +24,6 @@ mullvad-version = { path = "../mullvad-version" }
 [package.metadata.winres]
 ProductName = "Mullvad VPN"
 CompanyName = "Mullvad VPN AB"
-LegalCopyright = "(c) 2024 Mullvad VPN AB"
+LegalCopyright = "(c) 2025 Mullvad VPN AB"
 InternalName = "mullvad-installer"
 OriginalFilename = "MullvadVPN.exe"
