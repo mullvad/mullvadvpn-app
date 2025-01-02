@@ -4,7 +4,7 @@ use std::{path::PathBuf, thread, time::Duration};
 use mullvad_daemon::cleanup_old_rpc_socket;
 use mullvad_daemon::{
     exception_logging, logging, rpc_uniqueness_check, runtime, version, Daemon,
-    DaemonCommandChannel,
+    DaemonCommandChannel, DaemonConfig,
 };
 use talpid_types::ErrorExt;
 
@@ -212,15 +212,16 @@ async fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
     let cache_dir = mullvad_paths::cache_dir()
         .map_err(|e| e.display_chain_with_msg("Unable to get cache dir"))?;
 
-    let daemon_command_channel = DaemonCommandChannel::new();
-
     Daemon::start(
-        log_dir,
-        resource_dir,
-        settings_dir,
-        cache_dir,
-        rpc_socket_path,
-        daemon_command_channel,
+        DaemonConfig {
+            log_dir,
+            resource_dir,
+            settings_dir,
+            cache_dir,
+            rpc_socket_path,
+            endpoint: mullvad_api::ApiEndpoint::from_env_vars(),
+        },
+        DaemonCommandChannel::new(),
     )
     .await
     .map_err(|e| e.display_chain_with_msg("Unable to initialize daemon"))

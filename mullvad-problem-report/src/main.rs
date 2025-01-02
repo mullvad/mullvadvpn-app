@@ -1,4 +1,5 @@
 use clap::Parser;
+use mullvad_api::ApiEndpoint;
 use mullvad_problem_report::{collect_report, Error};
 use std::{
     env,
@@ -89,10 +90,16 @@ fn send_problem_report(
     report_path: &Path,
 ) -> Result<(), Error> {
     let cache_dir = mullvad_paths::get_cache_dir().map_err(Error::ObtainCacheDirectory)?;
-    mullvad_problem_report::send_problem_report(user_email, user_message, report_path, &cache_dir)
-        .inspect_err(|error| {
-            eprintln!("{}", error.display_chain());
-        })?;
+    mullvad_problem_report::send_problem_report(
+        user_email,
+        user_message,
+        report_path,
+        &cache_dir,
+        ApiEndpoint::from_env_vars(),
+    )
+    .inspect_err(|error| {
+        eprintln!("{}", error.display_chain());
+    })?;
 
     println!("Problem report sent");
     Ok(())
