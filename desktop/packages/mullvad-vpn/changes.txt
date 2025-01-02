@@ -4,4 +4,3 @@ DAITA now overrides Multihop entry.
 [macOS] Fix DNS issues on MacOS newer than 15.1.
 [Windows] Quantum-resistant tunnels are now enabled by default!
 [Windows] Fix virtual machines like WSL bypassing the Kill Switch.
-[Windows] Improve stability when connecting with Quantum-resistance.
