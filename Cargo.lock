@@ -4644,7 +4644,6 @@ dependencies = [
  "ipnetwork",
  "jnix",
  "log",
- "nix 0.23.2",
  "talpid-routing",
  "talpid-types",
  "talpid-windows",
@@ -5178,11 +5177,15 @@ checksum = "5b5ea2466ffcdd0be0831f7d3981daa0b953586c0062f6d33398cb374689b090"
 dependencies = [
  "bytes",
  "cfg-if",
+ "futures",
+ "futures-core",
  "ipnet",
  "libc",
  "log",
  "nix 0.29.0",
  "thiserror 2.0.9",
+ "tokio",
+ "tokio-util 0.7.10",
  "windows-sys 0.59.0",
  "wintun-bindings",
 ]
