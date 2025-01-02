@@ -26,7 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Add experimental support for Windows ARM64.
 
-## [2024.9-beta2] - 2024-12-19
+## [2025.1] - 2025-01-02
 ### Fixed
 #### macOS
 - Fix GUI getting stuck when opening the split tunneling view.
