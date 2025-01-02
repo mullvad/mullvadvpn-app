@@ -66,10 +66,11 @@ impl UnixTunProvider {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
             #[cfg(target_os = "linux")]
-            builder.enable_packet_information();
-            #[cfg(target_os = "linux")]
-            if let Some(ref name) = self.config.name {
-                builder.name(name);
+            {
+                builder.enable_packet_information();
+                if let Some(ref name) = self.config.name {
+                    builder.name(name);
+                }
             }
             builder.create()?
         };
