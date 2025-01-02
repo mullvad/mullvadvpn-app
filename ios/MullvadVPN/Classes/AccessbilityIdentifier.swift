@@ -181,6 +181,8 @@ public enum AccessibilityIdentifier: Equatable {
     case wireGuardObfuscationOff
     case wireGuardObfuscationUdpOverTcp
     case wireGuardObfuscationShadowsocks
+    case wireGuardObfuscationUdpOverTcpPort
+    case wireGuardObfuscationShadowsocksPort
     case wireGuardPort(UInt16?)
     case udpOverTcpObfuscationSettings
 
@@ -209,6 +211,10 @@ public enum AccessibilityIdentifier: Equatable {
 
     // Multihop
     case multihopSwitch
+
+    // WireGuard obfuscation settings
+    case wireGuardObfuscationUdpOverTcpTable
+    case wireGuardObfuscationShadowsocksTable
 
     // Error
     case unknown

@@ -39,6 +39,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
 
     // swiftlint:disable:next cyclomatic_complexity function_body_length
     func configureCell(_ cell: UITableViewCell, item: VPNSettingsDataSource.Item, indexPath: IndexPath) {
+        (cell as? SettingsCell)?.detailTitleLabel.accessibilityIdentifier = nil
         switch item {
         case .dnsSettings:
             guard let cell = cell as? SettingsCell else { return }
@@ -154,6 +155,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             ), viewModel.obfuscationUpdOverTcpPort.description)
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationUdpOverTcpPort)
             cell.applySubCellStyling()
 
             cell.buttonAction = { [weak self] in
@@ -178,6 +180,7 @@ final class VPNSettingsCellFactory: CellFactoryProtocol {
             ), viewModel.obfuscationShadowsocksPort.description)
 
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.detailTitleLabel.setAccessibilityIdentifier(.wireGuardObfuscationShadowsocksPort)
             cell.applySubCellStyling()
 
             cell.buttonAction = { [weak self] in
