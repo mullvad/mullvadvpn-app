@@ -43,6 +43,9 @@
 		44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */; };
 		440E5AB02CDBD67D00B09614 /* StatefulPreviewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */; };
 		440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */; };
+		4419AA892D282687001B13C9 /* DetailsContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA882D282687001B13C9 /* DetailsContainer.swift */; };
+		4419AA8B2D2826E5001B13C9 /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8A2D2826E5001B13C9 /* DetailsView.swift */; };
+		4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8D2D2828A4001B13C9 /* HeaderView.swift */; };
 		4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */; };
 		4424CDD32CDBD4A6009D8C9F /* SingleChoiceList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */; };
 		447F3D8A2CDE1853006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */; };
@@ -52,6 +55,8 @@
 		4495ECD52D131A4800A7358B /* ShadowsocksObfuscationSettingsPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4495ECD42D131A3E00A7358B /* ShadowsocksObfuscationSettingsPage.swift */; };
 		449872E12B7BBC5400094DDC /* TunnelSettingsUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */; };
 		449872E42B7CB96300094DDC /* TunnelSettingsUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */; };
+		449E9A6D2D283A2500F8574A /* ConnectionViewComponentPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449E9A6C2D283A2500F8574A /* ConnectionViewComponentPreview.swift */; };
+		449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449E9A6E2D283C7400F8574A /* ButtonPanel.swift */; };
 		449EBA262B975B9700DFA4EB /* EphemeralPeerReceiving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EBA252B975B9700DFA4EB /* EphemeralPeerReceiving.swift */; };
 		44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */; };
 		44B02E3C2BC5B8A5008EDF34 /* Bundle+ProductVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */; };
@@ -1443,6 +1448,9 @@
 		44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
 		440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatefulPreviewWrapper.swift; sourceTree = "<group>"; };
 		440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationSettingsWatchingObservableObject.swift; sourceTree = "<group>"; };
+		4419AA882D282687001B13C9 /* DetailsContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsContainer.swift; sourceTree = "<group>"; };
+		4419AA8A2D2826E5001B13C9 /* DetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailsView.swift; sourceTree = "<group>"; };
+		4419AA8D2D2828A4001B13C9 /* HeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HeaderView.swift; sourceTree = "<group>"; };
 		4422C0702CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UDPOverTCPObfuscationSettingsView.swift; sourceTree = "<group>"; };
 		4424CDD22CDBD4A6009D8C9F /* SingleChoiceList.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleChoiceList.swift; sourceTree = "<group>"; };
 		447F3D882CDE1852006E3462 /* ShadowsocksObfuscationSettingsViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsViewModel.swift; sourceTree = "<group>"; };
@@ -1453,6 +1461,8 @@
 		4495ECD42D131A3E00A7358B /* ShadowsocksObfuscationSettingsPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksObfuscationSettingsPage.swift; sourceTree = "<group>"; };
 		449872E02B7BBC5400094DDC /* TunnelSettingsUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdate.swift; sourceTree = "<group>"; };
 		449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsUpdateTests.swift; sourceTree = "<group>"; };
+		449E9A6C2D283A2500F8574A /* ConnectionViewComponentPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionViewComponentPreview.swift; sourceTree = "<group>"; };
+		449E9A6E2D283C7400F8574A /* ButtonPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonPanel.swift; sourceTree = "<group>"; };
 		449EB9FC2B95F8AD00DFA4EB /* DeviceMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceMock.swift; sourceTree = "<group>"; };
 		449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountMock.swift; sourceTree = "<group>"; };
 		449EBA252B975B9700DFA4EB /* EphemeralPeerReceiving.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerReceiving.swift; sourceTree = "<group>"; };
@@ -2694,6 +2704,20 @@
 			path = Protocols;
 			sourceTree = "<group>";
 		};
+		4419AA862D28264D001B13C9 /* ConnectionView */ = {
+			isa = PBXGroup;
+			children = (
+				449E9A6B2D2839FD00F8574A /* Preview */,
+				7AA130982CFF365A00640DF9 /* ConnectionView.swift */,
+				7A0EAEA32D06DF8200D3EB8B /* ConnectionViewViewModel.swift */,
+				4419AA882D282687001B13C9 /* DetailsContainer.swift */,
+				4419AA8A2D2826E5001B13C9 /* DetailsView.swift */,
+				4419AA8D2D2828A4001B13C9 /* HeaderView.swift */,
+				449E9A6E2D283C7400F8574A /* ButtonPanel.swift */,
+			);
+			path = ConnectionView;
+			sourceTree = "<group>";
+		};
 		4422C06F2CCFF6520001A385 /* Obfuscation */ = {
 			isa = PBXGroup;
 			children = (
@@ -2732,6 +2756,15 @@
 				449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */,
 			);
 			path = MullvadSettings;
+			sourceTree = "<group>";
+		};
+		449E9A6B2D2839FD00F8574A /* Preview */ = {
+			isa = PBXGroup;
+			children = (
+				7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */,
+				449E9A6C2D283A2500F8574A /* ConnectionViewComponentPreview.swift */,
+			);
+			path = Preview;
 			sourceTree = "<group>";
 		};
 		449EBA242B975B7C00DFA4EB /* Protocols */ = {
@@ -4086,11 +4119,9 @@
 		7AA130972CFF364F00640DF9 /* FeatureIndicators */ = {
 			isa = PBXGroup;
 			children = (
+				4419AA862D28264D001B13C9 /* ConnectionView */,
 				F0ADF1CF2D01B50B00299F09 /* ChipView */,
 				7AFBE3862D084C96002335FC /* ActivityIndicator.swift */,
-				7AA130982CFF365A00640DF9 /* ConnectionView.swift */,
-				7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */,
-				7A0EAEA32D06DF8200D3EB8B /* ConnectionViewViewModel.swift */,
 				F0B4957B2D03154200CFEC2A /* FeatureIndicatorsView.swift */,
 				F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */,
 				7AFBE3882D08915D002335FC /* FI_TunnelViewController.swift */,
@@ -5908,6 +5939,7 @@
 				58421030282D8A3C00F24E46 /* UpdateAccountDataOperation.swift in Sources */,
 				7A8A190A2CE5FFE9000BCB5B /* SettingsDAITAView.swift in Sources */,
 				F0E8E4C92A604E7400ED26A3 /* AccountDeletionInteractor.swift in Sources */,
+				449E9A6D2D283A2500F8574A /* ConnectionViewComponentPreview.swift in Sources */,
 				7A5869952B32E9C700640D27 /* LinkButton.swift in Sources */,
 				F09A297D2A9F8A9B00EA3B6F /* RedeemVoucherContentView.swift in Sources */,
 				5803B4B02940A47300C23744 /* TunnelConfiguration.swift in Sources */,
@@ -6042,6 +6074,7 @@
 				7A6F2FAB2AFD3097006D0856 /* CustomDNSCellFactory.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,
 				7A6000FE2B628E9F001CF0D9 /* ListCellContentView.swift in Sources */,
+				4419AA8B2D2826E5001B13C9 /* DetailsView.swift in Sources */,
 				58CCA0162242560B004F3011 /* UIColor+Palette.swift in Sources */,
 				587CBFE322807F530028DED3 /* UIColor+Helpers.swift in Sources */,
 				7A9CCCBE2A96302800DD6A34 /* AccountDeletionCoordinator.swift in Sources */,
@@ -6105,6 +6138,7 @@
 				587EB66A270EFACB00123C75 /* CharacterSet+IPAddress.swift in Sources */,
 				5888AD83227B11080051EB06 /* LocationCell.swift in Sources */,
 				5891BF1C25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift in Sources */,
+				4419AA892D282687001B13C9 /* DetailsContainer.swift in Sources */,
 				5878A26F2907E7E00096FC88 /* ProblemReportInteractor.swift in Sources */,
 				7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */,
 				7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */,
@@ -6156,6 +6190,8 @@
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
 				F0DA87492A9CBA9F006044F1 /* AccountDeviceRow.swift in Sources */,
 				58FF9FE42B075BDD00E4C97D /* EditAccessMethodItemIdentifier.swift in Sources */,
+				449E9A6F2D283C7400F8574A /* ButtonPanel.swift in Sources */,
+				4419AA8E2D2828A4001B13C9 /* HeaderView.swift in Sources */,
 				5878A27329091D6D0096FC88 /* TunnelBlockObserver.swift in Sources */,
 				7A27E3D12CC299F90088BCFF /* VPNSettingsDetailsButtonItem.swift in Sources */,
 				A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */,
