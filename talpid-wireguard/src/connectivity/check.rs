@@ -114,8 +114,7 @@ impl Check {
     }
 
     #[cfg(test)]
-    /// Create a new [Check] with a custom initial state. To use the [Cancellable] strategy,
-    /// see [Check::with_cancellation].
+    /// Create a new [Check] with a custom initial state.
     pub(super) fn mock(conn_state: ConnState, ping_state: PingState) -> (Self, CancelToken) {
         let (cancel_token, cancel_receiver) = CancelToken::new();
         (
