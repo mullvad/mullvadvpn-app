@@ -46,7 +46,7 @@ private fun RelayItem.Location.hasProvider(providersConstraint: Constraint<Provi
         when (this) {
             is RelayItem.Location.Country -> cities.any { it.hasProvider(providersConstraint) }
             is RelayItem.Location.City -> relays.any { it.hasProvider(providersConstraint) }
-            is RelayItem.Location.Relay -> provider in providersConstraint.value.providers
+            is RelayItem.Location.Relay -> provider in providersConstraint.value
         }
     } else {
         true

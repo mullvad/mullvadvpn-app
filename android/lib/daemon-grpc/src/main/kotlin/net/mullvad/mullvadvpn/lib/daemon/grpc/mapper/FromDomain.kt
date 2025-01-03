@@ -46,7 +46,7 @@ internal fun Constraint<RelayItemId>.fromDomain(): ManagementInterface.LocationC
 internal fun Constraint<Providers>.fromDomain(): List<String> =
     when (this) {
         is Constraint.Any -> emptyList()
-        is Constraint.Only -> value.providers.map { it.value }
+        is Constraint.Only -> value.map { it.value }
     }
 
 internal fun DnsOptions.fromDomain(): ManagementInterface.DnsOptions =

@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.RelayFilterUiState
+import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.Ownership
 import net.mullvad.mullvadvpn.lib.model.ProviderId
 
@@ -12,8 +13,8 @@ class FilterUiStatePreviewParameterProvider : PreviewParameterProvider<RelayFilt
         sequenceOf(
             RelayFilterUiState(
                 providerToOwnerships = PROVIDER_TO_OWNERSHIPS,
-                selectedOwnership = Ownership.MullvadOwned,
-                selectedProviders = PROVIDER_TO_OWNERSHIPS.keys.toList(),
+                selectedOwnership = Constraint.Only(Ownership.MullvadOwned),
+                selectedProviders = Constraint.Only(PROVIDER_TO_OWNERSHIPS.keys),
             )
         )
 }
