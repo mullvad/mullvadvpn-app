@@ -18,7 +18,8 @@ protocol VPNSettingsCellEventHandler {
     func switchMultihop(_ state: MultihopState)
 }
 
-final class VPNSettingsCellFactory: CellFactoryProtocol {
+@MainActor
+final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
     var viewModel: VPNSettingsViewModel
     var delegate: VPNSettingsCellEventHandler?

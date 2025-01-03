@@ -13,7 +13,7 @@ import NetworkExtension
 import Operations
 import PacketTunnelCore
 
-class StartTunnelOperation: ResultOperation<Void> {
+class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     typealias EncodeErrorHandler = (Error) -> Void
 
     private let interactor: TunnelInteractor
@@ -58,7 +58,7 @@ class StartTunnelOperation: ResultOperation<Void> {
         }
     }
 
-    private func makeTunnelProviderAndStartTunnel(completionHandler: @escaping (Error?) -> Void) {
+    private func makeTunnelProviderAndStartTunnel(completionHandler: @escaping @Sendable (Error?) -> Void) {
         makeTunnelProvider { result in
             self.dispatchQueue.async {
                 do {
@@ -100,7 +100,10 @@ class StartTunnelOperation: ResultOperation<Void> {
         try tunnel.start(options: tunnelOptions.rawOptions())
     }
 
-    private func makeTunnelProvider(completionHandler: @escaping (Result<any TunnelProtocol, Error>) -> Void) {
+    private func makeTunnelProvider(
+        completionHandler: @escaping @Sendable (Result<any TunnelProtocol, Error>)
+            -> Void
+    ) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
         let configuration = Self.makeTunnelConfiguration()

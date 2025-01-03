@@ -9,7 +9,7 @@
 import Foundation
 import PacketTunnelCore
 
-final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider {
+final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotificationProvider, @unchecked Sendable {
     private var isWaitingForConnectivity = false
     private var noNetwork = false
     private var packetTunnelError: BlockedStateReason?

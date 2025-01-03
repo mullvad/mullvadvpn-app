@@ -17,10 +17,10 @@ struct Socks5ConnectNegotiation {
     let endpoint: Socks5Endpoint
 
     /// Completion handler invoked on success.
-    let onComplete: (Socks5ConnectReply) -> Void
+    let onComplete: @Sendable (Socks5ConnectReply) -> Void
 
     /// Failure handler invoked on error.
-    let onFailure: (Error) -> Void
+    let onFailure: @Sendable (Error) -> Void
 
     /// Initiate negotiation by sending a connect command to the socks proxy.
     func perform() {

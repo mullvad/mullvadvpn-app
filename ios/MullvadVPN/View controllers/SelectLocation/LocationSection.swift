@@ -7,7 +7,7 @@
 //
 
 import Foundation
-enum LocationSection: String, Hashable, CustomStringConvertible, CaseIterable, CellIdentifierProtocol {
+enum LocationSection: String, Hashable, CustomStringConvertible, CaseIterable, CellIdentifierProtocol, Sendable {
     case customLists
     case allLocations
 

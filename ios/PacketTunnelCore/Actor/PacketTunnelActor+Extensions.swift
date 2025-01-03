@@ -6,6 +6,7 @@
 //  Copyright © 2023 Mullvad VPN AB. All rights reserved.
 //
 
+@preconcurrency import Combine
 import Foundation
 
 extension PacketTunnelActor {

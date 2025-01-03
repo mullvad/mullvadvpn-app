@@ -11,7 +11,7 @@ import MullvadSettings
 import Routing
 import UIKit
 
-protocol SettingsViewControllerDelegate: AnyObject {
+protocol SettingsViewControllerDelegate: AnyObject, Sendable {
     func settingsViewControllerDidFinish(_ controller: SettingsViewController)
     func settingsViewController(
         _ controller: SettingsViewController,
@@ -76,7 +76,7 @@ class SettingsViewController: UITableViewController {
     }
 }
 
-extension SettingsViewController: SettingsDataSourceDelegate {
+extension SettingsViewController: @preconcurrency SettingsDataSourceDelegate {
     func didSelectItem(item: SettingsDataSource.Item) {
         guard let route = item.navigationRoute else { return }
         delegate?.settingsViewController(self, didRequestRoutePresentation: route)

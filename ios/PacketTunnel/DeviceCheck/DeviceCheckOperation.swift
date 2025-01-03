@@ -27,7 +27,7 @@ import WireGuardKitTypes
  Other times, packet tunnel runs this operation with `rotateImmediatelyOnKeyMismatch` set to `false`, in which
  case it respects the 24 hour interval between key rotation retry attempts.
  */
-final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
+final class DeviceCheckOperation: ResultOperation<DeviceCheck>, @unchecked Sendable {
     private let logger = Logger(label: "DeviceCheckOperation")
 
     private let remoteService: DeviceCheckRemoteServiceProtocol
@@ -127,8 +127,8 @@ final class DeviceCheckOperation: ResultOperation<DeviceCheck> {
         accountNumber: String, deviceIdentifier: String,
         completion: @escaping (Result<Account, Error>, Result<Device, Error>) -> Void
     ) {
-        var accountResult: Result<Account, Error> = .failure(OperationError.cancelled)
-        var deviceResult: Result<Device, Error> = .failure(OperationError.cancelled)
+        nonisolated(unsafe) var accountResult: Result<Account, Error> = .failure(OperationError.cancelled)
+        nonisolated(unsafe) var deviceResult: Result<Device, Error> = .failure(OperationError.cancelled)
 
         let dispatchGroup = DispatchGroup()
 

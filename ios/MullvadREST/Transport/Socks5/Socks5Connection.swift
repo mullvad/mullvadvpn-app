@@ -9,7 +9,7 @@ import Foundation
 import Network
 
 /// A bidirectional data connection between a local endpoint and remote endpoint over socks proxy.
-final class Socks5Connection {
+final class Socks5Connection: Sendable {
     /// The remote endpoint to which the client wants to establish connection over the socks proxy.
     let remoteServerEndpoint: Socks5Endpoint
     let configuration: Socks5Configuration
@@ -75,7 +75,7 @@ final class Socks5Connection {
 
      - Parameter newStateHandler: state handler block.
      */
-    func setStateHandler(_ newStateHandler: ((Socks5Connection, State) -> Void)?) {
+    func setStateHandler(_ newStateHandler: (@Sendable (Socks5Connection, State) -> Void)?) {
         queue.async { [self] in
             stateHandler = newStateHandler
         }
@@ -110,8 +110,8 @@ final class Socks5Connection {
     private let queue: DispatchQueue
     private let localConnection: NWConnection
     private let remoteConnection: NWConnection
-    private var stateHandler: ((Socks5Connection, State) -> Void)?
-    private var state: State = .initialized {
+    nonisolated(unsafe) private var stateHandler: (@Sendable (Socks5Connection, State) -> Void)?
+    nonisolated(unsafe) private var state: State = .initialized {
         didSet {
             stateHandler?(self, state)
         }

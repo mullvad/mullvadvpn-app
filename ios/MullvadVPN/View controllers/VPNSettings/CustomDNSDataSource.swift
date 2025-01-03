@@ -630,7 +630,7 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     }
 }
 
-extension CustomDNSDataSource: CustomDNSCellEventHandler {
+extension CustomDNSDataSource: @preconcurrency CustomDNSCellEventHandler {
     func didChangeState(for preference: Item, isOn: Bool) {
         switch preference {
         case .blockAll:

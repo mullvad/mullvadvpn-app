@@ -9,6 +9,7 @@
 import MullvadLogging
 import UIKit
 
+@MainActor
 class AutomaticKeyboardResponder {
     weak var targetView: UIView?
     private let handler: (UIView, CGFloat) -> Void

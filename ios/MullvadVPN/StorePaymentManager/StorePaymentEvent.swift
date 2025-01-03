@@ -8,10 +8,10 @@
 
 import Foundation
 import MullvadREST
-import StoreKit
+@preconcurrency import StoreKit
 
 /// The payment event received by observers implementing ``StorePaymentObserver``.
-enum StorePaymentEvent {
+enum StorePaymentEvent: @unchecked Sendable {
     /// The payment is successfully completed.
     case finished(StorePaymentCompletion)
 
@@ -42,7 +42,7 @@ struct StorePaymentCompletion {
 }
 
 /// Failed payment metadata.
-struct StorePaymentFailure {
+struct StorePaymentFailure: @unchecked Sendable {
     /// Transaction object, if available.
     /// May not be available due to account validation failure.
     let transaction: SKPaymentTransaction?

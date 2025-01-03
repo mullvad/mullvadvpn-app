@@ -13,7 +13,7 @@ import NetworkExtension
 
 final class SimulatorTunnelProviderManager: NSObject, VPNTunnelProviderManagerProtocol {
     static let tunnelsLock = NSRecursiveLock()
-    fileprivate static var tunnels = [SimulatorTunnelInfo]()
+    nonisolated(unsafe) fileprivate static var tunnels = [SimulatorTunnelInfo]()
 
     private let lock = NSLock()
     private var tunnelInfo: SimulatorTunnelInfo

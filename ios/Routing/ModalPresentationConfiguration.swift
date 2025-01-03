@@ -11,6 +11,7 @@ import UIKit
 /**
  A struct holding modal presentation configuration.
  */
+@MainActor
 public struct ModalPresentationConfiguration {
     var preferredContentSize: CGSize?
     var modalPresentationStyle: UIModalPresentationStyle?

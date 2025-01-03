@@ -11,7 +11,7 @@ import MullvadREST
 import MullvadTypes
 import Operations
 
-final class ProblemReportInteractor {
+final class ProblemReportInteractor: @unchecked Sendable {
     private let apiProxy: APIQuerying
     private let tunnelManager: TunnelManager
     private let consolidatedLog: ConsolidatedApplicationLog
@@ -28,7 +28,7 @@ final class ProblemReportInteractor {
         )
     }
 
-    func fetchReportString(completion: @escaping (String) -> Void) {
+    func fetchReportString(completion: @escaping @Sendable (String) -> Void) {
         consolidatedLog.addLogFiles(fileURLs: ApplicationTarget.allCases.flatMap {
             ApplicationConfiguration.logFileURLs(for: $0, in: ApplicationConfiguration.containerURL)
         }) { [weak self] in
@@ -40,7 +40,7 @@ final class ProblemReportInteractor {
     func sendReport(
         email: String,
         message: String,
-        completion: @escaping (Result<Void, Error>) -> Void
+        completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
         let logString = self.consolidatedLog.string
 
@@ -67,7 +67,7 @@ final class ProblemReportInteractor {
         email: String,
         message: String,
         logString: String,
-        completion: @escaping (Result<Void, Error>) -> Void
+        completion: @escaping @Sendable (Result<Void, Error>) -> Void
     ) {
         let metadataDict = self.consolidatedLog.metadata.reduce(into: [:]) { output, entry in
             output[entry.key.rawValue] = entry.value

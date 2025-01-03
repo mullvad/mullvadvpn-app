@@ -11,17 +11,17 @@ import MullvadLogging
 import MullvadTypes
 import Operations
 
-public protocol RESTAccessTokenManagement {
+public protocol RESTAccessTokenManagement: Sendable {
     func getAccessToken(
         accountNumber: String,
-        completionHandler: @escaping ProxyCompletionHandler<REST.AccessTokenData>
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.AccessTokenData>
     ) -> Cancellable
 
     func invalidateAllTokens()
 }
 
 extension REST {
-    public final class AccessTokenManager: RESTAccessTokenManagement {
+    public final class AccessTokenManager: RESTAccessTokenManagement, @unchecked Sendable {
         private let logger = Logger(label: "REST.AccessTokenManager")
         private let operationQueue = AsyncOperationQueue.makeSerial()
         private let dispatchQueue = DispatchQueue(label: "REST.AccessTokenManager.dispatchQueue")
@@ -34,7 +34,7 @@ extension REST {
 
         public func getAccessToken(
             accountNumber: String,
-            completionHandler: @escaping ProxyCompletionHandler<REST.AccessTokenData>
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.AccessTokenData>
         ) -> Cancellable {
             let operation =
                 ResultBlockOperation<REST.AccessTokenData>(dispatchQueue: dispatchQueue) { finish -> Cancellable in

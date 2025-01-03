@@ -6,13 +6,13 @@
 //  Copyright © 2022 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadLogging
+@preconcurrency import MullvadLogging
 import MullvadREST
 import MullvadTypes
 import Operations
 import UIKit
 
-protocol DeviceManagementViewControllerDelegate: AnyObject {
+protocol DeviceManagementViewControllerDelegate: AnyObject, Sendable {
     func deviceManagementViewControllerDidFinish(_ controller: DeviceManagementViewController)
     func deviceManagementViewControllerDidCancel(_ controller: DeviceManagementViewController)
 }
@@ -38,8 +38,8 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         return contentView
     }()
 
-    private let logger = Logger(label: "DeviceManagementViewController")
-    private let interactor: DeviceManagementInteractor
+    nonisolated(unsafe) private let logger = Logger(label: "DeviceManagementViewController")
+    let interactor: DeviceManagementInteractor
     private let alertPresenter: AlertPresenter
 
     init(interactor: DeviceManagementInteractor, alertPresenter: AlertPresenter) {
@@ -73,7 +73,9 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         )
 
         contentView.handleDeviceDeletion = { [weak self] viewModel, finish in
-            self?.handleDeviceDeletion(viewModel, completionHandler: finish)
+            Task { @MainActor in
+                self?.handleDeviceDeletion(viewModel, completionHandler: finish)
+            }
         }
 
         NSLayoutConstraint.activate([
@@ -86,7 +88,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     func fetchDevices(
         animateUpdates: Bool,
-        completionHandler: ((Result<Void, Error>) -> Void)? = nil
+        completionHandler: (@Sendable (Result<Void, Error>) -> Void)? = nil
     ) {
         interactor.getDevices { [weak self] result in
             guard let self = self else { return }
@@ -101,7 +103,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
 
     // MARK: - Private
 
-    private func setDevices(_ devices: [Device], animated: Bool) {
+    nonisolated private func setDevices(_ devices: [Device], animated: Bool) {
         let viewModels = devices.map { restDevice -> DeviceViewModel in
             DeviceViewModel(
                 id: restDevice.id,
@@ -114,13 +116,15 @@ class DeviceManagementViewController: UIViewController, RootContainment {
             )
         }
 
-        contentView.canContinue = viewModels.count < ApplicationConfiguration.maxAllowedDevices
-        contentView.setDeviceViewModels(viewModels, animated: animated)
+        Task { @MainActor in
+            contentView.canContinue = viewModels.count < ApplicationConfiguration.maxAllowedDevices
+            contentView.setDeviceViewModels(viewModels, animated: animated)
+        }
     }
 
     private func handleDeviceDeletion(
         _ device: DeviceViewModel,
-        completionHandler: @escaping () -> Void
+        completionHandler: @escaping @Sendable () -> Void
     ) {
         showLogoutConfirmation(deviceName: device.name) { [weak self] shouldDelete in
             guard let self else { return }
@@ -134,15 +138,17 @@ class DeviceManagementViewController: UIViewController, RootContainment {
                 guard let self = self else { return }
 
                 if let error {
-                    self.showErrorAlert(
-                        title: NSLocalizedString(
-                            "LOGOUT_DEVICE_ERROR_ALERT_TITLE",
-                            tableName: "DeviceManagement",
-                            value: "Failed to log out device",
-                            comment: ""
-                        ),
-                        error: error
-                    )
+                    Task { @MainActor in
+                        self.showErrorAlert(
+                            title: NSLocalizedString(
+                                "LOGOUT_DEVICE_ERROR_ALERT_TITLE",
+                                tableName: "DeviceManagement",
+                                value: "Failed to log out device",
+                                comment: ""
+                            ),
+                            error: error
+                        )
+                    }
                 }
 
                 completionHandler()
@@ -236,14 +242,16 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         alertPresenter.showAlert(presentation: presentation, animated: true)
     }
 
-    private func deleteDevice(identifier: String, completionHandler: @escaping (Error?) -> Void) {
+    private func deleteDevice(identifier: String, completionHandler: @escaping @Sendable (Error?) -> Void) {
         interactor.deleteDevice(identifier) { [weak self] completion in
             guard let self = self else { return }
 
             switch completion {
             case .success:
-                fetchDevices(animateUpdates: true) { completion in
-                    completionHandler(completion.error)
+                Task { @MainActor in
+                    fetchDevices(animateUpdates: true) { completion in
+                        completionHandler(completion.error)
+                    }
                 }
 
             case let .failure(error):
@@ -271,7 +279,7 @@ class DeviceManagementViewController: UIViewController, RootContainment {
     }
 }
 
-struct DeviceViewModel {
+struct DeviceViewModel: Sendable {
     let id: String
     let name: String
     let creationDate: String

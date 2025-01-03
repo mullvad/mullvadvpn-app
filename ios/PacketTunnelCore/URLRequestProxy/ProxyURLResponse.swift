@@ -9,7 +9,7 @@
 import Foundation
 
 /// Struct describing serializable URLResponse data.
-public struct ProxyURLResponse: Codable {
+public struct ProxyURLResponse: Codable, Sendable {
     public let data: Data?
     public let response: HTTPURLResponseWrapper?
     public let error: URLErrorWrapper?
@@ -21,7 +21,7 @@ public struct ProxyURLResponse: Codable {
     }
 }
 
-public struct URLErrorWrapper: Codable {
+public struct URLErrorWrapper: Codable, Sendable {
     public let code: Int?
     public let localizedDescription: String
 
@@ -37,7 +37,7 @@ public struct URLErrorWrapper: Codable {
     }
 }
 
-public struct HTTPURLResponseWrapper: Codable {
+public struct HTTPURLResponseWrapper: Codable, Sendable {
     public let url: URL?
     public let statusCode: Int
     public let headerFields: [String: String]?

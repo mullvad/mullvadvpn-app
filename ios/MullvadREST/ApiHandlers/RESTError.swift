@@ -11,7 +11,7 @@ import MullvadTypes
 
 extension REST {
     /// An error type returned by REST API classes.
-    public enum Error: LocalizedError, WrappingError {
+    public enum Error: LocalizedError, WrappingError, Sendable {
         /// Failure to create URL request.
         case createURLRequest(Swift.Error)
 
@@ -80,7 +80,7 @@ extension REST {
         }
     }
 
-    public struct ServerErrorResponse: Decodable {
+    public struct ServerErrorResponse: Decodable, Sendable {
         public let code: ServerResponseCode
         public let detail: String?
 
@@ -103,7 +103,7 @@ extension REST {
         }
     }
 
-    public struct ServerResponseCode: RawRepresentable, Equatable {
+    public struct ServerResponseCode: RawRepresentable, Equatable, Sendable {
         public static let invalidAccount = ServerResponseCode(rawValue: "INVALID_ACCOUNT")
         public static let keyLimitReached = ServerResponseCode(rawValue: "KEY_LIMIT_REACHED")
         public static let publicKeyNotFound = ServerResponseCode(rawValue: "PUBKEY_NOT_FOUND")

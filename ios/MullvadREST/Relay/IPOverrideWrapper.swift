@@ -9,7 +9,7 @@
 import MullvadSettings
 import MullvadTypes
 
-public class IPOverrideWrapper: RelayCacheProtocol {
+public final class IPOverrideWrapper: RelayCacheProtocol {
     private let relayCache: RelayCacheProtocol
     private let ipOverrideRepository: any IPOverrideRepositoryProtocol
 

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class GroupOperation: AsyncOperation {
+public final class GroupOperation: AsyncOperation, @unchecked Sendable {
     private let operationQueue = AsyncOperationQueue()
     private let children: [Operation]
 

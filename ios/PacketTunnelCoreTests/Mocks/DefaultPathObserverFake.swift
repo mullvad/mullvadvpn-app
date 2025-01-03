@@ -15,7 +15,7 @@ struct NetworkPathStub: NetworkPath {
 }
 
 /// Default path observer fake that uses in-memory storage to keep current path and provides a method to simulate path change from tests.
-class DefaultPathObserverFake: DefaultPathObserverProtocol {
+class DefaultPathObserverFake: DefaultPathObserverProtocol, @unchecked Sendable {
     var defaultPath: NetworkPath? {
         return stateLock.withLock { innerPath }
     }

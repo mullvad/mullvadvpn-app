@@ -41,11 +41,6 @@ jobs:
         with:
           go-version: 1.21.13
 
-      - name: Set up yeetd to workaround XCode being slow in CI
-        run: |
-          wget https://github.com/biscuitehh/yeetd/releases/download/1.0/yeetd-normal.pkg
-          sudo installer -pkg yeetd-normal.pkg -target /
-          yeetd &
       - name: Configure Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:

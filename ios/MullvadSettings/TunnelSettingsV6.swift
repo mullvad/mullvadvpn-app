@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings {
+public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 

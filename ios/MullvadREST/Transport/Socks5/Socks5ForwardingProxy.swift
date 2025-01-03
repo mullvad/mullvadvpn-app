@@ -19,7 +19,7 @@ import Network
 
  Refer to RFC1928 for more info on socks5: <https://datatracker.ietf.org/doc/html/rfc1928>
  */
-public final class Socks5ForwardingProxy {
+public final class Socks5ForwardingProxy: Sendable {
     /// Socks proxy endpoint.
     public let socksProxyEndpoint: NWEndpoint
 
@@ -70,7 +70,7 @@ public final class Socks5ForwardingProxy {
      - Parameter completion: completion handler that is called once the TCP listener is ready in the first time or failed before moving to the ready state.
                              Invoked on main queue.
      */
-    public func start(completion: @escaping (Error?) -> Void) {
+    public func start(completion: @escaping @Sendable (Error?) -> Void) {
         queue.async {
             self.startListener { error in
                 DispatchQueue.main.async {
@@ -85,7 +85,7 @@ public final class Socks5ForwardingProxy {
 
      - Parameter completion: completion handler that's called immediately after cancelling the TCP listener. Invoked on main queue.
      */
-    public func stop(completion: (() -> Void)? = nil) {
+    public func stop(completion: (@Sendable () -> Void)? = nil) {
         queue.async {
             self.stopInner()
 
@@ -100,7 +100,7 @@ public final class Socks5ForwardingProxy {
 
      - Parameter errorHandler: an error handler block. Invoked on main queue.
      */
-    public func setErrorHandler(_ errorHandler: ((Error) -> Void)?) {
+    public func setErrorHandler(_ errorHandler: (@Sendable (Error) -> Void)?) {
         queue.async {
             self.errorHandler = errorHandler
         }
@@ -108,7 +108,7 @@ public final class Socks5ForwardingProxy {
 
     // MARK: - Private
 
-    private enum State {
+    private enum State: @unchecked Sendable {
         /// Proxy is starting up.
         case starting(listener: NWListener, completion: (Error?) -> Void)
 
@@ -120,15 +120,15 @@ public final class Socks5ForwardingProxy {
     }
 
     private let queue = DispatchQueue(label: "Socks5ForwardingProxy-queue")
-    private var state: State = .stopped
-    private var errorHandler: ((Error) -> Void)?
+    nonisolated(unsafe) private var state: State = .stopped
+    nonisolated(unsafe) private var errorHandler: (@Sendable (Error) -> Void)?
 
     /**
      Start TCP listener.
 
      - Parameter completion: completion handler that is called once the TCP listener is ready or failed.
      */
-    private func startListener(completion: @escaping (Error?) -> Void) {
+    private func startListener(completion: @escaping @Sendable (Error?) -> Void) {
         switch state {
         case .started:
             completion(nil)

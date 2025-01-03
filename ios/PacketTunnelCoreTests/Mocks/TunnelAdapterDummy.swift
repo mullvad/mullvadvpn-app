@@ -11,7 +11,7 @@ import PacketTunnelCore
 @testable import WireGuardKitTypes
 
 /// Dummy tunnel adapter that does nothing and reports no errors.
-class TunnelAdapterDummy: TunnelAdapterProtocol {
+class TunnelAdapterDummy: TunnelAdapterProtocol, @unchecked Sendable {
     func startMultihop(
         entryConfiguration: TunnelAdapterConfiguration?,
         exitConfiguration: TunnelAdapterConfiguration,

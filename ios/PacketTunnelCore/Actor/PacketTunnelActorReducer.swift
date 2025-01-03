@@ -12,7 +12,7 @@ import WireGuardKitTypes
 
 extension PacketTunnelActor {
     ///  A structure encoding an effect; each event will yield zero or more of those, which can then be sequentially executed.
-    enum Effect: Equatable {
+    enum Effect: Equatable, Sendable {
         case startDefaultPathObserver
         case stopDefaultPathObserver
         case startTunnelMonitor
@@ -54,7 +54,7 @@ extension PacketTunnelActor {
         }
     }
 
-    struct Reducer {
+    struct Reducer: Sendable {
         static func reduce(_ state: inout State, _ event: Event) -> [Effect] {
             switch event {
             case let .start(options):

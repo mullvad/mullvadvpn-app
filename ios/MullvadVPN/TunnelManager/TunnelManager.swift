@@ -28,8 +28,8 @@ private let establishedTunnelStatusPollInterval: Duration = .seconds(5)
 
 /// A class that provides a convenient interface for VPN tunnels configuration, manipulation and
 /// monitoring.
-final class TunnelManager: StorePaymentObserver {
-    private enum OperationCategory: String {
+final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
+    private enum OperationCategory: String, Sendable {
         case manageTunnel
         case deviceStateUpdate
         case settingsUpdate
@@ -180,7 +180,7 @@ final class TunnelManager: StorePaymentObserver {
 
     // MARK: - Public methods
 
-    func loadConfiguration(completionHandler: @escaping () -> Void) {
+    func loadConfiguration(completionHandler: @escaping @Sendable () -> Void) {
         let loadTunnelOperation = LoadTunnelConfigurationOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
@@ -218,12 +218,13 @@ final class TunnelManager: StorePaymentObserver {
     }
 
     func startTunnel(completionHandler: ((Error?) -> Void)? = nil) {
+        nonisolated(unsafe) let nonisolatedCompletionHandler = completionHandler
+
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
             completionHandler: { [weak self] result in
                 guard let self else { return }
-
                 DispatchQueue.main.async {
                     if let error = result.error {
                         self.logger.error(
@@ -238,7 +239,7 @@ final class TunnelManager: StorePaymentObserver {
                         }
                     }
 
-                    completionHandler?(result.error)
+                    nonisolatedCompletionHandler?(result.error)
                 }
             }
         )
@@ -254,6 +255,7 @@ final class TunnelManager: StorePaymentObserver {
     }
 
     func stopTunnel(completionHandler: ((Error?) -> Void)? = nil) {
+        nonisolated(unsafe) let nonisolatedCompletionHandler = completionHandler
         let operation = StopTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
@@ -274,7 +276,7 @@ final class TunnelManager: StorePaymentObserver {
                     }
                 }
 
-                completionHandler?(result.error)
+                nonisolatedCompletionHandler?(result.error)
             }
         }
 
@@ -288,7 +290,7 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func reconnectTunnel(selectNewRelay: Bool, completionHandler: ((Error?) -> Void)? = nil) {
+    func reconnectTunnel(selectNewRelay: Bool, completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) { finish -> Cancellable in
             do {
                 guard let tunnel = self.tunnel else {
@@ -335,7 +337,7 @@ final class TunnelManager: StorePaymentObserver {
 
     private func setAccount(
         action: SetAccountAction,
-        completionHandler: @escaping (Result<StoredAccountData?, Error>) -> Void
+        completionHandler: @escaping @Sendable (Result<StoredAccountData?, Error>) -> Void
     ) {
         let operation = SetAccountOperation(
             dispatchQueue: internalQueue,
@@ -394,7 +396,7 @@ final class TunnelManager: StorePaymentObserver {
         _ = try? await setAccount(action: .unset)
     }
 
-    func updateAccountData(_ completionHandler: ((Error?) -> Void)? = nil) {
+    func updateAccountData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         let operation = UpdateAccountDataOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -423,7 +425,7 @@ final class TunnelManager: StorePaymentObserver {
 
     func redeemVoucher(
         _ voucherCode: String,
-        completion: ((Result<REST.SubmitVoucherResponse, Error>) -> Void)? = nil
+        completion: (@Sendable (Result<REST.SubmitVoucherResponse, Error>) -> Void)? = nil
     ) -> Cancellable {
         let operation = RedeemVoucherOperation(
             dispatchQueue: internalQueue,
@@ -453,7 +455,7 @@ final class TunnelManager: StorePaymentObserver {
         _ = try await setAccount(action: .delete(accountNumber))
     }
 
-    func updateDeviceData(_ completionHandler: ((Error?) -> Void)? = nil) {
+    func updateDeviceData(_ completionHandler: (@Sendable (Error?) -> Void)? = nil) {
         let operation = UpdateDeviceDataOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -480,7 +482,7 @@ final class TunnelManager: StorePaymentObserver {
         operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(completionHandler: @escaping (Error?) -> Void) -> Cancellable {
+    func rotatePrivateKey(completionHandler: @escaping @Sendable (Error?) -> Void) -> Cancellable {
         let operation = RotateKeyOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -518,7 +520,7 @@ final class TunnelManager: StorePaymentObserver {
         return operation
     }
 
-    func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (() -> Void)? = nil) {
+    func updateSettings(_ updates: [TunnelSettingsUpdate], completionHandler: (@Sendable () -> Void)? = nil) {
         let taskName = "Set " + updates.map(\.subjectName).joined(separator: ", ")
         scheduleSettingsUpdate(
             taskName: taskName,
@@ -659,7 +661,7 @@ final class TunnelManager: StorePaymentObserver {
         }
     }
 
-    fileprivate func setTunnelStatus(_ block: (inout TunnelStatus) -> Void) -> TunnelStatus {
+    fileprivate func setTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
         nslock.lock()
         defer { nslock.unlock() }
 
@@ -676,12 +678,12 @@ final class TunnelManager: StorePaymentObserver {
 
         // Packet tunnel may have attempted or rotated the key.
         // In that case we have to reload device state from Keychain as it's likely was modified by packet tunnel.
-        let newPacketTunnelKeyRotation = newTunnelStatus.observedState.connectionState?.lastKeyRotation
+        let newPacketTunnelKeyRotation = _tunnelStatus.observedState.connectionState?.lastKeyRotation
         if lastPacketTunnelKeyRotation != newPacketTunnelKeyRotation {
             lastPacketTunnelKeyRotation = newPacketTunnelKeyRotation
             refreshDeviceState()
         }
-        switch newTunnelStatus.state {
+        switch _tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer:
             // Start polling tunnel status to keep the relay information up to date
             // while the tunnel process is trying to connect.
@@ -709,7 +711,7 @@ final class TunnelManager: StorePaymentObserver {
 
         DispatchQueue.main.async {
             self.observerList.notify { observer in
-                observer.tunnelManager(self, didUpdateTunnelStatus: newTunnelStatus)
+                observer.tunnelManager(self, didUpdateTunnelStatus: self._tunnelStatus)
             }
         }
 
@@ -933,8 +935,8 @@ final class TunnelManager: StorePaymentObserver {
 
     private func scheduleSettingsUpdate(
         taskName: String,
-        modificationBlock: @escaping (inout LatestTunnelSettings) -> Void,
-        completionHandler: (() -> Void)?
+        modificationBlock: @escaping @Sendable (inout LatestTunnelSettings) -> Void,
+        completionHandler: (@Sendable () -> Void)?
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
             let currentSettings = self._tunnelSettings
@@ -972,8 +974,8 @@ final class TunnelManager: StorePaymentObserver {
     private func scheduleDeviceStateUpdate(
         taskName: String,
         reconnectTunnel: Bool = true,
-        modificationBlock: @escaping (inout DeviceState) -> Void,
-        completionHandler: (() -> Void)? = nil
+        modificationBlock: @escaping @Sendable (inout DeviceState) -> Void,
+        completionHandler: (@Sendable () -> Void)? = nil
     ) {
         let operation = AsyncBlockOperation(dispatchQueue: internalQueue) {
             var deviceState = self.deviceState
@@ -1071,7 +1073,7 @@ final class TunnelManager: StorePaymentObserver {
         }
     }
 
-    private func unsetTunnelConfiguration(completion: @escaping () -> Void) {
+    private func unsetTunnelConfiguration(completion: @escaping @Sendable () -> Void) {
         // Tell the caller to unsubscribe from VPN status notifications.
         prepareForVPNConfigurationDeletion()
 
@@ -1224,7 +1226,7 @@ private struct TunnelInteractorProxy: TunnelInteractor {
         tunnelManager.tunnelStatus
     }
 
-    func updateTunnelStatus(_ block: (inout TunnelStatus) -> Void) -> TunnelStatus {
+    func updateTunnelStatus(_ block: @Sendable (inout TunnelStatus) -> Void) -> TunnelStatus {
         tunnelManager.setTunnelStatus(block)
     }
 

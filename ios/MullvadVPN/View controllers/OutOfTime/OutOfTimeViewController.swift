@@ -9,14 +9,15 @@
 import Foundation
 import MullvadREST
 import Operations
-import StoreKit
+@preconcurrency import StoreKit
 import UIKit
 
-protocol OutOfTimeViewControllerDelegate: AnyObject {
+protocol OutOfTimeViewControllerDelegate: AnyObject, Sendable {
     func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController)
     func outOfTimeViewControllerDidEndPayment(_ controller: OutOfTimeViewController)
 }
 
+@MainActor
 class OutOfTimeViewController: UIViewController, RootContainment {
     weak var delegate: OutOfTimeViewControllerDelegate?
 
@@ -42,7 +43,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         .lightContent
     }
 
-    var preferredHeaderBarPresentation: HeaderBarPresentation {
+    nonisolated(unsafe) var preferredHeaderBarPresentation: HeaderBarPresentation {
         let tunnelState = interactor.tunnelStatus.state
 
         return HeaderBarPresentation(
@@ -95,12 +96,16 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         )
 
         interactor.didReceivePaymentEvent = { [weak self] event in
-            self?.didReceivePaymentEvent(event)
+            Task { @MainActor in
+                self?.didReceivePaymentEvent(event)
+            }
         }
 
         interactor.didReceiveTunnelStatus = { [weak self] _ in
-            self?.setNeedsHeaderBarStyleAppearanceUpdate()
-            self?.applyViewState()
+            Task { @MainActor in
+                self?.setNeedsHeaderBarStyleAppearanceUpdate()
+                self?.applyViewState()
+            }
         }
 
         if StorePaymentManager.canMakePayments {
@@ -131,7 +136,9 @@ class OutOfTimeViewController: UIViewController, RootContainment {
             let productState: ProductState = completion.value?.products.first
                 .map { .received($0) } ?? .failed
 
-            self?.productState = productState
+            Task { @MainActor in
+                self?.productState = productState
+            }
         }
     }
 
@@ -214,7 +221,9 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
             default:
                 errorPresenter.showAlertForError(paymentFailure.error, context: .purchase) {
-                    self.paymentState = .none
+                    MainActor.assumeIsolated {
+                        self.paymentState = .none
+                    }
                 }
             }
         }
@@ -249,17 +258,27 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
             switch result {
             case let .success(response):
-                errorPresenter.showAlertForResponse(response, context: .restoration) {
-                    self.paymentState = .none
+                Task { @MainActor in
+                    errorPresenter.showAlertForResponse(response, context: .restoration) {
+                        MainActor.assumeIsolated {
+                            self.paymentState = .none
+                        }
+                    }
                 }
 
             case let .failure(error as StorePaymentManagerError):
-                errorPresenter.showAlertForError(error, context: .restoration) {
-                    self.paymentState = .none
+                Task { @MainActor in
+                    errorPresenter.showAlertForError(error, context: .restoration) {
+                        MainActor.assumeIsolated {
+                            self.paymentState = .none
+                        }
+                    }
                 }
 
             default:
-                paymentState = .none
+                Task { @MainActor in
+                    paymentState = .none
+                }
             }
         }
     }
