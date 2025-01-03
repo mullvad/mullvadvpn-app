@@ -256,8 +256,6 @@ impl Check {
 
     /// If None is returned, then the underlying tunnel has already been closed and all subsequent
     /// calls will also return None.
-    ///
-    /// NOTE: will panic if called from within a tokio runtime.
     async fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
         let stats = tunnel_handle.get_tunnel_stats().await?;
         if stats.is_empty() {
