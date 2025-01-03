@@ -35,6 +35,7 @@ cfg_if! {
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct TunConfig {
     /// Interface name to use.
+    #[cfg(target_os = "linux")]
     pub name: Option<String>,
 
     /// IP addresses for the tunnel interface.
@@ -80,6 +81,7 @@ impl TunConfig {
 /// Android to route all traffic inside the tunnel.
 pub fn blocking_config() -> TunConfig {
     TunConfig {
+        #[cfg(target_os = "linux")]
         name: None,
         addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
         mtu: 1380,

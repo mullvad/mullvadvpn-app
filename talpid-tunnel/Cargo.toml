@@ -24,8 +24,7 @@ jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-tun = "0.7"
-nix = "0.23"
+tun = { workspace = true }
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }

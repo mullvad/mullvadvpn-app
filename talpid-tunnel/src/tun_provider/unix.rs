@@ -1,11 +1,10 @@
 use super::TunConfig;
-use nix::fcntl;
 #[cfg(target_os = "macos")]
 use std::io;
 use std::{
     net::IpAddr,
     ops::Deref,
-    os::unix::io::{AsRawFd, IntoRawFd, RawFd},
+    os::unix::io::{AsRawFd, RawFd},
 };
 use tun::{AbstractDevice, Configuration};
 
@@ -30,10 +29,6 @@ pub enum Error {
     /// Unable to open a tunnel device
     #[error("Unable to open a tunnel device")]
     CreateDevice(#[source] tun::Error),
-
-    /// Failed to apply async flags to tunnel device
-    #[error("Failed to apply async flags to tunnel device")]
-    SetDeviceAsync(#[source] nix::Error),
 
     /// Failed to enable/disable link device
     #[error("Failed to enable/disable link device")]
@@ -66,10 +61,11 @@ impl UnixTunProvider {
             #[allow(unused_mut)]
             let mut builder = TunnelDeviceBuilder::default();
             #[cfg(target_os = "linux")]
-            builder.enable_packet_information();
-            #[cfg(target_os = "linux")]
-            if let Some(ref name) = self.config.name {
-                builder.name(name);
+            {
+                builder.enable_packet_information();
+                if let Some(ref name) = self.config.name {
+                    builder.name(name);
+                }
             }
             builder.create()?
         };
@@ -106,12 +102,13 @@ impl Deref for UnixTun {
 
 /// A tunnel device
 pub struct TunnelDevice {
-    dev: tun::Device,
+    dev: tun::AsyncDevice,
 }
 
 /// A tunnel device builder.
 ///
 /// Call [`Self::create`] to create [`TunnelDevice`] from the config.
+#[derive(Default)]
 pub struct TunnelDeviceBuilder {
     config: Configuration,
 }
@@ -119,15 +116,7 @@ pub struct TunnelDeviceBuilder {
 impl TunnelDeviceBuilder {
     /// Create a [`TunnelDevice`] from this builder.
     pub fn create(self) -> Result<TunnelDevice, Error> {
-        fn apply_async_flags(fd: RawFd) -> Result<(), nix::Error> {
-            fcntl::fcntl(fd, fcntl::FcntlArg::F_GETFL)?;
-            let arg = fcntl::FcntlArg::F_SETFL(fcntl::OFlag::O_RDWR | fcntl::OFlag::O_NONBLOCK);
-            fcntl::fcntl(fd, arg)?;
-            Ok(())
-        }
-
-        let dev = tun::create(&self.config).map_err(Error::CreateDevice)?;
-        apply_async_flags(dev.as_raw_fd()).map_err(Error::SetDeviceAsync)?;
+        let dev = tun::create_as_async(&self.config).map_err(Error::CreateDevice)?;
         Ok(TunnelDevice { dev })
     }
 
@@ -152,22 +141,9 @@ impl TunnelDeviceBuilder {
     }
 }
 
-impl Default for TunnelDeviceBuilder {
-    fn default() -> Self {
-        let config = Configuration::default();
-        Self { config }
-    }
-}
-
 impl AsRawFd for TunnelDevice {
     fn as_raw_fd(&self) -> RawFd {
         self.dev.as_raw_fd()
-    }
-}
-
-impl IntoRawFd for TunnelDevice {
-    fn into_raw_fd(self) -> RawFd {
-        self.dev.into_raw_fd()
     }
 }
 
