@@ -37,7 +37,6 @@ use pinger::Pinger;
 ///
 /// Once a connection established, a connection is only considered broken once the connectivity
 /// monitor has started pinging and no traffic has been received for a duration of `PING_TIMEOUT`.
-
 pub struct Check {
     conn_state: ConnState,
     ping_state: PingState,
