@@ -65,6 +65,7 @@ impl NetlinkTunnel {
     }
 }
 
+#[async_trait::async_trait]
 impl Tunnel for NetlinkTunnel {
     fn get_interface_name(&self) -> String {
         let mut wg = self.netlink_connections.wg_handle.clone();
@@ -103,16 +104,14 @@ impl Tunnel for NetlinkTunnel {
         })
     }
 
-    fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
-        let mut wg = self.netlink_connections.wg_handle.clone();
+    async fn get_tunnel_stats(&self) -> std::result::Result<StatsMap, TunnelError> {
         let interface_index = self.interface_index;
-        self.tokio_handle.block_on(async move {
-            let device = wg.get_by_index(interface_index).await.map_err(|err| {
-                log::error!("Failed to fetch WireGuard device config: {}", err);
-                TunnelError::GetConfigError
-            })?;
-            Ok(Stats::parse_device_message(&device))
-        })
+        let mut wg = self.netlink_connections.wg_handle.clone();
+        let device = wg.get_by_index(interface_index).await.map_err(|err| {
+            log::error!("Failed to fetch WireGuard device config: {}", err);
+            TunnelError::GetConfigError
+        })?;
+        Ok(Stats::parse_device_message(&device))
     }
 
     fn set_config(

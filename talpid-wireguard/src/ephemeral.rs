@@ -50,7 +50,7 @@ pub async fn config_ephemeral_peers(
     log::trace!("Resetting tunnel MTU");
     try_set_ipv4_mtu(&iface_name, config.mtu);
 
-    Ok(())
+    Ok(result)
 }
 
 #[cfg(windows)]
@@ -226,6 +226,7 @@ async fn reconfigure_tunnel(
 
         let updated_tunnel = tunnel
             .set_config(&config)
+            .await
             .map_err(Error::TunnelError)
             .map_err(CloseMsg::SetupError)?;
 

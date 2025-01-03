@@ -9,11 +9,12 @@ mod imp;
 pub use imp::Error;
 
 /// Trait for sending ICMP requests to get some traffic from a remote server
+#[async_trait::async_trait]
 pub trait Pinger: Send {
     /// Sends an ICMP packet
-    fn send_icmp(&mut self) -> Result<(), Error>;
+    async fn send_icmp(&mut self) -> Result<(), Error>;
     /// Clears all resources used by the pinger.
-    fn reset(&mut self) {}
+    async fn reset(&mut self) {}
 }
 
 /// Create a new pinger
