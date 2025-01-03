@@ -29,43 +29,52 @@ impl Monitor {
         iter_delay: Duration,
         tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
     ) -> Result<(), Error> {
-        let mut last_iteration = Instant::now();
-        while !self.connectivity_check.should_shut_down() {
-            let mut current_iteration = Instant::now();
-            let time_slept = current_iteration - last_iteration;
-            if time_slept < (iter_delay * 2) {
-                let Some(tunnel) = tunnel_handle.upgrade() else {
-                    return Ok(());
-                };
-                let lock = tunnel.lock().await;
-                let Some(tunnel) = lock.as_ref() else {
-                    return Ok(());
-                };
+        let mut last_check = Instant::now();
+        let mut interval = tokio::time::interval(iter_delay);
 
-                if !self
-                    .connectivity_check
-                    .check_connectivity(Instant::now(), tunnel)
-                    .await?
-                {
-                    return Ok(());
-                }
-                drop(lock);
-
-                let end = Instant::now();
-                if end - current_iteration > Duration::from_secs(1) {
-                    current_iteration = end;
-                }
-            } else {
-                // Loop was suspended for too long, so it's safer to assume that the host still has
-                // connectivity.
-                self.connectivity_check.reset(current_iteration).await;
+        loop {
+            if self.connectivity_check.should_shut_down() {
+                return Ok(());
             }
-            last_iteration = current_iteration;
 
-            // Sleep for a while
-            tokio::time::sleep(iter_delay).await;
+            let now = Instant::now();
+            let time_slept = now - last_check;
+
+            if time_slept >= 2 * iter_delay {
+                // Reset checker state when suspended
+                // TODO: 2 * iter_delay seems arbitrary
+                self.connectivity_check.reset(now).await;
+                continue;
+            }
+
+            // Check if tunnel still works
+            if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
+                return Ok(());
+            }
+
+            last_check = Instant::now();
+
+            interval.tick().await;
         }
-        Ok(())
+    }
+
+    async fn tunnel_exists_and_is_connected(
+        &mut self,
+        tunnel_handle: &Weak<Mutex<Option<TunnelType>>>,
+    ) -> Result<bool, Error> {
+        let Some(tunnel) = tunnel_handle.upgrade() else {
+            // Tunnel closed
+            return Ok(false);
+        };
+        let lock = tunnel.lock().await;
+        let Some(tunnel) = lock.as_ref() else {
+            // Tunnel closed
+            return Ok(false);
+        };
+
+        self.connectivity_check
+            .check_connectivity(Instant::now(), tunnel)
+            .await
     }
 }
 
