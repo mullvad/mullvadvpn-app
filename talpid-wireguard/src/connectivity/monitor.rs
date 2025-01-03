@@ -1,7 +1,7 @@
 use std::{sync::Weak, time::Duration};
 
 use tokio::sync::Mutex;
-use tokio::time::Instant;
+use tokio::time::{Instant, MissedTickBehavior};
 
 use crate::TunnelType;
 
@@ -23,16 +23,14 @@ impl Monitor {
         Self { connectivity_check }
     }
 
-    pub async fn run(self, tunnel_handle: Weak<Mutex<Option<TunnelType>>>) -> Result<(), Error> {
-        self.wait_loop(REGULAR_LOOP_SLEEP, tunnel_handle).await
-    }
-
-    async fn wait_loop(
+    pub async fn run(
         mut self,
-        iter_delay: Duration,
         tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
     ) -> Result<(), Error> {
         let mut last_check = Instant::now();
+
+        let mut interval = tokio::time::interval(REGULAR_LOOP_SLEEP);
+        interval.set_missed_tick_behavior(MissedTickBehavior::Delay);
 
         loop {
             if self.connectivity_check.should_shut_down() {
@@ -45,14 +43,11 @@ impl Monitor {
 
             if time_slept >= SUSPEND_TIMEOUT {
                 self.connectivity_check.reset(now).await;
-            } else {
-                // Check if tunnel still works
-                if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
-                    return Ok(());
-                }
+            } else if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
+                return Ok(());
             }
 
-            tokio::time::sleep(iter_delay).await;
+            interval.tick().await;
         }
     }
 
