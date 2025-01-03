@@ -86,18 +86,12 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
     }
 }
 
-#Preview("Normal") {
-    ChipContainerView(
-        viewModel: MockFeatureIndicatorsViewModel(),
-        isExpanded: .constant(false)
-    )
-    .background(UIColor.secondaryColor.color)
-}
-
-#Preview("Expanded") {
-    ChipContainerView(
-        viewModel: MockFeatureIndicatorsViewModel(),
-        isExpanded: .constant(true)
-    )
-    .background(UIColor.secondaryColor.color)
+#Preview("Tap to expand") {
+    StatefulPreviewWrapper(false) { isExpanded in
+        ChipContainerView(
+            viewModel: MockFeatureIndicatorsViewModel(),
+            isExpanded: isExpanded
+        )
+        .background(UIColor.secondaryColor.color)
+    }
 }
