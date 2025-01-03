@@ -14,7 +14,7 @@ import SwiftUI
 
 struct ConnectionViewPreview {
     enum Configuration {
-        case normal, normalNoIndicators, expanded, expandedNoIndicators
+        case normal, normalNoIndicators
     }
 
     private let configuration: Configuration
@@ -54,10 +54,6 @@ struct ConnectionViewPreview {
                 connectionView(with: populatedTunnelSettings, viewModel: viewModel)
             case .normalNoIndicators:
                 connectionView(with: LatestTunnelSettings(), viewModel: viewModel)
-            case .expanded:
-                connectionView(with: populatedTunnelSettings, viewModel: viewModel, isExpanded: true)
-            case .expandedNoIndicators:
-                connectionView(with: LatestTunnelSettings(), viewModel: viewModel, isExpanded: true)
             }
         }
         .background(UIColor.secondaryColor.color)
