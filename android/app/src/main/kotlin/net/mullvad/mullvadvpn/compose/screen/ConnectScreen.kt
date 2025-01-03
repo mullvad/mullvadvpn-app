@@ -271,7 +271,7 @@ fun ConnectScreen(
             if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
             else TALL_SCREEN_INDICATOR_BIAS
 
-        Box(Modifier.padding(it).fillMaxSize()) {
+        Box(Modifier.fillMaxSize()) {
             MullvadMap(state, indicatorPercentOffset)
 
             MullvadCircularProgressIndicatorLarge(
@@ -293,22 +293,24 @@ fun ConnectScreen(
                         .testTag(CIRCULAR_PROGRESS_INDICATOR),
             )
 
-            NotificationBanner(
-                notification = state.inAppNotification,
-                isPlayBuild = state.isPlayBuild,
-                openAppListing = onOpenAppListing,
-                onClickShowAccount = onManageAccountClick,
-                onClickDismissNewDevice = onDismissNewDeviceClick,
-            )
-            ConnectionCard(
-                state = state,
-                modifier = Modifier.align(Alignment.BottomCenter),
-                onSwitchLocationClick,
-                onDisconnectClick,
-                onReconnectClick,
-                onCancelClick,
-                onConnectClick,
-            )
+            Box(modifier = Modifier.fillMaxSize().padding(it)) {
+                NotificationBanner(
+                    notification = state.inAppNotification,
+                    isPlayBuild = state.isPlayBuild,
+                    openAppListing = onOpenAppListing,
+                    onClickShowAccount = onManageAccountClick,
+                    onClickDismissNewDevice = onDismissNewDeviceClick,
+                )
+                ConnectionCard(
+                    state = state,
+                    modifier = Modifier.align(Alignment.BottomCenter),
+                    onSwitchLocationClick = onSwitchLocationClick,
+                    onDisconnectClick = onDisconnectClick,
+                    onReconnectClick = onReconnectClick,
+                    onCancelClick = onCancelClick,
+                    onConnectClick = onConnectClick,
+                )
+            }
         }
     }
 }
@@ -365,18 +367,9 @@ private fun ConnectionCard(
         Shapes.large,
         colors = CardDefaults.cardColors(containerColor = containerColor.value),
     ) {
-        Column(
-            modifier =
-                Modifier.padding(
-                    top = Dimens.mediumPadding,
-                    start = Dimens.mediumPadding,
-                    end = Dimens.mediumPadding,
-                    bottom = Dimens.smallPadding,
-                )
-        ) {
+        Column(modifier = Modifier.padding(all = Dimens.mediumPadding)) {
             ConnectionCardHeader(state, state.location, expanded) { expanded = !expanded }
 
-            Logger.d("Tunnelstate: ${state.tunnelState}, expanded: $expanded")
             AnimatedContent(
                 (state.tunnelState as? TunnelState.Connected)?.featureIndicators to expanded,
                 modifier = Modifier.weight(1f, fill = false),
