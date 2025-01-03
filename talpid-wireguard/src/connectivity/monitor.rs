@@ -11,6 +11,9 @@ use super::error::Error;
 /// Sleep time used when checking if an established connection is still working.
 const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
 
+/// Reset the checker if the last check occurred this long ago
+const SUSPEND_TIMEOUT: Duration = Duration::from_secs(6);
+
 pub struct Monitor {
     connectivity_check: Check,
 }
@@ -30,7 +33,6 @@ impl Monitor {
         tunnel_handle: Weak<Mutex<Option<TunnelType>>>,
     ) -> Result<(), Error> {
         let mut last_check = Instant::now();
-        let mut interval = tokio::time::interval(iter_delay);
 
         loop {
             if self.connectivity_check.should_shut_down() {
@@ -39,22 +41,18 @@ impl Monitor {
 
             let now = Instant::now();
             let time_slept = now - last_check;
+            last_check = now;
 
-            if time_slept >= 2 * iter_delay {
-                // Reset checker state when suspended
-                // TODO: 2 * iter_delay seems arbitrary
+            if time_slept >= SUSPEND_TIMEOUT {
                 self.connectivity_check.reset(now).await;
-                continue;
+            } else {
+                // Check if tunnel still works
+                if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
+                    return Ok(());
+                }
             }
 
-            // Check if tunnel still works
-            if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
-                return Ok(());
-            }
-
-            last_check = Instant::now();
-
-            interval.tick().await;
+            tokio::time::sleep(iter_delay).await;
         }
     }
 
