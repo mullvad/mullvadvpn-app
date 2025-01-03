@@ -76,8 +76,11 @@ impl Pinger {
         #[cfg(target_os = "macos")]
         Self::set_device_index(&sock, &interface_name)?;
 
+        let sock =
+            UdpSocket::from_std(std::net::UdpSocket::from(sock)).map_err(Error::ConvertSocket)?;
+
         Ok(Self {
-            sock: into_tokio_socket(sock).map_err(Error::ConvertSocket)?,
+            sock,
             addr,
             id: rand::random(),
             seq: 0,
@@ -130,28 +133,6 @@ fn should_retry_send(err: &io::Error) -> bool {
 #[cfg(unix)]
 fn should_retry_send(_err: &io::Error) -> bool {
     false
-}
-
-#[cfg(windows)]
-fn into_tokio_socket(sock: Socket) -> io::Result<UdpSocket> {
-    use std::os::windows::io::{FromRawSocket, IntoRawSocket};
-
-    debug_assert_eq!(sock.r#type().unwrap(), Type::RAW);
-
-    // SAFETY: This looks sketchy, as we're treating a raw socket as a DGRAM socket. But none of the
-    // socket ops will do anything worse than fail if this assumption fails, as far as I can tell.
-    UdpSocket::from_std(unsafe { std::net::UdpSocket::from_raw_socket(sock.into_raw_socket()) })
-}
-
-#[cfg(unix)]
-fn into_tokio_socket(sock: Socket) -> io::Result<UdpSocket> {
-    use std::os::fd::{FromRawFd, IntoRawFd};
-
-    debug_assert_eq!(sock.r#type().unwrap(), Type::RAW);
-
-    // SAFETY: This looks sketchy, as we're treating a raw socket as a DGRAM socket. But none of the
-    // socket ops will do anything worse than fail if this assumption fails, as far as I can tell.
-    UdpSocket::from_std(unsafe { std::net::UdpSocket::from_raw_fd(sock.into_raw_fd()) })
 }
 
 #[async_trait::async_trait]
