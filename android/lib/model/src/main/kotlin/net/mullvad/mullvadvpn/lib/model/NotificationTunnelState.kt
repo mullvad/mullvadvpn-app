@@ -7,14 +7,14 @@ sealed interface NotificationTunnelState {
 
     data object Connected : NotificationTunnelState
 
-    data object Reconnecting : NotificationTunnelState
+    data object Blocking : NotificationTunnelState
 
     data object Disconnecting : NotificationTunnelState
 
     sealed interface Error : NotificationTunnelState {
         data object DeviceOffline : Error
 
-        data object Blocking : Error
+        data object Blocked : Error
 
         data object VpnPermissionDenied : Error
 
