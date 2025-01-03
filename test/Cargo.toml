@@ -64,7 +64,7 @@ hyper-util = {version = "0.1.8", features = ["client", "client-legacy", "http2"]
 
 # Logging
 env_logger = "0.11.0"
-thiserror = "1.0.57"
+thiserror = "2.0"
 log = "0.4"
 colored = "2.0.0"
 
