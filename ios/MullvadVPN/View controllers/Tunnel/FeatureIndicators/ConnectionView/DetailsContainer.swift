@@ -10,18 +10,16 @@ import SwiftUI
 
 extension ConnectionView {
     internal struct DetailsContainer: View {
-        @StateObject var viewModel: ConnectionViewViewModel
+        @StateObject var connectionViewModel: ConnectionViewViewModel
         @StateObject var indicatorsViewModel: FeatureIndicatorsViewModel
         @Binding var isExpanded: Bool
 
         @State private var scrollViewHeight: CGFloat = 0
 
         var body: some View {
-//            if isExpanded {
             Divider()
                 .background(UIColor.secondaryTextColor.color)
-                .opacity(isExpanded ? 1.0 : 0.0)
-//            }
+                .showIf(isExpanded)
 
             // This geometry reader is somewhat of a workaround. It's "smart" in that it takes up as much
             // space as it can and thereby helps the view to understand the maximum allowed height when
@@ -30,17 +28,15 @@ extension ConnectionView {
             GeometryReader { _ in
                 ScrollView {
                     VStack(spacing: 16) {
-                        if !indicatorsViewModel.chips.isEmpty {
-                            FeatureIndicatorsView(
-                                viewModel: indicatorsViewModel,
-                                isExpanded: $isExpanded
-                            )
-                        }
+                        FeatureIndicatorsView(
+                            viewModel: indicatorsViewModel,
+                            isExpanded: $isExpanded
+                        )
+                        .showIf(!indicatorsViewModel.chips.isEmpty)
 
-                        if isExpanded {
-                            DetailsView(viewModel: viewModel)
-                                .transition(.move(edge: .bottom))
-                        }
+                        DetailsView(viewModel: connectionViewModel)
+                            .transition(.move(edge: .bottom))
+                            .showIf(isExpanded)
                     }
                     .sizeOfView { scrollViewHeight = $0.height }
                 }
@@ -53,7 +49,7 @@ extension ConnectionView {
 #Preview {
     ConnectionViewComponentPreview(showIndicators: true, isExpanded: true) { indicatorModel, viewModel, isExpanded in
         ConnectionView.DetailsContainer(
-            viewModel: viewModel,
+            connectionViewModel: viewModel,
             indicatorsViewModel: indicatorModel,
             isExpanded: isExpanded
         )

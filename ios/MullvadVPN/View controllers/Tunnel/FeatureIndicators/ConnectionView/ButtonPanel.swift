@@ -32,10 +32,10 @@ extension ConnectionView {
                     text: viewModel.localizedTitleForSelectLocationButton,
                     image: .iconReload,
                     style: .default,
+                    accessibilityId: .selectLocationButton,
                     primaryAction: { action?(.selectLocation) },
                     secondaryAction: { action?(.reconnect) }
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.selectLocationButton.asString)
             case .disconnecting, .pendingReconnect, .disconnected:
                 MainButton(
                     text: viewModel.localizedTitleForSelectLocationButton,

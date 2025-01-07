@@ -12,6 +12,7 @@ struct SplitMainButton: View {
     var text: LocalizedStringKey
     var image: ImageResource
     var style: MainButtonStyle.Style
+    var accessibilityId: AccessibilityIdentifier?
 
     @State private var secondaryButtonWidth: CGFloat = 0
 
@@ -28,6 +29,10 @@ struct SplitMainButton: View {
                 }
                 .padding(.trailing, -secondaryButtonWidth)
             })
+            .ifLet(accessibilityId) { view, value in
+                view.accessibilityIdentifier(value.asString)
+            }
+
             Button(action: secondaryAction, label: {
                 Image(image)
                     .resizable()

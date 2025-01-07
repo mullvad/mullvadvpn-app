@@ -38,23 +38,22 @@ extension ConnectionView {
                 }
                 .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
 
-                if viewModel.showConnectionDetails {
+                Group {
                     Spacer()
                     Image(.iconChevron)
                         .renderingMode(.template)
                         .rotationEffect(isExpanded ? .degrees(-90) : .degrees(90))
                         .foregroundStyle(.white)
+                        .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
                         .transaction { transaction in
                             transaction.animation = nil
                         }
                 }
+                .showIf(viewModel.showConnectionDetails)
             }
-            .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
             .contentShape(Rectangle())
             .onTapGesture {
-//                withAnimation {
                 isExpanded.toggle()
-//                }
             }
         }
     }
