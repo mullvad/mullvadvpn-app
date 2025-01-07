@@ -621,6 +621,7 @@
 		7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */; };
 		7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */; };
 		7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */; };
+		7AA636382D2D3BB0009B2C89 /* View+Conditionals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */; };
 		7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA704682C8EFE050045699D /* StoredRelays.swift */; };
 		7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2B66E2BA1EB8C00B03E3B /* ListCustomListViewController.swift */; };
 		7AB2B6712BA1EB8C00B03E3B /* ListCustomListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2B66F2BA1EB8C00B03E3B /* ListCustomListCoordinator.swift */; };
@@ -2007,6 +2008,7 @@
 		7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitMainButton.swift; sourceTree = "<group>"; };
 		7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotationTests.swift; sourceTree = "<group>"; };
+		7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Conditionals.swift"; sourceTree = "<group>"; };
 		7AA704682C8EFE050045699D /* StoredRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredRelays.swift; sourceTree = "<group>"; };
 		7AB2B66E2BA1EB8C00B03E3B /* ListCustomListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCustomListViewController.swift; sourceTree = "<group>"; };
 		7AB2B66F2BA1EB8C00B03E3B /* ListCustomListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCustomListCoordinator.swift; sourceTree = "<group>"; };
@@ -3180,6 +3182,7 @@
 				7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */,
 				5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */,
 				7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */,
+				7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */,
 				7A0EAE9D2D01BCBF00D3EB8B /* View+Size.swift */,
 				7A8A18FA2CE4B66C000BCB5B /* View+TapAreaSize.swift */,
 			);
@@ -5954,6 +5957,7 @@
 				F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				7A516C2E2B6D357500BBD33D /* URL+Scoping.swift in Sources */,
+				7AA636382D2D3BB0009B2C89 /* View+Conditionals.swift in Sources */,
 				5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */,
 				7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */,
 				F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */,

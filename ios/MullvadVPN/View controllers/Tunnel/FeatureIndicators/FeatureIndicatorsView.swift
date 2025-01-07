@@ -14,12 +14,11 @@ struct FeatureIndicatorsView<ViewModel>: View where ViewModel: ChipViewModelProt
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            if isExpanded {
-                Text(LocalizedStringKey("Active features"))
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                    .padding(.bottom, 8)
-            }
+            Text(LocalizedStringKey("Active features"))
+                .font(.footnote.weight(.semibold))
+                .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                .padding(.bottom, 8)
+                .showIf(isExpanded)
 
             ChipContainerView(viewModel: viewModel, isExpanded: $isExpanded)
         }
