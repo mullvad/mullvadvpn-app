@@ -7,14 +7,9 @@ import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
 import { bigText, measurements, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Footer } from './Layout';
-import { Layout } from './Layout';
-
-export const StyledHeader = styled(DefaultHeaderBar)({
-  flex: 0,
-});
+import { Container, Footer, Layout } from './Layout';
+import { MainHeader } from './main-header';
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
@@ -59,7 +54,10 @@ export function DeviceRevokedView() {
 
   return (
     <Layout>
-      <StyledHeader barStyle={calculateHeaderBarStyle(tunnelState)} />
+      <MainHeader variant="basedOnConnectionStatus" size="basedOnLoginStatus">
+        <MainHeader.AccountButton />
+        <MainHeader.SettingsButton />
+      </MainHeader>
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>

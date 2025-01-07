@@ -17,10 +17,10 @@ import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { bigText, measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
-import { Footer, Header, Layout, SettingsContainer } from './Layout';
+import { Footer, Layout, SettingsContainer } from './Layout';
 import List from './List';
+import { MainHeader } from './main-header';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
@@ -124,10 +124,9 @@ export default function TooManyDevices() {
   return (
     <ModalContainer>
       <Layout>
-        <Header>
-          <Brand />
-          <HeaderBarSettingsButton />
-        </Header>
+        <MainHeader>
+          <MainHeader.SettingsButton />
+        </MainHeader>
         <StyledCustomScrollbars fillContainer>
           <StyledContainer>
             <StyledBody>
