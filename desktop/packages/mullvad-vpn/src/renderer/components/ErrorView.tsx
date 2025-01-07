@@ -3,9 +3,9 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { measurements } from './common-styles';
-import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Header, Layout } from './Layout';
+import { Container, Layout } from './Layout';
+import { MainHeader } from './main-header';
 
 const StyledContainer = styled(Container)({
   flex: 1,
@@ -56,7 +56,9 @@ interface ErrorViewProps {
 export default function ErrorView(props: ErrorViewProps) {
   return (
     <Layout>
-      <Header>{!props.settingsUnavailable && <HeaderBarSettingsButton />}</Header>
+      <MainHeader logoVariant="none">
+        {!props.settingsUnavailable && <MainHeader.SettingsButton />}
+      </MainHeader>
       <StyledContainer>
         <StyledContent>
           <Logo height={106} width={106} source="logo-icon" />

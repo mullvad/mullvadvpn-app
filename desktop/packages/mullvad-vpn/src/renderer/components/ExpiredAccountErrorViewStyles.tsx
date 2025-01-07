@@ -5,12 +5,7 @@ import AccountNumberLabel from './AccountNumberLabel';
 import * as Cell from './cell';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { DefaultHeaderBar } from './HeaderBar';
 import { Container } from './Layout';
-
-export const StyledHeader = styled(DefaultHeaderBar)({
-  flex: 0,
-});
 
 export const StyledAccountNumberLabel = styled(AccountNumberLabel)({
   fontFamily: 'Open Sans',

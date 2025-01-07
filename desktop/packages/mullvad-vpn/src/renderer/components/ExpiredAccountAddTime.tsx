@@ -18,19 +18,15 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { calculateHeaderBarStyle, DefaultHeaderBar, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Footer, Layout } from './Layout';
+import { MainHeader } from './main-header';
 import {
   RedeemVoucherContainer,
   RedeemVoucherInput,
   RedeemVoucherResponse,
   RedeemVoucherSubmitButton,
 } from './RedeemVoucher';
-
-export const StyledHeader = styled(DefaultHeaderBar)({
-  flex: 0,
-});
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
@@ -261,12 +257,15 @@ function HeaderBar() {
   const isNewAccount = useSelector(
     (state) => state.account.status.type === 'ok' && state.account.status.method === 'new_account',
   );
-  const tunnelState = useSelector((state) => state.connection.status);
-  const headerBarStyle = isNewAccount
-    ? HeaderBarStyle.default
-    : calculateHeaderBarStyle(tunnelState);
 
-  return <StyledHeader barStyle={headerBarStyle} />;
+  return (
+    <MainHeader
+      variant={isNewAccount ? 'default' : 'basedOnConnectionStatus'}
+      size="basedOnLoginStatus">
+      <MainHeader.AccountButton />
+      <MainHeader.SettingsButton />
+    </MainHeader>
+  );
 }
 
 function useFinishedCallback() {

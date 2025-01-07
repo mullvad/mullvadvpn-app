@@ -21,15 +21,14 @@ import {
   StyledContainer,
   StyledCustomScrollbars,
   StyledDeviceLabel,
-  StyledHeader,
   StyledMessage,
   StyledModalCellContainer,
   StyledStatusIcon,
   StyledTitle,
 } from './ExpiredAccountErrorViewStyles';
-import { calculateHeaderBarStyle, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
 import { Footer, Layout } from './Layout';
+import { MainHeader } from './main-header';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
 enum RecoveryAction {
@@ -50,14 +49,8 @@ function ExpiredAccountErrorViewComponent() {
   const { push } = useHistory();
   const { disconnectTunnel } = useAppContext();
 
-  const connection = useSelector((state) => state.connection);
-
   const { recoveryAction } = useRecoveryAction();
   const isNewAccount = useIsNewAccount();
-
-  const headerBarStyle = isNewAccount
-    ? HeaderBarStyle.default
-    : calculateHeaderBarStyle(connection.status);
 
   const onDisconnect = useCallback(async () => {
     try {
@@ -74,7 +67,12 @@ function ExpiredAccountErrorViewComponent() {
 
   return (
     <Layout>
-      <StyledHeader barStyle={headerBarStyle} />
+      <MainHeader
+        variant={isNewAccount ? 'default' : 'basedOnConnectionStatus'}
+        size="basedOnLoginStatus">
+        <MainHeader.AccountButton />
+        <MainHeader.SettingsButton />
+      </MainHeader>
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>{isNewAccount ? <WelcomeView /> : <Content />}</StyledBody>
