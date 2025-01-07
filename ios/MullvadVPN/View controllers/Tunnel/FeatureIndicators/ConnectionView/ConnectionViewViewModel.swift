@@ -52,9 +52,9 @@ extension ConnectionViewViewModel {
     var showConnectionDetails: Bool {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer,
-             .connected, .pendingReconnect, .waitingForConnectivity(.noNetwork):
+             .connected, .pendingReconnect:
             true
-        case .disconnecting, .disconnected, .error:
+        case .disconnecting, .disconnected, .waitingForConnectivity(.noNetwork), .error:
             false
         }
     }
@@ -130,9 +130,10 @@ extension ConnectionViewViewModel {
 
     var localizedTitleForSelectLocationButton: LocalizedStringKey {
         switch tunnelStatus.state {
-        case .disconnecting, .pendingReconnect, .disconnected:
+        case .disconnecting, .pendingReconnect, .disconnected, .waitingForConnectivity(.noNetwork):
             LocalizedStringKey("Select location")
-        case .connecting, .connected, .reconnecting, .waitingForConnectivity, .negotiatingEphemeralPeer, .error:
+        case .connecting, .connected, .reconnecting, .waitingForConnectivity(.noConnection),
+             .negotiatingEphemeralPeer, .error:
             LocalizedStringKey("Switch location")
         }
     }

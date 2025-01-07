@@ -38,7 +38,7 @@ extension ConnectionView {
                 }
                 .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
 
-                if viewModel.showConnectionDetails {
+                Group {
                     Spacer()
                     Image(.iconChevron)
                         .renderingMode(.template)
@@ -48,13 +48,12 @@ extension ConnectionView {
                             transaction.animation = nil
                         }
                 }
+                .showIf(viewModel.showConnectionDetails)
             }
             .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
             .contentShape(Rectangle())
             .onTapGesture {
-//                withAnimation {
                 isExpanded.toggle()
-//                }
             }
         }
     }
