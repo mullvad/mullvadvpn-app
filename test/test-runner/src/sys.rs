@@ -180,7 +180,7 @@ ExecStart=/usr/bin/mullvad-daemon --disable-stdout-timestamps {verbosity}"#
     if let Some(parent) = override_path.parent() {
         tokio::fs::create_dir_all(parent)
             .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+            .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
     }
 
     let mut file = tokio::fs::OpenOptions::new()
@@ -189,17 +189,17 @@ ExecStart=/usr/bin/mullvad-daemon --disable-stdout-timestamps {verbosity}"#
         .write(true)
         .open(override_path)
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     file.write_all(systemd_service_file_content.as_bytes())
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     tokio::process::Command::new("systemctl")
         .args(["daemon-reload"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
 
     restart_app().await?;
     Ok(())
@@ -214,7 +214,7 @@ pub async fn restart_app() -> Result<(), test_rpc::Error> {
         .args(["restart", "mullvad-daemon"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
     wait_for_service_state(ServiceState::Running).await?;
     Ok(())
 }
@@ -228,7 +228,7 @@ pub async fn stop_app() -> Result<(), test_rpc::Error> {
         .args(["stop", "mullvad-daemon"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
     wait_for_service_state(ServiceState::Inactive).await?;
 
     Ok(())
@@ -243,7 +243,7 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
         .args(["start", "mullvad-daemon"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
     wait_for_service_state(ServiceState::Running).await?;
     Ok(())
 }
@@ -267,7 +267,7 @@ pub async fn stop_app() -> Result<(), test_rpc::Error> {
         .args(["stop", "mullvadvpn"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
     Ok(())
 }
 
@@ -280,7 +280,7 @@ pub async fn start_app() -> Result<(), test_rpc::Error> {
         .args(["start", "mullvadvpn"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
     Ok(())
 }
 
@@ -325,7 +325,7 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
     };
 
     let manager = ServiceManager::local_computer(None::<&str>, ServiceManagerAccess::CONNECT)
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
     let service = manager
         .open_service(
             "mullvadvpn",
@@ -334,23 +334,23 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
                 | ServiceAccess::START
                 | ServiceAccess::STOP,
         )
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     // Stop the service
     // TODO: Extract to separate function.
     service
         .stop()
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
     tokio::process::Command::new("net")
         .args(["stop", "mullvadvpn"])
         .status()
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
 
     // Get the current service configuration
     let config = service
         .query_config()
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     let executable_path = "C:\\Program Files\\Mullvad VPN\\resources\\mullvad-daemon.exe";
     let launch_arguments = vec![
@@ -375,13 +375,13 @@ pub async fn set_daemon_log_level(verbosity_level: Verbosity) -> Result<(), test
     // Apply the updated configuration
     service
         .change_config(&updated_config)
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     // Start the service
     // TODO: Extract to separate function.
     service
         .start::<String>(&[])
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?;
 
     Ok(())
 }
@@ -445,19 +445,19 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
         .map(|env_var| env_var.to_systemd_string())
     {
         writeln!(&mut override_content, "{env_var}")
-            .map_err(|err| test_rpc::Error::Service(err.to_string()))?;
+            .map_err(|err| test_rpc::Error::ServiceChange(err.to_string()))?;
     }
 
     let override_path = std::path::Path::new(SYSTEMD_OVERRIDE_FILE);
     if let Some(parent) = override_path.parent() {
         tokio::fs::create_dir_all(parent)
             .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+            .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
     }
 
     tokio::fs::write(override_path, override_content)
         .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+        .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
 
     if tokio::process::Command::new("systemctl")
         .args(["daemon-reload"])
@@ -467,7 +467,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
         .success()
         .not()
     {
-        return Err(test_rpc::Error::Service(
+        return Err(test_rpc::Error::ServiceChange(
             "Daemon service could not be reloaded".to_owned(),
         ));
     };
@@ -480,7 +480,7 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
         .success()
         .not()
     {
-        return Err(test_rpc::Error::Service(
+        return Err(test_rpc::Error::ServiceStart(
             "Daemon service could not be restarted".to_owned(),
         ));
     };
@@ -541,8 +541,9 @@ pub fn get_system_path_var() -> Result<String, test_rpc::Error> {
 #[cfg(target_os = "macos")]
 pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), test_rpc::Error> {
     tokio::task::spawn_blocking(|| {
-        let mut parsed_plist = plist::Value::from_file(PLIST_OVERRIDE_FILE)
-            .map_err(|error| test_rpc::Error::Service(format!("failed to parse plist: {error}")))?;
+        let mut parsed_plist = plist::Value::from_file(PLIST_OVERRIDE_FILE).map_err(|error| {
+            test_rpc::Error::ServiceNotFound(format!("failed to parse plist: {error}"))
+        })?;
 
         let mut vars = plist::Dictionary::new();
         for (k, v) in env {
@@ -551,25 +552,25 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
                 .arg("setenv")
                 .args([&k, &v])
                 .status()
-                .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+                .map_err(|e| test_rpc::Error::ServiceChange(e.to_string()))?;
             vars.insert(k, plist::Value::String(v));
         }
 
         // Add permanent env var
         parsed_plist
             .as_dictionary_mut()
-            .ok_or_else(|| test_rpc::Error::Service("plist missing dict".to_owned()))?
+            .ok_or_else(|| test_rpc::Error::ServiceChange("plist missing dict".to_owned()))?
             .insert(
                 "EnvironmentVariables".to_owned(),
                 plist::Value::Dictionary(vars),
             );
 
         let daemon_plist = std::fs::File::create(PLIST_OVERRIDE_FILE)
-            .map_err(|e| test_rpc::Error::Service(format!("failed to open plist: {e}")))?;
+            .map_err(|e| test_rpc::Error::ServiceChange(format!("failed to open plist: {e}")))?;
 
         parsed_plist
             .to_writer_xml(daemon_plist)
-            .map_err(|e| test_rpc::Error::Service(format!("failed to replace plist: {e}")))?;
+            .map_err(|e| test_rpc::Error::ServiceChange(format!("failed to replace plist: {e}")))?;
 
         Ok::<(), test_rpc::Error>(())
     })
@@ -586,15 +587,20 @@ pub async fn set_daemon_environment(env: HashMap<String, String>) -> Result<(), 
 
 #[cfg(target_os = "macos")]
 async fn set_launch_daemon_state(on: bool) -> Result<(), test_rpc::Error> {
-    tokio::process::Command::new("launchctl")
-        .args([
-            if on { "load" } else { "unload" },
-            "-w",
-            PLIST_OVERRIDE_FILE,
-        ])
-        .status()
-        .await
-        .map_err(|e| test_rpc::Error::Service(e.to_string()))?;
+    let mut launchctl = tokio::process::Command::new("launchctl");
+    if on {
+        launchctl
+            .args(["load", "-w", PLIST_OVERRIDE_FILE])
+            .status()
+            .await
+            .map_err(|e| test_rpc::Error::ServiceStart(e.to_string()))?;
+    } else {
+        launchctl
+            .args(["unload", "-w", PLIST_OVERRIDE_FILE])
+            .status()
+            .await
+            .map_err(|e| test_rpc::Error::ServiceStop(e.to_string()))?;
+    }
     Ok(())
 }
 
@@ -665,8 +671,9 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
 #[cfg(target_os = "macos")]
 pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rpc::Error> {
     let plist = tokio::task::spawn_blocking(|| {
-        let parsed_plist = plist::Value::from_file(PLIST_OVERRIDE_FILE)
-            .map_err(|error| test_rpc::Error::Service(format!("failed to parse plist: {error}")))?;
+        let parsed_plist = plist::Value::from_file(PLIST_OVERRIDE_FILE).map_err(|error| {
+            test_rpc::Error::ServiceNotFound(format!("failed to parse plist: {error}"))
+        })?;
 
         Ok::<plist::Value, test_rpc::Error>(parsed_plist)
     })
@@ -675,14 +682,14 @@ pub async fn get_daemon_environment() -> Result<HashMap<String, String>, test_rp
 
     let plist_tree = plist
         .as_dictionary()
-        .ok_or_else(|| test_rpc::Error::Service("plist missing dict".to_owned()))?;
+        .ok_or_else(|| test_rpc::Error::ServiceNotFound("plist missing dict".to_owned()))?;
     let Some(env_vars) = plist_tree.get("EnvironmentVariables") else {
         // `EnvironmentVariables` does not exist in plist file, so there are no env variables to
         // parse.
         return Ok(HashMap::new());
     };
     let env_vars = env_vars.as_dictionary().ok_or_else(|| {
-        test_rpc::Error::Service("`EnvironmentVariables` is not a dict".to_owned())
+        test_rpc::Error::ServiceNotFound("`EnvironmentVariables` is not a dict".to_owned())
     })?;
 
     let env = env_vars
@@ -707,7 +714,7 @@ async fn wait_for_service_state(awaited_state: ServiceState) -> Result<(), test_
     loop {
         attempt += 1;
         if attempt > RETRY_ATTEMPTS {
-            return Err(test_rpc::Error::Service(String::from(
+            return Err(test_rpc::Error::ServiceStart(String::from(
                 "Awaiting new service state timed out",
             )));
         }
@@ -716,7 +723,7 @@ async fn wait_for_service_state(awaited_state: ServiceState) -> Result<(), test_
             .args(["status", "mullvad-daemon"])
             .output()
             .await
-            .map_err(|e| test_rpc::Error::Service(e.to_string()))?
+            .map_err(|e| test_rpc::Error::ServiceNotFound(e.to_string()))?
             .stdout;
         let output = String::from_utf8_lossy(&output);
 
