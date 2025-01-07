@@ -47,8 +47,14 @@ pub enum Error {
     Ping(String),
     #[error("Failed to get or set registry value: {0}")]
     Registry(String),
+    #[error("Failed to start the service: {0}")]
+    ServiceStart(String),
+    #[error("Failed to stop the service: {0}")]
+    ServiceStop(String),
     #[error("Failed to change the service: {0}")]
-    Service(String),
+    ServiceChange(String),
+    #[error("Failed to find the service: {0}")]
+    ServiceNotFound(String),
     #[error("Could not read from or write to the file system: {0}")]
     FileSystem(String),
     #[error("Could not serialize or deserialize file: {0}")]

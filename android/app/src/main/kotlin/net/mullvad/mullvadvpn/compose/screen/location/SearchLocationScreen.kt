@@ -24,12 +24,15 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
@@ -255,7 +258,10 @@ fun SearchLocationScreen(
             onHideBottomSheet = { locationBottomSheetState = null },
         )
         Column(modifier = Modifier.padding(it)) {
+            val focusRequester = remember { FocusRequester() }
+            LaunchedEffect(Unit) { focusRequester.requestFocus() }
             SearchBar(
+                modifier = Modifier.focusRequester(focusRequester),
                 searchTerm = state.searchTerm,
                 backgroundColor = backgroundColor,
                 onBackgroundColor = onBackgroundColor,
@@ -325,9 +331,10 @@ private fun SearchBar(
     onSearchInputChanged: (String) -> Unit,
     hideKeyboard: () -> Unit,
     onGoBack: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     SearchBarDefaults.InputField(
-        modifier = Modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
+        modifier = modifier.height(Dimens.searchFieldHeightExpanded).fillMaxWidth(),
         query = searchTerm,
         onQueryChange = onSearchInputChanged,
         onSearch = { hideKeyboard() },

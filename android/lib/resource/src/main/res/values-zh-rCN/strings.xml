@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">实现方法是使用量子安全算法执行额外的密钥交换，并将结果混合到 WireGuard 的常规加密中。每次建立新隧道时，这一额外步骤都会使用约 500 kiB 的流量。</string>
     <string name="quantum_resistant_title">抗量子隧道</string>
     <string name="reconnect">重新连接</string>
-    <string name="reconnecting">正在重新连接…</string>
     <string name="redeem">兑换</string>
     <string name="redeem_voucher">兑换优惠券</string>
     <string name="remove_button">移除</string>

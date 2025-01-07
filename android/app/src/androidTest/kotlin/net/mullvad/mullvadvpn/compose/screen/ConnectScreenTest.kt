@@ -168,7 +168,7 @@ class ConnectScreenTest {
             )
 
             // Assert
-            onNodeWithText("DISCONNECTED").assertExists()
+            onNodeWithText("DISCONNECTING...").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Disconnect").assertExists()
         }
@@ -310,7 +310,7 @@ class ConnectScreenTest {
             )
 
             // Assert
-            onNodeWithText("CONNECTED").assertExists()
+            onNodeWithText("BLOCKING...").assertExists()
             onNodeWithText(mockLocationName).assertExists()
             onNodeWithText("Disconnect").assertExists()
             onNodeWithText("BLOCKING INTERNET").assertExists()

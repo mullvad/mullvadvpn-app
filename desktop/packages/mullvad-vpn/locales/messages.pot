@@ -2361,6 +2361,9 @@ msgstr ""
 msgid "Blocking internet (device offline)"
 msgstr ""
 
+msgid "Blocking..."
+msgstr ""
+
 msgid "Changelog"
 msgstr ""
 
@@ -2596,9 +2599,6 @@ msgid "Privacy"
 msgstr ""
 
 msgid "Privacy policy"
-msgstr ""
-
-msgid "Reconnecting..."
 msgstr ""
 
 msgid "Recursion limit"
