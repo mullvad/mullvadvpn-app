@@ -14,9 +14,8 @@ import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
-import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Header, Layout } from './Layout';
+import { Container, Layout } from './Layout';
 import {
   StyledAccountDropdownContainer,
   StyledAccountDropdownItem,
@@ -41,6 +40,7 @@ import {
   StyledTitle,
   StyledTopInfo,
 } from './LoginStyles';
+import { MainHeader } from './main-header';
 
 export default function LoginContainer() {
   const { openUrl, login, clearAccountHistory, createNewAccount } = useAppContext();
@@ -126,10 +126,9 @@ class Login extends React.Component<IProps, IState> {
 
     return (
       <Layout>
-        <Header>
-          <Brand />
-          <HeaderBarSettingsButton disabled={!allowInteraction} />
-        </Header>
+        <MainHeader>
+          <MainHeader.SettingsButton disabled={!allowInteraction} />
+        </MainHeader>
         <Container>
           <StyledTopInfo>
             {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}

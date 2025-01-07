@@ -3,12 +3,7 @@ import styled from 'styled-components';
 import { Flex } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
 import { measurements } from './common-styles';
-import HeaderBar from './HeaderBar';
 import { NavigationScrollbars } from './NavigationBar';
-
-export const Header = styled(HeaderBar)({
-  flex: 0,
-});
 
 export const Container = styled.div({
   display: 'flex',

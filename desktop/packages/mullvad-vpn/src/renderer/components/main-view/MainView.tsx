@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 import { useSelector } from '../../redux/store';
-import { calculateHeaderBarStyle, DefaultHeaderBar } from '../HeaderBar';
 import ImageView from '../ImageView';
 import { Container, Layout } from '../Layout';
+import { MainHeader } from '../main-header';
 import Map from '../Map';
 import NotificationArea from '../NotificationArea';
 import ConnectionPanel from './ConnectionPanel';
@@ -49,7 +49,10 @@ export default function MainView() {
 
   return (
     <Layout>
-      <DefaultHeaderBar barStyle={calculateHeaderBarStyle(connection.status)} />
+      <MainHeader size="basedOnLoginStatus" variant="basedOnConnectionStatus">
+        <MainHeader.AccountButton />
+        <MainHeader.SettingsButton />
+      </MainHeader>
       <StyledContainer>
         <Map />
         <Content>
