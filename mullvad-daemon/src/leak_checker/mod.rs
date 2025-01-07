@@ -162,11 +162,9 @@ async fn check_for_leaks(
     route_manager: &RouteManagerHandle,
     destination: Endpoint,
 ) -> anyhow::Result<Option<LeakInfo>> {
-    // TODO (linux):
-    // Use get_destination_route(ip, Some(fwmark)) to figure out default interface.
-    // where ip is some unused example public ip, or maybe the relay ip
     #[cfg(target_os = "linux")]
     let interface = {
+        // By setting FWMARK, we are effectively getting the same route as when using split tunneling.
         let route = route_manager
             .get_destination_route(destination.address.ip(), Some(mullvad_types::TUNNEL_FWMARK))
             .await
@@ -176,7 +174,7 @@ async fn check_for_leaks(
         route
             .get_node()
             .get_device()
-            .expect("no device for default route??")
+            .context("No device for default route")?
             .to_string()
             .into()
     };

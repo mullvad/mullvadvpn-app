@@ -1,15 +1,18 @@
 use std::io::{self, IoSliceMut};
-use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd};
+use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use std::{net::IpAddr, time::Duration};
 
-use anyhow::{bail, Context};
+use anyhow::{anyhow, bail, Context};
 use nix::errno::Errno;
 use nix::sys::socket::sockopt::Ipv4RecvErr;
-use nix::sys::socket::{setsockopt, ControlMessageOwned, MsgFlags, SockaddrIn};
+use nix::sys::socket::{
+    recvmsg, setsockopt, ControlMessageOwned, MsgFlags, SockaddrIn, SockaddrIn6, SockaddrLike,
+};
 use nix::{cmsg_space, libc};
 use pnet_packet::icmp::time_exceeded::IcmpCodes;
 use pnet_packet::icmp::IcmpTypes;
 use pnet_packet::icmp::{IcmpCode, IcmpType};
+use pnet_packet::icmpv6::{Icmpv6Code, Icmpv6Type, Icmpv6Types};
 use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
@@ -85,7 +88,6 @@ fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::R
 /// Try to read ICMP/TimeExceeded error packets from an ICMP socket.
 ///
 /// This method does not require root, but only works on Linux (including Android).
-// TODO: double check if this works on MacOS
 async fn recv_ttl_responses(
     destination: IpAddr,
     interface: &Interface,
@@ -104,73 +106,99 @@ async fn recv_ttl_responses(
     let mut io_vec = [IoSliceMut::new(&mut recv_buf)];
 
     // Allocate space for EHOSTUNREACH errors caused by ICMP/TimeExceeded packets.
-    // This is the size of ControlMessageOwned::Ipv4RecvErr(sock_extended_err, sockaddr_in).
-    // FIXME: sockaddr_in only works for ipv4
-    let mut control_buf = cmsg_space!(libc::sock_extended_err, libc::sockaddr_in);
+    let mut control_buf = match destination {
+        // This is the size of ControlMessageOwned::Ipv4RecvErr(sock_extended_err, sockaddr_in).
+        IpAddr::V4(..) => cmsg_space!(libc::sock_extended_err, libc::sockaddr_in),
+
+        // This is the size of ControlMessageOwned::Ipv6RecvErr(sock_extended_err, sockaddr_in6).
+        IpAddr::V6(..) => cmsg_space!(libc::sock_extended_err, libc::sockaddr_in6),
+    };
 
     'outer: loop {
         log::debug!("Reading from ICMP socket");
 
-        let recv = loop {
+        // Call recvmsg in a loop
+        let recv_packet = loop {
             if let Some(timeout_at) = timeout_at {
                 if Instant::now() >= timeout_at {
                     break 'outer;
                 }
             }
 
-            match nix::sys::socket::recvmsg::<SockaddrIn>(
-                socket.as_raw_fd(),
-                &mut io_vec,
-                Some(&mut control_buf),
-                // NOTE: MSG_ERRQUEUE asks linux to tell us if we get any ICMP error replies to
-                // our Echo packets.
-                MsgFlags::MSG_ERRQUEUE,
-            ) {
-                Ok(recv) => break recv,
-
-                // poor-mans async IO :'(
-                Err(Errno::EWOULDBLOCK) => {
-                    sleep(Duration::from_millis(10)).await;
-                    continue;
-                }
-
-                Err(e) => bail!("Faileed to read from socket {e}"),
+            let recv_packet = match destination {
+                IpAddr::V4(..) => recvmsg_with_control_message::<SockaddrIn>(
+                    socket.as_raw_fd(),
+                    &mut io_vec,
+                    &mut control_buf,
+                )?
+                .map(|packet| packet.map_source_addr(|a| IpAddr::from(a.ip()))),
+                IpAddr::V6(..) => recvmsg_with_control_message::<SockaddrIn6>(
+                    socket.as_raw_fd(),
+                    &mut io_vec,
+                    &mut control_buf,
+                )?
+                .map(|packet| packet.map_source_addr(|a| IpAddr::from(a.ip()))),
             };
+
+            let Some(recv_packet) = recv_packet else {
+                // poor-mans async IO :'(
+                sleep(Duration::from_millis(10)).await;
+                continue;
+            };
+
+            break recv_packet;
         };
 
         // NOTE: This should be the IP destination of our ping packets. That does NOT mean the
         // packets reached the destination. Instead, if we see an EHOSTUNREACH control message,
         // it means the packets was instead dropped along the way. Seeing this address helps us
         // identify that this is a response to the ping we sent.
-        // // FIXME: sockaddr_in only works for ipv4
-        let source: SockaddrIn = recv.address.unwrap();
-        let source = source.ip();
-        debug_assert_eq!(source, destination);
+        let RecvPacket {
+            source_addr,
+            packet,
+            control_message,
+        } = recv_packet;
+        debug_assert_eq!(source_addr, destination);
 
-        let mut control_messages = recv
-            .cmsgs()
-            .context("Failed to decode cmsgs from recvmsg")?;
-
-        let error_source = match control_messages.next() {
-            Some(ControlMessageOwned::Ipv6RecvErr(_socket_error, _source_addr)) => {
-                bail!("IPv6 not implemented");
-            }
-            Some(ControlMessageOwned::Ipv4RecvErr(socket_error, source_addr)) => {
+        let error_source = match control_message {
+            ControlMessageOwned::Ipv6RecvErr(socket_error, source_addr) => {
                 let libc::sock_extended_err {
-                    ee_errno,   // Error Number: Should be EHOSTUNREACH
-                    ee_origin,  // Error Origin: 2 = Icmp, 3 = Icmp6.
-                    ee_type,    // ICMP Type: 11 = ICMP/TimeExceeded.
-                    ee_code,    // ICMP Code. 0 = TTL exceeded in transit.
-                    ee_pad: _,  // padding
-                    ee_info: _, // N/A
-                    ee_data: _, // N/A
+                    ee_errno,  // Error Number: Should be EHOSTUNREACH
+                    ee_origin, // Error Origin: 3 = Icmp6.
+                    ee_type,   // ICMP Type: 3 = ICMP6/TimeExceeded
+                    ee_code,   // ICMP Code. 0 = TTL exceeded in transit.
+                    ..
                 } = socket_error;
 
                 let errno = Errno::from_raw(ee_errno as i32);
                 debug_assert_eq!(errno, Errno::EHOSTUNREACH);
-                debug_assert_eq!(ee_origin, nix::libc::SO_EE_ORIGIN_ICMP); // TODO: or SO_EE_ORIGIN_ICMP6
+                debug_assert_eq!(ee_origin, nix::libc::SO_EE_ORIGIN_ICMP6);
 
-                // TODO: Icmp6Types
+                let icmp_type = Icmpv6Type::new(ee_type);
+                debug_assert_eq!(icmp_type, Icmpv6Types::TimeExceeded);
+
+                let icmp_code = Icmpv6Code::new(ee_code);
+                debug_assert_eq!(icmp_code, Icmpv6Code::new(0));
+
+                // NOTE: This is the IP of the node that dropped the packet due to TTL exceeded.
+                let error_source = SockaddrIn6::from(source_addr.unwrap());
+                log::debug!("addr: {error_source}");
+
+                IpAddr::from(error_source.ip())
+            }
+            ControlMessageOwned::Ipv4RecvErr(socket_error, source_addr) => {
+                let libc::sock_extended_err {
+                    ee_errno,  // Error Number: Should be EHOSTUNREACH
+                    ee_origin, // Error Origin: 2 = Icmp
+                    ee_type,   // ICMP Type: 11 = ICMP/TimeExceeded.
+                    ee_code,   // ICMP Code. 0 = TTL exceeded in transit.
+                    ..
+                } = socket_error;
+
+                let errno = Errno::from_raw(ee_errno as i32);
+                debug_assert_eq!(errno, Errno::EHOSTUNREACH);
+                debug_assert_eq!(ee_origin, nix::libc::SO_EE_ORIGIN_ICMP);
+
                 let icmp_type = IcmpType::new(ee_type);
                 debug_assert_eq!(icmp_type, IcmpTypes::TimeExceeded);
 
@@ -181,21 +209,14 @@ async fn recv_ttl_responses(
                 let error_source = SockaddrIn::from(source_addr.unwrap());
                 log::debug!("addr: {error_source}");
 
-                error_source
+                IpAddr::from(error_source.ip())
             }
-            Some(other_message) => {
+            other_message => {
                 // TODO: We might want to not error in this case, and just ignore the cmsg.
                 // If so, we should loop over the iterator instead of taking the first elem.
                 bail!("Unhandled control message: {other_message:?}");
             }
-            None => {
-                // We're looking for EHOSTUNREACH errors. No errors means skip.
-                log::debug!("Skipping recvmsg that produced no control messages.");
-                continue;
-            }
         };
-
-        let packet = recv.iovs().next().unwrap();
 
         // Ensure that this is the original Echo packet that we sent.
         // TODO: skip on error
@@ -203,7 +224,7 @@ async fn recv_ttl_responses(
 
         log::debug!("Got a probe response, we are leaking!");
         timeout_at.get_or_insert_with(|| Instant::now() + RECV_GRACE_TIME);
-        reachable_nodes.push(IpAddr::from(error_source.ip()));
+        reachable_nodes.push(error_source);
     }
 
     debug_assert!(!reachable_nodes.is_empty());
@@ -214,4 +235,66 @@ async fn recv_ttl_responses(
             interface: interface.clone(),
         },
     ))
+}
+
+struct RecvPacket<'a, S> {
+    pub source_addr: S,
+    pub packet: &'a [u8],
+    pub control_message: ControlMessageOwned,
+}
+
+impl<'a, S> RecvPacket<'a, S> {
+    /// Convert the type of [RecvPacket::source_addr], e.g. from [SockaddrIn6] to [IpAddr].
+    fn map_source_addr<T>(self, f: impl FnOnce(S) -> T) -> RecvPacket<'a, T> {
+        RecvPacket {
+            source_addr: f(self.source_addr),
+            packet: self.packet,
+            control_message: self.control_message,
+        }
+    }
+}
+
+/// Call recvmsg and expect exactly one control message.
+///
+/// See [ControlMessageOwned] for details on control messages.
+/// Returns `Ok(None)` on `EWOULDBLOCK`, or if recvmsg returns no control message.
+fn recvmsg_with_control_message<'a, S: SockaddrLike + Copy>(
+    socket: RawFd,
+    io_vec: &'a mut [IoSliceMut<'_>; 1],
+    control_buf: &mut Vec<u8>,
+) -> anyhow::Result<Option<RecvPacket<'a, S>>> {
+    // MSG_ERRQUEUE asks linux to tell us if we get any ICMP error replies to
+    // our Echo packets.
+    let flags = MsgFlags::MSG_ERRQUEUE;
+
+    let result = recvmsg::<S>(socket.as_raw_fd(), io_vec, Some(control_buf), flags);
+
+    let recv = match result {
+        Ok(recv) => recv,
+        Err(Errno::EWOULDBLOCK) => return Ok(None),
+        Err(e) => return Err(anyhow!("Failed to read from socket: {e}")),
+    };
+
+    let source_addr = recv.address.unwrap();
+
+    let mut control_messages = recv
+        .cmsgs()
+        .context("Failed to decode cmsgs from recvmsg")?;
+
+    let Some(control_message) = control_messages.next() else {
+        // We're looking for EHOSTUNREACH errors. No errors means skip.
+        log::debug!("Skipping recvmsg that produced no control messages.");
+        return Ok(None);
+    };
+
+    let Some(packet) = recv.iovs().next() else {
+        log::debug!("Skipping recvmsg that produced no data.");
+        return Ok(None);
+    };
+
+    Ok(Some(RecvPacket {
+        source_addr,
+        packet,
+        control_message,
+    }))
 }

@@ -374,15 +374,6 @@ fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> anyhow::Result<()> {
     }
 }
 
-fn parse_icmp_echo(ip_packet: &Ipv4Packet<'_>) -> anyhow::Result<()> {
-    let ip_protocol = ip_packet.get_next_level_protocol();
-
-    match ip_protocol {
-        IpProtocol::Icmp => parse_icmp_echo_raw(ip_packet.payload()),
-        _ => bail!("Not UDP/ICMP"),
-    }
-}
-
 fn parse_icmp_echo_raw(icmp_bytes: &[u8]) -> anyhow::Result<()> {
     let echo_packet = EchoRequestPacket::new(icmp_bytes).ok_or_else(too_small)?;
 

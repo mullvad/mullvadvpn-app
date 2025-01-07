@@ -77,6 +77,7 @@ pub async fn recv_ttl_responses(
         };
 
         let packet = &read_buf[..n];
+        // TODO: ipv6
         let result = parse_ipv4(packet)
             .map_err(|e| anyhow!("Ignoring packet: (len={n}, ip.src={source}) {e} ({packet:02x?})"))
             .and_then(|ip_packet| {
