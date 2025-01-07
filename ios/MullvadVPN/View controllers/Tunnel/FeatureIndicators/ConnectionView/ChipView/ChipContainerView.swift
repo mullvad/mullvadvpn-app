@@ -30,15 +30,13 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                     createChipViews(chips: chipsToAdd, containerWidth: containerWidth)
                 }
 
-                if showMoreButton {
-                    Text(LocalizedStringKey("\(viewModel.chips.count - chipsToAdd.count) more..."))
-                        .font(.subheadline)
-                        .lineLimit(1)
-                        .foregroundStyle(UIColor.primaryTextColor.color)
-                        .onTapGesture {
-                            isExpanded.toggle()
-                        }
+                Button(LocalizedStringKey("\(viewModel.chips.count - chipsToAdd.count) more...")) {
+                    isExpanded.toggle()
                 }
+                .font(.subheadline)
+                .lineLimit(1)
+                .foregroundStyle(UIColor.primaryTextColor.color)
+                .showIf(showMoreButton)
 
                 Spacer()
             }

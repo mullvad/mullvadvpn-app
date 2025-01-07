@@ -11,7 +11,7 @@ import SwiftUI
 struct ChipView: View {
     let item: ChipModel
     var body: some View {
-        Text(LocalizedStringKey(item.name))
+        Text(item.name)
             .font(.subheadline)
             .lineLimit(1)
             .foregroundStyle(UIColor.primaryTextColor.color)

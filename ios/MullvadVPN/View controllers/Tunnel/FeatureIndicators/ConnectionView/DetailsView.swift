@@ -1,5 +1,5 @@
 //
-//  ConnectionDetails.swift
+//  DetailsView.swift
 //  MullvadVPN
 //
 //  Created by Andrew Bulhak on 2025-01-03.
@@ -10,7 +10,7 @@ import SwiftUI
 
 extension ConnectionView {
     internal struct DetailsView: View {
-        @StateObject var viewModel: ConnectionViewViewModel
+        @ObservedObject var viewModel: ConnectionViewViewModel
         @State private var columnWidth: CGFloat = 0
 
         var body: some View {

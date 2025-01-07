@@ -65,7 +65,7 @@ class TunnelViewController: UIViewController, RootContainment {
             self?.updateViewModel(tunnelStatus: tunnelStatus)
         }
 
-        interactor.didGetOutGoingAddress = { [weak self] outgoingConnectionInfo in
+        interactor.didGetOutgoingAddress = { [weak self] outgoingConnectionInfo in
             self?.updateViewModel(outgoingConnectionInfo: outgoingConnectionInfo)
         }
 

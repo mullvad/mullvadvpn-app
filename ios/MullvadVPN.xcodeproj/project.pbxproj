@@ -621,6 +621,7 @@
 		7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */; };
 		7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */; };
 		7AA513862BC91C6B00D081A4 /* LogRotationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */; };
+		7AA636382D2D3BB0009B2C89 /* View+Conditionals.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */; };
 		7AA7046A2C8EFE2B0045699D /* StoredRelays.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA704682C8EFE050045699D /* StoredRelays.swift */; };
 		7AB2B6702BA1EB8C00B03E3B /* ListCustomListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2B66E2BA1EB8C00B03E3B /* ListCustomListViewController.swift */; };
 		7AB2B6712BA1EB8C00B03E3B /* ListCustomListCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB2B66F2BA1EB8C00B03E3B /* ListCustomListCoordinator.swift */; };
@@ -661,7 +662,6 @@
 		7AF36A9A2CA2964200E1D497 /* AnyIPAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */; };
 		7AF6E5F02A95051E00F2679D /* RouterBlockDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */; };
 		7AF84F462D12C5B000C72690 /* SelectedRelaysStub+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF84F452D12C59F00C72690 /* SelectedRelaysStub+Stubs.swift */; };
-		7AF84F482D12C9D400C72690 /* ConnectionViewPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */; };
 		7AF9BE882A30C62100DBFEDB /* SelectableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A264A2A29D65E00B978AA /* SelectableSettingsCell.swift */; };
 		7AF9BE8C2A321D1F00DBFEDB /* RelayFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */; };
 		7AF9BE8E2A331C7B00DBFEDB /* RelayFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */; };
@@ -2008,6 +2008,7 @@
 		7AA1309E2D007B2500640DF9 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
 		7AA130A02D01B1E200640DF9 /* SplitMainButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitMainButton.swift; sourceTree = "<group>"; };
 		7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogRotationTests.swift; sourceTree = "<group>"; };
+		7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Conditionals.swift"; sourceTree = "<group>"; };
 		7AA704682C8EFE050045699D /* StoredRelays.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoredRelays.swift; sourceTree = "<group>"; };
 		7AB2B66E2BA1EB8C00B03E3B /* ListCustomListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCustomListViewController.swift; sourceTree = "<group>"; };
 		7AB2B66F2BA1EB8C00B03E3B /* ListCustomListCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListCustomListCoordinator.swift; sourceTree = "<group>"; };
@@ -2041,7 +2042,6 @@
 		7AF36A992CA2964000E1D497 /* AnyIPAddressTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnyIPAddressTests.swift; sourceTree = "<group>"; };
 		7AF6E5EF2A95051E00F2679D /* RouterBlockDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RouterBlockDelegate.swift; sourceTree = "<group>"; };
 		7AF84F452D12C59F00C72690 /* SelectedRelaysStub+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectedRelaysStub+Stubs.swift"; sourceTree = "<group>"; };
-		7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionViewPreview.swift; sourceTree = "<group>"; };
 		7AF9BE8A2A321BEF00DBFEDB /* RelayFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilter.swift; sourceTree = "<group>"; };
 		7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModel.swift; sourceTree = "<group>"; };
 		7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Collection+Sorting.swift"; sourceTree = "<group>"; };
@@ -2707,13 +2707,14 @@
 		4419AA862D28264D001B13C9 /* ConnectionView */ = {
 			isa = PBXGroup;
 			children = (
-				449E9A6B2D2839FD00F8574A /* Preview */,
+				F0ADF1CF2D01B50B00299F09 /* ChipView */,
+				449E9A6E2D283C7400F8574A /* ButtonPanel.swift */,
 				7AA130982CFF365A00640DF9 /* ConnectionView.swift */,
+				449E9A6C2D283A2500F8574A /* ConnectionViewComponentPreview.swift */,
 				7A0EAEA32D06DF8200D3EB8B /* ConnectionViewViewModel.swift */,
 				4419AA882D282687001B13C9 /* DetailsContainer.swift */,
 				4419AA8A2D2826E5001B13C9 /* DetailsView.swift */,
 				4419AA8D2D2828A4001B13C9 /* HeaderView.swift */,
-				449E9A6E2D283C7400F8574A /* ButtonPanel.swift */,
 			);
 			path = ConnectionView;
 			sourceTree = "<group>";
@@ -2756,15 +2757,6 @@
 				449872E32B7CB96300094DDC /* TunnelSettingsUpdateTests.swift */,
 			);
 			path = MullvadSettings;
-			sourceTree = "<group>";
-		};
-		449E9A6B2D2839FD00F8574A /* Preview */ = {
-			isa = PBXGroup;
-			children = (
-				7AF84F472D12C9CF00C72690 /* ConnectionViewPreview.swift */,
-				449E9A6C2D283A2500F8574A /* ConnectionViewComponentPreview.swift */,
-			);
-			path = Preview;
 			sourceTree = "<group>";
 		};
 		449EBA242B975B7C00DFA4EB /* Protocols */ = {
@@ -3182,6 +3174,7 @@
 				7A21DACE2A30AA3700A787A9 /* UITextField+Appearance.swift */,
 				5878F4FF29CDA742003D4BE2 /* UIView+AutoLayoutBuilder.swift */,
 				7A516C2D2B6D357500BBD33D /* URL+Scoping.swift */,
+				7AA636372D2D3BAC009B2C89 /* View+Conditionals.swift */,
 				7A0EAE9D2D01BCBF00D3EB8B /* View+Size.swift */,
 				7A8A18FA2CE4B66C000BCB5B /* View+TapAreaSize.swift */,
 			);
@@ -4120,7 +4113,6 @@
 			isa = PBXGroup;
 			children = (
 				4419AA862D28264D001B13C9 /* ConnectionView */,
-				F0ADF1CF2D01B50B00299F09 /* ChipView */,
 				7AFBE3862D084C96002335FC /* ActivityIndicator.swift */,
 				F0B4957B2D03154200CFEC2A /* FeatureIndicatorsView.swift */,
 				F0ADF1D22D01B6B400299F09 /* FeatureIndicatorsViewModel.swift */,
@@ -5958,6 +5950,7 @@
 				F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */,
 				58B993B12608A34500BA7811 /* LoginContentView.swift in Sources */,
 				7A516C2E2B6D357500BBD33D /* URL+Scoping.swift in Sources */,
+				7AA636382D2D3BB0009B2C89 /* View+Conditionals.swift in Sources */,
 				5878A27529093A310096FC88 /* StorePaymentEvent.swift in Sources */,
 				7A7AD28D29DC677800480EF1 /* FirstTimeLaunch.swift in Sources */,
 				F062000C2CB7EB5D002E6DB9 /* UIImage+Helpers.swift in Sources */,
@@ -5977,7 +5970,6 @@
 				7A27E3CB2CAE861D0088BCFF /* SettingsViewModel.swift in Sources */,
 				588527B2276B3F0700BAA373 /* LoadTunnelConfigurationOperation.swift in Sources */,
 				7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */,
-				7AF84F482D12C9D400C72690 /* ConnectionViewPreview.swift in Sources */,
 				58DFF7D22B0256A300F864E0 /* MarkdownStylingOptions.swift in Sources */,
 				5867770E29096984006F721F /* OutOfTimeInteractor.swift in Sources */,
 				F03580252A13842C00E5DAFD /* IncreasedHitButton.swift in Sources */,
