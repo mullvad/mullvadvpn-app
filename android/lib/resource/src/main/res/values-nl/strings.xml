@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">Het doet dit door een extra sleuteluitwisseling uit te voeren met een kwantumveilig algoritme en het resultaat te mengen met de reguliere versleuteling van WireGuard. Deze extra stap gebruikt ongeveer 500 kiB aan verkeer elke keer dat een nieuwe tunnel wordt opgezet.</string>
     <string name="quantum_resistant_title">Kwantumbestendige tunnel</string>
     <string name="reconnect">Opnieuw verbinden</string>
-    <string name="reconnecting">Opnieuw verbinden...</string>
     <string name="redeem">Inwisselen</string>
     <string name="redeem_voucher">Voucher inwisselen</string>
     <string name="remove_button">Verwijderen</string>

@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">이를 위해 양자 안전 알고리즘을 사용하여 추가 키 교환을 수행하고 결과를 WireGuard의 일반 암호화에 혼합하는 방법이 이용됩니다. 이 추가 단계는 새 터널이 설정될 때마다 약 500kiB의 트래픽을 사용합니다.</string>
     <string name="quantum_resistant_title">양자 저항 터널</string>
     <string name="reconnect">다시 연결</string>
-    <string name="reconnecting">다시 연결 중...</string>
     <string name="redeem">사용</string>
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>

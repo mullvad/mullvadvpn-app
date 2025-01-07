@@ -287,7 +287,6 @@
     <string name="quantum_resistant_info_second_paragaph">耐量子アルゴリズムで追加の鍵の交換を実行し、結果をWireGuardの通常の暗号化に混合させることで行われます。この追加ステップでは、新しいトンネルが確立されるたびに約500kiBのトラフィックが使用されます。</string>
     <string name="quantum_resistant_title">耐量子トンネル</string>
     <string name="reconnect">再接続</string>
-    <string name="reconnecting">再接続中…</string>
     <string name="redeem">使用する</string>
     <string name="redeem_voucher">バウチャーを使用する</string>
     <string name="remove_button">削除</string>
