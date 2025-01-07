@@ -123,6 +123,7 @@ async fn list_logs<T: AsRef<Path>>(log_dir: T) -> Result<Vec<PathBuf>, Error> {
     Ok(paths)
 }
 
+/// Read the contents of a file to string, optionally truncating the result by given amount of lines.
 async fn read_truncated<T: AsRef<Path>>(
     path: T,
     truncate_lines: Option<usize>,
