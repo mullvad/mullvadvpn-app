@@ -85,7 +85,7 @@ export const StyledNoResult = styled(Cell.CellFooter)({
   flexDirection: 'column',
   paddingTop: 0,
   marginTop: 0,
-  marginBottom: Spacings.spacing12,
+  marginBottom: Spacings.spacing9,
 });
 
 export const StyledNoResultText = styled(Cell.CellFooterText)({
