@@ -12,7 +12,7 @@ extension ConnectionView {
     internal struct ButtonPanel: View {
         typealias Action = (ConnectionViewViewModel.TunnelAction) -> Void
 
-        @StateObject var viewModel: ConnectionViewViewModel
+        @ObservedObject var viewModel: ConnectionViewViewModel
         var action: Action?
 
         var body: some View {
@@ -32,10 +32,10 @@ extension ConnectionView {
                     text: viewModel.localizedTitleForSelectLocationButton,
                     image: .iconReload,
                     style: .default,
+                    accessibilityId: .selectLocationButton,
                     primaryAction: { action?(.selectLocation) },
                     secondaryAction: { action?(.reconnect) }
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.selectLocationButton.asString)
             case .disconnecting, .pendingReconnect, .disconnected:
                 MainButton(
                     text: viewModel.localizedTitleForSelectLocationButton,

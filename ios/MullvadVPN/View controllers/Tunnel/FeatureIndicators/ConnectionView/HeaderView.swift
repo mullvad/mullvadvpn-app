@@ -10,7 +10,7 @@ import SwiftUI
 
 extension ConnectionView {
     internal struct HeaderView: View {
-        @StateObject var viewModel: ConnectionViewViewModel
+        @ObservedObject var viewModel: ConnectionViewViewModel
         @Binding var isExpanded: Bool
 
         var body: some View {
@@ -38,23 +38,19 @@ extension ConnectionView {
                 }
                 .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
 
-                if viewModel.showConnectionDetails {
+                Group {
                     Spacer()
                     Image(.iconChevron)
                         .renderingMode(.template)
                         .rotationEffect(isExpanded ? .degrees(-90) : .degrees(90))
                         .foregroundStyle(.white)
-                        .transaction { transaction in
-                            transaction.animation = nil
-                        }
+                        .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
                 }
+                .showIf(viewModel.showConnectionDetails)
             }
-            .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
             .contentShape(Rectangle())
             .onTapGesture {
-//                withAnimation {
                 isExpanded.toggle()
-//                }
             }
         }
     }

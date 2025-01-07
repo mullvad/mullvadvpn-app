@@ -10,12 +10,10 @@ import SwiftUI
 
 struct MainButtonStyle: ButtonStyle {
     var style: Style
-    var disabled: Bool
     @Environment(\.isEnabled) private var isEnabled: Bool
 
-    init(_ style: Style, disabled: Bool = false) {
+    init(_ style: Style) {
         self.style = style
-        self.disabled = disabled
     }
 
     func makeBody(configuration: Configuration) -> some View {

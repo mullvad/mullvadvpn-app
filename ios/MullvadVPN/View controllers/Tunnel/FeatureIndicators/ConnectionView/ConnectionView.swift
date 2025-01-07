@@ -9,8 +9,8 @@
 import SwiftUI
 
 struct ConnectionView: View {
-    @StateObject var connectionViewModel: ConnectionViewViewModel
-    @StateObject var indicatorsViewModel: FeatureIndicatorsViewModel
+    @ObservedObject var connectionViewModel: ConnectionViewViewModel
+    @ObservedObject var indicatorsViewModel: FeatureIndicatorsViewModel
 
     @State private(set) var isExpanded = false
 
@@ -19,53 +19,71 @@ struct ConnectionView: View {
 
     var body: some View {
         Spacer()
+            .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
+
         VStack(spacing: 22) {
-            if connectionViewModel.showsActivityIndicator {
-                CustomProgressView(style: .large)
-            }
+            CustomProgressView(style: .large)
+                .showIf(connectionViewModel.showsActivityIndicator)
 
             ZStack {
                 BlurView(style: .dark)
 
-                VStack(alignment: .leading, spacing: 16) {
+                VStack(alignment: .leading, spacing: 0) {
                     HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
+                        .padding(.bottom, headerViewBottomPadding)
 
-                    if connectionViewModel.showConnectionDetails {
-                        DetailsContainer(
-                            viewModel: connectionViewModel,
-                            indicatorsViewModel: indicatorsViewModel,
-                            isExpanded: $isExpanded
-                        )
-                    }
+                    DetailsContainer(
+                        connectionViewModel: connectionViewModel,
+                        indicatorsViewModel: indicatorsViewModel,
+                        isExpanded: $isExpanded
+                    )
+                    .showIf(connectionViewModel.showConnectionDetails)
 
                     ButtonPanel(viewModel: connectionViewModel, action: action)
+                        .padding(.top, 16)
                 }
                 .padding(16)
             }
             .cornerRadius(12)
             .padding(16)
         }
-        .padding(.bottom, 8) // Adding some spacing so as not to overlap with the map legal link.
-        .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
+        .padding(.bottom, 8) // Some spacing to avoid overlap with the map legal link.
         .onChange(of: isExpanded) { _ in
             onContentUpdate?()
         }
         .onReceive(connectionViewModel.combinedState) { _, _ in
-            onContentUpdate?()
-
+            // Only update expanded state when connections details should be hidden.
+            // This will contract the view on eg. disconnect, but leave it as-is on
+            // eg. connect.
             if !connectionViewModel.showConnectionDetails {
-//                withAnimation {
                 isExpanded = false
-//                }
+                return
             }
+
+            onContentUpdate?()
         }
     }
 }
 
+extension ConnectionView {
+    var headerViewBottomPadding: CGFloat {
+        let showConnectionDetails = connectionViewModel.showConnectionDetails
+        let hasIndicators = !indicatorsViewModel.chips.isEmpty
+
+        return isExpanded
+            ? 16
+            : hasIndicators && showConnectionDetails ? 16 : 0
+    }
+}
+
 #Preview("ConnectionView (Indicators)") {
-    ConnectionViewPreview(configuration: .normal).make()
+    ConnectionViewComponentPreview(showIndicators: true, isExpanded: true) { indicatorModel, viewModel, _ in
+        ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
+    }
 }
 
 #Preview("ConnectionView (No indicators)") {
-    ConnectionViewPreview(configuration: .normalNoIndicators).make()
+    ConnectionViewComponentPreview(showIndicators: false, isExpanded: true) { indicatorModel, viewModel, _ in
+        ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
+    }
 }

@@ -13,12 +13,19 @@ protocol ChipViewModelProtocol: ObservableObject {
 }
 
 extension ChipViewModelProtocol {
-    func chipsToAdd(forContainerWidth containerWidth: CGFloat) -> (chips: [ChipModel], chipsWillOverflow: Bool) {
+    func chipsToAdd(forContainerWidth containerWidth: CGFloat) -> (chips: [ChipModel], isOverflowing: Bool) {
         var chipsToAdd = [ChipModel]()
-        var chipsWillOverflow = false
+        var isOverflowing = false
 
-        let moreTextWidth = "\(chips.count) more..."
-            .width(using: .preferredFont(forTextStyle: .subheadline)) + 4 // Some extra to be safe.
+        let moreTextWidth = String(
+            format: NSLocalizedString(
+                "CONNECTION_VIEW_CHIPS_MORE",
+                tableName: "ConnectionView",
+                value: "@d more...",
+                comment: ""
+            ), arguments: [chips.count]
+        )
+        .width(using: .preferredFont(forTextStyle: .subheadline)) + 4 // Some extra to be safe.
         var totalChipsWidth: CGFloat = 0
 
         for (index, chip) in chips.enumerated() {
@@ -33,20 +40,15 @@ extension ChipViewModelProtocol {
             let chipWillFitWithMoreText = (totalChipsWidth + moreTextWidth) <= containerWidth
             let chipWillFit = totalChipsWidth <= containerWidth
 
-            if chipWillFitWithMoreText {
-                // If a chip can fit together with the "more" text, add it.
-                chipsToAdd.append(chip)
-                chipsWillOverflow = !isLastChip
-            } else if chipWillFit && isLastChip {
-                // If a chip can fit and it's the last one, add it.
-                chipsToAdd.append(chip)
-                chipsWillOverflow = false
-            } else {
+            guard (chipWillFit && isLastChip) || chipWillFitWithMoreText else {
+                isOverflowing = true
                 break
             }
+
+            chipsToAdd.append(chip)
         }
 
-        return (chipsToAdd, chipsWillOverflow)
+        return (chipsToAdd, isOverflowing)
     }
 }
 

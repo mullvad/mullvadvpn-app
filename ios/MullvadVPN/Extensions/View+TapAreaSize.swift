@@ -28,6 +28,5 @@ private struct TappablePadding: ViewModifier {
                 height: max(actualViewSize.height, tappableViewSize.height)
             )
             .contentShape(Rectangle())
-            .frame(width: actualViewSize.width, height: actualViewSize.height)
     }
 }
