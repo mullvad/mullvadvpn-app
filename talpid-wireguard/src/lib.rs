@@ -281,7 +281,13 @@ impl WireguardMonitor {
                     // timing out on Windows for 2024.9-beta1. These verbose data usage logs are
                     // a temporary measure to help us understand the issue. They can be removed
                     // if the issue is resolved.
-                    log_tunnel_data_usage(&config, &tunnel).await;
+                    if let Err(err) =
+                        tokio::task::spawn_blocking(move || log_tunnel_data_usage(&config, &tunnel))
+                            .await
+                    {
+                        log::error!("Failed to log tunnel data during setup phase");
+                        log::error!("{err}");
+                    }
                     return Err(e);
                 }
 
@@ -486,7 +492,13 @@ impl WireguardMonitor {
                     // timing out on Windows for 2024.9-beta1. These verbose data usage logs are
                     // a temporary measure to help us understand the issue. They can be removed
                     // if the issue is resolved.
-                    log_tunnel_data_usage(&config, &tunnel).await;
+                    if let Err(err) =
+                        tokio::task::spawn_blocking(move || log_tunnel_data_usage(&config, &tunnel))
+                            .await
+                    {
+                        log::error!("Failed to log tunnel data during setup phase");
+                        log::error!("{err}");
+                    }
                     return Err(e);
                 }
 
@@ -981,8 +993,12 @@ impl WireguardMonitor {
     }
 }
 
-async fn log_tunnel_data_usage(config: &Config, tunnel: &Arc<AsyncMutex<Option<TunnelType>>>) {
-    let tunnel = tunnel.lock().await;
+/// Log the tunnel stats from the current tunnel.
+///
+/// This will log the amount of outgoing and incoming data to and from the exit (and entry) relay
+/// so far.
+fn log_tunnel_data_usage(config: &Config, tunnel: &Arc<AsyncMutex<Option<TunnelType>>>) {
+    let tunnel = tunnel.blocking_lock();
     let Some(tunnel) = &*tunnel else { return };
     let Ok(tunnel_stats) = tunnel.get_tunnel_stats() else {
         return;
@@ -1015,6 +1031,8 @@ enum CloseMsg {
 pub(crate) trait Tunnel: Send {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
+    /// # Note
+    /// This function should *not* be called from within an async context.
     fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
     fn set_config<'a>(
         &'a mut self,
