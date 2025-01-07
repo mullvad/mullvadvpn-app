@@ -91,7 +91,7 @@ class FI_TunnelViewController: UIViewController, RootContainment {
             self?.view.setNeedsLayout()
         }
 
-        interactor.didGetOutGoingAddress = { [weak self] connectionInfo in
+        interactor.didGetOutgoingAddress = { [weak self] connectionInfo in
             self?.connectionViewViewModel.outgoingConnectionInfo = connectionInfo
         }
 

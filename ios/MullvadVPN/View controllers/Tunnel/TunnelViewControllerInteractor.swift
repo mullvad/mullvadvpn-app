@@ -22,7 +22,7 @@ final class TunnelViewControllerInteractor {
     var didUpdateDeviceState: ((_ deviceState: DeviceState, _ previousDeviceState: DeviceState) -> Void)?
     var didUpdateTunnelSettings: ((LatestTunnelSettings) -> Void)?
     var didUpdateIpOverrides: (([IPOverride]) -> Void)?
-    var didGetOutGoingAddress: (@MainActor (OutgoingConnectionInfo) -> Void)?
+    var didGetOutgoingAddress: (@MainActor (OutgoingConnectionInfo) -> Void)?
 
     var tunnelStatus: TunnelStatus {
         tunnelManager.tunnelStatus
@@ -64,7 +64,7 @@ final class TunnelViewControllerInteractor {
                             .getOutgoingConnectionInfo() else {
                             return
                         }
-                        await self?.didGetOutGoingAddress?(outgoingConnectionInfo)
+                        await self?.didGetOutgoingAddress?(outgoingConnectionInfo)
                     }
                 }
             },

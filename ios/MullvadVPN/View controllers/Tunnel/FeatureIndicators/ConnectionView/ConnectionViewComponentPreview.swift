@@ -55,15 +55,14 @@ struct ConnectionViewComponentPreview<Content: View>: View {
     }
 
     var body: some View {
-        VStack {
-            content(
-                FeatureIndicatorsViewModel(
-                    tunnelSettings: tunnelSettings,
-                    ipOverrides: []
-                ),
-                viewModel,
-                $isExpanded
-            )
-        }.background(UIColor.secondaryColor.color)
+        content(
+            FeatureIndicatorsViewModel(
+                tunnelSettings: tunnelSettings,
+                ipOverrides: []
+            ),
+            viewModel,
+            $isExpanded
+        )
+        .background(UIColor.secondaryColor.color)
     }
 }
