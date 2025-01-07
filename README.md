@@ -59,7 +59,7 @@ the current state of the latest code in git, not necessarily any existing releas
 | [DAITA]                       |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | WireGuard multihop            |    ✓    |   ✓   |   ✓   |         |  ✓  |
 | WireGuard over TCP            |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
-| WireGuard over Shadowsocks    |    ✓    |   ✓   |   ✓   |    ✓    |     |
+| WireGuard over Shadowsocks    |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
 | OpenVPN over Shadowsocks      |    ✓    |   ✓   |   ✓   |         |     |
 | Split tunneling               |    ✓    |   ✓   |   ✓   |    ✓    |     |
 | Custom DNS server             |    ✓    |   ✓   |   ✓   |    ✓    |  ✓  |
