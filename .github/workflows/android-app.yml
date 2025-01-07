@@ -129,20 +129,8 @@ jobs:
 
       - name: Generate
         if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        run: ./android/gradlew -p android
-
-      #- name: Generate
-      #  if: steps.cache-relay-list.outputs.cache-hit != 'true'
-      #  uses: burrunan/gradle-cache-action@v1
-      #  with:
-      #    job-id: jdk17
-      #    arguments: generateRelayList
-      #    gradle-version: wrapper
-      #    build-root-directory: android
-      #    execution-only-caches: false
-          # Disable if logs are hard to follow.
-      #    concurrent: true
-      #    read-only: ${{ github.ref != 'refs/heads/main' }}
+        shell: bash
+        run: ./android/gradlew -p android generateRelayList
 
       - name: Upload
         uses: actions/upload-artifact@v4
