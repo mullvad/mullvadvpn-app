@@ -1,6 +1,1 @@
-New API access method: Encrypted DNS Proxy.
-DAITA now overrides Multihop entry.
-[macOS] Easier onboarding for Split Tunneling.
-[macOS] Fix DNS issues on MacOS newer than 15.1.
-[Windows] Quantum-resistant tunnels are now enabled by default!
-[Windows] Fix virtual machines like WSL bypassing the Kill Switch.
+Fix a bug where the app would get stuck in the "Connecting" state when using Wireguard.
