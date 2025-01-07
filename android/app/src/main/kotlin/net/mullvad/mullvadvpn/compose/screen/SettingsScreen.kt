@@ -241,6 +241,13 @@ private fun DaitaCell(isDaitaEnabled: Boolean, onDaitaClick: () -> Unit) {
                 }
             ),
         onCellClicked = onDaitaClick,
+        bodyView = {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
     )
 }
 
@@ -258,5 +265,12 @@ private fun MultihopCell(isMultihopEnabled: Boolean, onMultihopClick: () -> Unit
                 }
             ),
         onCellClicked = onMultihopClick,
+        bodyView = {
+            Icon(
+                imageVector = Icons.Default.ChevronRight,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.onPrimary,
+            )
+        },
     )
 }
