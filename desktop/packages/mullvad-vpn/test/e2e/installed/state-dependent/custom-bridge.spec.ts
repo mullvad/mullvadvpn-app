@@ -36,10 +36,9 @@ test('App should enable bridge mode', async () => {
     RoutePath.openVpnSettings,
   );
 
-  await page.getByTestId('bridge-mode-on').click();
-  await expect(page.getByText('Enable bridge mode?')).toBeVisible();
-
-  await page.getByTestId('enable-confirm').click();
+  const bridgeModeOnButton = page.getByTestId('bridge-mode-on');
+  await bridgeModeOnButton.click();
+  await expect(bridgeModeOnButton).toHaveAttribute('aria-selected', 'true');
 
   await util.waitForNavigation(() => page.click('button[aria-label="Back"]'));
   await util.waitForNavigation(() => page.click('button[aria-label="Back"]'));
