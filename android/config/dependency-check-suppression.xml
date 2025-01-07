@@ -49,7 +49,7 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf-.*@.*$</packageUrl>
         <cve>CVE-2024-7254</cve>
     </suppress>
-    <suppress until="2025-01-04Z">
+    <suppress until="2025-04-04Z">
         <notes><![CDATA[
             No impact since the app doesn't process externally crafted XML.
         ]]></notes>
