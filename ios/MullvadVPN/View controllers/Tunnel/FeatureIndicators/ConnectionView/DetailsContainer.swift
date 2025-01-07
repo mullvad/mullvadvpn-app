@@ -17,11 +17,10 @@ extension ConnectionView {
         @State private var scrollViewHeight: CGFloat = 0
 
         var body: some View {
-//            if isExpanded {
-            Divider()
-                .background(UIColor.secondaryTextColor.color)
-                .opacity(isExpanded ? 1.0 : 0.0)
-//            }
+            if isExpanded {
+                Divider()
+                    .background(UIColor.secondaryTextColor.color)
+            }
 
             // This geometry reader is somewhat of a workaround. It's "smart" in that it takes up as much
             // space as it can and thereby helps the view to understand the maximum allowed height when
