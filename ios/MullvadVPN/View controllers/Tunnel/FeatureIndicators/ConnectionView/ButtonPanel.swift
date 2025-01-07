@@ -35,14 +35,12 @@ extension ConnectionView {
                     primaryAction: { action?(.selectLocation) },
                     secondaryAction: { action?(.reconnect) }
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.selectLocationButton.asString)
             case .disconnecting, .pendingReconnect, .disconnected:
                 MainButton(
                     text: viewModel.localizedTitleForSelectLocationButton,
                     style: .default,
                     action: { action?(.selectLocation) }
                 )
-                .accessibilityIdentifier(AccessibilityIdentifier.selectLocationButton.asString)
             }
         }
 
