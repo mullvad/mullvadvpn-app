@@ -16,6 +16,8 @@
   },
   "scripts": {
     "postinstall": "npm run build",
-    "build": "./build.sh && tsc"
+    "build": "npm run build-proto && npm run build-typescript",
+    "build-proto": "bash ./build.sh",
+    "build-typescript": "tsc"
   }
 }
