@@ -295,7 +295,15 @@ async fn main() -> Result<()> {
                 .await
                 .context("Failed to run provisioning for VM")?;
 
-            let bridge_ip = instance.get_ip().to_owned();
+            #[cfg(target_os = "macos")]
+            let IpAddr::V4(guest_ip) = instance.get_ip().to_owned() else {
+                panic!("Expected bridge IP to be version 4, but was version 6.")
+            };
+            let (bridge_name, bridge_ip) = vm::network::bridge(
+                #[cfg(target_os = "macos")]
+                &guest_ip,
+            )?;
+
             TEST_CONFIG.init(tests::config::TestConfig::new(
                 account,
                 artifacts_dir,
@@ -312,10 +320,7 @@ async fn main() -> Result<()> {
                     .gui_package_path
                     .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                 mullvad_host,
-                vm::network::bridge(
-                    #[cfg(target_os = "macos")]
-                    &bridge_ip,
-                )?,
+                bridge_name,
                 bridge_ip,
                 test_rpc::meta::Os::from(vm_config.os_type),
                 openvpn_certificate,
@@ -324,7 +329,7 @@ async fn main() -> Result<()> {
 
             // For convenience, spawn a SOCKS5 server that is reachable for tests that need it
             let socks = socks_server::spawn(SocketAddr::new(
-                crate::vm::network::NON_TUN_GATEWAY.into(),
+                TEST_CONFIG.host_bridge_ip.into(),
                 crate::vm::network::SOCKS5_PORT,
             ))
             .await?;

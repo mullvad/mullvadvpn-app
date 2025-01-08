@@ -53,16 +53,24 @@ pub async fn setup_test_network() -> Result<()> {
 /// A hack to find the Tart bridge interface using `NON_TUN_GATEWAY`.
 /// It should be possible to retrieve this using the virtualization framework instead,
 /// but that requires an entitlement.
-pub(crate) fn find_vm_bridge(bridge_ip: &IpAddr) -> Result<String> {
+pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> {
     for addr in nix::ifaddrs::getifaddrs().unwrap() {
         if !addr.interface_name.starts_with("bridge") {
             continue;
         }
-        if let Some(address) = addr.address.as_ref().and_then(|addr| addr.as_sockaddr_in()) {
-            let interface_ip = SocketAddrV4::from(*address).ip();
-            if interface_ip == bridge_ip {
-                return Ok(addr.interface_name.to_owned());
-            }
+        let Some(address) = addr.address.as_ref().and_then(|addr| addr.as_sockaddr_in()) else {
+            continue;
+        };
+        let address = SocketAddrV4::from(*address).ip();
+        let Some(netmask) = addr.netmask.as_ref().and_then(|addr| addr.as_sockaddr_in()) else {
+            continue;
+        };
+        let netmask = SocketAddrV4::from(*netmask).ip();
+        let Ok(ip_v4_network) = ipnetwork::Ipv4Network::with_netmask(address, netmask) else {
+            continue;
+        };
+        if ip_v4_network.contains(guest_ip) {
+            return Ok((addr.interface_name.to_owned(), address));
         }
     }
 
