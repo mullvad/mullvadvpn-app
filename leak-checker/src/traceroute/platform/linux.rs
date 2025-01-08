@@ -159,9 +159,9 @@ async fn recv_ttl_responses(
         } = recv_packet;
 
         macro_rules! skip_if {
-            ($skip_condition:expr, $message:expr) => {{
+            ($skip_condition:expr, $note:expr) => {{
                 if $skip_condition {
-                    log::debug!("Ignoring received packet: {}", $skip_condition);
+                    log::debug!("Ignoring received message: {}", $note);
                     continue 'outer;
                 }
             }};

@@ -273,9 +273,10 @@ async fn send_icmp_probes<Impl: Traceroute>(
         };
 
         match e.kind() {
-            io::ErrorKind::PermissionDenied => {
-                // Linux returns this error if our packet was rejected by nftables.
-                log::debug!("send_to failed with 'permission denied'");
+            io::ErrorKind::PermissionDenied | io::ErrorKind::ConnectionRefused => {
+                // Linux returns one of these errors if our packet was rejected by nftables.
+                log::debug!("send_to failed, was probably caught by firewall");
+                break;
             }
             _ => return Err(e).context("Failed to send packet")?,
         }
