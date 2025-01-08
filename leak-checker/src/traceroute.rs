@@ -458,63 +458,17 @@ fn parse_icmp_time_exceeded_raw(ip_payload: Ip<&[u8], &[u8]>) -> anyhow::Result<
             Ok(())
         }
 
-        IpProtocol::Icmpv6 => {
-            let original_icmp_packet =
-                icmpv6::echo_request::EchoRequestPacket::new(original_ip_payload)
-                    .ok_or_else(too_small)?;
+        IpProtocol::Icmp => parse_icmp_probe(Ip::V4(original_ip_payload)),
 
-            ensure!(
-                original_icmp_packet.get_icmpv6_type() == Icmpv6Types::EchoRequest,
-                "Not ICMP6/EchoRequest"
-            );
-
-            // check if payload looks right
-            // some network nodes will strip the payload, that's fine.
-            let echo_payload = original_icmp_packet.payload();
-            if !echo_payload.is_empty() && !echo_payload.starts_with(&PROBE_PAYLOAD) {
-                let echo_payload: String = echo_payload
-                    .iter()
-                    .copied()
-                    .flat_map(escape_default)
-                    .map(char::from)
-                    .collect();
-                bail!("Wrong ICMP6/Echo payload: {echo_payload:?}");
-            }
-
-            Ok(())
-        }
-
-        IpProtocol::Icmp => {
-            let original_icmp_packet =
-                icmp::echo_request::EchoRequestPacket::new(original_ip_payload)
-                    .ok_or_else(too_small)?;
-
-            ensure!(
-                original_icmp_packet.get_icmp_type() == IcmpTypes::EchoRequest,
-                "Not ICMP/EchoRequest"
-            );
-
-            // check if payload looks right
-            // some network nodes will strip the payload, that's fine.
-            let echo_payload = original_icmp_packet.payload();
-            if !echo_payload.is_empty() && !echo_payload.starts_with(&PROBE_PAYLOAD) {
-                let echo_payload: String = echo_payload
-                    .iter()
-                    .copied()
-                    .flat_map(escape_default)
-                    .map(char::from)
-                    .collect();
-                bail!("Wrong ICMP/Echo payload: {echo_payload:?}");
-            }
-
-            Ok(())
-        }
+        IpProtocol::Icmpv6 => parse_icmp_probe(Ip::V6(original_ip_payload)),
 
         _ => bail!("Not UDP/ICMP"),
     }
 }
 
-fn parse_icmp_echo_raw(icmp_bytes: Ip<&[u8], &[u8]>) -> anyhow::Result<()> {
+/// Try to parse bytes as an ICMP/ICMP6 Echo Request matching the probe packets send by
+/// [send_icmp_probes].
+fn parse_icmp_probe(icmp_bytes: Ip<&[u8], &[u8]>) -> anyhow::Result<()> {
     let echo_packet_v4;
     let echo_packet_v6;
     let echo_payload = match icmp_bytes {

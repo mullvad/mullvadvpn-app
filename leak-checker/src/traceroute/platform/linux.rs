@@ -15,7 +15,7 @@ use pnet_packet::icmpv6::{Icmpv6Code, Icmpv6Type, Icmpv6Types};
 use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
-use crate::traceroute::{parse_icmp_echo_raw, Ip, TracerouteOpt, RECV_GRACE_TIME};
+use crate::traceroute::{parse_icmp_probe, Ip, TracerouteOpt, RECV_GRACE_TIME};
 use crate::{Interface, LeakInfo, LeakStatus};
 
 use super::{unix, AsyncIcmpSocket, Traceroute};
@@ -205,7 +205,7 @@ async fn recv_ttl_responses(
 
                 // Ensure that this is the original Echo packet that we sent.
                 skip_if!(
-                    parse_icmp_echo_raw(Ip::V4(packet)).is_err(),
+                    parse_icmp_probe(Ip::V4(packet)).is_err(),
                     "Not a response to us"
                 );
 
@@ -242,7 +242,7 @@ async fn recv_ttl_responses(
 
                 // Ensure that this is the original Echo packet that we sent.
                 skip_if!(
-                    parse_icmp_echo_raw(Ip::V6(packet)).is_err(),
+                    parse_icmp_probe(Ip::V6(packet)).is_err(),
                     "Not a response to us"
                 );
 
