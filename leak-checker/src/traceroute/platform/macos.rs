@@ -7,7 +7,7 @@ use anyhow::{anyhow, Context};
 use nix::net::if_::if_nametoindex;
 use socket2::Socket;
 
-use crate::traceroute::TracerouteOpt;
+use crate::traceroute::{Ip, TracerouteOpt};
 use crate::{Interface, LeakStatus};
 
 use super::{common, unix, AsyncIcmpSocket, Traceroute};
@@ -20,13 +20,17 @@ impl Traceroute for TracerouteMacos {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
+    fn bind_socket_to_interface(
+        socket: &Socket,
+        interface: &Interface,
+        ip_version: Ip,
+    ) -> anyhow::Result<()> {
         // can't use the same method as desktop-linux here beacuse reasons
-        bind_socket_to_interface(socket, interface)
+        bind_socket_to_interface(socket, interface, ip_version)
     }
 
-    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
-        super::unix::get_interface_ip(interface)
+    fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
+        super::unix::get_interface_ip(interface, ip_version)
     }
 
     fn configure_icmp_socket(
@@ -67,7 +71,11 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
     }
 }
 
-pub fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
+pub fn bind_socket_to_interface(
+    socket: &Socket,
+    interface: &Interface,
+    ip_version: Ip,
+) -> anyhow::Result<()> {
     let Interface::Name(interface) = interface;
 
     log::info!("Binding socket to {interface:?}");
@@ -77,6 +85,9 @@ pub fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyho
         .and_then(|code| NonZero::new(code).ok_or(anyhow!("Non-zero error code")))
         .context("Failed to get interface index")?;
 
-    socket.bind_device_by_index_v4(Some(interface_index))?;
+    match ip_version {
+        Ip::V4(..) => socket.bind_device_by_index_v4(Some(interface_index))?,
+        Ip::V6(..) => socket.bind_device_by_index_v6(Some(interface_index))?,
+    }
     Ok(())
 }

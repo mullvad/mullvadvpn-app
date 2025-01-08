@@ -3,11 +3,12 @@ use std::os::fd::{FromRawFd, IntoRawFd};
 
 use anyhow::Context;
 
+use crate::traceroute::Ip;
 use crate::Interface;
 
 use super::AsyncUdpSocket;
 
-pub fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
+pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
     let Interface::Name(interface) = interface;
 
     for interface_address in nix::ifaddrs::getifaddrs()? {
@@ -17,14 +18,19 @@ pub fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
         let Some(address) = interface_address.address else {
             continue;
         };
-        let Some(address) = address.as_sockaddr_in() else {
-            continue;
-        };
 
-        // TODO: ipv6
-        //let Some(address) = address.as_sockaddr_in6() else { continue };
-
-        return Ok(address.ip().into());
+        match ip_version {
+            Ip::V4(()) => {
+                if let Some(address) = address.as_sockaddr_in() {
+                    return Ok(IpAddr::V4(address.ip()));
+                };
+            }
+            Ip::V6(()) => {
+                if let Some(address) = address.as_sockaddr_in6() {
+                    return Ok(IpAddr::V6(address.ip()));
+                };
+            }
+        }
     }
 
     anyhow::bail!("Interface {interface:?} has no valid IP to bind to");

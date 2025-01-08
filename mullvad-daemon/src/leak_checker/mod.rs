@@ -216,9 +216,9 @@ async fn check_for_leaks(
             IpAddr::V6(..) => AddressFamily::Ipv6,
         };
 
-        let Ok(Some(route)) = talpid_routing::get_best_default_route(family) else {
-            todo!("no best default route");
-        };
+        let route = talpid_routing::get_best_default_route(family)
+            .context("Failed to get best default route")?
+            .ok_or_else(|| anyhow!("No default route found"))?;
 
         leak_checker::Interface::Luid(route.iface)
     };

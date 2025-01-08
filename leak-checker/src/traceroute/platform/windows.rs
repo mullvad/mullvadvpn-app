@@ -18,7 +18,9 @@ use windows_sys::Win32::Networking::WinSock::{
 };
 
 use crate::{
-    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT},
+    traceroute::{
+        Ip, TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT,
+    },
     Interface, LeakInfo, LeakStatus,
 };
 
@@ -37,7 +39,12 @@ pub struct AsyncUdpSocketWindows(tokio::net::UdpSocket);
 /// using `ping.exe`, which does work for some reason. My best guess is that it has special kernel
 /// access to be able to do this.
 pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
-    let interface_ip = get_interface_ip(&opt.interface)?;
+    let ip_version = match opt.destination {
+        IpAddr::V4(..) => Ip::V4(()),
+        IpAddr::V6(..) => Ip::V6(()),
+    };
+
+    let interface_ip = get_interface_ip(&opt.interface, ip_version)?;
 
     let mut ping_tasks = FuturesUnordered::new();
 
@@ -119,12 +126,16 @@ impl Traceroute for TracerouteWindows {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = AsyncUdpSocketWindows;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
-        common::bind_socket_to_interface::<Self>(socket, interface)
+    fn bind_socket_to_interface(
+        socket: &Socket,
+        interface: &Interface,
+        ip_version: Ip,
+    ) -> anyhow::Result<()> {
+        common::bind_socket_to_interface::<Self>(socket, interface, ip_version)
     }
 
-    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
-        get_interface_ip(interface)
+    fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
+        get_interface_ip(interface, ip_version)
     }
 
     fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> anyhow::Result<()> {
@@ -184,17 +195,20 @@ impl AsyncUdpSocket for AsyncUdpSocketWindows {
     }
 }
 
-pub fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
+pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
     let interface_luid = match interface {
         Interface::Name(name) => luid_from_alias(name)?,
         Interface::Luid(luid) => *luid,
     };
 
-    // TODO: ipv6
-    let interface_ip = get_ip_address_for_interface(AddressFamily::Ipv4, interface_luid)?
-        .ok_or(anyhow!("No IP for interface {interface:?}"))?;
+    let address_family = match ip_version {
+        Ip::V4(..) => AddressFamily::Ipv4,
+        Ip::V6(..) => AddressFamily::Ipv6,
+    };
 
-    Ok(interface_ip)
+    get_ip_address_for_interface(address_family, interface_luid)
+        .with_context(|| anyhow!("Failed to get IP for interface {interface:?}"))?
+        .ok_or(anyhow!("No IP for interface {interface:?}"))
 }
 
 /// Configure the raw socket we use for listening to ICMP responses.

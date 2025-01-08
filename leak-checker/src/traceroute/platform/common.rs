@@ -13,7 +13,10 @@ use tokio::{
 };
 
 use crate::{
-    traceroute::{parse_icmp_time_exceeded, parse_ipv4, RECV_GRACE_TIME},
+    traceroute::{
+        parse_icmp4_time_exceeded, parse_icmp6_time_exceeded, parse_ipv4, parse_ipv6, Ip,
+        RECV_GRACE_TIME,
+    },
     Interface, LeakInfo, LeakStatus,
 };
 
@@ -22,8 +25,9 @@ use super::{AsyncIcmpSocket, Traceroute};
 pub fn bind_socket_to_interface<Impl: Traceroute>(
     socket: &Socket,
     interface: &Interface,
+    ip_version: Ip,
 ) -> anyhow::Result<()> {
-    let interface_ip = Impl::get_interface_ip(interface)?;
+    let interface_ip = Impl::get_interface_ip(interface, ip_version)?;
 
     log::info!("Binding socket to {interface_ip} ({interface:?})");
 
@@ -60,10 +64,6 @@ pub async fn recv_ttl_responses(
 
         log::debug!("Reading from ICMP socket");
 
-        // let n = socket
-        //    .recv(unsafe { &mut *(&mut read_buf[..] as *mut [u8] as *mut [MaybeUninit<u8>]) })
-        //    .context("Failed to read from raw socket")?;
-
         let (n, source) = select! {
             result = socket.recv_from(&mut read_buf[..]) => result
                 .context("Failed to read from raw socket")?,
@@ -77,23 +77,24 @@ pub async fn recv_ttl_responses(
         };
 
         let packet = &read_buf[..n];
-        // TODO: ipv6
-        let result = parse_ipv4(packet)
-            .map_err(|e| anyhow!("Ignoring packet: (len={n}, ip.src={source}) {e} ({packet:02x?})"))
-            .and_then(|ip_packet| {
-                parse_icmp_time_exceeded(&ip_packet).map_err(|e| {
-                    anyhow!(
-                        "Ignoring packet (len={n}, ip.src={source}, ip.dest={}): {e}",
-                        ip_packet.get_destination(),
-                    )
-                })
-            });
+
+        let parsed = match source {
+            IpAddr::V4(..) => parse_ipv4(packet)
+                .and_then(|ip_packet| parse_icmp4_time_exceeded(&ip_packet))
+                .map(IpAddr::from),
+            IpAddr::V6(..) => parse_ipv6(packet)
+                .and_then(|ip_packet| parse_icmp6_time_exceeded(&ip_packet))
+                .map(IpAddr::from),
+        };
+
+        let result = parsed.map_err(|e| {
+            anyhow!("Ignoring packet: (len={n}, ip.src={source}) {e} ({packet:02x?})")
+        });
 
         match result {
             Ok(ip) => {
                 log::debug!("Got a probe response, we are leaking!");
                 timeout_at.get_or_insert_with(|| Instant::now() + RECV_GRACE_TIME);
-                let ip = IpAddr::from(ip);
                 if !reachable_nodes.contains(&ip) {
                     reachable_nodes.push(ip);
                 }

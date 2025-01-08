@@ -2,7 +2,7 @@ use std::{
     ascii::escape_default,
     convert::Infallible,
     io,
-    net::{IpAddr, Ipv4Addr},
+    net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::{Range, RangeFrom},
     time::Duration,
 };
@@ -10,11 +10,11 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::{future::pending, select, stream, FutureExt, StreamExt, TryStreamExt};
 use pnet_packet::{
-    icmp::{
-        echo_request::EchoRequestPacket, time_exceeded::TimeExceededPacket, IcmpPacket, IcmpTypes,
-    },
+    icmp::{self, time_exceeded::TimeExceededPacket, IcmpCode, IcmpPacket, IcmpTypes},
+    icmpv6::{self, Icmpv6Code, Icmpv6Packet, Icmpv6Types},
     ip::IpNextHeaderProtocols as IpProtocol,
     ipv4::Ipv4Packet,
+    ipv6::Ipv6Packet,
     udp::UdpPacket,
     Packet,
 };
@@ -111,7 +111,14 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
     return platform::windows::traceroute_using_ping(opt).await;
 }
 
-pub async fn try_run_leak_test_impl<Impl: Traceroute>(
+/// IP version, v4 or v6, with some associated data.
+#[derive(Clone, Copy)]
+enum Ip<V4 = (), V6 = ()> {
+    V4(V4),
+    V6(V6),
+}
+
+async fn try_run_leak_test_impl<Impl: Traceroute>(
     opt: &TracerouteOpt,
 ) -> anyhow::Result<LeakStatus> {
     // create the socket used for receiving the ICMP/TimeExceeded responses
@@ -123,27 +130,32 @@ pub async fn try_run_leak_test_impl<Impl: Traceroute>(
         Type::DGRAM
     };
 
-    let icmp_socket = Socket::new(Domain::IPV4, icmp_socket_type, Some(Protocol::ICMPV4))
+    let (ip_version, domain, icmp_protocol) = match opt.destination {
+        IpAddr::V4(..) => (Ip::V4(()), Domain::IPV4, Protocol::ICMPV4),
+        IpAddr::V6(..) => (Ip::V6(()), Domain::IPV6, Protocol::ICMPV6),
+    };
+
+    let icmp_socket = Socket::new(domain, icmp_socket_type, Some(icmp_protocol))
         .context("Failed to open ICMP socket")?;
 
     icmp_socket
         .set_nonblocking(true)
         .context("Failed to set icmp_socket to nonblocking")?;
 
-    Impl::bind_socket_to_interface(&icmp_socket, &opt.interface)?;
+    Impl::bind_socket_to_interface(&icmp_socket, &opt.interface, ip_version)?;
     Impl::configure_icmp_socket(&icmp_socket, opt)?;
 
     let icmp_socket = Impl::AsyncIcmpSocket::from_socket2(icmp_socket);
 
     let send_probes = async {
         if opt.icmp {
-            send_icmp_probes(opt, &icmp_socket).await?;
+            send_icmp_probes::<Impl>(opt, &icmp_socket).await?;
         } else {
             // create the socket used for sending the UDP probing packets
-            let udp_socket = Socket::new(Domain::IPV4, Type::DGRAM, Some(Protocol::UDP))
+            let udp_socket = Socket::new(domain, Type::DGRAM, Some(Protocol::UDP))
                 .context("Failed to open UDP socket")?;
 
-            Impl::bind_socket_to_interface(&udp_socket, &opt.interface)
+            Impl::bind_socket_to_interface(&udp_socket, &opt.interface, ip_version)
                 .context("Failed to bind UDP socket to interface")?;
 
             udp_socket
@@ -181,12 +193,10 @@ pub async fn try_run_leak_test_impl<Impl: Traceroute>(
 /// Send ICMP/Echo packets with a very low TTL to `opt.destination`.
 ///
 /// Use [AsyncIcmpSocket::recv_ttl_responses] to receive replies.
-async fn send_icmp_probes(
+async fn send_icmp_probes<Impl: Traceroute>(
     opt: &TracerouteOpt,
     socket: &impl AsyncIcmpSocket,
 ) -> anyhow::Result<()> {
-    use pnet_packet::icmp::{echo_request::*, *};
-
     for ttl in DEFAULT_TTL_RANGE {
         log::debug!("sending probe packet (ttl={ttl})");
 
@@ -197,22 +207,61 @@ async fn send_icmp_probes(
         // the first packet will sometimes get dropped on MacOS, thus we send two packets
         let number_of_sends = if cfg!(target_os = "macos") { 2 } else { 1 };
 
-        let echo = EchoRequest {
-            icmp_type: IcmpTypes::EchoRequest,
-            icmp_code: IcmpCode(0),
-            checksum: 0,
-            identifier: 1,
-            sequence_number: 1,
-            payload: PROBE_PAYLOAD.to_vec(),
-        };
-        let mut packet =
-            MutableEchoRequestPacket::owned(vec![0u8; 8 + PROBE_PAYLOAD.len()]).unwrap();
-        packet.populate(&echo);
-        packet.set_checksum(checksum(&IcmpPacket::new(packet.packet()).unwrap()));
+        // construct ICMP/ICMP6 echo request packet
+        let mut packet_v4;
+        let mut packet_v6;
+        let packet_bytes;
+        const ECHO_REQUEST_HEADER_LEN: usize = 8;
+        match opt.destination {
+            IpAddr::V4(..) => {
+                let echo = icmp::echo_request::EchoRequest {
+                    icmp_type: IcmpTypes::EchoRequest,
+                    icmp_code: IcmpCode(0),
+                    checksum: 0,
+                    identifier: 1,
+                    sequence_number: 1,
+                    payload: PROBE_PAYLOAD.to_vec(),
+                };
+
+                let len = ECHO_REQUEST_HEADER_LEN + PROBE_PAYLOAD.len();
+                packet_v4 =
+                    icmp::echo_request::MutableEchoRequestPacket::owned(vec![0u8; len]).unwrap();
+                packet_v4.populate(&echo);
+                packet_v4.set_checksum(icmp::checksum(
+                    &icmp::IcmpPacket::new(packet_v4.packet()).unwrap(),
+                ));
+                packet_bytes = packet_v4.packet();
+            }
+            IpAddr::V6(destination) => {
+                let IpAddr::V6(source) = Impl::get_interface_ip(&opt.interface, Ip::V6(()))? else {
+                    bail!("Tried to send IPv6 on IPv4 interface");
+                };
+
+                let echo = icmpv6::echo_request::EchoRequest {
+                    icmpv6_type: Icmpv6Types::EchoRequest,
+                    icmpv6_code: Icmpv6Code(0),
+                    checksum: 0,
+                    identifier: 1,
+                    sequence_number: 1,
+                    payload: PROBE_PAYLOAD.to_vec(),
+                };
+
+                let len = ECHO_REQUEST_HEADER_LEN + PROBE_PAYLOAD.len();
+                packet_v6 =
+                    icmpv6::echo_request::MutableEchoRequestPacket::owned(vec![0u8; len]).unwrap();
+                packet_v6.populate(&echo);
+                packet_v6.set_checksum(icmpv6::checksum(
+                    &icmpv6::Icmpv6Packet::new(packet_v6.packet()).unwrap(),
+                    &source,
+                    &destination,
+                ));
+                packet_bytes = packet_v6.packet();
+            }
+        }
 
         let result: io::Result<()> = stream::iter(0..number_of_sends)
             // call `send_to` `number_of_sends` times
-            .then(|_| socket.send_to(packet.packet(), opt.destination))
+            .then(|_| socket.send_to(packet_bytes, opt.destination))
             .map_ok(drop)
             .try_collect() // abort on the first error
             .await;
@@ -279,6 +328,23 @@ async fn send_udp_probes(
     Ok(())
 }
 
+/// Try to parse the bytes as an IPv4 or IPv6 packet.
+///
+/// This only valdiates the IP header, not the payload.
+fn parse_ip(packet: &[u8]) -> anyhow::Result<Ip<Ipv4Packet<'_>, Ipv6Packet<'_>>> {
+    let ipv4_packet = Ipv4Packet::new(packet).ok_or_else(too_small)?;
+
+    // ipv4-packets are smaller than ipv6, so we use an Ipv4Packet to check the version.
+    Ok(match ipv4_packet.get_version() {
+        4 => Ip::V4(ipv4_packet),
+        6 => {
+            let ipv6_packet = Ipv6Packet::new(packet).ok_or_else(too_small)?;
+            Ip::V6(ipv6_packet)
+        }
+        _ => bail!("Not a valid IP header"),
+    })
+}
+
 /// Try to parse the bytes as an IPv4 packet.
 ///
 /// This only valdiates the IPv4 header, not the payload.
@@ -288,40 +354,86 @@ fn parse_ipv4(packet: &[u8]) -> anyhow::Result<Ipv4Packet<'_>> {
     anyhow::Ok(ip_packet)
 }
 
+/// Try to parse the bytes as an IPv6 packet.
+///
+/// This only valdiates the IPv6 header, not the payload.
+fn parse_ipv6(packet: &[u8]) -> anyhow::Result<Ipv6Packet<'_>> {
+    let ip_packet = Ipv6Packet::new(packet).ok_or_else(too_small)?;
+    ensure!(ip_packet.get_version() == 6, "Not IPv6");
+    anyhow::Ok(ip_packet)
+}
+
 /// Try to parse an [Ipv4Packet] as an ICMP/TimeExceeded response to a packet sent by
 /// [send_udp_probes] or [send_icmp_probes]. If successful, returns the [Ipv4Addr] of the packet
 /// source.
 ///
 /// If the packet fails to parse, or is not a reply to a packet sent by us, this function returns
 /// an error.
-fn parse_icmp_time_exceeded(ip_packet: &Ipv4Packet<'_>) -> anyhow::Result<Ipv4Addr> {
+fn parse_icmp4_time_exceeded(ip_packet: &Ipv4Packet<'_>) -> anyhow::Result<Ipv4Addr> {
     let ip_protocol = ip_packet.get_next_level_protocol();
     ensure!(ip_protocol == IpProtocol::Icmp, "Not ICMP");
-    parse_icmp_time_exceeded_raw(ip_packet.payload())?;
+    parse_icmp_time_exceeded_raw(Ip::V4(ip_packet.payload()))?;
     Ok(ip_packet.get_source())
 }
 
-/// Try to parse some bytes into an ICMP/TimeExceeded response to a probe packet sent by
+/// Try to parse an [Ipv6Packet] as an ICMP6/TimeExceeded response to a packet sent by
+/// [send_udp_probes] or [send_icmp_probes]. If successful, returns the [Ipv6Addr] of the packet
+/// source.
+///
+/// If the packet fails to parse, or is not a reply to a packet sent by us, this function returns
+/// an error.
+fn parse_icmp6_time_exceeded(ip_packet: &Ipv6Packet<'_>) -> anyhow::Result<Ipv6Addr> {
+    let ip_protocol = ip_packet.get_next_header();
+    ensure!(ip_protocol == IpProtocol::Icmpv6, "Not ICMP6");
+    parse_icmp_time_exceeded_raw(Ip::V6(ip_packet.payload()))?;
+    Ok(ip_packet.get_source())
+}
+
+/// Try to parse some bytes into an ICMP or ICMP6 TimeExceeded response to a probe packet sent by
 /// [send_udp_probes] or [send_icmp_probes].
 ///
 /// If the packet fails to parse, or is not a reply to a packet sent by us, this function returns
 /// an error.
-fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> anyhow::Result<()> {
-    let icmp_packet = IcmpPacket::new(bytes).ok_or(anyhow!("Too small"))?;
+fn parse_icmp_time_exceeded_raw(ip_payload: Ip<&[u8], &[u8]>) -> anyhow::Result<()> {
+    let icmpv4_packet;
+    let icmpv6_packet;
+    let icmp_packet: &[u8] = match ip_payload {
+        Ip::V4(ipv4_payload) => {
+            icmpv4_packet = IcmpPacket::new(ipv4_payload).ok_or(anyhow!("Too small"))?;
 
-    let correct_type = icmp_packet.get_icmp_type() == IcmpTypes::TimeExceeded;
-    ensure!(correct_type, "Not ICMP/TimeExceeded");
+            let correct_type = icmpv4_packet.get_icmp_type() == IcmpTypes::TimeExceeded;
+            ensure!(correct_type, "Not ICMP/TimeExceeded");
 
-    let time_exceeeded = TimeExceededPacket::new(icmp_packet.packet()).ok_or_else(too_small)?;
+            icmpv4_packet.packet()
+        }
+        Ip::V6(ipv6_payload) => {
+            icmpv6_packet = Icmpv6Packet::new(ipv6_payload).ok_or(anyhow!("Too small"))?;
 
-    let original_ip_packet = Ipv4Packet::new(time_exceeeded.payload()).ok_or_else(too_small)?;
-    let original_ip_protocol = original_ip_packet.get_next_level_protocol();
-    ensure!(original_ip_packet.get_version() == 4, "Not IPv4");
+            let correct_type = icmpv6_packet.get_icmpv6_type() == Icmpv6Types::TimeExceeded;
+            ensure!(correct_type, "Not ICMP6/TimeExceeded");
+
+            icmpv6_packet.packet()
+        }
+    };
+
+    // TimeExceededPacket looks the same for both ICMP and ICMP6.
+    let time_exceeded = TimeExceededPacket::new(icmp_packet).ok_or_else(too_small)?;
+    ensure!(
+        time_exceeded.get_icmp_code()
+            == icmp::time_exceeded::IcmpCodes::TimeToLiveExceededInTransit,
+        "Not TTL Exceeded",
+    );
+
+    let original_ip_packet = parse_ip(time_exceeded.payload()).context("ICMP-wrapped IP packet")?;
+
+    let (original_ip_protocol, original_ip_payload) = match &original_ip_packet {
+        Ip::V4(ipv4_packet) => (ipv4_packet.get_next_level_protocol(), ipv4_packet.payload()),
+        Ip::V6(ipv6_packet) => (ipv6_packet.get_next_header(), ipv6_packet.payload()),
+    };
 
     match original_ip_protocol {
         IpProtocol::Udp => {
-            let original_udp_packet =
-                UdpPacket::new(original_ip_packet.payload()).ok_or_else(too_small)?;
+            let original_udp_packet = UdpPacket::new(original_ip_payload).ok_or_else(too_small)?;
 
             // check if payload looks right
             // some network nodes will strip the payload, that's fine.
@@ -345,9 +457,36 @@ fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> anyhow::Result<()> {
             Ok(())
         }
 
+        IpProtocol::Icmpv6 => {
+            let original_icmp_packet =
+                icmpv6::echo_request::EchoRequestPacket::new(original_ip_payload)
+                    .ok_or_else(too_small)?;
+
+            ensure!(
+                original_icmp_packet.get_icmpv6_type() == Icmpv6Types::EchoRequest,
+                "Not ICMP6/EchoRequest"
+            );
+
+            // check if payload looks right
+            // some network nodes will strip the payload, that's fine.
+            let echo_payload = original_icmp_packet.payload();
+            if !echo_payload.is_empty() && !echo_payload.starts_with(&PROBE_PAYLOAD) {
+                let echo_payload: String = echo_payload
+                    .iter()
+                    .copied()
+                    .flat_map(escape_default)
+                    .map(char::from)
+                    .collect();
+                bail!("Wrong ICMP6/Echo payload: {echo_payload:?}");
+            }
+
+            Ok(())
+        }
+
         IpProtocol::Icmp => {
             let original_icmp_packet =
-                EchoRequestPacket::new(original_ip_packet.payload()).ok_or_else(too_small)?;
+                icmp::echo_request::EchoRequestPacket::new(original_ip_payload)
+                    .ok_or_else(too_small)?;
 
             ensure!(
                 original_icmp_packet.get_icmp_type() == IcmpTypes::EchoRequest,
@@ -374,18 +513,37 @@ fn parse_icmp_time_exceeded_raw(bytes: &[u8]) -> anyhow::Result<()> {
     }
 }
 
-fn parse_icmp_echo_raw(icmp_bytes: &[u8]) -> anyhow::Result<()> {
-    let echo_packet = EchoRequestPacket::new(icmp_bytes).ok_or_else(too_small)?;
+fn parse_icmp_echo_raw(icmp_bytes: Ip<&[u8], &[u8]>) -> anyhow::Result<()> {
+    let echo_packet_v4;
+    let echo_packet_v6;
+    let echo_payload = match icmp_bytes {
+        Ip::V4(icmpv4_bytes) => {
+            echo_packet_v4 =
+                icmp::echo_request::EchoRequestPacket::new(icmpv4_bytes).ok_or_else(too_small)?;
 
-    ensure!(
-        echo_packet.get_icmp_type() == IcmpTypes::EchoRequest,
-        "Not ICMP/EchoRequest"
-    );
+            ensure!(
+                echo_packet_v4.get_icmp_type() == IcmpTypes::EchoRequest,
+                "Not ICMP/EchoRequest"
+            );
+
+            echo_packet_v4.payload()
+        }
+        Ip::V6(icmpv6_bytes) => {
+            echo_packet_v6 =
+                icmpv6::echo_request::EchoRequestPacket::new(icmpv6_bytes).ok_or_else(too_small)?;
+
+            ensure!(
+                echo_packet_v6.get_icmpv6_type() == Icmpv6Types::EchoRequest,
+                "Not ICMP6/EchoRequest"
+            );
+
+            echo_packet_v6.payload()
+        }
+    };
 
     // check if payload looks right
     // some network nodes will strip the payload.
     // some network nodes will add a bunch of zeros at the end.
-    let echo_payload = echo_packet.payload();
     if !echo_payload.is_empty() && !echo_payload.starts_with(&PROBE_PAYLOAD) {
         let echo_payload: String = echo_payload
             .iter()
@@ -393,7 +551,7 @@ fn parse_icmp_echo_raw(icmp_bytes: &[u8]) -> anyhow::Result<()> {
             .flat_map(escape_default)
             .map(char::from)
             .collect();
-        bail!("Wrong ICMP/Echo payload: {echo_payload:?}");
+        bail!("Wrong ICMP6/Echo payload: {echo_payload:?}");
     }
 
     Ok(())

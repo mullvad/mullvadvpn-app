@@ -5,7 +5,7 @@ use std::{
 
 use crate::{Interface, LeakStatus};
 
-use super::TracerouteOpt;
+use super::{Ip, TracerouteOpt};
 
 #[cfg(any(target_os = "linux", target_os = "android"))]
 pub mod android;
@@ -28,15 +28,16 @@ pub mod common;
 
 /// Private trait that let's us define the platform-specific implementations and types required for
 /// tracerouting.
-pub trait Traceroute {
+pub(crate) trait Traceroute {
     type AsyncIcmpSocket: AsyncIcmpSocket;
     type AsyncUdpSocket: AsyncUdpSocket;
 
-    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr>;
+    fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr>;
 
     fn bind_socket_to_interface(
         socket: &socket2::Socket,
         interface: &Interface,
+        ip_version: Ip,
     ) -> anyhow::Result<()>;
 
     /// Configure an ICMP socket to allow reception of ICMP/TimeExceeded errors.
@@ -44,7 +45,7 @@ pub trait Traceroute {
     fn configure_icmp_socket(socket: &socket2::Socket, opt: &TracerouteOpt) -> anyhow::Result<()>;
 }
 
-pub trait AsyncIcmpSocket {
+pub(crate) trait AsyncIcmpSocket {
     fn from_socket2(socket: socket2::Socket) -> Self;
 
     fn set_ttl(&self, ttl: u32) -> anyhow::Result<()>;
@@ -61,7 +62,7 @@ pub trait AsyncIcmpSocket {
     async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus>;
 }
 
-pub trait AsyncUdpSocket {
+pub(crate) trait AsyncUdpSocket {
     fn from_socket2(socket: socket2::Socket) -> Self;
 
     fn set_ttl(&self, ttl: u32) -> anyhow::Result<()>;

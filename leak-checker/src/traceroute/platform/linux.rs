@@ -4,19 +4,18 @@ use std::{net::IpAddr, time::Duration};
 
 use anyhow::{anyhow, bail, Context};
 use nix::errno::Errno;
-use nix::sys::socket::sockopt::Ipv4RecvErr;
 use nix::sys::socket::{
-    recvmsg, setsockopt, ControlMessageOwned, MsgFlags, SockaddrIn, SockaddrIn6, SockaddrLike,
+    recvmsg, setsockopt, sockopt::Ipv4RecvErr, ControlMessageOwned, MsgFlags, SockaddrIn,
+    SockaddrIn6, SockaddrLike,
 };
 use nix::{cmsg_space, libc};
 use pnet_packet::icmp::time_exceeded::IcmpCodes;
-use pnet_packet::icmp::IcmpTypes;
-use pnet_packet::icmp::{IcmpCode, IcmpType};
+use pnet_packet::icmp::{IcmpCode, IcmpType, IcmpTypes};
 use pnet_packet::icmpv6::{Icmpv6Code, Icmpv6Type, Icmpv6Types};
 use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
-use crate::traceroute::{parse_icmp_echo_raw, TracerouteOpt, RECV_GRACE_TIME};
+use crate::traceroute::{parse_icmp_echo_raw, Ip, TracerouteOpt, RECV_GRACE_TIME};
 use crate::{Interface, LeakInfo, LeakStatus};
 
 use super::{unix, AsyncIcmpSocket, Traceroute};
@@ -29,12 +28,16 @@ impl Traceroute for TracerouteLinux {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
     type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
-    fn bind_socket_to_interface(socket: &Socket, interface: &Interface) -> anyhow::Result<()> {
+    fn bind_socket_to_interface(
+        socket: &Socket,
+        interface: &Interface,
+        _: Ip,
+    ) -> anyhow::Result<()> {
         bind_socket_to_interface(socket, interface)
     }
 
-    fn get_interface_ip(interface: &Interface) -> anyhow::Result<IpAddr> {
-        super::unix::get_interface_ip(interface)
+    fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
+        super::unix::get_interface_ip(interface, ip_version)
     }
 
     fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> anyhow::Result<()> {
@@ -149,43 +152,28 @@ async fn recv_ttl_responses(
             break recv_packet;
         };
 
-        // NOTE: This should be the IP destination of our ping packets. That does NOT mean the
-        // packets reached the destination. Instead, if we see an EHOSTUNREACH control message,
-        // it means the packets was instead dropped along the way. Seeing this address helps us
-        // identify that this is a response to the ping we sent.
         let RecvPacket {
             source_addr,
             packet,
             control_message,
         } = recv_packet;
-        debug_assert_eq!(source_addr, destination);
+
+        macro_rules! skip_if {
+            ($skip_condition:expr, $message:expr) => {{
+                if $skip_condition {
+                    log::debug!("Ignoring received packet: {}", $skip_condition);
+                    continue 'outer;
+                }
+            }};
+        }
+
+        // NOTE: This should be the IP destination of our ping packets. That does NOT mean the
+        // packets reached the destination. Instead, if we see an EHOSTUNREACH control message,
+        // it means the packets was instead dropped along the way. Seeing this address helps us
+        // identify that this is a response to the ping we sent.
+        skip_if!(source_addr != destination, "Unknown source");
 
         let error_source = match control_message {
-            ControlMessageOwned::Ipv6RecvErr(socket_error, source_addr) => {
-                let libc::sock_extended_err {
-                    ee_errno,  // Error Number: Should be EHOSTUNREACH
-                    ee_origin, // Error Origin: 3 = Icmp6.
-                    ee_type,   // ICMP Type: 3 = ICMP6/TimeExceeded
-                    ee_code,   // ICMP Code. 0 = TTL exceeded in transit.
-                    ..
-                } = socket_error;
-
-                let errno = Errno::from_raw(ee_errno as i32);
-                debug_assert_eq!(errno, Errno::EHOSTUNREACH);
-                debug_assert_eq!(ee_origin, nix::libc::SO_EE_ORIGIN_ICMP6);
-
-                let icmp_type = Icmpv6Type::new(ee_type);
-                debug_assert_eq!(icmp_type, Icmpv6Types::TimeExceeded);
-
-                let icmp_code = Icmpv6Code::new(ee_code);
-                debug_assert_eq!(icmp_code, Icmpv6Code::new(0));
-
-                // NOTE: This is the IP of the node that dropped the packet due to TTL exceeded.
-                let error_source = SockaddrIn6::from(source_addr.unwrap());
-                log::debug!("addr: {error_source}");
-
-                IpAddr::from(error_source.ip())
-            }
             ControlMessageOwned::Ipv4RecvErr(socket_error, source_addr) => {
                 let libc::sock_extended_err {
                     ee_errno,  // Error Number: Should be EHOSTUNREACH
@@ -196,18 +184,67 @@ async fn recv_ttl_responses(
                 } = socket_error;
 
                 let errno = Errno::from_raw(ee_errno as i32);
-                debug_assert_eq!(errno, Errno::EHOSTUNREACH);
-                debug_assert_eq!(ee_origin, nix::libc::SO_EE_ORIGIN_ICMP);
+                skip_if!(errno != Errno::EHOSTUNREACH, "Unexpected errno");
+                skip_if!(
+                    ee_origin != nix::libc::SO_EE_ORIGIN_ICMP,
+                    "Unexpected origin"
+                );
 
                 let icmp_type = IcmpType::new(ee_type);
-                debug_assert_eq!(icmp_type, IcmpTypes::TimeExceeded);
+                skip_if!(icmp_type != IcmpTypes::TimeExceeded, "Unexpected ICMP type");
 
                 let icmp_code = IcmpCode::new(ee_code);
-                debug_assert_eq!(icmp_code, IcmpCodes::TimeToLiveExceededInTransit);
+                skip_if!(
+                    icmp_code != IcmpCodes::TimeToLiveExceededInTransit,
+                    "Unexpected ICMP code"
+                );
 
                 // NOTE: This is the IP of the node that dropped the packet due to TTL exceeded.
                 let error_source = SockaddrIn::from(source_addr.unwrap());
                 log::debug!("addr: {error_source}");
+
+                // Ensure that this is the original Echo packet that we sent.
+                skip_if!(
+                    parse_icmp_echo_raw(Ip::V4(packet)).is_err(),
+                    "Not a response to us"
+                );
+
+                IpAddr::from(error_source.ip())
+            }
+            ControlMessageOwned::Ipv6RecvErr(socket_error, source_addr) => {
+                let libc::sock_extended_err {
+                    ee_errno,  // Error Number: Should be EHOSTUNREACH
+                    ee_origin, // Error Origin: 3 = Icmp6.
+                    ee_type,   // ICMP Type: 3 = ICMP6/TimeExceeded
+                    ee_code,   // ICMP Code. 0 = TTL exceeded in transit.
+                    ..
+                } = socket_error;
+
+                let errno = Errno::from_raw(ee_errno as i32);
+                skip_if!(errno != Errno::EHOSTUNREACH, "Unexpected errno");
+                skip_if!(
+                    ee_origin != nix::libc::SO_EE_ORIGIN_ICMP6,
+                    "Unexpected origin"
+                );
+
+                let icmp_type = Icmpv6Type::new(ee_type);
+                skip_if!(
+                    icmp_type != Icmpv6Types::TimeExceeded,
+                    "Unexpected ICMP type"
+                );
+
+                let icmp_code = Icmpv6Code::new(ee_code);
+                skip_if!(icmp_code != Icmpv6Code::new(0), "Unexpected ICMP code");
+
+                // NOTE: This is the IP of the node that dropped the packet due to TTL exceeded.
+                let error_source = SockaddrIn6::from(source_addr.unwrap());
+                log::debug!("addr: {error_source}");
+
+                // Ensure that this is the original Echo packet that we sent.
+                skip_if!(
+                    parse_icmp_echo_raw(Ip::V6(packet)).is_err(),
+                    "Not a response to us"
+                );
 
                 IpAddr::from(error_source.ip())
             }
@@ -217,10 +254,6 @@ async fn recv_ttl_responses(
                 bail!("Unhandled control message: {other_message:?}");
             }
         };
-
-        // Ensure that this is the original Echo packet that we sent.
-        // TODO: skip on error
-        parse_icmp_echo_raw(packet).context("")?;
 
         log::debug!("Got a probe response, we are leaking!");
         timeout_at.get_or_insert_with(|| Instant::now() + RECV_GRACE_TIME);
