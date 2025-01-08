@@ -25,6 +25,7 @@ use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]
 use talpid_tunnel::TunnelMetadata;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelEvent};
+use talpid_tunnel_config_client::classic_mceliece::{spawn_keypair_worker, BUFSIZE, KEYPAIR_RX};
 #[cfg(target_os = "macos")]
 use talpid_types::ErrorExt;
 
@@ -176,6 +177,8 @@ pub async fn spawn(
             log::error!("Can't send shutdown completion to daemon");
         }
     });
+
+    KEYPAIR_RX.get_or_init(|| tokio::sync::Mutex::new(spawn_keypair_worker(BUFSIZE)));
 
     Ok(TunnelStateMachineHandle {
         command_tx,
