@@ -1,2 +1,2 @@
 Use DAITA version 2.
-Improve connection stability when using PQ or DAITA.
+Improve connection stability when using Quantum-resistant tunnels or DAITA.
