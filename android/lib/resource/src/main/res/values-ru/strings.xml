@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Блокируется доступ в Интернет (устройство офлайн)</string>
     <string name="buy_credit">Пополнить баланс</string>
     <string name="cancel">Отмена</string>
-    <string name="changelog_title">История изменений</string>
-    <string name="changes_dialog_subtitle">Изменения в этой версии:</string>
     <string name="cipher">Шифр</string>
     <string name="clear_input">Очистить поле ввода</string>
     <string name="close">Закрыть</string>

@@ -161,7 +161,6 @@
     <string name="copy_account_number">Copy account number</string>
     <string name="hide_account_number">Hide account number</string>
     <string name="failed_to_remove_device">Failed to remove device</string>
-    <string name="changes_dialog_subtitle">Changes in this version:</string>
     <string name="always_on_vpn_error_notification_title">Always-on VPN assigned to %s</string>
     <string name="always_on_vpn_error_notification_content">
         <![CDATA[Unable to start tunnel connection. Please disable Always-on VPN for <b>%s</b> before using Mullvad VPN.]]>
@@ -175,6 +174,8 @@
     <string name="new_device_notification_message">
         <![CDATA[Welcome, this device is now called <b>%s</b>. For more details see the info button in Account.]]>
     </string>
+    <string name="new_changelog_notification_title">NEW VERSION INSTALLED</string>
+    <string name="new_changelog_notification_message">Click here to see what’s new.</string>
     <string name="agree_and_continue">Agree and continue</string>
     <string name="privacy_disclaimer_title">Privacy</string>
     <string name="privacy_disclaimer_body_first_paragraph">To make sure that you have the most secure version and to inform you of any issues with the current version that is running, the app performs version checks automatically. This sends the app version and Android system version to Mullvad servers. Mullvad keeps counters on number of used app versions and Android versions. The data is never stored or used in any way that can identify you.</string>
@@ -387,7 +388,7 @@
     <string name="copy">Copy</string>
     <string name="share">Share…</string>
     <string name="app_info">App info</string>
-    <string name="changelog_title">Changelog</string>
+    <string name="changelog_title">What’s new</string>
     <string name="version">Version</string>
     <string name="local_network_sharing_info_block_connections_warning">Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work.</string>
     <string name="encrypted_dns_proxy_info_message_part1">With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</string>
@@ -417,4 +418,6 @@
     <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
+    <string name="see_full_changelog">See full changelog</string>
+    <string name="changelog_empty">No changelog was added for this version</string>
 </resources>

@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Blockerar internet (enheten är offline)</string>
     <string name="buy_credit">Köp kredit</string>
     <string name="cancel">Avbryt</string>
-    <string name="changelog_title">Ändringslogg</string>
-    <string name="changes_dialog_subtitle">Ändringar i den här versionen:</string>
     <string name="cipher">Chiffrering</string>
     <string name="clear_input">Rensa inmatning</string>
     <string name="close">Stäng</string>

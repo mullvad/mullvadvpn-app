@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Blokering af internet (enhed offline)</string>
     <string name="buy_credit">Køb kredit</string>
     <string name="cancel">Annuller</string>
-    <string name="changelog_title">Ændringslog</string>
-    <string name="changes_dialog_subtitle">Ændringer i denne version:</string>
     <string name="cipher">Chiffer</string>
     <string name="clear_input">Ryd input</string>
     <string name="close">Luk</string>
