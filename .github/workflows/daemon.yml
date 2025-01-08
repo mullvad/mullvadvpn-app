@@ -10,7 +10,6 @@ on:
       - '!.github/CODEOWNERS'
       - '!android/**'
       - '!audits/**'
-      - '!build-apk.sh'
       - '!build.sh'
       - '!ci/**'
       - 'ci/check-rust.sh'

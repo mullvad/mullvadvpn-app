@@ -54,6 +54,9 @@ kotlinx-serialization = "2.1.0"
 protobuf-gradle-plugin = "0.9.4"
 protobuf = "4.29.2"
 
+# Rust Android Gradle
+rust-android-gradle = "0.9.5"
+
 # Misc
 commonsvalidator = "1.9.0"
 dependency-check = "10.0.4"
@@ -185,6 +188,9 @@ protobuf-protoc = { id = "com.google.protobuf:protoc", version.ref = "protobuf" 
 # gRPC
 grpc-protoc-gen-grpc-java = { id = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
 grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.ref = "grpc-kotlin-jar" }
+
+# Rust Android Gradle
+rust-android-gradle = { id = "org.mozilla.rust-android-gradle.rust-android", version.ref = "rust-android-gradle" }
 
 # Misc
 dependency-check = { id = "org.owasp.dependencycheck", version.ref = "dependency-check" }
