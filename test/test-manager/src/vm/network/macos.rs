@@ -44,9 +44,8 @@ pub async fn setup_test_network() -> Result<()> {
     Ok(())
 }
 
-/// A hack to find the Tart bridge interface using `NON_TUN_GATEWAY`.
-/// It should be possible to retrieve this using the virtualization framework instead,
-/// but that requires an entitlement.
+/// Returns the interface name and IP address of the bridge gateway, which is the (first) bridge
+/// network that the given `guest_ip` belongs to.
 pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> {
     for addr in nix::ifaddrs::getifaddrs()
         .unwrap()
