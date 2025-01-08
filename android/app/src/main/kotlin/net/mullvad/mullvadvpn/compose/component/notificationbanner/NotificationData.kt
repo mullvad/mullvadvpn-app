@@ -10,7 +10,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.withStyle
 import androidx.core.text.HtmlCompat
 import java.net.InetAddress
 import net.mullvad.mullvadvpn.R
@@ -25,7 +28,7 @@ import net.mullvad.mullvadvpn.ui.notification.StatusLevel
 
 data class NotificationData(
     val title: AnnotatedString,
-    val message: AnnotatedString? = null,
+    val message: NotificationMessage? = null,
     val statusLevel: StatusLevel,
     val action: NotificationAction? = null,
 ) {
@@ -34,7 +37,31 @@ data class NotificationData(
         message: String? = null,
         statusLevel: StatusLevel,
         action: NotificationAction? = null,
-    ) : this(AnnotatedString(title), message?.let { AnnotatedString(it) }, statusLevel, action)
+    ) : this(
+        AnnotatedString(title),
+        message?.let { NotificationMessage.Text(AnnotatedString(it)) },
+        statusLevel,
+        action,
+    )
+
+    constructor(
+        title: String,
+        message: NotificationMessage,
+        statusLevel: StatusLevel,
+        action: NotificationAction? = null,
+    ) : this(AnnotatedString(title), message, statusLevel, action)
+}
+
+sealed interface NotificationMessage {
+    val text: AnnotatedString
+
+    data class Text(override val text: AnnotatedString) : NotificationMessage
+
+    data class ClickableText(
+        override val text: AnnotatedString,
+        val onClick: () -> Unit,
+        val contentDescription: String,
+    ) : NotificationMessage
 }
 
 data class NotificationAction(
@@ -48,7 +75,9 @@ fun InAppNotification.toNotificationData(
     isPlayBuild: Boolean,
     openAppListing: () -> Unit,
     onClickShowAccount: () -> Unit,
-    onDismissNewDevice: () -> Unit,
+    onClickShowChangelog: () -> Unit,
+    onClickDismissChangelog: () -> Unit,
+    onClickDismissNewDevice: () -> Unit,
 ) =
     when (this) {
         is InAppNotification.NewDevice ->
@@ -56,13 +85,15 @@ fun InAppNotification.toNotificationData(
                 title =
                     AnnotatedString(stringResource(id = R.string.new_device_notification_title)),
                 message =
-                    stringResource(id = R.string.new_device_notification_message, deviceName)
-                        .formatWithHtml(),
+                    NotificationMessage.Text(
+                        stringResource(id = R.string.new_device_notification_message, deviceName)
+                            .formatWithHtml()
+                    ),
                 statusLevel = StatusLevel.Info,
                 action =
                     NotificationAction(
                         Icons.Default.Clear,
-                        onDismissNewDevice,
+                        onClickDismissNewDevice,
                         stringResource(id = R.string.dismiss),
                     ),
             )
@@ -98,13 +129,40 @@ fun InAppNotification.toNotificationData(
                         stringResource(id = R.string.open_url),
                     ),
             )
+        is InAppNotification.NewVersionChangelog ->
+            NotificationData(
+                title = stringResource(id = R.string.new_changelog_notification_title),
+                message =
+                    NotificationMessage.ClickableText(
+                        text =
+                            buildAnnotatedString {
+                                withStyle(SpanStyle(textDecoration = TextDecoration.Underline)) {
+                                    append(
+                                        stringResource(
+                                            id = R.string.new_changelog_notification_message
+                                        )
+                                    )
+                                }
+                            },
+                        onClick = onClickShowChangelog,
+                        contentDescription =
+                            stringResource(id = R.string.new_changelog_notification_message),
+                    ),
+                statusLevel = StatusLevel.Info,
+                action =
+                    NotificationAction(
+                        Icons.Default.Clear,
+                        onClickDismissChangelog,
+                        stringResource(id = R.string.dismiss),
+                    ),
+            )
     }
 
 @Composable
 private fun errorMessageBannerData(error: ErrorState) =
     NotificationData(
         title = error.title().formatWithHtml(),
-        message = error.message().formatWithHtml(),
+        message = NotificationMessage.Text(error.message().formatWithHtml()),
         statusLevel = StatusLevel.Error,
     )
 
