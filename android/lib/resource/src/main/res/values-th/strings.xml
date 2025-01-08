@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)</string>
     <string name="buy_credit">ซื้อเครดิต</string>
     <string name="cancel">ยกเลิก</string>
-    <string name="changelog_title">บันทึกการเปลี่ยนแปลง</string>
-    <string name="changes_dialog_subtitle">การเปลี่ยนแปลงในเวอร์ชันนี้:</string>
     <string name="cipher">เข้ารหัส</string>
     <string name="clear_input">ล้างข้อมูลอินพุต</string>
     <string name="close">ปิด</string>

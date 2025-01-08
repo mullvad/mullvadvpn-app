@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Blocco di Internet (dispositivo offline)</string>
     <string name="buy_credit">Acquista credito</string>
     <string name="cancel">Annulla</string>
-    <string name="changelog_title">Changelog</string>
-    <string name="changes_dialog_subtitle">Modifiche in questa versione:</string>
     <string name="cipher">Codice</string>
     <string name="clear_input">Cancella inserimento</string>
     <string name="close">Chiudi</string>

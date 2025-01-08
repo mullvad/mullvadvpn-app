@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Internetyhteys on estetty (laite on offline-tilassa)</string>
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="cancel">Peruuta</string>
-    <string name="changelog_title">Muutosloki</string>
-    <string name="changes_dialog_subtitle">Muutokset tässä versiossa:</string>
     <string name="cipher">Salaus</string>
     <string name="clear_input">Tyhjennä syöte</string>
     <string name="close">Sulje</string>

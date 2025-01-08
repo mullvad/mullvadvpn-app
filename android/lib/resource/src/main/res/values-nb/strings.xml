@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Blokkerer internett (enhet frakoblet)</string>
     <string name="buy_credit">Kjøp kreditt</string>
     <string name="cancel">Avbryt</string>
-    <string name="changelog_title">Changelog</string>
-    <string name="changes_dialog_subtitle">Endringer i denne versjonen:</string>
     <string name="cipher">Chiffer</string>
     <string name="clear_input">Fjern inndata</string>
     <string name="close">Lukk</string>
