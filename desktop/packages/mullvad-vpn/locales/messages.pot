@@ -2364,16 +2364,13 @@ msgstr ""
 msgid "Blocking..."
 msgstr ""
 
-msgid "Changelog"
-msgstr ""
-
-msgid "Changes in this version:"
-msgstr ""
-
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr ""
 
 msgid "Clear input"
+msgstr ""
+
+msgid "Click here to see what’s new."
 msgstr ""
 
 msgid "Collapse"
@@ -2551,6 +2548,9 @@ msgid "Name was changed to %s"
 msgstr ""
 
 msgid "New list"
+msgstr ""
+
+msgid "No changelog was added for this version"
 msgstr ""
 
 msgid "No custom lists available"
@@ -2761,6 +2761,9 @@ msgid "We were unable to start the payment process, please make sure you have th
 msgstr ""
 
 msgid "We were unable to start the payment process, please try again later."
+msgstr ""
+
+msgid "What’s new"
 msgstr ""
 
 msgid "WireGuard MTU"

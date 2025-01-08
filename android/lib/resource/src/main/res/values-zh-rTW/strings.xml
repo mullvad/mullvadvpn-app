@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">封鎖網際網路 (裝置離線)</string>
     <string name="buy_credit">購買點數</string>
     <string name="cancel">取消</string>
-    <string name="changelog_title">變更日誌</string>
-    <string name="changes_dialog_subtitle">此版本中的變更：</string>
     <string name="cipher">加密方式</string>
     <string name="clear_input">清除輸入</string>
     <string name="close">關閉</string>
