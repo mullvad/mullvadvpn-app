@@ -1,5 +1,8 @@
 // #[cfg(target_os = "linux")]
 pub mod linux;
+#[cfg(target_os = "macos")]
+use std::net::IpAddr;
+
 #[cfg(target_os = "linux")]
 pub use linux as platform;
 
@@ -19,10 +22,10 @@ pub use platform::{
 pub const SOCKS5_PORT: u16 = 54321;
 
 /// Get the name of the bridge interface between the test-manager and the test-runner.
-pub fn bridge() -> anyhow::Result<String> {
+pub fn bridge(#[cfg(target_os = "macos")] bridge_ip: &IpAddr) -> anyhow::Result<String> {
     #[cfg(target_os = "macos")]
     {
-        crate::vm::network::macos::find_vm_bridge()
+        crate::vm::network::macos::find_vm_bridge(bridge_ip)
     }
     #[cfg(not(target_os = "macos"))]
     Ok(platform::BRIDGE_NAME.to_owned())

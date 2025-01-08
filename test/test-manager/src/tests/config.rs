@@ -1,3 +1,4 @@
+use std::net::IpAddr;
 use std::sync::OnceLock;
 use std::{ops::Deref, path::Path};
 use test_rpc::meta::Os;
@@ -35,7 +36,7 @@ pub struct TestConfig {
     pub mullvad_host: String,
 
     pub host_bridge_name: String,
-
+    pub host_bridge_ip: IpAddr,
     pub os: Os,
     /// The OpenVPN CA certificate to use with the the installed Mullvad App.
     pub openvpn_certificate: OpenVPNCertificate,
@@ -52,6 +53,7 @@ impl TestConfig {
         ui_e2e_tests_filename: Option<String>,
         mullvad_host: String,
         host_bridge_name: String,
+        host_bridge_ip: IpAddr,
         os: Os,
         openvpn_certificate: OpenVPNCertificate,
     ) -> Self {
@@ -63,6 +65,7 @@ impl TestConfig {
             ui_e2e_tests_filename,
             mullvad_host,
             host_bridge_name,
+            host_bridge_ip,
             os,
             openvpn_certificate,
         }

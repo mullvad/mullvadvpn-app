@@ -295,6 +295,7 @@ async fn main() -> Result<()> {
                 .await
                 .context("Failed to run provisioning for VM")?;
 
+            let bridge_ip = instance.get_ip().to_owned();
             TEST_CONFIG.init(tests::config::TestConfig::new(
                 account,
                 artifacts_dir,
@@ -311,7 +312,11 @@ async fn main() -> Result<()> {
                     .gui_package_path
                     .map(|path| path.file_name().unwrap().to_string_lossy().into_owned()),
                 mullvad_host,
-                vm::network::bridge()?,
+                vm::network::bridge(
+                    #[cfg(target_os = "macos")]
+                    &bridge_ip,
+                )?,
+                bridge_ip,
                 test_rpc::meta::Os::from(vm_config.os_type),
                 openvpn_certificate,
             ));

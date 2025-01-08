@@ -53,14 +53,14 @@ pub async fn setup_test_network() -> Result<()> {
 /// A hack to find the Tart bridge interface using `NON_TUN_GATEWAY`.
 /// It should be possible to retrieve this using the virtualization framework instead,
 /// but that requires an entitlement.
-pub(crate) fn find_vm_bridge() -> Result<String> {
+pub(crate) fn find_vm_bridge(bridge_ip: &IpAddr) -> Result<String> {
     for addr in nix::ifaddrs::getifaddrs().unwrap() {
         if !addr.interface_name.starts_with("bridge") {
             continue;
         }
         if let Some(address) = addr.address.as_ref().and_then(|addr| addr.as_sockaddr_in()) {
-            let interface_ip = *SocketAddrV4::from(*address).ip();
-            if interface_ip == NON_TUN_GATEWAY {
+            let interface_ip = SocketAddrV4::from(*address).ip();
+            if interface_ip == bridge_ip {
                 return Ok(addr.interface_name.to_owned());
             }
         }
