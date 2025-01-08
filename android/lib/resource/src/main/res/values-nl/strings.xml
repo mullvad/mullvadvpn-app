@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Internet wordt geblokkeerd (apparaat offline)</string>
     <string name="buy_credit">Krediet kopen</string>
     <string name="cancel">Annuleren</string>
-    <string name="changelog_title">Changelog</string>
-    <string name="changes_dialog_subtitle">Wijzigingen in deze versie:</string>
     <string name="cipher">Versleuteling</string>
     <string name="clear_input">Invoer wissen</string>
     <string name="close">Sluiten</string>
