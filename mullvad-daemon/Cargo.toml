@@ -15,7 +15,7 @@ workspace = true
 api-override = ["mullvad-api/api-override"]
 
 [dependencies]
-anyhow = "*" # TODO: do we want this?
+anyhow = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
 either = "1.11"
