@@ -177,6 +177,9 @@ pub async fn spawn(
         }
     });
 
+    // Spawn a worker that pre-computes McEliece key pairs for PQ tunnels
+    KEYPAIR_RX.get_or_init(|| tokio::sync::Mutex::new(spawn_keypair_worker(BUFSIZE)));
+
     Ok(TunnelStateMachineHandle {
         command_tx,
         shutdown_rx,
