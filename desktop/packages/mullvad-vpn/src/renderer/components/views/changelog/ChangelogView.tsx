@@ -51,13 +51,13 @@ export const ChangelogView = () => {
           <NavigationContainer>
             <NavigationBar>
               <NavigationItems>
-                <TitleBarItem>{messages.pgettext('changelog-view', "What's new")}</TitleBarItem>
+                <TitleBarItem>{messages.pgettext('changelog-view', "What’s new")}</TitleBarItem>
               </NavigationItems>
             </NavigationBar>
 
             <NavigationScrollbars>
               <SettingsHeader>
-                <TitleBig as={'h1'}>{messages.pgettext('changelog-view', "What's new")}</TitleBig>
+                <TitleBig as={'h1'}>{messages.pgettext('changelog-view', "What’s new")}</TitleBig>
               </SettingsHeader>
               <Flex $flexDirection="column" $gap={Spacings.spacing3}>
                 <Container size="4">

@@ -621,7 +621,7 @@ msgid "No updates or changes were made in this release for this platform."
 msgstr ""
 
 msgctxt "changelog-view"
-msgid "What's new"
+msgid "What’s new"
 msgstr ""
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
@@ -911,7 +911,7 @@ msgid "BLOCKING INTERNET"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Click here to see what's new."
+msgid "Click here to see what’s new."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app update is available.
@@ -1574,7 +1574,7 @@ msgid "VPN settings"
 msgstr ""
 
 msgctxt "settings-view"
-msgid "What's new"
+msgid "What’s new"
 msgstr ""
 
 msgctxt "split-tunneling-view"
@@ -2370,9 +2370,6 @@ msgstr ""
 msgid "Clear input"
 msgstr ""
 
-msgid "Click here to see what’s new."
-msgstr ""
-
 msgid "Collapse"
 msgstr ""
 
@@ -2761,9 +2758,6 @@ msgid "We were unable to start the payment process, please make sure you have th
 msgstr ""
 
 msgid "We were unable to start the payment process, please try again later."
-msgstr ""
-
-msgid "What’s new"
 msgstr ""
 
 msgid "WireGuard MTU"
