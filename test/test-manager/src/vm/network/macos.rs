@@ -72,13 +72,6 @@ pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> 
                 }
             };
         };
-        let netmask = SocketAddrV4::from(*netmask).ip();
-        let Ok(ip_v4_network) = ipnetwork::Ipv4Network::with_netmask(address, netmask) else {
-            continue;
-        };
-        if ip_v4_network.contains(guest_ip) {
-            return Ok((addr.interface_name.to_owned(), address));
-        }
     }
 
     // This is probably either due to IP mismatch or Tart not running
