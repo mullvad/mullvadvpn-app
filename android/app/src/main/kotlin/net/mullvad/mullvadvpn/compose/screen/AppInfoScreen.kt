@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
 import androidx.compose.material.icons.filled.Error
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -17,9 +16,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -31,13 +31,26 @@ import net.mullvad.mullvadvpn.compose.cell.NavigationComposeCell
 import net.mullvad.mullvadvpn.compose.cell.TwoRowCell
 import net.mullvad.mullvadvpn.compose.component.NavigateBackIconButton
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithMediumTopBar
+import net.mullvad.mullvadvpn.compose.preview.AppInfoUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
+import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.AppInfoSideEffect
 import net.mullvad.mullvadvpn.viewmodel.AppInfoUiState
 import net.mullvad.mullvadvpn.viewmodel.AppInfoViewModel
 import org.koin.androidx.compose.koinViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview("Initial|Unsupported")
+@Composable
+private fun PreviewAppInfoScreen(
+    @PreviewParameter(AppInfoUiStatePreviewParameterProvider::class) state: AppInfoUiState
+) {
+    AppTheme {
+        AppInfo(state = state, onBackClick = {}, navigateToChangelog = {}, openAppListing = {})
+    }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Destination<RootGraph>(style = SlideInFromRightTransition::class)
@@ -57,7 +70,8 @@ fun AppInfo(navigator: DestinationsNavigator) {
     AppInfo(
         state = state,
         onBackClick = dropUnlessResumed { navigator.navigateUp() },
-        navigateToChangelog = dropUnlessResumed { navigator.navigate(ChangelogDestination) },
+        navigateToChangelog =
+            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs())) },
         openAppListing = dropUnlessResumed { vm.openAppListing() },
     )
 }
@@ -87,9 +101,9 @@ fun AppInfoContent(
     openAppListing: () -> Unit,
 ) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
-        AppVersionRow(state, openAppListing)
-
         ChangelogRow(navigateToChangelog)
+        HorizontalDivider()
+        AppVersionRow(state, openAppListing)
     }
 }
 
@@ -133,8 +147,6 @@ private fun AppVersionRow(state: AppInfoUiState, openAppListing: () -> Unit) {
                             bottom = Dimens.mediumPadding,
                         ),
             )
-        } else {
-            HorizontalDivider(color = Color.Transparent)
         }
     }
 }
@@ -144,12 +156,5 @@ private fun ChangelogRow(navigateToChangelog: () -> Unit) {
     NavigationComposeCell(
         title = stringResource(R.string.changelog_title),
         onClick = navigateToChangelog,
-        bodyView = {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = stringResource(R.string.changelog_title),
-                tint = MaterialTheme.colorScheme.onPrimary,
-            )
-        },
     )
 }

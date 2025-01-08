@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
+import net.mullvad.mullvadvpn.repository.ChangelogRepository
 import net.mullvad.mullvadvpn.repository.InAppNotificationController
 import net.mullvad.mullvadvpn.repository.NewDeviceRepository
 import net.mullvad.mullvadvpn.usecase.LastKnownLocationUseCase
@@ -41,6 +42,7 @@ import net.mullvad.mullvadvpn.util.withPrev
 class ConnectViewModel(
     private val accountRepository: AccountRepository,
     private val deviceRepository: DeviceRepository,
+    private val changelogRepository: ChangelogRepository,
     inAppNotificationController: InAppNotificationController,
     private val newDeviceRepository: NewDeviceRepository,
     selectedLocationTitleUseCase: SelectedLocationTitleUseCase,
@@ -191,6 +193,9 @@ class ConnectViewModel(
     fun dismissNewDeviceNotification() {
         newDeviceRepository.clearNewDeviceCreatedNotification()
     }
+
+    fun dismissNewChangelogNotification() =
+        viewModelScope.launch { changelogRepository.setDismissNewChangelogNotification() }
 
     private fun outOfTimeEffect() =
         outOfTimeUseCase.isOutOfTime.filter { it == true }.map { UiSideEffect.OutOfTime }

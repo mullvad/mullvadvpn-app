@@ -46,6 +46,7 @@ const val LOCATION_INFO_CONNECTION_OUT_TEST_TAG = "location_info_connection_out_
 // ConnectScreen - Notification banner
 const val NOTIFICATION_BANNER = "notification_banner"
 const val NOTIFICATION_BANNER_ACTION = "notification_banner_action"
+const val NOTIFICATION_BANNER_TEXT_ACTION = "notification_banner_text_action"
 
 // PlayPayment
 const val PLAY_PAYMENT_INFO_ICON_TEST_TAG = "play_payment_info_icon_test_tag"
