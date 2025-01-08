@@ -14,6 +14,8 @@ use talpid_types::net::proxy::CustomProxy;
 use test_macro::test_function;
 use test_rpc::ServiceClient;
 
+use crate::tests::config::TEST_CONFIG;
+
 use super::TestContext;
 
 /// Assert that API traffic can be proxied via a custom Shadowsocks proxy.
@@ -48,7 +50,7 @@ async fn test_access_method_socks5_remote(
     _rpc: ServiceClient,
     mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    use crate::vm::network::{NON_TUN_GATEWAY, SOCKS5_PORT};
+    use crate::vm::network::SOCKS5_PORT;
     use std::net::SocketAddr;
     use talpid_types::net::proxy::Socks5Remote;
     log::info!("Testing SOCKS5 (Remote) access method");
@@ -57,7 +59,7 @@ async fn test_access_method_socks5_remote(
     // The remote SOCKS5 proxy is assumed to be running on the test manager. On
     // which port it listens to is defined as a constant in the `test-manager`
     // crate.
-    let endpoint = SocketAddr::from((NON_TUN_GATEWAY, SOCKS5_PORT));
+    let endpoint = SocketAddr::from((TEST_CONFIG.host_bridge_ip, SOCKS5_PORT));
     let access_method = Socks5Remote::new(endpoint);
     log::info!("Testing SOCKS5-proxy: {access_method:?}");
     assert_access_method_works(mullvad_client, access_method.clone())

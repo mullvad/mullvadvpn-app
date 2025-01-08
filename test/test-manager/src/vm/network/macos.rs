@@ -1,7 +1,7 @@
-use std::net::{Ipv4Addr, SocketAddrV4};
-
 use anyhow::{anyhow, Context, Result};
 use futures::future::{self, Either};
+use nix::sys::socket::SockaddrStorage;
+use std::net::{Ipv4Addr, SocketAddrV4};
 use tokio::{io::AsyncWriteExt, process::Command};
 
 // Private key of the wireguard remote peer on host.
@@ -16,9 +16,6 @@ const CUSTOM_TUN_LOCAL_PUBKEY: &str = "h6elqt3dfamtS/p9jxJ8bIYs8UW9YHfTFhvx0fabT
 data_encoding_macro::base64_array!(
     "pub const CUSTOM_TUN_LOCAL_PRIVKEY" = "mPue6Xt0pdz4NRAhfQSp/SLKo7kV7DW+2zvBq0N9iUI="
 );
-/// "Real" (non-tunnel) IP of the wireguard remote peer as defined in `setup-network.sh`.
-/// TODO: This should not be hardcoded. Set by tart.
-pub const CUSTOM_TUN_REMOTE_REAL_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 64, 1);
 /// Port of the wireguard remote peer as defined in `setup-network.sh`.
 pub const CUSTOM_TUN_REMOTE_REAL_PORT: u16 = 51820;
 /// Tunnel address of the wireguard local peer as defined in `setup-network.sh`.
@@ -27,9 +24,6 @@ pub const CUSTOM_TUN_LOCAL_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 2);
 pub const CUSTOM_TUN_REMOTE_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 1);
 /// Gateway (and default DNS resolver) of the wireguard tunnel.
 pub const CUSTOM_TUN_GATEWAY: Ipv4Addr = CUSTOM_TUN_REMOTE_TUN_ADDR;
-/// Gateway of the non-tunnel interface.
-/// TODO: This should not be hardcoded. Set by tart.
-pub const NON_TUN_GATEWAY: Ipv4Addr = Ipv4Addr::new(192, 168, 64, 1);
 /// Name of the wireguard interface on the host
 pub const CUSTOM_TUN_INTERFACE_NAME: &str = "utun123";
 
@@ -50,26 +44,32 @@ pub async fn setup_test_network() -> Result<()> {
     Ok(())
 }
 
-/// A hack to find the Tart bridge interface using `NON_TUN_GATEWAY`.
-/// It should be possible to retrieve this using the virtualization framework instead,
-/// but that requires an entitlement.
-pub(crate) fn find_vm_bridge() -> Result<String> {
-    for addr in nix::ifaddrs::getifaddrs().unwrap() {
-        if !addr.interface_name.starts_with("bridge") {
-            continue;
-        }
-        if let Some(address) = addr.address.as_ref().and_then(|addr| addr.as_sockaddr_in()) {
-            let interface_ip = *SocketAddrV4::from(*address).ip();
-            if interface_ip == NON_TUN_GATEWAY {
-                return Ok(addr.interface_name.to_owned());
-            }
-        }
-    }
+/// Returns the interface name and IP address of the bridge gateway, which is the (first) bridge
+/// network that the given `guest_ip` belongs to.
+pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> {
+    let to_sock_addr = |addr: Option<SockaddrStorage>| {
+        addr.as_ref()
+            .and_then(|addr| addr.as_sockaddr_in())
+            .map(|addr| *SocketAddrV4::from(*addr).ip())
+    };
 
-    // This is probably either due to IP mismatch or Tart not running
-    Err(anyhow!(
-        "Failed to identify bridge used by tart -- not running?"
-    ))
+    nix::ifaddrs::getifaddrs()
+        .unwrap()
+        .filter(|addr| addr.interface_name.starts_with("bridge"))
+        .filter_map(|addr| {
+            let address = to_sock_addr(addr.address);
+            let netmask = to_sock_addr(addr.netmask);
+            address
+                .zip(netmask)
+                .map(|(address, netmask)| (addr.interface_name, address, netmask))
+        })
+        .find_map(|(interface_name, address, netmask)| {
+            ipnetwork::Ipv4Network::with_netmask(address, netmask)
+                .ok()
+                .filter(|ip_v4_network| ip_v4_network.contains(*guest_ip))
+                .map(|_| (interface_name.to_owned(), address))
+        })
+        .ok_or_else(|| anyhow!("Failed to identify bridge used by tart -- not running?"))
 }
 
 async fn enable_forwarding() -> Result<()> {

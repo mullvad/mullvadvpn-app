@@ -42,8 +42,8 @@ use test_rpc::ServiceClient;
 use tokio::{task::yield_now, time::sleep};
 
 use crate::{
-    tests::{helpers, TestContext},
-    vm::network::{linux::TAP_NAME, NON_TUN_GATEWAY},
+    tests::{config::TEST_CONFIG, helpers, TestContext},
+    vm::network::linux::TAP_NAME,
 };
 
 /// The port number we set in the malicious packet.
@@ -67,7 +67,7 @@ pub async fn test_cve_2019_14899_mitigation(
     let victim_tunnel_interface = helpers::get_tunnel_interface(&mut mullvad_client)
         .await
         .context("Failed to find tunnel interface")?;
-    let victim_gateway_ip = NON_TUN_GATEWAY;
+    let victim_gateway_ip = TEST_CONFIG.host_bridge_ip;
 
     // Create a raw socket which let's us send custom ethernet packets
     log::info!("Creating raw socket");

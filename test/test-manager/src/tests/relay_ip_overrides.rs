@@ -5,8 +5,8 @@ use super::{
     TestContext,
 };
 use crate::{
-    vm,
-    vm::network::linux::{NON_TUN_GATEWAY, TEST_SUBNET},
+    tests::config::TEST_CONFIG,
+    vm::{self, network::linux::TEST_SUBNET},
 };
 use anyhow::{anyhow, bail, ensure, Context};
 use futures::FutureExt;
@@ -88,7 +88,7 @@ pub async fn test_wireguard_ip_override(
     mullvad_client
         .set_relay_override(RelayOverride {
             hostname,
-            ipv4_addr_in: Some(NON_TUN_GATEWAY),
+            ipv4_addr_in: Some(TEST_CONFIG.host_bridge_ip),
             ipv6_addr_in: None,
         })
         .await?;
@@ -144,7 +144,7 @@ pub async fn test_openvpn_ip_override(
     mullvad_client
         .set_relay_override(RelayOverride {
             hostname,
-            ipv4_addr_in: Some(NON_TUN_GATEWAY),
+            ipv4_addr_in: Some(TEST_CONFIG.host_bridge_ip),
             ipv6_addr_in: None,
         })
         .await?;
@@ -229,7 +229,7 @@ pub async fn test_bridge_ip_override(
     mullvad_client
         .set_relay_override(RelayOverride {
             hostname,
-            ipv4_addr_in: Some(NON_TUN_GATEWAY),
+            ipv4_addr_in: Some(TEST_CONFIG.host_bridge_ip),
             ipv6_addr_in: None,
         })
         .await?;

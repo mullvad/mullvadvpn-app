@@ -38,9 +38,6 @@ data_encoding_macro::base64_array!(
     "pub const CUSTOM_TUN_LOCAL_PRIVKEY" = "mPue6Xt0pdz4NRAhfQSp/SLKo7kV7DW+2zvBq0N9iUI="
 );
 
-/// "Real" (non-tunnel) IP of the wireguard remote peer on the host
-#[allow(dead_code)]
-pub const CUSTOM_TUN_REMOTE_REAL_ADDR: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 1);
 /// Port of the wireguard remote peer as defined in `setup-network.sh`.
 #[allow(dead_code)]
 pub const CUSTOM_TUN_REMOTE_REAL_PORT: u16 = 51820;
@@ -53,7 +50,7 @@ pub const CUSTOM_TUN_REMOTE_TUN_ADDR: Ipv4Addr = Ipv4Addr::new(192, 168, 15, 1);
 pub const CUSTOM_TUN_GATEWAY: Ipv4Addr = CUSTOM_TUN_REMOTE_TUN_ADDR;
 /// Gateway of the non-tunnel interface.
 #[allow(dead_code)]
-pub const NON_TUN_GATEWAY: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 1);
+pub(super) const NON_TUN_GATEWAY: Ipv4Addr = Ipv4Addr::new(172, 29, 1, 1);
 /// Name of the wireguard interface on the host
 pub const CUSTOM_TUN_INTERFACE_NAME: &str = "wg-relay0";
 

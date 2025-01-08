@@ -625,7 +625,7 @@ pub async fn test_remote_socks_bridge(
             bridge_type: BridgeType::Custom,
             normal: BridgeConstraints::default(),
             custom: Some(CustomProxy::Socks5Remote(Socks5Remote::new((
-                crate::vm::network::NON_TUN_GATEWAY,
+                TEST_CONFIG.host_bridge_ip,
                 crate::vm::network::SOCKS5_PORT,
             )))),
         })
@@ -703,10 +703,8 @@ pub async fn test_local_socks_bridge(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
-    let remote_addr = SocketAddr::from((
-        crate::vm::network::NON_TUN_GATEWAY,
-        crate::vm::network::SOCKS5_PORT,
-    ));
+    let remote_addr =
+        SocketAddr::from((TEST_CONFIG.host_bridge_ip, crate::vm::network::SOCKS5_PORT));
     let socks_server = rpc
         .start_tcp_forward("127.0.0.1:0".parse().unwrap(), remote_addr)
         .await
