@@ -103,7 +103,7 @@ fun AppInfoContent(
 ) {
     Column(modifier = Modifier.padding(bottom = Dimens.smallPadding).animateContentSize()) {
         ChangelogRow(navigateToChangelog)
-        HorizontalDivider(color = Color.Transparent)
+        HorizontalDivider()
         AppVersionRow(state, openAppListing)
     }
 }
