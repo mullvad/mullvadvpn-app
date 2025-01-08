@@ -63,6 +63,14 @@ pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> 
                 .and_then(|addr| addr.as_sockaddr_in())
                 .map(|addr| SocketAddrV4::from(*addr).ip())
         };
+        // if to_sock_addr(addr.address)
+        //     .zip(to_sock_addr(addr.netmask))
+        //     .map(|(&address, &netmask)| ipnetwork::Ipv4Network::with_netmask(address, netmask))
+        //     .map(|ip_v4_network| ip_v4_network.contains(*guest_ip))
+        //     == Some(true)
+        // {
+        //     return Ok((addr.interface_name.to_owned(), *address));
+        // };
         if let (Some(address), Some(netmask)) =
             (to_sock_addr(addr.address), to_sock_addr(addr.netmask))
         {
