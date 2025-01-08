@@ -9,6 +9,8 @@ mod summary;
 mod tests;
 mod vm;
 
+#[cfg(target_os = "macos")]
+use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf};
 
 use anyhow::{Context, Result};
