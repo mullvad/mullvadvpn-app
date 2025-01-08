@@ -58,8 +58,10 @@ pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> 
         if !addr.interface_name.starts_with("bridge") {
             continue;
         }
-        let Some(address) = addr.address.as_ref().and_then(|addr| addr.as_sockaddr_in()) else {
-            continue;
+        let to_sock_addr = |addr| {
+            addr.as_ref()
+                .and_then(|addr| addr.as_sockaddr_in())
+                .map(|addr| SocketAddrV4::from(*addr).ip())
         };
         let address = SocketAddrV4::from(*address).ip();
         let Some(netmask) = addr.netmask.as_ref().and_then(|addr| addr.as_sockaddr_in()) else {
