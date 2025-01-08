@@ -68,9 +68,11 @@ else
     exit 2
 fi
 
+$GRADLE_CMD --version
+
 $GRADLE_CMD --console plain clean
 
-$GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
+RUSTFLAGS="$(cargo run -q --bin remap-path-prefix)" $GRADLE_CMD --console plain "${GRADLE_TASKS[@]}"
 
 if [[ "$BUILD_BUNDLE" == "yes" ]]; then
     $GRADLE_CMD --console plain "${BUNDLE_TASKS[@]}"

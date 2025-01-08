@@ -161,6 +161,14 @@ fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
     Ok(())
 }
 
+macro_rules! p {
+    ($($tokens: tt)*) => {
+        println!("cargo:warning={}", format!($($tokens)*))
+    }
+}
+
+
+
 /// Compile libwg as a dynamic library for android and place it in [`android_output_path`].
 // NOTE: We use dynamic linking as Go cannot produce static binaries specifically for Android.
 fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
@@ -247,6 +255,7 @@ fn android_move_binary(binary: &Path, output: &Path) -> anyhow::Result<()> {
 
 fn android_c_compiler(target: AndroidTarget) -> anyhow::Result<PathBuf> {
     let toolchain = env::var("NDK_TOOLCHAIN_DIR").context("Missing 'NDK_TOOLCHAIN_DIR")?;
+    p!("{}", toolchain);
     let ccompiler = match target {
         AndroidTarget::Aarch64 => "aarch64-linux-android26-clang",
         AndroidTarget::X86 => "x86_64-linux-android26-clang",
