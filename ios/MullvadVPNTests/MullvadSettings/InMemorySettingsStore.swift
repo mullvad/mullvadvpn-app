@@ -28,4 +28,6 @@ class InMemorySettingsStore<ThrownError: Error>: SettingsStore where ThrownError
     func delete(key: SettingsKey) throws {
         settings.removeValue(forKey: key)
     }
+
+    func excludeFromBackup(keys: [MullvadSettings.SettingsKey]) {}
 }

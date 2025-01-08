@@ -163,6 +163,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         startInitialization(application: application)
 
+        // Wait for `getWipeSettingsOperation` to have run before excluding keychain from backups
+        SettingsManager.excludeKeychainSettingsFromBackups()
+
         return true
     }
 
