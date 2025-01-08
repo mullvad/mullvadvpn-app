@@ -36,10 +36,7 @@ class UserPreferencesRepository(
 
     suspend fun setHasDisplayedChangelogNotification() {
         userPreferencesStore.updateData { prefs ->
-            prefs
-                .toBuilder()
-                .setVersionCodeForLatestShownChangelogNotification(buildVersion.code)
-                .build()
+            prefs.toBuilder().setLastShownChangelogVersionCode(buildVersion.code).build()
         }
     }
 }

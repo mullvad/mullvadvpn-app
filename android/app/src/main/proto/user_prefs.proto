@@ -5,5 +5,5 @@ option java_multiple_files = true;
 
 message UserPreferences {
   bool is_privacy_disclosure_accepted = 1;
-  int32 version_code_for_latest_shown_changelog_notification = 2;
+  int32 last_shown_changelog_version_code = 2;
 }

@@ -24,7 +24,7 @@ class ChangelogRepository(
         userPreferencesRepository.preferencesFlow
             .map {
                 getLastVersionChanges().isNotEmpty() &&
-                    buildVersion.code > it.versionCodeForLatestShownChangelogNotification
+                    buildVersion.code > it.lastShownChangelogVersionCode
             }
             .stateIn(
                 CoroutineScope(dispatcher),
