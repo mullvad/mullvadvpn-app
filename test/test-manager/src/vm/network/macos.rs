@@ -54,11 +54,11 @@ pub async fn setup_test_network() -> Result<()> {
 /// It should be possible to retrieve this using the virtualization framework instead,
 /// but that requires an entitlement.
 pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> {
-    for addr in nix::ifaddrs::getifaddrs().unwrap() {
-        if !addr.interface_name.starts_with("bridge") {
-            continue;
-        }
-        let to_sock_addr = |addr| {
+    for addr in nix::ifaddrs::getifaddrs()
+        .unwrap()
+        .filter(|addr| addr.interface_name.starts_with("bridge"))
+    {
+        let to_sock_addr = |addr: Option<SockaddrStorage>| {
             addr.as_ref()
                 .and_then(|addr| addr.as_sockaddr_in())
                 .map(|addr| SocketAddrV4::from(*addr).ip())
