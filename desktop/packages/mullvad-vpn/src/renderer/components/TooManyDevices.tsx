@@ -13,6 +13,7 @@ import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { bigText, measurements, normalText, tinyText } from './common-styles';
@@ -20,7 +21,6 @@ import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import List from './List';
-import { MainHeader } from './main-header';
 import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
@@ -124,9 +124,9 @@ export default function TooManyDevices() {
   return (
     <ModalContainer>
       <Layout>
-        <MainHeader>
-          <MainHeader.SettingsButton />
-        </MainHeader>
+        <AppMainHeader>
+          <AppMainHeader.SettingsButton />
+        </AppMainHeader>
         <StyledCustomScrollbars fillContainer>
           <StyledContainer>
             <StyledBody>

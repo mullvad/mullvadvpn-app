@@ -4,8 +4,8 @@ import styled from 'styled-components';
 import { closeToExpiry, formatRemainingTime, hasExpired } from '../../../../shared/account-expiry';
 import { messages } from '../../../../shared/gettext';
 import { capitalizeEveryWord } from '../../../../shared/string-helpers';
-import { FootnoteMini } from '../../../lib/components';
-import { Colors } from '../../../lib/foundations';
+import { Flex, FootnoteMini } from '../../../lib/components';
+import { Colors, Spacings } from '../../../lib/foundations';
 import { useSelector } from '../../../redux/store';
 
 const StyledTimeLeftLabel = styled(FootnoteMini)({
@@ -18,7 +18,7 @@ const StyledDeviceLabel = styled(FootnoteMini)({
   textOverflow: 'ellipsis',
 });
 
-export const MainHeaderDeviceInfo = () => {
+export const AppMainHeaderDeviceInfo = () => {
   const deviceName = useSelector((state) => state.account.deviceName);
   const accountExpiry = useSelector((state) => state.account.expiry);
   const isOutOfTime = accountExpiry ? hasExpired(accountExpiry) : false;
@@ -29,7 +29,7 @@ export const MainHeaderDeviceInfo = () => {
       : '';
 
   return (
-    <>
+    <Flex $gap={Spacings.spacing6} $margin={{ top: Spacings.spacing1 }}>
       <StyledDeviceLabel color={Colors.white80}>
         {sprintf(
           // TRANSLATORS: A label that will display the newly created device name to inform the user
@@ -49,6 +49,6 @@ export const MainHeaderDeviceInfo = () => {
           })}
         </StyledTimeLeftLabel>
       )}
-    </>
+    </Flex>
   );
 };

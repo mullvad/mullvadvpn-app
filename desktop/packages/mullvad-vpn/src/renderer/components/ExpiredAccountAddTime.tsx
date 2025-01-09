@@ -14,13 +14,13 @@ import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
+import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { Container, Footer, Layout } from './Layout';
-import { MainHeader } from './main-header';
 import {
   RedeemVoucherContainer,
   RedeemVoucherInput,
@@ -259,12 +259,12 @@ function HeaderBar() {
   );
 
   return (
-    <MainHeader
+    <AppMainHeader
       variant={isNewAccount ? 'default' : 'basedOnConnectionStatus'}
       size="basedOnLoginStatus">
-      <MainHeader.AccountButton />
-      <MainHeader.SettingsButton />
-    </MainHeader>
+      <AppMainHeader.AccountButton />
+      <AppMainHeader.SettingsButton />
+    </AppMainHeader>
   );
 }
 

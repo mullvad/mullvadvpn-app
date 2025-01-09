@@ -9,6 +9,7 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
@@ -28,7 +29,6 @@ import {
 } from './ExpiredAccountErrorViewStyles';
 import ImageView from './ImageView';
 import { Footer, Layout } from './Layout';
-import { MainHeader } from './main-header';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
 enum RecoveryAction {
@@ -67,12 +67,12 @@ function ExpiredAccountErrorViewComponent() {
 
   return (
     <Layout>
-      <MainHeader
+      <AppMainHeader
         variant={isNewAccount ? 'default' : 'basedOnConnectionStatus'}
         size="basedOnLoginStatus">
-        <MainHeader.AccountButton />
-        <MainHeader.SettingsButton />
-      </MainHeader>
+        <AppMainHeader.AccountButton />
+        <AppMainHeader.SettingsButton />
+      </AppMainHeader>
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>{isNewAccount ? <WelcomeView /> : <Content />}</StyledBody>
