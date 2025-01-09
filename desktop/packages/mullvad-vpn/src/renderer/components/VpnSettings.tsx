@@ -532,19 +532,19 @@ function KillSwitchInfo() {
 
   return (
     <>
-      <Cell.CellButton onClick={showKillSwitchInfo}>
-        <AriaInputGroup>
+      <AriaInputGroup>
+        <Cell.Container>
           <AriaLabel>
             <Cell.InputLabel>
               {messages.pgettext('vpn-settings-view', 'Kill switch')}
             </Cell.InputLabel>
           </AriaLabel>
-          <StyledInfoButton />
+          <StyledInfoButton onClick={showKillSwitchInfo} />
           <AriaInput>
             <Cell.Switch isOn disabled />
           </AriaInput>
-        </AriaInputGroup>
-      </Cell.CellButton>
+        </Cell.Container>
+      </AriaInputGroup>
       <ModalAlert
         isOpen={killSwitchInfoVisible}
         type={ModalAlertType.info}
