@@ -25,7 +25,7 @@ use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "macos")]
 use talpid_tunnel::TunnelMetadata;
 use talpid_tunnel::{tun_provider::TunProvider, TunnelEvent};
-use talpid_tunnel_config_client::classic_mceliece::{spawn_keypair_worker, BUFSIZE, KEYPAIR_RX};
+use talpid_tunnel_config_client::classic_mceliece::get_or_init_keypair_receiver;
 #[cfg(target_os = "macos")]
 use talpid_types::ErrorExt;
 
@@ -179,7 +179,7 @@ pub async fn spawn(
     });
 
     // Spawn a worker that pre-computes McEliece key pairs for PQ tunnels
-    KEYPAIR_RX.get_or_init(|| tokio::sync::Mutex::new(spawn_keypair_worker(BUFSIZE)));
+    get_or_init_keypair_receiver();
 
     Ok(TunnelStateMachineHandle {
         command_tx,
