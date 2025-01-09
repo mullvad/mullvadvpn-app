@@ -63,7 +63,7 @@ pub async fn generate_keys() -> KeyPair {
         .await
         .recv()
         .await
-        .expect("Failed to receive key pair, generating working expectedly closed.")
+        .expect("Expected to receive key pair, but key generator has been stopped.")
 }
 
 /// Returns a receiver for McEliece key pairs used by PQ tunnels. These are generated in a separate
