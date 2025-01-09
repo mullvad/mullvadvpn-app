@@ -32,7 +32,7 @@ static KEYPAIR_RX: OnceLock<Mutex<mpsc::Receiver<KeyPair>>> = OnceLock::new();
 /// # Panic
 ///
 /// Panics if the buffer capacity is 0.
-pub fn spawn_keypair_worker(bufsize: usize) -> mpsc::Receiver<KeyPair> {
+fn spawn_keypair_worker(bufsize: usize) -> mpsc::Receiver<KeyPair> {
     let (tx, rx) = mpsc::channel(bufsize);
 
     // We fork off the key computation to a separate thread for two reasons:
