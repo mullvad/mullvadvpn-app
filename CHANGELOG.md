@@ -31,6 +31,7 @@ Line wrap the file at 100 chars.                                              Th
   provided by relays instead of a bundled list. The bundled `maybenot_machines` file was removed.
 - Update Electron from 30.0.4 to 33.2.1.
 - Move changelog from a dialog to a separate view.
+- Reduce the setup time of PQ tunnels by pre-computing McEliece keys.
 
 
 ## [2025.2] - 2025-01-08
