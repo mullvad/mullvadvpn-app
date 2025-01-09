@@ -30,6 +30,7 @@ Line wrap the file at 100 chars.                                              Th
 - (Linux and macOS only) Update to DAITA v2. The main difference is that many different machines are
   provided by relays instead of a bundled list. The bundled `maybenot_machines` file was removed.
 - Update Electron from 30.0.4 to 33.2.1.
+- Move changelog from a dialog to a separate view.
 
 
 ## [2025.2] - 2025-01-08
