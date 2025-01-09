@@ -1,5 +1,5 @@
-import { forwardRef } from 'react';
-import styled from 'styled-components';
+import { createElement, forwardRef } from 'react';
+import styled, { WebTarget } from 'styled-components';
 
 import { Colors, Typography, typography, TypographyProperties } from '../../foundations';
 import { TransientProps } from '../../types';
@@ -7,11 +7,15 @@ import { TransientProps } from '../../types';
 export type TextProps = React.PropsWithChildren<{
   variant?: Typography;
   color?: Colors;
-  as?: React.ElementType;
+  tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
+  as?: WebTarget;
   style?: React.CSSProperties;
 }>;
 
-const StyledText = styled.span<TransientProps<TypographyProperties>>((props) => ({
+const StyledText = styled(
+  ({ tag = 'span', ...props }: { tag: TextProps['tag'] } & TransientProps<TypographyProperties>) =>
+    createElement(tag, props),
+)((props) => ({
   color: 'var(--color)',
   fontFamily: props.$fontFamily,
   fontWeight: props.$fontWeight,
@@ -20,11 +24,22 @@ const StyledText = styled.span<TransientProps<TypographyProperties>>((props) => 
 }));
 
 export const Text = forwardRef(
-  ({ variant = 'bodySmall', color = Colors.white, children, style, ...props }: TextProps, ref) => {
+  (
+    {
+      tag = 'span',
+      variant = 'bodySmall',
+      color = Colors.white,
+      children,
+      style,
+      ...props
+    }: TextProps,
+    ref,
+  ) => {
     const { fontFamily, fontSize, fontWeight, lineHeight } = typography[variant];
     return (
       <StyledText
         ref={ref}
+        tag={tag}
         style={
           {
             '--color': color,
