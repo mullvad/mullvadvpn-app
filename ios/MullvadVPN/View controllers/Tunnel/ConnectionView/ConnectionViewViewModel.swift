@@ -24,7 +24,7 @@ class ConnectionViewViewModel: ObservableObject {
         case selectLocation
     }
 
-    @Published var tunnelStatus: TunnelStatus
+    @Published private(set) var tunnelStatus: TunnelStatus
     @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
     @Published var showsActivityIndicator = false
 
@@ -45,6 +45,14 @@ class ConnectionViewViewModel: ObservableObject {
 
     init(tunnelStatus: TunnelStatus) {
         self.tunnelStatus = tunnelStatus
+    }
+
+    func update(tunnelStatus: TunnelStatus) {
+        self.tunnelStatus = tunnelStatus
+
+        if !tunnelIsConnected {
+            outgoingConnectionInfo = nil
+        }
     }
 }
 
