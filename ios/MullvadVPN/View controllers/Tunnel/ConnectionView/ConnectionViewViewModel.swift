@@ -24,7 +24,11 @@ class ConnectionViewViewModel: ObservableObject {
         case selectLocation
     }
 
-    @Published var tunnelStatus: TunnelStatus
+    @Published var tunnelStatus: TunnelStatus { didSet {
+        if !tunnelIsConnected {
+            outgoingConnectionInfo = nil
+        }
+    }}
     @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
     @Published var showsActivityIndicator = false
 
