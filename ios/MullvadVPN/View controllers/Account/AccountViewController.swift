@@ -344,8 +344,6 @@ class AccountViewController: UIViewController {
 
     private func sendReceiptToAPI(accountNumber: String, receipt: VerificationResult<Transaction>) async {
         do {
-            // Accessing unsafe payload data because n
-            let receiptData = receipt.unsafePayloadValue
             try await interactor.sendStoreKitReceipt(receipt, for: accountNumber)
             print("Receipt sent successfully")
         } catch {
