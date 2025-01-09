@@ -12,7 +12,7 @@ use tonic::transport::Endpoint;
 use tower::service_fn;
 use zeroize::Zeroize;
 
-mod classic_mceliece;
+pub mod classic_mceliece;
 mod ml_kem;
 #[cfg(not(target_os = "ios"))]
 mod socket;
