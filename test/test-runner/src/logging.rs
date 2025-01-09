@@ -78,7 +78,7 @@ async fn read_settings_file() -> Result<String, Error> {
     let mut settings_path = mullvad_paths::get_default_settings_dir()
         .map_err(|error| Error::Logs(format!("{}", error)))?;
     settings_path.push("settings.json");
-    read_truncated(&settings_path)
+    read_truncated(&settings_path, None)
         .await
         .map_err(|error| Error::Logs(format!("{}: {}", settings_path.display(), error)))
 }
@@ -91,7 +91,7 @@ async fn read_log_files() -> Result<Vec<Result<LogFile, Error>>, Error> {
         .map_err(|error| Error::Logs(format!("{}", error)))?;
     let mut log_files = Vec::new();
     for path in paths {
-        let log_file = read_truncated(&path)
+        let log_file = read_truncated(&path, Some(TRUNCATE_LOG_FILE_LINES))
             .await
             .map_err(|error| Error::Logs(format!("{}: {}", path.display(), error)))
             .map(|content| LogFile {
@@ -123,17 +123,19 @@ async fn list_logs<T: AsRef<Path>>(log_dir: T) -> Result<Vec<PathBuf>, Error> {
     Ok(paths)
 }
 
-async fn read_truncated<T: AsRef<Path>>(path: T) -> io::Result<String> {
+/// Read the contents of a file to string, optionally truncating the result by given amount of lines.
+async fn read_truncated<T: AsRef<Path>>(
+    path: T,
+    truncate_lines: Option<usize>,
+) -> io::Result<String> {
     let mut output = vec![];
     let reader = BufReader::new(File::open(path).await?);
     let mut lines = reader.lines();
     while let Some(line) = lines.next_line().await? {
         output.push(line);
     }
-    if output.len() > TRUNCATE_LOG_FILE_LINES {
-        let drop_count = output.len() - TRUNCATE_LOG_FILE_LINES;
-        // not the most efficient
-        output.drain(0..drop_count);
+    if let Some(max_number_of_lines) = truncate_lines {
+        output.truncate(max_number_of_lines);
     }
     Ok(output.join("\n"))
 }
