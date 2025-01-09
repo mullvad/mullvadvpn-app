@@ -57,6 +57,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
 import com.ramcosta.composedestinations.generated.destinations.AccountDestination
+import com.ramcosta.composedestinations.generated.destinations.ChangelogDestination
 import com.ramcosta.composedestinations.generated.destinations.DeviceRevokedDestination
 import com.ramcosta.composedestinations.generated.destinations.OutOfTimeDestination
 import com.ramcosta.composedestinations.generated.destinations.SelectLocationDestination
@@ -142,10 +143,13 @@ private fun PreviewAccountScreen(
             {},
             {},
             {},
+            {},
+            {},
         )
     }
 }
 
+@Suppress("LongMethod")
 @Destination<RootGraph>(style = HomeTransition::class)
 @Composable
 fun Connect(
@@ -237,6 +241,9 @@ fun Connect(
         onSwitchLocationClick = dropUnlessResumed { navigator.navigate(SelectLocationDestination) },
         onOpenAppListing = connectViewModel::openAppListing,
         onManageAccountClick = connectViewModel::onManageAccountClick,
+        onChangelogClick =
+            dropUnlessResumed { navigator.navigate(ChangelogDestination(ChangelogNavArgs(true))) },
+        onDismissChangelogClick = connectViewModel::dismissNewChangelogNotification,
         onSettingsClick = dropUnlessResumed { navigator.navigate(SettingsDestination) },
         onAccountClick = dropUnlessResumed { navigator.navigate(AccountDestination) },
         onDismissNewDeviceClick = connectViewModel::dismissNewDeviceNotification,
@@ -254,6 +261,8 @@ fun ConnectScreen(
     onSwitchLocationClick: () -> Unit,
     onOpenAppListing: () -> Unit,
     onManageAccountClick: () -> Unit,
+    onChangelogClick: () -> Unit,
+    onDismissChangelogClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
@@ -309,6 +318,8 @@ fun ConnectScreen(
                     isPlayBuild = state.isPlayBuild,
                     openAppListing = onOpenAppListing,
                     onClickShowAccount = onManageAccountClick,
+                    onClickShowChangelog = onChangelogClick,
+                    onClickDismissChangelog = onDismissChangelogClick,
                     onClickDismissNewDevice = onDismissNewDeviceClick,
                 )
                 ConnectionCard(

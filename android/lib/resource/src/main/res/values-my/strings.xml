@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">အင်တာနက် ပိတ်ဆို့နေဆဲ (စက် အော့ဖ်လိုင်း)</string>
     <string name="buy_credit">ခရက်ဒစ် ဝယ်ရန်</string>
     <string name="cancel">မလုပ်တော့ပါ</string>
-    <string name="changelog_title">ပြောင်းလဲမှုမှတ်တမ်း</string>
-    <string name="changes_dialog_subtitle">ဤဗားရှင်းတွင် ပြောင်းလဲမှုများ-</string>
     <string name="cipher">ဝှက်စာ</string>
     <string name="clear_input">ထည့်သွင်းမှုကို ရှင်းရန်</string>
     <string name="close">ပိတ်ရန်</string>

@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Blokowanie Internetu (urządzenie rozłączone)</string>
     <string name="buy_credit">Kup doładowanie</string>
     <string name="cancel">Anuluj</string>
-    <string name="changelog_title">Dziennik zmian</string>
-    <string name="changes_dialog_subtitle">Zmiany w tej wersji:</string>
     <string name="cipher">Szyfrowanie</string>
     <string name="clear_input">Wyczyść dane wejściowe</string>
     <string name="close">Zamknij</string>

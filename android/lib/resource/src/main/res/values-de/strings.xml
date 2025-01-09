@@ -60,8 +60,6 @@
     <string name="blocking_internet_device_offline">Internet sperren (Gerät offline)</string>
     <string name="buy_credit">Guthaben erwerben</string>
     <string name="cancel">Abbrechen</string>
-    <string name="changelog_title">Changelog</string>
-    <string name="changes_dialog_subtitle">Änderungen in dieser Version:</string>
     <string name="cipher">Chiffre</string>
     <string name="clear_input">Eingabe löschen</string>
     <string name="close">Schließen</string>

@@ -621,7 +621,7 @@ msgid "No updates or changes were made in this release for this platform."
 msgstr ""
 
 msgctxt "changelog-view"
-msgid "What's new"
+msgid "What’s new"
 msgstr ""
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
@@ -911,7 +911,7 @@ msgid "BLOCKING INTERNET"
 msgstr ""
 
 msgctxt "in-app-notifications"
-msgid "Click here to see what's new."
+msgid "Click here to see what’s new."
 msgstr ""
 
 #. The in-app banner displayed to the user when the app update is available.
@@ -1574,7 +1574,7 @@ msgid "VPN settings"
 msgstr ""
 
 msgctxt "settings-view"
-msgid "What's new"
+msgid "What’s new"
 msgstr ""
 
 msgctxt "split-tunneling-view"
@@ -2364,12 +2364,6 @@ msgstr ""
 msgid "Blocking..."
 msgstr ""
 
-msgid "Changelog"
-msgstr ""
-
-msgid "Changes in this version:"
-msgstr ""
-
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr ""
 
@@ -2551,6 +2545,9 @@ msgid "Name was changed to %s"
 msgstr ""
 
 msgid "New list"
+msgstr ""
+
+msgid "No changelog was added for this version"
 msgstr ""
 
 msgid "No custom lists available"

@@ -11,7 +11,7 @@ export function ChangelogListItem() {
 
   return (
     <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{messages.pgettext('settings-view', "What's new")}</Cell.Label>
+      <Cell.Label>{messages.pgettext('settings-view', 'What’s new')}</Cell.Label>
     </Cell.CellNavigationButton>
   );
 }
