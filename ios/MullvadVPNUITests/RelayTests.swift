@@ -75,12 +75,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .swipeDownToDismissModal()
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked() // Allow adding VPN configurations iOS permission
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCannotReachAdServingDomain()
 
@@ -90,12 +90,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
     func testAppConnection() throws {
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
         try Networking.verifyConnectedThroughMullvad()
@@ -158,12 +158,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDoneButton()
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
 
@@ -199,12 +199,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDoneButton()
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
 
@@ -253,7 +253,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
             .verifyConnectingOverTCPAfterUDPAttempts()
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .tapDisconnectButton()
     }
 
@@ -275,14 +275,14 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .swipeDownToDismissModal()
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
             .tapRelayStatusExpandCollapseButton()
             .verifyConnectingToPort("4001")
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .tapDisconnectButton()
     }
 
@@ -318,12 +318,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDoneButton()
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .verifyConnectingUsingDAITA()
             .tapDisconnectButton()
     }
@@ -358,44 +358,14 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDoneButton()
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
             .verifyConnectingOverMultihop()
             .tapDisconnectButton()
-    }
-
-    /// Connect to a relay in the default country and city, get name and IP address of the relay the app successfully connects to. Assumes user is logged on and at tunnel control page.
-    private func getDefaultRelayInfo() -> RelayInfo {
-        TunnelControlPage(app)
-            .tapSelectLocationButton()
-
-        if SelectLocationPage(app).locationCellIsExpanded(BaseUITestCase.testsDefaultCountryName) {
-            // Already expanded - just make sure the correct city cell is selected
-            SelectLocationPage(app)
-                .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
-        } else {
-            SelectLocationPage(app)
-                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountryName)
-                .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
-        }
-
-        allowAddVPNConfigurationsIfAsked()
-
-        let relayIPAddress = TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
-            .tapRelayStatusExpandCollapseButton()
-            .getInIPAddressFromConnectionStatus()
-
-        let relayName = TunnelControlPage(app).getCurrentRelayName()
-
-        TunnelControlPage(app)
-            .tapDisconnectButton()
-
-        return RelayInfo(name: relayName, ipAddress: relayIPAddress)
     }
 
     func testCustomDNS() throws {
@@ -403,12 +373,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
         let dnsServerProviderName = "GOOGLE"
 
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         try Networking.verifyCanAccessInternet()
 
@@ -431,5 +401,37 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDoneButton()
 
         try Networking.verifyDNSServerProvider(dnsServerProviderName, isMullvad: false)
+    }
+}
+
+extension RelayTests {
+    /// Connect to a relay in the default country and city, get name and IP address of the relay the app successfully connects to. Assumes user is logged on and at tunnel control page.
+    private func getDefaultRelayInfo() -> RelayInfo {
+        TunnelControlPage(app)
+            .tapSelectLocationButton()
+
+        if SelectLocationPage(app).locationCellIsExpanded(BaseUITestCase.testsDefaultCountryName) {
+            // Already expanded - just make sure the correct city cell is selected
+            SelectLocationPage(app)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
+        } else {
+            SelectLocationPage(app)
+                .tapLocationCellExpandButton(withName: BaseUITestCase.testsDefaultCountryName)
+                .tapLocationCell(withName: BaseUITestCase.testsDefaultCityName)
+        }
+
+        allowAddVPNConfigurationsIfAsked()
+
+        let relayIPAddress = TunnelControlPage(app)
+            .waitForConnectedLabel()
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPAddressFromConnectionStatus()
+
+        let relayName = TunnelControlPage(app).getCurrentRelayName()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+
+        return RelayInfo(name: relayName, ipAddress: relayIPAddress)
     }
 } // swiftlint:disable:this file_length

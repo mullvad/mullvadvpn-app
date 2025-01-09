@@ -21,6 +21,7 @@ extension ConnectionView {
                         .font(.title3.weight(.semibold))
                         .foregroundStyle(viewModel.textColorForSecureLabel.color)
                         .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
+                        .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
 
                     if let countryAndCity = viewModel.titleForCountryAndCity {
                         Text(countryAndCity)
@@ -34,9 +35,9 @@ extension ConnectionView {
                             .font(.body)
                             .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                             .padding(.top, 2)
+                            .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelServer.asString)
                     }
                 }
-                .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
 
                 Group {
                     Spacer()

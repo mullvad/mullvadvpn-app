@@ -30,7 +30,7 @@ class TunnelControlPage: Page {
         let startTime = Date()
         let pollingInterval = TimeInterval(0.5) // How often to check for changes
 
-        let inAddressRow = app.otherElements[AccessibilityIdentifier.connectionPanelInAddressRow]
+        let inAddressRow = app.staticTexts[AccessibilityIdentifier.connectionPanelInAddressRow]
 
         while Date().timeIntervalSince(startTime) < timeout {
             let expectation = XCTestExpectation(description: "Wait for connection attempts")
@@ -41,29 +41,29 @@ class TunnelControlPage: Page {
 
             _ = XCTWaiter.wait(for: [expectation], timeout: pollingInterval + 0.5)
 
-            if let currentText = inAddressRow.value as? String {
-                // Skip initial label value with IP address only - no port or protocol
-                guard currentText.contains(" ") == true else {
-                    continue
-                }
+            let currentText = inAddressRow.label
 
-                let addressPortComponent = currentText.components(separatedBy: " ")[0]
-                let ipAddress = addressPortComponent.components(separatedBy: ":")[0]
-                let port = addressPortComponent.components(separatedBy: ":")[1]
-                let protocolName = currentText.components(separatedBy: " ")[1]
-                let connectionAttempt = ConnectionAttempt(
-                    ipAddress: ipAddress,
-                    port: port,
-                    protocolName: protocolName
-                )
+            // Skip initial label value with IP address only - no port or protocol
+            guard currentText.contains(" ") == true else {
+                continue
+            }
 
-                if connectionAttempt != lastConnectionAttempt {
-                    connectionAttempts.append(connectionAttempt)
-                    lastConnectionAttempt = connectionAttempt
+            let addressPortComponent = currentText.components(separatedBy: " ")[0]
+            let ipAddress = addressPortComponent.components(separatedBy: ":")[0]
+            let port = addressPortComponent.components(separatedBy: ":")[1]
+            let protocolName = currentText.components(separatedBy: " ")[1]
+            let connectionAttempt = ConnectionAttempt(
+                ipAddress: ipAddress,
+                port: port,
+                protocolName: protocolName
+            )
 
-                    if connectionAttempts.count == attemptsCount {
-                        break
-                    }
+            if connectionAttempt != lastConnectionAttempt {
+                connectionAttempts.append(connectionAttempt)
+                lastConnectionAttempt = connectionAttempt
+
+                if connectionAttempts.count == attemptsCount {
+                    break
                 }
             }
         }
@@ -83,7 +83,7 @@ class TunnelControlPage: Page {
         return self
     }
 
-    @discardableResult func tapSecureConnectionButton() -> Self {
+    @discardableResult func tapConnectButton() -> Self {
         app.buttons[AccessibilityIdentifier.connectButton].tap()
         return self
     }
@@ -112,7 +112,7 @@ class TunnelControlPage: Page {
         return self
     }
 
-    @discardableResult func waitForSecureConnectionLabel() -> Self {
+    @discardableResult func waitForConnectedLabel() -> Self {
         let labelFound = app.staticTexts[.connectionStatusConnectedLabel]
             .waitForExistence(timeout: BaseUITestCase.extremelyLongTimeout)
         XCTAssertTrue(labelFound, "Secure connection label presented")
@@ -121,7 +121,7 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func tapRelayStatusExpandCollapseButton() -> Self {
-        app.otherElements[AccessibilityIdentifier.relayStatusCollapseButton].press(forDuration: .leastNonzeroMagnitude)
+        app.images[AccessibilityIdentifier.relayStatusCollapseButton].press(forDuration: .leastNonzeroMagnitude)
         return self
     }
 
@@ -194,38 +194,23 @@ class TunnelControlPage: Page {
 
     /// Verify that the app attempts to connect over Multihop.
     @discardableResult func verifyConnectingOverMultihop() -> Self {
-        let relayName = getCurrentRelayName().lowercased()
-        XCTAssertTrue(relayName.contains("via"))
+        XCTAssertTrue(app.staticTexts["Multihop"].exists)
         return self
     }
 
     /// Verify that the app attempts to connect using DAITA.
     @discardableResult func verifyConnectingUsingDAITA() -> Self {
-        let relayName = getCurrentRelayName().lowercased()
-        XCTAssertTrue(relayName.contains("using daita"))
+        XCTAssertTrue(app.staticTexts["DAITA"].exists)
         return self
     }
 
     func getInIPAddressFromConnectionStatus() -> String {
-        let inAddressRow = app.otherElements[AccessibilityIdentifier.connectionPanelInAddressRow]
-
-        if let textValue = inAddressRow.value as? String {
-            let ipAddress = textValue.components(separatedBy: ":")[0]
-            return ipAddress
-        } else {
-            XCTFail("Failed to read relay IP address from status label")
-            return String()
-        }
+        let inAddressRow = app.staticTexts[.connectionPanelInAddressRow]
+        return inAddressRow.label.components(separatedBy: ":")[0]
     }
 
     func getCurrentRelayName() -> String {
-        let relayExpandButton = app.otherElements[.relayStatusCollapseButton]
-
-        guard let relayName = relayExpandButton.value as? String else {
-            XCTFail("Failed to read relay name from tunnel control page")
-            return String()
-        }
-
-        return relayName
+        let server = app.staticTexts[.connectionPanelServer]
+        return server.label
     }
 }

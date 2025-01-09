@@ -157,6 +157,7 @@ public enum AccessibilityIdentifier: Equatable {
     case connectionPanelInAddressRow
     case connectionPanelOutAddressRow
     case connectionPanelOutIpv6AddressRow
+    case connectionPanelServer
     case customSwitch
     case customWireGuardPortTextField
     case dnsContentBlockersHeaderView
