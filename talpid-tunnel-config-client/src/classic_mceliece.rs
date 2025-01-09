@@ -8,8 +8,9 @@ use tokio::sync::{mpsc, Mutex};
 /// builds.
 const STACK_SIZE: usize = 2 * 1024 * 1024;
 
-/// Number of McEliece key pairs to buffer. Note that, using the below algorithm, they take up around
-/// 537 kB each. We therefore only buffer two, which is the largest useful amount, in case of multihop.
+/// Number of McEliece key pairs to buffer. Note that, using the below algorithm, they take up
+/// around 537 kB each. We therefore only buffer two, which is the largest useful amount, in case of
+/// multihop.
 pub const BUFSIZE: usize = 2;
 
 /// Use the smallest CME variant with NIST security level 3. This variant has significantly smaller
@@ -23,26 +24,35 @@ static KEYPAIR_RX: OnceLock<Mutex<mpsc::Receiver<KeyPair>>> = OnceLock::new();
 /// Spawn a worker that pre computes `bufsize` McEliece key pairs in a separate thread, which can be
 /// fetched asynchronously using the returned channel.
 ///
-/// As it can take upwards of 200 ms to generate McEliece key pairs, it needs to be done before we
+/// It can take upwards of 200 ms to generate McEliece key pairs so it needs to be done before we
 /// start connecting to the tunnel.
 pub fn spawn_keypair_worker(bufsize: usize) -> mpsc::Receiver<KeyPair> {
-    // As one of the key pairs will be buffered by the stack of the spawned thread, we reduce the
-    // capacity of the channel by one
-    let bufsize = bufsize.checked_sub(1).expect("bufsize must be at least 1");
     let (tx, rx) = mpsc::channel(bufsize);
+
     // We fork off the key computation to a separate thread for two reasons:
     // * The computation uses a lot of stack, and we don't want to rely on the default stack being
     //   large enough or having enough space left.
     // * The computation takes a long time and must not block the async runtime thread.
-    std::thread::Builder::new()
-        .stack_size(STACK_SIZE)
-        .spawn(move || loop {
-            let keypair = keypair_boxed(&mut rand::thread_rng());
-            if tx.blocking_send(keypair).is_err() {
+    tokio::spawn(async move {
+        loop {
+            // We do not want generate the key before we know it can be sent, as they take a lot of
+            // space. Note that `tokio::sync::mpsc` doesn't allow zero capacity channels,
+            // otherwise we could reduce the channel capacity by one, use `send_blocking` and simply
+            // store one of the keys in the stack of the thread.
+            let Ok(permit) = tx.reserve().await else {
                 return;
-            }
-        })
-        .unwrap();
+            };
+            std::thread::scope(|s| {
+                std::thread::Builder::new()
+                    .stack_size(STACK_SIZE)
+                    .name("McEliece key pair generator".to_string())
+                    .spawn_scoped(s, || {
+                        permit.send(keypair_boxed(&mut rand::thread_rng()));
+                    })
+                    .unwrap();
+            });
+        }
+    });
 
     rx
 }
