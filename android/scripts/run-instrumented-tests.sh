@@ -249,6 +249,8 @@ else
     -e runnerBuilder de.mannodermaus.junit5.AndroidJUnit5Builder \
     $TEST_PACKAGE_NAME/androidx.test.runner.AndroidJUnitRunner"
 fi
+echo "Instrumentation command: $INSTRUMENTATION_COMMAND"
+
 adb shell "$GRADLE_ENVIRONMENT_VARIABLES $INSTRUMENTATION_COMMAND" | tee "$INSTRUMENTATION_LOG_FILE_PATH"
 echo ""
 
