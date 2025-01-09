@@ -2,21 +2,25 @@
 //  TunnelViewController.swift
 //  MullvadVPN
 //
-//  Created by pronebird on 20/03/2019.
-//  Copyright © 2019 Mullvad VPN AB. All rights reserved.
+//  Created by Jon Petersson on 2024-12-10.
+//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
 //
 
+import Combine
 import MapKit
 import MullvadLogging
+import MullvadSettings
 import MullvadTypes
-import UIKit
+import SwiftUI
 
 class TunnelViewController: UIViewController, RootContainment {
     private let logger = Logger(label: "TunnelViewController")
     private let interactor: TunnelViewControllerInteractor
-    private let contentView = TunnelControlView(frame: CGRect(x: 0, y: 0, width: 320, height: 480))
     private var tunnelState: TunnelState = .disconnected
-    private var viewModel = TunnelControlViewModel.empty
+    private var connectionViewViewModel: ConnectionViewViewModel
+    private var indicatorsViewViewModel: FeatureIndicatorsViewModel
+    private var connectionView: ConnectionView
+    private var connectionController: UIHostingController<ConnectionView>?
 
     var shouldShowSelectLocationPicker: (() -> Void)?
     var shouldShowCancelTunnelAlert: (() -> Void)?
@@ -46,7 +50,26 @@ class TunnelViewController: UIViewController, RootContainment {
     init(interactor: TunnelViewControllerInteractor) {
         self.interactor = interactor
 
+        tunnelState = interactor.tunnelStatus.state
+        connectionViewViewModel = ConnectionViewViewModel(tunnelStatus: interactor.tunnelStatus)
+        indicatorsViewViewModel = FeatureIndicatorsViewModel(
+            tunnelSettings: interactor.tunnelSettings,
+            ipOverrides: interactor.ipOverrides
+        )
+
+        connectionView = ConnectionView(
+            connectionViewModel: self.connectionViewViewModel,
+            indicatorsViewModel: self.indicatorsViewViewModel
+        )
+
         super.init(nibName: nil, bundle: nil)
+
+        // When content size is updated in SwiftUI we need to explicitly tell UIKit to
+        // update its view size. This is not necessary on iOS 16 where we can set
+        // hostingController.sizingOptions instead.
+        connectionView.onContentUpdate = { [weak self] in
+            self?.connectionController?.view.setNeedsUpdateConstraints()
+        }
     }
 
     required init?(coder: NSCoder) {
@@ -61,15 +84,24 @@ class TunnelViewController: UIViewController, RootContainment {
         }
 
         interactor.didUpdateTunnelStatus = { [weak self] tunnelStatus in
+            self?.connectionViewViewModel.tunnelStatus = tunnelStatus
             self?.setTunnelState(tunnelStatus.state, animated: true)
-            self?.updateViewModel(tunnelStatus: tunnelStatus)
+            self?.view.setNeedsLayout()
         }
 
         interactor.didGetOutgoingAddress = { [weak self] outgoingConnectionInfo in
             self?.updateViewModel(outgoingConnectionInfo: outgoingConnectionInfo)
         }
 
-        contentView.actionHandler = { [weak self] action in
+        interactor.didUpdateTunnelSettings = { [weak self] tunnelSettings in
+            self?.indicatorsViewViewModel.tunnelSettings = tunnelSettings
+        }
+
+        interactor.didUpdateIpOverrides = { [weak self] overrides in
+            self?.indicatorsViewViewModel.ipOverrides = overrides
+        }
+
+        connectionView.action = { [weak self] action in
             switch action {
             case .connect:
                 self?.interactor.startTunnel()
@@ -94,37 +126,12 @@ class TunnelViewController: UIViewController, RootContainment {
 
         addMapController()
         addContentView()
-
-        tunnelState = interactor.tunnelStatus.state
         updateMap(animated: false)
-        updateViewModel(tunnelStatus: interactor.tunnelStatus)
-    }
-
-    func updateViewModel(
-        tunnelStatus: TunnelStatus? = nil,
-        outgoingConnectionInfo: OutgoingConnectionInfo? = nil
-    ) {
-        if let tunnelStatus {
-            viewModel = viewModel.update(status: tunnelStatus)
-        }
-        if let outgoingConnectionInfo {
-            viewModel = viewModel.update(outgoingConnectionInfo: outgoingConnectionInfo)
-        }
-        contentView.update(with: viewModel)
-    }
-
-    override func viewWillTransition(
-        to size: CGSize,
-        with coordinator: UIViewControllerTransitionCoordinator
-    ) {
-        super.viewWillTransition(to: size, with: coordinator)
-
-        contentView.update(with: viewModel)
     }
 
     func setMainContentHidden(_ isHidden: Bool, animated: Bool) {
         let actions = {
-            self.contentView.alpha = isHidden ? 0 : 1
+            _ = self.connectionView.opacity(isHidden ? 0 : 1)
         }
 
         if animated {
@@ -138,6 +145,7 @@ class TunnelViewController: UIViewController, RootContainment {
 
     private func setTunnelState(_ tunnelState: TunnelState, animated: Bool) {
         self.tunnelState = tunnelState
+
         setNeedsHeaderBarStyleAppearanceUpdate()
 
         guard isViewLoaded else { return }
@@ -149,18 +157,18 @@ class TunnelViewController: UIViewController, RootContainment {
         switch tunnelState {
         case let .connecting(tunnelRelays, _, _):
             mapViewController.removeLocationMarker()
-            contentView.setAnimatingActivity(true)
             mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
+            connectionViewViewModel.showsActivityIndicator = true
 
         case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
             mapViewController.removeLocationMarker()
-            contentView.setAnimatingActivity(true)
             mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
+            connectionViewViewModel.showsActivityIndicator = true
 
         case let .connected(tunnelRelays, _, _):
             let center = tunnelRelays.exit.location.geoCoordinate
             mapViewController.setCenter(center, animated: animated) {
-                self.contentView.setAnimatingActivity(false)
+                self.connectionViewViewModel.showsActivityIndicator = false
 
                 // Connection can change during animation, so make sure we're still connected before adding marker.
                 if case .connected = self.tunnelState {
@@ -170,45 +178,42 @@ class TunnelViewController: UIViewController, RootContainment {
 
         case .pendingReconnect:
             mapViewController.removeLocationMarker()
-            contentView.setAnimatingActivity(true)
+            connectionViewViewModel.showsActivityIndicator = true
 
         case .waitingForConnectivity, .error:
             mapViewController.removeLocationMarker()
-            contentView.setAnimatingActivity(false)
+            connectionViewViewModel.showsActivityIndicator = false
 
         case .disconnected, .disconnecting:
             mapViewController.removeLocationMarker()
-            contentView.setAnimatingActivity(false)
             mapViewController.setCenter(nil, animated: animated)
+            connectionViewViewModel.showsActivityIndicator = false
         }
     }
 
     private func addMapController() {
         let mapView = mapViewController.view!
-        mapView.translatesAutoresizingMaskIntoConstraints = false
-        mapViewController.alignmentView = contentView.mapCenterAlignmentView
 
         addChild(mapViewController)
-        view.addSubview(mapView)
         mapViewController.didMove(toParent: self)
 
-        NSLayoutConstraint.activate([
-            mapView.topAnchor.constraint(equalTo: view.topAnchor),
-            mapView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            mapView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            mapView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
+        view.addConstrainedSubviews([mapView]) {
+            mapView.pinEdgesToSuperview()
+        }
     }
 
     private func addContentView() {
-        contentView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(contentView)
+        let connectionController = UIHostingController(rootView: connectionView)
+        self.connectionController = connectionController
 
-        NSLayoutConstraint.activate([
-            contentView.topAnchor.constraint(equalTo: view.topAnchor),
-            contentView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            contentView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            contentView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-        ])
+        let connectionViewProxy = connectionController.view!
+        connectionViewProxy.backgroundColor = .clear
+
+        addChild(connectionController)
+        connectionController.didMove(toParent: self)
+
+        view.addConstrainedSubviews([connectionViewProxy]) {
+            connectionViewProxy.pinEdgesToSuperview(.all())
+        }
     }
 }
