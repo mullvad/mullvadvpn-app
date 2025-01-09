@@ -205,12 +205,12 @@ class ConnectivityTests: LoggedOutUITestCase {
 
         // Actual test. Make sure it is possible to connect to a relay
         TunnelControlPage(app)
-            .tapSecureConnectionButton()
+            .tapConnectButton()
 
         allowAddVPNConfigurationsIfAsked()
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         HeaderBar(app)
             .tapAccountButton()

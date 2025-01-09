@@ -24,17 +24,26 @@ extension ConnectionView {
 
                 VStack(alignment: .leading, spacing: 0) {
                     if let inAddress = viewModel.inAddress {
-                        connectionDetailRow(title: LocalizedStringKey("In"), value: inAddress)
-                            .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelInAddressRow.asString)
+                        connectionDetailRow(
+                            title: LocalizedStringKey("In"),
+                            value: inAddress,
+                            accessibilityId: .connectionPanelInAddressRow
+                        )
                     }
                     if viewModel.tunnelIsConnected {
                         if let outAddressIpv4 = viewModel.outAddressIpv4 {
-                            connectionDetailRow(title: LocalizedStringKey("Out IPv4"), value: outAddressIpv4)
-                                .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelOutAddressRow.asString)
+                            connectionDetailRow(
+                                title: LocalizedStringKey("Out IPv4"),
+                                value: outAddressIpv4,
+                                accessibilityId: .connectionPanelOutAddressRow
+                            )
                         }
                         if let outAddressIpv6 = viewModel.outAddressIpv6 {
-                            connectionDetailRow(title: LocalizedStringKey("Out IPv6"), value: outAddressIpv6)
-                                .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelOutAddressRow.asString)
+                            connectionDetailRow(
+                                title: LocalizedStringKey("Out IPv6"),
+                                value: outAddressIpv6,
+                                accessibilityId: .connectionPanelOutAddressRow
+                            )
                         }
                     }
                 }
@@ -42,7 +51,11 @@ extension ConnectionView {
         }
 
         @ViewBuilder
-        private func connectionDetailRow(title: LocalizedStringKey, value: String) -> some View {
+        private func connectionDetailRow(
+            title: LocalizedStringKey,
+            value: String,
+            accessibilityId: AccessibilityIdentifier
+        ) -> some View {
             HStack(alignment: .top, spacing: 8) {
                 Text(title)
                     .font(.subheadline)
@@ -52,6 +65,7 @@ extension ConnectionView {
                 Text(value)
                     .font(.subheadline)
                     .foregroundStyle(UIColor.primaryTextColor.color)
+                    .accessibilityIdentifier(accessibilityId.asString)
             }
         }
     }

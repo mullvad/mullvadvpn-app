@@ -50,7 +50,7 @@ class ScreenshotTests: LoggedInWithTimeUITestCase {
             .tapLocationCell(withName: "Sweden")
 
         TunnelControlPage(app)
-            .waitForSecureConnectionLabel()
+            .waitForConnectedLabel()
 
         snapshot("QuantumConnectionSecured")
     }
