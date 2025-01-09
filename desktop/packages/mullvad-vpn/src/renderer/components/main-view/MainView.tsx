@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
 import { useSelector } from '../../redux/store';
+import { AppMainHeader } from '../app-main-header';
 import ImageView from '../ImageView';
 import { Container, Layout } from '../Layout';
-import { MainHeader } from '../main-header';
 import Map from '../Map';
 import NotificationArea from '../NotificationArea';
 import ConnectionPanel from './ConnectionPanel';
@@ -49,10 +49,10 @@ export default function MainView() {
 
   return (
     <Layout>
-      <MainHeader size="basedOnLoginStatus" variant="basedOnConnectionStatus">
-        <MainHeader.AccountButton />
-        <MainHeader.SettingsButton />
-      </MainHeader>
+      <AppMainHeader size="basedOnLoginStatus" variant="basedOnConnectionStatus">
+        <AppMainHeader.AccountButton />
+        <AppMainHeader.SettingsButton />
+      </AppMainHeader>
       <StyledContainer>
         <Map />
         <Content>
