@@ -11,7 +11,6 @@ PRODUCT_VERSION=$(cargo run -q --bin mullvad-version versionName)
 echo "Building Mullvad VPN $PRODUCT_VERSION for Android"
 echo ""
 
-BUILD_TYPE="release"
 GRADLE_BUILD_TYPE="release"
 GRADLE_TASKS=(createOssProdReleaseDistApk createPlayProdReleaseDistApk)
 BUILD_BUNDLE="no"
@@ -21,7 +20,6 @@ PLAY_PUBLISH_TASKS=()
 
 while [ -n "${1:-""}" ]; do
     if [[ "${1:-""}" == "--dev-build" ]]; then
-        BUILD_TYPE="debug"
         GRADLE_BUILD_TYPE="debug"
         GRADLE_TASKS=(createOssProdDebugDistApk)
         BUNDLE_TASKS=(createOssProdDebugDistBundle)
@@ -46,7 +44,7 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     fi
 fi
 
-if [[ "$BUILD_TYPE" == "release" ]]; then
+if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     if [[ "$PRODUCT_VERSION" == *"-dev-"* ]]; then
         GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
         BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
