@@ -46,7 +46,7 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     fi
 fi
 
-if [[ "$BUILD_TYPE" == "release" ]]; then
+if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
     if [[ "$PRODUCT_VERSION" == *"-dev-"* ]]; then
         GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
         BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
