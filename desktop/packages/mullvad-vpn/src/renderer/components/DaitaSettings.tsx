@@ -10,19 +10,15 @@ import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import PageSlider from './PageSlider';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { SmallButton, SmallButtonColor } from './SmallButton';
@@ -44,11 +40,7 @@ export default function DaitaSettings() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>{strings.daita}</TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader title={strings.daita} />
 
             <NavigationScrollbars>
               <SettingsHeader>

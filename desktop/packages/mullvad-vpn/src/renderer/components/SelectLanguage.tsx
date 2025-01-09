@@ -5,18 +5,14 @@ import { useAppContext } from '../../renderer/context';
 import { messages } from '../../shared/gettext';
 import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { AriaInputGroup } from './AriaGroup';
 import Selector, { SelectorItem } from './cell/Selector';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledSelector = styled(Selector)({
@@ -56,16 +52,12 @@ export default function SelectLanguage() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-language-nav', 'Select language')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Title label in navigation bar
+                messages.pgettext('select-language-nav', 'Select language')
+              }
+            />
 
             <NavigationScrollbars ref={scrollView}>
               <SettingsHeader>

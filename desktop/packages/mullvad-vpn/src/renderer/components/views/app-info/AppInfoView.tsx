@@ -1,14 +1,10 @@
 import { messages } from '../../../../shared/gettext';
 import { useHistory } from '../../../lib/history';
+import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsGroup, SettingsStack } from '../../Layout';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from '../../NavigationBar';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { AppVersionListItem, ChangelogListItem } from './components';
 
@@ -19,11 +15,7 @@ export const AppInfoView = () => {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>{messages.pgettext('app-info-view', 'App info')}</TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader title={messages.pgettext('app-info-view', 'App info')} />
 
             <NavigationScrollbars>
               <SettingsHeader>

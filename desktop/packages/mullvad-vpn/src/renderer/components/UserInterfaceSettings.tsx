@@ -6,6 +6,7 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
@@ -17,13 +18,8 @@ import {
   SettingsGroup,
   SettingsStack,
 } from './Layout';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledAnimateMapCellGroup = styled(SettingsGroup)({
@@ -41,16 +37,12 @@ export default function UserInterfaceSettings() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('user-interface-settings-view', 'User interface settings')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Title label in navigation bar
+                messages.pgettext('user-interface-settings-view', 'User interface settings')
+              }
+            />
 
             <NavigationScrollbars>
               <SettingsHeader>

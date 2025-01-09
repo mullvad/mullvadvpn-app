@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
+import { Spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useStyledRef } from '../../lib/utility-hooks';
@@ -13,6 +14,10 @@ import * as Cell from '.';
 
 const StyledTitleLabel = styled(Cell.SectionTitle)({
   flex: 1,
+});
+
+const StyledInfoButton = styled(InfoButton)({
+  marginRight: Spacings.spacing5,
 });
 
 export interface SelectorItem<T> {
@@ -94,7 +99,9 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
       </AriaLabel>
       {props.details && (
         <AriaDetails>
-          <InfoButton title={props.infoTitle}>{props.details}</InfoButton>
+          <StyledInfoButton title={props.infoTitle} size="small">
+            {props.details}
+          </StyledInfoButton>
         </AriaDetails>
       )}
     </>

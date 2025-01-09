@@ -7,6 +7,7 @@ import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import AccountNumberLabel from './AccountNumberLabel';
 import {
   AccountContainer,
@@ -23,7 +24,6 @@ import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGrou
 import DeviceInfoButton from './DeviceInfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
-import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import { RedeemVoucherButton } from './RedeemVoucher';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
@@ -49,16 +49,12 @@ export default function Account() {
     <BackAction action={history.pop}>
       <Layout>
         <SettingsContainer>
-          <NavigationBar>
-            <NavigationItems>
-              <TitleBarItem>
-                {
-                  // TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('account-view', 'Account')
-                }
-              </TitleBarItem>
-            </NavigationItems>
-          </NavigationBar>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('account-view', 'Account')
+            }
+          />
 
           <AccountContainer>
             <SettingsHeader>

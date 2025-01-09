@@ -8,18 +8,14 @@ import { Flex } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import { StyledIllustration } from './DaitaSettings';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
 export default function MultihopSettings() {
@@ -30,13 +26,7 @@ export default function MultihopSettings() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {messages.pgettext('wireguard-settings-view', 'Multihop')}
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader title={messages.pgettext('wireguard-settings-view', 'Multihop')} />
 
             <NavigationScrollbars>
               <SettingsHeader>

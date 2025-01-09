@@ -15,6 +15,7 @@ import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings
 import { useBoolean } from '../lib/utility-hooks';
 import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import { AriaInputGroup, AriaLabel } from './AriaGroup';
@@ -24,13 +25,8 @@ import { normalText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
   backgroundColor: colors.darkBlue,
@@ -83,16 +79,13 @@ export default function Filter() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar alwaysDisplayBarTitle={true}>
-              <NavigationItems>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('filter-nav', 'Filter')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Title label in navigation bar
+                messages.pgettext('filter-nav', 'Filter')
+              }
+              titleVisible
+            />
             <StyledNavigationScrollbars>
               <FilterByOwnership
                 ownership={ownership}

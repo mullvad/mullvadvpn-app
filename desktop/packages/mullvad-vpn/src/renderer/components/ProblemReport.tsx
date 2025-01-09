@@ -20,13 +20,13 @@ import { useHistory } from '../lib/history';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
+import { AppNavigationHeader } from './';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationBar, NavigationItems, TitleBarItem } from './NavigationBar';
 import {
   StyledContent,
   StyledContentContainer,
@@ -66,16 +66,12 @@ function ProblemReportComponent() {
     <BackAction action={history.pop}>
       <Layout>
         <SettingsContainer>
-          <NavigationBar>
-            <NavigationItems>
-              <TitleBarItem>
-                {
-                  // TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('support-view', 'Report a problem')
-                }
-              </TitleBarItem>
-            </NavigationItems>
-          </NavigationBar>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('support-view', 'Report a problem')
+            }
+          />
           <StyledContentContainer>
             <Header />
             <Content />

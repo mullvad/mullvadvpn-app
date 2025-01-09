@@ -35,7 +35,9 @@ export default function SpecialLocationList<T>({ source, ...props }: SpecialLoca
   );
 }
 
-const StyledSpecialLocationInfoButton = styled(InfoButton)({ padding: '0 25px', margin: 0 });
+const StyledSpecialLocationInfoButton = styled(InfoButton).attrs({
+  size: 'small',
+})({ width: '56px', height: '48px' });
 const StyledSpecialLocationSideButton = styled(ImageView)({ padding: '0 3px' });
 
 interface SpecialLocationRowProps<T> {
