@@ -19,6 +19,8 @@ pub const ALGORITHM_NAME: &str = "Classic-McEliece-460896f-round3";
 
 type KeyPair = (PublicKey<'static>, SecretKey<'static>);
 
+/// Receiver for McEliece key pairs used by PQ tunnels. These are generated in a separate
+/// thread to reduce latency when connecting.
 static KEYPAIR_RX: OnceLock<Mutex<mpsc::Receiver<KeyPair>>> = OnceLock::new();
 
 /// Spawn a worker that pre computes `bufsize` McEliece key pairs in a separate thread, which can be
@@ -62,7 +64,8 @@ pub fn spawn_keypair_worker(bufsize: usize) -> mpsc::Receiver<KeyPair> {
 }
 
 pub async fn generate_keys() -> KeyPair {
-    get_or_init_keypair_receiver()
+    KEYPAIR_RX
+        .get_or_init(|| Mutex::new(spawn_keypair_worker(BUFSIZE)))
         .lock()
         .await
         .recv()
@@ -70,12 +73,8 @@ pub async fn generate_keys() -> KeyPair {
         .expect("Expected to receive key pair, but key generator has been stopped.")
 }
 
-/// Returns a receiver for McEliece key pairs used by PQ tunnels. These are generated in a separate
-/// thread to reduce latency when connecting.
-///
-/// The first call will spawn the worker which immedietly starts to compute and buffer [`BUFSIZE`]
-/// of key pairs.
-pub fn get_or_init_keypair_receiver<'a>() -> &'a Mutex<mpsc::Receiver<KeyPair>> {
+/// Spawn a worker which computes and buffers [`BUFSIZE`] of McEliece key pairs, used by PQ tunnels.
+pub fn spawn_keypair_generator<'a>() -> &'a Mutex<mpsc::Receiver<KeyPair>> {
     KEYPAIR_RX.get_or_init(|| Mutex::new(spawn_keypair_worker(BUFSIZE)))
 }
 
