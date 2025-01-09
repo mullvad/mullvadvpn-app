@@ -1,30 +1,22 @@
 use super::TunConfig;
-#[cfg(target_os = "macos")]
-use std::io;
 use std::{
     net::IpAddr,
     ops::Deref,
     os::unix::io::{AsRawFd, RawFd},
+    process::Command,
 };
 use tun::{AbstractDevice, Configuration};
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// Failed to set IP address on tunnel device
-    #[cfg(target_os = "linux")]
-    #[error("Failed to set IP address on tunnel device")]
-    SetIp(#[source] tun::Error),
-
     /// Failed to set IPv4 address on tunnel device
-    #[cfg(target_os = "macos")]
     #[error("Failed to set IPv4 address")]
     SetIpv4(#[source] tun::Error),
 
     /// Failed to set IPv6 address on tunnel device
-    #[cfg(target_os = "macos")]
     #[error("Failed to set IPv6 address")]
-    SetIpv6(#[source] io::Error),
+    SetIpv6(#[source] std::io::Error),
 
     /// Unable to open a tunnel device
     #[error("Unable to open a tunnel device")]
@@ -148,29 +140,37 @@ impl AsRawFd for TunnelDevice {
 }
 
 impl TunnelDevice {
-    #[cfg(target_os = "linux")]
-    fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
-        self.dev.set_address(ip).map_err(Error::SetIp)?;
-        Ok(())
-    }
-
-    #[cfg(target_os = "macos")]
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
         match ip {
-            // NOTE: As of `tun 0.7`, `Device::set_address` accepts an `IpAddr` but
-            // only supports the `IpAddr::V4` address kind and panics if you pass it an
-            // `IpAddr::V6` value..
             IpAddr::V4(ipv4) => {
                 self.dev.set_address(ipv4.into()).map_err(Error::SetIpv4)?;
             }
+
+            // NOTE: On MacOs, As of `tun 0.7`, `Device::set_address` accepts an `IpAddr` but
+            // only supports the `IpAddr::V4` address kind and panics if you pass it an
+            // `IpAddr::V6` value.
+            #[cfg(target_os = "macos")]
             IpAddr::V6(ipv6) => {
-                use std::process::Command;
                 // ifconfig <device> inet6 <ipv6 address> alias
-                let address = ipv6.to_string();
+                let ipv6 = ipv6.to_string();
                 let device = self.dev.tun_name().unwrap(); // TODO: Do not unwrap!
-                let mut ifconfig = Command::new("ifconfig");
-                ifconfig.args([&device, "inet6", &address, "alias"]);
-                ifconfig.output().map_err(Error::SetIpv6)?;
+                Command::new("ifconfig")
+                    .args([&device, "inet6", &ipv6, "alias"])
+                    .output()
+                    .map_err(Error::SetIpv6)?;
+            }
+
+            // NOTE: On Linux, As of `tun 0.7`, `Device::set_address` throws an I/O error if you
+            // pass it an IPv6-address.
+            #[cfg(target_os = "linux")]
+            IpAddr::V6(ipv6) => {
+                // ip -6 addr add <ipv6 address> dev <device>
+                let ipv6 = ipv6.to_string();
+                let device = self.dev.tun_name().unwrap(); // TODO: Do not unwrap!
+                Command::new("ip")
+                    .args(["-6", "addr", "add", &dbg!(ipv6), "dev", &device])
+                    .output()
+                    .map_err(Error::SetIpv6)?;
             }
         }
         Ok(())
