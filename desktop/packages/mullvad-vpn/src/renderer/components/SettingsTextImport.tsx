@@ -8,10 +8,9 @@ import { useHistory } from '../lib/history';
 import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
-import ImageView from './ImageView';
+import { AppNavigationHeader } from './';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import { NavigationBar, NavigationBarButton, NavigationItems, TitleBarItem } from './NavigationBar';
 
 const StyledTextArea = styled.textarea({
   width: '100%',
@@ -54,25 +53,18 @@ export default function SettingsTextImport() {
     <BackAction action={back}>
       <Layout>
         <SettingsContainer>
-          <NavigationBar alwaysDisplayBarTitle>
-            <NavigationItems>
-              <TitleBarItem>
-                {
-                  // TRANSLATORS: Title label in navigation bar
-                  messages.pgettext('settings-import', 'Import via text')
-                }
-              </TitleBarItem>
-              <NavigationBarButton onClick={save} aria-label={messages.gettext('Save')}>
-                <ImageView
-                  source="icon-check"
-                  tintColor={colors.white40}
-                  tintHoverColor={colors.white60}
-                  height={24}
-                  width={24}
-                />
-              </NavigationBarButton>
-            </NavigationItems>
-          </NavigationBar>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar
+              messages.pgettext('settings-import', 'Import via text')
+            }
+            titleVisible>
+            <AppNavigationHeader.IconButton
+              icon="icon-check"
+              onClick={save}
+              aria-label={messages.gettext('Save')}
+            />
+          </AppNavigationHeader>
 
           <StyledTextArea ref={combinedTextAreaRef} />
         </SettingsContainer>

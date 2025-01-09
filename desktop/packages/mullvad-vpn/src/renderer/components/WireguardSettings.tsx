@@ -17,19 +17,15 @@ import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem, SelectorWithCustomItem } from './cell/Selector';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { ModalMessage } from './Modal';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const MIN_WIREGUARD_MTU_VALUE = 1280;
@@ -52,19 +48,15 @@ export default function WireguardSettings() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {sprintf(
-                    // TRANSLATORS: Title label in navigation bar
-                    // TRANSLATORS: Available placeholders:
-                    // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
-                    messages.pgettext('wireguard-settings-nav', '%(wireguard)s settings'),
-                    { wireguard: strings.wireguard },
-                  )}
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={sprintf(
+                // TRANSLATORS: Title label in navigation bar
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(wireguard)s - Will be replaced with the string "WireGuard"
+                messages.pgettext('wireguard-settings-nav', '%(wireguard)s settings'),
+                { wireguard: strings.wireguard },
+              )}
+            />
 
             <NavigationScrollbars>
               <SettingsHeader>

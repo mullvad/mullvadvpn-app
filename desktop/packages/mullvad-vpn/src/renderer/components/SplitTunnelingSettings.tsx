@@ -16,6 +16,7 @@ import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { IReduxState } from '../redux/store';
+import { AppNavigationHeader } from './';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
@@ -26,7 +27,7 @@ import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import List from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
   StyledActionIcon,
@@ -60,11 +61,7 @@ export default function SplitTunneling() {
         <Layout>
           <SettingsContainer>
             <NavigationContainer>
-              <NavigationBar>
-                <NavigationItems>
-                  <TitleBarItem>{strings.splitTunneling}</TitleBarItem>
-                </NavigationItems>
-              </NavigationBar>
+              <AppNavigationHeader title={strings.splitTunneling} />
 
               <StyledNavigationScrollbars ref={scrollbarsRef}>
                 <PlatformSpecificSplitTunnelingSettings

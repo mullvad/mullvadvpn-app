@@ -85,7 +85,7 @@ export function SettingsGroup(props: React.PropsWithChildren<SettingsGroupProps>
           <StyledTitle>
             {props.title}
             {props.infoMessage !== undefined && (
-              <StyledInfoButton size={12} message={props.infoMessage} />
+              <StyledInfoButton size="small" message={props.infoMessage} />
             )}
           </StyledTitle>
         )}

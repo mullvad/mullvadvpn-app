@@ -6,11 +6,12 @@ import { useBridgeSettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
 import { ProxyForm } from './ProxyForm';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 import { SmallButton, SmallButtonColor } from './SmallButton';
@@ -66,11 +67,7 @@ function CustomBridgeForm() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>{title}</TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader title={title} />
 
             <SettingsNavigationScrollbars fillContainer>
               <SettingsContent>

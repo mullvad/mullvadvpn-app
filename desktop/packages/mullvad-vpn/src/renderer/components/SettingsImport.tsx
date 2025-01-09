@@ -13,17 +13,12 @@ import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { measurements, normalText, tinyText } from './common-styles';
 import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
-import {
-  NavigationBar,
-  NavigationInfoButton,
-  NavigationItems,
-  TitleBarItem,
-} from './NavigationBar';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { SmallButton, SmallButtonColor, SmallButtonGrid } from './SmallButton';
 
@@ -116,34 +111,31 @@ export default function SettingsImport() {
     <BackAction action={history.pop}>
       <Layout>
         <SettingsContainer>
-          <NavigationBar>
-            <NavigationItems>
-              <TitleBarItem>
-                {
-                  // TRANSLATORS: Title label in navigation bar. This is for a feature that lets
-                  // TRANSLATORS: users import server IP settings.
-                  messages.pgettext('settings-import', 'Server IP override')
-                }
-              </TitleBarItem>
-              <NavigationInfoButton
-                title={messages.pgettext('settings-import', 'Server IP override')}
-                message={[
-                  messages.pgettext(
-                    'settings-import',
-                    'On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.',
-                  ),
-                  messages.pgettext(
-                    'settings-import',
-                    'To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.',
-                  ),
-                  messages.pgettext(
-                    'settings-import',
-                    'If you are having issues connecting to VPN servers, please contact support.',
-                  ),
-                ]}
-              />
-            </NavigationItems>
-          </NavigationBar>
+          <AppNavigationHeader
+            title={
+              // TRANSLATORS: Title label in navigation bar. This is for a feature that lets
+              // TRANSLATORS: users import server IP settings.
+              messages.pgettext('settings-import', 'Server IP override')
+            }>
+            <AppNavigationHeader.InfoButton
+              title={messages.pgettext('settings-import', 'Server IP override')}
+              variant="secondary"
+              message={[
+                messages.pgettext(
+                  'settings-import',
+                  'On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.',
+                ),
+                messages.pgettext(
+                  'settings-import',
+                  'To circumvent this you can import a file or a text, provided by our support team, with new IP addresses that override the default addresses of the servers in the Select location view.',
+                ),
+                messages.pgettext(
+                  'settings-import',
+                  'If you are having issues connecting to VPN servers, please contact support.',
+                ),
+              ]}
+            />
+          </AppNavigationHeader>
           <Flex $flexDirection="column" $flex={1}>
             <SettingsHeader>
               <HeaderTitle>

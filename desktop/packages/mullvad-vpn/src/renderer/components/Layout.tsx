@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Flex } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
 import { measurements } from './common-styles';
-import { NavigationScrollbars } from './NavigationBar';
+import { NavigationScrollbars } from './NavigationScrollbars';
 
 export const Container = styled.div({
   display: 'flex',

@@ -4,21 +4,16 @@ import styled from 'styled-components';
 import { links } from '../../../../config.json';
 import { messages } from '../../../../shared/gettext';
 import { useAppContext } from '../../../context';
-import { BodySmall, Button, Flex, TitleBig, TitleLarge } from '../../../lib/components';
-import { Container } from '../../../lib/components';
+import { BodySmall, Button, Container, Flex, TitleBig, TitleLarge } from '../../../lib/components';
 import { Colors, Spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
+import { AppNavigationHeader } from '../../';
 import ImageView from '../../ImageView';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from '../../NavigationBar';
+import { NavigationContainer } from '../../NavigationContainer';
+import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader from '../../SettingsHeader';
 
 const StyledList = styled(Flex)({
@@ -49,11 +44,7 @@ export const ChangelogView = () => {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>{messages.pgettext('changelog-view', 'What’s new')}</TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader title={messages.pgettext('changelog-view', 'What’s new')} />
 
             <NavigationScrollbars>
               <SettingsHeader>

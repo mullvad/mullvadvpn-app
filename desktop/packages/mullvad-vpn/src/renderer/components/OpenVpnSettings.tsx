@@ -17,19 +17,15 @@ import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { AriaDescription, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import { ModalMessage } from './Modal';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const MIN_MSSFIX_VALUE = 1000;
@@ -70,19 +66,15 @@ export default function OpenVpnSettings() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {sprintf(
-                    // TRANSLATORS: Title label in navigation bar
-                    // TRANSLATORS: Available placeholders:
-                    // TRANSLATORS: %(openvpn)s - Will be replaced with "OpenVPN"
-                    messages.pgettext('openvpn-settings-nav', '%(openvpn)s settings'),
-                    { openvpn: strings.openvpn },
-                  )}
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={sprintf(
+                // TRANSLATORS: Title label in navigation bar
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(openvpn)s - Will be replaced with "OpenVPN"
+                messages.pgettext('openvpn-settings-nav', '%(openvpn)s settings'),
+                { openvpn: strings.openvpn },
+              )}
+            />
 
             <NavigationScrollbars>
               <SettingsHeader>
