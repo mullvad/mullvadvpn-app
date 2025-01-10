@@ -228,12 +228,6 @@ fi
 echo ""
 
 echo "### Run instrumented test command ###"
-echo "$USE_ORCHESTRATOR"
-echo "$PACKAGE_NAME"
-echo "$TEST_APK_PATH"
-echo "$PARTNER_AUTH"
-echo "$VALID_TEST_ACCOUNT_NUMBER"
-
 if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
     INSTRUMENTATION_COMMAND="\
     CLASSPATH=\$(pm path androidx.test.services) app_process / androidx.test.services.shellexecutor.ShellMain \
