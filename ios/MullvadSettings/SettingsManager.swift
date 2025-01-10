@@ -35,7 +35,8 @@ public enum SettingsManager {
     #else
     public static let store: SettingsStore = KeychainSettingsStore(
         serviceName: keychainServiceName,
-        accessGroup: ApplicationConfiguration.securityGroupIdentifier
+        accessGroup: ApplicationConfiguration.securityGroupIdentifier,
+        cacheDirectory: ApplicationConfiguration.containerURL
     )
 
     #endif
