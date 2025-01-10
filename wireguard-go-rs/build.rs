@@ -18,23 +18,25 @@ fn main() -> anyhow::Result<()> {
     println!("cargo::rerun-if-changed=libwg");
 
     match target_os.as_str() {
-        "linux" => build_static_lib(Os::Linux, true)?,
-        "macos" => build_static_lib(Os::MacOs, true)?,
+        // TODO
+        "windows" => build_desktop_lib(Os::Windows, false)?,
+        "linux" => build_desktop_lib(Os::Linux, true)?,
+        "macos" => build_desktop_lib(Os::MacOs, true)?,
         "android" => build_android_dynamic_lib(true)?,
-        // building wireguard-go-rs for windows is not implemented
         _ => {}
     }
 
     Ok(())
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 enum Os {
+    Windows,
     MacOs,
     Linux,
 }
 
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 enum Arch {
     Amd64,
     Arm64,
@@ -64,7 +66,9 @@ impl AndroidTarget {
 fn host_os() -> anyhow::Result<Os> {
     // this ugliness is a limitation of rust, where we can't directly
     // access the target triple of the build script.
-    if cfg!(target_os = "linux") {
+    if cfg!(target_os = "windows") {
+        Ok(Os::Windows)
+    } else if cfg!(target_os = "linux") {
         Ok(Os::Linux)
     } else if cfg!(target_os = "macos") {
         Ok(Os::MacOs)
@@ -83,8 +87,8 @@ fn host_arch() -> anyhow::Result<Arch> {
     }
 }
 
-/// Compile libwg as a static library and place it in `OUT_DIR`.
-fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
+/// Compile libwg as a library and place it in `OUT_DIR`.
+fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
     let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
     let target_arch =
         env::var("CARGO_CFG_TARGET_ARCH").context("Missing 'CARGO_CFG_TARGET_ARCH")?;
@@ -95,14 +99,8 @@ fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
         _ => bail!("Unsupported architecture: {target_arch}"),
     };
 
-    let out_file = format!("{out_dir}/libwg.a");
     let mut go_build = Command::new("go");
-    go_build
-        .args(["build", "-v", "-o", &out_file])
-        .args(["-buildmode", "c-archive"])
-        .args(if daita { &["--tags", "daita"][..] } else { &[] })
-        .env("CGO_ENABLED", "1")
-        .current_dir("./libwg");
+    go_build.env("CGO_ENABLED", "1").current_dir("./libwg");
 
     // are we cross compiling?
     let cross_compiling = host_os()? != target_os || host_arch()? != target_arch;
@@ -113,7 +111,47 @@ fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
     };
 
     match target_os {
+        Os::Windows => {
+            let out_file = windows_output_path(target_arch)?;
+            go_build
+                .args(["build", "-v"])
+                .args(["-o", &out_file.to_str().unwrap()])
+                .args(if daita { &["--tags", "daita"][..] } else { &[] });
+            // Build dynamic lib
+            go_build.args(["-buildmode", "c-shared"]);
+
+            // FIXME
+            println!("cargo::rustc-link-search={out_dir}");
+            println!("cargo::rustc-link-lib=dylib=wg");
+
+            // Build using zig
+            match target_arch {
+                Arch::Amd64 => {
+                    go_build.env("CC", "zig cc -target x86_64-windows");
+                }
+                Arch::Arm64 => {
+                    go_build.env("CC", "zig cc -target aarch64-windows");
+                }
+            }
+
+            go_build.env("GOOS", "windows");
+
+            if cross_compiling {
+                match target_arch {
+                    Arch::Arm64 => go_build.env("CC", "aarch64-linux-gnu-gcc"),
+                    Arch::Amd64 => bail!("cross-compiling to linux x86_64 is not implemented"),
+                };
+            }
+        }
         Os::Linux => {
+            let out_file = format!("{out_dir}/libwg.a");
+            go_build
+                .args(["build", "-v", "-o", &out_file])
+                .args(if daita { &["--tags", "daita"][..] } else { &[] });
+
+            // Build static lib
+            go_build.args(["-buildmode", "c-archive"]);
+
             go_build.env("GOOS", "linux");
 
             if cross_compiling {
@@ -124,6 +162,14 @@ fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
             }
         }
         Os::MacOs => {
+            let out_file = format!("{out_dir}/libwg.a");
+            go_build
+                .args(["build", "-v", "-o", &out_file])
+                .args(if daita { &["--tags", "daita"][..] } else { &[] });
+
+            // Build static lib
+            go_build.args(["-buildmode", "c-archive"]);
+
             go_build.env("GOOS", "darwin");
 
             if cross_compiling {
@@ -150,8 +196,8 @@ fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
     exec(go_build)?;
 
     // make sure to link to the resulting binary
-    println!("cargo::rustc-link-search={out_dir}");
-    println!("cargo::rustc-link-lib=static=wg");
+    //println!("cargo::rustc-link-search={out_dir}");
+    //println!("cargo::rustc-link-lib=static=wg");
 
     // if daita is enabled, also enable the corresponding rust feature flag
     if daita {
@@ -275,6 +321,17 @@ fn android_arch_name(target: AndroidTarget) -> String {
         AndroidTarget::I686 => "x86",
     }
     .to_string()
+}
+
+// Returns the path where the shared library should be
+fn windows_output_path(arch: Arch) -> anyhow::Result<PathBuf> {
+    let relative_output_path = match arch {
+        Arch::Amd64 => Path::new("../dist-assets"),
+        Arch::Arm64 => Path::new("../dist-assets/aarch64-windows-msvc"),
+    };
+    std::fs::create_dir_all(relative_output_path)?;
+    let output_path = relative_output_path.canonicalize()?;
+    Ok(output_path)
 }
 
 // Returns the path where the Android project expects Rust binaries to be
