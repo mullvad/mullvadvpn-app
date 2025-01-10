@@ -9,15 +9,18 @@ use crate::config::MULLVAD_INTERFACE_NAME;
 #[cfg(target_os = "android")]
 use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
+#[cfg(unix)]
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use std::ffi::CString;
+#[cfg(unix)]
+use std::sync::{Arc, Mutex};
+#[cfg(unix)]
+use std::os::unix::io::{AsRawFd, RawFd};
 use std::{
     future::Future,
-    os::unix::io::{AsRawFd, RawFd},
     path::{Path, PathBuf},
     pin::Pin,
-    sync::{Arc, Mutex},
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
@@ -27,6 +30,7 @@ use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::BoxedError;
 
+#[cfg(unix)]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 /// Maximum number of events that can be stored in the underlying buffer
