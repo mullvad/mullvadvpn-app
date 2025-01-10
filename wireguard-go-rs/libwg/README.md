@@ -7,6 +7,7 @@ It currently offers support for the following platforms:
 - Linux
 - macOS
 - Android
+- Windows
 
 # Organization
 
@@ -15,6 +16,8 @@ It currently offers support for the following platforms:
 `libwg_default.go` has default implementations for Linux-based systems.
 
 `libwg_android.go` has code specifically for Android.
+
+`libwg_windows.go` has code specifically for Windows.
 
 # Usage
 
