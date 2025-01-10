@@ -1,6 +1,8 @@
 use std::{
     borrow::BorrowMut,
     env,
+    fs::File,
+    io::{BufRead, BufReader, BufWriter, Write},
     path::{Path, PathBuf},
     process::Command,
     str,
@@ -112,17 +114,30 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
 
     match target_os {
         Os::Windows => {
-            let out_file = windows_output_path(target_arch)?;
+            let target_dir = Path::new(&out_dir)
+                .ancestors()
+                .nth(3)
+                .context("Failed to find target dir")?;
+            let dll_path = target_dir.join("libwg.dll");
+
+            println!("cargo::rerun-if-changed={}", dll_path.display());
+            println!(
+                "cargo::rerun-if-changed={}",
+                target_dir.join("libwg.lib").display()
+            );
+
             go_build
                 .args(["build", "-v"])
-                .args(["-o", &out_file.to_str().unwrap()])
+                .arg("-o")
+                .arg(&dll_path)
                 .args(if daita { &["--tags", "daita"][..] } else { &[] });
             // Build dynamic lib
             go_build.args(["-buildmode", "c-shared"]);
 
-            // FIXME
-            println!("cargo::rustc-link-search={out_dir}");
-            println!("cargo::rustc-link-lib=dylib=wg");
+            generate_windows_lib(target_arch, target_dir)?;
+
+            println!("cargo::rustc-link-search={}", target_dir.to_str().unwrap());
+            println!("cargo::rustc-link-lib=dylib=libwg");
 
             // Build using zig
             match target_arch {
@@ -205,6 +220,136 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
     }
 
     Ok(())
+}
+
+/// Generate a library for the exported functions. Required for linking.
+/// This requires `lib.exe` in the path.
+fn generate_windows_lib(arch: Arch, out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
+    let exports_def_path = out_dir.as_ref().join("exports.def");
+    generate_exports_def(&exports_def_path).context("Failed to generate exports.def")?;
+    generate_lib_from_exports_def(arch, &exports_def_path)
+        .context("Failed to generate lib from exports.def")
+}
+
+fn find_lib_exe() -> anyhow::Result<PathBuf> {
+    let msbuild_exe = find_msbuild_exe()?;
+
+    // Find lib.exe relative to msbuild.exe, in ../../../../ relative to msbuild
+    let search_path = msbuild_exe
+        .ancestors()
+        .nth(3)
+        .context("Unexpected msbuild.exe path")?;
+
+    let path_is_lib_exe = |file: &Path| file.ends_with("Hostx64/x64/lib.exe");
+
+    find_file(search_path, &path_is_lib_exe)?.context("No lib.exe relative to msbuild.exe")
+}
+
+/// Recursively search for file until 'condition' returns true
+fn find_file(
+    dir: impl AsRef<Path>,
+    condition: &impl Fn(&Path) -> bool,
+) -> anyhow::Result<Option<PathBuf>> {
+    for path in std::fs::read_dir(dir).context("Failed to read dir")? {
+        let entry = path.context("Failed to read dir entry")?;
+        let path = entry.path();
+        if path.is_dir() {
+            if let Some(result) = find_file(&path, condition)? {
+                // TODO: distinguish between err and no result
+                return Ok(Some(result));
+            }
+        }
+        if condition(&path) {
+            return Ok(Some(path.to_owned()));
+        }
+    }
+    Ok(None)
+}
+
+/// Find msbuild.exe in PATH
+fn find_msbuild_exe() -> anyhow::Result<PathBuf> {
+    let path = std::env::var_os("PATH").context("Missing PATH var")?;
+    std::env::split_paths(&path)
+        .find(|path| path.join("msbuild.exe").exists())
+        .context("msbuild.exe not found in PATH")
+}
+
+/// Generate exports.def from wireguard-go source
+fn generate_lib_from_exports_def(arch: Arch, exports_path: impl AsRef<Path>) -> anyhow::Result<()> {
+    let lib_path = exports_path
+        .as_ref()
+        .parent()
+        .context("Missing parent")?
+        .join("libwg.lib");
+    let path = exports_path.as_ref().to_str().context("Non-UTF8 path")?;
+
+    let lib_exe = find_lib_exe()?;
+
+    let mut lib_exe = Command::new(lib_exe);
+    lib_exe.args([
+        format!("/def:{path}"),
+        format!("/out:{}", lib_path.to_str().context("Non-UTF8 lib path")?),
+    ]);
+
+    match arch {
+        Arch::Amd64 => {
+            lib_exe.arg("/machine:X64");
+        }
+        Arch::Arm64 => {
+            lib_exe.arg("/machine:ARM64");
+        }
+    }
+
+    exec(lib_exe)?;
+
+    Ok(())
+}
+
+/// Generate exports.def from wireguard-go source
+fn generate_exports_def(exports_path: impl AsRef<Path>) -> anyhow::Result<()> {
+    let file = File::create(exports_path).context("Failed to create file")?;
+    let mut file = BufWriter::new(file);
+
+    writeln!(file, "LIBRARY libwg").context("Write LIBRARY statement")?;
+    writeln!(file, "EXPORTS").context("Write EXPORTS statement")?;
+
+    let libwg_exports = gather_exports("./libwg/libwg.go").context("Failed to find exports")?;
+    let libwg_windows_exports =
+        gather_exports("./libwg/libwg_windows.go").context("Failed to find exports")?;
+
+    for export in libwg_exports
+        .into_iter()
+        .chain(libwg_windows_exports.into_iter())
+    {
+        writeln!(file, "\t{export}").context("Failed to output exported function")?;
+    }
+
+    Ok(())
+}
+
+/// Return functions exported from .go file
+fn gather_exports(go_src_path: impl AsRef<Path>) -> anyhow::Result<Vec<String>> {
+    let go_src_path = go_src_path.as_ref();
+    let mut exports = vec![];
+    let file = File::open(go_src_path)
+        .with_context(|| format!("Failed to open go source: {}", go_src_path.display()))?;
+
+    for line in BufReader::new(file).lines() {
+        let line = line.context("Failed to read line in go src")?;
+        let mut words = line.split_whitespace();
+
+        // Is this an export?
+        let Some("//export") = words.next() else {
+            continue;
+        };
+
+        let exported_func = words
+            .next()
+            .with_context(|| format!("Invalid export on line: {line}"))?;
+        exports.push(exported_func.to_owned());
+    }
+
+    Ok(exports)
 }
 
 /// Compile libwg as a dynamic library for android and place it in [`android_output_path`].
@@ -321,17 +466,6 @@ fn android_arch_name(target: AndroidTarget) -> String {
         AndroidTarget::I686 => "x86",
     }
     .to_string()
-}
-
-// Returns the path where the shared library should be
-fn windows_output_path(arch: Arch) -> anyhow::Result<PathBuf> {
-    let relative_output_path = match arch {
-        Arch::Amd64 => Path::new("../dist-assets"),
-        Arch::Arm64 => Path::new("../dist-assets/aarch64-windows-msvc"),
-    };
-    std::fs::create_dir_all(relative_output_path)?;
-    let output_path = relative_output_path.canonicalize()?;
-    Ok(output_path)
 }
 
 // Returns the path where the Android project expects Rust binaries to be
