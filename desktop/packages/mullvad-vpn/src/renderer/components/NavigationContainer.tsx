@@ -8,57 +8,55 @@ interface NavigationContainerProps {
 
 interface NavigationContainerState {
   showsBarTitle: boolean;
-  showsBarSeparator: boolean;
 }
+
+export const NavigationScrollContext = React.createContext<{
+  showsBarTitle: boolean;
+  onScroll: (event: IScrollEvent) => void;
+}>({
+  showsBarTitle: false,
+  onScroll: () => {
+    throw new Error('NavigationScrollContext provider is missing.');
+  },
+});
 
 export class NavigationContainer extends React.Component<
   NavigationContainerProps,
   NavigationContainerState
 > {
-  public state = {
+  state: NavigationContainerState = {
     showsBarTitle: false,
-    showsBarSeparator: false,
   };
 
-  public componentDidMount() {
+  componentDidMount() {
     this.updateBarAppearance({ scrollLeft: 0, scrollTop: 0 });
   }
 
-  public render() {
+  render() {
+    const { children } = this.props;
+    const { showsBarTitle } = this.state;
+
     return (
       <NavigationScrollContext.Provider
         value={{
-          ...this.state,
+          showsBarTitle,
           onScroll: this.onScroll,
         }}>
-        {this.props.children}
+        {children}
       </NavigationScrollContext.Provider>
     );
   }
 
-  public onScroll = (event: IScrollEvent) => {
+  private onScroll = (event: IScrollEvent) => {
     this.updateBarAppearance(event);
   };
 
-  private updateBarAppearance(event: IScrollEvent) {
-    // that's where SettingsHeader.HeaderTitle intersects the navigation bar
-    const showsBarSeparator = event.scrollTop > 11;
+  private updateBarAppearance = ({ scrollTop }: IScrollEvent) => {
+    // Show the bar title when user scrolls past page title
+    const showsBarTitle = scrollTop > 20;
 
-    // that's when SettingsHeader.HeaderTitle goes behind the navigation bar
-    const showsBarTitle = event.scrollTop > 20;
-
-    if (
-      this.state.showsBarSeparator !== showsBarSeparator ||
-      this.state.showsBarTitle !== showsBarTitle
-    ) {
-      this.setState({ showsBarSeparator, showsBarTitle });
+    if (this.state.showsBarTitle !== showsBarTitle) {
+      this.setState({ showsBarTitle });
     }
-  }
+  };
 }
-export const NavigationScrollContext = React.createContext({
-  showsBarTitle: false,
-  showsBarSeparator: false,
-  onScroll(_event: IScrollEvent): void {
-    throw Error('NavigationScrollContext provider missing');
-  },
-});
