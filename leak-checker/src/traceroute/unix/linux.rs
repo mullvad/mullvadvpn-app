@@ -15,7 +15,7 @@ use pnet_packet::icmpv6::{Icmpv6Code, Icmpv6Type, Icmpv6Types};
 use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
-use crate::traceroute::platform::unix::parse_icmp_probe;
+use crate::traceroute::unix::parse_icmp_probe;
 use crate::traceroute::{Ip, TracerouteOpt, RECV_GRACE_TIME};
 use crate::{Interface, LeakInfo, LeakStatus};
 

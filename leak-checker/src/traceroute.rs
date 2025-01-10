@@ -2,7 +2,13 @@ use std::{net::IpAddr, ops::Range, time::Duration};
 
 use crate::{Interface, LeakStatus};
 
-mod platform;
+/// Traceroute implementation for windows.
+#[cfg(target_os = "windows")]
+mod windows;
+
+/// Traceroute implementation for unix.
+#[cfg(unix)]
+mod unix;
 
 #[derive(Clone, clap::Args)]
 pub struct TracerouteOpt {
@@ -69,17 +75,17 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
     #[cfg(unix)]
     return {
         #[cfg(target_os = "android")]
-        type Impl = platform::unix::android::TracerouteAndroid;
+        type Impl = unix::android::TracerouteAndroid;
         #[cfg(target_os = "linux")]
-        type Impl = platform::unix::linux::TracerouteLinux;
+        type Impl = unix::linux::TracerouteLinux;
         #[cfg(target_os = "macos")]
-        type Impl = platform::unix::macos::TracerouteMacos;
+        type Impl = unix::macos::TracerouteMacos;
 
-        platform::unix::try_run_leak_test::<Impl>(opt).await
+        unix::try_run_leak_test::<Impl>(opt).await
     };
 
     #[cfg(target_os = "windows")]
-    return platform::windows::traceroute_using_ping(opt).await;
+    return windows::traceroute_using_ping(opt).await;
 }
 
 /// IP version, v4 or v6, with some associated data.
