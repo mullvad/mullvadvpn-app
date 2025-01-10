@@ -28,7 +28,7 @@ use talpid_tunnel::{
     tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
 };
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
@@ -737,7 +737,7 @@ impl WireguardMonitor {
                 .map_err(Error::TunnelError)
         }
 
-        #[cfg(wireguard_go)]
+        #[cfg(all(wireguard_go, not(target_os = "windows")))]
         {
             #[cfg(target_os = "linux")]
             log::debug!("Using userspace WireGuard implementation");
@@ -759,25 +759,25 @@ impl WireguardMonitor {
     fn open_wireguard_go_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(unix)] tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
         #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(target_os = "android")] connectivity_check: connectivity::Check<
             connectivity::Cancellable,
         >,
     ) -> Result<WgGoTunnel> {
+        #[cfg(unix)]
         let routes = config
             .get_tunnel_destinations()
             .flat_map(Self::replace_default_prefixes);
 
-        #[cfg(not(target_os = "android"))]
-        let tunnel = WgGoTunnel::start_tunnel(
-            #[allow(clippy::needless_borrow)]
-            &config,
-            log_path,
-            tun_provider,
-            routes,
-        )
-        .map_err(Error::TunnelError)?;
+        #[cfg(all(unix, not(target_os = "android")))]
+        let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)
+            .map_err(Error::TunnelError)?;
+
+        #[cfg(target_os = "windows")]
+        let tunnel = WgGoTunnel::start_tunnel(config, log_path, setup_done_tx)
+            .map_err(Error::TunnelError)?;
 
         // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
         // with an ephemeral peer, this multihop strategy require us to restart the tunnel
@@ -1057,10 +1057,8 @@ pub(crate) trait Tunnel: Send {
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
-    #[cfg(not(target_os = "windows"))]
+    #[cfg(daita)]
     fn start_daita(&mut self, settings: DaitaSettings) -> std::result::Result<(), TunnelError>;
-    #[cfg(target_os = "windows")]
-    fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
