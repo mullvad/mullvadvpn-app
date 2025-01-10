@@ -20,7 +20,8 @@ public enum SettingsManager {
     #if DEBUG
     private static var _store = KeychainSettingsStore(
         serviceName: keychainServiceName,
-        accessGroup: ApplicationConfiguration.securityGroupIdentifier
+        accessGroup: ApplicationConfiguration.securityGroupIdentifier,
+        cacheDirectory: ApplicationConfiguration.containerURL
     )
 
     /// Alternative store used for tests.
@@ -161,6 +162,16 @@ public enum SettingsManager {
                 }
             }
         }
+    }
+
+    public static func excludeKeychainSettingsFromBackups() {
+        let migration = KeychainSettingsStoreMigration(
+            serviceName: keychainServiceName,
+            accessGroup: ApplicationConfiguration.securityGroupIdentifier,
+            store: store
+        )
+
+        migration.excludeKeychainSettingsFromBackups()
     }
 
     // MARK: - Private

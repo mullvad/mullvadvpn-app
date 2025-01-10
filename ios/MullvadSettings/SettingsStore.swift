@@ -22,4 +22,5 @@ public protocol SettingsStore {
     func read(key: SettingsKey) throws -> Data
     func write(_ data: Data, for key: SettingsKey) throws
     func delete(key: SettingsKey) throws
+    func excludeFromBackup(keys: [SettingsKey])
 }

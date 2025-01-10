@@ -744,6 +744,7 @@
 		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
+		A959878D2D2D31C500B297AE /* KeychainSettingsStoreMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = A959878C2D2D31C500B297AE /* KeychainSettingsStoreMigration.swift */; };
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
 		A95EEE382B722DFC00A8A39B /* PingStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE372B722DFC00A8A39B /* PingStats.swift */; };
 		A970C89D2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */; };
@@ -2122,6 +2123,7 @@
 		A944F2712B8E02E800473F4C /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
+		A959878C2D2D31C500B297AE /* KeychainSettingsStoreMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainSettingsStoreMigration.swift; sourceTree = "<group>"; };
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
 		A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5UsernamePasswordCommand.swift; sourceTree = "<group>"; };
@@ -3458,6 +3460,7 @@
 				7A5869B22B5697AC00640D27 /* IPOverride.swift */,
 				7A5869BA2B56EE9500640D27 /* IPOverrideRepository.swift */,
 				06410DFD292CE18F00AFC18C /* KeychainSettingsStore.swift */,
+				A959878C2D2D31C500B297AE /* KeychainSettingsStoreMigration.swift */,
 				068CE5732927B7A400A068BB /* Migration.swift */,
 				A9D96B192A8247C100A5C673 /* MigrationManager.swift */,
 				58B2FDD52AA71D2A003EB5C6 /* MullvadSettings.h */,
@@ -5720,6 +5723,7 @@
 				58B2FDE72AA71D5C003EB5C6 /* SettingsStore.swift in Sources */,
 				44DD7D2D2B74E44A0005F67F /* QuantumResistanceSettings.swift in Sources */,
 				F08827872B318C840020A383 /* ShadowsocksCipherOptions.swift in Sources */,
+				A959878D2D2D31C500B297AE /* KeychainSettingsStoreMigration.swift in Sources */,
 				58B2FDE92AA71D5C003EB5C6 /* SettingsParser.swift in Sources */,
 				F08827892B3192110020A383 /* AccessMethodRepositoryProtocol.swift in Sources */,
 				F050AE5A2B7376F4003F4EDB /* CustomList.swift in Sources */,
