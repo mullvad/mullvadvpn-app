@@ -15,6 +15,7 @@ pub static CONFIG_SERVICE_PORT: u16 = talpid_tunnel_config_client::CONFIG_SERVIC
 
 mod ios {
     use std::sync::OnceLock;
+    use talpid_tunnel_config_client::classic_mceliece::spawn_keypair_generator;
     use tokio::runtime::{Builder, Handle, Runtime};
 
     static RUNTIME: OnceLock<Result<Runtime, String>> = OnceLock::new();
@@ -26,7 +27,11 @@ mod ios {
                 .build()
                 .map_err(|error| ToString::to_string(&error))
         }) {
-            Ok(runtime) => Ok(runtime.handle().clone()),
+            Ok(runtime) => {
+                let _guard = runtime.enter();
+                spawn_keypair_generator();
+                Ok(runtime.handle().clone())
+            }
             Err(error) => Err(error.clone()),
         }
     }
