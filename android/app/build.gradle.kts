@@ -24,6 +24,7 @@ val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
 val relayListPath = extraAssetsDirectory.file("relays.json").asFile
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
+val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
 val credentialsPath = "${rootProject.projectDir}/credentials"
 val keystorePropertiesFile = file("$credentialsPath/keystore.properties")
@@ -239,7 +240,13 @@ android {
         tasks["merge${capitalizedVariantName}Assets"].dependsOn(tasks["generateRelayList"])
 
         // Ensure that we have all the JNI libs before merging them.
-        tasks["merge${capitalizedVariantName}JniLibFolders"].dependsOn("cargoBuild")
+        tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
+            // This is required fot the merge task to run every time the .so files are updated.
+            // See this comment for more information:
+            // https://github.com/mozilla/rust-android-gradle/issues/118#issuecomment-1569407058
+            inputs.dir(rustJniLibsDir)
+            dependsOn("cargoBuild")
+        }
 
         // Ensure all relevant assemble tasks depend on our ensure task.
         tasks["assemble$capitalizedVariantName"].dependsOn(tasks["ensureValidVersionCode"])
