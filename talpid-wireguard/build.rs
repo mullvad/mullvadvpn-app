@@ -12,7 +12,7 @@ fn main() {
 
     // Enable DAITA by default on desktop and android
     println!("cargo::rustc-check-cfg=cfg(daita)");
-    //println!("cargo::rustc-cfg=daita");
+    println!("cargo::rustc-cfg=daita");
 }
 
 fn declare_libs_dir(base: &str) {

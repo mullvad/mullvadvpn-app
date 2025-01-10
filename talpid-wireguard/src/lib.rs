@@ -28,7 +28,7 @@ use talpid_tunnel::{
     tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
 };
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
@@ -1050,10 +1050,8 @@ pub(crate) trait Tunnel: Send {
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
-    #[cfg(all(daita, not(target_os = "windows")))]
+    #[cfg(daita)]
     fn start_daita(&mut self, settings: DaitaSettings) -> std::result::Result<(), TunnelError>;
-    #[cfg(all(daita, target_os = "windows"))]
-    fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait
