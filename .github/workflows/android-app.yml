@@ -402,6 +402,8 @@ jobs:
             ${{ matrix.assemble-command }}
             -x cargoBuild
             -x generateRelayList
+            -x mergeOssProdDebugJniLibFolders
+            -x mergePlayStagemoleDebugJniLibFolders
           gradle-version: wrapper
           build-root-directory: android
           execution-only-caches: false
