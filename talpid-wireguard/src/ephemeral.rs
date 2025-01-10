@@ -145,10 +145,7 @@ async fn config_ephemeral_peers_inner(
         log::debug!("Successfully exchanged PSK with entry peer");
 
         config.entry_peer.psk = entry_ephemeral_peer.psk;
-        #[cfg(not(target_os = "windows"))]
-        {
-            daita = entry_ephemeral_peer.daita;
-        }
+        daita = entry_ephemeral_peer.daita;
     }
 
     config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
