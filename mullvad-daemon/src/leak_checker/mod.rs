@@ -202,14 +202,12 @@ async fn check_for_leaks(
         // TODO: use route.interface_index?
     };
 
-    // TODO (windows):
-    // Use default route monitor thingy. It should contain interfaces.
-    // Can maybe use callback to subscribe for updates
-    // get_best_route
     #[cfg(target_os = "windows")]
     let interface = {
         use std::net::IpAddr;
         use talpid_windows::net::AddressFamily;
+
+        let _ = route_manager; // don't need this on windows
 
         let family = match destination.address.ip() {
             IpAddr::V4(..) => AddressFamily::Ipv4,
