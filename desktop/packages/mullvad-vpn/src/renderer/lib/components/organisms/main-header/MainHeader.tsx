@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { Colors, Spacings } from '../../../foundations';
 import { TransientProps } from '../../../types';
 import { Flex } from '../../layout';
-import { HeaderMainRow, HeaderSubRow } from './components';
+import { MainHeaderIconButton } from './components';
 
 export type HeaderProps = React.PropsWithChildren<{
   size?: '1' | '2';
@@ -31,7 +31,7 @@ const StyledHeader = styled.header<TransientProps<HeaderProps>>(
   }),
 );
 
-const Header = ({ size = '1', variant = 'default', children, ...props }: HeaderProps) => {
+const MainHeader = ({ size = '1', variant = 'default', children, ...props }: HeaderProps) => {
   return (
     <StyledHeader $size={size} $variant={variant} {...props}>
       <Flex
@@ -48,9 +48,8 @@ const Header = ({ size = '1', variant = 'default', children, ...props }: HeaderP
   );
 };
 
-const HeaderNamespace = Object.assign(Header, {
-  MainRow: HeaderMainRow,
-  SubRow: HeaderSubRow,
+const MainHeaderNamespace = Object.assign(MainHeader, {
+  IconButton: MainHeaderIconButton,
 });
 
-export { HeaderNamespace as Header };
+export { MainHeaderNamespace as MainHeader };
