@@ -159,6 +159,18 @@ impl Tunnel {
         result_from_code(code)
     }
 
+    /// Tunnel interface name
+    #[cfg(target_os = "windows")]
+    pub fn name(&self) -> &str {
+        self.assigned_name.to_str().expect("non-UTF8 name")
+    }
+
+    /// Tunnel interface LUID
+    #[cfg(target_os = "windows")]
+    pub fn luid(&self) -> &NET_LUID_LH {
+        &self.luid
+    }
+
     /// Special function for android multihop since that behavior is different from desktop
     /// and android non-multihop.
     ///
