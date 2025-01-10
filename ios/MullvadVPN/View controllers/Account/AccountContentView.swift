@@ -15,6 +15,17 @@ class AccountContentView: UIView {
         return button
     }()
 
+    let storeKit2Button: AppButton = {
+        let button = AppButton(style: .success)
+        button.setTitle(NSLocalizedString(
+            "BUY_SUBSCRIPTION_STOREKIT_2",
+            tableName: "Account",
+            value: "Make a purchase with StoreKit2",
+            comment: ""
+        ), for: .normal)
+        return button
+    }()
+
     let redeemVoucherButton: AppButton = {
         let button = AppButton(style: .success)
         button.setAccessibilityIdentifier(.redeemVoucherButton)
@@ -85,6 +96,7 @@ class AccountContentView: UIView {
         var arrangedSubviews = [UIView]()
         #if DEBUG
         arrangedSubviews.append(redeemVoucherButton)
+        arrangedSubviews.append(storeKit2Button)
         #endif
         arrangedSubviews.append(contentsOf: [
             purchaseButton,
