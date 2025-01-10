@@ -15,10 +15,11 @@ use pnet_packet::icmpv6::{Icmpv6Code, Icmpv6Type, Icmpv6Types};
 use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
-use crate::traceroute::{parse_icmp_probe, Ip, TracerouteOpt, RECV_GRACE_TIME};
+use crate::traceroute::platform::unix::parse_icmp_probe;
+use crate::traceroute::{Ip, TracerouteOpt, RECV_GRACE_TIME};
 use crate::{Interface, LeakInfo, LeakStatus};
 
-use super::{unix, AsyncIcmpSocket, Traceroute};
+use super::{AsyncIcmpSocket, Traceroute};
 
 pub struct TracerouteLinux;
 
@@ -26,7 +27,6 @@ pub struct AsyncIcmpSocketImpl(tokio::net::UdpSocket);
 
 impl Traceroute for TracerouteLinux {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
-    type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
     fn bind_socket_to_interface(
         socket: &Socket,
@@ -34,10 +34,6 @@ impl Traceroute for TracerouteLinux {
         _: Ip,
     ) -> anyhow::Result<()> {
         bind_socket_to_interface(socket, interface)
-    }
-
-    fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
-        super::unix::get_interface_ip(interface, ip_version)
     }
 
     fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> anyhow::Result<()> {

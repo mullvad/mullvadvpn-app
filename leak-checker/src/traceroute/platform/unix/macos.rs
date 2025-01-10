@@ -10,7 +10,7 @@ use socket2::Socket;
 use crate::traceroute::{Ip, TracerouteOpt};
 use crate::{Interface, LeakStatus};
 
-use super::{common, unix, AsyncIcmpSocket, Traceroute};
+use super::{AsyncIcmpSocket, Traceroute, common::recv_ttl_responses};
 
 pub struct TracerouteMacos;
 
@@ -18,7 +18,6 @@ pub struct AsyncIcmpSocketImpl(tokio::net::UdpSocket);
 
 impl Traceroute for TracerouteMacos {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
-    type AsyncUdpSocket = unix::AsyncUdpSocketUnix;
 
     fn bind_socket_to_interface(
         socket: &Socket,
@@ -27,10 +26,6 @@ impl Traceroute for TracerouteMacos {
     ) -> anyhow::Result<()> {
         // can't use the same method as desktop-linux here beacuse reasons
         bind_socket_to_interface(socket, interface, ip_version)
-    }
-
-    fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
-        super::unix::get_interface_ip(interface, ip_version)
     }
 
     fn configure_icmp_socket(
@@ -67,7 +62,7 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
     }
 
     async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
-        common::recv_ttl_responses(self, &opt.interface).await
+        recv_ttl_responses(self, &opt.interface).await
     }
 }
 

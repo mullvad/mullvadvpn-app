@@ -1,21 +1,10 @@
-use std::{
-    ffi::c_void,
-    io, mem,
-    net::{IpAddr, SocketAddr},
-    os::windows::io::{AsRawSocket, AsSocket, FromRawSocket, IntoRawSocket},
-    ptr::null_mut,
-    str,
-};
+use std::{net::IpAddr, str};
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{anyhow, Context};
 use futures::{select, stream::FuturesUnordered, FutureExt, StreamExt};
-use socket2::Socket;
-use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 
+use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 use tokio::time::sleep;
-use windows_sys::Win32::Networking::WinSock::{
-    WSAGetLastError, WSAIoctl, SIO_RCVALL, SOCKET, SOCKET_ERROR,
-};
 
 use crate::{
     traceroute::{
@@ -23,14 +12,6 @@ use crate::{
     },
     Interface, LeakInfo, LeakStatus,
 };
-
-use super::{common, AsyncIcmpSocket, AsyncUdpSocket, Traceroute};
-
-pub struct TracerouteWindows;
-
-pub struct AsyncIcmpSocketImpl(tokio::net::UdpSocket);
-
-pub struct AsyncUdpSocketWindows(tokio::net::UdpSocket);
 
 /// Implementation of traceroute using `ping.exe`
 ///
@@ -81,10 +62,10 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
             log::trace!("ping stderr: {_stderr}");
 
             // Dumbly parse stdout for a line that looks like this:
-            // Reply from <ip>: TTL expired
+            // "Reply from <ip>: TTL expired"
 
             if !stdout.contains("TTL expired") {
-                // No "TTL expired" means we did not
+                // No "TTL expired" means we did not receive any TimeExceeded replies.
                 return Ok(None);
             }
             let (ip, ..) = stdout
@@ -100,17 +81,14 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
 
     let wait_for_first_leak = async move {
         while let Some(result) = ping_tasks.next().await {
-            match result? {
-                Some(ip) => {
-                    return Ok(LeakStatus::LeakDetected(
-                        LeakInfo::NodeReachableOnInterface {
-                            reachable_nodes: vec![ip],
-                            interface: opt.interface.clone(),
-                        },
-                    ))
-                }
-                None => continue,
-            }
+            let Some(ip) = result? else { continue };
+
+            return Ok(LeakStatus::LeakDetected(
+                LeakInfo::NodeReachableOnInterface {
+                    reachable_nodes: vec![ip],
+                    interface: opt.interface.clone(),
+                },
+            ));
         }
 
         anyhow::Ok(LeakStatus::NoLeak)
@@ -121,6 +99,56 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
         result = wait_for_first_leak.fuse() => result,
     }
 }
+
+pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
+    let interface_luid = match interface {
+        Interface::Name(name) => luid_from_alias(name)?,
+        Interface::Luid(luid) => *luid,
+    };
+
+    let address_family = match ip_version {
+        Ip::V4(..) => AddressFamily::Ipv4,
+        Ip::V6(..) => AddressFamily::Ipv6,
+    };
+
+    get_ip_address_for_interface(address_family, interface_luid)
+        .with_context(|| anyhow!("Failed to get IP for interface {interface:?}"))?
+        .ok_or(anyhow!("No IP for interface {interface:?}"))
+}
+
+/*
+use std::{
+    ffi::c_void,
+    io, mem,
+    net::{IpAddr, SocketAddr},
+    os::windows::io::{AsRawSocket, AsSocket, FromRawSocket, IntoRawSocket},
+    ptr::null_mut,
+    str,
+};
+
+use anyhow::{anyhow, bail, Context};
+use futures::{select, stream::FuturesUnordered, FutureExt, StreamExt};
+use socket2::Socket;
+use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
+
+use tokio::time::sleep;
+use windows_sys::Win32::Networking::WinSock::{
+    WSAGetLastError, WSAIoctl, SIO_RCVALL, SOCKET, SOCKET_ERROR,
+};
+
+use crate::{
+    traceroute::{
+        Ip, TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT,
+    },
+    Interface, LeakInfo, LeakStatus,
+};
+use super::{common, AsyncIcmpSocket, AsyncUdpSocket, Traceroute};
+
+pub struct TracerouteWindows;
+
+pub struct AsyncIcmpSocketImpl(tokio::net::UdpSocket);
+
+pub struct AsyncUdpSocketWindows(tokio::net::UdpSocket);
 
 impl Traceroute for TracerouteWindows {
     type AsyncIcmpSocket = AsyncIcmpSocketImpl;
@@ -195,22 +223,6 @@ impl AsyncUdpSocket for AsyncUdpSocketWindows {
     }
 }
 
-pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
-    let interface_luid = match interface {
-        Interface::Name(name) => luid_from_alias(name)?,
-        Interface::Luid(luid) => *luid,
-    };
-
-    let address_family = match ip_version {
-        Ip::V4(..) => AddressFamily::Ipv4,
-        Ip::V6(..) => AddressFamily::Ipv6,
-    };
-
-    get_ip_address_for_interface(address_family, interface_luid)
-        .with_context(|| anyhow!("Failed to get IP for interface {interface:?}"))?
-        .ok_or(anyhow!("No IP for interface {interface:?}"))
-}
-
 /// Configure the raw socket we use for listening to ICMP responses.
 ///
 /// This will set the `SIO_RCVALL`-option.
@@ -238,3 +250,4 @@ pub fn configure_icmp_socket(socket: &Socket) -> anyhow::Result<()> {
 
     Ok(())
 }
+*/

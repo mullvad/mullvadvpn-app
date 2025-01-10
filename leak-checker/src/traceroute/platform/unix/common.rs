@@ -14,20 +14,50 @@ use tokio::{
 
 use crate::{
     traceroute::{
-        parse_icmp4_time_exceeded, parse_icmp6_time_exceeded, parse_ipv4, parse_ipv6, Ip,
-        RECV_GRACE_TIME,
+        platform::unix::{
+            parse_icmp4_time_exceeded, parse_icmp6_time_exceeded, parse_ipv4, parse_ipv6,
+        },
+        Ip, RECV_GRACE_TIME,
     },
     Interface, LeakInfo, LeakStatus,
 };
 
-use super::{AsyncIcmpSocket, Traceroute};
+use super::AsyncIcmpSocket;
 
-pub fn bind_socket_to_interface<Impl: Traceroute>(
+pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
+    let Interface::Name(interface) = interface;
+
+    for interface_address in nix::ifaddrs::getifaddrs()? {
+        if &interface_address.interface_name != interface {
+            continue;
+        };
+        let Some(address) = interface_address.address else {
+            continue;
+        };
+
+        match ip_version {
+            Ip::V4(()) => {
+                if let Some(address) = address.as_sockaddr_in() {
+                    return Ok(IpAddr::V4(address.ip()));
+                };
+            }
+            Ip::V6(()) => {
+                if let Some(address) = address.as_sockaddr_in6() {
+                    return Ok(IpAddr::V6(address.ip()));
+                };
+            }
+        }
+    }
+
+    anyhow::bail!("Interface {interface:?} has no valid IP to bind to");
+}
+
+pub fn bind_socket_to_interface(
     socket: &Socket,
     interface: &Interface,
     ip_version: Ip,
 ) -> anyhow::Result<()> {
-    let interface_ip = Impl::get_interface_ip(interface, ip_version)?;
+    let interface_ip = get_interface_ip(interface, ip_version)?;
 
     log::info!("Binding socket to {interface_ip} ({interface:?})");
 
@@ -38,7 +68,7 @@ pub fn bind_socket_to_interface<Impl: Traceroute>(
     Ok(())
 }
 
-pub async fn recv_ttl_responses(
+pub(crate) async fn recv_ttl_responses(
     socket: &impl AsyncIcmpSocket,
     interface: &Interface,
 ) -> anyhow::Result<LeakStatus> {
