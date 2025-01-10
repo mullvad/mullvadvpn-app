@@ -133,7 +133,6 @@ function newConfig() {
 
     win: {
       target: [],
-      signAndEditExecutable: false,
       artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
       publisherName: 'Mullvad VPN AB',
       extraResources: [
