@@ -20,8 +20,7 @@ fn main() -> anyhow::Result<()> {
     println!("cargo::rerun-if-changed=libwg");
 
     match target_os.as_str() {
-        // TODO
-        "windows" => build_desktop_lib(Os::Windows, false)?,
+        "windows" => build_desktop_lib(Os::Windows, true)?,
         "linux" => build_desktop_lib(Os::Linux, true)?,
         "macos" => build_desktop_lib(Os::MacOs, true)?,
         "android" => build_android_dynamic_lib(true)?,
@@ -313,14 +312,16 @@ fn generate_exports_def(exports_path: impl AsRef<Path>) -> anyhow::Result<()> {
     writeln!(file, "LIBRARY libwg").context("Write LIBRARY statement")?;
     writeln!(file, "EXPORTS").context("Write EXPORTS statement")?;
 
-    let libwg_exports = gather_exports("./libwg/libwg.go").context("Failed to find exports")?;
-    let libwg_windows_exports =
-        gather_exports("./libwg/libwg_windows.go").context("Failed to find exports")?;
+    let mut libwg_exports = vec![];
+    for path in &[
+        "./libwg/libwg.go",
+        "./libwg/libwg_windows.go",
+        "./libwg/libwg_daita.go",
+    ] {
+        libwg_exports.extend(gather_exports(path).context("Failed to find exports")?);
+    }
 
-    for export in libwg_exports
-        .into_iter()
-        .chain(libwg_windows_exports.into_iter())
-    {
+    for export in libwg_exports {
         writeln!(file, "\t{export}").context("Failed to output exported function")?;
     }
 
