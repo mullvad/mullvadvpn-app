@@ -8,6 +8,7 @@ package main
 
 // #include <stdlib.h>
 // #include <stdint.h>
+// #include <string.h>
 import "C"
 
 import (
@@ -31,11 +32,8 @@ type LogSink = unsafe.Pointer
 type LogContext = C.uint64_t
 
 //export wgTurnOn
-func wgTurnOn(cIfaceName *C.char, cIfaceNameOut **C.char, cLuidOut *C.uint64_t, mtu C.uint16_t, cSettings *C.char, logSink LogSink, logContext LogContext) C.int32_t {
+func wgTurnOn(cIfaceName *C.char, cIfaceNameOut *C.char, cIfaceNameOutSize C.size_t, cLuidOut *C.uint64_t, mtu C.uint16_t, cSettings *C.char, logSink LogSink, logContext LogContext) C.int32_t {
 	logger := logging.NewLogger(logSink, logging.LogContext(logContext))
-	if cIfaceNameOut != nil {
-		*cIfaceNameOut = nil
-	}
 
 	if cIfaceName == nil {
 		logger.Errorf("cIfaceName is null\n")
@@ -55,7 +53,7 @@ func wgTurnOn(cIfaceName *C.char, cIfaceNameOut **C.char, cLuidOut *C.uint64_t, 
 
 	tun.WintunTunnelType = "Mullvad"
 
-	wintun, err := tun.CreateTUNWithRequestedGUID(ifaceName, &networkId, mtu)
+	wintun, err := tun.CreateTUNWithRequestedGUID(ifaceName, &networkId, int(mtu))
 	if err != nil {
 		logger.Errorf("Failed to create tunnel\n")
 		logger.Errorf("%s\n", err)
@@ -101,10 +99,15 @@ func wgTurnOn(cIfaceName *C.char, cIfaceNameOut **C.char, cLuidOut *C.uint64_t, 
 	}
 
 	if cIfaceNameOut != nil {
-		*cIfaceNameOut = C.CString(actualInterfaceName)
+		if int(cIfaceNameOutSize) <= len(actualInterfaceName) {
+			logger.Errorf("Interface name buffer too small\n")
+			device.Close()
+			return ERROR_GENERAL_FAILURE
+		}
+		C.strcpy(cIfaceNameOut, C.CString(actualInterfaceName))
 	}
 	if cLuidOut != nil {
-		*cLuidOut = nativeTun.LUID()
+		*cLuidOut = C.uint64_t(nativeTun.LUID())
 	}
 
 	return C.int32_t(handle)
