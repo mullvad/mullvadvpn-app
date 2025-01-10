@@ -26,7 +26,9 @@ use std::{
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
+#[cfg(not(target_os = "windows"))]
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
+#[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 #[cfg(target_os = "android")]
 use talpid_types::net::wireguard::PeerConfig;
@@ -167,6 +169,7 @@ pub(crate) struct WgGoTunnelState {
     tunnel_handle: wireguard_go_rs::Tunnel,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
+    #[cfg(unix)]
     _tunnel_device: Tun,
     // context that maps to fs::File instance and stores the file path, used with logging callback
     _logging_context: LoggingContext,
@@ -220,7 +223,7 @@ impl WgGoTunnelState {
 }
 
 impl WgGoTunnel {
-    #[cfg(not(target_os = "android"))]
+    #[cfg(all(not(target_os = "android"), unix))]
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -258,6 +261,69 @@ impl WgGoTunnel {
         }))
     }
 
+    #[cfg(target_os = "windows")]
+    pub fn start_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        mut setup_done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
+    ) -> Result<Self> {
+        use futures::SinkExt;
+        use talpid_types::ErrorExt;
+
+        let wg_config_str = config.to_userspace_format();
+        let logging_context = initialize_logging(log_path)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
+            .map_err(TunnelError::LoggingError)?;
+
+        // TODO: default route clalback
+
+        let handle = wireguard_go_rs::Tunnel::turn_on(
+            c"Mullvad",
+            config.mtu,
+            &wg_config_str,
+            Some(logging::wg_go_logging_callback),
+            logging_context.ordinal,
+        )
+        .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+
+        let has_ipv6 = config.ipv6_gateway.is_some();
+
+        let luid = handle.luid().to_owned();
+
+        let setup_task = async move {
+            log::debug!("Waiting for tunnel IP interfaces to arrive");
+            talpid_windows::net::wait_for_interfaces(luid, true, has_ipv6)
+                .await
+                .map_err(|e| BoxedError::new(TunnelError::SetupIpInterfaces(e)))?;
+            log::debug!("Waiting for tunnel IP interfaces: Done");
+
+            if let Err(error) = talpid_tunnel::network_interface::initialize_interfaces(luid, None)
+            {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set tunnel interface metric"),
+                );
+            }
+
+            Ok(())
+        };
+
+        tokio::spawn(async move {
+            let _ = setup_done_tx.send(setup_task.await).await;
+        });
+
+        let interface_name = handle.name();
+
+        Ok(WgGoTunnel(WgGoTunnelState {
+            interface_name: interface_name.to_owned(),
+            tunnel_handle: handle,
+            _logging_context: logging_context,
+            #[cfg(daita)]
+            config: config.clone(),
+        }))
+    }
+
+    #[cfg(unix)]
     fn get_tunnel(
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,

@@ -29,8 +29,6 @@ tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 rand = "0.8.5"
 surge-ping = "0.8.0"
 rand_chacha = "0.3.1"
-
-[target.'cfg(not(windows))'.dependencies]
 wireguard-go-rs = { path = "../wireguard-go-rs"}
 
 [target.'cfg(target_os="android")'.dependencies]
