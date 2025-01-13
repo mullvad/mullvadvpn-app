@@ -74,7 +74,7 @@ class TunnelControlPage: Page {
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
-        self.pageElement = app.otherElements[.tunnelControlView]
+        self.pageElement = app.otherElements[.connectionView]
         waitForPageToBeShown()
     }
 
@@ -84,7 +84,7 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func tapSecureConnectionButton() -> Self {
-        app.buttons[AccessibilityIdentifier.secureConnectionButton].tap()
+        app.buttons[AccessibilityIdentifier.connectButton].tap()
         return self
     }
 

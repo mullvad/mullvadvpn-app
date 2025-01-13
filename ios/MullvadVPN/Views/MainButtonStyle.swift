@@ -10,28 +10,26 @@ import SwiftUI
 
 struct MainButtonStyle: ButtonStyle {
     var style: Style
-    @State var disabled: Bool
+    @Environment(\.isEnabled) private var isEnabled: Bool
 
-    init(_ style: Style, disabled: Bool = false) {
+    init(_ style: Style) {
         self.style = style
-        self.disabled = disabled
     }
 
     func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .padding(.horizontal, 8)
+        return configuration.label
             .frame(height: 44)
             .foregroundColor(
-                configuration.isPressed
-                    ? UIColor.secondaryTextColor.color
-                    : disabled
-                        ? UIColor.primaryTextColor.withAlphaComponent(0.2).color
-                        : UIColor.primaryTextColor.color
+                isEnabled
+                    ? UIColor.primaryTextColor.color
+                    : UIColor.primaryTextColor.withAlphaComponent(0.2).color
             )
             .background(
-                disabled
-                    ? style.color.darkened(by: 0.6)
-                    : style.color
+                isEnabled
+                    ? configuration.isPressed
+                        ? style.pressedColor
+                        : style.color
+                    : style.disabledColor
             )
             .font(.body.weight(.semibold))
     }
@@ -46,12 +44,20 @@ extension MainButtonStyle {
         var color: Color {
             switch self {
             case .default:
-                Color(UIColor.primaryColor)
+                UIColor.primaryColor.color
             case .danger:
-                Color(UIColor.dangerColor)
+                UIColor.dangerColor.color
             case .success:
-                Color(UIColor.successColor)
+                UIColor.successColor.color
             }
+        }
+
+        var pressedColor: Color {
+            color.darkened(by: 0.4)!
+        }
+
+        var disabledColor: Color {
+            color.darkened(by: 0.6)!
         }
     }
 }

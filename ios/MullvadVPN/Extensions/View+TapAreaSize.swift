@@ -17,8 +17,8 @@ extension View {
 }
 
 private struct TappablePadding: ViewModifier {
-    @State var actualViewSize: CGSize = .zero
-    let tappableViewSize = UIMetrics.Button.minimumTappableAreaSize
+    @State private var actualViewSize: CGSize = .zero
+    private let tappableViewSize = UIMetrics.Button.minimumTappableAreaSize
 
     func body(content: Content) -> some View {
         content
@@ -28,6 +28,5 @@ private struct TappablePadding: ViewModifier {
                 height: max(actualViewSize.height, tappableViewSize.height)
             )
             .contentShape(Rectangle())
-            .frame(width: actualViewSize.width, height: actualViewSize.height)
     }
 }
