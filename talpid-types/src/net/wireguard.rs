@@ -19,6 +19,16 @@ pub struct TunnelParameters {
     pub obfuscation: Option<super::obfuscation::ObfuscatorConfig>,
 }
 
+impl TunnelParameters {
+    /// Returns the endpoint that will be connected to
+    pub fn get_next_hop_endpoint(&self) -> Endpoint {
+        self.obfuscation
+            .as_ref()
+            .map(|proxy| proxy.get_obfuscator_endpoint())
+            .unwrap_or_else(|| self.connection.get_endpoint())
+    }
+}
+
 /// Connection-specific configuration in [`TunnelParameters`].
 #[derive(Clone, Debug, Eq, PartialEq, Deserialize, Serialize)]
 pub struct ConnectionConfig {

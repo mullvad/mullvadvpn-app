@@ -96,7 +96,7 @@ impl TunnelParameters {
         }
     }
 
-    // Returns the endpoint that will be connected to
+    /// Returns the endpoint that will be connected to
     pub fn get_next_hop_endpoint(&self) -> Endpoint {
         match self {
             TunnelParameters::OpenVpn(params) => params
@@ -104,24 +104,7 @@ impl TunnelParameters {
                 .as_ref()
                 .map(|proxy| proxy.get_remote_endpoint().endpoint)
                 .unwrap_or(params.config.endpoint),
-            TunnelParameters::Wireguard(params) => params
-                .obfuscation
-                .as_ref()
-                .map(Self::get_obfuscator_endpoint)
-                .unwrap_or_else(|| params.connection.get_endpoint()),
-        }
-    }
-
-    fn get_obfuscator_endpoint(obfuscator: &ObfuscatorConfig) -> Endpoint {
-        match obfuscator {
-            ObfuscatorConfig::Udp2Tcp { endpoint } => Endpoint {
-                address: *endpoint,
-                protocol: TransportProtocol::Tcp,
-            },
-            ObfuscatorConfig::Shadowsocks { endpoint } => Endpoint {
-                address: *endpoint,
-                protocol: TransportProtocol::Udp,
-            },
+            TunnelParameters::Wireguard(params) => params.get_next_hop_endpoint(),
         }
     }
 
