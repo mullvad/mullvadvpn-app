@@ -116,6 +116,7 @@ pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result
         .ok_or(anyhow!("No IP for interface {interface:?}"))
 }
 
+// TODO: remove this
 /*
 use std::{
     ffi::c_void,

@@ -29,6 +29,7 @@ pub struct TracerouteOpt {
     pub port: Option<u16>,
 
     /// Use ICMP-Echo for the probe packets instead of UDP.
+    // TODO: we don't support UDP on windows
     #[clap(long)]
     pub icmp: bool,
 }
