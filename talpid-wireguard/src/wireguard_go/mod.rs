@@ -11,6 +11,7 @@ use crate::config::MULLVAD_INTERFACE_NAME;
 #[cfg(target_os = "android")]
 use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
+#[cfg(unix)]
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use std::ffi::CString;
