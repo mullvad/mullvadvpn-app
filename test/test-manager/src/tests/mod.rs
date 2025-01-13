@@ -159,8 +159,9 @@ pub async fn prepare_daemon(
     Ok(mullvad_client)
 }
 
-/// Create an "anonynmous" custom list for this test. The custom list will
-/// have the same as the test and contain the locations as specified by [TestMetadata::location].
+/// Create an "anonymous" custom list for this test. The custom list will
+/// have the same name as the test and contain the locations as specified by
+/// [TestMetadata::location].
 pub async fn prepare_custom_lists(
     mullvad_client: &mut MullvadProxyClient,
     test: &TestMetadata,
