@@ -174,6 +174,10 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                     Arch::Amd64 => bail!("cross-compiling to linux x86_64 is not implemented"),
                 };
             }
+
+            // make sure to link to the resulting binary
+            println!("cargo::rustc-link-search={out_dir}");
+            println!("cargo::rustc-link-lib=static=wg");
         }
         Os::MacOs => {
             let out_file = format!("{out_dir}/libwg.a");
@@ -204,14 +208,14 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                 go_build.env("CGO_LDFLAGS", format!("-isysroot {sdkroot} -arch {c_arch}"));
                 go_build.env("LD_LIBRARY_PATH", format!("{sdkroot}/usr/lib"));
             }
+
+            // make sure to link to the resulting binary
+            println!("cargo::rustc-link-search={out_dir}");
+            println!("cargo::rustc-link-lib=static=wg");
         }
     }
 
     exec(go_build)?;
-
-    // make sure to link to the resulting binary
-    //println!("cargo::rustc-link-search={out_dir}");
-    //println!("cargo::rustc-link-lib=static=wg");
 
     // if daita is enabled, also enable the corresponding rust feature flag
     if daita {
