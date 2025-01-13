@@ -314,17 +314,17 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     }
 
     @objc private func handleStoreKit2Purchase() {
-        guard case let .received(oldProduct) = productState,
-              let accountData = interactor.deviceState.accountData
-        else {
+        guard let accountData = interactor.deviceState.accountData else {
             return
         }
+        
+        let productIdentifiers = Set(StoreSubscription.allCases).map { $0.rawValue }
 
         setPaymentState(.makingStoreKit2Purchase, animated: true)
 
         Task {
             do {
-                let product = try await Product.products(for: [oldProduct.productIdentifier]).first!
+                let product = try await Product.products(for: productIdentifiers).first!
                 let result = try await product.purchase()
 
                 switch result {
