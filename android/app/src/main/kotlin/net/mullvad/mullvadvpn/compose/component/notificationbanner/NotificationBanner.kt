@@ -172,13 +172,13 @@ private fun Notification(notificationBannerData: NotificationData) {
                             start.linkTo(textTitle.start)
                             if (action != null) {
                                 end.linkTo(actionIcon.start)
-                                bottom.linkTo(actionIcon.bottom)
+                                bottom.linkTo(parent.bottom)
                             } else {
                                 end.linkTo(parent.end)
                                 bottom.linkTo(parent.bottom)
                             }
                             width = Dimension.fillToConstraints
-                            height = Dimension.fillToConstraints
+                            height = Dimension.wrapContent
                         }
                         .padding(start = Dimens.smallPadding, top = Dimens.tinyPadding)
                         .wrapContentWidth(Alignment.Start)
