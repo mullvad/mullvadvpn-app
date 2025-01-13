@@ -47,6 +47,7 @@ pub struct ConnectivityListener {
     android_listener: GlobalRef,
 }
 
+// Clean this up
 static CONNECTIVITY_TX: Mutex<Option<UnboundedSender<Connectivity>>> = Mutex::new(None);
 
 impl ConnectivityListener {
