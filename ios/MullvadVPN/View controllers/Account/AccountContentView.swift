@@ -12,6 +12,12 @@ class AccountContentView: UIView {
     let purchaseButton: InAppPurchaseButton = {
         let button = InAppPurchaseButton()
         button.setAccessibilityIdentifier(.purchaseButton)
+        button.setTitle(NSLocalizedString(
+            "ADD_TIME_BUTTON_TITLE",
+            tableName: "Account",
+            value: "Add time",
+            comment: ""
+        ), for: .normal)
         return button
     }()
 

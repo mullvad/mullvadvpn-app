@@ -155,7 +155,6 @@
 		58677710290975E9006F721F /* SettingsInteractorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867770F290975E8006F721F /* SettingsInteractorFactory.swift */; };
 		58677712290976FB006F721F /* SettingsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58677711290976FB006F721F /* SettingsInteractor.swift */; };
 		5867771429097BCD006F721F /* PaymentState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771329097BCD006F721F /* PaymentState.swift */; };
-		5867771629097C5B006F721F /* ProductState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5867771529097C5B006F721F /* ProductState.swift */; };
 		5868585524054096000B8131 /* CustomButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5868585424054096000B8131 /* CustomButton.swift */; };
 		586A0DCB2A20E359006C731C /* MullvadTypes.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58D223D5294C8E5E0029F5F8 /* MullvadTypes.framework */; };
 		586A0DD12A20E371006C731C /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 586A0DD02A20E371006C731C /* WireGuardKitTypes */; };
@@ -1618,7 +1617,6 @@
 		5867770F290975E8006F721F /* SettingsInteractorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInteractorFactory.swift; sourceTree = "<group>"; };
 		58677711290976FB006F721F /* SettingsInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsInteractor.swift; sourceTree = "<group>"; };
 		5867771329097BCD006F721F /* PaymentState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaymentState.swift; sourceTree = "<group>"; };
-		5867771529097C5B006F721F /* ProductState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductState.swift; sourceTree = "<group>"; };
 		5868585424054096000B8131 /* CustomButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CustomButton.swift; sourceTree = "<group>"; };
 		58695A9F2A4ADA9200328DB3 /* TunnelObfuscationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelObfuscationTests.swift; sourceTree = "<group>"; };
 		586A95112901321B007BAF2B /* IPv6Endpoint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPv6Endpoint.swift; sourceTree = "<group>"; };
@@ -3118,7 +3116,6 @@
 				58CCA01722426713004F3011 /* AccountViewController.swift */,
 				7A1A26422A2612AE00B978AA /* PaymentAlertPresenter.swift */,
 				5867771329097BCD006F721F /* PaymentState.swift */,
-				5867771529097C5B006F721F /* ProductState.swift */,
 				7A7B3AB52C6DE4DA00D4BCCE /* RestorePurchasesView.swift */,
 			);
 			path = Account;
@@ -6098,7 +6095,6 @@
 				5868585524054096000B8131 /* CustomButton.swift in Sources */,
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
 				7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */,
-				5867771629097C5B006F721F /* ProductState.swift in Sources */,
 				7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */,
 				7A6389DE2B7E3BD6008E77E1 /* CustomListItemIdentifier.swift in Sources */,
 				58C76A082A33850E00100D75 /* ApplicationTarget.swift in Sources */,

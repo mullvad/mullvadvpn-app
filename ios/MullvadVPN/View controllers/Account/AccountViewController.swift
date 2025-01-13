@@ -14,6 +14,12 @@ import Operations
 import StoreKit
 import UIKit
 
+struct PurchaseOptionDetails {
+    let products: [SKProduct]
+    let accountNumber: String
+    let didRequestPurchase: (SKProduct) -> Void
+}
+
 enum AccountViewControllerAction: Sendable {
     case deviceInfo
     case finish
@@ -21,6 +27,8 @@ enum AccountViewControllerAction: Sendable {
     case navigateToVoucher
     case navigateToDeleteAccount
     case restorePurchasesInfo
+    case showPurchaseOptions(PurchaseOptionDetails)
+    case showFailedToLoadProducts
 }
 
 class AccountViewController: UIViewController, @unchecked Sendable {
@@ -35,7 +43,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         return contentView
     }()
 
-    private var productState: ProductState = .none
+    private var isFetchingProducts: Bool = false
     private var paymentState: PaymentState = .none
 
     var actionHandler: ActionHandler?
@@ -105,18 +113,9 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         addActions()
         updateView(from: interactor.deviceState)
         applyViewState(animated: false)
-        requestStoreProductsIfCan()
     }
 
     // MARK: - Private
-
-    private func requestStoreProductsIfCan() {
-        if StorePaymentManager.canMakePayments {
-            requestStoreProducts()
-        } else {
-            setProductState(.cannotMakePurchases, animated: false)
-        }
-    }
 
     private func configUI() {
         let scrollView = UIScrollView()
@@ -141,7 +140,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         contentView.purchaseButton.addTarget(
             self,
-            action: #selector(doPurchase),
+            action: #selector(requestStoreProducts),
             for: .touchUpInside
         )
 
@@ -151,20 +150,16 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         contentView.storeKit2Button.addTarget(self, action: #selector(handleStoreKit2Purchase), for: .touchUpInside)
     }
-
-    private func requestStoreProducts() {
-        let productKind = StoreSubscription.thirtyDays
-
-        setProductState(.fetching(productKind), animated: true)
-
-        _ = interactor.requestProducts(with: [productKind]) { [weak self] completion in
-            let productState: ProductState = completion.value?.products.first
-                .map { .received($0) } ?? .failed
-
-            MainActor.assumeIsolated {
-                self?.setProductState(productState, animated: true)
-            }
+    
+    private func doPurchase(product: SKProduct) {
+        guard let accountData = interactor.deviceState.accountData else {
+            return
         }
+
+        let payment = SKPayment(product: product)
+        interactor.addPayment(payment, for: accountData.number)
+
+        setPaymentState(.makingPayment(payment), animated: true)
     }
 
     @MainActor
@@ -174,8 +169,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         applyViewState(animated: animated)
     }
 
-    private func setProductState(_ newState: ProductState, animated: Bool) {
-        productState = newState
+    private func setIsFetchingProducts(_ isFetchingProducts: Bool, animated: Bool = false) {
+        self.isFetchingProducts = isFetchingProducts
 
         applyViewState(animated: animated)
     }
@@ -195,16 +190,16 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         let purchaseButton = contentView.purchaseButton
         let activityIndicator = contentView.accountExpiryRowView.activityIndicator
 
-        if productState.isFetching || paymentState != .none {
+        if isFetchingProducts || paymentState != .none {
             activityIndicator.startAnimating()
         } else {
             activityIndicator.stopAnimating()
         }
 
-        purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
-        contentView.purchaseButton.isLoading = productState.isFetching
+//        purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
+        contentView.purchaseButton.isLoading = isFetchingProducts
 
-        purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled
+        purchaseButton.isEnabled = !isFetchingProducts && isInteractionEnabled
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
         contentView.accountTokenRowView.setButtons(enabled: isInteractionEnabled)
         contentView.restorePurchasesView.setButtons(enabled: isInteractionEnabled)
@@ -266,18 +261,30 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     @objc private func deleteAccount() {
         actionHandler?(.navigateToDeleteAccount)
     }
-
-    @objc private func doPurchase() {
-        guard case let .received(product) = productState,
-              let accountData = interactor.deviceState.accountData
-        else {
+    
+    @objc private func requestStoreProducts() {
+        guard let accountData = interactor.deviceState.accountData else {
             return
         }
-
-        let payment = SKPayment(product: product)
-        interactor.addPayment(payment, for: accountData.number)
-
-        setPaymentState(.makingPayment(payment), animated: true)
+        let productIdentifiers = Set(StoreSubscription.allCases)
+        setIsFetchingProducts(true)
+        _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let success):
+                let products = success.products
+                if !products.isEmpty {
+                    actionHandler?(.showPurchaseOptions(PurchaseOptionDetails(products: products, accountNumber: accountData.number, didRequestPurchase: self.doPurchase)))
+                } else {
+                    actionHandler?(.showFailedToLoadProducts)
+                }
+            case .failure:
+                actionHandler?(.showFailedToLoadProducts)
+            }
+			MainActor.assumeIsolated {
+            	setIsFetchingProducts(false)
+			}
+        }
     }
 
     @objc private func restorePurchases() {

@@ -79,8 +79,39 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
         )
     }
 }
-
 extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
+    func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
+        let message = NSLocalizedString(
+            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
+            tableName: "Welcome",
+            value:
+            """
+            Failed to connect to App store, please try again later.
+            """,
+            comment: ""
+        )
+
+        let presentation = AlertPresentation(
+            id: "welcome-failed-to-fetch-products-alert",
+            icon: .info,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
+                        tableName: "Welcome",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+    
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = NSLocalizedString(
             "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
@@ -116,6 +147,37 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
 
         let presenter = AlertPresenter(context: self)
         presenter.showAlert(presentation: presentation, animated: true)
+    }
+    
+    func didRequestToViewPurchaseOptions(controller: WelcomeViewController, availableProducts: [SKProduct], accountNumber: String) {
+        let localizedString = NSLocalizedString(
+            "BUY_CREDIT_BUTTON",
+            tableName: "Welcome",
+            value: "Add Time",
+            comment: ""
+        )
+        let alert = UIAlertController(title: localizedString, message: nil, preferredStyle: .actionSheet)
+        availableProducts.forEach { product in
+            guard let localizedTitle = product.customLocalizedTitle else {
+                return
+            }
+            let action = UIAlertAction(title: localizedTitle, style: .default, handler: { _ in
+                alert.dismiss(animated: true, completion: {
+                    self.didRequestToPurchaseCredit(controller: controller, accountNumber: accountNumber, product: product)
+                })
+            })
+            action.accessibilityIdentifier = "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
+            alert.addAction(action)
+        }
+        let cancelAction = UIAlertAction(title: NSLocalizedString(
+            "PRODUCT_LIST_CANCEL_BUTTON",
+            tableName: "Welcome",
+            value: "Cancel",
+            comment: ""
+        ), style: .cancel)
+        cancelAction.accessibilityIdentifier = AccessibilityIdentifier.cancelPurchaseListButton.asString
+        alert.addAction(cancelAction)
+        presentationContext.present(alert, animated: true)
     }
 
     func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
