@@ -142,7 +142,7 @@ struct SettingsViewControllerFactory {
         let presentation = AlertPresentation(
             id: "settings-daita-prompt",
             accessibilityIdentifier: .daitaPromptAlert,
-            icon: .info,
+            icon: .warning,
             message: NSLocalizedString(
                 "SETTINGS_DAITA_ENABLE_TEXT",
                 tableName: "DAITA",
@@ -154,7 +154,7 @@ struct SettingsViewControllerFactory {
                     title: String(format: NSLocalizedString(
                         "SETTINGS_DAITA_ENABLE_OK_ACTION",
                         tableName: "DAITA",
-                        value: "Enable %@",
+                        value: "Enable \"%@\"",
                         comment: ""
                     ), item.title),
                     style: .default,
@@ -165,7 +165,7 @@ struct SettingsViewControllerFactory {
                     title: NSLocalizedString(
                         "SETTINGS_DAITA_ENABLE_CANCEL_ACTION",
                         tableName: "DAITA",
-                        value: "Back",
+                        value: "Cancel",
                         comment: ""
                     ),
                     style: .default,
