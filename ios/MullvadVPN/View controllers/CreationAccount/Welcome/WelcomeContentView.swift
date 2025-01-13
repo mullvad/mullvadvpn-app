@@ -112,7 +112,7 @@ final class WelcomeContentView: UIView, Sendable {
         let localizedString = NSLocalizedString(
             "BUY_CREDIT_BUTTON",
             tableName: "Welcome",
-            value: "Buy credit",
+            value: "Add time",
             comment: ""
         )
         button.setTitle(localizedString, for: .normal)
@@ -182,11 +182,10 @@ final class WelcomeContentView: UIView, Sendable {
         }
     }
 
-    var productState: ProductState = .none {
+    var isFetchingProducts = false {
         didSet {
-            purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
-            purchaseButton.isLoading = productState.isFetching
-            purchaseButton.isEnabled = productState.isReceived
+            purchaseButton.isLoading = isFetchingProducts
+            purchaseButton.isEnabled = !isFetchingProducts
         }
     }
 
