@@ -178,6 +178,10 @@ pub(crate) struct WgGoTunnelState {
     /// This is used to cancel the connectivity checks that occur when toggling multihop
     #[cfg(target_os = "android")]
     cancel_receiver: connectivity::CancelReceiver,
+    /// Default route change callback. This is used to rebind the endpoint socket when the default
+    /// route (network) is changed.
+    #[cfg(target_os = "windows")]
+    _socket_update_cb: Option<talpid_routing::CallbackHandle>,
 }
 
 impl WgGoTunnelState {
@@ -257,8 +261,10 @@ impl WgGoTunnel {
 
     #[cfg(target_os = "windows")]
     pub fn start_tunnel(
+        runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
+        route_manager: talpid_routing::RouteManagerHandle,
         mut setup_done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<Self> {
         use futures::SinkExt;
@@ -269,7 +275,16 @@ impl WgGoTunnel {
             .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
-        // TODO: default route clalback
+        let socket_update_cb = runtime
+            .block_on(
+                route_manager.add_default_route_change_callback(Box::new(
+                    Self::default_route_changed_callback,
+                )),
+            )
+            .ok();
+        if socket_update_cb.is_none() {
+            log::warn!("Failed to register default route callback");
+        }
 
         let handle = wireguard_go_rs::Tunnel::turn_on(
             c"Mullvad",
@@ -312,9 +327,48 @@ impl WgGoTunnel {
             interface_name: interface_name.to_owned(),
             tunnel_handle: handle,
             _logging_context: logging_context,
+            _socket_update_cb: socket_update_cb,
             #[cfg(daita)]
             config: config.clone(),
         }))
+    }
+
+    // Callback to be used to rebind the tunnel sockets when the default route changes
+    #[cfg(target_os = "windows")]
+    fn default_route_changed_callback(
+        event_type: talpid_routing::EventType<'_>,
+        address_family: talpid_windows::net::AddressFamily,
+    ) {
+        use talpid_routing::EventType::*;
+
+        let iface_idx: u32 = match event_type {
+            Updated(default_route) => {
+                let iface_luid = default_route.iface;
+                match talpid_windows::net::index_from_luid(&iface_luid) {
+                    Ok(idx) => idx,
+                    Err(err) => {
+                        log::error!(
+                            "Failed to convert interface LUID to interface index: {}",
+                            err,
+                        );
+                        return;
+                    },
+                }
+            }
+            // if there is no new default route, specify 0 as the interface index
+            Removed => 0,
+            // ignore interface updates that don't affect the interface to use
+            UpdatedDetails(_) => return,
+        };
+
+        match address_family {
+            talpid_windows::net::AddressFamily::Ipv4 => {
+                wireguard_go_rs::rebind_tunnel_socket_v4(iface_idx);
+            }
+            talpid_windows::net::AddressFamily::Ipv6 => {
+                wireguard_go_rs::rebind_tunnel_socket_v6(iface_idx);
+            }
+        }
     }
 
     #[cfg(unix)]
