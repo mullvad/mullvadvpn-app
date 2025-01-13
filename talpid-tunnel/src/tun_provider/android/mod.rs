@@ -381,7 +381,8 @@ impl AsRawFd for VpnServiceTun {
 enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
-    TunnelDeviceError,
+    EstablishError,
+    RoutesTimedOutError,
     OtherLegacyAlwaysOnVpn,
     OtherAlwaysOnApp { app_name: String },
     NotPrepared,
@@ -394,7 +395,8 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::TunnelDeviceError => Err(Error::TunnelDeviceError),
+            CreateTunResult::RoutesTimedOutError => Err(Error::TunnelDeviceError),
+            CreateTunResult::EstablishError => Err(Error::TunnelDeviceError),
             CreateTunResult::OtherLegacyAlwaysOnVpn => Err(Error::OtherLegacyAlwaysOnVpn),
             CreateTunResult::OtherAlwaysOnApp { app_name } => {
                 Err(Error::OtherAlwaysOnApp { app_name })
