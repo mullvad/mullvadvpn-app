@@ -7,8 +7,8 @@
 //
 
 import Routing
-import UIKit
 import StoreKit
+import UIKit
 
 enum AccountDismissReason: Equatable, Sendable {
     case none
@@ -68,14 +68,22 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             navigateToDeleteAccount()
         case .restorePurchasesInfo:
             showRestorePurchasesInfo()
-        case .showPurchaseOptions(let details):
-            showPurchaseOptions(availableProducts: details.products, accountNumber: details.accountNumber, didRequestPurchase: details.didRequestPurchase)
+        case let .showPurchaseOptions(details):
+            showPurchaseOptions(
+                availableProducts: details.products,
+                accountNumber: details.accountNumber,
+                didRequestPurchase: details.didRequestPurchase
+            )
         case .showFailedToLoadProducts:
             showFailToFetchProducts()
         }
     }
-    
-    func showPurchaseOptions(availableProducts: [SKProduct], accountNumber: String, didRequestPurchase: @escaping (_ product: SKProduct) -> Void) {
+
+    func showPurchaseOptions(
+        availableProducts: [SKProduct],
+        accountNumber: String,
+        didRequestPurchase: @escaping (_ product: SKProduct) -> Void
+    ) {
         let localizedString = NSLocalizedString(
             "BUY_CREDIT_BUTTON",
             tableName: "Welcome",
@@ -92,7 +100,9 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                     didRequestPurchase(product)
                 })
             })
-            action.accessibilityIdentifier = "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
+            action
+                .accessibilityIdentifier =
+                "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
             alert.addAction(action)
         }
         let cancelAction = UIAlertAction(title: NSLocalizedString(
@@ -266,8 +276,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         let presenter = AlertPresenter(context: self)
         presenter.showAlert(presentation: presentation, animated: true)
     }
-    
-    
+
     func showFailToFetchProducts() {
         let message = NSLocalizedString(
             "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",

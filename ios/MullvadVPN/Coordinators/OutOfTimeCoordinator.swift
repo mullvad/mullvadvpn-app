@@ -7,8 +7,8 @@
 //
 
 import Routing
-import UIKit
 import StoreKit
+import UIKit
 
 class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeViewControllerDelegate, Poppable {
     let navigationController: RootContainerViewController
@@ -83,8 +83,12 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
 
         didFinishPayment?(self)
     }
-    
-    func outOfTimeViewControllerDidRequestShowPurchaseOptions(_ controller: OutOfTimeViewController, products: [SKProduct], didRequestPurchase: @escaping (SKProduct) -> Void) {
+
+    func outOfTimeViewControllerDidRequestShowPurchaseOptions(
+        _ controller: OutOfTimeViewController,
+        products: [SKProduct],
+        didRequestPurchase: @escaping (SKProduct) -> Void
+    ) {
         let localizedString = NSLocalizedString(
             "BUY_CREDIT_BUTTON",
             tableName: "Welcome",
@@ -101,7 +105,9 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
                     didRequestPurchase(product)
                 })
             })
-            action.accessibilityIdentifier = "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
+            action
+                .accessibilityIdentifier =
+                "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
             alert.addAction(action)
         }
         let cancelAction = UIAlertAction(title: NSLocalizedString(
@@ -114,7 +120,7 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
         alert.addAction(cancelAction)
         presentationContext.present(alert, animated: true)
     }
-    
+
     func outOfTimeViewControllerDidFailToFetchProducts(_ controller: OutOfTimeViewController) {
         let message = NSLocalizedString(
             "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
