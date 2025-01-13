@@ -159,12 +159,12 @@ impl SocksAuth {
     /// assert!(too_long_username.is_err());
     /// ```
     pub fn new(username: String, password: String) -> Result<Self, Error> {
-        if !(1..=255).contains(&password.as_bytes().len()) {
+        if !(1..=255).contains(&password.len()) {
             return Err(Error::InvalidSocksAuthValues(
                 "Password length should between 1 and 255 bytes",
             ));
         }
-        if !(1..=255).contains(&username.as_bytes().len()) {
+        if !(1..=255).contains(&username.len()) {
             return Err(Error::InvalidSocksAuthValues(
                 "Username length should between 1 and 255 bytes",
             ));
