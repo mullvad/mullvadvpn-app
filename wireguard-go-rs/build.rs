@@ -1,7 +1,7 @@
 use std::{
     borrow::BorrowMut,
     env,
-    fs::File,
+    fs::{self, File},
     io::{BufRead, BufReader, BufWriter, Write},
     path::{Path, PathBuf},
     process::Command,
@@ -117,6 +117,9 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                 .ancestors()
                 .nth(3)
                 .context("Failed to find target dir")?;
+
+            build_shared_maybenot_lib(target_dir).context("Failed to build maybenot")?;
+
             let dll_path = target_dir.join("libwg.dll");
 
             println!("cargo::rerun-if-changed={}", dll_path.display());
@@ -213,6 +216,49 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
     // if daita is enabled, also enable the corresponding rust feature flag
     if daita {
         println!(r#"cargo::rustc-cfg=daita"#);
+    }
+
+    Ok(())
+}
+
+// Build dynamically library for maybenot
+fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
+    let target_triple = env::var("TARGET").context("Missing 'TARGET'")?;
+    let profile = env::var("PROFILE").context("Missing 'PROFILE'")?;
+
+    let mut build_command = Command::new("cargo");
+
+    std::fs::create_dir_all("../build")?;
+
+    let mut tmp_build_dir = Path::new("../build").canonicalize()?;
+
+    // Strip \\?\ prefix. Note that doing this directly on Path/PathBuf fails
+    let path_str = tmp_build_dir.to_str().unwrap();
+    if path_str.starts_with(r"\\?\") {
+        tmp_build_dir = PathBuf::from(&path_str[4..]);
+    }
+
+    tmp_build_dir = tmp_build_dir.join("target");
+
+    build_command
+        .current_dir("./libwg/wireguard-go/maybenot/crates/maybenot-ffi")
+        .env("RUSTFLAGS", "-C metadata=maybenot-ffi -Ctarget-feature=+crt-static")
+        // Set temporary target dir to prevent deadlock
+        .env("CARGO_TARGET_DIR", &tmp_build_dir)
+        .arg("build")
+        .args(["--target", &target_triple]);
+
+    exec(build_command)?;
+
+    let artifacts_dir = tmp_build_dir.join(target_triple).join(profile);
+
+    // Copy library to actual target dir
+    for filename in ["maybenot_ffi.dll", "maybenot_ffi.lib"] {
+        fs::copy(
+            artifacts_dir.join(filename),
+            out_dir.as_ref().join(filename),
+        )
+        .with_context(|| format!("Failed to copy {filename}"))?;
     }
 
     Ok(())
