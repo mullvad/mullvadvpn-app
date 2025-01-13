@@ -16,6 +16,7 @@ zeroize = "1.8.1"
 # This is done, instead of using the makefile in wireguard-go to build maybenot-ffi into its archive, to prevent
 # name clashes induced by link-time optimization.
 # NOTE: the version of maybenot-ffi below must be the same as the version checked into the wireguard-go submodule
+[target.'cfg(unix)'.dependencies]
 maybenot-ffi = "2.0.1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
