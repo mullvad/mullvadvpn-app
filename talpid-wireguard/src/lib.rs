@@ -715,19 +715,20 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         {
-            // TODO: check whether to use wg-nt
-            //wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
-            //    .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
-            //    .map_err(Error::TunnelError)
-
             #[cfg(wireguard_go)]
             {
-                log::debug!("Using userspace WireGuard implementation");
-                let tunnel = Self::open_wireguard_go_tunnel(runtime, config, log_path, setup_done_tx, route_manager)
-                    .map(Box::new)?;
-                Ok(tunnel)
+                let use_userspace_wg = config.daita;
+                if use_userspace_wg {
+                    log::debug!("Using userspace WireGuard implementation");
+                    let tunnel = Self::open_wireguard_go_tunnel(runtime, config, log_path, setup_done_tx, route_manager)
+                        .map(Box::new)?;
+                    return Ok(tunnel);
+                }
             }
-            // TODO: handle
+
+            wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
+                .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
+                .map_err(Error::TunnelError)
         }
 
         #[cfg(all(wireguard_go, not(target_os = "windows")))]
