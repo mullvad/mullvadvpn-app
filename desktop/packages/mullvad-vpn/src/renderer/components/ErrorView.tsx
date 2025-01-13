@@ -2,10 +2,10 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
+import { AppMainHeader } from './app-main-header';
 import { measurements } from './common-styles';
-import { HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Header, Layout } from './Layout';
+import { Container, Layout } from './Layout';
 
 const StyledContainer = styled(Container)({
   flex: 1,
@@ -56,7 +56,9 @@ interface ErrorViewProps {
 export default function ErrorView(props: ErrorViewProps) {
   return (
     <Layout>
-      <Header>{!props.settingsUnavailable && <HeaderBarSettingsButton />}</Header>
+      <AppMainHeader logoVariant="none">
+        {!props.settingsUnavailable && <AppMainHeader.SettingsButton />}
+      </AppMainHeader>
       <StyledContainer>
         <StyledContent>
           <Logo height={106} width={106} source="logo-icon" />

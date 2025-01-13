@@ -6,7 +6,7 @@ import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
 import ImageView from './ImageView';
-import { NavigationScrollbars } from './NavigationBar';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SearchBar from './SearchBar';
 import { SmallButton } from './SmallButton';
 

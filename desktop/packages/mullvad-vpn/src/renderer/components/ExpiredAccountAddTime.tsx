@@ -14,11 +14,11 @@ import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
+import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { calculateHeaderBarStyle, DefaultHeaderBar, HeaderBarStyle } from './HeaderBar';
 import ImageView from './ImageView';
 import { Container, Footer, Layout } from './Layout';
 import {
@@ -27,10 +27,6 @@ import {
   RedeemVoucherResponse,
   RedeemVoucherSubmitButton,
 } from './RedeemVoucher';
-
-export const StyledHeader = styled(DefaultHeaderBar)({
-  flex: 0,
-});
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
@@ -261,12 +257,15 @@ function HeaderBar() {
   const isNewAccount = useSelector(
     (state) => state.account.status.type === 'ok' && state.account.status.method === 'new_account',
   );
-  const tunnelState = useSelector((state) => state.connection.status);
-  const headerBarStyle = isNewAccount
-    ? HeaderBarStyle.default
-    : calculateHeaderBarStyle(tunnelState);
 
-  return <StyledHeader barStyle={headerBarStyle} />;
+  return (
+    <AppMainHeader
+      variant={isNewAccount ? 'default' : 'basedOnConnectionStatus'}
+      size="basedOnLoginStatus">
+      <AppMainHeader.AccountButton />
+      <AppMainHeader.SettingsButton />
+    </AppMainHeader>
+  );
 }
 
 function useFinishedCallback() {

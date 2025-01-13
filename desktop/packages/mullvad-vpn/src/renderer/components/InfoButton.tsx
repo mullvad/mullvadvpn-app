@@ -1,19 +1,9 @@
-import styled from 'styled-components';
-
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { Button, IconButton, IconButtonProps } from '../lib/components';
 import { useBoolean } from '../lib/utility-hooks';
-import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
-
-const StyledInfoButton = styled.button({
-  margin: '0 16px 0 8px',
-  borderWidth: 0,
-  padding: 0,
-  cursor: 'default',
-  backgroundColor: 'transparent',
-});
 
 interface IInfoIconProps {
   className?: string;
@@ -34,39 +24,35 @@ export function InfoIcon(props: IInfoIconProps) {
   );
 }
 
-export interface IInfoButtonProps extends React.HTMLAttributes<HTMLButtonElement> {
+export interface InfoButtonProps extends Omit<IconButtonProps, 'icon'> {
+  title?: string;
   message?: string | Array<string>;
   children?: React.ReactNode;
-  title?: string;
-  size?: number;
-  tintColor?: string;
-  tintHoverColor?: string;
 }
 
-export default function InfoButton(props: IInfoButtonProps) {
-  const { message, children, size, tintColor, tintHoverColor, ...otherProps } = props;
+export default function InfoButton({ title, message, children, ...props }: InfoButtonProps) {
   const [isOpen, show, hide] = useBoolean(false);
 
   return (
     <>
-      <StyledInfoButton
+      <IconButton
+        icon="icon-info"
         onClick={show}
         aria-label={messages.pgettext('accessibility', 'More information')}
-        {...otherProps}>
-        <InfoIcon size={size} tintColor={tintColor} tintHoverColor={tintHoverColor} />
-      </StyledInfoButton>
+        {...props}
+      />
       <ModalAlert
         isOpen={isOpen}
-        title={props.title}
-        message={props.message}
+        title={title}
+        message={message}
         type={ModalAlertType.info}
         buttons={[
-          <AppButton.BlueButton key="back" onClick={hide}>
+          <Button key="back" onClick={hide}>
             {messages.gettext('Got it!')}
-          </AppButton.BlueButton>,
+          </Button>,
         ]}
         close={hide}>
-        {props.children}
+        {children}
       </ModalAlert>
     </>
   );

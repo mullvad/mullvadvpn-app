@@ -4,17 +4,13 @@ import styled from 'styled-components';
 import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
+import { AppNavigationHeader } from './';
 import * as AppButton from './AppButton';
 import { measurements } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledContent = styled.div({
@@ -36,11 +32,7 @@ export default function Debug() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>Developer tools</TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader title="Developer tools" />
 
             <NavigationScrollbars>
               <SettingsHeader>

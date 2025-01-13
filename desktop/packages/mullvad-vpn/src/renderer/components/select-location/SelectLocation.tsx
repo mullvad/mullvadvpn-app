@@ -4,6 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { colors, strings } from '../../../config.json';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
+import { IconButton } from '../../lib/components';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
@@ -11,19 +12,14 @@ import { formatHtml } from '../../lib/html-formatter';
 import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
 import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
+import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
 import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../Layout';
-import {
-  NavigationBar,
-  NavigationBarButton,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from '../NavigationBar';
+import { NavigationContainer } from '../NavigationContainer';
+import { NavigationScrollbars } from '../NavigationScrollbars';
 import CombinedLocationList, { CombinedLocationListProps } from './CombinedLocationList';
 import CustomLists from './CustomLists';
 import { useRelayListContext } from './RelayListContext';
@@ -133,26 +129,19 @@ export default function SelectLocation() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar alwaysDisplayBarTitle>
-              <NavigationItems>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('select-location-nav', 'Select location')
-                  }
-                </TitleBarItem>
-
-                <NavigationBarButton onClick={onViewFilter} aria-label={messages.gettext('Filter')}>
-                  <ImageView
-                    source="icon-filter-round"
-                    tintColor={colors.white40}
-                    tintHoverColor={colors.white60}
-                    height={24}
-                    width={24}
-                  />
-                </NavigationBarButton>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Title label in navigation bar
+                messages.pgettext('select-location-nav', 'Select location')
+              }
+              titleVisible>
+              <IconButton
+                icon="icon-filter-round"
+                variant="secondary"
+                onClick={onViewFilter}
+                aria-label={messages.gettext('Filter')}
+              />
+            </AppNavigationHeader>
 
             <StyledNavigationBarAttachment>
               {allowEntrySelection && (

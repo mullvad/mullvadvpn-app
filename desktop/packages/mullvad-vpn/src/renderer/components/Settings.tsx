@@ -7,6 +7,7 @@ import { Button, TitleBig } from '../lib/components';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import {
@@ -19,7 +20,7 @@ import {
   SettingsNavigationScrollbars,
   SettingsStack,
 } from './Layout';
-import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
 import SettingsHeader from './SettingsHeader';
 
 export default function Support() {
@@ -37,16 +38,12 @@ export default function Support() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('navigation-bar', 'Settings')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Title label in navigation bar
+                messages.pgettext('navigation-bar', 'Settings')
+              }
+            />
 
             <SettingsNavigationScrollbars fillContainer>
               <SettingsContent>

@@ -4,17 +4,12 @@ import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useSelector } from '../redux/store';
+import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
 import { bigText, measurements, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import { calculateHeaderBarStyle, DefaultHeaderBar } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Footer } from './Layout';
-import { Layout } from './Layout';
-
-export const StyledHeader = styled(DefaultHeaderBar)({
-  flex: 0,
-});
+import { Container, Footer, Layout } from './Layout';
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
@@ -59,7 +54,10 @@ export function DeviceRevokedView() {
 
   return (
     <Layout>
-      <StyledHeader barStyle={calculateHeaderBarStyle(tunnelState)} />
+      <AppMainHeader variant="basedOnConnectionStatus" size="basedOnLoginStatus">
+        <AppMainHeader.AccountButton />
+        <AppMainHeader.SettingsButton />
+      </AppMainHeader>
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>

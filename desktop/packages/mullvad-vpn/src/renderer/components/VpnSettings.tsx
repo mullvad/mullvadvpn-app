@@ -16,25 +16,23 @@ import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import * as AppButton from './AppButton';
 import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
 import CustomDnsSettings from './CustomDnsSettings';
-import InfoButton, { InfoIcon } from './InfoButton';
+import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-import {
-  NavigationBar,
-  NavigationContainer,
-  NavigationItems,
-  NavigationScrollbars,
-  TitleBarItem,
-} from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
+import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-const StyledInfoIcon = styled(InfoIcon)({
+const StyledInfoButton = styled(InfoButton).attrs({
+  size: 'small',
+})({
   marginRight: Spacings.spacing5,
 });
 
@@ -63,16 +61,12 @@ export default function VpnSettings() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>
-                  {
-                    // TRANSLATORS: Title label in navigation bar
-                    messages.pgettext('vpn-settings-view', 'VPN settings')
-                  }
-                </TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader
+              title={
+                // TRANSLATORS: Title label in navigation bar
+                messages.pgettext('vpn-settings-view', 'VPN settings')
+              }
+            />
 
             <NavigationScrollbars>
               <SettingsHeader>
@@ -204,7 +198,7 @@ function AllowLan() {
           </Cell.InputLabel>
         </AriaLabel>
         <AriaDetails>
-          <InfoButton>
+          <StyledInfoButton>
             <ModalMessage>
               {messages.pgettext(
                 'vpn-settings-view',
@@ -225,7 +219,7 @@ function AllowLan() {
                 <li>fc00::/7</li>
               </LanIpRanges>
             </ModalMessage>
-          </InfoButton>
+          </StyledInfoButton>
         </AriaDetails>
         <AriaInput>
           <Cell.Switch isOn={allowLan} onChange={setAllowLan} />
@@ -263,7 +257,7 @@ function DnsBlockers() {
       <StyledTitleLabel as="label" disabled={dns.state === 'custom'}>
         {messages.pgettext('vpn-settings-view', 'DNS content blockers')}
       </StyledTitleLabel>
-      <InfoButton>
+      <StyledInfoButton>
         <ModalMessage>
           {messages.pgettext(
             'vpn-settings-view',
@@ -287,7 +281,7 @@ function DnsBlockers() {
             ),
           )}
         </ModalMessage>
-      </InfoButton>
+      </StyledInfoButton>
     </>
   );
 
@@ -368,14 +362,14 @@ function BlockMalware() {
           </IndentedValueLabel>
         </AriaLabel>
         <AriaDetails>
-          <InfoButton>
+          <StyledInfoButton>
             <ModalMessage>
               {messages.pgettext(
                 'vpn-settings-view',
                 'Warning: The malware blocker is not an anti-virus and should not be treated as such, this is just an extra layer of protection.',
               )}
             </ModalMessage>
-          </InfoButton>
+          </StyledInfoButton>
         </AriaDetails>
         <AriaInput>
           <Cell.Switch
@@ -510,7 +504,7 @@ function EnableIpv6() {
           <Cell.InputLabel>{messages.pgettext('vpn-settings-view', 'Enable IPv6')}</Cell.InputLabel>
         </AriaLabel>
         <AriaDetails>
-          <InfoButton>
+          <StyledInfoButton>
             <ModalMessage>
               {messages.pgettext(
                 'vpn-settings-view',
@@ -523,7 +517,7 @@ function EnableIpv6() {
                 'IPv4 is always enabled and the majority of websites and applications use this protocol. We do not recommend enabling IPv6 unless you know you need it.',
               )}
             </ModalMessage>
-          </InfoButton>
+          </StyledInfoButton>
         </AriaDetails>
         <AriaInput>
           <Cell.Switch isOn={enableIpv6} onChange={setEnableIpv6} />
@@ -538,19 +532,19 @@ function KillSwitchInfo() {
 
   return (
     <>
-      <Cell.CellButton onClick={showKillSwitchInfo}>
-        <AriaInputGroup>
+      <AriaInputGroup>
+        <Cell.Container>
           <AriaLabel>
             <Cell.InputLabel>
               {messages.pgettext('vpn-settings-view', 'Kill switch')}
             </Cell.InputLabel>
           </AriaLabel>
-          <StyledInfoIcon />
+          <StyledInfoButton onClick={showKillSwitchInfo} />
           <AriaInput>
             <Cell.Switch isOn disabled />
           </AriaInput>
-        </AriaInputGroup>
-      </Cell.CellButton>
+        </Cell.Container>
+      </AriaInputGroup>
       <ModalAlert
         isOpen={killSwitchInfoVisible}
         type={ModalAlertType.info}
@@ -622,7 +616,7 @@ function LockdownMode() {
             </Cell.InputLabel>
           </AriaLabel>
           <AriaDetails>
-            <InfoButton>
+            <StyledInfoButton>
               <ModalMessage>
                 {messages.pgettext(
                   'vpn-settings-view',
@@ -635,7 +629,7 @@ function LockdownMode() {
                   'With Lockdown Mode enabled, you must be connected to a Mullvad VPN server to be able to reach the internet. Manually disconnecting or quitting the app will block your connection.',
                 )}
               </ModalMessage>
-            </InfoButton>
+            </StyledInfoButton>
           </AriaDetails>
           <AriaInput>
             <Cell.Switch isOn={blockWhenDisconnected} onChange={setLockDownMode} />

@@ -12,11 +12,11 @@ import accountActions from '../redux/account/actions';
 import { LoginState } from '../redux/account/reducers';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
+import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
 import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
-import { Brand, HeaderBarSettingsButton } from './HeaderBar';
 import ImageView from './ImageView';
-import { Container, Header, Layout } from './Layout';
+import { Container, Layout } from './Layout';
 import {
   StyledAccountDropdownContainer,
   StyledAccountDropdownItem,
@@ -126,10 +126,9 @@ class Login extends React.Component<IProps, IState> {
 
     return (
       <Layout>
-        <Header>
-          <Brand />
-          <HeaderBarSettingsButton disabled={!allowInteraction} />
-        </Header>
+        <AppMainHeader>
+          <AppMainHeader.SettingsButton disabled={!allowInteraction} />
+        </AppMainHeader>
         <Container>
           <StyledTopInfo>
             {this.props.showBlockMessage ? <BlockMessage /> : this.getStatusIcon()}

@@ -14,11 +14,12 @@ import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { useHistory } from '../lib/history';
 import { useLastDefinedValue } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
+import { AppNavigationHeader } from './';
 import { SettingsForm } from './cell/SettingsForm';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
-import { NavigationBar, NavigationContainer, NavigationItems, TitleBarItem } from './NavigationBar';
+import { NavigationContainer } from './NavigationContainer';
 import { NamedProxyForm } from './ProxyForm';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { SmallButton } from './SmallButton';
@@ -95,11 +96,7 @@ function AccessMethodForm() {
       <Layout>
         <SettingsContainer>
           <NavigationContainer>
-            <NavigationBar>
-              <NavigationItems>
-                <TitleBarItem>{title}</TitleBarItem>
-              </NavigationItems>
-            </NavigationBar>
+            <AppNavigationHeader title={title} />
 
             <SettingsNavigationScrollbars fillContainer>
               <SettingsContent>
