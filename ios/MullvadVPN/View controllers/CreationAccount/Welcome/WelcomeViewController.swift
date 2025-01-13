@@ -12,7 +12,6 @@ import UIKit
 protocol WelcomeViewControllerDelegate: AnyObject {
     func didRequestToRedeemVoucher(controller: WelcomeViewController)
     func didRequestToShowInfo(controller: WelcomeViewController)
-//    func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct)
     func didRequestToViewPurchaseOptions(controller: WelcomeViewController, availableProducts: [SKProduct], accountNumber: String)
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController)
 }
@@ -61,17 +60,6 @@ class WelcomeViewController: UIViewController, RootContainment {
         super.viewDidLoad()
         configureUI()
         contentView.viewModel = interactor.viewModel
-//        interactor.didChangeInAppPurchaseState = { [weak self] productState in
-//            guard let self else { return }
-//            switch productState {
-//            case .received(let products):
-//                delegate?.didRequestToViewPurchaseOptions(controller: self, availableProducts: products, accountNumber: interactor.accountNumber)
-//            case .failed:
-//                delegate?.didRequestToShowFailToFetchProducts(controller: self)
-//            default: break}
-//         
-//            self.contentView.productState = productState
-//        }
         interactor.viewDidLoad = true
     }
 
