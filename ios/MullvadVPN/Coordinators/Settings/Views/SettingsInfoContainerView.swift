@@ -16,16 +16,12 @@ struct SettingsInfoContainerView<Content: View>: View {
     }
 
     var body: some View {
-        ZStack {
-            List {
+        ScrollView {
+            VStack {
                 content
-                    .listRowInsets(EdgeInsets())
-                    .listRowSeparator(.hidden)
-                    .listRowBackground(Color(.secondaryColor))
                     .padding(.top, UIMetrics.contentInsets.top)
                     .padding(.bottom, UIMetrics.contentInsets.bottom)
             }
-            .listStyle(.plain)
         }
         .background(Color(.secondaryColor))
     }
