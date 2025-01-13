@@ -37,7 +37,7 @@ enum StoreSubscription: String, CaseIterable {
 extension SKProduct {
     var customLocalizedTitle: String? {
         guard let localizedTitle = StoreSubscription(rawValue: productIdentifier)?.localizedTitle,
-        let localizedPrice else {
+              let localizedPrice else {
             return nil
         }
         return "\(localizedTitle) (\(localizedPrice))"

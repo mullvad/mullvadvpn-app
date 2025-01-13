@@ -43,7 +43,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         return contentView
     }()
 
-    private var isFetchingProducts: Bool = false
+    private var isFetchingProducts = false
     private var paymentState: PaymentState = .none
 
     var actionHandler: ActionHandler?
@@ -150,7 +150,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
 
         contentView.storeKit2Button.addTarget(self, action: #selector(handleStoreKit2Purchase), for: .touchUpInside)
     }
-    
+
     private func doPurchase(product: SKProduct) {
         guard let accountData = interactor.deviceState.accountData else {
             return
@@ -261,7 +261,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     @objc private func deleteAccount() {
         actionHandler?(.navigateToDeleteAccount)
     }
-    
+
     @objc private func requestStoreProducts() {
         guard let accountData = interactor.deviceState.accountData else {
             return
@@ -271,10 +271,14 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
             guard let self else { return }
             switch result {
-            case .success(let success):
+            case let .success(success):
                 let products = success.products
                 if !products.isEmpty {
-                    actionHandler?(.showPurchaseOptions(PurchaseOptionDetails(products: products, accountNumber: accountData.number, didRequestPurchase: self.doPurchase)))
+                    actionHandler?(.showPurchaseOptions(PurchaseOptionDetails(
+                        products: products,
+                        accountNumber: accountData.number,
+                        didRequestPurchase: self.doPurchase
+                    )))
                 } else {
                     actionHandler?(.showFailedToLoadProducts)
                 }
@@ -317,7 +321,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         guard let accountData = interactor.deviceState.accountData else {
             return
         }
-        
+
         let productIdentifiers = Set(StoreSubscription.allCases).map { $0.rawValue }
 
         setPaymentState(.makingStoreKit2Purchase, animated: true)

@@ -15,7 +15,11 @@ import UIKit
 protocol OutOfTimeViewControllerDelegate: AnyObject, Sendable {
     func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController)
     func outOfTimeViewControllerDidEndPayment(_ controller: OutOfTimeViewController)
-    func outOfTimeViewControllerDidRequestShowPurchaseOptions(_ controller: OutOfTimeViewController, products: [SKProduct], didRequestPurchase: @escaping (SKProduct) -> Void)
+    func outOfTimeViewControllerDidRequestShowPurchaseOptions(
+        _ controller: OutOfTimeViewController,
+        products: [SKProduct],
+        didRequestPurchase: @escaping (SKProduct) -> Void
+    )
     func outOfTimeViewControllerDidFailToFetchProducts(_ controller: OutOfTimeViewController)
 }
 
@@ -34,9 +38,9 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     }
 
     private lazy var contentView = OutOfTimeContentView()
-    
+
     private var isFetchingProducts = false
-    
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
@@ -207,7 +211,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
         paymentState = .none
     }
-    
+
     private func doPurchase(product: SKProduct) {
         guard let accountData = interactor.deviceState.accountData else {
             return
@@ -231,10 +235,14 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
             guard let self else { return }
             switch result {
-            case .success(let success):
+            case let .success(success):
                 let products = success.products
                 if !products.isEmpty {
-                    delegate?.outOfTimeViewControllerDidRequestShowPurchaseOptions(self, products: products, didRequestPurchase: self.doPurchase)
+                    delegate?.outOfTimeViewControllerDidRequestShowPurchaseOptions(
+                        self,
+                        products: products,
+                        didRequestPurchase: self.doPurchase
+                    )
                 } else {
                     delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
                 }
