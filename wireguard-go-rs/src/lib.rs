@@ -302,6 +302,22 @@ impl Drop for Tunnel {
     }
 }
 
+/// Rebind WireGuard IPv4 endpoint sockets to use the given interface
+#[cfg(target_os = "windows")]
+pub fn rebind_tunnel_socket_v4(interface_index: u32) {
+    use windows_sys::Win32::Networking::WinSock::AF_INET;
+    // SAFETY: Passing an invalid interface is safe
+    unsafe { ffi::wgRebindTunnelSocket(AF_INET, interface_index) }
+}
+
+/// Rebind WireGuard IPv6 endpoint sockets to use the given interface
+#[cfg(target_os = "windows")]
+pub fn rebind_tunnel_socket_v6(interface_index: u32) {
+    use windows_sys::Win32::Networking::WinSock::AF_INET6;
+    // SAFETY: Passing an invalid interface is safe
+    unsafe { ffi::wgRebindTunnelSocket(AF_INET6, interface_index) }
+}
+
 /// Check whether `machines` contains a valid, LF-separated maybenot machines. Return an error
 /// otherwise.
 pub fn validate_maybenot_machines(machines: &CStr) -> Result<(), Error> {
@@ -449,5 +465,9 @@ mod ffi {
         /// Get the file descriptor of the tunnel IPv6 socket.
         #[cfg(target_os = "android")]
         pub fn wgGetSocketV6(handle: i32) -> Fd;
+
+        /// Rebind tunnel socket endpoint sockets
+        #[cfg(target_os = "windows")]
+        pub fn wgRebindTunnelSocket(family: u16, index: u32);
     }
 }
