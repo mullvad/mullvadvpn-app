@@ -567,7 +567,7 @@ mod test {
             msg.contains('\n'),
             "Message does not contain a newline!! Make sure to add a newline to '{msg}'"
         );
-        let (stdout_read, mut stdout_write) = simplex(msg.as_bytes().len());
+        let (stdout_read, mut stdout_write) = simplex(msg.len());
         //  "print" to "stdout" after `duration`.
         tokio::spawn(async move {
             tokio::time::sleep(lag).await;
