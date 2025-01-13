@@ -33,6 +33,9 @@ Line wrap the file at 100 chars.                                              Th
 - Move changelog from a dialog to a separate view.
 - Reduce the setup time of PQ tunnels by pre-computing McEliece keys.
 
+### Fixed
+- (macOS and Windows only) Add the correct route when using obfuscation with Wireguard.
+
 
 ## [2025.2] - 2025-01-08
 ### Fixed
