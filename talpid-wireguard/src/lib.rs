@@ -723,7 +723,7 @@ impl WireguardMonitor {
             #[cfg(wireguard_go)]
             {
                 log::debug!("Using userspace WireGuard implementation");
-                let tunnel = Self::open_wireguard_go_tunnel(config, log_path, setup_done_tx)
+                let tunnel = Self::open_wireguard_go_tunnel(runtime, config, log_path, setup_done_tx, route_manager)
                     .map(Box::new)?;
                 Ok(tunnel)
             }
@@ -750,10 +750,12 @@ impl WireguardMonitor {
     /// Configure and start a Wireguard-go tunnel.
     #[cfg(wireguard_go)]
     fn open_wireguard_go_tunnel(
+        #[cfg(windows)] runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
         #[cfg(unix)] tun_provider: Arc<Mutex<TunProvider>>,
         #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
+        #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(target_os = "android")] connectivity_check: connectivity::Check<
             connectivity::Cancellable,
@@ -769,7 +771,7 @@ impl WireguardMonitor {
             .map_err(Error::TunnelError)?;
 
         #[cfg(target_os = "windows")]
-        let tunnel = WgGoTunnel::start_tunnel(config, log_path, setup_done_tx)
+        let tunnel = WgGoTunnel::start_tunnel(runtime, config, log_path, route_manager, setup_done_tx)
             .map_err(Error::TunnelError)?;
 
         // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
