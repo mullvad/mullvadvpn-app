@@ -23,7 +23,7 @@ enum DAITASettingsPromptItem: CustomStringConvertible {
             case .daita:
                 "DAITA"
             case .directOnly:
-                "direct only"
+                "Enable \"Direct only\""
             }
         }
     }
