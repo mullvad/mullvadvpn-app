@@ -5,10 +5,11 @@
 //! must be checked so that the user can be directed to approve the launch
 //! daemon in the system settings.
 
-use objc::{class, msg_send, sel, sel_impl};
+use libc::c_longlong;
+use objc2::{class, msg_send, runtime::AnyObject, Encode, Encoding, RefEncode};
 use std::ffi::CStr;
 
-type Id = *mut objc::runtime::Object;
+type Id = *mut AnyObject;
 
 // Framework that contains `SMAppService`.
 #[link(name = "ServiceManagement", kind = "framework")]
@@ -18,18 +19,23 @@ extern "C" {}
 #[repr(C)]
 #[derive(Debug)]
 struct NSOperatingSystemVersion {
-    major_version: libc::c_longlong,
-    minor_version: libc::c_longlong,
-    patch_version: libc::c_longlong,
+    major_version: c_longlong,
+    minor_version: c_longlong,
+    patch_version: c_longlong,
 }
 
-/// Implement Objective-C type encoding for the struct. Allows the `objc` crate
+/// Implement Objective-C type encoding for the struct. Allows the `objc2` crate
 /// to perform function signature matching before performing calls into the Objective-C
 /// runtime. This is needed to be able to enable the `verify_message` feature on `objc`.
-unsafe impl objc::Encode for NSOperatingSystemVersion {
-    fn encode() -> objc::Encoding {
-        unsafe { objc::Encoding::from_str("{?=qqq}") }
-    }
+unsafe impl Encode for NSOperatingSystemVersion {
+    const ENCODING: Encoding = Encoding::Struct(
+        "NSOperatingSystemVersion",
+        &[Encoding::LongLong, Encoding::LongLong, Encoding::LongLong],
+    );
+}
+
+unsafe impl RefEncode for NSOperatingSystemVersion {
+    const ENCODING_REF: Encoding = Encoding::Pointer(&Self::ENCODING);
 }
 
 /// Authorization status of the Mullvad daemon.
