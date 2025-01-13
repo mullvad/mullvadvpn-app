@@ -20,8 +20,9 @@ use std::{
     future::Future,
     path::{Path, PathBuf},
     pin::Pin,
-    sync::{Arc, Mutex},
 };
+#[cfg(unix)]
+use std::sync::{Arc, Mutex};
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 #[cfg(not(target_os = "windows"))]
@@ -32,6 +33,7 @@ use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::BoxedError;
 
+#[cfg(unix)]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 /// Maximum number of events that can be stored in the underlying buffer
