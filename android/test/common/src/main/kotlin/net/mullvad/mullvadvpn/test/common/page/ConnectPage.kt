@@ -15,6 +15,14 @@ class ConnectPage internal constructor() : Page() {
         uiDevice.findObjectWithTimeout(By.res(CONNECT_CARD_HEADER_TEST_TAG))
     }
 
+    fun clickSettings() {
+        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_SETTINGS_BUTTON)).click()
+    }
+
+    fun clickAccount() {
+        uiDevice.findObjectWithTimeout(By.res(TOP_BAR_ACCOUNT_BUTTON)).click()
+    }
+
     fun clickSelectLocation() {
         uiDevice.findObjectWithTimeout(By.res(SELECT_LOCATION_BUTTON_TEST_TAG)).click()
     }
@@ -77,6 +85,8 @@ class ConnectPage internal constructor() : Page() {
     }
 
     companion object {
+        const val TOP_BAR_ACCOUNT_BUTTON = "top_bar_account_button"
+        const val TOP_BAR_SETTINGS_BUTTON = "top_bar_settings_button"
         const val CONNECT_CARD_HEADER_TEST_TAG = "connect_card_header_test_tag"
         const val SELECT_LOCATION_BUTTON_TEST_TAG = "select_location_button_test_tag"
         const val CONNECT_BUTTON_TEST_TAG = "connect_button_test_tag"

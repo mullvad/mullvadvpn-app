@@ -88,6 +88,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_OFF_CELL
+import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL
 import net.mullvad.mullvadvpn.compose.test.WIREGUARD_OBFUSCATION_UDP_OVER_TCP_CELL
 import net.mullvad.mullvadvpn.compose.transitions.SlideInFromRightTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
@@ -574,6 +575,7 @@ fun VpnSettingsScreen(
                     port = state.selectedShadowsSocksObfuscationPort,
                     onSelected = onSelectObfuscationMode,
                     onNavigate = navigateToShadowSocksSettings,
+                    testTag = WIREGUARD_OBFUSCATION_SHADOWSOCKS_CELL,
                 )
             }
             itemWithDivider {
