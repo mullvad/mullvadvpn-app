@@ -138,6 +138,7 @@ impl ConnectingState {
                         &shared_values.route_manager,
                         retry_attempt,
                     );
+
                     let params = connecting_state.tunnel_parameters.clone();
                     (
                         Box::new(connecting_state),
