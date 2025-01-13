@@ -12,7 +12,11 @@ import UIKit
 protocol WelcomeViewControllerDelegate: AnyObject {
     func didRequestToRedeemVoucher(controller: WelcomeViewController)
     func didRequestToShowInfo(controller: WelcomeViewController)
-    func didRequestToViewPurchaseOptions(controller: WelcomeViewController, availableProducts: [SKProduct], accountNumber: String)
+    func didRequestToViewPurchaseOptions(
+        controller: WelcomeViewController,
+        availableProducts: [SKProduct],
+        accountNumber: String
+    )
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController)
 }
 
@@ -91,10 +95,14 @@ extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
         _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
             guard let self else { return }
             switch result {
-            case .success(let success):
+            case let .success(success):
                 let products = success.products
                 if !products.isEmpty {
-                    delegate?.didRequestToViewPurchaseOptions(controller: self, availableProducts: products, accountNumber: interactor.accountNumber)
+                    delegate?.didRequestToViewPurchaseOptions(
+                        controller: self,
+                        availableProducts: products,
+                        accountNumber: interactor.accountNumber
+                    )
                 } else {
                     delegate?.didRequestToShowFailToFetchProducts(controller: self)
                 }

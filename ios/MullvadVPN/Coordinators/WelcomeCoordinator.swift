@@ -111,7 +111,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
         let presenter = AlertPresenter(context: self)
         presenter.showAlert(presentation: presentation, animated: true)
     }
-    
+
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = NSLocalizedString(
             "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
@@ -148,8 +148,12 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
         let presenter = AlertPresenter(context: self)
         presenter.showAlert(presentation: presentation, animated: true)
     }
-    
-    func didRequestToViewPurchaseOptions(controller: WelcomeViewController, availableProducts: [SKProduct], accountNumber: String) {
+
+    func didRequestToViewPurchaseOptions(
+        controller: WelcomeViewController,
+        availableProducts: [SKProduct],
+        accountNumber: String
+    ) {
         let localizedString = NSLocalizedString(
             "BUY_CREDIT_BUTTON",
             tableName: "Welcome",
@@ -163,10 +167,16 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             }
             let action = UIAlertAction(title: localizedTitle, style: .default, handler: { _ in
                 alert.dismiss(animated: true, completion: {
-                    self.didRequestToPurchaseCredit(controller: controller, accountNumber: accountNumber, product: product)
+                    self.didRequestToPurchaseCredit(
+                        controller: controller,
+                        accountNumber: accountNumber,
+                        product: product
+                    )
                 })
             })
-            action.accessibilityIdentifier = "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
+            action
+                .accessibilityIdentifier =
+                "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
             alert.addAction(action)
         }
         let cancelAction = UIAlertAction(title: NSLocalizedString(
