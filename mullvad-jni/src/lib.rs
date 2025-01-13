@@ -3,7 +3,6 @@
 mod api;
 mod classes;
 mod problem_report;
-mod talpid_vpn_service;
 
 use jnix::{
     jni::{
@@ -87,17 +86,25 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     assert!(ctx.is_none(), "multiple calls to MullvadDaemon.initialize");
 
     let env = JnixEnv::from(env);
+    let files_dir = pathbuf_from_java(&env, files_directory);
+    start_logging(&files_dir)
+        .map_err(Error::InitializeLogging)
+        .unwrap();
+    version::log_version();
 
+    log::info!("Pre-loading classes!");
     LOAD_CLASSES.call_once(|| env.preload_classes(classes::CLASSES.iter().cloned()));
+    log::info!("Done loading classes");
 
     let rpc_socket = pathbuf_from_java(&env, rpc_socket_path);
-    let files_dir = pathbuf_from_java(&env, files_directory);
     let cache_dir = pathbuf_from_java(&env, cache_directory);
 
     let android_context = ok_or_throw!(&env, create_android_context(&env, vpn_service));
+    log::info!("Created Android Context");
 
     let api_endpoint = api::api_endpoint_from_java(&env, api_endpoint);
 
+    log::info!("Starting daemon");
     let daemon = ok_or_throw!(
         &env,
         start(
@@ -135,9 +142,6 @@ fn start(
     cache_dir: PathBuf,
     api_endpoint: Option<mullvad_api::ApiEndpoint>,
 ) -> Result<DaemonContext, Error> {
-    start_logging(&files_dir).map_err(Error::InitializeLogging)?;
-    version::log_version();
-
     #[cfg(feature = "api-override")]
     if let Some(api_endpoint) = api_endpoint {
         log::debug!("Overriding API endpoint: {api_endpoint:?}");
@@ -145,6 +149,7 @@ fn start(
             log::warn!("Ignoring API settings (already initialized)");
         }
     }
+
     #[cfg(not(feature = "api-override"))]
     if api_endpoint.is_some() {
         log::warn!("api_endpoint will be ignored since 'api-override' is not enabled");
