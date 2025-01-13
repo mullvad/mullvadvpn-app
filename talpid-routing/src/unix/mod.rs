@@ -1,15 +1,14 @@
-#[cfg(target_os = "linux")]
-use crate::Route;
 #[cfg(target_os = "macos")]
 pub use crate::{imp::imp::DefaultRoute, Gateway};
 
-use super::RequiredRoute;
+#[cfg(target_os = "linux")]
+use super::{RequiredRoute, Route};
 
 use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{collections::HashSet, sync::Arc};
+use std::sync::Arc;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -97,10 +96,7 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    AddRoutes(
-        HashSet<RequiredRoute>,
-        oneshot::Sender<Result<(), PlatformError>>,
-    ),
+    WaitForRoutes(oneshot::Sender<Result<(), PlatformError>>),
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
 }
@@ -192,6 +188,7 @@ impl RouteManagerHandle {
     }
 
     /// Applies the given routes until they are cleared
+    #[cfg(not(target_os = "android"))]
     pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
@@ -200,6 +197,30 @@ impl RouteManagerHandle {
 
         result_rx
             .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
+
+    /// Wait for routes to come up.
+    ///
+    /// This function is guaranteed to *not* wait for longer than 2 seconds.
+    /// Please, see the implementation of this function for further details.
+    #[cfg(target_os = "android")]
+    pub async fn wait_for_routes(&self) -> Result<(), Error> {
+        use std::time::Duration;
+        use tokio::time::timeout;
+        /// Maximum time to wait for routes to come up. The expected mean time is low (~200 ms), but
+        /// we add some additional margin to give some slack to slower hardware primarily.
+        const WAIT_FOR_ROUTES_TIMEOUT: Duration = Duration::from_secs(2);
+
+        let (result_tx, result_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::WaitForRoutes(result_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+
+        timeout(WAIT_FOR_ROUTES_TIMEOUT, result_rx)
+            .await
+            .map_err(|_error| Error::PlatformError(imp::Error::RoutesTimedOut))?
             .map_err(|_| Error::ManagerChannelDown)?
             .map_err(Error::PlatformError)
     }

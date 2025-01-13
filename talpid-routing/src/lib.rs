@@ -26,7 +26,7 @@ use netlink_packet_route::rtnl::constants::RT_TABLE_MAIN;
 #[cfg(target_os = "macos")]
 pub use imp::{imp::RouteError, DefaultRouteEvent, PlatformError};
 
-pub use imp::{Error, RouteManagerHandle};
+pub use imp::{Error, PlatformError, RouteManagerHandle};
 
 /// Link-layer/MAC adress
 #[cfg(target_os = "macos")]
@@ -70,6 +70,7 @@ pub struct Gateway {
 }
 
 /// A network route with a specific network node, destination and an optional metric.
+#[cfg(not(target_os = "android"))]
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct Route {
     node: Node,
@@ -81,8 +82,14 @@ pub struct Route {
     mtu: Option<u32>,
 }
 
+/// A network route with a specific network node, destination and an optional metric.
+#[cfg(target_os = "android")]
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+pub struct Route(IpNetwork);
+
 impl Route {
     /// Construct a new Route
+    #[cfg(not(target_os = "android"))]
     pub fn new(node: Node, prefix: IpNetwork) -> Self {
         Self {
             node,
@@ -95,6 +102,12 @@ impl Route {
         }
     }
 
+    /// Construct a new Route
+    #[cfg(target_os = "android")]
+    pub fn new(prefix: IpNetwork) -> Self {
+        Self(prefix)
+    }
+
     #[cfg(target_os = "linux")]
     fn table(mut self, new_id: u32) -> Self {
         self.table_id = new_id;
@@ -102,11 +115,13 @@ impl Route {
     }
 
     /// Returns the network node of the route.
+    #[cfg(target_os = "linux")]
     pub fn get_node(&self) -> &Node {
         &self.node
     }
 }
 
+#[cfg(target_os = "linux")]
 impl fmt::Display for Route {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{} via {}", self.prefix, self.node)?;
@@ -123,9 +138,22 @@ impl fmt::Display for Route {
     }
 }
 
+#[cfg(target_os = "android")]
+impl From<&talpid_types::android::RouteInfo> for Route {
+    fn from(route_info: &talpid_types::android::RouteInfo) -> Self {
+        let network = IpNetwork::new(
+            route_info.destination.address,
+            route_info.destination.prefix_length as u8,
+        )
+        .unwrap();
+        Self::new(network)
+    }
+}
+
 /// A network route that should be applied by the route manager.
 /// It can either be routed through a specific network node or it can be routed through the current
 /// default route.
+#[cfg(not(target_os = "android"))]
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct RequiredRoute {
     /// Route's prefix
@@ -139,6 +167,7 @@ pub struct RequiredRoute {
     mtu: Option<u16>,
 }
 
+#[cfg(not(target_os = "android"))]
 impl RequiredRoute {
     /// Constructs a new required route.
     pub fn new(prefix: IpNetwork, node: impl Into<NetNode>) -> Self {

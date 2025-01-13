@@ -6,6 +6,9 @@ edition = "2021"
 # Must be less than or equal to `channel` in `rust-toolchain.toml`
 rust-version = "1.80.0"
 
+[patch.crates-io]
+jnix = { git = "https://github.com/mullvad/jnix.git", branch = "i16-from-java" }
+
 [workspace]
 resolver = "2"
 members = [

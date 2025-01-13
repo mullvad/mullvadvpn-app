@@ -16,9 +16,10 @@ futures = { workspace = true }
 ipnetwork = { workspace = true }
 log = { workspace = true }
 tokio = { workspace = true, features = ["process", "rt-multi-thread", "net", "io-util", "time"] }
-
-[target.'cfg(not(target_os="android"))'.dependencies]
 talpid-types = { path = "../talpid-types" }
+
+[target.'cfg(target_os = "android")'.dependencies]
+jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
 libc = "0.2"
