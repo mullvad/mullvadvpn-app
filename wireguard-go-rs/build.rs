@@ -118,7 +118,9 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                 .nth(3)
                 .context("Failed to find target dir")?;
 
-            build_shared_maybenot_lib(target_dir).context("Failed to build maybenot")?;
+            if daita {
+                build_shared_maybenot_lib(target_dir).context("Failed to build maybenot")?;
+            }
 
             let dll_path = target_dir.join("libwg.dll");
 
