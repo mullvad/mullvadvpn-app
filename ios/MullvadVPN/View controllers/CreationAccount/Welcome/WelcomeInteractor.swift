@@ -21,15 +21,15 @@ final class WelcomeInteractor: @unchecked Sendable {
 
     private let logger = Logger(label: "\(WelcomeInteractor.self)")
     private var tunnelObserver: TunnelObserver?
-    private(set) var product: SKProduct?
+    private(set) var products: [SKProduct]?
 
-    var didChangeInAppPurchaseState: ((ProductState) -> Void)?
     var didAddMoreCredit: (() -> Void)?
 
     var viewDidLoad = false {
         didSet {
             guard viewDidLoad else { return }
-            requestAccessToStore()
+//            Might trigger a popup without user interaction do we want that?
+//            requestAccessToStore()
         }
     }
 
@@ -77,20 +77,14 @@ final class WelcomeInteractor: @unchecked Sendable {
         self.tunnelObserver = tunnelObserver
     }
 
-    private func requestAccessToStore() {
-        if !StorePaymentManager.canMakePayments {
-            didChangeInAppPurchaseState?(.cannotMakePurchases)
-        } else {
-            let product = StoreSubscription.thirtyDays
-            didChangeInAppPurchaseState?(.fetching(product))
-            _ = storePaymentManager.requestProducts(with: [product]) { [weak self] result in
-                guard let self else { return }
-                let product = result.value?.products.first
-                let productState: ProductState = product.map { .received($0) } ?? .failed
-                didChangeInAppPurchaseState?(productState)
-                self.product = product
-            }
-        }
+    func requestProducts(
+        with productIdentifiers: Set<StoreSubscription>,
+        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
+    ) -> Cancellable {
+        storePaymentManager.requestProducts(
+            with: productIdentifiers,
+            completionHandler: completionHandler
+        )
     }
 
     private func startAccountUpdateTimer() {

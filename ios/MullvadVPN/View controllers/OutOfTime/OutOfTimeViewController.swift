@@ -24,12 +24,6 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     private let interactor: OutOfTimeInteractor
     private let errorPresenter: PaymentAlertPresenter
 
-    private var productState: ProductState = .none {
-        didSet {
-            applyViewState()
-        }
-    }
-
     private var paymentState: PaymentState = .none {
         didSet {
             applyViewState()
@@ -84,11 +78,11 @@ class OutOfTimeViewController: UIViewController, RootContainment {
             action: #selector(handleDisconnect(_:)),
             for: .touchUpInside
         )
-        contentView.purchaseButton.addTarget(
-            self,
-            action: #selector(doPurchase),
-            for: .touchUpInside
-        )
+//        contentView.purchaseButton.addTarget(
+//            self,
+//            action: #selector(doPurchase),
+//            for: .touchUpInside
+//        )
         contentView.restoreButton.addTarget(
             self,
             action: #selector(restorePurchases),
@@ -111,7 +105,8 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         if StorePaymentManager.canMakePayments {
             requestStoreProducts()
         } else {
-            productState = .cannotMakePurchases
+            // Show popup
+//            productState = .cannotMakePurchases
         }
     }
 
@@ -128,18 +123,16 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     // MARK: - Private
 
     private func requestStoreProducts() {
-        let productKind = StoreSubscription.thirtyDays
-
-        productState = .fetching(productKind)
-
-        _ = interactor.requestProducts(with: [productKind]) { [weak self] completion in
-            let productState: ProductState = completion.value?.products.first
-                .map { .received($0) } ?? .failed
-
-            Task { @MainActor in
-                self?.productState = productState
-            }
-        }
+//        let productIdentifiers = Set(StoreSubscription.allCases)
+//
+//        productState = .fetching(productIdentifiers)
+//
+//        _ = interactor.requestProducts(with: productIdentifiers) { [weak self] completion in
+//            let productState: ProductState = completion.value?.products
+//                .map { .received($0) } ?? .failed
+//
+//            self?.productState = productState
+//        }
     }
 
     private func applyViewState() {
@@ -149,11 +142,12 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
         let isOutOfTime = interactor.deviceState.accountData.map { $0.expiry < Date() } ?? false
 
-        purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
-        contentView.purchaseButton.isLoading = productState.isFetching
+//        purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
+        // do this at the appropriate position
+//        contentView.purchaseButton.isLoading = productState.isFetching
 
-        purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled && !tunnelState
-            .isSecured
+//        purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled && !tunnelState
+//            .isSecured
         contentView.restoreButton.isEnabled = isInteractionEnabled
 
         contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
@@ -233,18 +227,18 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
     // MARK: - Actions
 
-    @objc private func doPurchase() {
-        guard case let .received(product) = productState,
-              let accountData = interactor.deviceState.accountData
-        else {
-            return
-        }
-
-        let payment = SKPayment(product: product)
-        interactor.addPayment(payment, for: accountData.number)
-
-        paymentState = .makingPayment(payment)
-    }
+//    @objc private func doPurchase() {
+//        guard case let .received(product) = productState,
+//              let accountData = interactor.deviceState.accountData
+//        else {
+//            return
+//        }
+//
+//        let payment = SKPayment(product: product)
+//        interactor.addPayment(payment, for: accountData.number)
+//
+//        paymentState = .makingPayment(payment)
+//    }
 
     @objc func restorePurchases() {
         guard let accountData = interactor.deviceState.accountData else {
