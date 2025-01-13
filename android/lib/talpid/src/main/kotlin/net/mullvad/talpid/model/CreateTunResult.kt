@@ -1,29 +1,44 @@
 package net.mullvad.talpid.model
 
 import java.net.InetAddress
+import java.util.ArrayList
+import net.mullvad.talpid.model.CreateTunResult.Error
 
-sealed class CreateTunResult {
-    open val isOpen
-        get() = false
+sealed interface CreateTunResult {
+    val isOpen: Boolean
 
-    class Success(val tunFd: Int) : CreateTunResult() {
-        override val isOpen
-            get() = true
+    data class Success(val tunFd: Int) : CreateTunResult {
+        override val isOpen = true
     }
 
-    class InvalidDnsServers(val addresses: ArrayList<InetAddress>, val tunFd: Int) :
-        CreateTunResult() {
-        override val isOpen
-            get() = true
+    sealed interface Error : CreateTunResult
+
+    // Prepare errors
+    data object OtherLegacyAlwaysOnVpn : Error {
+        override val isOpen: Boolean = false
+    }
+
+    data class OtherAlwaysOnApp(val appName: String) : Error {
+        override val isOpen: Boolean = false
+    }
+
+    data object NotPrepared : Error {
+        override val isOpen: Boolean = false
     }
 
     // Establish error
-    data object TunnelDeviceError : CreateTunResult()
+    data object EstablishError : Error {
+        override val isOpen: Boolean = false
+    }
 
-    // Prepare errors
-    data object OtherLegacyAlwaysOnVpn : CreateTunResult()
+    // Routes never got setup in time
+    data object RoutesTimedOutError : Error {
+        override val isOpen: Boolean = true
+    }
 
-    data class OtherAlwaysOnApp(val appName: String) : CreateTunResult()
+    data class InvalidDnsServers(val addresses: ArrayList<InetAddress>, val tunFd: Int) : Error {
+        constructor(address: List<InetAddress>, tunFd: Int) : this(ArrayList(address), tunFd)
 
-    data object NotPrepared : CreateTunResult()
+        override val isOpen = true
+    }
 }

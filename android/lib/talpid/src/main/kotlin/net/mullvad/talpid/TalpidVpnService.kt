@@ -1,18 +1,39 @@
 package net.mullvad.talpid
 
 import android.net.ConnectivityManager
+import android.net.LinkProperties
 import android.os.ParcelFileDescriptor
 import androidx.annotation.CallSuper
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
+import arrow.core.Either
+import arrow.core.flattenOrAccumulate
+import arrow.core.merge
+import arrow.core.raise.either
+import arrow.core.raise.ensureNotNull
 import co.touchlab.kermit.Logger
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
+import net.mullvad.mullvadvpn.lib.common.util.establishSafe
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.talpid.model.CreateTunResult
+import net.mullvad.talpid.model.CreateTunResult.EstablishError
+import net.mullvad.talpid.model.CreateTunResult.InvalidDnsServers
+import net.mullvad.talpid.model.CreateTunResult.NotPrepared
+import net.mullvad.talpid.model.CreateTunResult.OtherAlwaysOnApp
+import net.mullvad.talpid.model.CreateTunResult.OtherLegacyAlwaysOnVpn
+import net.mullvad.talpid.model.CreateTunResult.RoutesTimedOutError
+import net.mullvad.talpid.model.InetNetwork
 import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
 
@@ -22,7 +43,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             val oldTunFd =
                 when (oldTunStatus) {
                     is CreateTunResult.Success -> oldTunStatus.tunFd
-                    is CreateTunResult.InvalidDnsServers -> oldTunStatus.tunFd
+                    is InvalidDnsServers -> oldTunStatus.tunFd
                     else -> null
                 }
 
@@ -43,6 +64,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         connectivityListener.register(lifecycleScope)
     }
 
+    // Used by JNI
     fun openTun(config: TunConfig): CreateTunResult {
         synchronized(this) {
             val tunStatus = activeTunStatus
@@ -55,6 +77,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         }
     }
 
+    // Used by JNI
     fun openTunForced(config: TunConfig): CreateTunResult {
         synchronized(this) {
             return openTunImpl(config)
@@ -62,7 +85,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     }
 
     private fun openTunImpl(config: TunConfig): CreateTunResult {
-        val newTunStatus = createTun(config)
+        val newTunStatus = createTun(config).merge()
 
         currentTunConfig = config
         activeTunStatus = newTunStatus
@@ -70,94 +93,110 @@ open class TalpidVpnService : LifecycleVpnService() {
         return newTunStatus
     }
 
+    // Used by JNI
     fun closeTun() {
         synchronized(this) { activeTunStatus = null }
     }
 
-    // DROID-1407
-    // Function is to be cleaned up and lint suppression to be removed.
-    @Suppress("ReturnCount")
-    private fun createTun(config: TunConfig): CreateTunResult {
-        prepareVpnSafe()
-            .mapLeft { it.toCreateTunResult() }
-            .onLeft {
-                return it
-            }
+    private fun createTun(
+        config: TunConfig
+    ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
+        prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
 
-        val invalidDnsServerAddresses = ArrayList<InetAddress>()
+        val builder = Builder()
+        builder.setMtu(config.mtu)
+        builder.setBlocking(false)
+        builder.setMeteredIfSupported(false)
 
-        val builder =
-            Builder().apply {
-                for (address in config.addresses) {
-                    addAddress(address, address.prefixLength())
-                }
+        config.addresses.forEach { builder.addAddress(it, it.prefixLength()) }
+        config.routes.forEach { builder.addRoute(it.address, it.prefixLength.toInt()) }
+        config.excludedPackages.forEach { app -> builder.addDisallowedApplication(app) }
 
-                for (dnsServer in config.dnsServers) {
-                    try {
-                        addDnsServer(dnsServer)
-                    } catch (exception: IllegalArgumentException) {
-                        invalidDnsServerAddresses.add(dnsServer)
+        // We don't care if this fails at this point, since we can still create a tunnel and
+        // then notify daemon to later enter blocked state.
+        val dnsConfigureResult =
+            config.dnsServers
+                .map { builder.addDnsServerE(it) }
+                .flattenOrAccumulate()
+                .onLeft {
+                    // Avoid creating a tunnel with no DNS servers or if all DNS servers was
+                    // invalid, since apps then may leak DNS requests.
+                    // https://issuetracker.google.com/issues/337961996
+                    if (it.size == config.dnsServers.size) {
+                        Logger.w(
+                            "All DNS servers invalid or non set, using fallback DNS server to " +
+                                "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
+                        )
+                        builder.addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
                     }
                 }
-
-                // Avoids creating a tunnel with no DNS servers or if all DNS servers was invalid,
-                // since apps then may leak DNS requests.
-                // https://issuetracker.google.com/issues/337961996
-                if (invalidDnsServerAddresses.size == config.dnsServers.size) {
-                    Logger.w(
-                        "All DNS servers invalid or non set, using fallback DNS server to " +
-                            "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
-                    )
-                    addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
-                }
-
-                for (route in config.routes) {
-                    addRoute(route.address, route.prefixLength.toInt())
-                }
-
-                config.excludedPackages.forEach { app -> addDisallowedApplication(app) }
-                setMtu(config.mtu)
-                setBlocking(false)
-                setMeteredIfSupported(false)
-            }
+                .map { /* Ignore right */ }
 
         val vpnInterfaceFd =
-            try {
-                builder.establish()
-            } catch (e: IllegalStateException) {
-                Logger.e("Failed to establish, a parameter could not be applied", e)
-                return CreateTunResult.TunnelDeviceError
-            } catch (e: IllegalArgumentException) {
-                Logger.e("Failed to establish a parameter was not accepted", e)
-                return CreateTunResult.TunnelDeviceError
-            }
+            builder
+                .establishSafe()
+                .onLeft { Logger.w("Failed to establish tunnel $it") }
+                .mapLeft { EstablishError }
+                .bind()
 
-        if (vpnInterfaceFd == null) {
-            Logger.e("VpnInterface returned null")
-            return CreateTunResult.TunnelDeviceError
-        }
+        // Wait for android OS to respond back to us that the routes are setup so we don't
+        // send traffic before the routes are set up. Otherwise we might send traffic
+        // through the wrong interface
+        runBlocking { waitForRoutesWithTimeout(config) }.bind()
 
         val tunFd = vpnInterfaceFd.detachFd()
 
-        waitForTunnelUp(tunFd, config.routes.any { route -> route.isIpv6 })
+        dnsConfigureResult.mapLeft { InvalidDnsServers(it, tunFd) }.bind()
 
-        if (invalidDnsServerAddresses.isNotEmpty()) {
-            return CreateTunResult.InvalidDnsServers(invalidDnsServerAddresses, tunFd)
-        }
-
-        return CreateTunResult.Success(tunFd)
+        CreateTunResult.Success(tunFd)
     }
 
+    // Used by JNI
     fun bypass(socket: Int): Boolean {
         return protect(socket)
     }
 
-    private fun PrepareError.toCreateTunResult() =
+    private fun PrepareError.toCreateTunError() =
         when (this) {
-            is PrepareError.OtherLegacyAlwaysOnVpn -> CreateTunResult.OtherLegacyAlwaysOnVpn
-            is PrepareError.NotPrepared -> CreateTunResult.NotPrepared
-            is PrepareError.OtherAlwaysOnApp -> CreateTunResult.OtherAlwaysOnApp(appName)
+            is PrepareError.OtherLegacyAlwaysOnVpn -> OtherLegacyAlwaysOnVpn
+            is PrepareError.NotPrepared -> NotPrepared
+            is PrepareError.OtherAlwaysOnApp -> OtherAlwaysOnApp(appName)
         }
+
+    private fun Builder.addDnsServerE(dnsServer: InetAddress) =
+        Either.catch { addDnsServer(dnsServer) }
+            .mapLeft {
+                when (it) {
+                    is IllegalArgumentException -> dnsServer
+                    else -> throw it
+                }
+            }
+
+    private suspend fun waitForRoutesWithTimeout(
+        config: TunConfig,
+        timeout: Duration = ROUTES_SETUP_TIMEOUT,
+    ): Either<RoutesTimedOutError, Unit> = either {
+        // Wait for routes to match our expectations
+        val result =
+            withTimeoutOrNull(timeout = timeout) {
+                connectivityListener.currentNetworkState
+                    .map { it?.linkProperties }
+                    .distinctUntilChanged()
+                    .first { linkProps -> linkProps?.containsAll(config.routes) == true }
+            }
+
+        ensureNotNull(result) { RoutesTimedOutError }
+    }
+
+    private fun LinkProperties.containsAll(configRoutes: List<InetNetwork>): Boolean {
+        // Current routes on the link
+        val linkRoutes =
+            routes.map {
+                InetNetwork(it.destination.address, it.destination.prefixLength.toShort())
+            }
+
+        return linkRoutes.containsAll(configRoutes)
+    }
 
     private fun InetAddress.prefixLength(): Int =
         when (this) {
@@ -166,10 +205,9 @@ open class TalpidVpnService : LifecycleVpnService() {
             else -> throw IllegalArgumentException("Invalid IP address (not IPv4 nor IPv6)")
         }
 
-    private external fun waitForTunnelUp(tunFd: Int, isIpv6Enabled: Boolean)
-
     companion object {
         const val FALLBACK_DUMMY_DNS_SERVER = "192.0.2.1"
+        private val ROUTES_SETUP_TIMEOUT = 5000.milliseconds
 
         private const val IPV4_PREFIX_LENGTH = 32
         private const val IPV6_PREFIX_LENGTH = 128
