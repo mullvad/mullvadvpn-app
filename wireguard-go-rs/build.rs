@@ -133,6 +133,8 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
             // Build dynamic lib
             go_build.args(["-buildmode", "c-shared"]);
 
+            go_build.env("GOOS", "windows");
+
             generate_windows_lib(target_arch, target_dir)?;
 
             println!("cargo::rustc-link-search={}", target_dir.to_str().unwrap());
@@ -146,15 +148,6 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                 Arch::Arm64 => {
                     go_build.env("CC", "zig cc -target aarch64-windows");
                 }
-            }
-
-            go_build.env("GOOS", "windows");
-
-            if cross_compiling {
-                match target_arch {
-                    Arch::Arm64 => go_build.env("CC", "aarch64-linux-gnu-gcc"),
-                    Arch::Amd64 => bail!("cross-compiling to linux x86_64 is not implemented"),
-                };
             }
         }
         Os::Linux => {
