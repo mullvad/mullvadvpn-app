@@ -3,7 +3,6 @@
 mod api;
 mod classes;
 mod problem_report;
-mod talpid_vpn_service;
 
 use jnix::{
     jni::{
@@ -134,7 +133,7 @@ fn start(
     rpc_socket: PathBuf,
     files_dir: PathBuf,
     cache_dir: PathBuf,
-    api_endpoint: Option<mullvad_api::ApiEndpoint>,
+    api_endpoint: Option<ApiEndpoint>,
 ) -> Result<DaemonContext, Error> {
     start_logging(&files_dir).map_err(Error::InitializeLogging)?;
     version::log_version();

@@ -12,13 +12,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.talpid.util.NetworkEvent
-import net.mullvad.talpid.util.defaultNetworkFlow
+import net.mullvad.talpid.util.NetworkState
+import net.mullvad.talpid.util.defaultNetworkStateFlow
 import net.mullvad.talpid.util.networkFlow
 
 class ConnectivityListener(val connectivityManager: ConnectivityManager) {
@@ -27,32 +27,29 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
     val isConnected
         get() = _isConnected.value
 
-    private lateinit var _currentDnsServers: StateFlow<List<InetAddress>>
+    private lateinit var _currentNetworkState: StateFlow<NetworkState?>
+    val currentNetworkState
+        get() = _currentNetworkState
+
     // Used by JNI
     val currentDnsServers
-        get() = ArrayList(_currentDnsServers.value)
+        get() =
+            ArrayList(
+                _currentNetworkState.value?.linkProperties?.dnsServersWithoutFallback()
+                    ?: emptyList<InetAddress>()
+            )
 
     fun register(scope: CoroutineScope) {
-        _currentDnsServers =
-            dnsServerChanges().stateIn(scope, SharingStarted.Eagerly, currentDnsServers())
+        _currentNetworkState =
+            connectivityManager
+                .defaultNetworkStateFlow()
+                .stateIn(scope, SharingStarted.Eagerly, null)
 
         _isConnected =
             hasInternetCapability()
                 .onEach { notifyConnectivityChange(it) }
                 .stateIn(scope, SharingStarted.Eagerly, false)
     }
-
-    private fun dnsServerChanges(): Flow<List<InetAddress>> =
-        connectivityManager
-            .defaultNetworkFlow()
-            .filterIsInstance<NetworkEvent.LinkPropertiesChanged>()
-            .onEach { Logger.d("Link properties changed") }
-            .map { it.linkProperties.dnsServersWithoutFallback() }
-
-    private fun currentDnsServers(): List<InetAddress> =
-        connectivityManager
-            .getLinkProperties(connectivityManager.activeNetwork)
-            ?.dnsServersWithoutFallback() ?: emptyList()
 
     private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
         dnsServers.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER }
