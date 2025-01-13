@@ -330,10 +330,8 @@ async fn main() -> Result<()> {
             let tests = {
                 let mut tests = get_filtered_tests(&test_filters)?;
                 // Fill in location overrides
-                if let Some(locations) = &config.location {
-                    for test in tests.iter_mut() {
-                        test.location = locations.lookup(test.name).cloned();
-                    }
+                for test in tests.iter_mut() {
+                    test.location = config.test_locations.lookup(test.name).cloned();
                 }
                 tests
             };

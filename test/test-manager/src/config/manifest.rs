@@ -8,29 +8,39 @@ use serde::{Deserialize, Serialize};
 use super::VmConfig;
 use crate::tests::config::DEFAULT_MULLVAD_HOST;
 
-#[derive(Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(skip)]
     pub runtime_opts: RuntimeOptions,
     pub vms: BTreeMap<String, VmConfig>,
     pub mullvad_host: Option<String>,
-    /// Add location override on a per-test basis. These those locations will be the
-    /// only available options for the given test to pick from!
+    /// Relay/location overrides for tests.
     ///
-    /// Glob patterns are used to targeet one or more tests with a set of locations. If there are multiple
-    /// patterns that match with a test name, only the first match will be considered. The ordering
-    /// is just like a regular JSON list.
-    // TODO: Make sure this is not serialized into null
-    pub location: Option<locations::Locations>,
+    /// Format:
+    /// ```json
+    /// {
+    ///   // other fields
+    ///    "test_locations": [
+    ///        { "daita": [ "se-got-wg-001", "se-got-wg-002" ] },
+    ///        { "*": [ "se" ] }
+    ///    ]
+    /// }
+    /// ```
+    ///
+    /// The above example will set the locations for the test `daita` to  a custom list containing
+    /// `se-got-wg-001` and `se-got-wg-002`. The `*` is a wildcard that will match any test
+    /// name. The order of the list is important, as the first match will be used.
+    #[serde(default)]
+    pub test_locations: locations::TestLocationList,
 }
 
-#[derive(Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct RuntimeOptions {
     pub display: Display,
     pub keep_changes: bool,
 }
 
-#[derive(Default, Serialize, Deserialize, Clone)]
+#[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub enum Display {
     #[default]
     None,
@@ -55,125 +65,85 @@ impl Config {
 }
 
 mod locations {
-    use std::ops::Deref;
+    use serde::{
+        de::{Deserialize, Deserializer, Error, MapAccess, Visitor},
+        ser::{Serialize, SerializeMap},
+        Deserialize as DeserDerive, Serialize as SerDerive,
+    };
+    use std::fmt;
 
-    use serde::{de::Visitor, Deserialize, Serialize};
+    #[derive(Debug, Clone, Default)]
+    pub struct TestLocation(glob::Pattern, Vec<String>);
 
-    // "location": {
-    //   "override": [
-    //     { "test": "test_daita", locations: ["se-got-101"] },
-    //     { "test": "*", locations: ["Nordic"] }
-    //   ]
-    // },
+    #[derive(Debug, DeserDerive, SerDerive, Clone, Default)]
+    pub struct TestLocationList(pub Vec<TestLocation>);
 
-    #[derive(Serialize, Deserialize, Clone, Default)]
-    pub struct Locations {
-        pub r#override: Overrides,
-    }
-
-    impl Locations {
-        // Look up a test (by name) and see if there are any locations
-        // that we should use.
+    impl TestLocationList {
+        // TODO: Consider if we should handle the case of an empty list by returning vec!["any"]
+        /// Look up a test (by name) and see if there are any locations
+        /// that we should use.
         pub fn lookup(&self, test: &str) -> Option<&Vec<String>> {
-            self.r#override.lookup(test)
-        }
-    }
-
-    /// Mapping of glob pattern to a set of locations.
-    #[derive(Serialize, Deserialize, Clone)]
-    pub struct Overrides(Vec<Override>);
-
-    #[derive(Serialize, Deserialize, Clone)]
-    pub struct Override {
-        test: SerializeableGlob,
-        locations: Vec<String>,
-    }
-
-    impl Overrides {
-        // Lookup the first test that matches a glob pattern.
-        fn lookup(&self, test: &str) -> Option<&Vec<String>> {
             self.0
                 .iter()
-                .find(
-                    |Override {
-                         test: test_glob, ..
-                     }| test_glob.matches(test),
-                )
-                .map(|Override { locations, .. }| locations)
+                .find(|TestLocation(test_glob, _)| test_glob.matches(test))
+                .map(|TestLocation(_, locations)| locations)
         }
     }
 
-    impl Default for Overrides {
-        /// All tests default to using the "any" location.
-        /// Written out in a config it would look like the following: { "*": ["any"] }
-        fn default() -> Self {
-            let overrides = {
-                let glob = SerializeableGlob::from(glob::Pattern::new("*").unwrap());
-                vec![Override {
-                    test: glob,
-                    locations: vec!["any".to_string()],
-                }]
-            };
-            Overrides(overrides)
+    struct TestLocationVisitor;
+
+    impl<'de> Visitor<'de> for TestLocationVisitor {
+        // The type that our Visitor is going to produce.
+        type Value = TestLocation;
+
+        // Format a message stating what data this Visitor expects to receive.
+        fn expecting(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
+            formatter.write_str("A list of maps")
+        }
+
+        fn visit_map<M>(self, mut access: M) -> Result<Self::Value, M::Error>
+        where
+            M: MapAccess<'de>,
+        {
+            let (key, value) =
+                access
+                    .next_entry::<String, Vec<String>>()?
+                    .ok_or(M::Error::custom(
+                    "Test location map should contain exactly one key-value pair, but it was empty",
+                ))?;
+            let glob = glob::Pattern::new(&key).map_err(|err| {
+                M::Error::custom(format!(
+                    "Cannot compile glob pattern from: {key} error: {err:?}"
+                ))
+            })?;
+
+            if let Some((key, value)) = access.next_entry::<String, Vec<String>>()? {
+                return Err(M::Error::custom(format!(
+                    "Test location map should contain exactly one key-value pair, but found another key: '{key}' and value: '{value:?}'"
+                )));
+            }
+
+            Ok(TestLocation(glob, value))
         }
     }
 
-    /// Implement serde [Serialize] and [Deserialize] for [glob::Pattern].
-    #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Default, Debug)]
-    struct SerializeableGlob(glob::Pattern);
-
-    impl<'de> Deserialize<'de> for SerializeableGlob {
+    impl<'de> Deserialize<'de> for TestLocation {
         fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
         where
-            D: serde::Deserializer<'de>,
+            D: Deserializer<'de>,
         {
-            let glob = deserializer.deserialize_string(GlobVisitor)?;
-            Ok(SerializeableGlob(glob))
+            deserializer.deserialize_map(TestLocationVisitor)
         }
     }
 
-    impl Serialize for SerializeableGlob {
+    impl Serialize for TestLocation {
         fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where
             S: serde::Serializer,
         {
-            let glob = self.0.as_str();
-            serializer.serialize_str(glob)
-        }
-    }
-
-    impl From<glob::Pattern> for SerializeableGlob {
-        fn from(pattern: glob::Pattern) -> Self {
-            Self(pattern)
-        }
-    }
-
-    impl Deref for SerializeableGlob {
-        type Target = glob::Pattern;
-
-        fn deref(&self) -> &Self::Target {
-            &self.0
-        }
-    }
-
-    struct GlobVisitor;
-
-    impl Visitor<'_> for GlobVisitor {
-        type Value = glob::Pattern;
-
-        fn expecting(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-            formatter.write_str("Only strings can be deserialised to glob pattern")
-        }
-
-        fn visit_str<E>(self, v: &str) -> Result<Self::Value, E>
-        where
-            E: serde::de::Error,
-        {
-            glob::Pattern::new(v).map_err(|err| {
-                E::custom(format!(
-                    "Cannot compile glob pattern from: {v} error: {err:?}"
-                ))
-            })
+            let mut map = serializer.serialize_map(Some(1))?;
+            map.serialize_entry(self.0.as_str(), &self.1)?;
+            map.end()
         }
     }
 }
@@ -183,15 +153,30 @@ mod tests {
     use super::*;
 
     #[test]
-    fn parse_relay_location_per_test_override() {
-        let config = "
+    fn parse_test_location_empty() {
+        let config = r#"
             {
-                \"vms\": {},
-                \"mullvad_host\": \"mullvad.net\",
-                \"location\": { \"override\": { \"*\": [\"Low Latency\"] } }
-            }";
+                "vms": {},
+                "mullvad_host": "mullvad.net"
+            }"#;
 
         let config: Config = serde_json::from_str(config).unwrap();
-        let _location = config.location.expect("location overrides was not parsed");
+        assert!(config.test_locations.0.is_empty());
+    }
+
+    #[test]
+    fn parse_test_location_not_empty() {
+        let config = r#"
+            {
+                "vms": {},
+                "mullvad_host": "mullvad.net",
+                "test_locations": [
+                    { "daita": [ "se-got-wg-001", "se-got-wg-002" ] },
+                    { "*": [ "se" ] }
+                ]
+            }"#;
+
+        let config: Config = serde_json::from_str(config).unwrap();
+        assert!(!config.test_locations.0.is_empty());
     }
 }
