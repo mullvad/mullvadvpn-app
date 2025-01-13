@@ -137,6 +137,8 @@ impl From<mullvad_types::states::TunnelState> for proto::TunnelState {
                             talpid_tunnel::ErrorStateCause::NeedFullDiskPermissions => {
                                 i32::from(Cause::NeedFullDiskPermissions)
                             }
+                            #[cfg(target_os = "android")]
+                            talpid_tunnel::ErrorStateCause::RoutesTimedOut => i32::from(Cause::RoutesTimedOut)
                         },
                         blocking_error: error_state.block_failure().map(map_firewall_error),
                         #[cfg(not(target_os = "android"))]
