@@ -28,7 +28,7 @@ use crate::{
     package::get_version_from_path,
 };
 use config::TEST_CONFIG;
-use helpers::{get_app_env, install_app, set_location_from_constraint};
+use helpers::{find_custom_list, get_app_env, install_app, set_location};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
 use test_rpc::{meta::Os, ServiceClient};
@@ -164,12 +164,12 @@ pub async fn set_test_location(
     mullvad_client: &mut MullvadProxyClient,
     test: &TestMetadata,
 ) -> anyhow::Result<()> {
-    use helpers::find_custom_list;
+    // If no location is specified for the test, don't do anything and use the default value of the app
+    let Some(locations) = test.location.as_ref() else {
+        return Ok(());
+    };
     // Convert locations from the test config to actual location constraints
-    let locations: Vec<GeographicLocationConstraint> = test
-        .location
-        .as_ref()
-        .unwrap()
+    let locations: Vec<GeographicLocationConstraint> = locations
         .iter()
         .map(|input| {
             input
