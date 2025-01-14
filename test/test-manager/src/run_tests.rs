@@ -161,7 +161,9 @@ pub async fn run(
             .await
             .context("Failed to reset daemon before test")?;
 
-        tests::prepare_custom_lists(&mut mullvad_client, &test).await?;
+        tests::set_test_location(&mut mullvad_client, &test)
+            .await
+            .context("Failed to create custom list from test locations")?;
 
         let mullvad_client = rpc_provider
             .mullvad_client(test.mullvad_client_version)
