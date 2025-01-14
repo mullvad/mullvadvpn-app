@@ -778,8 +778,9 @@ impl WireguardMonitor {
             .map_err(Error::TunnelError)?;
 
         #[cfg(target_os = "windows")]
-        let tunnel = WgGoTunnel::start_tunnel(runtime, config, log_path, route_manager, setup_done_tx)
-            .map_err(Error::TunnelError)?;
+        let tunnel =
+            WgGoTunnel::start_tunnel(runtime, config, log_path, route_manager, setup_done_tx)
+                .map_err(Error::TunnelError)?;
 
         // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
         // with an ephemeral peer, this multihop strategy require us to restart the tunnel
