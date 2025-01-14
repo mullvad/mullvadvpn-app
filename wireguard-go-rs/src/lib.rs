@@ -304,20 +304,11 @@ impl Drop for Tunnel {
     }
 }
 
-/// Rebind WireGuard IPv4 endpoint sockets to use the given interface
+/// Rebind WireGuard endpoint sockets. When the default interface changes, this needs to be called
+/// so that the UDP socket can be rebound to use the new interface
 #[cfg(target_os = "windows")]
-pub fn rebind_tunnel_socket_v4(interface_index: u32) {
-    use windows_sys::Win32::Networking::WinSock::AF_INET;
-    // SAFETY: Passing an invalid interface is safe
-    unsafe { ffi::wgRebindTunnelSocket(AF_INET, interface_index) }
-}
-
-/// Rebind WireGuard IPv6 endpoint sockets to use the given interface
-#[cfg(target_os = "windows")]
-pub fn rebind_tunnel_socket_v6(interface_index: u32) {
-    use windows_sys::Win32::Networking::WinSock::AF_INET6;
-    // SAFETY: Passing an invalid interface is safe
-    unsafe { ffi::wgRebindTunnelSocket(AF_INET6, interface_index) }
+pub fn update_bind() {
+    unsafe { ffi::wgUpdateBind() }
 }
 
 fn result_from_code(code: i32) -> Result<(), Error> {
@@ -451,8 +442,8 @@ mod ffi {
         #[cfg(target_os = "android")]
         pub fn wgGetSocketV6(handle: i32) -> Fd;
 
-        /// Rebind tunnel socket endpoint sockets
+        /// Rebind endpoint sockets
         #[cfg(target_os = "windows")]
-        pub fn wgRebindTunnelSocket(family: u16, index: u32);
+        pub fn wgUpdateBind();
     }
 }
