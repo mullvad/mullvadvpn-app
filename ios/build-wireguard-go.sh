@@ -22,7 +22,7 @@ if [ "$SOURCE_PACKAGES_PATH" == "" ]; then
   if [ "$ACTION" == "install" ]; then
     SOURCE_PACKAGES_PATH="$BUILD_DIR/../../../../../SourcePackages"
   elif [ "$ENABLE_PREVIEWS" == "YES" ]; then
-    SOURCE_PACKAGES_PATH="$BUILD_DIR/../../../../../SourcePackages"
+    SOURCE_PACKAGES_PATH="$BUILD_DIR/../../../../../../SourcePackages"
   else
     SOURCE_PACKAGES_PATH="$BUILD_DIR/../../SourcePackages"
   fi
