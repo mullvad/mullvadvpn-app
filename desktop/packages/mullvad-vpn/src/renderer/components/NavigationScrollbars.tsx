@@ -17,6 +17,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
   forwardedRef?: React.Ref<CustomScrollbarsRef>,
 ) {
   const history = useHistory();
+  const location = useRef(history.location);
   const { setNavigationHistory } = useAppContext();
   const { onScroll } = useContext(NavigationScrollContext);
 
@@ -25,7 +26,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 
   const beforeunload = useEffectEvent(() => {
     if (ref.current) {
-      history.recordScrollPosition(ref.current.getScrollPosition());
+      location.current.state.scrollPosition = ref.current.getScrollPosition();
       setNavigationHistory(history.asObject);
     }
   });
@@ -44,7 +45,7 @@ export const NavigationScrollbars = React.forwardRef(function NavigationScrollba
 
   const onUnmount = useEffectEvent(() => {
     if (history.action === 'PUSH' && ref.current) {
-      history.recordScrollPosition(ref.current.getScrollPosition());
+      location.current.state.scrollPosition = ref.current.getScrollPosition();
       setNavigationHistory(history.asObject);
     }
   });
