@@ -21,7 +21,7 @@ struct SettingsInfoContainerView<Content: View>: View {
                 content
                     .padding(.top, UIMetrics.contentInsets.top)
                     .padding(.bottom, UIMetrics.contentInsets.bottom)
-            }            
+            }
         }
         .background(Color(.secondaryColor))
     }
