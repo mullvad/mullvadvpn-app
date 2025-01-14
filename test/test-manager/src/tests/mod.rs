@@ -16,7 +16,7 @@ mod tunnel_state;
 mod ui;
 
 use itertools::Itertools;
-use mullvad_types::relay_constraints::GeographicLocationConstraint;
+use mullvad_types::relay_constraints::{GeographicLocationConstraint, LocationConstraint};
 pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
@@ -28,7 +28,7 @@ use crate::{
     package::get_version_from_path,
 };
 use config::TEST_CONFIG;
-use helpers::{get_app_env, install_app};
+use helpers::{get_app_env, install_app, set_location_from_constraint};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
 use test_rpc::{meta::Os, ServiceClient};
@@ -153,41 +153,30 @@ pub async fn prepare_daemon(
         .await
         .context("Failed to disconnect daemon after test")?;
     helpers::ensure_logged_in(&mut mullvad_client).await?;
-    helpers::custom_lists::add_default_lists(&mut mullvad_client).await?;
-    helpers::custom_lists::set_default_location(&mut mullvad_client).await?;
 
     Ok(mullvad_client)
 }
 
-/// Create an "anonymous" custom list for this test. The custom list will
+/// Create and selects an "anonymous" custom list for this test. The custom list will
 /// have the same name as the test and contain the locations as specified by
-/// [TestMetadata::location].
-pub async fn prepare_custom_lists(
+/// [`TestMetadata`] location field.
+pub async fn set_test_location(
     mullvad_client: &mut MullvadProxyClient,
     test: &TestMetadata,
 ) -> anyhow::Result<()> {
-    use helpers::custom_lists::find_custom_list;
+    use helpers::find_custom_list;
     // Convert locations from the test config to actual location constraints
-    let locations = {
-        let mut locations: Vec<GeographicLocationConstraint> = vec![];
-        for input in test.location.clone().unwrap() {
-            match input.parse::<GeographicLocationConstraint>() {
-                Ok(location) => locations.push(location),
-                // If some location argument can not be parsed as a GeographicLocationconstraint,
-                // assume it is a custom list.
-                Err(_parse_error) => {
-                    let custom_list = find_custom_list(mullvad_client, &input)
-                        .await
-                        .with_context(|| format!("Failed to parse test location '{input}'"))?;
-                    // Hack: Dig out all the geographic location constraints from this custom list
-                    for custom_list_location in custom_list.locations {
-                        locations.push(custom_list_location)
-                    }
-                }
-            };
-        }
-        locations
-    };
+    let locations: Vec<GeographicLocationConstraint> = test
+        .location
+        .as_ref()
+        .unwrap()
+        .iter()
+        .map(|input| {
+            input
+                .parse::<GeographicLocationConstraint>()
+                .with_context(|| format!("Failed to parse {input}"))
+        })
+        .try_collect()?;
 
     log::debug!(
         "Creating custom list {} with locations '{:?}'",
@@ -196,19 +185,22 @@ pub async fn prepare_custom_lists(
     );
 
     // Add the custom list to the current app instance
-    let id = mullvad_client
+    let list_id = mullvad_client
         .create_custom_list(test.name.to_string())
         .await?;
 
     let mut custom_list = find_custom_list(mullvad_client, test.name).await?;
 
-    assert_eq!(id, custom_list.id);
+    assert_eq!(list_id, custom_list.id);
     for location in locations {
         custom_list.locations.insert(location);
     }
     mullvad_client.update_custom_list(custom_list).await?;
     log::debug!("Added custom list");
 
+    set_location_from_constraint(mullvad_client, LocationConstraint::CustomList { list_id })
+        .await
+        .context("Failed to set location to custom list")?;
     Ok(())
 }
 
