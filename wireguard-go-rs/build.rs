@@ -153,6 +153,8 @@ fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
                     go_build.env("CC", "zig cc -target aarch64-windows");
                 }
             }
+
+            go_build.env("CGO_LDFLAGS", format!("-L{}", target_dir.to_str().unwrap()));
         }
         Os::Linux => {
             let out_file = format!("{out_dir}/libwg.a");
@@ -252,12 +254,12 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     let artifacts_dir = tmp_build_dir.join(target_triple).join(profile);
 
     // Copy library to actual target dir
-    for filename in ["maybenot_ffi.dll", "maybenot_ffi.lib"] {
-        fs::copy(
-            artifacts_dir.join(filename),
-            out_dir.as_ref().join(filename),
-        )
-        .with_context(|| format!("Failed to copy {filename}"))?;
+    for (src, dest) in [
+        ("maybenot_ffi.dll", "maybenot.dll"),
+        ("maybenot_ffi.dll.lib", "maybenot.lib"),
+    ] {
+        fs::copy(artifacts_dir.join(src), out_dir.as_ref().join(dest))
+            .with_context(|| format!("Failed to copy {src}"))?;
     }
 
     Ok(())
