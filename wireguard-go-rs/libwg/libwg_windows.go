@@ -118,24 +118,9 @@ func wgTurnOn(cIfaceName *C.char, cIfaceNameOut *C.char, cIfaceNameOutSize C.siz
 	return C.int32_t(handle)
 }
 
-//export wgRebindTunnelSocket
-func wgRebindTunnelSocket(family uint16, interfaceIndex uint32) {
+//export wgUpdateBind
+func wgUpdateBind() {
 	tunnels.ForEach(func(tunnel tunnelcontainer.Context) {
-		blackhole := (interfaceIndex == 0)
-		bind := tunnel.Device.Bind().(conn.BindSocketToInterface)
-
-		if family == windows.AF_INET {
-			tunnel.Logger.Verbosef("Binding v4 socket to interface %d (blackhole=%v)\n", interfaceIndex, blackhole)
-			err := bind.BindSocketToInterface4(interfaceIndex, blackhole)
-			if err != nil {
-				tunnel.Logger.Verbosef("%s\n", err)
-			}
-		} else if family == windows.AF_INET6 {
-			tunnel.Logger.Verbosef("Binding v6 socket to interface %d (blackhole=%v)\n", interfaceIndex, blackhole)
-			err := bind.BindSocketToInterface6(interfaceIndex, blackhole)
-			if err != nil {
-				tunnel.Logger.Verbosef("%s\n", err)
-			}
-		}
+		tunnel.Device.BindUpdate()
 	})
 }

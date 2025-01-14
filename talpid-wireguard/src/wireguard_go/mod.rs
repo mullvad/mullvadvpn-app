@@ -343,37 +343,14 @@ impl WgGoTunnel {
     #[cfg(target_os = "windows")]
     fn default_route_changed_callback(
         event_type: talpid_routing::EventType<'_>,
-        address_family: talpid_windows::net::AddressFamily,
+        _family: talpid_windows::net::AddressFamily,
     ) {
         use talpid_routing::EventType::*;
-
-        let iface_idx: u32 = match event_type {
-            Updated(default_route) => {
-                let iface_luid = default_route.iface;
-                match talpid_windows::net::index_from_luid(&iface_luid) {
-                    Ok(idx) => idx,
-                    Err(err) => {
-                        log::error!(
-                            "Failed to convert interface LUID to interface index: {}",
-                            err,
-                        );
-                        return;
-                    },
-                }
-            }
-            // if there is no new default route, specify 0 as the interface index
-            Removed => 0,
+        match event_type {
+            // if there is no new default route, or if the route was removed, update the bind
+            Updated(_) | Removed => wireguard_go_rs::update_bind(),
             // ignore interface updates that don't affect the interface to use
-            UpdatedDetails(_) => return,
-        };
-
-        match address_family {
-            talpid_windows::net::AddressFamily::Ipv4 => {
-                wireguard_go_rs::rebind_tunnel_socket_v4(iface_idx);
-            }
-            talpid_windows::net::AddressFamily::Ipv6 => {
-                wireguard_go_rs::rebind_tunnel_socket_v6(iface_idx);
-            }
+            UpdatedDetails(_) => (),
         }
     }
 
