@@ -14,9 +14,9 @@ use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use std::ffi::CString;
 #[cfg(unix)]
-use std::sync::{Arc, Mutex};
-#[cfg(unix)]
 use std::os::unix::io::{AsRawFd, RawFd};
+#[cfg(unix)]
+use std::sync::{Arc, Mutex};
 use std::{
     future::Future,
     path::{Path, PathBuf},
@@ -275,13 +275,12 @@ impl WgGoTunnel {
             .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
-        let socket_update_cb = runtime
-            .block_on(
-                route_manager.add_default_route_change_callback(Box::new(
+        let socket_update_cb =
+            runtime
+                .block_on(route_manager.add_default_route_change_callback(Box::new(
                     Self::default_route_changed_callback,
-                )),
-            )
-            .ok();
+                )))
+                .ok();
         if socket_update_cb.is_none() {
             log::warn!("Failed to register default route callback");
         }
