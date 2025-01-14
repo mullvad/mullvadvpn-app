@@ -233,8 +233,8 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
 
     // Strip \\?\ prefix. Note that doing this directly on Path/PathBuf fails
     let path_str = tmp_build_dir.to_str().unwrap();
-    if path_str.starts_with(r"\\?\") {
-        tmp_build_dir = PathBuf::from(&path_str[4..]);
+    if let Some(stripped) = path_str.strip_prefix(r"\\?\") {
+        tmp_build_dir = PathBuf::from(stripped);
     }
 
     tmp_build_dir = tmp_build_dir.join("target");
