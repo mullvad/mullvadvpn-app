@@ -11,6 +11,7 @@ export PATH="$GOROOT/bin:$PATH"
 
 # Ensure Rust crates know which tools to use for cross-compilation
 export NDK_TOOLCHAIN_DIR="$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin"
+export RUST_ANDROID_GRADLE_PYTHON_COMMAND=/usr/bin/python3
 
 export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
 export AR_x86_64_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"
