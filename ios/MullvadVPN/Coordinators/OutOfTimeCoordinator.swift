@@ -96,7 +96,7 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
             comment: ""
         )
         let alert = UIAlertController(title: localizedString, message: nil, preferredStyle: .actionSheet)
-        products.forEach { product in
+        products.sortedByPrice().forEach { product in
             guard let localizedTitle = product.customLocalizedTitle else {
                 return
             }

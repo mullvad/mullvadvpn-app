@@ -161,7 +161,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             comment: ""
         )
         let alert = UIAlertController(title: localizedString, message: nil, preferredStyle: .actionSheet)
-        availableProducts.forEach { product in
+        availableProducts.sortedByPrice().forEach { product in
             guard let localizedTitle = product.customLocalizedTitle else {
                 return
             }
