@@ -14,22 +14,24 @@ pub struct Config {
     pub runtime_opts: RuntimeOptions,
     pub vms: BTreeMap<String, VmConfig>,
     pub mullvad_host: Option<String>,
-    /// Relay/location overrides for tests.
+    /// Relay/location overrides for tests. The format is a list of maps, where the key is a glob
+    /// pattern that will be matched against the test name, and the value is a list of locations to
+    /// use for that test. The first match will be used.
     ///
-    /// Format:
+    /// Example:
     /// ```json
     /// {
     ///   // other fields
     ///    "test_locations": [
-    ///        { "daita": [ "se-got-wg-001", "se-got-wg-002" ] },
+    ///        { "*daita*": [ "se-got-wg-001", "se-got-wg-002" ] },
     ///        { "*": [ "se" ] }
     ///    ]
     /// }
     /// ```
     ///
-    /// The above example will set the locations for the test `daita` to  a custom list containing
-    /// `se-got-wg-001` and `se-got-wg-002`. The `*` is a wildcard that will match any test
-    /// name. The order of the list is important, as the first match will be used.
+    /// The above example will set the locations for the test `test_daita` to  a custom list
+    /// containing `se-got-wg-001` and `se-got-wg-002`. The `*` is a wildcard that will match
+    /// any test name. The order of the list is important, as the first match will be used.
     #[serde(default)]
     pub test_locations: locations::TestLocationList,
 }
