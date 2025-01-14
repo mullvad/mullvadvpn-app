@@ -23,9 +23,8 @@ on your platform please submit an issue or a pull request.
 
     Install the `msi` hosted here: https://github.com/volta-cli/volta
 
-- (Not Windows) Install Go (ideally version `1.21`) by following the [official
-  instructions](https://golang.org/doc/install).  Newer versions may work
-  too.
+- Install Go (ideally version `1.21`) by following the [official instructions](https://golang.org/doc/install).
+  Newer versions may work too.
 
 - Install a protobuf compiler (version 3.15 and up), it can be installed on most major Linux distros
   via the package name `protobuf-compiler`, `protobuf` on macOS via Homebrew, and on Windows
@@ -95,6 +94,8 @@ The host has to have the following installed:
 
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
   You are recommended to use [Git for Windows].
+
+- `zig` installed and available in `%PATH%`. The latest official release should be fine: https://ziglang.org/download/.
 
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
