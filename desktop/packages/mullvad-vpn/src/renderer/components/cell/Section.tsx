@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
 import { useAppContext } from '../../context';
@@ -66,13 +66,14 @@ export function ExpandableSection(props: ExpandableSectionProps) {
   const { expandableId, expandedInitially, sectionTitle, ...otherProps } = props;
 
   const history = useHistory();
+  const location = useRef(history.location);
   const { setNavigationHistory } = useAppContext();
   const expandedValue =
     history.location.state.expandedSections[props.expandableId] ?? !!expandedInitially;
   const [expanded, , , toggleExpanded] = useBoolean(expandedValue);
 
   const updateHistory = useEffectEvent((expanded: boolean) => {
-    history.recordSectionExpandedState(props.expandableId, expanded);
+    location.current.state.expandedSections[props.expandableId] = expanded;
     setNavigationHistory(history.asObject);
   });
 
