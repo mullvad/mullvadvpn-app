@@ -123,26 +123,16 @@ fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
 
             let dll_path = target_dir.join("libwg.dll");
 
-            println!("cargo::rerun-if-changed={}", dll_path.display());
-            println!(
-                "cargo::rerun-if-changed={}",
-                target_dir.join("libwg.lib").display()
-            );
-
             go_build
                 .args(["build", "-v"])
                 .arg("-o")
                 .arg(&dll_path)
-                .args(["--tags", "daita"]);
-            // Build dynamic lib
-            go_build.args(["-buildmode", "c-shared"]);
-
-            go_build.env("GOOS", "windows");
-
-            generate_windows_lib(target_arch, target_dir)?;
-
-            println!("cargo::rustc-link-search={}", target_dir.to_str().unwrap());
-            println!("cargo::rustc-link-lib=dylib=libwg");
+                .args(["--tags", "daita"])
+                // Build DLL
+                .args(["-buildmode", "c-shared"])
+                // Needed for linking against maybenot-ffi
+                .env("CGO_LDFLAGS", format!("-L{}", target_dir.to_str().unwrap()))
+                .env("GOOS", "windows");
 
             // Build using zig
             match target_arch {
@@ -154,7 +144,10 @@ fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
                 }
             }
 
-            go_build.env("CGO_LDFLAGS", format!("-L{}", target_dir.to_str().unwrap()));
+            generate_windows_lib(target_arch, target_dir)?;
+
+            println!("cargo::rustc-link-search={}", target_dir.to_str().unwrap());
+            println!("cargo::rustc-link-lib=dylib=libwg");
         }
         Os::Linux => {
             let out_file = format!("{out_dir}/libwg.a");
@@ -253,13 +246,14 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
 
     let artifacts_dir = tmp_build_dir.join(target_triple).join(profile);
 
-    // Copy library to actual target dir
-    for (src, dest) in [
+    // Copy library to desired target dir
+    for (src_filename, dest_filename) in [
         ("maybenot_ffi.dll", "maybenot.dll"),
         ("maybenot_ffi.dll.lib", "maybenot.lib"),
     ] {
-        fs::copy(artifacts_dir.join(src), out_dir.as_ref().join(dest))
-            .with_context(|| format!("Failed to copy {src}"))?;
+        let dest = out_dir.as_ref().join(dest_filename);
+        fs::copy(artifacts_dir.join(src_filename), &dest)
+            .with_context(|| format!("Failed to copy {src_filename}"))?;
     }
 
     Ok(())
