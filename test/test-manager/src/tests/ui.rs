@@ -91,19 +91,11 @@ pub async fn test_ui_tunnel_settings(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    // NOTE: This test connects multiple times using various settings, some of which may cause a
-    // significant increase in connection time, e.g. multihop and OpenVPN. For this reason, it is
-    // preferable to only target low latency servers.
-    use helpers::custom_lists::LowLatency;
-
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
     let entry = helpers::constrain_to_relay(
         &mut mullvad_client,
-        RelayQueryBuilder::new()
-            .wireguard()
-            .location(LowLatency)
-            .build(),
+        RelayQueryBuilder::new().wireguard().build(),
     )
     .await?;
 
