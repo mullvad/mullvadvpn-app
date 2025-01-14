@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
 - Update to DAITA v2 - now machines are provided by relays dynamically instead
   of using bundled ones.
 
+### Fixed
+- Fix DAITA settings view on iOS 15.
+
 ## [2024.11 - 2024-12-12]
 ### Added
 - Add WireGuard over Shadowsocks obfuscation. It can be enabled in "VPN settings". This will
