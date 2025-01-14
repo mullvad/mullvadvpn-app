@@ -1098,7 +1098,10 @@ impl Tunnel for WgNtTunnel {
     }
 
     #[cfg(daita)]
-    fn start_daita(&mut self, _: talpid_tunnel_config_client::DaitaSettings) -> std::result::Result<(), crate::TunnelError> {
+    fn start_daita(
+        &mut self,
+        _: talpid_tunnel_config_client::DaitaSettings,
+    ) -> std::result::Result<(), crate::TunnelError> {
         self.spawn_machinist().map_err(|error| {
             log::error!(
                 "{}",
