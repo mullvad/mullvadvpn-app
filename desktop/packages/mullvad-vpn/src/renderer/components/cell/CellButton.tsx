@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { Center } from '../../lib/components';
+import { Box } from '../../lib/components';
 import { Colors, Spacings } from '../../lib/foundations';
 import { IImageViewProps } from '../ImageView';
 import { CellDisabledContext } from './Container';
@@ -73,9 +73,9 @@ export function CellNavigationButton({
   return (
     <CellButton {...props}>
       {children}
-      <Center $height="24px" $width="24px">
+      <Box $height="24px" $width="24px" center>
         <Icon {...icon} />
-      </Center>
+      </Box>
     </CellButton>
   );
 }
