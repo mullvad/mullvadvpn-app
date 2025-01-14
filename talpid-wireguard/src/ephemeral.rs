@@ -168,8 +168,7 @@ async fn config_ephemeral_peers_inner(
 
     #[cfg(daita)]
     if config.daita {
-        let Some(daita) = daita
-        else {
+        let Some(daita) = daita else {
             unreachable!("missing DAITA settings");
         };
 
