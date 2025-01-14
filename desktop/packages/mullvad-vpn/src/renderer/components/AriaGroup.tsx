@@ -1,27 +1,8 @@
 import React, { useContext, useEffect, useId, useMemo, useState } from 'react';
 
-interface IAriaControlContext {
-  controlledId: string;
-}
-
-const AriaControlContext = React.createContext<IAriaControlContext>({
-  get controlledId(): string {
-    throw new Error('Missing AriaControlContext.Provider');
-  },
-});
-
 interface IAriaGroupProps {
   describedId?: string;
   children: React.ReactNode;
-}
-
-export function AriaControlGroup(props: IAriaGroupProps) {
-  const id = useId();
-  const contextValue = useMemo(() => ({ controlledId: `${id}-controlled` }), [id]);
-
-  return (
-    <AriaControlContext.Provider value={contextValue}>{props.children}</AriaControlContext.Provider>
-  );
 }
 
 interface IAriaDescriptionContext {
@@ -98,16 +79,6 @@ export function AriaInputGroup(props: IAriaGroupProps) {
 
 interface IAriaElementProps {
   children: React.ReactElement;
-}
-
-export function AriaControlled(props: IAriaElementProps) {
-  const { controlledId } = useContext(AriaControlContext);
-  return React.cloneElement(props.children, { id: controlledId });
-}
-
-export function AriaControls(props: IAriaElementProps) {
-  const { controlledId } = useContext(AriaControlContext);
-  return React.cloneElement(props.children, { 'aria-controls': controlledId });
 }
 
 export function AriaInput(props: IAriaElementProps) {

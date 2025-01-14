@@ -1,12 +1,13 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { colors } from '../../config.json';
 import { AccountDataError, AccountNumber } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
+import { Box, Button, Flex, Label, LabelTiny, TitleMedium } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import accountActions from '../redux/account/actions';
 import { LoginState } from '../redux/account/reducers';
@@ -14,16 +15,13 @@ import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
-import { AriaControlGroup, AriaControlled, AriaControls } from './AriaGroup';
 import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import {
   StyledAccountDropdownContainer,
   StyledAccountDropdownItem,
   StyledAccountDropdownItemButton,
-  StyledAccountDropdownItemButtonLabel,
-  StyledAccountDropdownRemoveButton,
-  StyledAccountDropdownRemoveIcon,
+  StyledAccountDropdownItemIconButton,
   StyledAccountInputBackdrop,
   StyledAccountInputGroup,
   StyledBlockMessage,
@@ -34,10 +32,8 @@ import {
   StyledInput,
   StyledInputButton,
   StyledInputSubmitIcon,
-  StyledLoginFooterPrompt,
   StyledLoginForm,
   StyledStatusIcon,
-  StyledSubtitle,
   StyledTitle,
   StyledTopInfo,
 } from './LoginStyles';
@@ -150,15 +146,7 @@ class Login extends React.Component<IProps, IState> {
     this.setState({ isActive: true });
   };
 
-  private onBlur = (e: React.FocusEvent<HTMLInputElement>) => {
-    // restore focus if click happened within dropdown
-    if (e.relatedTarget) {
-      if (this.accountInput.current) {
-        this.accountInput.current.focus();
-      }
-      return;
-    }
-
+  private onBlur = () => {
     this.setState({ isActive: false });
   };
 
@@ -319,6 +307,7 @@ class Login extends React.Component<IProps, IState> {
   }
 
   private createLoginForm() {
+    const inputId = 'account-number-input';
     const allowInteraction = this.allowInteraction();
     const allowLogin = allowInteraction && this.accountNumberValid();
     const hasError =
@@ -326,8 +315,10 @@ class Login extends React.Component<IProps, IState> {
       this.props.loginState.method === 'existing_account';
 
     return (
-      <>
-        <StyledSubtitle data-testid="subtitle">{this.formSubtitle()}</StyledSubtitle>
+      <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+        <Label htmlFor={inputId} data-testid="subtitle">
+          {this.formSubtitle()}
+        </Label>
         <StyledAccountInputGroup
           $active={allowInteraction && this.state.isActive}
           $editable={allowInteraction}
@@ -335,6 +326,7 @@ class Login extends React.Component<IProps, IState> {
           onSubmit={this.onSubmit}>
           <StyledAccountInputBackdrop>
             <StyledInput
+              id={inputId}
               allowedCharacters="[0-9]"
               separator=" "
               groupLength={4}
@@ -377,22 +369,23 @@ class Login extends React.Component<IProps, IState> {
             </StyledAccountDropdownContainer>
           </Accordion>
         </StyledAccountInputGroup>
-      </>
+      </Flex>
     );
   }
 
   private createFooter() {
     return (
-      <>
-        <StyledLoginFooterPrompt>
+      <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+        <LabelTiny color={Colors.white60}>
           {messages.pgettext('login-view', 'Don’t have an account number?')}
-        </StyledLoginFooterPrompt>
-        <AppButton.BlueButton
+        </LabelTiny>
+        <Button
+          size="full"
           onClick={this.props.createNewAccount}
           disabled={!this.allowCreateAccount()}>
           {messages.pgettext('login-view', 'Create account')}
-        </AppButton.BlueButton>
-      </>
+        </Button>
+      </Flex>
     );
   }
 }
@@ -419,63 +412,66 @@ function AccountDropdown(props: IAccountDropdownProps) {
   );
 }
 
-interface IAccountDropdownItemProps {
+interface AccountDropdownItemProps {
   label: string;
   value: AccountNumber;
   onRemove: (value: AccountNumber) => void;
   onSelect: (value: AccountNumber) => void;
 }
 
-function AccountDropdownItem(props: IAccountDropdownItemProps) {
-  const { onSelect, onRemove } = props;
-
+function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdownItemProps) {
   const handleSelect = useCallback(() => {
-    onSelect(props.value);
-  }, [onSelect, props.value]);
+    onSelect(value);
+  }, [onSelect, value]);
 
   const handleRemove = useCallback(
     (event: React.MouseEvent<HTMLButtonElement>) => {
       // Prevent login form from submitting
       event.preventDefault();
-      onRemove(props.value);
+      onRemove(value);
     },
-    [onRemove, props.value],
+    [onRemove, value],
   );
+
+  const itemId = React.useId();
 
   return (
     <>
       <StyledDropdownSpacer />
       <StyledAccountDropdownItem>
-        <AriaControlGroup>
-          <AriaControlled>
-            <StyledAccountDropdownItemButton id={props.label} onClick={handleSelect} type="button">
-              <StyledAccountDropdownItemButtonLabel>
-                {props.label}
-              </StyledAccountDropdownItemButtonLabel>
-            </StyledAccountDropdownItemButton>
-          </AriaControlled>
-          <AriaControls>
-            <StyledAccountDropdownRemoveButton
+        <Flex $alignItems="center" $justifyContent="space-between" $flexGrow={1}>
+          <StyledAccountDropdownItemButton
+            id={itemId}
+            onClick={handleSelect}
+            type="button"
+            aria-label={sprintf(
+              // TRANSLATORS: This is used by screenreaders to communicate logging in with a saved account number.
+              // TRANSLATORS: Available placeholders:
+              // TRANSLATORS: %(accountNumber)s - the saved account number
+              messages.pgettext('accessibility', 'Login with account number %(accountNumber)s'),
+              {
+                accountNumber: label,
+              },
+            )}>
+            <TitleMedium color={Colors.blue80}>{label}</TitleMedium>
+          </StyledAccountDropdownItemButton>
+          <Box $height="48px" $width="48px" center>
+            <StyledAccountDropdownItemIconButton
               onClick={handleRemove}
-              aria-controls={props.label}
-              aria-label={
+              aria-controls={itemId}
+              aria-label={sprintf(
                 // TRANSLATORS: This is used by screenreaders to communicate the "x" button next to a saved account number.
                 // TRANSLATORS: Available placeholders:
                 // TRANSLATORS: %(accountNumber)s - the account number to the left of the button
-                sprintf(messages.pgettext('accessibility', 'Forget %(accountNumber)s'), {
-                  accountNumber: props.label,
-                })
-              }>
-              <StyledAccountDropdownRemoveIcon
-                tintColor={colors.blue40}
-                tintHoverColor={colors.blue}
-                source="icon-close-sml"
-                height={16}
-                width={16}
-              />
-            </StyledAccountDropdownRemoveButton>
-          </AriaControls>
-        </AriaControlGroup>
+                messages.pgettext('accessibility', 'Forget account number %(accountNumber)s'),
+                {
+                  accountNumber: label,
+                },
+              )}>
+              <ImageView source="icon-close" height={16} width={16} />
+            </StyledAccountDropdownItemIconButton>
+          </Box>
+        </Flex>
       </StyledAccountDropdownItem>
     </>
   );
