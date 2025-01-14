@@ -11,7 +11,7 @@ import Network
 import XCTest
 
 class CustomListRepositoryTests: XCTestCase {
-    static let store = InMemorySettingsStore<SettingNotFound>()
+    nonisolated(unsafe) static let store = InMemorySettingsStore<SettingNotFound>()
     private var repository = CustomListRepository()
 
     override class func setUp() {

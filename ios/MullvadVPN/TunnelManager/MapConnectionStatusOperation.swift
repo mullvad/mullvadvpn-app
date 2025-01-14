@@ -14,7 +14,7 @@ import NetworkExtension
 import Operations
 import PacketTunnelCore
 
-class MapConnectionStatusOperation: AsyncOperation {
+class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
     private let interactor: TunnelInteractor
     private let connectionStatus: NEVPNStatus
     private var request: Cancellable?
@@ -159,7 +159,7 @@ class MapConnectionStatusOperation: AsyncOperation {
 
     private func fetchTunnelStatus(
         tunnel: any TunnelProtocol,
-        mapToState: @escaping (ObservedState) -> TunnelState?
+        mapToState: @escaping @Sendable (ObservedState) -> TunnelState?
     ) {
         request = tunnel.getTunnelStatus { [weak self] result in
             guard let self else { return }

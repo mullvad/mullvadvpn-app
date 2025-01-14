@@ -22,7 +22,7 @@ public struct TunnelSettingsV1: Codable, Equatable, TunnelSettings {
 }
 
 /// A struct that holds a tun interface configuration.
-public struct InterfaceSettings: Codable, Equatable {
+public struct InterfaceSettings: Codable, Equatable, @unchecked Sendable {
     public var privateKey: PrivateKeyWithMetadata
     public var nextPrivateKey: PrivateKeyWithMetadata?
 

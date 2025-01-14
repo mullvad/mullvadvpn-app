@@ -14,7 +14,7 @@ import XCTest
 final class AsyncBlockOperationTests: XCTestCase {
     let operationQueue = AsyncOperationQueue()
 
-    func testBlockOperation() {
+    func testBlockOperation() async {
         let executionExpectation = expectation(description: "Should execute")
         let finishExpectation = expectation(description: "Should finish")
 
@@ -29,10 +29,10 @@ final class AsyncBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: .UnitTest.timeout)
+        await fulfillment(of: [executionExpectation, finishExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testSynchronousBlockOperation() {
+    func testSynchronousBlockOperation() async {
         let executionExpectation = expectation(description: "Should execute")
         let finishExpectation = expectation(description: "Should finish")
 
@@ -46,10 +46,10 @@ final class AsyncBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: .UnitTest.timeout)
+        await fulfillment(of: [executionExpectation, finishExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testCancellableTaskBlockOperation() {
+    func testCancellableTaskBlockOperation() async {
         let executionExpectation = expectation(description: "Should execute")
         let cancelExpectation = expectation(description: "Should cancel")
         let finishExpectation = expectation(description: "Should finish")
@@ -73,10 +73,10 @@ final class AsyncBlockOperationTests: XCTestCase {
 
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: .UnitTest.timeout)
+        await fulfillment(of: [executionExpectation, cancelExpectation, finishExpectation], timeout: .UnitTest.timeout)
     }
 
-    func testCancellationShouldNotFireBeforeOperationIsEnqueued() throws {
+    func testCancellationShouldNotFireBeforeOperationIsEnqueued() async throws {
         let expect = expectation(description: "Cancellation should not fire.")
         expect.isInverted = true
 
@@ -84,10 +84,10 @@ final class AsyncBlockOperationTests: XCTestCase {
         operation.onCancel { _ in expect.fulfill() }
         operation.cancel()
 
-        waitForExpectations(timeout: .UnitTest.invertedTimeout)
+        await fulfillment(of: [expect], timeout: .UnitTest.invertedTimeout)
     }
 
-    func testCancellationShouldFireAfterCancelledOperationIsEnqueued() throws {
+    func testCancellationShouldFireAfterCancelledOperationIsEnqueued() async throws {
         let expect = expectation(description: "Cancellation should fire.")
 
         let operation = AsyncBlockOperation {}
@@ -95,6 +95,6 @@ final class AsyncBlockOperationTests: XCTestCase {
         operation.cancel()
         operationQueue.addOperation(operation)
 
-        waitForExpectations(timeout: .UnitTest.timeout)
+        await fulfillment(of: [expect], timeout: .UnitTest.timeout)
     }
 }

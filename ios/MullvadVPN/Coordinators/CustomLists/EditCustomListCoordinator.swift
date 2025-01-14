@@ -139,7 +139,7 @@ class EditCustomListCoordinator: Coordinator, Presentable, Presenting {
     }
 }
 
-extension EditCustomListCoordinator: CustomListViewControllerDelegate {
+extension EditCustomListCoordinator: @preconcurrency CustomListViewControllerDelegate {
     func customListDidSave(_ list: CustomList) {
         didFinish?(self, .save, list)
     }
@@ -156,7 +156,9 @@ extension EditCustomListCoordinator: CustomListViewControllerDelegate {
         )
 
         coordinator.didFinish = { locationsCoordinator in
-            locationsCoordinator.removeFromParent()
+            Task { @MainActor in
+                locationsCoordinator.removeFromParent()
+            }
         }
 
         coordinator.start()

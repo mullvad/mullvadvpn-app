@@ -47,8 +47,8 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
     }
 
     private func createChipViews(chips: [ChipModel], containerWidth: CGFloat) -> some View {
-        var width = CGFloat.zero
-        var height = CGFloat.zero
+        nonisolated(unsafe) var width = CGFloat.zero
+        nonisolated(unsafe) var height = CGFloat.zero
 
         return ForEach(chips) { data in
             ChipView(item: data)

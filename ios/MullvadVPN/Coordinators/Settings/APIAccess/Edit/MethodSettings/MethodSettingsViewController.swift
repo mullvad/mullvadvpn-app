@@ -298,7 +298,9 @@ class MethodSettingsViewController: UITableViewController {
         saveBarButton.isEnabled = false
 
         interactor.startProxyConfigurationTest { [weak self] _ in
-            self?.onTestCompleted()
+            Task { @MainActor in
+                self?.onTestCompleted()
+            }
         }
     }
 

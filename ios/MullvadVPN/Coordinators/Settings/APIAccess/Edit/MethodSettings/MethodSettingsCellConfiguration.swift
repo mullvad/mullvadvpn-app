@@ -10,6 +10,7 @@ import Combine
 import MullvadTypes
 import UIKit
 
+@MainActor
 class MethodSettingsCellConfiguration {
     private let subject: CurrentValueSubject<AccessMethodViewModel, Never>
     private let tableView: UITableView

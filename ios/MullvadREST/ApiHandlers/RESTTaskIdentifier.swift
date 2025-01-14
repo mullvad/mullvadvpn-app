@@ -10,7 +10,7 @@ import Foundation
 
 extension REST {
     private static let nslock = NSLock()
-    private static var taskCount: UInt32 = 0
+    nonisolated(unsafe) private static var taskCount: UInt32 = 0
 
     static func getTaskIdentifier(name: String) -> String {
         nslock.lock()

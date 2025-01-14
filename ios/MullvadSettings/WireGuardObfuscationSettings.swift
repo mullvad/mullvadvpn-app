@@ -11,7 +11,7 @@ import Foundation
 /// Whether obfuscation is enabled and which method is used.
 ///
 /// `.automatic` means an algorithm will decide whether to use obfuscation or not.
-public enum WireGuardObfuscationState: Codable {
+public enum WireGuardObfuscationState: Codable, Sendable {
     @available(*, deprecated, renamed: "udpOverTcp")
     case on
 
@@ -52,7 +52,7 @@ public enum WireGuardObfuscationState: Codable {
     }
 }
 
-public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomStringConvertible {
+public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomStringConvertible, Sendable {
     case automatic
     case port80
     case port5001
@@ -85,7 +85,7 @@ public enum WireGuardObfuscationUdpOverTcpPort: Codable, Equatable, CustomString
     }
 }
 
-public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStringConvertible {
+public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStringConvertible, Sendable {
     case automatic
     case custom(UInt16)
 
@@ -115,7 +115,7 @@ public enum WireGuardObfuscationShadowsocksPort: Codable, Equatable, CustomStrin
 
 // Can't deprecate the whole type since it'll yield a lint warning when decoding
 // port in `WireGuardObfuscationSettings`.
-private enum WireGuardObfuscationPort: UInt16, Codable {
+private enum WireGuardObfuscationPort: UInt16, Codable, Sendable {
     @available(*, deprecated, message: "Use `udpOverTcpPort` instead")
     case automatic = 0
     @available(*, deprecated, message: "Use `udpOverTcpPort` instead")
@@ -124,7 +124,7 @@ private enum WireGuardObfuscationPort: UInt16, Codable {
     case port5001 = 5001
 }
 
-public struct WireGuardObfuscationSettings: Codable, Equatable {
+public struct WireGuardObfuscationSettings: Codable, Equatable, Sendable {
     @available(*, deprecated, message: "Use `udpOverTcpPort` instead")
     private var port: WireGuardObfuscationPort = .automatic
 

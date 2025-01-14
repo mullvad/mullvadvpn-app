@@ -12,7 +12,7 @@ import MullvadTypes
 import Operations
 
 extension REST {
-    class NetworkOperation<Success>: ResultOperation<Success> {
+    class NetworkOperation<Success: Sendable>: ResultOperation<Success>, @unchecked Sendable {
         private let requestHandler: RESTRequestHandler
         private let responseHandler: any RESTResponseHandler<Success>
 

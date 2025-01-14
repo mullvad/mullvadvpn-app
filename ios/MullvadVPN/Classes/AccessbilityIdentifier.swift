@@ -228,6 +228,7 @@ extension AccessibilityIdentifier {
 }
 
 extension UIAccessibilityIdentification {
+    @MainActor
     func setAccessibilityIdentifier(_ value: AccessibilityIdentifier?) {
         accessibilityIdentifier = value.map(\.asString)
     }

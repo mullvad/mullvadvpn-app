@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct DaitaV2Parameters: Equatable {
+public struct DaitaV2Parameters: Equatable, Sendable {
     public let machines: String
     public let maximumEvents: UInt32
     public let maximumActions: UInt32
