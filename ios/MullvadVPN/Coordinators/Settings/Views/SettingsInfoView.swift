@@ -19,7 +19,6 @@ struct SettingsInfoViewModelPage: Hashable {
 
 struct SettingsInfoView: View {
     let viewModel: SettingsInfoViewModel
-    @State var height: CGFloat = 0
 
     // Extra spacing to allow for some room around the page indicators.
     var pageIndicatorSpacing: CGFloat {
@@ -27,23 +26,32 @@ struct SettingsInfoView: View {
     }
 
     var body: some View {
-        TabView {
-            ForEach(viewModel.pages, id: \.self) { page in
-                VStack {
-                    contentView(for: page)
-                    Spacer()
+        ZStack {
+            // Renders (and hide) the content of each page, to push the view to the maximum possible size.
+            VStack {
+                ZStack {
+                    ForEach(viewModel.pages, id: \.self) { page in
+                        contentView(for: page)
+                    }
                 }
-                .padding(UIMetrics.SettingsInfoView.layoutMargins)
+                Spacer()
+                    .frame(height: pageIndicatorSpacing)
             }
-        }
-        .frame(
-            height: height + pageIndicatorSpacing
-        )
-        .tabViewStyle(.page)
-        .foregroundColor(Color(.primaryTextColor))
-        .background {
-            Color(.secondaryColor)
-            preRenderViewSize()
+            .hidden()
+            TabView {
+                ForEach(viewModel.pages, id: \.self) { page in
+                    VStack {
+                        contentView(for: page)
+                        Spacer()
+                    }
+                    .padding(UIMetrics.SettingsInfoView.layoutMargins)
+                }
+            }
+            .tabViewStyle(.page)
+            .foregroundColor(Color(.primaryTextColor))
+            .background {
+                Color(.secondaryColor)
+            }
         }
     }
 
@@ -55,23 +63,6 @@ struct SettingsInfoView: View {
             Text(page.body)
                 .font(.subheadline)
                 .opacity(0.6)
-        }
-    }
-
-    // Renders the content of each page, determining the maximum height between them
-    // when laid out on screen. Since we only want this to update the real view
-    // this function should be called from a .background() and its contents hidden.
-    private func preRenderViewSize() -> some View {
-        ZStack {
-            ForEach(viewModel.pages, id: \.self) { page in
-                contentView(for: page)
-            }
-        }
-        .hidden()
-        .sizeOfView { size in
-            if size.height > height {
-                height = size.height
-            }
         }
     }
 }
