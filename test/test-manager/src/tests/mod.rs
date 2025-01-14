@@ -176,7 +176,9 @@ pub async fn prepare_custom_lists(
                 // If some location argument can not be parsed as a GeographicLocationconstraint,
                 // assume it is a custom list.
                 Err(_parse_error) => {
-                    let custom_list = find_custom_list(mullvad_client, &input).await.unwrap();
+                    let custom_list = find_custom_list(mullvad_client, &input)
+                        .await
+                        .with_context(|| format!("Failed to parse test location '{input}'"))?;
                     // Hack: Dig out all the geographic location constraints from this custom list
                     for custom_list_location in custom_list.locations {
                         locations.push(custom_list_location)
@@ -187,20 +189,25 @@ pub async fn prepare_custom_lists(
         locations
     };
 
+    log::debug!(
+        "Creating custom list {} with locations '{:?}'",
+        test.name,
+        locations
+    );
+
     // Add the custom list to the current app instance
     let id = mullvad_client
         .create_custom_list(test.name.to_string())
         .await?;
 
     let mut custom_list = find_custom_list(mullvad_client, test.name).await?;
-    log::info!("Creating custom list {}", custom_list.name);
 
     assert_eq!(id, custom_list.id);
     for location in locations {
         custom_list.locations.insert(location);
     }
     mullvad_client.update_custom_list(custom_list).await?;
-    log::info!("Added custom list");
+    log::debug!("Added custom list");
 
     Ok(())
 }
