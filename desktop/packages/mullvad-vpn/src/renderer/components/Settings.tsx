@@ -59,8 +59,8 @@ export default function Support() {
                     <>
                       <SettingsGroup>
                         <UserInterfaceSettingsButton />
-                        <MultihopButton />
                         <DaitaButton />
+                        <MultihopButton />
                         <VpnSettingsButton />
                       </SettingsGroup>
 
