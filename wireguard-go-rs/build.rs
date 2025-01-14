@@ -20,10 +20,10 @@ fn main() -> anyhow::Result<()> {
     println!("cargo::rerun-if-changed=libwg");
 
     match target_os.as_str() {
-        "windows" => build_desktop_lib(Os::Windows, true)?,
-        "linux" => build_desktop_lib(Os::Linux, true)?,
-        "macos" => build_desktop_lib(Os::MacOs, true)?,
-        "android" => build_android_dynamic_lib(true)?,
+        "windows" => build_desktop_lib(Os::Windows)?,
+        "linux" => build_desktop_lib(Os::Linux)?,
+        "macos" => build_desktop_lib(Os::MacOs)?,
+        "android" => build_android_dynamic_lib()?,
         _ => {}
     }
 
@@ -89,7 +89,7 @@ fn host_arch() -> anyhow::Result<Arch> {
 }
 
 /// Compile libwg as a library and place it in `OUT_DIR`.
-fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
+fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
     let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
     let target_arch =
         env::var("CARGO_CFG_TARGET_ARCH").context("Missing 'CARGO_CFG_TARGET_ARCH")?;
@@ -118,9 +118,8 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                 .nth(3)
                 .context("Failed to find target dir")?;
 
-            if daita {
-                build_shared_maybenot_lib(target_dir).context("Failed to build maybenot")?;
-            }
+            // building maybenot is required for DAITA - wireguard-go will link to it at runtime.
+            build_shared_maybenot_lib(target_dir).context("Failed to build maybenot")?;
 
             let dll_path = target_dir.join("libwg.dll");
 
@@ -134,7 +133,7 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                 .args(["build", "-v"])
                 .arg("-o")
                 .arg(&dll_path)
-                .args(if daita { &["--tags", "daita"][..] } else { &[] });
+                .args(["--tags", "daita"]);
             // Build dynamic lib
             go_build.args(["-buildmode", "c-shared"]);
 
@@ -159,7 +158,7 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
             let out_file = format!("{out_dir}/libwg.a");
             go_build
                 .args(["build", "-v", "-o", &out_file])
-                .args(if daita { &["--tags", "daita"][..] } else { &[] });
+                .args(["--tags", "daita"]);
 
             // Build static lib
             go_build.args(["-buildmode", "c-archive"]);
@@ -181,7 +180,7 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
             let out_file = format!("{out_dir}/libwg.a");
             go_build
                 .args(["build", "-v", "-o", &out_file])
-                .args(if daita { &["--tags", "daita"][..] } else { &[] });
+                .args(["--tags", "daita"]);
 
             // Build static lib
             go_build.args(["-buildmode", "c-archive"]);
@@ -215,10 +214,8 @@ fn build_desktop_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
 
     exec(go_build)?;
 
-    // if daita is enabled, also enable the corresponding rust feature flag
-    if daita {
-        println!(r#"cargo::rustc-cfg=daita"#);
-    }
+    // Enable the DAITA (rust) feature flag
+    println!(r#"cargo::rustc-cfg=daita"#);
 
     Ok(())
 }
@@ -400,7 +397,7 @@ fn gather_exports(go_src_path: impl AsRef<Path>) -> anyhow::Result<Vec<String>> 
 
 /// Compile libwg as a dynamic library for android and place it in [`android_output_path`].
 // NOTE: We use dynamic linking as Go cannot produce static binaries specifically for Android.
-fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
+fn build_android_dynamic_lib() -> anyhow::Result<()> {
     let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
     let target_triple = env::var("TARGET").context("Missing 'TARGET'")?;
     let target = AndroidTarget::from_str(&target_triple)?;
@@ -451,10 +448,8 @@ fn build_android_dynamic_lib(daita: bool) -> anyhow::Result<()> {
     println!("cargo::rustc-link-search={}", android_output_path.display());
     println!("cargo::rustc-link-lib=dylib=wg");
 
-    // If daita is enabled, also enable the corresponding rust feature flag
-    if daita {
-        println!(r#"cargo::rustc-cfg=daita"#);
-    }
+    // Enable the DAITA (rust) feature flag
+    println!(r#"cargo::rustc-cfg=daita"#);
 
     Ok(())
 }
