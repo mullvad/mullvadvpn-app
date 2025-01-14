@@ -278,9 +278,10 @@ fn find_lib_exe() -> anyhow::Result<PathBuf> {
     // Find lib.exe relative to msbuild.exe, in ../../../../ relative to msbuild
     let search_path = msbuild_exe
         .ancestors()
-        .nth(3)
+        .nth(4)
         .context("Unexpected msbuild.exe path")?;
 
+    // TODO: Make this arch agnostic (host AND target)
     let path_is_lib_exe = |file: &Path| file.ends_with("Hostx64/x64/lib.exe");
 
     find_file(search_path, &path_is_lib_exe)?.context("No lib.exe relative to msbuild.exe")
