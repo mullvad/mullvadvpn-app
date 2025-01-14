@@ -81,9 +81,6 @@ mod locations {
     pub struct TestLocationList(pub Vec<TestLocation>);
 
     impl TestLocationList {
-        // TODO: Consider if we should handle the case of an empty list by returning vec!["any"]
-        /// Look up a test (by name) and see if there are any locations
-        /// that we should use.
         pub fn lookup(&self, test: &str) -> Option<&Vec<String>> {
             self.0
                 .iter()
@@ -173,12 +170,17 @@ mod tests {
                 "vms": {},
                 "mullvad_host": "mullvad.net",
                 "test_locations": [
-                    { "daita": [ "se-got-wg-001", "se-got-wg-002" ] },
+                    { "*daita": [ "se-got-wg-001", "se-got-wg-002" ] },
                     { "*": [ "se" ] }
                 ]
             }"#;
 
         let config: Config = serde_json::from_str(config).unwrap();
+        assert!(config
+            .test_locations
+            .lookup("test_daita")
+            .unwrap()
+            .contains(&"se-got-wg-002".to_string()));
         assert!(!config.test_locations.0.is_empty());
     }
 }
