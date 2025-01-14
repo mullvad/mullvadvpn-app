@@ -63,6 +63,8 @@ struct SettingsInfoView: View {
             Text(page.body)
                 .font(.subheadline)
                 .opacity(0.6)
+                // The following line is needed to not truncate the text when using xxl text size
+                .minimumScaleFactor(0.9)
         }
     }
 }
