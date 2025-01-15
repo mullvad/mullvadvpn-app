@@ -148,7 +148,6 @@ async fn config_ephemeral_peers_inner(
     }
 
     config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
-    #[cfg(daita)]
     if config.daita {
         log::trace!("Enabling constant packet size for entry peer");
         config.entry_peer.constant_packet_size = true;
@@ -166,7 +165,6 @@ async fn config_ephemeral_peers_inner(
     )
     .await?;
 
-    #[cfg(daita)]
     if config.daita {
         let Some(daita) = daita else {
             unreachable!("missing DAITA settings");
