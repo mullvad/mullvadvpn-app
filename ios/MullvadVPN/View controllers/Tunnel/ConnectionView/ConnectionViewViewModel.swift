@@ -7,6 +7,8 @@
 //
 
 import Combine
+import MullvadSettings
+import MullvadTypes
 import SwiftUI
 
 class ConnectionViewViewModel: ObservableObject {
@@ -26,6 +28,17 @@ class ConnectionViewViewModel: ObservableObject {
 
     @Published private(set) var tunnelStatus: TunnelStatus
     @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
+    @Published var showsActivityIndicator = false
+
+    let relayConstraints: RelayConstraints
+    let customListRepository: CustomListRepositoryProtocol
+
+    var combinedState: Publishers.CombineLatest<
+        Published<TunnelStatus>.Publisher,
+        Published<Bool>.Publisher
+    > {
+        $tunnelStatus.combineLatest($showsActivityIndicator)
+    }
 
     var tunnelIsConnected: Bool {
         if case .connected = tunnelStatus.state {
@@ -35,8 +48,24 @@ class ConnectionViewViewModel: ObservableObject {
         }
     }
 
-    init(tunnelStatus: TunnelStatus) {
+    var connectionName: String? {
+        if case let .only(loc) = relayConstraints.exitLocations {
+            loc.customListSelection.flatMap { customListRepository.fetch(by: $0.listId)?.name } ?? loc.locations.first?
+                .stringRepresentation
+        } else {
+            "Somewhere"
+        }
+//        nil
+    }
+
+    init(
+        tunnelStatus: TunnelStatus,
+        relayConstraints: RelayConstraints,
+        customListRepository: CustomListRepositoryProtocol
+    ) {
         self.tunnelStatus = tunnelStatus
+        self.relayConstraints = relayConstraints
+        self.customListRepository = customListRepository
     }
 
     func update(tunnelStatus: TunnelStatus) {
@@ -131,7 +160,7 @@ extension ConnectionViewViewModel {
     var localizedTitleForSelectLocationButton: LocalizedStringKey {
         switch tunnelStatus.state {
         case .disconnecting, .pendingReconnect, .disconnected, .waitingForConnectivity(.noNetwork):
-            LocalizedStringKey("Select location")
+            LocalizedStringKey(connectionName ?? "Select location")
         case .connecting, .connected, .reconnecting, .waitingForConnectivity(.noConnection),
              .negotiatingEphemeralPeer, .error:
             LocalizedStringKey("Switch location")
