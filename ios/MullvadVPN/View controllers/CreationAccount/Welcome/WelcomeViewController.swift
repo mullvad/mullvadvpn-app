@@ -94,22 +94,24 @@ extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
         contentView.isFetchingProducts = true
         _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
             guard let self else { return }
-            switch result {
-            case let .success(success):
-                let products = success.products
-                if !products.isEmpty {
-                    delegate?.didRequestToViewPurchaseOptions(
-                        controller: self,
-                        availableProducts: products,
-                        accountNumber: interactor.accountNumber
-                    )
-                } else {
+            Task { @MainActor in
+                switch result {
+                case let .success(success):
+                    let products = success.products
+                    if !products.isEmpty {
+                        delegate?.didRequestToViewPurchaseOptions(
+                            controller: self,
+                            availableProducts: products,
+                            accountNumber: interactor.accountNumber
+                        )
+                    } else {
+                        delegate?.didRequestToShowFailToFetchProducts(controller: self)
+                    }
+                case .failure:
                     delegate?.didRequestToShowFailToFetchProducts(controller: self)
                 }
-            case .failure:
-                delegate?.didRequestToShowFailToFetchProducts(controller: self)
+                contentView.isFetchingProducts = false
             }
-            contentView.isFetchingProducts = false
         }
     }
 

@@ -79,6 +79,7 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
         )
     }
 }
+
 extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
         let message = NSLocalizedString(
