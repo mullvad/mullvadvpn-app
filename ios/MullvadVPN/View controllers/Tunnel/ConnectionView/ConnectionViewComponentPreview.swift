@@ -37,7 +37,9 @@ struct ConnectionViewComponentPreview<Content: View>: View {
                 isDaitaEnabled: true
             )),
             state: .connected(SelectedRelaysStub.selectedRelays, isPostQuantum: true, isDaita: true)
-        )
+        ),
+        relayConstraints: RelayConstraints(),
+        customListRepository: CustomListRepository()
     )
 
     var content: (FeatureIndicatorsViewModel, ConnectionViewViewModel, Binding<Bool>) -> Content
