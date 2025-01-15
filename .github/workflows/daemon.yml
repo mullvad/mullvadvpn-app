@@ -130,7 +130,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout submodules
-        run: git submodule update --init --depth=1
+        run: |
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init --recursive --depth=1 wireguard-go-rs
 
       - name: Install Protoc
         # NOTE: ARM runner already has protoc
