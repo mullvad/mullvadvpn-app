@@ -25,6 +25,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Added
 #### Windows
 - Add support for Windows ARM64.
+- Add support for DAITA V2.
+- Add back wireguard-go (userspace WireGuard) support.
 
 ### Changed
 - (Linux and macOS only) Update to DAITA v2. The main difference is that many different machines are
