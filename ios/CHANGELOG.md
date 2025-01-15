@@ -27,7 +27,7 @@ Line wrap the file at 100 chars.                                              Th
   of using bundled ones.
 
 ### Fixed
-- Fix DAITA settings view on iOS 15.
+- Broken DAITA settings view on iOS 15.
 
 ## [2024.11 - 2024-12-12]
 ### Added
