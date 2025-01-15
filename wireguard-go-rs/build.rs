@@ -11,20 +11,16 @@ use std::{
 use anyhow::{anyhow, bail, Context};
 
 fn main() -> anyhow::Result<()> {
-    let target_os = env::var("CARGO_CFG_TARGET_OS").context("Missing 'CARGO_CFG_TARGET_OS")?;
-
     // Mark "daita" as a conditional configuration flag
     println!("cargo::rustc-check-cfg=cfg(daita)");
 
     // Rerun build-script if libwg (or wireguard-go) is changed
     println!("cargo::rerun-if-changed=libwg");
 
-    match target_os.as_str() {
-        "windows" => build_desktop_lib(Os::Windows)?,
-        "linux" => build_desktop_lib(Os::Linux)?,
-        "macos" => build_desktop_lib(Os::Macos)?,
-        "android" => build_android_dynamic_lib()?,
-        _ => {}
+    let target_os = target_os()?;
+    match target_os {
+        Os::Windows | Os::Linux | Os::Macos => build_desktop_lib(target_os)?,
+        Os::Android => build_android_dynamic_lib()?,
     }
 
     Ok(())
@@ -35,6 +31,7 @@ enum Os {
     Windows,
     Macos,
     Linux,
+    Android,
 }
 
 #[derive(PartialEq, Eq, Clone, Copy)]
@@ -79,6 +76,17 @@ const fn host_os() -> Os {
     HOST
 }
 
+fn target_os() -> anyhow::Result<Os> {
+    let target_os = env::var("CARGO_CFG_TARGET_OS").context("Missing 'CARGO_CFG_TARGET_OS")?;
+    match target_os.as_str() {
+        "windows" => Ok(Os::Windows),
+        "linux" => Ok(Os::Linux),
+        "macos" => Ok(Os::Macos),
+        "android" => Ok(Os::Android),
+        _ => bail!("Unsupported target os: {target_os}"),
+    }
+}
+
 const fn host_arch() -> Arch {
     const ARCH: Arch = if cfg!(target_arch = "x86_64") {
         Arch::Amd64
@@ -90,17 +98,21 @@ const fn host_arch() -> Arch {
     ARCH
 }
 
+fn target_arch() -> anyhow::Result<Arch> {
+    let target_arch =
+        env::var("CARGO_CFG_TARGET_ARCH").context("Missing 'CARGO_CFG_TARGET_ARCH")?;
+    match target_arch.as_str() {
+        "x86_64" => Ok(Arch::Amd64),
+        "aarch64" => Ok(Arch::Arm64),
+        _ => bail!("Unsupported architecture: {target_arch}"),
+    }
+}
+
 /// Compile libwg as a library and place it in `OUT_DIR`.
 fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
     let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
-    let target_arch =
-        env::var("CARGO_CFG_TARGET_ARCH").context("Missing 'CARGO_CFG_TARGET_ARCH")?;
 
-    let target_arch = match target_arch.as_str() {
-        "x86_64" => Arch::Amd64,
-        "aarch64" => Arch::Arm64,
-        _ => bail!("Unsupported architecture: {target_arch}"),
-    };
+    let target_arch = target_arch()?;
 
     let mut go_build = Command::new("go");
     go_build.env("CGO_ENABLED", "1").current_dir("./libwg");
@@ -114,6 +126,7 @@ fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
     };
 
     match target_os {
+        Os::Android => bail!("Android is not a desktop platform!"),
         Os::Windows => {
             let target_dir = Path::new(&out_dir)
                 .ancestors()
@@ -270,6 +283,7 @@ fn generate_windows_lib(arch: Arch, out_dir: impl AsRef<Path>) -> anyhow::Result
         .context("Failed to generate lib from exports.def")
 }
 
+/// Find the correct lib.exe for this host and the target arch.
 fn find_lib_exe() -> anyhow::Result<PathBuf> {
     let msbuild_exe = find_msbuild_exe()?;
 
@@ -279,8 +293,24 @@ fn find_lib_exe() -> anyhow::Result<PathBuf> {
         .nth(4)
         .context("Unexpected msbuild.exe path")?;
 
-    // TODO: Make this arch agnostic (host AND target)
-    let path_is_lib_exe = |file: &Path| file.ends_with("Hostx64/x64/lib.exe");
+    // This pattern can be found by browsing `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\<MSVC-version>\bin\<host>`
+    let lib_exe_host = match host_arch() {
+        Arch::Amd64 => "Hostx64",
+        Arch::Arm64 => "Hostarm64",
+    };
+
+    // This pattern can be found by browsing `C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\<MSVC-version>\bin\<host>\<arch>`
+    let lib_exe_target = match target_arch()? {
+        Arch::Amd64 => "x64",
+        Arch::Arm64 => "arm64",
+    };
+
+    let lib_exe_pattern = format!(
+        "{host}/{target}/lib.exe",
+        host = lib_exe_host,
+        target = lib_exe_target,
+    );
+    let path_is_lib_exe = |file: &Path| file.ends_with(&lib_exe_pattern);
 
     find_file(search_path, &path_is_lib_exe)?.context("No lib.exe relative to msbuild.exe")
 }
