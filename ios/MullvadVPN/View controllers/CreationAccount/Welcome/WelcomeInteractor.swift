@@ -79,7 +79,7 @@ final class WelcomeInteractor: @unchecked Sendable {
 
     func requestProducts(
         with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping (Result<SKProductsResponse, Error>) -> Void
+        completionHandler: @Sendable @escaping (Result<SKProductsResponse, Error>) -> Void
     ) -> Cancellable {
         storePaymentManager.requestProducts(
             with: productIdentifiers,
