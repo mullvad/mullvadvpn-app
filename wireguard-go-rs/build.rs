@@ -294,7 +294,6 @@ fn find_file(
         let path = entry.path();
         if path.is_dir() {
             if let Some(result) = find_file(&path, condition)? {
-                // TODO: distinguish between err and no result
                 return Ok(Some(result));
             }
         }
