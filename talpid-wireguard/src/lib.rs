@@ -299,7 +299,6 @@ impl WireguardMonitor {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
                 tokio::task::spawn(async move {
-                    #[cfg(daita)]
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
                         // We could instead poke maybenot whenever we detect changes to it.
@@ -1039,7 +1038,6 @@ pub(crate) trait Tunnel: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
-    #[cfg(daita)]
     fn start_daita(&mut self, settings: DaitaSettings) -> std::result::Result<(), TunnelError>;
 }
 
