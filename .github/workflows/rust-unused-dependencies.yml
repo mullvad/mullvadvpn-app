@@ -103,7 +103,6 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout wireguard-go submodule
-        if: matrix.os == 'macos-latest'
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init --recursive --depth=1 wireguard-go-rs
