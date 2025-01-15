@@ -79,14 +79,15 @@ const fn host_os() -> Os {
     HOST
 }
 
-fn host_arch() -> anyhow::Result<Arch> {
-    if cfg!(target_arch = "x86_64") {
-        Ok(Arch::Amd64)
+const fn host_arch() -> Arch {
+    const ARCH: Arch = if cfg!(target_arch = "x86_64") {
+        Arch::Amd64
     } else if cfg!(target_arch = "aarch64") {
-        Ok(Arch::Arm64)
+        Arch::Arm64
     } else {
-        bail!("Unsupported host architecture")
-    }
+        panic!("Unsupported host architecture")
+    };
+    ARCH
 }
 
 /// Compile libwg as a library and place it in `OUT_DIR`.
@@ -105,7 +106,7 @@ fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
     go_build.env("CGO_ENABLED", "1").current_dir("./libwg");
 
     // are we cross compiling?
-    let cross_compiling = host_os() != target_os || host_arch()? != target_arch;
+    let cross_compiling = host_os() != target_os || host_arch() != target_arch;
 
     match target_arch {
         Arch::Amd64 => go_build.env("GOARCH", "amd64"),
