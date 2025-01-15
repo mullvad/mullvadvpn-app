@@ -177,6 +177,8 @@ function newConfig() {
           ),
           to: '.',
         },
+        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'libwg.dll')), to: '.' },
+        { from: distAssets(path.join('${env.DIST_SUBDIR}', 'maybenot_ffi.dll')), to: '.' },
         { from: distAssets('maybenot_machines'), to: '.' },
       ],
     },

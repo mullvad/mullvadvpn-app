@@ -263,7 +263,7 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
 
     // Copy library to desired target dir
     for (src_filename, dest_filename) in [
-        ("maybenot_ffi.dll", "maybenot.dll"),
+        ("maybenot_ffi.dll", "maybenot_ffi.dll"),
         ("maybenot_ffi.dll.lib", "maybenot.lib"),
     ] {
         let dest = out_dir.as_ref().join(dest_filename);
