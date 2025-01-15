@@ -154,7 +154,7 @@ In addition to the above requirements:
   the Electron app:
 
   ```
-  pushd gui
+  pushd desktop/packages/mullvad-vpn
   npm install --target_arch=x64 grpc-tools
   popd
   ```
