@@ -255,6 +255,7 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
         // Set temporary target dir to prevent deadlock
         .env("CARGO_TARGET_DIR", &tmp_build_dir)
         .arg("build")
+        .args(["--profile", &profile])
         .args(["--target", &target_triple]);
 
     exec(build_command)?;
