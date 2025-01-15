@@ -294,7 +294,6 @@ fn find_file(
         let path = entry.path();
         if path.is_dir() {
             if let Some(result) = find_file(&path, condition)? {
-                // TODO: distinguish between err and no result
                 return Ok(Some(result));
             }
         }
@@ -313,7 +312,7 @@ fn find_msbuild_exe() -> anyhow::Result<PathBuf> {
         .context("msbuild.exe not found in PATH")
 }
 
-/// Generate exports.def from wireguard-go source
+/// Generate lib from export
 fn generate_lib_from_exports_def(arch: Arch, exports_path: impl AsRef<Path>) -> anyhow::Result<()> {
     let lib_path = exports_path
         .as_ref()
