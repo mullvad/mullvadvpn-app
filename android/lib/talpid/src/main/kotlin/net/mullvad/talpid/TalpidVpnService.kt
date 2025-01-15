@@ -173,7 +173,6 @@ open class TalpidVpnService : LifecycleVpnService() {
             withTimeoutOrNull(timeout = timeout) {
                 connectivityListener.currentNetworkState
                     .map { it?.linkProperties }
-                    .distinctUntilChanged()
                     .first { linkProps -> linkProps?.containsAll(config.routes) == true }
             }
 
