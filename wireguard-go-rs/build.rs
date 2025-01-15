@@ -64,18 +64,19 @@ impl AndroidTarget {
     }
 }
 
-fn host_os() -> anyhow::Result<Os> {
+const fn host_os() -> Os {
     // this ugliness is a limitation of rust, where we can't directly
     // access the target triple of the build script.
-    if cfg!(target_os = "windows") {
-        Ok(Os::Windows)
+    const HOST: Os = if cfg!(target_os = "windows") {
+        Os::Windows
     } else if cfg!(target_os = "linux") {
-        Ok(Os::Linux)
+        Os::Linux
     } else if cfg!(target_os = "macos") {
-        Ok(Os::MacOs)
+        Os::MacOs
     } else {
-        bail!("Unsupported host OS")
-    }
+        panic!("Unsupported host OS")
+    };
+    HOST
 }
 
 fn host_arch() -> anyhow::Result<Arch> {
@@ -104,7 +105,7 @@ fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
     go_build.env("CGO_ENABLED", "1").current_dir("./libwg");
 
     // are we cross compiling?
-    let cross_compiling = host_os()? != target_os || host_arch()? != target_arch;
+    let cross_compiling = host_os() != target_os || host_arch()? != target_arch;
 
     match target_arch {
         Arch::Amd64 => go_build.env("GOARCH", "amd64"),
