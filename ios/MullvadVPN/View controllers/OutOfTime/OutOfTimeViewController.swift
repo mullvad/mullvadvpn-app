@@ -232,23 +232,25 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         applyViewState()
         _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
             guard let self else { return }
-            switch result {
-            case let .success(success):
-                let products = success.products
-                if !products.isEmpty {
-                    delegate?.outOfTimeViewControllerDidRequestShowPurchaseOptions(
-                        self,
-                        products: products,
-                        didRequestPurchase: self.doPurchase
-                    )
-                } else {
+            Task { @MainActor in
+                switch result {
+                case let .success(success):
+                    let products = success.products
+                    if !products.isEmpty {
+                        delegate?.outOfTimeViewControllerDidRequestShowPurchaseOptions(
+                            self,
+                            products: products,
+                            didRequestPurchase: self.doPurchase
+                        )
+                    } else {
+                        delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
+                    }
+                case .failure:
                     delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
                 }
-            case .failure:
-                delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
+                isFetchingProducts = false
+                applyViewState()
             }
-            isFetchingProducts = false
-            applyViewState()
         }
     }
 

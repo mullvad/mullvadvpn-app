@@ -14,10 +14,10 @@ import Operations
 import StoreKit
 import UIKit
 
-struct PurchaseOptionDetails {
+struct PurchaseOptionDetails: Sendable {
     let products: [SKProduct]
     let accountNumber: String
-    let didRequestPurchase: (SKProduct) -> Void
+    let didRequestPurchase: @Sendable (SKProduct) -> Void
 }
 
 enum AccountViewControllerAction: Sendable {
@@ -270,24 +270,24 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         setIsFetchingProducts(true)
         _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
             guard let self else { return }
-            switch result {
-            case let .success(success):
-                let products = success.products
-                if !products.isEmpty {
-                    actionHandler?(.showPurchaseOptions(PurchaseOptionDetails(
-                        products: products,
-                        accountNumber: accountData.number,
-                        didRequestPurchase: self.doPurchase
-                    )))
-                } else {
+            Task { @MainActor in
+                switch result {
+                case let .success(success):
+                    let products = success.products
+                    if !products.isEmpty {
+                        actionHandler?(.showPurchaseOptions(PurchaseOptionDetails(
+                            products: products,
+                            accountNumber: accountData.number,
+                            didRequestPurchase: { product in Task { @MainActor in self.doPurchase(product: product) }}
+                        )))
+                    } else {
+                        actionHandler?(.showFailedToLoadProducts)
+                    }
+                case .failure:
                     actionHandler?(.showFailedToLoadProducts)
                 }
-            case .failure:
-                actionHandler?(.showFailedToLoadProducts)
+                setIsFetchingProducts(false)
             }
-			MainActor.assumeIsolated {
-            	setIsFetchingProducts(false)
-			}
         }
     }
 
@@ -336,7 +336,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
                     let transaction = try checkVerified(verification)
                     await sendReceiptToAPI(accountNumber: accountData.identifier, receipt: verification)
                     await transaction.finish()
-
                 case .userCancelled:
                     print("User cancelled the purchase")
                 case .pending:
