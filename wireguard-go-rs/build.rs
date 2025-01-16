@@ -284,13 +284,8 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     ] {
         let src = artifacts_dir.join(src_filename);
         let dest = out_dir.as_ref().join(dest_filename);
-        fs::copy(&src, &dest).with_context(|| {
-            format!(
-                "Failed to copy {src} to {dest}",
-                src = src.to_str().unwrap(),
-                dest = dest.to_str().unwrap()
-            )
-        })?;
+        fs::copy(&src, &dest)
+            .with_context(|| format!("Failed to copy {src_filename} to {dest_filename}",))?;
     }
 
     Ok(())
