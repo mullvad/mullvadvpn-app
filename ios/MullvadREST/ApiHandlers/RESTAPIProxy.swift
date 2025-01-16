@@ -7,10 +7,17 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
+import Operations
 import WireGuardKitTypes
 
 public protocol APIQuerying: Sendable {
+    func getAddressListNew(
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
+    ) -> Cancellable
+
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
@@ -53,6 +60,35 @@ extension REST {
                 ),
                 responseDecoder: Coding.makeJSONDecoder()
             )
+        }
+
+        public func getAddressListNew(
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
+        ) -> Cancellable {
+            let requestFactory: RustRequestFactory = { completion in
+                let pointerClass = CompletionBridge { apiResponse in
+                    completion?(apiResponse)
+                }
+
+                let rawPointer = Unmanaged.passUnretained(pointerClass).toOpaque()
+                mullvad_api_get_addresses(REST.apiContext.context, rawPointer)
+
+                // FIXME: Change to something real
+                return AnyCancellable()
+            }
+
+            let rustNetworkOperation = RustNetworkOperation<Sendable>(
+                name: "get-api-addrs",
+                dispatchQueue: dispatchQueue,
+                retryStrategy: retryStrategy,
+                requestFactory: requestFactory,
+                responseHandler: completionHandler
+            )
+
+            operationQueue.addOperation(rustNetworkOperation)
+
+            return rustNetworkOperation
         }
 
         public func getAddressList(
