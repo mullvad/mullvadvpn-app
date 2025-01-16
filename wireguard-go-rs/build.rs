@@ -400,17 +400,14 @@ fn generate_exports_def(exports_path: impl AsRef<Path>) -> anyhow::Result<()> {
     writeln!(file, "LIBRARY libwg").context("Write LIBRARY statement")?;
     writeln!(file, "EXPORTS").context("Write EXPORTS statement")?;
 
-    let mut libwg_exports = vec![];
     for path in &[
         "./libwg/libwg.go",
         "./libwg/libwg_windows.go",
         "./libwg/libwg_daita.go",
     ] {
-        libwg_exports.extend(gather_exports(path).context("Failed to find exports")?);
-    }
-
-    for export in libwg_exports {
-        writeln!(file, "\t{export}").context("Failed to output exported function")?;
+        for export in gather_exports(path).context("Failed to find exports")? {
+            writeln!(file, "\t{export}").context("Failed to output exported function")?;
+        }
     }
 
     Ok(())
