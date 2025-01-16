@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadTypes
 import Network
 
 /// Persistent access method container model.
@@ -17,6 +16,11 @@ public struct PersistentAccessMethodStore: Codable {
 
     /// Persistent access method models.
     public var accessMethods: [PersistentAccessMethod]
+
+    public init(lastReachableAccessMethod: PersistentAccessMethod, accessMethods: [PersistentAccessMethod]) {
+        self.lastReachableAccessMethod = lastReachableAccessMethod
+        self.accessMethods = accessMethods
+    }
 }
 
 /// Persistent access method model.
@@ -59,7 +63,7 @@ public struct PersistentAccessMethod: Identifiable, Codable, Equatable {
 }
 
 /// Persistent proxy configuration.
-public enum PersistentProxyConfiguration: Codable {
+public enum PersistentProxyConfiguration: Codable, Equatable {
     /// Direct communication without proxy.
     case direct
 
@@ -78,12 +82,12 @@ public enum PersistentProxyConfiguration: Codable {
 
 extension PersistentProxyConfiguration {
     /// Socks autentication method.
-    public enum SocksAuthentication: Codable {
+    public enum SocksAuthentication: Codable, Equatable {
         case noAuthentication
         case authentication(UserCredential)
     }
 
-    public struct UserCredential: Codable {
+    public struct UserCredential: Codable, Equatable {
         public let username: String
         public let password: String
 
@@ -94,7 +98,7 @@ extension PersistentProxyConfiguration {
     }
 
     /// Socks v5 proxy configuration.
-    public struct SocksConfiguration: Codable {
+    public struct SocksConfiguration: Codable, Equatable {
         /// Proxy server address.
         public var server: AnyIPAddress
 
@@ -128,7 +132,7 @@ extension PersistentProxyConfiguration {
     }
 
     /// Shadowsocks configuration.
-    public struct ShadowsocksConfiguration: Codable {
+    public struct ShadowsocksConfiguration: Codable, Equatable {
         /// Server address.
         public var server: AnyIPAddress
 

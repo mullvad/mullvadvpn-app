@@ -48,7 +48,7 @@ pub struct EphemeralPeerExchange {
     peer_parameters: EphemeralPeerParameters,
 }
 
-// # Safety
+// # Safety:
 // This is safe because the void pointer in PacketTunnelBridge is valid for the lifetime of the
 // process where this type is intended to be used.
 unsafe impl Send for EphemeralPeerExchange {}
