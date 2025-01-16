@@ -63,8 +63,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install libdbus-1-dev
 
+      - name: Install msbuild
+        if: matrix.os == 'windows-latest'
+        uses: microsoft/setup-msbuild@v1.0.2
+        with:
+          vs-version: 16
+
+      - name: Install latest zig
+        if: matrix.os == 'windows-latest'
+        uses: mlugg/setup-zig@v1
+
       - name: Install Go
-        if: matrix.os == 'linux-latest' || matrix.os == 'macos-latest'
         uses: actions/setup-go@v5
         with:
           go-version: 1.21.3
