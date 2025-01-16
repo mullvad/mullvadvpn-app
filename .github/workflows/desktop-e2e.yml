@@ -200,6 +200,8 @@ jobs:
           toolchain: stable
           target: i686-pc-windows-msvc
           default: true
+      - name: Install latest zig
+        uses: mlugg/setup-zig@v1
       - name: Install msbuild
         uses: microsoft/setup-msbuild@v1.0.2
         with:
