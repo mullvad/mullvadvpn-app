@@ -208,8 +208,7 @@ pub async fn request_ephemeral_peer_with(
 const fn get_platform() -> proto::DaitaPlatform {
     use proto::DaitaPlatform;
     const PLATFORM: DaitaPlatform = if cfg!(target_os = "windows") {
-        // FIXME: wggo
-        DaitaPlatform::WindowsNative
+        DaitaPlatform::WindowsWgGo
     } else if cfg!(target_os = "linux") {
         DaitaPlatform::LinuxWgGo
     } else if cfg!(target_os = "macos") {
