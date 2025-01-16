@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+@preconcurrency import MullvadRustRuntime
 import MullvadSettings
 import MullvadTypes
 
@@ -49,12 +50,25 @@ public struct TransportStrategy: Equatable, Sendable {
 
     private let accessMethodIterator: AccessMethodIterator
 
+    private let connectionModeProviderProxy: SwiftConnectionModeProviderProxy
+
+    public let opaqueAccessMethodSettingsWrapper: SwiftAccessMethodSettingsWrapper
+
     public init(
         datasource: AccessMethodRepositoryDataSource,
         shadowsocksLoader: ShadowsocksLoaderProtocol
     ) {
         self.shadowsocksLoader = shadowsocksLoader
         self.accessMethodIterator = AccessMethodIterator(dataSource: datasource)
+        self.connectionModeProviderProxy = SwiftConnectionModeProviderProxy(
+            provider: accessMethodIterator,
+            domainName: REST.encryptedDNSHostname
+        )
+        self
+            .opaqueAccessMethodSettingsWrapper = initAccessMethodSettingsWrapper(
+                methods: connectionModeProviderProxy
+                    .accessMethods()
+            )
     }
 
     /// Rotating between enabled configurations by what order they were added in

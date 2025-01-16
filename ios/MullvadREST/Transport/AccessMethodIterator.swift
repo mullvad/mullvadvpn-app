@@ -9,8 +9,9 @@
 import Combine
 import Foundation
 import MullvadSettings
+import MullvadTypes
 
-final class AccessMethodIterator: @unchecked Sendable {
+final class AccessMethodIterator: @unchecked Sendable, SwiftConnectionModeProviding {
     private let dataSource: AccessMethodRepositoryDataSource
 
     private var index = 0
@@ -22,6 +23,10 @@ final class AccessMethodIterator: @unchecked Sendable {
 
     private var lastReachableApiAccessId: UUID? {
         dataSource.fetchLastReachable().id
+    }
+
+    public var domainName: String {
+        REST.encryptedDNSHostname
     }
 
     init(dataSource: AccessMethodRepositoryDataSource) {
@@ -62,5 +67,9 @@ final class AccessMethodIterator: @unchecked Sendable {
             let circularIndex = index % configurations.count
             return configurations[circularIndex]
         }
+    }
+
+    func accessMethods() -> [PersistentAccessMethod] {
+        dataSource.fetchAll()
     }
 }

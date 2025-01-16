@@ -6,6 +6,18 @@
 #include <stdlib.h>
 
 /**
+ * Used by Swift to instruct which access method kind it is trying to convert
+ */
+enum SwiftAccessMethodKind {
+  KindDirect = 0,
+  KindBridge,
+  KindEncryptedDnsProxy,
+  KindShadowsocks,
+  KindSocks5Local,
+};
+typedef uint8_t SwiftAccessMethodKind;
+
+/**
  * SAFETY: `TunnelObfuscatorProtocol` values must either be `0` or `1`
  */
 enum TunnelObfuscatorProtocol {
@@ -30,9 +42,23 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
+typedef struct SwiftAccessMethodSettingsContext SwiftAccessMethodSettingsContext;
+
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
+
+typedef struct SwiftAccessMethodSettingsWrapper {
+  struct SwiftAccessMethodSettingsContext *_0;
+} SwiftAccessMethodSettingsWrapper;
+
+typedef struct SwiftShadowsocksLoaderWrapperContext {
+  const void *shadowsocks_loader;
+} SwiftShadowsocksLoaderWrapperContext;
+
+typedef struct SwiftShadowsocksLoaderWrapper {
+  struct SwiftShadowsocksLoaderWrapperContext _0;
+} SwiftShadowsocksLoaderWrapper;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -101,21 +127,20 @@ typedef struct EphemeralPeerParameters {
 extern const uint16_t CONFIG_SERVICE_PORT;
 
 /**
- * # Safety
- *
- * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
- * This hostname will be used for TLS validation but not used for domain name resolution.
- *
- * `address` must be a pointer to a null terminated string representing a socket address through which
- * the Mullvad API can be reached directly.
- *
- * If a context cannot be constructed this function will panic since the call site would not be able
- * to proceed in a meaningful way anyway.
- *
- * This function is safe.
+ * Called by Swift to set the available access methods
  */
-struct SwiftApiContext mullvad_api_init_new_tls_disabled(const uint8_t *host,
-                                                         const uint8_t *address);
+void mullvad_api_update_access_methods(struct SwiftApiContext api_context,
+                                       struct SwiftAccessMethodSettingsWrapper settings_wrapper);
+
+/**
+ * Called by Swift to update the currently used access methods
+ *
+ * # SAFETY
+ * `access_method_id` must point to a null terminated string in a UUID format
+ *
+ */
+void mullvad_api_use_access_method(struct SwiftApiContext api_context,
+                                   const char *access_method_id);
 
 /**
  * # Safety
@@ -131,8 +156,83 @@ struct SwiftApiContext mullvad_api_init_new_tls_disabled(const uint8_t *host,
  *
  * This function is safe.
  */
-struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
-                                            const uint8_t *address);
+struct SwiftApiContext mullvad_api_init_new_tls_disabled(const char *host,
+                                                         const char *address,
+                                                         const char *domain,
+                                                         struct SwiftShadowsocksLoaderWrapper bridge_provider,
+                                                         struct SwiftAccessMethodSettingsWrapper settings_provider);
+
+/**
+ * # Safety
+ *
+ * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
+ * This hostname will be used for TLS validation but not used for domain name resolution.
+ *
+ * `address` must be a pointer to a null terminated string representing a socket address through which
+ * the Mullvad API can be reached directly.
+ *
+ * If a context cannot be constructed this function will panic since the call site would not be able
+ * to proceed in a meaningful way anyway.
+ *
+ * This function is safe.
+ */
+struct SwiftApiContext mullvad_api_init_new(const char *host,
+                                            const char *address,
+                                            const char *domain,
+                                            struct SwiftShadowsocksLoaderWrapper bridge_provider,
+                                            struct SwiftAccessMethodSettingsWrapper settings_provider);
+
+/**
+ * # Safety
+ *
+ * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
+ * This hostname will be used for TLS validation but not used for domain name resolution.
+ *
+ * `address` must be a pointer to a null terminated string representing a socket address through which
+ * the Mullvad API can be reached directly.
+ *
+ * If a context cannot be constructed this function will panic since the call site would not be able
+ * to proceed in a meaningful way anyway.
+ *
+ * This function is safe.
+ */
+struct SwiftApiContext mullvad_api_init_inner(const char *host,
+                                              const char *address,
+                                              const char *domain,
+                                              bool disable_tls,
+                                              struct SwiftShadowsocksLoaderWrapper bridge_provider,
+                                              struct SwiftAccessMethodSettingsWrapper settings_provider);
+
+/**
+ * Converts parameters into a `Box<AccessMethodSetting>` raw representation that
+ * can be passed across the FFI boundary
+ *
+ * # SAFETY:
+ * `unique_identifier` and `name` must point to valid memory regions and contain NULL terminators.
+ * They are only valid for the duration of this call.
+ *
+ * `proxy_configuration` can be NULL, or must be a pointer gotten through
+ * either the `convert_shadowsocks` or `convert_socks5` methods.
+ */
+void *convert_builtin_access_method_setting(const char *unique_identifier,
+                                            const char *name,
+                                            bool is_enabled,
+                                            SwiftAccessMethodKind method_kind,
+                                            const void *proxy_configuration);
+
+/**
+ * Creates a wrapper around a `Settings` object that can be safely sent across the FFI boundary.
+ *
+ * # SAFETY
+ * `direct_method_raw`, `bridges_method_raw` and `encrypted_dns_method_raw` must be raw pointers
+ * resulting from a call to `convert_builtin_access_method_setting`
+ * `custom_methods_raw` is an array of pointers to instances of `AccessMethodSetting`
+ */
+struct SwiftAccessMethodSettingsWrapper init_access_method_settings_wrapper(const void *direct_method_raw,
+                                                                            const void *bridges_method_raw,
+                                                                            const void *encrypted_dns_method_raw,
+                                                                            const void *custom_methods_raw,
+                                                                            uintptr_t custom_method_count);
 
 /**
  * # Safety
@@ -261,6 +361,35 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
                                           struct CompletionCookie completion_cookie);
 
 /**
+ * Converts parameters into a boxed `Shadowsocks` configuration that is safe
+ * to send across the FFI boundary
+ *
+ * # SAFETY
+ * `address` must be a pointer to at least `address_len` bytes.
+ * `c_password` and `c_cipher` must be pointers to null terminated strings
+ */
+const void *new_shadowsocks_access_method_setting(const uint8_t *address,
+                                                  uintptr_t address_len,
+                                                  uint16_t port,
+                                                  const char *c_password,
+                                                  const char *c_cipher);
+
+/**
+ * Converts parameters into a boxed `Socks5Remote` configuration that is safe
+ *
+ * to send across the FFI boundary
+ *
+ * # SAFETY
+ * `address` must be a pointer to at least `address_len` bytes.
+ * `c_username` and `c_password` must be pointers to null terminated strings, or null
+ */
+const void *new_socks5_access_method_setting(const uint8_t *address,
+                                             uintptr_t address_len,
+                                             uint16_t port,
+                                             const char *c_username,
+                                             const char *c_password);
+
+/**
  * # Safety
  *
  * `method` must be a pointer to a null terminated string representing the http method.
@@ -374,6 +503,26 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint64_t initial_sec,
                                                                  uint32_t factor,
                                                                  uint64_t max_delay_sec);
+
+/**
+ * Creates a `Shadowsocks` configuration.
+ *
+ * # SAFETY
+ * `rawBridgeProvider` **must** be provided by a call to `init_swift_shadowsocks_loader_wrapper`
+ * It is okay to persist it, and use it across multiple threads.
+ */
+extern const void *swift_get_shadowsocks_bridges(const void *rawBridgeProvider);
+
+/**
+ * Called by the Swift side in order to provide an object to rust that can create
+ * Shadowsocks configurations
+ *
+ * # SAFETY
+ * `shadowsocks_loader` **must be** pointing to a valid instance of a `SwiftShadowsocksBridgeProvider`
+ * That instance's lifetime has to be equivalent to a `'static` lifetime in Rust
+ * This function does not take ownership of `shadowsocks_loader`
+ */
+struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const void *shadowsocks_loader);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
