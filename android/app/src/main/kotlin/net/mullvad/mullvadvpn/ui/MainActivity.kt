@@ -36,6 +36,7 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
+import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.viewmodel.MullvadAppViewModel
 import org.koin.android.ext.android.inject
 import org.koin.android.scope.AndroidScopeComponent
@@ -121,10 +122,8 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
 
     override fun onStop() {
         super.onStop()
-        lifecycleScope.launch {
-            if (userPreferencesRepository.preferences().isPrivacyDisclosureAccepted) {
-                serviceConnectionManager.unbind()
-            }
+        if (serviceConnectionManager.connectionState.value == ServiceConnectionState.Bound) {
+            serviceConnectionManager.unbind()
         }
     }
 
