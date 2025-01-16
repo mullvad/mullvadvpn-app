@@ -51,7 +51,7 @@ impl ConfigFile {
     }
 
     /// Get configuration file path
-    fn get_config_path() -> Result<PathBuf, Error> {
+    pub fn get_config_path() -> Result<PathBuf, Error> {
         Ok(Self::get_config_dir()?.join("config.json"))
     }
 

@@ -13,8 +13,9 @@ mod vm;
 use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Ok, Result};
 use clap::{builder::PossibleValuesParser, Parser};
+use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
 use vm::provision;
@@ -31,28 +32,13 @@ struct Args {
 
 #[derive(clap::Subcommand, Debug)]
 enum Commands {
-    /// Create or edit a VM config
-    Set {
-        /// Name of the VM config
-        vm: String,
-
-        /// VM config
-        #[clap(flatten)]
-        config: config::VmConfig,
-    },
-
-    /// Remove specified VM config
-    Remove {
-        /// Name of the VM config, run `test-manager list` to see available configs
-        vm: String,
-    },
-
-    /// List available VM configurations
-    List,
+    /// Manage configuration for tests and VMs
+    #[clap(subcommand)]
+    Config(ConfigArg),
 
     /// Spawn a runner instance without running any tests
     RunVm {
-        /// Name of the VM config, run `test-manager list` to see available configs
+        /// Name of the VM config, run `test-manager config vm list` to see configured VMs
         vm: String,
 
         /// Run VNC server on a specified port
@@ -69,7 +55,7 @@ enum Commands {
 
     /// Spawn a runner instance and run tests
     RunTests {
-        /// Name of the VM config, run `test-manager list` to see available configs
+        /// Name of the VM config, run `test-manager config vm list` to see configured VMs
         #[arg(long)]
         vm: String,
 
@@ -161,6 +147,39 @@ enum Commands {
     },
 }
 
+#[derive(clap::Subcommand, Debug)]
+enum ConfigArg {
+    /// Print the current config
+    Get,
+    /// Print the path to the current config file
+    Which,
+    /// Manage VM-specific setting
+    #[clap(subcommand)]
+    Vm(VmConfig),
+}
+
+#[derive(clap::Subcommand, Debug)]
+enum VmConfig {
+    /// Create or edit a VM config
+    Set {
+        /// Name of the VM config
+        vm: String,
+
+        /// VM config
+        #[clap(flatten)]
+        config: config::VmConfig,
+    },
+
+    /// Remove specified VM config
+    Remove {
+        /// Name of the VM config, run `test-manager config vm list` to see configured VMs
+        vm: String,
+    },
+
+    /// List available VM configurations
+    List,
+}
+
 #[cfg(target_os = "linux")]
 impl Args {
     fn get_vnc_port(&self) -> Option<u16> {
@@ -184,33 +203,50 @@ async fn main() -> Result<()> {
         .await
         .context("Failed to load config")?;
     match args.cmd {
-        Commands::Set {
-            vm,
-            config: vm_config,
-        } => vm::set_config(&mut config, &vm, vm_config)
-            .await
-            .context("Failed to edit or create VM config"),
-        Commands::Remove { vm } => {
-            if config.get_vm(&vm).is_none() {
-                println!("No such configuration");
-                return Ok(());
+        Commands::Config(config_subcommand) => match config_subcommand {
+            ConfigArg::Get => {
+                println!("{:#?}", *config);
+                Ok(())
             }
-            config
-                .edit(|config| {
-                    config.vms.remove_entry(&vm);
-                })
-                .await
-                .context("Failed to remove config entry")?;
-            println!("Removed configuration \"{vm}\"");
-            Ok(())
-        }
-        Commands::List => {
-            println!("Available configurations:");
-            for (vm, config) in config.vms.iter() {
-                println!("{vm}: {config:#?}");
+            ConfigArg::Which => {
+                println!(
+                    "{}",
+                    ConfigFile::get_config_path()
+                        .expect("Get config path")
+                        .display()
+                );
+                Ok(())
             }
-            Ok(())
-        }
+            ConfigArg::Vm(vm_config) => match vm_config {
+                VmConfig::Set {
+                    vm,
+                    config: vm_config,
+                } => vm::set_config(&mut config, &vm, vm_config)
+                    .await
+                    .context("Failed to edit or create VM config"),
+                VmConfig::Remove { vm } => {
+                    if config.get_vm(&vm).is_none() {
+                        println!("No such configuration");
+                        return Ok(());
+                    }
+                    config
+                        .edit(|config| {
+                            config.vms.remove_entry(&vm);
+                        })
+                        .await
+                        .context("Failed to remove config entry")?;
+                    println!("Removed configuration \"{vm}\"");
+                    Ok(())
+                }
+                VmConfig::List => {
+                    println!("Configured VMs:");
+                    for vm in config.vms.keys() {
+                        println!("{vm}");
+                    }
+                    Ok(())
+                }
+            },
+        },
         Commands::RunVm {
             vm,
             vnc,

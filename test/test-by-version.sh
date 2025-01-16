@@ -7,7 +7,7 @@ usage() {
     echo
     echo "Required environment variables:"
     echo "  - ACCOUNT_TOKEN: Valid MullvadVPN account number"
-    echo "  - TEST_OS: Name of the VM configuration to use. List available configurations with 'cargo run --bin test-manager list'"
+    echo "  - TEST_OS: Name of the VM configuration to use. List available configurations with 'cargo run --bin test-manager config vm list'"
     echo "Optional environment variables:"
     echo "  - APP_VERSION: The version of the app to test (defaults to the latest stable release)"
     echo "  - APP_PACKAGE_TO_UPGRADE_FROM: The package version to upgrade from (defaults to none)"
