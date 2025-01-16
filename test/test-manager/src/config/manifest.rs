@@ -74,8 +74,14 @@ mod locations {
     };
     use std::fmt;
 
-    #[derive(Debug, Clone, Default)]
+    #[derive(Clone, Default)]
     pub struct TestLocation(glob::Pattern, Vec<String>);
+
+    impl fmt::Debug for TestLocation {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+            write!(f, "{}: {:?}", self.0, &self.1)
+        }
+    }
 
     #[derive(Debug, DeserDerive, SerDerive, Clone, Default)]
     pub struct TestLocationList(pub Vec<TestLocation>);
