@@ -7,7 +7,7 @@ import androidx.annotation.CallSuper
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.core.Either
-import arrow.core.flattenOrAccumulate
+import arrow.core.mapOrAccumulate
 import arrow.core.merge
 import arrow.core.raise.either
 import arrow.core.raise.ensureNotNull
@@ -113,8 +113,8 @@ open class TalpidVpnService : LifecycleVpnService() {
         // then notify daemon to later enter blocked state.
         val dnsConfigureResult =
             config.dnsServers
-                .map { builder.addDnsServerE(it) }
-                .flattenOrAccumulate()
+                .mapOrAccumulate { builder.addDnsServerE(it).bind() }
+                .map { /* Ignore right */ }
                 .onLeft {
                     // Avoid creating a tunnel with no DNS servers or if all DNS servers was
                     // invalid, since apps then may leak DNS requests.
@@ -127,7 +127,6 @@ open class TalpidVpnService : LifecycleVpnService() {
                         builder.addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
                     }
                 }
-                .map { /* Ignore right */ }
 
         val vpnInterfaceFd =
             builder
