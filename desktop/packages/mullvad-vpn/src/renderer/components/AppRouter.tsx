@@ -21,6 +21,7 @@ import ExpiredAccountErrorView from './ExpiredAccountErrorView';
 import Filter from './Filter';
 import Launch from './Launch';
 import MainView from './main-view/MainView';
+import MultihopSettings from './MultihopSettings';
 import OpenVpnSettings from './OpenVpnSettings';
 import ProblemReport from './ProblemReport';
 import SelectLanguage from './SelectLanguage';
