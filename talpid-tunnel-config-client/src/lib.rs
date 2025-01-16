@@ -141,10 +141,11 @@ pub async fn request_ephemeral_peer_with(
             post_quantum: pq_request,
             daita: None,
             daita_v2: enable_daita.then(|| {
-                log::trace!("Sending DAITA v2 request");
+                let platform = get_platform();
+                log::trace!("DAITA v2 platform: {platform:?}");
                 proto::DaitaRequestV2 {
                     level: i32::from(proto::DaitaLevel::LevelDefault),
-                    platform: i32::from(get_platform()),
+                    platform: i32::from(platform),
                     version: DAITA_VERSION,
                 }
             }),
