@@ -17,8 +17,8 @@ use std::ffi::CStr;
 /// A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
 /// can start a local forwarder (see [`Self::start`]).
 pub struct EncryptedDnsProxyState {
-    state: State,
-    domain: String,
+    pub(crate) state: State,
+    pub(crate) domain: String,
 }
 
 #[derive(Debug)]
