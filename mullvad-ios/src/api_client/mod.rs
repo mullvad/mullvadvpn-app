@@ -1,9 +1,12 @@
-use std::{ffi::CStr, sync::Arc};
+use std::{ffi::CStr, ops::Deref, sync::Arc};
 
 use mullvad_api::{
     proxy::{ApiConnectionMode, StaticConnectionModeProvider},
     rest::MullvadRestHandle,
     ApiEndpoint, Runtime,
+};
+use swift_connection_mode_provider::{
+    connection_mode_provider_rotate, SwiftConnectionModeProvider,
 };
 
 mod api;
@@ -11,6 +14,7 @@ mod cancellation;
 mod completion;
 mod response;
 mod retry_strategy;
+mod swift_connection_mode_provider;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -48,7 +52,11 @@ impl ApiContext {
 ///
 /// This function is safe.
 #[no_mangle]
-pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> SwiftApiContext {
+pub extern "C" fn mullvad_api_init_new(
+    host: *const u8,
+    address: *const u8,
+    provider: SwiftConnectionModeProvider,
+) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
     let address = unsafe { CStr::from_ptr(address.cast()) };
 
@@ -58,20 +66,18 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
     let endpoint = ApiEndpoint {
         host: Some(String::from(host)),
         address: Some(address.parse().unwrap()),
-        #[cfg(feature = "api-override")]
-        disable_tls: false,
-        #[cfg(feature = "api-override")]
-        force_direct: false,
     };
 
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
+
+    let connection_mode_provider_context = unsafe { provider.into_rust_context() };
+    tokio_handle.spawn(connection_mode_provider_context.spawn_rotator());
 
     let api_context = tokio_handle.clone().block_on(async move {
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
         let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
-        let rest_client = api_client
-            .mullvad_rest_handle(StaticConnectionModeProvider::new(ApiConnectionMode::Direct));
+        let rest_client = api_client.mullvad_rest_handle(*connection_mode_provider_context);
 
         ApiContext {
             _api_client: api_client,

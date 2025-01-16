@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadSettings
+import MullvadTypes
 
 /// A concrete implementation of an API access list interactor.
 struct ListAccessMethodInteractor: ListAccessMethodInteractorProtocol {

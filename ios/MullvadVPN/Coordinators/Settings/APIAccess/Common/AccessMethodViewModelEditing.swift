@@ -6,7 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-import MullvadSettings
+import MullvadTypes
 
 protocol AccessMethodEditing: AnyObject {
     func accessMethodDidSave(_ accessMethod: PersistentAccessMethod)
