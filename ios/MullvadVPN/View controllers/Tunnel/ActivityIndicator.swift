@@ -11,6 +11,7 @@ import SwiftUI
 struct CustomProgressView: View {
     var style: Style
     @State private var angle: Double = 0
+    @ObservedObject var connectionViewModel: ConnectionViewViewModel
 
     var body: some View {
         Image(.iconSpinner)
@@ -22,12 +23,19 @@ struct CustomProgressView: View {
                     angle = 360
                 }
             }
+            .onDisappear {
+                withAnimation(Animation.linear(duration: 0.6).repeatForever(autoreverses: false)) {
+                    angle = 0
+                }
+            }
+//            .showIf(connectionViewModel.showsActivityIndicator)
     }
 }
 
 #Preview {
-    CustomProgressView(style: .large)
-        .background(UIColor.secondaryColor.color)
+    ConnectionViewComponentPreview(showIndicators: true, isExpanded: true) { _, viewModel, _ in
+        CustomProgressView(style: .large, connectionViewModel: viewModel)
+    }
 }
 
 extension CustomProgressView {

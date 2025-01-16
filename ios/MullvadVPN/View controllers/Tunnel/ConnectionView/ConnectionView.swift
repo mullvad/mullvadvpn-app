@@ -22,9 +22,6 @@ struct ConnectionView: View {
             .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
 
         VStack(spacing: 22) {
-            CustomProgressView(style: .large)
-                .showIf(connectionViewModel.showsActivityIndicator)
-
             ZStack {
                 BlurView(style: .dark)
 
