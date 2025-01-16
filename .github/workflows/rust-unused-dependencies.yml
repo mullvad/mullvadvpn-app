@@ -114,6 +114,10 @@ jobs:
         with:
           vs-version: 16
 
+      - name: Install latest zig
+        if: matrix.os == 'windows-latest'
+        uses: mlugg/setup-zig@v1
+
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
