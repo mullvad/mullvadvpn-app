@@ -233,7 +233,11 @@ fn build_desktop_lib(target_os: Os) -> anyhow::Result<()> {
 // Build dynamically library for maybenot
 fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     let target_triple = env::var("TARGET").context("Missing 'TARGET'")?;
-    let profile = env::var("PROFILE").context("Missing 'PROFILE'")?;
+    let profile_category = env::var("PROFILE").context("Missing 'PROFILE'")?;
+    let profile = match profile_category.as_str() {
+        "release" => "release",
+        _ => "dev",
+    };
 
     let mut build_command = Command::new("cargo");
 
@@ -255,12 +259,12 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
         // Set temporary target dir to prevent deadlock
         .env("CARGO_TARGET_DIR", &tmp_build_dir)
         .arg("build")
-        .args(["--profile", &profile])
+        .args(["--profile", profile])
         .args(["--target", &target_triple]);
 
     exec(build_command)?;
 
-    let artifacts_dir = tmp_build_dir.join(target_triple).join(profile);
+    let artifacts_dir = tmp_build_dir.join(target_triple).join(profile_category);
 
     // Copy library to desired target dir
     for (src_filename, dest_filename) in [
