@@ -1539,11 +1539,28 @@ impl Daemon {
         tx: ResponseTx<(), Error>,
     ) {
         let save_result = match update {
-            ExcludedPathsUpdate::SetState(state) => self
-                .settings
-                .update(move |settings| settings.split_tunnel.enable_exclusions = state)
-                .await
-                .map_err(Error::SettingsError),
+            ExcludedPathsUpdate::SetState(state) => {
+                let split_tunnel_was_enabled =
+                    self.settings.to_settings().split_tunnel.enable_exclusions;
+                let save_result = self
+                    .settings
+                    .update(move |settings| settings.split_tunnel.enable_exclusions = state)
+                    .await
+                    .map_err(Error::SettingsError);
+                // If FDA is disabled, we may want to reconnect after disabling split tunneling. We
+                // have observed users getting into the blocked state until they reconnect in these
+                // scenarios. Since FDA is an implementation detail of split tunneling, we don't
+                // actually have a way of getting this information at this point, so we default to
+                // always reconnecting on macOS. This code can be removed if we ever remove our
+                // dependency on FDA.
+                if cfg!(target_os = "macos") {
+                    let split_tunnel_will_be_disabled = !state;
+                    if split_tunnel_was_enabled && split_tunnel_will_be_disabled {
+                        self.reconnect_tunnel();
+                    }
+                }
+                save_result
+            }
             ExcludedPathsUpdate::SetPaths(paths) => self
                 .settings
                 .update(move |settings| settings.split_tunnel.apps = paths)
