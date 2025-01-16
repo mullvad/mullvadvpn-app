@@ -10,6 +10,8 @@ import SwiftUI
 
 struct ChipView: View {
     let item: ChipModel
+    private let borderWidth: CGFloat = 1
+
     var body: some View {
         Text(item.name)
             .font(.subheadline)
@@ -21,12 +23,13 @@ struct ChipView: View {
                 RoundedRectangle(cornerRadius: 8)
                     .stroke(
                         UIColor.primaryColor.color,
-                        lineWidth: 1
+                        lineWidth: borderWidth
                     )
                     .background(
                         RoundedRectangle(cornerRadius: 8)
                             .fill(UIColor.secondaryColor.color)
                     )
+                    .padding(borderWidth)
             )
     }
 }
