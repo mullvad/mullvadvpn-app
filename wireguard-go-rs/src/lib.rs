@@ -30,7 +30,7 @@ pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: LoggingContext);
 
 // Make symbols from maybenot-ffi visible to wireguard-go
-#[cfg(all(daita, unix))]
+#[cfg(all(daita, any(target_os = "linux", target_os = "macos")))]
 use maybenot_ffi as _;
 
 /// A wireguard-go tunnel
