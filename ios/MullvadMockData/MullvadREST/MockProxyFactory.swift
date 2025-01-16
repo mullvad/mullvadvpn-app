@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 import WireGuardKitTypes
 
@@ -28,11 +29,13 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
 
     public static func makeProxyFactory(
         transportProvider: any RESTTransportProvider,
-        addressCache: REST.AddressCache
+        addressCache: REST.AddressCache,
+        apiContext: MullvadApiContext
     ) -> any ProxyFactoryProtocol {
         let basicConfiguration = REST.ProxyConfiguration(
             transportProvider: transportProvider,
-            addressCacheStore: addressCache
+            addressCacheStore: addressCache,
+            apiContext: apiContext
         )
 
         let authenticationProxy = REST.AuthenticationProxy(
@@ -44,7 +47,8 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
 
         let authConfiguration = REST.AuthProxyConfiguration(
             proxyConfiguration: basicConfiguration,
-            accessTokenManager: accessTokenManager
+            accessTokenManager: accessTokenManager,
+            apiContext: apiContext
         )
 
         return MockProxyFactory(configuration: authConfiguration)

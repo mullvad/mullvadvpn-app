@@ -93,7 +93,6 @@ final class AddressCacheTracker: @unchecked Sendable {
 
             return self.apiProxy.getAddressList(retryStrategy: .default) { result in
                 self.setEndpoints(from: result)
-
                 finish(result.map { _ in true })
             }
         }

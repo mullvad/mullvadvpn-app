@@ -2520,11 +2520,14 @@ name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
  "cbindgen 0.28.0",
+ "hyper",
  "hyper-util",
  "libc",
  "log",
+ "mullvad-api",
  "mullvad-encrypted-dns-proxy",
  "oslog",
+ "serde_json",
  "shadowsocks-service",
  "talpid-tunnel-config-client",
  "talpid-types",
