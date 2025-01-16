@@ -6,6 +6,8 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadTypes
+
 @_silgen_name("mullvad_api_completion_finish")
 func mullvadApiCompletionFinish(
     response: SwiftMullvadApiResponse,

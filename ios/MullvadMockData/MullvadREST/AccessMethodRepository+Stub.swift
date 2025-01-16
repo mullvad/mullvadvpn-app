@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadSettings
+import MullvadTypes
 
 public struct AccessMethodRepositoryStub: AccessMethodRepositoryDataSource, @unchecked Sendable {
     public var directAccess: PersistentAccessMethod

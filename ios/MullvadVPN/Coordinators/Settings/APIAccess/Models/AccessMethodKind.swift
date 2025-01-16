@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadSettings
+import MullvadTypes
 
 /// A kind of API access method.
 enum AccessMethodKind: Equatable, Hashable, CaseIterable {
