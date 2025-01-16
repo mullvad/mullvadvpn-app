@@ -7,10 +7,13 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
 import WireGuardKitTypes
 
 public protocol APIQuerying: Sendable {
+    func getAddressListNew() async throws -> [AnyIPEndpoint]
+
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
@@ -53,6 +56,17 @@ extension REST {
                 ),
                 responseDecoder: Coding.makeJSONDecoder()
             )
+        }
+
+        public func getAddressListNew() async throws -> [AnyIPEndpoint] {
+            let response = await withCheckedContinuation { continuation in
+                let pointerClass = PointerClass(continuation: continuation)
+                let rawPointer = Unmanaged.passUnretained(pointerClass).toOpaque()
+
+                mullvad_api_get_addresses(REST.apiContext.context, rawPointer)
+            }
+
+            return []
         }
 
         public func getAddressList(

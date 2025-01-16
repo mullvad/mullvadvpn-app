@@ -33,3 +33,169 @@ mod ios {
 }
 
 use ios::*;
+use mullvad_api::{
+    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
+    rest::{MullvadRestHandle, Response},
+    ApiEndpoint, ApiProxy, Runtime,
+};
+use std::{
+    ffi::{CStr, CString}, net::Incoming, ptr::{null, null_mut}, str::FromStr, sync::Arc, time::Duration, u8
+};
+
+extern "C" {
+    pub fn async_finish(response: SwiftMullvadApiResponse, async_cookie: AsyncCookie);
+}
+
+#[repr(C)]
+pub struct AsyncCookie(*mut std::ffi::c_void);
+unsafe impl Send for AsyncCookie {}
+
+#[repr(C)]
+pub struct SwiftApiContext(*const ApiContext);
+impl SwiftApiContext {
+    pub fn new(context: ApiContext) -> SwiftApiContext {
+        SwiftApiContext(Arc::into_raw(Arc::new(context)))
+    }
+
+    pub unsafe fn to_rust_context(self) -> Arc<ApiContext> {
+        Arc::increment_strong_count(self.0);
+        Arc::from_raw(self.0)
+    }
+}
+
+#[repr(C)]
+pub struct SwiftMullvadApiResponse {
+    body: *mut u8,
+    body_size: usize,
+    status_code: u16,
+    error_description: *mut u8,
+    success: bool,
+}
+impl SwiftMullvadApiResponse {
+    async fn with_body(response: Response<hyper::body::Incoming>) -> Result<Self, Error> {
+        let status_code: u16 = response.status().into();
+        let body: Vec<u8> = response.body().await.map_err(Error::Rest)?;
+        
+        let body_size = body.len();
+        let body = body.into_boxed_slice();
+
+        Ok(Self {
+            body: Box::into_raw(body).cast(),
+            body_size,
+            status_code,
+            error_description: null_mut(),
+            success: true
+        })
+    }
+
+    fn error() -> Self {
+        Self {
+            body: null_mut(),
+            body_size: 0,
+            status_code: 0,
+            error_description: null_mut(),
+            success: false,
+        }
+    }
+}
+
+struct ApiContext {
+    api_client: Runtime,
+    rest_client: MullvadRestHandle,
+}
+impl ApiContext {
+    pub fn rest_handle(&self) -> MullvadRestHandle {
+        self.rest_client.clone()
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> SwiftApiContext {
+    let host = unsafe { CStr::from_ptr(host.cast()) };
+    let address = unsafe { CStr::from_ptr(address.cast()) };
+
+    let Ok(host) = host.to_str() else {
+        return SwiftApiContext(null_mut());
+    };
+
+    let Ok(address) = address.to_str() else {
+        return SwiftApiContext(null_mut());
+    };
+
+    let endpoint = ApiEndpoint {
+        host: Some(String::from_str(host).unwrap()),
+        address: Some(address.parse().unwrap()),
+    };
+
+    let tokio_handle = match crate::mullvad_ios_runtime() {
+        Ok(tokio_handle) => tokio_handle,
+        Err(err) => {
+            log::error!("Failed to obtain a handle to a tokio runtime: {err}");
+            return SwiftApiContext(null_mut());
+        }
+    };
+
+    let api_context = tokio_handle.clone().block_on(async move {
+        // It is imperative that the REST runtime is created within an async context, otherwise
+        // ApiAvailability panics.
+        let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
+        let rest_client = api_client
+            .mullvad_rest_handle(StaticConnectionModeProvider::new(ApiConnectionMode::Direct));
+
+        ApiContext {
+            api_client,
+            rest_client,
+        }
+    });
+
+    SwiftApiContext::new(api_context)
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn mullvad_api_get_addresses(
+    api_context: SwiftApiContext,
+    async_cookie: *mut std::ffi::c_void,
+) {
+    let async_cookie = AsyncCookie(async_cookie);
+
+    let Ok(tokio_handle) = mullvad_ios_runtime() else {
+        async_finish(SwiftMullvadApiResponse::error(), async_cookie);
+        return;
+    };
+
+    let api_context = api_context.to_rust_context();
+
+    tokio_handle.clone().spawn(async move {
+        match mullvad_api_get_addresses_inner(api_context.rest_handle()).await {
+            Ok(response) => async_finish(response, async_cookie),
+            Err(err) => {
+                log::error!("{err:?}");
+                async_finish(SwiftMullvadApiResponse::error(), async_cookie);
+            }
+        }
+    });
+}
+
+#[derive(Debug)]
+enum Error {
+    Rest(mullvad_api::rest::Error),
+    CString(std::ffi::NulError),
+}
+
+async fn mullvad_api_get_addresses_inner(rest_client: MullvadRestHandle) -> Result<SwiftMullvadApiResponse, Error> {
+    let api = ApiProxy::new(rest_client);
+    let response = api.get_api_addrs_response().await.map_err(Error::Rest)?;
+
+    SwiftMullvadApiResponse::with_body(response).await
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse) {
+    if !response.body.is_null() {
+        let _ = Vec::from_raw_parts(response.body, response.body_size, response.body_size);
+    }
+
+    if !response.error_description.is_null() {
+        let _ = CStr::from_ptr(response.error_description.cast());
+    }
+}

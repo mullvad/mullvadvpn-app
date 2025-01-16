@@ -91,11 +91,23 @@ final class AddressCacheTracker: @unchecked Sendable {
                 return AnyCancellable()
             }
 
-            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
-                self.setEndpoints(from: result)
+            Task {
+                let result = try await self.apiProxy.getAddressListNew()
+                print("Address list: \(result)")
 
-                finish(result.map { _ in true })
+                DispatchQueue.main.async {
+                    self.setEndpoints(from: .success(result))
+                    finish(.success(true))
+                }
+
             }
+
+//            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
+//                self.setEndpoints(from: result)
+//
+//                finish(result.map { _ in true })
+//            }
+            return AnyCancellable()
         }
 
         operation.completionQueue = .main

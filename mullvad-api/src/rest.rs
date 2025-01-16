@@ -512,6 +512,10 @@ where
     pub async fn deserialize<T: serde::de::DeserializeOwned>(self) -> Result<T> {
         deserialize_body_inner(self.response).await
     }
+
+    pub async fn body(self) -> Result<Vec<u8>> {
+        Ok(BodyExt::collect(self.response).await?.to_bytes().to_vec())
+    }
 }
 
 #[derive(serde::Deserialize)]
