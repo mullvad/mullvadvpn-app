@@ -145,7 +145,7 @@ impl Tunnel {
         Ok(Tunnel {
             handle: code,
             assigned_name: assigned_name.to_owned(),
-            // SAFETY: The LUID is guaranteed to be intialized by wgTurnOn
+            // SAFETY: wgTurnOn succeeded and the LUID is guaranteed to be intialized by wgTurnOn
             luid: unsafe { luid.assume_init() },
         })
     }
