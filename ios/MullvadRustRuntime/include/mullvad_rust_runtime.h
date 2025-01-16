@@ -14,6 +14,8 @@ enum TunnelObfuscatorProtocol {
 };
 typedef uint8_t TunnelObfuscatorProtocol;
 
+typedef struct ApiContext ApiContext;
+
 /**
  * A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
  * can start a local forwarder (see [`Self::start`]).
@@ -21,6 +23,31 @@ typedef uint8_t TunnelObfuscatorProtocol;
 typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
+
+typedef struct RequestCancelHandle RequestCancelHandle;
+
+typedef struct SwiftApiContext {
+  const struct ApiContext *_0;
+} SwiftApiContext;
+
+typedef struct SwiftCancelHandle {
+  struct RequestCancelHandle *ptr;
+} SwiftCancelHandle;
+
+typedef struct SwiftMullvadApiResponse {
+  uint8_t *body;
+  uintptr_t body_size;
+  uint16_t status_code;
+  uint8_t *error_description;
+  uint8_t *server_response_code;
+  bool success;
+  bool should_retry;
+  uint64_t retry_after;
+} SwiftMullvadApiResponse;
+
+typedef struct CompletionCookie {
+  void *_0;
+} CompletionCookie;
 
 typedef struct ProxyHandle {
   void *context;
@@ -48,6 +75,86 @@ typedef struct EphemeralPeerParameters {
 } EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
+
+/**
+ * # Safety
+ *
+ * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
+ * This hostname will be used for TLS validation but not used for domain name resolution.
+ *
+ * `address` must be a pointer to a null terminated string representing a socket address through which
+ * the Mullvad API can be reached directly.
+ *
+ * If a context cannot be constructed this function will panic since the call site would not be able
+ * to proceed in a meaningful way anyway.
+ *
+ * This function is safe.
+ */
+struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
+                                            const uint8_t *address);
+
+/**
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
+ * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
+ * type is intended to be used.
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_context,
+                                                   void *completion_cookie);
+
+/**
+ * Called by the Swift side to signal that a Mullvad API call should be cancelled.
+ * After this call, the cancel token is no longer valid.
+ *
+ * # Safety
+ *
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
+ * is not safe to call multiple times with the same `SwiftCancelHandle`.
+ */
+void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
+
+/**
+ * Called by the Swift side to signal that the Rust `SwiftCancelHandle` can be safely
+ * dropped from memory.
+ *
+ * # Safety
+ *
+ * `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function
+ * is not safe to call multiple times with the same `SwiftCancelHandle`.
+ */
+void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
+
+/**
+ * Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
+ * network calls through Mullvad API on Rust side.
+ *
+ * # Safety
+ *
+ * `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+ * because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is
+ * intended to be used.
+ */
+extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
+                                          struct CompletionCookie completion_cookie);
+
+/**
+ * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely
+ * dropped from memory.
+ *
+ * # Safety
+ *
+ * `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`. This function
+ * is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
+ */
+void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
