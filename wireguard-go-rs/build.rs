@@ -137,6 +137,7 @@ fn build_windows_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
         .env("GOOS", "windows");
 
     let target_arch = target_arch()?;
+    // We explicitly use zig for compiling libwg. Any MinGW-compatible toolchain should work.
     match target_arch {
         Arch::Amd64 => {
             go_build.env("CC", "zig cc -target x86_64-windows");
