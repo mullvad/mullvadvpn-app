@@ -21,6 +21,8 @@ class TunnelViewController: UIViewController, RootContainment {
     private var indicatorsViewViewModel: FeatureIndicatorsViewModel
     private var connectionView: ConnectionView
     private var connectionController: UIHostingController<ConnectionView>?
+    private var progressView: CustomProgressView
+    private var progressViewController: UIHostingController<CustomProgressView>?
 
     var shouldShowSelectLocationPicker: (() -> Void)?
     var shouldShowCancelTunnelAlert: (() -> Void)?
@@ -61,6 +63,10 @@ class TunnelViewController: UIViewController, RootContainment {
             connectionViewModel: self.connectionViewViewModel,
             indicatorsViewModel: self.indicatorsViewViewModel
         )
+        progressView = CustomProgressView(
+            style: .large,
+            connectionViewModel: connectionViewViewModel
+        )
 
         super.init(nibName: nil, bundle: nil)
 
@@ -69,6 +75,7 @@ class TunnelViewController: UIViewController, RootContainment {
         // hostingController.sizingOptions instead.
         connectionView.onContentUpdate = { [weak self] in
             self?.connectionController?.view.setNeedsUpdateConstraints()
+            self?.progressViewController?.view.setNeedsUpdateConstraints()
         }
     }
 
@@ -212,7 +219,21 @@ class TunnelViewController: UIViewController, RootContainment {
         addChild(connectionController)
         connectionController.didMove(toParent: self)
 
-        view.addConstrainedSubviews([connectionViewProxy]) {
+        let progressViewController = UIHostingController(rootView: progressView)
+        self.progressViewController = progressViewController
+
+        let progressViewProxy = progressViewController.view!
+        progressViewProxy.backgroundColor = .clear
+
+        addChild(progressViewController)
+        progressViewController.didMove(toParent: self)
+
+        let verticalCenteredAnchor = progressViewProxy.centerYAnchor.anchorWithOffset(to: view.centerYAnchor)
+        view.addConstrainedSubviews([progressViewProxy, connectionViewProxy]) {
+            progressViewProxy.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            // Align the progress view to 2/3 of the height of the map
+            verticalCenteredAnchor.constraint(equalTo: progressViewProxy.heightAnchor, multiplier: 3.0 / 2.0)
+
             connectionViewProxy.pinEdgesToSuperview(.all())
         }
     }
