@@ -14,10 +14,10 @@ import UIKit
 
 final class AddressCacheTracker: @unchecked Sendable {
     /// Update interval.
-    private static let updateInterval: Duration = .days(1)
+    private static let updateInterval: Duration = .seconds(10)
 
     /// Retry interval.
-    private static let retryInterval: Duration = .minutes(15)
+    private static let retryInterval: Duration = .seconds(15)
 
     /// Logger.
     private let logger = Logger(label: "AddressCache.Tracker")
@@ -91,7 +91,8 @@ final class AddressCacheTracker: @unchecked Sendable {
                 return AnyCancellable()
             }
 
-            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
+            return self.apiProxy.mullvadApiGetAddressList(retryStrategy: .default) { result in
+                print("Address list: \(result)")
                 self.setEndpoints(from: result)
                 finish(result.map { _ in true })
             }
@@ -117,7 +118,8 @@ final class AddressCacheTracker: @unchecked Sendable {
         nslock.lock()
         defer { nslock.unlock() }
 
-        return _nextScheduleDate()
+        return Date()
+//        return _nextScheduleDate()
     }
 
     private func setEndpoints(from result: Result<[AnyIPEndpoint], Error>) {

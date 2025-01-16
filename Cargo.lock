@@ -2800,6 +2800,7 @@ name = "mullvad-ios"
 version = "0.0.0"
 dependencies = [
  "cbindgen 0.28.0",
+ "futures",
  "hyper",
  "hyper-util",
  "libc",
