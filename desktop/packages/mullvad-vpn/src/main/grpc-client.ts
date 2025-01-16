@@ -5,10 +5,10 @@ import {
   StringValue,
   UInt32Value,
 } from 'google-protobuf/google/protobuf/wrappers_pb.js';
+import { ManagementServiceClient } from 'management-interface';
 import { promisify } from 'util';
 
 import log from '../shared/logging';
-import { ManagementServiceClient } from './management_interface/management_interface_grpc_pb';
 
 const NETWORK_CALL_TIMEOUT = 10000;
 const CHANNEL_STATE_TIMEOUT = 1000 * 60 * 60;

@@ -1,6 +1,7 @@
 import * as grpc from '@grpc/grpc-js';
 import { Empty } from 'google-protobuf/google/protobuf/empty_pb.js';
 import { BoolValue, StringValue } from 'google-protobuf/google/protobuf/wrappers_pb.js';
+import { types as grpcTypes } from 'management-interface';
 
 import {
   AccessMethodSetting,
@@ -44,7 +45,6 @@ import {
   convertToRelayConstraints,
   ensureExists,
 } from './grpc-type-convertions';
-import * as grpcTypes from './management_interface/management_interface_pb';
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
