@@ -221,7 +221,7 @@ impl WgGoTunnelState {
 }
 
 impl WgGoTunnel {
-    #[cfg(all(not(target_os = "android"), unix))]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
