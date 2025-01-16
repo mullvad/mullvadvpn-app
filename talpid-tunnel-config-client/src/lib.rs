@@ -140,10 +140,14 @@ pub async fn request_ephemeral_peer_with(
             wg_ephemeral_peer_pubkey: ephemeral_pubkey.as_bytes().to_vec(),
             post_quantum: pq_request,
             daita: None,
-            daita_v2: enable_daita.then(|| proto::DaitaRequestV2 {
-                level: i32::from(proto::DaitaLevel::LevelDefault),
-                platform: i32::from(get_platform()),
-                version: DAITA_VERSION,
+            daita_v2: enable_daita.then(|| {
+                let platform = get_platform();
+                log::trace!("DAITA v2 platform: {platform:?}");
+                proto::DaitaRequestV2 {
+                    level: i32::from(proto::DaitaLevel::LevelDefault),
+                    platform: i32::from(platform),
+                    version: DAITA_VERSION,
+                }
             }),
         })
         .await
