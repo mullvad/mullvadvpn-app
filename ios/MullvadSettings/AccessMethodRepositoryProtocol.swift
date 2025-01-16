@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadTypes
 
 public protocol AccessMethodRepositoryDataSource: Sendable {
     /// Publisher that propagates a snapshot of all access methods upon modifications.

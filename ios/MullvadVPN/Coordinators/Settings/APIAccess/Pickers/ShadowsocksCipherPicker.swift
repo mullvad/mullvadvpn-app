@@ -7,6 +7,7 @@
 //
 
 import MullvadSettings
+import MullvadTypes
 import UIKit
 
 /// Type implementing the shadowsocks cipher picker.
