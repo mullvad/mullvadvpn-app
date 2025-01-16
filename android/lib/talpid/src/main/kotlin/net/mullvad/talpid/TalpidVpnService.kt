@@ -2,6 +2,7 @@ package net.mullvad.talpid
 
 import android.net.ConnectivityManager
 import android.net.LinkProperties
+import android.net.VpnService
 import android.os.ParcelFileDescriptor
 import androidx.annotation.CallSuper
 import androidx.core.content.getSystemService
@@ -18,7 +19,6 @@ import java.net.InetAddress
 import kotlin.properties.Delegates.observable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -113,7 +113,7 @@ open class TalpidVpnService : LifecycleVpnService() {
         // then notify daemon to later enter blocked state.
         val dnsConfigureResult =
             config.dnsServers
-                .mapOrAccumulate { builder.addDnsServerE(it).bind() }
+                .mapOrAccumulate { builder.addDnsServerSafe(it).bind() }
                 .map { /* Ignore right */ }
                 .onLeft {
                     // Avoid creating a tunnel with no DNS servers or if all DNS servers was
@@ -154,7 +154,9 @@ open class TalpidVpnService : LifecycleVpnService() {
             is PrepareError.OtherAlwaysOnApp -> OtherAlwaysOnApp(appName)
         }
 
-    private fun Builder.addDnsServerE(dnsServer: InetAddress) =
+    private fun Builder.addDnsServerSafe(
+        dnsServer: InetAddress
+    ): Either<InetAddress, VpnService.Builder> =
         Either.catch { addDnsServer(dnsServer) }
             .mapLeft {
                 when (it) {
