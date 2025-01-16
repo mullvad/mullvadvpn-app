@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
 
 // swiftlint:disable force_cast
@@ -28,6 +29,9 @@ extension REST {
 
     /// Default network timeout for API requests.
     public static let defaultAPINetworkTimeout: Duration = .seconds(10)
+
+    /// API context used for API requests via Rust runtime.
+    public static let apiContext = try! MullvadApiContext(host: defaultAPIHostname, address: defaultAPIEndpoint.ip.rawValue.description)
 }
 
 // swiftlint:enable force_cast

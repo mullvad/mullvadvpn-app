@@ -15,6 +15,7 @@ libc = "0.2"
 log = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 tonic = { workspace = true }
+hyper = { version = "1.4.1", features = ["client", "http1"] }
 hyper-util = { workspace = true }
 tower = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
@@ -22,6 +23,8 @@ oslog = "0.2"
 talpid-types = { path = "../talpid-types" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
+mullvad-api = { path = "../mullvad-api" }
+serde_json = { workspace = true }
 
 shadowsocks-service = { workspace = true, features = [
     "local",

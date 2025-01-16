@@ -14,6 +14,8 @@ enum TunnelObfuscatorProtocol {
 };
 typedef uint8_t TunnelObfuscatorProtocol;
 
+typedef struct ApiContext ApiContext;
+
 /**
  * A thin wrapper around [`mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState`] that
  * can start a local forwarder (see [`Self::start`]).
@@ -21,6 +23,22 @@ typedef uint8_t TunnelObfuscatorProtocol;
 typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
+
+typedef struct SwiftMullvadApiResponse {
+  uint8_t *body;
+  uintptr_t body_size;
+  uint16_t status_code;
+  uint8_t *error_description;
+  bool success;
+} SwiftMullvadApiResponse;
+
+typedef struct AsyncCookie {
+  void *_0;
+} AsyncCookie;
+
+typedef struct SwiftApiContext {
+  const struct ApiContext *_0;
+} SwiftApiContext;
 
 typedef struct ProxyHandle {
   void *context;
@@ -48,6 +66,14 @@ typedef struct EphemeralPeerParameters {
 } EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
+
+extern void async_finish(struct SwiftMullvadApiResponse response, struct AsyncCookie async_cookie);
+
+struct SwiftApiContext mullvad_api_init_new(const uint8_t *host, const uint8_t *address);
+
+void mullvad_api_get_addresses(struct SwiftApiContext api_context, void *async_cookie);
+
+void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
