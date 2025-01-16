@@ -12,7 +12,7 @@ import MullvadTypes
 import WireGuardKitTypes
 
 struct APIProxyStub: APIQuerying {
-    func mullvadApiGetAddressList(
+    func getAddressListNew(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable {

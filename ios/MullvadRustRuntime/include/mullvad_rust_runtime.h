@@ -24,30 +24,21 @@ typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
-typedef struct RequestCancelHandle RequestCancelHandle;
-
-typedef struct SwiftApiContext {
-  const struct ApiContext *_0;
-} SwiftApiContext;
-
-typedef struct SwiftCancelHandle {
-  struct RequestCancelHandle *ptr;
-} SwiftCancelHandle;
-
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
   uint16_t status_code;
   uint8_t *error_description;
-  uint8_t *server_response_code;
   bool success;
-  bool should_retry;
-  uint64_t retry_after;
 } SwiftMullvadApiResponse;
 
-typedef struct CompletionCookie {
+typedef struct AsyncCookie {
   void *_0;
-} CompletionCookie;
+} AsyncCookie;
+
+typedef struct SwiftApiContext {
+  const struct ApiContext *_0;
+} SwiftApiContext;
 
 typedef struct ProxyHandle {
   void *context;
@@ -75,6 +66,14 @@ typedef struct EphemeralPeerParameters {
 } EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
+
+extern void async_finish(struct SwiftMullvadApiResponse response, struct AsyncCookie async_cookie);
+
+struct SwiftApiContext mullvad_api_init_new(const uint8_t *host, const uint8_t *address);
+
+void mullvad_api_get_addresses(struct SwiftApiContext api_context, void *async_cookie);
+
+void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 
 /**
  * # Safety

@@ -2,6 +2,7 @@
 use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
+use http_body_util::BodyExt;
 use hyper::body::Incoming;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
