@@ -13,8 +13,9 @@ mod vm;
 use std::net::IpAddr;
 use std::{net::SocketAddr, path::PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Ok, Result};
 use clap::{builder::PossibleValuesParser, Parser};
+use config::ConfigFile;
 use package::TargetInfo;
 use tests::{config::TEST_CONFIG, get_filtered_tests};
 use vm::provision;
@@ -30,7 +31,18 @@ struct Args {
 }
 
 #[derive(clap::Subcommand, Debug)]
+enum ConfigArg {
+    Get,
+    Set,
+    GetPath,
+}
+
+#[derive(clap::Subcommand, Debug)]
 enum Commands {
+    /// Manage configuration for tests and VMs
+    #[clap(subcommand)]
+    Config(ConfigArg),
+
     /// Create or edit a VM config
     Set {
         /// Name of the VM config
@@ -184,6 +196,22 @@ async fn main() -> Result<()> {
         .await
         .context("Failed to load config")?;
     match args.cmd {
+        Commands::Config(config_subcommand) => match config_subcommand {
+            ConfigArg::Get => {
+                println!("{:#?}", *config);
+                Ok(())
+            }
+            ConfigArg::Set => todo!(),
+            ConfigArg::GetPath => {
+                println!(
+                    "{}",
+                    ConfigFile::get_config_path()
+                        .expect("Get config path")
+                        .display()
+                );
+                Ok(())
+            }
+        },
         Commands::Set {
             vm,
             config: vm_config,
