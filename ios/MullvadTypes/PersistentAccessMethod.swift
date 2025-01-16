@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import MullvadTypes
 import Network
 
 /// Persistent access method container model.
@@ -17,6 +16,11 @@ public struct PersistentAccessMethodStore: Codable {
 
     /// Persistent access method models.
     public var accessMethods: [PersistentAccessMethod]
+
+    public init(lastReachableAccessMethod: PersistentAccessMethod, accessMethods: [PersistentAccessMethod]) {
+        self.lastReachableAccessMethod = lastReachableAccessMethod
+        self.accessMethods = accessMethods
+    }
 }
 
 /// Persistent access method model.
