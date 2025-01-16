@@ -30,9 +30,15 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
+typedef struct SwiftConnectionModeProviderContext SwiftConnectionModeProviderContext;
+
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
+
+typedef struct SwiftConnectionModeProvider {
+  struct SwiftConnectionModeProviderContext *_0;
+} SwiftConnectionModeProvider;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -109,7 +115,8 @@ extern const uint16_t CONFIG_SERVICE_PORT;
  * This function is safe.
  */
 struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
-                                            const uint8_t *address);
+                                            const uint8_t *address,
+                                            struct SwiftConnectionModeProvider provider);
 
 /**
  * # Safety
@@ -308,6 +315,23 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint64_t initial_sec,
                                                                  uint32_t factor,
                                                                  uint64_t max_delay_sec);
+
+extern void connection_mode_provider_initial(const void *rawPointer);
+
+extern void connection_mode_provider_rotate(const void *rawPointer);
+
+extern const void *connection_mode_provider_receive(const void *rawIterator);
+
+struct SwiftConnectionModeProvider init_connection_mode_provider(const void *raw_provider,
+                                                                 const char *domain_name);
+
+const void *convert_direct(void);
+
+const void *convert_shadowsocks(const uint8_t *address,
+                                uintptr_t address_len,
+                                uint16_t port,
+                                const char *c_password,
+                                const char *c_cipher);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
