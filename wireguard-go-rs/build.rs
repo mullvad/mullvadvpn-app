@@ -25,7 +25,7 @@ fn main() -> anyhow::Result<()> {
         Os::Windows => build_windows_dynamic_lib(&out_dir)?,
         Os::Linux => build_linux_static_lib(&out_dir)?,
         Os::Macos => build_macos_static_lib(&out_dir)?,
-        Os::Android => build_android_dynamic_lib()?,
+        Os::Android => build_android_dynamic_lib(&out_dir)?,
     }
 
     Ok(())
@@ -443,8 +443,7 @@ fn gather_exports(go_src_path: impl AsRef<Path>) -> anyhow::Result<Vec<String>> 
 
 /// Compile libwg as a dynamic library for android and place it in [`android_output_path`].
 // NOTE: We use dynamic linking as Go cannot produce static binaries specifically for Android.
-fn build_android_dynamic_lib() -> anyhow::Result<()> {
-    let out_dir = env::var("OUT_DIR").context("Missing OUT_DIR")?;
+fn build_android_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
     let target_triple = env::var("TARGET").context("Missing 'TARGET'")?;
     let target = AndroidTarget::from_str(&target_triple)?;
 
