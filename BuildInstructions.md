@@ -95,7 +95,7 @@ The host has to have the following installed:
 - `bash` installed as well as a few base unix utilities, including `sed` and `tail`.
   You are recommended to use [Git for Windows].
 
-- `zig` installed and available in `%PATH%`. The latest official release should be fine: https://ziglang.org/download/.
+- `zig` installed and available in `%PATH%`. 0.14 or later is recommended: https://ziglang.org/download/.
 
 - `msbuild.exe` available in `%PATH%`. If you installed Visual Studio Community edition, the
   binary can be found under:
