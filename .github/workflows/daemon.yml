@@ -185,6 +185,9 @@ jobs:
         with:
           vs-version: 16
 
+      - name: Install latest zig
+        uses: mlugg/setup-zig@v1
+
       - name: Build Windows modules
         if: steps.cache-windows-modules.outputs.cache-hit != 'true'
         shell: bash
