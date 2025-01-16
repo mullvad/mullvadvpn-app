@@ -1539,11 +1539,36 @@ impl Daemon {
         tx: ResponseTx<(), Error>,
     ) {
         let save_result = match update {
-            ExcludedPathsUpdate::SetState(state) => self
-                .settings
-                .update(move |settings| settings.split_tunnel.enable_exclusions = state)
-                .await
-                .map_err(Error::SettingsError),
+            ExcludedPathsUpdate::SetState(state) => {
+                let split_tunnel_was_enabled =
+                    self.settings.to_settings().split_tunnel.enable_exclusions;
+                let save_result = self
+                    .settings
+                    .update(move |settings| settings.split_tunnel.enable_exclusions = state)
+                    .await
+                    .map_err(Error::SettingsError);
+                // If the user enables split tunneling without also enabling Full Disk Access
+                // (FDA), the daemon will enter the error state. This is unlikely, since it should
+                // only be possible via the CLI or if the user manages to disable FDA after having
+                // successfully enabled split tunneling. In any case, We have observed users
+                // getting confused over being blocked in this case, and this we may want to
+                // reconnect after disabling split tunneling.
+                //
+                // Since FDA is an implementation detail of split tunneling, we don't actually have
+                // a way of getting this information at this point, so we fallback to issuing a
+                // reconnect if the user disables split tunneling while in the error state. This
+                // code can be removed if we ever remove our dependency on FDA.
+                if cfg!(target_os = "macos") {
+                    let split_tunnel_will_be_disabled = !state;
+                    if self.tunnel_state.is_in_error_state()
+                        && split_tunnel_was_enabled
+                        && split_tunnel_will_be_disabled
+                    {
+                        self.reconnect_tunnel();
+                    }
+                }
+                save_result
+            }
             ExcludedPathsUpdate::SetPaths(paths) => self
                 .settings
                 .update(move |settings| settings.split_tunnel.apps = paths)
