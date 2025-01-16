@@ -19,7 +19,7 @@ fn main() -> anyhow::Result<()> {
 
     match target_os.as_str() {
         "linux" => build_static_lib(Os::Linux, true)?,
-        "macos" => build_static_lib(Os::MacOs, true)?,
+        "macos" => build_static_lib(Os::Macos, true)?,
         "android" => build_android_dynamic_lib(true)?,
         // building wireguard-go-rs for windows is not implemented
         _ => {}
@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
 
 #[derive(PartialEq, Eq)]
 enum Os {
-    MacOs,
+    Macos,
     Linux,
 }
 
@@ -67,7 +67,7 @@ fn host_os() -> anyhow::Result<Os> {
     if cfg!(target_os = "linux") {
         Ok(Os::Linux)
     } else if cfg!(target_os = "macos") {
-        Ok(Os::MacOs)
+        Ok(Os::Macos)
     } else {
         bail!("Unsupported host OS")
     }
@@ -123,7 +123,7 @@ fn build_static_lib(target_os: Os, daita: bool) -> anyhow::Result<()> {
                 };
             }
         }
-        Os::MacOs => {
+        Os::Macos => {
             go_build.env("GOOS", "darwin");
 
             if cross_compiling {
