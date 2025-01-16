@@ -2,6 +2,7 @@
 use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
+use hyper::body::Incoming;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
@@ -746,13 +747,17 @@ impl ApiProxy {
     }
 
     pub async fn get_api_addrs(&self) -> Result<Vec<SocketAddr>, rest::Error> {
+        self.get_api_addrs_response().await?.deserialize().await
+    }
+
+    pub async fn get_api_addrs_response(&self) -> Result<rest::Response<Incoming>, rest::Error> {
         let request = self
             .handle
             .factory
             .get(&format!("{APP_URL_PREFIX}/api-addrs"))?
             .expected_status(&[StatusCode::OK]);
-        let response = self.handle.service.request(request).await?;
-        response.deserialize().await
+
+        self.handle.service.request(request).await
     }
 
     /// Check the availablility of `{APP_URL_PREFIX}/api-addrs`.
