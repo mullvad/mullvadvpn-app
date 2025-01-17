@@ -99,9 +99,7 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
       </AriaLabel>
       {props.details && (
         <AriaDetails>
-          <StyledInfoButton title={props.infoTitle} size="small">
-            {props.details}
-          </StyledInfoButton>
+          <StyledInfoButton title={props.infoTitle}>{props.details}</StyledInfoButton>
         </AriaDetails>
       )}
     </>

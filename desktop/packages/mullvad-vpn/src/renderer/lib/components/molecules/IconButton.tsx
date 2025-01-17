@@ -30,16 +30,21 @@ const sizes = {
   medium: 24,
 };
 
+// TODO: This should be removed when we have updated to the new icons from design system
+const iconSizes = {
+  small: 14,
+  medium: 20,
+};
+
 const StyledButton = styled.button({
   ...buttonReset,
 
   background: 'transparent',
   height: 'var(--size)',
   width: 'var(--size)',
+  borderRadius: '100%',
   '&:focus-visible': {
     outline: `2px solid ${Colors.white}`,
-    outlineOffset: '2px',
-    borderRadius: '100%',
   },
 });
 
@@ -47,6 +52,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ icon, variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
     const styles = variants[variant];
     const size = sizes[sizeProp];
+    const iconSize = iconSizes[sizeProp];
     return (
       <StyledButton
         ref={ref}
@@ -63,8 +69,8 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           tintColor={styles.background}
           tintHoverColor={styles.hover}
           disabled={disabled}
-          height={size}
-          width={size}
+          height={iconSize}
+          width={iconSize}
         />
       </StyledButton>
     );
