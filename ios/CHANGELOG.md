@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+
+## [2025.1 - 2025-01-14]
 ### Added
 - Update to DAITA v2 - now machines are provided by relays dynamically instead
   of using bundled ones.
