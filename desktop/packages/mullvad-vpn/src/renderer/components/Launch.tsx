@@ -115,6 +115,7 @@ function DefaultFooter() {
           <ModalMessageList>
             <li>{messages.pgettext('launch-view', 'Restarting your computer.')}</li>
             <li>{messages.pgettext('launch-view', 'Reinstalling the app.')}</li>
+            <li>{messages.pgettext('launch-view', 'Disable third party antivirus software.')}</li>
           </ModalMessageList>
         </ModalMessage>
         <ModalMessage>
