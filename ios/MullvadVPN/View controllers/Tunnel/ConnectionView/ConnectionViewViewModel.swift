@@ -26,14 +26,6 @@ class ConnectionViewViewModel: ObservableObject {
 
     @Published private(set) var tunnelStatus: TunnelStatus
     @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
-    @Published var showsActivityIndicator = false
-
-    var combinedState: Publishers.CombineLatest<
-        Published<TunnelStatus>.Publisher,
-        Published<Bool>.Publisher
-    > {
-        $tunnelStatus.combineLatest($showsActivityIndicator)
-    }
 
     var tunnelIsConnected: Bool {
         if case .connected = tunnelStatus.state {
