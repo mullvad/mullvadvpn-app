@@ -41,9 +41,9 @@ const StyledButton = styled.button({
   background: 'transparent',
   height: 'var(--size)',
   width: 'var(--size)',
+  borderRadius: '100%',
   '&:focus-visible': {
     outline: `2px solid ${Colors.white}`,
-    borderRadius: '100%',
   },
 });
 
