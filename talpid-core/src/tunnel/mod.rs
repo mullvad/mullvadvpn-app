@@ -78,6 +78,11 @@ impl From<Error> for ErrorStateCause {
 
             #[cfg(target_os = "android")]
             Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
+                talpid_wireguard::TunnelError::SetupTunnelDevice(tun_provider::Error::RoutesTimedOut),
+            )) => ErrorStateCause::RoutesTimedOut,
+
+            #[cfg(target_os = "android")]
+            Error::WireguardTunnelMonitoringError(talpid_wireguard::Error::TunnelError(
                 talpid_wireguard::TunnelError::SetupTunnelDevice(
                     tun_provider::Error::InvalidDnsServers(addresses),
                 ),

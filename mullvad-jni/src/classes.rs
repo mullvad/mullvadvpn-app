@@ -13,7 +13,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/model/CreateTunResult$OtherAlwaysOnApp",
     "net/mullvad/talpid/model/CreateTunResult$NotPrepared",
     "net/mullvad/talpid/model/CreateTunResult$EstablishError",
-    "net/mullvad/talpid/model/CreateTunResult$RoutesTimedOutError",
+    "net/mullvad/talpid/model/CreateTunResult$RoutesTimedOut",
     "net/mullvad/talpid/ConnectivityListener",
     "net/mullvad/talpid/TalpidVpnService",
     "net/mullvad/mullvadvpn/lib/endpoint/ApiEndpointOverride",

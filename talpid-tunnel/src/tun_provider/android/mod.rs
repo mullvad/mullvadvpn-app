@@ -46,6 +46,9 @@ pub enum Error {
     #[error("Failed to create tunnel device")]
     TunnelDeviceError,
 
+    #[error("Routes timed out")]
+    RoutesTimedOut,
+
     #[error("Profile for VPN has not been setup")]
     NotPrepared,
 
@@ -382,7 +385,7 @@ enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
     EstablishError,
-    RoutesTimedOutError,
+    RoutesTimedOut { tun_fd: i32 },
     OtherLegacyAlwaysOnVpn,
     OtherAlwaysOnApp { app_name: String },
     NotPrepared,
@@ -395,7 +398,7 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::RoutesTimedOutError => Err(Error::TunnelDeviceError),
+            CreateTunResult::RoutesTimedOut { tun_fd: _ } => Err(Error::RoutesTimedOut),
             CreateTunResult::EstablishError => Err(Error::TunnelDeviceError),
             CreateTunResult::OtherLegacyAlwaysOnVpn => Err(Error::OtherLegacyAlwaysOnVpn),
             CreateTunResult::OtherAlwaysOnApp { app_name } => {

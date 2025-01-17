@@ -8,6 +8,7 @@ import androidx.annotation.CallSuper
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.core.Either
+import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.merge
 import arrow.core.raise.either
@@ -32,7 +33,7 @@ import net.mullvad.talpid.model.CreateTunResult.InvalidDnsServers
 import net.mullvad.talpid.model.CreateTunResult.NotPrepared
 import net.mullvad.talpid.model.CreateTunResult.OtherAlwaysOnApp
 import net.mullvad.talpid.model.CreateTunResult.OtherLegacyAlwaysOnVpn
-import net.mullvad.talpid.model.CreateTunResult.RoutesTimedOutError
+import net.mullvad.talpid.model.CreateTunResult.RoutesTimedOut
 import net.mullvad.talpid.model.InetNetwork
 import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
@@ -135,12 +136,13 @@ open class TalpidVpnService : LifecycleVpnService() {
                 .mapLeft { EstablishError }
                 .bind()
 
+        val tunFd = vpnInterfaceFd.detachFd()
+
         // Wait for android OS to respond back to us that the routes are setup so we don't
         // send traffic before the routes are set up. Otherwise we might send traffic
         // through the wrong interface
-        runBlocking { waitForRoutesWithTimeout(config) }.bind()
-
-        val tunFd = vpnInterfaceFd.detachFd()
+        RoutesTimedOut(tunFd).left().bind()
+        runBlocking { waitForRoutesWithTimeout(tunFd, config) }.bind()
 
         dnsConfigureResult.mapLeft { InvalidDnsServers(it, tunFd) }.bind()
 
@@ -166,9 +168,10 @@ open class TalpidVpnService : LifecycleVpnService() {
             }
 
     private suspend fun waitForRoutesWithTimeout(
+        tunFd: Int,
         config: TunConfig,
         timeout: Duration = ROUTES_SETUP_TIMEOUT,
-    ): Either<RoutesTimedOutError, Unit> = either {
+    ): Either<RoutesTimedOut, Unit> = either {
         // Wait for routes to match our expectations
         val result =
             withTimeoutOrNull(timeout = timeout) {
@@ -177,7 +180,7 @@ open class TalpidVpnService : LifecycleVpnService() {
                     .first { linkProps -> linkProps?.containsAll(config.routes) == true }
             }
 
-        ensureNotNull(result) { RoutesTimedOutError }
+        ensureNotNull(result) { RoutesTimedOut(tunFd) }
     }
 
     private fun LinkProperties.containsAll(configRoutes: List<InetNetwork>): Boolean {

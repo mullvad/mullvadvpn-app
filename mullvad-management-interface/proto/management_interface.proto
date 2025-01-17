@@ -168,7 +168,9 @@ message ErrorState {
     // Android only
     INVALID_DNS_SERVERS = 11;
     SPLIT_TUNNEL_ERROR = 12;
-    NEED_FULL_DISK_PERMISSIONS = 13;
+    // Android only
+    ROUTES_TIMED_OUT = 13;
+    NEED_FULL_DISK_PERMISSIONS = 14;
   }
 
   enum AuthFailedError {

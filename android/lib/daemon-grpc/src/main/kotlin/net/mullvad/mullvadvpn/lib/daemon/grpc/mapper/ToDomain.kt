@@ -261,6 +261,7 @@ internal fun ManagementInterface.ErrorState.toDomain(
                 ManagementInterface.ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN ->
                     ErrorStateCause.OtherLegacyAlwaysOnApp
                 ManagementInterface.ErrorState.Cause.INVALID_DNS_SERVERS -> invalidDnsServers!!
+                ManagementInterface.ErrorState.Cause.ROUTES_TIMED_OUT -> ErrorStateCause.RoutesTimedOut
             },
         isBlocking = !hasBlockingError(),
     )

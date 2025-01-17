@@ -2,7 +2,6 @@ package net.mullvad.talpid.model
 
 import java.net.InetAddress
 import java.util.ArrayList
-import net.mullvad.talpid.model.CreateTunResult.Error
 
 sealed interface CreateTunResult {
     val isOpen: Boolean
@@ -32,7 +31,7 @@ sealed interface CreateTunResult {
     }
 
     // Routes never got setup in time
-    data object RoutesTimedOutError : Error {
+    data class RoutesTimedOut(val tunFd: Int) : Error {
         override val isOpen: Boolean = true
     }
 
