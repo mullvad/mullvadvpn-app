@@ -8,7 +8,6 @@ import androidx.annotation.CallSuper
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
 import arrow.core.Either
-import arrow.core.left
 import arrow.core.mapOrAccumulate
 import arrow.core.merge
 import arrow.core.raise.either
@@ -138,12 +137,6 @@ open class TalpidVpnService : LifecycleVpnService() {
 
         val tunFd = vpnInterfaceFd.detachFd()
 
-        // Wait for android OS to respond back to us that the routes are setup so we don't
-        // send traffic before the routes are set up. Otherwise we might send traffic
-        // through the wrong interface
-        RoutesTimedOut(tunFd).left().bind()
-        runBlocking { waitForRoutesWithTimeout(tunFd, config) }.bind()
-
         dnsConfigureResult.mapLeft { InvalidDnsServers(it, tunFd) }.bind()
 
         CreateTunResult.Success(tunFd)
@@ -167,21 +160,20 @@ open class TalpidVpnService : LifecycleVpnService() {
                 }
             }
 
-    private suspend fun waitForRoutesWithTimeout(
-        tunFd: Int,
+
+    // Wait for android OS to respond back to us that the routes are setup so we don't
+    // send traffic before the routes are set up. Otherwise we might send traffic
+    // through the wrong interface
+    fun waitForRoutes(
         config: TunConfig,
-        timeout: Duration = ROUTES_SETUP_TIMEOUT,
-    ): Either<RoutesTimedOut, Unit> = either {
-        // Wait for routes to match our expectations
-        val result =
-            withTimeoutOrNull(timeout = timeout) {
+    ): Boolean =
+        runBlocking {
+            withTimeoutOrNull(timeout = ROUTES_SETUP_TIMEOUT) {
                 connectivityListener.currentNetworkState
                     .map { it?.linkProperties }
                     .first { linkProps -> linkProps?.containsAll(config.routes) == true }
-            }
-
-        ensureNotNull(result) { RoutesTimedOut(tunFd) }
-    }
+            } != null
+        }
 
     private fun LinkProperties.containsAll(configRoutes: List<InetNetwork>): Boolean {
         // Current routes on the link
