@@ -8,7 +8,7 @@ import { buttonReset } from '../../styles';
 export interface IconButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: 'primary' | 'secondary';
-  size?: 'small' | 'regular';
+  size?: 'small' | 'medium';
   icon: string;
 }
 
@@ -27,7 +27,7 @@ const variants = {
 
 const sizes = {
   small: 16,
-  regular: 24,
+  medium: 24,
 };
 
 const StyledButton = styled.button({
@@ -44,7 +44,7 @@ const StyledButton = styled.button({
 });
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, variant = 'primary', size: sizeProp = 'regular', disabled, style, ...props }, ref) => {
+  ({ icon, variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
     const styles = variants[variant];
     const size = sizes[sizeProp];
     return (
