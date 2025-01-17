@@ -18,7 +18,7 @@ struct MainButtonStyle: ButtonStyle {
 
     func makeBody(configuration: Configuration) -> some View {
         return configuration.label
-            .frame(height: 44)
+            .frame(minHeight: 44)
             .foregroundColor(
                 isEnabled
                     ? UIColor.primaryTextColor.color

@@ -332,16 +332,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let coordinator = ChangeLogCoordinator(interactor: ChangeLogInteractor())
+        let coordinator = ChangeLogCoordinator(
+            navigationController: CustomNavigationController(),
+            viewModel: ChangeLogViewModel(changeLogReader: ChangeLogReader())
+        )
 
-        coordinator.didFinish = { [weak self] _ in
+        coordinator.start(animated: false)
+
+        presentChild(coordinator, animated: animated) { [weak self] in
             self?.appPreferences.markChangeLogSeen()
-            self?.router.dismiss(.changelog)
-        }
-
-        coordinator.start()
-
-        presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }
@@ -824,8 +823,7 @@ extension DeviceState {
 
 fileprivate extension AppPreferencesDataSource {
     var hasSeenLastChanges: Bool {
-        !ChangeLogInteractor().hasNewChanges ||
-            (lastSeenChangeLogVersion == Bundle.main.shortVersion)
+        lastSeenChangeLogVersion == Bundle.main.shortVersion
     }
 
     mutating func markChangeLogSeen() {

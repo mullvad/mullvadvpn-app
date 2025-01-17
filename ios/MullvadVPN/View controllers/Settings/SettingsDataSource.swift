@@ -42,7 +42,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
 
     enum Item: String {
         case vpnSettings
-        case version
+        case changelog
         case problemReport
         case faq
         case apiAccess
@@ -53,7 +53,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             switch self {
             case .vpnSettings:
                 return .vpnSettingsCell
-            case .version:
+            case .changelog:
                 return .versionCell
             case .problemReport:
                 return .problemReportCell
@@ -115,12 +115,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     // MARK: - UITableViewDelegate
 
     func tableView(_ tableView: UITableView, shouldHighlightRowAt indexPath: IndexPath) -> Bool {
-        switch itemIdentifier(for: indexPath) {
-        case .vpnSettings, .problemReport, .faq, .apiAccess, .daita, .multihop:
-            true
-        case .version, .none:
-            false
-        }
+        true
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -168,7 +163,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         snapshot.appendItems([.apiAccess], toSection: .apiAccess)
 
         snapshot.appendSections([.version, .problemReport])
-        snapshot.appendItems([.version], toSection: .version)
+        snapshot.appendItems([.changelog], toSection: .version)
         snapshot.appendItems([.problemReport, .faq], toSection: .problemReport)
 
         apply(snapshot)

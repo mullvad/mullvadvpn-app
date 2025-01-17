@@ -28,8 +28,16 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
     }
 
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
+        let cell: UITableViewCell
 
+        // Instantiate cell based on the specific item type
+        if item == .changelog {
+            cell = SettingsCell(style: .subtitle, reuseIdentifier: item.reuseIdentifier.rawValue)
+        } else {
+            cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
+        }
+
+        // Configure the cell with the common logic
         configureCell(cell, item: item, indexPath: indexPath)
 
         return cell
@@ -51,18 +59,17 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
             cell.disclosureType = .chevron
 
-        case .version:
+        case .changelog:
             guard let cell = cell as? SettingsCell else { return }
-
             cell.titleLabel.text = NSLocalizedString(
                 "APP_VERSION_CELL_LABEL",
                 tableName: "Settings",
-                value: "App version",
+                value: "What's new",
                 comment: ""
             )
             cell.detailTitleLabel.text = Bundle.main.productVersion
             cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
-            cell.disclosureType = .none
+            cell.disclosureType = .chevron
 
         case .problemReport:
             guard let cell = cell as? SettingsCell else { return }
@@ -92,7 +99,6 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
 
         case .apiAccess:
             guard let cell = cell as? SettingsCell else { return }
-
             cell.titleLabel.text = NSLocalizedString(
                 "API_ACCESS_CELL_LABEL",
                 tableName: "Settings",
