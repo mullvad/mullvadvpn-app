@@ -1,5 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { ICustomList } from '../../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../shared/gettext';
@@ -111,6 +112,10 @@ function getRelayName(
   }
 }
 
+const StyledReconnectButton = styled(Button)({
+  minWidth: '40px',
+});
+
 function ReconnectButton(props: ButtonProps) {
   const { reconnectTunnel } = useAppContext();
 
@@ -124,8 +129,12 @@ function ReconnectButton(props: ButtonProps) {
   }, [reconnectTunnel]);
 
   return (
-    <Button onClick={onReconnect} size="tiny" aria-label={messages.gettext('Reconnect')} {...props}>
+    <StyledReconnectButton
+      onClick={onReconnect}
+      size="auto"
+      aria-label={messages.gettext('Reconnect')}
+      {...props}>
       <ImageView height={24} width={24} source="icon-reload" tintColor="white" />
-    </Button>
+    </StyledReconnectButton>
   );
 }

@@ -32,6 +32,10 @@ export const StyledIllustration = styled.img({
   padding: '8px 0 8px',
 });
 
+const StyledInfoButton = styled(InfoButton)({
+  marginRight: Spacings.spacing5,
+});
+
 export default function DaitaSettings() {
   const { pop } = useHistory();
 
@@ -177,9 +181,9 @@ function DaitaToggle() {
           <AriaLabel>
             <Cell.InputLabel>{directOnlyString}</Cell.InputLabel>
           </AriaLabel>
-          <InfoButton>
+          <StyledInfoButton>
             <DirectOnlyModalMessage />
-          </InfoButton>
+          </StyledInfoButton>
           <AriaInput>
             <Cell.Switch isOn={directOnly && !unavailable} onChange={setDirectOnly} />
           </AriaInput>

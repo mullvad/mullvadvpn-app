@@ -30,9 +30,7 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-const StyledInfoButton = styled(InfoButton).attrs({
-  size: 'small',
-})({
+const StyledInfoButton = styled(InfoButton)({
   marginRight: Spacings.spacing5,
 });
 
