@@ -47,7 +47,7 @@ export default function InfoButton({ title, message, children, ...props }: InfoB
         message={message}
         type={ModalAlertType.info}
         buttons={[
-          <Button key="back" onClick={hide}>
+          <Button key="back" size="full" onClick={hide}>
             {messages.gettext('Got it!')}
           </Button>,
         ]}
