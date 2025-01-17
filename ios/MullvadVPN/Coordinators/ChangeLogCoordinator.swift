@@ -8,46 +8,33 @@
 
 import MullvadLogging
 import Routing
+import SwiftUI
 import UIKit
 
-final class ChangeLogCoordinator: Coordinator, Presentable {
-    private var alertController: AlertViewController?
-    private let interactor: ChangeLogInteractor
-    var didFinish: ((ChangeLogCoordinator) -> Void)?
+final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordinator {
+    private var navigationController: UINavigationController?
+    private let viewModel: ChangeLogViewModel
 
     var presentedViewController: UIViewController {
-        return alertController!
+        return navigationController!
     }
 
-    init(interactor: ChangeLogInteractor) {
-        self.interactor = interactor
+    init(navigationController: UINavigationController, viewModel: ChangeLogViewModel) {
+        self.viewModel = viewModel
+        self.navigationController = navigationController
     }
 
-    func start() {
-        let presentation = AlertPresentation(
-            id: "change-log-ok-alert",
-            accessibilityIdentifier: .changeLogAlert,
-            header: interactor.viewModel.header,
-            title: interactor.viewModel.title,
-            attributedMessage: interactor.viewModel.body,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString(
-                        "CHANGE_LOG_OK_ACTION",
-                        tableName: "Account",
-                        value: "Got it!",
-                        comment: ""
-                    ),
-                    style: .default,
-                    accessibilityId: .alertOkButton,
-                    handler: { [weak self] in
-                        guard let self else { return }
-                        didFinish?(self)
-                    }
-                ),
-            ]
+    func start(animated: Bool) {
+        let changeLogViewController = UIHostingController(rootView: ChangeLogView(viewModel: viewModel))
+        changeLogViewController.view.setAccessibilityIdentifier(.changeLogAlert)
+        changeLogViewController.navigationItem.title = NSLocalizedString(
+            "whats_new_title",
+            tableName: "Changelog",
+            value: "What's new",
+            comment: ""
         )
-
-        alertController = AlertViewController(presentation: presentation)
+        changeLogViewController.navigationItem.largeTitleDisplayMode = .always
+        navigationController?.navigationBar.prefersLargeTitles = true
+        navigationController?.pushViewController(changeLogViewController, animated: animated)
     }
 }

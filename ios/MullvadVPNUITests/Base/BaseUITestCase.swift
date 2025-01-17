@@ -242,8 +242,7 @@ class BaseUITestCase: XCTestCase {
             .waitForExistence(timeout: Self.shortTimeout)
 
         if changeLogIsShown {
-            ChangeLogAlert(app)
-                .tapOkay()
+            ChangeLogAlert(app).swipeDownToDismissModal()
         }
 
         // Ensure changelog is no longer shown

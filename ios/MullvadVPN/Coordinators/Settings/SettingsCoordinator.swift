@@ -30,6 +30,9 @@ enum SettingsNavigationRoute: Equatable {
     /// API access route.
     case apiAccess
 
+    /// changelog route.
+    case changelog
+
     /// Multihop route.
     case multihop
 

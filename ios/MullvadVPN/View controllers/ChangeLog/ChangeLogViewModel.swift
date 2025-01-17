@@ -7,42 +7,39 @@
 //
 
 import Foundation
-import UIKit.NSAttributedString
-import UIKit.UIFont
+import MullvadLogging
+import SwiftUI
 
-struct ChangeLogViewModel {
-    let header: String = Bundle.main.shortVersion
-    let title: String = NSLocalizedString(
-        "CHANGE_LOG_TITLE",
-        tableName: "Account",
-        value: "Changes in this version:",
-        comment: ""
-    )
-    let body: NSAttributedString
+protocol ChangeLogViewModelProtocol: ObservableObject {
+    var changeLog: ChangeLogModel? { get }
+    func getLatestChanges()
+}
 
-    init(body: [String]) {
-        self.body = body.changeLogAttributedString
+class ChangeLogViewModel: ChangeLogViewModelProtocol {
+    private let logger = Logger(label: "ChangeLogViewModel")
+    private let changeLogReader: ChangeLogReaderProtocol
+
+    @Published var changeLog: ChangeLogModel?
+
+    init(changeLogReader: ChangeLogReaderProtocol) {
+        self.changeLogReader = changeLogReader
+    }
+
+    func getLatestChanges() {
+        do {
+            changeLog = ChangeLogModel(title: Bundle.main.productVersion, changes: try changeLogReader.read())
+        } catch {
+            logger.error(error: error, message: "Cannot read change log from bundle.")
+        }
     }
 }
 
-fileprivate extension Array where Element == String {
-    var changeLogAttributedString: NSAttributedString {
-        let bullet = "•  "
-        let font = UIFont.preferredFont(forTextStyle: .body)
-        let paragraphStyle = NSMutableParagraphStyle()
-        paragraphStyle.lineBreakMode = .byWordWrapping
-        paragraphStyle.headIndent = bullet.size(withAttributes: [.font: font]).width
-
-        return NSAttributedString(
-            string: self.map {
-                "\(bullet)\($0)"
-            }
-            .joined(separator: "\n"),
-            attributes: [
-                .paragraphStyle: paragraphStyle,
-                .font: font,
-                .foregroundColor: UIColor.white.withAlphaComponent(0.8),
-            ]
-        )
+class MockChangeLogViewModel: ChangeLogViewModelProtocol {
+    @Published var changeLog: ChangeLogModel?
+    func getLatestChanges() {
+        changeLog = ChangeLogModel(title: "2025.1", changes: [
+            "Introduced a dark mode for better accessibility and user experience.",
+            "Added two-factor authentication (2FA) for all user accounts.",
+        ])
     }
 }

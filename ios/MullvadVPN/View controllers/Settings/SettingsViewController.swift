@@ -109,8 +109,8 @@ extension SettingsDataSource.Item {
         switch self {
         case .vpnSettings:
             return .vpnSettings
-        case .version:
-            return nil
+        case .changelog:
+            return .changelog
         case .problemReport:
             return .problemReport
         case .faq:

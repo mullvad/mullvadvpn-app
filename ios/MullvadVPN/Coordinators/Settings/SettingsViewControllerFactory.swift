@@ -54,15 +54,17 @@ struct SettingsViewControllerFactory {
         case .root:
             // Handled in SettingsCoordinator.
             .failed
+        case .faq:
+            // Handled separately and presented as a modal.
+            .failed
         case .vpnSettings:
             makeVPNSettingsViewController()
         case .problemReport:
             makeProblemReportViewController()
         case .apiAccess:
             makeAPIAccessViewController()
-        case .faq:
-            // Handled separately and presented as a modal.
-            .failed
+        case .changelog:
+            makeChangelogViewController()
         case .multihop:
             makeMultihopViewController()
         case .daita:
@@ -91,6 +93,15 @@ struct SettingsViewControllerFactory {
             accessMethodRepository: accessMethodRepository,
             proxyConfigurationTester: proxyConfigurationTester
         ))
+    }
+
+    private func makeChangelogViewController() -> MakeChildResult {
+        return .childCoordinator(
+            ChangeLogCoordinator(
+                navigationController: navigationController,
+                viewModel: ChangeLogViewModel(changeLogReader: ChangeLogReader())
+            )
+        )
     }
 
     private func makeMultihopViewController() -> MakeChildResult {
