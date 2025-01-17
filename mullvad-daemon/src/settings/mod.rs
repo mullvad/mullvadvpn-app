@@ -248,6 +248,10 @@ impl SettingsPersister {
         Ok(())
     }
 
+    pub const fn settings(&self) -> &Settings {
+        &self.settings
+    }
+
     pub fn to_settings(&self) -> Settings {
         self.settings.clone()
     }

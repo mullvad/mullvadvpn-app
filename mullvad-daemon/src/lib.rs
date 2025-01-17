@@ -1021,7 +1021,7 @@ impl Daemon {
             TunnelStateTransition::Disconnected => TunnelState::Disconnected { location: None },
             TunnelStateTransition::Connecting(endpoint) => {
                 let feature_indicators = compute_feature_indicators(
-                    &self.settings.to_settings(),
+                    self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
                 );
@@ -1033,7 +1033,7 @@ impl Daemon {
             }
             TunnelStateTransition::Connected(endpoint) => {
                 let feature_indicators = compute_feature_indicators(
-                    &self.settings.to_settings(),
+                    self.settings.settings(),
                     &endpoint,
                     self.parameters_generator.last_relay_was_overridden().await,
                 );
@@ -1199,7 +1199,7 @@ impl Daemon {
                     .active_features()
                     .any(|f| matches!(&f, FeatureIndicator::ServerIpOverride));
                 let new_feature_indicators =
-                    compute_feature_indicators(&self.settings.to_settings(), endpoint, ip_override);
+                    compute_feature_indicators(self.settings.settings(), endpoint, ip_override);
                 // Update and broadcast the new feature indicators if they have changed
                 if *feature_indicators != new_feature_indicators {
                     // Make sure to update the daemon's actual tunnel state. Otherwise, feature
@@ -1541,7 +1541,7 @@ impl Daemon {
         let save_result = match update {
             ExcludedPathsUpdate::SetState(state) => {
                 let split_tunnel_was_enabled =
-                    self.settings.to_settings().split_tunnel.enable_exclusions;
+                    self.settings.settings().split_tunnel.enable_exclusions;
                 let save_result = self
                     .settings
                     .update(move |settings| settings.split_tunnel.enable_exclusions = state)
@@ -2528,7 +2528,7 @@ impl Daemon {
         {
             Ok(settings_changed) => {
                 if settings_changed {
-                    let settings = self.settings.to_settings();
+                    let settings = self.settings.settings();
                     let resolvers =
                         dns::addresses_from_options(&settings.tunnel_options.dns_options);
                     self.send_tunnel_command(TunnelCommand::Dns(
