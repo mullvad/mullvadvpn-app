@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+### Fixed
+- Broken DAITA settings view on iOS 15.
 
 ## [2025.1 - 2025-01-14]
 ### Added

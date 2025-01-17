@@ -19,7 +19,6 @@ struct SettingsInfoViewModelPage: Hashable {
 
 struct SettingsInfoView: View {
     let viewModel: SettingsInfoViewModel
-    @State var height: CGFloat = 0
 
     // Extra spacing to allow for some room around the page indicators.
     var pageIndicatorSpacing: CGFloat {
@@ -27,51 +26,44 @@ struct SettingsInfoView: View {
     }
 
     var body: some View {
-        TabView {
-            ForEach(viewModel.pages, id: \.self) { page in
-                VStack {
-                    contentView(for: page)
-                    Spacer()
-                }
-                .padding(UIMetrics.SettingsInfoView.layoutMargins)
-            }
-        }
-        .frame(
-            height: height + pageIndicatorSpacing
-        )
-        .tabViewStyle(.page)
-        .foregroundColor(Color(.primaryTextColor))
-        .background {
-            Color(.secondaryColor)
-            preRenderViewSize()
-        }
-    }
-
-    private func contentView(for page: SettingsInfoViewModelPage) -> some View {
-        VStack(alignment: .leading, spacing: 16) {
-            Image(page.image)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-            Text(page.body)
-                .font(.subheadline)
-                .opacity(0.6)
-        }
-    }
-
-    // Renders the content of each page, determining the maximum height between them
-    // when laid out on screen. Since we only want this to update the real view
-    // this function should be called from a .background() and its contents hidden.
-    private func preRenderViewSize() -> some View {
         ZStack {
-            ForEach(viewModel.pages, id: \.self) { page in
-                contentView(for: page)
+            TabView {
+                contentView()
             }
+            .padding(UIMetrics.SettingsInfoView.layoutMargins)
+            .tabViewStyle(.page)
+            .foregroundColor(Color(.primaryTextColor))
+            .background {
+                Color(.secondaryColor)
+            }
+            hiddenViewToStretchHeightInsideScrollView()
         }
+    }
+
+//    A TabView inside a Scrollview has no height. This hidden view stretches the TabView to have the size of the heighest page.
+    private func hiddenViewToStretchHeightInsideScrollView() -> some View {
+        return ZStack {
+            contentView()
+        }
+        .padding(UIMetrics.SettingsInfoView.layoutMargins)
+        .padding(.bottom, 1)
         .hidden()
-        .sizeOfView { size in
-            if size.height > height {
-                height = size.height
+    }
+
+    private func contentView() -> some View {
+        ForEach(viewModel.pages, id: \.self) { page in
+            VStack {
+                VStack(alignment: .leading, spacing: 16) {
+                    Image(page.image)
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                    Text(page.body)
+                        .font(.subheadline)
+                        .opacity(0.6)
+                }
+                Spacer()
             }
+            .padding(.bottom, pageIndicatorSpacing)
         }
     }
 }
@@ -111,4 +103,66 @@ struct SettingsInfoView: View {
             ),
         ]
     ))
+}
+
+#Preview("Single inside Scrollview") {
+    ScrollView {
+        SettingsInfoView(viewModel: SettingsInfoViewModel(
+            pages: [
+                SettingsInfoViewModelPage(
+                    body: """
+                    Multihop routes your traffic into one WireGuard server and out another, making it \
+                    harder to trace. This results in increased latency but increases anonymity online.
+                    """,
+                    image: .multihopIllustration
+                ),
+            ]
+        ))
+    }
+}
+
+#Preview("Multiple inside Scrollview") {
+    ScrollView {
+        SettingsInfoView(viewModel: SettingsInfoViewModel(
+            pages: [
+                SettingsInfoViewModelPage(
+                    body: NSLocalizedString(
+                        "SETTINGS_INFO_DAITA_PAGE_1",
+                        tableName: "Settings",
+                        value: """
+                        DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
+                        your encrypted VPN traffic.
+
+                        By using sophisticated AI it’s possible to analyze the traffic of data \
+                        packets going in and out of your device (even if the traffic is encrypted).
+
+                        If an observer monitors these data packets, DAITA makes it significantly \
+                        harder for them to identify which websites you are visiting or with whom \
+                        you are communicating.
+                        """,
+                        comment: ""
+                    ),
+                    image: .daitaOffIllustration
+                ),
+                SettingsInfoViewModelPage(
+                    body: NSLocalizedString(
+                        "SETTINGS_INFO_DAITA_PAGE_2",
+                        tableName: "Settings",
+                        value: """
+                        DAITA does this by carefully adding network noise and making all network \
+                        packets the same size.
+
+                        Not all our servers are DAITA-enabled. Therefore, we use multihop \
+                        automatically to enable DAITA with any server.
+
+                        Attention: Be cautious if you have a limited data plan as this feature \
+                        will increase your network traffic.
+                        """,
+                        comment: ""
+                    ),
+                    image: .daitaOnIllustration
+                ),
+            ]
+        ))
+    }
 }
