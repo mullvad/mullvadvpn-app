@@ -58,18 +58,11 @@ class TunnelViewController: UIViewController, RootContainment {
         )
 
         connectionView = ConnectionView(
-            connectionViewModel: self.connectionViewViewModel,
-            indicatorsViewModel: self.indicatorsViewViewModel
+            connectionViewModel: connectionViewViewModel,
+            indicatorsViewModel: indicatorsViewViewModel
         )
 
         super.init(nibName: nil, bundle: nil)
-
-        // When content size is updated in SwiftUI we need to explicitly tell UIKit to
-        // update its view size. This is not necessary on iOS 16 where we can set
-        // hostingController.sizingOptions instead.
-        connectionView.onContentUpdate = { [weak self] in
-            self?.connectionController?.view.setNeedsUpdateConstraints()
-        }
     }
 
     required init?(coder: NSCoder) {

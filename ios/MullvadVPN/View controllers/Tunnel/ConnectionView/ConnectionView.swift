@@ -15,7 +15,6 @@ struct ConnectionView: View {
     @State private(set) var isExpanded = false
 
     var action: ButtonPanel.Action?
-    var onContentUpdate: (() -> Void)?
 
     var body: some View {
         Spacer()
@@ -25,32 +24,26 @@ struct ConnectionView: View {
             CustomProgressView(style: .large)
                 .showIf(connectionViewModel.showsActivityIndicator)
 
-            ZStack {
-                BlurView(style: .dark)
+            VStack(alignment: .leading, spacing: 0) {
+                HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
+                    .padding(.bottom, headerViewBottomPadding)
 
-                VStack(alignment: .leading, spacing: 0) {
-                    HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
-                        .padding(.bottom, headerViewBottomPadding)
+                DetailsContainer(
+                    connectionViewModel: connectionViewModel,
+                    indicatorsViewModel: indicatorsViewModel,
+                    isExpanded: $isExpanded
+                )
+                .showIf(connectionViewModel.showConnectionDetails)
 
-                    DetailsContainer(
-                        connectionViewModel: connectionViewModel,
-                        indicatorsViewModel: indicatorsViewModel,
-                        isExpanded: $isExpanded
-                    )
-                    .showIf(connectionViewModel.showConnectionDetails)
-
-                    ButtonPanel(viewModel: connectionViewModel, action: action)
-                        .padding(.top, 16)
-                }
-                .padding(16)
+                ButtonPanel(viewModel: connectionViewModel, action: action)
+                    .padding(.top, 16)
             }
+            .padding(16)
+            .background(BlurView(style: .dark))
             .cornerRadius(12)
             .padding(16)
         }
         .padding(.bottom, 8) // Some spacing to avoid overlap with the map legal link.
-        .onChange(of: isExpanded) { _ in
-            onContentUpdate?()
-        }
         .onReceive(connectionViewModel.combinedState) { _, _ in
             // Only update expanded state when connections details should be hidden.
             // This will contract the view on eg. disconnect, but leave it as-is on
@@ -59,8 +52,6 @@ struct ConnectionView: View {
                 isExpanded = false
                 return
             }
-
-            onContentUpdate?()
         }
     }
 }
