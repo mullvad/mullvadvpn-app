@@ -76,7 +76,10 @@ export const ChangelogView = () => {
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
-        <StyledFooter $alignItems="center" $justifyContent="center">
+        <StyledFooter
+          $padding={{ horizontal: Spacings.spacing6 }}
+          $alignItems="center"
+          $justifyContent="center">
           <Button
             onClick={openDownloadLink}
             trailing={
