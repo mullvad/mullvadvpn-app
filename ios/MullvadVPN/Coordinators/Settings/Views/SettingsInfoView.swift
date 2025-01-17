@@ -46,6 +46,7 @@ struct SettingsInfoView: View {
             contentView()
         }
         .padding(UIMetrics.SettingsInfoView.layoutMargins)
+        .padding(.bottom, 1)
         .hidden()
     }
 
