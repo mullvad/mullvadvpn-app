@@ -26,8 +26,6 @@ struct ConnectionView: View {
                 .showIf(connectionViewModel.showsActivityIndicator)
 
             ZStack {
-                BlurView(style: .dark)
-
                 VStack(alignment: .leading, spacing: 0) {
                     HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
                         .padding(.bottom, headerViewBottomPadding)
@@ -43,6 +41,7 @@ struct ConnectionView: View {
                         .padding(.top, 16)
                 }
                 .padding(16)
+                .background(BlurView(style: .dark))
             }
             .cornerRadius(12)
             .padding(16)
