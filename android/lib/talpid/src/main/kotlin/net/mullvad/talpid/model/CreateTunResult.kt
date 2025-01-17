@@ -30,11 +30,6 @@ sealed interface CreateTunResult {
         override val isOpen: Boolean = false
     }
 
-    // Routes never got setup in time
-    data class RoutesTimedOut(val tunFd: Int) : Error {
-        override val isOpen: Boolean = true
-    }
-
     data class InvalidDnsServers(val addresses: ArrayList<InetAddress>, val tunFd: Int) : Error {
         constructor(address: List<InetAddress>, tunFd: Int) : this(ArrayList(address), tunFd)
 

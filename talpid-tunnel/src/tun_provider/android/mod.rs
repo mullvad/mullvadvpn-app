@@ -385,7 +385,6 @@ enum CreateTunResult {
     Success { tun_fd: i32 },
     InvalidDnsServers { addresses: Vec<IpAddr> },
     EstablishError,
-    RoutesTimedOut { tun_fd: i32 },
     OtherLegacyAlwaysOnVpn,
     OtherAlwaysOnApp { app_name: String },
     NotPrepared,
@@ -398,7 +397,6 @@ impl From<CreateTunResult> for Result<RawFd, Error> {
             CreateTunResult::InvalidDnsServers { addresses } => {
                 Err(Error::InvalidDnsServers(addresses))
             }
-            CreateTunResult::RoutesTimedOut { tun_fd: _ } => Err(Error::RoutesTimedOut),
             CreateTunResult::EstablishError => Err(Error::TunnelDeviceError),
             CreateTunResult::OtherLegacyAlwaysOnVpn => Err(Error::OtherLegacyAlwaysOnVpn),
             CreateTunResult::OtherAlwaysOnApp { app_name } => {
