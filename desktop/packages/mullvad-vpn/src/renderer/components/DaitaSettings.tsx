@@ -32,9 +32,7 @@ export const StyledIllustration = styled.img({
   padding: '8px 0 8px',
 });
 
-const StyledInfoButton = styled(InfoButton).attrs({
-  size: 'small',
-})({
+const StyledInfoButton = styled(InfoButton)({
   marginRight: Spacings.spacing5,
 });
 
