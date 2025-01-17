@@ -13,10 +13,7 @@ struct BlurView: View {
     var style: UIBlurEffect.Style
 
     var body: some View {
-        Spacer()
-            .overlay {
-                VisualEffectView(effect: UIBlurEffect(style: style))
-                    .opacity(0.8)
-            }
+        VisualEffectView(effect: UIBlurEffect(style: style))
+            .opacity(0.8)
     }
 }
