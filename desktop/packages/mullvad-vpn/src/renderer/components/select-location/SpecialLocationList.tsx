@@ -12,7 +12,6 @@ import InfoButton from '../InfoButton';
 import { SpecialLocationIndicator } from '../RelayStatusIndicator';
 import {
   getButtonColor,
-  StyledHoverInfoButton,
   StyledLocationRowButton,
   StyledLocationRowContainerWithMargin,
   StyledLocationRowLabel,
@@ -35,9 +34,7 @@ export default function SpecialLocationList<T>({ source, ...props }: SpecialLoca
   );
 }
 
-const StyledSpecialLocationInfoButton = styled(InfoButton).attrs({
-  size: 'small',
-})({ width: '56px', height: '48px' });
+const StyledSpecialLocationInfoButton = styled(InfoButton)({ width: '56px', height: '48px' });
 const StyledSpecialLocationSideButton = styled(ImageView)({ padding: '0 3px' });
 
 interface SpecialLocationRowProps<T> {
@@ -103,8 +100,6 @@ export function CustomExitLocationRow(props: SpecialLocationRowInnerProps<undefi
   );
 }
 
-const StyledInfoButton = styled(StyledHoverInfoButton)({ display: 'block' });
-
 export function CustomBridgeLocationRow(
   props: SpecialLocationRowInnerProps<SpecialBridgeLocationType>,
 ) {
@@ -130,14 +125,15 @@ export function CustomBridgeLocationRow(
         <SpecialLocationIndicator />
         <StyledLocationRowLabel>{props.source.label}</StyledLocationRowLabel>
       </StyledLocationRowButton>
-      <StyledInfoButton
-        {...background}
-        $isLast
+      <Cell.SideButton
+        as={StyledSpecialLocationInfoButton}
         title={messages.pgettext('select-location-view', 'Custom bridge')}
         message={messages.pgettext(
           'select-location-view',
           'A custom bridge server can be used to circumvent censorship when regular Mullvad bridge servers don’t work.',
         )}
+        $noSeparator
+        {...background}
       />
       <Cell.SideButton
         {...background}
@@ -149,7 +145,7 @@ export function CustomBridgeLocationRow(
         onClick={navigate}>
         <StyledSpecialLocationSideButton
           source={icon}
-          width={18}
+          width={20}
           tintColor={colors.white}
           tintHoverColor={colors.white80}
         />
