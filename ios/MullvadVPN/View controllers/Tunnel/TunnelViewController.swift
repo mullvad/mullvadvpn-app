@@ -21,11 +21,18 @@ class TunnelViewController: UIViewController, RootContainment {
     private var indicatorsViewViewModel: FeatureIndicatorsViewModel
     private var connectionView: ConnectionView
     private var connectionController: UIHostingController<ConnectionView>?
-    private var progressView: CustomProgressView
-    private var progressViewController: UIHostingController<CustomProgressView>?
 
     var shouldShowSelectLocationPicker: (() -> Void)?
     var shouldShowCancelTunnelAlert: (() -> Void)?
+
+    let activityIndicator: SpinnerActivityIndicatorView = {
+        let activityIndicator = SpinnerActivityIndicatorView(style: .large)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        activityIndicator.tintColor = .white
+        activityIndicator.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        activityIndicator.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        return activityIndicator
+    }()
 
     private let mapViewController = MapViewController()
 
@@ -63,10 +70,6 @@ class TunnelViewController: UIViewController, RootContainment {
             connectionViewModel: self.connectionViewViewModel,
             indicatorsViewModel: self.indicatorsViewViewModel
         )
-        progressView = CustomProgressView(
-            style: .large,
-            connectionViewModel: connectionViewViewModel
-        )
 
         super.init(nibName: nil, bundle: nil)
 
@@ -75,7 +78,6 @@ class TunnelViewController: UIViewController, RootContainment {
         // hostingController.sizingOptions instead.
         connectionView.onContentUpdate = { [weak self] in
             self?.connectionController?.view.setNeedsUpdateConstraints()
-            self?.progressViewController?.view.setNeedsUpdateConstraints()
         }
     }
 
@@ -166,8 +168,10 @@ class TunnelViewController: UIViewController, RootContainment {
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
             connectionViewViewModel.showsActivityIndicator = true
+            activityIndicator.startAnimating()
 
         case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
+            activityIndicator.startAnimating()
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
             connectionViewViewModel.showsActivityIndicator = true
@@ -180,18 +184,22 @@ class TunnelViewController: UIViewController, RootContainment {
                 // Connection can change during animation, so make sure we're still connected before adding marker.
                 if case .connected = self.tunnelState {
                     self.mapViewController.addLocationMarker(coordinate: center)
+                    self.activityIndicator.stopAnimating()
                 }
             }
 
         case .pendingReconnect:
+            activityIndicator.startAnimating()
             mapViewController.removeLocationMarker()
             connectionViewViewModel.showsActivityIndicator = true
 
         case .waitingForConnectivity, .error:
+            activityIndicator.stopAnimating()
             mapViewController.removeLocationMarker()
             connectionViewViewModel.showsActivityIndicator = false
 
         case .disconnected, .disconnecting:
+            activityIndicator.stopAnimating()
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(nil, animated: animated)
             connectionViewViewModel.showsActivityIndicator = false
@@ -202,11 +210,18 @@ class TunnelViewController: UIViewController, RootContainment {
         let mapView = mapViewController.view!
 
         addChild(mapViewController)
+        mapViewController.alignmentView = activityIndicator
         mapViewController.didMove(toParent: self)
 
         view.addConstrainedSubviews([mapView]) {
             mapView.pinEdgesToSuperview()
         }
+    }
+
+    /// Computers a constraint multiplier based on the screen size
+    private func computeHeightBreakpointMultiplier() -> CGFloat {
+        let screenBounds = UIWindow().screen.coordinateSpace.bounds
+        return screenBounds.height < 700 ? 2.0 : 1.5
     }
 
     private func addContentView() {
@@ -218,21 +233,17 @@ class TunnelViewController: UIViewController, RootContainment {
 
         addChild(connectionController)
         connectionController.didMove(toParent: self)
+        // If the device doesn't have a lot of vertical screen estate, center the progress view higher on the map
+        // so the connection view details do not shadow it unless fully expanded if possible
+        let heightConstraintMultiplier = computeHeightBreakpointMultiplier()
 
-        let progressViewController = UIHostingController(rootView: progressView)
-        self.progressViewController = progressViewController
-
-        let progressViewProxy = progressViewController.view!
-        progressViewProxy.backgroundColor = .clear
-
-        addChild(progressViewController)
-        progressViewController.didMove(toParent: self)
-
-        let verticalCenteredAnchor = progressViewProxy.centerYAnchor.anchorWithOffset(to: view.centerYAnchor)
-        view.addConstrainedSubviews([progressViewProxy, connectionViewProxy]) {
-            progressViewProxy.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-            // Align the progress view to 2/3 of the height of the map
-            verticalCenteredAnchor.constraint(equalTo: progressViewProxy.heightAnchor, multiplier: 3.0 / 2.0)
+        let verticalCenteredAnchor = activityIndicator.centerYAnchor.anchorWithOffset(to: view.centerYAnchor)
+        view.addConstrainedSubviews([activityIndicator, connectionViewProxy]) {
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            verticalCenteredAnchor.constraint(
+                equalTo: activityIndicator.heightAnchor,
+                multiplier: heightConstraintMultiplier
+            )
 
             connectionViewProxy.pinEdgesToSuperview(.all())
         }
