@@ -41,9 +41,9 @@ extension ConnectionView {
 
                 Group {
                     Spacer()
-                    Image(.iconChevron)
+                    Image(.iconChevronUp)
                         .renderingMode(.template)
-                        .rotationEffect(isExpanded ? .degrees(-90) : .degrees(90))
+                        .rotationEffect(isExpanded ? .degrees(180) : .degrees(0))
                         .foregroundStyle(.white)
                         .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
                 }
