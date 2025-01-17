@@ -964,6 +964,10 @@ msgid "Connecting to Mullvad system service..."
 msgstr ""
 
 msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr ""
+
+msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
 msgstr ""
 
