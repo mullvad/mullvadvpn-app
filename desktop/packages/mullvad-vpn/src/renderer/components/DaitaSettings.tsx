@@ -27,6 +27,10 @@ import PageSlider from './PageSlider';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { SmallButton, SmallButtonColor } from './SmallButton';
 
+const StyledInfoButton = styled(InfoButton)({
+  marginRight: Spacings.spacing5,
+});
+
 const StyledHeaderSubTitle = styled(HeaderSubTitle)({
   display: 'inline-block',
 });
@@ -185,9 +189,9 @@ function DaitaToggle() {
           <AriaLabel>
             <Cell.InputLabel>{directOnlyString}</Cell.InputLabel>
           </AriaLabel>
-          <InfoButton>
+          <StyledInfoButton>
             <DirectOnlyModalMessage />
-          </InfoButton>
+          </StyledInfoButton>
           <AriaInput>
             <Cell.Switch isOn={directOnly && !unavailable} onChange={setDirectOnly} />
           </AriaInput>
