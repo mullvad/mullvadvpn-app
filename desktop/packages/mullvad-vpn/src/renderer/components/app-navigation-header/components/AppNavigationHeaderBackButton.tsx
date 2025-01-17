@@ -23,7 +23,7 @@ export const AppNavigationHeaderBackButton = () => {
   return (
     <IconButton
       variant="secondary"
-      size="regular"
+      size="medium"
       icon={iconSource}
       aria-label={ariaLabel}
       onClick={parentBackAction}
