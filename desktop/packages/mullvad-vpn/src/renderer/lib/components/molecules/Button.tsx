@@ -8,7 +8,7 @@ import { BodySmallSemiBold } from '../typography';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'success' | 'destructive';
-  size?: 'tiny' | 'small' | 'regular' | 'full' | '1/2';
+  size?: 'auto' | 'full' | '1/2';
   leading?: React.ReactNode;
   trailing?: React.ReactNode;
 }
@@ -32,9 +32,7 @@ const variants = {
 } as const;
 
 const sizes = {
-  tiny: '44px',
-  small: '60px',
-  regular: '272px',
+  auto: 'auto',
   full: '100%',
   '1/2': '50%',
 };
@@ -44,6 +42,7 @@ const StyledButton = styled.button({
 
   minHeight: '32px',
   borderRadius: Radius.radius4,
+  minWidth: '60px',
   width: 'var(--size)',
   background: 'var(--background)',
   '&:not(:disabled):hover': {
@@ -60,16 +59,7 @@ const StyledButton = styled.button({
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
-    {
-      variant = 'primary',
-      size = 'regular',
-      leading,
-      trailing,
-      children,
-      disabled,
-      style,
-      ...props
-    },
+    { variant = 'primary', size = 'full', leading, trailing, children, disabled, style, ...props },
     ref,
   ) => {
     const styles = variants[variant];
