@@ -26,13 +26,9 @@ public final class BackgroundObserver: OperationObserver {
     }
 
     public func didAttach(to operation: Operation) {
-        #if swift(>=6)
         let expirationHandler = cancelUponExpiration
             ? { @MainActor in operation.cancel() } as? @MainActor @Sendable () -> Void
             : nil
-        #else
-        let expirationHandler = cancelUponExpiration ? { operation.cancel() } : nil
-        #endif
 
         taskIdentifier = backgroundTaskProvider.beginBackgroundTask(
             withName: name,
