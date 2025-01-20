@@ -11,10 +11,7 @@ object Attachment {
     val DIRECTORY_PATH = "${Environment.DIRECTORY_DOWNLOADS}/${DIRECTORY_NAME}"
 
     private val testAttachmentsDirectory =
-        File(
-            Environment.getExternalStorageDirectory(),
-            DIRECTORY_PATH,
-        )
+        File(Environment.getExternalStorageDirectory(), DIRECTORY_PATH)
 
     fun saveAttachment(fileName: String, data: ByteArray) {
         createAttachmentsDirectoryIfNotExists()

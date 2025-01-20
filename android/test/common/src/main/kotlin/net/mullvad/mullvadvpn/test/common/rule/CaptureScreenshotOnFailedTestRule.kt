@@ -5,8 +5,6 @@ import android.content.ContentValues
 import android.graphics.Bitmap
 import android.os.Build
 import android.os.Environment
-import android.os.Environment.DIRECTORY_DOWNLOADS
-import android.os.Environment.DIRECTORY_PICTURES
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
