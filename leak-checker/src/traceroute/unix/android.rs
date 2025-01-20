@@ -1,15 +1,8 @@
 use socket2::Socket;
 
-use crate::{
-    traceroute::{Ip, TracerouteOpt},
-    Interface,
-};
+use crate::{traceroute::Ip, Interface};
 
-use super::{
-    common::bind_socket_to_interface,
-    linux::{self, TracerouteLinux},
-    Traceroute,
-};
+use super::{common::bind_socket_to_interface, linux, Traceroute};
 
 pub struct TracerouteAndroid;
 
@@ -23,9 +16,5 @@ impl Traceroute for TracerouteAndroid {
     ) -> anyhow::Result<()> {
         // can't use the same method as desktop-linux here beacuse reasons
         bind_socket_to_interface(socket, interface, ip_version)
-    }
-
-    fn configure_icmp_socket(socket: &socket2::Socket, opt: &TracerouteOpt) -> anyhow::Result<()> {
-        TracerouteLinux::configure_icmp_socket(socket, opt)
     }
 }

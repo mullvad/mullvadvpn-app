@@ -35,19 +35,17 @@ impl Traceroute for TracerouteLinux {
     ) -> anyhow::Result<()> {
         bind_socket_to_interface(socket, interface)
     }
-
-    fn configure_icmp_socket(socket: &socket2::Socket, _opt: &TracerouteOpt) -> anyhow::Result<()> {
-        // IP_RECVERR tells Linux to pass any error packets received over ICMP to us through `recvmsg` control messages.
-        setsockopt(socket, Ipv4RecvErr, &true).context("Failed to set IP_RECVERR")
-    }
 }
 
 impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
-    fn from_socket2(socket: Socket) -> Self {
+    fn from_socket2(socket: Socket) -> anyhow::Result<Self> {
+        // IP_RECVERR tells Linux to pass any error packets received over ICMP to us through `recvmsg` control messages.
+        setsockopt(&socket, Ipv4RecvErr, &true).context("Failed to set IP_RECVERR")?;
+
         let raw_socket = socket.into_raw_fd();
         let std_socket = unsafe { std::net::UdpSocket::from_raw_fd(raw_socket) };
         let tokio_socket = tokio::net::UdpSocket::from_std(std_socket).unwrap();
-        AsyncIcmpSocketImpl(tokio_socket)
+        Ok(AsyncIcmpSocketImpl(tokio_socket))
     }
 
     fn set_ttl(&self, ttl: u32) -> anyhow::Result<()> {

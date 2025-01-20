@@ -47,8 +47,6 @@ impl LeakChecker {
         };
 
         tokio::task::spawn(task.run());
-        // TODO: remove this if the above compiles on macos and android
-        //tokio::task::spawn_blocking(|| Handle::current().block_on(task.run()));
 
         LeakChecker { task_event_tx }
     }
@@ -223,14 +221,16 @@ async fn check_for_leaks(
 
     log::debug!("attempting to leak traffic on interface {interface:?} to {destination}");
 
-    // TODO: use UDP on windows
     leak_checker::traceroute::try_run_leak_test(&TracerouteOpt {
         interface,
         destination: destination.address.ip(),
-        port: None,
 
-        exclude_port: cfg!(target_os = "windows").then_some(destination.address.port()),
-        icmp: cfg!(not(target_os = "windows")),
+        #[cfg(unix)]
+        port: None,
+        #[cfg(unix)]
+        exclude_port: None,
+        #[cfg(unix)]
+        icmp: true,
     })
     .await
     .map_err(|e| anyhow!("{e:#}"))

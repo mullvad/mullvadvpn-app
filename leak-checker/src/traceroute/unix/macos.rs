@@ -42,17 +42,10 @@ impl Traceroute for TracerouteMacos {
         // can't use the same method as desktop-linux here beacuse reasons
         bind_socket_to_interface(socket, interface, ip_version)
     }
-
-    fn configure_icmp_socket(
-        _socket: &socket2::Socket,
-        _opt: &TracerouteOpt,
-    ) -> anyhow::Result<()> {
-        Ok(())
-    }
 }
 
 impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
-    fn from_socket2(socket: Socket) -> Self {
+    fn from_socket2(socket: Socket) -> anyhow::Result<Self> {
         let raw_socket = socket.into_raw_fd();
         let std_socket = unsafe { std::net::UdpSocket::from_raw_fd(raw_socket) };
         let tokio_socket = tokio::net::UdpSocket::from_std(std_socket).unwrap();

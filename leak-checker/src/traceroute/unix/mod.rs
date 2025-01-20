@@ -53,19 +53,14 @@ pub trait Traceroute {
         interface: &Interface,
         ip_version: Ip,
     ) -> anyhow::Result<()>;
-
-    /// Configure an ICMP socket to allow reception of ICMP/TimeExceeded errors.
-    // TODO: consider moving into AsyncIcmpSocket constructor
-    fn configure_icmp_socket(socket: &socket2::Socket, opt: &TracerouteOpt) -> anyhow::Result<()>;
 }
 
-pub trait AsyncIcmpSocket {
-    fn from_socket2(socket: socket2::Socket) -> Self;
+pub trait AsyncIcmpSocket: Sized {
+    fn from_socket2(socket: socket2::Socket) -> anyhow::Result<Self>;
 
     fn set_ttl(&self, ttl: u32) -> anyhow::Result<()>;
 
     /// Send an ICMP packet to the destination.
-    // TODO: anyhow?
     async fn send_to(&self, packet: &[u8], destination: impl Into<IpAddr>) -> io::Result<usize>;
 
     /// Receive an ICMP packet
@@ -98,9 +93,8 @@ pub async fn try_run_leak_test<Impl: Traceroute>(
         .context("Failed to set icmp_socket to nonblocking")?;
 
     Impl::bind_socket_to_interface(&icmp_socket, &opt.interface, ip_version)?;
-    Impl::configure_icmp_socket(&icmp_socket, opt)?;
 
-    let icmp_socket = Impl::AsyncIcmpSocket::from_socket2(icmp_socket);
+    let icmp_socket = Impl::AsyncIcmpSocket::from_socket2(icmp_socket)?;
 
     let send_probes = async {
         if opt.icmp {

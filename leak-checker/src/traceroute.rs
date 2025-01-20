@@ -22,15 +22,17 @@ pub struct TracerouteOpt {
 
     /// Avoid sending UDP probe packets to this port.
     #[clap(long, conflicts_with = "icmp")]
+    #[cfg(unix)]
     pub exclude_port: Option<u16>,
 
     /// Send UDP probe packets only to this port, instead of the default ports.
     #[clap(long, conflicts_with = "icmp")]
+    #[cfg(unix)]
     pub port: Option<u16>,
 
     /// Use ICMP-Echo for the probe packets instead of UDP.
-    // TODO: we don't support UDP on windows
     #[clap(long)]
+    #[cfg(unix)]
     pub icmp: bool,
 }
 
