@@ -32,9 +32,12 @@ struct Args {
 
 #[derive(clap::Subcommand, Debug)]
 enum ConfigArg {
+    /// Print the current config
     Get,
+    /// Modify the current config
     Set,
-    GetPath,
+    /// Print the path to the current config file
+    Which,
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -202,7 +205,7 @@ async fn main() -> Result<()> {
                 Ok(())
             }
             ConfigArg::Set => todo!(),
-            ConfigArg::GetPath => {
+            ConfigArg::Which => {
                 println!(
                     "{}",
                     ConfigFile::get_config_path()
