@@ -32,7 +32,8 @@ VALID_TEST_ACCOUNT_NUMBER="${VALID_TEST_ACCOUNT_NUMBER:-}"
 INVALID_TEST_ACCOUNT_NUMBER="${INVALID_TEST_ACCOUNT_NUMBER:-}"
 ENABLE_HIGHLY_RATE_LIMITED_TESTS="${ENABLE_HIGHLY_RATE_LIMITED_TESTS:-false}"
 ENABLE_ACCESS_TO_LOCAL_API_TESTS="${ENABLE_ACCESS_TO_LOCAL_API_TESTS:-false}"
-TEST_DEVICE_OUTPUTS_DIR="${TEST_DEVICE_OUTPUTS_DIR:-/sdcard/Download/test-outputs}" # Must match the path where e2e tests output their attachments
+# TEST_DEVICE_OUTPUTS_DIR must match the path where e2e tests output their attachments.
+TEST_DEVICE_OUTPUTS_DIR="${TEST_DEVICE_OUTPUTS_DIR:-/sdcard/Download/test-outputs}"
 REPORT_DIR="${REPORT_DIR:-}"
 
 while [[ "$#" -gt 0 ]]; do
