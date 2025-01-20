@@ -1055,6 +1055,7 @@
 		F0F56B092C0E058A009D676B /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
 		F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
+		F95C1C252D3E5E8E00EBE769 /* UIAlertController+InAppPurchase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95C1C242D3E5E7A00EBE769 /* UIAlertController+InAppPurchase.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 /* End PBXBuildFile section */
@@ -2313,6 +2314,7 @@
 		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
 		F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoRelaysSatisfyingConstraintsError.swift; sourceTree = "<group>"; };
 		F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchangingResultStub.swift; sourceTree = "<group>"; };
+		F95C1C242D3E5E7A00EBE769 /* UIAlertController+InAppPurchase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+InAppPurchase.swift"; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -3160,6 +3162,7 @@
 				E158B35F285381C60002F069 /* String+AccountFormatting.swift */,
 				7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */,
 				5807E2BF2432038B00F5FF30 /* String+Helpers.swift */,
+				F95C1C242D3E5E7A00EBE769 /* UIAlertController+InAppPurchase.swift */,
 				58CEB2F82AFD136E00E6E088 /* UIBackgroundConfiguration+Extensions.swift */,
 				5891BF5025E66B1E006D6FB0 /* UIBarButtonItem+KeyboardNavigation.swift */,
 				587CBFE222807F530028DED3 /* UIColor+Helpers.swift */,
@@ -6183,6 +6186,7 @@
 				A9E034642ABB302000E59A5A /* UIEdgeInsets+Extensions.swift in Sources */,
 				58CEB2E92AFBBA4A00E6E088 /* AddAccessMethodCoordinator.swift in Sources */,
 				58DFF7D02B02560400F864E0 /* NSAttributedString+Extensions.swift in Sources */,
+				F95C1C252D3E5E8E00EBE769 /* UIAlertController+InAppPurchase.swift in Sources */,
 				58E0A98827C8F46300FE6BDD /* Tunnel.swift in Sources */,
 				7A12D0762B062D5C00E9602D /* URLSessionProtocol.swift in Sources */,
 				58ACF64F26567A7100ACE4B7 /* CustomSwitchContainer.swift in Sources */,
