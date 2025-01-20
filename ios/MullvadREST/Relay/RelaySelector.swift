@@ -62,16 +62,6 @@ public enum RelaySelector {
         return randomRelay
     }
 
-    static func mapRelays<T: AnyRelay>(
-        relays: [T],
-        locations: [String: REST.ServerLocation]
-    ) -> [RelayWithLocation<T>] {
-        relays.compactMap { relay in
-            guard let serverLocation = locations[relay.location] else { return nil }
-            return makeRelayWithLocationFrom(serverLocation, relay: relay)
-        }
-    }
-
     /// Produce a list of `RelayWithLocation` items satisfying the given constraints
     static func applyConstraints<T: AnyRelay>(
         _ relayConstraint: RelayConstraint<UserSelectedRelays>,
