@@ -221,9 +221,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
             default:
                 errorPresenter.showAlertForError(paymentFailure.error, context: .purchase) {
-                    MainActor.assumeIsolated {
-                        self.paymentState = .none
-                    }
+                    self.paymentState = .none
                 }
             }
         }
@@ -253,30 +251,28 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
         paymentState = .restoringPurchases
 
+        /// Safe to assume `@MainActor` isolation because `SendStoreReceiptOperation` sets both its
+        /// `dispatchQueue` and `completionQueue` to `.main`
         _ = interactor.restorePurchases(for: accountData.number) { [weak self] result in
             guard let self else { return }
 
             switch result {
             case let .success(response):
-                Task { @MainActor in
+                MainActor.assumeIsolated {
                     errorPresenter.showAlertForResponse(response, context: .restoration) {
-                        MainActor.assumeIsolated {
-                            self.paymentState = .none
-                        }
+                        self.paymentState = .none
                     }
                 }
 
             case let .failure(error as StorePaymentManagerError):
-                Task { @MainActor in
+                MainActor.assumeIsolated {
                     errorPresenter.showAlertForError(error, context: .restoration) {
-                        MainActor.assumeIsolated {
-                            self.paymentState = .none
-                        }
+                        self.paymentState = .none
                     }
                 }
 
             default:
-                Task { @MainActor in
+                MainActor.assumeIsolated {
                     paymentState = .none
                 }
             }

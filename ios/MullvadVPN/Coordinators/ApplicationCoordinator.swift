@@ -449,13 +449,15 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
 
+        /// Even though that closure is not marked `@MainActor`, it is safe to assume isolation here
+        /// because `LoginCoordinator.callDidFinishAfterDelay` will dispatch on the main queue.
         coordinator.didFinish = { [weak self] _ in
             MainActor.assumeIsolated {
                 self?.continueFlow(animated: true)
             }
         }
         coordinator.didCreateAccount = { [weak self] in
-            MainActor.assumeIsolated {
+            Task { @MainActor in
                 self?.appPreferences.isShownOnboarding = false
             }
         }
@@ -538,9 +540,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         )
 
         coordinator.didFinish = { [weak self] _, reason in
-            MainActor.assumeIsolated {
-                self?.didDismissAccount(reason)
-            }
+            self?.didDismissAccount(reason)
         }
 
         coordinator.start(animated: animated)
