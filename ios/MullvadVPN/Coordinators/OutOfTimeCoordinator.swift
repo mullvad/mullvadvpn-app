@@ -90,7 +90,7 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
         didRequestPurchase: @escaping (SKProduct) -> Void
     ) {
         let localizedString = NSLocalizedString(
-            "BUY_CREDIT_BUTTON",
+            "ADD_TIME_BUTTON",
             tableName: "Welcome",
             value: "Add Time",
             comment: ""

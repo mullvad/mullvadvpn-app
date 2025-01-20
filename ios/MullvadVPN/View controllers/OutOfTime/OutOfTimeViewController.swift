@@ -226,7 +226,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     // MARK: - Actions
 
     @objc private func requestStoreProducts() {
-        guard let accountData = interactor.deviceState.accountData else {
+        guard interactor.deviceState.accountData != nil else {
             return
         }
         let productIdentifiers = Set(StoreSubscription.allCases)

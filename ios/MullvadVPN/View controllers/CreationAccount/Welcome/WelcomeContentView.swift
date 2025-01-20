@@ -110,7 +110,7 @@ final class WelcomeContentView: UIView, Sendable {
         let button = InAppPurchaseButton()
         button.setAccessibilityIdentifier(.purchaseButton)
         let localizedString = NSLocalizedString(
-            "BUY_CREDIT_BUTTON",
+            "ADD_TIME_BUTTON",
             tableName: "Welcome",
             value: "Add time",
             comment: ""

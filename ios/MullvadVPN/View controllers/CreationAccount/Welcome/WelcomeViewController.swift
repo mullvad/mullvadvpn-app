@@ -64,7 +64,6 @@ class WelcomeViewController: UIViewController, RootContainment {
         super.viewDidLoad()
         configureUI()
         contentView.viewModel = interactor.viewModel
-        interactor.viewDidLoad = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
