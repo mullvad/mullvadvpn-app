@@ -7,6 +7,7 @@
 //
 
 import MullvadMockData
+import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import PacketTunnelCore
@@ -39,6 +40,7 @@ struct ConnectionViewComponentPreview<Content: View>: View {
             state: .connected(SelectedRelaysStub.selectedRelays, isPostQuantum: true, isDaita: true)
         ),
         relayConstraints: RelayConstraints(),
+        relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
         customListRepository: CustomListRepository()
     )
 

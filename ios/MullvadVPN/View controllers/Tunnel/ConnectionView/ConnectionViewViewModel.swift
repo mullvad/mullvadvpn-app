@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import SwiftUI
@@ -31,7 +32,7 @@ class ConnectionViewViewModel: ObservableObject {
     @Published var showsActivityIndicator = false
 
     let relayConstraints: RelayConstraints
-    let customListRepository: CustomListRepositoryProtocol
+    let destinationDescriber: DestinationDescribing
 
     var combinedState: Publishers.CombineLatest<
         Published<TunnelStatus>.Publisher,
@@ -50,22 +51,23 @@ class ConnectionViewViewModel: ObservableObject {
 
     var connectionName: String? {
         if case let .only(loc) = relayConstraints.exitLocations {
-            loc.customListSelection.flatMap { customListRepository.fetch(by: $0.listId)?.name } ?? loc.locations.first?
-                .stringRepresentation
-        } else {
-            "Somewhere"
+            return destinationDescriber.describe(loc)
         }
-//        nil
+        return nil
     }
 
     init(
         tunnelStatus: TunnelStatus,
         relayConstraints: RelayConstraints,
+        relayCache: RelayCacheProtocol,
         customListRepository: CustomListRepositoryProtocol
     ) {
         self.tunnelStatus = tunnelStatus
         self.relayConstraints = relayConstraints
-        self.customListRepository = customListRepository
+        self.destinationDescriber = DestinationDescriber(
+            relayCache: relayCache,
+            customListRepository: customListRepository
+        )
     }
 
     func update(tunnelStatus: TunnelStatus) {
