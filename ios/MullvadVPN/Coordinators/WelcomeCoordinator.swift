@@ -156,7 +156,7 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
         accountNumber: String
     ) {
         let localizedString = NSLocalizedString(
-            "BUY_CREDIT_BUTTON",
+            "ADD_TIME_BUTTON",
             tableName: "Welcome",
             value: "Add Time",
             comment: ""

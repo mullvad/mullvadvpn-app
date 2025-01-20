@@ -85,7 +85,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         didRequestPurchase: @escaping (_ product: SKProduct) -> Void
     ) {
         let localizedString = NSLocalizedString(
-            "BUY_CREDIT_BUTTON",
+            "ADD_TIME",
             tableName: "Welcome",
             value: "Add Time",
             comment: ""

@@ -25,14 +25,6 @@ final class WelcomeInteractor: @unchecked Sendable {
 
     var didAddMoreCredit: (() -> Void)?
 
-    var viewDidLoad = false {
-        didSet {
-            guard viewDidLoad else { return }
-//            Might trigger a popup without user interaction do we want that?
-//            requestAccessToStore()
-        }
-    }
-
     var viewWillAppear = false {
         didSet {
             guard viewWillAppear else { return }

@@ -3136,7 +3136,6 @@
 		583FE02329C1AC9F006E85F9 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
-				F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */,
 				5891BF1B25E3E3EB006D6FB0 /* Bundle+ProductVersion.swift */,
 				F06200092CB7EB42002E6DB9 /* CGSize+Helpers.swift */,
 				587EB669270EFACB00123C75 /* CharacterSet+IPAddress.swift */,
@@ -3153,6 +3152,7 @@
 				58B9EB142489139B00095626 /* RESTError+Display.swift */,
 				58A8EE592976BFBB009C0F8D /* SKError+Localized.swift */,
 				58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */,
+				F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */,
 				58A8EE5D2976DB00009C0F8D /* StorePaymentManagerError+Display.swift */,
 				E158B35F285381C60002F069 /* String+AccountFormatting.swift */,
 				7A09C98029D99215000C2CAC /* String+FuzzyMatch.swift */,

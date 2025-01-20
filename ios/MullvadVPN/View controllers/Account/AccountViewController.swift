@@ -196,7 +196,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             activityIndicator.stopAnimating()
         }
 
-//        purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
         contentView.purchaseButton.isLoading = isFetchingProducts
 
         purchaseButton.isEnabled = !isFetchingProducts && isInteractionEnabled
@@ -322,7 +321,7 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             return
         }
 
-        let productIdentifiers = Set(StoreSubscription.allCases).map { $0.rawValue }
+        let productIdentifiers = StoreSubscription.allCases.map { $0.rawValue }
 
         setPaymentState(.makingStoreKit2Purchase, animated: true)
 
