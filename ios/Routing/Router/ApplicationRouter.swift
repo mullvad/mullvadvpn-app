@@ -158,9 +158,8 @@ public final class ApplicationRouter<RouteType: AppRouteProtocol>: Sendable {
             let context = RoutePresentationContext(route: route, isAnimated: animated, metadata: metadata)
 
             delegate.applicationRouter(self, presentWithContext: context, animated: animated) { coordinator in
-                /*
-                 Synchronize router when modal controllers are removed by swipe.
-                 */
+                /// Synchronize router when modal controllers are removed by swipe.
+                /// The delegate (`ApplicationCoordinator`) is `@MainActor` by virtue of being a `Coordinator`
                 MainActor.assumeIsolated {
                     if let presentable = coordinator as? Presentable {
                         presentable.onInteractiveDismissal { [weak self] coordinator in

@@ -16,7 +16,7 @@ struct PaymentAlertPresenter {
     func showAlertForError(
         _ error: StorePaymentManagerError,
         context: REST.CreateApplePaymentResponse.Context,
-        completion: (@Sendable () -> Void)? = nil
+        completion: (@MainActor @Sendable () -> Void)? = nil
     ) {
         let presentation = AlertPresentation(
             id: "payment-error-alert",
@@ -64,7 +64,7 @@ struct PaymentAlertPresenter {
     func showAlertForResponse(
         _ response: REST.CreateApplePaymentResponse,
         context: REST.CreateApplePaymentResponse.Context,
-        completion: (@Sendable () -> Void)? = nil
+        completion: (@MainActor @Sendable () -> Void)? = nil
     ) {
         guard case .noTimeAdded = response else {
             completion?()

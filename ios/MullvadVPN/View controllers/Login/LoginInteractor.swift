@@ -14,7 +14,7 @@ final class LoginInteractor: @unchecked Sendable {
     private let tunnelManager: TunnelManager
     private let logger = Logger(label: "LoginInteractor")
     private var tunnelObserver: TunnelObserver?
-    var didCreateAccount: (@Sendable () -> Void)?
+    var didCreateAccount: (@MainActor @Sendable () -> Void)?
     var suggestPreferredAccountNumber: (@Sendable (String) -> Void)?
 
     init(tunnelManager: TunnelManager) {
@@ -27,7 +27,7 @@ final class LoginInteractor: @unchecked Sendable {
 
     func createAccount() async throws -> String {
         let accountNumber = try await tunnelManager.setNewAccount().number
-        didCreateAccount?()
+        await didCreateAccount?()
 
         return accountNumber
     }

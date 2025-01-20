@@ -161,6 +161,8 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             let productState: ProductState = completion.value?.products.first
                 .map { .received($0) } ?? .failed
 
+            /// `@MainActor` isolation is safe here because
+            /// `ProductsRequestOperation` sets its `completionQueue` to `.main`
             MainActor.assumeIsolated {
                 self?.setProductState(productState, animated: true)
             }
