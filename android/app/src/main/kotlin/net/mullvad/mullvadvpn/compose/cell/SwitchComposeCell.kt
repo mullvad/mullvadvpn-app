@@ -177,7 +177,7 @@ fun SwitchCellView(
             }
         }
 
-        MullvadSwitch(checked = isToggled, enabled = isEnabled, onCheckedChange = onSwitchClicked)
+        MullvadSwitch(checked = isToggled, onCheckedChange = onSwitchClicked, enabled = isEnabled)
     }
 }
 

@@ -68,7 +68,6 @@ private fun PreviewCheckableRelayLocationCell(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun StatusRelayItemCell(
     item: RelayItem,
@@ -89,7 +88,12 @@ fun StatusRelayItemCell(
         item = item,
         isSelected = isSelected,
         state = state,
-        leadingContent = {
+        onClick = onClick,
+        onLongClick = onLongClick,
+        onToggleExpand = onToggleExpand,
+        isExpanded = isExpanded,
+        depth = depth,
+        content = {
             if (isSelected) {
                 Icon(imageVector = Icons.Default.Check, contentDescription = null)
             } else {
@@ -111,11 +115,6 @@ fun StatusRelayItemCell(
                 )
             }
         },
-        onClick = onClick,
-        onLongClick = onLongClick,
-        onToggleExpand = onToggleExpand,
-        isExpanded = isExpanded,
-        depth = depth,
     )
 }
 
@@ -126,12 +125,12 @@ fun RelayItemCell(
     item: RelayItem,
     isSelected: Boolean,
     state: RelayListItemState?,
-    leadingContent: (@Composable RowScope.() -> Unit)? = null,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
-    onToggleExpand: ((Boolean) -> Unit),
+    onToggleExpand: (Boolean) -> Unit,
     isExpanded: Boolean,
     depth: Int,
+    content: @Composable (RowScope.() -> Unit)? = null,
 ) {
 
     val leadingContentStartPadding = Dimens.cellStartPadding
@@ -162,8 +161,8 @@ fun RelayItemCell(
                     .weight(1f),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            if (leadingContent != null) {
-                leadingContent()
+            if (content != null) {
+                content()
             }
             Name(name = item.name, state = state)
         }
@@ -194,16 +193,16 @@ fun CheckableRelayLocationCell(
         item = item,
         isSelected = false,
         state = null,
-        leadingContent = {
+        onClick = { onRelayCheckedChange(!checked) },
+        onToggleExpand = onExpand,
+        isExpanded = expanded,
+        depth = depth,
+        content = {
             MullvadCheckbox(
                 checked = checked,
                 onCheckedChange = { isChecked -> onRelayCheckedChange(isChecked) },
             )
         },
-        onClick = { onRelayCheckedChange(!checked) },
-        onToggleExpand = onExpand,
-        isExpanded = expanded,
-        depth = depth,
     )
 }
 

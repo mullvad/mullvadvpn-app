@@ -1,69 +1,83 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="6" by="lint 8.7.3" type="baseline" client="gradle" dependencies="true" name="AGP (8.7.3)" variant="all" version="8.7.3">
+<issues format="6" by="lint 8.8.0" type="baseline" client="gradle" dependencies="true" name="AGP (8.8.0)" variant="all" version="8.8.0">
+
+    <issue
+        id="InvalidPackage"
+        message="Invalid package reference in library; not included in Android: `javax.naming.directory`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
+        <location
+            file="../../../../.gradle/caches/modules-2/files-2.1/io.grpc/grpc-core/1.69.1/d9f6383e1903af6e9502e7c1c8e4fbe28a236321/grpc-core-1.69.1.jar"/>
+    </issue>
+
+    <issue
+        id="InvalidPackage"
+        message="Invalid package reference in library; not included in Android: `javax.naming`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
+        <location
+            file="../../../../.gradle/caches/modules-2/files-2.1/io.grpc/grpc-core/1.69.1/d9f6383e1903af6e9502e7c1c8e4fbe28a236321/grpc-core-1.69.1.jar"/>
+    </issue>
 
     <issue
         id="SimilarGradleDependency"
         message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="180"
+            line="185"
             column="18"/>
     </issue>
 
     <issue
         id="SimilarGradleDependency"
         message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="180"
+            line="185"
             column="18"/>
     </issue>
 
     <issue
         id="SimilarGradleDependency"
         message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf&quot; }"
-        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf-gradle-plugin&quot; }"
+        errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="180"
+            line="185"
             column="18"/>
     </issue>
 
     <issue
         id="SimilarGradleDependency"
         message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;grpc-protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="181"
+            line="186"
             column="20"/>
     </issue>
 
     <issue
         id="SimilarGradleDependency"
         message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;grpc-protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="181"
+            line="186"
             column="20"/>
     </issue>
 
     <issue
         id="SimilarGradleDependency"
         message="There are multiple dependencies com.google.protobuf but with different version"
-        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;grpc-protobuf&quot; }"
-        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="protobuf-protoc = { id = &quot;com.google.protobuf:protoc&quot;, version.ref = &quot;protobuf&quot; }"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="181"
+            line="186"
             column="20"/>
     </issue>
 
@@ -74,7 +88,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="184"
+            line="189"
             column="30"/>
     </issue>
 
@@ -85,7 +99,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="184"
+            line="189"
             column="30"/>
     </issue>
 
@@ -96,7 +110,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="184"
+            line="189"
             column="30"/>
     </issue>
 
@@ -107,7 +121,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="185"
+            line="190"
             column="32"/>
     </issue>
 
@@ -118,7 +132,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="185"
+            line="190"
             column="32"/>
     </issue>
 
@@ -129,112 +143,8 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="../gradle/libs.versions.toml"
-            line="185"
+            line="190"
             column="32"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterNaming"
-        message="Composable lambda parameter should be named `content`"
-        errorLine1="    icon: @Composable (() -> Unit)? = null,"
-        errorLine2="    ~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/button/MullvadButton.kt"
-            line="79"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterNaming"
-        message="Composable lambda parameter should be named `content`"
-        errorLine1="    leadingIcon: @Composable (() -> Unit)? = null,"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/component/MullvadExposedDropdownMenuBox.kt"
-            line="60"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterNaming"
-        message="Composable lambda parameter should be named `content`"
-        errorLine1="    leadingContent: (@Composable RowScope.() -> Unit)? = null,"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/cell/RelayLocationCell.kt"
-            line="129"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterNaming"
-        message="Composable lambda parameter should be named `content`"
-        errorLine1="    thumbContent: (@Composable () -> Unit)? = {"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/component/Switch.kt"
-            line="49"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterPosition"
-        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
-        errorLine1="    leadingIcon: @Composable (() -> Unit)? = null,"
-        errorLine2="    ~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/component/MullvadExposedDropdownMenuBox.kt"
-            line="60"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterPosition"
-        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
-        errorLine1="    leadingContent: (@Composable RowScope.() -> Unit)? = null,"
-        errorLine2="    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/cell/RelayLocationCell.kt"
-            line="129"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="ComposableLambdaParameterPosition"
-        message="Composable lambda parameter should be the last parameter so it can be used as a trailing lambda"
-        errorLine1="    thumbContent: (@Composable () -> Unit)? = {"
-        errorLine2="    ~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/component/Switch.kt"
-            line="49"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="StringFormatCount"
-        message="Inconsistent number of arguments in formatting string `daita_description_slide_2_second_paragraph`; found both 1 here and 2 in values/strings.xml"
-        errorLine1="    &lt;string name=&quot;daita_description_slide_2_second_paragraph&quot;>Daher verwenden wir automatisch Multihop, um %1$s mit jedem Server zu aktivieren.&lt;/string>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-de/strings.xml"
-            line="100"
-            column="5"/>
-        <location
-            file="src/main/res/values/strings.xml"
-            line="416"
-            column="5"
-            message="Conflicting number of arguments (2) here"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateOtherStates` of class `AccountUiStatePreviewParameterProviderKt` requires synthetic accessor"
-        errorLine1="        ) + generateOtherStates()"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/AccountUiStatePreviewParameterProvider.kt"
-            line="39"
-            column="13"/>
     </issue>
 
     <issue
@@ -288,7 +198,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/RelayItemPreviewData.kt"
-            line="18"
+            line="17"
             column="18"/>
     </issue>
 
@@ -299,7 +209,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/RelayItemPreviewData.kt"
-            line="21"
+            line="20"
             column="21"/>
     </issue>
 
@@ -310,7 +220,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/RelayItemPreviewData.kt"
-            line="23"
+            line="22"
             column="25"/>
     </issue>
 
@@ -334,72 +244,6 @@
             file="src/main/kotlin/net/mullvad/mullvadvpn/viewmodel/SplitTunnelingViewModelState.kt"
             line="27"
             column="25"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateTunnelEndpoint` of class `TunnelStatePreviewDataKt` requires synthetic accessor"
-        errorLine1="            endpoint = generateTunnelEndpoint(quantumResistant = quantumResistant, daita = false),"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/TunnelStatePreviewData.kt"
-            line="21"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateLocation` of class `TunnelStatePreviewDataKt` requires synthetic accessor"
-        errorLine1="            location = generateLocation(),"
-        errorLine2="                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/TunnelStatePreviewData.kt"
-            line="22"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateFeatureIndicators` of class `TunnelStatePreviewDataKt` requires synthetic accessor"
-        errorLine1="            featureIndicators = generateFeatureIndicators(featureIndicators),"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/TunnelStatePreviewData.kt"
-            line="23"
-            column="33"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateTunnelEndpoint` of class `TunnelStatePreviewDataKt` requires synthetic accessor"
-        errorLine1="            endpoint = generateTunnelEndpoint(quantumResistant = quantumResistant, daita = true),"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/TunnelStatePreviewData.kt"
-            line="28"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateLocation` of class `TunnelStatePreviewDataKt` requires synthetic accessor"
-        errorLine1="            location = generateLocation(),"
-        errorLine2="                       ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/TunnelStatePreviewData.kt"
-            line="29"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="SyntheticAccessor"
-        message="Access to `private` method `generateFeatureIndicators` of class `TunnelStatePreviewDataKt` requires synthetic accessor"
-        errorLine1="            featureIndicators = generateFeatureIndicators(featureIndicators),"
-        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/kotlin/net/mullvad/mullvadvpn/compose/preview/TunnelStatePreviewData.kt"
-            line="30"
-            column="33"/>
     </issue>
 
 </issues>

@@ -37,36 +37,36 @@ object TunnelStatePreviewData {
         TunnelState.Error(
             errorState = ErrorState(cause = ErrorStateCause.DnsError, isBlocking = isBlocking)
         )
+
+    private fun generateTunnelEndpoint(quantumResistant: Boolean, daita: Boolean): TunnelEndpoint =
+        TunnelEndpoint(
+            endpoint = generateEndpoint(TransportProtocol.Udp),
+            quantumResistant = quantumResistant,
+            obfuscation =
+                ObfuscationEndpoint(
+                    endpoint = generateEndpoint(TransportProtocol.Tcp),
+                    ObfuscationType.Udp2Tcp,
+                ),
+            daita = daita,
+        )
+
+    private fun generateEndpoint(transportProtocol: TransportProtocol) =
+        Endpoint(address = InetSocketAddress(DEFAULT_ENDPOINT_PORT), protocol = transportProtocol)
+
+    private fun generateLocation(): GeoIpLocation =
+        GeoIpLocation(
+            ipv4 = null,
+            ipv6 = null,
+            country = "",
+            city = "",
+            hostname = "",
+            entryHostname = "",
+            latitude = 0.0,
+            longitude = 0.0,
+        )
+
+    private fun generateFeatureIndicators(size: Int): List<FeatureIndicator> =
+        FeatureIndicator.entries.subList(0, size)
 }
-
-private fun generateTunnelEndpoint(quantumResistant: Boolean, daita: Boolean): TunnelEndpoint =
-    TunnelEndpoint(
-        endpoint = generateEndpoint(TransportProtocol.Udp),
-        quantumResistant = quantumResistant,
-        obfuscation =
-            ObfuscationEndpoint(
-                endpoint = generateEndpoint(TransportProtocol.Tcp),
-                ObfuscationType.Udp2Tcp,
-            ),
-        daita = daita,
-    )
-
-private fun generateEndpoint(transportProtocol: TransportProtocol) =
-    Endpoint(address = InetSocketAddress(DEFAULT_ENDPOINT_PORT), protocol = transportProtocol)
-
-private fun generateLocation(): GeoIpLocation =
-    GeoIpLocation(
-        ipv4 = null,
-        ipv6 = null,
-        country = "",
-        city = "",
-        hostname = "",
-        entryHostname = "",
-        latitude = 0.0,
-        longitude = 0.0,
-    )
-
-private fun generateFeatureIndicators(size: Int): List<FeatureIndicator> =
-    FeatureIndicator.entries.subList(0, size)
 
 private const val DEFAULT_ENDPOINT_PORT = 100

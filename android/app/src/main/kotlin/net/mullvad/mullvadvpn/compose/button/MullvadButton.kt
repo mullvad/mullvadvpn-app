@@ -76,7 +76,7 @@ fun NegativeButton(
         ),
     isEnabled: Boolean = true,
     isLoading: Boolean = false,
-    icon: @Composable (() -> Unit)? = null,
+    content: @Composable (() -> Unit)? = null,
 ) {
     BaseButton(
         onClick = onClick,
@@ -85,7 +85,7 @@ fun NegativeButton(
         modifier = modifier,
         isEnabled = isEnabled,
         isLoading = isLoading,
-        trailingIcon = icon,
+        trailingIcon = content,
     )
 }
 

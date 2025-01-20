@@ -333,7 +333,7 @@ private fun ApiAccessMethodTypeSelection(
                     close()
                     onTypeSelected(it)
                 },
-                leadingIcon = {
+                content = {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
@@ -510,7 +510,7 @@ private fun CipherSelection(cipher: Cipher, onCipherChange: (Cipher) -> Unit) {
                     close()
                     onCipherChange(it)
                 },
-                leadingIcon = {
+                content = {
                     Icon(
                         imageVector = Icons.Default.Check,
                         contentDescription = null,
@@ -549,7 +549,7 @@ private fun EnableAuthentication(
                 close()
                 onToggleAuthenticationEnabled(true)
             },
-            leadingIcon = {
+            content = {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
@@ -565,7 +565,7 @@ private fun EnableAuthentication(
                 close()
                 onToggleAuthenticationEnabled(false)
             },
-            leadingIcon = {
+            content = {
                 Icon(
                     imageVector = Icons.Default.Check,
                     contentDescription = null,
