@@ -116,6 +116,8 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         contentView.isEditing = false
         interactor.redeemVoucher(code: code, completion: { [weak self] result in
             guard let self else { return }
+            /// Safe to assume `@MainActor` isolation because
+            /// `TunnelManager.redeemVoucher` sets the `RedeemVoucherOperation`'s `completionQueue` to `.main`
             MainActor.assumeIsolated {
                 switch result {
                 case let .success(value):

@@ -21,8 +21,8 @@ final class LoginCoordinator: Coordinator, Presenting, @preconcurrency DeviceMan
     nonisolated(unsafe) private var lastLoginAction: LoginAction?
     private var subscriptions = Set<Combine.AnyCancellable>()
 
-    var didFinish: (@Sendable (LoginCoordinator) -> Void)?
-    var didCreateAccount: (@Sendable () -> Void)?
+    var didFinish: (@MainActor @Sendable (LoginCoordinator) -> Void)?
+    var didCreateAccount: (@MainActor @Sendable () -> Void)?
 
     var preferredAccountNumberPublisher: AnyPublisher<String, Never>?
     var presentationContext: UIViewController {

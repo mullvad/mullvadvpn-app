@@ -450,14 +450,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         coordinator.preferredAccountNumberPublisher = preferredAccountNumberSubject.eraseToAnyPublisher()
 
         coordinator.didFinish = { [weak self] _ in
-            MainActor.assumeIsolated {
-                self?.continueFlow(animated: true)
-            }
+            self?.continueFlow(animated: true)
         }
         coordinator.didCreateAccount = { [weak self] in
-            MainActor.assumeIsolated {
-                self?.appPreferences.isShownOnboarding = false
-            }
+            self?.appPreferences.isShownOnboarding = false
         }
 
         addChild(coordinator)
@@ -538,9 +534,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         )
 
         coordinator.didFinish = { [weak self] _, reason in
-            MainActor.assumeIsolated {
-                self?.didDismissAccount(reason)
-            }
+            self?.didDismissAccount(reason)
         }
 
         coordinator.start(animated: animated)
