@@ -294,17 +294,13 @@ async fn main() -> Result<()> {
             };
 
             if let Some(mullvad_host) = mullvad_host {
-                if let Some(old_host) = config.mullvad_host.replace(mullvad_host) {
-                    log::info!(
-                        "Overriding Mullvad host from {old_host} to {}",
-                        config.mullvad_host.as_ref().unwrap()
-                    );
-                } else {
-                    log::info!(
-                        "Setting Mullvad host to {}",
-                        config.mullvad_host.as_ref().unwrap()
-                    );
-                }
+                match config.mullvad_host {
+                    Some(old_host) => {
+                        log::info!("Overriding Mullvad host from {old_host} to {mullvad_host}",)
+                    }
+                    None => log::info!("Setting Mullvad host to {mullvad_host}",),
+                };
+                config.mullvad_host = Some(mullvad_host);
             }
             let mullvad_host = config.get_host();
             log::debug!("Mullvad host: {mullvad_host}");
