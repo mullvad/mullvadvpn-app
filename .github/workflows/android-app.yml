@@ -561,9 +561,9 @@ jobs:
           TEST_TYPE: e2e
           BILLING_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor == 'prod' && 'oss' || 'play' }}
           INFRA_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor }}
-          PARTNER_AUTH: |
+          PARTNER_AUTH: |-
             ${{ github.event.inputs.e2e_tests_infra_flavor == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
-          VALID_TEST_ACCOUNT_NUMBER: |
+          VALID_TEST_ACCOUNT_NUMBER: |-
             ${{ github.event.inputs.e2e_tests_infra_flavor == 'prod' && secrets.ANDROID_PROD_TEST_ACCOUNT || '' }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
