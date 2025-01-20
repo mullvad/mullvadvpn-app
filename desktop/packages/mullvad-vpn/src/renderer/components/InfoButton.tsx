@@ -2,8 +2,8 @@ import styled from 'styled-components';
 
 import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { Button } from '../lib/components';
 import { useBoolean } from '../lib/utility-hooks';
-import * as AppButton from './AppButton';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
 
@@ -61,9 +61,9 @@ export default function InfoButton(props: IInfoButtonProps) {
         message={props.message}
         type={ModalAlertType.info}
         buttons={[
-          <AppButton.BlueButton key="back" onClick={hide}>
+          <Button size="full" key="back" onClick={hide}>
             {messages.gettext('Got it!')}
-          </AppButton.BlueButton>,
+          </Button>,
         ]}
         close={hide}>
         {props.children}

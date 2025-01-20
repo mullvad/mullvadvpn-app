@@ -240,7 +240,7 @@ function QuitButton() {
   const tunnelState = useSelector((state) => state.connection.status);
 
   return (
-    <Button variant="destructive" onClick={quit}>
+    <Button size="full" variant="destructive" onClick={quit}>
       {tunnelState.state === 'disconnected'
         ? messages.gettext('Quit')
         : messages.gettext('Disconnect & quit')}
