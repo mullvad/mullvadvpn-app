@@ -55,7 +55,7 @@ protobuf-gradle-plugin = "0.9.4"
 protobuf = "4.29.3"
 
 # Rust Android Gradle
-rust-android-gradle = "0.9.5"
+rust-android-gradle = "0.9.6"
 
 # Misc
 commonsvalidator = "1.9.0"
