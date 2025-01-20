@@ -81,6 +81,38 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
 }
 
 extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
+    func didRequestToShowFailToFetchProducts(controller: WelcomeViewController) {
+        let message = NSLocalizedString(
+            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
+            tableName: "Welcome",
+            value:
+            """
+            Failed to connect to App store, please try again later.
+            """,
+            comment: ""
+        )
+
+        let presentation = AlertPresentation(
+            id: "welcome-failed-to-fetch-products-alert",
+            icon: .info,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
+                        tableName: "Welcome",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
     func didRequestToShowInfo(controller: WelcomeViewController) {
         let message = NSLocalizedString(
             "WELCOME_DEVICE_CONCEPT_TEXT_DIALOG",
@@ -116,6 +148,22 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
 
         let presenter = AlertPresenter(context: self)
         presenter.showAlert(presentation: presentation, animated: true)
+    }
+
+    func didRequestToViewPurchaseOptions(
+        controller: WelcomeViewController,
+        products: [SKProduct],
+        accountNumber: String
+    ) {
+        let alert = UIAlertController.showInAppPurchaseAlert(products: products, didRequestPurchase: { product in
+            self.didRequestToPurchaseCredit(
+                controller: controller,
+                accountNumber: accountNumber,
+                product: product
+            )
+        })
+
+        presentationContext.present(alert, animated: true)
     }
 
     func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {

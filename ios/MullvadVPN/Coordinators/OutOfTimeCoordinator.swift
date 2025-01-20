@@ -7,6 +7,7 @@
 //
 
 import Routing
+import StoreKit
 import UIKit
 
 class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeViewControllerDelegate, Poppable {
@@ -81,5 +82,46 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
         isMakingPayment = false
 
         didFinishPayment?(self)
+    }
+
+    func outOfTimeViewControllerDidRequestShowPurchaseOptions(
+        _ controller: OutOfTimeViewController,
+        products: [SKProduct],
+        didRequestPurchase: @escaping (SKProduct) -> Void
+    ) {
+        let alert = UIAlertController.showInAppPurchaseAlert(products: products, didRequestPurchase: didRequestPurchase)
+        presentationContext.present(alert, animated: true)
+    }
+
+    func outOfTimeViewControllerDidFailToFetchProducts(_ controller: OutOfTimeViewController) {
+        let message = NSLocalizedString(
+            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
+            tableName: "Welcome",
+            value:
+            """
+            Failed to connect to App store, please try again later.
+            """,
+            comment: ""
+        )
+
+        let presentation = AlertPresentation(
+            id: "welcome-failed-to-fetch-products-alert",
+            icon: .info,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
+                        tableName: "Welcome",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
     }
 }

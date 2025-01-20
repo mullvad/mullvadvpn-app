@@ -15,6 +15,12 @@ import UIKit
 protocol OutOfTimeViewControllerDelegate: AnyObject, Sendable {
     func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController)
     func outOfTimeViewControllerDidEndPayment(_ controller: OutOfTimeViewController)
+    func outOfTimeViewControllerDidRequestShowPurchaseOptions(
+        _ controller: OutOfTimeViewController,
+        products: [SKProduct],
+        didRequestPurchase: @escaping (SKProduct) -> Void
+    )
+    func outOfTimeViewControllerDidFailToFetchProducts(_ controller: OutOfTimeViewController)
 }
 
 @MainActor
@@ -24,12 +30,6 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     private let interactor: OutOfTimeInteractor
     private let errorPresenter: PaymentAlertPresenter
 
-    private var productState: ProductState = .none {
-        didSet {
-            applyViewState()
-        }
-    }
-
     private var paymentState: PaymentState = .none {
         didSet {
             applyViewState()
@@ -38,6 +38,8 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     }
 
     private lazy var contentView = OutOfTimeContentView()
+
+    private var isFetchingProducts = false
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -86,7 +88,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         )
         contentView.purchaseButton.addTarget(
             self,
-            action: #selector(doPurchase),
+            action: #selector(requestStoreProducts),
             for: .touchUpInside
         )
         contentView.restoreButton.addTarget(
@@ -107,12 +109,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
                 self?.applyViewState()
             }
         }
-
-        if StorePaymentManager.canMakePayments {
-            requestStoreProducts()
-        } else {
-            productState = .cannotMakePurchases
-        }
+        applyViewState()
     }
 
     override func viewDidAppear(_ animated: Bool) {
@@ -127,21 +124,6 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
     // MARK: - Private
 
-    private func requestStoreProducts() {
-        let productKind = StoreSubscription.thirtyDays
-
-        productState = .fetching(productKind)
-
-        _ = interactor.requestProducts(with: [productKind]) { [weak self] completion in
-            let productState: ProductState = completion.value?.products.first
-                .map { .received($0) } ?? .failed
-
-            Task { @MainActor in
-                self?.productState = productState
-            }
-        }
-    }
-
     private func applyViewState() {
         let tunnelState = interactor.tunnelStatus.state
         let isInteractionEnabled = paymentState.allowsViewInteraction
@@ -149,10 +131,9 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
         let isOutOfTime = interactor.deviceState.accountData.map { $0.expiry < Date() } ?? false
 
-        purchaseButton.setTitle(productState.purchaseButtonTitle, for: .normal)
-        contentView.purchaseButton.isLoading = productState.isFetching
+        contentView.purchaseButton.isLoading = isFetchingProducts
 
-        purchaseButton.isEnabled = productState.isReceived && isInteractionEnabled && !tunnelState
+        purchaseButton.isEnabled = !isFetchingProducts && isInteractionEnabled && !tunnelState
             .isSecured
         contentView.restoreButton.isEnabled = isInteractionEnabled
 
@@ -177,7 +158,7 @@ class OutOfTimeViewController: UIViewController, RootContainment {
                     tableName: "OutOfTime",
                     value: """
                     You have no more VPN time left on this account. Either buy credit on our website \
-                    or make an in-app purchase via the **Add 30 days time** button below.
+                    or make an in-app purchase via the **Add time** button below.
                     """,
                     comment: ""
                 )
@@ -229,12 +210,8 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         paymentState = .none
     }
 
-    // MARK: - Actions
-
-    @objc private func doPurchase() {
-        guard case let .received(product) = productState,
-              let accountData = interactor.deviceState.accountData
-        else {
+    private func doPurchase(product: SKProduct) {
+        guard let accountData = interactor.deviceState.accountData else {
             return
         }
 
@@ -242,6 +219,39 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         interactor.addPayment(payment, for: accountData.number)
 
         paymentState = .makingPayment(payment)
+    }
+
+    // MARK: - Actions
+
+    @objc private func requestStoreProducts() {
+        guard interactor.deviceState.accountData != nil else {
+            return
+        }
+        let productIdentifiers = Set(StoreSubscription.allCases)
+        isFetchingProducts = true
+        applyViewState()
+        _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
+            guard let self else { return }
+            Task { @MainActor in
+                switch result {
+                case let .success(success):
+                    let products = success.products
+                    if !products.isEmpty {
+                        delegate?.outOfTimeViewControllerDidRequestShowPurchaseOptions(
+                            self,
+                            products: products,
+                            didRequestPurchase: self.doPurchase
+                        )
+                    } else {
+                        delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
+                    }
+                case .failure:
+                    delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
+                }
+                isFetchingProducts = false
+                applyViewState()
+            }
+        }
     }
 
     @objc func restorePurchases() {

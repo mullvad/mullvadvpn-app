@@ -12,7 +12,12 @@ import UIKit
 protocol WelcomeViewControllerDelegate: AnyObject {
     func didRequestToRedeemVoucher(controller: WelcomeViewController)
     func didRequestToShowInfo(controller: WelcomeViewController)
-    func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct)
+    func didRequestToViewPurchaseOptions(
+        controller: WelcomeViewController,
+        products: [SKProduct],
+        accountNumber: String
+    )
+    func didRequestToShowFailToFetchProducts(controller: WelcomeViewController)
 }
 
 class WelcomeViewController: UIViewController, RootContainment {
@@ -59,11 +64,6 @@ class WelcomeViewController: UIViewController, RootContainment {
         super.viewDidLoad()
         configureUI()
         contentView.viewModel = interactor.viewModel
-        interactor.didChangeInAppPurchaseState = { [weak self] productState in
-            guard let self else { return }
-            self.contentView.productState = productState
-        }
-        interactor.viewDidLoad = true
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -89,12 +89,28 @@ extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
     }
 
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton) {
-        interactor.product.flatMap {
-            delegate?.didRequestToPurchaseCredit(
-                controller: self,
-                accountNumber: interactor.accountNumber,
-                product: $0
-            )
+        let productIdentifiers = Set(StoreSubscription.allCases)
+        contentView.isFetchingProducts = true
+        _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
+            guard let self else { return }
+            Task { @MainActor in
+                switch result {
+                case let .success(success):
+                    let products = success.products
+                    if !products.isEmpty {
+                        delegate?.didRequestToViewPurchaseOptions(
+                            controller: self,
+                            products: products,
+                            accountNumber: interactor.accountNumber
+                        )
+                    } else {
+                        delegate?.didRequestToShowFailToFetchProducts(controller: self)
+                    }
+                case .failure:
+                    delegate?.didRequestToShowFailToFetchProducts(controller: self)
+                }
+                contentView.isFetchingProducts = false
+            }
         }
     }
 

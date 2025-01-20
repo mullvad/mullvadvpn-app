@@ -7,6 +7,7 @@
 //
 
 import Routing
+import StoreKit
 import UIKit
 
 enum AccountDismissReason: Equatable, Sendable {
@@ -67,7 +68,24 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             navigateToDeleteAccount()
         case .restorePurchasesInfo:
             showRestorePurchasesInfo()
+        case let .showPurchaseOptions(details):
+            showPurchaseOptions(
+                products: details.products,
+                accountNumber: details.accountNumber,
+                didRequestPurchase: details.didRequestPurchase
+            )
+        case .showFailedToLoadProducts:
+            showFailToFetchProducts()
         }
+    }
+
+    func showPurchaseOptions(
+        products: [SKProduct],
+        accountNumber: String,
+        didRequestPurchase: @escaping (_ product: SKProduct) -> Void
+    ) {
+        let alert = UIAlertController.showInAppPurchaseAlert(products: products, didRequestPurchase: didRequestPurchase)
+        presentationContext.present(alert, animated: true)
     }
 
     private func navigateToRedeemVoucher() {
@@ -225,6 +243,38 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
                 ),
                 style: .default
             )]
+        )
+
+        let presenter = AlertPresenter(context: self)
+        presenter.showAlert(presentation: presentation, animated: true)
+    }
+
+    func showFailToFetchProducts() {
+        let message = NSLocalizedString(
+            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
+            tableName: "Welcome",
+            value:
+            """
+            Failed to connect to App store, please try again later.
+            """,
+            comment: ""
+        )
+
+        let presentation = AlertPresentation(
+            id: "welcome-failed-to-fetch-products-alert",
+            icon: .info,
+            message: message,
+            buttons: [
+                AlertAction(
+                    title: NSLocalizedString(
+                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
+                        tableName: "Welcome",
+                        value: "Got it!",
+                        comment: ""
+                    ),
+                    style: .default
+                ),
+            ]
         )
 
         let presenter = AlertPresenter(context: self)
