@@ -77,7 +77,7 @@ in
            iifname "wan" udp dport {9090, 9091} counter accept
            iifname "wan" tcp dport {9090, 9091} counter accept
 
-           iifname "wan" ct state vmap { established : accept, related : accept, invalid : drop }
+           iifname { "wan", "staging" } ct state vmap { established : accept, related : accept, invalid : drop }
            iifname "wan" udp sport 67 udp dport 68 counter accept;
            iifname "wan" ip6 saddr fe80::/10 udp sport 547 ip6 daddr fe80::/10 udp dport 546 counter accept
 
@@ -100,7 +100,7 @@ in
 
           # Allow trusted network WAN access
           iifname {
-                  ${cfg.lanInterfaces}
+                  lo, ${cfg.lanInterfaces}
           } oifname {
                   "wan", "staging"
           } counter accept comment "Allow trusted LAN to WAN and staging interface"
