@@ -198,7 +198,7 @@ pub async fn set_test_location(
     mullvad_client.update_custom_list(custom_list).await?;
     log::debug!("Added custom list");
 
-    set_location_from_constraint(mullvad_client, LocationConstraint::CustomList { list_id })
+    set_location(mullvad_client, LocationConstraint::CustomList { list_id })
         .await
         .context("Failed to set location to custom list")?;
     Ok(())
