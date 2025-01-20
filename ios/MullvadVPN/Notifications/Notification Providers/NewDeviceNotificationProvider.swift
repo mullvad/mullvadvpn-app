@@ -1,5 +1,5 @@
 //
-//  RegisteredDeviceInAppNotification.swift
+//  NewDeviceNotificationProvider.swift
 //  MullvadVPN
 //
 //  Created by Mojgan on 2023-04-21.
@@ -11,7 +11,7 @@ import MullvadSettings
 import UIKit.UIColor
 import UIKit.UIFont
 
-final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
+final class NewDeviceNotificationProvider: NotificationProvider,
     InAppNotificationProvider, @unchecked Sendable {
     // MARK: - private properties
 
@@ -57,8 +57,8 @@ final class RegisteredDeviceInAppNotificationProvider: NotificationProvider,
                 comment: ""
             ),
             body: attributedBody,
-            action: .init(
-                image: .init(named: "IconCloseSml"),
+            button: InAppNotificationAction(
+                image: UIImage(resource: .iconCloseSml),
                 handler: { [weak self] in
                     guard let self else { return }
                     isNewDeviceRegistered = false
