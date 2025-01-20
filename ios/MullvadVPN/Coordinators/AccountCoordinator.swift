@@ -70,7 +70,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             showRestorePurchasesInfo()
         case let .showPurchaseOptions(details):
             showPurchaseOptions(
-                availableProducts: details.products,
+                products: details.products,
                 accountNumber: details.accountNumber,
                 didRequestPurchase: details.didRequestPurchase
             )
@@ -80,39 +80,11 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
     }
 
     func showPurchaseOptions(
-        availableProducts: [SKProduct],
+        products: [SKProduct],
         accountNumber: String,
         didRequestPurchase: @escaping (_ product: SKProduct) -> Void
     ) {
-        let localizedString = NSLocalizedString(
-            "ADD_TIME",
-            tableName: "Welcome",
-            value: "Add Time",
-            comment: ""
-        )
-        let alert = UIAlertController(title: localizedString, message: nil, preferredStyle: .actionSheet)
-        availableProducts.sortedByPrice().forEach { product in
-            guard let localizedTitle = product.customLocalizedTitle else {
-                return
-            }
-            let action = UIAlertAction(title: localizedTitle, style: .default, handler: { _ in
-                alert.dismiss(animated: true, completion: {
-                    didRequestPurchase(product)
-                })
-            })
-            action
-                .accessibilityIdentifier =
-                "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
-            alert.addAction(action)
-        }
-        let cancelAction = UIAlertAction(title: NSLocalizedString(
-            "PRODUCT_LIST_CANCEL_BUTTON",
-            tableName: "Welcome",
-            value: "Cancel",
-            comment: ""
-        ), style: .cancel)
-        cancelAction.accessibilityIdentifier = AccessibilityIdentifier.cancelPurchaseListButton.asString
-        alert.addAction(cancelAction)
+        let alert = UIAlertController.showInAppPurchaseAlert(products: products, didRequestPurchase: didRequestPurchase)
         presentationContext.present(alert, animated: true)
     }
 

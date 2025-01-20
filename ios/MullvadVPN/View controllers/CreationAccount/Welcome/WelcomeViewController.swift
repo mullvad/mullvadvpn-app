@@ -14,7 +14,7 @@ protocol WelcomeViewControllerDelegate: AnyObject {
     func didRequestToShowInfo(controller: WelcomeViewController)
     func didRequestToViewPurchaseOptions(
         controller: WelcomeViewController,
-        availableProducts: [SKProduct],
+        products: [SKProduct],
         accountNumber: String
     )
     func didRequestToShowFailToFetchProducts(controller: WelcomeViewController)
@@ -100,7 +100,7 @@ extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
                     if !products.isEmpty {
                         delegate?.didRequestToViewPurchaseOptions(
                             controller: self,
-                            availableProducts: products,
+                            products: products,
                             accountNumber: interactor.accountNumber
                         )
                     } else {
