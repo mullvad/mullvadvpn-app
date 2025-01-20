@@ -135,6 +135,7 @@ class TunnelViewController: UIViewController, RootContainment {
 
         addMapController()
         addConnectionView()
+        addActivityIndicator()
         updateMap(animated: false)
     }
 
@@ -218,10 +219,25 @@ class TunnelViewController: UIViewController, RootContainment {
         }
     }
 
-    /// Computers a constraint multiplier based on the screen size
+    /// Computes a constraint multiplier based on the screen size
     private func computeHeightBreakpointMultiplier() -> CGFloat {
         let screenBounds = UIWindow().screen.coordinateSpace.bounds
         return screenBounds.height < 700 ? 2.0 : 1.5
+    }
+
+    private func addActivityIndicator() {
+        // If the device doesn't have a lot of vertical screen estate, center the progress view higher on the map
+        // so the connection view details do not shadow it unless fully expanded if possible
+        let heightConstraintMultiplier = computeHeightBreakpointMultiplier()
+
+        let verticalCenteredAnchor = activityIndicator.centerYAnchor.anchorWithOffset(to: view.centerYAnchor)
+        view.addConstrainedSubviews([activityIndicator]) {
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor)
+            verticalCenteredAnchor.constraint(
+                equalTo: activityIndicator.heightAnchor,
+                multiplier: heightConstraintMultiplier
+            )
+        }
     }
 
     private func addConnectionView() {
@@ -233,18 +249,7 @@ class TunnelViewController: UIViewController, RootContainment {
 
         addChild(connectionController)
         connectionController.didMove(toParent: self)
-        // If the device doesn't have a lot of vertical screen estate, center the progress view higher on the map
-        // so the connection view details do not shadow it unless fully expanded if possible
-        let heightConstraintMultiplier = computeHeightBreakpointMultiplier()
-
-        let verticalCenteredAnchor = activityIndicator.centerYAnchor.anchorWithOffset(to: view.centerYAnchor)
         view.addConstrainedSubviews([activityIndicator, connectionViewProxy]) {
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-            verticalCenteredAnchor.constraint(
-                equalTo: activityIndicator.heightAnchor,
-                multiplier: heightConstraintMultiplier
-            )
-
             connectionViewProxy.pinEdgesToSuperview(.all())
         }
     }
