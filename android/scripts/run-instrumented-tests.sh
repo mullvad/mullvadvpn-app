@@ -237,6 +237,8 @@ if [[ "$USE_ORCHESTRATOR" == "true" ]]; then
     -e runnerBuilder de.mannodermaus.junit5.AndroidJUnit5Builder \
     ${OPTIONAL_TEST_ARGUMENTS:-""} \
     androidx.test.orchestrator/androidx.test.orchestrator.AndroidTestOrchestrator"
+
+    echo "Command: $INSTRUMENTATION_COMMAND"
 else
     INSTRUMENTATION_COMMAND="\
     am instrument -w \
