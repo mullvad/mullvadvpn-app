@@ -13,7 +13,7 @@ public struct RelayWithLocation<T: AnyRelay> {
     let relay: T
     public let serverLocation: Location
 
-    func matches(location: RelayLocation) -> Bool {
+    public func matches(location: RelayLocation) -> Bool {
         return switch location {
         case let .country(countryCode):
             serverLocation.countryCode == countryCode
@@ -27,6 +27,39 @@ public struct RelayWithLocation<T: AnyRelay> {
                 serverLocation.cityCode == cityCode &&
                 relay.hostname == hostname
         }
+    }
+
+    init(relay: T, serverLocation: Location) {
+        self.relay = relay
+        self.serverLocation = serverLocation
+    }
+
+    init?(_ relay: T, locations: [String: REST.ServerLocation]) {
+        let locationComponents = relay.location.split(separator: "-")
+        guard
+            locationComponents.count > 1,
+            let serverLocation = locations[relay.location]
+        else { return nil }
+
+        self.relay = relay
+        self.serverLocation = Location(
+            country: serverLocation.country,
+            countryCode: String(locationComponents[0]),
+            city: serverLocation.city,
+            cityCode: String(locationComponents[1]),
+            latitude: serverLocation.latitude,
+            longitude: serverLocation.longitude
+        )
+    }
+
+    /// given a list of `AnyRelay` values and a name to location mapping, produce a list of
+    /// `RelayWithLocation`values  for those whose locations have successfully been found.
+    public static func locateRelays(
+        relays: [T],
+        locations: [String: REST.ServerLocation]
+    ) -> [RelayWithLocation<T>] {
+        /// thiis used to be `RelaySelector.mapRelays`
+        relays.compactMap { RelayWithLocation($0, locations: locations) }
     }
 }
 
