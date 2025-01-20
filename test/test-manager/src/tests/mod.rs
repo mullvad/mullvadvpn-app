@@ -28,7 +28,7 @@ use crate::{
     package::get_version_from_path,
 };
 use config::TEST_CONFIG;
-use helpers::{find_custom_list, get_app_env, install_app, set_location_from_constraint};
+use helpers::{find_custom_list, get_app_env, install_app, set_location};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
 use test_rpc::{meta::Os, ServiceClient};
