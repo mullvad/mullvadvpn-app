@@ -1,15 +1,11 @@
-import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { links } from '../../../../config.json';
 import { messages } from '../../../../shared/gettext';
-import { useAppContext } from '../../../context';
-import { BodySmall, Button, Container, Flex, TitleBig, TitleLarge } from '../../../lib/components';
+import { BodySmall, Container, Flex, TitleBig, TitleLarge } from '../../../lib/components';
 import { Colors, Spacings } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
-import ImageView from '../../ImageView';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
@@ -24,21 +20,11 @@ const StyledList = styled(Flex)({
   },
 });
 
-const StyledFooter = styled(Flex)({
-  position: 'sticky',
-  minHeight: '64px',
-  bottom: 0,
-  background: Colors.darkBlue,
-});
-
 export const ChangelogView = () => {
   const { pop } = useHistory();
-  const { openUrl } = useAppContext();
   const changelog = useSelector((state) => state.userInterface.changelog);
   const version = useSelector((state) => state.version.current);
 
-  const url = links.changelog;
-  const openDownloadLink = useCallback(() => openUrl(url), [openUrl, url]);
   return (
     <BackAction action={pop}>
       <Layout>
@@ -76,22 +62,6 @@ export const ChangelogView = () => {
             </NavigationScrollbars>
           </NavigationContainer>
         </SettingsContainer>
-        <StyledFooter
-          $padding={{ horizontal: Spacings.spacing6 }}
-          $alignItems="center"
-          $justifyContent="center">
-          <Button
-            onClick={openDownloadLink}
-            trailing={
-              <ImageView
-                source="icon-extLink"
-                aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                tintColor={Colors.white}
-              />
-            }>
-            {messages.pgettext('changelog', 'See full changelog')}
-          </Button>
-        </StyledFooter>
       </Layout>
     </BackAction>
   );
