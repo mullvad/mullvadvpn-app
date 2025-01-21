@@ -1,11 +1,10 @@
 use super::TestWrapperFunction;
-use test_rpc::{meta::Os, mullvad_daemon::MullvadClientVersion};
+use test_rpc::meta::Os;
 
 #[derive(Clone, Debug)]
 pub struct TestMetadata {
     pub name: &'static str,
     pub targets: &'static [Os],
-    pub mullvad_client_version: MullvadClientVersion,
     pub func: TestWrapperFunction,
     /// Priority order of the tests, unless specific tests are given as the `TEST_FILTERS` argument
     pub priority: Option<i32>,

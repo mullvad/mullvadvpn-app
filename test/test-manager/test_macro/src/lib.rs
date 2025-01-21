@@ -91,11 +91,9 @@ fn parse_marked_test_function(
     function: &syn::ItemFn,
 ) -> Result<TestFunction> {
     let macro_parameters = get_test_macro_parameters(attributes)?;
-    let function_parameters = get_test_function_parameters(&function.sig.inputs)?;
 
     Ok(TestFunction {
         name: function.sig.ident.clone(),
-        function_parameters,
         macro_parameters,
     })
 }
@@ -153,34 +151,15 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         .collect();
 
     let func_name = test_function.name;
-    let function_mullvad_version = test_function.function_parameters.mullvad_client.version();
-    let wrapper_closure = match test_function.function_parameters.mullvad_client {
-        MullvadClient::New { .. } => {
-            quote! {
-                |test_context: crate::tests::TestContext,
-                rpc: test_rpc::ServiceClient,
-                mullvad_client: crate::mullvad_daemon::MullvadClientArgument|
-                {
-                    let mullvad_client = match mullvad_client {
-                        crate::mullvad_daemon::MullvadClientArgument::WithClient(client) => client,
-                        crate::mullvad_daemon::MullvadClientArgument::None => unreachable!("invalid mullvad client")
-                    };
-                    Box::pin(async move {
-                        #func_name(test_context, rpc, mullvad_client).await.map_err(Into::into)
-                    })
-                }
-            }
-        }
-        MullvadClient::None { .. } => {
-            quote! {
-                |test_context: crate::tests::TestContext,
-                rpc: test_rpc::ServiceClient,
-                _mullvad_client: crate::mullvad_daemon::MullvadClientArgument| {
-                    Box::pin(async move {
-                        #func_name(test_context, rpc).await.map_err(Into::into)
-                    })
-                }
-            }
+    let wrapper_closure = quote! {
+        |test_context: crate::tests::TestContext,
+        rpc: test_rpc::ServiceClient,
+        mullvad_client: Option<MullvadProxyClient>|
+        {
+            let mullvad_client = mullvad_client.expect("Test functions defined using the macro should be given a mullvad client");
+            Box::pin(async move {
+                #func_name(test_context, rpc, mullvad_client).await.map_err(Into::into)
+            })
         }
     };
 
@@ -188,7 +167,6 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         inventory::submit!(crate::tests::test_metadata::TestMetadata {
             name: stringify!(#func_name),
             targets: &[#targets],
-            mullvad_client_version: #function_mullvad_version,
             func: #wrapper_closure,
             priority: #test_function_priority,
             location: None,
@@ -198,74 +176,10 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
 
 struct TestFunction {
     name: syn::Ident,
-    function_parameters: FunctionParameters,
     macro_parameters: MacroParameters,
 }
 
 struct MacroParameters {
     priority: Option<i32>,
     targets: Vec<Os>,
-}
-
-enum MullvadClient {
-    None {
-        mullvad_client_version: proc_macro2::TokenStream,
-    },
-    New {
-        mullvad_client_version: proc_macro2::TokenStream,
-    },
-}
-
-impl MullvadClient {
-    fn version(&self) -> proc_macro2::TokenStream {
-        match self {
-            MullvadClient::None {
-                mullvad_client_version,
-            } => mullvad_client_version.clone(),
-            MullvadClient::New {
-                mullvad_client_version,
-                ..
-            } => mullvad_client_version.clone(),
-        }
-    }
-}
-
-struct FunctionParameters {
-    mullvad_client: MullvadClient,
-}
-
-fn get_test_function_parameters(
-    args: &syn::punctuated::Punctuated<syn::FnArg, syn::Token![,]>,
-) -> Result<FunctionParameters> {
-    if args.len() <= 2 {
-        return Ok(FunctionParameters {
-            mullvad_client: MullvadClient::None {
-                mullvad_client_version: quote! {
-                    test_rpc::mullvad_daemon::MullvadClientVersion::None
-                },
-            },
-        });
-    }
-
-    let arg = args[2].clone();
-    let syn::FnArg::Typed(pat_type) = arg else {
-        bail!(arg, "unexpected 'mullvad_client' arg");
-    };
-
-    let syn::Type::Path(syn::TypePath { path, .. }) = &*pat_type.ty else {
-        bail!(pat_type, "unexpected 'mullvad_client' type");
-    };
-
-    let mullvad_client = match path.segments[0].ident.to_string().as_str() {
-        "mullvad_management_interface" | "MullvadProxyClient" => {
-            let mullvad_client_version =
-                quote! { test_rpc::mullvad_daemon::MullvadClientVersion::New };
-            MullvadClient::New {
-                mullvad_client_version,
-            }
-        }
-        _ => bail!(pat_type, "cannot infer mullvad client type"),
-    };
-
-    Ok(FunctionParameters { mullvad_client })
 }

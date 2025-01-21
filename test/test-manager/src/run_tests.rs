@@ -1,12 +1,13 @@
 use crate::{
     logging::{Logger, Panic, TestOutput, TestResult},
-    mullvad_daemon::{self, MullvadClientArgument, RpcClientProvider},
+    mullvad_daemon::{self, RpcClientProvider},
     summary::SummaryLogger,
     tests::{self, config::TEST_CONFIG, TestContext, TestMetadata},
     vm,
 };
 use anyhow::{Context, Result};
 use futures::FutureExt;
+use mullvad_management_interface::MullvadProxyClient;
 use std::{future::Future, panic, time::Duration};
 use test_rpc::{logging::Output, ServiceClient};
 
@@ -33,10 +34,10 @@ impl TestHandler<'_> {
         &mut self,
         test: &F,
         test_name: &'static str,
-        mullvad_client: MullvadClientArgument,
+        mullvad_client: Option<MullvadProxyClient>,
     ) -> Result<(), anyhow::Error>
     where
-        F: Fn(super::tests::TestContext, ServiceClient, MullvadClientArgument) -> R,
+        F: Fn(super::tests::TestContext, ServiceClient, Option<MullvadProxyClient>) -> R,
         R: Future<Output = anyhow::Result<()>>,
     {
         log::info!("Running {test_name}");
@@ -146,11 +147,7 @@ pub async fn run(
     // expected, and to allow for skipping tests on arbitrary conditions.
     if TEST_CONFIG.app_package_to_upgrade_from_filename.is_some() {
         test_handler
-            .run_test(
-                &tests::test_upgrade_app,
-                "test_upgrade_app",
-                MullvadClientArgument::None,
-            )
+            .run_test(&tests::test_upgrade_app, "test_upgrade_app", None)
             .await?;
     } else {
         log::warn!("No previous app to upgrade from, skipping upgrade test");
@@ -166,11 +163,7 @@ pub async fn run(
             .context("Failed to create custom list from test locations")?;
 
         test_handler
-            .run_test(
-                &test.func,
-                test.name,
-                MullvadClientArgument::WithClient(mullvad_client),
-            )
+            .run_test(&test.func, test.name, Some(mullvad_client))
             .await?;
     }
 
@@ -209,13 +202,13 @@ async fn register_test_result(
 
 pub async fn run_test_function<F, R>(
     runner_rpc: ServiceClient,
-    mullvad_rpc: MullvadClientArgument,
+    mullvad_rpc: Option<MullvadProxyClient>,
     test: &F,
     test_name: &'static str,
     test_context: super::tests::TestContext,
 ) -> TestOutput
 where
-    F: Fn(super::tests::TestContext, ServiceClient, MullvadClientArgument) -> R,
+    F: Fn(super::tests::TestContext, ServiceClient, Option<MullvadProxyClient>) -> R,
     R: Future<Output = anyhow::Result<()>>,
 {
     let _flushed = runner_rpc.try_poll_output().await;
