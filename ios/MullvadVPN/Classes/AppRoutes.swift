@@ -88,11 +88,6 @@ enum AppRoute: AppRouteProtocol {
     case selectLocation
 
     /**
-     Changelog route.
-     */
-    case changelog
-
-    /**
      Alert route. Alert id must be a unique string in order to produce a unique route
      that distinguishes between different kinds of alerts.
      */
@@ -105,7 +100,7 @@ enum AppRoute: AppRouteProtocol {
 
     var isExclusive: Bool {
         switch self {
-        case .account, .settings, .changelog, .alert:
+        case .account, .settings, .alert:
             return true
         default:
             return false
@@ -124,8 +119,6 @@ enum AppRoute: AppRouteProtocol {
         switch self {
         case .tos, .login, .main, .revoked, .outOfTime, .welcome:
             return .primary
-        case .changelog:
-            return .changelog
         case .selectLocation:
             return .selectLocation
         case .account:
