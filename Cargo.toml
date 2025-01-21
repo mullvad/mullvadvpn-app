@@ -45,22 +45,9 @@ members = [
     "wireguard-go-rs",
     "windows-installer",
 ]
-# The default members may exclude packages that cannot be built for all targets, or that do not always
-# need to be built
 default-members = [
-    "android/translations-converter",
-    "desktop/packages/nseventforwarder",
     "mullvad-cli",
     "mullvad-daemon",
-    "mullvad-exclude",
-    "mullvad-ios",
-    "mullvad-nsis",
-    "mullvad-paths",
-    "mullvad-problem-report",
-    "mullvad-relay-selector",
-    "mullvad-setup",
-    "mullvad-version",
-    "talpid-openvpn-plugin",
 ]
 
 # Keep all lints in sync with `test/Cargo.toml`
