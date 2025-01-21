@@ -1204,6 +1204,9 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
 /// entry location for multihop. It does not, however, affect bridge location for OpenVPN.
 /// This is for simplify, as bridges default to using the server closest to the exit anyway, and
 /// OpenVPN is slated for removal.
+///
+/// NOTE: Calling this from within a test will overwrite the default test lcoation specified in
+/// the settings.
 pub async fn set_location(
     mullvad_client: &mut MullvadProxyClient,
     location: impl Into<LocationConstraint>,
