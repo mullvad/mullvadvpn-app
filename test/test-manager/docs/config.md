@@ -27,7 +27,7 @@ The configuration is assumed to exist in `$XDG_CONFIG_HOME/mullvad-test/config.j
 It is possible to configure which relay(s) should be selected on a test-per-test basis by providing the "test_locations"
 configuration option. If no explicit configuration is given, no assumption will be made from within the tests themselves.
 
-The format is a list of maps, where the key is a [glob pattern](<https://en.wikipedia.org/wiki/Glob_(programming)>)
+The format is a list of maps with a single key-value pair, where the key is a [glob pattern](<https://en.wikipedia.org/wiki/Glob_(programming)>)
 that will be matched against the test name, and the value is a list of locations to use for the matching tests.
 The name of the locations are the same as for the `mullvad-cli`.
 
@@ -45,8 +45,7 @@ The name of the locations are the same as for the `mullvad-cli`.
 
 The above example will set the locations for the test `test_daita` to a custom list
 containing `se-got-wg-001` and `se-got-wg-002`. The `*` is a wildcard that will match
-any test name. The order of the list is important, as the first match will be used.
-The configuration is read from top-to-bottom, and the first match will be used.
+any test name. The configuration is read from top-to-bottom, and the first match will be used.
 
 ## Example configurations
 
