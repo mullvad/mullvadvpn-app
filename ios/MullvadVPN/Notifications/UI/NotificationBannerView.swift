@@ -87,9 +87,11 @@ final class NotificationBannerView: UIView {
         }
     }
 
+    var tapAction: InAppNotificationAction?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-
+        addTapHandler()
         addActionHandlers()
         addSubviews()
         addConstraints()
@@ -99,8 +101,18 @@ final class NotificationBannerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private func addTapHandler() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        addGestureRecognizer(tapGesture)
+    }
+
     private func addActionHandlers() {
         actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
+    }
+
+    @objc
+    private func handleTap() {
+        tapAction?.handler?()
     }
 
     private func addSubviews() {
