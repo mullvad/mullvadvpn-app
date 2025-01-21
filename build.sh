@@ -361,7 +361,7 @@ else
 fi
 
 log_info "Updating relays.json..."
-cargo run --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
+cargo run -p mullvad-api --bin relay_list "${CARGO_ARGS[@]}" > build/relays.json
 
 
 log_header "Installing JavaScript dependencies"
