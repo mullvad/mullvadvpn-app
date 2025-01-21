@@ -134,8 +134,8 @@ class TunnelViewController: UIViewController, RootContainment {
         }
 
         addMapController()
-        addConnectionView()
         addActivityIndicator()
+        addConnectionView()
         updateMap(animated: false)
     }
 
