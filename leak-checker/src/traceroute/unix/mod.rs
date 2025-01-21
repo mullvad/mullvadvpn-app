@@ -63,11 +63,10 @@ pub trait AsyncIcmpSocket: Sized {
     /// Send an ICMP packet to the destination.
     async fn send_to(&self, packet: &[u8], destination: impl Into<IpAddr>) -> io::Result<usize>;
 
-    /// Receive an ICMP packet
+    /// Receive an ICMP packet.
     async fn recv_from(&self, buf: &mut [u8]) -> io::Result<(usize, IpAddr)>;
 
-    /// Try to read ICMP/TimeExceeded error packets.
-    // TODO: this should be renamed, or not return a LeakStatus
+    /// Try to read ICMP/TimeExceeded error packets to see if probe packets leaked.
     async fn recv_ttl_responses(&self, opt: &TracerouteOpt) -> anyhow::Result<LeakStatus>;
 }
 

@@ -42,9 +42,9 @@ impl fmt::Debug for Interface {
         match self {
             Self::Name(arg0) => f.debug_tuple("Name").field(arg0).finish(),
 
-            // TODO:
+            // SAFETY: u64 is valid for all bit patterns, so reading the union as a u64 is safe.
             #[cfg(target_os = "windows")]
-            Self::Luid(arg0) => f.debug_tuple("Luid").field(unsafe { &arg0.Value }).finish(),
+            Self::Luid(arg0) => f.debug_tuple("Luid").field(&unsafe { arg0.Value }).finish(),
         }
     }
 }

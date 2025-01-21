@@ -243,9 +243,8 @@ async fn recv_ttl_responses(
                 IpAddr::from(error_source.ip())
             }
             other_message => {
-                // TODO: We might want to not error in this case, and just ignore the cmsg.
-                // If so, we should loop over the iterator instead of taking the first elem.
-                bail!("Unhandled control message: {other_message:?}");
+                log::debug!("Unhandled control message: {other_message:?}");
+                continue 'outer;
             }
         };
 
