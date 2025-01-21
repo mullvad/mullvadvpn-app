@@ -154,11 +154,11 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
     let wrapper_closure = quote! {
         |test_context: crate::tests::TestContext,
         rpc: test_rpc::ServiceClient,
-        mullvad_client: crate::mullvad_daemon::MullvadClientArgument|
+        mullvad_client: Option<MullvadProxyClient>|
         {
             let mullvad_client = match mullvad_client {
-                crate::mullvad_daemon::MullvadClientArgument::WithClient(client) => client,
-                crate::mullvad_daemon::MullvadClientArgument::None => unreachable!("invalid mullvad client")
+                Some(client) => client,
+                None => unreachable!("invalid mullvad client")
             };
             Box::pin(async move {
                 #func_name(test_context, rpc, mullvad_client).await.map_err(Into::into)
