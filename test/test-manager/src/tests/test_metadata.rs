@@ -6,8 +6,9 @@ pub struct TestMetadata {
     pub name: &'static str,
     pub targets: &'static [Os],
     pub func: TestWrapperFunction,
+    /// Priority order of the tests, unless specific tests are given as the `TEST_FILTERS` argument
     pub priority: Option<i32>,
-    // TODO: Document
+    /// A list of location that will be used for by the test
     pub location: Option<Vec<String>>,
 }
 
