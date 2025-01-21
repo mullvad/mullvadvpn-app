@@ -59,8 +59,6 @@ function build_solution {
     local path="$1"
     local sln="$1/$2"
 
-    clean_solution "$path"
-
     for mode in $CPP_BUILD_MODES; do
         for target in $CPP_BUILD_TARGETS; do
             build_solution_config "$sln" "$mode" "$target"
