@@ -26,9 +26,3 @@ pub enum Verbosity {
     Debug,
     Trace,
 }
-
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub enum MullvadClientVersion {
-    None,
-    New,
-}

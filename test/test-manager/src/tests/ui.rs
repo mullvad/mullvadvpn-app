@@ -265,7 +265,11 @@ async fn test_custom_bridge_gui(
 
 /// Test settings import / IP overrides in the GUI
 #[test_function]
-pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_import_settings_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
     let ui_result = run_test(&rpc, &["settings-import.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
@@ -273,7 +277,11 @@ pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Resu
 
 /// Test obfuscation settings in the GUI
 #[test_function]
-pub async fn test_obfuscation_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_obfuscation_settings_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
     let ui_result = run_test(&rpc, &["obfuscation.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
@@ -281,7 +289,11 @@ pub async fn test_obfuscation_settings_ui(_: TestContext, rpc: ServiceClient) ->
 
 /// Test settings in the GUI
 #[test_function]
-pub async fn test_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_settings_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
     let ui_result = run_test(&rpc, &["settings.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
