@@ -958,7 +958,7 @@ pub async fn resolve_location_constraint(
     } else {
         // The Constraint was not a relay, assuming it to be a location
         let location_constraint: Constraint<GeographicLocationConstraint> =
-            Constraint::try_from(location_constraint_args)?;
+            Constraint::from(location_constraint_args);
 
         // If the location constraint was not "any", then validate the country/city
         if let Constraint::Only(constraint) = &location_constraint {
