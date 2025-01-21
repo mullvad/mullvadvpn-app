@@ -187,11 +187,15 @@ pub async fn set_test_location(
     // Add the custom list to the current app instance
     // NOTE: This const is actually defined in, `mullvad_types::custom_list`, but we cannot import it.
     const CUSTOM_LIST_NAME_MAX_SIZE: usize = 30;
+    let mut custom_list_name = test.name.to_string();
+    custom_list_name.truncate(CUSTOM_LIST_NAME_MAX_SIZE);
+    log::debug!("Creating custom list {custom_list_name} with locations '{locations:?}'");
+
     let list_id = mullvad_client
-        .create_custom_list(test.name[..CUSTOM_LIST_NAME_MAX_SIZE].to_string())
+        .create_custom_list(custom_list_name.clone())
         .await?;
 
-    let mut custom_list = find_custom_list(mullvad_client, test.name).await?;
+    let mut custom_list = find_custom_list(mullvad_client, &custom_list_name).await?;
 
     assert_eq!(list_id, custom_list.id);
     for location in locations {
