@@ -317,8 +317,11 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr ""
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
+msgid "Forget account number %(accountNumber)s"
 msgstr ""
 
 #. Provided to accessibility tools such as screenreaders to describe
@@ -334,6 +337,13 @@ msgstr ""
 #. This is used by screenreaders to communicate the login button.
 msgctxt "accessibility"
 msgid "Login"
+msgstr ""
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
 msgstr ""
 
 msgctxt "accessibility"
