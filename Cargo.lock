@@ -2202,7 +2202,6 @@ dependencies = [
  "clap",
  "futures",
  "log",
- "match_cfg",
  "nix 0.29.0",
  "pnet_packet 0.35.0",
  "pretty_env_logger",

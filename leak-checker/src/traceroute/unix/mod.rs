@@ -7,13 +7,13 @@ use std::{
     os::fd::{FromRawFd, IntoRawFd},
 };
 
-use crate::traceroute::{
-    Ip, TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT,
+use crate::{
+    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT},
+    util::{get_interface_ip, Ip},
+    Interface, LeakStatus,
 };
-use crate::{Interface, LeakStatus};
 
 use anyhow::{anyhow, bail, ensure, Context};
-use common::get_interface_ip;
 use futures::{future::pending, select, stream, FutureExt, StreamExt, TryStreamExt};
 use pnet_packet::{
     icmp::{self, IcmpCode, IcmpTypes},
@@ -79,8 +79,8 @@ pub async fn try_run_leak_test<Impl: Traceroute>(
     let icmp_socket_type = Type::RAW;
 
     let (ip_version, domain, icmp_protocol) = match opt.destination {
-        IpAddr::V4(..) => (Ip::V4(()), Domain::IPV4, Protocol::ICMPV4),
-        IpAddr::V6(..) => (Ip::V6(()), Domain::IPV6, Protocol::ICMPV6),
+        IpAddr::V4(..) => (Ip::v4(), Domain::IPV4, Protocol::ICMPV4),
+        IpAddr::V6(..) => (Ip::v6(), Domain::IPV6, Protocol::ICMPV6),
     };
 
     // create the socket used for receiving the ICMP/TimeExceeded responses

@@ -2,7 +2,7 @@ use std::io::{self, IoSliceMut};
 use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
 use std::{net::IpAddr, time::Duration};
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{anyhow, Context};
 use nix::errno::Errno;
 use nix::sys::socket::{
     recvmsg, setsockopt, sockopt::Ipv4RecvErr, ControlMessageOwned, MsgFlags, SockaddrIn,
@@ -16,8 +16,8 @@ use socket2::Socket;
 use tokio::time::{sleep, Instant};
 
 use crate::traceroute::unix::parse_icmp_probe;
-use crate::traceroute::{Ip, TracerouteOpt, RECV_GRACE_TIME};
-use crate::{Interface, LeakInfo, LeakStatus};
+use crate::traceroute::{TracerouteOpt, RECV_GRACE_TIME};
+use crate::{util::Ip, Interface, LeakInfo, LeakStatus};
 
 use super::{AsyncIcmpSocket, Traceroute};
 

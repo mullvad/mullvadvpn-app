@@ -1,6 +1,5 @@
 use anyhow::{anyhow, Context};
 use futures::TryFutureExt;
-use match_cfg::match_cfg;
 use reqwest::{Client, ClientBuilder};
 use serde::Deserialize;
 
@@ -64,27 +63,27 @@ pub async fn try_run_leak_test(opt: &AmIMullvadOpt) -> anyhow::Result<LeakStatus
     }
 }
 
-match_cfg! {
-    #[cfg(target_os = "linux")] => {
-        fn bind_client_to_interface(
-            builder: ClientBuilder,
-            interface: &str
-        ) -> anyhow::Result<ClientBuilder> {
-            log::debug!("Binding HTTP client to {interface}");
-            Ok(builder.interface(interface))
-        }
-    }
-    #[cfg(any(target_os = "macos", target_os = "windows", target_os = "android"))] => {
-        fn bind_client_to_interface(
-            builder: ClientBuilder,
-            interface: &str
-        ) -> anyhow::Result<ClientBuilder> {
-            use crate::util::get_interface_ip;
+#[cfg(target_os = "linux")]
+fn bind_client_to_interface(
+    builder: ClientBuilder,
+    interface: &str
+) -> anyhow::Result<ClientBuilder> {
+    log::debug!("Binding HTTP client to {interface}");
+    Ok(builder.interface(interface))
+}
 
-            let ip = get_interface_ip(interface)?;
+#[cfg(any(target_os = "macos", target_os = "windows", target_os = "android"))]
+fn bind_client_to_interface(
+    builder: ClientBuilder,
+    interface: &str
+) -> anyhow::Result<ClientBuilder> {
+    use crate::util::{get_interface_ip, Ip};
+    use crate::Interface;
 
-            log::debug!("Binding HTTP client to {ip} ({interface})");
-            Ok(builder.local_address(ip))
-        }
-    }
+    let interface = Interface::Name(interface.to_string());
+    let ip = get_interface_ip(&interface, Ip::v6())
+        .or_else(|_| get_interface_ip(&interface, Ip::v4()))?;
+
+    log::debug!("Binding HTTP client to {ip} ({interface:?})");
+    Ok(builder.local_address(ip))
 }

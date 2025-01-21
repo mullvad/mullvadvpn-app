@@ -1,6 +1,6 @@
 use socket2::Socket;
 
-use crate::{traceroute::Ip, Interface};
+use crate::{util::Ip, Interface};
 
 use super::{common::bind_socket_to_interface, linux, Traceroute};
 

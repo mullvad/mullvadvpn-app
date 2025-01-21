@@ -3,14 +3,12 @@ use std::{net::IpAddr, str};
 use anyhow::{anyhow, Context};
 use futures::{select, stream::FuturesUnordered, FutureExt, StreamExt};
 
-use talpid_windows::net::{get_ip_address_for_interface, luid_from_alias, AddressFamily};
 use tokio::time::sleep;
 
 use crate::{
-    traceroute::{
-        Ip, TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT,
-    },
-    Interface, LeakInfo, LeakStatus,
+    traceroute::{TracerouteOpt, DEFAULT_TTL_RANGE, LEAK_TIMEOUT, PROBE_INTERVAL, SEND_TIMEOUT},
+    util::{get_interface_ip, Ip},
+    LeakInfo, LeakStatus,
 };
 
 /// Implementation of traceroute using `ping.exe`
@@ -21,8 +19,8 @@ use crate::{
 /// access to be able to do this.
 pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus> {
     let ip_version = match opt.destination {
-        IpAddr::V4(..) => Ip::V4(()),
-        IpAddr::V6(..) => Ip::V6(()),
+        IpAddr::V4(..) => Ip::v4(),
+        IpAddr::V6(..) => Ip::v6(),
     };
 
     let interface_ip = get_interface_ip(&opt.interface, ip_version)?;
@@ -98,22 +96,6 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
         _ = sleep(LEAK_TIMEOUT).fuse() => Ok(LeakStatus::NoLeak),
         result = wait_for_first_leak.fuse() => result,
     }
-}
-
-pub fn get_interface_ip(interface: &Interface, ip_version: Ip) -> anyhow::Result<IpAddr> {
-    let interface_luid = match interface {
-        Interface::Name(name) => luid_from_alias(name)?,
-        Interface::Luid(luid) => *luid,
-    };
-
-    let address_family = match ip_version {
-        Ip::V4(..) => AddressFamily::Ipv4,
-        Ip::V6(..) => AddressFamily::Ipv6,
-    };
-
-    get_ip_address_for_interface(address_family, interface_luid)
-        .with_context(|| anyhow!("Failed to get IP for interface {interface:?}"))?
-        .ok_or(anyhow!("No IP for interface {interface:?}"))
 }
 
 // TODO: remove this

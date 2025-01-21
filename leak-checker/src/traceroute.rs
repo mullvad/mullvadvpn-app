@@ -90,10 +90,3 @@ pub async fn try_run_leak_test(opt: &TracerouteOpt) -> anyhow::Result<LeakStatus
     #[cfg(target_os = "windows")]
     return windows::traceroute_using_ping(opt).await;
 }
-
-/// IP version, v4 or v6, with some associated data.
-#[derive(Clone, Copy)]
-enum Ip<V4 = (), V6 = ()> {
-    V4(V4),
-    V6(V6),
-}
