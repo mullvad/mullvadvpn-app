@@ -8,7 +8,7 @@
         <packageUrl regex="true">^pkg:maven/org\.jetbrains\.kotlin/kotlin\-stdlib.*@.*$</packageUrl>
         <cve>CVE-2022-24329</cve>
     </suppress>
-    <suppress until="2024-12-01Z">
+    <suppress until="2025-03-01Z">
         <notes><![CDATA[
           This CVE only affect programs using loadXML and is derived from using ksp.
           We do not use the loadXML, ksp is used to generate navigation paths in our code
@@ -17,14 +17,14 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.devtools\.ksp/symbol\-processing.*@.*$</packageUrl>
         <cve>CVE-2018-1000840</cve>
     </suppress>
-    <suppress until="2024-12-01Z">
+    <suppress until="2025-03-01Z">
         <notes><![CDATA[
             False-positive only affecting javascript gRPC packages.
         ]]></notes>
         <packageUrl regex="true">^pkg:maven/io\.grpc/protoc\-gen\-grpc\-kotlin@.*$</packageUrl>
         <cve>CVE-2020-7768</cve>
     </suppress>
-    <suppress until="2024-12-01Z">
+    <suppress until="2025-03-01Z">
         <notes><![CDATA[
             No impact on this app since it uses UDS rather than HTTP2.
         ]]></notes>
@@ -40,7 +40,7 @@
         <packageUrl regex="true">^pkg:maven/commons\-validator/commons\-validator@.*$</packageUrl>
         <cve>CVE-2021-3765</cve>
     </suppress>
-    <suppress until="2024-12-01Z">
+    <suppress until="2025-03-01Z">
         <notes><![CDATA[
             Denial of service using protobuf.
             Should not be applicable since client and server are always in sync and we are only
@@ -49,7 +49,7 @@
         <packageUrl regex="true">^pkg:maven/com\.google\.protobuf/protobuf-.*@.*$</packageUrl>
         <cve>CVE-2024-7254</cve>
     </suppress>
-    <suppress until="2025-01-04Z">
+    <suppress until="2025-04-04Z">
         <notes><![CDATA[
             No impact since the app doesn't process externally crafted XML.
         ]]></notes>
