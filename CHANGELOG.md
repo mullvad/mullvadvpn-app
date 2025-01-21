@@ -24,7 +24,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [Unreleased]
 
 
-## [2025.3-beta1] - 2025-01-20
+## [2025.3-beta1] - 2025-01-21
 ### Added
 #### Windows
 - Add support for Windows ARM64.
