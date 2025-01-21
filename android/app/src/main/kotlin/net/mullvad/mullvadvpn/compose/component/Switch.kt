@@ -34,8 +34,8 @@ private fun PreviewMullvadSwitch() {
             ) {
                 MullvadSwitch(checked = true, onCheckedChange = null)
                 MullvadSwitch(checked = false, onCheckedChange = null)
-                MullvadSwitch(checked = true, enabled = false, onCheckedChange = null)
-                MullvadSwitch(checked = false, enabled = false, onCheckedChange = null)
+                MullvadSwitch(checked = true, onCheckedChange = null, enabled = false)
+                MullvadSwitch(checked = false, onCheckedChange = null, enabled = false)
             }
         }
     }
@@ -46,19 +46,19 @@ fun MullvadSwitch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
     modifier: Modifier = Modifier,
-    thumbContent: (@Composable () -> Unit)? = {
-        // This is needed to ensure the thumb always is big in off mode
-        Spacer(modifier = Modifier.size(Dimens.switchIconSize))
-    },
     enabled: Boolean = true,
     colors: SwitchColors = mullvadSwitchColors(),
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
+    content: @Composable (() -> Unit)? = {
+        // This is needed to ensure the thumb always is big in off mode
+        Spacer(modifier = Modifier.size(Dimens.switchIconSize))
+    },
 ) {
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
         modifier = modifier.testTag(SWITCH_TEST_TAG),
-        thumbContent = thumbContent,
+        thumbContent = content,
         enabled = enabled,
         colors = colors,
         interactionSource = interactionSource,

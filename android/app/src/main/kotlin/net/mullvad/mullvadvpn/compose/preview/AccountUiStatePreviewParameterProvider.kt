@@ -37,23 +37,23 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<AccountU
                 showManageAccountLoading = false,
             )
         ) + generateOtherStates()
-}
 
-private fun generateOtherStates(): Sequence<AccountUiState> =
-    sequenceOf(
-            PaymentState.Loading,
-            PaymentState.NoPayment,
-            PaymentState.NoProductsFounds,
-            PaymentState.Error.Billing,
-        )
-        .map { state ->
-            AccountUiState(
-                deviceName = "Test Name",
-                accountNumber = AccountNumber("1234123412341234"),
-                accountExpiry = null,
-                showSitePayment = false,
-                billingPaymentState = state,
-                showLogoutLoading = false,
-                showManageAccountLoading = false,
+    private fun generateOtherStates(): Sequence<AccountUiState> =
+        sequenceOf(
+                PaymentState.Loading,
+                PaymentState.NoPayment,
+                PaymentState.NoProductsFounds,
+                PaymentState.Error.Billing,
             )
-        }
+            .map { state ->
+                AccountUiState(
+                    deviceName = "Test Name",
+                    accountNumber = AccountNumber("1234123412341234"),
+                    accountExpiry = null,
+                    showSitePayment = false,
+                    billingPaymentState = state,
+                    showLogoutLoading = false,
+                    showManageAccountLoading = false,
+                )
+            }
+}
