@@ -151,17 +151,16 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         .collect();
 
     let func_name = test_function.name;
+    let function_error = format!("{func_name} failed");
     let wrapper_closure = quote! {
         |test_context: crate::tests::TestContext,
         rpc: test_rpc::ServiceClient,
         mullvad_client: Option<MullvadProxyClient>|
         {
-            let mullvad_client = match mullvad_client {
-                Some(client) => client,
-                None => unreachable!("invalid mullvad client")
-            };
+            use anyhow::Context;
+            let mullvad_client = mullvad_client.expect("A valid MullvadProxyClient");
             Box::pin(async move {
-                #func_name(test_context, rpc, mullvad_client).await.map_err(Into::into)
+                #func_name(test_context, rpc, mullvad_client).await.context(#function_error)
             })
         }
     };
