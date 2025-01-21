@@ -10,7 +10,6 @@ import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
-import SettingsHeader from '../../SettingsHeader';
 
 const StyledList = styled(Flex)({
   listStyleType: 'disc',
@@ -33,31 +32,33 @@ export const ChangelogView = () => {
             <AppNavigationHeader title={messages.pgettext('changelog-view', 'What’s new')} />
 
             <NavigationScrollbars>
-              <SettingsHeader>
-                <TitleBig as={'h1'}>{messages.pgettext('changelog-view', 'What’s new')}</TitleBig>
-              </SettingsHeader>
-              <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+              <Flex $flexDirection="column" $gap={Spacings.spacing6}>
                 <Container size="4">
-                  <TitleLarge as="h2">{version}</TitleLarge>
+                  <TitleBig as={'h1'}>{messages.pgettext('changelog-view', 'What’s new')}</TitleBig>
                 </Container>
-                <Container size="3" $flexDirection="column">
-                  {changelog.length ? (
-                    <StyledList as="ul" $flexDirection="column" $gap={Spacings.spacing5}>
-                      {changelog.map((item, i) => (
-                        <BodySmall as="li" key={i} color={Colors.white60}>
-                          {item}
-                        </BodySmall>
-                      ))}
-                    </StyledList>
-                  ) : (
-                    <BodySmall color={Colors.white60}>
-                      {messages.pgettext(
-                        'changelog-view',
-                        'No updates or changes were made in this release for this platform.',
-                      )}
-                    </BodySmall>
-                  )}
-                </Container>
+                <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+                  <Container size="4">
+                    <TitleLarge as="h2">{version}</TitleLarge>
+                  </Container>
+                  <Container size="3" $flexDirection="column">
+                    {changelog.length ? (
+                      <StyledList as="ul" $flexDirection="column" $gap={Spacings.spacing5}>
+                        {changelog.map((item, i) => (
+                          <BodySmall as="li" key={i} color={Colors.white60}>
+                            {item}
+                          </BodySmall>
+                        ))}
+                      </StyledList>
+                    ) : (
+                      <BodySmall color={Colors.white60}>
+                        {messages.pgettext(
+                          'changelog-view',
+                          'No updates or changes were made in this release for this platform.',
+                        )}
+                      </BodySmall>
+                    )}
+                  </Container>
+                </Flex>
               </Flex>
             </NavigationScrollbars>
           </NavigationContainer>
