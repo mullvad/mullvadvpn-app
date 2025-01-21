@@ -1,5 +1,4 @@
-//! Config definition.
-//! TODO: Document struct and link to that documentation
+//! Config definition, see [`Config`].
 
 mod test_locations;
 use std::collections::BTreeMap;
