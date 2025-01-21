@@ -4,6 +4,7 @@
 use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
+use test_locations::TestLocationList;
 
 use super::VmConfig;
 use crate::tests::config::DEFAULT_MULLVAD_HOST;
@@ -33,7 +34,7 @@ pub struct Config {
     /// containing `se-got-wg-001` and `se-got-wg-002`. The `*` is a wildcard that will match
     /// any test name. The order of the list is important, as the first match will be used.
     #[serde(default)]
-    pub test_locations: locations::TestLocationList,
+    pub test_locations: TestLocationList,
 }
 
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
@@ -66,7 +67,7 @@ impl Config {
     }
 }
 
-mod locations {
+mod test_locations {
     use serde::{
         de::{Deserialize, Deserializer, Error, MapAccess, Visitor},
         ser::{Serialize, SerializeMap},
