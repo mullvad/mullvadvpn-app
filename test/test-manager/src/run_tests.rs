@@ -165,12 +165,12 @@ pub async fn run(
             .await
             .context("Failed to create custom list from test locations")?;
 
-        let mullvad_client = rpc_provider
-            .mullvad_client(test.mullvad_client_version)
-            .await;
-
         test_handler
-            .run_test(&test.func, test.name, mullvad_client)
+            .run_test(
+                &test.func,
+                test.name,
+                MullvadClientArgument::WithClient(mullvad_client),
+            )
             .await?;
     }
 
