@@ -1,4 +1,4 @@
-use std::sync::OnceLock;
+use std::{mem, sync::OnceLock};
 
 use classic_mceliece_rust::{keypair_boxed, Ciphertext, CRYPTO_CIPHERTEXTBYTES};
 pub use classic_mceliece_rust::{PublicKey, SecretKey, SharedSecret};
@@ -64,18 +64,36 @@ fn spawn_keypair_worker(bufsize: usize) -> mpsc::Receiver<KeyPair> {
 }
 
 pub async fn generate_keys() -> KeyPair {
-    KEYPAIR_RX
+    let mut rx = KEYPAIR_RX
         .get_or_init(|| Mutex::new(spawn_keypair_worker(BUFSIZE)))
         .lock()
-        .await
-        .recv()
-        .await
-        .expect("Expected to receive key pair, but key generator has been stopped.")
+        .await;
+
+    let max_retry_attempts = 10;
+
+    for _ in 0..max_retry_attempts {
+        match rx.recv().await {
+            Some(keypair) => return keypair,
+            None => {
+                // The key generation worker has stopped for some reason. Try to start it again.
+                let _old_rx = mem::replace(&mut *rx, spawn_keypair_worker(BUFSIZE));
+            }
+        }
+    }
+
+    panic!("Failed to start key generation worker")
 }
 
 /// Spawn a worker which computes and buffers [`BUFSIZE`] of McEliece key pairs, used by PQ tunnels.
-pub fn spawn_keypair_generator<'a>() -> &'a Mutex<mpsc::Receiver<KeyPair>> {
-    KEYPAIR_RX.get_or_init(|| Mutex::new(spawn_keypair_worker(BUFSIZE)))
+pub fn spawn_keypair_generator() {
+    let mutex = KEYPAIR_RX.get_or_init(|| Mutex::new(spawn_keypair_worker(BUFSIZE)));
+
+    // Check if the keygen worker stopped. If so, spawn it again.
+    if let Ok(mut rx) = mutex.try_lock() {
+        if rx.is_closed() {
+            let _old_rx = mem::replace(&mut *rx, spawn_keypair_worker(BUFSIZE));
+        }
+    }
 }
 
 pub fn decapsulate(
