@@ -27,12 +27,25 @@ struct DestinationDescriber: DestinationDescribing {
         self.customListRepository = customListRepository
     }
 
-    func describe(_ loc: UserSelectedRelays) -> String? {
-        if let listName = (loc.customListSelection.flatMap {
+    private func customListDescription(_ loc: UserSelectedRelays) -> String? {
+        loc.customListSelection.flatMap {
             customListRepository.fetch(by: $0.listId)?.name
-        }) {
-            return listName
         }
+    }
+
+    private func describeRelayLocation(
+        _ locationSpec: RelayLocation,
+        usingRelayWithLocation serverLocation: Location
+    ) -> String {
+        switch locationSpec {
+        case .country: serverLocation.country
+        case .city: "\(serverLocation.city), \(serverLocation.country)"
+        case let .hostname(_, _, hostname):
+            "\(serverLocation.city) (\(hostname))"
+        }
+    }
+
+    private func relayDescription(_ loc: UserSelectedRelays) -> String? {
         guard
             let location = loc.locations.first,
             let cachedRelays = try? relayCache.read().relays
@@ -42,6 +55,13 @@ struct DestinationDescriber: DestinationDescribing {
             locations: cachedRelays.locations
         )
 
-        return locatedRelays.first { $0.matches(location: location) }?.serverLocation.country
+        guard let matchingRelay = (locatedRelays.first { $0.matches(location: location)
+        }) else { return nil }
+
+        return describeRelayLocation(location, usingRelayWithLocation: matchingRelay.serverLocation)
+    }
+
+    func describe(_ loc: UserSelectedRelays) -> String? {
+        customListDescription(loc) ?? relayDescription(loc)
     }
 }
