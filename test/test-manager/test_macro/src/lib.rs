@@ -156,10 +156,7 @@ fn create_test(test_function: TestFunction) -> proc_macro2::TokenStream {
         rpc: test_rpc::ServiceClient,
         mullvad_client: Option<MullvadProxyClient>|
         {
-            let mullvad_client = match mullvad_client {
-                Some(client) => client,
-                None => unreachable!("invalid mullvad client")
-            };
+            let mullvad_client = mullvad_client.expect("Test functions defined using the macro should be given a mullvad client");
             Box::pin(async move {
                 #func_name(test_context, rpc, mullvad_client).await.map_err(Into::into)
             })
