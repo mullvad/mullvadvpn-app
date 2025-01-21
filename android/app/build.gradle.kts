@@ -299,7 +299,7 @@ tasks.register<Exec>("generateRelayList") {
 
     onlyIf { isReleaseBuild() || !relayListPath.exists() }
 
-    commandLine("cargo", "run", "--bin", "relay_list")
+    commandLine("cargo", "run", "-p", "mullvad-api", "--bin", "relay_list")
 
     doLast {
         val output = standardOutput as ByteArrayOutputStream
