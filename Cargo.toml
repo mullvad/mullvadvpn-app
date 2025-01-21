@@ -45,6 +45,10 @@ members = [
     "wireguard-go-rs",
     "windows-installer",
 ]
+# Default members dictate what is built when running `cargo build` in the root directory.
+# This is set to a minimal set of packages to speed up the build process and avoid building
+# crates which might not compile without additional input, such as the `windows-installer` crate.
+# To build or test everything, add `--workspace` to your cargo commands.
 default-members = [
     "mullvad-cli",
     "mullvad-daemon",
