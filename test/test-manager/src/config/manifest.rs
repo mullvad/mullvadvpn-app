@@ -10,6 +10,11 @@ use test_locations::TestLocationList;
 use super::VmConfig;
 use crate::tests::config::DEFAULT_MULLVAD_HOST;
 
+/// Global configuration for the `test-manager`.
+///
+/// Can be modified using either the setting file, see
+/// [`crate::config::io::ConfigFile::get_config_path`] or
+/// the `test-manager config` CLI subcommand.
 #[derive(Debug, Default, Serialize, Deserialize, Clone)]
 pub struct Config {
     #[serde(skip)]
