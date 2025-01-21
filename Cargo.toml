@@ -48,6 +48,7 @@ members = [
 default-members = [
     "mullvad-cli",
     "mullvad-daemon",
+    "mullvad-version",
 ]
 
 # Keep all lints in sync with `test/Cargo.toml`
