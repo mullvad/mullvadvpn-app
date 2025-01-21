@@ -49,11 +49,6 @@ pub struct RpcClientProvider {
     service: DummyService,
 }
 
-pub enum MullvadClientArgument {
-    WithClient(MullvadProxyClient),
-    None,
-}
-
 impl RpcClientProvider {
     pub async fn new_client(&self) -> MullvadProxyClient {
         // FIXME: Ugly workaround to ensure that we don't receive stuff from a

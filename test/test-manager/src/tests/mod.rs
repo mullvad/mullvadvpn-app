@@ -23,10 +23,7 @@ use anyhow::Context;
 use futures::future::BoxFuture;
 use std::time::Duration;
 
-use crate::{
-    mullvad_daemon::{MullvadClientArgument, RpcClientProvider},
-    package::get_version_from_path,
-};
+use crate::{mullvad_daemon::RpcClientProvider, package::get_version_from_path};
 use config::TEST_CONFIG;
 use helpers::{find_custom_list, get_app_env, install_app, set_location};
 pub use install::test_upgrade_app;
@@ -40,8 +37,11 @@ pub struct TestContext {
     pub rpc_provider: RpcClientProvider,
 }
 
-pub type TestWrapperFunction =
-    fn(TestContext, ServiceClient, MullvadClientArgument) -> BoxFuture<'static, anyhow::Result<()>>;
+pub type TestWrapperFunction = fn(
+    TestContext,
+    ServiceClient,
+    Option<MullvadProxyClient>,
+) -> BoxFuture<'static, anyhow::Result<()>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -185,8 +185,10 @@ pub async fn set_test_location(
     );
 
     // Add the custom list to the current app instance
+    // NOTE: This const is actually defined in, `mullvad_types::custom_list`, but we cannot import it.
+    const CUSTOM_LIST_NAME_MAX_SIZE: usize = 30;
     let list_id = mullvad_client
-        .create_custom_list(test.name.to_string())
+        .create_custom_list(test.name[..CUSTOM_LIST_NAME_MAX_SIZE].to_string())
         .await?;
 
     let mut custom_list = find_custom_list(mullvad_client, test.name).await?;
