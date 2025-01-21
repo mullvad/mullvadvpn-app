@@ -31,7 +31,7 @@ class ConnectionViewViewModel: ObservableObject {
     @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
     @Published var showsActivityIndicator = false
 
-    let relayConstraints: RelayConstraints
+    @Published var relayConstraints: RelayConstraints
     let destinationDescriber: DestinationDescribing
 
     var combinedState: Publishers.CombineLatest<
