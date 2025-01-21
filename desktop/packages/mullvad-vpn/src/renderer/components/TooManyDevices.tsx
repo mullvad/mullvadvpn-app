@@ -2,12 +2,12 @@ import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { IDevice } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
+import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { RoutePath } from '../lib/routes';
@@ -49,7 +49,7 @@ const StyledStatusIcon = styled.div({
 const StyledTitle = styled.span(bigText, {
   lineHeight: '38px',
   margin: `0 ${measurements.horizontalViewMargin} 8px`,
-  color: colors.white,
+  color: Colors.white,
 });
 
 const StyledLabel = styled.span({
@@ -57,7 +57,7 @@ const StyledLabel = styled.span({
   fontSize: '12px',
   fontWeight: 600,
   lineHeight: '20px',
-  color: colors.white,
+  color: Colors.white,
   margin: `0 ${measurements.horizontalViewMargin} 18px`,
 });
 
@@ -81,7 +81,7 @@ const StyledDeviceName = styled.span(normalText, {
 const StyledDeviceDate = styled.span(tinyText, {
   fontSize: '10px',
   lineHeight: '10px',
-  color: colors.white60,
+  color: Colors.white60,
 });
 
 const StyledRemoveDeviceButton = styled.button({
@@ -262,8 +262,8 @@ function Device(props: IDeviceProps) {
               source="icon-close"
               width={18}
               height={18}
-              tintColor={colors.white40}
-              tintHoverColor={colors.white60}
+              tintColor={Colors.white40}
+              tintHoverColor={Colors.white60}
             />
           </StyledRemoveDeviceButton>
         )}
@@ -271,7 +271,7 @@ function Device(props: IDeviceProps) {
       <ModalAlert
         isOpen={confirmationVisible}
         type={ModalAlertType.warning}
-        iconColor={colors.red}
+        iconColor={Colors.red}
         buttons={[
           <AppButton.RedButton key="remove" onClick={onRemove} disabled={deleting}>
             {
@@ -303,7 +303,7 @@ function Device(props: IDeviceProps) {
       <ModalAlert
         isOpen={error}
         type={ModalAlertType.warning}
-        iconColor={colors.red}
+        iconColor={Colors.red}
         buttons={[
           <AppButton.BlueButton key="close" onClick={resetError}>
             {messages.gettext('Close')}

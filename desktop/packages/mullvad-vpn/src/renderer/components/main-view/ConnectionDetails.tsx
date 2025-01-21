@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import {
   EndpointObfuscationType,
   ITunnelEndpoint,
@@ -13,6 +12,7 @@ import {
   tunnelTypeToString,
 } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
+import { Colors } from '../../lib/foundations';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
 
@@ -38,7 +38,7 @@ const StyledConnectionDetailsHeading = styled.h2(tinyText, {
   margin: '0 0 4px',
   fontSize: '10px',
   lineHeight: '15px',
-  color: colors.white60,
+  color: Colors.white60,
 });
 
 const StyledConnectionDetailsContainer = styled.div({
@@ -58,13 +58,13 @@ const StyledIpLabelContainer = styled.div({
 
 const StyledConnectionDetailsLabel = styled.span(tinyText, {
   display: 'block',
-  color: colors.white,
+  color: Colors.white,
   fontWeight: '400',
   minHeight: '1em',
 });
 
 const StyledConnectionDetailsTitle = styled(StyledConnectionDetailsLabel)({
-  color: colors.white60,
+  color: Colors.white60,
   whiteSpace: 'nowrap',
 });
 

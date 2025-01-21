@@ -1,6 +1,6 @@
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { Button, IconButton, IconButtonProps } from '../lib/components';
+import { Colors } from '../lib/foundations';
 import { useBoolean } from '../lib/utility-hooks';
 import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -17,8 +17,8 @@ export function InfoIcon(props: IInfoIconProps) {
     <ImageView
       source="icon-info"
       width={props.size ?? 18}
-      tintColor={props.tintColor ?? colors.white}
-      tintHoverColor={props.tintHoverColor ?? colors.white80}
+      tintColor={props.tintColor ?? Colors.white}
+      tintHoverColor={props.tintHoverColor ?? Colors.white80}
       className={props.className}
     />
   );

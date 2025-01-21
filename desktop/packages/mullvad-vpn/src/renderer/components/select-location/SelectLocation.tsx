@@ -1,12 +1,13 @@
 import { useCallback, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { colors, strings } from '../../../config.json';
+import { strings } from '../../../config.json';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { IconButton } from '../../lib/components';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
+import { Colors } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
@@ -171,8 +172,8 @@ export default function SelectLocation() {
                               height={16}
                               width={16}
                               source="icon-close"
-                              tintColor={colors.white60}
-                              tintHoverColor={colors.white80}
+                              tintColor={Colors.white60}
+                              tintHoverColor={Colors.white80}
                             />
                           </StyledClearFilterButton>
                         </StyledFilter>
@@ -194,8 +195,8 @@ export default function SelectLocation() {
                               height={16}
                               width={16}
                               source="icon-close"
-                              tintColor={colors.white60}
-                              tintHoverColor={colors.white80}
+                              tintColor={Colors.white60}
+                              tintHoverColor={Colors.white80}
                             />
                           </StyledClearFilterButton>
                         </StyledFilter>
