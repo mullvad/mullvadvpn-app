@@ -86,7 +86,11 @@ pub async fn test_split_tunnel(
 /// - A split process should never push traffic through the tunnel.
 /// - Splitting/unsplitting should work regardless if process is running.
 #[test_function(target_os = "macos")]
-pub async fn test_split_tunnel_ui(_ctx: TestContext, rpc: ServiceClient) -> anyhow::Result<()> {
+pub async fn test_split_tunnel_ui(
+    _ctx: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> anyhow::Result<()> {
     // Skip test on macOS 12, since the feature is unsupported
     if is_macos_12_or_lower(&rpc).await? {
         return Ok(());
