@@ -2,20 +2,6 @@
 <issues format="6" by="lint 8.7.3" type="baseline" client="gradle" dependencies="true" name="AGP (8.7.3)" variant="all" version="8.7.3">
 
     <issue
-        id="InvalidPackage"
-        message="Invalid package reference in library; not included in Android: `javax.naming.directory`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
-        <location
-            file="../../../root/.gradle/caches/modules-2/files-2.1/io.grpc/grpc-core/1.68.2/b0fd51a1c029785d1c9ae2cfc80a296b60dfcfdb/grpc-core-1.68.2.jar"/>
-    </issue>
-
-    <issue
-        id="InvalidPackage"
-        message="Invalid package reference in library; not included in Android: `javax.naming`. Referenced from `io.grpc.internal.JndiResourceResolverFactory.JndiRecordFetcher`.">
-        <location
-            file="../../../root/.gradle/caches/modules-2/files-2.1/io.grpc/grpc-core/1.68.2/b0fd51a1c029785d1c9ae2cfc80a296b60dfcfdb/grpc-core-1.68.2.jar"/>
-    </issue>
-
-    <issue
         id="SimilarGradleDependency"
         message="There are multiple dependencies com.google.protobuf but with different version"
         errorLine1="protobuf-core = { id = &quot;com.google.protobuf&quot;, version.ref = &quot;protobuf&quot; }"
@@ -222,22 +208,6 @@
             file="src/main/kotlin/net/mullvad/mullvadvpn/compose/component/Switch.kt"
             line="49"
             column="5"/>
-    </issue>
-
-    <issue
-        id="StringFormatCount"
-        message="Inconsistent number of arguments in formatting string `daita_description_slide_2_second_paragraph`; found both 1 here and 2 in values/strings.xml"
-        errorLine1="    &lt;string name=&quot;daita_description_slide_2_second_paragraph&quot;>Daher verwenden wir automatisch Multihop, um %1$s mit jedem Server zu aktivieren.&lt;/string>"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values-de/strings.xml"
-            line="100"
-            column="5"/>
-        <location
-            file="src/main/res/values/strings.xml"
-            line="416"
-            column="5"
-            message="Conflicting number of arguments (2) here"/>
     </issue>
 
     <issue
