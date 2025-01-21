@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
+import { Colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utility-hooks';
 import settingsImportActions from '../redux/settings-import/actions';
@@ -16,7 +16,7 @@ const StyledTextArea = styled.textarea({
   width: '100%',
   flex: 1,
   padding: '13px',
-  color: colors.blue,
+  color: Colors.blue,
 });
 
 export default function SettingsTextImport() {

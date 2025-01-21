@@ -1,8 +1,8 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../../../src/config.json';
 import { getDefaultSettings } from '../../../src/main/default-settings';
+import { colors } from '../../../src/renderer/lib/foundations';
 import {
   IRelayList,
   IRelayListWithEndpointData,
@@ -90,7 +90,7 @@ async function setMultihop() {
 test('App should show entry selection', async () => {
   const entryTab = page.getByText('Entry');
   await entryTab.click();
-  await expect(entryTab).toHaveCSS('background-color', colors.green);
+  await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
 
   const sweden = page.getByText('Sweden');
   await expect(sweden).toBeVisible();
@@ -99,7 +99,7 @@ test('App should show entry selection', async () => {
 test('App should show exit selection', async () => {
   const exitTab = page.getByText('Exit');
   await exitTab.click();
-  await expect(exitTab).toHaveCSS('background-color', colors.green);
+  await expect(exitTab).toHaveCSS('background-color', colors['--color-green']);
 
   const sweden = page.getByText('Sweden');
   await expect(sweden).toBeVisible();
@@ -120,7 +120,7 @@ test("App shouldn't show entry selection when daita is enabled without direct on
 
   const entryTab = page.getByText('Entry').first();
   await entryTab.click();
-  await expect(entryTab).toHaveCSS('background-color', colors.green);
+  await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
 
   const sweden = page.getByText('Sweden');
   await expect(sweden).not.toBeVisible();
@@ -141,7 +141,7 @@ test('App should show entry selection when daita is enabled with direct only', a
 
   const entryTab = page.getByText('Entry');
   await entryTab.click();
-  await expect(entryTab).toHaveCSS('background-color', colors.green);
+  await expect(entryTab).toHaveCSS('background-color', colors['--color-green']);
 
   const sweden = page.getByText('Sweden');
   await expect(sweden).toBeVisible();
