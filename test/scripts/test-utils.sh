@@ -12,9 +12,9 @@ function get_test_utls_dir {
     local script_path="${BASH_SOURCE[0]}"
     local script_dir
     if [[ -n "$script_path" ]]; then
-        script_dir="$(cd "$(dirname "$script_path")" > /dev/null && pwd)"
+        script_dir="$(cd "$(dirname "$script_path")" >/dev/null && pwd)"
     else
-        script_dir="$(cd "$(dirname "$0")" > /dev/null && pwd)"
+        script_dir="$(cd "$(dirname "$0")" >/dev/null && pwd)"
     fi
     echo "$script_dir"
 }
@@ -54,7 +54,7 @@ export CURRENT_VERSION
 export LATEST_STABLE_RELEASE
 
 function print_available_releases {
-    for release in $(jq -r '.[].tag_name'<<<"$RELEASES"); do
+    for release in $(jq -r '.[].tag_name' <<<"$RELEASES"); do
         echo "$release"
     done
 }
@@ -73,7 +73,7 @@ function get_package_dir {
         exit 1
     fi
 
-    mkdir -p  "$package_dir" || exit 1
+    mkdir -p "$package_dir" || exit 1
     # Clean up old packages
     find "$package_dir" -type f -mtime +5 -delete || true
 
@@ -89,7 +89,7 @@ function nice_time {
         result=$?
     fi
     s=$SECONDS
-    echo "\"$*\" completed in $((s/60))m:$((s%60))s"
+    echo "\"$*\" completed in $((s / 60))m:$((s % 60))s"
     return $result
 }
 # Matches $1 with a build version string and sets the following exported variables:
@@ -122,22 +122,22 @@ function get_app_filename {
         version="${BUILD_VERSION}${COMMIT_HASH}${TAG:-}"
     fi
     case $os in
-        debian*|ubuntu*)
-            echo "MullvadVPN-${version}_amd64.deb"
-            ;;
-        fedora*)
-            echo "MullvadVPN-${version}_x86_64.rpm"
-            ;;
-        windows*)
-            echo "MullvadVPN-${version}.exe"
-            ;;
-        macos*)
-            echo "MullvadVPN-${version}.pkg"
-            ;;
-        *)
-            echo "Unsupported target: $os" 1>&2
-            return 1
-            ;;
+    debian* | ubuntu*)
+        echo "MullvadVPN-${version}_amd64.deb"
+        ;;
+    fedora*)
+        echo "MullvadVPN-${version}_x86_64.rpm"
+        ;;
+    windows*)
+        echo "MullvadVPN-${version}.exe"
+        ;;
+    macos*)
+        echo "MullvadVPN-${version}.pkg"
+        ;;
+    *)
+        echo "Unsupported target: $os" 1>&2
+        return 1
+        ;;
     esac
 }
 
@@ -177,19 +177,19 @@ function get_e2e_filename {
         version="${BUILD_VERSION}${COMMIT_HASH}"
     fi
     case $os in
-        debian*|ubuntu*|fedora*)
-            echo "app-e2e-tests-${version}-x86_64-unknown-linux-gnu"
-            ;;
-        windows*)
-            echo "app-e2e-tests-${version}-x86_64-pc-windows-msvc.exe"
-            ;;
-        macos*)
-            echo "app-e2e-tests-${version}-aarch64-apple-darwin"
-            ;;
-        *)
-            echo "Unsupported target: $os" 1>&2
-            return 1
-            ;;
+    debian* | ubuntu* | fedora*)
+        echo "app-e2e-tests-${version}-x86_64-unknown-linux-gnu"
+        ;;
+    windows*)
+        echo "app-e2e-tests-${version}-x86_64-pc-windows-msvc.exe"
+        ;;
+    macos*)
+        echo "app-e2e-tests-${version}-aarch64-apple-darwin"
+        ;;
+    *)
+        echo "Unsupported target: $os" 1>&2
+        return 1
+        ;;
     esac
 }
 
@@ -282,38 +282,38 @@ function run_tests_for_os {
     test_dir=$(get_test_utls_dir)/..
     read -ra test_filters_arg <<<"${TEST_FILTERS:-}" # Split the string by words into an array
     pushd "$test_dir"
-        if [ -n "${TEST_DIST_DIR+x}" ]; then
-            if [ ! -x "${TEST_DIST_DIR%/}/test-manager" ]; then
-                executable_not_found_in_dist_error test-manager
-            fi
-            test_manager="${TEST_DIST_DIR%/}/test-manager"
-            runner_dir_flag=("--runner-dir" "$TEST_DIST_DIR")
-        else
-            test_manager="cargo run --bin test-manager"
-            runner_dir_flag=()
+    if [ -n "${TEST_DIST_DIR+x}" ]; then
+        if [ ! -x "${TEST_DIST_DIR%/}/test-manager" ]; then
+            executable_not_found_in_dist_error test-manager
         fi
+        test_manager="${TEST_DIST_DIR%/}/test-manager"
+        runner_dir_flag=("--runner-dir" "$TEST_DIST_DIR")
+    else
+        test_manager="cargo run --bin test-manager"
+        runner_dir_flag=()
+    fi
 
-        if [ -n "${MULLVAD_HOST+x}" ]; then
-            mullvad_host_arg=("--mullvad-host" "$MULLVAD_HOST")
-        else
-            mullvad_host_arg=()
-        fi
+    if [ -n "${MULLVAD_HOST+x}" ]; then
+        mullvad_host_arg=("--mullvad-host" "$MULLVAD_HOST")
+    else
+        mullvad_host_arg=()
+    fi
 
-        if ! RUST_LOG_STYLE=always $test_manager run-tests \
-            --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
-            --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
-            "${upgrade_package_arg[@]}" \
-            "${test_report_arg[@]}" \
-            --package-dir "${package_dir}" \
-            --vm "$vm" \
-            --openvpn-certificate "${OPENVPN_CERTIFICATE:-"assets/openvpn.ca.crt"}" \
-            "${mullvad_host_arg[@]}" \
-            "${test_filters_arg[@]}" \
-            "${runner_dir_flag[@]}" \
-            2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
-            echo "Test run failed"
-            exit 1
-        fi
+    if ! RUST_LOG_STYLE=always $test_manager run-tests \
+        --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
+        --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
+        "${upgrade_package_arg[@]}" \
+        "${test_report_arg[@]}" \
+        --package-dir "${package_dir}" \
+        --vm "$vm" \
+        --openvpn-certificate "${OPENVPN_CERTIFICATE:-"assets/openvpn.ca.crt"}" \
+        "${mullvad_host_arg[@]}" \
+        "${test_filters_arg[@]}" \
+        "${runner_dir_flag[@]}" \
+        2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
+        echo "Test run failed"
+        exit 1
+    fi
     popd
 }
 
@@ -335,10 +335,10 @@ function build_current_version {
 
     if [ ! -f "$app_package" ]; then
         pushd "$app_dir"
-            if [[ $(git diff --quiet) ]]; then
-                echo "WARNING: the app repository contains uncommitted changes, this script will only rebuild the app package when the git hash changes"
-            fi
-            ./build.sh
+        if [[ $(git diff --quiet) ]]; then
+            echo "WARNING: the app repository contains uncommitted changes, this script will only rebuild the app package when the git hash changes"
+        fi
+        ./build.sh
         popd
         echo "Moving '$(realpath "$app_dir/dist/$app_filename")' to '$(realpath "$app_package")'"
         mv -n "$app_dir"/dist/"$app_filename" "$app_package"
@@ -348,7 +348,7 @@ function build_current_version {
 
     if [ ! -f "$gui_test_bin" ]; then
         pushd "$app_dir"/gui
-            npm run build-test-executable
+        npm run build-test-executable
         popd
         echo "Moving '$(realpath "$app_dir/dist/$gui_test_filename")' to '$(realpath "$gui_test_bin")'"
         mv -n "$app_dir"/dist/"$gui_test_filename" "$gui_test_bin"

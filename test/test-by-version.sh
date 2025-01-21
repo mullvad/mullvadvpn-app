@@ -18,13 +18,13 @@ usage() {
     echo "  - TEST_REPORT : path to save the test results in a structured format"
 }
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
 # shellcheck source=test/scripts/test-utils.sh
 source "scripts/test-utils.sh"
 
-if [[ ( "$*" == "--help") ||  "$*" == "-h" ]]; then
+if [[ ("$*" == "--help") || "$*" == "-h" ]]; then
     usage
     exit 0
 fi
