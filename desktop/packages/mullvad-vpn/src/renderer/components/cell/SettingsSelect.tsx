@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import { useScheduler } from '../../../shared/scheduler';
+import { Colors } from '../../lib/foundations';
 import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
@@ -20,13 +20,13 @@ const StyledSelect = styled.div.attrs({ tabIndex: 0 })(smallNormalText, {
   position: 'relative',
   background: 'transparent',
   border: 'none',
-  color: colors.white,
+  color: Colors.white,
   borderRadius: '4px',
   height: '26px',
 
   '&&:focus': {
-    outline: `1px ${colors.darkBlue} solid`,
-    backgroundColor: colors.blue,
+    outline: `1px ${Colors.darkBlue} solid`,
+    backgroundColor: Colors.blue,
   },
 });
 
@@ -37,8 +37,8 @@ const StyledItems = styled.div<{ $direction: 'down' | 'up' }>((props) => ({
   top: props.$direction === 'down' ? 'calc(100% + 4px)' : 'auto',
   bottom: props.$direction === 'up' ? 'calc(100% + 4px)' : 'auto',
   right: '-1px',
-  backgroundColor: colors.darkBlue,
-  border: `1px ${colors.darkerBlue} solid`,
+  backgroundColor: Colors.darkBlue,
+  border: `1px ${Colors.darkerBlue} solid`,
   borderRadius: '4px',
   padding: '4px 8px',
   maxHeight: '250px',
@@ -155,7 +155,7 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
             <StyledSelectedText>
               {props.items.find((item) => item.value === value)?.label ?? ''}
             </StyledSelectedText>
-            <StyledChevron tintColor={colors.white60} source="icon-chevron-down" width={22} />
+            <StyledChevron tintColor={Colors.white60} source="icon-chevron-down" width={22} />
           </StyledSelectedContainerInner>
           <StyledInvisibleItems>
             {props.items.map((item) => (
@@ -220,7 +220,7 @@ const StyledItem = styled.div<{ $selected: boolean }>((props) => ({
   paddingRight: '18px',
   whiteSpace: 'nowrap',
   '&&:hover': {
-    backgroundColor: colors.blue,
+    backgroundColor: Colors.blue,
   },
 }));
 
@@ -248,7 +248,7 @@ function Item<T extends string>(props: ItemProps<T>) {
       role="option"
       $selected={props.selected}
       aria-selected={props.selected}>
-      {props.selected && <TickIcon tintColor={colors.white} source="icon-tick" width={12} />}
+      {props.selected && <TickIcon tintColor={Colors.white} source="icon-tick" width={12} />}
       {props.item.label}
     </StyledItem>
   );

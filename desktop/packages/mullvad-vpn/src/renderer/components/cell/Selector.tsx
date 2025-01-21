@@ -1,9 +1,8 @@
 import { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
-import { Spacings } from '../../lib/foundations';
+import { Colors, Spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useStyledRef } from '../../lib/utility-hooks';
@@ -198,21 +197,21 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
           $visible={props.isSelected}
           source="icon-tick"
           width={18}
-          tintColor={colors.white}
+          tintColor={Colors.white}
         />
         <SelectorCellLabel subLabel={props.subLabel}>{props.children}</SelectorCellLabel>
       </Cell.CellButton>
       {props.details && (
         <StyledSideButton
-          $backgroundColor={colors.blue40}
-          $backgroundColorHover={colors.blue80}
+          $backgroundColor={Colors.blue40}
+          $backgroundColorHover={Colors.blue80}
           aria-label={props.details.ariaLabel}
           onClick={navigate}>
           <StyledSideButtonImage
             source="icon-chevron"
             width={7}
-            tintColor={colors.white}
-            tintHoverColor={colors.white80}
+            tintColor={Colors.white}
+            tintHoverColor={Colors.white80}
           />
         </StyledSideButton>
       )}
@@ -243,9 +242,9 @@ interface StyledCustomContainerProps {
 }
 
 const StyledCustomContainer = styled(Cell.Container)<StyledCustomContainerProps>((props) => ({
-  backgroundColor: props.selected ? colors.green : colors.blue40,
+  backgroundColor: props.selected ? Colors.green : Colors.blue40,
   '&&:hover': {
-    backgroundColor: props.selected ? colors.green : colors.blue,
+    backgroundColor: props.selected ? Colors.green : Colors.blue,
   },
 }));
 
@@ -367,7 +366,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
             $visible={customIsSelected}
             source="icon-tick"
             width={18}
-            tintColor={colors.white}
+            tintColor={Colors.white}
           />
           <Cell.ValueLabel>{messages.gettext('Custom')}</Cell.ValueLabel>
           <AriaInput>

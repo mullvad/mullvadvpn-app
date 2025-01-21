@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import * as Cell from './cell';
 import ImageView from './ImageView';
 
@@ -9,7 +9,7 @@ export const StyledCustomDnsFooter = styled(Cell.CellFooter)({
 });
 
 export const StyledAddCustomDnsButton = styled(Cell.CellButton)({
-  backgroundColor: colors.blue40,
+  backgroundColor: Colors.blue40,
 });
 
 export const StyledAddCustomDnsLabel = styled(Cell.Label)<{ $paddingLeft?: number }>((props) => ({
@@ -25,7 +25,7 @@ export const StyledAddCustomDnsLabel = styled(Cell.Label)<{ $paddingLeft?: numbe
 
 export const StyledContainer = styled(Cell.Container)({
   display: 'flex',
-  backgroundColor: colors.blue40,
+  backgroundColor: Colors.blue40,
 });
 
 export const StyledButton = styled.button({
@@ -57,6 +57,6 @@ export const StyledRemoveButton = styled.button({
 
 export const StyledRemoveIcon = styled(ImageView)({
   [StyledRemoveButton + ':hover &&']: {
-    backgroundColor: colors.white80,
+    backgroundColor: Colors.white80,
   },
 });

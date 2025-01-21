@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Colors } from '../../lib/foundations';
 import * as Cell from '../cell';
 import { normalText, tinyText } from '../common-styles';
 import SearchBar from '../SearchBar';
@@ -24,7 +24,7 @@ export const StyledNavigationBarAttachment = styled.div({
 
 export const StyledFilterRow = styled.div({
   ...tinyText,
-  color: colors.white,
+  color: Colors.white,
   margin: '0 6px 16px',
 });
 
@@ -32,11 +32,11 @@ export const StyledFilter = styled.div({
   ...tinyText,
   display: 'inline-flex',
   alignItems: 'center',
-  backgroundColor: colors.blue,
+  backgroundColor: Colors.blue,
   borderRadius: '4px',
   padding: '3px 8px',
   marginLeft: '6px',
-  color: colors.white,
+  color: Colors.white,
 });
 
 export const StyledClearFilterButton = styled.div({

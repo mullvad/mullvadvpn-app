@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { NonEmptyArray } from '../../shared/utils';
+import { Colors } from '../lib/foundations';
 import { useStyledRef } from '../lib/utility-hooks';
 import { Icon } from './cell';
 
@@ -153,18 +153,18 @@ const StyledPageIndicator = styled.div<{ $current: boolean }>((props) => ({
   width: '8px',
   height: '8px',
   borderRadius: '50%',
-  backgroundColor: props.$current ? colors.white80 : colors.white40,
+  backgroundColor: props.$current ? Colors.white80 : Colors.white40,
 
   [`${StyledTransparentButton}:hover &&`]: {
-    backgroundColor: colors.white80,
+    backgroundColor: Colors.white80,
   },
 }));
 
 const StyledArrow = styled(Icon)((props) => ({
-  backgroundColor: props.disabled ? colors.white20 : props.tintColor,
+  backgroundColor: props.disabled ? Colors.white20 : props.tintColor,
 
   [`${StyledTransparentButton}:hover &&`]: {
-    backgroundColor: props.disabled ? colors.white20 : props.tintHoverColor,
+    backgroundColor: props.disabled ? Colors.white20 : props.tintHoverColor,
   },
 }));
 
@@ -203,8 +203,8 @@ function Controls(props: ControlsProps) {
             height={12}
             width={7}
             source="icon-chevron"
-            tintColor={colors.white}
-            tintHoverColor={colors.white60}
+            tintColor={Colors.white}
+            tintHoverColor={Colors.white60}
           />
         </StyledTransparentButton>
         <StyledTransparentButton onClick={props.next}>
@@ -213,8 +213,8 @@ function Controls(props: ControlsProps) {
             height={12}
             width={7}
             source="icon-chevron"
-            tintColor={colors.white}
-            tintHoverColor={colors.white60}
+            tintColor={Colors.white}
+            tintHoverColor={Colors.white60}
           />
         </StyledTransparentButton>
       </StyledArrows>
