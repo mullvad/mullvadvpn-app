@@ -119,6 +119,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case let .settings(subRoute):
             presentSettings(route: subRoute, animated: animated, completion: completion)
 
+        case .daita:
+            presentDAITA(animated: animated, completion: completion)
+
         case .selectLocation:
             presentSelectLocation(animated: animated, completion: completion)
 
@@ -593,6 +596,27 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             coordinator,
             animated: animated
         ) {
+            completion(coordinator)
+        }
+    }
+
+    private func presentDAITA(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
+        let viewModel = DAITATunnelSettingsViewModel(tunnelManager: tunnelManager)
+        let coordinator = DAITASettingsCoordinator(
+            navigationController: CustomNavigationController(),
+            route: .daita,
+            viewModel: viewModel
+        )
+
+        coordinator.didFinish = { [weak self] _ in
+            Task { @MainActor in
+                self?.router.dismiss(.daita, animated: true)
+            }
+        }
+
+        coordinator.start(animated: animated)
+
+        presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }

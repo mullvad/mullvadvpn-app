@@ -83,6 +83,11 @@ enum AppRoute: AppRouteProtocol {
     case settings(SettingsNavigationRoute?)
 
     /**
+     DAITA standalone route (not subsetting).
+     */
+    case daita
+
+    /**
      Select location route.
      */
     case selectLocation
@@ -130,7 +135,7 @@ enum AppRoute: AppRouteProtocol {
             return .selectLocation
         case .account:
             return .account
-        case .settings:
+        case .settings, .daita:
             return .settings
         case let .alert(id):
             return .alert(id)
