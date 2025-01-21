@@ -1,8 +1,8 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { Colors } from '../lib/foundations';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
 import ImageView from './ImageView';
@@ -20,17 +20,17 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   padding: '9px 38px',
   margin: 0,
   lineHeight: '24px',
-  color: colors.white60,
-  backgroundColor: colors.white10,
+  color: Colors.white60,
+  backgroundColor: Colors.white10,
   '&&::placeholder': {
-    color: colors.white60,
+    color: Colors.white60,
   },
   '&&:focus': {
-    color: colors.blue,
-    backgroundColor: colors.white,
+    color: Colors.blue,
+    backgroundColor: Colors.white,
   },
   '&&:focus::placeholder': {
-    color: colors.blue40,
+    color: Colors.blue40,
   },
 });
 
@@ -50,19 +50,19 @@ export const StyledSearchIcon = styled(ImageView)({
   transform: 'translateY(-50%)',
   left: '9px',
   [`${StyledSearchInput}:focus ~ &&`]: {
-    backgroundColor: colors.blue,
+    backgroundColor: Colors.blue,
   },
 });
 
 export const StyledClearIcon = styled(ImageView)({
   '&&:hover': {
-    backgroundColor: colors.white60,
+    backgroundColor: Colors.white60,
   },
   [`${StyledSearchInput}:focus ~ ${StyledClearButton} &&`]: {
-    backgroundColor: colors.blue40,
+    backgroundColor: Colors.blue40,
   },
   [`${StyledSearchInput}:focus ~ ${StyledClearButton} &&:hover`]: {
-    backgroundColor: colors.blue,
+    backgroundColor: Colors.blue,
   },
 });
 
@@ -107,10 +107,10 @@ export default function SearchBar(props: ISearchBarProps) {
         onInput={onInput}
         placeholder={messages.gettext('Search for...')}
       />
-      <StyledSearchIcon source="icon-search" width={24} tintColor={colors.white60} />
+      <StyledSearchIcon source="icon-search" width={24} tintColor={Colors.white60} />
       {props.searchTerm.length > 0 && (
         <StyledClearButton onClick={onClear}>
-          <StyledClearIcon source="icon-close" width={18} tintColor={colors.white40} />
+          <StyledClearIcon source="icon-close" width={18} tintColor={Colors.white40} />
         </StyledClearButton>
       )}
     </StyledSearchContainer>

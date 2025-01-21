@@ -1,7 +1,7 @@
 import * as React from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import { Icon } from './cell/Label';
 
 interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -25,8 +25,8 @@ export default function ChevronButton(props: IProps) {
   return (
     <Button {...otherProps}>
       <StyledIcon
-        tintColor={colors.white80}
-        tintHoverColor={colors.white}
+        tintColor={Colors.white80}
+        tintHoverColor={Colors.white}
         source={up ? 'icon-chevron-up' : 'icon-chevron-down'}
         height={24}
         width={24}

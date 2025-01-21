@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
@@ -10,6 +9,7 @@ import {
   filterLocations,
   filterLocationsByEndPointType,
 } from '../lib/filter-locations';
+import { Colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useNormalRelaySettings, useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { useBoolean } from '../lib/utility-hooks';
@@ -29,7 +29,7 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
 const StyledNavigationScrollbars = styled(NavigationScrollbars)({
-  backgroundColor: colors.darkBlue,
+  backgroundColor: Colors.darkBlue,
   flex: 1,
 });
 
@@ -240,7 +240,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
           <Cell.Label>{messages.pgettext('filter-view', 'Ownership')}</Cell.Label>
         </AriaLabel>
         <ImageView
-          tintColor={colors.white80}
+          tintColor={Colors.white80}
           source={expanded ? 'icon-chevron-up' : 'icon-chevron-down'}
           height={24}
         />
@@ -290,7 +290,7 @@ function FilterByProvider(props: IFilterByProviderProps) {
       <Cell.CellButton onClick={toggleExpanded}>
         <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
         <ImageView
-          tintColor={colors.white80}
+          tintColor={Colors.white80}
           source={expanded ? 'icon-chevron-up' : 'icon-chevron-down'}
           height={24}
         />
@@ -327,20 +327,20 @@ const StyledCheckbox = styled.div({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  backgroundColor: colors.white,
+  backgroundColor: Colors.white,
   borderRadius: '4px',
 });
 
 const StyledRow = styled(Cell.Row)({
-  backgroundColor: colors.blue40,
+  backgroundColor: Colors.blue40,
   '&&:hover': {
-    backgroundColor: colors.blue80,
+    backgroundColor: Colors.blue80,
   },
 });
 
 const StyledRowTitle = styled.label<IStyledRowTitleProps>(normalText, (props) => ({
   fontWeight: props.$bold ? 600 : 400,
-  color: colors.white,
+  color: Colors.white,
   marginLeft: '22px',
 }));
 
@@ -358,7 +358,7 @@ function CheckboxRow(props: ICheckboxRowProps) {
   return (
     <StyledRow onClick={onToggle}>
       <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
-        {props.checked && <ImageView source="icon-tick" width={18} tintColor={colors.green} />}
+        {props.checked && <ImageView source="icon-tick" width={18} tintColor={Colors.green} />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden $bold={props.$bold}>
         {props.label}

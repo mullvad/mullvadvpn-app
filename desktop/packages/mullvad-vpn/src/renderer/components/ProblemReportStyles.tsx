@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import { hugeText, measurements, smallText } from './common-styles';
 
 export const StyledContentContainer = styled.div({
@@ -37,8 +37,8 @@ const input = {
   flex: 1,
   borderRadius: '4px',
   padding: '14px',
-  color: colors.blue,
-  backgroundColor: colors.white,
+  color: Colors.blue,
+  backgroundColor: Colors.white,
   border: 'none',
 };
 
@@ -60,16 +60,16 @@ export const StyledStatusIcon = styled.div({
 
 export const StyledSentMessage = styled.span(smallText, {
   overflow: 'visible',
-  color: colors.white60,
+  color: Colors.white60,
 });
 
 export const StyledThanks = styled.span({
-  color: colors.green,
+  color: Colors.green,
 });
 
 export const StyledEmail = styled.span({
   fontWeight: 900,
-  color: colors.white,
+  color: Colors.white,
 });
 
 export const StyledSendStatus = styled.span(hugeText, {

@@ -2,8 +2,8 @@ import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } 
 import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import log from '../../shared/logging';
+import { Colors } from '../lib/foundations';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useWillExit } from '../lib/will-exit';
 import * as AppButton from './AppButton';
@@ -128,7 +128,7 @@ const StyledModalAlert = styled.div<{ $visible: boolean; $closing: boolean }>((p
   return {
     display: 'flex',
     flexDirection: 'column',
-    backgroundColor: colors.darkBlue,
+    backgroundColor: Colors.darkBlue,
     borderRadius: '11px',
     padding: '16px 0 16px 16px',
     maxHeight: '80vh',
@@ -320,15 +320,15 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
     switch (type) {
       case ModalAlertType.info:
         source = 'icon-info';
-        color = colors.white;
+        color = Colors.white;
         break;
       case ModalAlertType.caution:
         source = 'icon-alert';
-        color = colors.white;
+        color = Colors.white;
         break;
       case ModalAlertType.warning:
         source = 'icon-alert';
-        color = colors.red;
+        color = Colors.red;
         break;
 
       case ModalAlertType.loading:
@@ -355,13 +355,13 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
 }
 
 const ModalTitle = styled.h1(normalText, {
-  color: colors.white,
+  color: Colors.white,
   fontWeight: 600,
   margin: '18px 0 0 0',
 });
 
 export const ModalMessage = styled.span(tinyText, {
-  color: colors.white80,
+  color: Colors.white80,
   marginTop: '16px',
 
   [`${ModalTitle} ~ &&`]: {
@@ -372,5 +372,5 @@ export const ModalMessage = styled.span(tinyText, {
 export const ModalMessageList = styled.ul({
   listStyle: 'disc outside',
   paddingLeft: '20px',
-  color: colors.white80,
+  color: Colors.white80,
 });
