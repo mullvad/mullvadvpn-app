@@ -312,6 +312,12 @@ function build {
 }
 
 if [[ "$(uname -s)" == "MINGW"* ]]; then
+    if [[ "$IS_RELEASE" == "true" ]]; then
+        ./build-windows-modules.sh clean
+    else
+        echo "Will NOT clean intermediate files in ./windows/**/bin/ in dev builds"
+    fi
+
     for t in "${TARGETS[@]:-"$HOST"}"; do
         case "${t:-"$HOST"}" in
             x86_64-pc-windows-msvc) CPP_BUILD_TARGET=x64;;
@@ -323,7 +329,7 @@ if [[ "$(uname -s)" == "MINGW"* ]]; then
         esac
 
         log_header "Building C++ code in $CPP_BUILD_MODE mode for $CPP_BUILD_TARGET"
-        CPP_BUILD_MODES=$CPP_BUILD_MODE CPP_BUILD_TARGETS=$CPP_BUILD_TARGET IS_RELEASE=$IS_RELEASE ./build-windows-modules.sh
+        CPP_BUILD_MODES=$CPP_BUILD_MODE CPP_BUILD_TARGETS=$CPP_BUILD_TARGET ./build-windows-modules.sh
 
         if [[ "$SIGN" == "true" ]]; then
             CPP_BINARIES=(
