@@ -29,6 +29,9 @@ pub enum Interface {
 
     #[cfg(target_os = "windows")]
     Luid(windows_sys::Win32::NetworkManagement::Ndis::NET_LUID_LH),
+
+    #[cfg(target_os = "macos")]
+    Index(std::num::NonZeroU32),
 }
 
 impl From<String> for Interface {
@@ -45,6 +48,9 @@ impl fmt::Debug for Interface {
             // SAFETY: u64 is valid for all bit patterns, so reading the union as a u64 is safe.
             #[cfg(target_os = "windows")]
             Self::Luid(arg0) => f.debug_tuple("Luid").field(&unsafe { arg0.Value }).finish(),
+
+            #[cfg(target_os = "macos")]
+            Self::Index(arg0) => f.debug_tuple("Luid").field(arg0).finish(),
         }
     }
 }

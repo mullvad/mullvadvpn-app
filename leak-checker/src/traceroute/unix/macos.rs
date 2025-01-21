@@ -49,7 +49,7 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
         let raw_socket = socket.into_raw_fd();
         let std_socket = unsafe { std::net::UdpSocket::from_raw_fd(raw_socket) };
         let tokio_socket = tokio::net::UdpSocket::from_std(std_socket).unwrap();
-        AsyncIcmpSocketImpl(tokio_socket)
+        Ok(AsyncIcmpSocketImpl(tokio_socket))
     }
 
     fn set_ttl(&self, ttl: u32) -> anyhow::Result<()> {
@@ -79,14 +79,15 @@ fn bind_socket_to_interface(
     interface: &Interface,
     ip_version: Ip,
 ) -> anyhow::Result<()> {
-    let Interface::Name(interface) = interface;
-
     log::info!("Binding socket to {interface:?}");
 
-    let interface_index = if_nametoindex(interface.as_str())
-        .map_err(anyhow::Error::from)
-        .and_then(|code| NonZero::new(code).ok_or(anyhow!("Non-zero error code")))
-        .context("Failed to get interface index")?;
+    let interface_index = match interface {
+        Interface::Index(&index) => index,
+        Interface::Name(interface) => if_nametoindex(interface.as_str())
+            .map_err(anyhow::Error::from)
+            .and_then(|code| NonZero::new(code).ok_or(anyhow!("Non-zero error code")))
+            .context("Failed to get interface index")?,
+    };
 
     match ip_version {
         Ip::V4(..) => socket.bind_device_by_index_v4(Some(interface_index))?,

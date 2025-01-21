@@ -190,14 +190,16 @@ async fn check_for_leaks(
             .get_default_routes()
             .await
             .context("Failed to get default interface")?;
-        if destination.address.is_ipv4() {
+        let index = if destination.address.is_ipv4() {
             let v4_route = v4_route.context("Missing IPv4 default interface")?;
-            v4_route.interface.into()
+            v4_route.interface_index
         } else {
             let v6_route = v6_route.context("Missing IPv6 default interface")?;
-            v6_route.interface.into()
-        }
-        // TODO: use route.interface_index?
+            v6_route.interface_index
+        };
+
+        let index = std::num::NonZeroU32::try_from(index).context("Interface index was 0")?;
+        leak_checker::Interface::Index(index)
     };
 
     #[cfg(target_os = "windows")]
