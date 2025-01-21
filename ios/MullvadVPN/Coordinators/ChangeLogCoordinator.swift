@@ -12,11 +12,17 @@ import SwiftUI
 import UIKit
 
 final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordinator {
-    private var navigationController: UINavigationController?
     private let viewModel: ChangeLogViewModel
+    private var navigationController: UINavigationController?
+
+    private var viewController: UIHostingController<ChangeLogView<ChangeLogViewModel>>?
 
     var presentedViewController: UIViewController {
-        return navigationController!
+        navigationController!
+    }
+
+    var presentationContext: UIViewController {
+        viewController!
     }
 
     init(navigationController: UINavigationController, viewModel: ChangeLogViewModel) {
@@ -34,6 +40,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
             comment: ""
         )
         changeLogViewController.navigationItem.largeTitleDisplayMode = .always
+        viewController = changeLogViewController
         navigationController?.navigationBar.prefersLargeTitles = true
         navigationController?.pushViewController(changeLogViewController, animated: animated)
     }

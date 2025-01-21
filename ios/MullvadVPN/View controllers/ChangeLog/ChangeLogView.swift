@@ -32,19 +32,6 @@ struct ChangeLogView<ViewModel>: View where ViewModel: ChangeLogViewModelProtoco
                 }
                 .listStyle(.plain)
                 .frame(maxHeight: .infinity)
-
-                MainButton(
-                    text: LocalizedStringKey("See full changelog"),
-                    style: .default,
-                    image: Image(.iconExtlink),
-                    imagePosition: .trailing
-                ) {
-                    if let url =
-                        URL(string: "https://github.com/mullvad/mullvadvpn-app/blob/main/ios/CHANGELOG.md") {
-                        UIApplication.shared.open(url)
-                    }
-                }
-                .padding(.vertical, 24)
             }
             .padding(.horizontal, 24.0)
         }
