@@ -6,7 +6,7 @@ use mullvad_types::{constraints::Constraint, relay_constraints};
 use test_macro::test_function;
 use test_rpc::{mullvad_daemon::ServiceStatus, ServiceClient};
 
-use crate::{mullvad_daemon::MullvadClientArgument, tests::helpers};
+use crate::tests::helpers;
 
 use super::{
     config::TEST_CONFIG,
@@ -25,7 +25,7 @@ use super::{
 pub async fn test_upgrade_app(
     ctx: TestContext,
     rpc: ServiceClient,
-    _mullvad_client: MullvadClientArgument,
+    _mullvad_client: Option<MullvadProxyClient>,
 ) -> anyhow::Result<()> {
     // Install the older version of the app and verify that it is running.
     let old_version = TEST_CONFIG
