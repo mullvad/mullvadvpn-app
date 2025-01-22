@@ -13,13 +13,13 @@ members = [
     "mullvad-api",
     "mullvad-cli",
     "mullvad-daemon",
+    "mullvad-encrypted-dns-proxy",
     "mullvad-exclude",
     "mullvad-fs",
     "mullvad-ios",
     "mullvad-jni",
     "mullvad-management-interface",
     "mullvad-nsis",
-    "mullvad-encrypted-dns-proxy",
     "mullvad-paths",
     "mullvad-problem-report",
     "mullvad-relay-selector",
@@ -45,44 +45,14 @@ members = [
     "wireguard-go-rs",
     "windows-installer",
 ]
-# The default members may exclude packages that cannot be built for all targets, or that do not always
-# need to be built
+# Default members dictate what is built when running `cargo build` in the root directory.
+# This is set to a minimal set of packages to speed up the build process and avoid building
+# crates which might not compile without additional input, such as the `windows-installer` crate.
+# To build or test everything, add `--workspace` to your cargo commands.
 default-members = [
-    "android/translations-converter",
-    "desktop/packages/nseventforwarder",
-    "mullvad-api",
     "mullvad-cli",
     "mullvad-daemon",
-    "mullvad-exclude",
-    "mullvad-fs",
-    "mullvad-ios",
-    "mullvad-jni",
-    "mullvad-management-interface",
-    "mullvad-nsis",
-    "mullvad-encrypted-dns-proxy",
-    "mullvad-paths",
-    "mullvad-problem-report",
-    "mullvad-relay-selector",
-    "mullvad-setup",
-    "mullvad-types",
-    "mullvad-types/intersection-derive",
     "mullvad-version",
-    "talpid-core",
-    "talpid-dbus",
-    "talpid-future",
-    "talpid-macos",
-    "talpid-net",
-    "talpid-openvpn",
-    "talpid-openvpn-plugin",
-    "talpid-platform-metadata",
-    "talpid-routing",
-    "talpid-time",
-    "talpid-tunnel",
-    "talpid-tunnel-config-client",
-    "talpid-windows",
-    "talpid-wireguard",
-    "tunnel-obfuscation",
-    "wireguard-go-rs",
 ]
 
 # Keep all lints in sync with `test/Cargo.toml`
