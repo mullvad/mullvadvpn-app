@@ -67,18 +67,11 @@ class TunnelViewController: UIViewController, RootContainment {
         )
 
         connectionView = ConnectionView(
-            connectionViewModel: self.connectionViewViewModel,
-            indicatorsViewModel: self.indicatorsViewViewModel
+            connectionViewModel: connectionViewViewModel,
+            indicatorsViewModel: indicatorsViewViewModel
         )
 
         super.init(nibName: nil, bundle: nil)
-
-        // When content size is updated in SwiftUI we need to explicitly tell UIKit to
-        // update its view size. This is not necessary on iOS 16 where we can set
-        // hostingController.sizingOptions instead.
-        connectionView.onContentUpdate = { [weak self] in
-            self?.connectionController?.view.setNeedsUpdateConstraints()
-        }
     }
 
     required init?(coder: NSCoder) {
@@ -168,20 +161,16 @@ class TunnelViewController: UIViewController, RootContainment {
         case let .connecting(tunnelRelays, _, _):
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(tunnelRelays?.exit.location.geoCoordinate, animated: animated)
-            connectionViewViewModel.showsActivityIndicator = true
             activityIndicator.startAnimating()
 
         case let .reconnecting(tunnelRelays, _, _), let .negotiatingEphemeralPeer(tunnelRelays, _, _, _):
             activityIndicator.startAnimating()
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(tunnelRelays.exit.location.geoCoordinate, animated: animated)
-            connectionViewViewModel.showsActivityIndicator = true
 
         case let .connected(tunnelRelays, _, _):
             let center = tunnelRelays.exit.location.geoCoordinate
             mapViewController.setCenter(center, animated: animated) {
-                self.connectionViewViewModel.showsActivityIndicator = false
-
                 // Connection can change during animation, so make sure we're still connected before adding marker.
                 if case .connected = self.tunnelState {
                     self.mapViewController.addLocationMarker(coordinate: center)
@@ -192,18 +181,15 @@ class TunnelViewController: UIViewController, RootContainment {
         case .pendingReconnect:
             activityIndicator.startAnimating()
             mapViewController.removeLocationMarker()
-            connectionViewViewModel.showsActivityIndicator = true
 
         case .waitingForConnectivity, .error:
             activityIndicator.stopAnimating()
             mapViewController.removeLocationMarker()
-            connectionViewViewModel.showsActivityIndicator = false
 
         case .disconnected, .disconnecting:
             activityIndicator.stopAnimating()
             mapViewController.removeLocationMarker()
             mapViewController.setCenter(nil, animated: animated)
-            connectionViewViewModel.showsActivityIndicator = false
         }
     }
 
