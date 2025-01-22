@@ -78,7 +78,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate, @preconcurrency Setting
                     hostname: ApplicationConfiguration.hostName
                 )
             ),
-            appPreferences: AppPreferences(),
+            appPreferences: appDelegate.appPreferences,
             accessMethodRepository: accessMethodRepository,
             transportProvider: appDelegate.configuredTransportProvider,
             ipOverrideRepository: appDelegate.ipOverrideRepository

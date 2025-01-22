@@ -19,7 +19,6 @@ class LoggedInWithTimeUITestCase: BaseUITestCase {
         hasTimeAccountNumber = getAccountWithTime()
 
         agreeToTermsOfServiceIfShown()
-        dismissChangeLogIfShown()
         logoutIfLoggedIn()
 
         guard let hasTimeAccountNumber = self.hasTimeAccountNumber else {
