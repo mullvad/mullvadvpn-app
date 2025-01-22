@@ -178,12 +178,6 @@ pub async fn set_test_location(
         })
         .try_collect()?;
 
-    log::debug!(
-        "Creating custom list {} with locations '{:?}'",
-        test.name,
-        locations
-    );
-
     // Add the custom list to the current app instance
     // NOTE: This const is actually defined in, `mullvad_types::custom_list`, but we cannot import it.
     const CUSTOM_LIST_NAME_MAX_SIZE: usize = 30;
