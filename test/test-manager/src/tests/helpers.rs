@@ -460,7 +460,7 @@ pub async fn connect_and_wait(
 }
 
 pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Result<(), Error> {
-    log::debug!("Disconnecting");
+    log::trace!("Disconnecting");
     mullvad_client.disconnect_tunnel().await?;
 
     wait_for_tunnel_state(mullvad_client.clone(), |state| {
@@ -468,7 +468,7 @@ pub async fn disconnect_and_wait(mullvad_client: &mut MullvadProxyClient) -> Res
     })
     .await?;
 
-    log::debug!("Disconnected");
+    log::trace!("Disconnected");
 
     Ok(())
 }

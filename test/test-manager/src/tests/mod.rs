@@ -183,7 +183,7 @@ pub async fn set_test_location(
     const CUSTOM_LIST_NAME_MAX_SIZE: usize = 30;
     let mut custom_list_name = test.name.to_string();
     custom_list_name.truncate(CUSTOM_LIST_NAME_MAX_SIZE);
-    log::debug!("Creating custom list {custom_list_name} with locations '{locations:?}'");
+    log::debug!("Creating custom list `{custom_list_name}` with locations '{locations:?}'");
 
     let list_id = mullvad_client
         .create_custom_list(custom_list_name.clone())
@@ -196,7 +196,7 @@ pub async fn set_test_location(
         custom_list.locations.insert(location);
     }
     mullvad_client.update_custom_list(custom_list).await?;
-    log::debug!("Added custom list");
+    log::trace!("Added custom list");
 
     set_location(mullvad_client, LocationConstraint::CustomList { list_id })
         .await
