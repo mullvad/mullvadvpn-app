@@ -13,6 +13,7 @@ enum NotificationProviderIdentifier: String {
     case accountExpiryInAppNotification = "AccountExpiryInAppNotification"
     case registeredDeviceInAppNotification = "RegisteredDeviceInAppNotification"
     case tunnelStatusNotificationProvider = "TunnelStatusNotificationProvider"
+    case latestChangesInAppNotificationProvider = "LatestChangesInAppNotificationProvider"
     case `default` = "default"
 
     var domainIdentifier: String {

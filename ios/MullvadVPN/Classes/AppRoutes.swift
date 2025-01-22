@@ -93,7 +93,7 @@ enum AppRoute: AppRouteProtocol {
     case selectLocation
 
     /**
-     Changelog route.
+     Changelog standalone route (not subsetting).
      */
     case changelog
 
@@ -110,7 +110,7 @@ enum AppRoute: AppRouteProtocol {
 
     var isExclusive: Bool {
         switch self {
-        case .account, .settings, .changelog, .alert:
+        case .account, .settings, .alert:
             return true
         default:
             return false
@@ -129,13 +129,11 @@ enum AppRoute: AppRouteProtocol {
         switch self {
         case .tos, .login, .main, .revoked, .outOfTime, .welcome:
             return .primary
-        case .changelog:
-            return .changelog
         case .selectLocation:
             return .selectLocation
         case .account:
             return .account
-        case .settings, .daita:
+        case .settings, .daita, .changelog:
             return .settings
         case let .alert(id):
             return .alert(id)
