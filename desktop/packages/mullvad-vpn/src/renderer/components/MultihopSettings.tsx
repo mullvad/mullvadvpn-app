@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../config.json';
+import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { Flex } from '../lib/components';

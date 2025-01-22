@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../../config.json';
+import { strings } from '../../../shared/constants';
 import { FeatureIndicator } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import { Colors } from '../../lib/foundations';

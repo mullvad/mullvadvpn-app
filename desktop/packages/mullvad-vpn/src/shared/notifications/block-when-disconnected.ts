@@ -1,7 +1,7 @@
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { strings } from '../constants';
 import { TunnelState } from '../daemon-rpc-types';
 import {
   InAppNotification,

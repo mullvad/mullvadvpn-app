@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { supportEmail } from '../../config.json';
+import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import ErrorView from './ErrorView';
@@ -40,7 +40,7 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
         messages
           .pgettext('error-boundary-view', 'Something went wrong. Please contact us at %(email)s')
           .split('%(email)s', 2);
-      reachBackMessage.splice(1, 0, <Email>{supportEmail}</Email>);
+      reachBackMessage.splice(1, 0, <Email>{strings.supportEmail}</Email>);
 
       return <ErrorView settingsUnavailable>{reachBackMessage}</ErrorView>;
     } else {
