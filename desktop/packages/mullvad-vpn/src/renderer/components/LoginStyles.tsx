@@ -1,6 +1,8 @@
 import styled from 'styled-components';
 
 import { colors } from '../../config.json';
+import { Spacings } from '../lib/foundations';
+import { buttonReset } from '../lib/styles';
 import * as Cell from './cell';
 import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
@@ -38,35 +40,52 @@ export const StyledInputSubmitIcon = styled(ImageView)<{ $visible: boolean }>((p
 export const StyledAccountDropdownItem = styled.li({
   display: 'flex',
   flex: 1,
+});
+
+const baseButtonStyles = {
+  ...buttonReset,
+  width: '100%',
+  height: '100%',
   backgroundColor: colors.white60,
   cursor: 'default',
   '&&:hover': {
     backgroundColor: colors.white40,
   },
+  '&:focus-visible': {
+    outline: `2px solid ${colors.white}`,
+    outlineOffset: '-2px',
+  },
+};
+
+export const StyledAccountDropdownItemButton = styled.button({
+  ...baseButtonStyles,
+  paddingLeft: Spacings.spacing5,
 });
 
-export const StyledAccountDropdownItemButton = styled(Cell.CellButton)({
-  padding: '0px',
-  marginBottom: '0px',
-  flexDirection: 'row',
-  alignItems: 'stretch',
+export const StyledAccountDropdownItemIconButton = styled.button({
+  ...baseButtonStyles,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+});
+
+export const StyledAccountDropdownTrailingButton = styled.button({
+  ...buttonReset,
   backgroundColor: 'transparent',
-  '&&:not(:disabled):hover': {
-    backgroundColor: 'transparent',
+  cursor: 'pointer',
+  '&:focus-visible': {
+    outline: `2px solid ${colors.white}`,
+    outlineOffset: '2px',
   },
 });
 
 export const StyledAccountDropdownItemButtonLabel = styled(Cell.Label)(largeText, {
-  padding: '11px 0px 11px 12px',
   margin: '0',
   color: colors.blue80,
   borderWidth: 0,
   textAlign: 'left',
   marginLeft: 0,
   cursor: 'default',
-  [StyledAccountDropdownItemButton + ':hover']: {
-    color: colors.blue,
-  },
 });
 
 export const StyledTopInfo = styled.div({
@@ -140,21 +159,10 @@ export const StyledDropdownSpacer = styled.div({
   backgroundColor: colors.darkBlue,
 });
 
-export const StyledLoginFooterPrompt = styled.span(tinyText, {
-  color: colors.white60,
-  marginBottom: '8px',
-});
-
 export const StyledTitle = styled.h1(hugeText, {
   lineHeight: '40px',
   marginBottom: '7px',
   flex: 0,
-});
-
-export const StyledSubtitle = styled.span(tinyText, {
-  lineHeight: '15px',
-  marginBottom: '8px',
-  color: colors.white60,
 });
 
 export const StyledInput = styled(FormattableTextInput)(largeText, {
