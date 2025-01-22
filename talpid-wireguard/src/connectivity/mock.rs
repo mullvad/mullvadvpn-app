@@ -1,5 +1,3 @@
-use std::future::Future;
-use std::pin::Pin;
 use tokio::time::Instant;
 
 use super::check::{CancelToken, ConnState, PingState};
@@ -111,11 +109,8 @@ impl Tunnel for MockTunnel {
         (self.on_get_stats)()
     }
 
-    fn set_config(
-        &mut self,
-        _config: Config,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send>> {
-        Box::pin(async { Ok(()) })
+    async fn set_config(&mut self, _config: Config) -> std::result::Result<(), TunnelError> {
+        Ok(())
     }
 
     #[cfg(daita)]

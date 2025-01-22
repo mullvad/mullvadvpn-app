@@ -5,7 +5,6 @@
 use self::config::Config;
 #[cfg(windows)]
 use futures::channel::mpsc;
-use futures::future::Future;
 use obfuscation::ObfuscatorHandle;
 #[cfg(target_os = "android")]
 use std::borrow::Cow;
@@ -15,7 +14,6 @@ use std::{
     convert::Infallible,
     net::IpAddr,
     path::Path,
-    pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
 };
 #[cfg(target_os = "linux")]
@@ -1012,10 +1010,7 @@ pub(crate) trait Tunnel: Send + Sync {
     fn get_interface_name(&self) -> String;
     fn stop(self: Box<Self>) -> std::result::Result<(), TunnelError>;
     async fn get_tunnel_stats(&self) -> std::result::Result<stats::StatsMap, TunnelError>;
-    fn set_config<'a>(
-        &'a mut self,
-        _config: Config,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
+    async fn set_config(&mut self, _config: Config) -> std::result::Result<(), TunnelError>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
     #[cfg(not(target_os = "windows"))]

@@ -12,14 +12,11 @@ use once_cell::sync::OnceCell;
 use std::{ffi::c_uchar, path::PathBuf};
 use std::{
     ffi::CStr,
-    fmt,
-    future::Future,
-    io,
+    fmt, io,
     mem::{self, MaybeUninit},
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     os::windows::io::RawHandle,
     path::Path,
-    pin::Pin,
     ptr,
     sync::{Arc, LazyLock, Mutex},
 };
@@ -1079,27 +1076,22 @@ impl Tunnel for WgNtTunnel {
         Ok(())
     }
 
-    fn set_config(
-        &mut self,
-        config: Config,
-    ) -> Pin<Box<dyn Future<Output = std::result::Result<(), super::TunnelError>> + Send>> {
+    async fn set_config(&mut self, config: Config) -> std::result::Result<(), super::TunnelError> {
         let device = self.device.clone();
         let current_config = self.config.clone();
 
-        Box::pin(async move {
-            let Some(device) = device else {
-                log::error!("Failed to set config: No tunnel device");
-                return Err(super::TunnelError::SetConfigError);
-            };
-            let mut current_config = current_config.lock().unwrap();
-            *current_config = config;
-            device.set_config(&current_config).map_err(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to set wg-nt tunnel config")
-                );
-                super::TunnelError::SetConfigError
-            })
+        let Some(device) = device else {
+            log::error!("Failed to set config: No tunnel device");
+            return Err(super::TunnelError::SetConfigError);
+        };
+        let mut current_config = current_config.lock().unwrap();
+        *current_config = config;
+        device.set_config(&current_config).map_err(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to set wg-nt tunnel config")
+            );
+            super::TunnelError::SetConfigError
         })
     }
 
