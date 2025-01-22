@@ -46,7 +46,7 @@ interface IProps {
 }
 
 export default function NotificationArea(props: IProps) {
-  const { showFullDiskAccessSettings, reconnectTunnel } = useAppContext();
+  const { showFullDiskAccessSettings } = useAppContext();
 
   const account = useSelector((state: IReduxState) => state.account);
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
@@ -80,8 +80,7 @@ export default function NotificationArea(props: IProps) {
   const disableSplitTunneling = useCallback(async () => {
     setIsModalOpen(false);
     await setSplitTunnelingState(false);
-    await reconnectTunnel();
-  }, [reconnectTunnel, setSplitTunnelingState]);
+  }, [setSplitTunnelingState]);
 
   const notificationProviders: InAppNotificationProvider[] = [
     new ConnectingNotificationProvider({ tunnelState }),
