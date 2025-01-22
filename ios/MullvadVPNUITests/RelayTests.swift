@@ -126,6 +126,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
             .verifyConnectionAttemptsOrder()
             .tapCancelButton()
     }
@@ -252,6 +253,7 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         // Should be two UDP connection attempts but sometimes only one is shown in the UI
         TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
             .verifyConnectingOverTCPAfterUDPAttempts()
             .waitForConnectedLabel()
             .tapDisconnectButton()
