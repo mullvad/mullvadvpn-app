@@ -24,12 +24,12 @@ The configuration is assumed to exist in `$XDG_CONFIG_HOME/mullvad-test/config.j
 
 ## Per-test relay selection
 
-It is possible to configure which relay(s) should be selected on a test-per-test basis by providing the "test_locations"
+It is possible to configure which relay(s) should be selected on a test-per-test basis by providing the `test_locations`
 configuration option. If no explicit configuration is given, no assumption will be made from within the tests themselves.
 
 The format is a list of maps with a single key-value pair, where the key is a [glob pattern](<https://en.wikipedia.org/wiki/Glob_(programming)>)
 that will be matched against the test name, and the value is a list of locations to use for the matching tests.
-The name of the locations are the same as for the `mullvad-cli`.
+The name of the locations are the same as for the `mullvad relay set location` CLI-command.
 
 ### Example
 
