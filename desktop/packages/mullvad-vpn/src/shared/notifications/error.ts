@@ -1,6 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../config.json';
+import { strings } from '../constants';
 import {
   AuthFailedError,
   ErrorStateCause,
