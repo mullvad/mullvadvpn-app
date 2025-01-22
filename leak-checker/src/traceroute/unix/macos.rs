@@ -141,7 +141,7 @@ async fn recv_ttl_responses(
                 Ip::V6(ip_packet) => parse_icmp6_time_exceeded(&ip_packet),
             })
             .map_err(|e| {
-                anyhow!("Ignoring packet: (len={n}, ip.src={source}) {e} ({packet:02x?})")
+                anyhow!("Ignoring packet (len={n}, ip.src={source}): {e}")
             });
 
         match result {
