@@ -22,11 +22,14 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+### Added
+- Add different themes for app icons
+
 ### Fixed
 - Broken DAITA settings view on iOS 15.
+
 ### Changed
 - Move changelog to settings and add an in-app notification banner for app update.
-- Add different themes for app icons
 
 ## [2025.1 - 2025-01-14]
 ### Added

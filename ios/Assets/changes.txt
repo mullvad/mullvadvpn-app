@@ -1,4 +1,5 @@
-CHANGE THIS BEFORE A RELEASE
-Each line is treated as a separate change item shown in the GUI the first time it runs after install.
-Start each line with a capital letter and end each line with a period.
-Only point out the major changes.
+Add feature indicators to the main view along with redesigning the connection details.
+Add option to purchase 90-day subscriptions in the app.
+Add tinted customizable app icon.
+Fix bug in DAITA settings view on iOS15.
+Move changelog to settings.
