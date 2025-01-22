@@ -144,6 +144,10 @@ extension UIColor {
         static let selectedColor = successColor
     }
 
+    enum AlertController {
+        static let tintColor = UIColor(red: 0.0, green: 0.59, blue: 1.0, alpha: 1)
+    }
+
     // Common colors
     static let primaryColor = UIColor(red: 0.16, green: 0.30, blue: 0.45, alpha: 1.0)
     static let secondaryColor = UIColor(red: 0.10, green: 0.18, blue: 0.27, alpha: 1.0)

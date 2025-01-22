@@ -273,7 +273,7 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
             preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
         )
         actionSheet.overrideUserInterfaceStyle = .dark
-        actionSheet.view.tintColor = UIColor(red: 0.0, green: 0.59, blue: 1.0, alpha: 1)
+        actionSheet.view.tintColor = .AlertController.tintColor
 
         let addCustomListAction = UIAlertAction(
             title: NSLocalizedString(

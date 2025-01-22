@@ -20,20 +20,26 @@ extension UIAlertController {
             value: "Add Time",
             comment: ""
         )
-        let alert = UIAlertController(title: localizedString, message: nil, preferredStyle: .actionSheet)
+        let actionSheet = UIAlertController(
+            title: localizedString,
+            message: nil,
+            preferredStyle: UIDevice.current.userInterfaceIdiom == .pad ? .alert : .actionSheet
+        )
+        actionSheet.overrideUserInterfaceStyle = .dark
+        actionSheet.view.tintColor = .AlertController.tintColor
         products.sortedByPrice().forEach { product in
             guard let localizedTitle = product.customLocalizedTitle else {
                 return
             }
             let action = UIAlertAction(title: localizedTitle, style: .default, handler: { _ in
-                alert.dismiss(animated: true, completion: {
+                actionSheet.dismiss(animated: true, completion: {
                     didRequestPurchase(product)
                 })
             })
             action
                 .accessibilityIdentifier =
                 "\(AccessibilityIdentifier.purchaseButton.asString)_\(product.productIdentifier)"
-            alert.addAction(action)
+            actionSheet.addAction(action)
         }
         let cancelAction = UIAlertAction(title: NSLocalizedString(
             "PRODUCT_LIST_CANCEL_BUTTON",
@@ -42,7 +48,7 @@ extension UIAlertController {
             comment: ""
         ), style: .cancel)
         cancelAction.accessibilityIdentifier = AccessibilityIdentifier.cancelPurchaseListButton.asString
-        alert.addAction(cancelAction)
-        return alert
+        actionSheet.addAction(cancelAction)
+        return actionSheet
     }
 }
