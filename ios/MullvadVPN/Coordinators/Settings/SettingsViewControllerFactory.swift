@@ -98,6 +98,7 @@ struct SettingsViewControllerFactory {
     private func makeChangelogViewController() -> MakeChildResult {
         return .childCoordinator(
             ChangeLogCoordinator(
+                sourcePresentationRoute: .settings,
                 navigationController: navigationController,
                 viewModel: ChangeLogViewModel(changeLogReader: ChangeLogReader())
             )

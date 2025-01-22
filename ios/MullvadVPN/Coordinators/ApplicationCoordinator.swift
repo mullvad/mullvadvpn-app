@@ -131,9 +131,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case .login:
             presentLogin(animated: animated, completion: completion)
 
-        case .changelog:
-            presentChangeLog(animated: animated, completion: completion)
-
         case .tos:
             presentTOS(animated: animated, completion: completion)
 
@@ -293,11 +290,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             }
         }
 
-        // Change log can be presented simultaneously with other routes.
-        if !appPreferences.hasSeenLastChanges {
-            routes.append(.changelog)
-        }
-
         return routes
     }
 
@@ -329,20 +321,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         coordinator.start()
 
         completion(coordinator)
-    }
-
-    private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
-        let coordinator = ChangeLogCoordinator(
-            navigationController: CustomNavigationController(),
-            viewModel: ChangeLogViewModel(changeLogReader: ChangeLogReader())
-        )
-
-        coordinator.start(animated: false)
-
-        presentChild(coordinator, animated: animated) { [weak self] in
-            self?.appPreferences.markChangeLogSeen()
-            completion(coordinator)
-        }
     }
 
     private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -798,6 +776,14 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case .accountExpiryInAppNotification:
             isPresentingAccountExpiryBanner = false
             updateDeviceInfo(deviceState: tunnelManager.deviceState)
+        case .latestChangesInAppNotificationProvider:
+            let coordinator = ChangeLogCoordinator(
+                sourcePresentationRoute: .inAppNotification,
+                navigationController: CustomNavigationController(),
+                viewModel: ChangeLogViewModel(changeLogReader: ChangeLogReader())
+            )
+            coordinator.start(animated: true)
+            presentChild(coordinator, animated: true)
         default: return
         }
     }
@@ -813,16 +799,4 @@ extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
-}
-
-fileprivate extension AppPreferencesDataSource {
-    var hasSeenLastChanges: Bool {
-        lastSeenChangeLogVersion == Bundle.main.shortVersion
-    }
-
-    mutating func markChangeLogSeen() {
-        lastSeenChangeLogVersion = Bundle.main.shortVersion
-    }
-
-    // swiftlint:disable:next file_length
 }

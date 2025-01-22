@@ -11,15 +11,25 @@ import Routing
 import SwiftUI
 import UIKit
 
+enum ChangeLogPresentationRoute {
+    case settings, inAppNotification
+}
+
 final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordinator {
-    private var navigationController: UINavigationController?
+    private let sourcePresentationRoute: ChangeLogPresentationRoute
     private let viewModel: ChangeLogViewModel
+    private var navigationController: UINavigationController?
 
     var presentedViewController: UIViewController {
-        return navigationController!
+        navigationController!
     }
 
-    init(navigationController: UINavigationController, viewModel: ChangeLogViewModel) {
+    init(
+        sourcePresentationRoute: ChangeLogPresentationRoute,
+        navigationController: UINavigationController,
+        viewModel: ChangeLogViewModel
+    ) {
+        self.sourcePresentationRoute = sourcePresentationRoute
         self.viewModel = viewModel
         self.navigationController = navigationController
     }
@@ -33,8 +43,28 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
             value: "What's new",
             comment: ""
         )
-        changeLogViewController.navigationItem.largeTitleDisplayMode = .always
-        navigationController?.navigationBar.prefersLargeTitles = true
+
+        switch sourcePresentationRoute {
+        case .inAppNotification:
+            let barButtonItem = UIBarButtonItem(
+                title: NSLocalizedString(
+                    "CHANGELOG_NAVIGATION_DONE_BUTTON",
+                    tableName: "Changelog",
+                    value: "Done",
+                    comment: ""
+                ),
+                primaryAction: UIAction { _ in
+                    self.dismiss(animated: true)
+                }
+            )
+            barButtonItem.style = .done
+            changeLogViewController.navigationItem.rightBarButtonItem = barButtonItem
+            fallthrough
+        case .settings:
+            changeLogViewController.navigationItem.largeTitleDisplayMode = .always
+            navigationController?.navigationBar.prefersLargeTitles = true
+        }
+
         navigationController?.pushViewController(changeLogViewController, animated: animated)
     }
 }

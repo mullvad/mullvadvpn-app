@@ -47,7 +47,6 @@ class SettingsMigrationTests: BaseUITestCase {
         super.setUp()
 
         agreeToTermsOfServiceIfShown()
-        dismissChangeLogIfShown()
 
         // Relaunch app so that tests start from a deterministic state
         app.terminate()
