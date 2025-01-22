@@ -4,10 +4,7 @@ use std::{io, time::Duration};
 use futures::{channel::mpsc, future::BoxFuture, pin_mut, FutureExt, SinkExt, StreamExt};
 use hyper_util::rt::TokioIo;
 use mullvad_management_interface::{ManagementServiceClient, MullvadProxyClient};
-use test_rpc::{
-    mullvad_daemon::MullvadClientVersion,
-    transport::{ConnectionHandle, GrpcForwarder},
-};
+use test_rpc::transport::{ConnectionHandle, GrpcForwarder};
 use tokio::io::{AsyncReadExt, AsyncWriteExt, DuplexStream};
 use tokio_util::codec::{Decoder, LengthDelimitedCodec};
 use tower::Service;
@@ -52,20 +49,7 @@ pub struct RpcClientProvider {
     service: DummyService,
 }
 
-pub enum MullvadClientArgument {
-    WithClient(MullvadProxyClient),
-    None,
-}
-
 impl RpcClientProvider {
-    /// Whether a [test case](test_macro::test_function) needs a [`MullvadProxyClient`].
-    pub async fn mullvad_client(&self, client_type: MullvadClientVersion) -> MullvadClientArgument {
-        match client_type {
-            MullvadClientVersion::New => MullvadClientArgument::WithClient(self.new_client().await),
-            MullvadClientVersion::None => MullvadClientArgument::None,
-        }
-    }
-
     pub async fn new_client(&self) -> MullvadProxyClient {
         // FIXME: Ugly workaround to ensure that we don't receive stuff from a
         // previous RPC session.

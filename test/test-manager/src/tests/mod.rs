@@ -16,18 +16,16 @@ mod tunnel_state;
 mod ui;
 
 use itertools::Itertools;
+use mullvad_types::relay_constraints::{GeographicLocationConstraint, LocationConstraint};
 pub use test_metadata::TestMetadata;
 
 use anyhow::Context;
 use futures::future::BoxFuture;
 use std::time::Duration;
 
-use crate::{
-    mullvad_daemon::{MullvadClientArgument, RpcClientProvider},
-    package::get_version_from_path,
-};
+use crate::{mullvad_daemon::RpcClientProvider, package::get_version_from_path};
 use config::TEST_CONFIG;
-use helpers::{get_app_env, install_app};
+use helpers::{find_custom_list, get_app_env, install_app, set_location};
 pub use install::test_upgrade_app;
 use mullvad_management_interface::MullvadProxyClient;
 use test_rpc::{meta::Os, ServiceClient};
@@ -39,8 +37,11 @@ pub struct TestContext {
     pub rpc_provider: RpcClientProvider,
 }
 
-pub type TestWrapperFunction =
-    fn(TestContext, ServiceClient, MullvadClientArgument) -> BoxFuture<'static, anyhow::Result<()>>;
+pub type TestWrapperFunction = fn(
+    TestContext,
+    ServiceClient,
+    Option<MullvadProxyClient>,
+) -> BoxFuture<'static, anyhow::Result<()>>;
 
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
@@ -137,7 +138,7 @@ pub fn get_filtered_tests(specified_tests: &[String]) -> Result<Vec<TestMetadata
 pub async fn prepare_daemon(
     rpc: &ServiceClient,
     rpc_provider: &RpcClientProvider,
-) -> anyhow::Result<()> {
+) -> anyhow::Result<MullvadProxyClient> {
     // Check if daemon should be restarted
     let mut mullvad_client = ensure_daemon_version(rpc, rpc_provider)
         .await
@@ -152,9 +153,60 @@ pub async fn prepare_daemon(
         .await
         .context("Failed to disconnect daemon after test")?;
     helpers::ensure_logged_in(&mut mullvad_client).await?;
-    helpers::custom_lists::add_default_lists(&mut mullvad_client).await?;
-    helpers::custom_lists::set_default_location(&mut mullvad_client).await?;
 
+    Ok(mullvad_client)
+}
+
+/// Create and selects an "anonymous" custom list for this test. The custom list will
+/// have the same name as the test and contain the locations as specified by
+/// [`TestMetadata`] location field.
+pub async fn set_test_location(
+    mullvad_client: &mut MullvadProxyClient,
+    test: &TestMetadata,
+) -> anyhow::Result<()> {
+    // If no location is specified for the test, don't do anything and use the default value of the app
+    let Some(locations) = test.location.as_ref() else {
+        return Ok(());
+    };
+    // Convert locations from the test config to actual location constraints
+    let locations: Vec<GeographicLocationConstraint> = locations
+        .iter()
+        .map(|input| {
+            input
+                .parse::<GeographicLocationConstraint>()
+                .with_context(|| format!("Failed to parse {input}"))
+        })
+        .try_collect()?;
+
+    log::debug!(
+        "Creating custom list {} with locations '{:?}'",
+        test.name,
+        locations
+    );
+
+    // Add the custom list to the current app instance
+    // NOTE: This const is actually defined in, `mullvad_types::custom_list`, but we cannot import it.
+    const CUSTOM_LIST_NAME_MAX_SIZE: usize = 30;
+    let mut custom_list_name = test.name.to_string();
+    custom_list_name.truncate(CUSTOM_LIST_NAME_MAX_SIZE);
+    log::debug!("Creating custom list {custom_list_name} with locations '{locations:?}'");
+
+    let list_id = mullvad_client
+        .create_custom_list(custom_list_name.clone())
+        .await?;
+
+    let mut custom_list = find_custom_list(mullvad_client, &custom_list_name).await?;
+
+    assert_eq!(list_id, custom_list.id);
+    for location in locations {
+        custom_list.locations.insert(location);
+    }
+    mullvad_client.update_custom_list(custom_list).await?;
+    log::debug!("Added custom list");
+
+    set_location(mullvad_client, LocationConstraint::CustomList { list_id })
+        .await
+        .with_context(|| format!("Failed to set location to custom list with ID '{list_id:?}'"))?;
     Ok(())
 }
 

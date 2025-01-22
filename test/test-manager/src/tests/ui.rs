@@ -91,19 +91,11 @@ pub async fn test_ui_tunnel_settings(
     rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    // NOTE: This test connects multiple times using various settings, some of which may cause a
-    // significant increase in connection time, e.g. multihop and OpenVPN. For this reason, it is
-    // preferable to only target low latency servers.
-    use helpers::custom_lists::LowLatency;
-
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
     let entry = helpers::constrain_to_relay(
         &mut mullvad_client,
-        RelayQueryBuilder::new()
-            .wireguard()
-            .location(LowLatency)
-            .build(),
+        RelayQueryBuilder::new().wireguard().build(),
     )
     .await?;
 
@@ -273,7 +265,11 @@ async fn test_custom_bridge_gui(
 
 /// Test settings import / IP overrides in the GUI
 #[test_function]
-pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_import_settings_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
     let ui_result = run_test(&rpc, &["settings-import.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
@@ -281,7 +277,11 @@ pub async fn test_import_settings_ui(_: TestContext, rpc: ServiceClient) -> Resu
 
 /// Test obfuscation settings in the GUI
 #[test_function]
-pub async fn test_obfuscation_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_obfuscation_settings_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
     let ui_result = run_test(&rpc, &["obfuscation.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
@@ -289,7 +289,11 @@ pub async fn test_obfuscation_settings_ui(_: TestContext, rpc: ServiceClient) ->
 
 /// Test settings in the GUI
 #[test_function]
-pub async fn test_settings_ui(_: TestContext, rpc: ServiceClient) -> Result<(), Error> {
+pub async fn test_settings_ui(
+    _: TestContext,
+    rpc: ServiceClient,
+    _: MullvadProxyClient,
+) -> Result<(), Error> {
     let ui_result = run_test(&rpc, &["settings.spec"]).await?;
     assert!(ui_result.success());
     Ok(())
