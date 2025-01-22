@@ -29,9 +29,9 @@ $(DESTDIR)/libwg.so:
 	# Build wireguard-go
 	go get -tags "linux android daita"
 	chmod -fR +w "$(GOPATH)/pkg/mod"
-	go build -tags "linux android daita" -ldflags="-X main.socketDirectory=/data/data/$(ANDROID_PACKAGE_NAME)/cache/wireguard" -v -o "$@" -buildmode c-shared -buildvcs=false
+	# The `-buildid=` and `-trimpath` flags are needed to make the build reproducible.
+	go build -tags "linux android daita" -ldflags="-buildid= -X main.socketDirectory=/data/data/$(ANDROID_PACKAGE_NAME)/cache/wireguard" -v -o "$@" -buildmode c-shared -buildvcs=false -trimpath
 	rm -f $(DESTDIR)/libwg.h
-
 
 clean:
 	rm -f $(DESTDIR)/libwg.so
