@@ -236,21 +236,6 @@ class BaseUITestCase: XCTestCase {
         }
     }
 
-    func dismissChangeLogIfShown() {
-        let changeLogIsShown = app
-            .otherElements[.changeLogAlert]
-            .waitForExistence(timeout: Self.shortTimeout)
-
-        if changeLogIsShown {
-            ChangeLogAlert(app).swipeDownToDismissModal()
-        }
-
-        // Ensure changelog is no longer shown
-        _ = app
-            .otherElements[.changeLogAlert]
-            .waitForNonExistence(timeout: Self.shortTimeout)
-    }
-
     /// Login with specified account number. It is a prerequisite that the login page is currently shown.
     func login(accountNumber: String) {
         var successIconShown = false
