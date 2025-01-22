@@ -1,5 +1,5 @@
 use std::io::{self, IoSliceMut};
-use std::os::fd::{AsRawFd, FromRawFd, IntoRawFd, RawFd};
+use std::os::fd::{AsRawFd, RawFd};
 use std::{net::IpAddr, time::Duration};
 
 use anyhow::{anyhow, Context};
@@ -42,8 +42,7 @@ impl AsyncIcmpSocket for AsyncIcmpSocketImpl {
         // IP_RECVERR tells Linux to pass any error packets received over ICMP to us through `recvmsg` control messages.
         setsockopt(&socket, Ipv4RecvErr, &true).context("Failed to set IP_RECVERR")?;
 
-        let raw_socket = socket.into_raw_fd();
-        let std_socket = unsafe { std::net::UdpSocket::from_raw_fd(raw_socket) };
+        let std_socket = std::net::UdpSocket::from(socket);
         let tokio_socket = tokio::net::UdpSocket::from_std(std_socket).unwrap();
         Ok(AsyncIcmpSocketImpl(tokio_socket))
     }
