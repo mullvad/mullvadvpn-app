@@ -43,6 +43,7 @@ const LEAK_TIMEOUT: Duration = Duration::from_secs(5);
 const SEND_TIMEOUT: Duration = Duration::from_secs(1);
 
 /// Timeout of receiving additional probe packets after the first one
+#[cfg(not(target_os = "windows"))]
 const RECV_GRACE_TIME: Duration = Duration::from_millis(220);
 
 /// Time in-between send of each probe packet.

@@ -64,6 +64,7 @@ pub trait AsyncIcmpSocket: Sized {
     async fn send_to(&self, packet: &[u8], destination: impl Into<IpAddr>) -> io::Result<usize>;
 
     /// Receive an ICMP packet.
+    #[cfg_attr(target_os = "linux", allow(dead_code))]
     async fn recv_from(&self, buf: &mut [u8]) -> io::Result<(usize, IpAddr)>;
 
     /// Try to read ICMP/TimeExceeded error packets to see if probe packets leaked.
