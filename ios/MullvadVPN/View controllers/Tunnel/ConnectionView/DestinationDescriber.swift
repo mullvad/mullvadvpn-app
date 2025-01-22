@@ -12,7 +12,7 @@ import MullvadSettings
 import MullvadTypes
 
 protocol DestinationDescribing {
-    func describe(_ loc: UserSelectedRelays) -> String?
+    func describe(_ destination: UserSelectedRelays) -> String?
 }
 
 struct DestinationDescriber: DestinationDescribing {
@@ -27,10 +27,16 @@ struct DestinationDescriber: DestinationDescribing {
         self.customListRepository = customListRepository
     }
 
-    private func customListDescription(_ loc: UserSelectedRelays) -> String? {
-        loc.customListSelection.flatMap {
-            customListRepository.fetch(by: $0.listId)?.name
-        }
+    private func customListDescription(_ destination: UserSelectedRelays) -> String? {
+        // We only return a description for the list if the user has selected the
+        // entire list. If they have selected a subset of relays/locations from it,
+        // we show those as if they selected them from elsewhere.
+        guard
+            let customListSelection = destination.customListSelection,
+            let customList = customListRepository.fetch(by: customListSelection.listId),
+            customList.locations.count == destination.locations.count
+        else { return nil }
+        return customList.name
     }
 
     private func describeRelayLocation(
@@ -39,15 +45,15 @@ struct DestinationDescriber: DestinationDescribing {
     ) -> String {
         switch locationSpec {
         case .country: serverLocation.country
-        case .city: "\(serverLocation.city), \(serverLocation.country)"
+        case .city: serverLocation.city
         case let .hostname(_, _, hostname):
             "\(serverLocation.city) (\(hostname))"
         }
     }
 
-    private func relayDescription(_ loc: UserSelectedRelays) -> String? {
+    private func relayDescription(_ destination: UserSelectedRelays) -> String? {
         guard
-            let location = loc.locations.first,
+            let location = destination.locations.first,
             let cachedRelays = try? relayCache.read().relays
         else { return nil }
         let locatedRelays = RelayWithLocation.locateRelays(
@@ -61,7 +67,7 @@ struct DestinationDescriber: DestinationDescribing {
         return describeRelayLocation(location, usingRelayWithLocation: matchingRelay.serverLocation)
     }
 
-    func describe(_ loc: UserSelectedRelays) -> String? {
-        customListDescription(loc) ?? relayDescription(loc)
+    func describe(_ destination: UserSelectedRelays) -> String? {
+        customListDescription(destination) ?? relayDescription(destination)
     }
 }
