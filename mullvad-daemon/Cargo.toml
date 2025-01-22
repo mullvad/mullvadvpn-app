@@ -44,7 +44,7 @@ talpid-time = { path = "../talpid-time" }
 talpid-types = { path = "../talpid-types" }
 talpid-routing = { path = "../talpid-routing" }
 
-leak-checker = { path = "../leak-checker" }
+leak-checker = { path = "../leak-checker", default-features = false }
 
 clap = { workspace = true }
 log-panics = "2.0.0"

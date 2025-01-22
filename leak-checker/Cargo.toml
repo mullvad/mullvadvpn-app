@@ -7,17 +7,22 @@ license.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 
+[features]
+default = ["am-i-mullvad"]
+am-i-mullvad = ["dep:reqwest"]
+
 [dependencies]
 log.workspace = true
 anyhow.workspace = true
 socket2 = { workspace = true, features = ["all"] }
-pnet_packet = "0.35.0"
+pnet_packet.workspace = true
 pretty_env_logger = "0.5.0"
 tokio = { workspace = true, features = ["macros", "time", "rt", "sync", "net"] }
 futures.workspace = true
 serde = { workspace = true, features = ["derive"] }
-reqwest = { version = "0.12.9", default-features = false, features = ["json", "rustls-tls"] }
 clap = { workspace = true, features = ["derive"] }
+
+reqwest = { version = "0.12.9", optional = true, default-features = false, features = ["json", "rustls-tls"] }
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }

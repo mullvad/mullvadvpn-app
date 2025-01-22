@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use leak_checker::{am_i_mullvad::AmIMullvadOpt, traceroute::TracerouteOpt};
+use leak_checker::traceroute::TracerouteOpt;
 
 #[derive(Parser)]
 pub struct Opt {
@@ -13,7 +13,8 @@ pub enum LeakMethod {
     Traceroute(#[clap(flatten)] TracerouteOpt),
 
     /// Ask `am.i.mullvad.net` whether you are leaking.
-    AmIMullvad(#[clap(flatten)] AmIMullvadOpt),
+    #[cfg(feature = "am-i-mullvad")]
+    AmIMullvad(#[clap(flatten)] leak_checker::am_i_mullvad::AmIMullvadOpt),
 }
 
 #[tokio::main]
@@ -27,6 +28,7 @@ async fn main() -> anyhow::Result<()> {
 
     let leak_status = match &opt.method {
         LeakMethod::Traceroute(opt) => leak_checker::traceroute::run_leak_test(opt).await,
+        #[cfg(feature = "am-i-mullvad")]
         LeakMethod::AmIMullvad(opt) => leak_checker::am_i_mullvad::run_leak_test(opt).await,
     };
 
