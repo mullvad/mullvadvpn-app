@@ -612,10 +612,6 @@ msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr ""
 
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr ""
-
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
 msgstr ""
@@ -2627,6 +2623,9 @@ msgid "Reset to default"
 msgstr ""
 
 msgid "Search"
+msgstr ""
+
+msgid "See full changelog"
 msgstr ""
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."

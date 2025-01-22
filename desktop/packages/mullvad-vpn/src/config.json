@@ -4,8 +4,7 @@
     "purchase": "https://mullvad.net/account/",
     "faq": "https://mullvad.net/help/tag/mullvad-app/",
     "privacyGuide": "https://mullvad.net/help/first-steps-towards-online-privacy/",
-    "download": "https://mullvad.net/download/vpn/",
-    "changelog": "https://github.com/mullvad/mullvadvpn-app/blob/main/CHANGELOG.md"
+    "download": "https://mullvad.net/download/vpn/"
   },
   "colors": {
     "darkerBlue": "rgba(25, 38, 56, 0.95)",
