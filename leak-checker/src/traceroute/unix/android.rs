@@ -14,7 +14,8 @@ impl Traceroute for TracerouteAndroid {
         interface: &Interface,
         ip_version: Ip,
     ) -> anyhow::Result<()> {
-        // can't use the same method as desktop-linux here beacuse reasons
+        // We do not have permission to bind directly to an interface on Android,
+        // unlike desktop Linux. Therefore we bind to the interface IP instead.
         bind_socket_to_interface(socket, interface, ip_version)
     }
 }
