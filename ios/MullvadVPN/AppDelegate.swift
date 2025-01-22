@@ -46,6 +46,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private var migrationManager: MigrationManager!
 
     nonisolated(unsafe) private(set) var accessMethodRepository = AccessMethodRepository()
+    private(set) var appPreferences = AppPreferences()
     private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
     private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
@@ -450,10 +451,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func setupNotifications() {
         NotificationManager.shared.notificationProviders = [
+            LatestChangesNotificationProvider(appPreferences: appPreferences),
             TunnelStatusNotificationProvider(tunnelManager: tunnelManager),
             AccountExpirySystemNotificationProvider(tunnelManager: tunnelManager),
             AccountExpiryInAppNotificationProvider(tunnelManager: tunnelManager),
-            RegisteredDeviceInAppNotificationProvider(tunnelManager: tunnelManager),
+            NewDeviceNotificationProvider(tunnelManager: tunnelManager),
         ]
         UNUserNotificationCenter.current().delegate = self
     }

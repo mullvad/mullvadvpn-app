@@ -46,9 +46,16 @@ final class NotificationBannerView: UIView {
     }()
 
     private lazy var bodyStackView: UIStackView = {
-        let stackView = UIStackView(arrangedSubviews: [bodyLabel, actionButton])
+        let stackView = UIStackView(arrangedSubviews: [titleLabel, bodyLabel])
         stackView.alignment = .top
         stackView.distribution = .fill
+        stackView.axis = .vertical
+        stackView.spacing = UIStackView.spacingUseSystem
+        return stackView
+    }()
+
+    private lazy var contentStackView: UIStackView = {
+        let stackView = UIStackView(arrangedSubviews: [bodyStackView, actionButton])
         stackView.spacing = UIStackView.spacingUseSystem
         return stackView
     }()
@@ -87,11 +94,13 @@ final class NotificationBannerView: UIView {
         }
     }
 
+    var tapAction: InAppNotificationAction?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        addActionHandlers()
         addSubviews()
+        addTapHandler()
+        addActionHandlers()
         addConstraints()
     }
 
@@ -99,12 +108,22 @@ final class NotificationBannerView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private func addTapHandler() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        addGestureRecognizer(tapGesture)
+    }
+
     private func addActionHandlers() {
         actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
     }
 
+    @objc
+    private func handleTap() {
+        tapAction?.handler?()
+    }
+
     private func addSubviews() {
-        wrapperView.addConstrainedSubviews([titleLabel, indicatorView, bodyStackView])
+        wrapperView.addConstrainedSubviews([indicatorView, contentStackView])
         backgroundView.contentView.addConstrainedSubviews([wrapperView]) {
             wrapperView.pinEdgesToSuperview()
         }
@@ -114,9 +133,6 @@ final class NotificationBannerView: UIView {
     }
 
     private func addConstraints() {
-        actionButton.setContentCompressionResistancePriority(.required, for: .horizontal)
-        actionButton.setContentHuggingPriority(.required, for: .horizontal)
-
         NSLayoutConstraint.activate([
             indicatorView.bottomAnchor.constraint(equalTo: titleLabel.firstBaselineAnchor),
             indicatorView.leadingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.leadingAnchor),
@@ -125,14 +141,13 @@ final class NotificationBannerView: UIView {
             indicatorView.heightAnchor
                 .constraint(equalToConstant: UIMetrics.InAppBannerNotification.indicatorSize.height),
 
-            titleLabel.topAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.topAnchor),
-            titleLabel.leadingAnchor.constraint(equalToSystemSpacingAfter: indicatorView.trailingAnchor, multiplier: 1),
-            titleLabel.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
-
-            bodyStackView.topAnchor.constraint(equalToSystemSpacingBelow: titleLabel.bottomAnchor, multiplier: 1),
-            bodyStackView.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            bodyStackView.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            bodyStackView.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor),
+            contentStackView.topAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.topAnchor),
+            contentStackView.leadingAnchor.constraint(
+                equalToSystemSpacingAfter: indicatorView.trailingAnchor,
+                multiplier: 1
+            ),
+            contentStackView.trailingAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.trailingAnchor),
+            contentStackView.bottomAnchor.constraint(equalTo: wrapperView.layoutMarginsGuide.bottomAnchor),
         ])
     }
 
