@@ -58,21 +58,21 @@ struct SettingsViewControllerFactory {
             // Handled separately and presented as a modal.
             .failed
         case .vpnSettings:
-            makeVPNSettingsViewController()
+            makeVPNSettingsViewCoordinator()
         case .problemReport:
             makeProblemReportViewController()
         case .apiAccess:
-            makeAPIAccessViewController()
+            makeAPIAccessCoordinator()
         case .changelog:
-            makeChangelogViewController()
+            makeChangelogCoordinator()
         case .multihop:
             makeMultihopViewController()
         case .daita:
-            makeDAITAViewController()
+            makeDAITASettingsCoordinator()
         }
     }
 
-    private func makeVPNSettingsViewController() -> MakeChildResult {
+    private func makeVPNSettingsViewCoordinator() -> MakeChildResult {
         return .childCoordinator(VPNSettingsCoordinator(
             navigationController: navigationController,
             interactorFactory: interactorFactory,
@@ -87,7 +87,7 @@ struct SettingsViewControllerFactory {
         ))
     }
 
-    private func makeAPIAccessViewController() -> MakeChildResult {
+    private func makeAPIAccessCoordinator() -> MakeChildResult {
         return .childCoordinator(ListAccessMethodCoordinator(
             navigationController: navigationController,
             accessMethodRepository: accessMethodRepository,
@@ -95,7 +95,7 @@ struct SettingsViewControllerFactory {
         ))
     }
 
-    private func makeChangelogViewController() -> MakeChildResult {
+    private func makeChangelogCoordinator() -> MakeChildResult {
         return .childCoordinator(
             ChangeLogCoordinator(
                 navigationController: navigationController,
@@ -120,72 +120,14 @@ struct SettingsViewControllerFactory {
         return .viewController(host)
     }
 
-    private func makeDAITAViewController() -> MakeChildResult {
+    private func makeDAITASettingsCoordinator() -> MakeChildResult {
         let viewModel = DAITATunnelSettingsViewModel(tunnelManager: interactorFactory.tunnelManager)
-        let view = SettingsDAITAView(tunnelViewModel: viewModel)
-
-        viewModel.didFailDAITAValidation = { result in
-            showPrompt(
-                for: result.item,
-                onSave: {
-                    viewModel.value = result.setting
-                },
-                onDiscard: {}
-            )
-        }
-
-        let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString(
-            "NAVIGATION_TITLE_DAITA",
-            tableName: "Settings",
-            value: "DAITA",
-            comment: ""
-        )
-        host.view.setAccessibilityIdentifier(.daitaView)
-
-        return .viewController(host)
-    }
-
-    private func showPrompt(
-        for item: DAITASettingsPromptItem,
-        onSave: @escaping () -> Void,
-        onDiscard: @escaping () -> Void
-    ) {
-        let presentation = AlertPresentation(
-            id: "settings-daita-prompt",
-            accessibilityIdentifier: .daitaPromptAlert,
-            icon: .warning,
-            message: NSLocalizedString(
-                "SETTINGS_DAITA_ENABLE_TEXT",
-                tableName: "DAITA",
-                value: item.description,
-                comment: ""
-            ),
-            buttons: [
-                AlertAction(
-                    title: String(format: NSLocalizedString(
-                        "SETTINGS_DAITA_ENABLE_OK_ACTION",
-                        tableName: "DAITA",
-                        value: "Enable \"%@\"",
-                        comment: ""
-                    ), item.title),
-                    style: .default,
-                    accessibilityId: .daitaConfirmAlertEnableButton,
-                    handler: { onSave() }
-                ),
-                AlertAction(
-                    title: NSLocalizedString(
-                        "SETTINGS_DAITA_ENABLE_CANCEL_ACTION",
-                        tableName: "DAITA",
-                        value: "Cancel",
-                        comment: ""
-                    ),
-                    style: .default,
-                    handler: { onDiscard() }
-                ),
-            ]
+        let coordinator = DAITASettingsCoordinator(
+            navigationController: navigationController,
+            route: .settings(.daita),
+            viewModel: viewModel
         )
 
-        alertPresenter.showAlert(presentation: presentation, animated: true)
+        return .childCoordinator(coordinator)
     }
 }

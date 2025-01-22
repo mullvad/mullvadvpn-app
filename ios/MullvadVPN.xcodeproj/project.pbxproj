@@ -486,6 +486,7 @@
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
 		7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307AD82A8CD8DA0017618B /* Duration.swift */; };
 		7A307ADB2A8F56DF0017618B /* Duration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */; };
+		7A3215742D3E5A85005DF395 /* DAITASettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3215732D3E5A7B005DF395 /* DAITASettingsCoordinator.swift */; };
 		7A33538F2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A33538E2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift */; };
 		7A3353912AAA014400F0A71C /* SimulatorVPNConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353902AAA014400F0A71C /* SimulatorVPNConnection.swift */; };
 		7A3353932AAA089000F0A71C /* SimulatorTunnelInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3353922AAA089000F0A71C /* SimulatorTunnelInfo.swift */; };
@@ -1891,6 +1892,7 @@
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
 		7A307AD82A8CD8DA0017618B /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
 		7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+Extensions.swift"; sourceTree = "<group>"; };
+		7A3215732D3E5A7B005DF395 /* DAITASettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsCoordinator.swift; sourceTree = "<group>"; };
 		7A33538E2AA9FF1600F0A71C /* SimulatorTunnelProviderManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelProviderManager.swift; sourceTree = "<group>"; };
 		7A3353902AAA014400F0A71C /* SimulatorVPNConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorVPNConnection.swift; sourceTree = "<group>"; };
 		7A3353922AAA089000F0A71C /* SimulatorTunnelInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimulatorTunnelInfo.swift; sourceTree = "<group>"; };
@@ -4087,6 +4089,7 @@
 		7A8A19082CE5FFD7000BCB5B /* DAITA */ = {
 			isa = PBXGroup;
 			children = (
+				7A3215732D3E5A7B005DF395 /* DAITASettingsCoordinator.swift */,
 				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsViewModel.swift */,
 				7A8A19092CE5FFDF000BCB5B /* SettingsDAITAView.swift */,
@@ -5987,6 +5990,7 @@
 				588D7EDC2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift in Sources */,
 				588D7ED62AF3903F005DF40A /* ListAccessMethodViewController.swift in Sources */,
 				7A8A190E2CEB77C1000BCB5B /* SettingsRowViewFooter.swift in Sources */,
+				7A3215742D3E5A85005DF395 /* DAITASettingsCoordinator.swift in Sources */,
 				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
