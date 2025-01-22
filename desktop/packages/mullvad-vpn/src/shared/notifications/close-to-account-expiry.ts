@@ -1,8 +1,8 @@
 import { sprintf } from 'sprintf-js';
 
-import { links } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { closeToExpiry, formatRemainingTime } from '../account-expiry';
+import { links } from '../constants';
 import {
   InAppNotification,
   InAppNotificationProvider,

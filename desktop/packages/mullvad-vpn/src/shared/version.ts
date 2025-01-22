@@ -1,4 +1,4 @@
-import { links } from '../config.json';
+import { links } from './constants';
 
 export function getDownloadUrl(suggestedIsBeta: boolean): string {
   let url = links.download;
