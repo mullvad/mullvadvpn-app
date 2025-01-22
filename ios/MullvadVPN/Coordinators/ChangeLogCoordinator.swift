@@ -12,14 +12,21 @@ import SwiftUI
 import UIKit
 
 final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordinator {
-    private var navigationController: UINavigationController?
+    private let route: AppRoute
     private let viewModel: ChangeLogViewModel
+    private var navigationController: UINavigationController?
+    var didFinish: ((ChangeLogCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
-        return navigationController!
+        navigationController!
     }
 
-    init(navigationController: UINavigationController, viewModel: ChangeLogViewModel) {
+    init(
+        route: AppRoute,
+        navigationController: UINavigationController,
+        viewModel: ChangeLogViewModel
+    ) {
+        self.route = route
         self.viewModel = viewModel
         self.navigationController = navigationController
     }
@@ -33,8 +40,30 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
             value: "What's new",
             comment: ""
         )
-        changeLogViewController.navigationItem.largeTitleDisplayMode = .always
-        navigationController?.navigationBar.prefersLargeTitles = true
+
+        switch route {
+        case .changelog:
+            let barButtonItem = UIBarButtonItem(
+                title: NSLocalizedString(
+                    "CHANGELOG_NAVIGATION_DONE_BUTTON",
+                    tableName: "Changelog",
+                    value: "Done",
+                    comment: ""
+                ),
+                primaryAction: UIAction { [weak self] _ in
+                    guard let self else { return }
+                    didFinish?(self)
+                }
+            )
+            barButtonItem.style = .done
+            changeLogViewController.navigationItem.rightBarButtonItem = barButtonItem
+            fallthrough
+        case .settings:
+            changeLogViewController.navigationItem.largeTitleDisplayMode = .always
+            navigationController?.navigationBar.prefersLargeTitles = true
+        default: break
+        }
+
         navigationController?.pushViewController(changeLogViewController, animated: animated)
     }
 }

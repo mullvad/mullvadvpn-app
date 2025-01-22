@@ -24,7 +24,10 @@ struct InAppNotificationDescriptor: Equatable {
     var body: NSAttributedString
 
     /// Notification action.
-    var action: InAppNotificationAction?
+    var button: InAppNotificationAction?
+
+    /// Notification tap action (optional).
+    var tapAction: InAppNotificationAction?
 }
 
 /// Type describing a specific in-app notification action.

@@ -296,11 +296,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             }
         }
 
-        // Change log can be presented simultaneously with other routes.
-        if !appPreferences.hasSeenLastChanges {
-            routes.append(.changelog)
-        }
-
         return routes
     }
 
@@ -336,14 +331,18 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     private func presentChangeLog(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = ChangeLogCoordinator(
+            route: .changelog,
             navigationController: CustomNavigationController(),
             viewModel: ChangeLogViewModel(changeLogReader: ChangeLogReader())
         )
 
+        coordinator.didFinish = { [weak self] _ in
+            self?.router.dismiss(.changelog, animated: animated)
+        }
+
         coordinator.start(animated: false)
 
-        presentChild(coordinator, animated: animated) { [weak self] in
-            self?.appPreferences.markChangeLogSeen()
+        presentChild(coordinator, animated: animated) {
             completion(coordinator)
         }
     }
@@ -820,6 +819,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         case .accountExpiryInAppNotification:
             isPresentingAccountExpiryBanner = false
             updateDeviceInfo(deviceState: tunnelManager.deviceState)
+        case .latestChangesInAppNotificationProvider:
+            router.present(.changelog)
         default: return
         }
     }
@@ -835,16 +836,4 @@ extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
-}
-
-fileprivate extension AppPreferencesDataSource {
-    var hasSeenLastChanges: Bool {
-        lastSeenChangeLogVersion == Bundle.main.shortVersion
-    }
-
-    mutating func markChangeLogSeen() {
-        lastSeenChangeLogVersion = Bundle.main.shortVersion
-    }
-
-    // swiftlint:disable:next file_length
 }
