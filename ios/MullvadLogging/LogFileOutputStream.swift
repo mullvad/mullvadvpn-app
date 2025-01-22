@@ -9,10 +9,6 @@
 import Foundation
 import MullvadTypes
 
-/// Interval used for reopening the log file descriptor in the event of failure to open it in
-/// the first place, or when writing to it.
-private let reopenFileLogInterval: Duration = .seconds(5)
-
 class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
     private let queue = DispatchQueue(label: "LogFileOutputStreamQueue", qos: .utility)
 
@@ -23,7 +19,11 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
     private let fileHeader: String
     private let fileSizeLimit: UInt64
     private var partialFileSizeCounter: UInt64 = 0
-    private var partialFileNameCounter = 1
+    private let newLineChunkReadSize: Int
+
+    /// Interval used for reopening the log file descriptor in the event of failure to open it in
+    /// the first place, or when writing to it.
+    private let reopenFileLogInterval: Duration
 
     private var state: State = .closed {
         didSet {
@@ -40,6 +40,9 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
         }
     }
 
+    /// Shorthand to get the file header in a `Data` writeable format
+    private var headerData: Data { "\(fileHeader)\n".data(using: encoding, allowLossyConversion: true)! }
+
     private var timer: DispatchSourceTimer?
     private var buffer = Data()
 
@@ -54,13 +57,17 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
         header: String,
         fileSizeLimit: UInt64 = ApplicationConfiguration.logMaximumFileSize,
         encoding: String.Encoding = .utf8,
-        maxBufferCapacity: Int = 16 * 1024
+        maxBufferCapacity: Int = 16 * 1024,
+        reopenFileLogInterval: Duration = .seconds(5),
+        newLineChunkReadSize: Int = 35
     ) {
         self.fileURL = fileURL
         self.fileHeader = header
         self.fileSizeLimit = fileSizeLimit
         self.encoding = encoding
         self.maximumBufferCapacity = maxBufferCapacity
+        self.reopenFileLogInterval = reopenFileLogInterval
+        self.newLineChunkReadSize = newLineChunkReadSize
 
         baseFileURL = fileURL.deletingPathExtension()
     }
@@ -83,6 +90,7 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
     }
 
     private func writeOnQueue(_ string: String) {
+        dispatchPrecondition(condition: .onQueue(queue))
         guard let data = string.data(using: encoding) else { return }
 
         switch state {
@@ -122,37 +130,38 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
 
         let predictedFileSize = partialFileSizeCounter + incomingDataSize
 
-        // Rotate file if threshold has been met, then rerun the write operation.
-        guard predictedFileSize <= fileSizeLimit else {
-            try rotateFile(handle: fileHandle)
-            write(String(data: data, encoding: encoding) ?? "")
-            return
+        // Truncate file in half if threshold has been met, otherwise just write.
+        if predictedFileSize >= fileSizeLimit {
+            try truncateFileInHalf(fileHandle: fileHandle)
         }
 
-        let bytesWritten = data.withUnsafeBytes { buffer -> Int in
-            guard let ptr = buffer.baseAddress else { return 0 }
+        try fileHandle.write(contentsOf: data)
 
-            return Darwin.write(fileHandle.fileDescriptor, ptr, buffer.count)
-        }
-
-        if bytesWritten == -1 {
-            let code = POSIXErrorCode(rawValue: errno)!
-            throw POSIXError(code)
-        }
-
-        partialFileSizeCounter += UInt64(bytesWritten)
+        partialFileSizeCounter += UInt64(data.count)
     }
 
-    private func rotateFile(handle: FileHandle) throws {
-        try handle.close()
+    private func truncateFileInHalf(fileHandle: FileHandle) throws {
+        guard fileSizeLimit > 0 else { return }
+        let fileCenterOffset = UInt64(fileSizeLimit / 2)
 
-        state = .closed
-        partialFileSizeCounter = 0
-        fileURL = try incrementFileName()
+        try fileHandle.seek(toOffset: fileCenterOffset)
+
+        /// Advance the file offset to the next line (delimited by a \n) to make the log
+        /// truncation appear more user friendly by not potentially cutting a log line in half
+        try fileHandle.readUntilNextLineBreak(readSize: UInt64(newLineChunkReadSize), sizeLimit: fileSizeLimit)
+
+        let fileLastHalf = fileHandle.availableData
+        print("read to end:\(String(data: fileLastHalf, encoding: .utf8)!)")
+
+        try fileHandle.truncate(atOffset: 0)
+        try fileHandle.write(contentsOf: headerData)
+        try fileHandle.write(contentsOf: fileLastHalf)
+
+        partialFileSizeCounter = UInt64(headerData.count + fileLastHalf.count)
     }
 
     private func openFile() throws -> FileHandle {
-        let oflag: Int32 = O_WRONLY | O_CREAT
+        let oflag: Int32 = O_RDWR | O_CREAT
         let mode: mode_t = S_IRUSR | S_IWUSR | S_IRGRP | S_IROTH
 
         let fd = fileURL.path.withCString { Darwin.open($0, oflag, mode) }
@@ -189,10 +198,7 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
     private func openFileWithHeader(_ header: String) throws -> FileHandle {
         let fileHandle = try openFile()
 
-        let messageData =
-            "\(header)\n"
-                .data(using: encoding, allowLossyConversion: true)!
-        try write(fileHandle: fileHandle, data: messageData)
+        try write(fileHandle: fileHandle, data: headerData)
 
         return fileHandle
     }
@@ -222,14 +228,31 @@ class LogFileOutputStream: TextOutputStream, @unchecked Sendable {
             buffer.removeFirst(buffer.count - maximumBufferCapacity)
         }
     }
+}
 
-    private func incrementFileName() throws -> URL {
-        partialFileNameCounter += 1
+fileprivate extension FileHandle {
+    /// Reads into the file until the next "\n" is reached.
+    ///
+    /// The file pointer will be set to the offset after the first "\n"
+    /// character encountered. If the attempted read would go past
+    /// the `sizeLimit` no reads are attempted and the file pointer
+    /// will not be moved.
+    ///
+    func readUntilNextLineBreak(readSize: UInt64, sizeLimit: UInt64) throws {
+        let currentOffset = try offset()
+        // Ignore Integer overflow checks, files would not reach that size in the first place
+        // Do not try to read past the end of the file
+        guard currentOffset + readSize <= sizeLimit else { return }
+        let readBytes = try read(upToCount: Int(readSize))
 
-        if let url = URL(string: baseFileURL.relativePath + "_\(partialFileNameCounter).log") {
-            return url
+        // Find the first instance of the "\n" character
+        if let newLineIndex = readBytes?.firstIndex(of: 10) {
+            let offsetAfterNewLine = currentOffset + UInt64(newLineIndex) + 1
+            try seek(toOffset: offsetAfterNewLine)
+            return
         } else {
-            throw POSIXError(.ENOENT)
+            // Keep reading until either a "\n" character, or the end of the file are found
+            try readUntilNextLineBreak(readSize: readSize, sizeLimit: sizeLimit)
         }
     }
 }
