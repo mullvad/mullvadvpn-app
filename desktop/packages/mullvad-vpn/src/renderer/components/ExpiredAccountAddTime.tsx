@@ -3,8 +3,8 @@ import { useParams } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { links } from '../../config.json';
 import { formatDate } from '../../shared/account-expiry';
+import { links } from '../../shared/constants';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';

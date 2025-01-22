@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
-import { links } from '../../config.json';
 import { formatDate, hasExpired } from '../../shared/account-expiry';
+import { links } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
