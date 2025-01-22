@@ -58,7 +58,6 @@ public struct RelayWithLocation<T: AnyRelay> {
         relays: [T],
         locations: [String: REST.ServerLocation]
     ) -> [RelayWithLocation<T>] {
-        /// thiis used to be `RelaySelector.mapRelays`
         relays.compactMap { RelayWithLocation($0, locations: locations) }
     }
 }
