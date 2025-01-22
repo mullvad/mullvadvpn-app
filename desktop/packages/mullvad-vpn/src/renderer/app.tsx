@@ -293,16 +293,16 @@ export default class AppRenderer {
             <StyleSheetManager enableVendorPrefixes>
               <Lang>
                 <Router history={this.history.asHistory}>
-                  <ErrorBoundary>
-                    <ModalContainer>
-                      <KeyboardNavigation>
-                        <Theme>
+                  <Theme>
+                    <ErrorBoundary>
+                      <ModalContainer>
+                        <KeyboardNavigation>
                           <AppRouter />
-                        </Theme>
-                      </KeyboardNavigation>
-                      {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-                    </ModalContainer>
-                  </ErrorBoundary>
+                        </KeyboardNavigation>
+                        {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
+                      </ModalContainer>
+                    </ErrorBoundary>
+                  </Theme>
                 </Router>
               </Lang>
             </StyleSheetManager>
