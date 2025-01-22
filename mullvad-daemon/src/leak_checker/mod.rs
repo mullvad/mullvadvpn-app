@@ -24,6 +24,7 @@ enum TaskEvent {
     AddCallback(Box<dyn LeakCheckerCallback>),
 }
 
+#[derive(PartialEq, Eq)]
 pub enum CallbackResult {
     /// Callback completed successfully
     Ok,
@@ -145,9 +146,8 @@ impl Task {
 
             log::debug!("Leak detected: {leak_info:?}");
 
-            for callback in &mut self.callbacks {
-                callback.on_leak(leak_info.clone());
-            }
+            self.callbacks
+                .retain_mut(|callback| callback.on_leak(leak_info.clone()) == CallbackResult::Ok);
 
             break 'leak_test;
         }
