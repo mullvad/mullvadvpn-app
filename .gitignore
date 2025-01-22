@@ -14,6 +14,8 @@
 /dist-assets/mullvad-setup.exe
 /dist-assets/mullvad-problem-report
 /dist-assets/mullvad-problem-report.exe
+/dist-assets/libwg.dll
+/dist-assets/maybenot_ffi.dll
 /dist-assets/libtalpid_openvpn_plugin.dylib
 /dist-assets/libtalpid_openvpn_plugin.so
 /dist-assets/talpid_openvpn_plugin.dll
