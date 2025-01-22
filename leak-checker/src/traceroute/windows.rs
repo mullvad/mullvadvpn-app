@@ -71,7 +71,9 @@ pub async fn traceroute_using_ping(opt: &TracerouteOpt) -> anyhow::Result<LeakSt
                 .and_then(|(.., s)| s.split_once(": TTL expired"))
                 .with_context(output_err)?;
 
-            let ip: IpAddr = ip.parse().unwrap();
+            let ip: IpAddr = ip
+                .parse()
+                .context("`ping.exe` outputted an invalid IP address")?;
 
             anyhow::Ok(Some(ip))
         });
