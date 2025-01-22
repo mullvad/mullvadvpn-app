@@ -1,11 +1,5 @@
 {
   "supportEmail": "support@mullvadvpn.net",
-  "links": {
-    "purchase": "https://mullvad.net/account/",
-    "faq": "https://mullvad.net/help/tag/mullvad-app/",
-    "privacyGuide": "https://mullvad.net/help/first-steps-towards-online-privacy/",
-    "download": "https://mullvad.net/download/vpn/"
-  },
   "strings": {
     "wireguard": "WireGuard",
     "openvpn": "OpenVPN",

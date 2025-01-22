@@ -1,5 +1,5 @@
-import { links } from '../../config.json';
 import { hasExpired } from '../account-expiry';
+import { links } from '../constants';
 import { TunnelState } from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
