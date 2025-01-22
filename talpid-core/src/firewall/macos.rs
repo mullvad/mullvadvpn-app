@@ -427,9 +427,6 @@ impl Firewall {
 
                 rules.push(self.get_allow_relay_rule(peer_endpoint)?);
 
-                // TODO: do we need this?
-                //rules.push(self.get_block_relay_rule(peer_endpoint)?);
-
                 // Important to block DNS *before* we allow the tunnel and allow LAN. So DNS
                 // can't leak to the wrong IPs in the tunnel or on the LAN.
                 rules.append(&mut self.get_block_dns_rules()?);
@@ -590,17 +587,6 @@ impl Firewall {
         if !relay_endpoint.clients.allow_all() {
             builder.user(Uid::from(super::ROOT_UID));
         }
-
-        builder.build()
-    }
-
-    /// Block traffic to relay_endpoint ip. Should come after [Self::get_allow_relay_rule].
-    fn get_block_relay_rule(&self, relay_endpoint: &AllowedEndpoint) -> Result<pfctl::FilterRule> {
-        let mut builder = self.create_rule_builder(FilterRuleAction::Drop(DropAction::Return));
-        builder
-            .direction(pfctl::Direction::Out)
-            .to(relay_endpoint.endpoint.address.ip())
-            .quick(true);
 
         builder.build()
     }
