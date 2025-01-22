@@ -47,6 +47,25 @@ The above example will set the locations for the test `test_daita` to a custom l
 containing `se-got-wg-001` and `se-got-wg-002`. The `*` is a wildcard that will match
 any test name. The configuration is read from top-to-bottom, and the first match will be used.
 
+### Test location currently used by the GitHub end to end-test workflow
+
+Below is a copy of the test location setting currently used by the machines that
+run the GitHub workflow for desktop end to end tests. Make sure to keep it updated!
+
+```json
+{
+  "test_locations": [
+    { "test_wireguard_over_shadowsocks": ["se-got"] },
+    { "test_multihop": ["se-got"] },
+    { "test_quantum_resistant_tunnel": ["se-got"] },
+    { "test_quantum_resistant_multihop_udp2tcp_tunnel": ["se-got"] },
+    { "test_quantum_resistant_multihop_shadowsocks_tunnel": ["se-got"] },
+    { "test_ui_tunnel_settings": ["se-got"] },
+    { "*": ["se", "no", "fi", "dk"] }
+  ]
+}
+```
+
 ## Example configurations
 
 ### Minimal
@@ -66,36 +85,42 @@ A configuration containing one Debian 12 VM and one Windows 11 VM
 
 ```json
 {
-    "mullvad_host": "stagemole.eu",
-    "vms": {
-        "debian12": {
-          "vm_type": "qemu",
-          "image_path": "$VM_IMAGES/debian12.qcow2",
-          "os_type": "linux",
-          "package_type": "deb",
-          "architecture": "x64",
-          "provisioner": "ssh",
-          "ssh_user": "test",
-          "ssh_password": "test",
-          "disks": [],
-          "artifacts_dir": "/opt/testing",
-          "tpm": false
-        },
-        "windows11": {
-            "vm_type": "qemu",
-            "image_path": "$VM_IMAGES/windows11.qcow2",
-            "os_type": "windows",
-            "package_type": null,
-            "architecture": "x64",
-            "provisioner": "noop",
-            "ssh_user": null,
-            "ssh_password": null,
-            "disks": [
-              "$TESTRUNNER_IMAGES/windows-test-runner.img"
-            ],
-            "artifacts_dir": "E:\\",
-            "tpm": false
-        }
+  "test_locations": [
+    { "test_wireguard_over_shadowsocks": ["se-got"] },
+    { "test_multihop": ["se-got"] },
+    { "test_quantum_resistant_tunnel": ["se-got"] },
+    { "test_quantum_resistant_multihop_udp2tcp_tunnel": ["se-got"] },
+    { "test_quantum_resistant_multihop_shadowsocks_tunnel": ["se-got"] },
+    { "test_ui_tunnel_settings": ["se-got"] },
+    { "*": ["se", "no", "fi", "dk"] }
+  ],
+  "mullvad_host": "stagemole.eu",
+  "vms": {
+    "debian12": {
+      "vm_type": "qemu",
+      "image_path": "$VM_IMAGES/debian12.qcow2",
+      "os_type": "linux",
+      "package_type": "deb",
+      "architecture": "x64",
+      "provisioner": "ssh",
+      "ssh_user": "test",
+      "ssh_password": "test",
+      "disks": [],
+      "artifacts_dir": "/opt/testing",
+      "tpm": false
+    },
+    "windows11": {
+      "vm_type": "qemu",
+      "image_path": "$VM_IMAGES/windows11.qcow2",
+      "os_type": "windows",
+      "package_type": null,
+      "architecture": "x64",
+      "provisioner": "noop",
+      "ssh_user": null,
+      "ssh_password": null,
+      "disks": ["$TESTRUNNER_IMAGES/windows-test-runner.img"],
+      "artifacts_dir": "E:\\",
+      "tpm": false
     }
   }
 }
