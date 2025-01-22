@@ -14,14 +14,22 @@ extension ConnectionView {
         @ObservedObject var indicatorsViewModel: FeatureIndicatorsViewModel
         @Binding var isExpanded: Bool
 
+        @State var showDivider: Bool = false
+
         @State private var scrollViewHeight: CGFloat = 0
 
         var body: some View {
             VStack(spacing: 16) {
                 Divider()
                     .background(UIColor.secondaryTextColor.color)
-                    .showIf(isExpanded)
-
+                    .apply {
+                        if #available(iOS 16.0, *) {
+                            $0.transition(.push(from: .top))
+                        } else {
+                            $0.transition(.opacity.combined(with: .move(edge: .bottom)))
+                        }
+                    }
+                    .showIf(showDivider)
                 ScrollView {
                     VStack(spacing: 16) {
                         FeatureIndicatorsView(
@@ -31,15 +39,38 @@ extension ConnectionView {
                         .showIf(!indicatorsViewModel.chips.isEmpty)
 
                         DetailsView(viewModel: connectionViewModel)
-                            .showIf(isExpanded)
+                            .showIf(showDivider)
+                            .apply {
+                                if #available(iOS 16.0, *) {
+                                    $0.transition(.push(from: .top))
+                                } else {
+                                    $0.transition(.opacity.combined(with: .move(edge: .bottom)))
+                                }
+                            }
                     }
-                    .sizeOfView { scrollViewHeight = $0.height }
+                    .sizeOfView { view in
+                        withAnimation(.default) {
+                            scrollViewHeight = view.height
+                        }
+                    }
                 }
                 .frame(maxHeight: scrollViewHeight)
                 .onTapGesture {
                     // If this callback is not set the child views will not reliably register tap events.
                     // This is a bug in iOS 16 and 17, but seemingly fixed in 18. Once we set the lowest
                     // supported version to iOS 18 we can probably remove it.
+                }
+                .apply {
+                    if #available(iOS 16.4, *) {
+                        $0.scrollBounceBehavior(.basedOnSize)
+                    } else {
+                        $0
+                    }
+                }
+            }
+            .onChange(of: isExpanded) { newValue in
+                withAnimation {
+                    showDivider = newValue
                 }
             }
         }
@@ -53,5 +84,17 @@ extension ConnectionView {
             indicatorsViewModel: indicatorModel,
             isExpanded: isExpanded
         )
+    }
+}
+
+#Preview("ConnectionView (Indicators)") {
+    ConnectionViewComponentPreview(showIndicators: true, isExpanded: true) { indicatorModel, viewModel, _ in
+        ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
+    }
+}
+
+#Preview("ConnectionView (No indicators)") {
+    ConnectionViewComponentPreview(showIndicators: false, isExpanded: true) { indicatorModel, viewModel, _ in
+        ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
     }
 }

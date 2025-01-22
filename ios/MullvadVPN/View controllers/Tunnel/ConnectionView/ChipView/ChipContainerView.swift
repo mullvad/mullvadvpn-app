@@ -40,7 +40,11 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
 
                 Spacer()
             }
-            .sizeOfView { chipContainerHeight = $0.height }
+            .sizeOfView { size in
+                withAnimation {
+                    chipContainerHeight = size.height
+                }
+            }
         }
         .frame(height: chipContainerHeight)
         .padding(.vertical, -(verticalPadding - 1)) // Remove extra padding from chip views on top and bottom.
