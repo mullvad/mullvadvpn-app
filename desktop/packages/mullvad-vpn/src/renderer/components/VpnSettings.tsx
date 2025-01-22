@@ -2,7 +2,7 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../config.json';
+import { strings } from '../../shared/constants';
 import { IDnsOptions, TunnelProtocol, wrapConstraint } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
