@@ -1032,7 +1032,8 @@ impl Daemon {
             #[cfg(any(windows, target_os = "android", target_os = "macos"))]
             ExcludedPathsEvent(update, tx) => self.handle_new_excluded_paths(update, tx).await,
             LeakDetected(leak_info) => {
-                log::warn!("LEAK DETECTED! AAAH: {leak_info:?}");
+                log::warn!("Network leak detected! Please contact Mullvad support.");
+                log::warn!("{leak_info:?}")
             }
         }
         should_stop
