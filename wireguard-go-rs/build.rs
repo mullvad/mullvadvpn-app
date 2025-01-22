@@ -121,11 +121,11 @@ fn build_windows_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
         .context("Failed to find target dir")?;
     build_shared_maybenot_lib(target_dir).context("Failed to build maybenot")?;
 
-    let mut go_build = Command::new("go");
-    go_build.env("CGO_ENABLED", "1").current_dir("./libwg");
-
     let dll_path = target_dir.join("libwg.dll");
+    let mut go_build = Command::new("go");
     go_build
+        .env("CGO_ENABLED", "1")
+        .current_dir("./libwg")
         .args(["build", "-v"])
         .arg("-o")
         .arg(&dll_path)
@@ -141,9 +141,11 @@ fn build_windows_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
     match target_arch {
         Arch::Amd64 => {
             go_build.env("CC", "zig cc -target x86_64-windows");
+            go_build.env("GOARCH", "amd64");
         }
         Arch::Arm64 => {
             go_build.env("CC", "zig cc -target aarch64-windows");
+            go_build.env("GOARCH", "arm64");
         }
     }
 
