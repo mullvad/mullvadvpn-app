@@ -710,6 +710,7 @@
 		85EC620C2B838D10005AFFB5 /* MullvadAPIWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85557B132B5983CF00795FE1 /* MullvadAPIWrapper.swift */; };
 		85FB5A0C2B6903990015DCED /* WelcomePage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0B2B6903990015DCED /* WelcomePage.swift */; };
 		85FB5A102B6960A30015DCED /* AccountDeletionPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 85FB5A0F2B6960A30015DCED /* AccountDeletionPage.swift */; };
+		A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */; };
 		A90763B02B2857D50045ADF0 /* Socks5ConnectCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */; };
 		A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */; };
 		A90763B22B2857D50045ADF0 /* Socks5EndpointReader.swift in Sources */ = {isa = PBXBuildFile; fileRef = A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */; };
@@ -2109,6 +2110,7 @@
 		A900E9BB2ACC609200C95F67 /* DevicesProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DevicesProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BD2ACC654100C95F67 /* APIProxy+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "APIProxy+Stubs.swift"; sourceTree = "<group>"; };
 		A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccessTokenManager+Stubs.swift"; sourceTree = "<group>"; };
+		A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogFileOutputStreamTests.swift; sourceTree = "<group>"; };
 		A90763A02B2857D50045ADF0 /* Socks5ConnectCommand.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5ConnectCommand.swift; sourceTree = "<group>"; };
 		A90763A12B2857D50045ADF0 /* Socks5Endpoint.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5Endpoint.swift; sourceTree = "<group>"; };
 		A90763A22B2857D50045ADF0 /* Socks5EndpointReader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Socks5EndpointReader.swift; sourceTree = "<group>"; };
@@ -2644,6 +2646,7 @@
 			children = (
 				44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */,
 				7AA513852BC91C6B00D081A4 /* LogRotationTests.swift */,
+				A902E7A52D3FB0D9007F844A /* LogFileOutputStreamTests.swift */,
 			);
 			path = MullvadLogging;
 			sourceTree = "<group>";
@@ -5664,6 +5667,7 @@
 				7A516C3C2B712F0B00BBD33D /* IPOverrideWrapperTests.swift in Sources */,
 				A9A5FA092ACB05160083449F /* SendStoreReceiptOperation.swift in Sources */,
 				A9A5FA0A2ACB05160083449F /* StorePaymentEvent.swift in Sources */,
+				A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */,
 				A9A5FA0B2ACB05160083449F /* StorePaymentManager.swift in Sources */,
 				A9A5FA0C2ACB05160083449F /* StorePaymentManagerDelegate.swift in Sources */,
 				A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */,
