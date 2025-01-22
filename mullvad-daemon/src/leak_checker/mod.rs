@@ -97,8 +97,6 @@ impl Task {
             let route_manager = self.route_manager.clone();
             let leak_test = async {
                 // Give the connection a little time to settle before starting the test.
-                // TODO: is this necessary? is there some better way?
-                // TODO: ether remove this or add some concrete motivation.
                 tokio::time::sleep(Duration::from_millis(5000)).await;
 
                 check_for_leaks(&route_manager, ping_destination).await
@@ -177,12 +175,11 @@ async fn check_for_leaks(
             .into()
     };
 
-    // TODO (android):
-    // Maybe connectivity monitor?
-    // It should be possible somehow. `ifconfig` can print interfaces.
-    // needs further investigation
     #[cfg(target_os = "android")]
-    let interface = todo!("get default interface");
+    let interface = {
+        // TODO: We currently don't have a way to get the non-tunnel interface on Android.
+        return Ok(None);
+    };
 
     #[cfg(target_os = "macos")]
     let interface = {
