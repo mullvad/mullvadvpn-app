@@ -13,52 +13,76 @@ extension ConnectionView {
         @ObservedObject var viewModel: ConnectionViewViewModel
         @Binding var isExpanded: Bool
 
+        @State var titleForCountryAndCity: LocalizedStringKey?
+        @State var titleForServer: LocalizedStringKey?
+
         var body: some View {
-            HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(viewModel.localizedTitleForSecureLabel)
-                        .textCase(.uppercase)
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(viewModel.textColorForSecureLabel.color)
-                        .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
-                        .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
-
-                    if let countryAndCity = viewModel.titleForCountryAndCity {
-                        Text(countryAndCity)
+            Button {
+                withAnimation {
+                    isExpanded.toggle()
+                }
+            } label: {
+                HStack(alignment: .top) {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(viewModel.localizedTitleForSecureLabel)
+                            .textCase(.uppercase)
                             .font(.title3.weight(.semibold))
-                            .foregroundStyle(UIColor.primaryTextColor.color)
-                            .padding(.top, 4)
+                            .foregroundStyle(viewModel.textColorForSecureLabel.color)
+                            .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
+                            .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
+                        if let titleForCountryAndCity {
+                            Text(titleForCountryAndCity)
+                                .font(.title3.weight(.semibold))
+                                .foregroundStyle(UIColor.primaryTextColor.color)
+                                .padding(.top, 4)
+                        }
+                        if let titleForServer {
+                            Text(titleForServer)
+                                .font(.body)
+                                .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                                .padding(.top, 2)
+                                .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelServerLabel.asString)
+                        }
                     }
 
-                    if let server = viewModel.titleForServer {
-                        Text(server)
-                            .font(.body)
-                            .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                            .padding(.top, 2)
-                            .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelServerLabel.asString)
+                    Group {
+                        Spacer()
+                        Button {
+                            withAnimation {
+                                isExpanded.toggle()
+                            }
+                        } label: {
+                            Image(.iconChevronUp)
+                                .renderingMode(.template)
+                                .rotationEffect(isExpanded ? .degrees(-180) : .degrees(0))
+                                .foregroundStyle(.white)
+                                .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
+                        }
                     }
+                    .showIf(viewModel.showsConnectionDetails)
                 }
-
-                Group {
-                    Spacer()
-                    Image(.iconChevronUp)
-                        .renderingMode(.template)
-                        .rotationEffect(isExpanded ? .degrees(180) : .degrees(0))
-                        .foregroundStyle(.white)
-                        .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
+                .onAppear {
+                    titleForServer = viewModel.titleForServer
+                    titleForCountryAndCity = viewModel.titleForCountryAndCity
                 }
-                .showIf(viewModel.showsConnectionDetails)
+                .onChange(of: viewModel.titleForCountryAndCity, perform: { newValue in
+                    withAnimation {
+                        titleForCountryAndCity = newValue
+                    }
+                })
+                .onChange(of: viewModel.titleForServer, perform: { newValue in
+                    withAnimation {
+                        titleForServer = newValue
+                    }
+                })
             }
-            .contentShape(Rectangle())
-            .onTapGesture {
-                isExpanded.toggle()
-            }
+            .disabled(!viewModel.showsConnectionDetails)
         }
     }
 }
 
 #Preview {
-    ConnectionViewComponentPreview(showIndicators: true, isExpanded: true) { _, vm, isExpanded in
+    ConnectionViewComponentPreview(showIndicators: true) { _, vm, isExpanded in
         ConnectionView.HeaderView(viewModel: vm, isExpanded: isExpanded)
     }
 }
