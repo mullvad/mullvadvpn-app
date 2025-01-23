@@ -2324,6 +2324,13 @@ dependencies = [
 
 [[package]]
 name = "maybenot-ffi"
+version = "0.0.0"
+dependencies = [
+ "maybenot-ffi 2.0.1",
+]
+
+[[package]]
+name = "maybenot-ffi"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c0111f55c83db74f51cdb1d8ffdad16149200d936d0a227fdfe5d579318ef78"
@@ -6104,7 +6111,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "log",
- "maybenot-ffi",
+ "maybenot-ffi 0.0.0",
  "thiserror 2.0.9",
  "windows-sys 0.52.0",
  "zeroize",

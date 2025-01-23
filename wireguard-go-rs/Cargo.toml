@@ -12,12 +12,13 @@ thiserror.workspace = true
 log.workspace = true
 zeroize = "1.8.1"
 
-# The app does not depend on maybenot-ffi itself, but adds it as a dependency to expose FFI symbols to wireguard-go.
-# This is done, instead of using the makefile in wireguard-go to build maybenot-ffi into its archive, to prevent
-# name clashes induced by link-time optimization.
-# NOTE: the version of maybenot-ffi below must be the same as the version checked into the wireguard-go submodule
 [target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-maybenot-ffi = "2.0.1"
+# On platforms where maybenot and wireguard-go can be built statically (Linux and macOS) we use
+# this hack to include it. The hack is that we depend on this crate here even if neither
+# wireguard-go-rs nor its upstream dependants use it.
+# This is only here so that maybenot-ffi is built and its symbols are available to wireguard-go
+# at link time.
+maybenot-ffi = { path = "libwg/wireguard-go/maybenot-ffi" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { version = "0.52.0", features = ["Win32_Networking", "Win32_NetworkManagement", "Win32_NetworkManagement_Ndis", "Win32_Networking_WinSock"] }
