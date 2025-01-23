@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Colors, Radius, Spacings } from '../../foundations';
 import { buttonReset } from '../../styles';
-import { Flex } from '../layout';
+import { Flex } from '../flex';
 import { BodySmallSemiBold } from '../typography';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {

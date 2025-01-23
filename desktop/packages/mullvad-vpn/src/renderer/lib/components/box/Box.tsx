@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Layout, LayoutProps } from './Layout';
+import { Layout, LayoutProps } from '../layout';
 
 interface BoxProps extends LayoutProps {
   $width?: string;
