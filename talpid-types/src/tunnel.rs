@@ -87,9 +87,6 @@ pub enum ErrorStateCause {
     /// Android has rejected one or more DNS server addresses.
     #[cfg(target_os = "android")]
     InvalidDnsServers(Vec<IpAddr>),
-    /// Android routes for tunnel interface never came up.
-    #[cfg(target_os = "android")]
-    RoutesTimedOut,
     /// Failed to create tunnel device.
     #[cfg(target_os = "windows")]
     CreateTunnelDevice { os_error: Option<i32> },
@@ -111,6 +108,9 @@ pub enum ErrorStateCause {
     /// Missing permissions required by macOS split tunneling.
     #[cfg(target_os = "macos")]
     NeedFullDiskPermissions,
+    /// Timed out while waiting for routes to come up.
+    #[cfg(target_os = "android")]
+    RoutesTimedOut,
 }
 
 impl ErrorStateCause {
@@ -197,10 +197,6 @@ impl fmt::Display for ErrorStateCause {
                         .join(", ")
                 );
             }
-            #[cfg(target_os = "android")]
-            RoutesTimedOut => {
-                return write!(f, "Setting up routes times out",);
-            }
             StartTunnelError => "Failed to start connection to remote server",
             #[cfg(target_os = "windows")]
             CreateTunnelDevice {
@@ -224,6 +220,8 @@ impl fmt::Display for ErrorStateCause {
             OtherAlwaysOnApp { app_name: _ } => "Another app is set as always on",
             #[cfg(target_os = "android")]
             OtherLegacyAlwaysOnVpn => "Another legacy vpn profile is set as always on",
+            #[cfg(target_os = "android")]
+            RoutesTimedOut => "Setting up routes timed out",
         };
 
         write!(f, "{description}")

@@ -138,6 +138,25 @@ impl ConnectingState {
                         &shared_values.route_manager,
                         retry_attempt,
                     );
+
+                    // HACK: Wait for routes to come up. We only need to do this on Android because ..
+                    // If we time out waiting for the appropriate routes to come up, we should tear
+                    // down the newly set-up tunnel and enter the error state, since we can't guarantee
+                    // the tunnel to work properly.
+                    #[cfg(target_os = "android")]
+                    {
+                        // TODO: Investigate if it's a problem to call this function blockingly
+                        //android.wait_for_routes();
+                        let wait_for_routes: std::result::Result<(), ()> = Err(());
+                        if let Err(_) = wait_for_routes {
+                            drop(connecting_state);
+                            return ErrorState::enter(
+                                shared_values,
+                                ErrorStateCause::RoutesTimedOut,
+                            );
+                        }
+                    }
+
                     let params = connecting_state.tunnel_parameters.clone();
                     (
                         Box::new(connecting_state),
