@@ -29,7 +29,7 @@ extension REST {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
-        public let location: String
+        public let location: LocationIdentifier
         public let provider: String
         public let ipv4AddrIn: IPv4Address
         public let weight: UInt64
@@ -54,7 +54,7 @@ extension REST {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
-        public let location: String
+        public let location: LocationIdentifier
         public let provider: String
         public let weight: UInt64
         public let ipv4AddrIn: IPv4Address
@@ -134,11 +134,11 @@ extension REST {
     }
 
     public struct ServerRelaysResponse: Codable, Equatable, Sendable {
-        public let locations: [String: ServerLocation]
+        public let locations: [LocationIdentifier: ServerLocation]
         public let wireguard: ServerWireguardTunnels
         public let bridge: ServerBridges
 
-        public init(locations: [String: ServerLocation], wireguard: ServerWireguardTunnels, bridge: ServerBridges) {
+        public init(locations: [LocationIdentifier: ServerLocation], wireguard: ServerWireguardTunnels, bridge: ServerBridges) {
             self.locations = locations
             self.wireguard = wireguard
             self.bridge = bridge

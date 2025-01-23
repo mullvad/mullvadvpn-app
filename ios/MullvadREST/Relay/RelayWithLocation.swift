@@ -34,19 +34,17 @@ public struct RelayWithLocation<T: AnyRelay> {
         self.serverLocation = serverLocation
     }
 
-    init?(_ relay: T, locations: [String: REST.ServerLocation]) {
-        let locationComponents = relay.location.split(separator: "-")
+    init?(_ relay: T, locations: [REST.LocationIdentifier: REST.ServerLocation]) {
         guard
-            locationComponents.count > 1,
             let serverLocation = locations[relay.location]
         else { return nil }
 
         self.relay = relay
         self.serverLocation = Location(
             country: serverLocation.country,
-            countryCode: String(locationComponents[0]),
+            countryCode: String(relay.location.country),
             city: serverLocation.city,
-            cityCode: String(locationComponents[1]),
+            cityCode: String(relay.location.city),
             latitude: serverLocation.latitude,
             longitude: serverLocation.longitude
         )
@@ -56,7 +54,7 @@ public struct RelayWithLocation<T: AnyRelay> {
     /// `RelayWithLocation`values  for those whose locations have successfully been found.
     public static func locateRelays(
         relays: [T],
-        locations: [String: REST.ServerLocation]
+        locations: [REST.LocationIdentifier: REST.ServerLocation]
     ) -> [RelayWithLocation<T>] {
         relays.compactMap { RelayWithLocation($0, locations: locations) }
     }
