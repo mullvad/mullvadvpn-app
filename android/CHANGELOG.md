@@ -23,6 +23,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+## [android/2025.1] - 2025-01-22
+
+### Fixed
+- Fix a crash that could occur in the Filter screen.
+- Fix a bug that could cause the app to crash while navigating.
+
 
 ## [android/2024.10-beta2] - 2024-12-20
 
