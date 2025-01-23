@@ -218,29 +218,25 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     func startTunnel(completionHandler: ((Error?) -> Void)? = nil) {
-        nonisolated(unsafe) let nonisolatedCompletionHandler = completionHandler
-
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
             completionHandler: { [weak self] result in
                 guard let self else { return }
-                DispatchQueue.main.async {
-                    if let error = result.error {
-                        self.logger.error(
-                            error: error,
-                            message: "Failed to start the tunnel."
-                        )
+                if let error = result.error {
+                    self.logger.error(
+                        error: error,
+                        message: "Failed to start the tunnel."
+                    )
 
-                        let tunnelError = StartTunnelError(underlyingError: error)
+                    let tunnelError = StartTunnelError(underlyingError: error)
 
-                        self.observerList.notify { observer in
-                            observer.tunnelManager(self, didFailWithError: tunnelError)
-                        }
+                    self.observerList.notify { observer in
+                        observer.tunnelManager(self, didFailWithError: tunnelError)
                     }
-
-                    nonisolatedCompletionHandler?(result.error)
                 }
+
+                completionHandler?(result.error)
             }
         )
 
@@ -255,29 +251,26 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     func stopTunnel(completionHandler: ((Error?) -> Void)? = nil) {
-        nonisolated(unsafe) let nonisolatedCompletionHandler = completionHandler
         let operation = StopTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
         ) { [weak self] result in
             guard let self else { return }
 
-            DispatchQueue.main.async {
-                if let error = result.error {
-                    self.logger.error(
-                        error: error,
-                        message: "Failed to stop the tunnel."
-                    )
+            if let error = result.error {
+                self.logger.error(
+                    error: error,
+                    message: "Failed to stop the tunnel."
+                )
 
-                    let tunnelError = StopTunnelError(underlyingError: error)
+                let tunnelError = StopTunnelError(underlyingError: error)
 
-                    self.observerList.notify { observer in
-                        observer.tunnelManager(self, didFailWithError: tunnelError)
-                    }
+                self.observerList.notify { observer in
+                    observer.tunnelManager(self, didFailWithError: tunnelError)
                 }
-
-                nonisolatedCompletionHandler?(result.error)
             }
+
+            completionHandler?(result.error)
         }
 
         operation.addObserver(BackgroundObserver(
@@ -482,7 +475,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         operationQueue.addOperation(operation)
     }
 
-    func rotatePrivateKey(completionHandler: @escaping @Sendable (Error?) -> Void) -> Cancellable {
+    func rotatePrivateKey(completionHandler: @MainActor @escaping @Sendable (Error?) -> Void) -> Cancellable {
         let operation = RotateKeyOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
@@ -492,15 +485,16 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
             guard let self else { return }
+            MainActor.assumeIsolated {
+                self.updatePrivateKeyRotationTimer()
 
-            updatePrivateKeyRotationTimer()
+                let error = result.error
+                if let error {
+                    self.handleRestError(error)
+                }
 
-            let error = result.error
-            if let error {
-                handleRestError(error)
+                completionHandler(error)
             }
-
-            completionHandler(error)
         }
 
         operation.addObserver(

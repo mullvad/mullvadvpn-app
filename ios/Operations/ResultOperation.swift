@@ -10,7 +10,7 @@ import Foundation
 
 /// Base class for operations producing result.
 open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, @unchecked Sendable {
-    public typealias CompletionHandler = @Sendable (Result<Success, Error>) -> Void
+    public typealias CompletionHandler = (sending Result<Success, Error>) -> Void
 
     private let nslock = NSLock()
     private var _output: Success?
@@ -104,7 +104,7 @@ open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, 
         pendingFinish = true
 
         // Copy completion handler.
-        let completionHandler = _completionHandler
+        nonisolated(unsafe) let completionHandler = _completionHandler
 
         // Unset completion handler.
         _completionHandler = nil
@@ -118,8 +118,7 @@ open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, 
         let completionQueue = _completionQueue
         nslock.unlock()
 
-        let block: @Sendable () -> Void = {
-            // Call completion handler.
+        dispatchAsyncOn(completionQueue) {
             completionHandler?(result)
 
             var error: Error?
@@ -130,11 +129,13 @@ open class ResultOperation<Success: Sendable>: AsyncOperation, OutputOperation, 
             // Finish operation.
             super.finish(error: error)
         }
+    }
 
-        if let completionQueue {
-            completionQueue.async(execute: block)
-        } else {
+    private func dispatchAsyncOn(_ queue: DispatchQueue?, _ block: @escaping @Sendable () -> Void) {
+        guard let queue else {
             block()
+            return
         }
+        queue.async(execute: block)
     }
 }
