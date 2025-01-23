@@ -41,7 +41,6 @@ mod ephemeral;
 mod logging;
 mod obfuscation;
 mod stats;
-#[cfg(wireguard_go)]
 mod wireguard_go;
 #[cfg(target_os = "linux")]
 pub(crate) mod wireguard_kernel;
@@ -51,7 +50,6 @@ mod wireguard_nt;
 #[cfg(not(target_os = "android"))]
 mod mtu_detection;
 
-#[cfg(wireguard_go)]
 use self::wireguard_go::WgGoTunnel;
 
 // On android we only have Wireguard Go tunnel
@@ -668,8 +666,7 @@ impl WireguardMonitor {
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        let userspace_wireguard =
-            cfg!(wireguard_go) && (*FORCE_USERSPACE_WIREGUARD || config.daita);
+        let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || config.daita;
 
         if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
@@ -754,7 +751,6 @@ impl WireguardMonitor {
     }
 
     /// Configure and start a Wireguard-go tunnel.
-    #[cfg(wireguard_go)]
     fn open_wireguard_go_tunnel(
         #[cfg(windows)] runtime: tokio::runtime::Handle,
         config: &Config,
