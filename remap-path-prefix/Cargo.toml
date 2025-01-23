@@ -1,7 +1,17 @@
 [package]
 name = "remap-path-prefix"
-version = "0.1.0"
-edition = "2021"
+description = """
+Computes the rustc flag `--remap-path-prefix` arguments that are needed
+to make the build artifacts reproducible.
+"""
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
 
 [dependencies]
 home = "0.5.11"

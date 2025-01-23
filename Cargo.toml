@@ -54,7 +54,6 @@ default-members = [
     "mullvad-cli",
     "mullvad-daemon",
     "mullvad-version",
-    "remap-path-prefix",
 ]
 
 # Keep all lints in sync with `test/Cargo.toml`

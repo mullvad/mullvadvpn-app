@@ -14,7 +14,7 @@ fun Project.generateVersionName(localProperties: Properties): String {
 
 fun Project.generateRemapArguments(): String {
     return providers.exec {
-        commandLine("cargo", "run", "-q", "--bin", "remap-path-prefix")
+        commandLine("cargo", "run", "-p", "remap-path-prefix", "-q")
     }.standardOutput.asText.get().trim()
 }
 
