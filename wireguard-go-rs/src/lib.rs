@@ -29,7 +29,8 @@ pub type LoggingContext = u64;
 pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: LoggingContext);
 
-// Make symbols from maybenot-ffi visible to wireguard-go
+// Make symbols from maybenot-ffi visible to wireguard-go, on the platforms where
+// wireguard-go is statically linked into this crate.
 #[cfg(all(daita, any(target_os = "linux", target_os = "macos")))]
 use maybenot_ffi as _;
 
