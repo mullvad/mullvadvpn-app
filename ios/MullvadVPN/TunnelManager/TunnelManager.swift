@@ -485,12 +485,15 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         operation.completionQueue = .main
         operation.completionHandler = { [weak self] result in
             guard let self else { return }
+            MainActor.assumeIsolated {
+                self.updatePrivateKeyRotationTimer()
 
-            updatePrivateKeyRotationTimer()
+                let error = result.error
+                if let error {
+                    self.handleRestError(error)
+                }
 
-            let error = result.error
-            if let error {
-                handleRestError(error)
+                completionHandler(error)
             }
         }
 
