@@ -1,14 +1,14 @@
 import React, { forwardRef } from 'react';
 import styled from 'styled-components';
 
-import ImageView from '../../../components/ImageView';
 import { Colors } from '../../foundations';
 import { buttonReset } from '../../styles';
+import { Icon, IconProps } from '../icon/Icon';
 
 export interface IconButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: 'primary' | 'secondary';
-  size?: 'small' | 'medium';
+  size?: IconProps['size'];
   icon: string;
 }
 
@@ -26,14 +26,11 @@ const variants = {
 } as const;
 
 const sizes = {
-  small: 16,
-  medium: 24,
-};
-
-// TODO: This should be removed when we have updated to the new icons from design system
-const iconSizes = {
-  small: 14,
-  medium: 20,
+  small: 12,
+  medium: 16,
+  large: 24,
+  big: 32,
+  huge: 48,
 };
 
 const StyledButton = styled.button({
@@ -48,11 +45,20 @@ const StyledButton = styled.button({
   },
 });
 
+const StyledIcon = styled(Icon)<IconProps & { $hoverColor: string; $disabled?: boolean }>(
+  ({ $hoverColor, $disabled }) => ({
+    ...(!$disabled && {
+      '&&:hover': {
+        backgroundColor: $hoverColor,
+      },
+    }),
+  }),
+);
+
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
+  ({ icon, variant = 'primary', size: sizeProp = 'large', disabled, style, ...props }, ref) => {
     const styles = variants[variant];
     const size = sizes[sizeProp];
-    const iconSize = iconSizes[sizeProp];
     return (
       <StyledButton
         ref={ref}
@@ -64,13 +70,12 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
           } as React.CSSProperties
         }
         {...props}>
-        <ImageView
-          source={icon}
-          tintColor={styles.background}
-          tintHoverColor={styles.hover}
-          disabled={disabled}
-          height={iconSize}
-          width={iconSize}
+        <StyledIcon
+          src={icon}
+          color={styles.background}
+          size={sizeProp}
+          $hoverColor={styles.hover}
+          $disabled={disabled}
         />
       </StyledButton>
     );
