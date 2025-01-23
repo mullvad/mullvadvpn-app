@@ -1,14 +1,16 @@
-#![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use crate::controller;
 use libui::prelude::*;
 
-use crate::{controller, ui};
+mod delegate;
+mod ui;
 
 pub fn main() {
     let ui = UI::init().expect("Couldn't initialize UI library");
 
     let mut app_ui = ui::AppUi::new(&ui);
 
-    let _app_controller = controller::AppController::new(&ui, &app_ui);
+    let app_delegate = delegate::LibuiAppDelegate::new(&ui, &app_ui);
+    let _app_controller = controller::AppController::new(app_delegate);
 
     app_ui.window.show();
 

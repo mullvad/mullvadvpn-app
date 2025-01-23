@@ -24,10 +24,10 @@ const TOP_BACKGROUND: Brush = Brush::Solid(SolidBrush {
 });
 
 /// Logo to render in the top banner
-const LOGO_PNG: &[u8] = include_bytes!("logo.png");
+const LOGO_PNG: &[u8] = include_bytes!("../logo.png");
 
 /// Success icon
-//const SUCCESS_CHECK: &[u8] = include_bytes!("logo.png");
+//const SUCCESS_CHECK: &[u8] = include_bytes!("../logo.png");
 
 /// See the [module-level documentation](crate).
 #[derive(Clone)]
