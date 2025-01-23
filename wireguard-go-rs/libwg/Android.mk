@@ -3,7 +3,8 @@
 # Copyright © 2017-2019 WireGuard LLC. All Rights Reserved.
 
 DESTDIR ?= $(OUT_DIR)
-CARGO_TARGET_DIR ?=
+# Default to the workspace root if not set
+CARGO_TARGET_DIR ?= ../../target
 TARGET ?=
 
 NDK_GO_ARCH_MAP_x86 := 386

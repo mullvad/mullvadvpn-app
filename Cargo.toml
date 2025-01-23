@@ -44,6 +44,9 @@ members = [
     "tunnel-obfuscation",
     "wireguard-go-rs",
     "windows-installer",
+    # This crate lives in the wireguard-go submodule. We include it here to track its
+    # dependencies in our workspace lockfile.
+    "wireguard-go-rs/libwg/wireguard-go/maybenot-ffi",
 ]
 # Default members dictate what is built when running `cargo build` in the root directory.
 # This is set to a minimal set of packages to speed up the build process and avoid building
