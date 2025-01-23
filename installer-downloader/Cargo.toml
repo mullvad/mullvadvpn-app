@@ -26,9 +26,14 @@ pgp = "0.14.0"
 reqwest = { version = "0.12.9", features = ["blocking", "json"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-libui = "0.4"
-libui-ffi = "0.4"
 image = { version = "0.25.5", default-features = false, features = ["png"] }
+
+[target.'cfg(target_os = "windows")'.dependencies]
+libui = "0.4"
+
+[target.'cfg(target_os = "macos")'.dependencies]
+cacao = "0.3.2"
+nsvg = "0.5.1"
 
 [package.metadata.winres]
 LegalCopyright = "(c) 2025 Mullvad VPN AB"

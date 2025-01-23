@@ -16,6 +16,8 @@ pub struct AppController {
     app_ui: AppUi,
 }
 
+// TODO: use trait instead of AppUI?
+
 impl AppController {
     pub fn new(ui: &UI, app_ui: &AppUi) -> Self {
         let mut self_ = Self {

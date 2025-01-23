@@ -1,20 +1,20 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use libui::prelude::*;
-
 mod app;
 mod controller;
 mod fetch;
 mod ui;
 mod verify;
 
+#[cfg(target_os = "macos")]
+mod cacao_impl;
+
+#[cfg(target_os = "windows")]
+mod win_main;
+
+#[cfg(target_os = "macos")]
 fn main() {
-    let ui = UI::init().expect("Couldn't initialize UI library");
-
-    let mut app_ui = ui::AppUi::new(&ui);
-
-    let _app_controller = controller::AppController::new(&ui, &app_ui);
-
-    app_ui.window.show();
-
-    ui.main();
+    #[cfg(target_os = "macos")]
+    cacao_impl::main();
+    #[cfg(target_os = "windows")]
+    win_main::main();
 }
