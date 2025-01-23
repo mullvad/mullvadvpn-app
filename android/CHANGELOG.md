@@ -26,7 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 ## [android/2025.1] - 2025-01-22
 
 ### Fixed
-- Fix a crash that could occur in the Filter screen.
+- Fix a crash that would occur because a Provider would be listed twice in the filter screen.
 - Fix a bug that could cause the app to crash while navigating.
 
 
@@ -47,9 +47,6 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Update to DAITA v2. The main difference is that many different machines are provided by relays
   instead of a bundled list.
-
-### Fixed
-- Fix a crash that would occur because a Provider would be listed twice in the filter screen.
 
 
 ## [android/2024.9] - 2024-12-09
