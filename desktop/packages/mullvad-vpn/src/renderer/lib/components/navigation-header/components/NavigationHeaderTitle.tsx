@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { TitleMedium } from '../../../typography';
 import { useNavigationHeader } from '../NavigationHeaderContext';
+import { TitleMedium } from '../../typography';
 
 export interface NavigationHeaderTitleProps {
   children: React.ReactNode;

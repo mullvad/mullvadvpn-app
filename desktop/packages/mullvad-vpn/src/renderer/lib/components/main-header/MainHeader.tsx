@@ -1,9 +1,9 @@
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../../../foundations';
-import { TransientProps } from '../../../types';
-import { Flex } from '../../layout';
 import { MainHeaderIconButton } from './components';
+import { Colors, Spacings } from '../../foundations';
+import { TransientProps } from '../../types';
+import { Flex } from '../flex';
 
 export type HeaderProps = React.PropsWithChildren<{
   size?: '1' | '2';

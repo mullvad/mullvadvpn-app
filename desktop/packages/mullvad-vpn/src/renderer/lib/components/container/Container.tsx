@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Spacings } from '../../foundations';
-import { Flex, FlexProps } from './Flex';
+import { FlexProps, Flex } from '../flex';
 
 export interface ContainerProps extends FlexProps {
   size?: '3' | '4';
