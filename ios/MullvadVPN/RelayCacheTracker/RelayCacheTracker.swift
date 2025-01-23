@@ -16,7 +16,7 @@ import UIKit
 protocol RelayCacheTrackerProtocol: Sendable {
     func startPeriodicUpdates()
     func stopPeriodicUpdates()
-    func updateRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
+    func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable
     func getCachedRelays() throws -> CachedRelays
     func getNextUpdateDate() -> Date
     func addObserver(_ observer: RelayCacheTrackerObserver)
@@ -164,7 +164,7 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
         timerSource = nil
     }
 
-    func updateRelays(completionHandler: (@Sendable (Result<RelaysFetchResult, Error>) -> Void)? = nil)
+    func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)? = nil)
         -> Cancellable {
         let operation = ResultBlockOperation<RelaysFetchResult> { finish in
             let cachedRelays = try? self.getCachedRelays()
