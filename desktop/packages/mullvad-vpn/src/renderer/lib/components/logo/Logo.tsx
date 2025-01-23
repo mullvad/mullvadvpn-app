@@ -1,6 +1,6 @@
-import ImageView from '../../../../components/ImageView';
-import { Spacings } from '../../../foundations';
-import { Flex } from '../../layout';
+import ImageView from '../../../components/ImageView';
+import { Spacings } from '../../foundations';
+import { Flex } from '../flex';
 
 export interface LogoProps {
   variant?: 'icon' | 'text' | 'both';
