@@ -213,7 +213,7 @@ const fn get_platform() -> proto::DaitaPlatform {
     use proto::DaitaPlatform;
     const PLATFORM: DaitaPlatform = if cfg!(target_os = "windows") {
         // FIXME: wggo
-        DaitaPlatform::WindowsNative
+        DaitaPlatform::LinuxWgGo
     } else if cfg!(target_os = "linux") {
         DaitaPlatform::LinuxWgGo
     } else if cfg!(target_os = "macos") {
