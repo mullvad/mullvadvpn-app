@@ -18,8 +18,6 @@ use std::{
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
 };
-#[cfg(any(target_os = "linux", target_os = "windows"))]
-use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
 #[cfg(not(windows))]
@@ -149,10 +147,10 @@ pub struct WireguardMonitor {
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
-#[cfg(any(target_os = "linux", target_os = "windows"))]
+#[cfg(not(target_os = "android"))]
 /// Overrides the preference for the kernel module for WireGuard.
-static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
-    env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
+static FORCE_USERSPACE_WIREGUARD: std::sync::LazyLock<bool> = std::sync::LazyLock::new(|| {
+    std::env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
         .map(|v| v != "0")
         .unwrap_or(false)
 });
@@ -670,86 +668,88 @@ impl WireguardMonitor {
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        #[cfg(target_os = "linux")]
-        if !*FORCE_USERSPACE_WIREGUARD {
-            // If DAITA is enabled, wireguard-go has to be used.
-            if config.daita {
-                let tunnel =
-                    Self::open_wireguard_go_tunnel(config, log_path, tun_provider).map(Box::new)?;
-                return Ok(tunnel);
-            }
+        let userspace_wireguard =
+            cfg!(wireguard_go) && (*FORCE_USERSPACE_WIREGUARD || config.daita);
 
-            if will_nm_manage_dns() {
-                match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
-                    Ok(tunnel) => {
-                        log::debug!("Using NetworkManager to use kernel WireGuard implementation");
-                        return Ok(Box::new(tunnel));
-                    }
-                    Err(err) => {
-                        log::error!(
-                            "{}",
-                            err.display_chain_with_msg(
-                                "Failed to initialize WireGuard tunnel via NetworkManager"
-                            )
-                        );
-                    }
-                };
-            } else {
-                match wireguard_kernel::NetlinkTunnel::new(runtime, config) {
-                    Ok(tunnel) => {
-                        log::debug!("Using kernel WireGuard implementation");
-                        return Ok(Box::new(tunnel));
-                    }
-                    Err(error) => {
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg(
-                                "Failed to setup kernel WireGuard device, falling back to the userspace implementation"
-                            )
-                        );
-                    }
-                };
-            }
-        }
-
-        #[cfg(target_os = "windows")]
-        {
-            #[cfg(wireguard_go)]
-            {
-                let use_userspace_wg = config.daita || *FORCE_USERSPACE_WIREGUARD;
-                if use_userspace_wg {
-                    log::debug!("Using userspace WireGuard implementation");
-                    let tunnel = Self::open_wireguard_go_tunnel(
-                        runtime,
-                        config,
-                        log_path,
-                        setup_done_tx,
-                        route_manager,
-                    )
-                    .map(Box::new)?;
-                    return Ok(tunnel);
-                }
-            }
-
-            wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
-                .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
-                .map_err(Error::TunnelError)
-        }
-
-        #[cfg(all(wireguard_go, not(target_os = "windows")))]
-        {
-            #[cfg(target_os = "linux")]
+        if userspace_wireguard {
             log::debug!("Using userspace WireGuard implementation");
 
             let tunnel = Self::open_wireguard_go_tunnel(
+                #[cfg(windows)]
+                runtime,
                 config,
                 log_path,
+                #[cfg(unix)]
                 tun_provider,
-                #[cfg(target_os = "android")]
-                gateway_only,
+                #[cfg(windows)]
+                setup_done_tx,
+                #[cfg(windows)]
+                route_manager,
             )
             .map(Box::new)?;
+
             Ok(tunnel)
+        } else {
+            log::debug!("Using kernel WireGuard implementation");
+            #[cfg(target_os = "linux")]
+            {
+                let res: Option<TunnelType> = if will_nm_manage_dns() {
+                    match wireguard_kernel::NetworkManagerTunnel::new(runtime, config) {
+                        Ok(tunnel) => {
+                            log::debug!(
+                                "Using NetworkManager to use kernel WireGuard implementation"
+                            );
+                            Some(Box::new(tunnel))
+                        }
+                        Err(err) => {
+                            log::error!(
+                                "{}",
+                                err.display_chain_with_msg(
+                                    "Failed to initialize WireGuard tunnel via NetworkManager"
+                                )
+                            );
+                            None
+                        }
+                    }
+                } else {
+                    match wireguard_kernel::NetlinkTunnel::new(runtime, config) {
+                        Ok(tunnel) => {
+                            log::debug!("Using kernel WireGuard implementation");
+                            Some(Box::new(tunnel))
+                        }
+                        Err(error) => {
+                            log::error!(
+                                "{}",
+                                error.display_chain_with_msg(
+                                    "Failed to setup kernel WireGuard device, falling back to the userspace implementation"
+                                )
+                            );
+                            None
+                        }
+                    }
+                };
+
+                match res {
+                    Some(tunnel) => Ok(tunnel),
+                    None => {
+                        log::warn!("Falling back to userspace WireGuard implementation");
+                        let tunnel = Self::open_wireguard_go_tunnel(config, log_path, tun_provider)
+                            .map(Box::new)?;
+                        Ok(tunnel)
+                    }
+                }
+            }
+            #[cfg(target_os = "windows")]
+            {
+                wireguard_nt::WgNtTunnel::start_tunnel(
+                    config,
+                    log_path,
+                    resource_dir,
+                    setup_done_tx,
+                )
+                .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
+                .map_err(Error::TunnelError)
+            }
         }
     }
 
