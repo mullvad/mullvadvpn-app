@@ -18,7 +18,7 @@ use std::{
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
 };
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "windows"))]
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
@@ -149,7 +149,7 @@ pub struct WireguardMonitor {
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "windows"))]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
@@ -693,7 +693,7 @@ impl WireguardMonitor {
         {
             #[cfg(wireguard_go)]
             {
-                let use_userspace_wg = config.daita;
+                let use_userspace_wg = config.daita || *FORCE_USERSPACE_WIREGUARD;
                 if use_userspace_wg {
                     log::debug!("Using userspace WireGuard implementation");
                     let tunnel = runtime
