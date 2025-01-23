@@ -291,6 +291,11 @@ cargo {
             add("--locked")
         }
     }
+    exec = { spec, _ ->
+        val remaps = generateRemapArguments()
+        println("rustc path prefix remaps: $remaps")
+        spec.environment("RUSTFLAGS", remaps)
+    }
 }
 
 tasks.register<Exec>("generateRelayList") {

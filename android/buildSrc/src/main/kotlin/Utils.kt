@@ -12,6 +12,12 @@ fun Project.generateVersionName(localProperties: Properties): String {
     return localProperties.getProperty("OVERRIDE_VERSION_NAME") ?: execVersionNameCargoCommand()
 }
 
+fun Project.generateRemapArguments(): String {
+    return providers.exec {
+        commandLine("cargo", "run", "-q", "--bin", "remap-path-prefix")
+    }.standardOutput.asText.get().trim()
+}
+
 private fun Project.execVersionCodeCargoCommand() =
     providers.exec {
         commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionCode")

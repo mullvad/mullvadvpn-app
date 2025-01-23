@@ -27,6 +27,7 @@ members = [
     "mullvad-types",
     "mullvad-types/intersection-derive",
     "mullvad-version",
+    "remap-path-prefix",
     "talpid-core",
     "talpid-dbus",
     "talpid-future",
@@ -53,6 +54,7 @@ default-members = [
     "mullvad-cli",
     "mullvad-daemon",
     "mullvad-version",
+    "remap-path-prefix",
 ]
 
 # Keep all lints in sync with `test/Cargo.toml`
