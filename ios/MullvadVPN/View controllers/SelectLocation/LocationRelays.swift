@@ -10,5 +10,5 @@ import MullvadREST
 
 struct LocationRelays: Sendable {
     var relays: [REST.ServerRelay]
-    var locations: [REST.LocationIdentifier: REST.ServerLocation]
+    var locations: [String: REST.ServerLocation]
 }

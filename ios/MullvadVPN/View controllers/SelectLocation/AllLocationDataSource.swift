@@ -26,7 +26,7 @@ class AllLocationDataSource: LocationDataSourceProtocol {
 
         for relay in relays.relays {
             guard 
-                let serverLocation = relays.locations[relay.location]
+                let serverLocation = relays.locations[relay.location.rawValue]
             else { continue }
 
             let relayLocation = RelayLocation.hostname(String(relay.location.country), String(relay.location.city), relay.hostname)

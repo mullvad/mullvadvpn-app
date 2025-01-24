@@ -134,11 +134,11 @@ extension REST {
     }
 
     public struct ServerRelaysResponse: Codable, Equatable, Sendable {
-        public let locations: [LocationIdentifier: ServerLocation]
+        public let locations: [String: ServerLocation]
         public let wireguard: ServerWireguardTunnels
         public let bridge: ServerBridges
 
-        public init(locations: [LocationIdentifier: ServerLocation], wireguard: ServerWireguardTunnels, bridge: ServerBridges) {
+        public init(locations: [String: ServerLocation], wireguard: ServerWireguardTunnels, bridge: ServerBridges) {
             self.locations = locations
             self.wireguard = wireguard
             self.bridge = bridge
