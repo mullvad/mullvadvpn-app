@@ -1,7 +1,5 @@
-import java.io.ByteArrayOutputStream
 import java.util.*
 import org.gradle.api.Project
-import org.gradle.process.ExecSpec
 
 fun Project.generateVersionCode(localProperties: Properties): Int {
     return localProperties.getProperty("OVERRIDE_VERSION_CODE")?.toIntOrNull()
@@ -10,6 +8,11 @@ fun Project.generateVersionCode(localProperties: Properties): Int {
 
 fun Project.generateVersionName(localProperties: Properties): String {
     return localProperties.getProperty("OVERRIDE_VERSION_NAME") ?: execVersionNameCargoCommand()
+}
+
+fun Project.generateRemapArguments(): String {
+    val script = "${projectDir.parent}/../building/rustc-remap-path-prefix.sh"
+    return providers.exec { commandLine(script) }.standardOutput.asText.get().trim()
 }
 
 private fun Project.execVersionCodeCargoCommand() =

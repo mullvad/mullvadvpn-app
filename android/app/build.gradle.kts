@@ -291,6 +291,9 @@ cargo {
             add("--locked")
         }
     }
+    exec = { spec, _ ->
+        spec.environment("RUSTFLAGS", generateRemapArguments())
+    }
 }
 
 tasks.register<Exec>("generateRelayList") {
