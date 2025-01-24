@@ -28,11 +28,6 @@ Finish the install of `rustup`:
 rustup-init
 ```
 
-Install `cbindgen` which is required to build `wireguard-go-rs`:
-```bash
-cargo install --force cbindgen
-```
-
 ## 2. Install SDK Tools and Android NDK Toolchain
 Open Android Studio -> Tools -> SDK Manager, and install `Android SDK Command-line Tools (latest)`.
 

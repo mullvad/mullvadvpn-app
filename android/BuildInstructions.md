@@ -128,8 +128,6 @@ Linux distro:
 #### 5. Install and configure Rust toolchain
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
-  Also install `cbindgen` which is required to build `wireguard-go-rs`:
-  `cargo install --force cbindgen`
 
 - Configure Android cross-compilation targets and set up linker and archiver. This can be done by setting the following
 environment variables:
