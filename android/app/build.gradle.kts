@@ -1,9 +1,7 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
-import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 
@@ -21,8 +19,7 @@ plugins {
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
-val relayListPath = extraAssetsDirectory.file("relays.json").asFile
+val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
@@ -133,7 +130,7 @@ android {
                 gradleLocalProperties(rootProject.projectDir, providers)
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
-            assets.srcDirs(extraAssetsDirectory, changelogDir)
+            assets.srcDirs(relayListDirectory, changelogDir)
         }
     }
 
@@ -240,9 +237,6 @@ android {
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
-        // Ensure we have relay list ready before merging assets.
-        tasks["merge${capitalizedVariantName}Assets"].dependsOn(tasks["generateRelayList"])
-
         // Ensure that we have all the JNI libs before merging them.
         tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
             // This is required for the merge task to run every time the .so files are updated.
@@ -265,8 +259,10 @@ junitPlatform {
 }
 
 cargo {
+    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
     val isReleaseBuild = isReleaseBuild()
-    val enableApiOverride = !isReleaseBuild || isAlphaOrDevBuild()
+    val enableApiOverride =
+        !isReleaseBuild || isDevBuild(localProperties) || isAlphaBuild(localProperties)
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
@@ -300,23 +296,6 @@ cargo {
     }
 }
 
-tasks.register<Exec>("generateRelayList") {
-    workingDir = File(repoRootPath)
-    standardOutput = ByteArrayOutputStream()
-
-    onlyIf { isReleaseBuild() || !relayListPath.exists() }
-
-    commandLine("cargo", "run", "-p", "mullvad-api", "--bin", "relay_list")
-
-    doLast {
-        val output = standardOutput as ByteArrayOutputStream
-        // Create file if needed
-        relayListPath.parentFile.mkdirs()
-        relayListPath.createNewFile()
-        FileOutputStream(relayListPath).use { it.write(output.toByteArray()) }
-    }
-}
-
 tasks.register<Exec>("cargoClean") {
     workingDir = File(repoRootPath)
     commandLine("cargo", "clean")
@@ -328,19 +307,6 @@ if (
         ?.toBoolean() != false
 ) {
     tasks["clean"].dependsOn("cargoClean")
-}
-
-// This is a hack and will not work correctly under all scenarios.
-// See DROID-1696 for how we can improve this.
-fun isReleaseBuild() =
-    gradle.startParameter.getTaskNames().any {
-        it.contains("release", ignoreCase = true) || it.contains("fdroid", ignoreCase = true)
-    }
-
-fun isAlphaOrDevBuild(): Boolean {
-    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
-    val versionName = generateVersionName(localProperties)
-    return versionName.contains("dev") || versionName.contains("alpha")
 }
 
 androidComponents {

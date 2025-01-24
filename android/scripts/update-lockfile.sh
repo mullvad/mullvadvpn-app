@@ -20,7 +20,6 @@ GRADLE_TASKS=(
     "lint"
 )
 EXCLUDED_GRADLE_TASKS=(
-    "-xgenerateRelayList"
     "-xcargoBuild"
 )
 
