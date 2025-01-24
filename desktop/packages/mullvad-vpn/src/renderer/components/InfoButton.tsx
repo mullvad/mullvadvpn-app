@@ -36,7 +36,7 @@ export default function InfoButton({ title, message, children, ...props }: InfoB
   return (
     <>
       <IconButton
-        icon="icon-info"
+        icon="info-circle"
         onClick={show}
         aria-label={messages.pgettext('accessibility', 'More information')}
         {...props}
