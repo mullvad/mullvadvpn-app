@@ -137,7 +137,7 @@ export default function SelectLocation() {
               }
               titleVisible>
               <IconButton
-                icon="icon-filter-round"
+                icon="filter-circle"
                 variant="secondary"
                 onClick={onViewFilter}
                 aria-label={messages.gettext('Filter')}

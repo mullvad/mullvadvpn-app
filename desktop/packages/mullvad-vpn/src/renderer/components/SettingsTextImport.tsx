@@ -60,7 +60,7 @@ export default function SettingsTextImport() {
             }
             titleVisible>
             <AppNavigationHeader.IconButton
-              icon="icon-check"
+              icon="checkmark"
               onClick={save}
               aria-label={messages.gettext('Save')}
             />

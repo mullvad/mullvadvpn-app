@@ -1,16 +1,20 @@
 import styled from 'styled-components';
 
+import { Colors } from '../../foundations';
 import { TransientProps } from '../../types';
+import { icons } from './types';
 
 export type IconProps = {
-  src: string;
-  size?: 'small' | 'medium' | 'large' | 'big' | 'huge';
-  color?: string;
+  icon: keyof typeof icons;
+  size?: 'tiny' | 'small' | 'medium' | 'large' | 'big';
+  color?: Colors;
   alt?: string;
   className?: string;
 };
 
-const StyledIcon = styled.div<TransientProps<Pick<IconProps, 'color' | 'src'>> & { $size: number }>`
+const StyledIcon = styled.div<
+  TransientProps<Pick<IconProps, 'color'>> & { $size: number; $src: string }
+>`
   width: ${({ $size }) => $size}px;
   height: ${({ $size }) => $size}px;
   mask: url(${({ $src }) => $src}) no-repeat center;
@@ -19,22 +23,23 @@ const StyledIcon = styled.div<TransientProps<Pick<IconProps, 'color' | 'src'>> &
 `;
 
 const sizes = {
-  small: 12,
-  medium: 16,
-  large: 24,
-  big: 32,
-  huge: 48,
+  tiny: 12,
+  small: 16,
+  medium: 24,
+  large: 32,
+  big: 48,
 };
 
-export const Icon = ({ src: srcProp, size = 'large', color, alt, ...props }: IconProps) => {
-  const src = srcProp.startsWith('data:') ? srcProp : `../../assets/images/${srcProp}.svg`;
+export const Icon = ({ icon: iconProp, size = 'medium', color, alt, ...props }: IconProps) => {
+  const icon = icons[iconProp];
+  const src = iconProp.startsWith('data:') ? iconProp : `../../assets/images/icons/${icon}.svg`;
   return (
     <StyledIcon
       $src={src}
       $size={sizes[size]}
       $color={color}
       role="img"
-      aria-label={alt || srcProp}
+      aria-label={alt || iconProp}
       {...props}
     />
   );

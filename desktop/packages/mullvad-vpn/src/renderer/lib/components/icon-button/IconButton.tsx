@@ -9,7 +9,7 @@ export interface IconButtonProps
   extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
   variant?: 'primary' | 'secondary';
   size?: IconProps['size'];
-  icon: string;
+  icon: IconProps['icon'];
 }
 
 const variants = {
@@ -26,11 +26,11 @@ const variants = {
 } as const;
 
 const sizes = {
-  small: 12,
-  medium: 16,
-  large: 24,
-  big: 32,
-  huge: 48,
+  tiny: 12,
+  small: 16,
+  medium: 24,
+  large: 32,
+  big: 48,
 };
 
 const StyledButton = styled.button({
@@ -56,7 +56,7 @@ const StyledIcon = styled(Icon)<IconProps & { $hoverColor: string; $disabled?: b
 );
 
 export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, variant = 'primary', size: sizeProp = 'large', disabled, style, ...props }, ref) => {
+  ({ icon, variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
     const styles = variants[variant];
     const size = sizes[sizeProp];
     return (
@@ -71,7 +71,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         }
         {...props}>
         <StyledIcon
-          src={icon}
+          icon={icon}
           color={styles.background}
           size={sizeProp}
           $hoverColor={styles.hover}

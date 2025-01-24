@@ -86,8 +86,7 @@ export function NotificationCloseAction(props: NotificationActionProps) {
       aria-describedby={NOTIFICATION_AREA_ID}
       aria-label={messages.pgettext('accessibility', 'Close notification')}
       onClick={props.onClick}
-      icon="icon-close"
-      size="medium"
+      icon="cross-circle"
       variant="secondary"
     />
   );
