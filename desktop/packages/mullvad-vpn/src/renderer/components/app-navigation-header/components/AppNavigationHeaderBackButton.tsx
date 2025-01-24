@@ -17,7 +17,7 @@ export const AppNavigationHeaderBackButton = () => {
 
   if (!parentBackAction) return null;
 
-  const iconSource = backIcon ? 'icon-back' : 'icon-close-down';
+  const iconSource = backIcon ? 'chevron-left-circle' : 'chevron-down-circle';
   const ariaLabel = backIcon ? messages.gettext('Back') : messages.gettext('Close');
 
   return (
