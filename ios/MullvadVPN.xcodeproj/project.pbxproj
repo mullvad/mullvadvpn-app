@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 54;
+	objectVersion = 70;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -1322,6 +1322,13 @@
 			remoteGlobalIDString = 58D223D4294C8E5E0029F5F8;
 			remoteInfo = MullvadTypes;
 		};
+		A955EF252D43E5C50025E1B1 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58CE5E5F224146200008646E;
+			remoteInfo = MullvadVPN;
+		};
 		A9609B6D2D004D1F0065A3D3 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -2144,6 +2151,7 @@
 		A944F2712B8E02E800473F4C /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
+		A955EF212D43E5C50025E1B1 /* MullvadVPNSendableTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MullvadVPNSendableTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
 		A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5UsernamePasswordCommand.swift; sourceTree = "<group>"; };
@@ -2321,6 +2329,10 @@
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A955EF222D43E5C50025E1B1 /* MullvadVPNSendableTests */ = {isa = PBXFileSystemSynchronizedRootGroup; explicitFileTypes = {}; explicitFolders = (); path = MullvadVPNSendableTests; sourceTree = "<group>"; };
+/* End PBXFileSystemSynchronizedRootGroup section */
+
 /* Begin PBXFrameworksBuildPhase section */
 		06799AB928F98E1D00ACD94E /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
@@ -2467,6 +2479,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A955EF1E2D43E5C50025E1B1 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3678,6 +3697,7 @@
 				58695A9E2A4ADA9200328DB3 /* TunnelObfuscationTests */,
 				A992DA1E2C24709F00DE7CE5 /* MullvadRustRuntime */,
 				A9D9A4C12C36D53C004088DD /* MullvadRustRuntimeTests */,
+				A955EF222D43E5C50025E1B1 /* MullvadVPNSendableTests */,
 				58CE5E61224146200008646E /* Products */,
 				584F991F2902CBDD001F858D /* Frameworks */,
 			);
@@ -3704,6 +3724,7 @@
 				F0ACE3082BE4E478006D5333 /* MullvadMockData.framework */,
 				A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */,
 				A9D9A4C02C36D53C004088DD /* MullvadRustRuntimeTests.xctest */,
+				A955EF212D43E5C50025E1B1 /* MullvadVPNSendableTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -5034,6 +5055,29 @@
 			productReference = 852969252B4D9C1F007EAD4C /* MullvadVPNUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
+		A955EF202D43E5C50025E1B1 /* MullvadVPNSendableTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A955EF2B2D43E5C50025E1B1 /* Build configuration list for PBXNativeTarget "MullvadVPNSendableTests" */;
+			buildPhases = (
+				A955EF1D2D43E5C50025E1B1 /* Sources */,
+				A955EF1E2D43E5C50025E1B1 /* Frameworks */,
+				A955EF1F2D43E5C50025E1B1 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A955EF262D43E5C50025E1B1 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A955EF222D43E5C50025E1B1 /* MullvadVPNSendableTests */,
+			);
+			name = MullvadVPNSendableTests;
+			packageProductDependencies = (
+			);
+			productName = MullvadVPNSendableTests;
+			productReference = A955EF212D43E5C50025E1B1 /* MullvadVPNSendableTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = A992DA252C24709F00DE7CE5 /* Build configuration list for PBXNativeTarget "MullvadRustRuntime" */;
@@ -5108,7 +5152,7 @@
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
-				LastSwiftUpdateCheck = 1520;
+				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "Mullvad VPN AB";
 				TargetAttributes = {
@@ -5176,6 +5220,10 @@
 						CreatedOnToolsVersion = 15.1;
 						TestTargetID = 58CE5E5F224146200008646E;
 					};
+					A955EF202D43E5C50025E1B1 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 58CE5E5F224146200008646E;
+					};
 					A992DA1C2C24709F00DE7CE5 = {
 						CreatedOnToolsVersion = 15.2;
 						LastSwiftMigration = 1520;
@@ -5224,6 +5272,7 @@
 				F0ACE3072BE4E478006D5333 /* MullvadMockData */,
 				A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */,
 				A9D9A4BF2C36D53C004088DD /* MullvadRustRuntimeTests */,
+				A955EF202D43E5C50025E1B1 /* MullvadVPNSendableTests */,
 			);
 		};
 /* End PBXProject section */
@@ -5331,6 +5380,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		852969232B4D9C1F007EAD4C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A955EF1F2D43E5C50025E1B1 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -6097,7 +6153,6 @@
 				5868585524054096000B8131 /* CustomButton.swift in Sources */,
 				58E25F812837BBBB002CFB2C /* SceneDelegate.swift in Sources */,
 				7A1A26492A29D48A00B978AA /* RelayFilterCellFactory.swift in Sources */,
-				5867771629097C5B006F721F /* ProductState.swift in Sources */,
 				F0D5591E2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */,
 				7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */,
 				7A6389DE2B7E3BD6008E77E1 /* CustomListItemIdentifier.swift in Sources */,
@@ -6521,6 +6576,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A955EF1D2D43E5C50025E1B1 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		A992DA192C24709F00DE7CE5 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -6762,6 +6824,11 @@
 			isa = PBXTargetDependency;
 			target = 58D223D4294C8E5E0029F5F8 /* MullvadTypes */;
 			targetProxy = A9173C332C36CCFB00F6A08C /* PBXContainerItemProxy */;
+		};
+		A955EF262D43E5C50025E1B1 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58CE5E5F224146200008646E /* MullvadVPN */;
+			targetProxy = A955EF252D43E5C50025E1B1 /* PBXContainerItemProxy */;
 		};
 		A9609B6E2D004D1F0065A3D3 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
@@ -8412,6 +8479,107 @@
 			};
 			name = MockRelease;
 		};
+		A955EF272D43E5C50025E1B1 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNSendableTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = Debug;
+		};
+		A955EF282D43E5C50025E1B1 /* Staging */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNSendableTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = Staging;
+		};
+		A955EF292D43E5C50025E1B1 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNSendableTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = Release;
+		};
+		A955EF2A2D43E5C50025E1B1 /* MockRelease */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				BUNDLE_LOADER = "";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = CKG9MXH72F;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = net.mullvad.MullvadVPNSendableTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "";
+			};
+			name = MockRelease;
+		};
 		A992DA262C24709F00DE7CE5 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 5808273928487E3E006B77A4 /* Base.xcconfig */;
@@ -9581,6 +9749,17 @@
 				8529692E2B4D9C1F007EAD4C /* Release */,
 				A93A1D062B59145C00F7796C /* Staging */,
 				A93A1D072B59145C00F7796C /* MockRelease */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A955EF2B2D43E5C50025E1B1 /* Build configuration list for PBXNativeTarget "MullvadVPNSendableTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A955EF272D43E5C50025E1B1 /* Debug */,
+				A955EF282D43E5C50025E1B1 /* Staging */,
+				A955EF292D43E5C50025E1B1 /* Release */,
+				A955EF2A2D43E5C50025E1B1 /* MockRelease */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

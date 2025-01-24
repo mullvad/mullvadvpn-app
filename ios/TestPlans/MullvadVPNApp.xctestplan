@@ -9,6 +9,7 @@
     }
   ],
   "defaultOptions" : {
+    "codeCoverage" : false,
     "targetForVariableExpansion" : {
       "containerPath" : "container:MullvadVPN.xcodeproj",
       "identifier" : "58CE5E5F224146200008646E",
@@ -21,16 +22,22 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
-        "identifier" : "58FBFBE5291622580020E046",
-        "name" : "MullvadRESTTests"
+        "identifier" : "58C7A43C2A863F450060C66F",
+        "name" : "PacketTunnelCoreTests"
       }
     },
     {
-      "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
-        "identifier" : "58B0A29F238EE67E00BC001D",
-        "name" : "MullvadVPNTests"
+        "identifier" : "A9D9A4BF2C36D53C004088DD",
+        "name" : "MullvadRustRuntimeTests"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "A955EF202D43E5C50025E1B1",
+        "name" : "MullvadVPNSendableTests"
       }
     },
     {
@@ -45,8 +52,16 @@
       "parallelizable" : true,
       "target" : {
         "containerPath" : "container:MullvadVPN.xcodeproj",
-        "identifier" : "58C7A43C2A863F450060C66F",
-        "name" : "PacketTunnelCoreTests"
+        "identifier" : "58B0A29F238EE67E00BC001D",
+        "name" : "MullvadVPNTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MullvadVPN.xcodeproj",
+        "identifier" : "58FBFBE5291622580020E046",
+        "name" : "MullvadRESTTests"
       }
     },
     {
@@ -55,13 +70,6 @@
         "containerPath" : "container:MullvadVPN.xcodeproj",
         "identifier" : "7A88DCD62A8FABBE00D2FF0E",
         "name" : "RoutingTests"
-      }
-    },
-    {
-      "target" : {
-        "containerPath" : "container:MullvadVPN.xcodeproj",
-        "identifier" : "A9D9A4BF2C36D53C004088DD",
-        "name" : "MullvadRustRuntimeTests"
       }
     }
   ],

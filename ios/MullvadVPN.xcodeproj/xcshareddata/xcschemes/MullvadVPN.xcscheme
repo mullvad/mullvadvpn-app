@@ -70,20 +70,6 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "063F02722902B63F001FA09F"
-               BuildableName = "RelayCache.framework"
-               BlueprintName = "RelayCache"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
                BlueprintIdentifier = "58D223D4294C8E5E0029F5F8"
                BuildableName = "MullvadTypes.framework"
                BlueprintName = "MullvadTypes"
@@ -115,48 +101,6 @@
                BlueprintIdentifier = "58FBDA9722A519BC00EB69A3"
                BuildableName = "WireGuardGoBridge"
                BlueprintName = "WireGuardGoBridge"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5898D28829017BD300EB5EBA"
-               BuildableName = "libTunnelProviderMessaging.a"
-               BlueprintName = "TunnelProviderMessaging"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "YES"
-            buildForProfiling = "YES"
-            buildForArchiving = "YES"
-            buildForAnalyzing = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "5898D29729017DAC00EB5EBA"
-               BuildableName = "libRelaySelector.a"
-               BlueprintName = "RelaySelector"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </BuildActionEntry>
-         <BuildActionEntry
-            buildForTesting = "YES"
-            buildForRunning = "NO"
-            buildForProfiling = "NO"
-            buildForArchiving = "NO"
-            buildForAnalyzing = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "A98F1B4D2C19C48D003C869E"
-               BuildableName = "MullvadPostQuantumTests.xctest"
-               BlueprintName = "MullvadPostQuantumTests"
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -211,26 +155,6 @@
             </BuildableReference>
          </TestableReference>
          <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "58D0C79223F1CE7000FE9BA7"
-               BuildableName = "MullvadVPNScreenshots.xctest"
-               BlueprintName = "MullvadVPNScreenshots"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "58695A9C2A4ADA9100328DB3"
-               BuildableName = "TunnelObfuscationTests.xctest"
-               BlueprintName = "TunnelObfuscationTests"
-               ReferencedContainer = "container:MullvadVPN.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
             skipped = "NO"
             parallelizable = "YES">
             <BuildableReference
@@ -279,6 +203,17 @@
                BlueprintIdentifier = "7A88DCD62A8FABBE00D2FF0E"
                BuildableName = "RoutingTests.xctest"
                BlueprintName = "RoutingTests"
+               ReferencedContainer = "container:MullvadVPN.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "A955EF202D43E5C50025E1B1"
+               BuildableName = "MullvadVPNSendableTests.xctest"
+               BlueprintName = "MullvadVPNSendableTests"
                ReferencedContainer = "container:MullvadVPN.xcodeproj">
             </BuildableReference>
          </TestableReference>
