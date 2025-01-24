@@ -87,4 +87,7 @@ echo " You have built:"
 echo ""
 echo " $PRODUCT_VERSION"
 echo ""
+echo " Build checksums:"
+md5sum ../dist/MullvadVPN-"$PRODUCT_VERSION"* | sed 's/^/ /'
+echo ""
 echo "**********************************"
