@@ -22,7 +22,7 @@ export const AppMainHeaderBarAccountButton = (props: MainHeaderBarAccountButtonP
 
   return (
     <MainHeader.IconButton
-      icon="icon-account"
+      icon="account-circle"
       onClick={openAccount}
       data-testid="account-button"
       aria-label={messages.gettext('Account settings')}
