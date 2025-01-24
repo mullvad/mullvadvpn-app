@@ -77,7 +77,7 @@ final class DestinationDescriberTests: XCTestCase {
         XCTAssertEqual(
             describer.describe(.init(
                 locations: [.country("se")],
-                customListSelection: .init(listId: listid, isList: true)
+                customListSelection: .init(listId: listid, isList: false)
             )),
             "Sweden"
         )

@@ -29,12 +29,12 @@ struct DestinationDescriber: DestinationDescribing {
 
     private func customListDescription(_ destination: UserSelectedRelays) -> String? {
         // We only return a description for the list if the user has selected the
-        // entire list. If they have selected a subset of relays/locations from it,
+        // entire list. If they have only selected relays/locations from it,
         // we show those as if they selected them from elsewhere.
         guard
             let customListSelection = destination.customListSelection,
-            let customList = customListRepository.fetch(by: customListSelection.listId),
-            customList.locations.count == destination.locations.count
+            customListSelection.isList,
+            let customList = customListRepository.fetch(by: customListSelection.listId)
         else { return nil }
         return customList.name
     }
