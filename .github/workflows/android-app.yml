@@ -270,11 +270,6 @@ jobs:
           path: android/app/build/rustJniLibs/android
           merge-multiple: true
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: relay-list
-          path: android/app/build/extraAssets
-
       - name: Build app
         uses: burrunan/gradle-cache-action@v1
         with:
