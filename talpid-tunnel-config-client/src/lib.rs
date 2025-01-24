@@ -22,7 +22,6 @@ mod proto {
     tonic::include_proto!("ephemeralpeer");
 }
 
-#[cfg(unix)]
 const DAITA_VERSION: u32 = 2;
 
 #[derive(Debug)]
@@ -88,7 +87,6 @@ pub const CONFIG_SERVICE_PORT: u16 = 1337;
 
 pub struct EphemeralPeer {
     pub psk: Option<PresharedKey>,
-    #[cfg(unix)]
     pub daita: Option<DaitaSettings>,
 }
 
@@ -141,19 +139,15 @@ pub async fn request_ephemeral_peer_with(
             wg_parent_pubkey: parent_pubkey.as_bytes().to_vec(),
             wg_ephemeral_peer_pubkey: ephemeral_pubkey.as_bytes().to_vec(),
             post_quantum: pq_request,
-            #[cfg(windows)]
-            daita: Some(proto::DaitaRequestV1 {
-                activate_daita: enable_daita,
-            }),
-            #[cfg(windows)]
-            daita_v2: None,
-            #[cfg(unix)]
             daita: None,
-            #[cfg(unix)]
-            daita_v2: enable_daita.then(|| proto::DaitaRequestV2 {
-                level: i32::from(proto::DaitaLevel::LevelDefault),
-                platform: i32::from(get_platform()),
-                version: DAITA_VERSION,
+            daita_v2: enable_daita.then(|| {
+                let platform = get_platform();
+                log::trace!("DAITA v2 platform: {platform:?}");
+                proto::DaitaRequestV2 {
+                    level: i32::from(proto::DaitaLevel::LevelDefault),
+                    platform: i32::from(platform),
+                    version: DAITA_VERSION,
+                }
             }),
         })
         .await
@@ -204,30 +198,22 @@ pub async fn request_ephemeral_peer_with(
         None
     };
 
-    #[cfg(unix)]
-    {
-        let daita = response.daita.map(|daita| DaitaSettings {
-            client_machines: daita.client_machines,
-            max_padding_frac: daita.max_padding_frac,
-            max_blocking_frac: daita.max_blocking_frac,
-        });
-        if daita.is_none() && enable_daita {
-            return Err(Error::MissingDaitaResponse);
-        }
-        Ok(EphemeralPeer { psk, daita })
+    let daita = response.daita.map(|daita| DaitaSettings {
+        client_machines: daita.client_machines,
+        max_padding_frac: daita.max_padding_frac,
+        max_blocking_frac: daita.max_blocking_frac,
+    });
+    if daita.is_none() && enable_daita {
+        return Err(Error::MissingDaitaResponse);
     }
-
-    #[cfg(windows)]
-    {
-        Ok(EphemeralPeer { psk })
-    }
+    Ok(EphemeralPeer { psk, daita })
 }
 
-#[cfg(unix)]
 const fn get_platform() -> proto::DaitaPlatform {
     use proto::DaitaPlatform;
     const PLATFORM: DaitaPlatform = if cfg!(target_os = "windows") {
-        DaitaPlatform::WindowsNative
+        // FIXME: wggo
+        DaitaPlatform::LinuxWgGo
     } else if cfg!(target_os = "linux") {
         DaitaPlatform::LinuxWgGo
     } else if cfg!(target_os = "macos") {

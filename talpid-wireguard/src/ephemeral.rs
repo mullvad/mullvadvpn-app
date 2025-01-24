@@ -110,7 +110,6 @@ async fn config_ephemeral_peers_inner(
     )
     .await?;
 
-    #[cfg(not(target_os = "windows"))]
     let mut daita = exit_ephemeral_peer.daita;
 
     log::debug!("Retrieved ephemeral peer");
@@ -145,14 +144,10 @@ async fn config_ephemeral_peers_inner(
         log::debug!("Successfully exchanged PSK with entry peer");
 
         config.entry_peer.psk = entry_ephemeral_peer.psk;
-        #[cfg(not(target_os = "windows"))]
-        {
-            daita = entry_ephemeral_peer.daita;
-        }
+        daita = entry_ephemeral_peer.daita;
     }
 
     config.exit_peer_mut().psk = exit_ephemeral_peer.psk;
-    #[cfg(daita)]
     if config.daita {
         log::trace!("Enabling constant packet size for entry peer");
         config.entry_peer.constant_packet_size = true;
@@ -170,26 +165,16 @@ async fn config_ephemeral_peers_inner(
     )
     .await?;
 
-    #[cfg(daita)]
     if config.daita {
-        #[cfg(not(target_os = "windows"))]
-        let Some(daita) = daita
-        else {
+        let Some(daita) = daita else {
             unreachable!("missing DAITA settings");
         };
 
         // Start local DAITA machines
         let mut tunnel = tunnel.lock().await;
         if let Some(tunnel) = tunnel.as_mut() {
-            #[cfg(not(target_os = "windows"))]
             tunnel
                 .start_daita(daita)
-                .map_err(Error::TunnelError)
-                .map_err(CloseMsg::SetupError)?;
-
-            #[cfg(target_os = "windows")]
-            tunnel
-                .start_daita()
                 .map_err(Error::TunnelError)
                 .map_err(CloseMsg::SetupError)?;
         }

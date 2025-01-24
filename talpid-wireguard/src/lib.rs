@@ -18,7 +18,7 @@ use std::{
     pin::Pin,
     sync::{mpsc as sync_mpsc, Arc, Mutex},
 };
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "windows"))]
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
@@ -28,7 +28,7 @@ use talpid_tunnel::{
     tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
 };
 
-#[cfg(not(target_os = "windows"))]
+#[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
     net::{wireguard::TunnelParameters, AllowedTunnelTraffic, Endpoint, TransportProtocol},
@@ -149,7 +149,7 @@ pub struct WireguardMonitor {
     obfuscator: Arc<AsyncMutex<Option<ObfuscatorHandle>>>,
 }
 
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "linux", target_os = "windows"))]
 /// Overrides the preference for the kernel module for WireGuard.
 static FORCE_USERSPACE_WIREGUARD: LazyLock<bool> = LazyLock::new(|| {
     env::var("TALPID_FORCE_USERSPACE_WIREGUARD")
@@ -299,7 +299,6 @@ impl WireguardMonitor {
                 let config = config.clone();
                 let iface_name = iface_name.clone();
                 tokio::task::spawn(async move {
-                    #[cfg(daita)]
                     if config.daita {
                         // TODO: For now, we assume the MTU during the tunnel lifetime.
                         // We could instead poke maybenot whenever we detect changes to it.
@@ -692,12 +691,29 @@ impl WireguardMonitor {
 
         #[cfg(target_os = "windows")]
         {
+            #[cfg(wireguard_go)]
+            {
+                let use_userspace_wg = config.daita || *FORCE_USERSPACE_WIREGUARD;
+                if use_userspace_wg {
+                    log::debug!("Using userspace WireGuard implementation");
+                    let tunnel = runtime
+                        .block_on(Self::open_wireguard_go_tunnel(
+                            config,
+                            log_path,
+                            setup_done_tx,
+                            route_manager,
+                        ))
+                        .map(Box::new)?;
+                    return Ok(tunnel);
+                }
+            }
+
             wireguard_nt::WgNtTunnel::start_tunnel(config, log_path, resource_dir, setup_done_tx)
                 .map(|tun| Box::new(tun) as Box<dyn Tunnel + 'static>)
                 .map_err(Error::TunnelError)
         }
 
-        #[cfg(wireguard_go)]
+        #[cfg(all(wireguard_go, not(target_os = "windows")))]
         {
             #[cfg(target_os = "linux")]
             log::debug!("Using userspace WireGuard implementation");
@@ -721,23 +737,25 @@ impl WireguardMonitor {
     async fn open_wireguard_go_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(unix)] tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(windows)] setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
+        #[cfg(windows)] route_manager: talpid_routing::RouteManagerHandle,
         #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<WgGoTunnel> {
+        #[cfg(unix)]
         let routes = config
             .get_tunnel_destinations()
             .flat_map(Self::replace_default_prefixes);
 
-        #[cfg(not(target_os = "android"))]
-        let tunnel = WgGoTunnel::start_tunnel(
-            #[allow(clippy::needless_borrow)]
-            &config,
-            log_path,
-            tun_provider,
-            routes,
-        )
-        .map_err(Error::TunnelError)?;
+        #[cfg(all(unix, not(target_os = "android")))]
+        let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)
+            .map_err(Error::TunnelError)?;
+
+        #[cfg(target_os = "windows")]
+        let tunnel = WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx)
+            .await
+            .map_err(Error::TunnelError)?;
 
         // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
         // with an ephemeral peer, this multihop strategy require us to restart the tunnel
@@ -1018,10 +1036,7 @@ pub(crate) trait Tunnel: Send + Sync {
     ) -> Pin<Box<dyn Future<Output = std::result::Result<(), TunnelError>> + Send + 'a>>;
     #[cfg(daita)]
     /// A [`Tunnel`] capable of using DAITA.
-    #[cfg(not(target_os = "windows"))]
     fn start_daita(&mut self, settings: DaitaSettings) -> std::result::Result<(), TunnelError>;
-    #[cfg(target_os = "windows")]
-    fn start_daita(&mut self) -> std::result::Result<(), TunnelError>;
 }
 
 /// Errors to be returned from WireGuard implementations, namely implementers of the Tunnel trait

@@ -9,24 +9,30 @@ use crate::config::MULLVAD_INTERFACE_NAME;
 #[cfg(target_os = "android")]
 use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
+#[cfg(unix)]
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use std::ffi::CString;
+#[cfg(unix)]
+use std::os::unix::io::{AsRawFd, RawFd};
+#[cfg(unix)]
+use std::sync::{Arc, Mutex};
 use std::{
     future::Future,
-    os::unix::io::{AsRawFd, RawFd},
     path::{Path, PathBuf},
     pin::Pin,
-    sync::{Arc, Mutex},
 };
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
+#[cfg(not(target_os = "windows"))]
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
+#[cfg(daita)]
 use talpid_tunnel_config_client::DaitaSettings;
 #[cfg(target_os = "android")]
 use talpid_types::net::wireguard::PeerConfig;
 use talpid_types::BoxedError;
 
+#[cfg(unix)]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 /// Maximum number of events that can be stored in the underlying buffer
@@ -161,6 +167,7 @@ pub(crate) struct WgGoTunnelState {
     tunnel_handle: wireguard_go_rs::Tunnel,
     // holding on to the tunnel device and the log file ensures that the associated file handles
     // live long enough and get closed when the tunnel is stopped
+    #[cfg(unix)]
     _tunnel_device: Tun,
     // context that maps to fs::File instance and stores the file path, used with logging callback
     _logging_context: LoggingContext,
@@ -171,6 +178,10 @@ pub(crate) struct WgGoTunnelState {
     /// This is used to cancel the connectivity checks that occur when toggling multihop
     #[cfg(target_os = "android")]
     cancel_receiver: connectivity::CancelReceiver,
+    /// Default route change callback. This is used to rebind the endpoint socket when the default
+    /// route (network) is changed.
+    #[cfg(target_os = "windows")]
+    _socket_update_cb: Option<talpid_routing::CallbackHandle>,
 }
 
 impl WgGoTunnelState {
@@ -210,7 +221,7 @@ impl WgGoTunnelState {
 }
 
 impl WgGoTunnel {
-    #[cfg(not(target_os = "android"))]
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     pub fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
@@ -248,6 +259,92 @@ impl WgGoTunnel {
         }))
     }
 
+    #[cfg(target_os = "windows")]
+    pub async fn start_tunnel(
+        config: &Config,
+        log_path: Option<&Path>,
+        route_manager: talpid_routing::RouteManagerHandle,
+        mut setup_done_tx: futures::channel::mpsc::Sender<std::result::Result<(), BoxedError>>,
+    ) -> Result<Self> {
+        use futures::SinkExt;
+        use talpid_types::ErrorExt;
+
+        let wg_config_str = config.to_userspace_format();
+        let logging_context = initialize_logging(log_path)
+            .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
+            .map_err(TunnelError::LoggingError)?;
+
+        let socket_update_cb = route_manager
+            .add_default_route_change_callback(Box::new(Self::default_route_changed_callback))
+            .await
+            .ok();
+        if socket_update_cb.is_none() {
+            log::warn!("Failed to register default route callback");
+        }
+
+        let handle = wireguard_go_rs::Tunnel::turn_on(
+            c"Mullvad",
+            config.mtu,
+            &wg_config_str,
+            Some(logging::wg_go_logging_callback),
+            logging_context.ordinal,
+        )
+        .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+
+        let has_ipv6 = config.ipv6_gateway.is_some();
+
+        let luid = handle.luid().to_owned();
+
+        let setup_task = async move {
+            log::debug!("Waiting for tunnel IP interfaces to arrive");
+            talpid_windows::net::wait_for_interfaces(luid, true, has_ipv6)
+                .await
+                .map_err(|e| BoxedError::new(TunnelError::SetupIpInterfaces(e)))?;
+            log::debug!("Waiting for tunnel IP interfaces: Done");
+
+            if let Err(error) = talpid_tunnel::network_interface::initialize_interfaces(luid, None)
+            {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to set tunnel interface metric"),
+                );
+            }
+
+            Ok(())
+        };
+
+        tokio::spawn(async move {
+            let _ = setup_done_tx.send(setup_task.await).await;
+        });
+
+        let interface_name = handle.name();
+
+        Ok(WgGoTunnel(WgGoTunnelState {
+            interface_name: interface_name.to_owned(),
+            tunnel_handle: handle,
+            _logging_context: logging_context,
+            _socket_update_cb: socket_update_cb,
+            #[cfg(daita)]
+            config: config.clone(),
+        }))
+    }
+
+    // Callback to be used to rebind the tunnel sockets when the default route changes
+    #[cfg(target_os = "windows")]
+    fn default_route_changed_callback(
+        event_type: talpid_routing::EventType<'_>,
+        _family: talpid_windows::net::AddressFamily,
+    ) {
+        use talpid_routing::EventType::*;
+        match event_type {
+            // if there is no new default route, or if the route was removed, update the bind
+            Updated(_) | Removed => wireguard_go_rs::update_bind(),
+            // ignore interface updates that don't affect the interface to use
+            UpdatedDetails(_) => (),
+        }
+    }
+
+    #[cfg(unix)]
     fn get_tunnel(
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
@@ -451,15 +548,14 @@ impl Tunnel for WgGoTunnel {
     }
 
     async fn get_tunnel_stats(&self) -> Result<StatsMap> {
-        tokio::task::block_in_place(|| {
-            self.as_state()
-                .tunnel_handle
-                .get_config(|cstr| {
-                    Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
-                })
-                .ok_or(TunnelError::GetConfigError)?
-                .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
-        })
+        // NOTE: wireguard-go might perform blocking I/O, but it's most likely not a problem
+        self.as_state()
+            .tunnel_handle
+            .get_config(|cstr| {
+                Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
+            })
+            .ok_or(TunnelError::GetConfigError)?
+            .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
     }
 
     fn set_config(
