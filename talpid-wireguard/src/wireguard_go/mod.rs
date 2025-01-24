@@ -548,15 +548,14 @@ impl Tunnel for WgGoTunnel {
     }
 
     async fn get_tunnel_stats(&self) -> Result<StatsMap> {
-        tokio::task::block_in_place(|| {
-            self.as_state()
-                .tunnel_handle
-                .get_config(|cstr| {
-                    Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
-                })
-                .ok_or(TunnelError::GetConfigError)?
-                .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
-        })
+        // NOTE: wireguard-go might perform blocking I/O, but it's most likely not a problem
+        self.as_state()
+            .tunnel_handle
+            .get_config(|cstr| {
+                Stats::parse_config_str(cstr.to_str().expect("Go strings are always UTF-8"))
+            })
+            .ok_or(TunnelError::GetConfigError)?
+            .map_err(|error| TunnelError::StatsError(BoxedError::new(error)))
     }
 
     fn set_config(
