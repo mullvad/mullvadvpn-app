@@ -18,7 +18,10 @@ extension RelaySelector {
             filterConstraint: RelayConstraint<RelayFilter>,
             daitaEnabled: Bool
         ) throws -> [RelayWithLocation<REST.ServerRelay>] {
-            let mappedRelays = mapRelays(relays: relays.wireguard.relays, locations: relays.locations)
+            let mappedRelays = RelayWithLocation.locateRelays(
+                relays: relays.wireguard.relays,
+                locations: relays.locations
+            )
 
             return try applyConstraints(
                 relayConstraint,

@@ -9,6 +9,7 @@
 import Combine
 import MapKit
 import MullvadLogging
+import MullvadREST
 import MullvadSettings
 import MullvadTypes
 import SwiftUI
@@ -60,7 +61,12 @@ class TunnelViewController: UIViewController, RootContainment {
         self.interactor = interactor
 
         tunnelState = interactor.tunnelStatus.state
-        connectionViewViewModel = ConnectionViewViewModel(tunnelStatus: interactor.tunnelStatus)
+        connectionViewViewModel = ConnectionViewViewModel(
+            tunnelStatus: interactor.tunnelStatus,
+            relayConstraints: interactor.tunnelSettings.relayConstraints,
+            relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
+            customListRepository: CustomListRepository()
+        )
         indicatorsViewViewModel = FeatureIndicatorsViewModel(
             tunnelSettings: interactor.tunnelSettings,
             ipOverrides: interactor.ipOverrides
@@ -97,6 +103,7 @@ class TunnelViewController: UIViewController, RootContainment {
 
         interactor.didUpdateTunnelSettings = { [weak self] tunnelSettings in
             self?.indicatorsViewViewModel.tunnelSettings = tunnelSettings
+            self?.connectionViewViewModel.relayConstraints = tunnelSettings.relayConstraints
         }
 
         interactor.didUpdateIpOverrides = { [weak self] overrides in

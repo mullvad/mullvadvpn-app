@@ -7,6 +7,9 @@
 //
 
 import Combine
+import MullvadREST
+import MullvadSettings
+import MullvadTypes
 import SwiftUI
 
 class ConnectionViewViewModel: ObservableObject {
@@ -26,6 +29,17 @@ class ConnectionViewViewModel: ObservableObject {
 
     @Published private(set) var tunnelStatus: TunnelStatus
     @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
+    @Published var showsActivityIndicator = false
+
+    @Published var relayConstraints: RelayConstraints
+    let destinationDescriber: DestinationDescribing
+
+    var combinedState: Publishers.CombineLatest<
+        Published<TunnelStatus>.Publisher,
+        Published<Bool>.Publisher
+    > {
+        $tunnelStatus.combineLatest($showsActivityIndicator)
+    }
 
     var tunnelIsConnected: Bool {
         if case .connected = tunnelStatus.state {
@@ -35,8 +49,25 @@ class ConnectionViewViewModel: ObservableObject {
         }
     }
 
-    init(tunnelStatus: TunnelStatus) {
+    var connectionName: String? {
+        if case let .only(loc) = relayConstraints.exitLocations {
+            return destinationDescriber.describe(loc)
+        }
+        return nil
+    }
+
+    init(
+        tunnelStatus: TunnelStatus,
+        relayConstraints: RelayConstraints,
+        relayCache: RelayCacheProtocol,
+        customListRepository: CustomListRepositoryProtocol
+    ) {
         self.tunnelStatus = tunnelStatus
+        self.relayConstraints = relayConstraints
+        self.destinationDescriber = DestinationDescriber(
+            relayCache: relayCache,
+            customListRepository: customListRepository
+        )
     }
 
     func update(tunnelStatus: TunnelStatus) {
@@ -131,7 +162,7 @@ extension ConnectionViewViewModel {
     var localizedTitleForSelectLocationButton: LocalizedStringKey {
         switch tunnelStatus.state {
         case .disconnecting, .pendingReconnect, .disconnected, .waitingForConnectivity(.noNetwork):
-            LocalizedStringKey("Select location")
+            LocalizedStringKey(connectionName ?? "Select location")
         case .connecting, .connected, .reconnecting, .waitingForConnectivity(.noConnection),
              .negotiatingEphemeralPeer, .error:
             LocalizedStringKey("Switch location")
