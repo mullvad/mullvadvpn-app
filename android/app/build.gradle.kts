@@ -1,9 +1,7 @@
 import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 import com.android.build.gradle.internal.tasks.factory.dependsOn
 import com.github.triplet.gradle.androidpublisher.ReleaseStatus
-import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.util.Properties
 import org.gradle.internal.extensions.stdlib.capitalized
 
@@ -22,7 +20,6 @@ plugins {
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
 val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
-val relayListPath = file("$relayListDirectory/relays.json")
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
@@ -246,10 +243,7 @@ android {
         }
 
         // Ensure all relevant assemble tasks depend on our ensure task.
-        tasks["assemble$capitalizedVariantName"].apply {
-            dependsOn(tasks["ensureRelayListExist"])
-            dependsOn(tasks["ensureValidVersionCode"])
-        }
+        tasks["assemble$capitalizedVariantName"].dependsOn(tasks["ensureValidVersionCode"])
     }
 }
 
@@ -261,8 +255,10 @@ junitPlatform {
 }
 
 cargo {
+    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
     val isReleaseBuild = isReleaseBuild()
-    val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
+    val enableApiOverride =
+        !isReleaseBuild || isDevBuild(localProperties) || isAlphaBuild(localProperties)
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
@@ -296,14 +292,6 @@ cargo {
     }
 }
 
-tasks.register("ensureRelayListExist") {
-    doLast {
-        if (isReleaseBuild() && !isDevBuild() && !relayListPath.exists()) {
-            throw GradleException("Missing relay list: $relayListPath")
-        }
-    }
-}
-
 tasks.register<Exec>("cargoClean") {
     workingDir = File(repoRootPath)
     commandLine("cargo", "clean")
@@ -315,23 +303,6 @@ if (
         ?.toBoolean() != false
 ) {
     tasks["clean"].dependsOn("cargoClean")
-}
-
-// This is a hack and will not work correctly under all scenarios.
-// See DROID-1696 for how we can improve this.
-fun isReleaseBuild() =
-    gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
-
-fun isAlphaBuild(): Boolean {
-    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
-    val versionName = generateVersionName(localProperties)
-    return versionName.contains("alpha")
-}
-
-fun isDevBuild(): Boolean {
-    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
-    val versionName = generateVersionName(localProperties)
-    return versionName.contains("dev")
 }
 
 androidComponents {
