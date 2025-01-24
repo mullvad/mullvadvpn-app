@@ -732,14 +732,8 @@ impl WireguardMonitor {
         {
             log::debug!("Using userspace WireGuard implementation");
 
-            let tunnel = Self::open_wireguard_go_tunnel(
-                config,
-                log_path,
-                tun_provider,
-                #[cfg(target_os = "android")]
-                gateway_only,
-            )
-            .map(Box::new)?;
+            let tunnel =
+                Self::open_wireguard_go_tunnel(config, log_path, tun_provider).map(Box::new)?;
             Ok(tunnel)
         }
         #[cfg(target_os = "windows")]
