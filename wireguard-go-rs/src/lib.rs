@@ -10,7 +10,7 @@
 
 use core::{
     ffi::{c_char, CStr},
-    mem::{ManuallyDrop, MaybeUninit},
+    mem::ManuallyDrop,
     slice,
 };
 use util::OnDrop;
@@ -26,8 +26,9 @@ pub type LoggingContext = u64;
 pub type LoggingCallback =
     unsafe extern "system" fn(level: WgLogLevel, msg: *const c_char, context: LoggingContext);
 
-// Make symbols from maybenot-ffi visible to wireguard-go
-#[cfg(daita)]
+// Make symbols from maybenot-ffi visible to wireguard-go, on the platforms where
+// wireguard-go is statically linked into this crate.
+#[cfg(all(daita, any(target_os = "linux", target_os = "macos")))]
 use maybenot_ffi as _;
 
 /// A wireguard-go tunnel
@@ -233,25 +234,6 @@ impl Drop for Tunnel {
         if let Err(e) = result_from_code(code) {
             log::error!("Failed to stop wireguard-go tunnel,oerror_code={code} ({e:?})")
         }
-    }
-}
-
-/// Check whether `machines` contains a valid, LF-separated maybenot machines. Return an error
-/// otherwise.
-pub fn validate_maybenot_machines(machines: &CStr) -> Result<(), Error> {
-    use maybenot_ffi::MaybenotResult;
-
-    let mut framework = MaybeUninit::uninit();
-    // SAFETY: `machines` is a null-terminated string, and `&mut framework` is a valid pointer
-    let result =
-        unsafe { maybenot_ffi::maybenot_start(machines.as_ptr(), 0.0, 0.0, &mut framework) };
-
-    if result as u32 == MaybenotResult::Ok as u32 {
-        // SAFETY: `maybenot_start` succeeded, so `framework` points to a valid framework
-        unsafe { maybenot_ffi::maybenot_stop(framework.assume_init()) };
-        Ok(())
-    } else {
-        Err(Error::Other)
     }
 }
 
