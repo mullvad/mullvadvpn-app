@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.service.util
 
 import android.content.Context
+import co.touchlab.kermit.Logger
 import java.io.File
 import java.io.FileOutputStream
 
@@ -17,7 +18,11 @@ private fun Context.lastUpdatedTime(): Long =
     packageManager.getPackageInfo(packageName, 0).lastUpdateTime
 
 private fun Context.extractFile(asset: String, destination: File) {
-    val destinationStream = FileOutputStream(destination)
-    assets.open(asset).copyTo(destinationStream)
-    destinationStream.close()
+    if (assets.list("")?.contains(asset) == true) {
+        val destinationStream = FileOutputStream(destination)
+        assets.open(asset).copyTo(destinationStream)
+        destinationStream.close()
+    } else {
+        Logger.i("Asset $asset not found")
+    }
 }

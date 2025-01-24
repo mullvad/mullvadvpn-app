@@ -21,8 +21,8 @@ plugins {
 }
 
 val repoRootPath = rootProject.projectDir.absoluteFile.parentFile.absolutePath
-val extraAssetsDirectory = layout.buildDirectory.dir("extraAssets").get()
-val relayListPath = extraAssetsDirectory.file("relays.json").asFile
+val relayListDirectory = file("$repoRootPath/dist-assets/relays/").absolutePath
+val relayListPath = file("$relayListDirectory/relays.json")
 val defaultChangelogAssetsDirectory = "$repoRootPath/android/src/main/play/release-notes/"
 val rustJniLibsDir = layout.buildDirectory.dir("rustJniLibs/android").get()
 
@@ -129,7 +129,7 @@ android {
                 gradleLocalProperties(rootProject.projectDir, providers)
                     .getOrDefault("OVERRIDE_CHANGELOG_DIR", defaultChangelogAssetsDirectory)
 
-            assets.srcDirs(extraAssetsDirectory, changelogDir)
+            assets.srcDirs(relayListDirectory, changelogDir)
         }
     }
 
@@ -236,9 +236,6 @@ android {
 
         createDistBundle.dependsOn("bundle$capitalizedVariantName")
 
-        // Ensure we have relay list ready before merging assets.
-        tasks["merge${capitalizedVariantName}Assets"].dependsOn(tasks["generateRelayList"])
-
         // Ensure that we have all the JNI libs before merging them.
         tasks["merge${capitalizedVariantName}JniLibFolders"].apply {
             // This is required for the merge task to run every time the .so files are updated.
@@ -249,7 +246,10 @@ android {
         }
 
         // Ensure all relevant assemble tasks depend on our ensure task.
-        tasks["assemble$capitalizedVariantName"].dependsOn(tasks["ensureValidVersionCode"])
+        tasks["assemble$capitalizedVariantName"].apply {
+            dependsOn(tasks["ensureRelayListExist"])
+            dependsOn(tasks["ensureValidVersionCode"])
+        }
     }
 }
 
@@ -262,7 +262,7 @@ junitPlatform {
 
 cargo {
     val isReleaseBuild = isReleaseBuild()
-    val enableApiOverride = !isReleaseBuild || isAlphaOrDevBuild()
+    val enableApiOverride = !isReleaseBuild || isDevBuild() || isAlphaBuild()
     module = repoRootPath
     libname = "mullvad-jni"
     // All available targets:
@@ -296,20 +296,11 @@ cargo {
     }
 }
 
-tasks.register<Exec>("generateRelayList") {
-    workingDir = File(repoRootPath)
-    standardOutput = ByteArrayOutputStream()
-
-    onlyIf { isReleaseBuild() || !relayListPath.exists() }
-
-    commandLine("cargo", "run", "-p", "mullvad-api", "--bin", "relay_list")
-
+tasks.register("ensureRelayListExist") {
     doLast {
-        val output = standardOutput as ByteArrayOutputStream
-        // Create file if needed
-        relayListPath.parentFile.mkdirs()
-        relayListPath.createNewFile()
-        FileOutputStream(relayListPath).use { it.write(output.toByteArray()) }
+        if (isReleaseBuild() && !isDevBuild() && !relayListPath.exists()) {
+            throw GradleException("Missing relay list: $relayListPath")
+        }
     }
 }
 
@@ -331,10 +322,16 @@ if (
 fun isReleaseBuild() =
     gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
 
-fun isAlphaOrDevBuild(): Boolean {
+fun isAlphaBuild(): Boolean {
     val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
     val versionName = generateVersionName(localProperties)
-    return versionName.contains("dev") || versionName.contains("alpha")
+    return versionName.contains("alpha")
+}
+
+fun isDevBuild(): Boolean {
+    val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
+    val versionName = generateVersionName(localProperties)
+    return versionName.contains("dev")
 }
 
 androidComponents {

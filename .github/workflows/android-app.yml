@@ -97,49 +97,6 @@ jobs:
           if-no-files-found: error
           retention-days: 7
 
-  generate-relay-list:
-    name: Generate relay list # Used by wait for jobs.
-    needs: prepare
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare.outputs.container_image }}
-    steps:
-      # Fix for HOME path overridden by GH runners when building in containers, see:
-      # https://github.com/actions/runner/issues/863
-      - name: Fix HOME path
-        run: echo "HOME=/root" >> $GITHUB_ENV
-
-      - name: Get date
-        id: get-date
-        shell: bash
-        run: echo "date=$(/bin/date -u "+%Y%m%d")" >> $GITHUB_OUTPUT
-
-      - name: Cache
-        uses: actions/cache@v4
-        id: cache-relay-list
-        with:
-          path: android/app/build/extraAssets/relays.json
-          key: relay-list-${{ steps.get-date.outputs.date }}
-
-      - name: Checkout repository
-        if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        uses: actions/checkout@v4
-        with:
-          submodules: true
-
-      - name: Generate
-        if: steps.cache-relay-list.outputs.cache-hit != 'true'
-        shell: bash
-        run: ./android/gradlew -p android generateRelayList
-
-      - name: Upload
-        uses: actions/upload-artifact@v4
-        with:
-          name: relay-list
-          path: android/app/build/extraAssets/relays.json
-          if-no-files-found: error
-          retention-days: 7
-
   build-native:
     name: Build native # Used by wait for jobs.
     needs: prepare
@@ -304,10 +261,6 @@ jobs:
                 "workflowFile": "android-app.yml",
                 "jobMatchMode": "prefix",
                 "jobName": "Build native"
-              },
-              {
-                "workflowFile": "android-app.yml",
-                "jobName": "Generate relay list"
               }
             ]
 
@@ -401,7 +354,6 @@ jobs:
           arguments: |
             ${{ matrix.assemble-command }}
             -x cargoBuild
-            -x generateRelayList
             -x mergeOssProdDebugJniLibFolders
             -x mergePlayStagemoleDebugJniLibFolders
           gradle-version: wrapper

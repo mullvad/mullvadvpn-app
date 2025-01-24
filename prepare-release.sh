@@ -66,6 +66,16 @@ if [[ "$ANDROID" == "true" &&
     exit 1
 fi
 
+if [[ "$ANDROID" == "true" ]]; then
+    echo "Generate relays.json"
+    mkdir dist-assets/relays
+    cargo run -q -p mullvad-api --bin relay_list > dist-assets/relays/relays.json
+    
+    git add dist-assets/relays/relays.json
+    git commit -S -m "Bundle relay list" \
+        dist-assets/relays/relays.json
+fi
+
 if [[ "$DESKTOP" == "true" ]]; then
     echo "$PRODUCT_VERSION" > dist-assets/desktop-product-version.txt
     git commit -S -m "Update desktop app version to $PRODUCT_VERSION" \
