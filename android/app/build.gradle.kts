@@ -333,7 +333,9 @@ if (
 // This is a hack and will not work correctly under all scenarios.
 // See DROID-1696 for how we can improve this.
 fun isReleaseBuild() =
-    gradle.startParameter.getTaskNames().any { it.contains("release", ignoreCase = true) }
+    gradle.startParameter.getTaskNames().any {
+        it.contains("release", ignoreCase = true) || it.contains("fdroid", ignoreCase = true)
+    }
 
 fun isAlphaOrDevBuild(): Boolean {
     val localProperties = gradleLocalProperties(rootProject.projectDir, providers)
