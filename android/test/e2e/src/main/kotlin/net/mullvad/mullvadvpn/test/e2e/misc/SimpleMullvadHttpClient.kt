@@ -10,7 +10,6 @@ import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.RequestFuture
 import com.android.volley.toolbox.StringRequest
 import com.android.volley.toolbox.Volley
-import net.mullvad.mullvadvpn.test.e2e.constant.ACCOUNT_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.AUTH_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.CONN_CHECK_URL
 import net.mullvad.mullvadvpn.test.e2e.constant.DEVICE_LIST_URL
@@ -41,9 +40,13 @@ class SimpleMullvadHttpClient(context: Context) {
         }
     }
 
-    fun createAccount(): String {
-        return sendSimpleSynchronousRequest(method = Request.Method.POST, url = ACCOUNT_URL)!!
-            .getString("number")
+    fun createAccountUsingPartnerApi(partnerAuth: String): String {
+        return sendSimpleSynchronousRequest(
+                method = Request.Method.POST,
+                url = PARTNER_ACCOUNT_URL,
+                authorizationHeader = "Basic $partnerAuth",
+            )!!
+            .getString("id")
     }
 
     fun addTimeToAccountUsingPartnerAuth(
