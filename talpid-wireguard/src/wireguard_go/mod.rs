@@ -144,11 +144,30 @@ impl WgGoTunnel {
             }
             WgGoTunnel::Singlehop(mut state) => {
                 state.set_config(config.clone())?;
-                Ok(WgGoTunnel::Singlehop(state))
+
+                // HACK: Check if the tunnel is working by sending a ping in the tunnel.
+                let mut connectivity_checker = state
+                    .connectivity_checker
+                    .take()
+                    .expect("connectivity checker unexpectedly dropped");
+                let mut new_state = WgGoTunnel::Singlehop(state);
+                new_state.ensure_tunnel_is_running(&mut connectivity_checker)?;
+                new_state.as_state_mut().connectivity_checker = Some(connectivity_checker);
+                Ok(new_state)
             }
             WgGoTunnel::Multihop(mut state) => {
                 state.set_config(config.clone())?;
-                Ok(WgGoTunnel::Multihop(state))
+
+                // HACK: Check if the tunnel is working by sending a ping in the tunnel.
+                let mut connectivity_checker = state
+                    .connectivity_checker
+                    .take()
+                    .expect("connectivity checker unexpectedly dropped");
+                let mut new_state = WgGoTunnel::Multihop(state);
+                new_state.ensure_tunnel_is_running(&mut connectivity_checker)?;
+                new_state.as_state_mut().connectivity_checker = Some(connectivity_checker);
+
+                Ok(new_state)
             }
         }
     }
