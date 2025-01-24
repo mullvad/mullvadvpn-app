@@ -292,9 +292,7 @@ cargo {
         }
     }
     exec = { spec, _ ->
-        val remaps = generateRemapArguments()
-        println("rustc path prefix remaps: $remaps")
-        spec.environment("RUSTFLAGS", remaps)
+        spec.environment("RUSTFLAGS", generateRemapArguments())
     }
 }
 
