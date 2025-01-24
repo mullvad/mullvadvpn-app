@@ -13,11 +13,11 @@ workspace = true
 [target.'cfg(all(target_os = "windows", target_arch = "x86_64"))'.dependencies]
 windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemInformation", "Win32_System_Threading"] }
 tempfile = "3.10"
-anyhow = "1.0"
+anyhow.workspace = true
 
 [build-dependencies]
 winres = "0.1"
-anyhow = "1.0"
+anyhow.workspace = true
 windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemServices"] }
 mullvad-version = { path = "../mullvad-version" }
 

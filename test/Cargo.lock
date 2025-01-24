@@ -556,7 +556,7 @@ dependencies = [
  "ping",
  "reqwest",
  "serde",
- "socket2 0.5.6",
+ "socket2 0.5.8",
 ]
 
 [[package]]
@@ -1417,7 +1417,7 @@ dependencies = [
  "http-body",
  "hyper",
  "pin-project-lite",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "tokio",
  "tower-service",
  "tracing",
@@ -1686,7 +1686,7 @@ version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b58db92f96b720de98181bbbe63c831e87005ab460c1bf306eb2622b4707997f"
 dependencies = [
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "widestring",
  "windows-sys 0.48.0",
  "winreg",
@@ -2728,7 +2728,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash",
  "rustls 0.23.18",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "thiserror 1.0.59",
  "tokio",
  "tracing",
@@ -2759,7 +2759,7 @@ checksum = "8bffec3605b73c6f1754535084a85229fa8a30f86014e6c81aeec4abb68b0285"
 dependencies = [
  "libc",
  "once_cell",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "tracing",
  "windows-sys 0.52.0",
 ]
@@ -3267,7 +3267,7 @@ dependencies = [
  "serde_json",
  "serde_urlencoded",
  "shadowsocks-crypto",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "spin",
  "thiserror 1.0.59",
  "tokio",
@@ -3356,9 +3356,9 @@ dependencies = [
 
 [[package]]
 name = "socket2"
-version = "0.5.6"
+version = "0.5.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "05ffd9c0a93b7543e062e759284fcf5f5e3b098501104bfbdde4d404db792871"
+checksum = "c970269d99b64e60ec3bd6ad27270092a5394c4e309314b18ae3fe575695fbe8"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
@@ -3440,7 +3440,7 @@ dependencies = [
  "parking_lot 0.12.1",
  "pnet_packet",
  "rand 0.8.5",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "thiserror 1.0.59",
  "tokio",
  "tracing",
@@ -3529,7 +3529,7 @@ name = "talpid-windows"
 version = "0.0.0"
 dependencies = [
  "futures",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "talpid-types",
  "thiserror 2.0.3",
  "windows-sys 0.52.0",
@@ -3617,7 +3617,7 @@ dependencies = [
  "scopeguard",
  "serde",
  "serde_json",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "socks-server",
  "ssh2",
  "talpid-types",
@@ -3677,7 +3677,7 @@ dependencies = [
  "rs-release",
  "serde",
  "serde_json",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "surge-ping",
  "talpid-platform-metadata",
  "talpid-windows",
@@ -3822,7 +3822,7 @@ dependencies = [
  "parking_lot 0.12.1",
  "pin-project-lite",
  "signal-hook-registry",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "tokio-macros",
  "windows-sys 0.52.0",
 ]
@@ -3922,7 +3922,7 @@ dependencies = [
  "log",
  "once_cell",
  "pin-project",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "tokio",
  "windows-sys 0.52.0",
 ]
@@ -3972,7 +3972,7 @@ dependencies = [
  "percent-encoding",
  "pin-project",
  "prost 0.13.3",
- "socket2 0.5.6",
+ "socket2 0.5.8",
  "tokio",
  "tokio-stream",
  "tower 0.4.13",

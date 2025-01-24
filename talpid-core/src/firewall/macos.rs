@@ -329,7 +329,7 @@ impl Firewall {
         // no nat to [vpn ip]
         let no_nat_to_vpn_server = pfctl::NatRuleBuilder::default()
             .action(pfctl::NatRuleAction::NoNat)
-            .to(peer_endpoint.endpoint.address.ip())
+            .to(peer_endpoint.endpoint.address)
             .build()?;
         rules.push(no_nat_to_vpn_server);
 
@@ -577,6 +577,7 @@ impl Firewall {
         Ok(rules)
     }
 
+    /// Allow traffic to relay_endpoint on the correct ip/port/protocol, for the root-user only.
     fn get_allow_relay_rule(&self, relay_endpoint: &AllowedEndpoint) -> Result<pfctl::FilterRule> {
         let pfctl_proto = as_pfctl_proto(relay_endpoint.endpoint.protocol);
 
