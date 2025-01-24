@@ -278,6 +278,10 @@ msgstr ""
 msgid "Kiev"
 msgstr ""
 
+#. MY KUL
+msgid "Kuala Lumpur"
+msgstr ""
+
 #. UA IEV
 msgid "Kyiv"
 msgstr ""
@@ -322,12 +326,20 @@ msgstr ""
 msgid "Madrid"
 msgstr ""
 
+#. MY
+msgid "Malaysia"
+msgstr ""
+
 #. SE MMA
 msgid "Malmö"
 msgstr ""
 
 #. GB MNC
 msgid "Manchester"
+msgstr ""
+
+#. PH MNL
+msgid "Manila"
 msgstr ""
 
 #. FR MRS
@@ -432,6 +444,10 @@ msgstr ""
 
 #. US PHL
 msgid "Philadelphia, PA"
+msgstr ""
+
+#. PH
+msgid "Philippines"
 msgstr ""
 
 #. US PHX
