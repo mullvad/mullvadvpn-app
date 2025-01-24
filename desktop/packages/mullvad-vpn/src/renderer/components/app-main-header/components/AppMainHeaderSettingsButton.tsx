@@ -18,7 +18,7 @@ export function AppMainHeaderSettingsButton(props: MainHeaderSettingsButtonProps
 
   return (
     <MainHeader.IconButton
-      icon="icon-settings"
+      icon="settings-filled"
       onClick={openSettings}
       aria-label={messages.gettext('Settings')}
     />
