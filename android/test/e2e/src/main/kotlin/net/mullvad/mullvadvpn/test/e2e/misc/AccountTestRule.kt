@@ -19,7 +19,7 @@ class AccountTestRule : BeforeEachCallback {
     override fun beforeEach(context: ExtensionContext) {
         InstrumentationRegistry.getArguments().also { bundle ->
             if (partnerAuth != null) {
-                validAccountNumber = client.createAccount()
+                validAccountNumber = client.createAccountUsingPartnerApi(partnerAuth)
                 client.addTimeToAccountUsingPartnerAuth(
                     accountNumber = validAccountNumber,
                     daysToAdd = 1,
