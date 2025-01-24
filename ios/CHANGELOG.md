@@ -26,6 +26,7 @@ Line wrap the file at 100 chars.                                              Th
 - Broken DAITA settings view on iOS 15.
 ### Changed
 - Move changelog to settings and add an in-app notification banner for app update.
+- Add different themes for app icons
 
 ## [2025.1 - 2025-01-14]
 ### Added
