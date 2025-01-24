@@ -260,8 +260,7 @@ impl WgGoTunnel {
     }
 
     #[cfg(target_os = "windows")]
-    pub fn start_tunnel(
-        runtime: tokio::runtime::Handle,
+    pub async fn start_tunnel(
         config: &Config,
         log_path: Option<&Path>,
         route_manager: talpid_routing::RouteManagerHandle,
@@ -275,12 +274,10 @@ impl WgGoTunnel {
             .map(|ordinal| LoggingContext::new(ordinal, log_path.map(Path::to_owned)))
             .map_err(TunnelError::LoggingError)?;
 
-        let socket_update_cb =
-            runtime
-                .block_on(route_manager.add_default_route_change_callback(Box::new(
-                    Self::default_route_changed_callback,
-                )))
-                .ok();
+        let socket_update_cb = route_manager
+            .add_default_route_change_callback(Box::new(Self::default_route_changed_callback))
+            .await
+            .ok();
         if socket_update_cb.is_none() {
             log::warn!("Failed to register default route callback");
         }

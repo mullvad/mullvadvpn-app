@@ -698,7 +698,6 @@ impl WireguardMonitor {
                     log::debug!("Using userspace WireGuard implementation");
                     let tunnel = runtime
                         .block_on(Self::open_wireguard_go_tunnel(
-                            runtime,
                             config,
                             log_path,
                             setup_done_tx,
@@ -736,7 +735,6 @@ impl WireguardMonitor {
     #[cfg(wireguard_go)]
     #[allow(clippy::unused_async)]
     async fn open_wireguard_go_tunnel(
-        #[cfg(windows)] runtime: tokio::runtime::Handle,
         config: &Config,
         log_path: Option<&Path>,
         #[cfg(unix)] tun_provider: Arc<Mutex<TunProvider>>,
@@ -755,9 +753,9 @@ impl WireguardMonitor {
             .map_err(Error::TunnelError)?;
 
         #[cfg(target_os = "windows")]
-        let tunnel =
-            WgGoTunnel::start_tunnel(runtime, config, log_path, route_manager, setup_done_tx)
-                .map_err(Error::TunnelError)?;
+        let tunnel = WgGoTunnel::start_tunnel(config, log_path, route_manager, setup_done_tx)
+            .await
+            .map_err(Error::TunnelError)?;
 
         // Android uses multihop implemented in Mullvad's wireguard-go fork. When negotiating
         // with an ephemeral peer, this multihop strategy require us to restart the tunnel
