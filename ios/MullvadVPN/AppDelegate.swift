@@ -277,15 +277,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func registerAppRefreshTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: BackgroundTask.appRefresh.identifier,
-            using: nil
+            using: .main
         ) { [self] task in
-            nonisolated(unsafe) let nonisolatedTask = task
 
             let handle = relayCacheTracker.updateRelays { result in
-                nonisolatedTask.setTaskCompleted(success: result.isSuccess)
+                task.setTaskCompleted(success: result.isSuccess)
             }
 
-            nonisolatedTask.expirationHandler = {
+            task.expirationHandler = {
                 handle.cancel()
             }
 
@@ -302,18 +301,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func registerKeyRotationTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: BackgroundTask.privateKeyRotation.identifier,
-            using: nil
+            using: .main
         ) { [self] task in
-            nonisolated(unsafe) let nonisolatedTask = task
             let handle = tunnelManager.rotatePrivateKey { [self] error in
-                Task { @MainActor in
-                    scheduleKeyRotationTask()
-
-                    nonisolatedTask.setTaskCompleted(success: error == nil)
-                }
+                scheduleKeyRotationTask()
+                task.setTaskCompleted(success: error == nil)
             }
 
-            nonisolatedTask.expirationHandler = {
+            task.expirationHandler = {
                 handle.cancel()
             }
         }
@@ -328,18 +323,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private func registerAddressCacheUpdateTask() {
         let isRegistered = BGTaskScheduler.shared.register(
             forTaskWithIdentifier: BackgroundTask.addressCacheUpdate.identifier,
-            using: nil
+            using: .main
         ) { [self] task in
-            nonisolated(unsafe) let nonisolatedTask = task
-
             let handle = addressCacheTracker.updateEndpoints { [self] result in
-                Task { @MainActor in
-                    scheduleAddressCacheUpdateTask()
-                    nonisolatedTask.setTaskCompleted(success: result.isSuccess)
-                }
+                scheduleAddressCacheUpdateTask()
+                task.setTaskCompleted(success: result.isSuccess)
             }
 
-            nonisolatedTask.expirationHandler = {
+            task.expirationHandler = {
                 handle.cancel()
             }
         }

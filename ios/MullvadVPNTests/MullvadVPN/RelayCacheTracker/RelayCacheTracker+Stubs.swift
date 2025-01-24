@@ -15,7 +15,7 @@ struct RelayCacheTrackerStub: RelayCacheTrackerProtocol {
 
     func stopPeriodicUpdates() {}
 
-    func updateRelays(completionHandler: ((Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable {
+    func updateRelays(completionHandler: ((sending Result<RelaysFetchResult, Error>) -> Void)?) -> Cancellable {
         AnyCancellable()
     }
 

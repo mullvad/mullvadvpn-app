@@ -84,7 +84,7 @@ final class AddressCacheTracker: @unchecked Sendable {
         timer = nil
     }
 
-    func updateEndpoints(completionHandler: (@Sendable (Result<Bool, Error>) -> Void)? = nil) -> Cancellable {
+    func updateEndpoints(completionHandler: ((sending Result<Bool, Error>) -> Void)? = nil) -> Cancellable {
         let operation = ResultBlockOperation<Bool> { finish -> Cancellable in
             guard self.nextScheduleDate() <= Date() else {
                 finish(.success(false))
