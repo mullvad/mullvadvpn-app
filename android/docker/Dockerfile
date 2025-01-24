@@ -117,11 +117,4 @@ RUN patch -p1 -f -N -r- -d /usr/local/go < /tmp/goruntime-boottime-over-monotoni
 # Add rust targets
 RUN rustup target add x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi
 
-# Install cbindgen to address maybenot.h (checked in) sometimes needing to be
-# re-generated due to how `make` looks at last-modifications while git neither
-# stores nor consistently sets modification metadata on file checkout.
-# This is an intermediate solution that will be further improved as part of
-# issue: DROID-1328.
-RUN cargo install --force cbindgen --version "0.26.0" && rm -rf ~/.cargo/registry
-
 WORKDIR /build
