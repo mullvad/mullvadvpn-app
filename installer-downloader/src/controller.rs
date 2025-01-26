@@ -95,7 +95,6 @@ impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
                     self_.set_status_text("Download complete! Verifying signature...");
-                    self_.enable_download_button();
                 });
 
                 Ok(())
