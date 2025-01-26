@@ -87,6 +87,7 @@ impl ConnectedState {
         shared_values: &mut SharedTunnelStateValues,
     ) -> Result<(), FirewallPolicyError> {
         let policy = self.get_firewall_policy(shared_values);
+        /*
         shared_values
             .firewall
             .apply_policy(policy)
@@ -105,6 +106,9 @@ impl ConnectedState {
                 #[cfg(not(windows))]
                 FirewallPolicyError::Generic
             })
+        */
+
+        Ok(())
     }
 
     fn get_firewall_policy(&self, shared_values: &SharedTunnelStateValues) -> FirewallPolicy {

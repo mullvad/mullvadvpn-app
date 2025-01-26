@@ -191,6 +191,8 @@ impl ConnectingState {
             #[cfg(target_os = "macos")]
             dns_redirect_port: shared_values.filtering_resolver.listening_port(),
         };
+
+        /*
         shared_values
             .firewall
             .apply_policy(policy)
@@ -207,6 +209,9 @@ impl ConnectingState {
                     _ => FirewallPolicyError::Generic,
                 }
             })
+        */
+
+        Ok(())
     }
 
     fn start_tunnel(
