@@ -574,7 +574,6 @@ pub struct Daemon {
     tunnel_state: TunnelState,
     target_state: PersistentTargetState,
     #[cfg(target_os = "linux")]
-    exclude_pids: split_tunnel::PidManager,
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
@@ -888,7 +887,6 @@ impl Daemon {
             },
             target_state,
             #[cfg(target_os = "linux")]
-            exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,
@@ -1927,18 +1925,24 @@ impl Daemon {
 
     #[cfg(target_os = "linux")]
     fn on_get_split_tunnel_processes(&mut self, tx: ResponseTx<Vec<i32>, split_tunnel::Error>) {
+        unimplemented!("no split tunneling supported");
+        /*
         let result = self.exclude_pids.list().inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to obtain PIDs"));
         });
         Self::oneshot_send(tx, result, "get_split_tunnel_processes response");
+        */
     }
 
     #[cfg(target_os = "linux")]
     fn on_add_split_tunnel_process(&mut self, tx: ResponseTx<(), split_tunnel::Error>, pid: i32) {
+        unimplemented!("no split tunneling supported");
+        /*
         let result = self.exclude_pids.add(pid).inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to add PID"));
         });
         Self::oneshot_send(tx, result, "add_split_tunnel_process response");
+        */
     }
 
     #[cfg(target_os = "linux")]
@@ -1947,18 +1951,24 @@ impl Daemon {
         tx: ResponseTx<(), split_tunnel::Error>,
         pid: i32,
     ) {
+        unimplemented!("no split tunneling supported");
+        /*
         let result = self.exclude_pids.remove(pid).inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to remove PID"));
         });
         Self::oneshot_send(tx, result, "remove_split_tunnel_process response");
+        */
     }
 
     #[cfg(target_os = "linux")]
     fn on_clear_split_tunnel_processes(&mut self, tx: ResponseTx<(), split_tunnel::Error>) {
+        unimplemented!("no split tunneling supported");
+        /*
         let result = self.exclude_pids.clear().inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to clear PIDs"));
         });
         Self::oneshot_send(tx, result, "clear_split_tunnel_processes response");
+        */
     }
 
     /// Update the split app paths in both the settings and tunnel
