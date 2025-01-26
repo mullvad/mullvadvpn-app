@@ -38,6 +38,18 @@ nsvg = "0.5.1"
 [package.metadata.winres]
 LegalCopyright = "(c) 2025 Mullvad VPN AB"
 
+[package.metadata.bundle]
+#name =
+identifier = "net.mullvad.downloader"
+#icon =
+#version = 
+#resources =
+#script =
+#copyright =
+#
+#short_description =
+#long_description =
+
 [profile.release]
 strip = true
 opt-level = 'z'
