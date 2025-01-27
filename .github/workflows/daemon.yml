@@ -186,7 +186,14 @@ jobs:
           vs-version: 16
 
       - name: Install latest zig
+        # NOTE: This action doesn't support ARM64 for the time being (2025-01-27)
+        if: ${{ matrix.config.arch == 'x64' }}
         uses: mlugg/setup-zig@v1
+
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21.3
 
       - name: Build Windows modules
         if: steps.cache-windows-modules.outputs.cache-hit != 'true'
