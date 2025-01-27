@@ -13,6 +13,9 @@ extension ConnectionView {
         @ObservedObject var viewModel: ConnectionViewViewModel
         @Binding var isExpanded: Bool
 
+        @State var titleForCountryAndCity: LocalizedStringKey?
+        @State var titleForServer: LocalizedStringKey?
+        @State var showConnectionDetails = false
         var body: some View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -22,20 +25,23 @@ extension ConnectionView {
                         .foregroundStyle(viewModel.textColorForSecureLabel.color)
                         .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
                         .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
+                        .transition(.opacity)
 
-                    if let countryAndCity = viewModel.titleForCountryAndCity {
-                        Text(countryAndCity)
+                    if let titleForCountryAndCity {
+                        Text(titleForCountryAndCity)
                             .font(.title3.weight(.semibold))
                             .foregroundStyle(UIColor.primaryTextColor.color)
                             .padding(.top, 4)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
 
-                    if let server = viewModel.titleForServer {
-                        Text(server)
+                    if let titleForServer {
+                        Text(titleForServer)
                             .font(.body)
                             .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                             .padding(.top, 2)
                             .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelServerLabel.asString)
+                            .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }
 
@@ -52,6 +58,21 @@ extension ConnectionView {
             .contentShape(Rectangle())
             .onTapGesture {
                 isExpanded.toggle()
+            }
+            .onChange(of: viewModel.titleForCountryAndCity, perform: { newValue in
+                withAnimation {
+                    titleForCountryAndCity = newValue
+                }
+            })
+            .onChange(of: viewModel.titleForServer, perform: { newValue in
+                withAnimation {
+                    titleForServer = newValue
+                }
+            })
+            .onChange(of: viewModel.showConnectionDetails) { newValue in
+                withAnimation {
+                    showConnectionDetails = newValue
+                }
             }
         }
     }
