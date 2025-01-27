@@ -12,6 +12,12 @@ mod libui_impl;
 
 #[cfg(target_os = "macos")]
 fn main() {
+    let runtime = tokio::runtime::Builder::new_multi_thread()
+        .enable_all()
+        .build()
+        .expect("failed to create tokio runtime");
+    let _guard = runtime.enter();
+
     #[cfg(target_os = "macos")]
     cacao_impl::main();
     #[cfg(target_os = "windows")]

@@ -36,7 +36,7 @@ pub trait AppDelegateQueue<T: ?Sized>: Send {
 
 /// See [module-level](crate) documentation.
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    delegate.on_download(|delegate| on_download(delegate));
+    delegate.on_download(move |delegate| on_download(delegate));
 }
 
 fn on_download<T: AppDelegate + 'static>(delegate: &mut T) {
@@ -48,7 +48,9 @@ fn on_download<T: AppDelegate + 'static>(delegate: &mut T) {
 
     let downloader = UiAppDownloader::new(delegate, new_delegated_downloader);
 
-    std::thread::spawn(move || app::install_and_upgrade(downloader));
+    tokio::spawn(async move {
+        let _ = app::install_and_upgrade(downloader).await;
+    });
 }
 
 /// App downloader that delegates everything to a downloader and uses the results to update the UI.
@@ -77,9 +79,10 @@ impl<Delegate: AppDelegate> UiAppDownloader<Delegate> {
     }
 }
 
+#[async_trait::async_trait]
 impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
-    fn download_signature(&mut self) -> Result<(), crate::app::DownloadError> {
-        if let Err(error) = self.downloader.download_signature() {
+    async fn download_signature(&mut self) -> Result<(), crate::app::DownloadError> {
+        if let Err(error) = self.downloader.download_signature().await {
             self.queue.queue_main(move |self_| {
                 self_.set_status_text("ERROR: Failed to retrieve signature.");
                 self_.enable_download_button();
@@ -90,8 +93,8 @@ impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
         }
     }
 
-    fn download_executable(&mut self) -> Result<(), crate::app::DownloadError> {
-        match self.downloader.download_executable() {
+    async fn download_executable(&mut self) -> Result<(), crate::app::DownloadError> {
+        match self.downloader.download_executable().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
                     self_.set_status_text("Download complete! Verifying signature...");
@@ -110,8 +113,8 @@ impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
         }
     }
 
-    fn verify(&mut self) -> Result<(), crate::app::DownloadError> {
-        match self.downloader.verify() {
+    async fn verify(&mut self) -> Result<(), crate::app::DownloadError> {
+        match self.downloader.verify().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
                     self_.set_status_text("Verification complete!");

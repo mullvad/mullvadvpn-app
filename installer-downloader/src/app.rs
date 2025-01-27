@@ -15,22 +15,23 @@ pub enum DownloadError {
 }
 
 /// See the [module-level documentation](crate).
+#[async_trait::async_trait]
 pub trait AppDownloader {
     /// Download the app signature.
-    fn download_signature(&mut self) -> Result<(), DownloadError>;
+    async fn download_signature(&mut self) -> Result<(), DownloadError>;
 
     /// Download the app binary.
-    fn download_executable(&mut self) -> Result<(), DownloadError>;
+    async fn download_executable(&mut self) -> Result<(), DownloadError>;
 
     /// Verify the app signature.
-    fn verify(&mut self) -> Result<(), DownloadError>;
+    async fn verify(&mut self) -> Result<(), DownloadError>;
 }
 
 /// Download the app and signature, and verify the app's signature
-pub fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(), DownloadError> {
-    downloader.download_signature()?;
-    downloader.download_executable()?;
-    downloader.verify()
+pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(), DownloadError> {
+    downloader.download_signature().await?;
+    downloader.download_executable().await?;
+    downloader.verify().await
 }
 
 #[derive(Clone)]
@@ -73,31 +74,40 @@ impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
     }
 }
 
+#[async_trait::async_trait]
 impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
     for LatestAppDownloader<SigProgress, AppProgress>
 {
-    fn download_signature(&mut self) -> Result<(), DownloadError> {
+    async fn download_signature(&mut self) -> Result<(), DownloadError> {
         fetch::get_to_file(
             self.sig_path(),
             &self.signature_url,
             &mut self.signature_progress_updater,
             1 * 1024,
         )
+        .await
         .map_err(DownloadError::FetchSignature)
     }
 
-    fn download_executable(&mut self) -> Result<(), DownloadError> {
+    async fn download_executable(&mut self) -> Result<(), DownloadError> {
         fetch::get_to_file(
             self.bin_path(),
             &self.app_url,
             &mut self.app_progress_updater,
             100 * 1024 * 1024,
         )
+        .await
         .map_err(DownloadError::FetchApp)
     }
 
-    fn verify(&mut self) -> Result<(), DownloadError> {
-        PgpVerifier::verify(self.bin_path(), self.sig_path()).map_err(DownloadError::Verification)
+    async fn verify(&mut self) -> Result<(), DownloadError> {
+        let bin_path = self.bin_path();
+        let sig_path = self.sig_path();
+        tokio::task::spawn_blocking(move || {
+            PgpVerifier::verify(bin_path, sig_path).map_err(DownloadError::Verification)
+        })
+        .await
+        .expect("verifier panicked")
     }
 }
 

@@ -1,6 +1,9 @@
-use std::fs::File;
-use std::io::BufWriter;
 use std::path::Path;
+use std::pin::Pin;
+use std::task::{ready, Poll};
+
+use tokio::fs::File;
+use tokio::io::{self, AsyncWrite, AsyncWriteExt, BufWriter};
 
 use anyhow::Context;
 
@@ -21,14 +24,14 @@ pub trait ProgressUpdater: Send + 'static {
 /// # Arguments
 /// - `progress_updater` - This interface is notified of download progress.
 /// - `size_hint` - Assumed size if the HTTP header doesn't reveal it.
-pub fn get_to_file(
+pub async fn get_to_file(
     file: impl AsRef<Path>,
     url: &str,
     progress_updater: &mut impl ProgressUpdater,
     size_hint: u64,
 ) -> anyhow::Result<()> {
-    let file = BufWriter::new(File::create(file)?);
-    let mut get_result = reqwest::blocking::get(url)?;
+    let file = BufWriter::new(File::create(file).await?);
+    let mut get_result = reqwest::get(url).await?;
     progress_updater.set_url(url);
 
     let total_size = get_result.content_length().unwrap_or(size_hint);
@@ -47,7 +50,15 @@ pub fn get_to_file(
         total_nbytes: total_size as usize,
     };
 
-    get_result.copy_to(&mut writer)?;
+    while let Some(chunk) = get_result.chunk().await.context("Failed to read chunk")? {
+        writer
+            .write_all(&chunk)
+            .await
+            .context("Failed to write chunk")?;
+    }
+
+    writer.flush().await.context("Failed to flush")?;
+
     Ok(())
 }
 
@@ -59,18 +70,36 @@ struct WriterWithProgress<'a, PU: ProgressUpdater> {
     total_nbytes: usize,
 }
 
-impl<PU: ProgressUpdater> std::io::Write for WriterWithProgress<'_, PU> {
-    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        let nbytes = self.file.write(buf)?;
+impl<PU: ProgressUpdater> AsyncWrite for WriterWithProgress<'_, PU> {
+    fn poll_write(
+        mut self: Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+        buf: &[u8],
+    ) -> Poll<Result<usize, io::Error>> {
+        let file = Pin::new(&mut self.file);
+        let nbytes = ready!(file.poll_write(cx, buf))?;
 
-        self.written_nbytes += nbytes;
+        let total_nbytes = self.total_nbytes;
+        let total_written = self.written_nbytes + nbytes;
+
+        self.written_nbytes = total_written;
         self.progress_updater
-            .set_progress((self.written_nbytes as f32 / self.total_nbytes as f32));
+            .set_progress(total_written as f32 / total_nbytes as f32);
 
-        Ok(nbytes)
+        Poll::Ready(Ok(nbytes))
     }
 
-    fn flush(&mut self) -> std::io::Result<()> {
-        self.file.flush()
+    fn poll_flush(
+        mut self: Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        Pin::new(&mut self.file).poll_flush(cx)
+    }
+
+    fn poll_shutdown(
+        mut self: Pin<&mut Self>,
+        cx: &mut std::task::Context<'_>,
+    ) -> Poll<Result<(), std::io::Error>> {
+        Pin::new(&mut self.file).poll_shutdown(cx)
     }
 }
