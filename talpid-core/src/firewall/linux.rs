@@ -304,7 +304,7 @@ impl<'a> PolicyBatch<'a> {
     /// policy.
     pub fn finalize(mut self, policy: &FirewallPolicy, fwmark: u32) -> Result<FinalizedBatch> {
         self.add_loopback_rules()?;
-        self.add_split_tunneling_rules(policy, fwmark)?;
+        //self.add_split_tunneling_rules(policy, fwmark)?;
         self.add_dhcp_client_rules();
         self.add_ndp_rules();
         self.add_policy_specific_rules(policy, fwmark)?;
