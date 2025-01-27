@@ -1,5 +1,7 @@
 //! Framework-agnostic module that hooks up a UI to actions
 
+use tokio::sync::mpsc;
+
 use crate::app::{self, AppDownloader, LatestAppDownloader};
 use crate::fetch;
 
@@ -10,6 +12,11 @@ pub trait AppDelegate {
 
     /// Register click handler for the download button
     fn on_download<F>(&mut self, callback: F)
+    where
+        F: Fn(&mut Self) + Send + 'static;
+
+    /// Register click handler for the cancel button
+    fn on_cancel<F>(&mut self, callback: F)
     where
         F: Fn(&mut Self) + Send + 'static;
 
@@ -25,6 +32,12 @@ pub trait AppDelegate {
     /// Disable download button
     fn disable_download_button(&mut self);
 
+    /// Show cancel button
+    fn show_cancel_button(&mut self);
+
+    /// Hide cancel button
+    fn hide_cancel_button(&mut self);
+
     /// Create queue for scheduling actions on UI thread
     fn queue(&self) -> Self::Queue;
 }
@@ -34,23 +47,70 @@ pub trait AppDelegateQueue<T: ?Sized>: Send {
     fn queue_main<F: FnOnce(&mut T) + 'static + Send>(&self, callback: F);
 }
 
-/// See [module-level](crate) documentation.
-pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    delegate.on_download(move |delegate| on_download(delegate));
+enum DownloadTaskMessage<T: AppDelegate> {
+    BeginDownload(UiAppDownloader<T>),
+    Cancel,
 }
 
-fn on_download<T: AppDelegate + 'static>(delegate: &mut T) {
+/// See [module-level](crate) documentation.
+pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
+    delegate.hide_cancel_button();
+
+    let (download_tx, mut download_rx) = mpsc::channel(1);
+    tokio::spawn(async move {
+        // TODO: move to func
+        let mut active_download = None;
+
+        while let Some(msg) = download_rx.recv().await {
+            match msg {
+                DownloadTaskMessage::BeginDownload(downloader) => {
+                    if active_download.is_none() {
+                        active_download = Some(tokio::spawn(async move {
+                            let _ = app::install_and_upgrade(downloader).await;
+                        }));
+                    }
+                }
+                DownloadTaskMessage::Cancel => {
+                    let Some(active_download) = active_download.take() else {
+                        continue;
+                    };
+                    active_download.abort();
+                }
+            }
+        }
+    });
+
+    let tx = download_tx.clone();
+    delegate.on_download(move |delegate| on_download(delegate, tx.clone()));
+    delegate.on_cancel(move |delegate| on_cancel(delegate, download_tx.clone()));
+}
+
+fn on_download<T: AppDelegate + 'static>(
+    delegate: &mut T,
+    download_tx: mpsc::Sender<DownloadTaskMessage<T>>,
+) {
     delegate.set_status_text("");
     delegate.disable_download_button();
+    delegate.show_cancel_button();
 
     let new_delegated_downloader =
         |sig_progress, app_progress| LatestAppDownloader::stable(sig_progress, app_progress);
 
     let downloader = UiAppDownloader::new(delegate, new_delegated_downloader);
 
-    tokio::spawn(async move {
-        let _ = app::install_and_upgrade(downloader).await;
-    });
+    let _ = download_tx.try_send(DownloadTaskMessage::BeginDownload(downloader));
+}
+
+fn on_cancel<T: AppDelegate + 'static>(
+    delegate: &mut T,
+    download_tx: mpsc::Sender<DownloadTaskMessage<T>>,
+) {
+    delegate.set_status_text("");
+    delegate.enable_download_button();
+    delegate.hide_cancel_button();
+    delegate.set_download_progress(0);
+
+    let _ = download_tx.try_send(DownloadTaskMessage::Cancel);
 }
 
 /// App downloader that delegates everything to a downloader and uses the results to update the UI.
@@ -86,6 +146,7 @@ impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
             self.queue.queue_main(move |self_| {
                 self_.set_status_text("ERROR: Failed to retrieve signature.");
                 self_.enable_download_button();
+                self_.hide_cancel_button();
             });
             Err(error)
         } else {
@@ -98,6 +159,7 @@ impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
                     self_.set_status_text("Download complete! Verifying signature...");
+                    self_.hide_cancel_button();
                 });
 
                 Ok(())
@@ -106,6 +168,7 @@ impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
                 self.queue.queue_main(move |self_| {
                     self_.set_status_text("ERROR: Download failed. Please try again.");
                     self_.enable_download_button();
+                    self_.hide_cancel_button();
                 });
 
                 Err(err)

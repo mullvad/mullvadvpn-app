@@ -62,6 +62,8 @@ impl AppDelegate for AppImpl {
 pub enum Action {
     /// User clicked the download button
     DownloadClick(Arc<Mutex<Box<dyn for<'a> Fn(&'a mut AppWindow) + Send>>>),
+    /// User clicked the cancel button
+    CancelClick(Arc<Mutex<Box<dyn for<'a> Fn(&'a mut AppWindow) + Send>>>),
     /// Run callback on main thread
     QueueMain(Mutex<Option<Box<dyn for<'a> FnOnce(&'a mut AppWindow) + Send>>>),
 }
@@ -70,19 +72,20 @@ impl Dispatcher for AppImpl {
     type Message = Action;
 
     fn on_ui_message(&self, message: Self::Message) {
+        let delegate = self.window.delegate.as_ref().unwrap();
+        // NOTE: We assume that this won't panic because they will never run simultaneously
+        let mut borrowed = delegate.inner.borrow_mut();
         match message {
             Action::DownloadClick(cb) => {
                 let cb = cb.lock().unwrap();
-                let delegate = self.window.delegate.as_ref().unwrap();
-                // NOTE: We assume that this won't panic because this will never run simultaneously
-                //       with `queue_main``
-                let mut borrowed = delegate.inner.borrow_mut();
+                cb(&mut borrowed);
+            }
+            Action::CancelClick(cb) => {
+                let cb = cb.lock().unwrap();
                 cb(&mut borrowed);
             }
             Action::QueueMain(cb) => {
                 let cb = cb.lock().unwrap().take().unwrap();
-                let delegate = self.window.delegate.as_ref().unwrap();
-                let mut borrowed = delegate.inner.borrow_mut();
                 cb(&mut borrowed);
             }
         }
@@ -112,6 +115,7 @@ pub struct AppWindow {
     pub progress: ProgressIndicator,
     pub text: Label,
     pub button: DownloadButton,
+    pub cancel_button: CancelButton,
 
     pub beta_link_preface: Label,
     pub beta_link: Label,
@@ -124,6 +128,17 @@ pub struct DownloadButton {
 impl Default for DownloadButton {
     fn default() -> Self {
         let button = Button::new("Download & install");
+        Self { button }
+    }
+}
+
+pub struct CancelButton {
+    pub button: Button,
+}
+
+impl Default for CancelButton {
+    fn default() -> Self {
+        let button = Button::new("Cancel");
         Self { button }
     }
 }
@@ -243,6 +258,7 @@ impl AppWindow {
         self.text.set_text("Latest version: 2025.3");
         self.main_view.add_subview(&self.text);
         self.main_view.add_subview(&self.button.button);
+        self.main_view.add_subview(&self.cancel_button.button);
 
         self.beta_link_preface
             .set_text("Want to try out new features? ");
@@ -284,7 +300,16 @@ impl AppWindow {
                 .right
                 .constraint_equal_to(&self.main_view.right)
                 .offset(-30.),
-            self.progress.height.constraint_equal_to_constant(48.0f64),
+            self.progress.height.constraint_equal_to_constant(16.0f64),
+            self.cancel_button
+                .button
+                .center_x
+                .constraint_equal_to(&self.main_view.center_x),
+            self.cancel_button
+                .button
+                .top
+                .constraint_equal_to(&self.progress.bottom)
+                .offset(16.),
             self.beta_link_preface
                 .bottom
                 .constraint_equal_to(&self.main_view.bottom)
