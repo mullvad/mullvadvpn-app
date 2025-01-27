@@ -81,6 +81,10 @@ final class NewDeviceNotificationProvider: NotificationProvider,
         .registeredDeviceInAppNotification
     }
 
+    override var priority: NotificationPriority {
+        .medium
+    }
+
     private func addObservers() {
         tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in

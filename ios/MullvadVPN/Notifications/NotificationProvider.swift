@@ -18,6 +18,7 @@ protocol NotificationProviderDelegate: AnyObject {
 /// Base class for all notification providers.
 class NotificationProvider: NotificationProviderProtocol, @unchecked Sendable {
     weak var delegate: NotificationProviderDelegate?
+    var timestamp = Date()
 
     /**
      Provider identifier.
@@ -27,6 +28,13 @@ class NotificationProvider: NotificationProviderProtocol, @unchecked Sendable {
      */
     var identifier: NotificationProviderIdentifier {
         .default
+    }
+
+    /**
+     Default implementation for the priority property, setting it to `.low`.
+     */
+    var priority: NotificationPriority {
+        .low
     }
 
     /**

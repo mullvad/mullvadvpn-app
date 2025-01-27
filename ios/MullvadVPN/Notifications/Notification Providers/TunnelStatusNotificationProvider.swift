@@ -20,6 +20,10 @@ final class TunnelStatusNotificationProvider: NotificationProvider, InAppNotific
         .tunnelStatusNotificationProvider
     }
 
+    override var priority: NotificationPriority {
+        .critical
+    }
+
     var notificationDescriptor: InAppNotificationDescriptor? {
         if let packetTunnelError {
             return notificationDescription(for: packetTunnelError)

@@ -39,6 +39,10 @@ final class AccountExpiryInAppNotificationProvider: NotificationProvider, InAppN
         .accountExpiryInAppNotification
     }
 
+    override var priority: NotificationPriority {
+        .high
+    }
+
     // MARK: - InAppNotificationProvider
 
     var notificationDescriptor: InAppNotificationDescriptor? {
