@@ -15,8 +15,10 @@ import net.mullvad.mullvadvpn.test.common.page.on
 import net.mullvad.mullvadvpn.test.common.rule.ForgetAllVpnAppsInSettingsTestRule
 import net.mullvad.mullvadvpn.test.e2e.annotations.HasDependencyOnLocalAPI
 import net.mullvad.mullvadvpn.test.e2e.misc.AccountTestRule
-import net.mullvad.mullvadvpn.test.e2e.misc.LeakCheck
+import net.mullvad.mullvadvpn.test.e2e.misc.NetworkTrafficChecker
 import net.mullvad.mullvadvpn.test.e2e.misc.NoTrafficToHostRule
+import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToHostRule
+import net.mullvad.mullvadvpn.test.e2e.misc.SomeTrafficToOtherHostsRule
 import net.mullvad.mullvadvpn.test.e2e.misc.TrafficGenerator
 import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCapture
 import net.mullvad.mullvadvpn.test.e2e.router.packetCapture.PacketCaptureResult
@@ -58,7 +60,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
 
     @Test
     @HasDependencyOnLocalAPI
-    fun testNegativeLeak() =
+    fun testEnsureNoLeaksToSpecificHost() =
         runBlocking<Unit> {
             app.launch()
 
@@ -94,15 +96,20 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             val capturedStreams = captureResult.streams
             val capturedPcap = captureResult.pcap
             val timestamp = System.currentTimeMillis()
-            Attachment.saveAttachment("capture-testNegativeLeak-$timestamp.pcap", capturedPcap)
+            Attachment.saveAttachment(
+                "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
+                capturedPcap,
+            )
 
-            val leakRules = listOf(NoTrafficToHostRule(targetIpAddress))
-            LeakCheck.assertNoLeaks(capturedStreams, leakRules)
+            NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
+                capturedStreams,
+                NoTrafficToHostRule(targetIpAddress),
+            )
         }
 
     @Test
     @HasDependencyOnLocalAPI
-    fun testShouldHaveNegativeLeak() =
+    fun testEnsureLeaksToSpecificHost() =
         runBlocking<Unit> {
             app.launch()
 
@@ -154,15 +161,21 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             val capturedStreams = captureResult.streams
             val capturedPcap = captureResult.pcap
             val timestamp = System.currentTimeMillis()
-            Attachment.saveAttachment("capture-testShouldHaveLeak-$timestamp.pcap", capturedPcap)
+            Attachment.saveAttachment(
+                "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
+                capturedPcap,
+            )
 
-            val leakRules = listOf(NoTrafficToHostRule(targetIpAddress))
-            LeakCheck.assertLeaks(capturedStreams, leakRules)
+            NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
+                capturedStreams,
+                SomeTrafficToHostRule(targetIpAddress),
+                SomeTrafficToOtherHostsRule(targetIpAddress),
+            )
         }
 
     @Test
     @HasDependencyOnLocalAPI
-    fun testLeakWhenVpnSettingsChange() =
+    fun testEnsureNoLeaksToSpecificHostWhenSwitchingBetweenVariousVpnSettings() =
         runBlocking<Unit> {
             app.launch()
             // Obfuscation and Post-Quantum are by default set to automatic. Explicitly set to off.
@@ -208,12 +221,14 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             val capturedPcap = captureResult.pcap
             val timestamp = System.currentTimeMillis()
             Attachment.saveAttachment(
-                "capture-testLeakWhenVpnSettingsChange-$timestamp.pcap",
+                "capture-${javaClass.enclosingMethod}-$timestamp.pcap",
                 capturedPcap,
             )
 
-            val leakRules = listOf(NoTrafficToHostRule(targetIpAddress))
-            LeakCheck.assertLeaks(capturedStreams, leakRules)
+            NetworkTrafficChecker.checkTrafficStreamsAgainstRules(
+                capturedStreams,
+                NoTrafficToHostRule(targetIpAddress),
+            )
         }
 
     private fun disableObfuscation() {
