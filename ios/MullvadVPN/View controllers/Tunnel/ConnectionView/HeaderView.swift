@@ -47,7 +47,7 @@ extension ConnectionView {
                         .foregroundStyle(.white)
                         .accessibilityIdentifier(AccessibilityIdentifier.relayStatusCollapseButton.asString)
                 }
-                .showIf(viewModel.showConnectionDetails)
+                .showIf(viewModel.showsConnectionDetails)
             }
             .contentShape(Rectangle())
             .onTapGesture {
