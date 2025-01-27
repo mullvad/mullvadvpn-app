@@ -36,13 +36,29 @@ impl AppDelegate for LibuiAppDelegate {
 
     fn on_download<F>(&mut self, mut callback: F)
     where
-        F: FnMut() + 'static,
+        F: Fn(&mut Self) + Send + 'static,
     {
-        self.app_ui.download_button.on_clicked(move |_| callback());
+        // FIXME
+        //self.app_ui.download_button.on_clicked(move |_| callback());
+    }
+
+    fn on_cancel<F>(&mut self, callback: F)
+    where
+        F: Fn(&mut Self) + Send + 'static,
+    {
+        // TODO
     }
 
     fn set_status_text(&mut self, text: &str) {
         self.app_ui.download_text.set_text(text);
+    }
+
+    fn show_download_progress(&mut self) {
+        // TODO
+    }
+
+    fn hide_download_progress(&mut self) {
+        // TODO
     }
 
     fn set_download_progress(&mut self, value: u32) {
@@ -57,6 +73,22 @@ impl AppDelegate for LibuiAppDelegate {
 
     fn disable_download_button(&mut self) {
         self.app_ui.download_button.disable();
+    }
+
+    fn show_download_button(&mut self) {
+        // TODO
+    }
+
+    fn hide_download_button(&mut self) {
+        // TODO
+    }
+
+    fn show_cancel_button(&mut self) {
+        // TODO
+    }
+
+    fn hide_cancel_button(&mut self) {
+        // TODO
     }
 
     fn queue(&self) -> Self::Queue {

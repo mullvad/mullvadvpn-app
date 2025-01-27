@@ -12,10 +12,7 @@ impl AppDelegate for AppWindow {
     where
         F: Fn(&mut Self) + Send + 'static,
     {
-        let cb = Self::sync_callback(move |self_| {
-            self_.progress.set_hidden(false);
-            callback(self_)
-        });
+        let cb = Self::sync_callback(callback);
         self.button.button.set_action(move || {
             let cb = Action::DownloadClick(cb.clone());
             cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(cb);
@@ -35,6 +32,14 @@ impl AppDelegate for AppWindow {
 
     fn set_status_text(&mut self, text: &str) {
         self.text.set_text(text);
+    }
+
+    fn show_download_progress(&mut self) {
+        self.progress.set_hidden(false);
+    }
+
+    fn hide_download_progress(&mut self) {
+        self.progress.set_hidden(true);
     }
 
     fn set_download_progress(&mut self, complete: u32) {

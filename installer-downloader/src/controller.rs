@@ -23,6 +23,12 @@ pub trait AppDelegate {
     /// Set download status text
     fn set_status_text(&mut self, text: &str);
 
+    /// Show download progress bar
+    fn show_download_progress(&mut self);
+
+    /// Hide download progress bar
+    fn hide_download_progress(&mut self);
+
     /// Update download progress bar
     fn set_download_progress(&mut self, complete: u32);
 
@@ -92,6 +98,7 @@ fn on_download<T: AppDelegate + 'static>(
     delegate.set_status_text("");
     delegate.disable_download_button();
     delegate.show_cancel_button();
+    delegate.show_download_progress();
 
     let new_delegated_downloader =
         |sig_progress, app_progress| LatestAppDownloader::stable(sig_progress, app_progress);
@@ -108,6 +115,7 @@ fn on_cancel<T: AppDelegate + 'static>(
     delegate.set_status_text("");
     delegate.enable_download_button();
     delegate.hide_cancel_button();
+    delegate.hide_download_progress();
     delegate.set_download_progress(0);
 
     let _ = download_tx.try_send(DownloadTaskMessage::Cancel);
