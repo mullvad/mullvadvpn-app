@@ -91,7 +91,6 @@ impl ErrorState {
             .firewall
             .apply_policy(policy)
             .map_err(|error| {
-                dbg!(&error);
                 log::error!(
                     "{}",
                     error.display_chain_with_msg(

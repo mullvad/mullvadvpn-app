@@ -210,7 +210,6 @@ impl Firewall {
             }
         }
 
-        dbg!(&table_set);
         for expected_table in expected_tables {
             if !table_set.contains(*expected_table) {
                 log::error!(

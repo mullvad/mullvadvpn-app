@@ -59,7 +59,7 @@ async-trait = "0.1"
 hickory-resolver = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
-nix = "0.26"
+nix = { version = "0.29", features = ["signal"] }
 simple-signal = "1.1"
 
 [target.'cfg(target_os="linux")'.dependencies]

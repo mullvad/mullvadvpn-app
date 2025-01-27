@@ -79,11 +79,8 @@ impl PidManager {
             fs::create_dir_all(&net_cls_dir).map_err(Error::CreateCGroup)?;
         }
 
-        // TODO: problematic code
-
-        dbg!(&net_cls_dir);
-
         // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
+        // This errors on opensuse tumbleweed snapshot 20250125
         nix::mount::mount(
             Some("net_cls"),
             &net_cls_dir,
