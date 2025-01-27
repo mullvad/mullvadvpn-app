@@ -1,6 +1,6 @@
 //! Framework-agnostic module that hooks up a UI to actions
 
-use tokio::sync::mpsc;
+use tokio::sync::{mpsc, oneshot};
 
 use crate::app::{self, AppDownloader, LatestAppDownloader};
 use crate::fetch;
@@ -55,7 +55,7 @@ pub trait AppDelegateQueue<T: ?Sized>: Send {
 
 enum DownloadTaskMessage<T: AppDelegate> {
     BeginDownload(UiAppDownloader<T>),
-    Cancel,
+    Cancel(oneshot::Sender<()>),
 }
 
 /// See [module-level](crate) documentation.
@@ -76,11 +76,13 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
                         }));
                     }
                 }
-                DownloadTaskMessage::Cancel => {
+                DownloadTaskMessage::Cancel(done_tx) => {
                     let Some(active_download) = active_download.take() else {
                         continue;
                     };
                     active_download.abort();
+                    let _ = active_download.await;
+                    let _ = done_tx.send(());
                 }
             }
         }
@@ -112,13 +114,17 @@ fn on_cancel<T: AppDelegate + 'static>(
     delegate: &mut T,
     download_tx: mpsc::Sender<DownloadTaskMessage<T>>,
 ) {
+    let (done_tx, done_rx) = oneshot::channel();
+    let _ = download_tx.try_send(DownloadTaskMessage::Cancel(done_tx));
+    tokio::runtime::Handle::current().block_on(async move {
+        let _ = done_rx.await;
+    });
+
     delegate.set_status_text("");
     delegate.enable_download_button();
     delegate.hide_cancel_button();
     delegate.hide_download_progress();
     delegate.set_download_progress(0);
-
-    let _ = download_tx.try_send(DownloadTaskMessage::Cancel);
 }
 
 /// App downloader that delegates everything to a downloader and uses the results to update the UI.
