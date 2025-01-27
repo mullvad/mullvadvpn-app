@@ -14,6 +14,13 @@ protocol NotificationProviderProtocol {
     /// produced by them.
     var identifier: NotificationProviderIdentifier { get }
 
+    /// The priority level of the notification, used to determine the order in which notifications
+    /// should be displayed. Higher priority notifications are displayed first.
+    var priority: NotificationPriority { get }
+
+    /// Timestamp for tie-breaking (when the notification became valid)
+    var timestamp: Date { get }
+
     /// Tell notification manager to update the associated notification.
     func invalidate()
 }

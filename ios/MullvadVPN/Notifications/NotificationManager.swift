@@ -30,7 +30,13 @@ final class NotificationManager: NotificationProviderDelegate {
                 newNotificationProvider.delegate = self
             }
 
-            _notificationProviders = newNotificationProviders
+            _notificationProviders = newNotificationProviders.sorted {
+                if $0.priority == $1.priority {
+                    // Older notifications are shown first with same priority
+                    return $0.timestamp < $1.timestamp
+                }
+                return $0.priority > $1.priority
+            }
         }
     }
 
