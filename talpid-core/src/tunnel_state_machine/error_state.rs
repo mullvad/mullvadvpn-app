@@ -87,27 +87,23 @@ impl ErrorState {
         #[cfg(target_os = "linux")]
         shared_values.disable_connectivity_check();
 
-        /*
-                shared_values
-                    .firewall
-                    .apply_policy(policy)
-                    .map_err(|error| {
-                        dbg!(&error);
-                        log::error!(
-                            "{}",
-                            error.display_chain_with_msg(
-                                "Failed to apply firewall policy for blocked state"
-                            )
-                        );
-                        match error {
-                            #[cfg(windows)]
-                            crate::firewall::Error::ApplyingBlockedPolicy(policy_error) => policy_error,
-                            _ => FirewallPolicyError::Generic,
-                        }
-                    });
-        */
-
-        Ok(())
+        shared_values
+            .firewall
+            .apply_policy(policy)
+            .map_err(|error| {
+                dbg!(&error);
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg(
+                        "Failed to apply firewall policy for blocked state"
+                    )
+                );
+                match error {
+                    #[cfg(windows)]
+                    crate::firewall::Error::ApplyingBlockedPolicy(policy_error) => policy_error,
+                    _ => FirewallPolicyError::Generic,
+                }
+            })
     }
 
     fn reset_dns(shared_values: &mut SharedTunnelStateValues) {
