@@ -156,6 +156,7 @@ INSTRUMENTATION_LOG_FILE_PATH="$REPORT_DIR/instrumentation-log.txt"
 LOGCAT_FILE_PATH="$REPORT_DIR/logcat.txt"
 LOCAL_SCREENSHOT_PATH="$REPORT_DIR/screenshots"
 DEVICE_SCREENSHOT_PATH="/sdcard/Pictures/mullvad-$TEST_TYPE"
+LOCAL_TEST_ATTACHMENTS_PATH="$REPORT_DIR/test-attachments"
 DEVICE_TEST_ATTACHMENTS_PATH="/sdcard/Download/test-attachments"
 
 echo ""
@@ -241,6 +242,7 @@ else
     echo "One or more tests failed, see logs for more details."
     echo "Collecting report..."
     adb pull "$DEVICE_SCREENSHOT_PATH" "$LOCAL_SCREENSHOT_PATH" || echo "No screenshots"
+    adb pull "$DEVICE_TEST_ATTACHMENTS_PATH" "$LOCAL_TEST_ATTACHMENTS_PATH" || echo "No test attachments"
     adb logcat -d > "$LOGCAT_FILE_PATH"
     exit 1
 fi
