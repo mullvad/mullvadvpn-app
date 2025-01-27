@@ -1,8 +1,8 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import log from '../../shared/logging';
+import { Colors } from '../lib/foundations';
 import { useMounted } from '../lib/utility-hooks';
 import {
   StyledButtonContent,
@@ -32,7 +32,7 @@ interface IIconProps {
 }
 
 export function Icon(props: IIconProps) {
-  return <ImageView {...props} tintColor={colors.white} />;
+  return <ImageView {...props} tintColor={Colors.white} />;
 }
 
 export interface IProps extends React.HTMLAttributes<HTMLButtonElement> {
@@ -157,37 +157,37 @@ export function BlockingButton(props: IBlockingProps) {
 }
 
 export const RedButton = styled(BaseButton)({
-  backgroundColor: colors.red,
+  backgroundColor: Colors.red,
   '&&:not(:disabled):hover': {
-    backgroundColor: colors.red95,
+    backgroundColor: Colors.red95,
   },
 });
 
 export const GreenButton = styled(BaseButton)({
-  backgroundColor: colors.green,
+  backgroundColor: Colors.green,
   '&&:not(:disabled):hover': {
-    backgroundColor: colors.green90,
+    backgroundColor: Colors.green90,
   },
 });
 
 export const BlueButton = styled(BaseButton)({
-  backgroundColor: colors.blue80,
+  backgroundColor: Colors.blue80,
   '&&:not(:disabled):hover': {
-    backgroundColor: colors.blue60,
+    backgroundColor: Colors.blue60,
   },
 });
 
 export const TransparentButton = styled(BaseButton)(transparentButton, {
-  backgroundColor: colors.white20,
+  backgroundColor: Colors.white20,
   '&&:not(:disabled):hover': {
-    backgroundColor: colors.white40,
+    backgroundColor: Colors.white40,
   },
 });
 
 export const RedTransparentButton = styled(BaseButton)(transparentButton, {
-  backgroundColor: colors.red60,
+  backgroundColor: Colors.red60,
   '&&:not(:disabled):hover': {
-    backgroundColor: colors.red80,
+    backgroundColor: Colors.red80,
   },
 });
 

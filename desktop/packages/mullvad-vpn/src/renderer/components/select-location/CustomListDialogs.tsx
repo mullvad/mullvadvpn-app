@@ -2,7 +2,6 @@ import { useCallback, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import {
   compareRelayLocationGeographical,
   ICustomList,
@@ -12,6 +11,7 @@ import {
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
+import { Colors } from '../../lib/foundations';
 import { formatHtml } from '../../lib/html-formatter';
 import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
@@ -105,7 +105,7 @@ const StyledSelectListItemLabel = styled(Cell.Label)(normalText, {
 
 const StyledSelectListItemIcon = styled(Cell.Icon)({
   [`${Cell.CellButton}:not(:disabled):hover &&`]: {
-    backgroundColor: colors.white80,
+    backgroundColor: Colors.white80,
   },
 });
 
@@ -137,7 +137,7 @@ function SelectList(props: SelectListProps) {
 
 const StyledInputErrorText = styled.span(tinyText, {
   marginTop: '6px',
-  color: colors.red,
+  color: Colors.red,
 });
 
 interface EditListProps {

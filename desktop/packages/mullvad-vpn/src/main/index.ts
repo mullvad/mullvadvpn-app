@@ -4,12 +4,12 @@ import fs from 'fs';
 import * as path from 'path';
 import util from 'util';
 
-import config from '../config.json';
 import { hasExpired } from '../shared/account-expiry';
 import {
   ISplitTunnelingApplication,
   ISplitTunnelingAppListRetriever,
 } from '../shared/application-types';
+import { links } from '../shared/constants';
 import {
   AccessMethodSetting,
   DaemonEvent,
@@ -855,7 +855,7 @@ class ApplicationMain
 
     IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
-      if (Object.values(config.links).find((link) => url.startsWith(link))) {
+      if (Object.values(links).find((link) => url.startsWith(link))) {
         await shell.openExternal(url);
       }
     });

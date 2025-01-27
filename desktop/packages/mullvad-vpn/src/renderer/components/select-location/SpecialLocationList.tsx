@@ -1,8 +1,8 @@
 import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import { messages } from '../../../shared/gettext';
+import { Colors } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
@@ -154,8 +154,8 @@ export function CustomBridgeLocationRow(
         <StyledSpecialLocationSideButton
           source={icon}
           width={20}
-          tintColor={colors.white}
-          tintHoverColor={colors.white80}
+          tintColor={Colors.white}
+          tintHoverColor={Colors.white80}
         />
       </Cell.SideButton>
     </StyledLocationRowContainerWithMargin>

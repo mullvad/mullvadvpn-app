@@ -283,7 +283,6 @@ If you're using GNOME, try installing one of these GNOME Shell extensions:
       - **app.tsx** - Entry file for the renderer process
       - **routes.tsx** - Routes configurator
       - **transitions.ts** - Transition rules between views
-    - **config.json** - App color definitions and URLs to external resources
   - **tasks/** - Gulp tasks used to build app and watch for changes during development
     - **distribution.js** - Configuration for `electron-builder`
   - **test/** - Electron GUI tests

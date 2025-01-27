@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
 import { TunnelState } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
+import { Colors } from '../../lib/foundations';
 import { useSelector } from '../../redux/store';
 import { largeText } from '../common-styles';
 
@@ -29,14 +29,14 @@ export default function ConnectionStatus() {
 function getConnectionSTatusLabelColor(tunnelState: TunnelState, lockdownMode: boolean) {
   switch (tunnelState.state) {
     case 'connected':
-      return colors.green;
+      return Colors.green;
     case 'connecting':
     case 'disconnecting':
-      return colors.white;
+      return Colors.white;
     case 'disconnected':
-      return lockdownMode ? colors.white : colors.red;
+      return lockdownMode ? Colors.white : Colors.red;
     case 'error':
-      return tunnelState.details.blockingError ? colors.red : colors.white;
+      return tunnelState.details.blockingError ? Colors.red : Colors.white;
   }
 }
 

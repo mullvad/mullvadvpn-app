@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import { AppMainHeader } from './app-main-header';
 import { measurements } from './common-styles';
 import ImageView from './ImageView';
@@ -36,7 +36,7 @@ const Subtitle = styled.span({
   fontSize: '14px',
   lineHeight: '20px',
   margin: `0 ${measurements.horizontalViewMargin}`,
-  color: colors.white40,
+  color: Colors.white40,
   textAlign: 'center',
 });
 

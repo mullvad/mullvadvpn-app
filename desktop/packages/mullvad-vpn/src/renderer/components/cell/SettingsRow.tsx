@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Colors } from '../../lib/foundations';
 import { AriaInputGroup, AriaLabel } from '../AriaGroup';
 import { measurements, smallNormalText, tinyText } from '../common-styles';
 import ImageView from '../ImageView';
@@ -14,7 +14,7 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   margin: `0 ${measurements.horizontalViewMargin} ${measurements.rowVerticalMargin}`,
   padding: '0 8px',
   minHeight: '36px',
-  backgroundColor: colors.blue60,
+  backgroundColor: Colors.blue60,
   borderRadius: '4px',
 
   [`${StyledSettingsGroup} &&`]: {
@@ -36,11 +36,11 @@ const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
   outlineWidth: '1px',
   borderStyle: 'solid',
   outlineStyle: 'solid',
-  borderColor: props.$invalid ? colors.red : 'transparent',
-  outlineColor: props.$invalid ? colors.red : 'transparent',
+  borderColor: props.$invalid ? Colors.red : 'transparent',
+  outlineColor: props.$invalid ? Colors.red : 'transparent',
   '&&:focus-within': {
-    borderColor: props.$invalid ? colors.red : colors.white,
-    outlineColor: props.$invalid ? colors.red : colors.white,
+    borderColor: props.$invalid ? Colors.red : Colors.white,
+    outlineColor: props.$invalid ? Colors.red : Colors.white,
   },
 }));
 
@@ -61,7 +61,7 @@ const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   alignItems: 'center',
   marginLeft: measurements.horizontalViewMargin,
   marginTop: '5px',
-  color: colors.white60,
+  color: Colors.white60,
 });
 
 const StyledErrorMessageAlertIcon = styled(ImageView)({
@@ -132,7 +132,7 @@ export function SettingsRow(props: React.PropsWithChildren<IndentedRowProps>) {
 export function SettingsRowErrorMessage(props: React.PropsWithChildren) {
   return (
     <StyledSettingsRowErrorMessage>
-      <StyledErrorMessageAlertIcon source="icon-alert" tintColor={colors.red} width={12} />
+      <StyledErrorMessageAlertIcon source="icon-alert" tintColor={Colors.red} width={12} />
       {props.children}
     </StyledSettingsRowErrorMessage>
   );

@@ -2,12 +2,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Flex } from '../lib/components';
+import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
@@ -207,7 +207,7 @@ const StyledStatusTitle = styled.div(normalText, {
   alignItems: 'center',
   fontWeight: 'bold',
   lineHeight: '20px',
-  color: colors.white,
+  color: Colors.white,
 });
 
 const StyledStatusImage = styled(ImageView)({
@@ -215,7 +215,7 @@ const StyledStatusImage = styled(ImageView)({
 });
 
 const StyledStatusSubTitle = styled.div(tinyText, {
-  color: colors.white60,
+  color: Colors.white60,
 });
 
 interface ImportStatusProps {

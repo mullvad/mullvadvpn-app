@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useId, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Colors } from '../../lib/foundations';
 import { measurements, tinyText } from '../common-styles';
 import InfoButton from '../InfoButton';
 import { SettingsRowErrorMessage } from './SettingsRow';
@@ -15,7 +15,7 @@ const StyledContainer = styled.div({
 const StyledTitle = styled.h2(tinyText, {
   display: 'flex',
   alignItems: 'center',
-  color: colors.white80,
+  color: Colors.white80,
   margin: `0 ${measurements.horizontalViewMargin} 8px`,
   lineHeight: '17px',
 });

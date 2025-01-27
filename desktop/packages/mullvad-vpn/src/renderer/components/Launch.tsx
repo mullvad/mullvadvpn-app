@@ -1,9 +1,9 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
@@ -26,7 +26,7 @@ export default function Launch() {
 }
 
 const StyledFooter = styled(Footer)({
-  backgroundColor: colors.blue,
+  backgroundColor: Colors.blue,
   transition: 'opacity 250ms ease-in-out',
 });
 
@@ -34,14 +34,14 @@ const StyledFooterInner = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 1,
-  backgroundColor: colors.darkBlue,
+  backgroundColor: Colors.darkBlue,
   borderRadius: '8px',
   margin: 0,
   padding: '16px',
 });
 
 const StyledFooterMessage = styled.span(tinyText, {
-  color: colors.white,
+  color: Colors.white,
   margin: `8px 0 ${measurements.buttonVerticalMargin} 0`,
 });
 

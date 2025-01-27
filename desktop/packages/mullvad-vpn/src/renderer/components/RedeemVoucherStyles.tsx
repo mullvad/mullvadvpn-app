@@ -1,12 +1,12 @@
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import { normalText, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
 import ImageView from './ImageView';
 
 export const StyledLabel = styled.span(smallText, {
-  color: colors.white,
+  color: Colors.white,
   marginBottom: '9px',
 });
 
@@ -16,19 +16,19 @@ export const StyledInput = styled(FormattableTextInput)(normalText, {
   padding: '14px',
   fontWeight: 600,
   lineHeight: '26px',
-  color: colors.blue,
-  backgroundColor: colors.white,
+  color: Colors.blue,
+  backgroundColor: Colors.white,
   border: 'none',
   borderRadius: '4px',
   '&&::placeholder': {
-    color: colors.blue40,
+    color: Colors.blue40,
   },
 });
 
 export const StyledResponse = styled.span(tinyText, {
   lineHeight: '20px',
   marginTop: '8px',
-  color: colors.white,
+  color: Colors.white,
 });
 
 export const StyledProgressWrapper = styled.div({
@@ -42,7 +42,7 @@ export const StyledProgressResponse = styled(StyledResponse)({
 });
 
 export const StyledErrorResponse = styled(StyledResponse)({
-  color: colors.red,
+  color: Colors.red,
 });
 
 export const StyledEmptyResponse = styled.span({
@@ -65,6 +65,6 @@ export const StyledStatusIcon = styled.div({
 export const StyledTitle = styled.span(smallText, {
   lineHeight: '22px',
   fontWeight: 400,
-  color: colors.white,
+  color: Colors.white,
   marginBottom: '5px',
 });

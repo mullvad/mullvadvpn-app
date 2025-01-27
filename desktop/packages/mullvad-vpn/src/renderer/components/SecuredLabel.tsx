@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
+import { Colors } from '../lib/foundations';
 
 export enum SecuredDisplayStyle {
   secured,
@@ -15,14 +15,14 @@ export enum SecuredDisplayStyle {
 }
 
 const securedDisplayStyleColorMap = {
-  [SecuredDisplayStyle.securing]: colors.white,
-  [SecuredDisplayStyle.securingPq]: colors.white,
-  [SecuredDisplayStyle.unsecuring]: colors.white,
-  [SecuredDisplayStyle.secured]: colors.green,
-  [SecuredDisplayStyle.securedPq]: colors.green,
-  [SecuredDisplayStyle.blocked]: colors.white,
-  [SecuredDisplayStyle.unsecured]: colors.red,
-  [SecuredDisplayStyle.failedToSecure]: colors.red,
+  [SecuredDisplayStyle.securing]: Colors.white,
+  [SecuredDisplayStyle.securingPq]: Colors.white,
+  [SecuredDisplayStyle.unsecuring]: Colors.white,
+  [SecuredDisplayStyle.secured]: Colors.green,
+  [SecuredDisplayStyle.securedPq]: Colors.green,
+  [SecuredDisplayStyle.blocked]: Colors.white,
+  [SecuredDisplayStyle.unsecured]: Colors.red,
+  [SecuredDisplayStyle.failedToSecure]: Colors.red,
 };
 
 const StyledSecuredLabel = styled.span<{ $displayStyle: SecuredDisplayStyle }>((props) => ({

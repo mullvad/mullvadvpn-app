@@ -11,10 +11,6 @@ function watchCss() {
   return watch(['src/renderer/**/*.css'], series(assets.copyCss, electron.reloadRenderer));
 }
 
-function watchConfig() {
-  return watch(['src/config.json'], series(assets.copyConfig, electron.reloadRenderer));
-}
-
 function watchHtml() {
   return watch(['src/renderer/index.html'], series(assets.copyHtml, electron.reloadRenderer));
 }
@@ -28,7 +24,6 @@ function watchStaticAssets() {
 
 watchMainScripts.displayName = 'watch-main-scripts';
 watchCss.displayName = 'watch-css';
-watchConfig.displayName = 'watch-config';
 watchHtml.displayName = 'watch-html';
 watchStaticAssets.displayName = 'watch-static-assets';
 
@@ -40,10 +35,7 @@ exports.start = series(
   scripts.makeWatchCompiler(
     // set up hotreload, run electron and begin watching filesystem for changes, after the first
     // successful build
-    series(
-      electron.start,
-      parallel(watchMainScripts, watchCss, watchConfig, watchHtml, watchStaticAssets),
-    ),
+    series(electron.start, parallel(watchMainScripts, watchCss, watchHtml, watchStaticAssets)),
     electron.reloadRenderer,
   ),
 );

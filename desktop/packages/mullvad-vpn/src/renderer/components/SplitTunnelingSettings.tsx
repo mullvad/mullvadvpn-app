@@ -2,12 +2,12 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
 
-import { strings } from '../../config.json';
 import {
   IApplication,
   ILinuxSplitTunnelingApplication,
   ISplitTunnelingApplication,
 } from '../../shared/application-types';
+import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Container, Flex, FootnoteMini } from '../lib/components';

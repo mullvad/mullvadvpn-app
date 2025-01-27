@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { strings } from '../../config.json';
+import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, TitleBig } from '../lib/components';

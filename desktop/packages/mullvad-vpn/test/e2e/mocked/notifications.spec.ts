@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
-import { colors } from '../../../src/config.json';
+import { colors } from '../../../src/renderer/lib/foundations';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
@@ -34,7 +34,7 @@ test('App should notify user about account expiring soon', async () => {
 
   const indicator = page.getByTestId('notificationIndicator');
   const indicatorColor = await getBackgroundColor(indicator);
-  expect(indicatorColor).toBe(colors.yellow);
+  expect(indicatorColor).toBe(colors['--color-yellow']);
 
   await util.sendMockIpcResponse<IAccountData>({
     channel: 'account-',

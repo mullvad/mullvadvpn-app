@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { Colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { IpAddress } from '../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../lib/utility-hooks';
@@ -255,8 +255,8 @@ export default function CustomDnsSettings() {
             source="icon-add"
             width={18}
             height={18}
-            tintColor={colors.white40}
-            tintHoverColor={colors.white60}
+            tintColor={Colors.white40}
+            tintHoverColor={Colors.white60}
             tabIndex={-1}
           />
         </StyledAddCustomDnsButton>
@@ -369,7 +369,7 @@ function CellListItem(props: ICellListItemProps) {
                 source="icon-close"
                 width={18}
                 height={18}
-                tintColor={editing ? colors.black : colors.white40}
+                tintColor={editing ? Colors.black : Colors.white40}
               />
             </StyledRemoveButton>
           </AriaDescribed>

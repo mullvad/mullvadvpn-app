@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import { useBoolean, useStyledRef } from '../lib/utility-hooks';
 import { smallText } from './common-styles';
 import { BackAction } from './KeyboardNavigation';
@@ -117,7 +117,7 @@ const StyledMenu = styled.div<StyledMenuProps>((props) => {
     right: props.$align === 'left' ? 'auto' : iconMargin,
     padding: '7px 4px',
     background: 'rgb(36, 53, 78)',
-    border: `1px solid ${colors.darkBlue}`,
+    border: `1px solid ${Colors.darkBlue}`,
     borderRadius: '8px',
     zIndex: 1,
   };
@@ -130,17 +130,17 @@ const StyledMenuItem = styled.button(smallText, (props) => ({
   background: 'transparent',
   border: 'none',
   textAlign: 'left',
-  color: props.disabled ? colors.white50 : colors.white,
+  color: props.disabled ? Colors.white50 : Colors.white,
 
   '&&:hover': {
-    background: props.disabled ? 'transparent' : colors.blue,
+    background: props.disabled ? 'transparent' : Colors.blue,
   },
 }));
 
 const StyledSeparator = styled.hr({
   height: '1px',
   border: 'none',
-  backgroundColor: colors.darkBlue,
+  backgroundColor: Colors.darkBlue,
   margin: '4px 9px',
 });
 

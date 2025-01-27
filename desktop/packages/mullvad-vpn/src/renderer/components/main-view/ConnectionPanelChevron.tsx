@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Colors } from '../../lib/foundations';
 import ImageView from '../ImageView';
 
 const Container = styled.button({
@@ -13,7 +13,7 @@ const Container = styled.button({
 
 const Chevron = styled(ImageView)({
   [Container + ':hover &&']: {
-    backgroundColor: colors.white80,
+    backgroundColor: Colors.white80,
   },
 });
 
@@ -33,7 +33,7 @@ export default function ConnectionPanelChevron(props: IProps) {
         source={props.pointsUp ? 'icon-chevron-up' : 'icon-chevron-down'}
         width={24}
         height={24}
-        tintColor={colors.white}
+        tintColor={Colors.white}
       />
     </Container>
   );

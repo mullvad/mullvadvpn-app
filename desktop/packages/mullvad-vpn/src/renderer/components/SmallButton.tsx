@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import { smallText } from './common-styles';
 
 export enum SmallButtonColor {
@@ -14,18 +14,18 @@ function getButtonColors(color?: SmallButtonColor, disabled?: boolean) {
   switch (color) {
     case SmallButtonColor.red:
       return {
-        background: disabled ? colors.red60 : colors.red,
-        backgroundHover: disabled ? colors.red60 : colors.red80,
+        background: disabled ? Colors.red60 : Colors.red,
+        backgroundHover: disabled ? Colors.red60 : Colors.red80,
       };
     case SmallButtonColor.green:
       return {
-        background: disabled ? colors.green40 : colors.green,
-        backgroundHover: disabled ? colors.green40 : colors.green90,
+        background: disabled ? Colors.green40 : Colors.green,
+        backgroundHover: disabled ? Colors.green40 : Colors.green90,
       };
     default:
       return {
-        background: disabled ? colors.blue50 : colors.blue,
-        backgroundHover: disabled ? colors.blue50 : colors.blue60,
+        background: disabled ? Colors.blue50 : Colors.blue,
+        backgroundHover: disabled ? Colors.blue50 : Colors.blue60,
       };
   }
 }
@@ -46,7 +46,7 @@ const StyledSmallButton = styled.button<StyledSmallButtonProps>(smallText, (prop
     padding: '5px 16px',
     border: 'none',
     background: buttonColors.background,
-    color: props.disabled ? colors.white50 : colors.white,
+    color: props.disabled ? Colors.white50 : Colors.white,
     borderRadius: '4px',
     marginLeft: `${BUTTON_GROUP_GAP}px`,
     alignItems: 'center',

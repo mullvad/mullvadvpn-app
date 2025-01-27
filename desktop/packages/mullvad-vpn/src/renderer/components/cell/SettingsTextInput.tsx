@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Colors } from '../../lib/foundations';
 import { useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
@@ -13,11 +13,11 @@ const StyledInput = styled.input(smallNormalText, {
   textAlign: 'right',
   background: 'transparent',
   border: 'none',
-  color: colors.white,
+  color: Colors.white,
   width: '100px',
 
   '&&::placeholder': {
-    color: colors.white50,
+    color: Colors.white50,
   },
 });
 

@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Colors } from '../../lib/foundations';
 import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utility-hooks';
 import { normalText } from '../common-styles';
 import ImageView from '../ImageView';
@@ -30,9 +30,9 @@ const StyledInput = styled.input<{ $focused: boolean; $valid?: boolean }>((props
   border: 'none',
   width: '100%',
   height: '100%',
-  color: props.$valid === false ? colors.red : props.$focused ? colors.blue : colors.white,
+  color: props.$valid === false ? Colors.red : props.$focused ? Colors.blue : Colors.white,
   '&&::placeholder': {
-    color: props.$focused ? colors.blue60 : colors.white60,
+    color: props.$focused ? Colors.blue60 : Colors.white60,
   },
 }));
 
@@ -178,7 +178,7 @@ export const Input = React.memo(React.forwardRef(InputWithRef));
 const InputFrame = styled.div<{ $focused: boolean }>((props) => ({
   display: 'flex',
   flexGrow: 0,
-  backgroundColor: props.$focused ? colors.white : 'rgba(255,255,255,0.1)',
+  backgroundColor: props.$focused ? Colors.white : 'rgba(255,255,255,0.1)',
   borderRadius: '4px',
   padding: '6px 8px',
 }));
@@ -287,7 +287,7 @@ const StyledTextArea = styled.textarea<{ $invalid?: boolean }>(normalText, (prop
   fontWeight: 400,
   resize: 'none',
   padding: '10px 25px 10px 0',
-  color: props.$invalid ? colors.red : 'auto',
+  color: props.$invalid ? Colors.red : 'auto',
 }));
 
 const StyledInputFiller = styled.div({
@@ -399,8 +399,8 @@ export function RowInput(props: IRowInputProps) {
           <ImageView
             source="icon-check"
             height={18}
-            tintColor={value === '' ? colors.blue60 : colors.blue}
-            tintHoverColor={value === '' ? colors.blue60 : colors.blue80}
+            tintColor={value === '' ? Colors.blue60 : Colors.blue}
+            tintHoverColor={value === '' ? Colors.blue60 : Colors.blue80}
           />
         </StyledSubmitButton>
       </StyledCellInputRowContainer>

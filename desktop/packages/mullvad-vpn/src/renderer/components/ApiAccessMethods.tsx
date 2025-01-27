@@ -2,13 +2,12 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { AccessMethodSetting } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { Container, Flex } from '../lib/components';
-import { Spacings } from '../lib/foundations';
+import { Colors, Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
@@ -50,7 +49,7 @@ const StyledTestResultCircle = styled.div<{ $result: boolean }>((props) => ({
   width: '10px',
   height: '10px',
   borderRadius: '50%',
-  backgroundColor: props.$result ? colors.green : colors.red,
+  backgroundColor: props.$result ? Colors.green : Colors.red,
   marginRight: Spacings.spacing2,
 }));
 
@@ -300,8 +299,8 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         <ContextMenuTrigger>
           <StyledMethodTriggerImage
             source="icon-more"
-            tintColor={colors.white}
-            tintHoverColor={colors.white80}
+            tintColor={Colors.white}
+            tintHoverColor={Colors.white80}
             height={36}
             width={36}
           />
