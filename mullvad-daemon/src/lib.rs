@@ -1931,7 +1931,7 @@ impl Daemon {
 
     #[cfg(target_os = "linux")]
     fn on_get_split_tunnel_processes(&mut self, tx: ResponseTx<Vec<i32>, split_tunnel::Error>) {
-        unimplemented!("no split tunneling supported");
+        log::error!("split tunneling not supported");
         /*
         let result = self.exclude_pids.list().inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to obtain PIDs"));
@@ -1942,7 +1942,7 @@ impl Daemon {
 
     #[cfg(target_os = "linux")]
     fn on_add_split_tunnel_process(&mut self, tx: ResponseTx<(), split_tunnel::Error>, pid: i32) {
-        unimplemented!("no split tunneling supported");
+        log::error!("split tunneling not supported");
         /*
         let result = self.exclude_pids.add(pid).inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to add PID"));
@@ -1957,7 +1957,7 @@ impl Daemon {
         tx: ResponseTx<(), split_tunnel::Error>,
         pid: i32,
     ) {
-        unimplemented!("no split tunneling supported");
+        log::error!("split tunneling not supported");
         /*
         let result = self.exclude_pids.remove(pid).inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to remove PID"));
@@ -1968,7 +1968,7 @@ impl Daemon {
 
     #[cfg(target_os = "linux")]
     fn on_clear_split_tunnel_processes(&mut self, tx: ResponseTx<(), split_tunnel::Error>) {
-        unimplemented!("no split tunneling supported");
+        log::error!("split tunneling not supported");
         /*
         let result = self.exclude_pids.clear().inspect_err(|error| {
             log::error!("{}", error.display_chain_with_msg("Unable to clear PIDs"));
