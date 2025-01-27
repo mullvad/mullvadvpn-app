@@ -190,6 +190,11 @@ jobs:
         if: ${{ matrix.config.arch == 'x64' }}
         uses: mlugg/setup-zig@v1
 
+      - name: Install Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.21.3
+
       - name: Build Windows modules
         if: steps.cache-windows-modules.outputs.cache-hit != 'true'
         shell: bash
