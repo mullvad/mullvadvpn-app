@@ -35,18 +35,16 @@ public struct RelayWithLocation<T: AnyRelay> {
     }
 
     init?(_ relay: T, locations: [String: REST.ServerLocation]) {
-        let locationComponents = relay.location.split(separator: "-")
         guard
-            locationComponents.count > 1,
-            let serverLocation = locations[relay.location]
+            let serverLocation = locations[relay.location.rawValue]
         else { return nil }
 
         self.relay = relay
         self.serverLocation = Location(
             country: serverLocation.country,
-            countryCode: String(locationComponents[0]),
+            countryCode: String(relay.location.country),
             city: serverLocation.city,
-            cityCode: String(locationComponents[1]),
+            cityCode: String(relay.location.city),
             latitude: serverLocation.latitude,
             longitude: serverLocation.longitude
         )

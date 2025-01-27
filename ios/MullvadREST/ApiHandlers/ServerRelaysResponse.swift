@@ -29,7 +29,7 @@ extension REST {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
-        public let location: String
+        public let location: LocationIdentifier
         public let provider: String
         public let ipv4AddrIn: IPv4Address
         public let weight: UInt64
@@ -54,7 +54,7 @@ extension REST {
         public let hostname: String
         public let active: Bool
         public let owned: Bool
-        public let location: String
+        public let location: LocationIdentifier
         public let provider: String
         public let weight: UInt64
         public let ipv4AddrIn: IPv4Address
