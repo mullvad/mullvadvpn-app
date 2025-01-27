@@ -8,5 +8,6 @@ export * from './layout';
 export * from './logo';
 export * from './main-header';
 export * from './navigation-header';
+export * from './spinner';
 export * from './theme';
 export * from './typography';
