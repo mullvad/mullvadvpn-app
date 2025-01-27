@@ -707,39 +707,28 @@ impl WireguardMonitor {
                 .map(Box::new)?;
             Ok(tunnel)
         } else {
-            log::debug!("Using kernel WireGuard implementation");
             {
                 let res: Option<TunnelType> = if will_nm_manage_dns() {
+                    log::debug!("Using NetworkManager to use kernel WireGuard implementation");
                     match wireguard_kernel::NetworkManagerTunnel::new(runtime.clone(), config) {
-                        Ok(tunnel) => {
-                            log::debug!(
-                                "Using NetworkManager to use kernel WireGuard implementation"
-                            );
-                            Some(Box::new(tunnel))
-                        }
+                        Ok(tunnel) => Some(Box::new(tunnel)),
                         Err(err) => {
-                            log::error!(
-                                "{}",
-                                err.display_chain_with_msg(
-                                    "Failed to initialize WireGuard tunnel via NetworkManager"
-                                )
+                            let err = err.display_chain_with_msg(
+                                "Failed to initialize WireGuard tunnel via NetworkManager",
                             );
+                            log::error!("{err}");
                             None
                         }
                     }
                 } else {
+                    log::debug!("Using kernel WireGuard implementation through NetlinkTunnel");
                     match wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config) {
-                        Ok(tunnel) => {
-                            log::debug!("Using kernel WireGuard implementation");
-                            Some(Box::new(tunnel))
-                        }
-                        Err(error) => {
-                            log::error!(
-                            "{}",
-                            error.display_chain_with_msg(
-                                "Failed to setup kernel WireGuard device, falling back to the userspace implementation"
-                            )
-                        );
+                        Ok(tunnel) => Some(Box::new(tunnel)),
+                        Err(err) => {
+                            let err = err
+                                .display_chain_with_msg("Failed to setup kernel WireGuard device");
+
+                            log::error!("{err}");
                             None
                         }
                     }
