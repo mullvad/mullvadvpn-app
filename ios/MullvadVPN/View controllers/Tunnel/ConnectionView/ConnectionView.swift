@@ -14,41 +14,89 @@ struct ConnectionView: View {
 
     @State private(set) var isExpanded = false
 
+    @State private(set) var showConnectionDetailsAnimated = false
+    @State private(set) var isExpandedAnimatied = false
+    @State private(set) var scrollViewHeight: CGFloat = 0
+
     var action: ButtonPanel.Action?
 
     var body: some View {
         Spacer()
             .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
-
-        VStack(alignment: .leading, spacing: 0) {
-            HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
-                .padding(.bottom, headerViewBottomPadding)
-
-            DetailsContainer(
-                connectionViewModel: connectionViewModel,
-                indicatorsViewModel: indicatorsViewModel,
-                isExpanded: $isExpanded
-            )
-            .showIf(connectionViewModel.showsConnectionDetails)
-
-            ButtonPanel(viewModel: connectionViewModel, action: action)
-                .padding(.top, 16)
+        VStack {
+            VStack(alignment: .leading, spacing: 0) {
+                HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
+                    .padding(.bottom, !indicatorsViewModel.chips.isEmpty || isExpandedAnimatied ? 16 : 0)
+                if showConnectionDetailsAnimated {
+                    if isExpandedAnimatied {
+                        Divider()
+                            .background(UIColor.secondaryTextColor.color)
+                            .transition(.offset(y: scrollViewHeight).combined(with: .opacity.combined(with: .scale(
+                                scale: 0,
+                                anchor: .center
+                            ))))
+                            .padding(.bottom, 16)
+                    }
+                    ScrollView {
+                        VStack(alignment: .leading) {
+                            if !indicatorsViewModel.chips.isEmpty && isExpandedAnimatied {
+                                Text(LocalizedStringKey("Active features"))
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                                    .padding(.bottom, isExpandedAnimatied ? 16 : 0)
+                            }
+                            ChipContainerView(viewModel: indicatorsViewModel, isExpanded: $isExpanded)
+                            if isExpandedAnimatied {
+                                DetailsView(viewModel: connectionViewModel)
+                                    .padding(.top, indicatorsViewModel.chips.isEmpty ? 0 : 16)
+                            }
+                        }
+                        .sizeOfView { size in
+                            withAnimation {
+                                scrollViewHeight = size.height
+                            }
+                        }
+                    }
+                    .frame(maxHeight: scrollViewHeight)
+                    .apply {
+                        if #available(iOS 16.4, *) {
+                            $0.scrollBounceBehavior(.basedOnSize)
+                        } else {
+                            $0
+                        }
+                    }
+                }
+                ButtonPanel(viewModel: connectionViewModel, action: action)
+                    .padding(.top, 16)
+            }
+            .padding()
         }
-        .padding(16)
+        .onChange(of: isExpanded) { newValue in
+            withAnimation {
+                isExpandedAnimatied = newValue
+            }
+        }
+        .onChange(of: connectionViewModel.showConnectionDetails) { newValue in
+            withAnimation {
+                showConnectionDetailsAnimated = newValue
+            }
+            if !newValue {
+                withAnimation {
+                    isExpandedAnimatied = false
+                }
+            }
+        }
         .background(BlurView(style: .dark))
         .cornerRadius(12)
-        .padding(EdgeInsets(top: 16, leading: 16, bottom: 24, trailing: 16))
-    }
-}
-
-extension ConnectionView {
-    var headerViewBottomPadding: CGFloat {
-        let hasIndicators = !indicatorsViewModel.chips.isEmpty
-        let showConnectionDetails = connectionViewModel.showsConnectionDetails
-
-        return isExpanded
-            ? showConnectionDetails ? 16 : 0
-            : hasIndicators && showConnectionDetails ? 16 : 0
+        .padding()
+        .onReceive(connectionViewModel.$tunnelStatus) { _ in
+            // Only update expanded state when connections details should be hidden.
+            // This will contract the view on eg. disconnect, but leave it as-is on
+            // eg. connect.
+            if !connectionViewModel.showConnectionDetails {
+                isExpanded = false
+            }
+        }
     }
 }
 

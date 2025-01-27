@@ -14,39 +14,27 @@ extension ConnectionView {
         @ObservedObject var indicatorsViewModel: FeatureIndicatorsViewModel
         @Binding var isExpanded: Bool
 
-        @State var showDivider: Bool = false
+        @State var showMoreDetails = false
 
         @State private var scrollViewHeight: CGFloat = 0
-
         var body: some View {
             VStack(spacing: 16) {
                 Divider()
                     .background(UIColor.secondaryTextColor.color)
-                    .apply {
-                        if #available(iOS 16.0, *) {
-                            $0.transition(.push(from: .top))
-                        } else {
-                            $0.transition(.opacity.combined(with: .move(edge: .bottom)))
-                        }
-                    }
-                    .showIf(showDivider)
+                    .showIf(showMoreDetails)
+                    .transition(.opacity.combined(with: .offset(y: 200)))
                 ScrollView {
                     VStack(spacing: 16) {
                         FeatureIndicatorsView(
                             viewModel: indicatorsViewModel,
                             isExpanded: $isExpanded
                         )
+                        .background(Color.green)
                         .showIf(!indicatorsViewModel.chips.isEmpty)
 
                         DetailsView(viewModel: connectionViewModel)
-                            .showIf(showDivider)
-                            .apply {
-                                if #available(iOS 16.0, *) {
-                                    $0.transition(.push(from: .top))
-                                } else {
-                                    $0.transition(.opacity.combined(with: .move(edge: .bottom)))
-                                }
-                            }
+                            .showIf(showMoreDetails)
+                            .transition(.opacity.combined(with: .offset(y: 200)))
                     }
                     .sizeOfView { view in
                         withAnimation(.default) {
@@ -54,7 +42,8 @@ extension ConnectionView {
                         }
                     }
                 }
-                .frame(maxHeight: scrollViewHeight)
+                .showIf(showMoreDetails || !indicatorsViewModel.chips.isEmpty)
+                .frame(minHeight: 0, maxHeight: scrollViewHeight)
                 .onTapGesture {
                     // If this callback is not set the child views will not reliably register tap events.
                     // This is a bug in iOS 16 and 17, but seemingly fixed in 18. Once we set the lowest
@@ -70,7 +59,7 @@ extension ConnectionView {
             }
             .onChange(of: isExpanded) { newValue in
                 withAnimation {
-                    showDivider = newValue
+                    showMoreDetails = newValue
                 }
             }
         }

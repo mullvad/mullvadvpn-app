@@ -12,20 +12,14 @@ struct FeatureIndicatorsView<ViewModel>: View where ViewModel: ChipViewModelProt
     @ObservedObject var viewModel: ViewModel
     @Binding var isExpanded: Bool
 
-    @State private var showExpandedText: Bool = false
+    @State private var showExpandedText = false
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text(LocalizedStringKey("Active features"))
                 .font(.footnote.weight(.semibold))
                 .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                 .showIf(showExpandedText)
-                .apply {
-                    if #available(iOS 16.0, *) {
-                        $0.transition(.push(from: .bottom))
-                    } else {
-                        $0.transition(.opacity.combined(with: .move(edge: .bottom)))
-                    }
-                }
+                .transition(.opacity.combined(with: .offset(y: 200)))
                 .onChange(of: isExpanded) { newValue in
                     withAnimation {
                         showExpandedText = newValue
