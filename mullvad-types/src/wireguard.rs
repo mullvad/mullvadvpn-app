@@ -210,7 +210,7 @@ impl clap::builder::ValueParserFactory for RotationInterval {
     fn value_parser() -> Self::Parser {
         clap::builder::RangedU64ValueParser::new().range(
             (MIN_ROTATION_INTERVAL.as_secs() / 60 / 60)
-                ..(MAX_ROTATION_INTERVAL.as_secs() / 60 / 60),
+                ..=(MAX_ROTATION_INTERVAL.as_secs() / 60 / 60),
         )
     }
 }
