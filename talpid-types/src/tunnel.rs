@@ -87,6 +87,9 @@ pub enum ErrorStateCause {
     /// Android has rejected one or more DNS server addresses.
     #[cfg(target_os = "android")]
     InvalidDnsServers(Vec<IpAddr>),
+    /// Android routes for tunnel interface never came up.
+    #[cfg(target_os = "android")]
+    RoutesTimedOut,
     /// Failed to create tunnel device.
     #[cfg(target_os = "windows")]
     CreateTunnelDevice { os_error: Option<i32> },
@@ -193,6 +196,10 @@ impl fmt::Display for ErrorStateCause {
                         .collect::<Vec<_>>()
                         .join(", ")
                 );
+            }
+            #[cfg(target_os = "android")]
+            RoutesTimedOut => {
+                return write!(f, "Setting up routes times out",);
             }
             StartTunnelError => "Failed to start connection to remote server",
             #[cfg(target_os = "windows")]

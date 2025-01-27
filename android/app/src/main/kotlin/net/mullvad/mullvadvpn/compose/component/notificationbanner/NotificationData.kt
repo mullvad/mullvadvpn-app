@@ -198,6 +198,7 @@ private fun ErrorState.message(): String {
     val cause = this.cause
     return when {
         isBlocking -> cause.errorMessageId()
+        cause is ErrorStateCause.RoutesTimedOut -> "Yo routes is fukkkd"
         else -> stringResource(R.string.failed_to_block_internet)
     }
 }
@@ -223,6 +224,8 @@ private fun ErrorStateCause.errorMessageId(): String =
                 R.string.invalid_dns_servers,
                 addresses.joinToString { address -> address.addressString() },
             )
+
+        ErrorStateCause.RoutesTimedOut -> "Yo routes is fukkked"
     }
 
 private fun AuthFailedError.errorMessageId(): Int =
