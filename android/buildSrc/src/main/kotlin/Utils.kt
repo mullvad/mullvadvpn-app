@@ -33,11 +33,18 @@ fun Project.generateRemapArguments(): String {
 }
 
 private fun Project.execVersionCodeCargoCommand() =
-    providers.exec {
-        commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionCode")
-    }.standardOutput.asText.get().trim().toInt()
+    providers
+        .exec { commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionCode") }
+        .standardOutput
+        .asText
+        .get()
+        .trim()
+        .toInt()
 
 private fun Project.execVersionNameCargoCommand() =
-    providers.exec {
-        commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionName")
-    }.standardOutput.asText.get().trim()
+    providers
+        .exec { commandLine("cargo", "run", "-q", "--bin", "mullvad-version", "versionName") }
+        .standardOutput
+        .asText
+        .get()
+        .trim()

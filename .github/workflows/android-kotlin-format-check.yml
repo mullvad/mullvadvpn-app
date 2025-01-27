@@ -47,4 +47,4 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Run ktfmt check
-        run: android/gradlew -p android ktfmtCheck
+        run: android/gradlew -p android ktfmtCheck :buildSrc:ktfmtCheck
