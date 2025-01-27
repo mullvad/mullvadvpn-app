@@ -9,7 +9,7 @@
 import Foundation
 import SwiftUI
 
-struct ChipModel: Identifiable {
-    let id = UUID()
+struct ChipModel: Identifiable, Hashable {
+    var id: String { name }
     let name: String
 }
