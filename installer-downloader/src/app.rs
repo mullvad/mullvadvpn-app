@@ -1,5 +1,7 @@
 //! This module implements the flow of downloading and verifying the app signature.
 
+use std::path::PathBuf;
+
 use crate::{
     fetch::{self, ProgressUpdater},
     verify::{AppVerifier, PgpVerifier},
@@ -37,6 +39,8 @@ pub struct LatestAppDownloader<SigProgress, AppProgress> {
     app_url: &'static str,
     signature_progress_updater: SigProgress,
     app_progress_updater: AppProgress,
+    // TODO: set permissions
+    tmp_dir: PathBuf,
 }
 
 impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
@@ -44,11 +48,13 @@ impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
         signature_progress_updater: SigProgress,
         app_progress_updater: AppProgress,
     ) -> Self {
+        let tmp_dir = std::env::temp_dir();
         Self {
             signature_url: "https://mullvad.net/en/download/app/exe/latest/signature",
             app_url: "https://mullvad.net/en/download/app/exe/latest",
             signature_progress_updater,
             app_progress_updater,
+            tmp_dir,
         }
     }
 
@@ -56,11 +62,13 @@ impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
         signature_progress_updater: SigProgress,
         app_progress_updater: AppProgress,
     ) -> Self {
+        let tmp_dir = std::env::temp_dir();
         Self {
             signature_url: "https://mullvad.net/en/download/app/exe/latest-beta/signature",
             app_url: "https://mullvad.net/en/download/app/exe/latest-beta",
             signature_progress_updater,
             app_progress_updater,
+            tmp_dir,
         }
     }
 }
@@ -70,7 +78,7 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
 {
     fn download_signature(&mut self) -> Result<(), DownloadError> {
         fetch::get_to_file(
-            "temp.exe.sig",
+            self.sig_path(),
             &self.signature_url,
             &mut self.signature_progress_updater,
             1 * 1024,
@@ -80,7 +88,7 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
 
     fn download_executable(&mut self) -> Result<(), DownloadError> {
         fetch::get_to_file(
-            "temp.exe",
+            self.bin_path(),
             &self.app_url,
             &mut self.app_progress_updater,
             100 * 1024 * 1024,
@@ -89,6 +97,16 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
     }
 
     fn verify(&mut self) -> Result<(), DownloadError> {
-        PgpVerifier::verify("temp.exe", "temp.exe.sig").map_err(DownloadError::Verification)
+        PgpVerifier::verify(self.bin_path(), self.sig_path()).map_err(DownloadError::Verification)
+    }
+}
+
+impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
+    fn bin_path(&self) -> PathBuf {
+        self.tmp_dir.join("temp.exe")
+    }
+
+    fn sig_path(&self) -> PathBuf {
+        self.tmp_dir.join("temp.exe.sig")
     }
 }
