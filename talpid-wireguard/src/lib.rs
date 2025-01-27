@@ -707,48 +707,26 @@ impl WireguardMonitor {
                 .map(Box::new)?;
             Ok(tunnel)
         } else {
-            {
-                let res: Option<TunnelType> = if will_nm_manage_dns() {
-                    log::debug!("Using NetworkManager to use kernel WireGuard implementation");
-                    match wireguard_kernel::NetworkManagerTunnel::new(runtime.clone(), config) {
-                        Ok(tunnel) => Some(Box::new(tunnel)),
-                        Err(err) => {
-                            let err = err.display_chain_with_msg(
-                                "Failed to initialize WireGuard tunnel via NetworkManager",
-                            );
-                            log::error!("{err}");
-                            None
-                        }
-                    }
-                } else {
-                    log::debug!("Using kernel WireGuard implementation through NetlinkTunnel");
-                    match wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config) {
-                        Ok(tunnel) => Some(Box::new(tunnel)),
-                        Err(err) => {
-                            let err = err
-                                .display_chain_with_msg("Failed to setup kernel WireGuard device");
+            let res = if will_nm_manage_dns() {
+                log::debug!("Using kernel WireGuard implementation through NetworkManager");
+                wireguard_kernel::NetworkManagerTunnel::new(runtime.clone(), config)
+                    .map(|tunnel| Box::new(tunnel) as TunnelType)
+            } else {
+                log::debug!("Using kernel WireGuard implementation through netlink");
+                wireguard_kernel::NetlinkTunnel::new(runtime.clone(), config)
+                    .map(|tunnel| Box::new(tunnel) as TunnelType)
+            };
 
-                            log::error!("{err}");
-                            None
-                        }
-                    }
-                };
-
-                match res {
-                    Some(tunnel) => Ok(tunnel),
-                    None => {
-                        log::warn!("Falling back to userspace WireGuard implementation");
-                        let tunnel = runtime
-                            .block_on(Self::open_wireguard_go_tunnel(
-                                config,
-                                log_path,
-                                tun_provider,
-                            ))
-                            .map(Box::new)?;
-                        Ok(tunnel)
-                    }
-                }
-            }
+            res.or_else(|err| {
+                    log::warn!("Failed to initialize kernel WireGuard tunnel, falling back to userspace WireGuard implementation:\n{}",err.display_chain() );
+                    Ok(runtime
+                        .block_on(Self::open_wireguard_go_tunnel(
+                            config,
+                            log_path,
+                            tun_provider,
+                        ))
+                        .map(Box::new)?)
+                })
         }
     }
 
