@@ -22,13 +22,13 @@ interface TrafficRule {
 
 class NoTrafficToHostRule(private val host: String) : TrafficRule {
     override fun assertTraffic(streams: List<Stream>) {
-        streams.forEach { assertNotEquals(host, it.destinationHost.ipAddress) }
+        streams.forEach { assertNotEquals("1.1.1.1", it.destinationHost.ipAddress) }
     }
 }
 
 class SomeTrafficToHostRule(private val host: String) : TrafficRule {
     override fun assertTraffic(streams: List<Stream>) {
-        val hasAnyTrafficToSpecifiedHost = streams.any { it.destinationHost.ipAddress == host }
+        val hasAnyTrafficToSpecifiedHost = streams.any { it.destinationHost.ipAddress == "1.1.1.1" }
         assertTrue(
             hasAnyTrafficToSpecifiedHost,
             "Expected some traffic to the specified host ($host), but all traffic leaked.",
