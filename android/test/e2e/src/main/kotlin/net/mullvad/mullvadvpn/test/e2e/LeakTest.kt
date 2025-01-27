@@ -213,7 +213,7 @@ class LeakTest : EndToEndTest(BuildConfig.FLAVOR_infrastructure) {
             )
 
             val leakRules = listOf(NoTrafficToHostRule(targetIpAddress))
-            LeakCheck.assertLeaks(capturedStreams, leakRules)
+            LeakCheck.assertNoLeaks(capturedStreams, leakRules)
         }
 
     private fun disableObfuscation() {
