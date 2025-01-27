@@ -81,6 +81,8 @@ impl PidManager {
 
         // TODO: problematic code
 
+        dbg!(&net_cls_dir);
+
         // https://www.kernel.org/doc/Documentation/cgroup-v1/net_cls.txt
         nix::mount::mount(
             Some("net_cls"),

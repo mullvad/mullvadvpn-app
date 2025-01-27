@@ -34,7 +34,7 @@ triggered = "0.1.1"
 jnix = { version = "0.5.1", features = ["derive"] }
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nix = { version = "0.29", features = ["signal"] }
+nix = { version = "0.29", features = ["mount"] }
 inotify = "0.10"
 resolv-conf = "0.7"
 nftnl = { version = "0.7.0", features = ["nftnl-1-1-0"] }
