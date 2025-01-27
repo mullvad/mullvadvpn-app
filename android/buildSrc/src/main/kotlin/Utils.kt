@@ -1,6 +1,23 @@
 import java.util.*
 import org.gradle.api.Project
 
+// This is a hack and will not work correctly under all scenarios.
+// See DROID-1696 for how we can improve this.
+fun Project.isReleaseBuild() =
+    gradle.startParameter.getTaskNames().any {
+        it.contains("release", ignoreCase = true) || it.contains("fdroid", ignoreCase = true)
+    }
+
+fun Project.isAlphaBuild(localProperties: Properties): Boolean {
+    val versionName = generateVersionName(localProperties)
+    return versionName.contains("alpha")
+}
+
+fun Project.isDevBuild(localProperties: Properties): Boolean {
+    val versionName = generateVersionName(localProperties)
+    return versionName.contains("-dev-")
+}
+
 fun Project.generateVersionCode(localProperties: Properties): Int {
     return localProperties.getProperty("OVERRIDE_VERSION_CODE")?.toIntOrNull()
         ?: execVersionCodeCargoCommand()
