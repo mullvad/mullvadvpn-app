@@ -112,7 +112,9 @@ func wgTurnOn(cIfaceName *C.char, cIfaceNameOut *C.char, cIfaceNameOutSize C.siz
 			device.Close()
 			return ERROR_GENERAL_FAILURE
 		}
-		C.strcpy(cIfaceNameOut, C.CString(actualInterfaceName))
+		cName := C.CString(actualInterfaceName)
+		C.strcpy(cIfaceNameOut, cName)
+		C.free(unsafe.Pointer(cName))
 	}
 	if cLuidOut != nil {
 		*cLuidOut = C.uint64_t(nativeTun.LUID())
