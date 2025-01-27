@@ -573,8 +573,10 @@ where
 pub struct Daemon {
     tunnel_state: TunnelState,
     target_state: PersistentTargetState,
+    /*
     #[cfg(target_os = "linux")]
     exclude_pids: split_tunnel::PidManager,
+    */
     rx: mpsc::UnboundedReceiver<InternalDaemonEvent>,
     tx: DaemonEventSender,
     reconnection_job: Option<AbortHandle>,
@@ -887,8 +889,10 @@ impl Daemon {
                 locked_down: settings.block_when_disconnected,
             },
             target_state,
+            /*
             #[cfg(target_os = "linux")]
             exclude_pids: split_tunnel::PidManager::new().map_err(Error::InitSplitTunneling)?,
+            */
             rx: internal_event_rx,
             tx: internal_event_tx,
             reconnection_job: None,
