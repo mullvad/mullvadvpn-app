@@ -7,6 +7,7 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/mullvadvpn/service/MullvadVpnService",
     "net/mullvad/talpid/model/InetNetwork",
     "net/mullvad/talpid/model/TunConfig",
+    "net/mullvad/talpid/model/NetworkState",
     "net/mullvad/talpid/model/CreateTunResult$Success",
     "net/mullvad/talpid/model/CreateTunResult$InvalidDnsServers",
     "net/mullvad/talpid/model/CreateTunResult$OtherLegacyAlwaysOnVpn",
