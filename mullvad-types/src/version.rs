@@ -12,6 +12,9 @@ static BETA_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap());
 static DEV_REGEX: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap());
+static CLOUDS_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-clouds-dev-(\w+)$").unwrap()
+});
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
@@ -59,6 +62,12 @@ impl FromStr for ParsedAppVersion {
             let beta_version = get_int(&caps, 3).ok_or(())?;
             Ok(Self::Beta(year, version, beta_version))
         } else if let Some(caps) = DEV_REGEX.captures(version) {
+            let year = get_int(&caps, 1).ok_or(())?;
+            let version = get_int(&caps, 2).ok_or(())?;
+            let beta_version = caps.get(4).map(|_| get_int(&caps, 5).unwrap());
+            let dev_hash = caps.get(6).ok_or(())?.as_str().to_string();
+            Ok(Self::Dev(year, version, beta_version, dev_hash))
+        } else if let Some(caps) = CLOUDS_REGEX.captures(version) {
             let year = get_int(&caps, 1).ok_or(())?;
             let version = get_int(&caps, 2).ok_or(())?;
             let beta_version = caps.get(4).map(|_| get_int(&caps, 5).unwrap());
@@ -191,6 +200,10 @@ mod test {
             ),
             ("2020.15-9000", None),
             ("", None),
+            (
+                "2025.3-clouds-dev-ababab",
+                Some(ParsedAppVersion::Dev(2025, 2, None, "ababab".to_string())),
+            ),
         ];
 
         for (input, expected_output) in tests {
