@@ -9,7 +9,7 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{collections::HashSet, os::android, sync::Arc};
+use std::{collections::HashSet, sync::Arc};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -220,10 +220,10 @@ impl RouteManagerHandle {
     pub async fn wait_for_routes(&self, routes: Vec<Ipnetwork>) -> Result<imp::RouteResult, Error> {
         let (result_tx, result_rx) = oneshot::channel();
         let msg = RouteManagerCommand::WaitForRoutes(result_tx, routes);
-        self.tx.unbounded_send(msg)
+        self.tx
+            .unbounded_send(msg)
             .map_err(|_| Error::RouteManagerDown);
-        result_rx.await
-            .map_err(|_| Error::ManagerChannelDown)
+        result_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
 
     /// Listen for non-tunnel default route changes.

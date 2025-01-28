@@ -2108,8 +2108,7 @@ checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
 [[package]]
 name = "jnix"
 version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5fd797d41e48568eb956ded20d7e5e3f2df1c02980d9e5b9aab9b47bd3a9f599"
+source = "git+https://github.com/mullvad/jnix.git?branch=i16-from-java#ac34549dc443de3acac049cfb1b045dacd5b49aa"
 dependencies = [
  "jni",
  "jnix-macros",
@@ -2120,8 +2119,7 @@ dependencies = [
 [[package]]
 name = "jnix-macros"
 version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "002f4dfe6d97ae88c33f3489c0d31ffc6f81d9a492de98ff113b127d73bafff8"
+source = "git+https://github.com/mullvad/jnix.git?branch=i16-from-java#ac34549dc443de3acac049cfb1b045dacd5b49aa"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
