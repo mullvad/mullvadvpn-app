@@ -485,8 +485,8 @@ impl WireguardMonitor {
                 })
                 .any(|routes_are_correct| async move { routes_are_correct });
             if let Err(_) = tokio::time::timeout(std::time::Duration::from_secs(4), route_update).await {
-                todo!("fixme");
-                //return Err(Error::SetupRoutingError(talpid_routing::Error::RouteManagerDown)); // TODO: Wrong error. Expose "routes are not up" error
+                // TODO: Wrong error. Expose "routes are not up" error
+                return Err(CloseMsg::SetupError(Error::SetupRoutingError(talpid_routing::Error::RouteManagerDown)));
             }
 
             if should_negotiate_ephemeral_peer {
