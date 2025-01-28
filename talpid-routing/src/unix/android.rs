@@ -3,7 +3,8 @@ use std::sync::Mutex;
 use crate::imp::RouteManagerCommand;
 use futures::{
     channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
-    stream::StreamExt, Stream,
+    stream::StreamExt, select_biased,
+    future::FutureExt,
 };
 use ipnetwork::IpNetwork;
 use jnix::{
@@ -56,7 +57,7 @@ pub enum RoutesUpdate {
 // TODO: This is le actor state
 /// Stub route manager for Android
 pub struct RouteManagerImpl {
-    routes_udates: UnboundedReceiver<RoutesUpdate>,
+    routes_updates: UnboundedReceiver<RoutesUpdate>,
     listeners: Vec<UnboundedSender<RoutesUpdate>>,
 }
 
@@ -73,7 +74,7 @@ impl RouteManagerImpl {
         // TODO: What id `ROUTE_UPDATES_TX` has already been initialized?
         *ROUTE_UPDATES_TX.lock().unwrap() = Some(tx);
         Ok(RouteManagerImpl {
-            routes_udates: rx,
+            routes_updates: rx,
             listeners: Default::default(),
         })
     }
@@ -83,20 +84,31 @@ impl RouteManagerImpl {
         manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>,
     ) -> Result<(), Error> {
         let mut manage_rx = manage_rx.fuse();
-        while let Some(command) = manage_rx.next().await {
-            match command {
-                RouteManagerCommand::NewChangeListener(tx) => {
-                    // register a listener for new route updates
-                    self.listeners.push(tx);
+        loop {
+            select_biased! {
+                command = manage_rx.next().fuse() => {
+                    let Some(command) = command else { break };
+
+                    match command {
+                        RouteManagerCommand::NewChangeListener(tx) => {
+                            // register a listener for new route updates
+                            self.listeners.push(tx);
+                        }
+                        RouteManagerCommand::Shutdown(tx) => {
+                            tx.send(()).map_err(|()| Error::Send)?; // TODO: Surely we can do better than this
+                            break;
+                        }
+                        RouteManagerCommand::AddRoutes(_routes, tx) => {
+                            tx.send(Ok(())).map_err(|_x| Error::Send)?;
+                        }
+                        RouteManagerCommand::ClearRoutes => (),
+                    }
                 }
-                RouteManagerCommand::Shutdown(tx) => {
-                    tx.send(()).map_err(|()| Error::Send)?; // TODO: Surely we can do better than this
-                    break;
+
+                route_update = self.routes_updates.next().fuse() => {
+                    let Some(route_update) = route_update else { break };
+                    self.notify_change_listeners(route_update);
                 }
-                RouteManagerCommand::AddRoutes(_routes, tx) => {
-                    tx.send(Ok(())).map_err(|_x| Error::Send)?;
-                }
-                RouteManagerCommand::ClearRoutes => (),
             }
         }
         Ok(())

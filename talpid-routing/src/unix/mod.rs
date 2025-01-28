@@ -223,6 +223,7 @@ impl RouteManagerHandle {
             .unbounded_send(RouteManagerCommand::NewChangeListener(stream_tx))
             .map_err(|_| Error::RouteManagerDown).unwrap(); //?;
 
+        log::info!("comparing routes with {routes:?}");
         stream_rx.map(move |change| {
             use std::collections::HashSet;
 
