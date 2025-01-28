@@ -35,38 +35,31 @@ pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(
 }
 
 #[derive(Clone)]
-pub struct LatestAppDownloader<SigProgress, AppProgress> {
-    signature_url: &'static str,
-    app_url: &'static str,
+pub struct HttpAppDownloader<SigProgress, AppProgress> {
+    signature_url: String,
+    app_url: String,
+    app_size: usize,
     signature_progress_updater: SigProgress,
     app_progress_updater: AppProgress,
     // TODO: set permissions
     tmp_dir: PathBuf,
 }
 
-impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
-    pub fn stable(
-        signature_progress_updater: SigProgress,
-        app_progress_updater: AppProgress,
-    ) -> Self {
-        let tmp_dir = std::env::temp_dir();
-        Self {
-            signature_url: "https://mullvad.net/en/download/app/exe/latest/signature",
-            app_url: "https://mullvad.net/en/download/app/exe/latest",
-            signature_progress_updater,
-            app_progress_updater,
-            tmp_dir,
-        }
-    }
+impl<SigProgress, AppProgress> HttpAppDownloader<SigProgress, AppProgress> {
+    const MAX_SIGNATURE_SIZE: usize = 1 * 1024;
 
-    pub fn beta(
+    pub fn new(
+        signature_url: &str,
+        app_url: &str,
+        app_size: usize,
         signature_progress_updater: SigProgress,
         app_progress_updater: AppProgress,
     ) -> Self {
         let tmp_dir = std::env::temp_dir();
         Self {
-            signature_url: "https://mullvad.net/en/download/app/exe/latest-beta/signature",
-            app_url: "https://mullvad.net/en/download/app/exe/latest-beta",
+            signature_url: signature_url.to_owned(),
+            app_url: app_url.to_owned(),
+            app_size,
             signature_progress_updater,
             app_progress_updater,
             tmp_dir,
@@ -76,14 +69,14 @@ impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
 
 #[async_trait::async_trait]
 impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
-    for LatestAppDownloader<SigProgress, AppProgress>
+    for HttpAppDownloader<SigProgress, AppProgress>
 {
     async fn download_signature(&mut self) -> Result<(), DownloadError> {
         fetch::get_to_file(
             self.sig_path(),
             &self.signature_url,
             &mut self.signature_progress_updater,
-            1 * 1024,
+            fetch::SizeHint::Maximum(Self::MAX_SIGNATURE_SIZE),
         )
         .await
         .map_err(DownloadError::FetchSignature)
@@ -94,7 +87,7 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
             self.bin_path(),
             &self.app_url,
             &mut self.app_progress_updater,
-            100 * 1024 * 1024,
+            fetch::SizeHint::Exact(self.app_size),
         )
         .await
         .map_err(DownloadError::FetchApp)
@@ -111,7 +104,7 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
     }
 }
 
-impl<SigProgress, AppProgress> LatestAppDownloader<SigProgress, AppProgress> {
+impl<SigProgress, AppProgress> HttpAppDownloader<SigProgress, AppProgress> {
     fn bin_path(&self) -> PathBuf {
         self.tmp_dir.join("temp.exe")
     }

@@ -5,7 +5,7 @@ use std::future::Future;
 use tokio::sync::{mpsc, oneshot};
 
 use crate::api::VersionInfoProvider;
-use crate::app::{self, AppDownloader, LatestAppDownloader};
+use crate::app::{self, AppDownloader, HttpAppDownloader};
 use crate::{api, fetch};
 
 /// Trait implementing high-level UI actions
@@ -125,15 +125,34 @@ async fn handle_download_messages<Delegate: AppDelegate + 'static>(
                 version_info = Some(new_version_info);
             }
             DownloadTaskMessage::BeginDownload => {
+                let Some(version_info) = version_info.clone() else {
+                    continue;
+                };
+
                 let (tx, rx) = oneshot::channel();
                 queue.queue_main(move |self_| {
+                    // TODO: Select appropriate URLs
+                    let Some(app_url) = version_info.stable.urls.first() else {
+                        return;
+                    };
+                    let Some(signature_url) = version_info.stable.signature_urls.first() else {
+                        return;
+                    };
+                    let app_size = version_info.stable.size;
+
                     self_.set_status_text("");
                     self_.disable_download_button();
                     self_.show_cancel_button();
                     self_.show_download_progress();
 
                     let new_delegated_downloader = |sig_progress, app_progress| {
-                        LatestAppDownloader::stable(sig_progress, app_progress)
+                        HttpAppDownloader::new(
+                            signature_url,
+                            app_url,
+                            app_size,
+                            sig_progress,
+                            app_progress,
+                        )
                     };
 
                     let downloader = UiAppDownloader::new(self_, new_delegated_downloader);
@@ -141,7 +160,7 @@ async fn handle_download_messages<Delegate: AppDelegate + 'static>(
                         let _ = app::install_and_upgrade(downloader).await;
                     }));
                 });
-                active_download = Some(rx.await.unwrap());
+                active_download = rx.await.ok();
             }
             DownloadTaskMessage::Cancel => {
                 let Some(active_download) = active_download.take() else {

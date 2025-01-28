@@ -7,6 +7,7 @@ pub trait VersionInfoProvider {
 }
 
 /// Contains information about all versions
+#[derive(Debug, Clone)]
 pub struct VersionInfo {
     /// Stable version info
     pub stable: Version,
@@ -15,6 +16,7 @@ pub struct VersionInfo {
 }
 
 /// Contains information about a version for the current target
+#[derive(Debug, Clone)]
 pub struct Version {
     /// Version
     pub version: String,
