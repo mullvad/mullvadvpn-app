@@ -50,14 +50,13 @@ class DAITASettingsCoordinator: Coordinator, SettingsChildCoordinator, Presentab
             )
         }
 
-        let host = UIHostingController(rootView: view)
+        let host = DAITASettingsViewController(rootView: view)
         host.title = NSLocalizedString(
             "NAVIGATION_TITLE_DAITA",
             tableName: "Settings",
             value: "DAITA",
             comment: ""
         )
-        host.view.setAccessibilityIdentifier(.daitaView)
         customiseNavigation(on: host)
 
         navigationController.pushViewController(host, animated: animated)

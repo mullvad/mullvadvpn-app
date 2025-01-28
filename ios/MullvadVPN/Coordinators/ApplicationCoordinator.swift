@@ -17,7 +17,7 @@ import UIKit
  Application coordinator managing split view and two navigation contexts.
  */
 final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency RootContainerViewControllerDelegate,
-    UISplitViewControllerDelegate, @preconcurrency ApplicationRouterDelegate,
+    UISplitViewControllerDelegate, ApplicationRouterDelegate,
     @preconcurrency NotificationManagerDelegate {
     typealias RouteType = AppRoute
 
@@ -234,7 +234,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
-        completion: @escaping @Sendable @MainActor () -> Void
+        completion: @escaping @Sendable () -> Void
     ) {
         switch context.route {
         case let .settings(subRoute):
@@ -309,10 +309,10 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     private func didDismissAccount(_ reason: AccountDismissReason) {
         if reason == .userLoggedOut {
-            router.dismissAll(.primary, animated: false)
+            router.dismiss(group: .primary, animated: false)
             continueFlow(animated: false)
         }
-        router.dismiss(.account, animated: true)
+        router.dismiss(route: .account, animated: true)
     }
 
     private func presentTOS(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -337,14 +337,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         )
 
         coordinator.didFinish = { [weak self] _ in
-            self?.router.dismiss(.changelog, animated: animated)
+            self?.router.dismiss(route: .changelog, animated: animated)
         }
 
         coordinator.start(animated: false)
+        presentChild(coordinator, animated: animated)
 
-        presentChild(coordinator, animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func presentMain(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -389,7 +388,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
             Task { @MainActor in
                 if shouldDismissOutOfTime() {
-                    router.dismiss(.outOfTime, animated: true)
+                    router.dismiss(route: .outOfTime, animated: true)
                     continueFlow(animated: true)
                 }
             }
@@ -411,12 +410,12 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         coordinator.didFinish = { [weak self] in
             guard let self else { return }
             appPreferences.isShownOnboarding = true
-            router.dismiss(.welcome, animated: false)
+            router.dismiss(route: .welcome, animated: false)
             continueFlow(animated: false)
         }
         coordinator.didLogout = { [weak self] preferredAccountNumber in
             guard let self else { return }
-            router.dismissAll(.primary, animated: true)
+            router.dismiss(group: .primary, animated: true)
             DispatchQueue.main.async {
                 self.continueFlow(animated: true)
             }
@@ -435,11 +434,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     private func presentSelectLocation(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let coordinator = makeLocationCoordinator(forModalPresentation: true)
-        coordinator.start()
 
-        presentChild(coordinator, animated: animated) {
-            completion(coordinator)
-        }
+        coordinator.start()
+        presentChild(coordinator, animated: animated)
+
+        completion(coordinator)
     }
 
     private func presentLogin(animated: Bool, completion: @escaping (Coordinator) -> Void) {
@@ -477,14 +476,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         let coordinator = AlertCoordinator(presentation: metadata.presentation)
 
         coordinator.didFinish = { [weak self] in
-            self?.router.dismiss(context.route)
+            self?.router.dismiss(route: context.route)
         }
 
         coordinator.start()
+        metadata.context.presentChild(coordinator, animated: animated)
 
-        metadata.context.presentChild(coordinator, animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func makeTunnelCoordinator() -> TunnelCoordinator {
@@ -515,7 +513,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         locationCoordinator.didFinish = { [weak self] _ in
             if isModalPresentation {
-                self?.router.dismiss(.selectLocation, animated: true)
+                self?.router.dismiss(route: .selectLocation, animated: true)
             }
         }
 
@@ -541,14 +539,11 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         coordinator.start(animated: animated)
 
-        presentChild(
-            coordinator,
-            animated: animated
-        ) { [weak self] in
-            completion(coordinator)
-
+        presentChild(coordinator, animated: animated) { [weak self] in
             self?.onShowAccount?()
         }
+
+        completion(coordinator)
     }
 
     private func presentSettings(
@@ -579,7 +574,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         coordinator.didFinish = { [weak self] _ in
             Task { @MainActor in
-                self?.router.dismissAll(.settings, animated: true)
+                self?.router.dismiss(group: .settings, animated: true)
             }
         }
 
@@ -590,13 +585,9 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         }
 
         coordinator.start(initialRoute: route)
+        presentChild(coordinator, animated: animated)
 
-        presentChild(
-            coordinator,
-            animated: animated
-        ) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func presentDAITA(animated: Bool, completion: @escaping @Sendable (Coordinator) -> Void) {
@@ -608,14 +599,13 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         )
 
         coordinator.didFinish = { [weak self] _ in
-            self?.router.dismiss(.daita, animated: true)
+            self?.router.dismiss(route: .daita, animated: true)
         }
 
         coordinator.start(animated: animated)
+        presentChild(coordinator, animated: animated)
 
-        presentChild(coordinator, animated: animated) {
-            completion(coordinator)
-        }
+        completion(coordinator)
     }
 
     private func addTunnelObserver() {
@@ -654,7 +644,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
             case (true, false):
                 updateOutOfTimeTimer(accountData: accountData)
                 continueFlow(animated: true)
-                router.dismiss(.outOfTime, animated: true)
+                router.dismiss(route: .outOfTime, animated: true)
             // account was expired
             case (false, true):
                 router.present(.outOfTime, animated: true)
@@ -757,7 +747,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     func splitViewControllerDidExpand(_ svc: UISplitViewController) {
-        router.dismissAll(.selectLocation, animated: false)
+        router.dismiss(group: .selectLocation, animated: false)
     }
 
     // MARK: - RootContainerViewControllerDelegate
@@ -836,4 +826,4 @@ extension DeviceState {
     var splitViewMode: UISplitViewController.DisplayMode {
         isLoggedIn ? UISplitViewController.DisplayMode.oneBesideSecondary : .secondaryOnly
     }
-}
+} // swiftlint:disable:this file_length
