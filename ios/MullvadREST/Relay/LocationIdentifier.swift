@@ -29,9 +29,6 @@ extension REST.LocationIdentifier: RawRepresentable {
     }
 }
 
-// ExpressibleByStringLiteral: this allows literal assignments, like
-//  foo.location = "se-gbg"
-//  saving space in test code and such.
 extension REST.LocationIdentifier: ExpressibleByStringLiteral {
     public init(stringLiteral value: StringLiteralType) {
         guard let parsed = Self.parse(value) else {
@@ -41,17 +38,6 @@ extension REST.LocationIdentifier: ExpressibleByStringLiteral {
             fatalError("Invalid LocationIdentifier: \(value)")
         }
         (country, city) = parsed
-    }
-}
-
-// As the location's values are Substrings of the same String, to which they maintain references, we use the base String for holistic operations such as equality and hashing
-extension REST.LocationIdentifier: Hashable {
-    public static func == (lhs: REST.LocationIdentifier, rhs: REST.LocationIdentifier) -> Bool {
-        lhs.rawValue == rhs.rawValue
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(rawValue)
     }
 }
 
@@ -72,5 +58,16 @@ extension REST.LocationIdentifier: Codable {
     public func encode(to encoder: any Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(rawValue)
+    }
+}
+
+// As the location's values are Substrings of the same String, to which they maintain references, we use the base String for holistic operations such as equality and hashing
+extension REST.LocationIdentifier: Hashable {
+    public static func == (lhs: REST.LocationIdentifier, rhs: REST.LocationIdentifier) -> Bool {
+        lhs.rawValue == rhs.rawValue
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(rawValue)
     }
 }
