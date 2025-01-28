@@ -1,16 +1,16 @@
-use std::borrow::{Borrow, BorrowMut};
 use std::cell::RefCell;
-use std::rc::Rc;
-use std::sync::{Arc, LazyLock, Mutex};
+use std::sync::{Arc, LazyLock, Mutex, RwLock};
 
 use cacao::button::Button;
 use cacao::color::Color;
 use cacao::image::{Image, ImageView};
 use cacao::layout::{Layout, LayoutConstraint};
 use cacao::notification_center::Dispatcher;
+use cacao::objc::{class, msg_send, sel, sel_impl};
 use cacao::progress::ProgressIndicator;
 use cacao::text::{AttributedString, Label};
 use cacao::view::View;
+use objc_id::Id;
 
 use cacao::appkit::window::{Window, WindowConfig, WindowDelegate};
 use cacao::appkit::{App, AppDelegate};
@@ -25,8 +25,22 @@ const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../logo-icon.svg");
 /// Logo banner text
 const LOGO_TEXT_DATA: &[u8] = include_bytes!("../logo-text.svg");
 
-/// Banner background color
-static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| Color::rgba(0x19, 0x2e, 0x45, 0xff));
+/// Banner background color: #192e45
+static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {
+    let r = 0x19 as f64 / 255.;
+    let g = 0x2e as f64 / 255.;
+    let b = 0x45 as f64 / 255.;
+    let a = 1.;
+
+    // NOTE: colorWithCalibratedRed is used by cacao by default, but it renders a different color
+    //       than it does for background color of the image. I believe this is because the
+    //       calibrated uses the current color profile.
+    //       Maybe using calibrated colors is more correct? Rendering different colors *definitely*
+    //       is not.
+    let id =
+        unsafe { Id::from_ptr(msg_send![class!(NSColor), colorWithRed:r green:g blue:b alpha:a]) };
+    Color::Custom(Arc::new(RwLock::new(id)))
+});
 
 static LOGO: LazyLock<Image> = LazyLock::new(|| Image::with_data(LOGO_IMAGE_DATA));
 static LOGO_TEXT: LazyLock<Image> = LazyLock::new(|| Image::with_data(LOGO_TEXT_DATA));
@@ -147,31 +161,7 @@ impl AppWindow {
     pub fn layout(&self) {
         self.banner_logo_view.set_image(&LOGO);
         self.banner_logo_text_view.set_image(&LOGO_TEXT);
-
-        //let cg_color = BANNER_COLOR.cg_color();
-        //cacao::core_graphics::color_space::kCGColorSpaceGenericRGB
-        //let ptr = unsafe { cacao::objc_id::Id::from_ptr(msg_send![class!(NSColor), colorWithCalibratedRed:r green:g blue:b alpha:a]) };
-
         self.banner.set_background_color(&*BANNER_COLOR);
-
-        // FIXME: doesn't segfault without color space stuff
-        /*
-        let col = BANNER_COLOR.cg_color();
-        let col = CGColor::rgb(
-            0x19 as f64 / 255.,
-            0x2e as f64 / 255.,
-            0x45 as f64 / 255.,
-            0xff as f64 / 255.,
-        );
-
-        let space = CGColorSpace::create_device_rgb();
-        */
-        //let new_col: CGColorRef = unsafe { msg_send![col, colorUsingColorSpace: space] };
-
-        // FIXME: segfaults less often without this, but it still happens
-        /*self.banner.layer.objc.with_mut(move |obj| unsafe {
-            let _: () = msg_send![&*obj, setBackgroundColor: col.clone()];
-        });*/
 
         self.banner.add_subview(&self.banner_logo_view);
         self.banner.add_subview(&self.banner_logo_text_view);
