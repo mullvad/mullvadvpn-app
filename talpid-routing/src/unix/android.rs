@@ -132,6 +132,8 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyRoutes
         return;
     };
 
+    log::info!("Received network state {:#?}", network_state);
+
     if tx
         .unbounded_send(RoutesUpdate::NewNetworkState(network_state))
         .is_err()

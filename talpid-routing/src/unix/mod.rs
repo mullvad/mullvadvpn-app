@@ -2,6 +2,8 @@
 use crate::Route;
 #[cfg(target_os = "macos")]
 pub use crate::{imp::imp::DefaultRoute, Gateway};
+#[cfg(target_os = "android")]
+use talpid_types::android::AndroidContext;
 
 use super::RequiredRoute;
 
@@ -164,13 +166,12 @@ pub struct RouteManagerHandle {
 impl RouteManagerHandle {
     /// Construct a route manager.
     pub async fn spawn(
+        #[cfg(target_os = "android")] android_context: AndroidContext,
         #[cfg(target_os = "linux")] fwmark: u32,
         #[cfg(target_os = "linux")] table_id: u32,
     ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
         let manage_tx = Arc::new(manage_tx);
-        #[cfg(target_os = "android")]
-        let android_context = todo!("Create AndroidContext");
         let manager = imp::RouteManagerImpl::new(
             #[cfg(target_os = "android")]
             android_context,
