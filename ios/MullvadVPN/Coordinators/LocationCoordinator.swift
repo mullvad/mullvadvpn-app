@@ -258,10 +258,12 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
     }
 
     func navigateToFilter() {
-        let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
-        coordinator.start()
+        applicationRouter?.present(.settings(nil))
 
-        presentChild(coordinator, animated: true)
+//        let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
+//        coordinator.start()
+//
+//        presentChild(coordinator, animated: true)
     }
 
     func navigateToCustomLists(nodes: [LocationNode]) {

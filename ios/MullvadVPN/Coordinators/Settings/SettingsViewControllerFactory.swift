@@ -109,16 +109,15 @@ struct SettingsViewControllerFactory {
         let viewModel = MultihopTunnelSettingsViewModel(tunnelManager: interactorFactory.tunnelManager)
         let view = SettingsMultihopView(tunnelViewModel: viewModel)
 
-        let host = UIHostingController(rootView: view)
-        host.title = NSLocalizedString(
+        let viewController = MultihopViewController(rootView: view)
+        viewController.title = NSLocalizedString(
             "NAVIGATION_TITLE_MULTIHOP",
             tableName: "Settings",
             value: "Multihop",
             comment: ""
         )
-        host.view.setAccessibilityIdentifier(.multihopView)
 
-        return .viewController(host)
+        return .viewController(viewController)
     }
 
     private func makeDAITASettingsCoordinator() -> MakeChildResult {

@@ -20,12 +20,9 @@ final class RoutingTests: XCTestCase {
         return delegate
     }
 
-    // MARK: Horizontal flow tests
-
-    func testPresentHorizontalRoute() throws {
+    func testPresentRoute() throws {
         enum TestRoute: AppRouteProtocol {
             case one
-            var isExclusive: Bool { false }
             var supportsSubNavigation: Bool { false }
             var routeGroup: TestRouteGroup { .horizontal }
         }
@@ -38,10 +35,41 @@ final class RoutingTests: XCTestCase {
         XCTAssertTrue(router.isPresenting(route: .one))
     }
 
-    func testShouldDropHorizontalRoute() throws {
+    func testPresentSubRoute() throws {
         enum TestRoute: AppRouteProtocol {
             case one
-            var isExclusive: Bool { false }
+            case two
+            var supportsSubNavigation: Bool { true }
+            var routeGroup: TestRouteGroup { .horizontal }
+        }
+
+        let delegate: RouterBlockDelegate<TestRoute> = createDelegate()
+        let router = ApplicationRouter<TestRoute>(delegate)
+
+        router.present(.one)
+        router.present(.two)
+
+        XCTAssertTrue(router.isPresenting(route: .one))
+        XCTAssertTrue(router.isPresenting(route: .two))
+    }
+
+    func testPresentGroup() throws {
+        enum TestRoute: AppRouteProtocol {
+            case one
+            var supportsSubNavigation: Bool { false }
+            var routeGroup: TestRouteGroup { .horizontal }
+        }
+
+        let delegate: RouterBlockDelegate<TestRoute> = createDelegate()
+        let router = ApplicationRouter<TestRoute>(delegate)
+
+        router.present(.one)
+        XCTAssertTrue(router.isPresenting(group: .horizontal))
+    }
+
+    func testShouldDropRoute() throws {
+        enum TestRoute: AppRouteProtocol {
+            case one
             var supportsSubNavigation: Bool { false }
             var routeGroup: TestRouteGroup { .horizontal }
         }
@@ -54,10 +82,9 @@ final class RoutingTests: XCTestCase {
         XCTAssertFalse(router.isPresenting(route: .one))
     }
 
-    func testShouldDropIdenticalHorizontalRouteInSequence() throws {
+    func testDismissRoute() throws {
         enum TestRoute: AppRouteProtocol {
             case one
-            var isExclusive: Bool { false }
             var supportsSubNavigation: Bool { false }
             var routeGroup: TestRouteGroup { .horizontal }
         }
@@ -66,19 +93,17 @@ final class RoutingTests: XCTestCase {
         let router = ApplicationRouter<TestRoute>(delegate)
 
         router.present(.one)
-        router.present(.one)
+        router.dismiss(route: .one)
 
-        XCTAssertEqual(router.presentedRoutes[.horizontal]?.count, 1)
+        XCTAssertFalse(router.isPresenting(route: .one))
     }
 
-    // MARK: Modal flow tests
-
-    func testPresentModalRoutesOfDifferentLevels() throws {
+    func testDismissGroup() throws {
         enum TestRoute: AppRouteProtocol {
-            case one, two
-            var isExclusive: Bool { false }
+            case one
+            case two
             var supportsSubNavigation: Bool { false }
-            var routeGroup: TestRouteGroup { self == .one ? .modalOne : .modalTwo }
+            var routeGroup: TestRouteGroup { .horizontal }
         }
 
         let delegate: RouterBlockDelegate<TestRoute> = createDelegate()
@@ -86,67 +111,33 @@ final class RoutingTests: XCTestCase {
 
         router.present(.one)
         router.present(.two)
+        router.dismiss(group: .horizontal)
 
-        XCTAssertEqual(router.modalStack.count, 2)
+        XCTAssertFalse(router.isPresenting(route: .one))
+        XCTAssertFalse(router.isPresenting(route: .two))
+        XCTAssertFalse(router.isPresenting(group: .horizontal))
     }
 
-    func testPresentModalRoutesOfDifferentLevelsInWrongOrder() throws {
+    func testInteractiveDismissal() throws {
         enum TestRoute: AppRouteProtocol {
-            case one, two
-            var isExclusive: Bool { false }
+            case one
             var supportsSubNavigation: Bool { false }
-            var routeGroup: TestRouteGroup { self == .one ? .modalOne : .modalTwo }
-        }
-
-        let delegate: RouterBlockDelegate<TestRoute> = createDelegate()
-        let router = ApplicationRouter<TestRoute>(delegate)
-
-        router.present(.two)
-        router.present(.one)
-
-        XCTAssertTrue(router.isPresenting(route: .two))
-        XCTAssertEqual(router.modalStack.count, 1)
-    }
-
-    func testShouldDropSameLevelModalRouteIfPreceededByExclusive() throws {
-        enum TestRoute: AppRouteProtocol {
-            case one, two
-            var isExclusive: Bool { self == .one }
-            var supportsSubNavigation: Bool { false }
-            var routeGroup: TestRouteGroup { .modalOne }
+            var routeGroup: TestRouteGroup { .horizontal }
         }
 
         let delegate: RouterBlockDelegate<TestRoute> = createDelegate()
         let router = ApplicationRouter<TestRoute>(delegate)
 
         router.present(.one)
-        router.present(.two)
+        router.handleInteractiveDismissal(
+            route: .one,
+            coordinator: try XCTUnwrap(router.presentedRoutes[.horizontal]?.first?.coordinator)
+        )
 
-        XCTAssertTrue(router.isPresenting(route: .one))
-        XCTAssertEqual(router.modalStack.count, 1)
+        XCTAssertFalse(router.isPresenting(route: .one))
     }
 }
 
 enum TestRouteGroup: AppRouteGroupProtocol {
-    case horizontal, modalOne, modalTwo
-
-    var isModal: Bool {
-        switch self {
-        case .horizontal:
-            return false
-        case .modalOne, .modalTwo:
-            return true
-        }
-    }
-
-    var modalLevel: Int {
-        switch self {
-        case .horizontal:
-            return 0
-        case .modalOne:
-            return 1
-        case .modalTwo:
-            return 2
-        }
-    }
+    case horizontal
 }

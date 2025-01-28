@@ -49,10 +49,8 @@ final class RouterBlockDelegate<RouteType: AppRouteProtocol>: ApplicationRouterD
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
-        completion: @escaping @Sendable @MainActor () -> Void
+        completion: @MainActor @escaping @Sendable () -> Void
     ) {
-        MainActor.assumeIsolated {
-            handleSubnavigation?(context, completion) ?? completion()
-        }
+        handleSubnavigation?(context, completion) ?? completion()
     }
 }
