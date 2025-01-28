@@ -29,7 +29,7 @@ struct ConnectionView: View {
                 indicatorsViewModel: indicatorsViewModel,
                 isExpanded: $isExpanded
             )
-            .showIf(connectionViewModel.showConnectionDetails)
+            .showIf(connectionViewModel.showsConnectionDetails)
 
             ButtonPanel(viewModel: connectionViewModel, action: action)
                 .padding(.top, 16)
@@ -38,21 +38,13 @@ struct ConnectionView: View {
         .background(BlurView(style: .dark))
         .cornerRadius(12)
         .padding(EdgeInsets(top: 16, leading: 16, bottom: 24, trailing: 16))
-        .onReceive(connectionViewModel.$tunnelStatus) { _ in
-            // Only update expanded state when connections details should be hidden.
-            // This will contract the view on eg. disconnect, but leave it as-is on
-            // eg. connect.
-            if !connectionViewModel.showConnectionDetails {
-                isExpanded = false
-            }
-        }
     }
 }
 
 extension ConnectionView {
     var headerViewBottomPadding: CGFloat {
         let hasIndicators = !indicatorsViewModel.chips.isEmpty
-        let showConnectionDetails = connectionViewModel.showConnectionDetails
+        let showConnectionDetails = connectionViewModel.showsConnectionDetails
 
         return isExpanded
             ? showConnectionDetails ? 16 : 0
