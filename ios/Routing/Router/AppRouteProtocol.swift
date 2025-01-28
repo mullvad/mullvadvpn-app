@@ -48,11 +48,6 @@ public protocol AppRouteProtocol: Equatable, Hashable, Sendable {
     associatedtype RouteGroupType: AppRouteGroupProtocol
 
     /**
-     Returns `true` when only one route of a kind can be displayed.
-     */
-    var isExclusive: Bool { get }
-
-    /**
      Returns `true` if the route supports sub-navigation.
      */
     var supportsSubNavigation: Bool { get }

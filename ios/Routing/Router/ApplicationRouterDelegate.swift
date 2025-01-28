@@ -11,6 +11,7 @@ import Foundation
 /**
  Application router delegate
  */
+@MainActor
 public protocol ApplicationRouterDelegate<RouteType>: AnyObject, Sendable {
     associatedtype RouteType: AppRouteProtocol
 
@@ -57,6 +58,6 @@ public protocol ApplicationRouterDelegate<RouteType>: AnyObject, Sendable {
     func applicationRouter(
         _ router: ApplicationRouter<RouteType>,
         handleSubNavigationWithContext context: RouteSubnavigationContext<RouteType>,
-        completion: @escaping @Sendable @MainActor () -> Void
+        completion: @escaping @Sendable () -> Void
     )
 }

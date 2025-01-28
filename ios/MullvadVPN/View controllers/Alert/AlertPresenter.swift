@@ -23,7 +23,7 @@ struct AlertPresenter {
     }
 
     func dismissAlert(presentation: AlertPresentation, animated: Bool) {
-        context?.applicationRouter?.dismiss(.alert(presentation.id), animated: animated)
+        context?.applicationRouter?.dismiss(route: .alert(presentation.id), animated: animated)
     }
 }
 
