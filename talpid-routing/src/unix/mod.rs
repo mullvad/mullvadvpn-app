@@ -9,7 +9,7 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use std::{collections::HashSet, sync::Arc};
+use std::{collections::HashSet, os::android, sync::Arc};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -97,6 +97,7 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
+    NewChangeListener(oneshot::Sender<mpsc::UnboundedReceiver<imp::RoutesUpdate>>),
     AddRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,
@@ -168,7 +169,11 @@ impl RouteManagerHandle {
     ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
         let manage_tx = Arc::new(manage_tx);
+        #[cfg(target_os = "android")]
+        let android_context = todo!("Create AndroidContext");
         let manager = imp::RouteManagerImpl::new(
+            #[cfg(target_os = "android")]
+            android_context,
             #[cfg(target_os = "linux")]
             fwmark,
             #[cfg(target_os = "linux")]
@@ -209,6 +214,16 @@ impl RouteManagerHandle {
         self.tx
             .unbounded_send(RouteManagerCommand::ClearRoutes)
             .map_err(|_| Error::RouteManagerDown)
+    }
+
+    #[cfg(target_os = "android")]
+    pub async fn wait_for_routes(&self, routes: Vec<Ipnetwork>) -> Result<imp::RouteResult, Error> {
+        let (result_tx, result_rx) = oneshot::channel();
+        let msg = RouteManagerCommand::WaitForRoutes(result_tx, routes);
+        self.tx.unbounded_send(msg)
+            .map_err(|_| Error::RouteManagerDown);
+        result_rx.await
+            .map_err(|_| Error::ManagerChannelDown)
     }
 
     /// Listen for non-tunnel default route changes.
@@ -297,6 +312,16 @@ impl RouteManagerHandle {
     /// Listen for route changes.
     #[cfg(target_os = "linux")]
     pub async fn change_listener(&self) -> Result<impl Stream<Item = CallbackMessage>, Error> {
+        let (response_tx, response_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    }
+
+    /// Listen for route changes.
+    #[cfg(target_os = "android")]
+    pub async fn change_listener(&self) -> Result<impl Stream<Item = imp::RoutesUpdate>, Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))

@@ -4789,6 +4789,7 @@ dependencies = [
  "bitflags 2.6.0",
  "futures",
  "ipnetwork",
+ "jnix",
  "libc",
  "log",
  "netlink-packet-route",
