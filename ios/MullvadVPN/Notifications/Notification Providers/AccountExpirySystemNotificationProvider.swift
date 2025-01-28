@@ -45,6 +45,10 @@ final class AccountExpirySystemNotificationProvider: NotificationProvider, Syste
         .accountExpirySystemNotification
     }
 
+    override var priority: NotificationPriority {
+        .high
+    }
+
     // MARK: - SystemNotificationProvider
 
     var notificationRequest: UNNotificationRequest? {
