@@ -404,7 +404,6 @@ impl WireguardMonitor {
         let mut config =
             Config::from_parameters(params, desired_mtu).map_err(Error::WireguardConfigError)?;
 
-
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscator = args
@@ -458,15 +457,15 @@ impl WireguardMonitor {
         let moved_close_obfs_sender = close_obfs_sender.clone();
         let moved_obfuscator = monitor.obfuscator.clone();
         let tunnel_fut = async move {
-            let route_change_listener = args.route_manager
-                .change_listener()
-                .await
-                .map_err(Error::SetupRoutingError)
-                .map_err(CloseMsg::SetupError)?;
+            // TODO: We might not want this
+            // let route_change_listener = args.route_manager
+            //     .change_listener()
+            //     .await
+            //     .map_err(Error::SetupRoutingError)
+            //     .map_err(CloseMsg::SetupError)?;
 
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
-
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
@@ -474,8 +473,8 @@ impl WireguardMonitor {
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
-
-            let _ = route_change_listener.next().await?;
+            // TODO: We might not want this
+            // let _ = route_change_listener.next().await?;
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();

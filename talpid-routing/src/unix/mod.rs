@@ -216,15 +216,16 @@ impl RouteManagerHandle {
             .map_err(|_| Error::RouteManagerDown)
     }
 
-    #[cfg(target_os = "android")]
-    pub async fn wait_for_routes(&self, routes: Vec<Ipnetwork>) -> Result<imp::RouteResult, Error> {
-        let (result_tx, result_rx) = oneshot::channel();
-        let msg = RouteManagerCommand::WaitForRoutes(result_tx, routes);
-        self.tx
-            .unbounded_send(msg)
-            .map_err(|_| Error::RouteManagerDown);
-        result_rx.await.map_err(|_| Error::ManagerChannelDown)
-    }
+    // TODO: Do we even want this?
+    // #[cfg(target_os = "android")]
+    // pub async fn wait_for_routes(&self, routes: Vec<Ipnetwork>) -> Result<imp::RouteResult, Error> {
+    //     let (result_tx, result_rx) = oneshot::channel();
+    //     let msg = RouteManagerCommand::WaitForRoutes(result_tx, routes);
+    //     self.tx
+    //         .unbounded_send(msg)
+    //         .map_err(|_| Error::RouteManagerDown);
+    //     result_rx.await.map_err(|_| Error::ManagerChannelDown)
+    // }
 
     /// Listen for non-tunnel default route changes.
     #[cfg(target_os = "macos")]
@@ -319,15 +320,16 @@ impl RouteManagerHandle {
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
 
+    // TODO: We might not want this
     /// Listen for route changes.
-    #[cfg(target_os = "android")]
-    pub async fn change_listener(&self) -> Result<impl Stream<Item = imp::RoutesUpdate>, Error> {
-        let (response_tx, response_rx) = oneshot::channel();
-        self.tx
-            .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))
-            .map_err(|_| Error::RouteManagerDown)?;
-        response_rx.await.map_err(|_| Error::ManagerChannelDown)
-    }
+    // #[cfg(target_os = "android")]
+    // pub async fn change_listener(&self) -> Result<impl Stream<Item = imp::RoutesUpdate>, Error> {
+    //     let (response_tx, response_rx) = oneshot::channel();
+    //     self.tx
+    //         .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))
+    //         .map_err(|_| Error::RouteManagerDown)?;
+    //     response_rx.await.map_err(|_| Error::ManagerChannelDown)
+    // }
 
     /// Listen for route changes.
     #[cfg(target_os = "linux")]

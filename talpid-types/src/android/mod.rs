@@ -21,18 +21,10 @@ pub struct InetNetwork {
     pub prefix: i16,
 }
 
-/// A Java-compatible variant of [IpNetwork]
-#[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
-#[jnix(package = "android.net.IpPrefix")]
-pub struct IpPrefix {
-    pub address: IpAddr,
-    pub prefix_length: i32,
-}
-
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 pub struct RouteInfo {
-    pub destination: IpPrefix,
+    pub destination: InetNetwork,
     pub gateway: Option<InetAddress>,
     pub interface: Option<String>,
 }
