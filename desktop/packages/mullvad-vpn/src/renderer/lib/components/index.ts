@@ -1,5 +1,6 @@
 export * from './box';
 export * from './button';
+export * from './filter-chip';
 export * from './container';
 export * from './flex';
 export * from './icon';
