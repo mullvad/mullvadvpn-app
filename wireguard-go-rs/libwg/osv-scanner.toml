@@ -28,3 +28,15 @@ reason = "wireguard-go does not use the affected code"
 id = "GHSA-w32m-9786-jp63" # GO-2024-3333
 ignoreUntil = 2025-03-19
 reason = "wireguard-go does not use the affected code"
+
+# Sensitive headers incorrectly sent after cross-domain redirect in net/http
+[[IgnoredVulns]]
+id = "CVE-2024-45336" # GO-2025-3420
+ignoreUntil = 2025-04-28
+reason = "wireguard-go does not use the affected code"
+
+# Usage of IPv6 zone IDs can bypass URI name constraints in crypto/x509
+[[IgnoredVulns]]
+id = "CVE-2024-45341" # GO-2025-3373
+ignoreUntil = 2025-04-28
+reason = "wireguard-go does not use the affected code"
