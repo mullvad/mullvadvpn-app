@@ -23,19 +23,26 @@ pub struct InetNetwork {
 
 /// A Java-compatible variant of [IpNetwork]
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
-//#[jnix(package = "net.mullvad.talpid.model")] // TODO: this is a builtin android type
+#[jnix(package = "android.net.IpPrefix")]
+pub struct IpPrefix {
+    pub address: IpAddr,
+    pub prefix_length: i32,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
+#[jnix(package = "net.mullvad.talpid.model")]
 pub struct RouteInfo {
-    pub destination: Option<InetNetwork>, // AKA IpPrefix
-    pub gateway: Option<InetAddress>,     // AKA InetAddress
+    pub destination: IpPrefix,
+    pub gateway: Option<InetAddress>,
     pub interface: Option<String>,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 pub struct NetworkState {
-    pub network_handles: i64,
-    pub routes: Vec<RouteInfo>,
-    pub dns_servers: Vec<InetAddress>,
+    pub network_handle: i64,
+    pub routes: Option<Vec<RouteInfo>>,
+    pub dns_servers: Option<Vec<InetAddress>>,
 }
 
 impl From<IpNetwork> for InetNetwork {
