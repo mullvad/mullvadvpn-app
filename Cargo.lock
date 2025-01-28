@@ -2108,7 +2108,7 @@ checksum = "8eaf4bc02d17cbdd7ff4c7438cafcdf7fb9a4613313ad11b4f8fefe7d3fa0130"
 [[package]]
 name = "jnix"
 version = "0.5.1"
-source = "git+https://github.com/mullvad/jnix.git?branch=i16-from-java#ac34549dc443de3acac049cfb1b045dacd5b49aa"
+source = "git+https://github.com/mullvad/jnix.git?branch=i16-from-java#fead16ac358b2c5c082863e73010577c65ac7a1e"
 dependencies = [
  "jni",
  "jnix-macros",
@@ -2119,7 +2119,7 @@ dependencies = [
 [[package]]
 name = "jnix-macros"
 version = "0.4.1"
-source = "git+https://github.com/mullvad/jnix.git?branch=i16-from-java#ac34549dc443de3acac049cfb1b045dacd5b49aa"
+source = "git+https://github.com/mullvad/jnix.git?branch=i16-from-java#fead16ac358b2c5c082863e73010577c65ac7a1e"
 dependencies = [
  "heck 0.4.1",
  "proc-macro2",
