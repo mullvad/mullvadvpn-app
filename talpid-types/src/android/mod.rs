@@ -14,14 +14,14 @@ pub struct AndroidContext {
 }
 
 /// A Java-compatible variant of [IpNetwork]
-#[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, IntoJava, FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 pub struct InetNetwork {
     pub address: IpAddr,
     pub prefix_length: i16,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, IntoJava, FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 pub struct RouteInfo {
     pub destination: InetNetwork,
@@ -29,7 +29,7 @@ pub struct RouteInfo {
     pub interface: Option<String>,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash, IntoJava, FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 pub struct NetworkState {
     pub network_handle: i64,

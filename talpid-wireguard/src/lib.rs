@@ -400,10 +400,11 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_>,
     ) -> Result<WireguardMonitor> {
+        use futures::StreamExt;
+
         let desired_mtu = get_desired_mtu(params);
         let mut config =
             Config::from_parameters(params, desired_mtu).map_err(Error::WireguardConfigError)?;
-
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscator = args
@@ -430,6 +431,9 @@ impl WireguardMonitor {
             cancel_receiver.clone(),
         )
         .map_err(Error::ConnectivityMonitorError)?;
+
+        let route_to_wait_for = args.tun_provider.lock().unwrap().config_mut().routes.clone();
+        let route_updates = args.route_manager.wait_for_routes(route_to_wait_for.clone());
 
         let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
             &config,
@@ -473,8 +477,9 @@ impl WireguardMonitor {
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
 
-            // TODO: We might not want this
-            // let _ = route_change_listener.next().await?;
+            // Wait for routes to come up
+            // TODO: Time out (eventually) and return proper error
+            route_updates.any(|routes_are_correct| async move { routes_are_correct }).await;
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();

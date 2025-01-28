@@ -3,13 +3,14 @@ use std::sync::Mutex;
 use crate::imp::RouteManagerCommand;
 use futures::{
     channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
-    stream::StreamExt,
+    stream::StreamExt, Stream,
 };
+use ipnetwork::IpNetwork;
 use jnix::{
     jni::{objects::JObject, JNIEnv},
     FromJava, JnixEnv,
 };
-use talpid_types::android::{AndroidContext, NetworkState};
+use talpid_types::android::NetworkState;
 
 /// Stub error type for routing errors on Android.
 /// Errors that occur while setting up VpnService tunnel.
@@ -86,7 +87,7 @@ impl RouteManagerImpl {
             match command {
                 RouteManagerCommand::NewChangeListener(tx) => {
                     // register a listener for new route updates
-                    let _ = tx.send(self.listen());
+                    self.listeners.push(tx);
                 }
                 RouteManagerCommand::Shutdown(tx) => {
                     tx.send(()).map_err(|()| Error::Send)?; // TODO: Surely we can do better than this
@@ -100,6 +101,8 @@ impl RouteManagerImpl {
         }
         Ok(())
     }
+
+    // pub fn wait_for_routes(&mut self, routes: Vec<IpNetwork>) -> impl Stream<Item = bool> { }
 
     fn notify_change_listeners(&mut self, message: RoutesUpdate) {
         self.listeners
