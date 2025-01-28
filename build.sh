@@ -101,11 +101,17 @@ fi
 if [[ "$OPTIMIZE" == "true" ]]; then
     CARGO_ARGS+=(--release)
     RUST_BUILD_MODE="release"
-    CPP_BUILD_MODE="Release"
     NPM_PACK_ARGS+=(--release)
 else
     RUST_BUILD_MODE="debug"
     NPM_PACK_ARGS+=(--no-compression)
+fi
+# The cargo builds that are part of the C++ builds only enforce `--locked` when built
+# in release mode. And we must enforce `--locked` for all signed builds. So we enable
+# release mode if either optimizations or signing is enabled.
+if [[ "$OPTIMIZE" == "true" || "$SIGN" == "true" ]]; then
+    CPP_BUILD_MODE="Release"
+else
     CPP_BUILD_MODE="Debug"
 fi
 
@@ -115,6 +121,11 @@ if [[ "$SIGN" == "true" ]]; then
         log_error "Will only build a signed app in a clean working directory"
         exit 1
     fi
+
+    # Will not allow an outdated lockfile when building with signatures
+    # (The build servers should never build without --locked for
+    # reproducibility and supply chain security)
+    CARGO_ARGS+=(--locked)
 
     if [[ "$(uname -s)" == "Darwin" ]]; then
         log_info "Configuring environment for signing of binaries"
@@ -156,9 +167,6 @@ fi
 if [[ "$IS_RELEASE" == "true" ]]; then
     log_info "Removing old Rust build artifacts..."
     cargo clean
-
-    # Will not allow an outdated lockfile in releases
-    CARGO_ARGS+=(--locked)
 else
     # Allow dev builds to override which API server to use at runtime.
     CARGO_ARGS+=(--features api-override)
