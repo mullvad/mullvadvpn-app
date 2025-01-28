@@ -8,9 +8,8 @@ export type IconProps = {
   icon: keyof typeof icons;
   size?: 'tiny' | 'small' | 'medium' | 'large' | 'big';
   color?: Colors;
-  alt?: string;
   className?: string;
-};
+} & React.HTMLAttributes<HTMLDivElement>;
 
 const StyledIcon = styled.div<
   TransientProps<Pick<IconProps, 'color'>> & { $size: number; $src: string }
@@ -30,17 +29,13 @@ const sizes = {
   big: 48,
 };
 
-export const Icon = ({ icon: iconProp, size = 'medium', color, alt, ...props }: IconProps) => {
+export const Icon = ({
+  icon: iconProp,
+  size = 'medium',
+  color = Colors.white,
+  ...props
+}: IconProps) => {
   const icon = icons[iconProp];
   const src = iconProp.startsWith('data:') ? iconProp : `../../assets/images/icons/${icon}.svg`;
-  return (
-    <StyledIcon
-      $src={src}
-      $size={sizes[size]}
-      $color={color}
-      role="img"
-      aria-label={alt || iconProp}
-      {...props}
-    />
-  );
+  return <StyledIcon $src={src} $size={sizes[size]} $color={color} role="img" {...props} />;
 };
