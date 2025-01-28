@@ -121,7 +121,6 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaul
     _: JObject<'_>,
     network_state: JObject<'_>, // TODO: Actually get the routes
 ) {
-    return;
     let env = JnixEnv::from(env);
 
     if network_state.is_null() {
