@@ -88,8 +88,8 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
     private fun NetworkState.toDaemonNetworkState(): DaemonNetworkState =
         DaemonNetworkState(
             network.networkHandle,
-            linkProperties?.routes ?: emptyList(),
-            linkProperties?.dnsServersWithoutFallback() ?: emptyList(),
+            linkProperties?.routes,
+            linkProperties?.dnsServersWithoutFallback(),
         )
 
     private external fun notifyConnectivityChange(isConnected: Boolean)
