@@ -59,6 +59,9 @@ on:
 
 permissions: {}
 
+env:
+  E2E_TEST_INFRA_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor || 'stagemole' }}
+
 jobs:
   prepare:
     name: Prepare
@@ -346,7 +349,7 @@ jobs:
       - name: Build stagemole app
         uses: burrunan/gradle-cache-action@v1
         if: >
-          (github.event.inputs.e2e_test_repeat != '0' && github.event.inputs.e2e_tests_infra_flavor == 'stagemole') ||
+          (github.event.inputs.e2e_test_repeat != '0' && env.E2E_TEST_INFRA_FLAVOR == 'stagemole') ||
           github.event.inputs.run_firebase_tests == 'true'
         with:
           job-id: jdk17
@@ -549,12 +552,12 @@ jobs:
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
           TEST_TYPE: e2e
-          BILLING_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor == 'prod' && 'oss' || 'play' }}
-          INFRA_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor }}
+          BILLING_FLAVOR: ${{ env.E2E_TEST_INFRA_FLAVOR == 'prod' && 'oss' || 'play' }}
+          INFRA_FLAVOR: ${{ env.E2E_TEST_INFRA_FLAVOR }}
           PARTNER_AUTH: |-
-            ${{ github.event.inputs.e2e_tests_infra_flavor == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
+            ${{ env.E2E_TEST_INFRA_FLAVOR == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
           VALID_TEST_ACCOUNT_NUMBER: |-
-            ${{ github.event.inputs.e2e_tests_infra_flavor == 'prod' && secrets.ANDROID_PROD_TEST_ACCOUNT || '' }}
+            ${{ env.E2E_TEST_INFRA_FLAVOR == 'prod' && secrets.ANDROID_PROD_TEST_ACCOUNT || '' }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
@@ -564,8 +567,7 @@ jobs:
       - name: Upload e2e instrumentation report
         uses: actions/upload-artifact@v4
         if: >
-          always() && matrix.test-repeat != 0 &&
-          github.event.inputs.e2e_tests_infra_flavor == 'stagemole'
+          always() && matrix.test-repeat != 0 && env.E2E_TEST_INFRA_FLAVOR == 'stagemole'
         with:
           name: e2e-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
