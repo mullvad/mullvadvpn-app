@@ -55,7 +55,6 @@ pub enum RoutesUpdate {
 // TODO: This is le actor state
 /// Stub route manager for Android
 pub struct RouteManagerImpl {
-    android: AndroidContext,
     routes_udates: UnboundedReceiver<RoutesUpdate>,
     listeners: Vec<UnboundedSender<RoutesUpdate>>,
 }
@@ -67,13 +66,12 @@ pub enum RouteResult {
 
 impl RouteManagerImpl {
     #[allow(clippy::unused_async)]
-    pub async fn new(android: AndroidContext) -> Result<Self, Error> {
+    pub async fn new() -> Result<Self, Error> {
         // Create a channel between the kotlin client and route manager
         let (tx, rx) = futures::channel::mpsc::unbounded();
         // TODO: What id `ROUTE_UPDATES_TX` has already been initialized?
         *ROUTE_UPDATES_TX.lock().unwrap() = Some(tx);
         Ok(RouteManagerImpl {
-            android,
             routes_udates: rx,
             listeners: Default::default(),
         })

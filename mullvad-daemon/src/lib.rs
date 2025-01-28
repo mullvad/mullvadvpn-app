@@ -786,8 +786,6 @@ impl Daemon {
         });
 
         let route_manager = RouteManagerHandle::spawn(
-            #[cfg(target_os = "android")]
-            config.android_context.clone(),
             #[cfg(target_os = "linux")]
             mullvad_types::TUNNEL_FWMARK,
             #[cfg(target_os = "linux")]
