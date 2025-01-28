@@ -118,7 +118,7 @@ impl RouteManagerImpl {
 /// Entry point for Android Java code to notify the current default network state.
 #[no_mangle]
 #[allow(non_snake_case)]
-pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyRoutesChanged(
+pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaultNetworkChange(
     env: JNIEnv<'_>,
     _: JObject<'_>,
     network_state: JObject<'_>, // TODO: Actually get the routes
