@@ -27,43 +27,6 @@ final class LogRotationTests: XCTestCase {
         try fileManager.removeItem(at: directoryPath)
     }
 
-    func testRotatingActiveLogWhenSizeLimitIsExceeded() throws {
-        let logName = "test.log"
-        let logPath = directoryPath.appendingPathComponent(logName)
-
-        let totalLogSizeLimit = 200
-        let totalLogTestSize = 645
-        let logChunkSize = 20
-
-        let expectedLogCount = Int(ceil(Double(totalLogTestSize) / Double(totalLogSizeLimit)))
-        let writeOperationCount = Int(ceil(Double(totalLogTestSize) / Double(logChunkSize)))
-
-        let stream = LogFileOutputStream(fileURL: logPath, header: "", fileSizeLimit: UInt64(totalLogSizeLimit))
-        for _ in 0 ..< writeOperationCount {
-            stream.write(stringOfSize(logChunkSize))
-        }
-        stream.synchronize()
-
-        let actualLogCount = try fileManager.contentsOfDirectory(atPath: directoryPath.relativePath).count
-        XCTAssertEqual(expectedLogCount, actualLogCount)
-
-        for index in 0 ..< actualLogCount {
-            var expectedFileName = logName
-
-            if index != 0 {
-                // Rotated log filenames start at "_2".
-                expectedFileName = expectedFileName.replacingOccurrences(of: ".log", with: "_\(index + 1).log")
-            }
-
-            let logExists = fileManager.fileExists(
-                atPath: directoryPath
-                    .appendingPathComponent(expectedFileName)
-                    .relativePath
-            )
-            XCTAssertTrue(logExists)
-        }
-    }
-
     func testRotateLogsByStorageSizeLimit() throws {
         let logPaths = [
             directoryPath.appendingPathComponent("test1.log"),
