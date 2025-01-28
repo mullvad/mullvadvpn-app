@@ -55,16 +55,15 @@ class RelaySelectorTests: XCTestCase {
         )
 
         let relayWithLocations = sampleRelays.wireguard.relays.map {
-            let location = sampleRelays.locations[$0.location]!
-            let locationComponents = $0.location.split(separator: "-")
+            let location = sampleRelays.locations[$0.location.rawValue]!
 
             return RelayWithLocation(
                 relay: $0,
                 serverLocation: Location(
                     country: location.country,
-                    countryCode: String(locationComponents[0]),
+                    countryCode: String($0.location.country),
                     city: location.city,
-                    cityCode: String(locationComponents[1]),
+                    cityCode: String($0.location.city),
                     latitude: location.latitude,
                     longitude: location.longitude
                 )
@@ -138,7 +137,7 @@ class RelaySelectorTests: XCTestCase {
 
     func testClosestRelay() throws {
         let relayWithLocations = try sampleRelays.wireguard.relays.map {
-            let serverLocation = try XCTUnwrap(sampleRelays.locations[$0.location])
+            let serverLocation = try XCTUnwrap(sampleRelays.locations[$0.location.rawValue])
             let location = Location(
                 country: serverLocation.country,
                 countryCode: serverLocation.country,
