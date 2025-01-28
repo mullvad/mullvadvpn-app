@@ -245,7 +245,6 @@ impl AppWindow {
                 .constraint_equal_to(&self.content.bottom),
         ]);
 
-        self.text.set_text("Latest version: 2025.3");
         self.main_view.add_subview(&self.text);
         self.main_view.add_subview(&self.button.button);
         self.main_view.add_subview(&self.cancel_button.button);

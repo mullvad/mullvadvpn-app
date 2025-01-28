@@ -85,7 +85,7 @@ impl AppUi {
         grid.set_padded(true);
 
         // Stable row
-        let version_label = Label::new("Latest version: 2025.2");
+        let version_label = Label::new("");
         grid.append(
             version_label,
             1,

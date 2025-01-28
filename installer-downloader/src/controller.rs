@@ -1,9 +1,12 @@
 //! Framework-agnostic module that hooks up a UI to actions
 
+use std::future::Future;
+
 use tokio::sync::{mpsc, oneshot};
 
+use crate::api::VersionInfoProvider;
 use crate::app::{self, AppDownloader, LatestAppDownloader};
-use crate::fetch;
+use crate::{api, fetch};
 
 /// Trait implementing high-level UI actions
 pub trait AppDelegate {
@@ -38,6 +41,12 @@ pub trait AppDelegate {
     /// Disable download button
     fn disable_download_button(&mut self);
 
+    /// Show download button
+    fn show_download_button(&mut self);
+
+    /// Hide download button
+    fn hide_download_button(&mut self);
+
     /// Show cancel button
     fn show_cancel_button(&mut self);
 
@@ -53,81 +62,110 @@ pub trait AppDelegateQueue<T: ?Sized>: Send {
     fn queue_main<F: FnOnce(&mut T) + 'static + Send>(&self, callback: F);
 }
 
-enum DownloadTaskMessage<T: AppDelegate> {
-    BeginDownload(UiAppDownloader<T>),
-    Cancel(oneshot::Sender<()>),
+enum DownloadTaskMessage {
+    SetVersionInfo(api::VersionInfo),
+    BeginDownload,
+    Cancel,
 }
 
 /// See [module-level](crate) documentation.
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
+    delegate.hide_download_button();
     delegate.hide_cancel_button();
 
     let (download_tx, download_rx) = mpsc::channel(1);
-    tokio::spawn(handle_download_messages(download_rx));
+    tokio::spawn(handle_download_messages::<T>(delegate.queue(), download_rx));
 
     let tx = download_tx.clone();
-    delegate.on_download(move |delegate| on_download(delegate, tx.clone()));
-    delegate.on_cancel(move |delegate| on_cancel(delegate, download_tx.clone()));
+    delegate.on_download(move |_delegate| {
+        let _ = tx.try_send(DownloadTaskMessage::BeginDownload);
+    });
+    let tx = download_tx.clone();
+    delegate.on_cancel(move |_delegate| {
+        let _ = tx.try_send(DownloadTaskMessage::Cancel);
+    });
+
+    tokio::spawn(fetch_app_version_info(delegate, download_tx));
 }
 
-async fn handle_download_messages<T: AppDelegate + 'static>(
-    mut rx: mpsc::Receiver<DownloadTaskMessage<T>>,
+fn fetch_app_version_info<T: AppDelegate>(
+    delegate: &mut T,
+    download_tx: mpsc::Sender<DownloadTaskMessage>,
+) -> impl Future<Output = ()> {
+    delegate.set_status_text("Fetching app version...");
+    let queue = delegate.queue();
+
+    async move {
+        // TODO: handle errors, retry
+        let Ok(version_info) = api::LatestVersionInfoProvider::get_version_info().await else {
+            queue.queue_main(move |self_| {
+                self_.set_status_text("Failed to fetch version info");
+            });
+            return;
+        };
+        let _ = download_tx.try_send(DownloadTaskMessage::SetVersionInfo(version_info));
+    }
+}
+
+async fn handle_download_messages<Delegate: AppDelegate + 'static>(
+    queue: Delegate::Queue,
+    mut rx: mpsc::Receiver<DownloadTaskMessage>,
 ) {
+    let mut version_info = None;
     let mut active_download = None;
 
     while let Some(msg) = rx.recv().await {
         match msg {
-            DownloadTaskMessage::BeginDownload(downloader) => {
-                if active_download.is_none() {
-                    active_download = Some(tokio::spawn(async move {
+            DownloadTaskMessage::SetVersionInfo(new_version_info) => {
+                let version_label = format!("Latest version: {}", new_version_info.stable.version);
+                queue.queue_main(move |self_| {
+                    self_.set_status_text(&version_label);
+                    self_.show_download_button();
+                });
+                version_info = Some(new_version_info);
+            }
+            DownloadTaskMessage::BeginDownload => {
+                let (tx, rx) = oneshot::channel();
+                queue.queue_main(move |self_| {
+                    self_.set_status_text("");
+                    self_.disable_download_button();
+                    self_.show_cancel_button();
+                    self_.show_download_progress();
+
+                    let new_delegated_downloader = |sig_progress, app_progress| {
+                        LatestAppDownloader::stable(sig_progress, app_progress)
+                    };
+
+                    let downloader = UiAppDownloader::new(self_, new_delegated_downloader);
+                    let _ = tx.send(tokio::spawn(async move {
                         let _ = app::install_and_upgrade(downloader).await;
                     }));
-                }
+                });
+                active_download = Some(rx.await.unwrap());
             }
-            DownloadTaskMessage::Cancel(done_tx) => {
+            DownloadTaskMessage::Cancel => {
                 let Some(active_download) = active_download.take() else {
                     continue;
                 };
                 active_download.abort();
                 let _ = active_download.await;
-                let _ = done_tx.send(());
+
+                let version_label = if let Some(version_info) = &version_info {
+                    format!("Latest version: {}", version_info.stable.version)
+                } else {
+                    "".to_owned()
+                };
+
+                queue.queue_main(move |self_| {
+                    self_.set_status_text(&version_label);
+                    self_.enable_download_button();
+                    self_.hide_cancel_button();
+                    self_.hide_download_progress();
+                    self_.set_download_progress(0);
+                });
             }
         }
     }
-}
-
-fn on_download<T: AppDelegate + 'static>(
-    delegate: &mut T,
-    download_tx: mpsc::Sender<DownloadTaskMessage<T>>,
-) {
-    delegate.set_status_text("");
-    delegate.disable_download_button();
-    delegate.show_cancel_button();
-    delegate.show_download_progress();
-
-    let new_delegated_downloader =
-        |sig_progress, app_progress| LatestAppDownloader::stable(sig_progress, app_progress);
-
-    let downloader = UiAppDownloader::new(delegate, new_delegated_downloader);
-
-    let _ = download_tx.try_send(DownloadTaskMessage::BeginDownload(downloader));
-}
-
-fn on_cancel<T: AppDelegate + 'static>(
-    delegate: &mut T,
-    download_tx: mpsc::Sender<DownloadTaskMessage<T>>,
-) {
-    let (done_tx, done_rx) = oneshot::channel();
-    let _ = download_tx.try_send(DownloadTaskMessage::Cancel(done_tx));
-    tokio::runtime::Handle::current().block_on(async move {
-        let _ = done_rx.await;
-    });
-
-    delegate.set_status_text("");
-    delegate.enable_download_button();
-    delegate.hide_cancel_button();
-    delegate.hide_download_progress();
-    delegate.set_download_progress(0);
 }
 
 /// App downloader that delegates everything to a downloader and uses the results to update the UI.
