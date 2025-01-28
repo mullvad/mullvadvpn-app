@@ -13,6 +13,7 @@ export interface FlexProps extends LayoutProps {
   $flexGrow?: React.CSSProperties['flexGrow'];
   $flexShrink?: React.CSSProperties['flexShrink'];
   $flexBasis?: React.CSSProperties['flexBasis'];
+  $flexWrap?: React.CSSProperties['flexWrap'];
   children?: React.ReactNode;
 }
 
@@ -26,6 +27,7 @@ export const Flex = styled(Layout)<FlexProps>(
     $flexGrow,
     $flexShrink,
     $flexBasis,
+    $flexWrap,
   }) => ({
     display: 'flex',
     gap: $gap,
@@ -36,5 +38,6 @@ export const Flex = styled(Layout)<FlexProps>(
     flexGrow: $flexGrow,
     flexShrink: $flexShrink,
     flexBasis: $flexBasis,
+    flexWrap: $flexWrap,
   }),
 );
