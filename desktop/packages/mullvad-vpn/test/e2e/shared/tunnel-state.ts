@@ -84,7 +84,7 @@ export async function expectTunnelState(page: Page, content: TunnelStateContent)
   await expect(header).toHaveCSS('background-color', content.headerColor);
 
   if (content.buttonText && content.buttonColor) {
-    const button = page.locator('button', { hasText: new RegExp(content.buttonText, 'i') });
+    const button = page.locator('button', { hasText: new RegExp(`^${content.buttonText}$`, 'i') });
     await expect(button).toHaveCSS('background-color', content.buttonColor);
   }
 }
