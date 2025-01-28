@@ -125,6 +125,9 @@ async fn handle_download_messages<Delegate: AppDelegate + 'static>(
                 version_info = Some(new_version_info);
             }
             DownloadTaskMessage::BeginDownload => {
+                if active_download.is_some() {
+                    continue;
+                }
                 let Some(version_info) = version_info.clone() else {
                     continue;
                 };
