@@ -62,35 +62,38 @@ enum DownloadTaskMessage<T: AppDelegate> {
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     delegate.hide_cancel_button();
 
-    let (download_tx, mut download_rx) = mpsc::channel(1);
-    tokio::spawn(async move {
-        // TODO: move to func
-        let mut active_download = None;
-
-        while let Some(msg) = download_rx.recv().await {
-            match msg {
-                DownloadTaskMessage::BeginDownload(downloader) => {
-                    if active_download.is_none() {
-                        active_download = Some(tokio::spawn(async move {
-                            let _ = app::install_and_upgrade(downloader).await;
-                        }));
-                    }
-                }
-                DownloadTaskMessage::Cancel(done_tx) => {
-                    let Some(active_download) = active_download.take() else {
-                        continue;
-                    };
-                    active_download.abort();
-                    let _ = active_download.await;
-                    let _ = done_tx.send(());
-                }
-            }
-        }
-    });
+    let (download_tx, download_rx) = mpsc::channel(1);
+    tokio::spawn(handle_download_messages(download_rx));
 
     let tx = download_tx.clone();
     delegate.on_download(move |delegate| on_download(delegate, tx.clone()));
     delegate.on_cancel(move |delegate| on_cancel(delegate, download_tx.clone()));
+}
+
+async fn handle_download_messages<T: AppDelegate + 'static>(
+    mut rx: mpsc::Receiver<DownloadTaskMessage<T>>,
+) {
+    let mut active_download = None;
+
+    while let Some(msg) = rx.recv().await {
+        match msg {
+            DownloadTaskMessage::BeginDownload(downloader) => {
+                if active_download.is_none() {
+                    active_download = Some(tokio::spawn(async move {
+                        let _ = app::install_and_upgrade(downloader).await;
+                    }));
+                }
+            }
+            DownloadTaskMessage::Cancel(done_tx) => {
+                let Some(active_download) = active_download.take() else {
+                    continue;
+                };
+                active_download.abort();
+                let _ = active_download.await;
+                let _ = done_tx.send(());
+            }
+        }
+    }
 }
 
 fn on_download<T: AppDelegate + 'static>(
