@@ -125,6 +125,11 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaul
 ) {
     let env = JnixEnv::from(env);
 
+    if network_state.is_null() {
+        // TODO: We might want to handle this more gracefully
+        log::debug!("Received NULL NetworkState");
+        return;
+    }
     let network_state = NetworkState::from_java(&env, network_state);
     let Some(tx) = &*ROUTE_UPDATES_TX.lock().unwrap() else {
         // No sender has been registered
