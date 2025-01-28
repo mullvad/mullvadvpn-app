@@ -1,8 +1,11 @@
+use ipnetwork::{IpNetwork, IpNetworkError, Ipv4Network, Ipv6Network};
 use jnix::jni::{objects::GlobalRef, JavaVM};
-use jnix::{IntoJava, FromJava};
-use std::sync::Arc;
-use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network, IpNetworkError};
+use jnix::{FromJava, IntoJava};
 use std::net::IpAddr;
+use std::sync::Arc;
+
+/// What Java calls an [IpAddr]
+pub type InetAddress = IpAddr;
 
 #[derive(Clone)]
 pub struct AndroidContext {
@@ -10,13 +13,29 @@ pub struct AndroidContext {
     pub vpn_service: GlobalRef,
 }
 
-
 /// A Java-compatible variant of [IpNetwork]
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
 pub struct InetNetwork {
     pub address: IpAddr,
     pub prefix: i16,
+}
+
+/// A Java-compatible variant of [IpNetwork]
+#[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
+//#[jnix(package = "net.mullvad.talpid.model")] // TODO: this is a builtin android type
+pub struct RouteInfo {
+    pub destination: Option<InetNetwork>, // AKA IpPrefix
+    pub gateway: Option<InetAddress>,     // AKA InetAddress
+    pub interface: Option<String>,
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, IntoJava, FromJava)]
+#[jnix(package = "net.mullvad.talpid.model")]
+pub struct NetworkState {
+    pub network_handles: i64,
+    pub routes: Vec<RouteInfo>,
+    pub dns_servers: Vec<InetAddress>,
 }
 
 impl From<IpNetwork> for InetNetwork {
