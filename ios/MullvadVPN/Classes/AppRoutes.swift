@@ -42,30 +42,6 @@ enum AppRouteGroup: AppRouteGroupProtocol {
      Alert group. Alert id should match the id of the alert being contained.
      */
     case alert(_ alertId: String)
-
-    var isModal: Bool {
-        switch self {
-        case .primary:
-            return false
-
-        case .selectLocation, .account, .settings, .changelog, .alert:
-            return true
-        }
-    }
-
-    var modalLevel: Int {
-        switch self {
-        case .primary:
-            return 0
-        case .account, .selectLocation, .changelog:
-            return 1
-        case .settings:
-            return 2
-        case .alert:
-            // Alerts should always be topmost.
-            return .max
-        }
-    }
 }
 
 /**
@@ -107,15 +83,6 @@ enum AppRoute: AppRouteProtocol {
      Routes that are part of primary horizontal navigation group.
      */
     case tos, login, main, revoked, outOfTime, welcome
-
-    var isExclusive: Bool {
-        switch self {
-        case .account, .settings, .alert:
-            return true
-        default:
-            return false
-        }
-    }
 
     var supportsSubNavigation: Bool {
         if case .settings = self {

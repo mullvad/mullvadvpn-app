@@ -270,6 +270,12 @@ final class SettingsCoordinator: Coordinator, Presentable, Presenting, SettingsV
             return .problemReport
         case is ListAccessMethodViewController:
             return .apiAccess
+        case is DAITASettingsViewController:
+            return .daita
+        case is MultihopViewController:
+            return .multihop
+        case is ChangeLogViewController:
+            return .changelog
         default:
             return nil
         }
