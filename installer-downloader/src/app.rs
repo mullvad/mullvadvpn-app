@@ -14,7 +14,7 @@ pub enum DownloadError {
     Verification(anyhow::Error),
 }
 
-/// See the [module-level documentation](crate).
+/// See the [module-level documentation](self).
 #[async_trait::async_trait]
 pub trait AppDownloader {
     /// Download the app signature.

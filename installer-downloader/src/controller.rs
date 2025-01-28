@@ -68,7 +68,7 @@ enum DownloadTaskMessage {
     Cancel,
 }
 
-/// See [module-level](crate) documentation.
+/// See [module-level](self) documentation.
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     delegate.hide_download_button();
     delegate.hide_cancel_button();

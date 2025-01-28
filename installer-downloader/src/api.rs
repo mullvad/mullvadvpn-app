@@ -1,6 +1,6 @@
 //! Fetch information about app versions from the Mullvad API
 
-/// See [module-level](mod) docs.
+/// See [module-level](self) docs.
 pub trait VersionInfoProvider {
     /// Return info about the stable version
     async fn get_version_info() -> anyhow::Result<VersionInfo>;

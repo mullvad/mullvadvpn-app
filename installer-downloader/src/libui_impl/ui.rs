@@ -29,7 +29,7 @@ const LOGO_PNG: &[u8] = include_bytes!("../logo.png");
 /// Success icon
 //const SUCCESS_CHECK: &[u8] = include_bytes!("../logo.png");
 
-/// See the [module-level documentation](crate).
+/// See the [module-level documentation](self).
 #[derive(Clone)]
 pub struct AppUi {
     /// Main window
