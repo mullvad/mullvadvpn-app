@@ -45,6 +45,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
 
+## [2025.3-clouds] - 2025-01-27
+### Chaned
+- Disable split tunneling
+
 
 ## [2025.2] - 2025-01-08
 ### Fixed
