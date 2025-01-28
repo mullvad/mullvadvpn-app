@@ -32,8 +32,7 @@ final class ChangeLogCoordinator: Coordinator, Presentable, SettingsChildCoordin
     }
 
     func start(animated: Bool) {
-        let changeLogViewController = UIHostingController(rootView: ChangeLogView(viewModel: viewModel))
-        changeLogViewController.view.setAccessibilityIdentifier(.changeLogAlert)
+        let changeLogViewController = ChangeLogViewController(rootView: ChangeLogView(viewModel: viewModel))
         changeLogViewController.navigationItem.title = NSLocalizedString(
             "whats_new_title",
             tableName: "Changelog",
