@@ -48,10 +48,6 @@ pub fn default_resolvers() -> Vec<Nameserver> {
             addr: vec!["1.1.1.1".parse().unwrap(), "1.0.0.1".parse().unwrap()],
         },
         Nameserver {
-            name: "dns.google".to_owned(),
-            addr: vec!["8.8.8.8".parse().unwrap(), "8.8.4.4".parse().unwrap()],
-        },
-        Nameserver {
             name: "dns.quad9.net".to_owned(),
             addr: vec![
                 "9.9.9.9".parse().unwrap(),

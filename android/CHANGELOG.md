@@ -22,7 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
-
+### Removed
+- Remove Google's resolvers from encrypted DNS proxy.
 
 ## [android/2024.10-beta2] - 2024-12-20
 
