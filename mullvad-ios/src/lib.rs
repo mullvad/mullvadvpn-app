@@ -43,12 +43,12 @@ use std::{
 };
 
 extern "C" {
-    pub fn async_finish(response: SwiftMullvadApiResponse, async_cookie: AsyncCookie);
+    pub fn completion_finish(response: SwiftMullvadApiResponse, async_cookie: CompletionCookie);
 }
 
 #[repr(C)]
-pub struct AsyncCookie(*mut std::ffi::c_void);
-unsafe impl Send for AsyncCookie {}
+pub struct CompletionCookie(*mut std::ffi::c_void);
+unsafe impl Send for CompletionCookie {}
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -75,7 +75,7 @@ impl SwiftMullvadApiResponse {
     async fn with_body(response: Response<hyper::body::Incoming>) -> Result<Self, Error> {
         let status_code: u16 = response.status().into();
         let body: Vec<u8> = response.body().await.map_err(Error::Rest)?;
-        
+
         let body_size = body.len();
         let body = body.into_boxed_slice();
 
@@ -156,10 +156,10 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
     api_context: SwiftApiContext,
     async_cookie: *mut std::ffi::c_void,
 ) {
-    let async_cookie = AsyncCookie(async_cookie);
+    let async_cookie = CompletionCookie(async_cookie);
 
     let Ok(tokio_handle) = mullvad_ios_runtime() else {
-        async_finish(SwiftMullvadApiResponse::error(), async_cookie);
+        completion_finish(SwiftMullvadApiResponse::error(), async_cookie);
         return;
     };
 
@@ -167,10 +167,10 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
 
     tokio_handle.clone().spawn(async move {
         match mullvad_api_get_addresses_inner(api_context.rest_handle()).await {
-            Ok(response) => async_finish(response, async_cookie),
+            Ok(response) => completion_finish(response, async_cookie),
             Err(err) => {
                 log::error!("{err:?}");
-                async_finish(SwiftMullvadApiResponse::error(), async_cookie);
+                completion_finish(SwiftMullvadApiResponse::error(), async_cookie);
             }
         }
     });
