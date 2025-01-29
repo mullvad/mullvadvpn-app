@@ -24,6 +24,9 @@ private fun generateOtherStates(): Sequence<ConnectUiState> =
             TunnelStatePreviewData.generateDisconnectingState(
                 actionAfterDisconnect = ActionAfterDisconnect.Reconnect
             ),
+            TunnelStatePreviewData.generateDisconnectingState(
+                actionAfterDisconnect = ActionAfterDisconnect.Block
+            ),
             TunnelStatePreviewData.generateErrorState(isBlocking = true),
         )
         .map { state ->
