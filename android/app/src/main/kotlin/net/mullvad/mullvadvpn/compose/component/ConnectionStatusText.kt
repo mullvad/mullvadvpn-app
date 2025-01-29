@@ -67,7 +67,7 @@ private fun TunnelState.textColor() =
         is TunnelState.Disconnecting ->
             when (actionAfterDisconnect) {
                 ActionAfterDisconnect.Nothing -> MaterialTheme.colorScheme.error
-                ActionAfterDisconnect.Block -> MaterialTheme.colorScheme.tertiary
+                ActionAfterDisconnect.Block -> MaterialTheme.colorScheme.onSurface
                 ActionAfterDisconnect.Reconnect -> MaterialTheme.colorScheme.onSurface
             }
         is TunnelState.Error ->
