@@ -45,6 +45,7 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
     /// 2. If there is no file, read from the pre-bundled data.
     public func read() throws -> StoredRelays {
         do {
+            try readPrebundledRelays()
             return try fileCache.read()
         } catch is DecodingError {
             do {
@@ -70,9 +71,13 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
 
         let data = try Data(contentsOf: prebundledRelaysFileURL)
 
-        return try StoredRelays(
-            rawData: data,
-            updatedAt: Date(timeIntervalSince1970: 0)
-        )
+        do {
+            return try StoredRelays(
+                rawData: data,
+                updatedAt: Date(timeIntervalSince1970: 0)
+            )
+        } catch {
+            fatalError("Prebundled relays.json file has not been correctly updated via build script.")
+        }
     }
 }
