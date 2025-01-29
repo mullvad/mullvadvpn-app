@@ -117,6 +117,7 @@ allprojects {
             )
     }
 
+    // Should be the same as ktfmt config in buildSrc/build.gradle.kts
     configure<com.ncorti.ktfmt.gradle.KtfmtExtension> {
         kotlinLangStyle()
         maxWidth.set(100)
