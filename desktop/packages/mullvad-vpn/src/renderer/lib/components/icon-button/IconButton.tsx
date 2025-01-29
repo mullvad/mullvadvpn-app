@@ -42,6 +42,7 @@ const StyledButton = styled.button({
   borderRadius: '100%',
   '&:focus-visible': {
     outline: `2px solid ${Colors.white}`,
+    outlineOffset: '1px',
   },
 });
 
@@ -72,7 +73,7 @@ export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         {...props}>
         <StyledIcon
           icon={icon}
-          color={styles.background}
+          color={disabled ? styles.disabled : styles.background}
           size={sizeProp}
           $hoverColor={styles.hover}
           $disabled={disabled}
