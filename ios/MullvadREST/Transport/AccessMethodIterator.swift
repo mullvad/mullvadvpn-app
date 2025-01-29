@@ -9,8 +9,9 @@
 import Combine
 import Foundation
 import MullvadSettings
+import MullvadTypes
 
-final class AccessMethodIterator: @unchecked Sendable {
+final class AccessMethodIterator: @unchecked Sendable, SwiftConnectionModeProviding {
     private let dataSource: AccessMethodRepositoryDataSource
 
     private var index = 0
@@ -43,6 +44,14 @@ final class AccessMethodIterator: @unchecked Sendable {
         }
 
         dataSource.saveLastReachable(pick())
+    }
+
+    func initial() {
+        // TODO: Implement this
+    }
+
+    func pickMethod() {
+        // TODO: Implement this
     }
 
     func rotate() {

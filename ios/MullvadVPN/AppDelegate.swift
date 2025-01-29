@@ -75,8 +75,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         addressCache = REST.AddressCache(canWriteToCache: true, cacheDirectory: containerURL)
         addressCache.loadFromFile()
 
-        setUpProxies(containerURL: containerURL)
-
         let ipOverrideWrapper = IPOverrideWrapper(
             relayCache: RelayCache(cacheDirectory: containerURL),
             ipOverrideRepository: ipOverrideRepository
@@ -85,6 +83,23 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         let tunnelSettingsListener = TunnelSettingsListener()
         let tunnelSettingsUpdater = SettingsUpdater(listener: tunnelSettingsListener)
 
+        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
+        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
+            relayCache: ipOverrideWrapper
+        )
+
+        shadowsocksLoader = ShadowsocksLoader(
+            cache: shadowsocksCache,
+            relaySelector: shadowsocksRelaySelector,
+            settingsUpdater: tunnelSettingsUpdater
+        )
+
+        let transportStrategy = TransportStrategy(
+            datasource: accessMethodRepository,
+            shadowsocksLoader: shadowsocksLoader
+        )
+
+        setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(
             backgroundTimeRemaining: application.backgroundTimeRemaining,
             application: application
@@ -124,29 +139,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             accountsProxy: accountsProxy,
             transactionLog: .default
         )
+
         let urlSessionTransport = URLSessionTransport(urlSession: REST.makeURLSession(addressCache: addressCache))
-        let shadowsocksCache = ShadowsocksConfigurationCache(cacheDirectory: containerURL)
-        let shadowsocksRelaySelector = ShadowsocksRelaySelector(
-            relayCache: ipOverrideWrapper
-        )
-
-        shadowsocksLoader = ShadowsocksLoader(
-            cache: shadowsocksCache,
-            relaySelector: shadowsocksRelaySelector,
-            settingsUpdater: tunnelSettingsUpdater
-        )
-
         encryptedDNSTransport = EncryptedDNSTransport(urlSession: urlSessionTransport.urlSession)
 
         configuredTransportProvider = ProxyConfigurationTransportProvider(
             shadowsocksLoader: shadowsocksLoader,
             addressCache: addressCache,
             encryptedDNSTransport: encryptedDNSTransport
-        )
-
-        let transportStrategy = TransportStrategy(
-            datasource: accessMethodRepository,
-            shadowsocksLoader: shadowsocksLoader
         )
 
         let transportProvider = TransportProvider(

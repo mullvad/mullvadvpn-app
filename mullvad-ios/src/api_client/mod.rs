@@ -1,15 +1,14 @@
 use std::{ffi::CStr, sync::Arc};
 
-use mullvad_api::{
-    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
-    rest::MullvadRestHandle,
-    ApiEndpoint, Runtime,
-};
+use mullvad_api::{rest::MullvadRestHandle, ApiEndpoint, Runtime};
+
+use swift_connection_mode_provider::SwiftConnectionModeProvider;
 
 mod api;
 mod cancellation;
 mod completion;
 mod response;
+mod swift_connection_mode_provider;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -57,10 +56,6 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
     let endpoint = ApiEndpoint {
         host: Some(String::from(host)),
         address: Some(address.parse().unwrap()),
-        #[cfg(feature = "api-override")]
-        disable_tls: false,
-        #[cfg(feature = "api-override")]
-        force_direct: false,
     };
 
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
@@ -70,7 +65,8 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
         // ApiAvailability panics.
         let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
         let rest_client = api_client
-            .mullvad_rest_handle(StaticConnectionModeProvider::new(ApiConnectionMode::Direct));
+        //    .mullvad_rest_handle(StaticConnectionModeProvider::new(ApiConnectionMode::Direct));
+            .mullvad_rest_handle(SwiftConnectionModeProvider::new());
 
         ApiContext {
             _api_client: api_client,
