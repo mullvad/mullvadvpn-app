@@ -26,6 +26,7 @@ import net.mullvad.talpid.model.CreateTunResult.OtherAlwaysOnApp
 import net.mullvad.talpid.model.CreateTunResult.OtherLegacyAlwaysOnVpn
 import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
+import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
 
 open class TalpidVpnService : LifecycleVpnService() {
     private var activeTunStatus by
@@ -48,7 +49,11 @@ open class TalpidVpnService : LifecycleVpnService() {
     @CallSuper
     override fun onCreate() {
         super.onCreate()
-        connectivityListener = ConnectivityListener(getSystemService<ConnectivityManager>()!!)
+        connectivityListener =
+            ConnectivityListener(
+                getSystemService<ConnectivityManager>()!!,
+                UnderlyingConnectivityStatusResolver(::protect),
+            )
         connectivityListener.register(lifecycleScope)
     }
 

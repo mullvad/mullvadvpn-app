@@ -1,11 +1,17 @@
 package net.mullvad.mullvadvpn.talpid.util
 
 import android.net.ConnectivityManager
+import android.net.LinkAddress
+import android.net.LinkProperties
 import android.net.Network
+import android.net.NetworkCapabilities
 import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
+import io.mockk.verify
+import java.net.Inet4Address
+import java.net.Inet6Address
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -13,10 +19,11 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.test.runTest
+import net.mullvad.talpid.model.Connectivity
 import net.mullvad.talpid.util.NetworkEvent
+import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
+import net.mullvad.talpid.util.defaultNetworkEvents
 import net.mullvad.talpid.util.hasInternetConnectivity
-import net.mullvad.talpid.util.networkEvents
-import net.mullvad.talpid.util.networksWithInternetConnectivity
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
@@ -31,19 +38,22 @@ class ConnectivityManagerUtilKtTest {
     /** User being online, the listener should emit once with `true` */
     @Test
     fun userIsOnline() = runTest {
-        val network = mockk<Network>()
-        every { connectivityManager.networksWithInternetConnectivity() } returns setOf(network)
-        every { connectivityManager.networkEvents(any()) } returns
+        val network = mockk<Network>(relaxed = true)
+        val linkProperties = mockLinkProperties(true, true)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 delay(100.milliseconds) // Simulate connectivity listener being a bit slow
                 send(NetworkEvent.Available(network))
+                delay(100.milliseconds) // Simulate connectivity listener being a bit slow
+                send(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity().test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Since initial state and listener both return `true` within debounce we only see one
             // event
-            assertEquals(true, awaitItem())
+            assertEquals(Connectivity.Status(true, true), awaitItem())
             expectNoEvents()
         }
     }
@@ -51,12 +61,12 @@ class ConnectivityManagerUtilKtTest {
     /** User being offline, the listener should emit once with `false` */
     @Test
     fun userIsOffline() = runTest {
-        every { connectivityManager.networksWithInternetConnectivity() } returns setOf()
-        every { connectivityManager.networkEvents(any()) } returns callbackFlow { awaitClose {} }
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { connectivityManager.defaultNetworkEvents() } returns callbackFlow { awaitClose {} }
 
-        connectivityManager.hasInternetConnectivity().test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Initially offline and no network events, so we should get a single `false` event
-            assertEquals(false, awaitItem())
+            assertEquals(Connectivity.Status(false, false), awaitItem())
             expectNoEvents()
         }
     }
@@ -64,19 +74,22 @@ class ConnectivityManagerUtilKtTest {
     /** User starting offline and then turning on a online after a while */
     @Test
     fun initiallyOfflineThenBecomingOnline() = runTest {
-        every { connectivityManager.networksWithInternetConnectivity() } returns emptySet()
-        every { connectivityManager.networkEvents(any()) } returns
+        val network = mockk<Network>()
+        val linkProperties = mockLinkProperties(true, true)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 // Simulate offline for a little while
                 delay(5.seconds)
                 // Then become online
                 send(NetworkEvent.Available(mockk()))
+                send(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity().test {
-            assertEquals(false, awaitItem())
-            assertEquals(true, awaitItem())
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
+            assertEquals(Connectivity.Status(false, false), awaitItem())
+            assertEquals(Connectivity.Status(true, true), awaitItem())
             expectNoEvents()
         }
     }
@@ -85,46 +98,23 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun initiallyOnlineAndThenTurningBecomingOffline() = runTest {
         val network = mockk<Network>()
-        every { connectivityManager.networksWithInternetConnectivity() } returns setOf(network)
-        every { connectivityManager.networkEvents(any()) } returns
+        val linkProperties = mockLinkProperties(true, true)
+
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 // Starting as online
                 send(NetworkEvent.Available(network))
+                send(NetworkEvent.LinkPropertiesChanged(network, linkProperties))
                 delay(5.seconds)
                 // Then becoming offline
                 send(NetworkEvent.Lost(network))
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity().test {
-            assertEquals(true, awaitItem())
-            assertEquals(false, awaitItem())
-            expectNoEvents()
-        }
-    }
-
-    /**
-     * User turning on Airplane mode as our connectivity listener starts so we never get any
-     * onAvailable event from our listener. Initial value will be `true`, followed by no
-     * `networkEvent` and then turning on network again after 5 seconds
-     */
-    @Test
-    fun incorrectInitialValueThenBecomingOnline() = runTest {
-        every { connectivityManager.networksWithInternetConnectivity() } returns setOf(mockk())
-        every { connectivityManager.networkEvents(any()) } returns
-            callbackFlow {
-                delay(5.seconds)
-                send(NetworkEvent.Available(mockk()))
-                awaitClose {}
-            }
-
-        connectivityManager.hasInternetConnectivity().test {
-            // Initial value is connected
-            assertEquals(true, awaitItem())
-            // Debounce time has passed, and we never received any network events, so we are offline
-            assertEquals(false, awaitItem())
-            // Network is back online
-            assertEquals(true, awaitItem())
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
+            assertEquals(Connectivity.Status(true, true), awaitItem())
+            assertEquals(Connectivity.Status(false, false), awaitItem())
             expectNoEvents()
         }
     }
@@ -133,26 +123,34 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun roamingFromCellularToWifi() = runTest {
         val wifiNetwork = mockk<Network>()
+        val wifiNetworkLinkProperties = mockLinkProperties(true, false)
         val cellularNetwork = mockk<Network>()
+        val cellularNetworkLinkProperties = mockLinkProperties(true, false)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
 
-        every { connectivityManager.networksWithInternetConnectivity() } returns
-            setOf(cellularNetwork)
-        every { connectivityManager.networkEvents(any()) } returns
+        every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 send(NetworkEvent.Available(cellularNetwork))
+                send(
+                    NetworkEvent.LinkPropertiesChanged(
+                        cellularNetwork,
+                        cellularNetworkLinkProperties,
+                    )
+                )
                 delay(5.seconds)
                 // Turning on WiFi, we'll have duplicate networks until phone decides to turn of
                 // cellular
                 send(NetworkEvent.Available(wifiNetwork))
+                send(NetworkEvent.LinkPropertiesChanged(wifiNetwork, wifiNetworkLinkProperties))
                 delay(30.seconds)
                 // Phone turning off cellular network
                 send(NetworkEvent.Lost(cellularNetwork))
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity().test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // We should always only see us being online
-            assertEquals(true, awaitItem())
+            assertEquals(Connectivity.Status(ipv4 = true, ipv6 = false), awaitItem())
             expectNoEvents()
         }
     }
@@ -161,23 +159,32 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun roamingFromWifiToCellular() = runTest {
         val wifiNetwork = mockk<Network>()
+        val wifiNetworkLinkProperties = mockLinkProperties(true, false)
         val cellularNetwork = mockk<Network>()
+        val cellularNetworkLinkProperties = mockLinkProperties(true, false)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
 
-        every { connectivityManager.networksWithInternetConnectivity() } returns setOf(wifiNetwork)
-        every { connectivityManager.networkEvents(any()) } returns
+        every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 send(NetworkEvent.Available(wifiNetwork))
+                send(NetworkEvent.LinkPropertiesChanged(wifiNetwork, wifiNetworkLinkProperties))
                 delay(5.seconds)
                 send(NetworkEvent.Lost(wifiNetwork))
                 // We will have no network for a little time until cellular chip is on.
                 delay(150.milliseconds)
                 send(NetworkEvent.Available(cellularNetwork))
+                send(
+                    NetworkEvent.LinkPropertiesChanged(
+                        cellularNetwork,
+                        cellularNetworkLinkProperties,
+                    )
+                )
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity().test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // We should always only see us being online, small offline state is caught by debounce
-            assertEquals(true, awaitItem())
+            assertEquals(Connectivity.Status(ipv4 = true, ipv6 = false), awaitItem())
             expectNoEvents()
         }
     }
@@ -186,30 +193,114 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun slowRoamingFromWifiToCellular() = runTest {
         val wifiNetwork = mockk<Network>()
+        val wifiNetworkLinkProperties = mockLinkProperties(false, true)
         val cellularNetwork = mockk<Network>()
+        val cellularNetworkLinkProperties = mockLinkProperties(false, true)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
 
-        every { connectivityManager.networksWithInternetConnectivity() } returns setOf(wifiNetwork)
-        every { connectivityManager.networkEvents(any()) } returns
+        every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 send(NetworkEvent.Available(wifiNetwork))
+                send(NetworkEvent.LinkPropertiesChanged(wifiNetwork, wifiNetworkLinkProperties))
                 delay(5.seconds)
                 send(NetworkEvent.Lost(wifiNetwork))
                 // We will have no network for a little time until cellular chip is on.
                 delay(500.milliseconds)
                 send(NetworkEvent.Available(cellularNetwork))
+                send(
+                    NetworkEvent.LinkPropertiesChanged(
+                        cellularNetwork,
+                        cellularNetworkLinkProperties,
+                    )
+                )
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity().test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Wifi is online
-            assertEquals(true, awaitItem())
+            assertEquals(Connectivity.Status(false, true), awaitItem())
             // We didn't get any network within debounce time, so we are offline
-            assertEquals(false, awaitItem())
+            assertEquals(Connectivity.Status(false, false), awaitItem())
             // Cellular network is online
-            assertEquals(true, awaitItem())
+            assertEquals(Connectivity.Status(false, true), awaitItem())
             expectNoEvents()
         }
     }
+
+    /** Switching between networks with different configurations. */
+    @Test
+    fun roamingFromWifiWithIpv6OnlyToWifiWithIpv4Only() = runTest {
+        val ipv6Network = mockk<Network>()
+        val ipv6NetworkLinkProperties = mockLinkProperties(false, true)
+        val ipv4Network = mockk<Network>()
+        val ipv4NetworkLinkProperties = mockLinkProperties(true, false)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+
+        every { connectivityManager.defaultNetworkEvents() } returns
+            callbackFlow {
+                send(NetworkEvent.Available(ipv6Network))
+                send(NetworkEvent.LinkPropertiesChanged(ipv6Network, ipv6NetworkLinkProperties))
+                delay(5.seconds)
+                send(NetworkEvent.Lost(ipv6Network))
+                delay(100.milliseconds)
+                send(NetworkEvent.Available(ipv4Network))
+                send(NetworkEvent.LinkPropertiesChanged(ipv4Network, ipv4NetworkLinkProperties))
+                awaitClose {}
+            }
+
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
+            // Ipv6 network is online
+            assertEquals(Connectivity.Status(false, true), awaitItem())
+            // Ipv4 network is online
+            assertEquals(Connectivity.Status(true, false), awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    /** Vpn network should NOT check link properties but should rather use socket implementation */
+    @Test
+    fun checkVpnNetworkUsingSocketImplementation() = runTest {
+        val vpnNetwork = mockk<Network>()
+        val capabilities = mockk<NetworkCapabilities>()
+        every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) } returns
+            false
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { mockResolver.currentStatus() } returns Connectivity.Status(true, true)
+
+        every { connectivityManager.defaultNetworkEvents() } returns
+            callbackFlow {
+                send(NetworkEvent.Available(vpnNetwork))
+                send(NetworkEvent.CapabilitiesChanged(vpnNetwork, capabilities))
+                awaitClose {}
+            }
+
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
+            // Network is online
+            assertEquals(Connectivity.Status(true, true), awaitItem())
+        }
+
+        verify(exactly = 1) { mockResolver.currentStatus() }
+    }
+
+    private fun mockLinkProperties(ipv4: Boolean, ipv6: Boolean) =
+        mockk<LinkProperties> {
+            val linkAddresses = buildList {
+                if (ipv4) {
+                    val linkIpv4Address: LinkAddress = mockk()
+                    val ipv4Address: Inet4Address = mockk()
+                    every { linkIpv4Address.address } returns ipv4Address
+                    add(linkIpv4Address)
+                }
+                if (ipv6) {
+                    val linkIpv6Address: LinkAddress = mockk()
+                    val ipv6Address: Inet6Address = mockk()
+                    every { linkIpv6Address.address } returns ipv6Address
+                    add(linkIpv6Address)
+                }
+            }
+
+            every { this@mockk.linkAddresses } returns linkAddresses
+        }
 
     companion object {
         private const val CONNECTIVITY_MANAGER_UTIL_CLASS =

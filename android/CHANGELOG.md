@@ -34,6 +34,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
 
+### Fixed
+- Will no longer try to connect over IPv6 if IPv6 is not available.
+
 
 ## [android/2024.10-beta2] - 2024-12-20
 

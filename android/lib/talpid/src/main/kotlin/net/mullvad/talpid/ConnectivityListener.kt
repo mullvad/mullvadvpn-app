@@ -5,6 +5,8 @@ import android.net.LinkProperties
 import java.net.InetAddress
 import kotlin.collections.ArrayList
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -15,13 +17,22 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.plus
+import kotlinx.coroutines.runBlocking
+import net.mullvad.talpid.model.Connectivity
 import net.mullvad.talpid.model.NetworkState
 import net.mullvad.talpid.util.RawNetworkState
+import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
+import net.mullvad.talpid.util.activeRawNetworkState
 import net.mullvad.talpid.util.defaultRawNetworkStateFlow
 import net.mullvad.talpid.util.hasInternetConnectivity
+import net.mullvad.talpid.util.resolveConnectivityStatus
 
-class ConnectivityListener(private val connectivityManager: ConnectivityManager) {
-    private lateinit var _isConnected: StateFlow<Boolean>
+class ConnectivityListener(
+    private val connectivityManager: ConnectivityManager,
+    private val resolver: UnderlyingConnectivityStatusResolver,
+) {
+    private lateinit var _isConnected: StateFlow<Connectivity>
     // Used by JNI
     val isConnected
         get() = _isConnected.value
@@ -37,6 +48,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
     val currentDnsServers: ArrayList<InetAddress>
         get() = _mutableNetworkState.value?.dnsServers ?: ArrayList()
 
+    @OptIn(FlowPreview::class)
     fun register(scope: CoroutineScope) {
         // Consider implementing retry logic for the flows below, because registering a listener on
         // the default network may fail if the network on Android 11
@@ -53,12 +65,19 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
 
         _isConnected =
             connectivityManager
-                .hasInternetConnectivity()
-                .onEach { notifyConnectivityChange(it) }
+                .hasInternetConnectivity(resolver)
+                .onEach { notifyConnectivityChange(it.ipv4, it.ipv6) }
                 .stateIn(
-                    scope,
+                    scope + Dispatchers.IO,
                     SharingStarted.Eagerly,
-                    true, // Assume we have internet until we know otherwise
+                    // Has to happen on IO to avoid NetworkOnMainThreadException, we actually don't
+                    // send any traffic just open a socket to detect the IP version.
+                    runBlocking(Dispatchers.IO) {
+                        resolveConnectivityStatus(
+                            connectivityManager.activeRawNetworkState(),
+                            resolver,
+                        )
+                    },
                 )
     }
 
@@ -80,7 +99,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
             linkProperties?.dnsServersWithoutFallback(),
         )
 
-    private external fun notifyConnectivityChange(isConnected: Boolean)
+    private external fun notifyConnectivityChange(isIPv4: Boolean, isIPv6: Boolean)
 
     private external fun notifyDefaultNetworkChange(networkState: NetworkState?)
 }
