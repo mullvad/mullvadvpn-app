@@ -1,7 +1,8 @@
-use std::collections::HashSet;
+use std::collections::{HashSet, VecDeque};
 use std::sync::Mutex;
 
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
+use futures::channel::oneshot;
 use futures::future::FutureExt;
 use futures::select_biased;
 use futures::stream::StreamExt;
@@ -49,12 +50,16 @@ pub enum Error {
 static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<NetworkState>>> = Mutex::new(None);
 
 // TODO: This is le actor state
-/// Stub route manager for Android
+/// TODO: docs
 pub struct RouteManagerImpl {
     network_state_updates: UnboundedReceiver<NetworkState>,
+
     // listeners: Vec<UnboundedSender<NetworkState>>,
     /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
     last_state: Option<NetworkState>,
+
+    ///
+    waiting_for_route: VecDeque<(oneshot::Sender<Result<(), Error>>, HashSet<RequiredRoute>)>,
 }
 
 impl RouteManagerImpl {
@@ -67,6 +72,7 @@ impl RouteManagerImpl {
         Ok(RouteManagerImpl {
             network_state_updates: rx,
             last_state: Default::default(),
+            waiting_for_route: Default::default(),
         })
     }
 
@@ -82,19 +88,44 @@ impl RouteManagerImpl {
 
                     match command {
                         RouteManagerCommand::Shutdown(tx) => {
-                            tx.send(()).map_err(|()| Error::Send)?; // TODO: Surely we can do better than this
+                            let _ = tx.send(()); // TODO: Surely we can do better than this
                             break;
                         }
                         RouteManagerCommand::AddRoutes(routes, tx) => {
-                            // Check if routes are in the last known state.
-                            // If they are not, wait until they are before returning.
-                            tx.send(Ok(())).map_err(|_x| Error::Send)?;
+                            if Self::has_routes(self.last_state.as_ref(), &routes) {
+                                let _ = tx.send(R)
+                            }else {
+                                self.waiting_for_route.push((tx, routes));
+                            }
                         }
                         RouteManagerCommand::ClearRoutes => (),
                     }
                 }
 
                 route_update = self.network_state_updates.next().fuse() => {
+                    for _ in 0..waiting_for_route.len() {
+                        let (tx, routes) = wait_for_routes.pop_front();
+
+                        if tx.is_cancelled() {
+                        } else if Self::has_routes(route_update.as_ref(), routes) {
+                            let _ = tx.send(Ok(()));
+                        } else {
+                            wait_for_routes.push_back((tx, routes));
+                        }
+                    }
+
+                    // check if we can respond to any callers waiting on routes.
+                    // self.waiting_for_route.retain(|(tx, routes)| {
+                    //     if tx.is_cancelled() {
+                    //          return false;
+                    //     }
+                    //      if Self::has_routes(route_update.as_ref(), routes) {
+                    //          let _ = tx.send(Ok(()));
+                    //          return false;
+                    //      }
+
+                    //     true
+                    // });
                     self.last_state = route_update;
                 }
             }
@@ -102,11 +133,11 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    fn has_routes(&self, routes: HashSet<RequiredRoute>) -> bool {
-        let Some(ref network_state) = self.last_state else {
+    fn has_routes(state: Option<&NetworkState>, routes: &HashSet<RequiredRoute>) -> bool {
+        let Some(network_state) = state else {
             return false;
         };
-        let Some(ref route_info) = network_state.routes else {
+        let Some(route_info) = &network_state.routes else {
             return false;
         };
         // TODO: fugly
