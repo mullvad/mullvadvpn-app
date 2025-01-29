@@ -11,7 +11,6 @@ mod cacao_impl;
 #[cfg(target_os = "windows")]
 mod libui_impl;
 
-#[cfg(target_os = "macos")]
 fn main() {
     let runtime = tokio::runtime::Builder::new_multi_thread()
         .enable_all()
