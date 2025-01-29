@@ -151,46 +151,18 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
     }
 
     func didRequestToViewPurchaseOptions(
-        controller: WelcomeViewController,
-        products: [SKProduct],
         accountNumber: String
     ) {
-        let alert = UIAlertController.showInAppPurchaseAlert(products: products, didRequestPurchase: { product in
-            self.didRequestToPurchaseCredit(
-                controller: controller,
-                accountNumber: accountNumber,
-                product: product
-            )
-        })
-
-        presentationContext.present(alert, animated: true)
-    }
-
-    func didRequestToPurchaseCredit(controller: WelcomeViewController, accountNumber: String, product: SKProduct) {
-        navigationController.enableHeaderBarButtons(false)
-
         let coordinator = InAppPurchaseCoordinator(
-            navigationController: navigationController,
-            interactor: inAppPurchaseInteractor
+            storePaymentManager: storePaymentManager,
+            accountNumber: accountNumber,
+            paymentAction: .purchase
         )
-
-        inAppPurchaseInteractor.viewControllerDelegate = viewController
-
-        coordinator.didFinish = { [weak self] coordinator in
-            guard let self else { return }
-            navigationController.enableHeaderBarButtons(true)
-            coordinator.removeFromParent()
-            didFinish?()
+        coordinator.didFinish = { coordinator in
+            coordinator.dismiss(animated: true)
         }
-
-        coordinator.didCancel = { [weak self] coordinator in
-            self?.navigationController.enableHeaderBarButtons(true)
-            coordinator.removeFromParent()
-        }
-
-        addChild(coordinator)
-
-        coordinator.start(accountNumber: accountNumber, product: product)
+        coordinator.start()
+        presentChild(coordinator, animated: true)
     }
 
     func didRequestToRedeemVoucher(controller: WelcomeViewController) {

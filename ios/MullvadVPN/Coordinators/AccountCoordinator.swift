@@ -23,6 +23,7 @@ enum AddedMoreCreditOption: Equatable, Sendable {
 
 final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked Sendable {
     private let interactor: AccountInteractor
+    private let storePaymentManager: StorePaymentManager
     private var accountController: AccountViewController?
 
     let navigationController: UINavigationController
@@ -34,10 +35,12 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
 
     init(
         navigationController: UINavigationController,
-        interactor: AccountInteractor
+        interactor: AccountInteractor,
+        storePaymentManager: StorePaymentManager
     ) {
         self.navigationController = navigationController
         self.interactor = interactor
+        self.storePaymentManager = storePaymentManager
     }
 
     func start(animated: Bool) {
@@ -68,24 +71,41 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             navigateToDeleteAccount()
         case .restorePurchasesInfo:
             showRestorePurchasesInfo()
-        case let .showPurchaseOptions(details):
-            showPurchaseOptions(
-                products: details.products,
-                accountNumber: details.accountNumber,
-                didRequestPurchase: details.didRequestPurchase
-            )
         case .showFailedToLoadProducts:
             showFailToFetchProducts()
+        case .showRestorePurchases:
+            showRestorePurchases()
+        case .showPurchaseOptions:
+            showPurchaseOptions()
         }
     }
 
-    func showPurchaseOptions(
-        products: [SKProduct],
-        accountNumber: String,
-        didRequestPurchase: @escaping (_ product: SKProduct) -> Void
-    ) {
-        let alert = UIAlertController.showInAppPurchaseAlert(products: products, didRequestPurchase: didRequestPurchase)
-        presentationContext.present(alert, animated: true)
+    private func showPurchaseOptions() {
+        guard let accountNumber = interactor.deviceState.accountData?.number else { return }
+        let coordinator = InAppPurchaseCoordinator(
+            storePaymentManager: storePaymentManager,
+            accountNumber: accountNumber,
+            paymentAction: .purchase
+        )
+        coordinator.didFinish = { coordinator in
+            coordinator.dismiss(animated: true)
+        }
+        coordinator.start()
+        presentChild(coordinator, animated: true)
+    }
+
+    private func showRestorePurchases() {
+        guard let accountNumber = interactor.deviceState.accountData?.number else { return }
+        let coordinator = InAppPurchaseCoordinator(
+            storePaymentManager: storePaymentManager,
+            accountNumber: accountNumber,
+            paymentAction: .restorePurchase
+        )
+        coordinator.didFinish = { coordinator in
+            coordinator.dismiss(animated: true)
+        }
+        coordinator.start()
+        presentChild(coordinator, animated: true)
     }
 
     private func navigateToRedeemVoucher() {
