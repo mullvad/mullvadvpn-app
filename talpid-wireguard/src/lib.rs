@@ -400,7 +400,10 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_>,
     ) -> Result<WireguardMonitor> {
-        use talpid_routing::RequiredRoute;
+        use std::time::Duration;
+
+        use talpid_routing::{PlatformError, RequiredRoute};
+        use tokio::time::timeout;
 
         let desired_mtu = get_desired_mtu(params);
         let mut config =
@@ -486,19 +489,16 @@ impl WireguardMonitor {
                 .map(RequiredRoute::new)
                 .collect();
 
-            args.route_manager
-                .add_routes(routes_to_wait_for)
+            let wait_for_routes = args.route_manager.add_routes(routes_to_wait_for);
+            timeout(Duration::from_secs(4), wait_for_routes)
                 .await
-                // TODO: Do not unwrap
-                .unwrap();
-
-            // if tokio::time::timeout(std::time::Duration::from_secs(4), route_update).await.is_err()
-            // {
-            //     // TODO: Wrong error. Expose "routes are not up" error
-            //     return Err(CloseMsg::SetupError(Error::SetupRoutingError(
-            //         talpid_routing::Error::RouteManagerDown,
-            //     )));
-            // }
+                // TODO: this is a talpid_routing error. Kinda weird to construct it here.
+                // Maybe move the timeout into the route manager?
+                .map_err(|_timeout| PlatformError::RoutesTimedOut)
+                .map_err(talpid_routing::Error::PlatformError)
+                .and_then(|result| result) // flatten the errors
+                .map_err(Error::SetupRoutingError)
+                .map_err(CloseMsg::SetupError)?;
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
