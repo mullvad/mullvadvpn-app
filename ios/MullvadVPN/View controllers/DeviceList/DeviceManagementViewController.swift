@@ -28,6 +28,10 @@ class DeviceManagementViewController: UIViewController, RootContainment {
         false
     }
 
+    var prefersNotificationBarHidden: Bool {
+        true
+    }
+
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
