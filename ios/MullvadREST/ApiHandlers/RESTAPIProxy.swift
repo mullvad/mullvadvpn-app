@@ -71,7 +71,7 @@ extension REST {
                     completion?(apiResponse)
                 }
 
-                let rawPointer = Unmanaged.passUnretained(pointerClass).toOpaque()
+                let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
                 mullvad_api_get_addresses(REST.apiContext.context, rawPointer)
 
                 // FIXME: Change to something real
