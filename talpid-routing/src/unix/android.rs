@@ -59,6 +59,8 @@ pub enum RoutesUpdate {
 pub struct RouteManagerImpl {
     routes_updates: UnboundedReceiver<RoutesUpdate>,
     listeners: Vec<UnboundedSender<RoutesUpdate>>,
+    /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
+    last_state: Option<NetworkState>,
 }
 
 impl RouteManagerImpl {
@@ -71,6 +73,7 @@ impl RouteManagerImpl {
         Ok(RouteManagerImpl {
             routes_updates: rx,
             listeners: Default::default(),
+            last_state: Default::default(),
         })
     }
 
@@ -108,8 +111,6 @@ impl RouteManagerImpl {
         }
         Ok(())
     }
-
-    // pub fn wait_for_routes(&mut self, routes: Vec<IpNetwork>) -> impl Stream<Item = bool> { }
 
     fn notify_change_listeners(&mut self, message: RoutesUpdate) {
         self.listeners
