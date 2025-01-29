@@ -25,14 +25,12 @@ extension ConnectionView {
                         .foregroundStyle(viewModel.textColorForSecureLabel.color)
                         .accessibilityIdentifier(viewModel.accessibilityIdForSecureLabel.asString)
                         .accessibilityLabel(viewModel.localizedAccessibilityLabelForSecureLabel)
-                        .transition(.opacity)
 
                     if let titleForCountryAndCity {
                         Text(titleForCountryAndCity)
                             .font(.title3.weight(.semibold))
                             .foregroundStyle(UIColor.primaryTextColor.color)
                             .padding(.top, 4)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
 
                     if let titleForServer {
@@ -41,7 +39,6 @@ extension ConnectionView {
                             .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
                             .padding(.top, 2)
                             .accessibilityIdentifier(AccessibilityIdentifier.connectionPanelServerLabel.asString)
-                            .transition(.move(edge: .bottom).combined(with: .opacity))
                     }
                 }
 
@@ -69,7 +66,7 @@ extension ConnectionView {
                     titleForServer = newValue
                 }
             })
-            .onChange(of: viewModel.showConnectionDetails) { newValue in
+            .onChange(of: viewModel.showsConnectionDetails) { newValue in
                 withAnimation {
                     showConnectionDetails = newValue
                 }
