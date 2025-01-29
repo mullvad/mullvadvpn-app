@@ -72,7 +72,9 @@ extension REST {
             }
 
             networkTask = requestFactory({ [weak self] response in
+                // TODO: if body is empty, we should still handle this as an error
                 guard let self, let body = response.body else { return }
+                // TODO: invoke the retry strategy if the request failed with a transport error, generally the response should contain enough information to make such a judgement call.
 
                 let decoder = JSONDecoder()
                 let decodedResponse = try! decoder.decode([AnyIPEndpoint].self, from: body)
