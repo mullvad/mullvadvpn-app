@@ -88,14 +88,14 @@ impl RouteManagerImpl {
 
                     match command {
                         RouteManagerCommand::Shutdown(tx) => {
-                            let _ = tx.send(()); // TODO: Surely we can do better than this
+                            let _ = tx.send(());
                             break;
                         }
                         RouteManagerCommand::AddRoutes(routes, tx) => {
                             if Self::has_routes(self.last_state.as_ref(), &routes) {
-                                let _ = tx.send(R)
-                            }else {
-                                self.waiting_for_route.push((tx, routes));
+                                let _ = tx.send(Ok(()));
+                            } else {
+                                self.waiting_for_route.push_back((tx, routes));
                             }
                         }
                         RouteManagerCommand::ClearRoutes => (),
@@ -103,14 +103,15 @@ impl RouteManagerImpl {
                 }
 
                 route_update = self.network_state_updates.next().fuse() => {
-                    for _ in 0..waiting_for_route.len() {
-                        let (tx, routes) = wait_for_routes.pop_front();
+                    for _ in 0..self.waiting_for_route.len() {
+                        let Some((tx, routes)) = self.waiting_for_route.pop_front() else { break };
 
-                        if tx.is_cancelled() {
-                        } else if Self::has_routes(route_update.as_ref(), routes) {
+                        if tx.is_canceled() {
+                            // do nothing, drop the sender
+                        } else if Self::has_routes(route_update.as_ref(), &routes) {
                             let _ = tx.send(Ok(()));
                         } else {
-                            wait_for_routes.push_back((tx, routes));
+                            self.waiting_for_route.push_back((tx, routes));
                         }
                     }
 

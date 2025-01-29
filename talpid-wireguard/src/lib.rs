@@ -400,7 +400,6 @@ impl WireguardMonitor {
         log_path: Option<&Path>,
         args: TunnelArgs<'_>,
     ) -> Result<WireguardMonitor> {
-        use futures::StreamExt;
         use talpid_routing::RequiredRoute;
 
         let desired_mtu = get_desired_mtu(params);
