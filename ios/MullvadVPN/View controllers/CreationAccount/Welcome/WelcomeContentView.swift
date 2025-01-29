@@ -174,7 +174,6 @@ final class WelcomeContentView: UIView, Sendable {
     var isPurchasing = false {
         didSet {
             let alpha = isPurchasing ? 0.7 : 1.0
-            purchaseButton.isLoading = isPurchasing
             purchaseButton.isEnabled = !isPurchasing
             purchaseButton.alpha = alpha
             redeemVoucherButton.isEnabled = !isPurchasing
