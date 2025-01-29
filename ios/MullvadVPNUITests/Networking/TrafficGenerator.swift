@@ -28,14 +28,16 @@ class TrafficGenerator {
             using: params
         )
         setupConnection()
+        setupOtherHandlers()
     }
 
     func reconnect() {
         print("Attempting to reconnect")
-        self.connection.forceCancel()
+        connection.forceCancel()
 
         connection = recreateConnection()
-        self.setupConnection()
+        setupConnection()
+        setupOtherHandlers()
     }
 
     func recreateConnection() -> NWConnection {
@@ -45,6 +47,24 @@ class TrafficGenerator {
             port: NWEndpoint.Port(integerLiteral: UInt16(port)),
             using: params
         )
+    }
+
+    func setupOtherHandlers() {
+        connection.pathUpdateHandler = { newPath in
+            let availableInterfaces = newPath.availableInterfaces.map { $0.customDebugDescription }
+            let availableGateways = newPath.gateways.map { $0.customDebugDescription }
+
+            print("New interfaces available: \(availableInterfaces)")
+            print("New gateways available: \(availableGateways)")
+        }
+
+        connection.viabilityUpdateHandler = { newViability in
+            print("Connection is viable: \(newViability)")
+        }
+
+        connection.betterPathUpdateHandler = { betterPathAvailable in
+            print("A better path is available: \(betterPathAvailable)")
+        }
     }
 
     func setupConnection() {
@@ -84,7 +104,7 @@ class TrafficGenerator {
         sendDataTimer.schedule(deadline: .now(), repeating: interval)
 
         sendDataTimer.setEventHandler {
-            let data = "dGhpcyBpcyBqdXN0IHNvbWUgZHVtbXkgZGF0YSB0aGlzIGlzIGp1c3Qgc29tZSBkdW".data(using: .utf8)
+            let data = Data("dGhpcyBpcyBqdXN0IHNvbWUgZHVtbXkgZGF0YSB0aGlzIGlzIGp1c3Qgc29tZSBkdW".utf8)
 
             print("Attempting to send data...")
 
@@ -106,5 +126,53 @@ class TrafficGenerator {
 
     public func stopGeneratingUDPTraffic() {
         sendDataTimer.cancel()
+    }
+}
+
+extension NWInterface {
+    var customDebugDescription: String {
+        "type: \(type) name: \(self.name) index: \(index)"
+    }
+}
+
+extension NWInterface.InterfaceType: @retroactive CustomDebugStringConvertible {
+    public var debugDescription: String {
+        switch self {
+        case .cellular: "Cellular"
+        case .loopback: "Loopback"
+        case .other: "Other"
+        case .wifi: "Wifi"
+        case .wiredEthernet: "Wired Ethernet"
+        @unknown default: "Unknown interface type"
+        }
+    }
+}
+
+extension NWEndpoint {
+    var customDebugDescription: String {
+        switch self {
+        case let .hostPort(host, port): "host: \(host.customDebugDescription) port: \(port)"
+        case let .opaque(endpoint): "opaque: \(endpoint.description)"
+        case let .url(url): "url: \(url)"
+        case let .service(
+            name,
+            type,
+            domain,
+            interface
+        ): "service named:\(name), type:\(type), domain:\(domain), interface:\(interface?.customDebugDescription ?? "[No interface]")"
+        case let .unix(path): "unix: \(path)"
+        @unknown default: "Unknown NWEndpoint type"
+        }
+    }
+}
+
+extension NWEndpoint.Host {
+    var customDebugDescription: String {
+        switch self {
+        case let .ipv4(IPv4Address): "IPv4: \(IPv4Address)"
+        case let .ipv6(IPv6Address): "IPv6: \(IPv6Address)"
+        case let .name(name, interface): "named: \(name), \(interface?.customDebugDescription ?? "[No interface]")"
+        @unknown default: "Unknown host"
+        }
     }
 }

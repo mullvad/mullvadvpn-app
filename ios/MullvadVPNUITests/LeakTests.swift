@@ -30,7 +30,7 @@ class LeakTests: LoggedInWithTimeUITestCase {
             .waitForConnectedLabel()
 
         // Keep the tunnel connection for a while
-        Thread.sleep(forTimeInterval: 30.0)
+        RunLoop.current.run(until: .now + 30)
 
         TunnelControlPage(app)
             .tapDisconnectButton()
