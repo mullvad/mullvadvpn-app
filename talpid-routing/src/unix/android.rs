@@ -1,5 +1,6 @@
 use std::collections::{HashSet, VecDeque};
 use std::sync::Mutex;
+use std::ops::ControlFlow;
 
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use futures::channel::oneshot;
@@ -46,19 +47,18 @@ pub enum Error {
     OtherLegacyAlwaysOnVpn,
 }
 
-/// TODO: Document mee
+/// The sender used by [Java_net_mullvad_talpid_ConnectivityListener_notifyDefaultNetworkChange]
+/// to notify the route manager of changes to the network.
 static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<NetworkState>>> = Mutex::new(None);
 
-// TODO: This is le actor state
-/// TODO: docs
+/// Android route manager actor.
 pub struct RouteManagerImpl {
     network_state_updates: UnboundedReceiver<NetworkState>,
 
-    // listeners: Vec<UnboundedSender<NetworkState>>,
     /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
     last_state: Option<NetworkState>,
 
-    /// TODO: Document mee
+    /// Clients waiting on response to [RouteManagerCommand::AddRoutes].
     waiting_for_route: VecDeque<WaitingForRoutes>,
 }
 
@@ -72,8 +72,10 @@ impl RouteManagerImpl {
     pub async fn new() -> Result<Self, Error> {
         // Create a channel between the kotlin client and route manager
         let (tx, rx) = futures::channel::mpsc::unbounded();
+
         // TODO: What id `ROUTE_UPDATES_TX` has already been initialized?
         *ROUTE_UPDATES_TX.lock().unwrap() = Some(tx);
+
         Ok(RouteManagerImpl {
             network_state_updates: rx,
             last_state: Default::default(),
@@ -90,23 +92,8 @@ impl RouteManagerImpl {
             select_biased! {
                 command = manage_rx.next().fuse() => {
                     let Some(command) = command else { break };
-
-                    match command {
-                        RouteManagerCommand::Shutdown(tx) => {
-                            let _ = tx.send(());
-                            break;
-                        }
-                        RouteManagerCommand::AddRoutes(required_routes, response_tx) => {
-                            if Self::has_routes(self.last_state.as_ref(), &required_routes) {
-                                let _ = response_tx.send(Ok(()));
-                            } else {
-                                self.waiting_for_route.push_back(WaitingForRoutes {response_tx, required_routes});
-                            }
-                        }
-                        RouteManagerCommand::ClearRoutes => {
-                            // The VPN tunnel is gone. We can't assume that any (desired) routes are up at this point.
-                            self.last_state = None;
-                        },
+                    if self.handle_command(command).is_break() {
+                        return Ok(());
                     }
                 }
 
@@ -118,7 +105,7 @@ impl RouteManagerImpl {
 
                         if client.response_tx.is_canceled() {
                             // do nothing, drop the sender
-                        } else if Self::has_routes(route_update.as_ref(), &client.required_routes) {
+                        } else if has_routes(route_update.as_ref(), &client.required_routes) {
                             let _ = client.response_tx.send(Ok(()));
                         } else {
                             self.waiting_for_route.push_back(client);
@@ -131,53 +118,50 @@ impl RouteManagerImpl {
         Ok(())
     }
 
-    fn has_routes(state: Option<&NetworkState>, routes: &HashSet<RequiredRoute>) -> bool {
-        let Some(network_state) = state else {
-            return false;
-        };
-        let Some(route_info) = &network_state.routes else {
-            return false;
-        };
-        // TODO: fugly
-        let existing_routes: HashSet<RequiredRoute> = route_info
-            .iter()
-            .map(|route_info| {
-                let network = IpNetwork::new(
-                    route_info.destination.address,
-                    route_info.destination.prefix_length as u8,
-                )
-                .unwrap();
-                RequiredRoute::new(network)
-            })
-            .collect();
-        routes.is_subset(&existing_routes)
+    fn handle_command(&mut self, command: RouteManagerCommand) -> ControlFlow<()> {
+        match command {
+            RouteManagerCommand::Shutdown(tx) => {
+                let _ = tx.send(());
+                return ControlFlow::Break(());
+            }
+            RouteManagerCommand::AddRoutes(required_routes, response_tx) => {
+                if has_routes(self.last_state.as_ref(), &required_routes) {
+                    let _ = response_tx.send(Ok(()));
+                } else {
+                    self.waiting_for_route.push_back(WaitingForRoutes {response_tx, required_routes});
+                }
+            }
+            RouteManagerCommand::ClearRoutes => {
+                // The VPN tunnel is gone. We can't assume that any (desired) routes are up at this point.
+                self.last_state = None;
+            },
+        }
+
+        ControlFlow::Continue(())
     }
+}
 
-    // pub fn wait_for_routes(&self, routes: Vec<IpNetwork>) -> impl futures::Stream<Item = bool> {
-    //     use futures::StreamExt;
-    //     stream_rx.map(move |change| {
-    //         use std::collections::HashSet;
-
-    //         // Wait for NetworkState updates to check if it includes all necessary routes
-    //         let xs: HashSet<IpNetwork> = HashSet::from_iter(routes.iter().copied());
-    //         match change {
-    //             imp::RoutesUpdate::NewNetworkState(network_state) => network_state
-    //                 .routes
-    //                 .map(|new_routes| {
-    //                     //new_routes.contains(routes)
-    //                     let ys = HashSet::from_iter(new_routes.iter().map(|route_info| {
-    //                         IpNetwork::new(
-    //                             route_info.destination.address,
-    //                             route_info.destination.prefix_length as u8,
-    //                         )
-    //                         .unwrap()
-    //                     }));
-    //                     xs.is_subset(&ys)
-    //                 })
-    //                 .unwrap_or(false),
-    //         }
-    //     })
-    // }
+/// Check whether the [NetworkState] contains the provided set of [RequiredRoute]s.
+fn has_routes(state: Option<&NetworkState>, routes: &HashSet<RequiredRoute>) -> bool {
+    let Some(network_state) = state else {
+        return false;
+    };
+    let Some(route_info) = &network_state.routes else {
+        return false;
+    };
+    // TODO: fugly
+    let existing_routes: HashSet<RequiredRoute> = route_info
+        .iter()
+        .map(|route_info| {
+            let network = IpNetwork::new(
+                route_info.destination.address,
+                route_info.destination.prefix_length as u8,
+            )
+            .unwrap();
+            RequiredRoute::new(network)
+        })
+        .collect();
+    routes.is_subset(&existing_routes)
 }
 
 /// Entry point for Android Java code to notify the current default network state.
