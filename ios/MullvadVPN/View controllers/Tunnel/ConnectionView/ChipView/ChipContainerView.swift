@@ -37,9 +37,13 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                 .lineLimit(1)
                 .foregroundStyle(UIColor.primaryTextColor.color)
                 .showIf(showMoreButton)
+                .transition(.move(edge: .bottom).combined(with: .opacity))
 
                 Spacer()
             }
+            .animation(.default, value: isExpanded)
+            .animation(.default, value: showMoreButton)
+            .transition(.move(edge: .bottom).combined(with: .opacity))
             .sizeOfView { size in
                 withAnimation {
                     chipContainerHeight = size.height
