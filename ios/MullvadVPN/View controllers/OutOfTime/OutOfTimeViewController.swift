@@ -13,14 +13,8 @@ import Operations
 import UIKit
 
 protocol OutOfTimeViewControllerDelegate: AnyObject, Sendable {
-    func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController)
-    func outOfTimeViewControllerDidEndPayment(_ controller: OutOfTimeViewController)
-    func outOfTimeViewControllerDidRequestShowPurchaseOptions(
-        _ controller: OutOfTimeViewController,
-        products: [SKProduct],
-        didRequestPurchase: @escaping (SKProduct) -> Void
-    )
-    func outOfTimeViewControllerDidFailToFetchProducts(_ controller: OutOfTimeViewController)
+    func outOfTimeViewControllerDidRequestShowPurchaseOptions(accountNumber: String)
+    func outOfTimeViewControllerDidRequestShowRestorePurchase(accountNumber: String)
 }
 
 @MainActor
@@ -28,18 +22,8 @@ class OutOfTimeViewController: UIViewController, RootContainment {
     weak var delegate: OutOfTimeViewControllerDelegate?
 
     private let interactor: OutOfTimeInteractor
-    private let errorPresenter: PaymentAlertPresenter
-
-    private var paymentState: PaymentState = .none {
-        didSet {
-            applyViewState()
-            notifyDelegate(oldValue)
-        }
-    }
 
     private lazy var contentView = OutOfTimeContentView()
-
-    private var isFetchingProducts = false
 
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
@@ -64,7 +48,6 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
     init(interactor: OutOfTimeInteractor, errorPresenter: PaymentAlertPresenter) {
         self.interactor = interactor
-        self.errorPresenter = errorPresenter
 
         super.init(nibName: nil, bundle: nil)
     }
@@ -101,12 +84,6 @@ class OutOfTimeViewController: UIViewController, RootContainment {
             for: .touchUpInside
         )
 
-        interactor.didReceivePaymentEvent = { [weak self] event in
-            Task { @MainActor in
-                self?.didReceivePaymentEvent(event)
-            }
-        }
-
         interactor.didReceiveTunnelStatus = { [weak self] _ in
             Task { @MainActor in
                 self?.setNeedsHeaderBarStyleAppearanceUpdate()
@@ -130,17 +107,9 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
     private func applyViewState() {
         let tunnelState = interactor.tunnelStatus.state
-        let isInteractionEnabled = paymentState.allowsViewInteraction
         let purchaseButton = contentView.purchaseButton
 
         let isOutOfTime = interactor.deviceState.accountData.map { $0.expiry < Date() } ?? false
-
-        contentView.purchaseButton.isLoading = isFetchingProducts
-
-        purchaseButton.isEnabled = !isFetchingProducts && isInteractionEnabled && !tunnelState
-            .isSecured
-        contentView.restoreButton.isEnabled = isInteractionEnabled
-
         contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
 
         if tunnelState.isSecured {
@@ -168,124 +137,22 @@ class OutOfTimeViewController: UIViewController, RootContainment {
                 )
             )
         }
-
-        if !isInteractionEnabled {
-            contentView.statusActivityView.state = .activity
-        } else {
-            contentView.statusActivityView.state = isOutOfTime ? .failure : .success
-        }
-
-        view.isUserInteractionEnabled = isInteractionEnabled
-    }
-
-    private func notifyDelegate(_ oldPaymentState: PaymentState) {
-        switch (oldPaymentState, paymentState) {
-        case (.none, .makingPayment), (.none, .restoringPurchases):
-            delegate?.outOfTimeViewControllerDidBeginPayment(self)
-
-        case (.makingPayment, .none), (.restoringPurchases, .none):
-            delegate?.outOfTimeViewControllerDidEndPayment(self)
-
-        default:
-            break
-        }
-    }
-
-    private func didReceivePaymentEvent(_ event: StorePaymentEvent) {
-        guard case let .makingPayment(payment) = paymentState,
-              payment == event.payment else { return }
-
-        switch event {
-        case let .finished(completion):
-            errorPresenter.showAlertForResponse(completion.serverResponse, context: .purchase)
-
-        case let .failure(paymentFailure):
-            switch paymentFailure.error {
-            case .storePayment(SKError.paymentCancelled):
-                break
-
-            default:
-                errorPresenter.showAlertForError(paymentFailure.error, context: .purchase) {
-                    self.paymentState = .none
-                }
-            }
-        }
-
-        paymentState = .none
-    }
-
-    private func doPurchase(product: SKProduct) {
-        guard let accountData = interactor.deviceState.accountData else {
-            return
-        }
-
-        let payment = SKPayment(product: product)
-        interactor.addPayment(payment, for: accountData.number)
-
-        paymentState = .makingPayment(payment)
     }
 
     // MARK: - Actions
 
     @objc private func requestStoreProducts() {
-        guard interactor.deviceState.accountData != nil else {
+        guard let accountNumber = interactor.deviceState.accountData?.number else {
             return
         }
-        let productIdentifiers = Set(StoreSubscription.allCases)
-        isFetchingProducts = true
-        applyViewState()
-        _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
-            guard let self else { return }
-            Task { @MainActor in
-                switch result {
-                case let .success(success):
-                    let products = success.products
-                    if !products.isEmpty {
-                        delegate?.outOfTimeViewControllerDidRequestShowPurchaseOptions(
-                            self,
-                            products: products,
-                            didRequestPurchase: self.doPurchase
-                        )
-                    } else {
-                        delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
-                    }
-                case .failure:
-                    delegate?.outOfTimeViewControllerDidFailToFetchProducts(self)
-                }
-                isFetchingProducts = false
-                applyViewState()
-            }
-        }
+        delegate?.outOfTimeViewControllerDidRequestShowPurchaseOptions(accountNumber: accountNumber)
     }
 
     @objc func restorePurchases() {
-        guard let accountData = interactor.deviceState.accountData else {
+        guard let accountNumber = interactor.deviceState.accountData?.number else {
             return
         }
-
-        paymentState = .restoringPurchases
-
-        /// Safe to assume `@MainActor` isolation because `SendStoreReceiptOperation` sets both its
-        /// `dispatchQueue` and `completionQueue` to `.main`
-        _ = interactor.restorePurchases(for: accountData.number) { [weak self] result in
-            guard let self else { return }
-            MainActor.assumeIsolated {
-                switch result {
-                case let .success(response):
-                    errorPresenter.showAlertForResponse(response, context: .restoration) {
-                        self.paymentState = .none
-                    }
-
-                case let .failure(error as StorePaymentManagerError):
-                    errorPresenter.showAlertForError(error, context: .restoration) {
-                        self.paymentState = .none
-                    }
-
-                default:
-                    paymentState = .none
-                }
-            }
-        }
+        delegate?.outOfTimeViewControllerDidRequestShowRestorePurchase(accountNumber: accountNumber)
     }
 
     @objc private func handleDisconnect(_ sender: Any) {
