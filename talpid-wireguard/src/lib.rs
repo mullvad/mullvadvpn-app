@@ -475,18 +475,6 @@ impl WireguardMonitor {
                 .await;
 
             // Wait for routes to come up
-            // TODO: Time out (eventually) and return proper error
-            // let route_update =
-            //     route_updates.any(|routes_are_correct| async move { routes_are_correct });
-            // if let Err(_) =
-            //     tokio::time::timeout(std::time::Duration::from_secs(4), route_update).await
-            // {
-            //     // TODO: Wrong error. Expose "routes are not up" error
-            //     return Err(CloseMsg::SetupError(Error::SetupRoutingError(
-            //         talpid_routing::Error::RouteManagerDown,
-            //     )));
-            // }
-
             let routes_to_wait_for: std::collections::HashSet<RequiredRoute> = args
                 .tun_provider
                 .lock()
@@ -497,11 +485,20 @@ impl WireguardMonitor {
                 .copied()
                 .map(RequiredRoute::new)
                 .collect();
+
             args.route_manager
                 .add_routes(routes_to_wait_for)
                 .await
-                // TODO: Return a proper error
+                // TODO: Do not unwrap
                 .unwrap();
+
+            // if tokio::time::timeout(std::time::Duration::from_secs(4), route_update).await.is_err()
+            // {
+            //     // TODO: Wrong error. Expose "routes are not up" error
+            //     return Err(CloseMsg::SetupError(Error::SetupRoutingError(
+            //         talpid_routing::Error::RouteManagerDown,
+            //     )));
+            // }
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();

@@ -52,6 +52,7 @@ pub enum Error {
 static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<NetworkState>>> = Mutex::new(None);
 
 /// Android route manager actor.
+#[derive(Debug)]
 pub struct RouteManagerImpl {
     network_state_updates: UnboundedReceiver<NetworkState>,
 
@@ -62,6 +63,7 @@ pub struct RouteManagerImpl {
     waiting_for_route: VecDeque<WaitingForRoutes>,
 }
 
+#[derive(Debug)]
 struct WaitingForRoutes {
     response_tx: oneshot::Sender<Result<(), Error>>,
     required_routes: HashSet<RequiredRoute>,
@@ -98,6 +100,8 @@ impl RouteManagerImpl {
                 }
 
                 route_update = self.network_state_updates.next().fuse() => {
+                    self.last_state = route_update;
+                    // TODO: Handle None (sender closed)
                     // check each waiting client if we have the routes they expect
                     for _ in 0..self.waiting_for_route.len() {
                         // oneshot senders consume themselves, so we need to take them out of the list
@@ -105,13 +109,12 @@ impl RouteManagerImpl {
 
                         if client.response_tx.is_canceled() {
                             // do nothing, drop the sender
-                        } else if has_routes(route_update.as_ref(), &client.required_routes) {
+                        } else if has_routes(self.last_state.as_ref(), &client.required_routes) {
                             let _ = client.response_tx.send(Ok(()));
                         } else {
                             self.waiting_for_route.push_back(client);
                         }
                     }
-                    self.last_state = route_update;
                 }
             }
         }
@@ -125,6 +128,8 @@ impl RouteManagerImpl {
                 return ControlFlow::Break(());
             }
             RouteManagerCommand::AddRoutes(required_routes, response_tx) => {
+                log::info!("Current state: {self:#?}");
+                log::info!("Looking for deez routes: {required_routes:#?}");
                 if has_routes(self.last_state.as_ref(), &required_routes) {
                     let _ = response_tx.send(Ok(()));
                 } else {
@@ -133,7 +138,9 @@ impl RouteManagerImpl {
             }
             RouteManagerCommand::ClearRoutes => {
                 // The VPN tunnel is gone. We can't assume that any (desired) routes are up at this point.
-                self.last_state = None;
+                // TODO: This won't work right away, as we're apparently clearing routes when reconnecting ..
+                // self.last_state = None;
+                log::debug!("Clearing routes");
             },
         }
 
