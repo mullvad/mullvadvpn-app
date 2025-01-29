@@ -1,0 +1,4 @@
+[toolchain]
+# Keep in sync with `rust-version` in `Cargo.toml`
+channel = "1.83.0"
+profile = "minimal"
