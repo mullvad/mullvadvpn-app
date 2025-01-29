@@ -566,17 +566,11 @@ pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
 /// configured IPv4 and/or IPv6.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Connectivity {
-    #[cfg(not(target_os = "android"))]
     Status {
         /// Whether IPv4 connectivity seems to be available on the host.
         ipv4: bool,
         /// Whether IPv6 connectivity seems to be available on the host.
         ipv6: bool,
-    },
-    #[cfg(target_os = "android")]
-    Status {
-        /// Whether _any_ connectivity seems to be available on the host.
-        connected: bool,
     },
     /// On/offline status could not be verified, but we have no particular
     /// reason to believe that the host is offline.
@@ -591,7 +585,6 @@ impl Connectivity {
 
     /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
     /// so we consider ourselves offline.
-    #[cfg(not(target_os = "android"))]
     pub fn is_offline(&self) -> bool {
         matches!(
             self,
@@ -605,23 +598,7 @@ impl Connectivity {
     /// Whether IPv6 connectivity seems to be available on the host.
     ///
     /// If IPv6 status is unknown, `false` is returned.
-    #[cfg(not(target_os = "android"))]
     pub fn has_ipv6(&self) -> bool {
         matches!(self, Connectivity::Status { ipv6: true, .. })
-    }
-
-    /// Whether IPv6 connectivity seems to be available on the host.
-    ///
-    /// If IPv6 status is unknown, `false` is returned.
-    #[cfg(target_os = "android")]
-    pub fn has_ipv6(&self) -> bool {
-        self.is_online()
-    }
-
-    /// If the host does not have configured IPv6 routes, we have no way of
-    /// reaching the internet so we consider ourselves offline.
-    #[cfg(target_os = "android")]
-    pub fn is_offline(&self) -> bool {
-        matches!(self, Connectivity::Status { connected: false })
     }
 }

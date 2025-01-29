@@ -6,23 +6,32 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import co.touchlab.kermit.Logger
+import java.net.DatagramSocket
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.plus
+import net.mullvad.talpid.model.ConnectionStatus
+import net.mullvad.talpid.util.IPAvailabilityUtils
 import net.mullvad.talpid.util.NetworkEvent
 import net.mullvad.talpid.util.defaultNetworkFlow
 import net.mullvad.talpid.util.networkFlow
 
-class ConnectivityListener(val connectivityManager: ConnectivityManager) {
-    private lateinit var _isConnected: StateFlow<Boolean>
+class ConnectivityListener(
+    val connectivityManager: ConnectivityManager,
+    val protect: (socket: DatagramSocket) -> Unit,
+) {
+    private lateinit var _isConnected: StateFlow<ConnectionStatus>
     // Used by JNI
     val isConnected
         get() = _isConnected.value
@@ -37,9 +46,24 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
             dnsServerChanges().stateIn(scope, SharingStarted.Eagerly, currentDnsServers())
 
         _isConnected =
-            hasInternetCapability()
-                .onEach { notifyConnectivityChange(it) }
-                .stateIn(scope, SharingStarted.Eagerly, false)
+            combine(connectivityManager.defaultNetworkFlow(), hasInternetCapability()) {
+                    linkPropertiesChanged: NetworkEvent,
+                    hasInternetCapability: Boolean ->
+                    if (hasInternetCapability) {
+                        ConnectionStatus(
+                            IPAvailabilityUtils.isIPv4Available(protect = { protect(it) }),
+                            IPAvailabilityUtils.isIPv6Available(protect = { protect(it) }),
+                        )
+                    } else {
+                        ConnectionStatus(false, false)
+                    }
+                }
+                .onEach { notifyConnectivityChange(it.ipv4, it.ipv6) }
+                .stateIn(
+                    scope + Dispatchers.IO,
+                    SharingStarted.Eagerly,
+                    ConnectionStatus(false, false),
+                )
     }
 
     private fun dnsServerChanges(): Flow<List<InetAddress>> =
@@ -87,5 +111,5 @@ class ConnectivityListener(val connectivityManager: ConnectivityManager) {
             .distinctUntilChanged()
     }
 
-    private external fun notifyConnectivityChange(isConnected: Boolean)
+    private external fun notifyConnectivityChange(isIPv4: Boolean, isIPv6: Boolean)
 }
