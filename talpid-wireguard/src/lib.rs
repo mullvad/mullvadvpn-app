@@ -401,6 +401,7 @@ impl WireguardMonitor {
         args: TunnelArgs<'_>,
     ) -> Result<WireguardMonitor> {
         use futures::StreamExt;
+        use talpid_routing::RequiredRoute;
 
         let desired_mtu = get_desired_mtu(params);
         let mut config =
@@ -431,9 +432,6 @@ impl WireguardMonitor {
             cancel_receiver.clone(),
         )
         .map_err(Error::ConnectivityMonitorError)?;
-
-        let route_to_wait_for = args.tun_provider.lock().unwrap().config_mut().routes.clone();
-        let route_updates = args.route_manager.wait_for_routes(route_to_wait_for.clone());
 
         let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
             &config,
@@ -479,15 +477,32 @@ impl WireguardMonitor {
 
             // Wait for routes to come up
             // TODO: Time out (eventually) and return proper error
-            let route_update = route_updates
-                .inspect(|x| {
-                    log::info!("routes_are_correct: {x}");
-                })
-                .any(|routes_are_correct| async move { routes_are_correct });
-            if let Err(_) = tokio::time::timeout(std::time::Duration::from_secs(4), route_update).await {
-                // TODO: Wrong error. Expose "routes are not up" error
-                return Err(CloseMsg::SetupError(Error::SetupRoutingError(talpid_routing::Error::RouteManagerDown)));
-            }
+            // let route_update =
+            //     route_updates.any(|routes_are_correct| async move { routes_are_correct });
+            // if let Err(_) =
+            //     tokio::time::timeout(std::time::Duration::from_secs(4), route_update).await
+            // {
+            //     // TODO: Wrong error. Expose "routes are not up" error
+            //     return Err(CloseMsg::SetupError(Error::SetupRoutingError(
+            //         talpid_routing::Error::RouteManagerDown,
+            //     )));
+            // }
+
+            let routes_to_wait_for: std::collections::HashSet<RequiredRoute> = args
+                .tun_provider
+                .lock()
+                .unwrap()
+                .config_mut()
+                .routes
+                .iter()
+                .copied()
+                .map(RequiredRoute::new)
+                .collect();
+            args.route_manager
+                .add_routes(routes_to_wait_for)
+                .await
+                // TODO: Return a proper error
+                .unwrap();
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();

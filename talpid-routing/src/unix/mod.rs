@@ -9,7 +9,6 @@ use futures::channel::{
     mpsc::{self, UnboundedSender},
     oneshot,
 };
-use ipnetwork::IpNetwork;
 use std::{collections::HashSet, sync::Arc};
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
@@ -98,7 +97,6 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    NewChangeListener(mpsc::UnboundedSender<imp::RoutesUpdate>),
     AddRoutes(
         HashSet<RequiredRoute>,
         oneshot::Sender<Result<(), PlatformError>>,
@@ -213,32 +211,6 @@ impl RouteManagerHandle {
             .map_err(|_| Error::RouteManagerDown)
     }
 
-    #[cfg(target_os = "android")]
-    #[allow(missing_docs)]
-    pub fn wait_for_routes(&self, routes: Vec<IpNetwork>) -> impl futures::Stream<Item = bool> {
-        use futures::StreamExt;
-
-        let (stream_tx, stream_rx) = mpsc::unbounded();
-        self.tx
-            .unbounded_send(RouteManagerCommand::NewChangeListener(stream_tx))
-            .map_err(|_| Error::RouteManagerDown).unwrap(); //?;
-
-        log::info!("comparing routes with {routes:?}");
-        stream_rx.map(move |change| {
-            use std::collections::HashSet;
-
-            // Wait for NetworkState updates to check if it includes all necessary routes
-            let xs: HashSet<IpNetwork> = HashSet::from_iter(routes.iter().copied());
-            match change {
-                imp::RoutesUpdate::NewNetworkState(network_state) => network_state.routes.map(|new_routes| {
-                    //new_routes.contains(routes)
-                    let ys = HashSet::from_iter(new_routes.iter().map(|route_info| IpNetwork::new(route_info.destination.address, route_info.destination.prefix_length as u8 ).unwrap()));
-                    xs.is_subset(&ys)
-                }).unwrap_or(false)
-            }
-        })
-    }
-
     /// Listen for non-tunnel default route changes.
     #[cfg(target_os = "macos")]
     pub async fn default_route_listener(
@@ -331,17 +303,6 @@ impl RouteManagerHandle {
             .map_err(|_| Error::RouteManagerDown)?;
         response_rx.await.map_err(|_| Error::ManagerChannelDown)
     }
-
-    // TODO: We might not want this
-    /// Listen for route changes.
-    //#[cfg(target_os = "android")]
-    //pub async fn change_listener(&self) -> Result<impl futures::Stream<Item = imp::RoutesUpdate>, Error> {
-    //    let (response_tx, response_rx) = mpsc::unbounded();
-    //     self.tx
-    //         .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))
-    //         .map_err(|_| Error::RouteManagerDown)?;
-    //     response_rx.map_err(|_| Error::ManagerChannelDown)
-    // }
 
     /// Listen for route changes.
     #[cfg(target_os = "linux")]

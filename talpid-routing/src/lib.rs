@@ -123,9 +123,23 @@ impl fmt::Display for Route {
     }
 }
 
+#[cfg(target_os = "android")]
+#[allow(missing_docs)]
+#[derive(Debug, Hash, Eq, PartialEq, Clone)]
+pub struct RequiredRoute(IpNetwork);
+
+#[cfg(target_os = "android")]
+impl RequiredRoute {
+    #[allow(missing_docs)]
+    pub const fn new(network: IpNetwork) -> Self {
+        RequiredRoute(network)
+    }
+}
+
 /// A network route that should be applied by the route manager.
 /// It can either be routed through a specific network node or it can be routed through the current
 /// default route.
+#[cfg(not(target_os = "android"))]
 #[derive(Debug, Hash, Eq, PartialEq, Clone)]
 pub struct RequiredRoute {
     /// Route's prefix
@@ -139,6 +153,7 @@ pub struct RequiredRoute {
     mtu: Option<u16>,
 }
 
+#[cfg(not(target_os = "android"))]
 impl RequiredRoute {
     /// Constructs a new required route.
     pub fn new(prefix: IpNetwork, node: impl Into<NetNode>) -> Self {

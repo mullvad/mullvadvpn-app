@@ -1,16 +1,15 @@
+use std::collections::HashSet;
 use std::sync::Mutex;
 
-use crate::imp::RouteManagerCommand;
-use futures::{
-    channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
-    future::FutureExt,
-    select_biased,
-    stream::StreamExt,
-};
-use jnix::{
-    jni::{objects::JObject, JNIEnv},
-    FromJava, JnixEnv,
-};
+use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
+use futures::future::FutureExt;
+use futures::select_biased;
+use futures::stream::StreamExt;
+use ipnetwork::IpNetwork;
+use jnix::jni::{objects::JObject, JNIEnv};
+use jnix::{FromJava, JnixEnv};
+
+use crate::{imp::RouteManagerCommand, RequiredRoute};
 use talpid_types::android::NetworkState;
 
 /// Stub error type for routing errors on Android.
@@ -47,18 +46,13 @@ pub enum Error {
 }
 
 /// TODO: Document mee
-static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<RoutesUpdate>>> = Mutex::new(None);
-
-#[derive(Debug, Clone)]
-pub enum RoutesUpdate {
-    NewNetworkState(NetworkState),
-}
+static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<NetworkState>>> = Mutex::new(None);
 
 // TODO: This is le actor state
 /// Stub route manager for Android
 pub struct RouteManagerImpl {
-    routes_updates: UnboundedReceiver<RoutesUpdate>,
-    listeners: Vec<UnboundedSender<RoutesUpdate>>,
+    network_state_updates: UnboundedReceiver<NetworkState>,
+    // listeners: Vec<UnboundedSender<NetworkState>>,
     /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
     last_state: Option<NetworkState>,
 }
@@ -71,8 +65,7 @@ impl RouteManagerImpl {
         // TODO: What id `ROUTE_UPDATES_TX` has already been initialized?
         *ROUTE_UPDATES_TX.lock().unwrap() = Some(tx);
         Ok(RouteManagerImpl {
-            routes_updates: rx,
-            listeners: Default::default(),
+            network_state_updates: rx,
             last_state: Default::default(),
         })
     }
@@ -88,34 +81,74 @@ impl RouteManagerImpl {
                     let Some(command) = command else { break };
 
                     match command {
-                        RouteManagerCommand::NewChangeListener(tx) => {
-                            // register a listener for new route updates
-                            self.listeners.push(tx);
-                        }
                         RouteManagerCommand::Shutdown(tx) => {
                             tx.send(()).map_err(|()| Error::Send)?; // TODO: Surely we can do better than this
                             break;
                         }
-                        RouteManagerCommand::AddRoutes(_routes, tx) => {
+                        RouteManagerCommand::AddRoutes(routes, tx) => {
+                            // Check if routes are in the last known state.
+                            // If they are not, wait until they are before returning.
                             tx.send(Ok(())).map_err(|_x| Error::Send)?;
                         }
                         RouteManagerCommand::ClearRoutes => (),
                     }
                 }
 
-                route_update = self.routes_updates.next().fuse() => {
-                    let Some(route_update) = route_update else { break };
-                    self.notify_change_listeners(route_update);
+                route_update = self.network_state_updates.next().fuse() => {
+                    self.last_state = route_update;
                 }
             }
         }
         Ok(())
     }
 
-    fn notify_change_listeners(&mut self, message: RoutesUpdate) {
-        self.listeners
-            .retain(|listener| listener.unbounded_send(message.clone()).is_ok());
+    fn has_routes(&self, routes: HashSet<RequiredRoute>) -> bool {
+        let Some(ref network_state) = self.last_state else {
+            return false;
+        };
+        let Some(ref route_info) = network_state.routes else {
+            return false;
+        };
+        // TODO: fugly
+        let existing_routes: HashSet<RequiredRoute> = route_info
+            .iter()
+            .map(|route_info| {
+                let network = IpNetwork::new(
+                    route_info.destination.address,
+                    route_info.destination.prefix_length as u8,
+                )
+                .unwrap();
+                RequiredRoute::new(network)
+            })
+            .collect();
+        routes.is_subset(&existing_routes)
     }
+
+    // pub fn wait_for_routes(&self, routes: Vec<IpNetwork>) -> impl futures::Stream<Item = bool> {
+    //     use futures::StreamExt;
+    //     stream_rx.map(move |change| {
+    //         use std::collections::HashSet;
+
+    //         // Wait for NetworkState updates to check if it includes all necessary routes
+    //         let xs: HashSet<IpNetwork> = HashSet::from_iter(routes.iter().copied());
+    //         match change {
+    //             imp::RoutesUpdate::NewNetworkState(network_state) => network_state
+    //                 .routes
+    //                 .map(|new_routes| {
+    //                     //new_routes.contains(routes)
+    //                     let ys = HashSet::from_iter(new_routes.iter().map(|route_info| {
+    //                         IpNetwork::new(
+    //                             route_info.destination.address,
+    //                             route_info.destination.prefix_length as u8,
+    //                         )
+    //                         .unwrap()
+    //                     }));
+    //                     xs.is_subset(&ys)
+    //                 })
+    //                 .unwrap_or(false),
+    //         }
+    //     })
+    // }
 }
 
 /// Entry point for Android Java code to notify the current default network state.
@@ -142,10 +175,7 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaul
 
     log::info!("Received network state {:#?}", network_state);
 
-    if tx
-        .unbounded_send(RoutesUpdate::NewNetworkState(network_state))
-        .is_err()
-    {
+    if tx.unbounded_send(network_state).is_err() {
         log::warn!("Failed to send offline change event");
     }
 }
