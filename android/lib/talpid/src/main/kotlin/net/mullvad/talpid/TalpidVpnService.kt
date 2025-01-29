@@ -48,7 +48,8 @@ open class TalpidVpnService : LifecycleVpnService() {
     @CallSuper
     override fun onCreate() {
         super.onCreate()
-        connectivityListener = ConnectivityListener(getSystemService<ConnectivityManager>()!!)
+        connectivityListener =
+            ConnectivityListener(getSystemService<ConnectivityManager>()!!, ::protect)
         connectivityListener.register(lifecycleScope)
     }
 
