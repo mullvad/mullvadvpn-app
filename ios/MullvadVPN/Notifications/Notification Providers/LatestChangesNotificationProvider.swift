@@ -27,6 +27,10 @@ class LatestChangesNotificationProvider: NotificationProvider, InAppNotification
         .latestChangesInAppNotificationProvider
     }
 
+    override var priority: NotificationPriority {
+        .low
+    }
+
     var notificationDescriptor: InAppNotificationDescriptor? {
         defer {
             // Always update the last seen version

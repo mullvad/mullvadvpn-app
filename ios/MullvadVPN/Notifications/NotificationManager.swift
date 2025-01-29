@@ -30,7 +30,7 @@ final class NotificationManager: NotificationProviderDelegate {
                 newNotificationProvider.delegate = self
             }
 
-            _notificationProviders = newNotificationProviders
+            _notificationProviders = newNotificationProviders.sorted { $0.priority > $1.priority }
         }
     }
 

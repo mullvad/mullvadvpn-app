@@ -30,6 +30,13 @@ class NotificationProvider: NotificationProviderProtocol, @unchecked Sendable {
     }
 
     /**
+     Default implementation for the priority property, setting it to `.low`.
+     */
+    var priority: NotificationPriority {
+        .low
+    }
+
+    /**
      Send action to notification manager delegate.
 
      Usually in response to user interacting with notification banner, i.e by tapping a button. Use different action
