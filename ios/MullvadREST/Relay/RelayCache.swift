@@ -70,9 +70,13 @@ public final class RelayCache: RelayCacheProtocol, Sendable {
 
         let data = try Data(contentsOf: prebundledRelaysFileURL)
 
-        return try StoredRelays(
-            rawData: data,
-            updatedAt: Date(timeIntervalSince1970: 0)
-        )
+        do {
+            return try StoredRelays(
+                rawData: data,
+                updatedAt: Date(timeIntervalSince1970: 0)
+            )
+        } catch {
+            fatalError("Prebundled relays.json file could has not been correctly updated via build script.")
+        }
     }
 }
