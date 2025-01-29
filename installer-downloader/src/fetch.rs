@@ -1,4 +1,7 @@
+#[cfg(unix)]
 use std::os::unix::fs::MetadataExt;
+#[cfg(windows)]
+use std::os::windows::fs::MetadataExt;
 use std::path::Path;
 use std::pin::Pin;
 use std::task::{ready, Poll};
@@ -131,7 +134,10 @@ fn check_size_hint(hint: SizeHint, actual: usize) -> anyhow::Result<()> {
 async fn create_or_append(path: impl AsRef<Path>) -> io::Result<(File, usize)> {
     let file = path.as_ref();
     if file.exists() {
+        #[cfg(unix)]
         let size = file.metadata().map(|meta| meta.size()).unwrap_or(0);
+        #[cfg(windows)]
+        let size = file.metadata().map(|meta| meta.file_size()).unwrap_or(0);
         let file = fs::OpenOptions::new().append(true).open(file).await?;
         Ok((file, usize::try_from(size).unwrap()))
     } else {
