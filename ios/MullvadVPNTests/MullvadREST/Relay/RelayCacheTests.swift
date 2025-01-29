@@ -35,7 +35,7 @@ final class RelayCacheTests: XCTestCase {
         let fileCache = MockFileCache<StoredRelays>(initialState: .fileNotFound)
         let cache = RelayCache(fileCache: fileCache)
 
-        XCTAssertNoThrow(try cache.read())
+        XCTAssertThrowsError(try cache.read())
     }
 }
 
