@@ -76,34 +76,6 @@ class VPNSettingsPage: Page {
         return self
     }
 
-    // this button no longer exists
-    @discardableResult func tapUDPOverTCPPortExpandButton() -> Self {
-        cellExpandButton(AccessibilityIdentifier.udpOverTCPPortCell).tap()
-
-        return self
-    }
-
-    // this button no longer exists
-    @discardableResult func tapUDPOverTCPPortAutomaticCell() -> Self {
-        app.cells["\(AccessibilityIdentifier.wireGuardObfuscationPort)Automatic"]
-            .tap()
-        return self
-    }
-
-    // this button no longer exists
-    @discardableResult func tapUDPOverTCPPort80Cell() -> Self {
-        app.cells["\(AccessibilityIdentifier.wireGuardObfuscationPort)80"]
-            .tap()
-        return self
-    }
-
-    // this button no longer exists
-    @discardableResult func tapUDPOverTCPPort5001Cell() -> Self {
-        app.cells["\(AccessibilityIdentifier.wireGuardObfuscationPort)5001"]
-            .tap()
-        return self
-    }
-
     @discardableResult func tapQuantumResistantTunnelExpandButton() -> Self {
         cellExpandButton(AccessibilityIdentifier.quantumResistantTunnelCell).tap()
 

@@ -27,7 +27,6 @@ class TrafficGenerator {
             port: NWEndpoint.Port(integerLiteral: UInt16(port)),
             using: params
         )
-        setupConnection()
         setupOtherHandlers()
     }
 
@@ -100,7 +99,13 @@ class TrafficGenerator {
         XCTWaiter().wait(for: [doneAttemptingConnectExpecation], timeout: 10.0)
     }
 
+    func stopConnection() {
+        connection.stateUpdateHandler = { @Sendable _ in }
+        connection.cancel()
+    }
+
     public func startGeneratingUDPTraffic(interval: TimeInterval) {
+        setupConnection()
         sendDataTimer.schedule(deadline: .now(), repeating: interval)
 
         sendDataTimer.setEventHandler {
@@ -125,7 +130,9 @@ class TrafficGenerator {
     }
 
     public func stopGeneratingUDPTraffic() {
+        sendDataTimer.setEventHandler(handler: {})
         sendDataTimer.cancel()
+        stopConnection()
     }
 }
 

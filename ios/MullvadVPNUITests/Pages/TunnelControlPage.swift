@@ -71,6 +71,10 @@ class TunnelControlPage: Page {
         return connectionAttempts
     }
 
+    func getInIPv4AddressLabel() -> String {
+        app.staticTexts[AccessibilityIdentifier.connectionPanelInAddressRow].label.components(separatedBy: ":")[0]
+    }
+
     @discardableResult override init(_ app: XCUIApplication) {
         super.init(app)
 
@@ -121,7 +125,7 @@ class TunnelControlPage: Page {
     }
 
     @discardableResult func tapRelayStatusExpandCollapseButton() -> Self {
-        app.images[AccessibilityIdentifier.relayStatusCollapseButton].press(forDuration: .leastNonzeroMagnitude)
+        app.buttons[AccessibilityIdentifier.relayStatusCollapseButton].tap()
         return self
     }
 
