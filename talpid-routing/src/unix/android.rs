@@ -58,8 +58,13 @@ pub struct RouteManagerImpl {
     /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
     last_state: Option<NetworkState>,
 
-    ///
-    waiting_for_route: VecDeque<(oneshot::Sender<Result<(), Error>>, HashSet<RequiredRoute>)>,
+    /// TODO: Document mee
+    waiting_for_route: VecDeque<WaitingForRoutes>,
+}
+
+struct WaitingForRoutes {
+    response_tx: oneshot::Sender<Result<(), Error>>,
+    required_routes: HashSet<RequiredRoute>,
 }
 
 impl RouteManagerImpl {
@@ -91,42 +96,34 @@ impl RouteManagerImpl {
                             let _ = tx.send(());
                             break;
                         }
-                        RouteManagerCommand::AddRoutes(routes, tx) => {
-                            if Self::has_routes(self.last_state.as_ref(), &routes) {
-                                let _ = tx.send(Ok(()));
+                        RouteManagerCommand::AddRoutes(required_routes, response_tx) => {
+                            if Self::has_routes(self.last_state.as_ref(), &required_routes) {
+                                let _ = response_tx.send(Ok(()));
                             } else {
-                                self.waiting_for_route.push_back((tx, routes));
+                                self.waiting_for_route.push_back(WaitingForRoutes {response_tx, required_routes});
                             }
                         }
-                        RouteManagerCommand::ClearRoutes => (),
+                        RouteManagerCommand::ClearRoutes => {
+                            // The VPN tunnel is gone. We can't assume that any (desired) routes are up at this point.
+                            self.last_state = None;
+                        },
                     }
                 }
 
                 route_update = self.network_state_updates.next().fuse() => {
+                    // check each waiting client if we have the routes they expect
                     for _ in 0..self.waiting_for_route.len() {
-                        let Some((tx, routes)) = self.waiting_for_route.pop_front() else { break };
+                        // oneshot senders consume themselves, so we need to take them out of the list
+                        let Some(client) = self.waiting_for_route.pop_front() else { break };
 
-                        if tx.is_canceled() {
+                        if client.response_tx.is_canceled() {
                             // do nothing, drop the sender
-                        } else if Self::has_routes(route_update.as_ref(), &routes) {
-                            let _ = tx.send(Ok(()));
+                        } else if Self::has_routes(route_update.as_ref(), &client.required_routes) {
+                            let _ = client.response_tx.send(Ok(()));
                         } else {
-                            self.waiting_for_route.push_back((tx, routes));
+                            self.waiting_for_route.push_back(client);
                         }
                     }
-
-                    // check if we can respond to any callers waiting on routes.
-                    // self.waiting_for_route.retain(|(tx, routes)| {
-                    //     if tx.is_cancelled() {
-                    //          return false;
-                    //     }
-                    //      if Self::has_routes(route_update.as_ref(), routes) {
-                    //          let _ = tx.send(Ok(()));
-                    //          return false;
-                    //      }
-
-                    //     true
-                    // });
                     self.last_state = route_update;
                 }
             }
