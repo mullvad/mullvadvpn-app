@@ -18,4 +18,5 @@ pub const CLASSES: &[&str] = &[
     "net/mullvad/talpid/ConnectivityListener",
     "net/mullvad/talpid/TalpidVpnService",
     "net/mullvad/mullvadvpn/lib/endpoint/ApiEndpointOverride",
+    "net/mullvad/talpid/model/ConnectionStatus",
 ];
