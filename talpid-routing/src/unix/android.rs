@@ -1,6 +1,6 @@
 use std::collections::{HashSet, VecDeque};
-use std::sync::Mutex;
 use std::ops::ControlFlow;
+use std::sync::Mutex;
 
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
 use futures::channel::oneshot;
@@ -49,12 +49,12 @@ pub enum Error {
 
 /// The sender used by [Java_net_mullvad_talpid_ConnectivityListener_notifyDefaultNetworkChange]
 /// to notify the route manager of changes to the network.
-static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<NetworkState>>> = Mutex::new(None);
+static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<Option<NetworkState>>>> = Mutex::new(None);
 
 /// Android route manager actor.
 #[derive(Debug)]
 pub struct RouteManagerImpl {
-    network_state_updates: UnboundedReceiver<NetworkState>,
+    network_state_updates: UnboundedReceiver<Option<NetworkState>>,
 
     /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
     last_state: Option<NetworkState>,
@@ -75,7 +75,6 @@ impl RouteManagerImpl {
         // Create a channel between the kotlin client and route manager
         let (tx, rx) = futures::channel::mpsc::unbounded();
 
-        // TODO: What id `ROUTE_UPDATES_TX` has already been initialized?
         *ROUTE_UPDATES_TX.lock().unwrap() = Some(tx);
 
         Ok(RouteManagerImpl {
@@ -90,6 +89,7 @@ impl RouteManagerImpl {
         manage_rx: mpsc::UnboundedReceiver<RouteManagerCommand>,
     ) -> Result<(), Error> {
         let mut manage_rx = manage_rx.fuse();
+
         loop {
             select_biased! {
                 command = manage_rx.next().fuse() => {
@@ -100,8 +100,11 @@ impl RouteManagerImpl {
                 }
 
                 route_update = self.network_state_updates.next().fuse() => {
+                    // None means that the sender was dropped.
+                    let Some(route_update) = route_update else { break };
+
                     self.last_state = route_update;
-                    // TODO: Handle None (sender closed)
+
                     // check each waiting client if we have the routes they expect
                     for _ in 0..self.waiting_for_route.len() {
                         // oneshot senders consume themselves, so we need to take them out of the list
@@ -118,6 +121,9 @@ impl RouteManagerImpl {
                 }
             }
         }
+
+        log::debug!("RouteManager exited");
+
         Ok(())
     }
 
@@ -133,7 +139,10 @@ impl RouteManagerImpl {
                 if has_routes(self.last_state.as_ref(), &required_routes) {
                     let _ = response_tx.send(Ok(()));
                 } else {
-                    self.waiting_for_route.push_back(WaitingForRoutes {response_tx, required_routes});
+                    self.waiting_for_route.push_back(WaitingForRoutes {
+                        response_tx,
+                        required_routes,
+                    });
                 }
             }
             RouteManagerCommand::ClearRoutes => {
@@ -141,7 +150,7 @@ impl RouteManagerImpl {
                 // TODO: This won't work right away, as we're apparently clearing routes when reconnecting ..
                 // self.last_state = None;
                 log::debug!("Clearing routes");
-            },
+            }
         }
 
         ControlFlow::Continue(())
@@ -156,6 +165,7 @@ fn has_routes(state: Option<&NetworkState>, routes: &HashSet<RequiredRoute>) -> 
     let Some(route_info) = &network_state.routes else {
         return false;
     };
+
     // TODO: fugly
     let existing_routes: HashSet<RequiredRoute> = route_info
         .iter()
@@ -177,16 +187,12 @@ fn has_routes(state: Option<&NetworkState>, routes: &HashSet<RequiredRoute>) -> 
 pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaultNetworkChange(
     env: JNIEnv<'_>,
     _: JObject<'_>,
-    network_state: JObject<'_>, // TODO: Actually get the routes
+    network_state: JObject<'_>,
 ) {
     let env = JnixEnv::from(env);
 
-    if network_state.is_null() {
-        // TODO: We might want to handle this more gracefully
-        log::debug!("Received NULL NetworkState");
-        return;
-    }
-    let network_state = NetworkState::from_java(&env, network_state);
+    let network_state: Option<NetworkState> = FromJava::from_java(&env, network_state);
+
     let Some(tx) = &*ROUTE_UPDATES_TX.lock().unwrap() else {
         // No sender has been registered
         log::error!("Received routes notification wíth no channel");
