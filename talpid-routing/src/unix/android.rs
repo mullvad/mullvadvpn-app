@@ -3,10 +3,10 @@ use std::sync::Mutex;
 use crate::imp::RouteManagerCommand;
 use futures::{
     channel::mpsc::{self, UnboundedReceiver, UnboundedSender},
-    stream::StreamExt, select_biased,
     future::FutureExt,
+    select_biased,
+    stream::StreamExt,
 };
-use ipnetwork::IpNetwork;
 use jnix::{
     jni::{objects::JObject, JNIEnv},
     FromJava, JnixEnv,
@@ -59,11 +59,6 @@ pub enum RoutesUpdate {
 pub struct RouteManagerImpl {
     routes_updates: UnboundedReceiver<RoutesUpdate>,
     listeners: Vec<UnboundedSender<RoutesUpdate>>,
-}
-
-pub enum RouteResult {
-    CorrectRoutes,
-    IncorrectRoutes,
 }
 
 impl RouteManagerImpl {
@@ -119,12 +114,6 @@ impl RouteManagerImpl {
     fn notify_change_listeners(&mut self, message: RoutesUpdate) {
         self.listeners
             .retain(|listener| listener.unbounded_send(message.clone()).is_ok());
-    }
-
-    fn listen(&mut self) -> UnboundedReceiver<RoutesUpdate> {
-        let (tx, rx) = futures::channel::mpsc::unbounded();
-        self.listeners.push(tx);
-        rx
     }
 }
 
