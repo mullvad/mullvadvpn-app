@@ -6,6 +6,7 @@ import org.junit.Assert.fail
 
 object Networking {
     fun getDeviceIpv4Address(): String {
+
         NetworkInterface.getNetworkInterfaces()!!.toList().map { networkInterface ->
             val address =
                 networkInterface.inetAddresses.toList().find {
