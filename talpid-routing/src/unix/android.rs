@@ -18,42 +18,9 @@ use talpid_types::android::NetworkState;
 /// Errors that occur while setting up VpnService tunnel.
 #[derive(Debug, thiserror::Error)]
 pub enum Error {
-    /// Failed to send shutdown result.
-    #[error("Failed to send shutdown result")]
-    Send,
-
-    /// Failed to attach Java VM to tunnel thread.
-    #[error("Failed to attach Java VM to tunnel thread")]
-    AttachJvmToThread(#[source] jnix::jni::errors::Error),
-
-    /// Failed to call Java method TalpidVpnService.
-    #[error("Failed to call Java method TalpidVpnService.{0}")]
-    //CallMethod(&'static str, #[source] jnix::jni::errors::Error),
-    CallMethod(&'static str),
-
-    /// Failed to create Java VM handle clone.
-    #[error("Failed to create Java VM handle clone")]
-    CloneJavaVm(#[source] jnix::jni::errors::Error),
-
-    /// Failed to find TalpidVpnService.
-    #[error("Failed to find TalpidVpnService.{0} method")]
-    FindMethod(&'static str, #[source] jnix::jni::errors::Error),
-
-    /// Received an invalid result from TalpidVpnService.
-    #[error("Received an invalid result from TalpidVpnService.{0}: {1}")]
-    InvalidMethodResult(&'static str, String),
-
     /// Timed out when waiting for network routes.
     #[error("Timed out when waiting for network routes")]
     RoutesTimedOut,
-
-    /// Profile for VPN has not been setup.
-    #[error("Profile for VPN has not been setup")]
-    NotPrepared,
-
-    /// Another legacy VPN profile is used as always on.
-    #[error("Another legacy VPN profile is used as always on")]
-    OtherLegacyAlwaysOnVpn,
 }
 
 /// The sender used by [Java_net_mullvad_talpid_ConnectivityListener_notifyDefaultNetworkChange]
