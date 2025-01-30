@@ -4,10 +4,10 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../shared/constants';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { IconButton } from '../../lib/components';
+import { FilterChip, Flex, Icon, IconButton, LabelTiny } from '../../lib/components';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
-import { Colors } from '../../lib/foundations';
+import { Spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
@@ -16,7 +16,6 @@ import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
 import * as Cell from '../cell';
 import { useFilteredProviders } from '../Filter';
-import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
 import { Layout, SettingsContainer } from '../Layout';
 import { NavigationContainer } from '../NavigationContainer';
@@ -34,11 +33,8 @@ import {
 import { LocationType, SpecialBridgeLocationType, SpecialLocation } from './select-location-types';
 import { useSelectLocationContext } from './SelectLocationContainer';
 import {
-  StyledClearFilterButton,
   StyledContent,
   StyledDaitaSettingsButton,
-  StyledFilter,
-  StyledFilterRow,
   StyledNavigationBarAttachment,
   StyledScopeBar,
   StyledSearchBar,
@@ -159,28 +155,29 @@ export default function SelectLocation() {
               {locationType === LocationType.entry && daita && !directOnly ? null : (
                 <>
                   {showFilters && (
-                    <StyledFilterRow>
-                      {messages.pgettext('select-location-view', 'Filtered:')}
+                    <Flex
+                      $gap={Spacings.spacing3}
+                      $alignItems="center"
+                      $flexWrap="wrap"
+                      $margin={{ horizontal: Spacings.spacing3, bottom: Spacings.spacing5 }}>
+                      <LabelTiny>
+                        {messages.pgettext('select-location-view', 'Filtered:')}
+                      </LabelTiny>
 
                       {showOwnershipFilter && (
-                        <StyledFilter>
+                        <FilterChip
+                          trailing={<Icon icon="cross" size="small" />}
+                          aria-label={messages.gettext('Clear')}
+                          onClick={onClearOwnership}>
                           {ownershipFilterLabel(ownership)}
-                          <StyledClearFilterButton
-                            aria-label={messages.gettext('Clear')}
-                            onClick={onClearOwnership}>
-                            <ImageView
-                              height={16}
-                              width={16}
-                              source="icon-close"
-                              tintColor={Colors.white60}
-                              tintHoverColor={Colors.white80}
-                            />
-                          </StyledClearFilterButton>
-                        </StyledFilter>
+                        </FilterChip>
                       )}
 
                       {showProvidersFilter && (
-                        <StyledFilter>
+                        <FilterChip
+                          trailing={<Icon icon="cross" size="small" />}
+                          aria-label={messages.gettext('Clear')}
+                          onClick={onClearProviders}>
                           {sprintf(
                             messages.pgettext(
                               'select-location-view',
@@ -188,29 +185,18 @@ export default function SelectLocation() {
                             ),
                             { numberOfProviders: filteredProviders.length },
                           )}
-                          <StyledClearFilterButton
-                            aria-label={messages.gettext('Clear')}
-                            onClick={onClearProviders}>
-                            <ImageView
-                              height={16}
-                              width={16}
-                              source="icon-close"
-                              tintColor={Colors.white60}
-                              tintHoverColor={Colors.white80}
-                            />
-                          </StyledClearFilterButton>
-                        </StyledFilter>
+                        </FilterChip>
                       )}
 
                       {showDaitaFilter && (
-                        <StyledFilter>
+                        <FilterChip as="div">
                           {sprintf(
                             messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
                             { settingName: 'DAITA' },
                           )}
-                        </StyledFilter>
+                        </FilterChip>
                       )}
-                    </StyledFilterRow>
+                    </Flex>
                   )}
 
                   <StyledSearchBar searchTerm={searchValue} onSearch={updateSearchTerm} />

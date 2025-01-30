@@ -3,13 +3,13 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
 import log from '../../shared/logging';
+import { Icon, IconProps, Image, Spinner } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useWillExit } from '../lib/will-exit';
 import * as AppButton from './AppButton';
 import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { SmallButtonGrid } from './SmallButton';
 
@@ -315,36 +315,30 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
   };
 
   private renderTypeIcon(type: ModalAlertType) {
-    let source = '';
+    let source: IconProps['icon'] | undefined = undefined;
     let color = undefined;
     switch (type) {
       case ModalAlertType.info:
-        source = 'icon-info';
+        source = 'info-circle';
         color = Colors.white;
         break;
       case ModalAlertType.caution:
-        source = 'icon-alert';
+        source = 'alert-circle';
         color = Colors.white;
         break;
       case ModalAlertType.warning:
-        source = 'icon-alert';
+        source = 'alert-circle';
         color = Colors.red;
         break;
-
       case ModalAlertType.loading:
-        source = 'icon-spinner';
-        break;
+        return <Spinner size="big" />;
       case ModalAlertType.success:
-        source = 'icon-success';
-        break;
+        return <Image source="icon-success" height={48} width={48} />;
       case ModalAlertType.failure:
-        source = 'icon-fail';
-        break;
+        return <Image source="icon-fail" height={48} width={48} />;
     }
 
-    return (
-      <ImageView height={44} width={44} source={source} tintColor={this.props.iconColor ?? color} />
-    );
+    return <Icon size="big" icon={source} color={color} />;
   }
 
   private onTransitionEnd = (event: React.TransitionEvent<HTMLDivElement>) => {
