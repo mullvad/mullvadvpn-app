@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -156,11 +156,12 @@ msgstr "편집"
 msgid "Enable"
 msgstr "사용"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "\"%(directOnly)s\" 활성화"
-
 msgid "Enable anyway"
 msgstr "그래도 사용"
+
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
+msgstr "직접 전용 활성화"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "보안 연결 실패"
@@ -171,7 +172,6 @@ msgstr "필터"
 msgid "Go to System Settings"
 msgstr "시스템 설정으로 이동"
 
-#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "확인!"
 
@@ -264,8 +264,6 @@ msgstr "TCP"
 msgid "Test"
 msgstr "테스트"
 
-#. Warning shown in dialog to users when they enable setting that increases
-#. network latency (decreases performance).
 msgid "This setting increases latency. Use only if needed."
 msgstr "이 설정을 사용하면 대기 시간이 길어집니다. 필요한 경우에만 사용하세요."
 
@@ -345,6 +343,10 @@ msgstr "로그인"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "추가 정보"
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
+msgstr "새 버전이 설치되었습니다. 변경 로그를 확인하려면 여기를 클릭하세요"
 
 msgctxt "accessibility"
 msgid "Opens externally"
@@ -582,6 +584,22 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "\"Mullvad 브리지\" 방법을 사용하면 앱이 Mullvad 브리지 서버를 통해 Mullvad API 서버와 통신합니다. 이를 위해 Shadowsocks로 난독화된 트래픽을 전송합니다."
 
+msgctxt "app-info-view"
+msgid "App info"
+msgstr "앱 정보"
+
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "앱이 동기화되지 않았습니다. 종료하고 다시 시작하세요."
+
+msgctxt "app-info-view"
+msgid "App version"
+msgstr "앱 버전"
+
+msgctxt "app-info-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "업데이트를 사용할 수 있습니다. 최신 앱 버전을 설치하여 최신 상태를 유지하세요."
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "인터넷 차단: 계정 시간 초과"
@@ -599,8 +617,16 @@ msgid "You are logged in with an invalid account number. Please log out and try 
 msgstr "잘못된 계정 번호로 로그인했습니다. 로그아웃한 후 다른 계정 번호로 시도하세요."
 
 msgctxt "changelog"
-msgid "Changes in this version:"
-msgstr "이 버전의 변경 사항:"
+msgid "See full changelog"
+msgstr "전체 변경 로그 확인"
+
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "이 플랫폼에서는 이번 릴리스에 어떤 업데이트나 변경도 이루어지지 않았습니다."
+
+msgctxt "changelog-view"
+msgid "What’s new"
+msgstr "업데이트 내역"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -888,6 +914,10 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "인터넷 차단"
 
+msgctxt "in-app-notifications"
+msgid "Click here to see what’s new."
+msgstr "업데이트 내역을 확인하려면 여기를 클릭하세요."
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -900,6 +930,10 @@ msgstr "네트워크 트래픽이 유출될 수 있음"
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
 msgstr "새 장치가 생성됨"
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
+msgstr "새 버전 설치 완료"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
@@ -1247,10 +1281,6 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "브리지 모드"
 
-msgctxt "openvpn-settings-view"
-msgid "Enable bridge mode?"
-msgstr "브리지 모드를 활성화하시겠습니까?"
-
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1418,16 +1448,16 @@ msgid "Filtered:"
 msgstr "필터링됨:"
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr "%(daita)s 설정으로 이동"
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "목록 이름은 고유해야 합니다."
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "이미 사용 중인 이름입니다."
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
+msgstr "%(daita)s 설정 열기"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -1526,12 +1556,8 @@ msgid "API access"
 msgstr "API 액세스"
 
 msgctxt "settings-view"
-msgid "App is out of sync. Please quit and restart."
-msgstr "앱이 동기화되지 않았습니다. 종료하고 다시 시작하세요."
-
-msgctxt "settings-view"
-msgid "App version"
-msgstr "앱 버전"
+msgid "App info"
+msgstr "앱 정보"
 
 msgctxt "settings-view"
 msgid "Multihop"
@@ -1540,10 +1566,6 @@ msgstr "멀티홉"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "지원"
-
-msgctxt "settings-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "업데이트를 사용할 수 있습니다. 최신 앱 버전을 설치하여 최신 상태를 유지하세요."
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1554,6 +1576,10 @@ msgstr "사용자 인터페이스 설정"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN 설정"
+
+msgctxt "settings-view"
+msgid "What’s new"
+msgstr "업데이트 내역"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1751,6 +1777,10 @@ msgstr "연결됨. %(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "연결 중. %(location)s"
+
+msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr "분할 터널링 비활성화"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
@@ -2009,13 +2039,6 @@ msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "추가할 DNS 서버가 비공개 IP입니다. 이 서버를 사용하도록 네트워크 인터페이스가 구성되어 있는지 확인해야 합니다."
 
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "추가하려는 DNS 서버는 공용이며 %(wireguard)s에서만 작동합니다. 항상 작동하게 하려면 %(tunnelProtocol)s(고급 설정에서)을(를) %(wireguard)s(으)로 설정하세요."
-
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "기본 제공되는 이 기능은 네트워크가 갑자기 작동을 멈추거나 터널에 장애가 발생하는 경우 연결이 다시 설정될 때까지 트래픽을 차단하여 VPN 터널 외부로 트래픽이 유출되는 것을 방지합니다."
@@ -2234,6 +2257,9 @@ msgstr "%s(종료)"
 msgid "%s (added)"
 msgstr "%s(추가됨)"
 
+msgid "%s (removed)"
+msgstr "%s(제거됨)"
+
 msgid "%s custom port"
 msgstr "%s 사용자 지정 포트"
 
@@ -2309,9 +2335,6 @@ msgstr "상시 접속 VPN이 %s에 할당됨"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "상시 접속 VPN이 다른 VPN에 할당됨"
 
-msgid "App info"
-msgstr "앱 정보"
-
 msgid "At least one method needs to be enabled"
 msgstr "1개 이상의 방법이 활성화되어 있어야 합니다"
 
@@ -2324,17 +2347,14 @@ msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되면, 분할 앱에 인터넷이 연결되지 않습니다. 분할 터널링 시 개인 정보가 위험해질 수 있음에 항상 유의하시기 바랍니다."
 
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
-msgstr "주의: 이러한 방식은 총 네트워크 트래픽을 증가시키므로, 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다. 또한 네트워크 속도와 배터리 사용에 부정적인 영향을 미칠 수 있습니다."
+msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
+msgstr "주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "주의: 이 설정은 \"사용자 지정 DNS 서버 사용\"과 함께 사용할 수 없습니다."
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "자동 연결 및 잠금 모드"
-
-msgid "Auto-connect (legacy)"
-msgstr "자동 연결(레거시)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "자동 연결은 Android 시스템 설정에서 상시 접속 VPN이라고 하며 VPN 터널에 지속적으로 연결되고 다시 시작한 후 자동 연결되게 해줍니다."
@@ -2345,8 +2365,8 @@ msgstr "장치 시작 시 자동으로 연결됩니다. 앱에 VPN 권한이 부
 msgid "Blocking internet (device offline)"
 msgstr "인터넷 차단(장치 오프라인)"
 
-msgid "Changelog"
-msgstr "변경 로그"
+msgid "Blocking..."
+msgstr "차단 중..."
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS 관련 설정에 대한 변경 사항은 캐시된 결과로 인해 즉시 적용되지 않을 수도 있습니다."
@@ -2531,6 +2551,9 @@ msgstr "이름이 %s(으)로 변경되었습니다"
 msgid "New list"
 msgstr "새 목록"
 
+msgid "No changelog was added for this version"
+msgstr "이 버전에 추가된 변경 로그 없음"
+
 msgid "No custom lists available"
 msgstr "이용 가능한 사용자 지정 목록 없음"
 
@@ -2545,9 +2568,6 @@ msgstr "\"%s\" 검색 결과가 없습니다. 다른 검색어를 시도하세�
 
 msgid "Not found"
 msgstr "찾을 수 없음"
-
-msgid "Open %s settings"
-msgstr "%s 설정 열기"
 
 msgid "Overrides active"
 msgstr "재정의 활성화"
@@ -2582,9 +2602,6 @@ msgstr "개인 정보 보호"
 msgid "Privacy policy"
 msgstr "개인정보 보호정책"
 
-msgid "Reconnecting..."
-msgstr "다시 연결 중..."
-
 msgid "Recursion limit"
 msgstr "반복 제한"
 
@@ -2611,9 +2628,6 @@ msgstr "기본값으로 재설정"
 
 msgid "Search"
 msgstr "검색"
-
-msgid "Search results"
-msgstr "검색 결과"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %d ~ %d"
@@ -2662,9 +2676,6 @@ msgstr "VPN 설정에서 \"로컬 네트워크 공유\"를 활성화하지 않�
 
 msgid "This address has already been entered."
 msgstr "이 주소는 이미 입력되었습니다."
-
-msgid "This feature isn’t available on all servers. You might need to change location after enabling."
-msgstr "이 기능은 일부 서버에서 이용 가능하지 않습니다. 활성화 후 위치를 변경해야 할 수도 있습니다."
 
 msgid "This field is required"
 msgstr "이 필드는 필수입니다"
@@ -2796,24 +2807,4 @@ msgstr[0] "계정 크레딧이 %d일 후에 만료됩니다."
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "계정 크레딧이 %d시간 후에 만료됩니다."
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d일 전"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d분 전"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d개월 전"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d년 전"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d시간 전"
 

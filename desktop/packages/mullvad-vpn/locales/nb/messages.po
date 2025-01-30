@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Norwegian Bokmal\n"
 "Language: nb_NO\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d til …"
@@ -162,11 +162,12 @@ msgstr "Endre"
 msgid "Enable"
 msgstr "Aktiver"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "Aktiver «%(directOnly)s»"
-
 msgid "Enable anyway"
 msgstr "Aktiver uansett"
+
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
+msgstr "Aktiver kun direkte"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "KUNNE IKKE OPPRETTE SIKKER TILKOBLING"
@@ -177,7 +178,6 @@ msgstr "Filter"
 msgid "Go to System Settings"
 msgstr "Gå til Systeminnstillinger"
 
-#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Forstått!"
 
@@ -270,8 +270,6 @@ msgstr "TCP"
 msgid "Test"
 msgstr "Test"
 
-#. Warning shown in dialog to users when they enable setting that increases
-#. network latency (decreases performance).
 msgid "This setting increases latency. Use only if needed."
 msgstr "Denne innstillingen øker ventetiden. Bruk kun ved behov."
 
@@ -351,6 +349,10 @@ msgstr "Logg inn"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "Mer informasjon"
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
+msgstr "Ny versjon installert. Klikk her for å se endringsloggen"
 
 msgctxt "accessibility"
 msgid "Opens externally"
@@ -588,6 +590,22 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "Med «Mullvad-broer»-metoden kan appen kommunisere med en Mullvad API-server via en Mullvad-broserver. Den gjør det ved å sende trafikken i tilslørt tilstand ved å bruke Shadowsocks."
 
+msgctxt "app-info-view"
+msgid "App info"
+msgstr "Appinfo"
+
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "Appen er ikke synkronisert. Avslutt og start på nytt."
+
+msgctxt "app-info-view"
+msgid "App version"
+msgstr "Appversjon"
+
+msgctxt "app-info-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "Oppdatering tilgjengelig. Installer den siste appversjonen for å holde deg oppdatert."
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "Blokkerer internett: tidsavbrudd for konto"
@@ -605,8 +623,16 @@ msgid "You are logged in with an invalid account number. Please log out and try 
 msgstr "Du er logget inn med et ugyldig kontonummer. Logg ut og prøv et annet."
 
 msgctxt "changelog"
-msgid "Changes in this version:"
-msgstr "Endringer i denne versjonen:"
+msgid "See full changelog"
+msgstr "Se komplett endringslogg"
+
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "Ingen oppdateringer eller endringer er gjort i denne versjonen for denne plattformen."
+
+msgctxt "changelog-view"
+msgid "What’s new"
+msgstr "Nytt"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -894,6 +920,10 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "INTERNETT ER BLOKKERT"
 
+msgctxt "in-app-notifications"
+msgid "Click here to see what’s new."
+msgstr "Klikk her for å se hva som er nytt."
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -906,6 +936,10 @@ msgstr "NETTVERKSTRAFIKKEN KAN LEKKE"
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
 msgstr "NY ENHET OPPRETTET"
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
+msgstr "NY VERSJON INSTALLERT"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
@@ -1253,10 +1287,6 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Bromodus"
 
-msgctxt "openvpn-settings-view"
-msgid "Enable bridge mode?"
-msgstr "Aktivere bromodus?"
-
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1424,16 +1454,16 @@ msgid "Filtered:"
 msgstr "Filtrert:"
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr "Gå til innstillinger for %(daita)s"
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "Listenavnene må være unike."
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "Navn allerede i bruk."
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
+msgstr "Åpne innstillinger for %(daita)s"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -1532,12 +1562,8 @@ msgid "API access"
 msgstr "API-tilgang"
 
 msgctxt "settings-view"
-msgid "App is out of sync. Please quit and restart."
-msgstr "Appen er ikke synkronisert. Avslutt og start på nytt."
-
-msgctxt "settings-view"
-msgid "App version"
-msgstr "Appversjon"
+msgid "App info"
+msgstr "Appinfo"
 
 msgctxt "settings-view"
 msgid "Multihop"
@@ -1546,10 +1572,6 @@ msgstr "Multihopp"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "Kundestøtte"
-
-msgctxt "settings-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "Oppdatering tilgjengelig. Installer den siste appversjonen for å holde deg oppdatert."
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1560,6 +1582,10 @@ msgstr "Innstillinger for brukergrensesnitt"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN-innstillinger"
+
+msgctxt "settings-view"
+msgid "What’s new"
+msgstr "Nytt"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1757,6 +1783,10 @@ msgstr "Tilkoblet. %(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Kobler til. %(location)s"
+
+msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr "Deaktiver Split Tunneling"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
@@ -2015,13 +2045,6 @@ msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "DNS-serveren som du vil legge til, er en privat IP. Du må forsikre deg om at nettverksgrensesnittene er konfigurert til å kunne bruke den."
 
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "DNS-serveren du vil legge til er offentlig og fungerer bare med %(wireguard)s. For å sikre at den alltid fungerer, se %(wireguard)s «%(tunnelProtocol)s» (i avanserte innstillinger)."
-
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "Denne innebygde funksjonen forhindrer lekkasje av trafikk utenfor VPN-tunnelen hvis nettverket plutslig slutter å fungere eller tunnelen feiler. Den blokkerer trafikken til tilkoblingen er gjenopprettet."
@@ -2240,6 +2263,9 @@ msgstr "%s (utgang)"
 msgid "%s (added)"
 msgstr "%s (lagt til)"
 
+msgid "%s (removed)"
+msgstr "%s (fjernet)"
+
 msgid "%s custom port"
 msgstr "tilpasset %s-port"
 
@@ -2315,9 +2341,6 @@ msgstr "VPN som alltid er på, er tilordnet %s"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN som alltid er på, er tilordnet en annen VPN"
 
-msgid "App info"
-msgstr "Appinfo"
-
 msgid "At least one method needs to be enabled"
 msgstr "Minst én metode må være aktivert"
 
@@ -2330,17 +2353,14 @@ msgstr "OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Merk: Hvis «Blokker tilkoblinger uten VPN» er aktivert, har ikke splittede apper internettilgang. Ha i bakhodet at «split tunneling» er en personvernrisiko."
 
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
-msgstr "Merk: Siden dette øker den totale nettverkstrafikken, bør du være forsiktig hvis du har et abonnement med begrenset data. Det kan også negativt påvirke nettverkshastigheten og batteribruken."
+msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
+msgstr "Merk: Shadowsocks kan øke batteriforbruket avhengig av databruk, for eksempel ved strømming av video."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "OBS: Denne innstillingen kan ikke brukes sammen med «Bruk egendefinert DNS-server»."
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "Automatisk tilkobling og låsemodus"
-
-msgid "Auto-connect (legacy)"
-msgstr "Automatisk tilkobling (eldre)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Automatisk tilkobling heter «Alltid-på-VPN» i Androids systeminnstillinger og sørger for at du alltid er tilkoblet VPN-tunnelen og automatisk tilkobling etter omstart."
@@ -2351,8 +2371,8 @@ msgstr "Koble til automatisk ved oppstart av enheten. Fungerer bare hvis appen h
 msgid "Blocking internet (device offline)"
 msgstr "Blokkerer internett (enhet frakoblet)"
 
-msgid "Changelog"
-msgstr "Changelog"
+msgid "Blocking..."
+msgstr "Blokkerer …"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "Endringer til DNS-relaterte innstillinger vil kanskje ikke tre i kraft umiddelbart på grunn av bufrede resultater."
@@ -2537,6 +2557,9 @@ msgstr "Navn ble endret til %s"
 msgid "New list"
 msgstr "Ny liste"
 
+msgid "No changelog was added for this version"
+msgstr "Det ble ikke lagt til noen endringslogg for denne versjonen"
+
 msgid "No custom lists available"
 msgstr "Ingen tilgjengelige egendefinerte lister"
 
@@ -2551,9 +2574,6 @@ msgstr "Ingen resultater for «%s». Prøv et annet søk"
 
 msgid "Not found"
 msgstr "Ikke funnet"
-
-msgid "Open %s settings"
-msgstr "Åpne innstillinger for %s"
 
 msgid "Overrides active"
 msgstr "Overstyringer aktive"
@@ -2588,9 +2608,6 @@ msgstr "Personvern"
 msgid "Privacy policy"
 msgstr "Retningslinjer for personvern"
 
-msgid "Reconnecting..."
-msgstr "Kobler til på nytt ..."
-
 msgid "Recursion limit"
 msgstr "Rekursjonsgrense"
 
@@ -2617,9 +2634,6 @@ msgstr "Tilbakestill til standard"
 
 msgid "Search"
 msgstr "Søk"
-
-msgid "Search results"
-msgstr "Søkeresultater"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Angi WireGuard MTU-verdi. Verdiområde: %d–%d."
@@ -2668,9 +2682,6 @@ msgstr "Den lokale DNS-serveren fungerer ikke med mindre du aktiverer «Deling a
 
 msgid "This address has already been entered."
 msgstr "Denne adressen er allerede skrevet inn."
-
-msgid "This feature isn’t available on all servers. You might need to change location after enabling."
-msgstr "Denne funksjonen er ikke tilgjengelig på alle servere. Det kan hende du må endre plassering etter aktivering."
 
 msgid "This field is required"
 msgstr "Feltet er påkrevd"
@@ -2807,29 +2818,4 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Kontokreditt utløper om én time"
 msgstr[1] "Kontokreditt utløper om %d timer"
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "én dag siden"
-msgstr[1] "%d dager siden"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "ett minutt siden"
-msgstr[1] "%d minutter siden"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "én måned siden"
-msgstr[1] "%d måneder siden"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "ett år siden"
-msgstr[1] "%d år siden"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "én time siden"
-msgstr[1] "%d timer siden"
 

@@ -33,7 +33,7 @@
     <string name="api_reachable_adding_method">API နှင့် ချိတ်၍ရသည်၊ နည်းလမ်း ထည့်နေဆဲ…</string>
     <string name="api_unreachable">API ဝင်ရောက် သုံးစွဲ၍ မရနိုင်ပါ</string>
     <string name="api_unreachable_save_anyway">API နှင့် ချိတ်၍မရပါ၊ မည်သို့ပင်ဖြစ်စေ နည်းလမ်းကို သိမ်းမလား။</string>
-    <string name="app_info">အက်ပ် အချက်အလက်</string>
+    <string name="app_info">အက်ပ်အချက်အလက်</string>
     <string name="apply">သုံးရန်</string>
     <string name="at_least_on_method_needs_to_enabled">အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်</string>
     <string name="auth_failed">အကောင့်ကို စစ်မှန်ကြောင်း အတည်ပြု၍ မရနိုင်ပါ။ ပြဿနာ ရီပို့တ်တစ်ခု ပေးပို့ပေးပါ။</string>
@@ -56,10 +56,13 @@
     <string name="block_social_media_title">လူမှုမီဒီယာ</string>
     <string name="block_trackers_title">ခြေရာခံများ</string>
     <string name="blocked_connection">ပိတ်ဆို့ထားသည့် ချိတ်ဆက်မှု</string>
+    <string name="blocking">ပိတ်ဆို့နေဆဲ...</string>
     <string name="blocking_internet">အင်တာနက် ပိတ်ဆို့နေပါသည်</string>
     <string name="blocking_internet_device_offline">အင်တာနက် ပိတ်ဆို့နေဆဲ (စက် အော့ဖ်လိုင်း)</string>
     <string name="buy_credit">ခရက်ဒစ် ဝယ်ရန်</string>
     <string name="cancel">မလုပ်တော့ပါ</string>
+    <string name="changelog_empty">ဤဗားရှင်းအတွက် မည်သည့်အပြောင်းအလဲမှတ်တမ်းကိုမျှ မထည့်ထားပါ</string>
+    <string name="changelog_title">အသစ်ထူးသော အကြောင်းအရာ</string>
     <string name="cipher">ဝှက်စာ</string>
     <string name="clear_input">ထည့်သွင်းမှုကို ရှင်းရန်</string>
     <string name="close">ပိတ်ရန်</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">%1$s အတွက် အဝင်ဆာဗာအား လက်ရှိအချိန်၌ %2$s ဖြင့် ထပ်မံထည့်သွင်း ရေးမှတ်ထားသည်။ အဝင်ဆာဗာကို ရွေးချယ်ရန်အတွက် “%3$s” ကို ဦးစွာ ဖွင့်ပါ သို့မဟုတ် ဆက်တင်များထဲရှိ \"%4$s\" ကို ပိတ်ပါ။</string>
     <string name="name">အမည်</string>
     <string name="name_was_changed_to">အမည်ကို %1$s သို့ ပြောင်းလိုက်ပါသည်</string>
+    <string name="new_changelog_notification_message">အသစ်ထူးသော အကြောင်းအရာကို ကြည့်ရန် ဤနေရာကို နှိပ်ပါ</string>
+    <string name="new_changelog_notification_title">ဗားရှင်းအသစ်ကို ထည့်သွင်းထားသည်</string>
     <string name="new_device_notification_message">ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက်ကို &lt;b&gt;%1$s&lt;/b&gt; ဟု ခေါ်ဆိုပါမည်။ နောက်ထပ်အသေးစိတ်တို့အတွက် အကောင့်တွင် အချက်အလက် ခလုတ်ကို နှိပ်၍ ကြည့်နိုင်သည်။</string>
     <string name="new_device_notification_title">စက်အသစ် ဖန်တီးထားသည်</string>
     <string name="new_list">စာရင်းသစ်</string>
@@ -248,6 +253,7 @@
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
     <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ဤသည်ကို သုံးနိုင်ပါသည်။</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">သတိပြုရန်- Shadowsocks သည် ဗီဒီယိုတစ်ခုကို တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းကဲ့သို့ ဒေတာသုံးစွဲမှုပေါ် မူတည်၍ ဘက်ထရီသုံးစွဲမှု တိုးလာနိုင်ပါသည်။</string>
     <string name="obfuscation_title">WireGuard Obfuscation\\n</string>
     <string name="off">ပိတ်</string>
     <string name="on">ဖွင့်</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">ဘောက်ချာဖြင့် လဲယူရန်</string>
     <string name="remove_button">ဖယ်ရှားရန်</string>
     <string name="remove_location_from_list">%1$s ကို %2$s မှ ဖယ်ရှားရန်</string>
+    <string name="removed_provider">%1$s (ဖယ်ရှားထား)</string>
     <string name="rented">အငှား</string>
     <string name="rented_only">အငှားသီးသန့်</string>
     <string name="report_a_problem">ပြဿနာ ရီပို့တ်လုပ်ရန်</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">\"%1$s\" အတွက် ရလဒ်မရှိပါ၊ အခြားရှာဖွေမှုတစ်ခုကို စမ်းလုပ်ကြည့်ပါ</string>
     <string name="search_placeholder">ရှာရန်...</string>
     <string name="search_query_empty">စတင်ရှာဖွေရန် အနည်းဆုံး အက္ခရာ 2 လုံး ရိုက်ထည့်ပါ။</string>
+    <string name="see_full_changelog">ပြောင်းလဲမှုမှတ်တမ်း အပြည့်အစုံကို ကြည့်ရန်</string>
     <string name="select_location">တည်နေရာ ရွေးရန်</string>
     <string name="send">ပို့ရန်</string>
     <string name="send_anyway">မည်သို့ပင်ဖြစ်စေ ပို့ရန်</string>

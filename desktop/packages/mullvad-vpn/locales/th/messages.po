@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -156,11 +156,12 @@ msgstr "แก้ไข"
 msgid "Enable"
 msgstr "เปิดใช้งาน"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "เปิดใช้งาน \"%(directOnly)s\""
-
 msgid "Enable anyway"
 msgstr "เปิดใช้งานต่อไป"
+
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
+msgstr "เปิดใช้งานโดยตรงเท่านั้น"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "ไม่สามารถเชื่อมต่ออย่างปลอดภัยได้"
@@ -171,7 +172,6 @@ msgstr "ตัวกรอง"
 msgid "Go to System Settings"
 msgstr "ไปที่การตั้งค่าระบบ"
 
-#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "รับทราบ!"
 
@@ -264,8 +264,6 @@ msgstr "TCP"
 msgid "Test"
 msgstr "ทดสอบ"
 
-#. Warning shown in dialog to users when they enable setting that increases
-#. network latency (decreases performance).
 msgid "This setting increases latency. Use only if needed."
 msgstr "การตั้งค่านี้จะเพิ่มความหน่วงแฝง ใช้เมื่อจำเป็นเท่านั้น"
 
@@ -345,6 +343,10 @@ msgstr "เข้าสู่ระบบ"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "ข้อมูลเพิ่มเติม"
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
+msgstr "ติดตั้งเวอร์ชันใหม่แล้ว คลิกที่นี่ เพื่อดูบันทึกการเปลี่ยนแปลง"
 
 msgctxt "accessibility"
 msgid "Opens externally"
@@ -582,6 +584,22 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "การใช้วิธี \"Mullvad bridges\" จะทำให้แอปสื่อสารกับเซิร์ฟเวอร์ Mullvad API ผ่านเซิร์ฟเวอร์ Mullvad bridge โดยการรับส่งข้อมูลที่ Shadowsocks ทำให้ข้อมูลยุ่งเหยิง"
 
+msgctxt "app-info-view"
+msgid "App info"
+msgstr "ข้อมูลแอป"
+
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "แอปไม่ได้รับการซิงค์ โปรดออกและเปิดแอปใหม่"
+
+msgctxt "app-info-view"
+msgid "App version"
+msgstr "เวอร์ชันแอป"
+
+msgctxt "app-info-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "มีอัปเดตพร้อมใช้งาน ติดตั้งแอปเวอร์ชันล่าสุด เพื่อรับข้อมูลการอัปเดตล่าสุด"
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "บล็อกอินเทอร์เน็ต: บัญชีหมดเวลา"
@@ -599,8 +617,16 @@ msgid "You are logged in with an invalid account number. Please log out and try 
 msgstr "คุณกำลังเข้าสู่ระบบโดยใช้หมายเลขบัญชีที่ไม่ถูกต้อง โปรดออกจากระบบแล้วลองใช้บัญชีอื่น"
 
 msgctxt "changelog"
-msgid "Changes in this version:"
-msgstr "การเปลี่ยนแปลงในเวอร์ชันนี้:"
+msgid "See full changelog"
+msgstr "ดูบันทึกการเปลี่ยนแปลงทั้งหมด"
+
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "ไม่มีอัปเดตหรือการเปลี่ยนแปลงในรุ่นนี้สำหรับแพลตฟอร์มนี้"
+
+msgctxt "changelog-view"
+msgid "What’s new"
+msgstr "มีอะไรใหม่"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -888,6 +914,10 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "กำลังบล็อกอินเทอร์เน็ต"
 
+msgctxt "in-app-notifications"
+msgid "Click here to see what’s new."
+msgstr "คลิกที่นี่ เพื่อดูว่ามีอะไรใหม่"
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -900,6 +930,10 @@ msgstr "การรับส่งข้อมูลทางเครือข
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
 msgstr "สร้างอุปกรณ์ใหม่แล้ว"
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
+msgstr "ติดตั้งเวอร์ชันใหม่แล้ว"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
@@ -1247,10 +1281,6 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "โหมดบริดจ์"
 
-msgctxt "openvpn-settings-view"
-msgid "Enable bridge mode?"
-msgstr "เปิดใช้โหมด Bridge หรือไม่"
-
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1418,16 +1448,16 @@ msgid "Filtered:"
 msgstr "กรอง:"
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr "ไปที่การตั้งค่า %(daita)s"
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "ชื่อรายการจะต้องไม่ซ้ำกัน"
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "ชื่อนี้ถูกใช้ไปแล้ว"
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
+msgstr "เปิดการตั้งค่า %(daita)s"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -1526,12 +1556,8 @@ msgid "API access"
 msgstr "การเข้าถึง API"
 
 msgctxt "settings-view"
-msgid "App is out of sync. Please quit and restart."
-msgstr "แอปไม่ได้รับการซิงค์ โปรดออกและเปิดแอปใหม่"
-
-msgctxt "settings-view"
-msgid "App version"
-msgstr "เวอร์ชันแอป"
+msgid "App info"
+msgstr "ข้อมูลแอป"
 
 msgctxt "settings-view"
 msgid "Multihop"
@@ -1540,10 +1566,6 @@ msgstr "มัลติฮอป"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "การสนับสนุน"
-
-msgctxt "settings-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "มีอัปเดตพร้อมใช้งาน ติดตั้งแอปเวอร์ชันล่าสุด เพื่อรับข้อมูลการอัปเดตล่าสุด"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1554,6 +1576,10 @@ msgstr "การตั้งค่าอินเทอร์เฟซผู้
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "การตั้งค่า VPN"
+
+msgctxt "settings-view"
+msgid "What’s new"
+msgstr "มีอะไรใหม่"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1751,6 +1777,10 @@ msgstr "เชื่อมต่อแล้ว %(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "กำลังเชื่อมต่อ %(location)s"
+
+msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr "ปิดใช้งานการแยกอุโมงค์"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
@@ -2009,13 +2039,6 @@ msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "เซิร์ฟเวอร์ DNS ที่คุณต้องการเพิ่มเป็น IP ส่วนตัว คุณต้องตรวจสอบให้แน่ใจว่า อินเทอร์เฟซเครือข่ายของคุณ ได้รับการกำหนดค่าให้ใช้เซิร์ฟเวอร์นี้"
 
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "เซิร์ฟเวอร์ DNS ที่คุณต้องการเพิ่มเป็นแบบสาธารณะ และจะใช้งานกับ %(wireguard)s ได้เท่านั้น ทั้งนี้เพื่อให้มั่นใจว่าเซิร์ฟเวอร์จะทำงานได้ตลอด โปรดตั้งค่า \"%(tunnelProtocol)s\" (ในการตั้งค่าขั้นสูง) เป็น %(wireguard)s"
-
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "คุณลักษณะในตัวนี้ จะป้องกันไม่ให้การรับส่งข้อมูลของคุณรั่วไหลออกจากอุโมงค์ VPN หากเครือข่ายของคุณหยุดทำงานกะทันหัน หรือหากอุโมงค์ทำงานผิดพลาด โดยคุณลักษณะนี้จะบล็อกการรับส่งข้อมูลของคุณ จนกว่าการเชื่อมต่อจะถูกสร้างขึ้นมาใหม่"
@@ -2234,6 +2257,9 @@ msgstr "%s (ขาออก)"
 msgid "%s (added)"
 msgstr "%s (เพิ่มแล้ว)"
 
+msgid "%s (removed)"
+msgstr "%s (ลบแล้ว)"
+
 msgid "%s custom port"
 msgstr "พอร์ต %s แบบกำหนดเอง"
 
@@ -2309,9 +2335,6 @@ msgstr "VPN เปิดอยู่เสมอ ได้รับการม�
 msgid "Always-on VPN assigned to other VPN"
 msgstr "VPN เปิดอยู่เสมอ ได้รับการมอบหมายไปยัง VPN อื่นแล้ว"
 
-msgid "App info"
-msgstr "ข้อมูลแอป"
-
 msgid "At least one method needs to be enabled"
 msgstr "จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ"
 
@@ -2324,17 +2347,14 @@ msgstr "โปรดทราบ: หากเปิดใช้งาน \"ป�
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "โปรดทราบ: แอปแยกจะไม่มีอินเทอร์เน็ต ในกรณีที่เปิดใช้งาน \"ปิดกั้นการเชื่อมต่อโดยไม่ใช้ VPN\" โปรดทราบว่า การการแยกอุโมงค์จะก่อให้เกิดความเสี่ยงต่อความเป็นส่วนตัว"
 
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
-msgstr "โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลที่มีปริมาณจำกัด เนื่องจากการดำเนินการนี้ จะเพิ่มการรับส่งข้อมูลโดยรวมของคุณขึ้น การดำเนินการนี้ อาจส่งผลเชิงลบต่อความเร็วเครือข่าย และการใช้งานแบตเตอรี่ของคุณได้"
+msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
+msgstr "โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ"
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\""
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "เชื่อมต่ออัตโนมัติและโหมดล็อกดาวน์"
-
-msgid "Auto-connect (legacy)"
-msgstr "เชื่อมต่ออัตโนมัติ (เดิม)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "การเชื่อมต่ออัตโนมัติเรียกว่า Always-on VPN ในการตั้งค่าระบบ Android ซึ่งจะช่วยให้คุณมั่นใจได้ว่า คุณเชื่อมต่อกับช่องทาง VPN อย่างต่อเนื่อง และมีการเชื่อมต่ออัตโนมัติหลังจากรีสตาร์ต"
@@ -2345,8 +2365,8 @@ msgstr "เชื่อมต่อโดยอัตโนมัติเมื
 msgid "Blocking internet (device offline)"
 msgstr "กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)"
 
-msgid "Changelog"
-msgstr "บันทึกการเปลี่ยนแปลง"
+msgid "Blocking..."
+msgstr "กำลังบล็อก..."
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "การเปลี่ยนแปลงการตั้งค่าที่เกี่ยวข้องกับ DNS อาจไม่มีผลทันที เนื่องจากผลลัพธ์ที่แคชไว้"
@@ -2531,6 +2551,9 @@ msgstr "ชื่อถูกเปลี่ยนเป็น %s"
 msgid "New list"
 msgstr "รายการใหม่"
 
+msgid "No changelog was added for this version"
+msgstr "ไม่มีการเพิ่มบันทึกการเปลี่ยนแปลงสำหรับเวอร์ชันนี้"
+
 msgid "No custom lists available"
 msgstr "ไม่มีรายการแบบกำหนดเองที่พร้อมใช้งาน"
 
@@ -2545,9 +2568,6 @@ msgstr "ไม่พบผลลัพธ์สำหรับ \"%s\" โปร�
 
 msgid "Not found"
 msgstr "ไม่พบ"
-
-msgid "Open %s settings"
-msgstr "เปิดการตั้งค่า %s"
 
 msgid "Overrides active"
 msgstr "เปิดใช้โอเวอร์ไรด์อยู่"
@@ -2582,9 +2602,6 @@ msgstr "ความเป็นส่วนตัว"
 msgid "Privacy policy"
 msgstr "นโยบายความเป็นส่วนตัว"
 
-msgid "Reconnecting..."
-msgstr "กำลังเชื่อมต่อใหม่..."
-
 msgid "Recursion limit"
 msgstr "ขีดจำกัดการเรียกซ้ำ"
 
@@ -2611,9 +2628,6 @@ msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
 
 msgid "Search"
 msgstr "ค้นหา"
-
-msgid "Search results"
-msgstr "ผลลัพธ์การค้นหา"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %d - %d"
@@ -2662,9 +2676,6 @@ msgstr "เซิร์ฟเวอร์ DNS ท้องถิ่นจะไ�
 
 msgid "This address has already been entered."
 msgstr "ที่อยู่นี้ได้รับการป้อนไปแล้ว"
-
-msgid "This feature isn’t available on all servers. You might need to change location after enabling."
-msgstr "คุณลักษณะนี้ไม่พร้อมใช้งานบนทุกเซิร์ฟเวอร์ คุณอาจต้องต้องเปลี่ยนตำแหน่งที่ตั้ง หลังจากเปิดใช้งาน"
 
 msgid "This field is required"
 msgstr "จำเป็นต้องกรอกช่องนี้"
@@ -2796,24 +2807,4 @@ msgstr[0] "เครดิตของบัญชีจะหมดอายุ
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "เครดิตของบัญชีจะหมดอายุใน %d ชั่วโมง"
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d วันก่อน"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d นาทีก่อน"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d เดือนก่อน"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d ปีก่อน"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d ชั่วโมงก่อน"
 

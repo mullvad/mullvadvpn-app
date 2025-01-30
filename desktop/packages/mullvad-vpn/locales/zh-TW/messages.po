@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個..."
@@ -156,11 +156,12 @@ msgstr "編輯"
 msgid "Enable"
 msgstr "啟用"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "啟用「%(directOnly)s」"
-
 msgid "Enable anyway"
 msgstr "仍然啟用"
+
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
+msgstr "啟用僅限直接連線"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "保護連線失敗"
@@ -171,7 +172,6 @@ msgstr "篩選"
 msgid "Go to System Settings"
 msgstr "前往「系統設定」"
 
-#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "知道了！"
 
@@ -264,8 +264,6 @@ msgstr "TCP"
 msgid "Test"
 msgstr "測試"
 
-#. Warning shown in dialog to users when they enable setting that increases
-#. network latency (decreases performance).
 msgid "This setting increases latency. Use only if needed."
 msgstr "此設定會助長延遲。請僅在需要時使用。"
 
@@ -345,6 +343,10 @@ msgstr "登入"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "更多資訊"
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
+msgstr "已安裝新版本，按一下此處查看變更日誌"
 
 msgctxt "accessibility"
 msgid "Opens externally"
@@ -582,6 +584,22 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "使用「Mullvad 橋接」方式，則應用程式會透過 Mullvad 橋接伺服器，與 Mullvad API 伺服器進行通訊。應用程式會透過 Shadowsocks 將流量混淆再加以送出，從而實現這種通訊方式。"
 
+msgctxt "app-info-view"
+msgid "App info"
+msgstr "應用程式資訊"
+
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "應用程式未同步。請退出並重新啟動。"
+
+msgctxt "app-info-view"
+msgid "App version"
+msgstr "應用程式版本"
+
+msgctxt "app-info-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "有可用更新。請安裝最新版本的應用程式以維持最新狀態。"
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "正在封鎖網路：帳戶已逾時"
@@ -599,8 +617,16 @@ msgid "You are logged in with an invalid account number. Please log out and try 
 msgstr "您登入時所使用的帳號無效。請登出並嘗試其他帳號。"
 
 msgctxt "changelog"
-msgid "Changes in this version:"
-msgstr "此版本中的變更："
+msgid "See full changelog"
+msgstr "查看完整變更日誌"
+
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "此版本尚無為此平台提供的任何更新或變更。"
+
+msgctxt "changelog-view"
+msgid "What’s new"
+msgstr "最新動態"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -888,6 +914,10 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "封鎖網際網路"
 
+msgctxt "in-app-notifications"
+msgid "Click here to see what’s new."
+msgstr "按一下此處查看最新動態。"
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -900,6 +930,10 @@ msgstr "網路流量可能正在洩漏"
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
 msgstr "已建立新裝置"
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
+msgstr "已安裝新版本"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
@@ -1247,10 +1281,6 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "橋接模式"
 
-msgctxt "openvpn-settings-view"
-msgid "Enable bridge mode?"
-msgstr "要啟用橋接模式嗎？"
-
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1418,16 +1448,16 @@ msgid "Filtered:"
 msgstr "已篩選："
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr "前往 %(daita)s 設定"
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "清單名稱不可重複。"
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "名稱已在別處使用。"
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
+msgstr "開啟 %(daita)s 設定"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -1526,12 +1556,8 @@ msgid "API access"
 msgstr "API 存取"
 
 msgctxt "settings-view"
-msgid "App is out of sync. Please quit and restart."
-msgstr "應用程式未同步。請退出並重新啟動。"
-
-msgctxt "settings-view"
-msgid "App version"
-msgstr "應用程式版本"
+msgid "App info"
+msgstr "應用程式資訊"
 
 msgctxt "settings-view"
 msgid "Multihop"
@@ -1540,10 +1566,6 @@ msgstr "多點跳躍"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "支援"
-
-msgctxt "settings-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "有可用更新。請安裝最新版本的應用程式以維持最新狀態。"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1554,6 +1576,10 @@ msgstr "使用者介面設定"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN 設定"
+
+msgctxt "settings-view"
+msgid "What’s new"
+msgstr "最新動態"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1751,6 +1777,10 @@ msgstr "已連線。%(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "正在連線。%(location)s"
+
+msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr "停用「split tunneling」"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
@@ -2009,13 +2039,6 @@ msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "您要新增的 DNS 伺服器是私人 IP。您的網路介面必須經過設定，才能使用這個 IP。"
 
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "您想要新增的 DNS 伺服器為公共伺服器，僅可以與 %(wireguard)s 搭配使用。為了確保它始終有效，請為 %(wireguard)s 設定「%(tunnelProtocol)s」(在「進階」設定中)。"
-
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "如果您的網路突然停止運作或通道發生故障，此內建功能可避免您的流量洩漏到 VPN 通道之外。這會封鎖您的流量，直到重新建立連線為止。"
@@ -2234,6 +2257,9 @@ msgstr "%s (出口)"
 msgid "%s (added)"
 msgstr "%s (已新增)"
 
+msgid "%s (removed)"
+msgstr "%s (已移除)"
+
 msgid "%s custom port"
 msgstr "%s 自訂連接埠"
 
@@ -2309,9 +2335,6 @@ msgstr "「一律啟用 VPN」已指派給 %s"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "「一律啟用 VPN」已指派給其他 VPN"
 
-msgid "App info"
-msgstr "應用程式資訊"
-
 msgid "At least one method needs to be enabled"
 msgstr "至少需要啟用一種方式"
 
@@ -2324,17 +2347,14 @@ msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，�
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，分割應用程式將無法進行網際網路連線。請謹記，分割通道存在隱私風險。"
 
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
-msgstr "注意：這會增加您的網路總流量。如果您方案中的流量有限，請謹慎使用。這還會對您的網路速度和電池使用情況產生負面影響。"
+msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
+msgstr "注意：Shadowsocks 可能會因資料使用情形 (如播放串流影片) 而增加電力消耗。"
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "注意：此設定不能與「使用自訂 DNS 伺服器」共同使用。"
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "自動連線和鎖定模式"
-
-msgid "Auto-connect (legacy)"
-msgstr "自動連線 (舊)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動連線在 Android 系統設定中稱為「始終啟用 VPN」，此功能可確保您始終與 VPN 通道連線，並且會在重新啟動後自動連線。"
@@ -2345,8 +2365,8 @@ msgstr "裝置啟動時自動連線。僅適用於已為應用程式授予 VPN �
 msgid "Blocking internet (device offline)"
 msgstr "封鎖網際網路 (裝置離線)"
 
-msgid "Changelog"
-msgstr "變更日誌"
+msgid "Blocking..."
+msgstr "正在封鎖…"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "由於快取的結果，對 DNS 相關設定所做的變更可能不會立即生效。"
@@ -2531,6 +2551,9 @@ msgstr "名稱已變更為「%s」"
 msgid "New list"
 msgstr "新清單"
 
+msgid "No changelog was added for this version"
+msgstr "尚未為此版本新增變更日誌"
+
 msgid "No custom lists available"
 msgstr "有可用的自訂清單"
 
@@ -2545,9 +2568,6 @@ msgstr "找不到「%s」的結果，請使改用其他搜尋條件。"
 
 msgid "Not found"
 msgstr "找不到"
-
-msgid "Open %s settings"
-msgstr "開啟 %s 設定"
 
 msgid "Overrides active"
 msgstr "覆寫設定已啟用"
@@ -2582,9 +2602,6 @@ msgstr "隱私權"
 msgid "Privacy policy"
 msgstr "隱私權政策"
 
-msgid "Reconnecting..."
-msgstr "正在重新連線…"
-
 msgid "Recursion limit"
 msgstr "遞迴限制"
 
@@ -2611,9 +2628,6 @@ msgstr "重設為預設值"
 
 msgid "Search"
 msgstr "搜尋"
-
-msgid "Search results"
-msgstr "搜尋結果"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "設定 WireGuard MTU 值。有效範圍：%d - %d。"
@@ -2662,9 +2676,6 @@ msgstr "若要使本機 DNS 伺服器運作，需先在 VPN 設定下啟用「�
 
 msgid "This address has already been entered."
 msgstr "此地址已輸入過。"
-
-msgid "This feature isn’t available on all servers. You might need to change location after enabling."
-msgstr "此功能尚未在所有伺服器上開放。啟用後，您可能需要變更位置。"
 
 msgid "This field is required"
 msgstr "此欄位為必填項"
@@ -2796,24 +2807,4 @@ msgstr[0] "帳戶點數將在 %d 天後到期"
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "帳戶點數將在 %d 小時後到期"
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d 天前"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d 分鐘前"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d 個月前"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d 年前"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d 小時前"
 
