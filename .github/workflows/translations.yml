@@ -32,12 +32,6 @@ jobs:
         shell: bash
         run: npm ci
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          default: true
-
       - name: Verify translations
         shell: bash
         run: scripts/localization verify

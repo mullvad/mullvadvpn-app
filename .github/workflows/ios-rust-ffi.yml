@@ -26,11 +26,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          default: true
+        run: rustup target add ${{ matrix.target }}
 
       - name: Build and test crates
         shell: bash
@@ -58,11 +54,7 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          default: true
+        run: rustup target add ${{ matrix.target }}
 
       - name: Clippy check
         shell: bash
