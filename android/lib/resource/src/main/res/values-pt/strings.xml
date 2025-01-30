@@ -33,7 +33,7 @@
     <string name="api_reachable_adding_method">API alcançável, a adicionar método...</string>
     <string name="api_unreachable">API inalcançável</string>
     <string name="api_unreachable_save_anyway">API inalcançável, guardar o método mesmo assim?</string>
-    <string name="app_info">Informações sobre a aplicação</string>
+    <string name="app_info">Informação sobre a app</string>
     <string name="apply">Aplicar</string>
     <string name="at_least_on_method_needs_to_enabled">É necessário ativar pelo menos um método</string>
     <string name="auth_failed">Não foi possível autenticar a conta. Envie um relatório do problema.</string>
@@ -56,10 +56,13 @@
     <string name="block_social_media_title">Redes sociais</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="blocked_connection">LIGAÇÃO BLOQUEADA</string>
+    <string name="blocking">A bloquear...</string>
     <string name="blocking_internet">A bloquear a Internet</string>
     <string name="blocking_internet_device_offline">Bloqueio de Internet (dispositivo offline)</string>
     <string name="buy_credit">Comprar crédito</string>
     <string name="cancel">Cancelar</string>
+    <string name="changelog_empty">Não foi adicionado nenhum registo de alterações a esta versão</string>
+    <string name="changelog_title">Novidades</string>
     <string name="cipher">Cifra</string>
     <string name="clear_input">Limpar entrada</string>
     <string name="close">Fechar</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">O servidor de entrada para %1$s é atualmente substituído por %2$s. Para selecionar um servidor de entrada, ative primeiro \"%3$s\", ou desative \"%4$s\" nas definições.</string>
     <string name="name">Nome</string>
     <string name="name_was_changed_to">O nome foi alterado para %1$s</string>
+    <string name="new_changelog_notification_message">Clique aqui para ver as novidades.</string>
+    <string name="new_changelog_notification_title">NOVA VERSÃO INSTALADA</string>
     <string name="new_device_notification_message">Bem-vindo, este dispositivo é agora chamado &lt;b&gt;%1$s&lt;/b&gt;. Para mais detalhes consulte o botão de informação na Conta.</string>
     <string name="new_device_notification_title">NOVO DISPOSITIVO CRIADO</string>
     <string name="new_list">Nova lista</string>
@@ -248,10 +253,11 @@
     <string name="not_found">Não encontrada</string>
     <string name="number_of_providers">Fornecedores: %1$d</string>
     <string name="obfuscation_info">A ofuscação oculta o tráfego do WireGuard dentro de outro protocolo. Pode ser utilizado para ajudar a contornar a censura e outros tipos de filtragem, onde uma simples ligação WireGuard seria bloqueada.</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">Atenção: Shadowsocks pode aumentar o consumo da bateria dependendo da utilização de dados, como a transmissão de um vídeo.</string>
     <string name="obfuscation_title">Ofuscação WireGuard</string>
     <string name="off">Desligado</string>
     <string name="on">Ligado</string>
-    <string name="open_feature_settings">Abrir definições %1$s</string>
+    <string name="open_feature_settings">Abrir as definições de %1$s</string>
     <string name="open_url">Abrir URL</string>
     <string name="out_of_time">Sem tempo</string>
     <string name="overrides_cleared">Substituições eliminadas</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">Reclamar voucher</string>
     <string name="remove_button">Remover</string>
     <string name="remove_location_from_list">Remover %1$s de %2$s</string>
+    <string name="removed_provider">%1$s (removido)</string>
     <string name="rented">Alugado</string>
     <string name="rented_only">Apenas alugado</string>
     <string name="report_a_problem">Reportar um problema</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">Nenhum resultado para \"%1$s\", tente uma pesquisa diferente</string>
     <string name="search_placeholder">Pesquisar por...</string>
     <string name="search_query_empty">Digite pelo menos 2 caracteres para iniciar a pesquisa.</string>
+    <string name="see_full_changelog">Ver registo de alterações completo</string>
     <string name="select_location">Selecionar localização</string>
     <string name="send">Enviar</string>
     <string name="send_anyway">Enviar mesmo assim</string>

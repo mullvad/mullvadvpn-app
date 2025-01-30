@@ -56,10 +56,13 @@
     <string name="block_social_media_title">Social media</string>
     <string name="block_trackers_title">Tracker</string>
     <string name="blocked_connection">CONNESSIONE BLOCCATA</string>
+    <string name="blocking">Blocco...</string>
     <string name="blocking_internet">Blocco di Internet</string>
     <string name="blocking_internet_device_offline">Blocco di Internet (dispositivo offline)</string>
     <string name="buy_credit">Acquista credito</string>
     <string name="cancel">Annulla</string>
+    <string name="changelog_empty">Nessun changelog aggiunto per questa versione</string>
+    <string name="changelog_title">Novità</string>
     <string name="cipher">Codice</string>
     <string name="clear_input">Cancella inserimento</string>
     <string name="close">Chiudi</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">Il server di entrata per %1$s è attualmente sovrascritto da %2$s. Per selezionare un server di entrata, prima abilita \"%3$s\" o disabilita \"%4$s\" nelle impostazioni.</string>
     <string name="name">Nome</string>
     <string name="name_was_changed_to">Il nome è stato modificato in %1$s</string>
+    <string name="new_changelog_notification_message">Clicca qui per vedere le novità.</string>
+    <string name="new_changelog_notification_title">NUOVA VERSIONE INSTALLATA</string>
     <string name="new_device_notification_message">Benvenuto, questo dispositivo ora si chiama &lt;b&gt;%1$s&lt;/b&gt;. Per maggiori dettagli, premi il pulsante delle informazioni in Account.</string>
     <string name="new_device_notification_title">NUOVO DISPOSITIVO CREATO</string>
     <string name="new_list">Nuovo elenco</string>
@@ -248,6 +253,7 @@
     <string name="not_found">Non trovato</string>
     <string name="number_of_providers">Fornitori: %1$d</string>
     <string name="obfuscation_info">L\'offuscamento nasconde il traffico WireGuard all\'interno di un altro protocollo. Può essere utilizzato per aggirare la censura e altri tipi di filtraggio, in cui una semplice connessione WireGuard verrebbe bloccata.</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">Attenzione: Shadowsocks può aumentare il consumo della batteria a seconda dell\'utilizzo dei dati, ad esempio durante lo streaming di un video.</string>
     <string name="obfuscation_title">Offuscamento WireGuard</string>
     <string name="off">Off</string>
     <string name="on">On</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">Riscatta voucher</string>
     <string name="remove_button">Rimuovi</string>
     <string name="remove_location_from_list">Rimuovi %1$s da %2$s</string>
+    <string name="removed_provider">%1$s (rimosso)</string>
     <string name="rented">Noleggiato</string>
     <string name="rented_only">Solo noleggiati</string>
     <string name="report_a_problem">Segnala un problema</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">Nessun risultato per \"%1$s\", prova una ricerca diversa</string>
     <string name="search_placeholder">Cerca...</string>
     <string name="search_query_empty">Digita almeno 2 caratteri per iniziare la ricerca.</string>
+    <string name="see_full_changelog">Vedi changelog completo</string>
     <string name="select_location">Seleziona posizione</string>
     <string name="send">Invia</string>
     <string name="send_anyway">Invia comunque</string>

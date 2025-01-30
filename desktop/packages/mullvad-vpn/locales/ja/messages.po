@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Japanese\n"
 "Language: ja_JP\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 msgid "%(amount)d more..."
 msgstr "その他%(amount)d件..."
@@ -156,11 +156,12 @@ msgstr "編集"
 msgid "Enable"
 msgstr "有効にする"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "\"%(directOnly)s\"を有効化"
-
 msgid "Enable anyway"
 msgstr "それでも有効にする"
+
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
+msgstr "ダイレクトのみ有効化"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "セキュリティ保護接続を確立できませんでした"
@@ -171,7 +172,6 @@ msgstr "絞り込み"
 msgid "Go to System Settings"
 msgstr "システム設定に移動"
 
-#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "了解"
 
@@ -264,8 +264,6 @@ msgstr "TCP"
 msgid "Test"
 msgstr "テスト"
 
-#. Warning shown in dialog to users when they enable setting that increases
-#. network latency (decreases performance).
 msgid "This setting increases latency. Use only if needed."
 msgstr "この設定を有効にすると、遅延が増加します。必要な場合にのみご利用ください。"
 
@@ -345,6 +343,10 @@ msgstr "ログイン"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "詳細情報"
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
+msgstr "新バージョンがインストールされました。ここをクリックすると変更履歴を確認できます"
 
 msgctxt "accessibility"
 msgid "Opens externally"
@@ -582,6 +584,22 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "「Mullvadブリッジ」方法の場合、アプリはMullvadブリッジサーバーを経由してMullvad APIサーバーと通信します。この通信では、Shadowsocksによって難読化されたトラフィックが送信されます。"
 
+msgctxt "app-info-view"
+msgid "App info"
+msgstr "アプリ情報"
+
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "アプリが同期していません。アプリを終了して起動し直してください。"
+
+msgctxt "app-info-view"
+msgid "App version"
+msgstr "アプリのバージョン"
+
+msgctxt "app-info-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "アップデートがあります。最新の状態を維持するにはアプリの最新バージョンをインストールしてください。"
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "インターネットのブロック：アカウントが時間切れです"
@@ -599,8 +617,16 @@ msgid "You are logged in with an invalid account number. Please log out and try 
 msgstr "無効なアカウント番号でログインしています。いったんログアウトして、別のアカウント番号を試してください。"
 
 msgctxt "changelog"
-msgid "Changes in this version:"
-msgstr "このバージョンでの変更内容:"
+msgid "See full changelog"
+msgstr "すべての変更履歴を見る"
+
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "今回のリリースでは、このプラットフォームに対する更新や変更はありません。"
+
+msgctxt "changelog-view"
+msgid "What’s new"
+msgstr "新機能"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -888,6 +914,10 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "インターネットをブロック中"
 
+msgctxt "in-app-notifications"
+msgid "Click here to see what’s new."
+msgstr "新機能を確認するにはここをクリックしてください。"
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -900,6 +930,10 @@ msgstr "ネットワークトラフィックが漏れている可能性があり
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
 msgstr "新しいデバイスが作成されました"
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
+msgstr "新バージョンがインストールされました"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
@@ -1247,10 +1281,6 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "ブリッジモード"
 
-msgctxt "openvpn-settings-view"
-msgid "Enable bridge mode?"
-msgstr "ブリッジモードを有効にしますか？"
-
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1418,16 +1448,16 @@ msgid "Filtered:"
 msgstr "絞り込み結果:"
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr "%(daita)s設定に移動"
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "リスト名は一意である必要があります。"
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "名前はすでに使用されています。"
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
+msgstr "%(daita)s設定を開く"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -1526,12 +1556,8 @@ msgid "API access"
 msgstr "APIアクセス"
 
 msgctxt "settings-view"
-msgid "App is out of sync. Please quit and restart."
-msgstr "アプリが同期していません。いったん終了して、再起動してください。"
-
-msgctxt "settings-view"
-msgid "App version"
-msgstr "アプリのバージョン"
+msgid "App info"
+msgstr "アプリ情報"
 
 msgctxt "settings-view"
 msgid "Multihop"
@@ -1540,10 +1566,6 @@ msgstr "マルチホップ"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "サポート"
-
-msgctxt "settings-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "アップデートできます。アプリの最新バージョンをインストールして、最新の状態を維持してください。"
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1554,6 +1576,10 @@ msgstr "ユーザーインターフェイス設定"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN設定"
+
+msgctxt "settings-view"
+msgid "What’s new"
+msgstr "新機能"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1751,6 +1777,10 @@ msgstr "接続しました。%(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "接続中です。%(location)s"
+
+msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr "スプリットトンネリングを無効化"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
@@ -2009,13 +2039,6 @@ msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "追加するDNSサーバーのIPアドレスは、プライベートIPです。ネットワークインターフェイスがこのアドレスを使用するように構成されていることを確認してください。"
 
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "追加するDNSサーバーは公開されており、%(wireguard)sでのみ動作します。常に動作させるためには、(詳細設定で) \"%(tunnelProtocol)s\" に%(wireguard)sを設定してください。"
-
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "この組み込みの機能は、突然のネットワーク停止やトンネルの障害が発生した場合に接続が再確立されるまでトラフィックをブロックすることで、トラフィックがVPNトンネルの外に漏洩するのを防ぎます。"
@@ -2234,6 +2257,9 @@ msgstr "%s (出口)"
 msgid "%s (added)"
 msgstr "%s (追加済み)"
 
+msgid "%s (removed)"
+msgstr "%s (削除済み)"
+
 msgid "%s custom port"
 msgstr "%sカスタムポート"
 
@@ -2309,9 +2335,6 @@ msgstr "Always-on VPNは%sに割り当てられました"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Always-on VPNは他のVPNに割り当てられました"
 
-msgid "App info"
-msgstr "アプリ情報"
-
 msgid "At least one method needs to be enabled"
 msgstr "方法は少なくとも 1 つは有効化する必要があります"
 
@@ -2324,17 +2347,14 @@ msgstr "注意: [VPN 以外の接続のブロック] が有効の場合、[ロ�
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "注意: [VPNを使用していない接続をブロックする] が有効な場合、スプリット対象のアプリはインターネットを使用できません。スプリットトンネリングにはプライバシーのリスクがあることに常に注意してください。"
 
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
-msgstr "注意: これにより、ネットワークトラフィックの総数が増加します。上限のあるデータプランをご利用の場合にはご注意ください。また、ネットワークの速度とバッテリー使用量にも悪影響を及ぼす可能性があります。"
+msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
+msgstr "注意: Shadowsocksの場合、データ通信の使い方 (動画配信など) によってはバッテリー消費量が増加する可能性があります。"
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "注意: この設定を [カスタムDNSサーバーを使う] と一緒に使用することはできません。"
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "自動接続とロックダウンモード"
-
-msgid "Auto-connect (legacy)"
-msgstr "自動接続 (レガシー)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "自動接続はAndroidシステム設定で「Always-on VPN」と呼ばれており、確実に一貫してVPNトンネルに接続し、再起動の後に自動接続を行う機能です。"
@@ -2345,8 +2365,8 @@ msgstr "デバイスの起動時に自動接続します。これはアプリに
 msgid "Blocking internet (device offline)"
 msgstr "インターネットをブロック中 (デバイスがオフライン)"
 
-msgid "Changelog"
-msgstr "変更履歴"
+msgid "Blocking..."
+msgstr "ブロック中…"
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "結果がキャッシュされているため、DNS関連の設定の変更はすぐには適用されない可能性があります。"
@@ -2531,6 +2551,9 @@ msgstr "名前が %s に変更されました"
 msgid "New list"
 msgstr "新規リスト"
 
+msgid "No changelog was added for this version"
+msgstr "このバージョンに追加された変更履歴はありません。"
+
 msgid "No custom lists available"
 msgstr "利用可能なカスタムリストはありません"
 
@@ -2545,9 +2568,6 @@ msgstr "「%s」の結果はありません。別の検索をお試しくださ�
 
 msgid "Not found"
 msgstr "見つかりませんでした"
-
-msgid "Open %s settings"
-msgstr "%s設定を開く"
 
 msgid "Overrides active"
 msgstr "オーバーライドは有効です"
@@ -2582,9 +2602,6 @@ msgstr "プライバシー"
 msgid "Privacy policy"
 msgstr "プライバシーポリシー"
 
-msgid "Reconnecting..."
-msgstr "再接続中…"
-
 msgid "Recursion limit"
 msgstr "繰り返しの制限"
 
@@ -2611,9 +2628,6 @@ msgstr "デフォルトにリセット"
 
 msgid "Search"
 msgstr "検索"
-
-msgid "Search results"
-msgstr "検索結果"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTUの値を設定します。有効範囲: %d ～ %d"
@@ -2662,9 +2676,6 @@ msgstr "VPN設定で [ローカルネットワーク共有] を有効にしな�
 
 msgid "This address has already been entered."
 msgstr "このアドレスは入力済みです。"
-
-msgid "This feature isn’t available on all servers. You might need to change location after enabling."
-msgstr "この機能はすべてのサーバーでご利用いただけるわけではありません。有効にした後に場所の変更が必要となる可能性があります。"
 
 msgid "This field is required"
 msgstr "このフィールドは必須です"
@@ -2796,24 +2807,4 @@ msgstr[0] "アカウントのクレジットが%d日後に無効になります"
 msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "アカウントのクレジットが%d時間後に無効になります"
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "%d 日前"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "%d 分前"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "%d ヶ月前"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "%d 年前"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "%d時間前"
 

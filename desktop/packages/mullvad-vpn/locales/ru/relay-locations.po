@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -288,6 +288,10 @@ msgstr "Йоханнесбург"
 msgid "Kiev"
 msgstr "Киев"
 
+#. MY KUL
+msgid "Kuala Lumpur"
+msgstr "Куала-Лумпур"
+
 #. UA IEV
 msgid "Kyiv"
 msgstr "Киев"
@@ -332,6 +336,10 @@ msgstr "Люксембург"
 msgid "Madrid"
 msgstr "Мадрид"
 
+#. MY
+msgid "Malaysia"
+msgstr "Малайзия"
+
 #. SE MMA
 msgid "Malmö"
 msgstr "Мальмё"
@@ -339,6 +347,10 @@ msgstr "Мальмё"
 #. GB MNC
 msgid "Manchester"
 msgstr "Манчестер"
+
+#. PH MNL
+msgid "Manila"
+msgstr "Манила"
 
 #. FR MRS
 msgid "Marseille"
@@ -443,6 +455,10 @@ msgstr "Перу"
 #. US PHL
 msgid "Philadelphia, PA"
 msgstr "Филадельфия, PA"
+
+#. PH
+msgid "Philippines"
+msgstr "Филиппины"
 
 #. US PHX
 msgid "Phoenix, AZ"

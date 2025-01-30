@@ -56,10 +56,13 @@
     <string name="block_social_media_title">Sociala medier</string>
     <string name="block_trackers_title">Spårare</string>
     <string name="blocked_connection">ANSLUTNINGEN BLOCKERAD</string>
+    <string name="blocking">Blockerar ...</string>
     <string name="blocking_internet">Blockerar internet</string>
     <string name="blocking_internet_device_offline">Blockerar internet (enheten är offline)</string>
     <string name="buy_credit">Köp kredit</string>
     <string name="cancel">Avbryt</string>
+    <string name="changelog_empty">Ingen ändringslogg har lagts till för versionen</string>
+    <string name="changelog_title">Vad är nytt</string>
     <string name="cipher">Chiffrering</string>
     <string name="clear_input">Rensa inmatning</string>
     <string name="close">Stäng</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">Startservern för %1$s åsidosätts för tillfället av %2$s. Om du vill välja en startserver ska du först aktivera \"%3$s\" eller inaktivera \"%4$s\" i inställningarna.</string>
     <string name="name">Namn</string>
     <string name="name_was_changed_to">Namnet har ändrats till %1$s</string>
+    <string name="new_changelog_notification_message">Klicka här för att se nyheterna.</string>
+    <string name="new_changelog_notification_title">NY VERSION INSTALLERAD</string>
     <string name="new_device_notification_message">Välkommen! Den här enheten heter nu &lt;b&gt;%1$s&lt;/b&gt;. Använd informationsknappen i Konto för mer information.</string>
     <string name="new_device_notification_title">NY ENHET HAR SKAPATS</string>
     <string name="new_list">Ny lista</string>
@@ -248,6 +253,7 @@
     <string name="not_found">Hittades inte</string>
     <string name="number_of_providers">Leverantörer: %1$d</string>
     <string name="obfuscation_info">Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras.</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">Obs! Shadowsocks kan öka batteriförbrukningen beroende på dataanvändningen, som till exempel att strömma en video.</string>
     <string name="obfuscation_title">WireGuard-obfuskering</string>
     <string name="off">Av</string>
     <string name="on">På</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">Lös in kupong</string>
     <string name="remove_button">Ta bort</string>
     <string name="remove_location_from_list">Ta bort %1$s från %2$s</string>
+    <string name="removed_provider">%1$s (har tagits bort)</string>
     <string name="rented">Hyrd</string>
     <string name="rented_only">Endast hyrd</string>
     <string name="report_a_problem">Rapportera ett problem</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">Inga resultat hittades för \"%1$s\", försök med en annan sökning</string>
     <string name="search_placeholder">Sök efter …</string>
     <string name="search_query_empty">Ange minst två tecken för att börja söka.</string>
+    <string name="see_full_changelog">Visa hela ändringsloggen</string>
     <string name="select_location">Välj plats</string>
     <string name="send">Skicka</string>
     <string name="send_anyway">Skicka ändå</string>
