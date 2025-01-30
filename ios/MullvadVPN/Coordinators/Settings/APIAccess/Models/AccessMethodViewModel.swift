@@ -224,7 +224,7 @@ extension AccessMethodViewModel {
                         value: """
                         If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP \
                         when connecting.
-                        The DoH servers are hosted by one of the following providers: Quad9, Cloudflare, or Google.
+                        The DoH servers are hosted by one of the following providers: Quad9 or Cloudflare.
                         """,
                         comment: ""
                     ),
