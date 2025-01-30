@@ -24,22 +24,6 @@ typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
-typedef struct SwiftMullvadApiResponse {
-  uint8_t *body;
-  uintptr_t body_size;
-  uint16_t status_code;
-  uint8_t *error_description;
-  bool success;
-} SwiftMullvadApiResponse;
-
-typedef struct AsyncCookie {
-  void *_0;
-} AsyncCookie;
-
-typedef struct SwiftApiContext {
-  const struct ApiContext *_0;
-} SwiftApiContext;
-
 typedef struct ProxyHandle {
   void *context;
   uint16_t port;
@@ -65,16 +49,25 @@ typedef struct EphemeralPeerParameters {
   struct WgTcpConnectionFunctions funcs;
 } EphemeralPeerParameters;
 
+typedef struct SwiftApiContext {
+  const struct ApiContext *_0;
+} SwiftApiContext;
+
+typedef struct SwiftMullvadApiResponse {
+  uint8_t *body;
+  uintptr_t body_size;
+  uint16_t status_code;
+  uint8_t *error_description;
+  bool success;
+  bool should_retry;
+  uint64_t retry_after;
+} SwiftMullvadApiResponse;
+
+typedef struct CompletionCookie {
+  void *_0;
+} CompletionCookie;
+
 extern const uint16_t CONFIG_SERVICE_PORT;
-
-extern void completion_finish(struct SwiftMullvadApiResponse response,
-                              struct CompletionCookie async_cookie);
-
-struct SwiftApiContext mullvad_api_init_new(const uint8_t *host, const uint8_t *address);
-
-void mullvad_api_get_addresses(struct SwiftApiContext api_context, void *async_cookie);
-
-void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
@@ -199,6 +192,15 @@ int32_t start_shadowsocks_proxy(const uint8_t *forward_address,
  * `start_shadowsocks_proxy`.
  */
 int32_t stop_shadowsocks_proxy(struct ProxyHandle *proxy_config);
+
+struct SwiftApiContext mullvad_api_init_new(const uint8_t *host, const uint8_t *address);
+
+void mullvad_api_get_addresses(struct SwiftApiContext api_context, void *completion_cookie);
+
+extern void completion_finish(struct SwiftMullvadApiResponse response,
+                              struct CompletionCookie completion_cookie);
+
+void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 
 int32_t start_tunnel_obfuscator_proxy(const uint8_t *peer_address,
                                       uintptr_t peer_address_len,
