@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -288,6 +288,10 @@ msgstr "約翰尼斯堡"
 msgid "Kiev"
 msgstr "基輔"
 
+#. MY KUL
+msgid "Kuala Lumpur"
+msgstr "吉隆坡"
+
 #. UA IEV
 msgid "Kyiv"
 msgstr "基輔"
@@ -332,6 +336,10 @@ msgstr "盧森堡"
 msgid "Madrid"
 msgstr "馬德里"
 
+#. MY
+msgid "Malaysia"
+msgstr "馬來西亞"
+
 #. SE MMA
 msgid "Malmö"
 msgstr "馬爾默"
@@ -339,6 +347,10 @@ msgstr "馬爾默"
 #. GB MNC
 msgid "Manchester"
 msgstr "曼徹斯特"
+
+#. PH MNL
+msgid "Manila"
+msgstr "馬尼拉"
 
 #. FR MRS
 msgid "Marseille"
@@ -443,6 +455,10 @@ msgstr "祕魯"
 #. US PHL
 msgid "Philadelphia, PA"
 msgstr "賓夕法尼亞州，費城"
+
+#. PH
+msgid "Philippines"
+msgstr "菲律賓"
 
 #. US PHX
 msgid "Phoenix, AZ"

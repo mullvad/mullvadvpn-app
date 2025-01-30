@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 #. AU ADL
 msgid "Adelaide"
@@ -288,6 +288,10 @@ msgstr "ဂျိုဟန်နက်စ်ဘတ်"
 msgid "Kiev"
 msgstr "ကိယက်ဗ်"
 
+#. MY KUL
+msgid "Kuala Lumpur"
+msgstr "ကွာလာလမ်ပူ"
+
 #. UA IEV
 msgid "Kyiv"
 msgstr "ကိယက်ဗ်"
@@ -332,6 +336,10 @@ msgstr "လူဇင်ဘတ်"
 msgid "Madrid"
 msgstr "မက်ဒရစ်"
 
+#. MY
+msgid "Malaysia"
+msgstr "မလေးရှား"
+
 #. SE MMA
 msgid "Malmö"
 msgstr "မယ်မို"
@@ -339,6 +347,10 @@ msgstr "မယ်မို"
 #. GB MNC
 msgid "Manchester"
 msgstr "မန်ချက်စတာ"
+
+#. PH MNL
+msgid "Manila"
+msgstr "မနီလာ"
 
 #. FR MRS
 msgid "Marseille"
@@ -443,6 +455,10 @@ msgstr "ပီရူး"
 #. US PHL
 msgid "Philadelphia, PA"
 msgstr "ဖီလဒဲလ်ဖီးယား၊ ပန်ဆဲလ်ဗေးနီးယား"
+
+#. PH
+msgid "Philippines"
+msgstr "ဖိလစ်ပိုင်"
 
 #. US PHX
 msgid "Phoenix, AZ"

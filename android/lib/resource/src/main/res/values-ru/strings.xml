@@ -56,10 +56,13 @@
     <string name="block_social_media_title">Социальные сети</string>
     <string name="block_trackers_title">Трекеры</string>
     <string name="blocked_connection">ПОДКЛЮЧЕНИЕ ЗАБЛОКИРОВАНО</string>
+    <string name="blocking">Блокировка...</string>
     <string name="blocking_internet">Блокируется доступ в Интернет</string>
     <string name="blocking_internet_device_offline">Блокируется доступ в Интернет (устройство офлайн)</string>
     <string name="buy_credit">Пополнить баланс</string>
     <string name="cancel">Отмена</string>
+    <string name="changelog_empty">Для этой версии история изменений отсутствует</string>
+    <string name="changelog_title">Что нового</string>
     <string name="cipher">Шифр</string>
     <string name="clear_input">Очистить поле ввода</string>
     <string name="close">Закрыть</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">Сервер входа для функции «%1$s» в настоящее время переопределен функцией %2$s. Чтобы выбрать сервер входа вручную, сначала включите пункт «%3$s» или отключите %4$s в настройках.</string>
     <string name="name">Имя</string>
     <string name="name_was_changed_to">Имя изменено на «%1$s»</string>
+    <string name="new_changelog_notification_message">Нажмите здесь и узнайте, что нового.</string>
+    <string name="new_changelog_notification_title">УСТАНОВЛЕНА НОВАЯ ВЕРСИЯ</string>
     <string name="new_device_notification_message">Добро пожаловать, теперь это устройство называется &lt;b&gt;%1$s&lt;/b&gt;. Для получения более подробной нажмите на кнопку «Информация» в учетной записи.</string>
     <string name="new_device_notification_title">СОЗДАНО НОВОЕ УСТРОЙСТВО</string>
     <string name="new_list">Новый список</string>
@@ -248,6 +253,7 @@
     <string name="not_found">Не найдено</string>
     <string name="number_of_providers">провайдеры: %1$d</string>
     <string name="obfuscation_info">Обфускация скрывает трафик WireGuard внутри другого протокола. Это может использоваться для обхода цензуры и других видов фильтрации, когда обычное соединение WireGuard было бы заблокировано.</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">Внимание! Функция Shadowsocks может увеличивать расход заряда аккумулятора в зависимости от использования трафика (например, при потоковой передаче видео).</string>
     <string name="obfuscation_title">Обфускация WireGuard</string>
     <string name="off">Выключен</string>
     <string name="on">Включен</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">Погасить ваучер</string>
     <string name="remove_button">Удалить</string>
     <string name="remove_location_from_list">Удалить %1$s из списка «%2$s»</string>
+    <string name="removed_provider">%1$s (удалено)</string>
     <string name="rented">Арендованные</string>
     <string name="rented_only">Только арендованные</string>
     <string name="report_a_problem">Сообщение о проблеме</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">По запросу «%1$s» ничего не найдено — попробуйте другой запрос</string>
     <string name="search_placeholder">Поиск...</string>
     <string name="search_query_empty">Чтобы начать поиск, введите не менее двух символов.</string>
+    <string name="see_full_changelog">Полная история изменений</string>
     <string name="select_location">Выбор местоположения</string>
     <string name="send">Отправить</string>
     <string name="send_anyway">Все равно отправить</string>

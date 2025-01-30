@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Turkish\n"
 "Language: tr_TR\n"
-"PO-Revision-Date: 2024-12-20 14:20\n"
+"PO-Revision-Date: 2025-01-30 09:44\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d tane daha..."
@@ -162,11 +162,12 @@ msgstr "Düzenle"
 msgid "Enable"
 msgstr "Etkinleştir"
 
-msgid "Enable \"%(directOnly)s\""
-msgstr "\"%(directOnly)s\" seçeneğini etkinleştir"
-
 msgid "Enable anyway"
 msgstr "Yine de etkinleştir"
+
+#. A toggle that refers to the setting "Direct only".
+msgid "Enable direct only"
+msgstr "\"Yalnızca doğrudan\" seçeneğini etkinleştir"
 
 msgid "FAILED TO SECURE CONNECTION"
 msgstr "GÜVENLİ BAĞLANTI OLUŞTURULAMADI"
@@ -177,7 +178,6 @@ msgstr "Filtrele"
 msgid "Go to System Settings"
 msgstr "Sistem Ayarlarına Git"
 
-#. This is a button which closes a dialog.
 msgid "Got it!"
 msgstr "Anladım!"
 
@@ -270,8 +270,6 @@ msgstr "TCP"
 msgid "Test"
 msgstr "Test et"
 
-#. Warning shown in dialog to users when they enable setting that increases
-#. network latency (decreases performance).
 msgid "This setting increases latency. Use only if needed."
 msgstr "Bu ayar gecikmeyi artırır. Sadece gerekiyorsa kullanın."
 
@@ -351,6 +349,10 @@ msgstr "Oturum Aç"
 msgctxt "accessibility"
 msgid "More information"
 msgstr "Daha fazla bilgi"
+
+msgctxt "accessibility"
+msgid "New version installed, click here to see the changelog"
+msgstr "Yeni sürüm yüklendi, değişiklik günlüğünü görmek için buraya tıklayın"
 
 msgctxt "accessibility"
 msgid "Opens externally"
@@ -588,6 +590,22 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr "Uygulama, \"Mullvad köprüleri\" yöntemiyle Mullvad köprü sunucusu üzerinden Mullvad API sunucusuyla Shadowsocks tarafından gizlenen trafiği göndererek iletişim kurar."
 
+msgctxt "app-info-view"
+msgid "App info"
+msgstr "Uygulama bilgileri"
+
+msgctxt "app-info-view"
+msgid "App is out of sync. Please quit and restart."
+msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlatın."
+
+msgctxt "app-info-view"
+msgid "App version"
+msgstr "Uygulama sürümü"
+
+msgctxt "app-info-view"
+msgid "Update available. Install the latest app version to stay up to date."
+msgstr "Güncelleme mevcut. Güncel kalmak için en son uygulama sürümünü yükleyin."
+
 msgctxt "auth-failure"
 msgid "Blocking internet: account is out of time"
 msgstr "İnternet bağlantısı engelleniyor: hesabın süresi doldu"
@@ -605,8 +623,16 @@ msgid "You are logged in with an invalid account number. Please log out and try 
 msgstr "Geçersiz bir hesap numarası ile giriş yaptınız. Lütfen çıkış yapın ve farklı bir hesap numarası ile tekrar deneyin."
 
 msgctxt "changelog"
-msgid "Changes in this version:"
-msgstr "Bu sürümdeki değişiklikler:"
+msgid "See full changelog"
+msgstr "Değişiklik günlüğünün tamamını göster"
+
+msgctxt "changelog-view"
+msgid "No updates or changes were made in this release for this platform."
+msgstr "Platform için bu sürümde herhangi bir güncelleme ya da değişiklik uygulanmadı."
+
+msgctxt "changelog-view"
+msgid "What’s new"
+msgstr "Yenilikler"
 
 #. The selected location label displayed on the main view, when a user selected a specific host to connect to.
 #. Example: Malmö (se-mma-001)
@@ -894,6 +920,10 @@ msgctxt "in-app-notifications"
 msgid "BLOCKING INTERNET"
 msgstr "İNTERNET ENGELLENİYOR"
 
+msgctxt "in-app-notifications"
+msgid "Click here to see what’s new."
+msgstr "Yenilikleri incelemek için buraya tıklayın."
+
 #. The in-app banner displayed to the user when the app update is available.
 msgctxt "in-app-notifications"
 msgid "Install the latest app version to stay up to date."
@@ -906,6 +936,10 @@ msgstr "AĞ BAĞLANTISI TRAFİĞİNDE SIZINTI OLABİLİR"
 msgctxt "in-app-notifications"
 msgid "NEW DEVICE CREATED"
 msgstr "YENİ CİHAZ OLUŞTURULDU"
+
+msgctxt "in-app-notifications"
+msgid "NEW VERSION INSTALLED"
+msgstr "YENİ SÜRÜM YÜKLENDİ"
 
 msgctxt "in-app-notifications"
 msgid "Please quit and restart the app."
@@ -1253,10 +1287,6 @@ msgctxt "openvpn-settings-view"
 msgid "Bridge mode"
 msgstr "Köprü modu"
 
-msgctxt "openvpn-settings-view"
-msgid "Enable bridge mode?"
-msgstr "Köprü modu etkinleştirilsin mi?"
-
 #. This is used as a description for the bridge mode
 #. setting.
 #. Available placeholders:
@@ -1424,16 +1454,16 @@ msgid "Filtered:"
 msgstr "Filtrelendi:"
 
 msgctxt "select-location-view"
-msgid "Go to %(daita)s settings"
-msgstr "%(daita)s ayarlarına git"
-
-msgctxt "select-location-view"
 msgid "List names must be unique."
 msgstr "Liste adları benzersiz olmalıdır."
 
 msgctxt "select-location-view"
 msgid "Name is already taken."
 msgstr "İsim zaten kullanılıyor."
+
+msgctxt "select-location-view"
+msgid "Open %(daita)s settings"
+msgstr "%(daita)s ayarlarını aç"
 
 msgctxt "select-location-view"
 msgid "Providers: %(numberOfProviders)d"
@@ -1532,12 +1562,8 @@ msgid "API access"
 msgstr "API erişimi"
 
 msgctxt "settings-view"
-msgid "App is out of sync. Please quit and restart."
-msgstr "Uygulama senkronize değil. Lütfen çıkış yapın ve yeniden başlatın."
-
-msgctxt "settings-view"
-msgid "App version"
-msgstr "Uygulama sürümü"
+msgid "App info"
+msgstr "Uygulama bilgileri"
 
 msgctxt "settings-view"
 msgid "Multihop"
@@ -1546,10 +1572,6 @@ msgstr "Çoklu geçiş"
 msgctxt "settings-view"
 msgid "Support"
 msgstr "Destek"
-
-msgctxt "settings-view"
-msgid "Update available. Install the latest app version to stay up to date."
-msgstr "Güncelleme mevcut. Güncel kalmak için en son uygulama sürümünü yükleyin."
 
 #. Navigation button to the 'User interface settings' view
 msgctxt "settings-view"
@@ -1560,6 +1582,10 @@ msgstr "Kullanıcı arayüzü ayarları"
 msgctxt "settings-view"
 msgid "VPN settings"
 msgstr "VPN ayarları"
+
+msgctxt "settings-view"
+msgid "What’s new"
+msgstr "Yenilikler"
 
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
@@ -1757,6 +1783,10 @@ msgstr "Bağlandı. %(location)s"
 msgctxt "tray-icon-tooltip"
 msgid "Connecting. %(location)s"
 msgstr "Bağlanılıyor. %(location)s"
+
+msgctxt "troubleshoot"
+msgid "Disable split tunneling"
+msgstr "Bölünmüş tünellemeyi devre dışı bırak"
 
 msgctxt "troubleshoot"
 msgid "Enable “Full Disk Access” for “Mullvad VPN” in the macOS system settings."
@@ -2015,13 +2045,6 @@ msgctxt "vpn-settings-view"
 msgid "The DNS server you want to add is a private IP. You must ensure that your network interfaces are configured to use it."
 msgstr "Eklemek istediğiniz DNS sunucusu özel bir IP'dir. Ağ arayüzlerinizin bu IP'yi kullanacak şekilde yapılandırıldığından emin olun."
 
-#. Available placeholders:
-#. %(tunnelProtocol)s - the name of the tunnel protocol setting
-#. %(wireguard)s - will be replaced with "WireGuard"
-msgctxt "vpn-settings-view"
-msgid "The DNS server you want to add is public and will only work with %(wireguard)s. To ensure that it always works, set the \"%(tunnelProtocol)s\" (in Advanced settings) to %(wireguard)s."
-msgstr "Eklemek istediğiniz DNS sunucusu herkese açıktır ve yalnızca %(wireguard)s ile çalışır. Her zaman etkin kalması için \"%(tunnelProtocol)s\" seçeneğini (Gelişmiş ayarlardan) %(wireguard)s olarak ayarlayın."
-
 msgctxt "vpn-settings-view"
 msgid "This built-in feature prevents your traffic from leaking outside of the VPN tunnel if your network suddenly stops working or if the tunnel fails, it does this by blocking your traffic until your connection is reestablished."
 msgstr "Bu dahili özellik, ağ bağlantınız aniden kesilirse veya tünelle ilgili bir sorun meydana gelirse ağ trafiğinizin VPN tünelinin dışına sızmasını önler ve bağlantınız yeniden kurulana kadar ağ trafiğinizi engeller."
@@ -2240,6 +2263,9 @@ msgstr "%s (Çıkış)"
 msgid "%s (added)"
 msgstr "%s (eklendi)"
 
+msgid "%s (removed)"
+msgstr "%s (kaldırıldı)"
+
 msgid "%s custom port"
 msgstr "%s özel portu"
 
@@ -2315,9 +2341,6 @@ msgstr "Her zaman açık VPN %s uygulamasına atandı"
 msgid "Always-on VPN assigned to other VPN"
 msgstr "Her zaman açık VPN diğer VPN'e atandı"
 
-msgid "App info"
-msgstr "Uygulama bilgileri"
-
 msgid "At least one method needs to be enabled"
 msgstr "En az bir yöntemin etkinleştirilmesi gerekiyor"
 
@@ -2330,17 +2353,14 @@ msgstr "Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği et
 msgid "Attention: If \"Block connections without VPN\" is enabled, split apps will not have Internet. Always keep in mind that split tunneling is a privacy risk."
 msgstr "Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse, bölünmüş uygulamalarda internet kullanılamayacaktır. Bölünmüş tünellemenin, gizlilik riski taşıdığını her zaman göz önünde bulundurun."
 
-msgid "Attention: Since this increases your total network traffic, be cautious if you have a limited data plan. It can also negatively impact your network speed and battery usage."
-msgstr "Dikkat: Bu özellik, toplam ağ trafiğinizi artıracağından sınırlı bir veri planınız varsa dikkatli olun. Ağ hızınız ve pil kullanımınız da bu durumdan olumsuz etkilenebilir."
+msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
+msgstr "Dikkat: Shadowsocks, video oynatma gibi işlemler için veri kullanımına bağlı olarak pil tüketimini artırabilir."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Dikkat: Bu ayar, \"Özel DNS sunucusu kullan\" seçeneği ile birlikte kullanılamaz."
 
 msgid "Auto-connect & Lockdown mode"
 msgstr "Otomatik bağlantı ve Kilitleme modu"
-
-msgid "Auto-connect (legacy)"
-msgstr "Otomatik bağlan (eski)"
 
 msgid "Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart."
 msgstr "Otomatik bağlantı, Android sistem ayarlarında VPN her zaman açık olarak gösterilir ve VPN tüneline sürekli bağlı olmanızı ve yeniden başlatma sonrası otomatik olarak bağlanmanızı sağlar."
@@ -2351,8 +2371,8 @@ msgstr "Cihaz başlatılırken otomatik olarak bağlanır. Yalnızca uygulamaya 
 msgid "Blocking internet (device offline)"
 msgstr "İnternet bağlantısı engelleniyor (cihaz çevrimdışı)"
 
-msgid "Changelog"
-msgstr "Değişiklik günlüğü"
+msgid "Blocking..."
+msgstr "Engelleniyor..."
 
 msgid "Changes to DNS related settings might not go into effect immediately due to cached results."
 msgstr "DNS ile ilgili ayarlarda yapılan değişiklikler, önbelleğe alınan sonuçlar nedeniyle hemen etkili olmayabilir."
@@ -2537,6 +2557,9 @@ msgstr "Ad, %s olarak değiştirildi"
 msgid "New list"
 msgstr "Yeni liste"
 
+msgid "No changelog was added for this version"
+msgstr "Bu sürüm için değişiklik günlüğü eklenmedi"
+
 msgid "No custom lists available"
 msgstr "Özel listeler mevcut değil"
 
@@ -2551,9 +2574,6 @@ msgstr "\"%s\" için sonuç yok, lütfen farklı bir arama yapın"
 
 msgid "Not found"
 msgstr "Bulunamadı"
-
-msgid "Open %s settings"
-msgstr "%s ayarlarını aç"
 
 msgid "Overrides active"
 msgstr "Geçersiz kılmalar etkin"
@@ -2588,9 +2608,6 @@ msgstr "Gizlilik"
 msgid "Privacy policy"
 msgstr "Gizlilik politikası"
 
-msgid "Reconnecting..."
-msgstr "Yeniden bağlanılıyor..."
-
 msgid "Recursion limit"
 msgstr "Yineleme sınırı"
 
@@ -2617,9 +2634,6 @@ msgstr "Varsayılana sıfırla"
 
 msgid "Search"
 msgstr "Ara"
-
-msgid "Search results"
-msgstr "Arama sonuçları"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU değerini ayarlayın. Geçerli aralık: %d - %d."
@@ -2668,9 +2682,6 @@ msgstr "VPN ayarlarındaki \"Yerel Ağ Paylaşımı\" seçeneğini etkinleştirm
 
 msgid "This address has already been entered."
 msgstr "Bu adres zaten girilmiş."
-
-msgid "This feature isn’t available on all servers. You might need to change location after enabling."
-msgstr "Bu özellik tüm sunucularda mevcut değildir. Etkinleştirdikten sonra konumu değiştirmeniz gerekebilir."
 
 msgid "This field is required"
 msgstr "Bu alan gereklidir"
@@ -2807,29 +2818,4 @@ msgid "Account credit expires in an hour"
 msgid_plural "Account credit expires in %d hours"
 msgstr[0] "Hesap kredisi bir saat içinde sona eriyor"
 msgstr[1] "Hesap kredisi %d saat içinde sona eriyor"
-
-msgid "a day ago"
-msgid_plural "%d days ago"
-msgstr[0] "bir gün önce"
-msgstr[1] "%d gün önce"
-
-msgid "a minute ago"
-msgid_plural "%d minutes ago"
-msgstr[0] "bir dakika önce"
-msgstr[1] "%d dakika önce"
-
-msgid "a month ago"
-msgid_plural "%d months ago"
-msgstr[0] "bir ay önce"
-msgstr[1] "%d ay önce"
-
-msgid "a year ago"
-msgid_plural "%d years ago"
-msgstr[0] "bir yıl önce"
-msgstr[1] "%d yıl önce"
-
-msgid "an hour ago"
-msgid_plural "%d hours ago"
-msgstr[0] "bir saat önce"
-msgstr[1] "%d saat önce"
 

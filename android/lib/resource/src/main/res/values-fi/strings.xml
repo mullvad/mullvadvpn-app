@@ -56,10 +56,13 @@
     <string name="block_social_media_title">Sosiaalinen media</string>
     <string name="block_trackers_title">Seurantapalvelimet</string>
     <string name="blocked_connection">ESTETTY YHTEYS</string>
+    <string name="blocking">Estetään...</string>
     <string name="blocking_internet">Verkkoyhteys estetään</string>
     <string name="blocking_internet_device_offline">Internetyhteys on estetty (laite on offline-tilassa)</string>
     <string name="buy_credit">Osta käyttöaikaa</string>
     <string name="cancel">Peruuta</string>
+    <string name="changelog_empty">Tälle versiolle ei lisätty muutoslokia</string>
+    <string name="changelog_title">Uutta</string>
     <string name="cipher">Salaus</string>
     <string name="clear_input">Tyhjennä syöte</string>
     <string name="close">Sulje</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">%1$s ohittaa tällä hetkellä %2$sin tulopalvelimen. Jos haluat valita tulopalvelimen, ota ensin käyttöön \"%3$s\" tai poista \"%4$s\" käytöstä asetuksista.</string>
     <string name="name">Nimi</string>
     <string name="name_was_changed_to">Nimeksi vaihdettiin \"%1$s\"</string>
+    <string name="new_changelog_notification_message">Katso uudet ominaisuudet napsauttamalla tästä.</string>
+    <string name="new_changelog_notification_title">UUSI VERSIO ASENNETTIIN</string>
     <string name="new_device_notification_message">Tervetuloa! Tämän laitteen nimi on nyt &lt;b&gt;%1$s&lt;/b&gt;. Katso lisätietoja tilin infopainikkeesta.</string>
     <string name="new_device_notification_title">UUSI LAITE LUOTIIN</string>
     <string name="new_list">Uusi luettelo</string>
@@ -248,6 +253,7 @@
     <string name="not_found">Ei löydy</string>
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
     <string name="obfuscation_info">Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi.</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">Huomio: Shadowsocksin käyttö voi kasvattaa akun kulutusta riippuen tiedonsiirtomääristä (esimerkiksi suoratoistettaessa videoita).</string>
     <string name="obfuscation_title">WireGuard-obfuskointi</string>
     <string name="off">Pois</string>
     <string name="on">Päällä</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">Lunasta kuponki</string>
     <string name="remove_button">Poista</string>
     <string name="remove_location_from_list">Poista %1$s kohteesta %2$s</string>
+    <string name="removed_provider">%1$s (poistettu)</string>
     <string name="rented">Vuokrattu</string>
     <string name="rented_only">Vain vuokratut</string>
     <string name="report_a_problem">Raportoi ongelma</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">Haulle \"%1$s\" ei löytynyt tuloksia. Kokeile toista hakua.</string>
     <string name="search_placeholder">Hae...</string>
     <string name="search_query_empty">Aloita haku kirjoittamalla vähintään 2 merkkiä.</string>
+    <string name="see_full_changelog">Avaa koko muutosloki</string>
     <string name="select_location">Valitse sijainti</string>
     <string name="send">Lähetä</string>
     <string name="send_anyway">Lähetä silti</string>

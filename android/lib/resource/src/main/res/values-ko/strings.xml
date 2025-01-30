@@ -56,10 +56,13 @@
     <string name="block_social_media_title">소셜 미디어</string>
     <string name="block_trackers_title">트래커</string>
     <string name="blocked_connection">연결 차단됨</string>
+    <string name="blocking">차단 중...</string>
     <string name="blocking_internet">인터넷 차단</string>
     <string name="blocking_internet_device_offline">인터넷 차단(장치 오프라인)</string>
     <string name="buy_credit">크레딧 구매</string>
     <string name="cancel">취소</string>
+    <string name="changelog_empty">이 버전에 추가된 변경 로그 없음</string>
+    <string name="changelog_title">업데이트 내역</string>
     <string name="cipher">암호</string>
     <string name="clear_input">입력 지우기</string>
     <string name="close">닫기</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">%1$s 진입 서버가 현재 %2$s에 의해 재정의되었습니다. 진입 서버를 선택하려면 먼저 설정에서 \"%3$s\"을 활성화하거나 \"%4$s\"를 비활성화하세요.</string>
     <string name="name">이름</string>
     <string name="name_was_changed_to">이름이 %1$s(으)로 변경되었습니다</string>
+    <string name="new_changelog_notification_message">업데이트 내역을 확인하려면 여기를 클릭하세요.</string>
+    <string name="new_changelog_notification_title">새 버전 설치 완료</string>
     <string name="new_device_notification_message">환영합니다! 이제 이 장치의 이름은 &lt;b&gt;%1$s&lt;/b&gt;입니다. 자세한 내용을 보려면 계정의 정보 버튼을 누르세요.</string>
     <string name="new_device_notification_title">새 장치가 생성됨</string>
     <string name="new_list">새 목록</string>
@@ -248,6 +253,7 @@
     <string name="not_found">찾을 수 없음</string>
     <string name="number_of_providers">제공업체: %1$d</string>
     <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다.</string>
     <string name="obfuscation_title">WireGuard 난독화</string>
     <string name="off">끄기</string>
     <string name="on">켜기</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">바우처 사용</string>
     <string name="remove_button">제거</string>
     <string name="remove_location_from_list">%1$s 제거(%2$s에서)</string>
+    <string name="removed_provider">%1$s(제거됨)</string>
     <string name="rented">대여</string>
     <string name="rented_only">대여만</string>
     <string name="report_a_problem">문제 신고</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">\"%1$s\" 검색 결과가 없습니다. 다른 검색어를 시도하세요</string>
     <string name="search_placeholder">검색...</string>
     <string name="search_query_empty">검색을 시작하려면 2자 이상 입력하세요.</string>
+    <string name="see_full_changelog">전체 변경 로그 확인</string>
     <string name="select_location">위치 선택</string>
     <string name="send">전송</string>
     <string name="send_anyway">그래도 전송</string>
