@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Colors } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
@@ -75,7 +75,7 @@ function DefaultFooter() {
 
   const openSendProblemReport = useCallback(() => {
     hideDialog();
-    push(RoutePath.problemReport, { transition: transitions.show });
+    push(RoutePath.problemReport, { transition: TransitionType.show });
   }, [hideDialog, push]);
 
   return (
