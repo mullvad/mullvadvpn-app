@@ -280,11 +280,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             using: .main
         ) { [self] task in
 
-            let handle = relayCacheTracker.updateRelays { result in
+            nonisolated(unsafe) let handle = relayCacheTracker.updateRelays { result in
                 task.setTaskCompleted(success: result.isSuccess)
             }
 
-            task.expirationHandler = {
+            task.expirationHandler = { @Sendable in
                 handle.cancel()
             }
 
@@ -303,12 +303,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.privateKeyRotation.identifier,
             using: .main
         ) { [self] task in
-            let handle = tunnelManager.rotatePrivateKey { [self] error in
+            nonisolated(unsafe) let handle = tunnelManager.rotatePrivateKey { [self] error in
                 scheduleKeyRotationTask()
                 task.setTaskCompleted(success: error == nil)
             }
 
-            task.expirationHandler = {
+            task.expirationHandler = { @Sendable in
                 handle.cancel()
             }
         }
@@ -325,12 +325,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             forTaskWithIdentifier: BackgroundTask.addressCacheUpdate.identifier,
             using: .main
         ) { [self] task in
-            let handle = addressCacheTracker.updateEndpoints { [self] result in
+            nonisolated(unsafe) let handle = addressCacheTracker.updateEndpoints { [self] result in
                 scheduleAddressCacheUpdateTask()
                 task.setTaskCompleted(success: result.isSuccess)
             }
 
-            task.expirationHandler = {
+            task.expirationHandler = { @Sendable in
                 handle.cancel()
             }
         }
