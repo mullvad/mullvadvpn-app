@@ -24,6 +24,8 @@ typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct RequestCancelHandle RequestCancelHandle;
+
 typedef struct ProxyHandle {
   void *context;
   uint16_t port;
@@ -52,6 +54,10 @@ typedef struct EphemeralPeerParameters {
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
+
+typedef struct SwiftCancelHandle {
+  struct RequestCancelHandle *ptr;
+} SwiftCancelHandle;
 
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
@@ -195,7 +201,12 @@ int32_t stop_shadowsocks_proxy(struct ProxyHandle *proxy_config);
 
 struct SwiftApiContext mullvad_api_init_new(const uint8_t *host, const uint8_t *address);
 
-void mullvad_api_get_addresses(struct SwiftApiContext api_context, void *completion_cookie);
+struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_context,
+                                                   void *completion_cookie);
+
+void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
+
+void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
 
 extern void completion_finish(struct SwiftMullvadApiResponse response,
                               struct CompletionCookie completion_cookie);
