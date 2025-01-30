@@ -1,9 +1,9 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
+import { Icon, IconProps, Image, ImageProps } from '../../lib/components';
 import { Colors, Spacings } from '../../lib/foundations';
 import { buttonText, normalText, tinyText } from '../common-styles';
-import ImageView, { IImageViewProps } from '../ImageView';
 import { CellButton } from './CellButton';
 import { CellDisabledContext } from './Container';
 
@@ -33,21 +33,25 @@ const StyledSubText = styled.span<{ disabled: boolean }>(tinyText, (props) => ({
   margin: `0 ${Spacings.spacing3}`,
 }));
 
-const StyledIconContainer = styled.div<{ disabled: boolean }>((props) => ({
-  opacity: props.disabled ? 0.4 : 1,
+const StyledImage = styled(Image)<ImageProps & { disabled?: boolean }>(({ disabled }) => ({
+  opacity: disabled ? 0.4 : 1,
 }));
 
-const StyledTintedIcon = styled(ImageView).attrs((props: IImageViewProps) => ({
-  tintColor: props.tintColor ?? Colors.white,
-  tintHoverColor: props.tintHoverColor ?? props.tintColor ?? Colors.white60,
-}))((props: IImageViewProps) => ({
-  '&&:hover': {
-    backgroundColor: props.tintHoverColor,
-  },
-  [`${CellButton}:not(:disabled):hover &&`]: {
-    backgroundColor: props.tintHoverColor,
-  },
+const StyledIcon = styled(Icon)<IconProps & { disabled?: boolean }>(({ disabled }) => ({
+  opacity: disabled ? 0.4 : 1,
 }));
+
+const StyledTintedIcon = styled(Icon)<IconProps & { disabled?: boolean }>(
+  ({ color, disabled }) => ({
+    opacity: disabled ? 0.4 : 1,
+    '&&:hover': {
+      backgroundColor: color,
+    },
+    [`${CellButton}:not(:disabled):hover &&`]: {
+      backgroundColor: color,
+    },
+  }),
+);
 
 const StyledSubLabel = styled.div<{ disabled: boolean }>(tinyText, {
   display: 'flex',
@@ -84,22 +88,19 @@ export function SubText(props: React.HTMLAttributes<HTMLDivElement>) {
   return <StyledSubText disabled={disabled} {...props} />;
 }
 
-export function UntintedIcon(props: IImageViewProps) {
+export function CellImage(props: ImageProps) {
   const disabled = useContext(CellDisabledContext);
-  return (
-    <StyledIconContainer disabled={disabled}>
-      <ImageView {...props} />
-    </StyledIconContainer>
-  );
+  return <StyledImage disabled={disabled} {...props} />;
 }
 
-export function Icon(props: IImageViewProps) {
+export function CellIcon(props: IconProps) {
   const disabled = useContext(CellDisabledContext);
-  return (
-    <StyledIconContainer disabled={disabled}>
-      <StyledTintedIcon {...props} />
-    </StyledIconContainer>
-  );
+  return <StyledIcon disabled={disabled} {...props} />;
+}
+
+export function CellTintedIcon(props: IconProps) {
+  const disabled = useContext(CellDisabledContext);
+  return <StyledTintedIcon disabled={disabled} {...props} />;
 }
 
 export function SubLabel(props: React.HTMLAttributes<HTMLDivElement>) {

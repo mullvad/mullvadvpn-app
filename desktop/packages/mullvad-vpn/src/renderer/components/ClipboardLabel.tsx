@@ -4,9 +4,9 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useScheduler } from '../../shared/scheduler';
-import { Colors } from '../lib/foundations';
+import { Flex, Icon, IconButton } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { useBoolean } from '../lib/utility-hooks';
-import ImageView from './ImageView';
 
 const COPIED_ICON_DURATION = 2000;
 
@@ -26,18 +26,6 @@ const StyledLabelContainer = styled.div({
 
 const StyledLabel = styled.span({
   flex: 1,
-});
-
-const StyledButton = styled.button({
-  cursor: 'default',
-  padding: 0,
-  marginLeft: '20px',
-  backgroundColor: 'transparent',
-  border: 'none',
-});
-
-const StyledCopyButton = styled(StyledButton)({
-  width: '24px',
 });
 
 export default function ClipboardLabel(props: IProps) {
@@ -64,42 +52,38 @@ export default function ClipboardLabel(props: IProps) {
       <StyledLabel aria-hidden={obscured} {...otherProps}>
         {obscured ? '●●●● ●●●● ●●●● ●●●●' : (displayValue ?? value)}
       </StyledLabel>
-      {obscureValue !== false && (
-        <StyledButton
-          onClick={toggleObscured}
-          aria-label={
-            obscured
-              ? // This line is here to prevent the following one to be moved up here by prettier
-                // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
-                // TRANSLATORS: the button which unobscures the account number.
-                messages.pgettext('accessibility', 'Show account number')
-              : // This line is here to prevent the following one to be moved up here by prettier
-                // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
-                // TRANSLATORS: the button which obscures the account number.
-                messages.pgettext('accessibility', 'Hide account number')
-          }>
-          <ImageView
-            source={obscured ? 'icon-unobscure' : 'icon-obscure'}
-            tintColor={Colors.white}
-            tintHoverColor={Colors.white80}
-            width={24}
+      <Flex $gap={Spacings.spacing5}>
+        {obscureValue !== false && (
+          <IconButton
+            icon={obscured ? 'show' : 'hide'}
+            onClick={toggleObscured}
+            aria-label={
+              obscured
+                ? // This line is here to prevent the following one to be moved up here by prettier
+                  // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
+                  // TRANSLATORS: the button which unobscures the account number.
+                  messages.pgettext('accessibility', 'Show account number')
+                : // This line is here to prevent the following one to be moved up here by prettier
+                  // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
+                  // TRANSLATORS: the button which obscures the account number.
+                  messages.pgettext('accessibility', 'Hide account number')
+            }
           />
-        </StyledButton>
-      )}
-      <StyledCopyButton
-        onClick={onCopy}
-        aria-label={
-          // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe a button
-          // TRANSLATORS: which copies the account number to the clipboard.
-          messages.pgettext('accessibility', 'Copy account number')
-        }>
-        <ImageView
-          source={justCopied ? 'icon-tick' : 'icon-copy'}
-          tintColor={justCopied ? Colors.green : Colors.white}
-          tintHoverColor={justCopied ? Colors.green : Colors.white80}
-          width={justCopied ? 22 : 24}
-        />
-      </StyledCopyButton>
+        )}
+        {justCopied ? (
+          <Icon icon="checkmark" color={Colors.green}></Icon>
+        ) : (
+          <IconButton
+            icon={'copy'}
+            onClick={onCopy}
+            aria-label={
+              // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe a button
+              // TRANSLATORS: which copies the account number to the clipboard.
+              messages.pgettext('accessibility', 'Copy account number')
+            }
+          />
+        )}
+      </Flex>
     </StyledLabelContainer>
   );
 }
