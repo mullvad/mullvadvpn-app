@@ -2,13 +2,13 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { Image } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
 import { bigText, measurements, smallText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import ImageView from './ImageView';
 import { Container, Footer, Layout } from './Layout';
 
 export const StyledCustomScrollbars = styled(CustomScrollbars)({
@@ -62,7 +62,7 @@ export function DeviceRevokedView() {
         <StyledContainer>
           <StyledBody>
             <StyledStatusIcon>
-              <ImageView source="icon-fail" height={60} width={60} />
+              <Image source="icon-fail" height={60} width={60} />
             </StyledStatusIcon>
             <StyledTitle data-testid="title">
               {messages.pgettext('device-management', 'Device is inactive')}
