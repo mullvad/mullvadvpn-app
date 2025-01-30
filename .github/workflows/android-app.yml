@@ -82,31 +82,6 @@ jobs:
     outputs:
       container_image: ${{ env.inner_container_image }}
 
-  generate-debug-keystore:
-    name: Generate debug keystore
-    needs: prepare
-    runs-on: ubuntu-latest
-    steps:
-      - name: Generate keystore
-        run: >-
-          keytool -genkey
-          -keystore debug.keystore
-          -storepass android
-          -alias androiddebugkey
-          -keypass android
-          -keyalg RSA
-          -keysize 2048
-          -validity 10000
-          -dname "CN=Android Debug,O=Android,C=US"
-
-      - name: Upload keystore
-        uses: actions/upload-artifact@v4
-        with:
-          name: debug-keystore
-          path: debug.keystore
-          if-no-files-found: error
-          retention-days: 7
-
   build-native:
     name: Build native # Used by wait for jobs.
     needs: prepare
@@ -227,7 +202,7 @@ jobs:
 
   build-app:
     name: Build app
-    needs: [prepare, generate-debug-keystore]
+    needs: [prepare]
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.container_image }}
@@ -242,10 +217,10 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-keystore
-          path: /root/.android
+      - name: Prepare dummy debug keystore
+        run: |
+          echo "${{ secrets.ANDROID_DUMMY_DEBUG_KEYSTORE }}" | \
+            base64 -d > /root/.android/debug.keystore
 
       - name: Compile app
         uses: burrunan/gradle-cache-action@v1
@@ -322,7 +297,7 @@ jobs:
 
   build-instrumented-tests:
     name: Build instrumented test packages
-    needs: [prepare, generate-debug-keystore]
+    needs: [prepare]
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare.outputs.container_image }}
@@ -349,10 +324,10 @@ jobs:
         with:
           submodules: true
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: debug-keystore
-          path: /root/.android
+      - name: Prepare dummy debug keystore
+        run: |
+          echo "${{ secrets.ANDROID_DUMMY_DEBUG_KEYSTORE }}" | \
+            base64 -d > /root/.android/debug.keystore
 
       - name: Assemble instrumented test apk
         uses: burrunan/gradle-cache-action@v1
