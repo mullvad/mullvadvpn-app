@@ -58,10 +58,10 @@ export default function Support() {
                   {showSubSettings ? (
                     <>
                       <SettingsGroup>
-                        <UserInterfaceSettingsButton />
                         <DaitaButton />
                         <MultihopButton />
                         <VpnSettingsButton />
+                        <UserInterfaceSettingsButton />
                       </SettingsGroup>
 
                       {showSplitTunneling && (
