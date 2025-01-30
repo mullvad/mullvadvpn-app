@@ -11,7 +11,7 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Flex, Icon } from '../lib/components';
 import { Colors } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
@@ -282,7 +282,7 @@ function useFinishedCallback() {
       accountSetupFinished();
     }
 
-    history.reset(RoutePath.main, { transition: transitions.push });
+    history.reset(RoutePath.main, { transition: TransitionType.push });
   }, [isNewAccount, accountSetupFinished, history]);
 
   return callback;
