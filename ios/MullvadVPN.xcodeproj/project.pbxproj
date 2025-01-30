@@ -4276,14 +4276,14 @@
 		85557B0C2B591B0F00795FE1 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				85607C882D131CCD00037E34 /* TestRouterAPIClient.swift */,
-				8555C65F2D102FFE0092DAD0 /* LeakCheck.swift */,
 				85557B0D2B591B2600795FE1 /* FirewallClient.swift */,
 				85557B0F2B59215F00795FE1 /* FirewallRule.swift */,
+				8555C65F2D102FFE0092DAD0 /* LeakCheck.swift */,
 				85557B132B5983CF00795FE1 /* MullvadAPIWrapper.swift */,
 				85E3BDE42B70E18C00FA71FD /* Networking.swift */,
-				856952DB2BD2922A008C1F84 /* PartnerAPIClient.swift */,
 				85978A532BE0F10E00F999A7 /* PacketCapture.swift */,
+				856952DB2BD2922A008C1F84 /* PartnerAPIClient.swift */,
+				85607C882D131CCD00037E34 /* TestRouterAPIClient.swift */,
 				8590A5432C2AF43400B9BF7B /* TrafficGenerator.swift */,
 			);
 			path = Networking;
