@@ -1,1 +1,1 @@
-ghcr.io/mullvad/mullvadvpn-app-build:124ce3fef
+ghcr.io/kl/mullvadvpn-app-build:set-explicit-toolchain-v2
