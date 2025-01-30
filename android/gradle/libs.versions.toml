@@ -23,7 +23,7 @@ androidx-testrunner = "1.6.2"
 androidx-uiautomator = "2.4.0-alpha01"
 
 # Arrow
-arrow = "2.0.0"
+arrow = "2.0.1"
 
 # Compose
 compose = "1.7.6"
