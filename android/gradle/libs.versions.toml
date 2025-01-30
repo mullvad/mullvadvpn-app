@@ -62,7 +62,7 @@ rust-android-gradle = "0.9.6"
 commonsvalidator = "1.9.0"
 # Upgrading to 12.0.1 results in task failing, DROID-1517
 dependency-check = "10.0.4"
-dependency-versions = "0.51.0"
+dependency-versions = "0.52.0"
 detekt = "1.23.7"
 jodatime = "2.13.0"
 kermit = "2.0.5"
