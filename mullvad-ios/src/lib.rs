@@ -47,6 +47,7 @@ use std::{
     time::Duration,
     u8,
 };
+use tokio::task::JoinHandle;
 
 extern "C" {
     pub fn completion_finish(
@@ -96,6 +97,16 @@ impl SwiftApiContext {
         Arc::increment_strong_count(self.0);
         Arc::from_raw(self.0)
     }
+}
+
+#[repr(C)]
+pub struct SwiftCancelHandle {
+    ptr: *mut RequestCancelHandle,
+}
+
+struct RequestCancelHandle {
+    task: JoinHandle<()>,
+    completion: SwiftCompletionHandler,
 }
 
 #[repr(C)]
