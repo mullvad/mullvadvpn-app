@@ -37,8 +37,8 @@ grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
 # Koin
- koin = "4.0.1"
-koin-compose = "4.0.1"
+koin = "4.0.2"
+koin-compose = "4.0.2"
 
 # Ktor
 ktor = "3.0.3"
