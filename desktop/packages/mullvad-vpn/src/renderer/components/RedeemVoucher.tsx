@@ -206,7 +206,7 @@ export function RedeemVoucherSubmitButton() {
 
 interface IRedeemVoucherAlertProps {
   show: boolean;
-  onClose?: () => void;
+  onClose: () => void;
 }
 
 export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {

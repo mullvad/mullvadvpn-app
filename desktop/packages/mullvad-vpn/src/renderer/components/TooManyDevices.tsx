@@ -21,7 +21,7 @@ import CustomScrollbars from './CustomScrollbars';
 import ImageView from './ImageView';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import List from './List';
-import { ModalAlert, ModalAlertType, ModalContainer, ModalMessage } from './Modal';
+import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
 const StyledCustomScrollbars = styled(CustomScrollbars)({
   flex: 1,
@@ -122,45 +122,43 @@ export default function TooManyDevices() {
   const continueButtonDisabled = devices.length === 5 || loginState.type !== 'too many devices';
 
   return (
-    <ModalContainer>
-      <Layout>
-        <AppMainHeader>
-          <AppMainHeader.SettingsButton />
-        </AppMainHeader>
-        <StyledCustomScrollbars fillContainer>
-          <StyledContainer>
-            <StyledBody>
-              <StyledStatusIcon>
-                <ImageView key={iconSource} source={iconSource} height={60} width={60} />
-              </StyledStatusIcon>
-              {devices !== undefined && (
-                <>
-                  <StyledTitle data-testid="title">{title}</StyledTitle>
-                  <StyledLabel>{subtitle}</StyledLabel>
-                  <DeviceList devices={devices} onRemoveDevice={onRemoveDevice} />
-                </>
-              )}
-            </StyledBody>
-
+    <Layout>
+      <AppMainHeader>
+        <AppMainHeader.SettingsButton />
+      </AppMainHeader>
+      <StyledCustomScrollbars fillContainer>
+        <StyledContainer>
+          <StyledBody>
+            <StyledStatusIcon>
+              <ImageView key={iconSource} source={iconSource} height={60} width={60} />
+            </StyledStatusIcon>
             {devices !== undefined && (
-              <Footer>
-                <AppButton.ButtonGroup>
-                  <AppButton.GreenButton onClick={continueLogin} disabled={continueButtonDisabled}>
-                    {
-                      // TRANSLATORS: Button for continuing login process.
-                      messages.pgettext('device-management', 'Continue with login')
-                    }
-                  </AppButton.GreenButton>
-                  <AppButton.BlueButton onClick={cancel}>
-                    {messages.gettext('Back')}
-                  </AppButton.BlueButton>
-                </AppButton.ButtonGroup>
-              </Footer>
+              <>
+                <StyledTitle data-testid="title">{title}</StyledTitle>
+                <StyledLabel>{subtitle}</StyledLabel>
+                <DeviceList devices={devices} onRemoveDevice={onRemoveDevice} />
+              </>
             )}
-          </StyledContainer>
-        </StyledCustomScrollbars>
-      </Layout>
-    </ModalContainer>
+          </StyledBody>
+
+          {devices !== undefined && (
+            <Footer>
+              <AppButton.ButtonGroup>
+                <AppButton.GreenButton onClick={continueLogin} disabled={continueButtonDisabled}>
+                  {
+                    // TRANSLATORS: Button for continuing login process.
+                    messages.pgettext('device-management', 'Continue with login')
+                  }
+                </AppButton.GreenButton>
+                <AppButton.BlueButton onClick={cancel}>
+                  {messages.gettext('Back')}
+                </AppButton.BlueButton>
+              </AppButton.ButtonGroup>
+            </Footer>
+          )}
+        </StyledContainer>
+      </StyledCustomScrollbars>
+    </Layout>
   );
 }
 
