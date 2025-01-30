@@ -3,12 +3,11 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
-import { IconButton } from '../lib/components';
+import { Icon, IconButton } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
 import { tinyText } from './common-styles';
-import ImageView from './ImageView';
 
 const NOTIFICATION_AREA_ID = 'notification-area';
 
@@ -37,7 +36,7 @@ export const NotificationActionButton = styled(AppButton.SimpleButton)({
   border: 'none',
 });
 
-export const NotificationActionButtonInner = styled(ImageView)({
+export const NotificationActionButtonInner = styled(Icon)({
   [NotificationActionButton + ':hover &&']: {
     backgroundColor: Colors.white80,
   },
@@ -53,12 +52,7 @@ export function NotificationOpenLinkAction(props: NotificationActionProps) {
       <NotificationActionButton
         aria-describedby={NOTIFICATION_AREA_ID}
         aria-label={messages.gettext('Open URL')}>
-        <NotificationActionButtonInner
-          height={12}
-          width={12}
-          tintColor={Colors.white60}
-          source="icon-extLink"
-        />
+        <NotificationActionButtonInner size="small" icon="external" color={Colors.white60} />
       </NotificationActionButton>
     </AppButton.BlockingButton>
   );
@@ -70,12 +64,7 @@ export function NotificationTroubleshootDialogAction(props: NotificationActionPr
       aria-describedby={NOTIFICATION_AREA_ID}
       aria-label={messages.gettext('Troubleshoot')}
       onClick={props.onClick}>
-      <NotificationActionButtonInner
-        height={12}
-        width={12}
-        tintColor={Colors.white60}
-        source="icon-info"
-      />
+      <NotificationActionButtonInner size="small" icon="info-circle" />
     </NotificationActionButton>
   );
 }
@@ -88,6 +77,7 @@ export function NotificationCloseAction(props: NotificationActionProps) {
       onClick={props.onClick}
       icon="cross-circle"
       variant="secondary"
+      size="small"
     />
   );
 }
