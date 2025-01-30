@@ -39,16 +39,51 @@ use mullvad_api::{
     ApiEndpoint, ApiProxy, Runtime,
 };
 use std::{
-    ffi::{CStr, CString}, net::Incoming, ptr::{null, null_mut}, str::FromStr, sync::Arc, time::Duration, u8
+    ffi::{CStr, CString},
+    net::Incoming,
+    ptr::{null, null_mut},
+    str::FromStr,
+    sync::{Arc, Mutex},
+    time::Duration,
+    u8,
 };
 
 extern "C" {
-    pub fn completion_finish(response: SwiftMullvadApiResponse, async_cookie: CompletionCookie);
+    pub fn completion_finish(
+        response: SwiftMullvadApiResponse,
+        completion_cookie: CompletionCookie,
+    );
 }
 
 #[repr(C)]
 pub struct CompletionCookie(*mut std::ffi::c_void);
 unsafe impl Send for CompletionCookie {}
+
+#[derive(Clone)]
+pub struct SwiftCompletionHandler {
+    inner: Arc<Mutex<Option<CompletionCookie>>>,
+}
+
+impl SwiftCompletionHandler {
+    fn new(cookie: CompletionCookie) -> Self {
+        Self {
+            inner: Arc::new(Mutex::new(Some(cookie))),
+        }
+    }
+
+    fn finish(&self, response: SwiftMullvadApiResponse) {
+        let Ok(mut maybe_cookie) = self.inner.lock() else {
+            log::error!("Response handler panicked");
+            return;
+        };
+
+        let Some(cookie) = maybe_cookie.take() else {
+            return;
+        };
+
+        unsafe { completion_finish(response, cookie) };
+    }
+}
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -154,12 +189,12 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_api_get_addresses(
     api_context: SwiftApiContext,
-    async_cookie: *mut std::ffi::c_void,
+    completion_cookie: CompletionCookie,
 ) {
-    let async_cookie = CompletionCookie(async_cookie);
+    let completion_handler = SwiftCompletionHandler::new(completion_cookie);
 
     let Ok(tokio_handle) = mullvad_ios_runtime() else {
-        completion_finish(SwiftMullvadApiResponse::error(), async_cookie);
+        completion_handler.finish(SwiftMullvadApiResponse::error());
         return;
     };
 
@@ -167,10 +202,10 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
 
     tokio_handle.clone().spawn(async move {
         match mullvad_api_get_addresses_inner(api_context.rest_handle()).await {
-            Ok(response) => completion_finish(response, async_cookie),
+            Ok(response) => completion_handler.finish(response),
             Err(err) => {
                 log::error!("{err:?}");
-                completion_finish(SwiftMullvadApiResponse::error(), async_cookie);
+                completion_handler.finish(SwiftMullvadApiResponse::error());
             }
         }
     });
