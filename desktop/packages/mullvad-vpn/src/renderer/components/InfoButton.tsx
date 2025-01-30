@@ -1,28 +1,7 @@
 import { messages } from '../../shared/gettext';
 import { Button, IconButton, IconButtonProps } from '../lib/components';
-import { Colors } from '../lib/foundations';
 import { useBoolean } from '../lib/utility-hooks';
-import ImageView from './ImageView';
 import { ModalAlert, ModalAlertType } from './Modal';
-
-interface IInfoIconProps {
-  className?: string;
-  size?: number;
-  tintColor?: string;
-  tintHoverColor?: string;
-}
-
-export function InfoIcon(props: IInfoIconProps) {
-  return (
-    <ImageView
-      source="icon-info"
-      width={props.size ?? 18}
-      tintColor={props.tintColor ?? Colors.white}
-      tintHoverColor={props.tintHoverColor ?? Colors.white80}
-      className={props.className}
-    />
-  );
-}
 
 export interface InfoButtonProps extends Omit<IconButtonProps, 'icon'> {
   title?: string;

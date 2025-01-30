@@ -2,12 +2,12 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { useScheduler } from '../../../shared/scheduler';
+import { Icon } from '../../lib/components';
 import { Colors } from '../../lib/foundations';
 import { useBoolean, useEffectEvent } from '../../lib/utility-hooks';
 import { AriaInput } from '../AriaGroup';
 import { smallNormalText } from '../common-styles';
 import CustomScrollbars from '../CustomScrollbars';
-import ImageView from '../ImageView';
 
 export interface SettingsSelectItem<T extends string> {
   value: T;
@@ -77,7 +77,7 @@ const StyledInvisibleItemsInner = styled.div({
   whiteSpace: 'nowrap',
 });
 
-const StyledChevron = styled(ImageView)({
+const StyledChevron = styled(Icon)({
   marginLeft: '6px',
   marginRight: '5px',
 });
@@ -155,7 +155,7 @@ export function SettingsSelect<T extends string>(props: SettingsSelectProps<T>) 
             <StyledSelectedText>
               {props.items.find((item) => item.value === value)?.label ?? ''}
             </StyledSelectedText>
-            <StyledChevron tintColor={Colors.white60} source="icon-chevron-down" width={22} />
+            <StyledChevron color={Colors.white60} icon="chevron-down" />
           </StyledSelectedContainerInner>
           <StyledInvisibleItems>
             {props.items.map((item) => (
@@ -224,7 +224,7 @@ const StyledItem = styled.div<{ $selected: boolean }>((props) => ({
   },
 }));
 
-const TickIcon = styled(ImageView)({
+const TickIcon = styled(Icon)({
   marginLeft: '5px',
   marginRight: '6px',
 });
@@ -248,7 +248,7 @@ function Item<T extends string>(props: ItemProps<T>) {
       role="option"
       $selected={props.selected}
       aria-selected={props.selected}>
-      {props.selected && <TickIcon tintColor={Colors.white} source="icon-tick" width={12} />}
+      {props.selected && <TickIcon icon="checkmark" size="small" />}
       {props.item.label}
     </StyledItem>
   );

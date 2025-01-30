@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import { Url } from '../../shared/constants';
 import { AccountDataError, AccountNumber } from '../../shared/daemon-rpc-types';
@@ -7,7 +8,17 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
-import { Box, Button, Flex, Label, LabelTiny, TitleMedium } from '../lib/components';
+import {
+  Box,
+  Button,
+  Flex,
+  Icon,
+  Image,
+  Label,
+  LabelTiny,
+  Spinner,
+  TitleMedium,
+} from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import accountActions from '../redux/account/actions';
@@ -16,7 +27,6 @@ import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
-import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 import {
   StyledAccountDropdownContainer,
@@ -240,28 +250,23 @@ class Login extends React.Component<IProps, IState> {
   }
 
   private getStatusIcon() {
-    const statusIconPath = this.getStatusIconPath();
-    return (
-      <StyledStatusIcon>
-        {statusIconPath ? <ImageView source={statusIconPath} height={48} width={48} /> : null}
-      </StyledStatusIcon>
-    );
+    return <StyledStatusIcon>{this.getStatusIconPath()}</StyledStatusIcon>;
   }
 
-  private getStatusIconPath(): string | undefined {
+  private getStatusIconPath() {
     if (this.props.isPerformingPostUpgrade) {
-      return 'icon-spinner';
+      return <Spinner size="big" />;
     }
 
     switch (this.props.loginState.type) {
       case 'logging in':
-        return 'icon-spinner';
+        return <Spinner size="big" />;
       case 'failed':
-        return 'icon-fail';
+        return <Image source="icon-fail" height={48} width={48} />;
       case 'ok':
-        return 'icon-success';
+        return <Image source="icon-success" height={48} width={48} />;
       default:
-        return undefined;
+        return null;
     }
   }
 
@@ -353,10 +358,8 @@ class Login extends React.Component<IProps, IState> {
                 $visible={
                   this.props.loginState.type !== 'logging in' && !this.props.isPerformingPostUpgrade
                 }
-                source="icon-arrow"
-                height={16}
-                width={24}
-                tintColor="rgb(255, 255, 255)"
+                icon="chevron-right"
+                size="large"
               />
             </StyledInputButton>
           </StyledAccountInputBackdrop>
@@ -420,6 +423,10 @@ interface AccountDropdownItemProps {
   onSelect: (value: AccountNumber) => void;
 }
 
+const StyledIcon = styled(Icon)({
+  backgroundColor: 'rgba(84, 113, 143, 1)',
+});
+
 function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdownItemProps) {
   const handleSelect = useCallback(() => {
     onSelect(value);
@@ -469,7 +476,7 @@ function AccountDropdownItem({ label, onRemove, onSelect, value }: AccountDropdo
                   accountNumber: label,
                 },
               )}>
-              <ImageView source="icon-close" height={16} width={16} />
+              <StyledIcon icon="cross-circle" size="small" />
             </StyledAccountDropdownItemIconButton>
           </Box>
         </Flex>

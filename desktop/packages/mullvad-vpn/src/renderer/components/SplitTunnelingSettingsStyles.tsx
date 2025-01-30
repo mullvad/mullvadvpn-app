@@ -4,7 +4,6 @@ import { Colors, Spacings } from '../lib/foundations';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
-import ImageView from './ImageView';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SearchBar from './SearchBar';
 import { SmallButton } from './SmallButton';
@@ -38,15 +37,11 @@ const disabledApplication = (props: DisabledApplicationProps) => ({
   opacity: props.$lookDisabled ? 0.6 : undefined,
 });
 
-export const StyledIcon = styled(Cell.UntintedIcon)<DisabledApplicationProps>(disabledApplication, {
+export const StyledIcon = styled(Cell.CellImage)<DisabledApplicationProps>(disabledApplication, {
   marginRight: Spacings.spacing4,
 });
 
-export const StyledActionIcon = styled(ImageView)({
-  marginLeft: Spacings.spacing3,
-});
-
-export const StyledCellWarningIcon = styled(Cell.Icon)({
+export const StyledCellWarningIcon = styled(Cell.CellTintedIcon)({
   marginLeft: Spacings.spacing3,
   marginRight: Spacings.spacing1,
 });

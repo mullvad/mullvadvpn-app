@@ -14,7 +14,6 @@ import {
   transparentButton,
 } from './AppButtonStyles';
 import { measurements } from './common-styles';
-import ImageView from './ImageView';
 
 interface ILabelProps {
   textOffset?: number;
@@ -23,16 +22,6 @@ interface ILabelProps {
 
 export function Label(props: ILabelProps) {
   return <StyledLabel $textOffset={props.textOffset ?? 0}>{props.children}</StyledLabel>;
-}
-
-interface IIconProps {
-  source: string;
-  width?: number;
-  height?: number;
-}
-
-export function Icon(props: IIconProps) {
-  return <ImageView {...props} tintColor={Colors.white} />;
 }
 
 export interface IProps extends React.HTMLAttributes<HTMLButtonElement> {

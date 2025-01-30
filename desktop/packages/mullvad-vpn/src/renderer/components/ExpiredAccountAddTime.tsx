@@ -9,6 +9,7 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
+import { Icon, Image } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
@@ -20,7 +21,6 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import ImageView from './ImageView';
 import { Container, Footer, Layout } from './Layout';
 import {
   RedeemVoucherContainer,
@@ -166,7 +166,7 @@ export function TimeAdded(props: ITimeAddedProps) {
         <StyledContainer>
           <StyledBody>
             <StyledStatusIcon>
-              <ImageView source="icon-success" height={60} width={60} />
+              <Image source="icon-success" height={60} width={60} />
             </StyledStatusIcon>
             <StyledTitle>
               {props.title ?? messages.pgettext('connect-view', 'Time was successfully added')}
@@ -233,10 +233,8 @@ export function SetupFinished() {
                       {messages.pgettext('connect-view', 'Learn about privacy')}
                     </AppButton.Label>
                     <AriaDescription>
-                      <AppButton.Icon
-                        height={16}
-                        width={16}
-                        source="icon-extLink"
+                      <Icon
+                        icon="external"
                         aria-label={messages.pgettext('accessibility', 'Opens externally')}
                       />
                     </AriaDescription>
