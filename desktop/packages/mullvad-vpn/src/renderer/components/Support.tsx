@@ -99,10 +99,8 @@ function FaqButton() {
             }
           </Cell.Label>
           <AriaDescription>
-            <Cell.Icon
-              height={16}
-              width={16}
-              source="icon-extLink"
+            <Cell.CellTintedIcon
+              icon="external"
               aria-label={messages.pgettext('accessibility', 'Opens externally')}
             />
           </AriaDescription>

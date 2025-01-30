@@ -6,7 +6,7 @@ import { AccessMethodSetting } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
-import { Container, Flex } from '../lib/components';
+import { Container, Flex, Spinner } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
@@ -21,7 +21,6 @@ import {
   ContextMenuItem,
   ContextMenuTrigger,
 } from './ContextMenu';
-import ImageView from './ImageView';
 import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsNavigationScrollbars } from './Layout';
@@ -29,14 +28,6 @@ import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import { SmallButton, SmallButtonColor } from './SmallButton';
-
-const StyledMethodInfoButton = styled(InfoButton)({
-  marginRight: Spacings.spacing1,
-});
-
-const StyledMethodTriggerImage = styled(ImageView)({
-  marginRight: Spacings.spacing1,
-});
 
 const StyledNameLabel = styled(Cell.Label)({
   display: 'block',
@@ -235,8 +226,8 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         <StyledNameLabel>{props.method.name}</StyledNameLabel>
         {testing && (
           <Cell.SubLabel>
-            <Flex $gap={Spacings.spacing2}>
-              <ImageView source="icon-spinner" width={10} />
+            <Flex $gap={Spacings.spacing1} $alignItems="center">
+              <Spinner size="small" />
               {messages.pgettext('api-access-methods-view', 'Testing...')}
             </Flex>
           </Cell.SubLabel>
@@ -253,61 +244,56 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           <Cell.SubLabel>{messages.pgettext('api-access-methods-view', 'In use')}</Cell.SubLabel>
         )}
       </Cell.LabelContainer>
-      {props.method.type === 'direct' && (
-        <StyledMethodInfoButton
-          message={[
-            messages.pgettext(
-              'api-access-methods-view',
-              'With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.',
-            ),
-            messages.pgettext(
-              'api-access-methods-view',
-              'This can be useful when you are not affected by censorship.',
-            ),
-          ]}
-        />
-      )}
-      {props.method.type === 'bridges' && (
-        <StyledMethodInfoButton
-          message={[
-            messages.pgettext(
-              'api-access-methods-view',
-              'With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.',
-            ),
-            messages.pgettext(
-              'api-access-methods-view',
-              'This can be useful if the API is censored but Mullvad’s bridge servers are not.',
-            ),
-          ]}
-        />
-      )}
-      {props.method.type === 'encrypted-dns-proxy' && (
-        <StyledMethodInfoButton
-          message={[
-            messages.pgettext(
-              'api-access-methods-view',
-              'With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.',
-            ),
-            messages.pgettext(
-              'api-access-methods-view',
-              'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.',
-            ),
-          ]}
-        />
-      )}
-      <ContextMenuContainer>
-        <ContextMenuTrigger>
-          <StyledMethodTriggerImage
-            source="icon-more"
-            tintColor={Colors.white}
-            tintHoverColor={Colors.white80}
-            height={36}
-            width={36}
+      <Flex $gap={Spacings.spacing3} $alignItems="center">
+        {props.method.type === 'direct' && (
+          <InfoButton
+            message={[
+              messages.pgettext(
+                'api-access-methods-view',
+                'With the “Direct” method, the app communicates with a Mullvad API server directly without any intermediate proxies.',
+              ),
+              messages.pgettext(
+                'api-access-methods-view',
+                'This can be useful when you are not affected by censorship.',
+              ),
+            ]}
           />
-        </ContextMenuTrigger>
-        <ContextMenu items={menuItems} align="right" />
-      </ContextMenuContainer>
-      <Cell.Switch isOn={props.method.enabled} onChange={toggle} />
+        )}
+        {props.method.type === 'bridges' && (
+          <InfoButton
+            message={[
+              messages.pgettext(
+                'api-access-methods-view',
+                'With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks.',
+              ),
+              messages.pgettext(
+                'api-access-methods-view',
+                'This can be useful if the API is censored but Mullvad’s bridge servers are not.',
+              ),
+            ]}
+          />
+        )}
+
+        {props.method.type === 'encrypted-dns-proxy' && (
+          <InfoButton
+            message={[
+              messages.pgettext(
+                'api-access-methods-view',
+                'With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.',
+              ),
+              messages.pgettext(
+                'api-access-methods-view',
+                'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.',
+              ),
+            ]}
+          />
+        )}
+        <ContextMenuContainer>
+          <ContextMenuTrigger />
+          <ContextMenu items={menuItems} align="right" />
+        </ContextMenuContainer>
+        <Cell.Switch isOn={props.method.enabled} onChange={toggle} />
+      </Flex>
 
       {/* Confirmation dialog for method removal */}
       <ModalAlert
