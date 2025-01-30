@@ -15,7 +15,6 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
-import kotlinx.coroutines.flow.map
 import net.mullvad.mullvadvpn.lib.common.util.establishSafe
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.PrepareError
@@ -89,6 +88,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     private fun createTun(
         config: TunConfig
     ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
+        Logger.d("Creating tunnel with config: $config")
         prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
 
         val builder = Builder()
@@ -103,21 +103,24 @@ open class TalpidVpnService : LifecycleVpnService() {
         // We don't care if this fails at this point, since we can still create a tunnel and
         // then notify daemon to later enter blocked state.
         val dnsConfigureResult =
-            config.dnsServers
-                .mapOrAccumulate { builder.addDnsServerSafe(it).bind() }
-                .map { /* Ignore right */ }
-                .onLeft {
-                    // Avoid creating a tunnel with no DNS servers or if all DNS servers was
-                    // invalid, since apps then may leak DNS requests.
-                    // https://issuetracker.google.com/issues/337961996
-                    if (it.size == config.dnsServers.size) {
-                        Logger.w(
-                            "All DNS servers invalid or non set, using fallback DNS server to " +
-                                "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
-                        )
-                        builder.addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
-                    }
-                }
+            config.dnsServers.mapOrAccumulate {
+                builder.addDnsServerSafe(it).bind()
+                Unit
+            }
+
+        // Avoid creating a tunnel with no DNS servers or if all DNS servers was
+        // invalid, since apps then may leak DNS requests.
+        // https://issuetracker.google.com/issues/337961996
+        if (
+            config.dnsServers.isEmpty() ||
+                dnsConfigureResult is Either.Right && dnsConfigureResult.value.isEmpty()
+        ) {
+            Logger.w(
+                "All DNS servers invalid or non set, using fallback DNS server to " +
+                    "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
+            )
+            builder.addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
+        }
 
         val vpnInterfaceFd =
             builder
