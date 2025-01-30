@@ -24,6 +24,7 @@ export const StyledContent = styled.div({
   placeContent: 'center',
   minHeight: '32px',
   height: '32px',
+  gap: Spacings.spacing1,
 });
 
 const NavigationHeader = ({ titleVisible, children, ...props }: NavigationHeaderProps) => {
