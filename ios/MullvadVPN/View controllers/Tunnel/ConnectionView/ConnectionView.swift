@@ -67,6 +67,12 @@ struct ConnectionView: View {
             .transformEffect(.identity)
 
             ButtonPanel(viewModel: connectionViewModel, action: action)
+                .background(
+                    ZStack {
+                        Rectangle().blendMode(.destinationOut)
+                        BlurView(style: .dark)
+                    }
+                )
         }
         .padding()
         .background(BlurView(style: .dark))
