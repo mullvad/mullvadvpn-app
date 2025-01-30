@@ -75,9 +75,9 @@ impl AppDelegate for AppImpl {
 /// Dispatcher actions
 pub enum Action {
     /// User clicked the download button
-    DownloadClick(Arc<Mutex<Box<dyn for<'a> Fn(&'a mut AppWindow) + Send>>>),
+    DownloadClick(Arc<Mutex<Box<dyn Fn() + Send>>>),
     /// User clicked the cancel button
-    CancelClick(Arc<Mutex<Box<dyn for<'a> Fn(&'a mut AppWindow) + Send>>>),
+    CancelClick(Arc<Mutex<Box<dyn Fn() + Send>>>),
     /// Run callback on main thread
     QueueMain(Mutex<Option<Box<dyn for<'a> FnOnce(&'a mut AppWindow) + Send>>>),
 }
@@ -87,18 +87,18 @@ impl Dispatcher for AppImpl {
 
     fn on_ui_message(&self, message: Self::Message) {
         let delegate = self.window.delegate.as_ref().unwrap();
-        // NOTE: We assume that this won't panic because they will never run simultaneously
-        let mut borrowed = delegate.inner.borrow_mut();
         match message {
             Action::DownloadClick(cb) => {
                 let cb = cb.lock().unwrap();
-                cb(&mut borrowed);
+                cb();
             }
             Action::CancelClick(cb) => {
                 let cb = cb.lock().unwrap();
-                cb(&mut borrowed);
+                cb();
             }
             Action::QueueMain(cb) => {
+                // NOTE: We assume that this won't panic because they will never run simultaneously
+                let mut borrowed = delegate.inner.borrow_mut();
                 let cb = cb.lock().unwrap().take().unwrap();
                 cb(&mut borrowed);
             }

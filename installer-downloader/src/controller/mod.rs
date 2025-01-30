@@ -14,12 +14,12 @@ pub trait AppDelegate {
     /// Register click handler for the download button
     fn on_download<F>(&mut self, callback: F)
     where
-        F: Fn(&mut Self) + Send + 'static;
+        F: Fn() + Send + 'static;
 
     /// Register click handler for the cancel button
     fn on_cancel<F>(&mut self, callback: F)
     where
-        F: Fn(&mut Self) + Send + 'static;
+        F: Fn() + Send + 'static;
 
     /// Set download status text
     fn set_status_text(&mut self, text: &str);

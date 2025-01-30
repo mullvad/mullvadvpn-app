@@ -162,9 +162,9 @@ pub struct FakeAppDelegate {
     pub download_progress: u32,
     pub download_progress_visible: bool,
     /// Callback registered by `on_download`
-    pub download_callback: Option<Box<dyn Fn(&mut Self) + Send>>,
+    pub download_callback: Option<Box<dyn Fn() + Send>>,
     /// Callback registered by `on_cancel`
-    pub cancel_callback: Option<Box<dyn Fn(&mut Self) + Send>>,
+    pub cancel_callback: Option<Box<dyn Fn() + Send>>,
     /// Record of method calls.
     pub call_log: Vec<String>,
     /// Queue used to simulate the main thread.
@@ -176,7 +176,7 @@ impl AppDelegate for FakeAppDelegate {
 
     fn on_download<F>(&mut self, callback: F)
     where
-        F: Fn(&mut Self) + Send + 'static,
+        F: Fn() + Send + 'static,
     {
         self.call_log.push("on_download".into());
         self.download_callback = Some(Box::new(callback));
@@ -184,7 +184,7 @@ impl AppDelegate for FakeAppDelegate {
 
     fn on_cancel<F>(&mut self, callback: F)
     where
-        F: Fn(&mut Self) + Send + 'static,
+        F: Fn() + Send + 'static,
     {
         self.call_log.push("on_cancel".into());
         self.cancel_callback = Some(Box::new(callback));
@@ -298,7 +298,7 @@ async fn test_download() {
         .download_callback
         .take()
         .expect("no download callback registered");
-    cb(&mut delegate);
+    cb();
 
     tokio::time::sleep(Duration::from_secs(1)).await;
 
@@ -353,7 +353,7 @@ async fn test_failed_verification() {
         .download_callback
         .take()
         .expect("no download callback registered");
-    cb(&mut delegate);
+    cb();
 
     tokio::time::sleep(Duration::from_secs(1)).await;
 

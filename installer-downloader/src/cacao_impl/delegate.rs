@@ -10,7 +10,7 @@ impl AppDelegate for AppWindow {
 
     fn on_download<F>(&mut self, callback: F)
     where
-        F: Fn(&mut Self) + Send + 'static,
+        F: Fn() + Send + 'static,
     {
         let cb = Self::sync_callback(callback);
         self.button.button.set_action(move || {
@@ -21,7 +21,7 @@ impl AppDelegate for AppWindow {
 
     fn on_cancel<F>(&mut self, callback: F)
     where
-        F: Fn(&mut Self) + Send + 'static,
+        F: Fn() + Send + 'static,
     {
         let cb = Self::sync_callback(callback);
         self.cancel_button.button.set_action(move || {
@@ -78,13 +78,9 @@ impl AppDelegate for AppWindow {
 impl AppWindow {
     // NOTE: We need this horrible lock because Dispatcher demands Sync, but AppDelegate does not require Sync
     fn sync_callback(
-        callback: impl Fn(&mut Self) + Send + 'static,
-    ) -> Arc<Mutex<Box<dyn Fn(&mut Self) + Send + 'static>>> {
-        Arc::new(Mutex::new(Box::new(move |self_| {
-            self_.progress.set_hidden(false);
-
-            callback(self_)
-        })))
+        callback: impl Fn() + Send + 'static,
+    ) -> Arc<Mutex<Box<dyn Fn() + Send + 'static>>> {
+        Arc::new(Mutex::new(Box::new(move || callback())))
     }
 }
 

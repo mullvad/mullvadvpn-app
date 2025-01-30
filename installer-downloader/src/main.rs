@@ -9,7 +9,7 @@ mod verify;
 mod cacao_impl;
 
 #[cfg(target_os = "windows")]
-mod libui_impl;
+mod winapi_impl;
 
 fn main() {
     let runtime = tokio::runtime::Builder::new_multi_thread()
@@ -21,5 +21,5 @@ fn main() {
     #[cfg(target_os = "macos")]
     cacao_impl::main();
     #[cfg(target_os = "windows")]
-    libui_impl::main();
+    winapi_impl::main();
 }

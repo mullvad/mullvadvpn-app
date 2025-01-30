@@ -65,11 +65,11 @@ impl AppController {
         task_tx: mpsc::Sender<TaskMessage>,
     ) {
         let tx = task_tx.clone();
-        delegate.on_download(move |_delegate| {
+        delegate.on_download(move || {
             let _ = tx.try_send(TaskMessage::BeginDownload);
         });
         let tx = task_tx.clone();
-        delegate.on_cancel(move |_delegate| {
+        delegate.on_cancel(move || {
             let _ = tx.try_send(TaskMessage::Cancel);
         });
     }
