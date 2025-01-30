@@ -20,13 +20,6 @@ jobs:
       - name: Checkout wireguard-go submodule
         run: git submodule update --init --depth=1 wireguard-go-rs
 
-      - name: Install nightly Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          components: rustfmt
-          default: true
-
       - name: Check formatting
         run: |-
           rustfmt --version
