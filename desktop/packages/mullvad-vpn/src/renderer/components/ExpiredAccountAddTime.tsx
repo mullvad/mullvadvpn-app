@@ -11,8 +11,8 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Flex, Icon } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
+import { TransitionType, useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
@@ -282,7 +282,7 @@ function useFinishedCallback() {
       accountSetupFinished();
     }
 
-    history.reset(RoutePath.main, { transition: transitions.push });
+    history.reset(RoutePath.main, { transition: TransitionType.push });
   }, [isNewAccount, accountSetupFinished, history]);
 
   return callback;
