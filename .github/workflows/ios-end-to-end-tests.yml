@@ -99,11 +99,7 @@ jobs:
           ref: ${{ env.COMMIT_HASH }}
 
       - name: Configure Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          override: true
-          target: aarch64-apple-ios
+        run: rustup target add aarch64-apple-ios
 
       - name: Build iOS end to end tests action
         uses: ./.github/actions/build-ios-e2e-tests
