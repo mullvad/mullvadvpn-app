@@ -1,5 +1,7 @@
-use std::{ffi::CStr, ptr::null_mut};
-
+use std::{
+    ffi::{CStr, CString},
+    ptr::null_mut,
+};
 
 use mullvad_api::rest::Response;
 
@@ -45,6 +47,19 @@ impl SwiftMullvadApiResponse {
             retry_after: 0,
         }
     }
+
+    pub fn retryable_error() -> Self {
+        unimplemented!()
+    }
+
+    pub fn cancelled() -> Self {
+        Self {
+            should_retry: false,
+            error_description: c"Request was cancelled".to_owned().into_raw().cast(),
+
+            ..Self::error()
+        }
+    }
 }
 
 #[no_mangle]
@@ -57,4 +72,3 @@ pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse
         let _ = CStr::from_ptr(response.error_description.cast());
     }
 }
-

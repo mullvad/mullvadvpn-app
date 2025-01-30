@@ -1,6 +1,7 @@
 use mullvad_api::{rest::MullvadRestHandle, ApiProxy};
 
 use super::{
+    cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
     response::SwiftMullvadApiResponse,
     Error, SwiftApiContext,
@@ -10,25 +11,28 @@ use super::{
 pub unsafe extern "C" fn mullvad_api_get_addresses(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
-) {
+) -> SwiftCancelHandle {
     let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
 
     let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
         completion_handler.finish(SwiftMullvadApiResponse::error());
-        return;
+        return SwiftCancelHandle::empty();
     };
 
     let api_context = api_context.to_rust_context();
 
-    tokio_handle.clone().spawn(async move {
+    let completion = completion_handler.clone();
+    let task = tokio_handle.clone().spawn(async move {
         match mullvad_api_get_addresses_inner(api_context.rest_handle()).await {
-            Ok(response) => completion_handler.finish(response),
+            Ok(response) => completion.finish(response),
             Err(err) => {
                 log::error!("{err:?}");
-                completion_handler.finish(SwiftMullvadApiResponse::error());
+                completion.finish(SwiftMullvadApiResponse::error());
             }
         }
     });
+
+    RequestCancelHandle::new(task, completion_handler.clone()).to_swift()
 }
 
 async fn mullvad_api_get_addresses_inner(
