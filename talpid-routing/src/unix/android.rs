@@ -10,8 +10,9 @@ use futures::stream::StreamExt;
 use jnix::jni::{objects::JObject, JNIEnv};
 use jnix::{FromJava, JnixEnv};
 
-use crate::{imp::RouteManagerCommand, RequiredRoute};
 use talpid_types::android::NetworkState;
+
+use crate::{imp::RouteManagerCommand, RequiredRoute};
 
 /// Stub error type for routing errors on Android.
 /// Errors that occur while setting up VpnService tunnel.
@@ -53,11 +54,13 @@ impl RouteManagerImpl {
 
         *ROUTE_UPDATES_TX.lock().unwrap() = Some(tx);
 
-        Ok(RouteManagerImpl {
+        let route_manager = RouteManagerImpl {
             network_state_updates: rx,
             last_state: Default::default(),
             waiting_for_route: Default::default(),
-        })
+        };
+
+        Ok(route_manager)
     }
 
     pub(crate) async fn run(
