@@ -24,13 +24,6 @@ jobs:
       - name: Checkout wireguard-go submodule
         run: git submodule update --init --depth=1 wireguard-go-rs
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          default: true
-          profile: minimal
-
       - name: Setup node
         uses: actions/setup-node@v4
         with:

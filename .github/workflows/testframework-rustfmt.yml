@@ -18,13 +18,6 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          components: rustfmt
-          default: true
-
       - name: Check formatting
         working-directory: test
         run: |-

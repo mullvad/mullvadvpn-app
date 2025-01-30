@@ -195,11 +195,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: desktop/package-lock.json
       - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: i686-pc-windows-msvc
-          default: true
+        run: rustup target add i686-pc-windows-msvc
       - name: Install latest zig
         uses: mlugg/setup-zig@v1
       - name: Install msbuild
@@ -287,11 +283,6 @@ jobs:
           node-version-file: desktop/package.json
           cache: 'npm'
           cache-dependency-path: desktop/package-lock.json
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          default: true
       - name: Build app
         run: ./build.sh
       - name: Build test executable

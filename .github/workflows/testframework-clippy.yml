@@ -28,12 +28,6 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          components: clippy
-          override: true
-
       - name: Install build dependencies
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -60,12 +54,6 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          components: clippy
-          override: true
 
       - name: Clippy check
         working-directory: test

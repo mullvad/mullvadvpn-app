@@ -81,7 +81,7 @@ jobs:
           git submodule update --init --recursive --depth=1 wireguard-go-rs
       # The container image already has rustup and Rust, but only the stable toolchain
       - name: Install Rust toolchain
-        run: rustup default ${{ matrix.rust }}
+        run: rustup override set ${{ matrix.rust }}
 
       - name: Build and test crates
         run: ./ci/check-rust.sh
@@ -101,12 +101,6 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          default: true
 
       - name: Install Go
         uses: actions/setup-go@v3
@@ -168,17 +162,10 @@ jobs:
       # TODO: Remove once fixed
       - name: Install Rust x64 target
         if: ${{ matrix.config.arch == 'arm64' }}
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: x86_64-pc-windows-msvc
+        run: rustup target add x86_64-pc-windows-msvc
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: i686-pc-windows-msvc
-          default: true
+        run: rustup target add i686-pc-windows-msvc
 
       - name: Install msbuild
         uses: microsoft/setup-msbuild@v1.0.2
