@@ -1,8 +1,9 @@
-#[cfg(target_os = "linux")]
+#[cfg(any(target_os = "android", target_os = "linux"))]
 use crate::Route;
 #[cfg(target_os = "macos")]
 pub use crate::{imp::imp::DefaultRoute, Gateway};
 
+#[cfg(target_os = "linux")]
 use super::RequiredRoute;
 
 use futures::channel::{
@@ -97,10 +98,7 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    AddRoutes(
-        HashSet<RequiredRoute>,
-        oneshot::Sender<Result<(), PlatformError>>,
-    ),
+    AddRoutes(HashSet<Route>, oneshot::Sender<Result<(), PlatformError>>),
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
 }
@@ -192,7 +190,11 @@ impl RouteManagerHandle {
     }
 
     /// Applies the given routes until they are cleared
-    pub async fn add_routes(&self, routes: HashSet<RequiredRoute>) -> Result<(), Error> {
+    pub async fn add_routes(
+        &self,
+        #[cfg(not(target_os = "android"))] routes: HashSet<RequiredRoute>,
+        #[cfg(target_os = "android")] routes: HashSet<Route>,
+    ) -> Result<(), Error> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))

@@ -402,7 +402,7 @@ impl WireguardMonitor {
     ) -> Result<WireguardMonitor> {
         use std::time::Duration;
 
-        use talpid_routing::{PlatformError, RequiredRoute};
+        use talpid_routing::{PlatformError, Route};
         use tokio::time::timeout;
 
         let desired_mtu = get_desired_mtu(params);
@@ -478,7 +478,7 @@ impl WireguardMonitor {
                 .await;
 
             // Wait for routes to come up
-            let routes_to_wait_for: std::collections::HashSet<RequiredRoute> = args
+            let routes_to_wait_for: std::collections::HashSet<Route> = args
                 .tun_provider
                 .lock()
                 .unwrap()
@@ -486,7 +486,7 @@ impl WireguardMonitor {
                 .routes
                 .iter()
                 .copied()
-                .map(RequiredRoute::new)
+                .map(Route::new)
                 .collect();
 
             let wait_for_routes = args.route_manager.add_routes(routes_to_wait_for);

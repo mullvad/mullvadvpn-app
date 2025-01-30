@@ -12,7 +12,7 @@ use jnix::{FromJava, JnixEnv};
 
 use talpid_types::android::NetworkState;
 
-use crate::{imp::RouteManagerCommand, RequiredRoute};
+use crate::{imp::RouteManagerCommand, Route};
 
 /// Stub error type for routing errors on Android.
 /// Errors that occur while setting up VpnService tunnel.
@@ -43,7 +43,7 @@ pub struct RouteManagerImpl {
 #[derive(Debug)]
 struct WaitingForRoutes {
     response_tx: oneshot::Sender<Result<(), Error>>,
-    required_routes: HashSet<RequiredRoute>,
+    required_routes: HashSet<Route>,
 }
 
 impl RouteManagerImpl {
@@ -141,18 +141,18 @@ impl RouteManagerImpl {
     }
 }
 
-/// Check whether the [NetworkState] contains the provided set of [RequiredRoute]s.
-fn has_routes(state: Option<&NetworkState>, routes: &HashSet<RequiredRoute>) -> bool {
+/// Check whether the [NetworkState] contains the provided set of [Route]s.
+fn has_routes(state: Option<&NetworkState>, routes: &HashSet<Route>) -> bool {
     let Some(network_state) = state else {
         return false;
     };
     routes.is_subset(&configured_routes(network_state))
 }
 
-fn configured_routes(state: &NetworkState) -> HashSet<RequiredRoute> {
+fn configured_routes(state: &NetworkState) -> HashSet<Route> {
     match &state.routes {
         None => Default::default(),
-        Some(route_info) => route_info.iter().map(RequiredRoute::from).collect(),
+        Some(route_info) => route_info.iter().map(Route::from).collect(),
     }
 }
 
