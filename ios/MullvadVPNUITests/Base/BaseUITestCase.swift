@@ -227,11 +227,11 @@ class BaseUITestCase: XCTestCase {
                 packetCaptureClient.stopCapture(session: packetCaptureSession)
             }
 
-            let pcap = packetCaptureClient.getPCAP(session: packetCaptureSession)
+            let pcapFileContents = packetCaptureClient.getPCAP(session: packetCaptureSession)
             let parsedCapture = packetCaptureClient.getParsedCapture(session: packetCaptureSession)
             self.packetCaptureSession = nil
 
-            let pcapAttachment = XCTAttachment(data: pcap)
+            let pcapAttachment = XCTAttachment(data: pcapFileContents)
             pcapAttachment.name = self.name + ".pcap"
             pcapAttachment.lifetime = .keepAlways
             self.add(pcapAttachment)

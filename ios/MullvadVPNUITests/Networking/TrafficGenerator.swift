@@ -35,12 +35,12 @@ class TrafficGenerator {
         print("Attempting to reconnect")
         connection.forceCancel()
 
-        connection = recreateConnection()
+        connection = createConnection()
         setupConnection()
         setupOtherHandlers()
     }
 
-    func recreateConnection() -> NWConnection {
+    func createConnection() -> NWConnection {
         let params = NWParameters.udp
         return NWConnection(
             host: NWEndpoint.Host(destinationHost),

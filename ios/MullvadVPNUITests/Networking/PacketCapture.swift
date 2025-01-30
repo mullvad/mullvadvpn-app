@@ -164,6 +164,8 @@ class PacketCaptureClient: TestRouterAPIClient {
         var collectionStartDate: Date?
         var collectionEndDate: Date?
 
+        XCTAssertTrue(streams.count >= 1, "Captured streams are empty, expected at least 1")
+
         for stream in streams {
             if collectionStartDate != nil {
                 collectionStartDate = min(collectionStartDate!, stream.dateInterval.start)

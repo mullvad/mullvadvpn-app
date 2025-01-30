@@ -9,16 +9,8 @@
 import XCTest
 
 class TestRouterAPIClient {
-    // swiftlint:disable force_cast
-    static let baseURL = URL(
-        string:
-        Bundle(for: FirewallClient.self).infoDictionary?["FirewallApiBaseURL"] as! String
-    )!
-    // swiftlint:enable force_cast
-
-    static func getIPAddress() throws -> String {
-        return ""
-    }
+    // swiftlint:disable:next force_cast
+    static let baseURL = URL(string: Bundle(for: FirewallClient.self).infoDictionary?["FirewallApiBaseURL"] as! String)!
 
     /// Gets the IP address of the device under test
     public func getDeviceIPAddress() throws -> String {
