@@ -15,7 +15,7 @@ extension ConnectionView {
 
         @State var titleForCountryAndCity: LocalizedStringKey?
         @State var titleForServer: LocalizedStringKey?
-        @State var showConnectionDetails = false
+
         var body: some View {
             HStack(alignment: .top) {
                 VStack(alignment: .leading, spacing: 0) {
@@ -66,11 +66,6 @@ extension ConnectionView {
                     titleForServer = newValue
                 }
             })
-            .onChange(of: viewModel.showsConnectionDetails) { newValue in
-                withAnimation {
-                    showConnectionDetails = newValue
-                }
-            }
         }
     }
 }
