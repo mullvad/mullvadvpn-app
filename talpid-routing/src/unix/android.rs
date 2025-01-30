@@ -7,7 +7,6 @@ use futures::channel::oneshot;
 use futures::future::FutureExt;
 use futures::select_biased;
 use futures::stream::StreamExt;
-use ipnetwork::IpNetwork;
 use jnix::jni::{objects::JObject, JNIEnv};
 use jnix::{FromJava, JnixEnv};
 
@@ -144,23 +143,14 @@ fn has_routes(state: Option<&NetworkState>, routes: &HashSet<RequiredRoute>) -> 
     let Some(network_state) = state else {
         return false;
     };
-    let Some(route_info) = &network_state.routes else {
-        return false;
-    };
+    routes.is_subset(&configured_routes(network_state))
+}
 
-    // TODO: fugly
-    let existing_routes: HashSet<RequiredRoute> = route_info
-        .iter()
-        .map(|route_info| {
-            let network = IpNetwork::new(
-                route_info.destination.address,
-                route_info.destination.prefix_length as u8,
-            )
-            .unwrap();
-            RequiredRoute::new(network)
-        })
-        .collect();
-    routes.is_subset(&existing_routes)
+fn configured_routes(state: &NetworkState) -> HashSet<RequiredRoute> {
+    match &state.routes {
+        None => Default::default(),
+        Some(route_info) => route_info.iter().map(RequiredRoute::from).collect(),
+    }
 }
 
 /// Entry point for Android Java code to notify the current default network state.

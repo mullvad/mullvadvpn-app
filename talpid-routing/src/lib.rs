@@ -136,6 +136,18 @@ impl RequiredRoute {
     }
 }
 
+#[cfg(target_os = "android")]
+impl From<&talpid_types::android::RouteInfo> for RequiredRoute {
+    fn from(route_info: &talpid_types::android::RouteInfo) -> Self {
+        let network = IpNetwork::new(
+            route_info.destination.address,
+            route_info.destination.prefix_length as u8,
+        )
+        .unwrap();
+        RequiredRoute::new(network)
+    }
+}
+
 /// A network route that should be applied by the route manager.
 /// It can either be routed through a specific network node or it can be routed through the current
 /// default route.
