@@ -30,6 +30,7 @@ static ROUTE_UPDATES_TX: Mutex<Option<UnboundedSender<Option<NetworkState>>>> = 
 /// Android route manager actor.
 #[derive(Debug)]
 pub struct RouteManagerImpl {
+    /// The receiving channel for updates on changes to the network.
     network_state_updates: UnboundedReceiver<Option<NetworkState>>,
 
     /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
@@ -75,12 +76,11 @@ impl RouteManagerImpl {
                     }
                 }
 
-                route_update = self.network_state_updates.next().fuse() => {
-                    // None means that the sender was dropped.
-                    let Some(route_update) = route_update else { break };
-
-                    self.last_state = route_update;
-
+                network_state_update = self.network_state_updates.next().fuse() => {
+                    // None means that the sender was dropped
+                    let Some(network_state) = network_state_update else { break };
+                    // update the last known NetworkState
+                    self.last_state = network_state;
                     // check each waiting client if we have the routes they expect
                     for _ in 0..self.waiting_for_route.len() {
                         // oneshot senders consume themselves, so we need to take them out of the list
@@ -89,8 +89,13 @@ impl RouteManagerImpl {
                         if client.response_tx.is_canceled() {
                             // do nothing, drop the sender
                         } else if has_routes(self.last_state.as_ref(), &client.required_routes) {
+                            // notify listener that the required routes (seems to) have been
+                            // configured on the Android system, since they are part of the
+                            // NetworkState update
                             let _ = client.response_tx.send(Ok(()));
                         } else {
+                            // no dice, required routes were not part of this network state change.
+                            // patiently wait for the next update
                             self.waiting_for_route.push_back(client);
                         }
                     }
@@ -110,8 +115,9 @@ impl RouteManagerImpl {
                 return ControlFlow::Break(());
             }
             RouteManagerCommand::AddRoutes(required_routes, response_tx) => {
-                log::info!("Current state: {self:#?}");
-                log::info!("Looking for deez routes: {required_routes:#?}");
+                // check if the required routes already have been configured on the Android system.
+                // otherwise, register a listener for network state changes. The required routes
+                // may come in at any moment in the future.
                 if has_routes(self.last_state.as_ref(), &required_routes) {
                     let _ = response_tx.send(Ok(()));
                 } else {
@@ -175,7 +181,7 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyDefaul
         return;
     };
 
-    log::info!("Received network state {:#?}", network_state);
+    log::trace!("Received network state update {:#?}", network_state);
 
     if tx.unbounded_send(network_state).is_err() {
         log::warn!("Failed to send offline change event");
