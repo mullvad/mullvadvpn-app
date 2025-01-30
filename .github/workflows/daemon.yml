@@ -78,8 +78,14 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
           git submodule update --init --recursive --depth=1 wireguard-go-rs
-      # The container image already has rustup and Rust, but only the stable toolchain
+
+      # The container image already has rustup and the pinned version of Rust
       - name: Install Rust toolchain
+        # When running this job for "stable" test against our pinned rust version
+        # instead of the stable channel.
+        # TODO: Improve this so both "stable" and the pinned version are tested if
+        # they differ.
+        if: ${{ matrix.rust != 'stable' }}
         run: rustup override set ${{ matrix.rust }}
 
       - name: Build and test crates
