@@ -69,6 +69,7 @@
     <string name="Japan">ญี่ปุ่น</string>
     <string name="Johannesburg">โจฮันเนสเบิร์ก</string>
     <string name="Kiev">เคียฟ</string>
+    <string name="Kuala Lumpur">กัวลาลัมเปอร์</string>
     <string name="Kyiv">เคียฟ</string>
     <string name="Lagos">ลากอส</string>
     <string name="Latvia"> ลัตเวีย</string>
@@ -80,8 +81,10 @@
     <string name="Louisville, KY">ลุยส์วิลล์ รัฐเคนทักกี</string>
     <string name="Luxembourg">ลักเซมเบิร์ก</string>
     <string name="Madrid">มาดริด</string>
+    <string name="Malaysia">มาเลเซีย</string>
     <string name="Malmö">มัลเมอ</string>
     <string name="Manchester">แมนเชสเตอร์</string>
+    <string name="Manila">มะนิลา</string>
     <string name="Marseille">มาร์แซย์</string>
     <string name="McAllen, TX">แมคอัลเลน เท็กซัส</string>
     <string name="Melbourne">เมลเบิร์น</string>
@@ -108,6 +111,7 @@
     <string name="Perth">เพิร์ท</string>
     <string name="Peru">เปรู</string>
     <string name="Philadelphia, PA">ฟิลาเดลเฟีย รัฐเพนซิลเวเนีย</string>
+    <string name="Philippines">ฟิลิปปินส์</string>
     <string name="Phoenix, AZ">ฟีนิกซ์ รัฐแอริโซนา</string>
     <string name="Piscataway, NJ">พิสแกตาเวย์ รัฐนิวเจอร์ซีย์</string>
     <string name="Poland">โปแลนด์</string>

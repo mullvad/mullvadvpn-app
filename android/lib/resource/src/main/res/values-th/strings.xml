@@ -56,10 +56,13 @@
     <string name="block_social_media_title">โซเชียลมีเดีย</string>
     <string name="block_trackers_title">ตัวติดตาม</string>
     <string name="blocked_connection">การเชื่อมต่อที่ถูกบล็อก</string>
+    <string name="blocking">กำลังบล็อก...</string>
     <string name="blocking_internet">กำลังบล็อกอินเทอร์เน็ต</string>
     <string name="blocking_internet_device_offline">กำลังบล็อกอินเทอร์เน็ต (อุปกรณ์ออฟไลน์)</string>
     <string name="buy_credit">ซื้อเครดิต</string>
     <string name="cancel">ยกเลิก</string>
+    <string name="changelog_empty">ไม่มีการเพิ่มบันทึกการเปลี่ยนแปลงสำหรับเวอร์ชันนี้</string>
+    <string name="changelog_title">มีอะไรใหม่</string>
     <string name="cipher">เข้ารหัส</string>
     <string name="clear_input">ล้างข้อมูลอินพุต</string>
     <string name="close">ปิด</string>
@@ -237,6 +240,8 @@
     <string name="multihop_entry_disabled_description">เซิร์ฟเวอร์ทางเข้าสำหรับ %1$s ถูกเขียนทับโดย %2$s ในขณะนี้ หากต้องการเลือกเซิร์ฟเวอร์ทางเข้า โปรดเปิดใช้งาน “%3$s” ก่อน หรือปิดใช้งาน “%4$s” ในการตั้งค่า</string>
     <string name="name">ชื่อ</string>
     <string name="name_was_changed_to">ชื่อถูกเปลี่ยนเป็น %1$s</string>
+    <string name="new_changelog_notification_message">คลิกที่นี่ เพื่อดูว่ามีอะไรใหม่</string>
+    <string name="new_changelog_notification_title">ติดตั้งเวอร์ชันใหม่แล้ว</string>
     <string name="new_device_notification_message">ยินดีต้อนรับ ขณะนี้อุปกรณ์นี้จะมีชื่อว่า &lt;b&gt;%1$s&lt;/b&gt; สำหรับข้อมูลเพิ่มเติม โปรดกดปุ่มข้อมูลในบัญชี</string>
     <string name="new_device_notification_title">สร้างอุปกรณ์ใหม่แล้ว</string>
     <string name="new_list">รายการใหม่</string>
@@ -248,6 +253,7 @@
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
     <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
+    <string name="obfuscation_info_shadowsocks_batteryusage">โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ</string>
     <string name="obfuscation_title">การทำให้ข้อมูลยุ่งเหยิงของ WireGuard</string>
     <string name="off">ปิด</string>
     <string name="on">เปิด</string>
@@ -289,6 +295,7 @@
     <string name="redeem_voucher">แลกบัตรกำนัล</string>
     <string name="remove_button">ลบ</string>
     <string name="remove_location_from_list">ลบ %1$s ออกจาก %2$s</string>
+    <string name="removed_provider">%1$s (ลบแล้ว)</string>
     <string name="rented">เช่า</string>
     <string name="rented_only">เช่าเท่านั้น</string>
     <string name="report_a_problem">รายงานปัญหา</string>
@@ -298,6 +305,7 @@
     <string name="search_location_empty_text">ไม่พบผลลัพธ์สำหรับ \"%1$s\" โปรดลองใช้คำค้นหาอื่น</string>
     <string name="search_placeholder">ค้นหา…</string>
     <string name="search_query_empty">พิมพ์อย่างน้อย 2 ตัวอักษร เพื่อเริ่มการค้นหา</string>
+    <string name="see_full_changelog">ดูบันทึกการเปลี่ยนแปลงทั้งหมด</string>
     <string name="select_location">เลือกตำแหน่งที่ตั้ง</string>
     <string name="send">ส่ง</string>
     <string name="send_anyway">ส่งต่อไป</string>
