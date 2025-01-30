@@ -16,10 +16,6 @@ class TestRouterAPIClient {
     )!
     // swiftlint:enable force_cast
 
-    static func getIPAddress() throws -> String {
-        return ""
-    }
-
     /// Gets the IP address of the device under test
     public func getDeviceIPAddress() throws -> String {
         let deviceIPURL = TestRouterAPIClient.baseURL.appendingPathComponent("own-ip")

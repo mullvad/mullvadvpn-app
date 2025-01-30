@@ -9,30 +9,26 @@
 import XCTest
 
 class LeakCheck {
-    static func assertNoLeaks(streams: [Stream], rules: [LeakRule]) {
+    static func assertNoLeaks(streams: [Stream], rules: [NoTrafficToHostLeakRule]) {
         XCTAssertFalse(streams.isEmpty, "No streams to leak check")
         XCTAssertFalse(rules.isEmpty, "No leak rules to check")
 
         for rule in rules where rule.isViolated(streams: streams) {
-            XCTFail("Leak rule violated")
+            XCTFail("Leaked traffic destined to \(rule.host) outside of the tunnel connection")
         }
     }
 
-    static func assertLeaks(streams: [Stream], rules: [LeakRule]) {
+    static func assertLeaks(streams: [Stream], rules: [NoTrafficToHostLeakRule]) {
         XCTAssertFalse(streams.isEmpty, "No streams to leak check")
         XCTAssertFalse(rules.isEmpty, "No leak rules to check")
 
         for rule in rules where rule.isViolated(streams: streams) == false {
-            XCTFail("Leak rule unexpectedly not violated when asserting leak")
+            XCTFail("Expected to leak traffic to \(rule.host) outside of tunnel")
         }
     }
 }
 
-protocol LeakRule {
-    func isViolated(streams: [Stream]) -> Bool
-}
-
-class NoTrafficToHostLeakRule: LeakRule {
+class NoTrafficToHostLeakRule {
     let host: String
 
     init(host: String) {

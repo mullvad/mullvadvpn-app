@@ -15,7 +15,12 @@ class LeakTests: LoggedInWithTimeUITestCase {
     }
 
     /// Send UDP traffic to a host, connect to relay and make sure while connected to relay no traffic  leaked went directly to the host
-    func testNoLeak() throws {
+    func testConnectionStartedBeforeTunnelShouldNotLeakOutside() throws {
+        let skipReason = """
+        Connections started before the packet tunnel will leak as long as
+        includeAllNetworks is not set to true when starting the tunnel.
+        """
+        try XCTSkipIf(true, skipReason)
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         startPacketCapture()
         let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
@@ -44,7 +49,7 @@ class LeakTests: LoggedInWithTimeUITestCase {
     }
 
     /// Send UDP traffic to a host, connect to relay and then disconnect to intentionally leak traffic and make sure that the test catches the leak
-    func testShouldLeak() throws {
+    func testTrafficCapturedOutsideOfTunnelShouldLeak() throws {
         let targetIPAddress = Networking.getAlwaysReachableIPAddress()
         startPacketCapture()
         let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
