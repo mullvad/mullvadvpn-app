@@ -7,7 +7,7 @@ import { messages, relayLocations } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
 import { Button, ButtonProps, Icon } from '../../lib/components';
-import { transitions, useHistory } from '../../lib/history';
+import { TransitionType, useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
@@ -37,7 +37,7 @@ function SelectLocationButton(props: ButtonProps) {
   );
 
   const onSelectLocation = useCallback(() => {
-    push(RoutePath.selectLocation, { transition: transitions.show });
+    push(RoutePath.selectLocation, { transition: TransitionType.show });
   }, [push]);
 
   return (
