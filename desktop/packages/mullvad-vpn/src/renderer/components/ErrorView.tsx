@@ -1,10 +1,10 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Colors } from '../lib/foundations';
+import { Flex, Logo } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { AppMainHeader } from './app-main-header';
 import { measurements } from './common-styles';
-import ImageView from './ImageView';
 import { Container, Layout } from './Layout';
 
 const StyledContainer = styled(Container)({
@@ -12,23 +12,6 @@ const StyledContainer = styled(Container)({
   flexDirection: 'column',
   alignItems: 'center',
   justifyContent: 'end',
-});
-
-const StyledContent = styled.div({
-  display: 'flex',
-  flex: 1,
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'end',
-});
-
-const Logo = styled(ImageView)({
-  marginBottom: '12px',
-});
-
-const Title = styled(ImageView)({
-  opacity: 0.6,
-  marginBottom: '9px',
 });
 
 const Subtitle = styled.span({
@@ -60,12 +43,18 @@ export default function ErrorView(props: ErrorViewProps) {
         {!props.settingsUnavailable && <AppMainHeader.SettingsButton />}
       </AppMainHeader>
       <StyledContainer>
-        <StyledContent>
-          <Logo height={106} width={106} source="logo-icon" />
-          <Title height={18} source="logo-text" />
+        <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+          <Flex
+            $flexDirection="column"
+            $alignItems="center"
+            $justifyContent="end"
+            $gap={Spacings.spacing4}>
+            <Logo variant="icon" size="2" />
+            <Logo variant="text" size="2" />
+          </Flex>
           <Subtitle role="alert">{props.children}</Subtitle>
-        </StyledContent>
-        <StyledFooterContainer>{props.footer}</StyledFooterContainer>
+          <StyledFooterContainer>{props.footer}</StyledFooterContainer>
+        </Flex>
       </StyledContainer>
     </Layout>
   );

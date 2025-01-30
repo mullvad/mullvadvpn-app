@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { sprintf } from 'sprintf-js';
+import styled from 'styled-components';
 
 import {
   IApplication,
@@ -10,7 +11,7 @@ import {
 import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Button, Container, Flex, FootnoteMini } from '../lib/components';
+import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
@@ -22,7 +23,6 @@ import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { measurements } from './common-styles';
 import { CustomScrollbarsRef } from './CustomScrollbars';
-import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
 import List from './List';
@@ -30,7 +30,6 @@ import { ModalAlert, ModalAlertType } from './Modal';
 import { NavigationContainer } from './NavigationContainer';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 import {
-  StyledActionIcon,
   StyledBrowseButton,
   StyledCellButton,
   StyledCellLabel,
@@ -285,7 +284,7 @@ function LinuxApplicationRow(props: ILinuxApplicationRowProps) {
         )}
         <StyledCellLabel $lookDisabled={disabled}>{props.application.name}</StyledCellLabel>
         {props.application.warning && (
-          <StyledCellWarningIcon source="icon-alert" tintColor={warningColor} width={18} />
+          <StyledCellWarningIcon icon="alert-circle" color={warningColor} />
         )}
       </StyledCellButton>
       <ModalAlert
@@ -485,7 +484,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
       </SettingsHeader>
       {loadingDiskPermissions && (
         <Flex $justifyContent="center" $margin={{ top: Spacings.spacing6 }}>
-          <ImageView source="icon-spinner" height={48} />
+          <Spinner size="big" />
         </Flex>
       )}
 
@@ -592,10 +591,10 @@ interface IApplicationListProps<T extends IApplication> {
 }
 
 function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>) {
-  if (props.applications === undefined) {
+  if (props.applications == undefined) {
     return (
       <StyledSpinnerRow>
-        <ImageView source="icon-spinner" height={60} width={60} />
+        <Spinner size="big" />
       </StyledSpinnerRow>
     );
   } else {
@@ -615,6 +614,10 @@ function ApplicationList<T extends IApplication>(props: IApplicationListProps<T>
 function applicationGetKey<T extends IApplication>(application: T): string {
   return application.absolutepath;
 }
+
+const StyledContainer = styled(Cell.Container)({
+  backgroundColor: Colors.blue40,
+});
 
 interface IApplicationRowProps {
   application: ISplitTunnelingApplication;
@@ -639,41 +642,23 @@ function ApplicationRow(props: IApplicationRowProps) {
   }, [propsOnDelete, props.application]);
 
   return (
-    <Cell.CellButton>
+    <StyledContainer>
       {props.application.icon ? (
         <StyledIcon source={props.application.icon} width={35} height={35} />
       ) : (
         <StyledIconPlaceholder />
       )}
       <StyledCellLabel>{props.application.name}</StyledCellLabel>
-      {props.onDelete && (
-        <StyledActionIcon
-          source="icon-close"
-          width={18}
-          onClick={onDelete}
-          tintColor={Colors.white40}
-          tintHoverColor={Colors.white60}
-        />
-      )}
-      {props.onAdd && (
-        <StyledActionIcon
-          source="icon-add"
-          width={18}
-          onClick={onAdd}
-          tintColor={Colors.white40}
-          tintHoverColor={Colors.white60}
-        />
-      )}
-      {props.onRemove && (
-        <StyledActionIcon
-          source="icon-remove"
-          width={18}
-          onClick={onRemove}
-          tintColor={Colors.white40}
-          tintHoverColor={Colors.white60}
-        />
-      )}
-    </Cell.CellButton>
+      <Flex $gap={Spacings.spacing3}>
+        {props.onDelete && (
+          <IconButton icon="cross-circle" variant="secondary" onClick={onDelete} />
+        )}
+        {props.onAdd && <IconButton icon="add-circle" variant="secondary" onClick={onAdd} />}
+        {props.onRemove && (
+          <IconButton icon="remove-circle" variant="secondary" onClick={onRemove} />
+        )}
+      </Flex>
+    </StyledContainer>
   );
 }
 

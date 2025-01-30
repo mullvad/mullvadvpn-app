@@ -66,9 +66,6 @@ export const StyledAccountNumberContainer = styled.div({
 });
 
 export const StyledDeviceLabel = styled.span(tinyText, {
-  display: 'flex',
-  alignItems: 'middle',
   lineHeight: '20px',
-  marginBottom: '18px',
   color: Colors.white,
 });
