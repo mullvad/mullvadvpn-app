@@ -23,49 +23,54 @@ struct ConnectionView: View {
     var body: some View {
         Spacer()
             .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
+
         VStack(alignment: .leading, spacing: 16) {
             VStack(alignment: .leading, spacing: 16) {
                 HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
+
                 if showConnectionDetailsAnimated {
-                    if isExpandedAnimatied {
-                        Divider()
-                            .background(UIColor.secondaryTextColor.color)
-                    }
-                    if isExpandedAnimatied || !indicatorsViewModel.chips.isEmpty {
-                        ScrollView {
-                            VStack(alignment: .leading, spacing: 0) {
-                                if !indicatorsViewModel.chips.isEmpty && isExpandedAnimatied {
-                                    Text(LocalizedStringKey("Active features"))
-                                        .font(.footnote.weight(.semibold))
-                                        .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                                        .padding(.bottom, isExpandedAnimatied ? 8 : 0)
-                                }
-                                ChipContainerView(viewModel: indicatorsViewModel, isExpanded: $isExpanded)
-                                if isExpandedAnimatied {
-                                    DetailsView(viewModel: connectionViewModel)
-                                        .padding(.top, indicatorsViewModel.chips.isEmpty ? 0 : 16)
-                                }
-                            }
-                            .sizeOfView { size in
-                                withAnimation {
-                                    scrollViewHeight = size.height
-                                }
-                            }
+                    Divider()
+                        .background(UIColor.secondaryTextColor.color)
+                        .showIf(isExpandedAnimatied)
+
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(LocalizedStringKey("Active features"))
+                                .font(.footnote.weight(.semibold))
+                                .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                                .padding(.bottom, isExpandedAnimatied ? 8 : 0)
+                                .showIf(!indicatorsViewModel.chips.isEmpty && isExpandedAnimatied)
+
+                            ChipContainerView(viewModel: indicatorsViewModel, isExpanded: $isExpanded)
+
+                            DetailsView(viewModel: connectionViewModel)
+                                .padding(.top, indicatorsViewModel.chips.isEmpty ? 0 : 16)
+                                .showIf(isExpandedAnimatied)
                         }
-                        .frame(maxHeight: scrollViewHeight)
-                        .apply {
-                            if #available(iOS 16.4, *) {
-                                $0.scrollBounceBehavior(.basedOnSize)
-                            } else {
-                                $0
+                        .sizeOfView { size in
+                            withAnimation {
+                                scrollViewHeight = size.height
                             }
                         }
                     }
+                    .frame(maxHeight: scrollViewHeight)
+                    .apply {
+                        if #available(iOS 16.4, *) {
+                            $0.scrollBounceBehavior(.basedOnSize)
+                        } else {
+                            $0
+                        }
+                    }
+                    .showIf(isExpandedAnimatied || !indicatorsViewModel.chips.isEmpty)
                 }
             }
             .transformEffect(.identity)
+
             ButtonPanel(viewModel: connectionViewModel, action: action)
         }
+        .padding()
+        .background(BlurView(style: .dark))
+        .cornerRadius(12)
         .padding()
         .onChange(of: isExpanded) { newValue in
             withAnimation {
@@ -80,9 +85,6 @@ struct ConnectionView: View {
                 showConnectionDetailsAnimated = newValue
             }
         }
-        .background(BlurView(style: .dark))
-        .cornerRadius(12)
-        .padding()
     }
 }
 
