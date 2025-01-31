@@ -96,11 +96,13 @@ impl Tunnel for BoringTun {
         self.interface_name.clone()
     }
 
-    fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {
+    fn stop(self: Box<Self>) -> Result<(), TunnelError> {
+        // TODO: ASYNC!
         log::info!("BoringTun::stop");
-        self.device_handle.clean();
-        //self.device_handle.wait(); // TODO: do we need this<?
-
+        tokio::spawn(async {
+            self.device_handle.stop().await;
+        });
+        std::thread::sleep_ms(1000);
         Ok(())
     }
 
