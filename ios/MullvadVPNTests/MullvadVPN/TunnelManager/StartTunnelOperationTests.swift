@@ -18,6 +18,7 @@ class StartTunnelOperationTests: XCTestCase {
 
     let testQueue = DispatchQueue(label: "StartTunnelOperationTests.testQueue")
     let operationQueue = AsyncOperationQueue()
+    let tunnelSettings = LatestTunnelSettings()
 
     let loggedInDeviceState = DeviceState.loggedIn(
         StoredAccountData(
@@ -39,7 +40,7 @@ class StartTunnelOperationTests: XCTestCase {
     func makeInteractor(deviceState: DeviceState, tunnelState: TunnelState? = nil) -> MockTunnelInteractor {
         let interactor = MockTunnelInteractor(
             isConfigurationLoaded: true,
-            settings: LatestTunnelSettings(),
+            settings: tunnelSettings,
             deviceState: deviceState
         )
         if let tunnelState {
@@ -54,7 +55,8 @@ class StartTunnelOperationTests: XCTestCase {
         let expectation = expectation(description: "Start tunnel operation failed")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
-            interactor: makeInteractor(deviceState: .loggedOut)
+            interactor: makeInteractor(deviceState: .loggedOut),
+            tunnelSettings: tunnelSettings
         ) { result in
             guard case .failure = result else {
                 XCTFail("Operation returned \(result), not failure")
@@ -75,7 +77,8 @@ class StartTunnelOperationTests: XCTestCase {
 
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
-            interactor: interactor
+            interactor: interactor,
+            tunnelSettings: tunnelSettings
         ) { _ in
             XCTAssertEqual(tunnelStatus.state, .disconnecting(.reconnect))
             expectation.fulfill()
@@ -89,7 +92,8 @@ class StartTunnelOperationTests: XCTestCase {
         let expectation = expectation(description: "Make tunnel provider and start tunnel")
         let operation = StartTunnelOperation(
             dispatchQueue: testQueue,
-            interactor: interactor
+            interactor: interactor,
+            tunnelSettings: tunnelSettings
         ) { _ in
             XCTAssertNotNil(interactor.tunnel)
             XCTAssertNotNil(interactor.tunnel?.startDate)
