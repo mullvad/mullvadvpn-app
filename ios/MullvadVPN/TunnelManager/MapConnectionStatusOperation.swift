@@ -151,9 +151,12 @@ class MapConnectionStatusOperation: AsyncOperation, @unchecked Sendable {
     private func setTunnelDisconnectedStatus() {
         interactor.updateTunnelStatus { tunnelStatus in
             tunnelStatus = TunnelStatus()
-            tunnelStatus.state = pathStatus == .unsatisfied
-                ? .waitingForConnectivity(.noNetwork)
-                : .disconnected
+            let pathStatusIsUnsatisfied = pathStatus == .unsatisfied
+            let message = "pathStatusIsUnsatisfied: \(pathStatusIsUnsatisfied)"
+            print(message)
+            tunnelStatus.state = pathStatusIsUnsatisfied ? .waitingForConnectivity(.noNetwork) : .disconnected
+            let stateMessage = "Setting tunnelStatus.state to \(tunnelStatus.state)"
+            print(stateMessage)
         }
     }
 

@@ -19,7 +19,7 @@ public final class TunnelPinger: PingerProtocol {
     private let replyQueue: DispatchQueue
     private var destAddress: IPv4Address?
     /// Always accessed from the `replyQueue` and is assigned once, on the main thread of the PacketTunnel. It is thread safe.
-    public var onReply: ((PingerReply) -> Void)?
+    public var onReply: (@Sendable (PingerReply) -> Void)?
     private var pingProvider: ICMPPingProvider
 
     private let logger: Logger
@@ -31,7 +31,7 @@ public final class TunnelPinger: PingerProtocol {
         self.logger = Logger(label: "TunnelPinger")
     }
 
-    public func startPinging(destAddress: IPv4Address) throws {
+    public func startPinging(destAddress: IPv4Address) {
         stateLock.withLock {
             self.destAddress = destAddress
         }
@@ -39,6 +39,7 @@ public final class TunnelPinger: PingerProtocol {
             while let self {
                 do {
                     let seq = try pingProvider.receiveICMP()
+                    print("received seq \(seq)")
 
                     replyQueue.async { [weak self] in
                         self?.stateLock.withLock {

@@ -52,7 +52,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
 
             finish(result: .success(()))
 
-        case .disconnected, .pendingReconnect:
+        case .disconnected, .pendingReconnect, .waitingForConnectivity:
             makeTunnelProviderAndStartTunnel { error in
                 self.finish(result: error.map { .failure($0) } ?? .success(()))
             }
@@ -124,6 +124,14 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
         protocolConfig.serverAddress = ""
         protocolConfig.includeAllNetworks = true
         protocolConfig.excludeLocalNetworks = tunnelSettings.excludeLocalNetwork
+        #if DEBUG
+        // Always exclude local networks to avoid killing the debugger immediately
+        // when debugging the app
+        protocolConfig.excludeLocalNetworks = true
+        if #available(iOS 17.4, *) {
+            protocolConfig.excludeDeviceCommunication = true
+        }
+        #endif
 
         let alwaysOnRule = NEOnDemandRuleConnect()
         alwaysOnRule.interfaceTypeMatch = .any
