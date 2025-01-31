@@ -51,8 +51,8 @@ fun Dns(resultNavigator: ResultBackNavigator<DnsDialogResult>) {
 
     CollectSideEffectWithLifecycle(viewModel.uiSideEffect) {
         when (it) {
-            DnsDialogSideEffect.Complete ->
-                resultNavigator.navigateBack(result = DnsDialogResult.Success)
+            is DnsDialogSideEffect.Complete ->
+                resultNavigator.navigateBack(result = DnsDialogResult.Success(it.isDnsListEmpty))
             DnsDialogSideEffect.Error ->
                 resultNavigator.navigateBack(result = DnsDialogResult.Error)
         }
