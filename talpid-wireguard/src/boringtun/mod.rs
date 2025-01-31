@@ -4,7 +4,7 @@ use std::{
     sync::{Arc, Mutex},
 };
 
-use crate::{
+    use crate::{
     config::Config,
     stats::{Stats, StatsMap},
     wireguard_go::get_tunnel_for_userspace,
@@ -12,7 +12,7 @@ use crate::{
 };
 use boringtun::device::{
     api::{command::*, ConfigRx, ConfigTx},
-    peer::AllowedIp,
+    peer::AllowedIP,
     DeviceConfig, DeviceHandle,
 };
 use ipnetwork::IpNetwork;
@@ -32,7 +32,7 @@ pub struct BoringTun {
 }
 
 impl BoringTun {
-    pub fn start_tunnel(
+    pub async fn start_tunnel(
         config: &Config,
         _log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
@@ -49,7 +49,7 @@ impl BoringTun {
 
         let boringtun_config = DeviceConfig {
             n_threads: 4,
-            use_connected_socket: false, // TODO: what is this?
+            //use_connected_socket: false, // TODO: what is this?
             use_multi_queue: false,      // TODO: what is this?
             api: Some(config_rx),
         };
@@ -58,9 +58,10 @@ impl BoringTun {
         let device_handle: DeviceHandle =
             // TODO: don't pass file descriptor as a string -_-
             DeviceHandle::new(&_tunnel_fd.to_string(), boringtun_config)
+                .await
                 .map_err(TunnelError::BoringTunDevice)?;
 
-        set_boringtun_config(&mut config_tx, config);
+        set_boringtun_config(&mut config_tx, config).await;
 
         log::info!(
             "This tunnel was brought to you by...
@@ -99,7 +100,8 @@ impl Tunnel for BoringTun {
     fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
         let response = self
             .config_tx
-            .send(Get::default())
+            // TODO: async?
+            .send_sync(Get::default())
             .expect("Failed to get peers");
 
         let Response::Get(response) = response else {
@@ -125,10 +127,13 @@ impl Tunnel for BoringTun {
         config: Config,
     ) -> std::pin::Pin<Box<dyn Future<Output = Result<(), TunnelError>> + Send + 'a>> {
         self.config = config.clone();
-        set_boringtun_config(&mut self.config_tx, &config);
 
         // TODO:
-        Box::pin(async { Ok(()) })
+        let mut tx = self.config_tx.clone();
+        Box::pin(async move {
+            set_boringtun_config(&mut tx, &config).await;
+            Ok(())
+        })
     }
 
     fn start_daita(&mut self) -> Result<(), TunnelError> {
@@ -137,7 +142,7 @@ impl Tunnel for BoringTun {
     }
 }
 
-fn set_boringtun_config(tx: &mut ConfigTx, config: &Config) {
+async fn set_boringtun_config(tx: &mut ConfigTx, config: &Config) {
     log::info!("configuring boringtun device");
     let mut set_cmd = Set::builder()
         .private_key(config.tunnel.private_key.to_bytes())
@@ -157,7 +162,7 @@ fn set_boringtun_config(tx: &mut ConfigTx, config: &Config) {
             .allowed_ip(
                 peer.allowed_ips
                     .iter()
-                    .map(|net| AllowedIp {
+                    .map(|net| AllowedIP {
                         addr: net.ip(),
                         cidr: net.prefix(),
                     })
@@ -174,5 +179,5 @@ fn set_boringtun_config(tx: &mut ConfigTx, config: &Config) {
         set_cmd.peers.push(boring_peer);
     }
 
-    tx.send(set_cmd).expect("Failed to configure boringtun");
+    tx.send(set_cmd).await.expect("Failed to configure boringtun");
 }
