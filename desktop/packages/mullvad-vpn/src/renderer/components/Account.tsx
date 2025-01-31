@@ -30,11 +30,11 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 export default function Account() {
   const history = useHistory();
   const isOffline = useSelector((state) => state.connection.isBlocked);
-  const { updateAccountData, openLinkWithAuth, logout } = useAppContext();
+  const { updateAccountData, openUrlWithAuth, logout } = useAppContext();
 
   const onBuyMore = useCallback(async () => {
-    await openLinkWithAuth(urls.purchase);
-  }, [openLinkWithAuth]);
+    await openUrlWithAuth(urls.purchase);
+  }, [openUrlWithAuth]);
 
   const onMount = useEffectEvent(() => updateAccountData());
   useEffect(() => onMount(), []);

@@ -463,7 +463,7 @@ export default class AppRenderer {
     return devices;
   };
 
-  public openLinkWithAuth = async (link: Url): Promise<void> => {
+  public openUrlWithAuth = async (url: Url): Promise<void> => {
     let token = '';
     try {
       token = await IpcRendererEventChannel.account.getWwwAuthToken();
@@ -471,7 +471,7 @@ export default class AppRenderer {
       const error = e as Error;
       log.error(`Failed to get the WWW auth token: ${error.message}`);
     }
-    void this.openUrl(`${link}?token=${token}`);
+    void this.openUrl(`${url}?token=${token}`);
   };
 
   public setAllowLan = async (allowLan: boolean) => {

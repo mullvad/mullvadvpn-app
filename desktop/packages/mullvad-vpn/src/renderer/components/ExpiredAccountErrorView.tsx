@@ -177,7 +177,7 @@ function Content() {
 function ExternalPaymentButton() {
   const { setShowBlockWhenDisconnectedAlert } = useExpiredAccountContext();
   const { recoveryAction } = useRecoveryAction();
-  const { openLinkWithAuth } = useAppContext();
+  const { openUrlWithAuth } = useAppContext();
   const isNewAccount = useIsNewAccount();
 
   const buttonText = isNewAccount
@@ -188,9 +188,9 @@ function ExternalPaymentButton() {
     if (recoveryAction === RecoveryAction.disableBlockedWhenDisconnected) {
       setShowBlockWhenDisconnectedAlert(true);
     } else {
-      await openLinkWithAuth(urls.purchase);
+      await openUrlWithAuth(urls.purchase);
     }
-  }, [openLinkWithAuth, recoveryAction, setShowBlockWhenDisconnectedAlert]);
+  }, [openUrlWithAuth, recoveryAction, setShowBlockWhenDisconnectedAlert]);
 
   return (
     <AppButton.BlockingButton
