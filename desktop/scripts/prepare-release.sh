@@ -28,6 +28,11 @@ changes_path=../packages/mullvad-vpn/changes.txt
 changelog_path=$REPO_ROOT/CHANGELOG.md
 product_version_path=$REPO_ROOT/dist-assets/desktop-product-version.txt
 
+function print_and_run {
+    echo "+ $*"
+    "$@"
+}
+
 function checks {
     if [[ -z ${PRODUCT_VERSION+x} ]]; then
         log_error "Please give the release version as an argument to this script."
@@ -59,19 +64,19 @@ function update_changelog {
     log_info "\nPaused after editing changelog. Make potential edits, then press any key to continue..."
     read -r -s -n 1
 
-    git commit -S -m "Update desktop app changelog with $PRODUCT_VERSION section" \
+    print_and_run git commit -S -m "Update desktop app changelog with $PRODUCT_VERSION section" \
         $changelog_path
 }
 
 function update_product_version {
     echo "$PRODUCT_VERSION" > $product_version_path
-    git commit -S -m "Update desktop app version to $PRODUCT_VERSION" \
+    print_and_run git commit -S -m "Update desktop app version to $PRODUCT_VERSION" \
         $product_version_path
 }
 
 function create_tag {
     echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
-    git tag -s "$PRODUCT_VERSION" -m "$PRODUCT_VERSION"
+    print_and_run git tag -s "$PRODUCT_VERSION" -m "$PRODUCT_VERSION"
 }
 
 checks
