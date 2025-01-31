@@ -1,8 +1,8 @@
 //
-//  TunnelSettingsV6 2.swift
-//  MullvadVPN
+//  TunnelSettingsV7.swift
+//  MullvadSettings
 //
-//  Created by Steffen Ernst on 2025-02-04.
+//  Created by Marco Nikic on 2025-01-31.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 

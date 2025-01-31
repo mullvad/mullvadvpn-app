@@ -19,13 +19,16 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
 
     private let interactor: TunnelInteractor
     private let logger = Logger(label: "StartTunnelOperation")
+    private let tunnelSettings: LatestTunnelSettings
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
+        tunnelSettings: LatestTunnelSettings,
         completionHandler: @escaping CompletionHandler
     ) {
         self.interactor = interactor
+        self.tunnelSettings = tunnelSettings
 
         super.init(
             dispatchQueue: dispatchQueue,
