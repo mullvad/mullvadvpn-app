@@ -20,8 +20,9 @@
 **/osv-scanner.toml @faern @raksooo @pinkisemils @albin-mullvad
 /.github/workflows/osv-scanner*.yml @faern @raksooo @pinkisemils @albin-mullvad
 
-# GitHub actions workflow that verifies that commits are signed if they are required to be
+# Security related github action workflow changes must be approved by leads
 /.github/workflows/verify-locked-down-signatures.yml @faern @raksooo @pinkisemils @albin-mullvad
+/.github/workflows/unicop.yml @faern @raksooo @pinkisemils @albin-mullvad
 
 # The CODEOWNERS itself must be protected from unauthorized changes,
 # otherwise the protection becomes quite moot.

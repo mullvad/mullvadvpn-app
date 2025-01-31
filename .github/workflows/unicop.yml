@@ -1,0 +1,44 @@
+---
+name: Unicop - find evil unicode
+on:
+  pull_request:
+    paths:
+      - .github/workflows/unicop.yml
+      - '**/*.rs'
+      - '**/*.swift'
+      - '**/*.go'
+      - '**/*.py'
+      # Javascript/Typescript
+      - '**/*.ts'
+      - '**/*.js'
+      # Kotlin
+      - '**/*.kt'
+      - '**/*.kts'
+      # C/C++
+      - '**/*.cpp'
+      - '**/*.h'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  unicop:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init --depth=1 windows
+          git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
+
+      - name: Install Rust toolchain
+        run: rustup override set stable
+
+      - name: Install unicop
+        run: cargo install --locked unicop
+
+      - name: Check for unwanted unicode
+        run: unicop --verbose .
