@@ -29,8 +29,8 @@ public struct PingerSendResult {
 }
 
 /// A type capable of sending and receving ICMP traffic.
-public protocol PingerProtocol {
-    var onReply: ((PingerReply) -> Void)? { get set }
+public protocol PingerProtocol: AnyObject, Sendable {
+    var onReply: (@Sendable (PingerReply) -> Void)? { get set }
 
     func startPinging(destAddress: IPv4Address) throws
     func stopPinging()

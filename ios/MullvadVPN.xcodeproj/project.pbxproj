@@ -753,6 +753,7 @@
 		A939661B2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */; };
 		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
 		A93A0BEC2D4CDE97001C9246 /* TunnelSettingsV7.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93A0BEB2D4CDE97001C9246 /* TunnelSettingsV7.swift */; };
+		A93A0BEE2D4CEA7B001C9246 /* TunnelMonitorActor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93A0BED2D4CEA7B001C9246 /* TunnelMonitorActor.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
@@ -2162,6 +2163,7 @@
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerMultiProcessUpgradeTests.swift; sourceTree = "<group>"; };
 		A93A0BEB2D4CDE97001C9246 /* TunnelSettingsV7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV7.swift; sourceTree = "<group>"; };
+		A93A0BED2D4CEA7B001C9246 /* TunnelMonitorActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorActor.swift; sourceTree = "<group>"; };
 		A944F2712B8E02E800473F4C /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
@@ -3883,6 +3885,7 @@
 				A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */,
 				7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */,
 				58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */,
+				A93A0BED2D4CEA7B001C9246 /* TunnelMonitorActor.swift */,
 			);
 			path = TunnelMonitor;
 			sourceTree = "<group>";
@@ -5861,6 +5864,7 @@
 				44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */,
 				7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */,
 				A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */,
+				A93A0BEE2D4CEA7B001C9246 /* TunnelMonitorActor.swift in Sources */,
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
 				A97D25AE2B0BB18100946B2D /* ProtocolObfuscator.swift in Sources */,
 				583832212AC3174700EA2071 /* PacketTunnelActor+NetworkReachability.swift in Sources */,

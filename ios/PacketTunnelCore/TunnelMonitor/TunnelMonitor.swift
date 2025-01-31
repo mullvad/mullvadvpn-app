@@ -21,9 +21,8 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
     private let eventQueue: DispatchQueue
     private let timings: TunnelMonitorTimings
 
-    private var pinger: PingerProtocol
-    private var isObservingDefaultPath = false
-    private var timer: DispatchSourceTimer?
+    private let pinger: PingerProtocol
+    nonisolated(unsafe) private var timer: DispatchSourceTimer?
 
     private var state: TunnelMonitorState
     private var probeAddress: IPv4Address?
