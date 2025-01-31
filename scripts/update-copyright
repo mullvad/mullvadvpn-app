@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR/.."
+
+source scripts/utils/log
+
+SEARCH_OPTIONS=()
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        --submodules) SEARCH_OPTIONS+=("--recurse-submodules");;
+        *)
+            log_error "Unknown parameter: $1"
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+YEAR=$(date +%Y)
+FIND_PATTERN="^(.*copyright.*\(c\).*)(20[0-9]{2})(.*Mullvad VPN AB.*)$"
+SUBSTITUTE_PATTERN="s/$FIND_PATTERN/\1$YEAR\3/I"
+
+git grep "${SEARCH_OPTIONS[@]}" -ilE "$FIND_PATTERN" | xargs sed -i -E "$SUBSTITUTE_PATTERN"
