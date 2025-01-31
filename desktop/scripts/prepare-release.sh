@@ -12,8 +12,11 @@ REPO_ROOT=../../
 
 source $REPO_ROOT/scripts/utils/log
 
+PUSH_TAG="false"
+
 for argument in "$@"; do
     case "$argument" in
+        --push-tag) PUSH_TAG="true" ;;
         -*)
             log_error "Unknown option \"$argument\""
             exit 1
@@ -45,17 +48,19 @@ function checks {
         exit 1
     fi
 
+    if [[ $(grep "CHANGE THIS BEFORE A RELEASE" $changes_path) != "" ]]; then
+        log_error "It looks like you did not update $changes_path"
+        exit 1
+    fi
+}
+
+function check_commit_signature {
     if ! git verify-commit HEAD; then
         log_error \
             "Current commit lacks valid signature. Releases can only be made from signed commits."
         exit 1
     fi
     echo ""
-
-    if [[ $(grep "CHANGE THIS BEFORE A RELEASE" $changes_path) != "" ]]; then
-        log_error "It looks like you did not update $changes_path"
-        exit 1
-    fi
 }
 
 function check_changelog {
@@ -97,20 +102,30 @@ function update_product_version {
         $product_version_path
 }
 
-function create_tag {
-    echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
-    print_and_run git tag -s "$PRODUCT_VERSION" -m "$PRODUCT_VERSION"
+function push_tag {
+    product_version=$(echo -n "$(cat $product_version_path)")
+    echo "Tagging current git commit with release tag $product_version..."
+    print_and_run git tag -s "$product_version" -m "$product_version"
+    print_and_run git push origin "$product_version"
+    log_success "\nTag pushed!"
 }
 
-checks
-check_changelog
-update_changelog
-update_product_version
-create_tag
+if [[ $PUSH_TAG == "true" ]]; then
+    check_commit_signature
+    push_tag
+else
+    checks
+    check_commit_signature
+    check_changelog
+    update_changelog
+    update_product_version
 
-log_success "================================================="
-log_success "| DONE preparing for a release!                 |"
-log_success "|    Now push the tag created by this script    |"
-log_success "|    after you have verified it is correct:     |"
-log_success "|        $ git push origin $PRODUCT_VERSION"
-log_success "================================================="
+    log_success "\n================================================="
+    log_success "| DONE preparing for a release!                 |"
+    log_success "|    Now verify that everything looks correct   |"
+    log_success "|    and then create and push the tag by        |"
+    log_success "|    running:                                   |"
+    log_success "|    $ $0 \\ "
+    log_success "|        --push-tag                             |"
+    log_success "================================================="
+fi
