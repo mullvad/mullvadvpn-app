@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 /// Connection state.
-enum TunnelMonitorConnectionState {
+public enum TunnelMonitorConnectionState {
     /// Initialized and doing nothing.
     case stopped
 
@@ -45,9 +45,9 @@ enum ConnectionEvaluation {
 }
 
 /// Tunnel monitor state.
-struct TunnelMonitorState {
+public struct TunnelMonitorState {
     /// Current connection state.
-    var connectionState: TunnelMonitorConnectionState = .stopped
+    var connectionState: TunnelMonitorConnectionState
 
     /// Network counters.
     var netStats = WgStats()
@@ -68,10 +68,32 @@ struct TunnelMonitorState {
     var isHeartbeatSuspended = false
 
     /// Retry attempt.
-    var retryAttempt: UInt32 = 0
+    var retryAttempt: UInt32
 
     // Timings and timeouts.
     let timings: TunnelMonitorTimings
+
+    public init(
+        connectionState: TunnelMonitorConnectionState = .stopped,
+        netStats: WgStats = WgStats(),
+        pingStats: PingStats = PingStats(),
+        timeoutReference: Date = Date(),
+        lastSeenRx: Date? = nil,
+        lastSeenTx: Date? = nil,
+        isHeartbeatSuspended: Bool = false,
+        retryAttempt: UInt32 = 0,
+        timings: TunnelMonitorTimings
+    ) {
+        self.connectionState = connectionState
+        self.netStats = netStats
+        self.pingStats = pingStats
+        self.timeoutReference = timeoutReference
+        self.lastSeenRx = lastSeenRx
+        self.lastSeenTx = lastSeenTx
+        self.isHeartbeatSuspended = isHeartbeatSuspended
+        self.retryAttempt = retryAttempt
+        self.timings = timings
+    }
 
     func evaluateConnection(now: Date, pingTimeout: Duration) -> ConnectionEvaluation {
         switch connectionState {
@@ -156,7 +178,7 @@ struct TunnelMonitorState {
 
         let timeSinceLastPing = now.timeIntervalSince(lastRequestDate)
         if let lastReplyDate = pingStats.lastReplyDate,
-           lastRequestDate.timeIntervalSince(lastReplyDate) >= timings.heartbeatReplyTimeout,
+           lastReplyDate.timeIntervalSince(lastRequestDate) >= timings.heartbeatReplyTimeout,
            timeSinceLastPing >= timings.pingDelay, !isHeartbeatSuspended {
             return .retryHeartbeatPing
         }
@@ -188,5 +210,17 @@ struct TunnelMonitorState {
         }
 
         return .ok
+    }
+
+    mutating func reset(resetRetryAttempts: Bool) {
+        netStats = WgStats()
+        lastSeenRx = nil
+        lastSeenTx = nil
+        pingStats = PingStats()
+        isHeartbeatSuspended = false
+
+        if resetRetryAttempts {
+            retryAttempt = 0
+        }
     }
 }
