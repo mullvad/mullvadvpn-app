@@ -184,7 +184,7 @@ function NotificationActionWrapper({
   setIsModalOpen,
 }: NotificationActionWrapperProps) {
   const { push } = useHistory();
-  const { openLinkWithAuth, openUrl } = useAppContext();
+  const { openUrlWithAuth, openUrl } = useAppContext();
 
   const closeTroubleshootModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
 
@@ -193,7 +193,7 @@ function NotificationActionWrapper({
       switch (action.type) {
         case 'open-url':
           if (action.withAuth) {
-            return openLinkWithAuth(action.url);
+            return openUrlWithAuth(action.url);
           } else {
             return openUrl(action.url);
           }
@@ -207,7 +207,7 @@ function NotificationActionWrapper({
     }
 
     return Promise.resolve();
-  }, [action, setIsModalOpen, openLinkWithAuth, openUrl]);
+  }, [action, setIsModalOpen, openUrlWithAuth, openUrl]);
 
   const goToProblemReport = useCallback(() => {
     closeTroubleshootModal();

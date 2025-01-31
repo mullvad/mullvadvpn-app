@@ -855,7 +855,7 @@ class ApplicationMain
 
     IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
-      if (Object.values(urls).find((link) => url.startsWith(link))) {
+      if (Object.values(urls).find((allowedUrl) => url.startsWith(allowedUrl))) {
         await shell.openExternal(url);
       }
     });
