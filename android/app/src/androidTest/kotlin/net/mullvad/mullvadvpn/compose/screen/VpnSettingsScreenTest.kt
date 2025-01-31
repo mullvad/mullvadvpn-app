@@ -411,7 +411,11 @@ class VpnSettingsScreenTest {
             // Arrange
             val mockedClickHandler: (Int?, String?) -> Unit = mockk(relaxed = true)
             initScreen(
-                state = VpnSettingsUiState.createDefault(isCustomDnsEnabled = true),
+                state =
+                    VpnSettingsUiState.createDefault(
+                        isCustomDnsEnabled = true,
+                        customDnsItems = listOf(CustomDnsItem("1.1.1.1", false)),
+                    ),
                 navigateToDns = mockedClickHandler,
             )
 

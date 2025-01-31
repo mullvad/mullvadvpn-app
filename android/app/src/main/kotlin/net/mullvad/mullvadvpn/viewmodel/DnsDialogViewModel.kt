@@ -22,10 +22,11 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.lib.model.Settings
 import net.mullvad.mullvadvpn.repository.SettingsRepository
+import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
 import org.apache.commons.validator.routines.InetAddressValidator
 
 sealed interface DnsDialogSideEffect {
-    data object Complete : DnsDialogSideEffect
+    data class Complete(val isAllDeleted: Boolean) : DnsDialogSideEffect
 
     data object Error : DnsDialogSideEffect
 }
@@ -52,6 +53,7 @@ class DnsDialogViewModel(
     private val repository: SettingsRepository,
     private val inetAddressValidator: InetAddressValidator,
     savedStateHandle: SavedStateHandle,
+    private val deleteCustomDnsUseCase: DeleteCustomDnsUseCase,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO,
 ) : ViewModel() {
     private val navArgs = DnsDestination.argsFrom(savedStateHandle)
@@ -127,17 +129,17 @@ class DnsDialogViewModel(
 
             result.fold(
                 { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                { _uiSideEffect.send(DnsDialogSideEffect.Complete) },
+                { _uiSideEffect.send(DnsDialogSideEffect.Complete(false)) },
             )
         }
 
     fun onRemoveDnsClick(index: Int) =
         viewModelScope.launch(dispatcher) {
-            repository
-                .deleteCustomDns(index)
+            deleteCustomDnsUseCase
+                .invoke(index)
                 .fold(
                     { _uiSideEffect.send(DnsDialogSideEffect.Error) },
-                    { _uiSideEffect.send(DnsDialogSideEffect.Complete) },
+                    { _uiSideEffect.send(DnsDialogSideEffect.Complete(it == 0)) },
                 )
         }
 
