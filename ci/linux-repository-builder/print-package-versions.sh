@@ -5,59 +5,89 @@
 set -eu
 
 function usage() {
-    echo "Usage: $0 <repository type> <environment>"
+    echo "Usage: $0 [options]"
     echo ""
-    echo "Example usage: $0 rpm production"
-    echo
-    echo "Arguments:"
-    echo "  repository type: deb or rpm"
-    echo "  environment: production, staging or dev"
+    echo "Example usage: $0 --rpm --production --beta"
     echo
     echo "Options:"
-    echo "  -h | --help		Show this help message and exit."
+    echo "  -h | --help			Show this help message and exit."
+    echo "  -v | --verbose		Print stderr of all commands."
+    echo "  -vv				Print both stderr and stdout of all commands."
+    echo "  --deb				Check version of deb package (default)."
+    echo "  --rpm				Check version of rpm package (default)."
+    echo "  --production | --prod		Check packages in production repositories (default)."
+    echo "  --staging			Check packages in staging repositories."
+    echo "  --development | --dev		Check packages in development repositories."
+    echo "  --stable			Check packages in stable repositories (default)."
+    echo "  --beta			Check packages in beta repositories."
     exit 1
 }
 
-if [[ "$#" == 0 || $1 == "-h" || $1 == "--help" ]]; then
-    usage
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+# shellcheck source=ci/linux-repository-builder/build-linux-repositories-config.sh
+source build-linux-repositories-config.sh
+# shellcheck source=scripts/utils/log
+source ../../scripts/utils/log
+
+deb="false"
+rpm="false"
+repository_server_public_url="$PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL"
+release_channel="stable"
+
+silent_stdout=">/dev/null"
+silent_stderr="2>/dev/null"
+
+while [[ "$#" -gt 0 ]]; do
+    case $1 in
+        -h|--help) usage;;
+        -v|--verbose) silent_stderr="" ;;
+        -vv)
+            silent_stdout=""
+            silent_stderr=""
+            ;;
+        --deb) deb="true";;
+        --rpm) rpm="true";;
+        --production|--prod) repository_server_public_url="$PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL";;
+        --staging) repository_server_public_url="$STAGING_LINUX_REPOSITORY_PUBLIC_URL";;
+        --development|--dev) repository_server_public_url="$DEV_LINUX_REPOSITORY_PUBLIC_URL";;
+        --stable) release_channel="stable";;
+        --beta) release_channel="beta";;
+        *)
+            log_error "Unknown parameter: $1\n"
+            usage
+            ;;
+    esac
+    shift
+done
+
+if [[ $deb == "false" && $rpm == "false" ]]; then
+    deb="true";
+    rpm="true";
 fi
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-source "$SCRIPT_DIR/build-linux-repositories-config.sh"
+if [[ $deb == "true" ]]; then
+    if [[ $rpm == "true" ]]; then
+        log_header "deb"
+    fi
 
-repository="$1"
-environment="$2"
-
-case "$environment" in
-    "production")
-        repository_server_public_url="$PRODUCTION_LINUX_REPOSITORY_PUBLIC_URL"
-        ;;
-    "staging")
-        repository_server_public_url="$STAGING_LINUX_REPOSITORY_PUBLIC_URL"
-        ;;
-    "dev")
-        repository_server_public_url="$DEV_LINUX_REPOSITORY_PUBLIC_URL"
-        ;;
-    *)
-        echo "Unknown environment. Specify production, staging or dev" >&2
-        exit 1
-        ;;
-esac
-
-if [[ "$repository" == "deb" ]]; then
-    podman run --rm -it debian:bookworm-slim sh -c \
-        "apt update >/dev/null; \
-        apt install -y curl >/dev/null; \
+    bash -c " podman run --rm -it debian:latest sh -c \
+        \"apt update $silent_stderr $silent_stdout; \
+        apt install -y curl $silent_stderr $silent_stdout; \
         curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc $repository_server_public_url/deb/mullvad-keyring.asc; \
-        echo \"deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=amd64] $repository_server_public_url/deb/stable bookworm main\" > /etc/apt/sources.list.d/mullvad.list; \
-        apt update >/dev/null; \
-        apt list mullvad-vpn mullvad-browser"
-elif [[ "$repository" == "rpm" ]]; then
-    podman run --rm -it fedora:latest sh -c \
-    "dnf install -y 'dnf-command(config-manager)' >/dev/null; \
-    dnf config-manager --add-repo $repository_server_public_url/rpm/stable/mullvad.repo >/dev/null; \
-    dnf list --refresh mullvad-vpn mullvad-browser 2>/dev/null | grep -A 1000 'Available Packages'"
-else
-    echo "Unknown repository type. Specify deb or rpm" >&2
-    exit 1
+        echo \\\"deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=amd64] $repository_server_public_url/deb/$release_channel bookworm main\\\" > /etc/apt/sources.list.d/mullvad.list; \
+        apt update $silent_stderr $silent_stdout; \
+        apt list mullvad-vpn mullvad-browser $silent_stderr | grep -E 'mullvad-(vpn|browser)'\" $silent_stderr"
+fi
+
+if [[ $rpm == "true" ]]; then
+    if [[ $deb == "true" ]]; then
+        log_header "rpm"
+    fi
+
+    bash -c "podman run --rm -it fedora:latest sh -c \
+        \"dnf install -y 'dnf-command(config-manager)' $silent_stdout; \
+        dnf config-manager --add-repo $repository_server_public_url/rpm/$release_channel/mullvad.repo $silent_stdout; \
+        dnf list --refresh mullvad-vpn mullvad-browser $silent_stderr | grep -E 'mullvad-(vpn|browser)'\" $silent_stderr"
 fi
