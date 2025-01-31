@@ -9,7 +9,7 @@ import {
   ISplitTunnelingApplication,
   ISplitTunnelingAppListRetriever,
 } from '../shared/application-types';
-import { links } from '../shared/constants';
+import { urls } from '../shared/constants';
 import {
   AccessMethodSetting,
   DaemonEvent,
@@ -855,7 +855,7 @@ class ApplicationMain
 
     IpcMainEventChannel.app.handleQuit(() => this.disconnectAndQuit());
     IpcMainEventChannel.app.handleOpenUrl(async (url) => {
-      if (Object.values(links).find((link) => url.startsWith(link))) {
+      if (Object.values(urls).find((link) => url.startsWith(link))) {
         await shell.openExternal(url);
       }
     });

@@ -9,7 +9,7 @@ import {
   ILinuxSplitTunnelingApplication,
   ISplitTunnelingApplication,
 } from '../shared/application-types';
-import { Link } from '../shared/constants';
+import { Url } from '../shared/constants';
 import {
   AccessMethodSetting,
   AccountNumber,
@@ -359,7 +359,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
   public quit = () => IpcRendererEventChannel.app.quit();
-  public openUrl = (url: Link) => IpcRendererEventChannel.app.openUrl(url);
+  public openUrl = (url: Url) => IpcRendererEventChannel.app.openUrl(url);
   public getPathBaseName = (path: string) => IpcRendererEventChannel.app.getPathBaseName(path);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
     IpcRendererEventChannel.app.showOpenDialog(options);
@@ -463,7 +463,7 @@ export default class AppRenderer {
     return devices;
   };
 
-  public openLinkWithAuth = async (link: Link): Promise<void> => {
+  public openLinkWithAuth = async (link: Url): Promise<void> => {
     let token = '';
     try {
       token = await IpcRendererEventChannel.account.getWwwAuthToken();

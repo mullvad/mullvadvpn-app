@@ -1,5 +1,5 @@
 import { hasExpired } from '../account-expiry';
-import { links } from '../constants';
+import { urls } from '../constants';
 import { TunnelState } from '../daemon-rpc-types';
 import { messages } from '../gettext';
 import {
@@ -33,7 +33,7 @@ export class AccountExpiredNotificationProvider implements SystemNotificationPro
       presentOnce: { value: true, name: this.constructor.name },
       action: {
         type: 'open-url',
-        url: links.purchase,
+        url: urls.purchase,
         withAuth: true,
         text: messages.pgettext('notifications', 'Buy more'),
       },
