@@ -2,7 +2,7 @@
 //  TunnelMonitor.swift
 //  PacketTunnelCore
 //
-//  Created by pronebird on 09/02/2022.
+//  Created by Marco Nikic on 2025-01-31.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
@@ -12,98 +12,72 @@ import MullvadTypes
 import Network
 import NetworkExtension
 
-/// Tunnel monitor.
-public final class TunnelMonitor: TunnelMonitorProtocol {
-    private let tunnelDeviceInfo: TunnelDeviceInfoProtocol
-
-    private let nslock = NSLock()
-    private let timerQueue = DispatchQueue(label: "TunnelMonitor-timerQueue")
-    private let eventQueue: DispatchQueue
+public actor TunnelMonitorActor: TunnelMonitorProtocol {
+    private let pinger: any PingerProtocol
     private let timings: TunnelMonitorTimings
-
-    private var pinger: PingerProtocol
-    private var isObservingDefaultPath = false
-    private var timer: DispatchSourceTimer?
-
     private var state: TunnelMonitorState
+    private let tunnelDeviceInfo: any TunnelDeviceInfoProtocol
     private var probeAddress: IPv4Address?
+    private var timer: DispatchSourceTimer?
+    private var eventHandler: AsyncStream<TunnelMonitorEvent>.Continuation?
 
-    private let logger = Logger(label: "TunnelMonitor")
-
-    private var _onEvent: ((TunnelMonitorEvent) -> Void)?
-    public var onEvent: ((TunnelMonitorEvent) -> Void)? {
-        get {
-            nslock.withLock {
-                return _onEvent
-            }
-        }
-        set {
-            nslock.withLock {
-                _onEvent = newValue
-            }
-        }
-    }
+    public let eventStream: AsyncStream<TunnelMonitorEvent>
 
     public init(
-        eventQueue: DispatchQueue,
-        pinger: PingerProtocol,
-        tunnelDeviceInfo: TunnelDeviceInfoProtocol,
+        pinger: any PingerProtocol,
+        tunnelDeviceInfo: any TunnelDeviceInfoProtocol,
         timings: TunnelMonitorTimings
     ) {
-        self.eventQueue = eventQueue
+        self.pinger = pinger
+        self.timings = timings
+        self.state = TunnelMonitorState(timings: timings)
         self.tunnelDeviceInfo = tunnelDeviceInfo
 
-        self.timings = timings
-        state = TunnelMonitorState(timings: timings)
-
-        self.pinger = pinger
-        self.pinger.onReply = { [weak self] reply in
-            guard let self else { return }
-
-            switch reply {
-            case let .success(sender, sequenceNumber):
-                didReceivePing(from: sender, sequenceNumber: sequenceNumber)
-
-            case let .parseError(error):
-                logger.error(error: error, message: "Failed to parse ICMP response.")
-            }
+        var innerContinuation: AsyncStream<TunnelMonitorEvent>.Continuation?
+        let stream = AsyncStream<TunnelMonitorEvent> { continuation in
+            innerContinuation = continuation
         }
+
+        self.eventStream = stream
+        self.eventHandler = innerContinuation
     }
 
-    deinit {
-        stop()
-    }
+    // MARK: - Public API
 
-    public func start(probeAddress: IPv4Address) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
+    public func start(probeAddress: IPv4Address) async {
         if case .stopped = state.connectionState {
-            logger.debug("Start with address: \(probeAddress).")
+            print("Start with address: \(probeAddress).")
         } else {
-            _stop(forRestart: true)
-            logger.debug("Restart with address: \(probeAddress).")
+            _stop(restarting: true)
         }
 
         self.probeAddress = probeAddress
-        state.connectionState = .pendingStart
+        self.state.connectionState = .pendingStart
+
+        pinger.onReply = { @Sendable [weak self] reply in
+            Task {
+                await self?.handlePingerReply(reply)
+            }
+        }
 
         startMonitoring()
     }
 
-    public func stop() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
+    public func stop() async {
         _stop()
     }
 
-    public func onWake() {
-        nslock.lock()
-        defer { nslock.unlock() }
+    private func _stop(restarting: Bool = false) {
+        guard state.connectionState != .stopped else { return }
 
-        logger.trace("Wake up.")
+        pinger.onReply = nil
 
+        probeAddress = nil
+        stopMonitoring(resetRetryAttempt: restarting == false)
+        state.connectionState = .stopped
+    }
+
+    public func wake() async {
         switch state.connectionState {
         case .connecting, .connected:
             startConnectivityCheckTimer()
@@ -113,71 +87,91 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         }
     }
 
-    public func onSleep() {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        logger.trace("Prepare to sleep.")
-
+    public func sleep() async {
+        print(#function)
         stopConnectivityCheckTimer()
     }
 
-    public func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) {
-        nslock.withLock {
-            let isReachable = networkPath == .satisfied || networkPath == .requiresConnection
+    public func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) async {
+        print(#function)
 
-            switch state.connectionState {
-            case .pendingStart:
-                if isReachable {
-                    logger.debug("Start monitoring connection.")
-                    startMonitoring()
-                } else {
-                    logger.debug("Wait for network to become reachable before starting monitoring.")
-                    state.connectionState = .waitingConnectivity
-                }
+        let pathStatus = networkPath
+        let isReachable = pathStatus == .satisfied || pathStatus == .requiresConnection
+        let message = "handleNetworkPathUpdate considered reachable: \(isReachable)"
+        print(message)
 
-            case .waitingConnectivity:
-                guard isReachable else { return }
-
-                logger.debug("Network is reachable. Resume monitoring.")
+        switch state.connectionState {
+        case .pendingStart:
+            if isReachable {
                 startMonitoring()
-
-            case .connecting, .connected:
-                guard !isReachable else { return }
-
-                logger.debug("Network is unreachable. Pause monitoring.")
+            } else {
                 state.connectionState = .waitingConnectivity
-                stopMonitoring(resetRetryAttempt: true)
-
-            case .stopped, .recovering:
-                break
             }
+
+        case .waitingConnectivity:
+            guard isReachable else { return }
+
+            startMonitoring()
+
+        case .connecting, .connected:
+            guard !isReachable else { return }
+
+            state.connectionState = .waitingConnectivity
+            stopMonitoring(resetRetryAttempt: true)
+
+        case .stopped, .recovering:
+            break
         }
     }
 
-    // MARK: - Private
+    // MARK: - Private API
 
-    private func _stop(forRestart: Bool = false) {
-        if case .stopped = state.connectionState {
-            return
-        }
+    private func startMonitoring() {
+        guard let probeAddress else { return }
 
-        if !forRestart {
-            logger.debug("Stop tunnel monitor.")
-        }
-
-        probeAddress = nil
-
-        stopMonitoring(resetRetryAttempt: !forRestart)
-
-        state.connectionState = .stopped
+        pinger.startPinging(destAddress: probeAddress)
+        state.connectionState = .connecting
+        startConnectivityCheckTimer()
     }
 
-    private func checkConnectivity() {
-        nslock.lock()
-        defer { nslock.unlock() }
+    private func stopMonitoring(resetRetryAttempt: Bool) {
+        stopConnectivityCheckTimer()
+        pinger.stopPinging()
+        state.reset(resetRetryAttempts: resetRetryAttempt)
+    }
 
-        guard let newStats = getStats(),
+    private func handlePingerReply(_ reply: PingerReply) {
+        switch reply {
+        case let .success(sender, sequenceNumber):
+            guard let probeAddress else { return }
+
+            if sender.rawValue != probeAddress.rawValue {
+                print("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
+            }
+
+            let now = Date()
+            guard state.setPingReplyReceived(sequenceNumber, now: now) != nil else {
+                print("Got unknown ping sequence: \(sequenceNumber).")
+                return
+            }
+
+            if case .connecting = state.connectionState {
+                state.connectionState = .connected
+                state.retryAttempt = 0
+                sendConnectionEstablishedEvent()
+            }
+
+        case let .parseError(error):
+            print("Failed to parse ICMP response: \(error)")
+        }
+    }
+
+    private func checkConnectivity() async {
+        print(#function)
+        let newStats = try? await tunnelDeviceInfo.getStats()
+        let statsDebug = "bytes received: \(newStats?.bytesReceived), bytes sent: \(newStats?.bytesSent)"
+        print(statsDebug)
+        guard let newStats,
               state.connectionState == .connecting || state.connectionState == .connected
         else { return }
 
@@ -186,24 +180,17 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
             newStats.bytesSent < state.netStats.bytesSent
 
         guard !isStatsReset else {
-            logger.trace("Stats was being reset.")
             state.netStats = newStats
             return
         }
-
-        #if DEBUG
-        logCounters(currentStats: state.netStats, newStats: newStats)
-        #endif
 
         let now = Date()
         state.updateNetStats(newStats: newStats, now: now)
 
         let timeout = state.getPingTimeout()
+        let expectedTimeout = "Expected timeout is \(timeout)"
+        print(expectedTimeout)
         let evaluation = state.evaluateConnection(now: now, pingTimeout: timeout)
-
-        if evaluation != .ok {
-            logger.trace("Evaluation: \(evaluation)")
-        }
 
         switch evaluation {
         case .ok:
@@ -225,21 +212,22 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         }
     }
 
-    #if DEBUG
-    private func logCounters(currentStats: WgStats, newStats: WgStats) {
-        let rxDelta = newStats.bytesReceived.saturatingSubtraction(currentStats.bytesReceived)
-        let txDelta = newStats.bytesSent.saturatingSubtraction(currentStats.bytesSent)
-
-        guard rxDelta > 0 || txDelta > 0 else { return }
-
-        logger.trace(
-            """
-            rx: \(newStats.bytesReceived) (+\(rxDelta)) \
-            tx: \(newStats.bytesSent) (+\(txDelta))
-            """
-        )
+    private func sendPing(now: Date) {
+        do {
+            let sendResult = try pinger.send()
+            state.updatePingStats(sendResult: sendResult, now: now)
+        } catch {
+            print("Failed to send ping.")
+        }
     }
-    #endif
+
+    private func sendConnectionEstablishedEvent() {
+        eventHandler?.yield(.connectionEstablished)
+    }
+
+    private func sendConnectionLostEvent() {
+        eventHandler?.yield(.connectionLost)
+    }
 
     private func startConnectionRecovery() {
         stopMonitoring(resetRetryAttempt: false)
@@ -251,126 +239,49 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         sendConnectionLostEvent()
     }
 
-    private func sendPing(now: Date) {
-        do {
-            let sendResult = try pinger.send()
-            state.updatePingStats(sendResult: sendResult, now: now)
-
-            logger.trace("Send ping icmp_seq=\(sendResult.sequenceNumber).")
-        } catch {
-            logger.error(error: error, message: "Failed to send ping.")
-        }
-    }
-
-    private func didReceivePing(from sender: IPAddress, sequenceNumber: UInt16) {
-        nslock.lock()
-        defer { nslock.unlock() }
-
-        guard let probeAddress else { return }
-
-        if sender.rawValue != probeAddress.rawValue {
-            logger.trace("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
-        }
-
-        let now = Date()
-        guard let pingTimestamp = state.setPingReplyReceived(sequenceNumber, now: now) else {
-            logger.trace("Got unknown ping sequence: \(sequenceNumber).")
-            return
-        }
-
-        logger.trace({
-            let time = now.timeIntervalSince(pingTimestamp) * 1000
-            let message = String(
-                format: "Received reply icmp_seq=%d, time=%.2f ms.",
-                sequenceNumber,
-                time
-            )
-            return Logger.Message(stringLiteral: message)
-        }())
-
-        if case .connecting = state.connectionState {
-            state.connectionState = .connected
-            state.retryAttempt = 0
-            sendConnectionEstablishedEvent()
-        }
-    }
-
-    private func startMonitoring() {
-        do {
-            guard let probeAddress else {
-                logger.debug("Failed to obtain probe address.")
-                return
-            }
-
-            try pinger.startPinging(destAddress: probeAddress)
-
-            state.connectionState = .connecting
-            startConnectivityCheckTimer()
-        } catch {
-            logger.error(error: error, message: "Failed to open socket.")
-        }
-    }
-
-    private func stopMonitoring(resetRetryAttempt: Bool) {
-        stopConnectivityCheckTimer()
-        pinger.stopPinging()
-
-        state.netStats = WgStats()
-        state.lastSeenRx = nil
-        state.lastSeenTx = nil
-        state.pingStats = PingStats()
-
-        if resetRetryAttempt {
-            state.retryAttempt = 0
-        }
-
-        state.isHeartbeatSuspended = false
-    }
-
     private func startConnectivityCheckTimer() {
-        let timer = DispatchSource.makeTimerSource(queue: timerQueue)
-        timer.setEventHandler { [weak self] in
-            self?.checkConnectivity()
-        }
-        timer.schedule(wallDeadline: .now(), repeating: timings.connectivityCheckInterval.timeInterval)
-        timer.activate()
+        print(#function)
 
-        self.timer?.cancel()
-        self.timer = timer
+        let timerSource = DispatchSource.makeTimerSource()
+
+        timerSource.setEventHandler {
+            Task { [weak self] in
+                await self?.checkConnectivity()
+            }
+        }
+
+        timerSource.schedule(wallDeadline: .now(), repeating: timings.connectivityCheckInterval.timeInterval)
+        timerSource.activate()
+
+        timer?.cancel()
+        timer = timerSource
 
         state.timeoutReference = Date()
-
-        logger.trace("Start connectivity check timer.")
     }
 
     private func stopConnectivityCheckTimer() {
-        guard let timer else { return }
-
-        logger.trace("Stop connectivity check timer.")
-
-        timer.cancel()
-        self.timer = nil
+        print(#function)
+        timer?.setEventHandler(
+            handler: {}
+        )
+        timer?.cancel()
+        timer = nil
     }
 
-    private func sendConnectionEstablishedEvent() {
-        eventQueue.async {
-            self.onEvent?(.connectionEstablished)
-        }
+    #if DEBUG
+    /// Helper function used to help the state pass across the actor's isolation region
+    internal func getState() -> TunnelMonitorState {
+        TunnelMonitorState(
+            connectionState: state.connectionState,
+            netStats: state.netStats,
+            pingStats: state.pingStats,
+            timeoutReference: state.timeoutReference,
+            lastSeenRx: state.lastSeenRx,
+            lastSeenTx: state.lastSeenTx,
+            isHeartbeatSuspended: state.isHeartbeatSuspended,
+            retryAttempt: state.retryAttempt,
+            timings: timings
+        )
     }
-
-    private func sendConnectionLostEvent() {
-        eventQueue.async {
-            self.onEvent?(.connectionLost)
-        }
-    }
-
-    private func getStats() -> WgStats? {
-        do {
-            return try tunnelDeviceInfo.getStats()
-        } catch {
-            logger.error(error: error, message: "Failed to obtain adapter stats.")
-
-            return nil
-        }
-    }
+    #endif
 }
