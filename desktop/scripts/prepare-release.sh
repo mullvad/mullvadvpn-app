@@ -40,6 +40,13 @@ function checks {
         exit 1
     fi
 
+    if ! git verify-commit HEAD; then
+        log_error \
+            "Current commit lacks valid signature. Releases can only be made from signed commits."
+        exit 1
+    fi
+    echo ""
+
     if [[ $(grep "CHANGE THIS BEFORE A RELEASE" $changes_path) != "" ]]; then
         log_error "It looks like you did not update $changes_path"
         exit 1
