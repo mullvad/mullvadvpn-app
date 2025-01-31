@@ -645,7 +645,13 @@ impl WireguardMonitor {
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
-        let tunnel = runtime.block_on(Self::open_boringtun_tunnel(config, log_path, resource_dir, tun_provider))
+        let tunnel = runtime
+            .block_on(Self::open_boringtun_tunnel(
+                config,
+                log_path,
+                resource_dir,
+                tun_provider,
+            ))
             .map(Box::new)?;
         return Ok(tunnel);
 

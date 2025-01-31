@@ -25,10 +25,12 @@ pub struct BoringTun {
     device_handle: DeviceHandle,
     config_tx: ConfigTx,
     config: Config,
+    
+    interface_name: String,
 
-    /// holding on to the tunnel device and the log file ensures that the associated file handles
-    /// live long enough and get closed when the tunnel is stopped
-    tunnel_device: Tun,
+    // /// holding on to the tunnel device and the log file ensures that the associated file handles
+    // /// live long enough and get closed when the tunnel is stopped
+    // tunnel_device: Tun,
 }
 
 impl BoringTun {
@@ -45,6 +47,9 @@ impl BoringTun {
         // TODO: investigate timing bug when creating tun device? (Device or resource busy)
         let (tun, _tunnel_fd) = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
+        let interface_name = tun.interface_name();
+        let async_tun = tun.into_tun_lol();
+
         let (mut config_tx, config_rx) = ConfigRx::new();
 
         let boringtun_config = DeviceConfig {
@@ -57,7 +62,7 @@ impl BoringTun {
         log::info!("passing tunnel dev to boringtun");
         let device_handle: DeviceHandle =
             // TODO: don't pass file descriptor as a string -_-
-            DeviceHandle::new(&_tunnel_fd.to_string(), boringtun_config)
+            DeviceHandle::new(async_tun, boringtun_config)
                 .await
                 .map_err(TunnelError::BoringTunDevice)?;
 
@@ -79,14 +84,16 @@ impl BoringTun {
             device_handle,
             config: config.clone(),
             config_tx,
-            tunnel_device: tun,
+            interface_name,
+            //tunnel_device: tun,
         })
     }
 }
 
 impl Tunnel for BoringTun {
     fn get_interface_name(&self) -> String {
-        self.tunnel_device.interface_name().to_string()
+        //self.tunnel_device.interface_name()
+        self.interface_name.clone()
     }
 
     fn stop(mut self: Box<Self>) -> Result<(), TunnelError> {

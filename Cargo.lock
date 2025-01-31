@@ -4984,7 +4984,7 @@ dependencies = [
  "talpid-windows",
  "thiserror 2.0.9",
  "tokio",
- "tun 0.5.5",
+ "tun 0.7.13",
  "windows-sys 0.52.0",
 ]
 
@@ -5073,6 +5073,7 @@ dependencies = [
  "thiserror 2.0.9",
  "tokio",
  "tokio-stream",
+ "tun 0.7.13",
  "tunnel-obfuscation",
  "widestring",
  "windows-sys 0.52.0",

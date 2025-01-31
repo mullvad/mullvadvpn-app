@@ -5,7 +5,7 @@ use std::{
     os::unix::io::{AsRawFd, RawFd},
     process::Command,
 };
-use tun::{Configuration, Device};
+use tun::{AbstractDevice, AsyncDevice, Configuration, Device};
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
@@ -83,6 +83,10 @@ impl UnixTun {
     pub fn interface_name(&self) -> Result<String, Error> {
         self.get_name()
     }
+
+    pub fn into_tun_lol(self) -> AsyncDevice {
+        AsyncDevice::new(self.0.dev).unwrap()
+    }
 }
 
 impl Deref for UnixTun {
@@ -120,7 +124,7 @@ impl TunnelDeviceBuilder {
         self
     }
 
-    /// Enable packet information.
+    /*/// Enable packet information.
     /// When enabled the first 4 bytes of each packet is a header with flags and protocol type.
     #[cfg(target_os = "linux")]
     pub fn enable_packet_information(&mut self) -> &mut Self {
@@ -131,7 +135,7 @@ impl TunnelDeviceBuilder {
             config.packet_information(true);
         });
         self
-    }
+    }*/
 }
 
 impl AsRawFd for TunnelDevice {

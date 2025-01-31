@@ -23,8 +23,11 @@ tokio = { workspace = true, features = ["process", "rt-multi-thread", "fs"] }
 jnix = { version = "0.5.1", features = ["derive"] }
 log = { workspace = true }
 
-[target.'cfg(any(target_os = "linux", target_os = "macos"))'.dependencies]
-tun = { workspace = true }
+[target.'cfg(target_os = "linux")'.dependencies]
+tun = { version = "0.7.11", features = ["async"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+tun = { version = "0.7.11", features = ["async"] }
 
 [target.'cfg(windows)'.dependencies]
 talpid-windows = { path = "../talpid-windows" }
