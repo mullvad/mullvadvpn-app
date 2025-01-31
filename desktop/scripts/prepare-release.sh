@@ -58,6 +58,29 @@ function checks {
     fi
 }
 
+function check_changelog {
+    previous_version=$(grep -oP '## \[\K[^\]]+' $changelog_path | head -2 | tail -1)
+
+    log_header "Changelog since previous release"
+    git --no-pager diff -U10 "$previous_version"..HEAD -- $changelog_path
+
+    log_info "\nThe changelog should only contain changes in the \"Unreleased\" section, unless it's a correction of a previous message."
+    read -r -n 1 -p "Does this look good? (y: yes, q: abort, r: reload): " response
+    echo ""
+
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        return
+    elif [[ "$response" =~ ^[QqAa]$ ]]; then
+        log_info "Aborting"
+        exit 1
+    elif [[ "$response" =~ ^[Rr]$ ]]; then
+        check_changelog
+    else
+        log_error "Invalid response"
+        check_changelog
+    fi
+}
+
 function update_changelog {
     sed -i -e "/^## \[Unreleased\]/a \\\n\\n## \[$PRODUCT_VERSION\] - $(date +%F)" $changelog_path
 
@@ -80,6 +103,7 @@ function create_tag {
 }
 
 checks
+check_changelog
 update_changelog
 update_product_version
 create_tag
