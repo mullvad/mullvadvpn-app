@@ -6,17 +6,11 @@
 set -eu
 
 ANDROID="false"
-DESKTOP="false"
-VERSION_METADATA_ARGS=""
 
 for argument in "$@"; do
     case "$argument" in
         "--android")
             ANDROID="true"
-            ;;
-        "--desktop")
-            DESKTOP="true"
-            VERSION_METADATA_ARGS+="--desktop "
             ;;
         -*)
             echo "Unknown option \"$argument\""
@@ -34,26 +28,14 @@ if [[ -z ${PRODUCT_VERSION+x} ]]; then
     exit 1
 fi
 
-if [[ "$ANDROID" != "true" && "$DESKTOP" != "true" ]]; then
-    echo "Please specify if the release is for the desktop app and/or for Android app."
-    echo "For example: --android --desktop"
+if [[ "$ANDROID" != "true" ]]; then
+    echo "Please specify if the release is for the for the Android app."
+    echo "For example: --android"
     exit 1
 fi
 
 if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
     echo "Dirty working directory! Will not accept that for an official release."
-    exit 1
-fi
-
-desktop_changes_path=desktop/packages/mullvad-vpn/changes.txt
-if [[ $DESKTOP == "true" && $(grep "CHANGE THIS BEFORE A RELEASE" $desktop_changes_path) != "" ]]; then
-    echo "It looks like you did not update $desktop_changes_path"
-    exit 1
-fi
-
-if [[ "$DESKTOP" == "true" && $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
-    echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
-    echo "Please make sure the changelog is up to date and correct before you proceed."
     exit 1
 fi
 
@@ -75,12 +57,6 @@ if [[ "$ANDROID" == "true" ]]; then
         dist-assets/relays/relays.json
 fi
 
-if [[ "$DESKTOP" == "true" ]]; then
-    echo "$PRODUCT_VERSION" > dist-assets/desktop-product-version.txt
-    git commit -S -m "Update desktop app version to $PRODUCT_VERSION" \
-        dist-assets/desktop-product-version.txt
-fi
-
 if [[ "$ANDROID" == "true" ]]; then
     echo "$PRODUCT_VERSION" > dist-assets/android-version-name.txt
     ANDROID_VERSION="$PRODUCT_VERSION" cargo run -q --bin mullvad-version versionCode > \
@@ -97,12 +73,6 @@ if [[ "$ANDROID" == "true" ]]; then
 
     git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
     NEW_TAGS+=" android/$PRODUCT_VERSION"
-fi
-if [[ "$DESKTOP" == "true" ]]; then
-    echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
-
-    git tag -s "$PRODUCT_VERSION" -m "$PRODUCT_VERSION"
-    NEW_TAGS+=" $PRODUCT_VERSION"
 fi
 
 echo "================================================="
