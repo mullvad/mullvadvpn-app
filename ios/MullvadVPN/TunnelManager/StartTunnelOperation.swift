@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import NetworkExtension
 import Operations
 import PacketTunnelCore
@@ -18,13 +19,16 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
 
     private let interactor: TunnelInteractor
     private let logger = Logger(label: "StartTunnelOperation")
+    private let tunnelSettings: LatestTunnelSettings
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
+        tunnelSettings: LatestTunnelSettings,
         completionHandler: @escaping CompletionHandler
     ) {
         self.interactor = interactor
+        self.tunnelSettings = tunnelSettings
 
         super.init(
             dispatchQueue: dispatchQueue,
@@ -106,7 +110,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     ) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
-        let configuration = Self.makeTunnelConfiguration()
+        let configuration = makeTunnelConfiguration()
 
         tunnel.setConfiguration(configuration)
         tunnel.saveToPreferences { error in
@@ -114,10 +118,12 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
         }
     }
 
-    private class func makeTunnelConfiguration() -> TunnelConfiguration {
+    private func makeTunnelConfiguration() -> TunnelConfiguration {
         let protocolConfig = NETunnelProviderProtocol()
         protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
+        protocolConfig.includeAllNetworks = true
+        protocolConfig.excludeLocalNetworks = tunnelSettings.excludeLocalNetwork
 
         let alwaysOnRule = NEOnDemandRuleConnect()
         alwaysOnRule.interfaceTypeMatch = .any
