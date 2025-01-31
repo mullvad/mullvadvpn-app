@@ -877,7 +877,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private func startNetworkMonitor() {
         cancelNetworkMonitor()
 
-        networkMonitor = NWPathMonitor()
+        networkMonitor = NWPathMonitor(prohibitedInterfaceTypes: [.other])
         networkMonitor?.pathUpdateHandler = { [weak self] path in
             self?.didUpdateNetworkPath(path)
         }
@@ -886,6 +886,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     private func cancelNetworkMonitor() {
+        networkMonitor?.pathUpdateHandler = nil
         networkMonitor?.cancel()
         networkMonitor = nil
     }

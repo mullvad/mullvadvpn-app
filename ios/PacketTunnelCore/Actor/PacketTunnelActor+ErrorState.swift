@@ -39,7 +39,7 @@ extension PacketTunnelActor {
      */
     func setErrorStateInternal(with reason: BlockedStateReason) async {
         // Tunnel monitor shouldn't run when in error state.
-        tunnelMonitor.stop()
+        await tunnelMonitor.stop()
 
         if let blockedState = makeBlockedState(reason: reason) {
             state = .error(blockedState)
@@ -62,7 +62,7 @@ extension PacketTunnelActor {
                 relayConstraints: nil,
                 currentKey: nil,
                 keyPolicy: .useCurrent,
-                networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
+                networkReachability: defaultPathObserver.currentPathStatus.networkReachability,
                 recoveryTask: startRecoveryTaskIfNeeded(reason: reason),
                 priorState: .initial
             )

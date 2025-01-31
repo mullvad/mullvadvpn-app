@@ -48,6 +48,7 @@ public actor PacketTunnelActor {
     public let relaySelector: RelaySelectorProtocol
     let settingsReader: SettingsReaderProtocol
     let protocolObfuscator: ProtocolObfuscation
+    var tunnelMonitorTask: Task<Void, Never>?
 
     nonisolated let eventChannel = EventChannel()
 
@@ -107,11 +108,11 @@ public actor PacketTunnelActor {
         case .stopDefaultPathObserver:
             stopDefaultPathObserver()
         case .startTunnelMonitor:
-            setTunnelMonitorEventHandler()
+            await listenForTunnelMonitorEvents()
         case .stopTunnelMonitor:
-            tunnelMonitor.stop()
+            await tunnelMonitor.stop()
         case let .updateTunnelMonitorPath(networkPath):
-            handleDefaultPathChange(networkPath)
+            await handleDefaultPathChange(networkPath)
         case let .startConnection(nextRelays):
             do {
                 try await tryStart(nextRelays: nextRelays)
@@ -174,7 +175,7 @@ extension PacketTunnelActor {
         startDefaultPathObserver()
 
         // Assign a closure receiving tunnel monitor events.
-        setTunnelMonitorEventHandler()
+        await listenForTunnelMonitorEvents()
 
         do {
             try await tryStart(nextRelays: options.selectedRelays.map { .preSelected($0) } ?? .random)
@@ -191,7 +192,7 @@ extension PacketTunnelActor {
         case let .connected(connState), let .connecting(connState), let .reconnecting(connState),
              let .negotiatingEphemeralPeer(connState, _):
             state = .disconnecting(connState)
-            tunnelMonitor.stop()
+            await tunnelMonitor.stop()
 
             // Fallthrough to stop adapter and shift to `.disconnected` state.
             fallthrough
@@ -233,7 +234,7 @@ extension PacketTunnelActor {
                     // internal state
                     break
                 case .userInitiated:
-                    tunnelMonitor.stop()
+                    await tunnelMonitor.stop()
                 }
 
                 try await tryStart(nextRelays: nextRelays, reason: reason)
@@ -304,7 +305,7 @@ extension PacketTunnelActor {
         defer {
             // Restart default path observer and notify the observer with the current path that might have changed while
             // path observer was paused.
-            startDefaultPathObserver(notifyObserverWithCurrentPath: true)
+            startDefaultPathObserver()
         }
 
         // Daita parameters are gotten from an ephemeral peer
@@ -315,7 +316,7 @@ extension PacketTunnelActor {
         )
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
-        tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway)
+        await tunnelMonitor.start(probeAddress: connectionState.selectedRelays.exit.endpoint.ipv4Gateway)
 
         switch targetState {
         case .connecting:
@@ -342,7 +343,7 @@ extension PacketTunnelActor {
         reason: ActorReconnectReason
     ) throws -> State.ConnectionData? {
         var keyPolicy: State.KeyPolicy = .useCurrent
-        var networkReachability = defaultPathObserver.defaultPath?.networkReachability ?? .undetermined
+        var networkReachability = defaultPathObserver.currentPathStatus.networkReachability
         var lastKeyRotation: Date?
 
         let callRelaySelector = { [self] maybeCurrentRelays, connectionCount in

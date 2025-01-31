@@ -7,48 +7,61 @@
 //
 
 import Combine
+import MullvadTypes
+import Network
 import NetworkExtension
 import PacketTunnelCore
 
 final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Sendable {
     private weak var packetTunnelProvider: NEPacketTunnelProvider?
-    private let stateLock = NSLock()
-    private var pathUpdatePublisher: AnyCancellable?
     private let eventQueue: DispatchQueue
+    private let pathMonitor: NWPathMonitor
+
+    private var gatewayConnection: NWConnection?
+
+    public var currentPathStatus: Network.NWPath.Status {
+        pathMonitor.currentPath.status
+    }
 
     init(packetTunnelProvider: NEPacketTunnelProvider, eventQueue: DispatchQueue) {
         self.packetTunnelProvider = packetTunnelProvider
         self.eventQueue = eventQueue
+
+        pathMonitor = NWPathMonitor(prohibitedInterfaceTypes: [.other])
     }
 
-    var defaultPath: NetworkPath? {
-        return packetTunnelProvider?.defaultPath
-    }
+    func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
+        pathMonitor.pathUpdateHandler = { updatedPath in
+            var unsatisfiedReason = "<No value>"
+            if updatedPath.status == .unsatisfied {
+                unsatisfiedReason += updatedPath.unsatisfiedReasonDescription
+            }
+            var interfaceDebug = ""
+            updatedPath.availableInterfaces.forEach { interfaceDebug += """
+                        \($0.customDebugDescription)
 
-    func start(_ body: @escaping @Sendable (NetworkPath) -> Void) {
-        stateLock.withLock {
-            pathUpdatePublisher?.cancel()
-
-            // Normally packet tunnel provider should exist throughout the network extension lifetime.
-            pathUpdatePublisher = packetTunnelProvider?.publisher(for: \.defaultPath)
-                .removeDuplicates(by: { oldPath, newPath in
-                    oldPath?.status == newPath?.status
-                })
-                .throttle(for: .seconds(2), scheduler: eventQueue, latest: true)
-                .sink { change in
-                    if let change {
-                        body(change)
-                    }
-                }
+            """ }
+            let message = """
+            Path available interfaces: \(interfaceDebug)
+            Path status: \(updatedPath.status) Unsatisfied reason: \(unsatisfiedReason) Supports IPv4: \(
+                updatedPath
+                    .supportsIPv4
+            )
+            Supports IPv6: \(updatedPath.supportsIPv6) Supports DNS: \(updatedPath.supportsDNS) Is Constrained: \(
+                updatedPath
+                    .isConstrained
+            )
+            Is expensive: \(updatedPath.isExpensive) Gateways: \(updatedPath.gateways.map { $0.customDebugDescription })
+            """
+            print(message)
+            body(updatedPath.status)
         }
+
+        pathMonitor.start(queue: eventQueue)
     }
 
     func stop() {
-        stateLock.withLock {
-            pathUpdatePublisher?.cancel()
-            pathUpdatePublisher = nil
-        }
+//        pathMonitor.pathUpdateHandler = nil
+//        pathMonitor.cancel()
     }
 }
-
-extension NetworkExtension.NWPath: NetworkPath {}

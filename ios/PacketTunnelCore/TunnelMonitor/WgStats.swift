@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct WgStats {
+public struct WgStats: Sendable {
     public let bytesReceived: UInt64
     public let bytesSent: UInt64
 

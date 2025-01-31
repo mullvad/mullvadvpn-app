@@ -20,25 +20,25 @@ public enum TunnelMonitorEvent: Sendable {
 }
 
 /// A type that can provide tunnel monitoring.
-public protocol TunnelMonitorProtocol: AnyObject, Sendable {
+public protocol TunnelMonitorProtocol: Sendable {
     /// Event handler that starts receiving events after the call to `start(probeAddress:)`.
-    var onEvent: ((TunnelMonitorEvent) -> Void)? { get set }
+    var eventStream: AsyncStream<TunnelMonitorEvent> { get }
 
     /// Start monitoring connection by pinging the given IP address.
     /// Normally we should only give an address of a tunnel gateway here which is reachable over tunnel interface.
-    func start(probeAddress: IPv4Address)
+    func start(probeAddress: IPv4Address) async
 
     /// Stop monitoring connection.
-    func stop()
+    func stop() async
 
     /// Restarts internal timers and gracefully handles transition from sleep to awake device state.
     /// Call this method when packet tunnel provider receives a wake event.
-    func onWake()
+    func wake() async
 
     /// Cancels internal timers and time dependent data in preparation for device sleep.
     /// Call this method when packet tunnel provider receives a sleep event.
-    func onSleep()
+    func sleep() async
 
     /// Handle changes in network path, eg. update connection state and monitoring.
-    func handleNetworkPathUpdate(_ networkPath: NetworkPath)
+    func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) async
 }
