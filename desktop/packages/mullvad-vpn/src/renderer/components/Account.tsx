@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
 import { formatDate, hasExpired } from '../../shared/account-expiry';
-import { links } from '../../shared/constants';
+import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
@@ -33,7 +33,7 @@ export default function Account() {
   const { updateAccountData, openLinkWithAuth, logout } = useAppContext();
 
   const onBuyMore = useCallback(async () => {
-    await openLinkWithAuth(links.purchase);
+    await openLinkWithAuth(urls.purchase);
   }, [openLinkWithAuth]);
 
   const onMount = useEffectEvent(() => updateAccountData());

@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { formatDate } from '../../shared/account-expiry';
-import { links } from '../../shared/constants';
+import { urls } from '../../shared/constants';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
@@ -201,7 +201,7 @@ export function SetupFinished() {
   const finish = useFinishedCallback();
   const { openUrl } = useAppContext();
 
-  const openPrivacyLink = useCallback(() => openUrl(links.privacyGuide), [openUrl]);
+  const openPrivacyLink = useCallback(() => openUrl(urls.privacyGuide), [openUrl]);
 
   return (
     <Layout>

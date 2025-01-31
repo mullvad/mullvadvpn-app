@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { links } from '../../shared/constants';
+import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
@@ -188,7 +188,7 @@ function ExternalPaymentButton() {
     if (recoveryAction === RecoveryAction.disableBlockedWhenDisconnected) {
       setShowBlockWhenDisconnectedAlert(true);
     } else {
-      await openLinkWithAuth(links.purchase);
+      await openLinkWithAuth(urls.purchase);
     }
   }, [openLinkWithAuth, recoveryAction, setShowBlockWhenDisconnectedAlert]);
 

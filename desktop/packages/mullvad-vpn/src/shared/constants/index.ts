@@ -1,2 +1,2 @@
-export * from './links';
+export * from './urls';
 export * from './strings';
