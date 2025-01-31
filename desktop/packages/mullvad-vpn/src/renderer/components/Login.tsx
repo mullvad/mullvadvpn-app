@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { sprintf } from 'sprintf-js';
 
+import { Link } from '../../shared/constants';
 import { AccountDataError, AccountNumber } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
@@ -74,7 +75,7 @@ interface IProps {
   accountHistory?: AccountNumber;
   loginState: LoginState;
   showBlockMessage: boolean;
-  openExternalLink: (type: string) => void;
+  openExternalLink: (type: Link) => void;
   login: (accountNumber: AccountNumber) => void;
   resetLoginError: () => void;
   updateAccountNumber: (accountNumber: AccountNumber) => void;

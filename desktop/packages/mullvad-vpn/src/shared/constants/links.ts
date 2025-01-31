@@ -6,3 +6,7 @@ export const links = {
   privacyGuide: 'https://mullvad.net/help/first-steps-towards-online-privacy/',
   download: 'https://mullvad.net/download/vpn/',
 } as const;
+
+type LinkValue = (typeof links)[keyof typeof links];
+type LinkWithSuffix = `${LinkValue}${string}`;
+export type Link = LinkValue | LinkWithSuffix;
