@@ -22,11 +22,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import androidx.core.text.HtmlCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
@@ -76,7 +74,6 @@ import net.mullvad.mullvadvpn.compose.dialog.info.WireguardPortInfoDialogArgumen
 import net.mullvad.mullvadvpn.compose.extensions.dropUnlessResumed
 import net.mullvad.mullvadvpn.compose.extensions.itemWithDivider
 import net.mullvad.mullvadvpn.compose.extensions.itemsIndexedWithDivider
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.preview.VpnSettingsUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.VpnSettingsUiState
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_LAST_ITEM_TEST_TAG
@@ -339,14 +336,10 @@ fun VpnSettingsScreen(
                     )
                     SwitchComposeSubtitleCell(
                         text =
-                            HtmlCompat.fromHtml(
-                                    textResource(
-                                        R.string.connect_on_start_footer,
-                                        textResource(R.string.auto_connect_and_lockdown_mode),
-                                    ),
-                                    HtmlCompat.FROM_HTML_MODE_COMPACT,
-                                )
-                                .toAnnotatedString(boldFontWeight = FontWeight.ExtraBold)
+                            textResource(
+                                R.string.connect_on_start_footer,
+                                textResource(R.string.auto_connect_and_lockdown_mode),
+                            )
                     )
                 }
             }

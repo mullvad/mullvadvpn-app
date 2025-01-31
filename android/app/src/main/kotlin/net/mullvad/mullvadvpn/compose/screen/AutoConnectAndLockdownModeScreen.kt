@@ -251,18 +251,7 @@ private fun ConstraintLayoutScope.PageIndicator(
 
 @Composable
 private fun buildTopText(@StringRes id: Int) = buildAnnotatedString {
-    withStyle(style = SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant)) {
-        append(
-            HtmlCompat.fromHtml(stringResource(id = id), HtmlCompat.FROM_HTML_MODE_COMPACT)
-                .toAnnotatedString(
-                    boldSpanStyle =
-                        SpanStyle(
-                            fontWeight = FontWeight.ExtraBold,
-                            color = MaterialTheme.colorScheme.onSurface,
-                        )
-                )
-        )
-    }
+    append(stringResource(id = id))
 }
 
 @Composable

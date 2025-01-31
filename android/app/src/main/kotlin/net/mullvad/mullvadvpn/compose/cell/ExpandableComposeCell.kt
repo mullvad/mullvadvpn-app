@@ -18,13 +18,9 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.text.HtmlCompat
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.ExpandChevronIconButton
-import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaInactive
@@ -118,16 +114,12 @@ private fun ExpandableComposeCellBody(
 
 @Composable
 fun ContentBlockersDisableModeCellSubtitle(modifier: Modifier) {
-    val spanned =
-        HtmlCompat.fromHtml(
-            textResource(
+    Text(
+        text =
+            stringResource(
                 id = R.string.dns_content_blockers_subtitle,
                 stringResource(id = R.string.enable_custom_dns),
             ),
-            HtmlCompat.FROM_HTML_MODE_COMPACT,
-        )
-    Text(
-        text = spanned.toAnnotatedString(boldFontWeight = FontWeight.ExtraBold),
         style = MaterialTheme.typography.labelMedium,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
         modifier = modifier,
