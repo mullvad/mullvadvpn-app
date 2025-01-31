@@ -23,10 +23,10 @@ androidx-testrunner = "1.6.2"
 androidx-uiautomator = "2.4.0-alpha01"
 
 # Arrow
-arrow = "2.0.0"
+arrow = "2.0.1"
 
 # Compose
-compose = "1.7.6"
+compose = "1.7.7"
 compose-destinations = "2.1.0-beta15"
 compose-constraintlayout = "1.1.0"
 compose-material3 = "1.3.1"
@@ -37,8 +37,8 @@ grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
 # Koin
- koin = "4.0.1"
-koin-compose = "4.0.1"
+koin = "4.0.2"
+koin-compose = "4.0.2"
 
 # Ktor
 ktor = "3.0.3"
@@ -46,10 +46,10 @@ ktor = "3.0.3"
 # Kotlin
 # Bump kotlin and kotlin-ksp together, find matching release here:
 # https://github.com/google/ksp/releases
-kotlin = "2.1.0"
-kotlin-ksp = "2.1.0-1.0.29"
+kotlin = "2.1.10"
+kotlin-ksp = "2.1.10-1.0.29"
 kotlinx = "1.10.1"
-kotlinx-serialization = "2.1.0"
+kotlinx-serialization = "2.1.10"
 
 # Protobuf
 protobuf-gradle-plugin = "0.9.4"
@@ -62,7 +62,7 @@ rust-android-gradle = "0.9.6"
 commonsvalidator = "1.9.0"
 # Upgrading to 12.0.1 results in task failing, DROID-1517
 dependency-check = "10.0.4"
-dependency-versions = "0.51.0"
+dependency-versions = "0.52.0"
 detekt = "1.23.7"
 jodatime = "2.13.0"
 kermit = "2.0.5"
