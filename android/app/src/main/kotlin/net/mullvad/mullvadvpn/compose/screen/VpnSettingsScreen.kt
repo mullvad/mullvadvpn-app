@@ -161,7 +161,12 @@ fun VpnSettings(
 
     dnsDialogResult.OnNavResultValue { result ->
         when (result) {
-            DnsDialogResult.Success -> vm.showApplySettingChangesWarningToast()
+            is DnsDialogResult.Success -> {
+                vm.showApplySettingChangesWarningToast()
+                if (result.allDeleted) {
+                    vm.onToggleCustomDns(false)
+                }
+            }
             DnsDialogResult.Cancel -> vm.onDnsDialogDismissed()
             DnsDialogResult.Error -> {
                 vm.showGenericErrorToast()
@@ -473,19 +478,21 @@ fun VpnSettingsScreen(
                     )
                 }
 
-                itemWithDivider {
-                    BaseCell(
-                        onCellClicked = { navigateToDns(null, null) },
-                        headlineContent = {
-                            Text(
-                                text = stringResource(id = R.string.add_a_server),
-                                color = MaterialTheme.colorScheme.onSurface,
-                            )
-                        },
-                        bodyView = {},
-                        background = MaterialTheme.colorScheme.surfaceContainerLow,
-                        startPadding = biggerPadding,
-                    )
+                if (state.customDnsItems.isNotEmpty()) {
+                    itemWithDivider {
+                        BaseCell(
+                            onCellClicked = { navigateToDns(null, null) },
+                            headlineContent = {
+                                Text(
+                                    text = stringResource(id = R.string.add_a_server),
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                )
+                            },
+                            bodyView = {},
+                            background = MaterialTheme.colorScheme.surfaceContainerLow,
+                            startPadding = biggerPadding,
+                        )
+                    }
                 }
             }
 

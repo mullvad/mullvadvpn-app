@@ -38,6 +38,7 @@ import net.mullvad.mullvadvpn.ui.MainActivity
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.usecase.AccountExpiryInAppNotificationUseCase
+import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
 import net.mullvad.mullvadvpn.usecase.EmptyPaymentUseCase
 import net.mullvad.mullvadvpn.usecase.FilterChipUseCase
 import net.mullvad.mullvadvpn.usecase.FilteredRelayListUseCase
@@ -167,6 +168,7 @@ val uiModule = module {
     single { LastKnownLocationUseCase(get()) }
     single { SelectedLocationUseCase(get(), get()) }
     single { FilterChipUseCase(get(), get(), get(), get()) }
+    single { DeleteCustomDnsUseCase(get()) }
 
     single { InAppNotificationController(get(), get(), get(), get(), get(), MainScope()) }
 
@@ -214,7 +216,7 @@ val uiModule = module {
     viewModel { DeviceListViewModel(get(), get()) }
     viewModel { DeviceRevokedViewModel(get(), get()) }
     viewModel { MtuDialogViewModel(get(), get()) }
-    viewModel { DnsDialogViewModel(get(), get(), get()) }
+    viewModel { DnsDialogViewModel(get(), get(), get(), get()) }
     viewModel { WireguardCustomPortDialogViewModel(get()) }
     viewModel { LoginViewModel(get(), get(), get()) }
     viewModel { PrivacyDisclaimerViewModel(get(), IS_PLAY_BUILD) }
