@@ -18,6 +18,7 @@ use ipnetwork::IpNetwork;
 use talpid_tunnel::tun_provider::Tun;
 use talpid_tunnel::tun_provider::TunProvider;
 
+#[cfg(unix)]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 pub struct BoringTun {
@@ -191,13 +192,36 @@ async fn set_boringtun_config(tx: &mut ConfigTx, config: &Config) {
     tx.send(set_cmd).await.expect("Failed to configure boringtun");
 }
 
-
-pub fn get_tunnel_for_userspace(
+#[cfg(target_os = "windows")]
+fn get_tunnel_for_userspace(
     tun_provider: Arc<Mutex<TunProvider>>,
     config: &Config,
     routes: impl Iterator<Item = IpNetwork>,
 ) -> Result<Tun, crate::TunnelError> {
     //let mut last_error = None;
+    let mut tun_provider = tun_provider.lock().unwrap();
+
+    let tun_config = tun_provider.config_mut();
+    tun_config.addresses = config.tunnel.addresses.clone();
+    tun_config.ipv4_gateway = config.ipv4_gateway;
+    tun_config.ipv6_gateway = config.ipv6_gateway;
+    tun_config.mtu = config.mtu;
+
+    let _ = routes;
+
+    #[cfg(windows)]
+    tun_provider
+        .open_tun()
+        .map_err(TunnelError::SetupTunnelDevice2)
+}
+
+#[cfg(unix)]
+fn get_tunnel_for_userspace(
+    tun_provider: Arc<Mutex<TunProvider>>,
+    config: &Config,
+    routes: impl Iterator<Item = IpNetwork>,
+) -> Result<Tun, crate::TunnelError> {
+    let mut last_error = None;
     let mut tun_provider = tun_provider.lock().unwrap();
 
     let tun_config = tun_provider.config_mut();
@@ -211,10 +235,7 @@ pub fn get_tunnel_for_userspace(
     tun_config.routes = routes.collect();
     tun_config.mtu = config.mtu;
 
-    return tun_provider
-        .open_tun()
-        .map_err(TunnelError::SetupTunnelDevice2);
-    /*for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+    for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
         let tunnel_device = tun_provider
             .open_tun()
             .map_err(TunnelError::SetupTunnelDevice)?;
@@ -230,5 +251,5 @@ pub fn get_tunnel_for_userspace(
 
     Err(TunnelError::FdDuplicationError(
         last_error.expect("Should be collected in loop"),
-    ))*/
+    ))
 }
