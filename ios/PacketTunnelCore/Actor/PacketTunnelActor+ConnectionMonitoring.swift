@@ -9,11 +9,14 @@
 import Foundation
 
 extension PacketTunnelActor {
-    /// Assign a closure receiving tunnel monitor events.
-    func setTunnelMonitorEventHandler() {
-        tunnelMonitor.onEvent = { [weak self] event in
-            /// Dispatch tunnel monitor events via command channel to guarantee the order of execution.
-            self?.eventChannel.send(.monitorEvent(event))
+    func listenForTunnelMonitorEvents() async {
+        tunnelMonitorTask?.cancel()
+
+        tunnelMonitorTask = Task { [weak self] in
+            guard let self else { return }
+            for await event in self.tunnelMonitor.eventStream {
+                self.eventChannel.send(.monitorEvent(event))
+            }
         }
     }
 

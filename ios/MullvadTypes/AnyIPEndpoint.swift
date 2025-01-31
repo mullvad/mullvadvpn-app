@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import protocol Network.IPAddress
+import Network
 
 public enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible, @unchecked Sendable {
     case ipv4(IPv4Endpoint)
@@ -82,6 +82,16 @@ public enum AnyIPEndpoint: Hashable, Equatable, Codable, CustomStringConvertible
 
         default:
             return false
+        }
+    }
+
+    /// Convert `AnyIPEndpoint` to `NWEndpoint`.
+    public var nwEndpoint: NWEndpoint {
+        switch self {
+        case let .ipv4(endpoint):
+            .hostPort(host: .ipv4(endpoint.ip), port: NWEndpoint.Port(integerLiteral: endpoint.port))
+        case let .ipv6(endpoint):
+            .hostPort(host: .ipv6(endpoint.ip), port: NWEndpoint.Port(integerLiteral: endpoint.port))
         }
     }
 }
