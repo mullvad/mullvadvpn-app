@@ -283,8 +283,8 @@
     <string name="discard_changes">Discard changes?</string>
     <string name="discard">Discard</string>
     <string name="add_location_to_list">Add %s to list</string>
-    <string name="remove_location_from_list">Remove %s from %s</string>
-    <string name="location_was_added_to_list">%s was added to \"%s\"</string>
+    <string name="remove_location_from_list">Remove %1$s from %2$s</string>
+    <string name="location_was_added_to_list">%1$s was added to \"%2$s\"</string>
     <string name="location_added">%s (added)</string>
     <string name="edit_name">Edit name</string>
     <string name="name_was_changed_to">Name was changed to %s</string>
@@ -355,7 +355,7 @@
     <string name="delete_method_question">Delete method?</string>
     <string name="failed_to_set_current_test_error">Failed to set to current - API not reachable</string>
     <string name="failed_to_set_current_unknown_error">Failed to set to current - Unknown reason</string>
-    <string name="location_was_removed_from_list">%s was removed from \"%s\"</string>
+    <string name="location_was_removed_from_list">%1$s was removed from \"%2$s\"</string>
     <string name="create_custom_list_message">\"%s\" was created</string>
     <string name="daita_info">By enabling “%1$s” you will have to manually select a server that is %2$s-enabled. This can cause you to end up in a blocked state until you have selected a compatible server in the “Select location” view.</string>
     <string name="setting_chip">Setting: %s</string>
@@ -396,7 +396,7 @@
     <string name="connection_details_out">Out</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
-    <string name="x_via_x">%s via %s</string>
+    <string name="x_via_x">%1$s via %2$s</string>
     <string name="entry">Entry</string>
     <string name="exit">Exit</string>
     <string name="clear_input">Clear input</string>
