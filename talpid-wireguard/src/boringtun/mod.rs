@@ -198,7 +198,6 @@ fn get_tunnel_for_userspace(
     config: &Config,
     routes: impl Iterator<Item = IpNetwork>,
 ) -> Result<Tun, crate::TunnelError> {
-    //let mut last_error = None;
     let mut tun_provider = tun_provider.lock().unwrap();
 
     let tun_config = tun_provider.config_mut();

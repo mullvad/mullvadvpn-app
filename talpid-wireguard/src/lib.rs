@@ -1133,7 +1133,7 @@ pub enum TunnelError {
     #[cfg(windows)]
     #[error("Failed to create tunnel device")]
     SetupTunnelDevice(#[source] io::Error),
-    
+
     /// Failed to set up a tunnel device
     #[cfg(windows)]
     #[error("Failed to create tunnel device")]
