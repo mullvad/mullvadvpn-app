@@ -22,6 +22,7 @@ class AppInfoViewModel(
     appVersionInfoRepository: AppVersionInfoRepository,
     private val resources: Resources,
     private val isPlayBuild: Boolean,
+    private val isFdroidBuild: Boolean,
     private val packageName: String,
 ) : ViewModel() {
 
@@ -45,7 +46,7 @@ class AppInfoViewModel(
     fun openAppListing() =
         viewModelScope.launch {
             val uri =
-                if (isPlayBuild) {
+                if (isPlayBuild || isFdroidBuild) {
                     resources.getString(R.string.market_uri, packageName)
                 } else {
                     resources.getString(R.string.download_url)

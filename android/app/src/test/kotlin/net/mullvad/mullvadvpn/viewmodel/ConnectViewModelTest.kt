@@ -127,6 +127,7 @@ class ConnectViewModelTest {
                 lastKnownLocationUseCase = mockLastKnownLocationUseCase,
                 resources = mockk(),
                 isPlayBuild = false,
+                isFdroidBuild = false,
                 packageName = "net.mullvad.mullvadvpn",
             )
     }

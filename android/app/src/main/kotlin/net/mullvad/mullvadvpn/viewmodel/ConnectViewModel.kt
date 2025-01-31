@@ -52,6 +52,7 @@ class ConnectViewModel(
     lastKnownLocationUseCase: LastKnownLocationUseCase,
     private val resources: Resources,
     private val isPlayBuild: Boolean,
+    private val isFdroidBuild: Boolean,
     private val packageName: String,
 ) : ViewModel() {
     private val _uiSideEffect = Channel<UiSideEffect>()
@@ -182,7 +183,7 @@ class ConnectViewModel(
     fun openAppListing() =
         viewModelScope.launch {
             val uri =
-                if (isPlayBuild) {
+                if (isPlayBuild || isFdroidBuild) {
                     resources.getString(R.string.market_uri, packageName)
                 } else {
                     resources.getString(R.string.download_url)
