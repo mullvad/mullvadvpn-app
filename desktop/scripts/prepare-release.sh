@@ -44,12 +44,16 @@ function checks {
         log_error "It looks like you did not update $changes_path"
         exit 1
     fi
+}
 
-    if [[ $(grep "^## \\[$PRODUCT_VERSION\\] - " $changelog_path) == "" ]]; then
-        log_error "It looks like you did not add $PRODUCT_VERSION to the changelog?"
-        log_error "Please make sure the changelog is up to date and correct before you proceed."
-        exit 1
-    fi
+function update_changelog {
+    sed -i -e "/^## \[Unreleased\]/a \\\n\\n## \[$PRODUCT_VERSION\] - $(date +%F)" $changelog_path
+
+    log_info "\nPaused after editing changelog. Make potential edits, then press any key to continue..."
+    read -r -s -n 1
+
+    git commit -S -m "Update desktop app changelog with $PRODUCT_VERSION section" \
+        $changelog_path
 }
 
 function update_product_version {
@@ -64,6 +68,7 @@ function create_tag {
 }
 
 checks
+update_changelog
 update_product_version
 create_tag
 
