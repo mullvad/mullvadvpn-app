@@ -24,6 +24,14 @@ cfg_if! {
 
         pub type Tun = UnixTun;
         pub type TunProvider = UnixTunProvider;
+    } else if #[cfg(target_os = "windows")] {
+        #[path = "windows.rs"]
+        mod imp;
+        use self::imp::{WindowsTun, WindowsTunProvider};
+        pub use self::imp::Error;
+
+        pub type Tun = WindowsTun;
+        pub type TunProvider = WindowsTunProvider;
     } else {
         mod stub;
         use self::stub::StubTunProvider;

@@ -23,7 +23,6 @@ use std::{
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-#[cfg(not(windows))]
 use talpid_tunnel::tun_provider;
 use talpid_tunnel::{
     tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
@@ -243,9 +242,11 @@ impl WireguardMonitor {
             let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
+            /*
             #[cfg(windows)]
             Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
                 .await?;
+            */
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
@@ -1132,6 +1133,11 @@ pub enum TunnelError {
     #[cfg(windows)]
     #[error("Failed to create tunnel device")]
     SetupTunnelDevice(#[source] io::Error),
+    
+    /// Failed to set up a tunnel device
+    #[cfg(windows)]
+    #[error("Failed to create tunnel device")]
+    SetupTunnelDevice2(#[source] tun_provider::Error),
 
     /// Failed to setup a tunnel device.
     #[cfg(windows)]

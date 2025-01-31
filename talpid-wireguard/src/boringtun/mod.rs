@@ -7,7 +7,6 @@ use std::{
     use crate::{
     config::Config,
     stats::{Stats, StatsMap},
-    wireguard_go::get_tunnel_for_userspace,
     Tunnel, TunnelError,
 };
 use boringtun::device::{
@@ -45,7 +44,7 @@ impl BoringTun {
 
         log::info!("calling get_tunnel_for_userspace");
         // TODO: investigate timing bug when creating tun device? (Device or resource busy)
-        let (tun, _tunnel_fd) = get_tunnel_for_userspace(tun_provider, config, routes)?;
+        let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
         let interface_name = tun.interface_name();
         let async_tun = tun.into_tun_lol();
@@ -55,6 +54,7 @@ impl BoringTun {
         let boringtun_config = DeviceConfig {
             n_threads: 4,
             //use_connected_socket: false, // TODO: what is this?
+            #[cfg(target_os = "linux")]
             use_multi_queue: false,      // TODO: what is this?
             api: Some(config_rx),
         };
@@ -187,4 +187,46 @@ async fn set_boringtun_config(tx: &mut ConfigTx, config: &Config) {
     }
 
     tx.send(set_cmd).await.expect("Failed to configure boringtun");
+}
+
+
+pub fn get_tunnel_for_userspace(
+    tun_provider: Arc<Mutex<TunProvider>>,
+    config: &Config,
+    routes: impl Iterator<Item = IpNetwork>,
+) -> Result<Tun, crate::TunnelError> {
+    //let mut last_error = None;
+    let mut tun_provider = tun_provider.lock().unwrap();
+
+    let tun_config = tun_provider.config_mut();
+    #[cfg(target_os = "linux")]
+    {
+        tun_config.name = Some(MULLVAD_INTERFACE_NAME.to_string());
+    }
+    tun_config.addresses = config.tunnel.addresses.clone();
+    tun_config.ipv4_gateway = config.ipv4_gateway;
+    tun_config.ipv6_gateway = config.ipv6_gateway;
+    tun_config.routes = routes.collect();
+    tun_config.mtu = config.mtu;
+
+    return tun_provider
+        .open_tun()
+        .map_err(TunnelError::SetupTunnelDevice2);
+    /*for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+        let tunnel_device = tun_provider
+            .open_tun()
+            .map_err(TunnelError::SetupTunnelDevice)?;
+
+        match nix::unistd::dup(tunnel_device.as_raw_fd()) {
+            Ok(fd) => return Ok((tunnel_device, fd)),
+            #[cfg(not(target_os = "macos"))]
+            Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
+            Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
+            Err(error) => return Err(TunnelError::FdDuplicationError(error)),
+        }
+    }
+
+    Err(TunnelError::FdDuplicationError(
+        last_error.expect("Should be collected in loop"),
+    ))*/
 }
