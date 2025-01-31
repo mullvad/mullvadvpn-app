@@ -221,6 +221,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
+            tunnelSettings: settings,
             completionHandler: { [weak self] result in
                 guard let self else { return }
                 if let error = result.error {

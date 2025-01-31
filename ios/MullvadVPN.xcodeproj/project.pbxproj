@@ -752,6 +752,7 @@
 		A935594C2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */; };
 		A939661B2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */; };
 		A93969812CE606190032A7A0 /* Maybenot.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9840BB32C69F78A0030F05E /* Maybenot.swift */; };
+		A93A0BEC2D4CDE97001C9246 /* TunnelSettingsV7.swift in Sources */ = {isa = PBXBuildFile; fileRef = A93A0BEB2D4CDE97001C9246 /* TunnelSettingsV7.swift */; };
 		A94D691A2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E22AA72AE9003D1918 /* WireGuardKitTypes */; };
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
@@ -2160,6 +2161,7 @@
 		A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIAvailabilityTestRequest.swift; sourceTree = "<group>"; };
 		A935594D2B4E919F00D5D524 /* Api.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Api.xcconfig; sourceTree = "<group>"; };
 		A939661A2CAE6CE1008128CA /* MigrationManagerMultiProcessUpgradeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MigrationManagerMultiProcessUpgradeTests.swift; sourceTree = "<group>"; };
+		A93A0BEB2D4CDE97001C9246 /* TunnelSettingsV7.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV7.swift; sourceTree = "<group>"; };
 		A944F2712B8E02E800473F4C /* libmullvad_ios.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmullvad_ios.a; path = "../target/aarch64-apple-ios/debug/libmullvad_ios.a"; sourceTree = "<group>"; };
 		A9467E7E2A29DEFE000DC21F /* RelayCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCacheTests.swift; sourceTree = "<group>"; };
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
@@ -3552,6 +3554,7 @@
 				A93181A02B727ED700E341D2 /* TunnelSettingsV4.swift */,
 				F0E61CA82BF2911D000C4A95 /* TunnelSettingsV5.swift */,
 				F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */,
+				A93A0BEB2D4CDE97001C9246 /* TunnelSettingsV7.swift */,
 				A988DF252ADE86ED00D807EF /* WireGuardObfuscationSettings.swift */,
 			);
 			path = MullvadSettings;
@@ -5791,6 +5794,7 @@
 				58B2FDE52AA71D5C003EB5C6 /* TunnelSettingsV2.swift in Sources */,
 				A97D30172AE6B5E90045C0E4 /* StoredWgKeyData.swift in Sources */,
 				F08827882B318F960020A383 /* PersistentAccessMethod.swift in Sources */,
+				A93A0BEC2D4CDE97001C9246 /* TunnelSettingsV7.swift in Sources */,
 				58B2FDE32AA71D5C003EB5C6 /* StoredDeviceData.swift in Sources */,
 				58B2FDDF2AA71D5C003EB5C6 /* DNSSettings.swift in Sources */,
 				58B2FDE02AA71D5C003EB5C6 /* TunnelSettings.swift in Sources */,
