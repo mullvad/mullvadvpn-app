@@ -26,16 +26,9 @@ pub trait AppControllerProvider {
 
 /// Default implementation of [AppControllerProvider], using an actual HTTP client, and API version
 /// fetcher.
+#[derive(Debug)]
 pub struct DefaultAppControllerProvider<T> {
     _phantom: std::marker::PhantomData<T>,
-}
-
-impl<T> DefaultAppControllerProvider<T> {
-    pub fn new() -> Self {
-        Self {
-            _phantom: std::marker::PhantomData,
-        }
-    }
 }
 
 impl<T: AppDelegate + 'static> AppControllerProvider for DefaultAppControllerProvider<T> {
