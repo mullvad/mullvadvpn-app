@@ -3,6 +3,9 @@
 mod controller;
 mod ui_downloader;
 
+pub use controller::AppControllerProvider;
+pub use ui_downloader::UiProgressUpdater;
+
 /// Trait implementing high-level UI actions
 pub trait AppDelegate {
     /// Queue lets us perform actions from other threads
@@ -59,5 +62,12 @@ pub trait AppDelegateQueue<T: ?Sized>: Send {
 
 /// Public entry function for registering a [AppDelegate].
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    controller::AppController::initialize::<controller::DefaultAppControllerProvider<T>>(delegate);
+    initialize_controller_for_provider::<controller::DefaultAppControllerProvider<T>>(delegate)
+}
+
+/// Register a [AppDelegate] using some implementation of [AppControllerProvider].
+pub fn initialize_controller_for_provider<T: AppControllerProvider + 'static>(
+    delegate: &mut T::Delegate,
+) {
+    controller::AppController::initialize::<T>(delegate)
 }

@@ -62,6 +62,7 @@ impl AppController {
 
         let (task_tx, task_rx) = mpsc::channel(1);
         tokio::spawn(handle_action_messages::<T>(delegate.queue(), task_rx));
+        delegate.set_status_text("Fetching app version...");
         tokio::spawn(fetch_app_version_info::<T>(delegate, task_tx.clone()));
         Self::register_user_action_callbacks(delegate, task_tx);
     }
@@ -86,7 +87,6 @@ fn fetch_app_version_info<T: AppControllerProvider>(
     delegate: &mut T::Delegate,
     download_tx: mpsc::Sender<TaskMessage>,
 ) -> impl Future<Output = ()> {
-    delegate.set_status_text("Fetching app version...");
     let queue = delegate.queue();
 
     async move {

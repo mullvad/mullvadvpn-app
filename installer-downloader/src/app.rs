@@ -37,16 +37,15 @@ pub trait AppDownloader: Send {
 }
 
 /// Trait for constructing some [AppDownloader] with progress notifications.
-pub trait AppDownloaderFactory: AppDownloader + 'static {
+pub trait AppDownloaderFactory {
+    type Downloader: AppDownloader + 'static + Sized;
     type SigProgress: ProgressUpdater;
     type AppProgress: ProgressUpdater;
 
     /// Instantiate a new `T` ([AppDownloader]).
     fn new_downloader(
         parameters: AppDownloaderParameters<Self::SigProgress, Self::AppProgress>,
-    ) -> Self
-    where
-        Self: Sized;
+    ) -> Self::Downloader;
 }
 
 /// Download the app and signature, and verify the app's signature
@@ -86,6 +85,7 @@ impl<SigProgress, AppProgress> HttpAppDownloader<SigProgress, AppProgress> {
 impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloaderFactory
     for HttpAppDownloader<SigProgress, AppProgress>
 {
+    type Downloader = Self;
     type SigProgress = SigProgress;
     type AppProgress = AppProgress;
 
