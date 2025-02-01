@@ -2,39 +2,24 @@
 //! [fetch::ProgressUpdater].
 
 use super::{AppDelegate, AppDelegateQueue};
-use crate::{
-    app::{AppDownloader, AppDownloaderParameters},
-    fetch,
-};
+use crate::{app::AppDownloader, fetch};
 
 /// [AppDownloader] that delegates the actual work to some underlying `downloader` and uses it to
 /// update a UI.
 pub struct UiAppDownloader<Delegate: AppDelegate, Downloader> {
-    downloader: Box<dyn AppDownloader + Send>,
+    downloader: Downloader,
     /// Queue used to control the app UI
     queue: Delegate::Queue,
-
-    _phantom: std::marker::PhantomData<Downloader>,
 }
 
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
     UiAppDownloader<Delegate, Downloader>
 {
-    /// Construct a [UiAppDownloader]. `new_downloader` must construct a downloader that all actions
-    /// are delegated to.
-    pub fn new(
-        delegate: &Delegate,
-        new_downloader: impl FnOnce(
-            UiProgressUpdater<Delegate>,
-            UiProgressUpdater<Delegate>,
-        ) -> Downloader,
-    ) -> Self {
-        let new_progress_notifier = || UiProgressUpdater::new(delegate.queue());
-        let downloader = new_downloader(new_progress_notifier(), new_progress_notifier());
+    /// Construct a [UiAppDownloader].
+    pub fn new(delegate: &Delegate, downloader: Downloader) -> Self {
         Self {
-            downloader: Box::new(downloader) as _,
+            downloader,
             queue: delegate.queue(),
-            _phantom: std::marker::PhantomData,
         }
     }
 }

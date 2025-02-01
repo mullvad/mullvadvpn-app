@@ -25,7 +25,7 @@ pub struct AppDownloaderParameters<SigProgress, AppProgress> {
 
 /// See the [module-level documentation](self).
 #[async_trait::async_trait]
-pub trait AppDownloader {
+pub trait AppDownloader: Send {
     /// Download the app signature.
     async fn download_signature(&mut self) -> Result<(), DownloadError>;
 
@@ -37,7 +37,7 @@ pub trait AppDownloader {
 }
 
 /// Trait for constructing some [AppDownloader] with progress notifications.
-pub trait AppDownloaderFactory {
+pub trait AppDownloaderFactory: AppDownloader + 'static {
     type SigProgress: ProgressUpdater;
     type AppProgress: ProgressUpdater;
 
@@ -91,7 +91,10 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloaderFa
 
     fn new_downloader(
         parameters: AppDownloaderParameters<Self::SigProgress, Self::AppProgress>,
-    ) -> Self {
+    ) -> Self
+    where
+        Self: Sized,
+    {
         HttpAppDownloader::new(parameters)
     }
 }

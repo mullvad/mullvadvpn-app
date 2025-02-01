@@ -4,8 +4,7 @@ use super::{AppDelegate, AppDelegateQueue};
 
 use crate::{
     api::{self, LatestVersionInfoProvider, VersionInfoProvider},
-    app::{self, AppDownloader, AppDownloaderFactory, AppDownloaderParameters, HttpAppDownloader},
-    fetch::ProgressUpdater,
+    app::{self, AppDownloaderFactory, AppDownloaderParameters, HttpAppDownloader},
 };
 
 use std::future::Future;
@@ -18,7 +17,10 @@ use super::ui_downloader::{UiAppDownloader, UiProgressUpdater};
 /// UI implementation (some [AppDelegate]).
 pub trait AppControllerProvider {
     type Delegate: AppDelegate + 'static;
-    type DownloaderFactory: AppDownloaderFactory;
+    type DownloaderFactory: AppDownloaderFactory<
+        SigProgress = UiProgressUpdater<Self::Delegate>,
+        AppProgress = UiProgressUpdater<Self::Delegate>,
+    >;
     type VersionInfoProvider: VersionInfoProvider;
 }
 
@@ -142,19 +144,18 @@ async fn handle_action_messages<T: AppControllerProvider>(
                     self_.show_cancel_button();
                     self_.show_download_progress();
 
-                    let new_delegated_downloader = |sig_progress, app_progress| {
-                        HttpAppDownloader::new(AppDownloaderParameters {
+                    let downloader =
+                        T::DownloaderFactory::new_downloader(AppDownloaderParameters {
                             signature_url: signature_url.to_owned(),
                             app_url: app_url.to_owned(),
                             app_size,
-                            sig_progress,
-                            app_progress,
-                        })
-                    };
+                            sig_progress: UiProgressUpdater::new(self_.queue()),
+                            app_progress: UiProgressUpdater::new(self_.queue()),
+                        });
 
-                    let downloader = UiAppDownloader::new(self_, new_delegated_downloader);
+                    let ui_downloader = UiAppDownloader::new(self_, downloader);
                     let _ = tx.send(tokio::spawn(async move {
-                        let _ = app::install_and_upgrade(downloader).await;
+                        let _ = app::install_and_upgrade(ui_downloader).await;
                     }));
                 });
                 active_download = rx.await.ok();
