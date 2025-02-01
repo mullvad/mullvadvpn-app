@@ -2,13 +2,45 @@
 
 use super::{AppDelegate, AppDelegateQueue};
 
-use crate::api::{self, VersionInfoProvider};
-use crate::app::{self, HttpAppDownloader};
+use crate::{
+    api::{self, LatestVersionInfoProvider, VersionInfoProvider},
+    app::{self, AppDownloader, AppDownloaderFactory, AppDownloaderParameters, HttpAppDownloader},
+    fetch::ProgressUpdater,
+};
 
 use std::future::Future;
 use tokio::sync::{mpsc, oneshot};
 
-use super::ui_downloader::UiAppDownloader;
+use super::ui_downloader::{UiAppDownloader, UiProgressUpdater};
+
+/// This trait glues together different components needed to construct an app controller.
+/// In particular, this lets us mock the downloader and version provider independently of the
+/// UI implementation (some [AppDelegate]).
+pub trait AppControllerProvider {
+    type Delegate: AppDelegate + 'static;
+    type DownloaderFactory: AppDownloaderFactory;
+    type VersionInfoProvider: VersionInfoProvider;
+}
+
+/// Default implementation of [AppControllerProvider], using an actual HTTP client, and API version
+/// fetcher.
+pub struct DefaultAppControllerProvider<T> {
+    _phantom: std::marker::PhantomData<T>,
+}
+
+impl<T> DefaultAppControllerProvider<T> {
+    pub fn new() -> Self {
+        Self {
+            _phantom: std::marker::PhantomData,
+        }
+    }
+}
+
+impl<T: AppDelegate + 'static> AppControllerProvider for DefaultAppControllerProvider<T> {
+    type Delegate = T;
+    type DownloaderFactory = HttpAppDownloader<UiProgressUpdater<T>, UiProgressUpdater<T>>;
+    type VersionInfoProvider = LatestVersionInfoProvider;
+}
 
 /// Actions handled by an async worker task in [handle_action_messages].
 enum TaskMessage {
@@ -22,13 +54,13 @@ pub struct AppController {}
 
 impl AppController {
     /// Initialize the app controller.
-    pub fn initialize<T: AppDelegate + 'static>(delegate: &mut T) {
+    pub fn initialize<T: AppControllerProvider + 'static>(delegate: &mut T::Delegate) {
         delegate.hide_download_button();
         delegate.hide_cancel_button();
 
         let (task_tx, task_rx) = mpsc::channel(1);
         tokio::spawn(handle_action_messages::<T>(delegate.queue(), task_rx));
-        tokio::spawn(fetch_app_version_info(delegate, task_tx.clone()));
+        tokio::spawn(fetch_app_version_info::<T>(delegate, task_tx.clone()));
         Self::register_user_action_callbacks(delegate, task_tx);
     }
 
@@ -48,8 +80,8 @@ impl AppController {
 }
 
 /// Background task that fetches app version data.
-fn fetch_app_version_info<T: AppDelegate>(
-    delegate: &mut T,
+fn fetch_app_version_info<T: AppControllerProvider>(
+    delegate: &mut T::Delegate,
     download_tx: mpsc::Sender<TaskMessage>,
 ) -> impl Future<Output = ()> {
     delegate.set_status_text("Fetching app version...");
@@ -57,7 +89,7 @@ fn fetch_app_version_info<T: AppDelegate>(
 
     async move {
         // TODO: handle errors, retry
-        let Ok(version_info) = api::LatestVersionInfoProvider::get_version_info().await else {
+        let Ok(version_info) = T::VersionInfoProvider::get_version_info().await else {
             queue.queue_main(move |self_| {
                 self_.set_status_text("Failed to fetch version info");
             });
@@ -69,8 +101,8 @@ fn fetch_app_version_info<T: AppDelegate>(
 
 /// Async worker that handles actions such as initiating a download, cancelling it, and updating
 /// labels.
-async fn handle_action_messages<Delegate: AppDelegate + 'static>(
-    queue: Delegate::Queue,
+async fn handle_action_messages<T: AppControllerProvider>(
+    queue: <T::Delegate as AppDelegate>::Queue,
     mut rx: mpsc::Receiver<TaskMessage>,
 ) {
     let mut version_info = None;
@@ -111,13 +143,13 @@ async fn handle_action_messages<Delegate: AppDelegate + 'static>(
                     self_.show_download_progress();
 
                     let new_delegated_downloader = |sig_progress, app_progress| {
-                        HttpAppDownloader::new(
-                            signature_url,
-                            app_url,
+                        HttpAppDownloader::new(AppDownloaderParameters {
+                            signature_url: signature_url.to_owned(),
+                            app_url: app_url.to_owned(),
                             app_size,
                             sig_progress,
                             app_progress,
-                        )
+                        })
                     };
 
                     let downloader = UiAppDownloader::new(self_, new_delegated_downloader);

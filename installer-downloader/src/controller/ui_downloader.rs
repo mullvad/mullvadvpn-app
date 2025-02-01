@@ -1,20 +1,28 @@
-//! This module hooks up [AppDelegate]s to arbitrary implementations of [AppDownloader] and [fetch::ProgressUpdater].
+//! This module hooks up [AppDelegate]s to arbitrary implementations of [AppDownloader] and
+//! [fetch::ProgressUpdater].
 
 use super::{AppDelegate, AppDelegateQueue};
-use crate::{app::AppDownloader, fetch};
+use crate::{
+    app::{AppDownloader, AppDownloaderParameters},
+    fetch,
+};
 
 /// [AppDownloader] that delegates the actual work to some underlying `downloader` and uses it to
 /// update a UI.
-pub struct UiAppDownloader<Delegate: AppDelegate> {
+pub struct UiAppDownloader<Delegate: AppDelegate, Downloader> {
     downloader: Box<dyn AppDownloader + Send>,
     /// Queue used to control the app UI
     queue: Delegate::Queue,
+
+    _phantom: std::marker::PhantomData<Downloader>,
 }
 
-impl<Delegate: AppDelegate> UiAppDownloader<Delegate> {
+impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
+    UiAppDownloader<Delegate, Downloader>
+{
     /// Construct a [UiAppDownloader]. `new_downloader` must construct a downloader that all actions
     /// are delegated to.
-    pub fn new<Downloader: AppDownloader + Send + 'static>(
+    pub fn new(
         delegate: &Delegate,
         new_downloader: impl FnOnce(
             UiProgressUpdater<Delegate>,
@@ -26,12 +34,15 @@ impl<Delegate: AppDelegate> UiAppDownloader<Delegate> {
         Self {
             downloader: Box::new(downloader) as _,
             queue: delegate.queue(),
+            _phantom: std::marker::PhantomData,
         }
     }
 }
 
 #[async_trait::async_trait]
-impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
+impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownloader
+    for UiAppDownloader<Delegate, Downloader>
+{
     async fn download_signature(&mut self) -> Result<(), crate::app::DownloadError> {
         if let Err(error) = self.downloader.download_signature().await {
             self.queue.queue_main(move |self_| {
@@ -87,7 +98,7 @@ impl<Delegate: AppDelegate> AppDownloader for UiAppDownloader<Delegate> {
     }
 }
 
-/// Update UI components and delegate the actual working to some underlying [fetch::ProgressUpdater].
+/// Implementation of [fetch::ProgressUpdater] that updates some [AppDelegate].
 pub struct UiProgressUpdater<Delegate: AppDelegate> {
     domain: String,
     prev_progress: Option<u32>,

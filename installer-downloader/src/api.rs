@@ -1,6 +1,7 @@
 //! Fetch information about app versions from the Mullvad API
 
 /// See [module-level](self) docs.
+#[async_trait::async_trait]
 pub trait VersionInfoProvider {
     /// Return info about the stable version
     async fn get_version_info() -> anyhow::Result<VersionInfo>;
@@ -32,6 +33,7 @@ pub struct Version {
 /// TODO: This is temporary
 pub struct LatestVersionInfoProvider;
 
+#[async_trait::async_trait]
 impl VersionInfoProvider for LatestVersionInfoProvider {
     async fn get_version_info() -> anyhow::Result<VersionInfo> {
         Ok(VersionInfo {

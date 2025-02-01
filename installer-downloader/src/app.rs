@@ -14,6 +14,15 @@ pub enum DownloadError {
     Verification(anyhow::Error),
 }
 
+/// Parameters required to construct an [AppDownloader].
+pub struct AppDownloaderParameters<SigProgress, AppProgress> {
+    pub signature_url: String,
+    pub app_url: String,
+    pub app_size: usize,
+    pub sig_progress: SigProgress,
+    pub app_progress: AppProgress,
+}
+
 /// See the [module-level documentation](self).
 #[async_trait::async_trait]
 pub trait AppDownloader {
@@ -25,6 +34,19 @@ pub trait AppDownloader {
 
     /// Verify the app signature.
     async fn verify(&mut self) -> Result<(), DownloadError>;
+}
+
+/// Trait for constructing some [AppDownloader] with progress notifications.
+pub trait AppDownloaderFactory {
+    type SigProgress: ProgressUpdater;
+    type AppProgress: ProgressUpdater;
+
+    /// Instantiate a new `T` ([AppDownloader]).
+    fn new_downloader(
+        parameters: AppDownloaderParameters<Self::SigProgress, Self::AppProgress>,
+    ) -> Self
+    where
+        Self: Sized;
 }
 
 /// Download the app and signature, and verify the app's signature
@@ -48,22 +70,29 @@ pub struct HttpAppDownloader<SigProgress, AppProgress> {
 impl<SigProgress, AppProgress> HttpAppDownloader<SigProgress, AppProgress> {
     const MAX_SIGNATURE_SIZE: usize = 1 * 1024;
 
-    pub fn new(
-        signature_url: &str,
-        app_url: &str,
-        app_size: usize,
-        signature_progress_updater: SigProgress,
-        app_progress_updater: AppProgress,
-    ) -> Self {
+    pub fn new(parameters: AppDownloaderParameters<SigProgress, AppProgress>) -> Self {
         let tmp_dir = std::env::temp_dir();
         Self {
-            signature_url: signature_url.to_owned(),
-            app_url: app_url.to_owned(),
-            app_size,
-            signature_progress_updater,
-            app_progress_updater,
+            signature_url: parameters.signature_url,
+            app_url: parameters.app_url,
+            app_size: parameters.app_size,
+            signature_progress_updater: parameters.sig_progress,
+            app_progress_updater: parameters.app_progress,
             tmp_dir,
         }
+    }
+}
+
+impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloaderFactory
+    for HttpAppDownloader<SigProgress, AppProgress>
+{
+    type SigProgress = SigProgress;
+    type AppProgress = AppProgress;
+
+    fn new_downloader(
+        parameters: AppDownloaderParameters<Self::SigProgress, Self::AppProgress>,
+    ) -> Self {
+        HttpAppDownloader::new(parameters)
     }
 }
 

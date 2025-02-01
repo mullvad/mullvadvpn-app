@@ -57,7 +57,7 @@ pub trait AppDelegateQueue<T: ?Sized>: Send {
     fn queue_main<F: FnOnce(&mut T) + 'static + Send>(&self, callback: F);
 }
 
-/// Public entry for registering a [AppDelegate].
+/// Public entry function for registering a [AppDelegate].
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    controller::AppController::initialize(delegate);
+    controller::AppController::initialize::<controller::DefaultAppControllerProvider<T>>(delegate);
 }
