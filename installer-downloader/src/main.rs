@@ -1,9 +1,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-mod api;
-mod app;
-mod controller;
-mod fetch;
-mod verify;
+use installer_downloader::controller;
 
 #[cfg(target_os = "macos")]
 mod cacao_impl;
