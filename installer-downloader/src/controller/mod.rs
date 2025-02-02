@@ -3,8 +3,9 @@
 mod controller;
 mod ui_downloader;
 
-pub use controller::AppControllerProvider;
 pub use ui_downloader::UiProgressUpdater;
+
+use crate::{api::LatestVersionInfoProvider, app::HttpAppDownloader};
 
 /// Trait implementing high-level UI actions
 pub trait AppDelegate {
@@ -60,14 +61,14 @@ pub trait AppDelegateQueue<T: ?Sized>: Send {
     fn queue_main<F: FnOnce(&mut T) + 'static + Send>(&self, callback: F);
 }
 
+pub use controller::AppController;
+
 /// Public entry function for registering a [AppDelegate].
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    initialize_controller_for_provider::<controller::DefaultAppControllerProvider<T>>(delegate)
-}
+    // App downloader (factory) to use
+    type DownloaderFactory<T> = HttpAppDownloader<UiProgressUpdater<T>, UiProgressUpdater<T>>;
+    // Version info provider to use
+    type VersionInfoProvider = LatestVersionInfoProvider;
 
-/// Register a [AppDelegate] using some implementation of [AppControllerProvider].
-pub fn initialize_controller_for_provider<T: AppControllerProvider + 'static>(
-    delegate: &mut T::Delegate,
-) {
-    controller::AppController::initialize::<T>(delegate)
+    controller::AppController::initialize::<_, DownloaderFactory<T>, VersionInfoProvider>(delegate)
 }

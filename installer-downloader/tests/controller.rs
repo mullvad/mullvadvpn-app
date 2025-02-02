@@ -5,30 +5,12 @@ use installer_downloader::app::{
     AppDownloader, AppDownloaderFactory, AppDownloaderParameters, DownloadError,
 };
 use installer_downloader::controller::{
-    initialize_controller_for_provider, AppControllerProvider, AppDelegate, AppDelegateQueue,
-    UiProgressUpdater,
+    AppController, AppDelegate, AppDelegateQueue, UiProgressUpdater,
 };
 use installer_downloader::fetch::ProgressUpdater;
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
 use std::vec::Vec;
-
-#[derive(Debug)]
-pub struct FakeAppControllerProvider<Factory> {
-    _phantom: std::marker::PhantomData<Factory>,
-}
-
-impl<
-        Factory: AppDownloaderFactory<
-            SigProgress = UiProgressUpdater<FakeAppDelegate>,
-            AppProgress = UiProgressUpdater<FakeAppDelegate>,
-        >,
-    > AppControllerProvider for FakeAppControllerProvider<Factory>
-{
-    type Delegate = FakeAppDelegate;
-    type DownloaderFactory = Factory;
-    type VersionInfoProvider = FakeVersionInfoProvider;
-}
 
 pub struct FakeVersionInfoProvider {}
 
@@ -250,9 +232,9 @@ impl AppDelegate for FakeAppDelegate {
 #[tokio::test(start_paused = true)]
 async fn test_fetch_version() {
     let mut delegate = FakeAppDelegate::default();
-    initialize_controller_for_provider::<
-        FakeAppControllerProvider<FakeAppDownloaderFactoryHappyPath>,
-    >(&mut delegate);
+    AppController::initialize::<_, FakeAppDownloaderFactoryHappyPath, FakeVersionInfoProvider>(
+        &mut delegate,
+    );
 
     // The app should start out by fetching the current app version
     assert_eq!(delegate.status_text, "Fetching app version...");
@@ -279,9 +261,9 @@ async fn test_fetch_version() {
 #[tokio::test(start_paused = true)]
 async fn test_download() {
     let mut delegate = FakeAppDelegate::default();
-    initialize_controller_for_provider::<
-        FakeAppControllerProvider<FakeAppDownloaderFactoryHappyPath>,
-    >(&mut delegate);
+    AppController::initialize::<_, FakeAppDownloaderFactoryHappyPath, FakeVersionInfoProvider>(
+        &mut delegate,
+    );
 
     // Wait for the version info
     tokio::time::sleep(Duration::from_secs(1)).await;
@@ -338,9 +320,9 @@ async fn test_download() {
 #[tokio::test(start_paused = true)]
 async fn test_failed_verification() {
     let mut delegate = FakeAppDelegate::default();
-    initialize_controller_for_provider::<
-        FakeAppControllerProvider<FakeAppDownloaderFactoryVerifyFail>,
-    >(&mut delegate);
+    AppController::initialize::<_, FakeAppDownloaderFactoryVerifyFail, FakeVersionInfoProvider>(
+        &mut delegate,
+    );
 
     // Wait for the version info
     tokio::time::sleep(Duration::from_secs(1)).await;
