@@ -157,7 +157,6 @@
     <string name="enable_direct_only">%1$sを有効にする</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
-    <string name="encrypted_dns_proxy_info_message_part2">当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーはQuad 9、CloudFlare、またはGoogleのいずれかによってホストされます。</string>
     <string name="enter_value_placeholder">MTU を入力</string>
     <string name="enter_voucher_code">バウチャーコードを入力</string>
     <string name="entry">入口</string>

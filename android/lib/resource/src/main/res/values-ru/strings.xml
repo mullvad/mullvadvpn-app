@@ -157,7 +157,6 @@
     <string name="enable_direct_only">Включить параметр «%1$s»</string>
     <string name="enable_method">Включить метод</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Если вы не подключены к нашему VPN, функция «Прокси через зашифрованный DNS» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad 9, CloudFlare или Google.</string>
     <string name="enter_value_placeholder">Введите MTU</string>
     <string name="enter_voucher_code">Введите код ваучера</string>
     <string name="entry">Вход</string>
