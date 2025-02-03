@@ -23,7 +23,7 @@ import net.mullvad.talpid.util.NetworkState
 import net.mullvad.talpid.util.defaultNetworkStateFlow
 import net.mullvad.talpid.util.networkFlow
 
-class ConnectivityListener(val connectivityManager: ConnectivityManager) {
+class ConnectivityListener(private val connectivityManager: ConnectivityManager) {
     private lateinit var _isConnected: StateFlow<Boolean>
     // Used by JNI
     val isConnected
