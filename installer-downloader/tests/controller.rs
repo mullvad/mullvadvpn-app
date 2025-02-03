@@ -1,13 +1,12 @@
 //! Tests for integrations between UI controller and other components
 
-use installer_downloader::api::{Version, VersionInfo, VersionInfoProvider};
-use installer_downloader::app::{
+use installer_downloader::controller::AppController;
+use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, UiProgressUpdater};
+use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider};
+use mullvad_update::app::{
     AppDownloader, AppDownloaderFactory, AppDownloaderParameters, DownloadError,
 };
-use installer_downloader::controller::{
-    AppController, AppDelegate, AppDelegateQueue, UiProgressUpdater,
-};
-use installer_downloader::fetch::ProgressUpdater;
+use mullvad_update::fetch::ProgressUpdater;
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
 use std::vec::Vec;

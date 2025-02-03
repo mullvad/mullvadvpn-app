@@ -1,11 +1,6 @@
 //! Framework-agnostic module that hooks up a UI to actions
 
-mod controller;
-mod ui_downloader;
-
-pub use ui_downloader::UiProgressUpdater;
-
-use crate::{api::LatestVersionInfoProvider, app::HttpAppDownloader};
+pub use crate::ui_downloader::UiProgressUpdater;
 
 /// Trait implementing high-level UI actions
 pub trait AppDelegate {
@@ -59,16 +54,4 @@ pub trait AppDelegate {
 /// Schedules actions on the UI thread from other threads
 pub trait AppDelegateQueue<T: ?Sized>: Send {
     fn queue_main<F: FnOnce(&mut T) + 'static + Send>(&self, callback: F);
-}
-
-pub use controller::AppController;
-
-/// Public entry function for registering a [AppDelegate].
-pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    // App downloader (factory) to use
-    type DownloaderFactory<T> = HttpAppDownloader<UiProgressUpdater<T>, UiProgressUpdater<T>>;
-    // Version info provider to use
-    type VersionInfoProvider = LatestVersionInfoProvider;
-
-    controller::AppController::initialize::<_, DownloaderFactory<T>, VersionInfoProvider>(delegate)
 }

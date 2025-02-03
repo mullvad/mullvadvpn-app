@@ -1,16 +1,15 @@
 //! This module implements the actual logic performed by different UI components.
 
-use super::{AppDelegate, AppDelegateQueue};
+use crate::delegate::{AppDelegate, AppDelegateQueue};
+use crate::ui_downloader::{UiAppDownloader, UiProgressUpdater};
 
-use crate::{
+use mullvad_update::{
     api::{self, VersionInfoProvider},
     app::{self, AppDownloaderFactory, AppDownloaderParameters},
 };
 
 use std::future::Future;
 use tokio::sync::{mpsc, oneshot};
-
-use super::ui_downloader::{UiAppDownloader, UiProgressUpdater};
 
 /// Actions handled by an async worker task in [handle_action_messages].
 enum TaskMessage {
@@ -21,6 +20,19 @@ enum TaskMessage {
 
 /// See the [module-level docs](self).
 pub struct AppController {}
+
+/// Public entry function for registering a [AppDelegate].
+pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
+    use mullvad_update::api::LatestVersionInfoProvider;
+    use mullvad_update::app::HttpAppDownloader;
+
+    // App downloader (factory) to use
+    type DownloaderFactory<T> = HttpAppDownloader<UiProgressUpdater<T>, UiProgressUpdater<T>>;
+    // Version info provider to use
+    type VersionInfoProvider = LatestVersionInfoProvider;
+
+    AppController::initialize::<_, DownloaderFactory<T>, VersionInfoProvider>(delegate)
+}
 
 impl AppController {
     /// Initialize [AppController] using the provided delegate.

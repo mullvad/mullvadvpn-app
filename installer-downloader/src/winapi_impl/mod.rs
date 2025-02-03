@@ -1,6 +1,6 @@
 use native_windows_gui as nwg;
 
-use crate::controller::{AppDelegate, AppDelegateQueue};
+use crate::delegate::{AppDelegate, AppDelegateQueue};
 
 mod delegate;
 mod ui;
