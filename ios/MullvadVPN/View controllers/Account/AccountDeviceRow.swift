@@ -41,6 +41,7 @@ class AccountDeviceRow: UIView {
 
     private let infoButton: UIButton = {
         let button = IncreasedHitButton(type: .system)
+        button.isExclusiveTouch = true
         button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
         button.setImage(UIImage(named: "IconInfo"), for: .normal)
