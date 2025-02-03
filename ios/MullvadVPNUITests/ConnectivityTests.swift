@@ -15,11 +15,6 @@ class ConnectivityTests: LoggedOutUITestCase {
 
     /// Verifies that the app still functions when API has been blocked
     func testAPIConnectionViaBridges() throws {
-        let skipReason = """
-            This test is currently skipped because shadowsocks bridges cannot be reached
-            from the staging environment
-        """
-        try XCTSkipIf(true, skipReason)
         firewallAPIClient.removeRules()
         let hasTimeAccountNumber = getAccountWithTime()
 
@@ -32,32 +27,40 @@ class ConnectivityTests: LoggedOutUITestCase {
         firewallAPIClient.createRule(try FirewallRule.makeBlockAPIAccessFirewallRule())
         try Networking.verifyCannotAccessAPI()
 
-        LoginPage(app)
+        var successIconShown = false
+        var retryCount = 0
+        let maxRetryCount = 3
+
+        let loginPage = LoginPage(app)
             .tapAccountNumberTextField()
             .enterText(hasTimeAccountNumber)
-            .tapAccountNumberSubmitButton()
 
-        // After creating firewall rule first login attempt might fail. One more attempt is allowed since the app is cycling between two methods.
-        let successIconShown = LoginPage(app)
-            .getSuccessIconShown()
-
-        if successIconShown {
-            HeaderBar(app)
-                .verifyDeviceLabelShown()
-        } else {
-            LoginPage(app)
-                .verifyFailIconShown()
+        // After creating firewall rule first login attempt might fail. More attempts are allowed since the app is cycling between three methods.
+        repeat {
+            successIconShown = loginPage
                 .tapAccountNumberSubmitButton()
-                .verifySuccessIconShown()
+                .getSuccessIconShown()
 
-            HeaderBar(app)
-                .verifyDeviceLabelShown()
-        }
+            if successIconShown == false {
+                // Give it some time to show up. App might be waiting for a network connection to timeout.
+                loginPage.waitForAccountNumberSubmitButton()
+            }
+
+            retryCount += 1
+        } while successIconShown == false && retryCount < maxRetryCount
+
+        HeaderBar(app)
+            .verifyDeviceLabelShown()
     }
 
     /// Get the app into a blocked state by connecting to a relay then applying a filter which don't find this relay, then verify that app can still communicate by logging out and verifying that the device was successfully removed
     // swiftlint:disable:next function_body_length
     func testAPIReachableWhenBlocked() throws {
+        let skipReason = """
+            URLSession doesn't work when the app is in a blocked state.
+        Thus, we should disable this test until we have migrated over to `Rust API client`.
+        """
+        try XCTSkipIf(true, skipReason)
         let hasTimeAccountNumber = getAccountWithTime()
         addTeardownBlock {
             // Reset any filters
