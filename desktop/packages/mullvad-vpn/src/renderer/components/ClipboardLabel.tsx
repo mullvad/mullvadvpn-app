@@ -1,10 +1,10 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { colors } from '../../config.json';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useScheduler } from '../../shared/scheduler';
+import { Colors } from '../lib/foundations';
 import { useBoolean } from '../lib/utility-hooks';
 import ImageView from './ImageView';
 
@@ -80,8 +80,8 @@ export default function ClipboardLabel(props: IProps) {
           }>
           <ImageView
             source={obscured ? 'icon-unobscure' : 'icon-obscure'}
-            tintColor={colors.white}
-            tintHoverColor={colors.white80}
+            tintColor={Colors.white}
+            tintHoverColor={Colors.white80}
             width={24}
           />
         </StyledButton>
@@ -95,8 +95,8 @@ export default function ClipboardLabel(props: IProps) {
         }>
         <ImageView
           source={justCopied ? 'icon-tick' : 'icon-copy'}
-          tintColor={justCopied ? colors.green : colors.white}
-          tintHoverColor={justCopied ? colors.green : colors.white80}
+          tintColor={justCopied ? Colors.green : Colors.white}
+          tintHoverColor={justCopied ? Colors.green : Colors.white80}
           width={justCopied ? 22 : 24}
         />
       </StyledCopyButton>

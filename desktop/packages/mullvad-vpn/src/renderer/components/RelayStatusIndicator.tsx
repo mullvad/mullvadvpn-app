@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Styles } from 'styled-components/dist/types';
 
-import { colors } from '../../config.json';
+import { Colors } from '../lib/foundations';
 import * as Cell from './cell';
 
 const indicatorStyles: Styles<
@@ -14,7 +14,7 @@ const indicatorStyles: Styles<
 };
 
 const StyledRelayStatus = styled.div<{ $active: boolean }>(indicatorStyles, (props) => ({
-  backgroundColor: props.$active ? colors.green90 : colors.red95,
+  backgroundColor: props.$active ? Colors.green90 : Colors.red95,
 }));
 
 const TickIcon = styled(Cell.Icon)({
@@ -29,12 +29,12 @@ interface IProps {
 
 export default function RelayStatusIndicator(props: IProps) {
   return props.selected ? (
-    <TickIcon tintColor={colors.white} source="icon-tick" width={18} />
+    <TickIcon tintColor={Colors.white} source="icon-tick" width={18} />
   ) : (
     <StyledRelayStatus $active={props.active} />
   );
 }
 
 export const SpecialLocationIndicator = styled.div(indicatorStyles, {
-  backgroundColor: colors.white90,
+  backgroundColor: Colors.white90,
 });

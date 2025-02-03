@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { links } from '../../config.json';
+import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
@@ -86,7 +86,7 @@ function FaqButton() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const { openUrl } = useAppContext();
 
-  const openFaq = useCallback(() => openUrl(links.faq), [openUrl]);
+  const openFaq = useCallback(() => openUrl(urls.faq), [openUrl]);
 
   return (
     <AriaDescriptionGroup>

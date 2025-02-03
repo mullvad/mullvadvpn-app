@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { colors } from '../../../config.json';
+import { Colors } from '../../lib/foundations';
 import { measurements } from '../common-styles';
 import { buttonColor, ButtonColors } from './styles';
 
@@ -22,7 +22,7 @@ export const SideButton = styled.button<ButtonColors & { $noSeparator?: boolean 
       bottom: 0,
       height: '50%',
       width: '1px',
-      backgroundColor: colors.darkBlue,
+      backgroundColor: Colors.darkBlue,
     },
   }),
 );

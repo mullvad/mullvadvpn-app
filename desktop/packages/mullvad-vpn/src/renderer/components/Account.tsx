@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from 'react';
 
-import { links } from '../../config.json';
 import { formatDate, hasExpired } from '../../shared/account-expiry';
+import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useHistory } from '../lib/history';
@@ -30,11 +30,11 @@ import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 export default function Account() {
   const history = useHistory();
   const isOffline = useSelector((state) => state.connection.isBlocked);
-  const { updateAccountData, openLinkWithAuth, logout } = useAppContext();
+  const { updateAccountData, openUrlWithAuth, logout } = useAppContext();
 
   const onBuyMore = useCallback(async () => {
-    await openLinkWithAuth(links.purchase);
-  }, [openLinkWithAuth]);
+    await openUrlWithAuth(urls.purchase);
+  }, [openUrlWithAuth]);
 
   const onMount = useEffectEvent(() => updateAccountData());
   useEffect(() => onMount(), []);

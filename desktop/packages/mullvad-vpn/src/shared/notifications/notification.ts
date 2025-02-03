@@ -1,8 +1,9 @@
 import { LinkProps } from '../../renderer/lib/components';
+import { Url } from '../constants';
 
 export type NotificationAction = {
   type: 'open-url';
-  url: string;
+  url: Url;
   text?: string;
   withAuth?: boolean;
 };

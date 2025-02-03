@@ -1,7 +1,7 @@
 import { createContext, ReactNode, useCallback, useContext, useMemo, useState } from 'react';
 import { sprintf } from 'sprintf-js';
 
-import { links } from '../../config.json';
+import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
@@ -177,7 +177,7 @@ function Content() {
 function ExternalPaymentButton() {
   const { setShowBlockWhenDisconnectedAlert } = useExpiredAccountContext();
   const { recoveryAction } = useRecoveryAction();
-  const { openLinkWithAuth } = useAppContext();
+  const { openUrlWithAuth } = useAppContext();
   const isNewAccount = useIsNewAccount();
 
   const buttonText = isNewAccount
@@ -188,9 +188,9 @@ function ExternalPaymentButton() {
     if (recoveryAction === RecoveryAction.disableBlockedWhenDisconnected) {
       setShowBlockWhenDisconnectedAlert(true);
     } else {
-      await openLinkWithAuth(links.purchase);
+      await openUrlWithAuth(urls.purchase);
     }
-  }, [openLinkWithAuth, recoveryAction, setShowBlockWhenDisconnectedAlert]);
+  }, [openUrlWithAuth, recoveryAction, setShowBlockWhenDisconnectedAlert]);
 
   return (
     <AppButton.BlockingButton

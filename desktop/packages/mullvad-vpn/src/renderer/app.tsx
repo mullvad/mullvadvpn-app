@@ -9,6 +9,7 @@ import {
   ILinuxSplitTunnelingApplication,
   ISplitTunnelingApplication,
 } from '../shared/application-types';
+import { Url } from '../shared/constants';
 import {
   AccessMethodSetting,
   AccountNumber,
@@ -358,7 +359,7 @@ export default class AppRenderer {
     IpcRendererEventChannel.problemReport.collectLogs(toRedact);
   public viewLog = (path: string) => IpcRendererEventChannel.problemReport.viewLog(path);
   public quit = () => IpcRendererEventChannel.app.quit();
-  public openUrl = (url: string) => IpcRendererEventChannel.app.openUrl(url);
+  public openUrl = (url: Url) => IpcRendererEventChannel.app.openUrl(url);
   public getPathBaseName = (path: string) => IpcRendererEventChannel.app.getPathBaseName(path);
   public showOpenDialog = (options: Electron.OpenDialogOptions) =>
     IpcRendererEventChannel.app.showOpenDialog(options);
@@ -462,7 +463,7 @@ export default class AppRenderer {
     return devices;
   };
 
-  public openLinkWithAuth = async (link: string): Promise<void> => {
+  public openUrlWithAuth = async (url: Url): Promise<void> => {
     let token = '';
     try {
       token = await IpcRendererEventChannel.account.getWwwAuthToken();
@@ -470,7 +471,7 @@ export default class AppRenderer {
       const error = e as Error;
       log.error(`Failed to get the WWW auth token: ${error.message}`);
     }
-    void this.openUrl(`${link}?token=${token}`);
+    void this.openUrl(`${url}?token=${token}`);
   };
 
   public setAllowLan = async (allowLan: boolean) => {

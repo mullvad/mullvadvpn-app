@@ -3,12 +3,13 @@ import { useParams } from 'react-router';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { colors, links } from '../../config.json';
 import { formatDate } from '../../shared/account-expiry';
+import { urls } from '../../shared/constants';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
+import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
@@ -35,7 +36,7 @@ export const StyledCustomScrollbars = styled(CustomScrollbars)({
 export const StyledContainer = styled(Container)({
   paddingTop: '22px',
   minHeight: '100%',
-  backgroundColor: colors.darkBlue,
+  backgroundColor: Colors.darkBlue,
 });
 
 export const StyledBody = styled.div({
@@ -53,7 +54,7 @@ export const StyledTitle = styled.span(hugeText, {
 
 export const StyledLabel = styled.span(tinyText, {
   lineHeight: '20px',
-  color: colors.white,
+  color: Colors.white,
   marginBottom: '9px',
 });
 
@@ -200,7 +201,7 @@ export function SetupFinished() {
   const finish = useFinishedCallback();
   const { openUrl } = useAppContext();
 
-  const openPrivacyLink = useCallback(() => openUrl(links.privacyGuide), [openUrl]);
+  const openPrivacyLink = useCallback(() => openUrl(urls.privacyGuide), [openUrl]);
 
   return (
     <Layout>

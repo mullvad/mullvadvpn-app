@@ -1,7 +1,7 @@
-import { links } from '../config.json';
+import { Url, urls } from './constants';
 
-export function getDownloadUrl(suggestedIsBeta: boolean): string {
-  let url = links.download;
+export function getDownloadUrl(suggestedIsBeta: boolean): Url {
+  let url: Url = urls.download;
   switch (process.platform ?? window.env.platform) {
     case 'win32':
       url += 'windows/';
@@ -18,5 +18,5 @@ export function getDownloadUrl(suggestedIsBeta: boolean): string {
     url += 'beta/';
   }
 
-  return url;
+  return url as Url;
 }
