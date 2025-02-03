@@ -36,6 +36,7 @@ impl AppController {
                 AppProgress = UiProgressUpdater<Delegate>,
             > + 'static,
     {
+        delegate.hide_download_progress();
         delegate.hide_download_button();
         delegate.hide_cancel_button();
 
@@ -135,7 +136,7 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
                     let app_size = version_info.stable.size;
 
                     self_.set_status_text("");
-                    self_.disable_download_button();
+                    self_.hide_download_button();
                     self_.show_cancel_button();
                     self_.show_download_progress();
 
@@ -169,7 +170,7 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
 
                 queue.queue_main(move |self_| {
                     self_.set_status_text(&version_label);
-                    self_.enable_download_button();
+                    self_.show_download_button();
                     self_.hide_cancel_button();
                     self_.hide_download_progress();
                     self_.set_download_progress(0);
