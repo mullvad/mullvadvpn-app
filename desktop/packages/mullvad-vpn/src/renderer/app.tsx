@@ -43,10 +43,9 @@ import ErrorBoundary from './components/ErrorBoundary';
 import KeyboardNavigation from './components/KeyboardNavigation';
 import Lang from './components/Lang';
 import MacOsScrollbarDetection from './components/MacOsScrollbarDetection';
-import { ModalContainer } from './components/Modal';
 import { AppContext } from './context';
 import { Theme } from './lib/components';
-import History, { ITransitionSpecification, transitions } from './lib/history';
+import History, { TransitionType } from './lib/history';
 import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
@@ -295,12 +294,10 @@ export default class AppRenderer {
                 <Router history={this.history.asHistory}>
                   <Theme>
                     <ErrorBoundary>
-                      <ModalContainer>
-                        <KeyboardNavigation>
-                          <AppRouter />
-                        </KeyboardNavigation>
-                        {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
-                      </ModalContainer>
+                      <KeyboardNavigation>
+                        <AppRouter />
+                      </KeyboardNavigation>
+                      {window.env.platform === 'darwin' && <MacOsScrollbarDetection />}
                     </ErrorBoundary>
                   </Theme>
                 </Router>
@@ -408,7 +405,7 @@ export default class AppRenderer {
           actions.account.loginTooManyDevices();
           this.loginState = 'too many devices';
 
-          this.history.reset(RoutePath.tooManyDevices, { transition: transitions.push });
+          this.history.reset(RoutePath.tooManyDevices, { transition: TransitionType.push });
         } catch {
           log.error('Failed to fetch device list');
           actions.account.loginFailed('list-devices');
@@ -425,7 +422,7 @@ export default class AppRenderer {
     this.loginState = 'none';
   };
 
-  public logout = async (transition = transitions.dismiss) => {
+  public logout = async (transition = TransitionType.dismiss) => {
     try {
       this.history.reset(RoutePath.login, { transition });
       await IpcRendererEventChannel.account.logout();
@@ -436,7 +433,7 @@ export default class AppRenderer {
   };
 
   public leaveRevokedDevice = async () => {
-    await this.logout(transitions.pop);
+    await this.logout(TransitionType.pop);
     await this.disconnectTunnel();
   };
 
@@ -717,38 +714,38 @@ export default class AppRenderer {
     // First level contains the possible next locations and the second level contains the
     // possible current locations.
     const navigationTransitions: Partial<
-      Record<RoutePath, Partial<Record<RoutePath | '*', ITransitionSpecification>>>
+      Record<RoutePath, Partial<Record<RoutePath | '*', TransitionType>>>
     > = {
       [RoutePath.launch]: {
-        [RoutePath.login]: transitions.pop,
-        [RoutePath.main]: transitions.pop,
-        '*': transitions.dismiss,
+        [RoutePath.login]: TransitionType.pop,
+        [RoutePath.main]: TransitionType.pop,
+        '*': TransitionType.dismiss,
       },
       [RoutePath.login]: {
-        [RoutePath.launch]: transitions.push,
-        [RoutePath.main]: transitions.pop,
-        [RoutePath.deviceRevoked]: transitions.pop,
-        '*': transitions.dismiss,
+        [RoutePath.launch]: TransitionType.push,
+        [RoutePath.main]: TransitionType.pop,
+        [RoutePath.deviceRevoked]: TransitionType.pop,
+        '*': TransitionType.dismiss,
       },
       [RoutePath.main]: {
-        [RoutePath.launch]: transitions.push,
-        [RoutePath.login]: transitions.push,
-        [RoutePath.tooManyDevices]: transitions.push,
-        '*': transitions.dismiss,
+        [RoutePath.launch]: TransitionType.push,
+        [RoutePath.login]: TransitionType.push,
+        [RoutePath.tooManyDevices]: TransitionType.push,
+        '*': TransitionType.dismiss,
       },
       [RoutePath.expired]: {
-        [RoutePath.launch]: transitions.push,
-        [RoutePath.login]: transitions.push,
-        [RoutePath.tooManyDevices]: transitions.push,
-        '*': transitions.dismiss,
+        [RoutePath.launch]: TransitionType.push,
+        [RoutePath.login]: TransitionType.push,
+        [RoutePath.tooManyDevices]: TransitionType.push,
+        '*': TransitionType.dismiss,
       },
       [RoutePath.timeAdded]: {
-        [RoutePath.expired]: transitions.push,
-        [RoutePath.redeemVoucher]: transitions.push,
-        '*': transitions.dismiss,
+        [RoutePath.expired]: TransitionType.push,
+        [RoutePath.redeemVoucher]: TransitionType.push,
+        '*': TransitionType.dismiss,
       },
       [RoutePath.deviceRevoked]: {
-        '*': transitions.pop,
+        '*': TransitionType.pop,
       },
     };
 

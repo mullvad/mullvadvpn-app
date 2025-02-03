@@ -5,6 +5,7 @@ import { TunnelState } from '../../shared/daemon-rpc-types';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import GlMap, { ConnectionState, Coordinate } from '../lib/3dmap';
+import { getReduceMotion } from '../lib/functions';
 import {
   useCombinedRefs,
   useEffectEvent,
@@ -44,7 +45,7 @@ export default function Map() {
 
   const connectionState = getConnectionState(hasLocationValue, connection.status.state);
 
-  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const reduceMotion = getReduceMotion();
   const animate = !reduceMotion && animateMap;
 
   return (

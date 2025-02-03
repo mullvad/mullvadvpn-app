@@ -18,7 +18,7 @@ import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Link } from '../lib/components';
 import { Colors } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import {
   NewDeviceNotificationProvider,
@@ -211,7 +211,7 @@ function NotificationActionWrapper({
 
   const goToProblemReport = useCallback(() => {
     closeTroubleshootModal();
-    push(RoutePath.problemReport, { transition: transitions.show });
+    push(RoutePath.problemReport, { transition: TransitionType.show });
   }, [closeTroubleshootModal, push]);
 
   let actionComponent: React.ReactElement | undefined;
