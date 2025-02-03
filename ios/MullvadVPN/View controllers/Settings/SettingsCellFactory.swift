@@ -30,12 +30,13 @@ final class SettingsCellFactory: @preconcurrency CellFactoryProtocol, Sendable {
     func makeCell(for item: SettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
         let cell: UITableViewCell
 
-        // Instantiate cell based on the specific item type
-        if item == .changelog {
-            cell = SettingsCell(style: .subtitle, reuseIdentifier: item.reuseIdentifier.rawValue)
-        } else {
-            cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
-        }
+        cell = tableView
+            .dequeueReusableCell(
+                withIdentifier: item.reuseIdentifier.rawValue
+            ) ?? SettingsCell(
+                style: item.reuseIdentifier.cellStyle,
+                reuseIdentifier: item.reuseIdentifier.rawValue
+            )
 
         // Configure the cell with the common logic
         configureCell(cell, item: item, indexPath: indexPath)
