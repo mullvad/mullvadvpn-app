@@ -20,7 +20,7 @@ pub trait AppVerifier: 'static + Clone {
 pub struct PgpVerifier;
 
 impl PgpVerifier {
-    const SIGNING_PUBKEY: &[u8] = include_bytes!("mullvad-code-signing.gpg");
+    const SIGNING_PUBKEY: &[u8] = include_bytes!("../mullvad-code-signing.gpg");
 }
 
 impl AppVerifier for PgpVerifier {

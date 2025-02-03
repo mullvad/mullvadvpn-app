@@ -1,8 +1,6 @@
 [package]
 name = "installer-downloader"
-description = """
-A secure minimal web installer for the Mullvad app
-"""
+description = "A secure minimal web installer for the Mullvad app"
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
@@ -22,13 +20,10 @@ windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_Li
 
 [dependencies]
 anyhow = "1.0"
-pgp = "0.14.0"
-reqwest = { version = "0.12.9", features = ["blocking", "json"] }
-serde = { workspace = true, features = ["derive"] }
-serde_json = { workspace = true }
 tokio = { version = "1", features = ["full"] }
-image = { version = "0.25.5", default-features = false, features = ["png"] }
 async-trait = "0.1"
+
+mullvad-update = { path = "../mullvad-update" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 native-windows-gui = { version = "1.0.12", features = ["image-decoder"] }

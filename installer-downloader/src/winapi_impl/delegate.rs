@@ -5,7 +5,7 @@ use native_windows_gui::{self as nwg, Event};
 use windows_sys::Win32::UI::WindowsAndMessaging::PostMessageW;
 
 use super::ui::{AppWindow, QUEUE_MESSAGE};
-use crate::controller::{AppDelegate, AppDelegateQueue};
+use crate::delegate::{AppDelegate, AppDelegateQueue};
 
 impl AppDelegate for AppWindow {
     type Queue = Queue;

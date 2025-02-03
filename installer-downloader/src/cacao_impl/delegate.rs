@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use cacao::{control::Control, layout::Layout};
 
 use super::ui::{Action, AppWindow};
-use crate::controller::{AppDelegate, AppDelegateQueue};
+use crate::delegate::{AppDelegate, AppDelegateQueue};
 
 impl AppDelegate for AppWindow {
     type Queue = Queue;
