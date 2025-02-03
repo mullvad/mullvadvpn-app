@@ -30,7 +30,6 @@ class ConnectionViewViewModel: ObservableObject {
     @Published private(set) var tunnelStatus: TunnelStatus
     @Published var outgoingConnectionInfo: OutgoingConnectionInfo?
     @Published var showsActivityIndicator = false
-    @Published var showsConnectionDetails = false
 
     @Published var relayConstraints: RelayConstraints
     let destinationDescriber: DestinationDescribing
@@ -73,14 +72,15 @@ class ConnectionViewViewModel: ObservableObject {
 
     func update(tunnelStatus: TunnelStatus) {
         self.tunnelStatus = tunnelStatus
-        self.showsConnectionDetails = shouldShowConnectionDetails(tunnelStatus)
 
         if !tunnelIsConnected {
             outgoingConnectionInfo = nil
         }
     }
+}
 
-    private func shouldShowConnectionDetails(_ tunnelStatus: TunnelStatus) -> Bool {
+extension ConnectionViewViewModel {
+    var showsConnectionDetails: Bool {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .negotiatingEphemeralPeer,
              .connected, .pendingReconnect:
@@ -89,9 +89,7 @@ class ConnectionViewViewModel: ObservableObject {
             false
         }
     }
-}
 
-extension ConnectionViewViewModel {
     var textColorForSecureLabel: UIColor {
         switch tunnelStatus.state {
         case .connecting, .reconnecting, .waitingForConnectivity(.noConnection), .negotiatingEphemeralPeer,
