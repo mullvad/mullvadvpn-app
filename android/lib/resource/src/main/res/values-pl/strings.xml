@@ -157,7 +157,6 @@
     <string name="enable_direct_only">Włącz %1$s</string>
     <string name="enable_method">Włącz metodę</string>
     <string name="encrypted_dns_proxy_info_message_part1">Dzięki metodzie „szyfrowany serwer proxy DNS” aplikacja będzie komunikować się z naszym interfejsem API Mullvad za pośrednictwem adresu serwera proxy. Odbywa się to poprzez pobranie adresu z serwera DNS over HTTPS (DoH), a następnie użycie go do połączenia z naszymi serwerami interfejsu API.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Jeśli nie masz połączenia z naszą siecią VPN, szyfrowany serwer proxy DNS użyje Twojego własnego adresu IP bez VPN podczas łączenia. Serwery DoH są hostowane przez jednego z następujących dostawców: Quad 9, CloudFlare lub Google.</string>
     <string name="enter_value_placeholder">Wprowadź MTU</string>
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="entry">Wejście</string>
