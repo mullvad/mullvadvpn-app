@@ -157,7 +157,6 @@
     <string name="enable_direct_only">%1$s aktivieren</string>
     <string name="enable_method">Methode aktivieren</string>
     <string name="encrypted_dns_proxy_info_message_part1">Mit der Methode „Verschlüsseltes-DNS-Proxy“ kommuniziert die App mit unserer Mullvad-API über eine Proxy-Adresse. Sie tut dies, indem sie eine Adresse von einem DNS-over-HTTPS-Server (DoH) abruft und dann diese verwendet, um unsere API-Server zu erreichen.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Wenn Sie nicht mit unserem VPN verbunden sind, verwendet der Verschlüsseltes-DNS-Proxy bei der Verbindung Ihre eigene Nicht-VPN-IP. Die DoH-Server werden von einem der folgenden Anbieter gehostet: Quad 9, CloudFlare, oder Google.</string>
     <string name="enter_value_placeholder">MTU eingeben</string>
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
     <string name="entry">Eingang</string>
