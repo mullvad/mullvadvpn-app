@@ -38,6 +38,11 @@ struct ConnectionView: View {
         .background(BlurView(style: .dark))
         .cornerRadius(12)
         .padding(EdgeInsets(top: 16, leading: 16, bottom: 24, trailing: 16))
+        .onReceive(connectionViewModel.combinedState) { _ in
+            if !connectionViewModel.showsConnectionDetails {
+                isExpanded = false
+            }
+        }
     }
 }
 
