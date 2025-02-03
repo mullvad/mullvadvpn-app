@@ -108,13 +108,15 @@ open class TalpidVpnService : LifecycleVpnService() {
                 Unit
             }
 
-        // Avoid creating a tunnel with no DNS servers or if all DNS servers was
-        // invalid, since apps then may leak DNS requests.
+        // Avoid creating a tunnel where all DNS servers was invalid or if none was ever set,
+        // since apps then may leak DNS requests.
         // https://issuetracker.google.com/issues/337961996
-        if (
-            config.dnsServers.isEmpty() ||
-                dnsConfigureResult is Either.Right && dnsConfigureResult.value.isEmpty()
-        ) {
+        val shouldAddFallbackDns =
+            dnsConfigureResult.fold(
+                { invalidDnsServers -> invalidDnsServers.size == config.dnsServers.size },
+                { addedDnsServers -> addedDnsServers.isEmpty() },
+            )
+        if (shouldAddFallbackDns) {
             Logger.w(
                 "All DNS servers invalid or non set, using fallback DNS server to " +
                     "minimize leaks, dnsServers.isEmpty(): ${config.dnsServers.isEmpty()}"
