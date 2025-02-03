@@ -164,7 +164,7 @@ fun RelayItemCell(
             if (content != null) {
                 content()
             }
-            Name(name = item.name, state = state)
+            Name(name = item.name, state = state, active = item.active)
         }
 
         if (item.hasChildren) {
@@ -207,14 +207,19 @@ fun CheckableRelayLocationCell(
 }
 
 @Composable
-private fun Name(modifier: Modifier = Modifier, name: String, state: RelayListItemState?) {
+private fun Name(
+    modifier: Modifier = Modifier,
+    name: String,
+    state: RelayListItemState?,
+    active: Boolean,
+) {
     Text(
         text = state?.let { name.withSuffix(state) } ?: name,
         color = MaterialTheme.colorScheme.onSurface,
         modifier =
             modifier
                 .alpha(
-                    if (state == null) {
+                    if (state == null && active) {
                         AlphaVisible
                     } else {
                         AlphaInactive
