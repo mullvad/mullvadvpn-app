@@ -66,6 +66,7 @@ enum DaitaPlatform {
   macos_wg_go = 3;
   ios_wg_go = 4;
   android_wg_go = 5;
+  windows_wg_go = 6;
 }
 
 enum DaitaLevel {
