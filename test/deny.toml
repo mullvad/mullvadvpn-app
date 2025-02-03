@@ -20,10 +20,6 @@ yanked = "deny"
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
-
-    # RUSTSEC-2024-0384 - `instant` is unmaintained.
-    # `ssh2 0.9.4` uses `instant`.
-    "RUSTSEC-2024-0384",
 ]
 
 

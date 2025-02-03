@@ -60,7 +60,7 @@ mullvad-types = { path = "../../mullvad-types" }
 mullvad-version = { path = "../../mullvad-version" }
 talpid-types = { path = "../../talpid-types" }
 
-ssh2 = "0.9.4"
+ssh2 = "0.9.5"
 
 nix = { workspace = true }
 socket2 = { workspace = true }
