@@ -60,6 +60,11 @@ pub struct VmConfig {
     #[serde(default)]
     #[arg(long, requires("tpm"))]
     pub ovmf_code_path: Option<String>,
+
+    /// Number of vCPUs
+    #[serde(default)]
+    #[arg(long)]
+    pub vcpu: Option<usize>,
 }
 
 impl VmConfig {

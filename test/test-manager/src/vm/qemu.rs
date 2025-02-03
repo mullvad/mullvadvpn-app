@@ -25,6 +25,9 @@ const STDERR_LOG_LEVEL: log::Level = log::Level::Error;
 const STDOUT_LOG_LEVEL: log::Level = log::Level::Debug;
 const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(180);
 
+/// Default number of VCPU cores (passed to -smp)
+const DEFAULT_NUM_VCPUS: usize = 2;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to set up network")]
@@ -83,6 +86,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<QemuInstance> 
         .map_err(Error::Network)?;
 
     let mut qemu_cmd = Command::new("qemu-system-x86_64");
+    let vcpus = vm_config.vcpu.unwrap_or(DEFAULT_NUM_VCPUS);
     qemu_cmd.args([
         "-cpu",
         "host",
@@ -91,7 +95,7 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<QemuInstance> 
         "-m",
         "4096",
         "-smp",
-        "2",
+        &vcpus.to_string(),
         "-drive",
         &format!("file={}", vm_config.image_path),
         "-device",
