@@ -157,7 +157,6 @@
     <string name="enable_direct_only">Aktivera %1$s</string>
     <string name="enable_method">Aktivera metod</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad API via en proxyadress. Den gör det genom att hämta en adress från en DNS over HTTPS-server (DoH) och sedan använda den för att nå våra API-servrar.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Om du inte är ansluten till VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9, CloudFlare eller Google.</string>
     <string name="enter_value_placeholder">Ange MTU</string>
     <string name="enter_voucher_code">Ange kupongkod</string>
     <string name="entry">Ingång</string>

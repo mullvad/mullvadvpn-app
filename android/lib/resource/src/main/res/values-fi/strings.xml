@@ -157,7 +157,6 @@
     <string name="enable_direct_only">Ota %1$s käyttöön</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää omaa, ei VPN:n kautta toimivaa IP-osoitettasi yhteyden muodostamisessa. DoH-palvelimia isännöi joko Quad 9, CloudFlare tai Google.</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="entry">Tulo</string>

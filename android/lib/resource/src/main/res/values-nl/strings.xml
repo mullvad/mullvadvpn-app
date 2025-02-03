@@ -157,7 +157,6 @@
     <string name="enable_direct_only">%1$s inschakelen</string>
     <string name="enable_method">Methode inschakelen</string>
     <string name="encrypted_dns_proxy_info_message_part1">Met de methode \"Versleutelde DNS-proxy\" communiceert de app met onze Mullvad-API via een proxyadres. De app doet dit door een adres op te halen van een DoH-server (DNS over HTTPS) en dat te gebruiken om onze API-servers te bereiken.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad 9, CloudFlare of Google.</string>
     <string name="enter_value_placeholder">Voer MTU in</string>
     <string name="enter_voucher_code">Vouchercode invoeren</string>
     <string name="entry">Ingang</string>
