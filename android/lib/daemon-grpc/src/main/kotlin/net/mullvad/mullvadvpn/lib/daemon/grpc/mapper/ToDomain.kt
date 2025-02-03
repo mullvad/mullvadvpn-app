@@ -230,6 +230,7 @@ internal fun ManagementInterface.AfterDisconnect.toDomain(): ActionAfterDisconne
             throw IllegalArgumentException("Unrecognized action after disconnect")
     }
 
+@Suppress("CyclomaticComplexity")
 internal fun ManagementInterface.ErrorState.toDomain(
     otherAlwaysOnApp: ErrorStateCause.OtherAlwaysOnApp?,
     invalidDnsServers: ErrorStateCause.InvalidDnsServers?,
