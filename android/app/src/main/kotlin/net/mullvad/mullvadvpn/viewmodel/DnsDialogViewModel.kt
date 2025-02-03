@@ -26,7 +26,7 @@ import net.mullvad.mullvadvpn.usecase.DeleteCustomDnsUseCase
 import org.apache.commons.validator.routines.InetAddressValidator
 
 sealed interface DnsDialogSideEffect {
-    data class Complete(val isAllDeleted: Boolean) : DnsDialogSideEffect
+    data class Complete(val isDnsListEmpty: Boolean) : DnsDialogSideEffect
 
     data object Error : DnsDialogSideEffect
 }

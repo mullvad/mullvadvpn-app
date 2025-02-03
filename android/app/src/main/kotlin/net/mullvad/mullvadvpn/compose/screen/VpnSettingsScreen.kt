@@ -163,7 +163,7 @@ fun VpnSettings(
         when (result) {
             is DnsDialogResult.Success -> {
                 vm.showApplySettingChangesWarningToast()
-                if (result.allDeleted) {
+                if (result.isDnsListEmpty) {
                     vm.onToggleCustomDns(false)
                 }
             }
