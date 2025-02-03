@@ -5,19 +5,11 @@
 
 set -eu
 
-ANDROID="false"
-DESKTOP="false"
-VERSION_METADATA_ARGS=""
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR/../.."
 
 for argument in "$@"; do
     case "$argument" in
-        "--android")
-            ANDROID="true"
-            ;;
-        "--desktop")
-            DESKTOP="true"
-            VERSION_METADATA_ARGS+="--desktop "
-            ;;
         -*)
             echo "Unknown option \"$argument\""
             exit 1
@@ -34,31 +26,12 @@ if [[ -z ${PRODUCT_VERSION+x} ]]; then
     exit 1
 fi
 
-if [[ "$ANDROID" != "true" && "$DESKTOP" != "true" ]]; then
-    echo "Please specify if the release is for the desktop app and/or for Android app."
-    echo "For example: --android --desktop"
-    exit 1
-fi
-
 if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
     echo "Dirty working directory! Will not accept that for an official release."
     exit 1
 fi
 
-desktop_changes_path=desktop/packages/mullvad-vpn/changes.txt
-if [[ $DESKTOP == "true" && $(grep "CHANGE THIS BEFORE A RELEASE" $desktop_changes_path) != "" ]]; then
-    echo "It looks like you did not update $desktop_changes_path"
-    exit 1
-fi
-
-if [[ "$DESKTOP" == "true" && $(grep "^## \\[$PRODUCT_VERSION\\] - " CHANGELOG.md) == "" ]]; then
-    echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
-    echo "Please make sure the changelog is up to date and correct before you proceed."
-    exit 1
-fi
-
-if [[ "$ANDROID" == "true" &&
-    $PRODUCT_VERSION != *"alpha"* &&
+if [[ $PRODUCT_VERSION != *"alpha"* &&
     $(grep "^## \\[android/$PRODUCT_VERSION\\] - " android/CHANGELOG.md) == "" ]]; then
 
     echo "It looks like you did not add $PRODUCT_VERSION to the changelog?"
@@ -66,48 +39,27 @@ if [[ "$ANDROID" == "true" &&
     exit 1
 fi
 
-if [[ "$ANDROID" == "true" ]]; then
-    echo "Generate relays.json"
-    mkdir dist-assets/relays
-    cargo run -q -p mullvad-api --bin relay_list > dist-assets/relays/relays.json
+echo "Generate relays.json"
+mkdir dist-assets/relays
+cargo run -q -p mullvad-api --bin relay_list > dist-assets/relays/relays.json
 
-    git commit -S -m "Add relay list to bundle with $PRODUCT_VERSION" \
-        dist-assets/relays/relays.json
-fi
+git commit -S -m "Add relay list to bundle with $PRODUCT_VERSION" \
+    dist-assets/relays/relays.json
 
-if [[ "$DESKTOP" == "true" ]]; then
-    echo "$PRODUCT_VERSION" > dist-assets/desktop-product-version.txt
-    git commit -S -m "Update desktop app version to $PRODUCT_VERSION" \
-        dist-assets/desktop-product-version.txt
-fi
+echo "$PRODUCT_VERSION" > dist-assets/android-version-name.txt
+ANDROID_VERSION="$PRODUCT_VERSION" cargo run -q --bin mullvad-version versionCode > \
+    dist-assets/android-version-code.txt
+git commit -S -m "Update android app version to $PRODUCT_VERSION" \
+    dist-assets/android-version-name.txt \
+    dist-assets/android-version-code.txt
 
-if [[ "$ANDROID" == "true" ]]; then
-    echo "$PRODUCT_VERSION" > dist-assets/android-version-name.txt
-    ANDROID_VERSION="$PRODUCT_VERSION" cargo run -q --bin mullvad-version versionCode > \
-        dist-assets/android-version-code.txt
-    git commit -S -m "Update android app version to $PRODUCT_VERSION" \
-        dist-assets/android-version-name.txt \
-        dist-assets/android-version-code.txt
-fi
 
-NEW_TAGS=""
-
-if [[ "$ANDROID" == "true" ]]; then
-    echo "Tagging current git commit with release tag android/$PRODUCT_VERSION..."
-
-    git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
-    NEW_TAGS+=" android/$PRODUCT_VERSION"
-fi
-if [[ "$DESKTOP" == "true" ]]; then
-    echo "Tagging current git commit with release tag $PRODUCT_VERSION..."
-
-    git tag -s "$PRODUCT_VERSION" -m "$PRODUCT_VERSION"
-    NEW_TAGS+=" $PRODUCT_VERSION"
-fi
+echo "Tagging current git commit with release tag android/$PRODUCT_VERSION..."
+git tag -s "android/$PRODUCT_VERSION" -m "android/$PRODUCT_VERSION"
 
 echo "================================================="
 echo "| DONE preparing for a release!                 |"
 echo "|    Now push the tag created by this script    |"
 echo "|    after you have verified it is correct:     |"
-echo "|        $ git push origin$NEW_TAGS"
+echo "|        $ git push origin $PRODUCT_VERSION"
 echo "================================================="
