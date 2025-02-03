@@ -13,6 +13,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     UITableViewDelegate {
     enum CellReuseIdentifiers: String, CaseIterable {
         case basic
+        case changelog
 
         var reusableViewClass: AnyClass {
             SettingsCell.self
@@ -69,7 +70,10 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
         }
 
         var reuseIdentifier: CellReuseIdentifiers {
-            .basic
+            switch self {
+            case .changelog: .changelog
+            default: .basic
+            }
         }
     }
 
