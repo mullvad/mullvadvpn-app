@@ -31,7 +31,6 @@ image = { version = "0.25.5", default-features = false, features = ["png"] }
 async-trait = "0.1"
 
 [target.'cfg(target_os = "windows")'.dependencies]
-libui = "0.4"
 native-windows-gui = { version = "1.0.12", features = ["image-decoder"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
