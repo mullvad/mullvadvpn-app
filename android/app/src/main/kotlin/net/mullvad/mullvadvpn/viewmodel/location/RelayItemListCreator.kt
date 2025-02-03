@@ -114,7 +114,7 @@ private fun createCustomListRelayItems(
                     state =
                         customList.createState(
                             relayListType = relayListType,
-                            selectedByOther = selectedByOtherEntryExitList,
+                            selectedByOtherId = selectedByOtherEntryExitList,
                         ),
                     expanded = expanded,
                 )
@@ -180,7 +180,7 @@ private fun createCustomListEntry(
             state =
                 item.createState(
                     relayListType = relayListType,
-                    selectedByOther = selectedByOtherEntryExitList,
+                    selectedByOtherId = selectedByOtherEntryExitList,
                 ),
             expanded = expanded,
             depth = depth,
@@ -237,7 +237,7 @@ private fun createGeoLocationEntry(
             state =
                 item.createState(
                     relayListType = relayListType,
-                    selectedByOther = selectedByOtherEntryExitList,
+                    selectedByOtherId = selectedByOtherEntryExitList,
                 ),
             depth = depth,
             expanded = expanded,
@@ -332,19 +332,20 @@ private fun String.isSearching() = length >= MIN_SEARCH_LENGTH
 
 private fun RelayItem.createState(
     relayListType: RelayListType,
-    selectedByOther: RelayItemId?,
+    selectedByOtherId: RelayItemId?,
 ): RelayListItemState? {
-    val selectedByOther =
+    val isSelectedByOther =
         when (this) {
             is RelayItem.CustomList -> {
-                selectedByOther == customList.id ||
-                    customList.locations.all { it == selectedByOther }
+                selectedByOtherId == customList.id ||
+                    (customList.locations.isNotEmpty() &&
+                        customList.locations.all { it == selectedByOtherId })
             }
-            is RelayItem.Location.City -> selectedByOther == id
-            is RelayItem.Location.Country -> selectedByOther == id
-            is RelayItem.Location.Relay -> selectedByOther == id
+            is RelayItem.Location.City -> selectedByOtherId == id
+            is RelayItem.Location.Country -> selectedByOtherId == id
+            is RelayItem.Location.Relay -> selectedByOtherId == id
         }
-    return if (selectedByOther) {
+    return if (isSelectedByOther) {
         when (relayListType) {
             RelayListType.ENTRY -> RelayListItemState.USED_AS_EXIT
             RelayListType.EXIT -> RelayListItemState.USED_AS_ENTRY
