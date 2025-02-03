@@ -56,6 +56,9 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
     if !vm_config.disks.is_empty() {
         log::warn!("Mounting disks is not yet supported")
     }
+    if let Some(cpu) = vm_config.vcpus {
+        tart_cmd.args(["--cpu", &cpu.to_string()]);
+    }
 
     match config.runtime_opts.display {
         config::Display::None => {
