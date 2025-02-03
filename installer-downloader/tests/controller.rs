@@ -289,7 +289,7 @@ async fn test_download() {
     queue.run_callbacks(&mut delegate);
     delegate.call_log.clear();
 
-    assert!(!delegate.download_button_enabled);
+    assert!(!delegate.download_button_visible);
     assert!(delegate.cancel_button_visible);
     assert!(delegate.download_progress_visible);
 
