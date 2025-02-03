@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { TitleMedium } from '../../../typography';
+import { TitleMedium } from '../../typography';
 import { useNavigationHeader } from '../NavigationHeaderContext';
 
 export interface NavigationHeaderTitleProps {
