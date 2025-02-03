@@ -31,6 +31,7 @@ struct Args {
 }
 
 #[derive(clap::Subcommand, Debug)]
+#[allow(clippy::large_enum_variant)]
 enum Commands {
     /// Manage configuration for tests and VMs
     #[clap(subcommand)]
@@ -148,6 +149,7 @@ enum Commands {
 }
 
 #[derive(clap::Subcommand, Debug)]
+#[allow(clippy::large_enum_variant)]
 enum ConfigArg {
     /// Print the current config
     Get,
@@ -159,6 +161,7 @@ enum ConfigArg {
 }
 
 #[derive(clap::Subcommand, Debug)]
+#[allow(clippy::large_enum_variant)]
 enum VmConfig {
     /// Create or edit a VM config
     Set {
