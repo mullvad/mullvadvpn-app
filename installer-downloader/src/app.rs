@@ -119,7 +119,8 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
             self.bin_path(),
             &self.app_url,
             &mut self.app_progress_updater,
-            fetch::SizeHint::Exact(self.app_size),
+            // FIXME: use exact size hint
+            fetch::SizeHint::Maximum(self.app_size),
         )
         .await
         .map_err(DownloadError::FetchApp)
