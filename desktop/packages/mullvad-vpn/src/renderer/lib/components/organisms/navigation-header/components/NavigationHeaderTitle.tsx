@@ -10,6 +10,9 @@ export interface NavigationHeaderTitleProps {
 export const StyledText = styled(TitleMedium)<{ $visible?: boolean }>(({ $visible = true }) => ({
   opacity: $visible ? 1 : 0,
   transition: 'opacity 250ms ease-in-out',
+  whiteSpace: 'nowrap',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
 }));
 
 export const NavigationHeaderTitle = ({ children }: NavigationHeaderTitleProps) => {
