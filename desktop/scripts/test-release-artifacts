@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+set -eu
+
+if ! command -v gh > /dev/null; then
+    echo >&2 "gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
+
+if [[ $# != 1 ]]; then
+    echo "!!! Please pass the app version as the first and only argument"
+    exit 1
+fi
+
+PRODUCT_VERSION=$1
+gh workflow run desktop-e2e.yml --ref "$PRODUCT_VERSION" -f oses="fedora41 ubuntu2404 windows11 macos15" -f tests="test_quantum_resistant_tunnel test_ui_tunnel_settings"
