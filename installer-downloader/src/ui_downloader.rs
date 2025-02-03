@@ -1,8 +1,11 @@
 //! This module hooks up [AppDelegate]s to arbitrary implementations of [AppDownloader] and
 //! [fetch::ProgressUpdater].
 
-use super::{AppDelegate, AppDelegateQueue};
-use crate::{app::AppDownloader, fetch};
+use crate::delegate::{AppDelegate, AppDelegateQueue};
+use mullvad_update::{
+    app::{self, AppDownloader},
+    fetch,
+};
 
 /// [AppDownloader] that delegates the actual work to some underlying `downloader` and uses it to
 /// update a UI.
@@ -28,7 +31,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownloader
     for UiAppDownloader<Delegate, Downloader>
 {
-    async fn download_signature(&mut self) -> Result<(), crate::app::DownloadError> {
+    async fn download_signature(&mut self) -> Result<(), app::DownloadError> {
         if let Err(error) = self.downloader.download_signature().await {
             self.queue.queue_main(move |self_| {
                 self_.set_status_text("ERROR: Failed to retrieve signature.");
@@ -41,7 +44,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
         }
     }
 
-    async fn download_executable(&mut self) -> Result<(), crate::app::DownloadError> {
+    async fn download_executable(&mut self) -> Result<(), app::DownloadError> {
         match self.downloader.download_executable().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
@@ -63,7 +66,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
         }
     }
 
-    async fn verify(&mut self) -> Result<(), crate::app::DownloadError> {
+    async fn verify(&mut self) -> Result<(), app::DownloadError> {
         match self.downloader.verify().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
