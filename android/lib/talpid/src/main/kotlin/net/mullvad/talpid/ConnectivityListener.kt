@@ -65,9 +65,13 @@ class ConnectivityListener(
                     hasInternetCapability: Boolean ->
                     if (hasInternetCapability) {
                         ConnectionStatus(
-                            IPAvailabilityUtils.isIPv4Available(protect = { protect(it) }),
-                            IPAvailabilityUtils.isIPv6Available(protect = { protect(it) }),
-                        )
+                                IPAvailabilityUtils.isIPv4Available(protect = { protect(it) }),
+                                IPAvailabilityUtils.isIPv6Available(protect = { protect(it) }),
+                            )
+                            // If we have internet, but both IPv4 and IPv6 are not available, we
+                            // assume something is wrong and instead
+                            // will return both as available since this is the previous behavior.
+                            .takeUnless { !it.ipv4 && !it.ipv6 } ?: ConnectionStatus(true, true)
                     } else {
                         ConnectionStatus(false, false)
                     }
