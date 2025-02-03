@@ -1,14 +1,3 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 #
 # Keep this file in sync with test/deny.toml
-
-# `instant` is unmaintained.
-[[IgnoredVulns]]
-id = "RUSTSEC-2024-0384"
-ignoreUntil = 2025-02-11
-reason = """
-There is no reported vulnerability in the `instant` crate, but it is unmaintained and the author suggest switching to
-a fork instead of depending on `instant`. In our tree it is `ssh2` that currently depend on `instant` through an old
-version of `parking_lot`, preventing us from upgrading to a fixed version. This ignore can be removed when
-https://github.com/alexcrichton/ssh2-rs/issues/338 is resolved.
-"""
