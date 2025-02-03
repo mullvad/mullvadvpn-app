@@ -74,7 +74,7 @@ impl AppWindow {
 
         nwg::Button::builder()
             .parent(&self.window)
-            .position((0, 200))
+            .size((150, 32))
             .text("Download && install")
             .build(&mut self.download_button)?;
 
@@ -86,14 +86,14 @@ impl AppWindow {
 
         nwg::Label::builder()
             .parent(&self.window)
-            .size((WINDOW_WIDTH - 2 * 12, 16))
-            .position((12, 280))
+            .size((320, 32))
+            .h_align(nwg::HTextAlign::Center)
             .build(&mut self.status_text)?;
 
+        const PROGRESS_BAR_MARGIN: i32 = 48;
         nwg::ProgressBar::builder()
             .parent(&self.window)
-            .size((WINDOW_WIDTH - 2 * 12, 16))
-            .position((12, 300))
+            .size((WINDOW_WIDTH - 2 * PROGRESS_BAR_MARGIN, 16))
             .build(&mut self.progress_bar)?;
 
         nwg::GridLayout::builder()
@@ -104,6 +104,29 @@ impl AppWindow {
             .max_column(Some(1))
             .child_item(GridLayoutItem::new(&self.banner, 0, 0, 1, 2))
             .build(&mut self.grid)?;
+
+        const LOWER_AREA_TOP: i32 = 204;
+        const LOWER_AREA_VERT_MARGIN: i32 = 12;
+        self.status_text.set_position(
+            (self.window.size().0 / 2) as i32 - (self.status_text.size().0 / 2) as i32,
+            LOWER_AREA_TOP,
+        );
+        self.progress_bar.set_position(
+            PROGRESS_BAR_MARGIN,
+            self.status_text.position().1
+                + self.status_text.size().1 as i32
+                + LOWER_AREA_VERT_MARGIN,
+        );
+        self.download_button.set_position(
+            (self.window.size().0 / 2) as i32 - (self.download_button.size().0 / 2) as i32,
+            self.progress_bar.position().1
+                + self.progress_bar.size().1 as i32
+                + LOWER_AREA_VERT_MARGIN,
+        );
+        self.cancel_button.set_position(
+            (self.window.size().0 / 2) as i32 - (self.cancel_button.size().0 / 2) as i32,
+            self.download_button.position().1,
+        );
 
         self.window.set_visible(true);
 
@@ -144,7 +167,7 @@ impl AppWindow {
 
     /// Load the embedded image and display it in `banner_image`
     fn load_banner_image(&self) -> Result<(), nwg::NwgError> {
-        const BANNER_SIZE: [u32; 2] = [64, 64];
+        const BANNER_SIZE: [u32; 2] = [32, 32];
 
         let src = ImageDecoder::new()?.from_stream(BANNER_IMAGE_DATA)?;
 
