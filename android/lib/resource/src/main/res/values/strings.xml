@@ -68,16 +68,10 @@
     <string name="auto_connect_and_lockdown_mode_footer">Makes sure the device is always on the VPN tunnel.</string>
     <string name="go_to_vpn_settings">Go to VPN settings</string>
     <string name="auto_connect_carousel_first_slide_top_text">The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both.</string>
-    <string name="auto_connect_carousel_first_slide_bottom_text">
-        <![CDATA[1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name.]]>
-    </string>
+    <string name="auto_connect_carousel_first_slide_bottom_text">1. After clicking on the \"Go to VPN settings\" button below, click on the cogwheel next to the \"Mullvad VPN\" name.</string>
     <string name="auto_connect_carousel_second_slide_top_text">Auto-connect is called Always-on VPN in the Android system settings and it makes sure you are constantly connected to the VPN tunnel and auto connects after restart.</string>
-    <string name="auto_connect_carousel_second_slide_bottom_text">
-        <![CDATA[2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\".]]>
-    </string>
-    <string name="auto_connect_carousel_third_slide_top_text">
-        <![CDATA[The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about]]>
-    </string>
+    <string name="auto_connect_carousel_second_slide_bottom_text">2. To enable Auto-connect, click on the toggle next to \"Always-on VPN\".</string>
+    <string name="auto_connect_carousel_third_slide_top_text">The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about</string>
     <string name="auto_connect_carousel_third_slide_top_text_website_link">here</string>
     <string name="auto_connect_carousel_third_slide_bottom_text">
         <![CDATA[3. To enable Lockdown mode, click on the toggle next to \"Block connections without VPN\".<br /><br /><b>Warning: This setting blocks split apps and the Local Network Sharing feature.</b>]]>
@@ -190,9 +184,7 @@
     <string name="dns_content_blockers_title">DNS content blockers</string>
     <string name="dns_content_blockers_info">When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</string>
     <string name="dns_content_blockers_warning">This might cause issues on certain websites, services, and apps.</string>
-    <string name="dns_content_blockers_custom_dns_warning">
-        <![CDATA[Attention: this setting cannot be used in combination with \"Use custom DNS server\".]]>
-    </string>
+    <string name="dns_content_blockers_custom_dns_warning">Attention: this setting cannot be used in combination with \"Use custom DNS server\".</string>
     <string name="block_ads_title">Ads</string>
     <string name="block_trackers_title">Trackers</string>
     <string name="block_malware_title">Malware</string>
@@ -200,12 +192,8 @@
     <string name="block_gambling_title">Gambling</string>
     <string name="block_adult_content_title">Adult content</string>
     <string name="block_social_media_title">Social media</string>
-    <string name="dns_content_blockers_subtitle">
-        <![CDATA[Disable \"%s\" below to activate these settings.]]>
-    </string>
-    <string name="custom_dns_disable_mode_subtitle">
-        <![CDATA[Disable all \"%s\" above to activate this setting.]]>
-    </string>
+    <string name="dns_content_blockers_subtitle">Disable \"%s\" below to activate these settings.</string>
+    <string name="custom_dns_disable_mode_subtitle">Disable all \"%s\" above to activate this setting.</string>
     <string name="settings_changes_effect_warning_short">DNS settings might not go into effect immediately</string>
     <string name="settings_changes_effect_warning_content_blocker">Changes to DNS related settings might not go into effect immediately due to cached results.</string>
     <string name="manage_account">Manage account</string>
