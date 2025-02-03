@@ -15,7 +15,7 @@ struct ConnectionView: View {
     @State private(set) var isExpanded = false
 
     @State private(set) var showConnectionDetailsAnimated = false
-    @State private(set) var isExpandedAnimatied = false
+    @State private(set) var isExpandedAnimated = false
     @State private(set) var scrollViewHeight: CGFloat = 0
 
     var action: ButtonPanel.Action?
@@ -31,21 +31,21 @@ struct ConnectionView: View {
                 if showConnectionDetailsAnimated {
                     Divider()
                         .background(UIColor.secondaryTextColor.color)
-                        .showIf(isExpandedAnimatied)
+                        .showIf(isExpandedAnimated)
 
                     ScrollView {
                         VStack(alignment: .leading, spacing: 0) {
                             Text(LocalizedStringKey("Active features"))
                                 .font(.footnote.weight(.semibold))
                                 .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                                .padding(.bottom, isExpandedAnimatied ? 8 : 0)
-                                .showIf(!indicatorsViewModel.chips.isEmpty && isExpandedAnimatied)
+                                .padding(.bottom, isExpandedAnimated ? 8 : 0)
+                                .showIf(!indicatorsViewModel.chips.isEmpty && isExpandedAnimated)
 
                             ChipContainerView(viewModel: indicatorsViewModel, isExpanded: $isExpanded)
 
                             DetailsView(viewModel: connectionViewModel)
                                 .padding(.top, indicatorsViewModel.chips.isEmpty ? 0 : 16)
-                                .showIf(isExpandedAnimatied)
+                                .showIf(isExpandedAnimated)
                         }
                         .sizeOfView { size in
                             withAnimation {
@@ -61,7 +61,7 @@ struct ConnectionView: View {
                             $0
                         }
                     }
-                    .showIf(isExpandedAnimatied || !indicatorsViewModel.chips.isEmpty)
+                    .showIf(isExpandedAnimated || !indicatorsViewModel.chips.isEmpty)
                 }
             }
             .transformEffect(.identity)
@@ -74,7 +74,7 @@ struct ConnectionView: View {
         .padding()
         .onChange(of: isExpanded) { newValue in
             withAnimation {
-                isExpandedAnimatied = newValue
+                isExpandedAnimated = newValue
             }
         }
         .onChange(of: connectionViewModel.showsConnectionDetails) { newValue in
