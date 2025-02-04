@@ -95,7 +95,7 @@ impl RouteManagerImpl {
                 command = manage_rx.next().fuse() => {
                     let Some(command) = command else { break };
                     if self.handle_command(command).is_break() {
-                        return Ok(());
+                        break;
                     }
                 }
 
