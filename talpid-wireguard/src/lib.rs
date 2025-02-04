@@ -478,6 +478,7 @@ impl WireguardMonitor {
                 .await;
 
             // Wait for routes to come up
+            /*
             let routes_to_wait_for: std::collections::HashSet<Route> = args
                 .tun_provider
                 .lock()
@@ -488,8 +489,8 @@ impl WireguardMonitor {
                 .copied()
                 .map(Route::new)
                 .collect();
-
-            let wait_for_routes = args.route_manager.add_routes(routes_to_wait_for);
+*/
+            let wait_for_routes = args.route_manager.wait_for_routes();
             timeout(Duration::from_secs(4), wait_for_routes)
                 .await
                 // TODO: this is a talpid_routing error. Kinda weird to construct it here.
