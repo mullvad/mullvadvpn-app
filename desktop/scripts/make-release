@@ -2,15 +2,10 @@
 
 set -eu
 
-if ! command -v gh > /dev/null; then
-    echo >&2 "gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
 
-if ! gh auth status > /dev/null; then
-    echo >&2 "Authentication through gh (GitHub CLI) is required to run this script"
-    exit 1
-fi
+../../scripts/utils/gh-ready-check
 
 if [[ $# != 1 ]]; then
     echo "!!! Please pass the app version as the first and only argument"
