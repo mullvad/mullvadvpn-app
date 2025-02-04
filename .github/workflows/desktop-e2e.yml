@@ -185,6 +185,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Checkout submodules
+        run: |
+          git submodule update --init --recursive --depth=1 wireguard-go-rs
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
@@ -198,6 +201,8 @@ jobs:
         run: rustup target add i686-pc-windows-msvc
       - name: Install latest zig
         uses: mlugg/setup-zig@v1
+        with:
+          version: 0.14.0-dev.3036+7ac110ac2
       - name: Install msbuild
         uses: microsoft/setup-msbuild@v1.0.2
         with:
