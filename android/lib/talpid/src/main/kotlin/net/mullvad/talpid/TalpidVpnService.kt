@@ -88,7 +88,6 @@ open class TalpidVpnService : LifecycleVpnService() {
     private fun createTun(
         config: TunConfig
     ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
-        Logger.d("Creating tunnel with config: $config")
         prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
 
         val builder = Builder()
