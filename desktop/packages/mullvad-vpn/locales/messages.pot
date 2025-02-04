@@ -2638,6 +2638,9 @@ msgstr ""
 msgid "See full changelog"
 msgstr ""
 
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr ""
+
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr ""
 
