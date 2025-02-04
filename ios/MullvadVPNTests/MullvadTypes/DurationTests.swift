@@ -3,7 +3,7 @@
 //  MullvadRESTTests
 //
 //  Created by pronebird on 05/11/2022.
-//  Copyright © 2022 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 @testable import MullvadREST

@@ -3,7 +3,7 @@
 //  MullvadVPNTests
 //
 //  Created by Emils on 04/04/2024.
-//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation

@@ -3,7 +3,7 @@
 //  MullvadVPN
 //
 //  Created by Marco Nikic on 2023-10-02.
-//  Copyright © 2023 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 #if canImport(UIKit)

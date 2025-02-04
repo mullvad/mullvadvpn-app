@@ -86,6 +86,11 @@ function check_changelog {
     fi
 }
 
+function update_copyright_year {
+    $REPO_ROOT/scripts/update-copyright
+    print_and_run git commit -A -S -m "Update copyright year in project files and code"
+}
+
 function update_changelog {
     sed -i -e "/^## \[Unreleased\]/a \\\n\\n## \[$PRODUCT_VERSION\] - $(date +%F)" $changelog_path
 
@@ -118,6 +123,7 @@ else
     check_commit_signature
     check_changelog
     update_changelog
+    update_copyright_year
     update_product_version
 
     log_success "\n================================================="

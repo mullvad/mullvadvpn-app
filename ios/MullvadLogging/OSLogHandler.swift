@@ -3,7 +3,7 @@
 //  OSLogHandler
 //
 //  Created by pronebird on 16/08/2021.
-//  Copyright © 2021 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
