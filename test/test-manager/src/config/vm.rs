@@ -65,6 +65,11 @@ pub struct VmConfig {
     #[serde(default)]
     #[arg(long)]
     pub vcpu: Option<usize>,
+
+    /// Amount of memory, in MBs
+    #[serde(default)]
+    #[arg(long)]
+    pub memory: Option<usize>,
 }
 
 impl VmConfig {

@@ -59,6 +59,9 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
     if let Some(cpu) = vm_config.vcpu {
         tart_cmd.args(["--cpu", &cpu.to_string()]);
     }
+    if vm_config.memory.is_some() {
+        log::warn!("The memory option is not supported for the Tart backend")
+    }
 
     match config.runtime_opts.display {
         config::Display::None => {
