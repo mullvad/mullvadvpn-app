@@ -4,7 +4,6 @@ import java.net.InetAddress
 
 data class NetworkState(
     val networkHandle: Long,
-    // TODO Do we care about null vs empty list?
     val routes: ArrayList<RouteInfo>?,
     val dnsServers: ArrayList<InetAddress>?,
 ) {
