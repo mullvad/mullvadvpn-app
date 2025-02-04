@@ -8,7 +8,7 @@ pub const WINDOW_WIDTH: usize = 676;
 pub const WINDOW_HEIGHT: usize = 390;
 
 /// Text description in the top banner
-pub const BANNER_DESC: &str = "The Mullvad VPN app will be downloaded and then verified to ensure that it is a version that comes from us.";
+pub const BANNER_DESC: &str = "The Mullvad VPN app installer will be downloaded from the nearest server and verified for authenticity";
 
 /// Beta preface text
 pub const BETA_PREFACE_DESC: &str = "Want to try the new Beta version? ";
