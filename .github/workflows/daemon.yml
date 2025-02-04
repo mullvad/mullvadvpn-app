@@ -49,8 +49,7 @@ jobs:
 
       - name: Use default container image and resolve digest
         if: ${{ github.event.inputs.override_container_image == '' }}
-        run: |
-          echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+        run: echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
 
     outputs:
       container_image: ${{ env.inner_container_image }}
@@ -79,9 +78,15 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
           git submodule update --init --recursive --depth=1 wireguard-go-rs
-      # The container image already has rustup and Rust, but only the stable toolchain
+
+      # The container image already has rustup and the pinned version of Rust
       - name: Install Rust toolchain
-        run: rustup default ${{ matrix.rust }}
+        # When running this job for "stable" test against our pinned rust version
+        # instead of the stable channel.
+        # TODO: Improve this so both "stable" and the pinned version are tested if
+        # they differ.
+        if: ${{ matrix.rust != 'stable' }}
+        run: rustup override set ${{ matrix.rust }}
 
       - name: Build and test crates
         run: ./ci/check-rust.sh
@@ -101,12 +106,6 @@ jobs:
         uses: arduino/setup-protoc@v3
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          default: true
 
       - name: Install Go
         uses: actions/setup-go@v3
@@ -168,17 +167,10 @@ jobs:
       # TODO: Remove once fixed
       - name: Install Rust x64 target
         if: ${{ matrix.config.arch == 'arm64' }}
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: x86_64-pc-windows-msvc
+        run: rustup target add x86_64-pc-windows-msvc
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: stable
-          target: i686-pc-windows-msvc
-          default: true
+        run: rustup target add i686-pc-windows-msvc
 
       - name: Install msbuild
         uses: microsoft/setup-msbuild@v1.0.2

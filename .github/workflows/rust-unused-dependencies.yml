@@ -51,7 +51,7 @@ jobs:
           git submodule update --init --recursive --depth=1 wireguard-go-rs
 
       - name: Install nightly Rust toolchain
-        run: rustup default $RUST_NIGHTLY_TOOLCHAIN
+        run: rustup override set $RUST_NIGHTLY_TOOLCHAIN
 
       - uses: taiki-e/install-action@v2
         with:
@@ -81,9 +81,9 @@ jobs:
           git config --global --add safe.directory '*'
           git submodule update --init --recursive --depth=1 wireguard-go-rs
 
-      - name: Install nightly Rust toolchain
+      - name: Install nightly Rust
         run: |
-          rustup default $RUST_NIGHTLY_TOOLCHAIN
+          rustup override set ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
           rustup target add aarch64-linux-android
 
       - uses: taiki-e/install-action@v2
@@ -123,12 +123,8 @@ jobs:
         with:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install Rust
-        uses: actions-rs/toolchain@v1.0.6
-        with:
-          toolchain: ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
-          default: true
-          profile: minimal
+      - name: Install nightly Rust
+        run: rustup override set ${{ env.RUST_NIGHTLY_TOOLCHAIN }}
 
       - uses: taiki-e/install-action@v2
         with:

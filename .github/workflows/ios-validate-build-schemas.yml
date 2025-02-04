@@ -46,10 +46,7 @@ jobs:
         with:
           xcode-version: '16.1'
       - name: Configure Rust
-        run: |
-          rustup default stable
-          rustup update stable
-          rustup target add aarch64-apple-ios-sim x86_64-apple-ios
+        run: rustup target add aarch64-apple-ios-sim x86_64-apple-ios
 
       - name: Configure Xcode project
         run: |

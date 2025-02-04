@@ -91,8 +91,6 @@ jobs:
         run: |
           brew bundle dump
           brew bundle
-          rustup default stable
-          rustup update stable
           rustup target add aarch64-apple-ios-sim
 
       - name: Configure Xcode project

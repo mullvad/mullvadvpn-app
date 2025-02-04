@@ -1,0 +1,3 @@
+[toolchain]
+# Must be greater than or equal to `rust-version` in `Cargo.toml`
+channel = "1.83.0"
