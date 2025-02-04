@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+source ./log
+
+if ! command -v gh > /dev/null; then
+    log_error "gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
+
+if ! gh auth status > /dev/null; then
+    log_error "Authentication through gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
