@@ -122,14 +122,17 @@ pub struct AppWindow {
     pub banner: View,
     pub banner_logo_view: ImageView,
     pub banner_logo_text_view: ImageView,
-
     pub banner_desc: Label,
 
     pub main_view: View,
-    pub progress: ProgressIndicator,
-    pub text: Label,
-    pub button: DownloadButton,
+
+    pub download_button: DownloadButton,
     pub cancel_button: CancelButton,
+
+    pub progress: ProgressIndicator,
+
+    pub status_text: Label,
+    pub download_text: Label,
 
     pub beta_link_preface: Label,
     pub beta_link: Label,
@@ -152,7 +155,7 @@ pub struct CancelButton {
 
 impl Default for CancelButton {
     fn default() -> Self {
-        let button = Button::new("Cancel");
+        let button = Button::new(CANCEL_BUTTON_TEXT);
         Self { button }
     }
 }
@@ -173,19 +176,17 @@ impl AppWindow {
         self.progress.set_hidden(true);
         self.progress.set_indeterminate(false);
 
-        self.banner_desc.set_text(BANNER_DESCRIPTION);
+        self.banner_desc.set_text(BANNER_DESC);
         self.banner_desc.set_text_color(Color::SystemWhite);
         self.banner.add_subview(&self.banner_desc);
         self.banner_desc
             .set_line_break_mode(cacao::text::LineBreakMode::WrapWords);
 
-        let image_view_vert = self
-            .banner_logo_view
-            .top
-            .constraint_equal_to(&self.banner.top)
-            .offset(32. + 24.);
         LayoutConstraint::activate(&[
-            image_view_vert,
+            self.banner_logo_view
+                .bottom
+                .constraint_equal_to(&self.banner_desc.top)
+                .offset(-8.),
             self.banner_logo_view
                 .left
                 .constraint_equal_to(&self.banner.left)
@@ -200,9 +201,9 @@ impl AppWindow {
                 .left
                 .constraint_equal_to(&self.banner_logo_view.left),
             self.banner_desc
-                .top
-                .constraint_equal_to(&self.banner_logo_view.bottom)
-                .offset(8.),
+                .bottom
+                .constraint_equal_to(&self.banner.bottom)
+                .offset(-16.),
             self.banner_desc
                 .right
                 .constraint_equal_to(&self.banner.right)
@@ -229,9 +230,7 @@ impl AppWindow {
             self.banner.left.constraint_equal_to(&self.content.left),
             self.banner.right.constraint_equal_to(&self.content.right),
             self.banner.top.constraint_equal_to(&self.content.top),
-            self.banner
-                .height
-                .constraint_less_than_or_equal_to_constant(160.),
+            self.banner.height.constraint_equal_to_constant(122.),
         ]);
 
         LayoutConstraint::activate(&[
@@ -245,11 +244,12 @@ impl AppWindow {
                 .constraint_equal_to(&self.content.bottom),
         ]);
 
-        self.main_view.add_subview(&self.text);
-        self.main_view.add_subview(&self.button.button);
+        self.main_view.add_subview(&self.status_text);
+        self.main_view.add_subview(&self.download_text);
+        self.main_view.add_subview(&self.download_button.button);
         self.main_view.add_subview(&self.cancel_button.button);
 
-        self.beta_link_preface.set_text(BETA_PREFACE_TEXT);
+        self.beta_link_preface.set_text(BETA_PREFACE_DESC);
         self.main_view.add_subview(&self.beta_link_preface);
 
         let mut attr_text = AttributedString::new(&BETA_LINK_TEXT);
@@ -259,25 +259,32 @@ impl AppWindow {
         self.main_view.add_subview(&self.beta_link);
 
         LayoutConstraint::activate(&[
-            self.text
+            self.status_text
                 .top
                 .constraint_greater_than_or_equal_to(&self.main_view.top)
                 .offset(24.),
-            self.text
+            self.status_text
                 .center_x
                 .constraint_equal_to(&self.main_view.center_x),
-            self.button
+            self.download_text
+                .top
+                .constraint_equal_to(&self.status_text.bottom)
+                .offset(16.),
+            self.download_text
+                .center_x
+                .constraint_equal_to(&self.main_view.center_x),
+            self.download_button
                 .button
                 .center_x
                 .constraint_equal_to(&self.main_view.center_x),
-            self.button
+            self.download_button
                 .button
                 .top
-                .constraint_equal_to(&self.text.bottom)
+                .constraint_equal_to(&self.status_text.bottom)
                 .offset(16.),
             self.progress
                 .top
-                .constraint_equal_to(&self.button.button.top)
+                .constraint_equal_to(&self.download_button.button.top)
                 .offset(32.),
             self.progress
                 .left
