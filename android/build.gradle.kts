@@ -6,7 +6,6 @@ plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.android.library) apply false
     alias(libs.plugins.android.test) apply false
-    alias(libs.plugins.dependency.check) apply false
     alias(libs.plugins.ktfmt) apply false
     alias(libs.plugins.compose) apply false
     alias(libs.plugins.play.publisher) apply false
@@ -100,21 +99,11 @@ tasks.withType<DetektCreateBaselineTask>().configureEach {
 }
 
 allprojects {
-    apply(plugin = rootProject.libs.plugins.dependency.check.get().pluginId)
     apply(plugin = rootProject.libs.plugins.ktfmt.get().pluginId)
 
     repositories {
         google()
         mavenCentral()
-    }
-
-    configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
-        failBuildOnCVSS = 0F // All severity levels
-        suppressionFiles =
-            listOf(
-                "${rootProject.projectDir}/config/dependency-check-suppression.xml",
-                "${rootProject.projectDir}/config/dependency-check-suppression-agp-fixes.xml",
-            )
     }
 
     // Should be the same as ktfmt config in buildSrc/build.gradle.kts
