@@ -99,7 +99,6 @@ pub(crate) enum RouteManagerCommand {
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
     WaitForRoutes(oneshot::Sender<()>),
-    ClearRoutes,
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -227,10 +226,17 @@ impl RouteManagerHandle {
     }
 
     /// Removes all routes previously applied in [`RouteManagerHandle::add_routes`].
+    #[cfg(not(target_os = "android"))]
     pub fn clear_routes(&self) -> Result<(), Error> {
         self.tx
             .unbounded_send(RouteManagerCommand::ClearRoutes)
             .map_err(|_| Error::RouteManagerDown)
+    }
+
+    /// (Android) This is a noop since we don't directly control the routes on Android.
+    #[cfg(target_os = "android")]
+    pub fn clear_routes(&self) -> Result<(), Error> {
+        Ok(())
     }
 
     /// Listen for non-tunnel default route changes.

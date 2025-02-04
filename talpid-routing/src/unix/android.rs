@@ -109,12 +109,6 @@ impl RouteManagerImpl {
                     self.waiting_for_routes.push(response_tx);
                 }
             }
-            RouteManagerCommand::ClearRoutes => {
-                // The VPN tunnel is gone. We can't assume that any (desired) routes are up at this point.
-                // TODO: This won't work right away, as we're apparently clearing routes when reconnecting ..
-                // self.last_state = None;
-                log::debug!("Clearing routes");
-            }
         }
 
         ControlFlow::Continue(())
