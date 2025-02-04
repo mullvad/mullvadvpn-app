@@ -399,12 +399,9 @@ export function RowInput(props: IRowInputProps) {
             placeholder={props.placeholder}
           />
         </StyledInputWrapper>
-        <StyledIconButton
-          variant="secondary"
-          icon="checkmark-circle"
-          onClick={submit}
-          $disabled={value === ''}
-        />
+        <StyledIconButton variant="secondary" onClick={submit} $disabled={value === ''}>
+          <IconButton.Icon icon="checkmark-circle" />
+        </StyledIconButton>
       </StyledCellInputRowContainer>
     </BackAction>
   );

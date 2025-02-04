@@ -235,7 +235,6 @@ function Device(props: IDeviceProps) {
           <Spinner />
         ) : (
           <IconButton
-            icon="cross-circle"
             variant="secondary"
             onClick={showConfirmation}
             aria-label={sprintf(
@@ -245,8 +244,9 @@ function Device(props: IDeviceProps) {
               // TRANSLATORS: %(deviceName)s - The device name to remove.
               messages.pgettext('accessibility', 'Remove device named %(deviceName)s'),
               { deviceName: props.device.name },
-            )}
-          />
+            )}>
+            <IconButton.Icon icon="cross-circle" />
+          </IconButton>
         )}
       </Cell.Container>
       <ModalAlert
