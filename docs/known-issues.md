@@ -196,6 +196,12 @@ Windows host that Mullvad use to prevent leaks). This means that if there is a V
 up and running, the Linux guest’s traffic will be sent via the VPN with no leaks!
 In the other states, the mitigation above is used to prevent leaks.
 
+#### Windows Sandbox
+
+The Hyper-V-specific firewall rules unfortunately do not apply to traffic from Windows Sandbox. As a consequence, traffic from Windows Sandbox will leak during secured states, e.g. while switching servers, or if disconnected with "lockdown mode" enabled. Another known issue with Windows Sandbox is that DNS traffic is blocked when connected on the host OS, unless local network sharing is enabled.
+
+We suggest installing and running the VPN inside Windows Sandbox, which solves both the issues of leaks and DNS. It is possible to also run an instance of the VPN on the host without any conflicts, as long as there are enough devices available on the account.
+
 #### Edge using Application guard
 
 When running the Microsoft Edge browser with Microsoft Defender Application Guard activated,
