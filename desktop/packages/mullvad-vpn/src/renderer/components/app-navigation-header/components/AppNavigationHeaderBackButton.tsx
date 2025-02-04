@@ -21,11 +21,8 @@ export const AppNavigationHeaderBackButton = () => {
   const ariaLabel = backIcon ? messages.gettext('Back') : messages.gettext('Close');
 
   return (
-    <IconButton
-      variant="secondary"
-      icon={iconSource}
-      aria-label={ariaLabel}
-      onClick={parentBackAction}
-    />
+    <IconButton variant="secondary" aria-label={ariaLabel} onClick={parentBackAction}>
+      <IconButton.Icon icon={iconSource} />
+    </IconButton>
   );
 };

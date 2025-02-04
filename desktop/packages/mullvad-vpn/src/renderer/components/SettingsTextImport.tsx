@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import useActions from '../lib/actionsHook';
+import { IconButton } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useCombinedRefs, useRefCallback, useStyledRef } from '../lib/utility-hooks';
@@ -59,11 +60,9 @@ export default function SettingsTextImport() {
               messages.pgettext('settings-import', 'Import via text')
             }
             titleVisible>
-            <AppNavigationHeader.IconButton
-              icon="checkmark"
-              onClick={save}
-              aria-label={messages.gettext('Save')}
-            />
+            <AppNavigationHeader.IconButton onClick={save} aria-label={messages.gettext('Save')}>
+              <IconButton.Icon icon="checkmark" />
+            </AppNavigationHeader.IconButton>
           </AppNavigationHeader>
 
           <StyledTextArea ref={combinedTextAreaRef} />

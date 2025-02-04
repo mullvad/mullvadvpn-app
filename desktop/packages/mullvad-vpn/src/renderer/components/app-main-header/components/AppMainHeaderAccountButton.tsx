@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../shared/gettext';
-import { IconButtonProps, MainHeader } from '../../../lib/components';
+import { IconButton, IconButtonProps, MainHeader } from '../../../lib/components';
 import { transitions, useHistory } from '../../../lib/history';
 import { RoutePath } from '../../../lib/routes';
 import { useSelector } from '../../../redux/store';
@@ -22,11 +22,11 @@ export const AppMainHeaderBarAccountButton = (props: MainHeaderBarAccountButtonP
 
   return (
     <MainHeader.IconButton
-      icon="account-circle"
       onClick={openAccount}
       data-testid="account-button"
       aria-label={messages.gettext('Account settings')}
-      {...props}
-    />
+      {...props}>
+      <IconButton.Icon icon="account-circle" />
+    </MainHeader.IconButton>
   );
 };

@@ -251,7 +251,9 @@ export default function CustomDnsSettings() {
               {messages.pgettext('vpn-settings-view', 'Add a server')}
             </StyledAddCustomDnsLabel>
           </StyledButton>
-          <IconButton variant="secondary" icon="add-circle" onClick={showInput} />
+          <IconButton variant="secondary" onClick={showInput}>
+            <IconButton.Icon icon="add-circle" />
+          </IconButton>
         </AddServerContainer>
       </Accordion>
 
@@ -356,11 +358,11 @@ function CellListItem(props: ICellListItemProps) {
           </StyledButton>
           <AriaDescribed>
             <IconButton
-              icon="cross-circle"
               variant="secondary"
               onClick={onRemove}
-              aria-label={messages.pgettext('accessibility', 'Remove item')}
-            />
+              aria-label={messages.pgettext('accessibility', 'Remove item')}>
+              <IconButton.Icon icon="cross-circle" />
+            </IconButton>
           </AriaDescribed>
         </StyledItemContainer>
       )}

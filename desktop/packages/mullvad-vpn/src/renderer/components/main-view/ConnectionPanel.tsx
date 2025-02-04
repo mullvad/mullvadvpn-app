@@ -97,10 +97,10 @@ export default function ConnectionPanel() {
       <StyledConnectionPanel $expanded={expanded}>
         {allowExpand && (
           <StyledConnectionPanelChevron
-            icon={expanded ? 'chevron-down' : 'chevron-up'}
             onClick={toggleExpanded}
-            data-testid="connection-panel-chevron"
-          />
+            data-testid="connection-panel-chevron">
+            <IconButton.Icon icon={expanded ? 'chevron-down' : 'chevron-up'} />
+          </StyledConnectionPanelChevron>
         )}
         <StyledConnectionStatusContainer
           $expanded={expanded}

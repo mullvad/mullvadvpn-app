@@ -55,7 +55,6 @@ export default function ClipboardLabel(props: IProps) {
       <Flex $gap={Spacings.spacing5}>
         {obscureValue !== false && (
           <IconButton
-            icon={obscured ? 'show' : 'hide'}
             onClick={toggleObscured}
             aria-label={
               obscured
@@ -67,21 +66,22 @@ export default function ClipboardLabel(props: IProps) {
                   // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe
                   // TRANSLATORS: the button which obscures the account number.
                   messages.pgettext('accessibility', 'Hide account number')
-            }
-          />
+            }>
+            {obscured ? <IconButton.Icon icon="show" /> : <IconButton.Icon icon="hide" />}
+          </IconButton>
         )}
         {justCopied ? (
           <Icon icon="checkmark" color={Colors.green}></Icon>
         ) : (
           <IconButton
-            icon={'copy'}
             onClick={onCopy}
             aria-label={
               // TRANSLATORS: Provided to accessibility tools such as screenreaders to describe a button
               // TRANSLATORS: which copies the account number to the clipboard.
               messages.pgettext('accessibility', 'Copy account number')
-            }
-          />
+            }>
+            <IconButton.Icon icon={'copy'} />
+          </IconButton>
         )}
       </Flex>
     </StyledLabelContainer>
