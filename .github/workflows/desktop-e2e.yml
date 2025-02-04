@@ -201,6 +201,8 @@ jobs:
         run: rustup target add i686-pc-windows-msvc
       - name: Install latest zig
         uses: mlugg/setup-zig@v1
+        with:
+          version: 0.14.0-dev.3036+7ac110ac2
       - name: Install msbuild
         uses: microsoft/setup-msbuild@v1.0.2
         with:
