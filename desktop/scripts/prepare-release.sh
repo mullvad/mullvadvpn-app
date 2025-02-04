@@ -1,0 +1,131 @@
+#!/usr/bin/env bash
+
+# This script prepares for a release. Run it with the release version as the first argument and it
+# will update version numbers, commit and add a signed tag.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+REPO_ROOT=../../
+
+source $REPO_ROOT/scripts/utils/log
+
+PUSH_TAG="false"
+
+for argument in "$@"; do
+    case "$argument" in
+        --push-tag) PUSH_TAG="true" ;;
+        -*)
+            log_error "Unknown option \"$argument\""
+            exit 1
+            ;;
+        *)
+            PRODUCT_VERSION="$argument"
+            ;;
+    esac
+done
+
+changes_path=../packages/mullvad-vpn/changes.txt
+changelog_path=$REPO_ROOT/CHANGELOG.md
+product_version_path=$REPO_ROOT/dist-assets/desktop-product-version.txt
+
+function print_and_run {
+    echo "+ $*"
+    "$@"
+}
+
+function checks {
+    if [[ -z ${PRODUCT_VERSION+x} ]]; then
+        log_error "Please give the release version as an argument to this script."
+        log_error "For example: '2018.1-beta3' for a beta release, or '2018.6' for a stable one."
+        exit 1
+    fi
+
+    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+        log_error "Dirty working directory! Will not accept that for an official release."
+        exit 1
+    fi
+
+    if [[ $(grep "CHANGE THIS BEFORE A RELEASE" $changes_path) != "" ]]; then
+        log_error "It looks like you did not update $changes_path"
+        exit 1
+    fi
+}
+
+function check_commit_signature {
+    if ! git verify-commit HEAD; then
+        log_error \
+            "Current commit lacks valid signature. Releases can only be made from signed commits."
+        exit 1
+    fi
+    echo ""
+}
+
+function check_changelog {
+    previous_version=$(grep -oP '## \[\K[^\]]+' $changelog_path | head -2 | tail -1)
+
+    log_header "Changelog since previous release"
+    git --no-pager diff -U10 "$previous_version"..HEAD -- $changelog_path
+
+    log_info "\nThe changelog should only contain changes in the \"Unreleased\" section, unless it's a correction of a previous message."
+    read -r -n 1 -p "Does this look good? (y: yes, q: abort, r: reload): " response
+    echo ""
+
+    if [[ "$response" =~ ^[Yy]$ ]]; then
+        return
+    elif [[ "$response" =~ ^[QqAa]$ ]]; then
+        log_info "Aborting"
+        exit 1
+    elif [[ "$response" =~ ^[Rr]$ ]]; then
+        check_changelog
+    else
+        log_error "Invalid response"
+        check_changelog
+    fi
+}
+
+function update_changelog {
+    sed -i -e "/^## \[Unreleased\]/a \\\n\\n## \[$PRODUCT_VERSION\] - $(date +%F)" $changelog_path
+
+    log_info "\nPaused after editing changelog. Make potential edits, then press any key to continue..."
+    read -r -s -n 1
+
+    print_and_run git commit -S -m "Update desktop app changelog with $PRODUCT_VERSION section" \
+        $changelog_path
+}
+
+function update_product_version {
+    echo "$PRODUCT_VERSION" > $product_version_path
+    print_and_run git commit -S -m "Update desktop app version to $PRODUCT_VERSION" \
+        $product_version_path
+}
+
+function push_tag {
+    product_version=$(echo -n "$(cat $product_version_path)")
+    echo "Tagging current git commit with release tag $product_version..."
+    print_and_run git tag -s "$product_version" -m "$product_version"
+    print_and_run git push origin "$product_version"
+    log_success "\nTag pushed!"
+}
+
+if [[ $PUSH_TAG == "true" ]]; then
+    check_commit_signature
+    push_tag
+else
+    checks
+    check_commit_signature
+    check_changelog
+    update_changelog
+    update_product_version
+
+    log_success "\n================================================="
+    log_success "| DONE preparing for a release!                 |"
+    log_success "|    Now verify that everything looks correct   |"
+    log_success "|    and then create and push the tag by        |"
+    log_success "|    running:                                   |"
+    log_success "|    $ $0 \\ "
+    log_success "|        --push-tag                             |"
+    log_success "================================================="
+fi
