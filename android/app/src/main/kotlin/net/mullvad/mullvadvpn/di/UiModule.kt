@@ -10,6 +10,7 @@ import kotlinx.coroutines.MainScope
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.applist.ApplicationsProvider
 import net.mullvad.mullvadvpn.compose.state.RelayListType
+import net.mullvad.mullvadvpn.constant.IS_FDROID_BUILD
 import net.mullvad.mullvadvpn.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.dataproxy.MullvadProblemReport
 import net.mullvad.mullvadvpn.lib.payment.PaymentProvider
@@ -194,23 +195,31 @@ val uiModule = module {
     viewModel { AccountViewModel(get(), get(), get(), IS_PLAY_BUILD) }
     viewModel { ChangelogViewModel(get(), get(), get()) }
     viewModel {
-        AppInfoViewModel(get(), get(), get(), IS_PLAY_BUILD, get(named(SELF_PACKAGE_NAME)))
+        AppInfoViewModel(
+            changelogRepository = get(),
+            appVersionInfoRepository = get(),
+            resources = get(),
+            isPlayBuild = IS_PLAY_BUILD,
+            isFdroidBuild = IS_FDROID_BUILD,
+            packageName = get(named(SELF_PACKAGE_NAME)),
+        )
     }
     viewModel {
         ConnectViewModel(
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            IS_PLAY_BUILD,
-            get(named(SELF_PACKAGE_NAME)),
+            accountRepository = get(),
+            deviceRepository = get(),
+            changelogRepository = get(),
+            inAppNotificationController = get(),
+            newDeviceRepository = get(),
+            selectedLocationTitleUseCase = get(),
+            outOfTimeUseCase = get(),
+            paymentUseCase = get(),
+            connectionProxy = get(),
+            lastKnownLocationUseCase = get(),
+            resources = get(),
+            isPlayBuild = IS_PLAY_BUILD,
+            isFdroidBuild = IS_FDROID_BUILD,
+            packageName = get(named(SELF_PACKAGE_NAME)),
         )
     }
     viewModel { DeviceListViewModel(get(), get()) }
