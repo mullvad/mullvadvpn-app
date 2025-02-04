@@ -9,6 +9,8 @@ use futures::channel::{
     oneshot,
 };
 use std::sync::Arc;
+#[cfg(target_os = "android")]
+use talpid_types::android::AndroidContext;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
@@ -162,6 +164,7 @@ impl RouteManagerHandle {
     pub async fn spawn(
         #[cfg(target_os = "linux")] fwmark: u32,
         #[cfg(target_os = "linux")] table_id: u32,
+        #[cfg(target_os = "android")] android_context: AndroidContext,
     ) -> Result<Self, Error> {
         let (manage_tx, manage_rx) = mpsc::unbounded();
         let manage_tx = Arc::new(manage_tx);
@@ -172,6 +175,8 @@ impl RouteManagerHandle {
             table_id,
             #[cfg(target_os = "macos")]
             Arc::downgrade(&manage_tx),
+            #[cfg(target_os = "android")]
+            android_context,
         )
         .await?;
         tokio::spawn(manager.run(manage_rx));
