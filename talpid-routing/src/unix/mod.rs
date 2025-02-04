@@ -35,6 +35,7 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
+#[cfg(any(target_os = "macos", target_os = "linux"))]
 pub use imp::Error as PlatformError;
 
 /// Errors that can be encountered whilst interacting with a [RouteManagerHandle].
