@@ -21,7 +21,6 @@ export const icons = {
   grabber: 'icon-grabber',
   hide: 'icon-hide',
   'info-circle': 'icon-info-circle',
-  language: 'icon-language',
   'more-horizontal-circle': 'icon-more-horizontal-circle',
   'more-horizontal': 'icon-more-horizontal',
   'more-vertical-circle': 'icon-more-vertical-circle',
