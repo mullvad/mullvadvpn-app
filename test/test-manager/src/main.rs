@@ -31,6 +31,7 @@ struct Args {
 }
 
 #[derive(clap::Subcommand, Debug)]
+#[allow(clippy::large_enum_variant)]
 enum Commands {
     /// Manage configuration for tests and VMs
     #[clap(subcommand)]
@@ -155,7 +156,7 @@ enum ConfigArg {
     Which,
     /// Manage VM-specific setting
     #[clap(subcommand)]
-    Vm(VmConfig),
+    Vm(Box<VmConfig>),
 }
 
 #[derive(clap::Subcommand, Debug)]
@@ -217,7 +218,7 @@ async fn main() -> Result<()> {
                 );
                 Ok(())
             }
-            ConfigArg::Vm(vm_config) => match vm_config {
+            ConfigArg::Vm(vm_config) => match *vm_config {
                 VmConfig::Set {
                     vm,
                     config: vm_config,
