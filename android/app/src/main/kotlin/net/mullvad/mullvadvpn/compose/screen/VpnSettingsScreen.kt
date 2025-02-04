@@ -507,6 +507,9 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.wireguard_port_title),
                     onInfoClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
                     onCellClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
+                    isEnabled =
+                        state.obfuscationMode == ObfuscationMode.Auto ||
+                            state.obfuscationMode == ObfuscationMode.Off,
                 )
             }
 
@@ -515,6 +518,9 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.automatic),
                     isSelected = state.selectedWireguardPort == Constraint.Any,
                     onCellClicked = { onWireguardPortSelected(Constraint.Any) },
+                    isEnabled =
+                        state.obfuscationMode == ObfuscationMode.Auto ||
+                            state.obfuscationMode == ObfuscationMode.Off,
                 )
             }
 
@@ -530,6 +536,9 @@ fun VpnSettingsScreen(
                             ),
                         isSelected = state.selectedWireguardPort.getOrNull() == port,
                         onCellClicked = { onWireguardPortSelected(Constraint.Only(port)) },
+                        isEnabled =
+                            state.obfuscationMode == ObfuscationMode.Auto ||
+                                state.obfuscationMode == ObfuscationMode.Off,
                     )
                 }
             }
@@ -547,9 +556,31 @@ fun VpnSettingsScreen(
                         }
                     },
                     onPortCellClicked = navigateToWireguardPortDialog,
+                    isEnabled =
+                        state.obfuscationMode == ObfuscationMode.Auto ||
+                            state.obfuscationMode == ObfuscationMode.Off,
                     mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
                     numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
                 )
+            }
+
+            if (
+                state.obfuscationMode == ObfuscationMode.Shadowsocks ||
+                    state.obfuscationMode == ObfuscationMode.Udp2Tcp
+            ) {
+                item {
+                    Text(
+                        text = stringResource(id = R.string.wg_port_subtitle, stringResource(R.string.wireguard)),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier =
+                            Modifier.padding(
+                                start = Dimens.cellStartPadding,
+                                top = topPadding,
+                                end = Dimens.cellEndPadding,
+                            ),
+                    )
+                }
             }
 
             itemWithDivider {
