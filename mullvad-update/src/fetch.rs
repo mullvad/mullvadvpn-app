@@ -169,7 +169,6 @@ impl Iterator for RangeIter {
         }
         let prev = self.current;
 
-        // NOTE: Adding 1, because "bytes" includes the final byte
         let read_n = self.end.saturating_sub(self.current).min(Self::CHUNK_SIZE);
         if read_n == 0 {
             return None;
