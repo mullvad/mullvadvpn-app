@@ -790,6 +790,8 @@ impl Daemon {
             mullvad_types::TUNNEL_FWMARK,
             #[cfg(target_os = "linux")]
             mullvad_types::TUNNEL_TABLE_ID,
+            #[cfg(target_os = "android")]
+            config.android_context.clone(),
         )
         .await
         .map_err(Error::RouteManager)?;
