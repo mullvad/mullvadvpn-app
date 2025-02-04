@@ -1,4 +1,4 @@
-use std::collections::{HashSet, VecDeque};
+use std::collections::HashSet;
 use std::ops::{ControlFlow, Not};
 use std::sync::Mutex;
 
@@ -36,13 +36,8 @@ pub struct RouteManagerImpl {
     /// Cached [NetworkState]. If no update events have been received yet, this value will be [None].
     last_state: Option<NetworkState>,
 
-    /// Clients waiting on response to [RouteManagerCommand::AddRoutes].
-    waiting_for_route: VecDeque<WaitingForRoutes>,
-}
-
-#[derive(Debug)]
-struct WaitingForRoutes {
-    response_tx: oneshot::Sender<Result<(), Error>>,
+    /// Clients waiting on response to [RouteManagerCommand::WaitForRoutes].
+    waiting_for_routes: Vec<oneshot::Sender<()>>,
 }
 
 impl RouteManagerImpl {
@@ -56,7 +51,7 @@ impl RouteManagerImpl {
         let route_manager = RouteManagerImpl {
             network_state_updates: rx,
             last_state: Default::default(),
-            waiting_for_route: Default::default(),
+            waiting_for_routes: Default::default(),
         };
 
         Ok(route_manager)
@@ -82,23 +77,11 @@ impl RouteManagerImpl {
                     let Some(network_state) = network_state_update else { break };
                     // update the last known NetworkState
                     self.last_state = network_state;
-                    // check each waiting client if we have the routes they expect
-                    // TODO: all clients are now waiting for the same thing. Refactor the loop.
-                    for _ in 0..self.waiting_for_route.len() {
-                        // oneshot senders consume themselves, so we need to take them out of the list
-                        let Some(client) = self.waiting_for_route.pop_front() else { break };
 
-                        if client.response_tx.is_canceled() {
-                            // do nothing, drop the sender
-                        } else if has_routes(self.last_state.as_ref()) {
-                            // notify listener that the required routes (seems to) have been
-                            // configured on the Android system, since the NetworkState update
-                            // contains routes
-                            let _ = client.response_tx.send(Ok(()));
-                        } else {
-                            // no dice, the network state update did not contain any routes.
-                            // patiently wait for the next update
-                            self.waiting_for_route.push_back(client);
+                    if has_routes(self.last_state.as_ref()) {
+                        // notify waiting clients that routes exist
+                        for client in self.waiting_for_routes.drain(..) {
+                            let _ = client.send(());
                         }
                     }
                 }
@@ -117,14 +100,13 @@ impl RouteManagerImpl {
                 return ControlFlow::Break(());
             }
             RouteManagerCommand::WaitForRoutes(response_tx) => {
-                // check if the required routes already have been configured on the Android system.
-                // otherwise, register a listener for network state changes. The required routes
-                // may come in at any moment in the future.
+                // check if routes have already been configured on the Android system.
+                // otherwise, register a listener for network state changes.
+                // routes may come in at any moment in the future.
                 if has_routes(self.last_state.as_ref()) {
-                    let _ = response_tx.send(Ok(()));
+                    let _ = response_tx.send(());
                 } else {
-                    self.waiting_for_route
-                        .push_back(WaitingForRoutes { response_tx });
+                    self.waiting_for_routes.push(response_tx);
                 }
             }
             RouteManagerCommand::ClearRoutes => {
@@ -139,7 +121,10 @@ impl RouteManagerImpl {
     }
 }
 
-/// Check whether the [NetworkState] contains the provided set of [Route]s.
+/// Check whether the [NetworkState] contains any routes.
+///
+/// Since we are the ones telling Android what routes to set, we assume that any routes at all are
+/// the ones we expect.
 fn has_routes(state: Option<&NetworkState>) -> bool {
     let Some(network_state) = state else {
         return false;

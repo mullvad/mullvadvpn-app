@@ -98,7 +98,7 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    WaitForRoutes(oneshot::Sender<Result<(), PlatformError>>),
+    WaitForRoutes(oneshot::Sender<()>),
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
 }
@@ -223,8 +223,7 @@ impl RouteManagerHandle {
         timeout(WAIT_FOR_ROUTES_TIMEOUT, result_rx)
             .await
             .map_err(|_error| Error::PlatformError(imp::Error::RoutesTimedOut))?
-            .map_err(|_| Error::ManagerChannelDown)?
-            .map_err(Error::PlatformError)
+            .map_err(|_| Error::ManagerChannelDown)
     }
 
     /// Removes all routes previously applied in [`RouteManagerHandle::add_routes`].
