@@ -1,7 +1,10 @@
 //! This module hooks up [AppDelegate]s to arbitrary implementations of [AppDownloader] and
 //! [fetch::ProgressUpdater].
 
-use crate::delegate::{AppDelegate, AppDelegateQueue};
+use crate::{
+    delegate::{AppDelegate, AppDelegateQueue},
+    resource,
+};
 use mullvad_update::{
     app::{self, AppDownloader},
     fetch,
@@ -48,7 +51,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
         match self.downloader.download_executable().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("Download complete! Verifying signature...");
+                    self_.set_status_text(resource::DOWNLOAD_COMPLETE_DESC);
                     self_.hide_cancel_button();
                 });
 
@@ -70,7 +73,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
         match self.downloader.verify().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("Verification complete!");
+                    self_.set_status_text(resource::VERIFICATION_SUCCEEDED_DESC);
                 });
 
                 Ok(())
@@ -112,7 +115,11 @@ impl<Delegate: AppDelegate + 'static> fetch::ProgressUpdater for UiProgressUpdat
             return;
         }
 
-        let status = format!("Downloading from {}... ({value}%)", self.domain);
+        let status = format!(
+            "{} {}... ({value}%)",
+            resource::DOWNLOADING_DESC_PREFIX,
+            self.domain
+        );
 
         self.queue.queue_main(move |self_| {
             self_.set_download_progress(value);
