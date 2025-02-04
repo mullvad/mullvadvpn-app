@@ -29,7 +29,7 @@ cd "$SCRIPT_DIR"
 # shellcheck source=ci/linux-repository-builder/build-linux-repositories-config.sh
 source build-linux-repositories-config.sh
 # shellcheck source=scripts/utils/log
-source ../../scripts/utils/log
+source ../../../scripts/utils/log
 
 deb="false"
 rpm="false"
