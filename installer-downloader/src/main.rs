@@ -1,6 +1,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use installer_downloader::controller;
 use installer_downloader::delegate;
+use installer_downloader::resource;
 
 #[cfg(target_os = "macos")]
 mod cacao_impl;
