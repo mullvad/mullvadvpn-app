@@ -185,18 +185,12 @@ function Controls(props: ControlsProps) {
         ))}
       </StyledPageIndicators>
       <StyledArrows>
-        <IconButton
-          icon="chevron-left"
-          size="medium"
-          disabled={!props.hasPrev}
-          onClick={props.prev}
-        />
-        <IconButton
-          icon="chevron-right"
-          size="medium"
-          disabled={!props.hasNext}
-          onClick={props.next}
-        />
+        <IconButton disabled={!props.hasPrev} onClick={props.prev}>
+          <IconButton.Icon icon="chevron-left" />
+        </IconButton>
+        <IconButton disabled={!props.hasNext} onClick={props.next}>
+          <IconButton.Icon icon="chevron-right" />
+        </IconButton>
       </StyledArrows>
     </StyledControlsContainer>
   );

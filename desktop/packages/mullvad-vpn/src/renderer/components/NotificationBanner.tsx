@@ -73,12 +73,12 @@ export function NotificationCloseAction(props: NotificationActionProps) {
   return (
     <IconButton
       aria-describedby={NOTIFICATION_AREA_ID}
+      variant="secondary"
       aria-label={messages.pgettext('accessibility', 'Close notification')}
       onClick={props.onClick}
-      icon="cross-circle"
-      variant="secondary"
-      size="small"
-    />
+      size="small">
+      <IconButton.Icon icon="cross-circle" />
+    </IconButton>
   );
 }
 

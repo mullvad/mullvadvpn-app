@@ -3,27 +3,14 @@ import styled from 'styled-components';
 
 import { Colors } from '../../foundations';
 import { buttonReset } from '../../styles';
-import { Icon, IconProps } from '../icon/Icon';
+import { IconProps } from '../icon/Icon';
+import { IconButtonIcon } from './components/IconButtonIcon';
+import { IconButtonProvider } from './IconButtonContext';
 
-export interface IconButtonProps
-  extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'> {
+export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary';
   size?: IconProps['size'];
-  icon: IconProps['icon'];
 }
-
-const variants = {
-  primary: {
-    background: Colors.white,
-    hover: Colors.white60,
-    disabled: Colors.white50,
-  },
-  secondary: {
-    background: Colors.white60,
-    hover: Colors.white80,
-    disabled: Colors.white50,
-  },
-} as const;
 
 const sizes = {
   tiny: 12,
@@ -46,41 +33,31 @@ const StyledButton = styled.button({
   },
 });
 
-const StyledIcon = styled(Icon)<IconProps & { $hoverColor: string; $disabled?: boolean }>(
-  ({ $hoverColor, $disabled }) => ({
-    ...(!$disabled && {
-      '&&:hover': {
-        backgroundColor: $hoverColor,
-      },
-    }),
-  }),
-);
-
-export const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
-  ({ icon, variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
-    const styles = variants[variant];
+const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+  ({ variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
     const size = sizes[sizeProp];
     return (
-      <StyledButton
-        ref={ref}
-        disabled={disabled}
-        style={
-          {
-            '--size': `${size}px`,
-            ...style,
-          } as React.CSSProperties
-        }
-        {...props}>
-        <StyledIcon
-          icon={icon}
-          color={disabled ? styles.disabled : styles.background}
-          size={sizeProp}
-          $hoverColor={styles.hover}
-          $disabled={disabled}
+      <IconButtonProvider size={sizeProp} variant={variant} disabled={disabled}>
+        <StyledButton
+          ref={ref}
+          disabled={disabled}
+          style={
+            {
+              '--size': `${size}px`,
+              ...style,
+            } as React.CSSProperties
+          }
+          {...props}
         />
-      </StyledButton>
+      </IconButtonProvider>
     );
   },
 );
+
+const IconButtonNamespace = Object.assign(IconButton, {
+  Icon: IconButtonIcon,
+});
+
+export { IconButtonNamespace as IconButton };
 
 IconButton.displayName = 'Button';
