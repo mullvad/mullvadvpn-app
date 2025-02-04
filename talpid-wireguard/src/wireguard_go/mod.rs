@@ -361,8 +361,13 @@ impl WgGoTunnel {
         tun_config.addresses = config.tunnel.addresses.clone();
         tun_config.ipv4_gateway = config.ipv4_gateway;
         tun_config.ipv6_gateway = config.ipv6_gateway;
-        tun_config.routes = routes.collect();
         tun_config.mtu = config.mtu;
+        tun_config.routes = if cfg!(target_os = "android") {
+            // Route everything into the tunnel and have wireguard-go act as a firewall.
+            vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()]
+        } else {
+            routes.collect()
+        };
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
