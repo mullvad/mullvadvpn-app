@@ -5,14 +5,12 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-../../../scripts/utils/gh-ready-check
+REPO_ROOT=../../../
+PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
+PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 
-if [[ $# != 1 ]]; then
-    echo "!!! Please pass the app version as the first and only argument"
-    exit 1
-fi
+$REPO_ROOT/scripts/utils/gh-ready-check
 
-PRODUCT_VERSION=$1
 gh workflow run desktop-e2e.yml --ref "$PRODUCT_VERSION" \
     -f oses="fedora41 ubuntu2404 windows11 macos15" \
     -f tests="test_quantum_resistant_tunnel test_ui_tunnel_settings"
