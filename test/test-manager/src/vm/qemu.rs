@@ -28,6 +28,9 @@ const OBTAIN_IP_TIMEOUT: Duration = Duration::from_secs(180);
 /// Default number of VCPU cores (passed to -smp)
 const DEFAULT_NUM_VCPUS: usize = 2;
 
+/// Default amount of memory, in MBs (passed to -m)
+const DEFAULT_AMOUNT_MEMORY: usize = 2048;
+
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("Failed to set up network")]
@@ -87,13 +90,18 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<QemuInstance> 
 
     let mut qemu_cmd = Command::new("qemu-system-x86_64");
     let vcpus = vm_config.vcpus.unwrap_or(DEFAULT_NUM_VCPUS);
+    let memory = vm_config.memory.unwrap_or(DEFAULT_AMOUNT_MEMORY);
+
+    log::debug!("CPU count: {vcpus}");
+    log::debug!("Memory: {memory}M");
+
     qemu_cmd.args([
         "-cpu",
         "host",
         "-accel",
         "kvm",
         "-m",
-        "4096",
+        &memory.to_string(),
         "-smp",
         &vcpus.to_string(),
         "-drive",
