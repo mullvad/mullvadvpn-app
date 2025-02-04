@@ -8,7 +8,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-REPO_ROOT=../../
+REPO_ROOT=../../../
 
 source $REPO_ROOT/scripts/utils/log
 
@@ -27,7 +27,7 @@ for argument in "$@"; do
     esac
 done
 
-changes_path=../packages/mullvad-vpn/changes.txt
+changes_path=$REPO_ROOT/desktop/packages/mullvad-vpn/changes.txt
 changelog_path=$REPO_ROOT/CHANGELOG.md
 product_version_path=$REPO_ROOT/dist-assets/desktop-product-version.txt
 
