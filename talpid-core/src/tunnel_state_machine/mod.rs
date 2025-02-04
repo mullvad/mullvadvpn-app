@@ -161,6 +161,8 @@ pub async fn spawn(
         volume_update_rx,
         #[cfg(target_os = "android")]
         connectivity_listener,
+        #[cfg(target_os = "android")]
+        android_context,
         #[cfg(target_os = "linux")]
         linux_ids,
     };
@@ -258,6 +260,8 @@ struct TunnelStateMachineInitArgs<G: TunnelParametersGenerator> {
     volume_update_rx: mpsc::UnboundedReceiver<()>,
     #[cfg(target_os = "android")]
     connectivity_listener: ConnectivityListener,
+    #[cfg(target_os = "android")]
+    android_context: AndroidContext,
     #[cfg(target_os = "linux")]
     linux_ids: LinuxNetworkingIdentifiers,
 }
@@ -281,6 +285,8 @@ impl TunnelStateMachine {
             args.linux_ids.fwmark,
             #[cfg(target_os = "linux")]
             args.linux_ids.table_id,
+            #[cfg(target_os = "android")]
+            args.android_context,
         )
         .await
         .map_err(Error::InitRouteManagerError)?;
