@@ -36,7 +36,7 @@ pub enum SizeHint {
 ///
 /// # Arguments
 /// - `progress_updater` - This interface is notified of download progress.
-/// - `size_limit` - Maximum file size.
+/// - `size_hint` - File size restrictions.
 pub async fn get_to_file(
     file: impl AsRef<Path>,
     url: &str,
