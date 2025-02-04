@@ -12,6 +12,8 @@ use std::sync::Arc;
 
 #[cfg(any(target_os = "linux", target_os = "macos"))]
 use futures::stream::Stream;
+#[cfg(any(target_os = "linux", target_os = "macos"))]
+use std::collections::HashSet;
 
 #[cfg(target_os = "linux")]
 use std::net::IpAddr;
