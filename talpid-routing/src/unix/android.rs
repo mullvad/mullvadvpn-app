@@ -1,5 +1,5 @@
 use std::collections::{HashSet, VecDeque};
-use std::ops::ControlFlow;
+use std::ops::{ControlFlow, Not};
 use std::sync::Mutex;
 
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
@@ -43,7 +43,6 @@ pub struct RouteManagerImpl {
 #[derive(Debug)]
 struct WaitingForRoutes {
     response_tx: oneshot::Sender<Result<(), Error>>,
-    required_routes: HashSet<Route>,
 }
 
 impl RouteManagerImpl {
@@ -84,19 +83,20 @@ impl RouteManagerImpl {
                     // update the last known NetworkState
                     self.last_state = network_state;
                     // check each waiting client if we have the routes they expect
+                    // TODO: all clients are now waiting for the same thing. Refactor the loop.
                     for _ in 0..self.waiting_for_route.len() {
                         // oneshot senders consume themselves, so we need to take them out of the list
                         let Some(client) = self.waiting_for_route.pop_front() else { break };
 
                         if client.response_tx.is_canceled() {
                             // do nothing, drop the sender
-                        } else if has_routes(self.last_state.as_ref(), &client.required_routes) {
+                        } else if has_routes(self.last_state.as_ref()) {
                             // notify listener that the required routes (seems to) have been
-                            // configured on the Android system, since they are part of the
-                            // NetworkState update
+                            // configured on the Android system, since the NetworkState update
+                            // contains routes
                             let _ = client.response_tx.send(Ok(()));
                         } else {
-                            // no dice, required routes were not part of this network state change.
+                            // no dice, the network state update did not contain any routes.
                             // patiently wait for the next update
                             self.waiting_for_route.push_back(client);
                         }
@@ -116,16 +116,15 @@ impl RouteManagerImpl {
                 let _ = tx.send(());
                 return ControlFlow::Break(());
             }
-            RouteManagerCommand::AddRoutes(required_routes, response_tx) => {
+            RouteManagerCommand::WaitForRoutes(response_tx) => {
                 // check if the required routes already have been configured on the Android system.
                 // otherwise, register a listener for network state changes. The required routes
                 // may come in at any moment in the future.
-                if has_routes(self.last_state.as_ref(), &required_routes) {
+                if has_routes(self.last_state.as_ref()) {
                     let _ = response_tx.send(Ok(()));
                 } else {
                     self.waiting_for_route.push_back(WaitingForRoutes {
                         response_tx,
-                        required_routes,
                     });
                 }
             }
@@ -142,11 +141,11 @@ impl RouteManagerImpl {
 }
 
 /// Check whether the [NetworkState] contains the provided set of [Route]s.
-fn has_routes(state: Option<&NetworkState>, routes: &HashSet<Route>) -> bool {
+fn has_routes(state: Option<&NetworkState>) -> bool {
     let Some(network_state) = state else {
         return false;
     };
-    routes.is_subset(&configured_routes(network_state))
+    configured_routes(network_state).is_empty().not()
 }
 
 fn configured_routes(state: &NetworkState) -> HashSet<Route> {

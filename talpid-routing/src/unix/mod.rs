@@ -98,7 +98,7 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    AddRoutes(HashSet<Route>, oneshot::Sender<Result<(), PlatformError>>),
+    WaitForRoutes(oneshot::Sender<Result<(), PlatformError>>),
     ClearRoutes,
     Shutdown(oneshot::Sender<()>),
 }
@@ -190,14 +190,30 @@ impl RouteManagerHandle {
     }
 
     /// Applies the given routes until they are cleared
+    #[cfg(not(target_os = "android"))]
     pub async fn add_routes(
         &self,
-        #[cfg(not(target_os = "android"))] routes: HashSet<RequiredRoute>,
-        #[cfg(target_os = "android")] routes: HashSet<Route>,
+        routes: HashSet<RequiredRoute>,
     ) -> Result<(), Error> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::AddRoutes(routes, result_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+
+        result_rx
+            .await
+            .map_err(|_| Error::ManagerChannelDown)?
+            .map_err(Error::PlatformError)
+    }
+
+    /// Wait for routes to come up
+    #[cfg(target_os = "android")]
+    pub async fn wait_for_routes(
+        &self,
+    ) -> Result<(), Error> {
+        let (result_tx, result_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::WaitForRoutes(result_tx))
             .map_err(|_| Error::RouteManagerDown)?;
 
         result_rx
