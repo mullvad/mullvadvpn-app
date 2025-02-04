@@ -123,9 +123,8 @@ impl RouteManagerImpl {
                 if has_routes(self.last_state.as_ref()) {
                     let _ = response_tx.send(Ok(()));
                 } else {
-                    self.waiting_for_route.push_back(WaitingForRoutes {
-                        response_tx,
-                    });
+                    self.waiting_for_route
+                        .push_back(WaitingForRoutes { response_tx });
                 }
             }
             RouteManagerCommand::ClearRoutes => {
