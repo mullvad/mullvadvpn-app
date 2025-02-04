@@ -2,6 +2,7 @@
 
 use installer_downloader::controller::AppController;
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, UiProgressUpdater};
+use installer_downloader::resource;
 use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider};
 use mullvad_update::app::{
     AppDownloader, AppDownloaderFactory, AppDownloaderParameters, DownloadError,
@@ -137,11 +138,14 @@ impl AppDelegateQueue<FakeAppDelegate> for FakeQueue {
 #[derive(Default)]
 pub struct FakeAppDelegate {
     pub status_text: String,
+    pub download_text: String,
     pub download_button_visible: bool,
     pub cancel_button_visible: bool,
+    pub cancel_button_enabled: bool,
     pub download_button_enabled: bool,
     pub download_progress: u32,
     pub download_progress_visible: bool,
+    pub beta_text_visible: bool,
     /// Callback registered by `on_download`
     pub download_callback: Option<Box<dyn Fn() + Send>>,
     /// Callback registered by `on_cancel`
@@ -174,6 +178,11 @@ impl AppDelegate for FakeAppDelegate {
     fn set_status_text(&mut self, text: &str) {
         self.call_log.push(format!("set_status_text: {}", text));
         self.status_text = text.to_owned();
+    }
+
+    fn set_download_text(&mut self, text: &str) {
+        self.call_log.push(format!("set_download_text: {}", text));
+        self.download_text = text.to_owned();
     }
 
     fn show_download_progress(&mut self) {
@@ -222,6 +231,26 @@ impl AppDelegate for FakeAppDelegate {
         self.cancel_button_visible = false;
     }
 
+    fn enable_cancel_button(&mut self) {
+        self.call_log.push("enable_cancel_button".into());
+        self.cancel_button_enabled = true;
+    }
+
+    fn disable_cancel_button(&mut self) {
+        self.call_log.push("disable_cancel_button".into());
+        self.cancel_button_enabled = false;
+    }
+
+    fn show_beta_text(&mut self) {
+        self.call_log.push("show_beta_text".into());
+        self.beta_text_visible = true;
+    }
+
+    fn hide_beta_text(&mut self) {
+        self.call_log.push("hide_beta_text".into());
+        self.beta_text_visible = false;
+    }
+
     fn queue(&self) -> Self::Queue {
         self.queue.clone()
     }
@@ -236,8 +265,9 @@ async fn test_fetch_version() {
     );
 
     // The app should start out by fetching the current app version
-    assert_eq!(delegate.status_text, "Fetching app version...");
-    assert!(!delegate.download_button_visible);
+    assert_eq!(delegate.status_text, resource::FETCH_VERSION_DESC);
+    assert!(delegate.download_button_visible);
+    assert!(!delegate.download_button_enabled);
     assert!(!delegate.cancel_button_visible);
     assert!(!delegate.download_progress_visible);
 
@@ -250,7 +280,11 @@ async fn test_fetch_version() {
     // The download button and current version should be displayed
     assert_eq!(
         delegate.status_text,
-        format!("Latest version: {}", FAKE_VERSION.stable.version)
+        format!(
+            "{}: {}",
+            resource::LATEST_VERSION_PREFIX,
+            FAKE_VERSION.stable.version
+        )
     );
     assert!(delegate.download_button_visible);
 }
@@ -290,6 +324,7 @@ async fn test_download() {
 
     assert!(!delegate.download_button_visible);
     assert!(delegate.cancel_button_visible);
+    assert!(delegate.cancel_button_enabled);
     assert!(delegate.download_progress_visible);
 
     // Wait for download
@@ -303,14 +338,20 @@ async fn test_download() {
         &[
             // Download signature
             "set_download_progress: 100",
-            "set_status_text: Downloading from mullvad.net... (100%)",
+            "set_download_text: Downloading from mullvad.net... (100%)",
             // Download app
             "set_download_progress: 100",
-            "set_status_text: Downloading from mullvad.net... (100%)",
+            &format!(
+                "set_download_text: {} mullvad.net... (100%)",
+                resource::DOWNLOADING_DESC_PREFIX
+            ),
             // Verification
-            "set_status_text: Download complete! Verifying signature...",
-            "hide_cancel_button",
-            "set_status_text: Verification complete!",
+            &format!("set_download_text: {}", resource::DOWNLOAD_COMPLETE_DESC),
+            "disable_cancel_button",
+            &format!(
+                "set_download_text: {}",
+                resource::VERIFICATION_SUCCEEDED_DESC
+            ),
         ]
     );
 }
@@ -348,5 +389,5 @@ async fn test_failed_verification() {
     let queue = delegate.queue.clone();
     queue.run_callbacks(&mut delegate);
 
-    assert_eq!(delegate.status_text, "ERROR: Verification failed!");
+    assert_eq!(delegate.download_text, "ERROR: Verification failed!");
 }

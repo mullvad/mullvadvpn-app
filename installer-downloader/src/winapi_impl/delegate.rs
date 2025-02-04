@@ -28,6 +28,15 @@ impl AppDelegate for AppWindow {
         self.status_text.set_text(text);
     }
 
+    fn set_download_text(&mut self, text: &str) {
+        if !text.is_empty() {
+            self.download_text.set_visible(true);
+            self.download_text.set_text(text);
+        } else {
+            self.download_text.set_visible(false);
+        }
+    }
+
     fn show_download_progress(&mut self) {
         self.progress_bar.set_visible(true);
     }
@@ -62,6 +71,24 @@ impl AppDelegate for AppWindow {
 
     fn hide_cancel_button(&mut self) {
         self.cancel_button.set_visible(false);
+    }
+
+    fn enable_cancel_button(&mut self) {
+        self.cancel_button.set_enabled(true);
+    }
+
+    fn disable_cancel_button(&mut self) {
+        self.cancel_button.set_enabled(false);
+    }
+
+    fn show_beta_text(&mut self) {
+        self.beta_prefix.set_visible(true);
+        self.beta_link.set_visible(true);
+    }
+
+    fn hide_beta_text(&mut self) {
+        self.beta_prefix.set_visible(false);
+        self.beta_link.set_visible(false);
     }
 
     fn queue(&self) -> Self::Queue {
