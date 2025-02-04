@@ -21,8 +21,6 @@ sealed class ErrorStateCause {
 
     data object StartTunnelError : ErrorStateCause()
 
-    data object RoutesTimedOut : ErrorStateCause()
-
     data class TunnelParameterError(val error: ParameterGenerationError) : ErrorStateCause()
 
     data object IsOffline : ErrorStateCause()

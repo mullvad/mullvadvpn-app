@@ -108,9 +108,6 @@ pub enum ErrorStateCause {
     /// Missing permissions required by macOS split tunneling.
     #[cfg(target_os = "macos")]
     NeedFullDiskPermissions,
-    /// Timed out while waiting for routes to come up.
-    #[cfg(target_os = "android")]
-    RoutesTimedOut,
 }
 
 impl ErrorStateCause {
@@ -220,8 +217,6 @@ impl fmt::Display for ErrorStateCause {
             OtherAlwaysOnApp { app_name: _ } => "Another app is set as always on",
             #[cfg(target_os = "android")]
             OtherLegacyAlwaysOnVpn => "Another legacy vpn profile is set as always on",
-            #[cfg(target_os = "android")]
-            RoutesTimedOut => "Setting up routes timed out",
         };
 
         write!(f, "{description}")

@@ -256,14 +256,11 @@ internal fun ManagementInterface.ErrorState.toDomain(
                 ManagementInterface.ErrorState.Cause.NEED_FULL_DISK_PERMISSIONS,
                 ManagementInterface.ErrorState.Cause.CREATE_TUNNEL_DEVICE ->
                     throw IllegalArgumentException("Unrecognized error state cause")
-
                 ManagementInterface.ErrorState.Cause.NOT_PREPARED -> ErrorStateCause.NotPrepared
                 ManagementInterface.ErrorState.Cause.OTHER_ALWAYS_ON_APP -> otherAlwaysOnApp!!
                 ManagementInterface.ErrorState.Cause.OTHER_LEGACY_ALWAYS_ON_VPN ->
                     ErrorStateCause.OtherLegacyAlwaysOnApp
                 ManagementInterface.ErrorState.Cause.INVALID_DNS_SERVERS -> invalidDnsServers!!
-                ManagementInterface.ErrorState.Cause.ROUTES_TIMED_OUT ->
-                    ErrorStateCause.RoutesTimedOut
             },
         isBlocking = !hasBlockingError(),
     )
