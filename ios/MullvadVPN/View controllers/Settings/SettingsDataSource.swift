@@ -11,12 +11,19 @@ import UIKit
 
 final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource.Section, SettingsDataSource.Item>,
     UITableViewDelegate {
-    enum CellReuseIdentifiers: String, CaseIterable {
+    enum CellReuseIdentifier: String, CaseIterable {
         case basic
         case changelog
 
         var reusableViewClass: AnyClass {
             SettingsCell.self
+        }
+
+        var cellStyle: UITableViewCell.CellStyle {
+            switch self {
+            case .basic: .default
+            case .changelog: .subtitle
+            }
         }
     }
 
@@ -69,7 +76,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
             }
         }
 
-        var reuseIdentifier: CellReuseIdentifiers {
+        var reuseIdentifier: CellReuseIdentifier {
             switch self {
             case .changelog: .changelog
             default: .basic
@@ -136,7 +143,7 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     // MARK: - Private
 
     private func registerClasses() {
-        CellReuseIdentifiers.allCases.forEach { cellIdentifier in
+        CellReuseIdentifier.allCases.forEach { cellIdentifier in
             tableView?.register(
                 cellIdentifier.reusableViewClass,
                 forCellReuseIdentifier: cellIdentifier.rawValue
