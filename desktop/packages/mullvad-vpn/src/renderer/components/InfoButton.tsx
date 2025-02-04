@@ -15,11 +15,11 @@ export default function InfoButton({ title, message, children, ...props }: InfoB
   return (
     <>
       <IconButton
-        icon="info-circle"
         onClick={show}
         aria-label={messages.pgettext('accessibility', 'More information')}
-        {...props}
-      />
+        {...props}>
+        <IconButton.Icon icon="info-circle" />
+      </IconButton>
       <ModalAlert
         isOpen={isOpen}
         title={title}

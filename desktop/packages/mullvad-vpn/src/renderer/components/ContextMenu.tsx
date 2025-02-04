@@ -90,7 +90,11 @@ export function ContextMenuContainer(props: React.PropsWithChildren) {
 export function ContextMenuTrigger() {
   const { toggleVisibility } = useContext(menuContext);
 
-  return <IconButton icon="more-horizontal-circle" onClick={toggleVisibility} />;
+  return (
+    <IconButton onClick={toggleVisibility}>
+      <IconButton.Icon icon="more-horizontal-circle" />
+    </IconButton>
+  );
 }
 
 interface StyledMenuProps {

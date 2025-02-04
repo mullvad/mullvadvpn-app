@@ -133,11 +133,11 @@ export default function SelectLocation() {
               }
               titleVisible>
               <IconButton
-                icon="filter-circle"
                 variant="secondary"
                 onClick={onViewFilter}
-                aria-label={messages.gettext('Filter')}
-              />
+                aria-label={messages.gettext('Filter')}>
+                <IconButton.Icon icon="filter-circle" />
+              </IconButton>
             </AppNavigationHeader>
 
             <StyledNavigationBarAttachment>

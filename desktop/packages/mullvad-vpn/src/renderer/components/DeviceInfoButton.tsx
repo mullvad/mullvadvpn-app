@@ -10,10 +10,10 @@ export default function DeviceInfoButton() {
   return (
     <>
       <IconButton
-        icon="info-circle"
         onClick={showDeviceHelp}
-        aria-label={messages.pgettext('accessibility', 'More information')}
-      />
+        aria-label={messages.pgettext('accessibility', 'More information')}>
+        <IconButton.Icon icon="info-circle" />
+      </IconButton>
       <ModalAlert
         isOpen={deviceHelpVisible}
         type={ModalAlertType.info}
