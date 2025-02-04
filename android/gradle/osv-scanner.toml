@@ -66,3 +66,12 @@ reason = "No impact since the app doesn't process externally crafted XML."
 id = "CVE-2024-47535" # GHSA-xq3w-v528-46rv
 ignoreUntil = 2025-02-13
 reason = "Only impacting Windows."
+
+# Several vulns related to bouncy castle that is only being used by lint.
+# These are not used directly in the app.
+[[PackageOverrides]]
+name = "org.bouncycastle:bcprov-jdk18on"
+ecosystem = "Maven"
+ignore = true
+effectiveUntil = 2025-05-02
+reason = "Used by lint and not the app directly."
