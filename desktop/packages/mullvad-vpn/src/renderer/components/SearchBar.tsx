@@ -98,7 +98,9 @@ export default function SearchBar(props: ISearchBarProps) {
       />
       <StyledSearchIcon icon="search" color={Colors.white60} />
       {props.searchTerm.length > 0 && (
-        <StyledClearButton icon="cross-circle" variant="secondary" onClick={onClear} />
+        <StyledClearButton variant="secondary" onClick={onClear}>
+          <IconButton.Icon icon="cross-circle" />
+        </StyledClearButton>
       )}
     </StyledSearchContainer>
   );

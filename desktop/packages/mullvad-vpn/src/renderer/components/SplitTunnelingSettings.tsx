@@ -651,11 +651,19 @@ function ApplicationRow(props: IApplicationRowProps) {
       <StyledCellLabel>{props.application.name}</StyledCellLabel>
       <Flex $gap={Spacings.spacing3}>
         {props.onDelete && (
-          <IconButton icon="cross-circle" variant="secondary" onClick={onDelete} />
+          <IconButton variant="secondary" onClick={onDelete}>
+            <IconButton.Icon icon="cross-circle" />
+          </IconButton>
         )}
-        {props.onAdd && <IconButton icon="add-circle" variant="secondary" onClick={onAdd} />}
+        {props.onAdd && (
+          <IconButton variant="secondary" onClick={onAdd}>
+            <IconButton.Icon icon="add-circle" />
+          </IconButton>
+        )}
         {props.onRemove && (
-          <IconButton icon="remove-circle" variant="secondary" onClick={onRemove} />
+          <IconButton variant="secondary" onClick={onRemove}>
+            <IconButton.Icon icon="remove-circle" />
+          </IconButton>
         )}
       </Flex>
     </StyledContainer>
