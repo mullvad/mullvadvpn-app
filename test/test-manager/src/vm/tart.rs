@@ -49,15 +49,16 @@ pub async fn run(config: &Config, vm_config: &VmConfig) -> Result<TartInstance> 
         MachineCopy::clone_vm(&vm_config.image_path).await?
     };
 
+    if let Err(err) = machine_copy.configure(vm_config).await {
+        log::error!("Failed to configure tart vm: {err}");
+    }
+
     // Start VM
     let mut tart_cmd = Command::new("tart");
     tart_cmd.args(["run", &machine_copy.name, "--serial"]);
 
     if !vm_config.disks.is_empty() {
         log::warn!("Mounting disks is not yet supported")
-    }
-    if let Some(cpu) = vm_config.vcpus {
-        tart_cmd.args(["--cpu", &cpu.to_string()]);
     }
 
     match config.runtime_opts.display {
@@ -168,6 +169,28 @@ impl MachineCopy {
             name: clone_name,
             should_destroy: true,
         })
+    }
+
+    pub async fn configure(&self, vm_config: &VmConfig) -> Result<()> {
+        let mut args = vec![];
+        if let Some(cpu) = vm_config.vcpus {
+            args.extend(["--cpu".to_owned(), cpu.to_string()]);
+            log::info!("vCPUs: {cpu}");
+        }
+        if let Some(mem) = vm_config.memory {
+            args.extend(["--memory".to_owned(), mem.to_string()]);
+            log::info!("Memory: {mem} MB");
+        }
+        if !args.is_empty() {
+            let mut tart_cmd = Command::new("tart");
+            tart_cmd.args(["set", &self.name]);
+            tart_cmd.args(args);
+            tart_cmd
+                .status()
+                .await
+                .context("failed to update tart config")?;
+        }
+        Ok(())
     }
 
     pub async fn cleanup(mut self) {
