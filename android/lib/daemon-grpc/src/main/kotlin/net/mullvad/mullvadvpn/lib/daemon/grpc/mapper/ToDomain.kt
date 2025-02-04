@@ -36,9 +36,6 @@ import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.Endpoint
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.AuthFailed
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.OtherAlwaysOnApp
-import net.mullvad.mullvadvpn.lib.model.ErrorStateCause.TunnelParameterError
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
@@ -125,7 +122,7 @@ private fun ManagementInterface.TunnelState.Error.toDomain(): TunnelState.Error 
     val otherAlwaysOnAppError =
         errorState.let {
             if (it.hasOtherAlwaysOnAppError()) {
-                OtherAlwaysOnApp(it.otherAlwaysOnAppError.appName)
+                ErrorStateCause.OtherAlwaysOnApp(it.otherAlwaysOnAppError.appName)
             } else {
                 null
             }
@@ -230,7 +227,6 @@ internal fun ManagementInterface.AfterDisconnect.toDomain(): ActionAfterDisconne
             throw IllegalArgumentException("Unrecognized action after disconnect")
     }
 
-@Suppress("CyclomaticComplexity")
 internal fun ManagementInterface.ErrorState.toDomain(
     otherAlwaysOnApp: ErrorStateCause.OtherAlwaysOnApp?,
     invalidDnsServers: ErrorStateCause.InvalidDnsServers?,
@@ -239,7 +235,7 @@ internal fun ManagementInterface.ErrorState.toDomain(
         cause =
             when (cause!!) {
                 ManagementInterface.ErrorState.Cause.AUTH_FAILED ->
-                    AuthFailed(authFailedError.toDomain())
+                    ErrorStateCause.AuthFailed(authFailedError.toDomain())
                 ManagementInterface.ErrorState.Cause.IPV6_UNAVAILABLE ->
                     ErrorStateCause.Ipv6Unavailable
                 ManagementInterface.ErrorState.Cause.SET_FIREWALL_POLICY_ERROR ->
@@ -248,7 +244,7 @@ internal fun ManagementInterface.ErrorState.toDomain(
                 ManagementInterface.ErrorState.Cause.START_TUNNEL_ERROR ->
                     ErrorStateCause.StartTunnelError
                 ManagementInterface.ErrorState.Cause.TUNNEL_PARAMETER_ERROR ->
-                    TunnelParameterError(parameterError.toDomain())
+                    ErrorStateCause.TunnelParameterError(parameterError.toDomain())
                 ManagementInterface.ErrorState.Cause.IS_OFFLINE -> ErrorStateCause.IsOffline
                 ManagementInterface.ErrorState.Cause.SPLIT_TUNNEL_ERROR ->
                     ErrorStateCause.StartTunnelError
