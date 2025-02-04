@@ -1,12 +1,5 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 #
-# The OWASP Dependency-Check tool is also used for vulnerability scanning.
-
-# h2database: Cleartext Storage of Sensitive Information
-[[IgnoredVulns]]
-id = "CVE-2022-45868" # GHSA-22wj-vf5f-wrvj
-ignoreUntil = 2025-05-02
-reason = "Used by the dependency-check tool and not the app directly."
 
 # netty: HttpPostRequestDecoder can OOM
 [[IgnoredVulns]]

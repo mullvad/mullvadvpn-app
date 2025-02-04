@@ -322,14 +322,6 @@ androidComponents {
     }
 }
 
-configure<org.owasp.dependencycheck.gradle.extension.DependencyCheckExtension> {
-    // Skip the lintClassPath configuration, which relies on many dependencies that has been flagged
-    // to have CVEs, as it's related to the lint tooling rather than the project's compilation class
-    // path. The alternative would be to suppress specific CVEs, however that could potentially
-    // result in suppressed CVEs in project compilation class path.
-    skipConfigurations = listOf("lintClassPath")
-}
-
 // This is a safety net to avoid generating too big version codes, since that could potentially be
 // hard and inconvenient to recover from.
 tasks.register("ensureValidVersionCode") {
