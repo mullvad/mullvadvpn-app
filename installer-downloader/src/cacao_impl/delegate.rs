@@ -13,7 +13,7 @@ impl AppDelegate for AppWindow {
         F: Fn() + Send + 'static,
     {
         let cb = Self::sync_callback(callback);
-        self.button.button.set_action(move || {
+        self.download_button.button.set_action(move || {
             let cb = Action::DownloadClick(cb.clone());
             cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(cb);
         });
@@ -31,7 +31,11 @@ impl AppDelegate for AppWindow {
     }
 
     fn set_status_text(&mut self, text: &str) {
-        self.text.set_text(text);
+        self.status_text.set_text(text);
+    }
+
+    fn set_download_text(&mut self, text: &str) {
+        self.download_text.set_text(text);
     }
 
     fn show_download_progress(&mut self) {
@@ -47,19 +51,19 @@ impl AppDelegate for AppWindow {
     }
 
     fn show_download_button(&mut self) {
-        self.button.button.set_hidden(false);
+        self.download_button.button.set_hidden(false);
     }
 
     fn hide_download_button(&mut self) {
-        self.button.button.set_hidden(true);
+        self.download_button.button.set_hidden(true);
     }
 
     fn enable_download_button(&mut self) {
-        self.button.button.set_enabled(true);
+        self.download_button.button.set_enabled(true);
     }
 
     fn disable_download_button(&mut self) {
-        self.button.button.set_enabled(false);
+        self.download_button.button.set_enabled(false);
     }
 
     fn show_cancel_button(&mut self) {
@@ -68,6 +72,24 @@ impl AppDelegate for AppWindow {
 
     fn hide_cancel_button(&mut self) {
         self.cancel_button.button.set_hidden(true);
+    }
+
+    fn enable_cancel_button(&mut self) {
+        self.cancel_button.button.set_enabled(true);
+    }
+
+    fn disable_cancel_button(&mut self) {
+        self.cancel_button.button.set_enabled(false);
+    }
+
+    fn show_beta_text(&mut self) {
+        self.beta_link.set_hidden(false);
+        self.beta_link_preface.set_hidden(false);
+    }
+
+    fn hide_beta_text(&mut self) {
+        self.beta_link.set_hidden(true);
+        self.beta_link_preface.set_hidden(true);
     }
 
     fn queue(&self) -> Self::Queue {

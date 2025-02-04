@@ -37,7 +37,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
     async fn download_signature(&mut self) -> Result<(), app::DownloadError> {
         if let Err(error) = self.downloader.download_signature().await {
             self.queue.queue_main(move |self_| {
-                self_.set_status_text("ERROR: Failed to retrieve signature.");
+                self_.set_download_text("ERROR: Failed to retrieve signature.");
                 self_.enable_download_button();
                 self_.hide_cancel_button();
             });
@@ -51,15 +51,15 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
         match self.downloader.download_executable().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text(resource::DOWNLOAD_COMPLETE_DESC);
-                    self_.hide_cancel_button();
+                    self_.set_download_text(resource::DOWNLOAD_COMPLETE_DESC);
+                    self_.disable_cancel_button();
                 });
 
                 Ok(())
             }
             Err(err) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("ERROR: Download failed. Please try again.");
+                    self_.set_download_text("ERROR: Download failed. Please try again.");
                     self_.enable_download_button();
                     self_.hide_cancel_button();
                 });
@@ -73,14 +73,14 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
         match self.downloader.verify().await {
             Ok(()) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text(resource::VERIFICATION_SUCCEEDED_DESC);
+                    self_.set_download_text(resource::VERIFICATION_SUCCEEDED_DESC);
                 });
 
                 Ok(())
             }
             Err(error) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("ERROR: Verification failed!");
+                    self_.set_download_text("ERROR: Verification failed!");
                 });
 
                 Err(error)
@@ -123,7 +123,7 @@ impl<Delegate: AppDelegate + 'static> fetch::ProgressUpdater for UiProgressUpdat
 
         self.queue.queue_main(move |self_| {
             self_.set_download_progress(value);
-            self_.set_status_text(&status);
+            self_.set_download_text(&status);
         });
 
         self.prev_progress = Some(value);
