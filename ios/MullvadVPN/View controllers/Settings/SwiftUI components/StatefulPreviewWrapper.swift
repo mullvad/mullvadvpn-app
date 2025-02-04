@@ -3,7 +3,7 @@
 //  MullvadVPN
 //
 //  Created by Andrew Bulhak on 2024-11-06.
-//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 // This should probably live somewhere more central than `View controllers/Settings/SwiftUI components`.  Where exactly is to be determined.

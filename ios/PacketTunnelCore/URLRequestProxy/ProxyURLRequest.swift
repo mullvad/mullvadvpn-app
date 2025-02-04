@@ -3,7 +3,7 @@
 //  PacketTunnelCore
 //
 //  Created by Sajad Vishkai on 2022-10-03.
-//  Copyright © 2022 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation

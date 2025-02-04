@@ -3,7 +3,7 @@
 //  TunnelStatusNotificationProvider
 //
 //  Created by pronebird on 20/08/2021.
-//  Copyright © 2021 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation

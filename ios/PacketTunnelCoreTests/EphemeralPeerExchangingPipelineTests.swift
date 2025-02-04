@@ -3,7 +3,7 @@
 //  MullvadPostQuantumTests
 //
 //  Created by Mojgan on 2024-07-19.
-//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 @testable import MullvadMockData
 @testable import MullvadREST

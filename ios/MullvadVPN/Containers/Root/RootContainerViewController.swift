@@ -3,7 +3,7 @@
 //  MullvadVPN
 //
 //  Created by pronebird on 25/05/2019.
-//  Copyright © 2019 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Routing

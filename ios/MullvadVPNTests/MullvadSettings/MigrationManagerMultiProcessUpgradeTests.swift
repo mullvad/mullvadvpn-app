@@ -3,7 +3,7 @@
 //  MullvadVPNTests
 //
 //  Created by Marco Nikic on 2024-10-03.
-//  Copyright © 2024 Mullvad VPN AB. All rights reserved.
+//  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 @testable import MullvadMockData
