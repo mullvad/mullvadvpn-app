@@ -39,6 +39,9 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
         get() = _currentNetworkState.value?.dnsServers ?: ArrayList()
 
     fun register(scope: CoroutineScope) {
+        // Consider implementing retry logic for the flows below, because registering a listener on
+        // the default network may fail if the network on Android 11
+        // https://issuetracker.google.com/issues/175055271?pli=1
         _currentNetworkState =
             connectivityManager
                 .defaultNetworkStateFlow()
