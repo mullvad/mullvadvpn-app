@@ -26,6 +26,8 @@ data class VpnSettingsViewModelState(
     val systemVpnSettingsAvailable: Boolean,
     val autoStartAndConnectOnBoot: Boolean,
     val deviceIpVersion: Constraint<IpVersion>,
+    val ipv6Enabled: Boolean,
+    val routeIpv6: Boolean,
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
@@ -48,6 +50,8 @@ data class VpnSettingsViewModelState(
             systemVpnSettingsAvailable,
             autoStartAndConnectOnBoot,
             deviceIpVersion,
+            ipv6Enabled,
+            routeIpv6,
         )
 
     companion object {
@@ -68,6 +72,8 @@ data class VpnSettingsViewModelState(
                 systemVpnSettingsAvailable = false,
                 autoStartAndConnectOnBoot = false,
                 deviceIpVersion = Constraint.Any,
+                ipv6Enabled = false,
+                routeIpv6 = false,
             )
     }
 }
