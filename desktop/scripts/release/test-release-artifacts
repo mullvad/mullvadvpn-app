@@ -5,7 +5,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-../../scripts/utils/gh-ready-check
+../../../scripts/utils/gh-ready-check
 
 if [[ $# != 1 ]]; then
     echo "!!! Please pass the app version as the first and only argument"
