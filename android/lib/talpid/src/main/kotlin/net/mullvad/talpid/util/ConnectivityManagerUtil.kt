@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.scan
 
-fun ConnectivityManager.defaultNetworkFlow(): Flow<NetworkEvent> = callbackFlow {
+internal fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> = callbackFlow {
     val callback =
         object : NetworkCallback() {
             override fun onLinkPropertiesChanged(network: Network, linkProperties: LinkProperties) {
@@ -58,27 +58,7 @@ fun ConnectivityManager.defaultNetworkFlow(): Flow<NetworkEvent> = callbackFlow 
     awaitClose { unregisterNetworkCallback(callback) }
 }
 
-fun ConnectivityManager.defaultNetworkStateFlow(): Flow<NetworkState?> =
-    defaultNetworkFlow()
-        .scan(
-            null as NetworkState?,
-            { state, event ->
-                return@scan when (event) {
-                    is NetworkEvent.Available -> NetworkState(network = event.network)
-                    is NetworkEvent.BlockedStatusChanged ->
-                        state?.copy(blockedStatus = event.blocked)
-                    is NetworkEvent.CapabilitiesChanged ->
-                        state?.copy(networkCapabilities = event.networkCapabilities)
-                    is NetworkEvent.LinkPropertiesChanged ->
-                        state?.copy(linkProperties = event.linkProperties)
-                    is NetworkEvent.Losing -> state?.copy(maxMsToLive = event.maxMsToLive)
-                    is NetworkEvent.Lost -> null
-                    NetworkEvent.Unavailable -> null
-                }
-            },
-        )
-
-fun ConnectivityManager.networkFlow(networkRequest: NetworkRequest): Flow<NetworkEvent> =
+fun ConnectivityManager.networkEvents(networkRequest: NetworkRequest): Flow<NetworkEvent> =
     callbackFlow {
         val callback =
             object : NetworkCallback() {
@@ -128,6 +108,26 @@ fun ConnectivityManager.networkFlow(networkRequest: NetworkRequest): Flow<Networ
         awaitClose { unregisterNetworkCallback(callback) }
     }
 
+internal fun ConnectivityManager.defaultRawNetworkStateFlow(): Flow<RawNetworkState?> =
+    defaultNetworkEvents()
+        .scan(
+            null as RawNetworkState?,
+            { state, event ->
+                return@scan when (event) {
+                    is NetworkEvent.Available -> RawNetworkState(network = event.network)
+                    is NetworkEvent.BlockedStatusChanged ->
+                        state?.copy(blockedStatus = event.blocked)
+                    is NetworkEvent.CapabilitiesChanged ->
+                        state?.copy(networkCapabilities = event.networkCapabilities)
+                    is NetworkEvent.LinkPropertiesChanged ->
+                        state?.copy(linkProperties = event.linkProperties)
+                    is NetworkEvent.Losing -> state?.copy(maxMsToLive = event.maxMsToLive)
+                    is NetworkEvent.Lost -> null
+                    NetworkEvent.Unavailable -> null
+                }
+            },
+        )
+
 sealed interface NetworkEvent {
     data class Available(val network: Network) : NetworkEvent
 
@@ -148,7 +148,7 @@ sealed interface NetworkEvent {
     data class Lost(val network: Network) : NetworkEvent
 }
 
-data class NetworkState(
+internal data class RawNetworkState(
     val network: Network,
     val linkProperties: LinkProperties? = null,
     val networkCapabilities: NetworkCapabilities? = null,

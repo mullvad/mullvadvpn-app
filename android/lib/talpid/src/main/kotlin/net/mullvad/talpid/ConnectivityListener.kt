@@ -17,11 +17,11 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
-import net.mullvad.talpid.model.NetworkState as DaemonNetworkState
+import net.mullvad.talpid.model.NetworkState
 import net.mullvad.talpid.util.NetworkEvent
-import net.mullvad.talpid.util.NetworkState
-import net.mullvad.talpid.util.defaultNetworkStateFlow
-import net.mullvad.talpid.util.networkFlow
+import net.mullvad.talpid.util.RawNetworkState
+import net.mullvad.talpid.util.defaultRawNetworkStateFlow
+import net.mullvad.talpid.util.networkEvents
 
 class ConnectivityListener(private val connectivityManager: ConnectivityManager) {
     private lateinit var _isConnected: StateFlow<Boolean>
@@ -29,9 +29,11 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
     val isConnected
         get() = _isConnected.value
 
-    private lateinit var _currentNetworkState: StateFlow<DaemonNetworkState?>
+    private lateinit var _currentNetworkState: StateFlow<NetworkState?>
 
-    val currentDefaultNetworkState: DaemonNetworkState?
+    // TODO Remove or ensure it is used by daemon
+    // Used by JNI
+    val currentDefaultNetworkState: NetworkState?
         get() = _currentNetworkState.value
 
     // Used by JNI
@@ -44,8 +46,8 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
         // https://issuetracker.google.com/issues/175055271?pli=1
         _currentNetworkState =
             connectivityManager
-                .defaultNetworkStateFlow()
-                .map { it?.toDaemonNetworkState() }
+                .defaultRawNetworkStateFlow()
+                .map { it?.toNetworkState() }
                 .onEach { notifyDefaultNetworkChange(it) }
                 .stateIn(scope, SharingStarted.Eagerly, null)
 
@@ -66,7 +68,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
                 .build()
 
         return connectivityManager
-            .networkFlow(request)
+            .networkEvents(request)
             .scan(setOf<Network>()) { networks, event ->
                 when (event) {
                     is NetworkEvent.Available -> {
@@ -88,8 +90,8 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
             .distinctUntilChanged()
     }
 
-    private fun NetworkState.toDaemonNetworkState(): DaemonNetworkState =
-        DaemonNetworkState(
+    private fun RawNetworkState.toNetworkState(): NetworkState =
+        NetworkState(
             network.networkHandle,
             linkProperties?.routes,
             linkProperties?.dnsServersWithoutFallback(),
@@ -97,5 +99,5 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
 
     private external fun notifyConnectivityChange(isConnected: Boolean)
 
-    private external fun notifyDefaultNetworkChange(networkState: DaemonNetworkState?)
+    private external fun notifyDefaultNetworkChange(networkState: NetworkState?)
 }
