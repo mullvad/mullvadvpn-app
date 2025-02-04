@@ -408,4 +408,5 @@
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
     <string name="see_full_changelog">See full changelog</string>
     <string name="changelog_empty">No changelog was added for this version</string>
+    <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
 </resources>

@@ -507,6 +507,7 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.wireguard_port_title),
                     onInfoClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
                     onCellClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
+                    isEnabled = state.isWireguardPortEnabled,
                 )
             }
 
@@ -515,6 +516,7 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.automatic),
                     isSelected = state.selectedWireguardPort == Constraint.Any,
                     onCellClicked = { onWireguardPortSelected(Constraint.Any) },
+                    isEnabled = state.isWireguardPortEnabled,
                 )
             }
 
@@ -530,6 +532,7 @@ fun VpnSettingsScreen(
                             ),
                         isSelected = state.selectedWireguardPort.getOrNull() == port,
                         onCellClicked = { onWireguardPortSelected(Constraint.Only(port)) },
+                        isEnabled = state.isWireguardPortEnabled,
                     )
                 }
             }
@@ -547,9 +550,30 @@ fun VpnSettingsScreen(
                         }
                     },
                     onPortCellClicked = navigateToWireguardPortDialog,
+                    isEnabled = state.isWireguardPortEnabled,
                     mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
                     numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
                 )
+            }
+
+            if (!state.isWireguardPortEnabled) {
+                item {
+                    Text(
+                        text =
+                            stringResource(
+                                id = R.string.wg_port_subtitle,
+                                stringResource(R.string.wireguard),
+                            ),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier =
+                            Modifier.padding(
+                                start = Dimens.cellStartPadding,
+                                top = topPadding,
+                                end = Dimens.cellEndPadding,
+                            ),
+                    )
+                }
             }
 
             itemWithDivider {
