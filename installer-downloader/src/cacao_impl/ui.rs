@@ -1,6 +1,8 @@
 use std::cell::RefCell;
 use std::sync::{Arc, LazyLock, Mutex, RwLock};
 
+use cacao::appkit::window::{Window, WindowConfig, WindowDelegate};
+use cacao::appkit::{App, AppDelegate};
 use cacao::button::Button;
 use cacao::color::Color;
 use cacao::image::{Image, ImageView};
@@ -12,12 +14,10 @@ use cacao::text::{AttributedString, Label};
 use cacao::view::View;
 use objc_id::Id;
 
-use cacao::appkit::window::{Window, WindowConfig, WindowDelegate};
-use cacao::appkit::{App, AppDelegate};
-
-const WINDOW_TITLE: &str = "Mullvad VPN installer";
-const WINDOW_WIDTH: usize = 676;
-const WINDOW_HEIGHT: usize = 390;
+use crate::resource::{
+    BANNER_DESC, BETA_LINK_TEXT, BETA_PREFACE_DESC, CANCEL_BUTTON_TEXT, DOWNLOAD_BUTTON_TEXT,
+    WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
+};
 
 /// Logo render in the banner
 const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../logo-icon.svg");
@@ -141,7 +141,7 @@ pub struct DownloadButton {
 
 impl Default for DownloadButton {
     fn default() -> Self {
-        let button = Button::new("Download & install");
+        let button = Button::new(DOWNLOAD_BUTTON_TEXT);
         Self { button }
     }
 }
@@ -173,7 +173,7 @@ impl AppWindow {
         self.progress.set_hidden(true);
         self.progress.set_indeterminate(false);
 
-        self.banner_desc.set_text("The Mullvad VPN app will be downloaded and then verified to ensure that it is a version that comes from us.");
+        self.banner_desc.set_text(BANNER_DESCRIPTION);
         self.banner_desc.set_text_color(Color::SystemWhite);
         self.banner.add_subview(&self.banner_desc);
         self.banner_desc
@@ -249,13 +249,11 @@ impl AppWindow {
         self.main_view.add_subview(&self.button.button);
         self.main_view.add_subview(&self.cancel_button.button);
 
-        self.beta_link_preface
-            .set_text("Want to try out new features? ");
+        self.beta_link_preface.set_text(BETA_PREFACE_TEXT);
         self.main_view.add_subview(&self.beta_link_preface);
 
-        let attr_text_s = "Try the beta version!";
-        let mut attr_text = AttributedString::new(&attr_text_s);
-        attr_text.set_text_color(Color::Link, 0..attr_text_s.len() as isize);
+        let mut attr_text = AttributedString::new(&BETA_LINK_TEXT);
+        attr_text.set_text_color(Color::Link, 0..BETA_LINK_TEXT.len() as isize);
 
         self.beta_link.set_attributed_text(attr_text);
         self.main_view.add_subview(&self.beta_link);

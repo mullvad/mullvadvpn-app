@@ -1,8 +1,10 @@
 //! This module implements the actual logic performed by different UI components.
 
 use crate::delegate::{AppDelegate, AppDelegateQueue};
+use crate::resource;
 use crate::ui_downloader::{UiAppDownloader, UiProgressUpdater};
 
+use mullvad_update::api::Version;
 use mullvad_update::{
     api::{self, VersionInfoProvider},
     app::{self, AppDownloaderFactory, AppDownloaderParameters},
@@ -57,7 +59,7 @@ impl AppController {
             delegate.queue(),
             task_rx,
         ));
-        delegate.set_status_text("Fetching app version...");
+        delegate.set_status_text(resource::FETCH_VERSION_DESC);
         tokio::spawn(fetch_app_version_info::<Delegate, VersionProvider>(
             delegate,
             task_tx.clone(),
@@ -121,7 +123,7 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
     while let Some(msg) = rx.recv().await {
         match msg {
             TaskMessage::SetVersionInfo(new_version_info) => {
-                let version_label = format!("Latest version: {}", new_version_info.stable.version);
+                let version_label = format_latest_version(&new_version_info.stable);
                 queue.queue_main(move |self_| {
                     self_.set_status_text(&version_label);
                     self_.show_download_button();
@@ -175,7 +177,7 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
                 let _ = active_download.await;
 
                 let version_label = if let Some(version_info) = &version_info {
-                    format!("Latest version: {}", version_info.stable.version)
+                    format_latest_version(&version_info.stable)
                 } else {
                     "".to_owned()
                 };
@@ -190,4 +192,8 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
             }
         }
     }
+}
+
+fn format_latest_version(version: &Version) -> String {
+    format!("{}: {}", resource::LATEST_VERSION_PREFIX, version.version)
 }

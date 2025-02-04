@@ -1,5 +1,6 @@
 //! This module handles setting up and rendering changes to the UI
 
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -9,11 +10,12 @@ use windows_sys::Win32::Foundation::COLORREF;
 use windows_sys::Win32::Graphics::Gdi::{SetBkColor, SetTextColor};
 use windows_sys::Win32::UI::WindowsAndMessaging::WM_CTLCOLORSTATIC;
 
-use super::delegate::QueueContext;
+use crate::resource::{
+    BANNER_DESC, CANCEL_BUTTON_TEXT, DOWNLOAD_BUTTON_TEXT, WINDOW_HEIGHT, WINDOW_TITLE,
+    WINDOW_WIDTH,
+};
 
-const WINDOW_TITLE: &str = "Mullvad VPN installer";
-const WINDOW_WIDTH: i32 = 676;
-const WINDOW_HEIGHT: i32 = 390;
+use super::delegate::QueueContext;
 
 static BANNER_IMAGE_DATA: &[u8] = include_bytes!("../logo.png");
 
@@ -51,7 +53,7 @@ impl AppWindow {
     /// Note that some additional setup happens in [Self::on_init]
     pub fn layout(mut self) -> Result<Rc<RefCell<AppWindow>>, nwg::NwgError> {
         nwg::Window::builder()
-            .size((WINDOW_WIDTH, WINDOW_HEIGHT))
+            .size((WINDOW_WIDTH as i32, WINDOW_HEIGHT as i32))
             .center(true)
             .title(WINDOW_TITLE)
             .flags(WindowFlags::WINDOW)
@@ -75,13 +77,13 @@ impl AppWindow {
         nwg::Button::builder()
             .parent(&self.window)
             .size((150, 32))
-            .text("Download && install")
+            .text(&DOWNLOAD_BUTTON_TEXT.replace("&", "&&"))
             .build(&mut self.download_button)?;
 
         nwg::Button::builder()
             .parent(&self.window)
             .position((0, 200))
-            .text("Cancel")
+            .text(CANCEL_BUTTON_TEXT)
             .build(&mut self.cancel_button)?;
 
         nwg::Label::builder()
@@ -93,7 +95,7 @@ impl AppWindow {
         const PROGRESS_BAR_MARGIN: i32 = 48;
         nwg::ProgressBar::builder()
             .parent(&self.window)
-            .size((WINDOW_WIDTH - 2 * PROGRESS_BAR_MARGIN, 16))
+            .size((WINDOW_WIDTH as i32 - 2 * PROGRESS_BAR_MARGIN, 16))
             .build(&mut self.progress_bar)?;
 
         nwg::GridLayout::builder()
@@ -151,8 +153,7 @@ impl AppWindow {
             // not fatal, so continue
         }
 
-        let text = "The Mullvad VPN app will be downloaded and then verified to ensure that it\nis a version that comes from us.";
-        self.banner_text.set_text(text);
+        self.banner_text.set_text(&wrap_text(BANNER_DESC, 76));
         self.banner_text.set_position(24 + 64 + 12, 32 + 12);
         self.banner_text.set_size(
             WINDOW_WIDTH as u32 - self.banner_text.position().0 as u32 - 12,
@@ -248,4 +249,21 @@ fn handle_queue_message(
             None
         },
     )
+}
+
+/// Insert newlines to wrap text such that the max line length is `cols`
+fn wrap_text(s: &str, cols: usize) -> Cow<'_, str> {
+    if s.len() <= cols {
+        return Cow::Borrowed(s);
+    }
+    let Some(whitespace) = s[..cols].rfind(' ') else {
+        return Cow::Borrowed(s);
+    };
+    let mut new_str = String::new();
+    new_str.push_str(&s[..whitespace]);
+    new_str.push('\n');
+    if whitespace < s.len() {
+        new_str.push_str(&wrap_text(&s[whitespace + 1..], cols));
+    }
+    Cow::Owned(new_str)
 }
