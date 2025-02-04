@@ -24,8 +24,8 @@ pub const CANCEL_BUTTON_TEXT: &str = "Cancel";
 /// Displayed while fetching version info from the API
 pub const FETCH_VERSION_DESC: &str = "Loading version details...";
 
-/// The first part of "Version from: 2025.1"
-pub const LATEST_VERSION_PREFIX: &str = "Latest version";
+/// The first part of "Version: 2025.1"
+pub const LATEST_VERSION_PREFIX: &str = "Version";
 
 /// Displayed while fetching version info from the API failed
 pub const FETCH_VERSION_ERROR_DESC: &str = "Couldn't load version details, please try again or make sure you have the latest installer downloader.";
