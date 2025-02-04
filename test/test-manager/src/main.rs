@@ -149,6 +149,7 @@ enum Commands {
 }
 
 #[derive(clap::Subcommand, Debug)]
+#[allow(clippy::large_enum_variant)]
 enum ConfigArg {
     /// Print the current config
     Get,
@@ -156,10 +157,11 @@ enum ConfigArg {
     Which,
     /// Manage VM-specific setting
     #[clap(subcommand)]
-    Vm(Box<VmConfig>),
+    Vm(VmConfig),
 }
 
 #[derive(clap::Subcommand, Debug)]
+#[allow(clippy::large_enum_variant)]
 enum VmConfig {
     /// Create or edit a VM config
     Set {
@@ -218,7 +220,7 @@ async fn main() -> Result<()> {
                 );
                 Ok(())
             }
-            ConfigArg::Vm(vm_config) => match *vm_config {
+            ConfigArg::Vm(vm_config) => match vm_config {
                 VmConfig::Set {
                     vm,
                     config: vm_config,
