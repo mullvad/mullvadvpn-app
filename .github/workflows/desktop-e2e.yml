@@ -185,6 +185,9 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+      - name: Checkout submodules
+        run: |
+          git submodule update --init --recursive --depth=1 wireguard-go-rs
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
