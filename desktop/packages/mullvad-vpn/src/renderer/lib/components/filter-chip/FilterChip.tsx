@@ -4,10 +4,10 @@ import styled, { WebTarget } from 'styled-components';
 import { Colors, Radius, Spacings } from '../../foundations';
 import { buttonReset } from '../../styles';
 import { Flex } from '../flex';
-import { LabelTiny } from '../typography';
+import { FilterChipIcon, FilterChipText } from './components';
+import { FilterChipProvider } from './FilterChipContext';
 
 export interface FilterChipProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  trailing?: React.ReactNode;
   as?: WebTarget;
 }
 
@@ -38,42 +38,43 @@ const StyledButton = styled.button({
   },
 });
 
-export const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
-  ({ trailing, children, disabled, style, onClick, ...props }, ref) => {
+const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
+  ({ children, disabled, style, onClick, ...props }, ref) => {
     return (
-      <StyledButton
-        ref={ref}
-        style={
-          {
-            '--background': variables.background,
-            '--hover': onClick ? variables.hover : variables.background,
-            '--disabled': variables.disabled,
-            ...style,
-          } as React.CSSProperties
-        }
-        disabled={disabled}
-        onClick={onClick}
-        {...props}>
-        <Flex
-          $flex={1}
-          $gap={Spacings.spacing1}
-          $justifyContent="space-between"
-          $padding={{
-            horizontal: Spacings.spacing3,
-          }}
-          $alignItems="center">
-          <Flex $flex={1} $justifyContent="center" $alignItems="center">
-            {typeof children === 'string' ? (
-              <LabelTiny color={disabled ? Colors.white40 : Colors.white}>{children}</LabelTiny>
-            ) : (
-              children
-            )}
+      <FilterChipProvider disabled={disabled}>
+        <StyledButton
+          ref={ref}
+          style={
+            {
+              '--background': variables.background,
+              '--hover': onClick ? variables.hover : variables.background,
+              '--disabled': variables.disabled,
+              ...style,
+            } as React.CSSProperties
+          }
+          disabled={disabled}
+          onClick={onClick}
+          {...props}>
+          <Flex
+            $flex={1}
+            $gap={Spacings.spacing1}
+            $alignItems="center"
+            $justifyContent="space-between"
+            $padding={{
+              horizontal: Spacings.spacing3,
+            }}>
+            {children}
           </Flex>
-          {trailing}
-        </Flex>
-      </StyledButton>
+        </StyledButton>
+      </FilterChipProvider>
     );
   },
 );
 
-FilterChip.displayName = 'Chip';
+FilterChip.displayName = 'FilterChip';
+
+const FilterChipNamespace = Object.assign(FilterChip, {
+  Text: FilterChipText,
+  Icon: FilterChipIcon,
+});
+export { FilterChipNamespace as FilterChip };
