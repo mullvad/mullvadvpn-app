@@ -88,7 +88,7 @@ pub async fn get_to_writer(
         return Ok(());
     }
     if already_fetched_bytes > total_size {
-        return Err(anyhow::anyhow!("Found existing file that was larger"));
+        anyhow::bail!("Found existing file that was larger");
     }
 
     // Fetch content, one range at a time
