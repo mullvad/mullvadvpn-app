@@ -195,7 +195,7 @@ export default function CustomDnsSettings() {
 
   return (
     <>
-      <Cell.Container disabled={!featureAvailable}>
+      <Cell.Container disabled={!featureAvailable} onClick={() => setCustomDnsEnabled(!(dns.state === 'custom' || inputVisible))}>
         <AriaInputGroup>
           <AriaLabel>
             <Cell.InputLabel>
