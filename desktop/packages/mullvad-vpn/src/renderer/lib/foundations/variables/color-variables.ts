@@ -1,7 +1,7 @@
 import { ColorTokens } from '../tokens';
 
 export const colors = {
-  '--color-darker-blue': ColorTokens.darkBlue,
+  '--color-darker-blue': ColorTokens.darkerBlue,
   '--color-dark-blue': ColorTokens.darkBlue,
   '--color-blue': ColorTokens.blue,
   '--color-dark-green': ColorTokens.darkGreen,
