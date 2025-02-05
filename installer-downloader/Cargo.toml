@@ -23,7 +23,7 @@ async-trait = "0.1"
 mullvad-update = { path = "../mullvad-update" }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemServices"] }
+windows-sys = { workspace = true, features = ["Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_Graphics", "Win32_Graphics_Gdi"] }
 native-windows-gui = { version = "1.0.12", features = ["image-decoder"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
