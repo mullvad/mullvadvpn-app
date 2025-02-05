@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This script prepares for a release. Run it with the release version as the first argument and it
-# will update version numbers, commit and add a signed tag.
+# will update version numbers, update the changelog, and update copyright year.
 
 set -eu
 
