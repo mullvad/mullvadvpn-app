@@ -4,7 +4,7 @@ import { sprintf } from 'sprintf-js';
 import { strings } from '../../../shared/constants';
 import { Ownership } from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
-import { FilterChip, Flex, Icon, IconButton, LabelTiny } from '../../lib/components';
+import { FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
 import { Spacings } from '../../lib/foundations';
@@ -166,34 +166,38 @@ export default function SelectLocation() {
 
                       {showOwnershipFilter && (
                         <FilterChip
-                          trailing={<Icon icon="cross" size="small" />}
                           aria-label={messages.gettext('Clear')}
                           onClick={onClearOwnership}>
-                          {ownershipFilterLabel(ownership)}
+                          <FilterChip.Text>{ownershipFilterLabel(ownership)}</FilterChip.Text>
+                          <FilterChip.Icon icon="cross" />
                         </FilterChip>
                       )}
 
                       {showProvidersFilter && (
                         <FilterChip
-                          trailing={<Icon icon="cross" size="small" />}
                           aria-label={messages.gettext('Clear')}
                           onClick={onClearProviders}>
-                          {sprintf(
-                            messages.pgettext(
-                              'select-location-view',
-                              'Providers: %(numberOfProviders)d',
-                            ),
-                            { numberOfProviders: filteredProviders.length },
-                          )}
+                          <FilterChip.Text>
+                            {sprintf(
+                              messages.pgettext(
+                                'select-location-view',
+                                'Providers: %(numberOfProviders)d',
+                              ),
+                              { numberOfProviders: filteredProviders.length },
+                            )}
+                          </FilterChip.Text>
+                          <FilterChip.Icon icon="cross" />
                         </FilterChip>
                       )}
 
                       {showDaitaFilter && (
                         <FilterChip as="div">
-                          {sprintf(
-                            messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
-                            { settingName: 'DAITA' },
-                          )}
+                          <FilterChip.Text>
+                            {sprintf(
+                              messages.pgettext('select-location-view', 'Setting: %(settingName)s'),
+                              { settingName: 'DAITA' },
+                            )}
+                          </FilterChip.Text>
                         </FilterChip>
                       )}
                     </Flex>
