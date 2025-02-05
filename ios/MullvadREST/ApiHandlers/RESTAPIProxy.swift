@@ -68,7 +68,7 @@ extension REST {
         ) -> Cancellable {
             let requestFactory: RustRequestFactory = { completion in
                 let pointerClass = CompletionBridge { apiResponse in
-                    completion?(apiResponse)
+                    try? completion?(apiResponse)
                 }
 
                 let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
@@ -78,12 +78,19 @@ extension REST {
                 return AnyCancellable()
             }
 
-            let rustNetworkOperation = RustNetworkOperation<Sendable>(
+            let responseHandler = REST.rustResponseHandler(
+                decoding: [AnyIPEndpoint].self,
+                with: responseDecoder
+            )
+
+            let rustNetworkOperation = RustNetworkOperation(
                 name: "get-api-addrs",
                 dispatchQueue: dispatchQueue,
                 retryStrategy: retryStrategy,
                 requestFactory: requestFactory,
-                responseHandler: completionHandler
+                responseDecoder: responseDecoder,
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
             )
 
             operationQueue.addOperation(rustNetworkOperation)

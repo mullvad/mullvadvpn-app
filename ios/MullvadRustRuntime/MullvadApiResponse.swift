@@ -18,9 +18,14 @@ public class MullvadApiResponse {
     }
 
     public var body: Data? {
-        Data(UnsafeBufferPointer(start: response.body, count: Int(response.body_size)))
+        guard let body = response.body else {
+            return nil
+        }
+
+        return Data(UnsafeBufferPointer(start: body, count: Int(response.body_size)))
     }
 
+    // TODO: Do we need this?
     public var errorDescription: String? {
         return if response.error_description == nil {
             nil
