@@ -27,7 +27,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
 # shellcheck source=ci/linux-repository-builder/build-linux-repositories-config.sh
-source build-linux-repositories-config.sh
+source ../../../ci/linux-repository-builder/build-linux-repositories-config.sh
 # shellcheck source=scripts/utils/log
 source ../../../scripts/utils/log
 
