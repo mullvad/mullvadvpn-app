@@ -1,14 +1,10 @@
-#[cfg(unix)]
-use std::os::unix::fs::MetadataExt;
-#[cfg(windows)]
-use std::os::windows::fs::MetadataExt;
 use std::path::Path;
 use std::pin::Pin;
 use std::task::{ready, Poll};
 
 use reqwest::header::{HeaderValue, CONTENT_LENGTH, RANGE};
 use tokio::fs::{self, File};
-use tokio::io::{self, AsyncWrite, AsyncWriteExt, BufWriter};
+use tokio::io::{self, AsyncSeek, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter};
 
 use anyhow::Context;
 
@@ -43,9 +39,22 @@ pub async fn get_to_file(
     progress_updater: &mut impl ProgressUpdater,
     size_hint: SizeHint,
 ) -> anyhow::Result<()> {
-    let (file, mut already_fetched_bytes) = create_or_append(file).await?;
-    let mut file = BufWriter::new(file);
+    let file = create_or_append(file).await?;
+    let file = BufWriter::new(file);
+    get_to_writer(file, url, progress_updater, size_hint).await
+}
 
+/// Download `url` to `writer`.
+///
+/// # Arguments
+/// - `progress_updater` - This interface is notified of download progress.
+/// - `size_hint` - File size restrictions.
+pub async fn get_to_writer(
+    mut writer: impl AsyncWrite + AsyncSeek + Unpin,
+    url: &str,
+    progress_updater: &mut impl ProgressUpdater,
+    size_hint: SizeHint,
+) -> anyhow::Result<()> {
     let client = reqwest::Client::new();
 
     // Fetch content length first
@@ -66,22 +75,24 @@ pub async fn get_to_file(
 
     progress_updater.set_url(url);
 
+    let already_fetched_bytes = writer
+        .stream_position()
+        .await
+        .context("failed to get existing file size")?
+        .try_into()
+        .context("invalid size")?;
+
     if total_size == already_fetched_bytes {
         progress_updater.set_progress(1.);
         return Ok(());
     }
     if already_fetched_bytes > total_size {
-        // If the existing file is larger, truncate it
-        file.get_mut()
-            .set_len(0)
-            .await
-            .context("Failed to truncate existing file")?;
-        already_fetched_bytes = 0;
+        return Err(anyhow::anyhow!("Found existing file that was larger"));
     }
 
     // Fetch content, one range at a time
     let mut writer = WriterWithProgress {
-        file,
+        writer,
         progress_updater,
         written_nbytes: already_fetched_bytes,
         total_nbytes: total_size,
@@ -131,17 +142,13 @@ fn check_size_hint(hint: SizeHint, actual: usize) -> anyhow::Result<()> {
     }
 }
 
-async fn create_or_append(path: impl AsRef<Path>) -> io::Result<(File, usize)> {
-    let file = path.as_ref();
-    if file.exists() {
-        #[cfg(unix)]
-        let size = file.metadata().map(|meta| meta.size()).unwrap_or(0);
-        #[cfg(windows)]
-        let size = file.metadata().map(|meta| meta.file_size()).unwrap_or(0);
-        let file = fs::OpenOptions::new().append(true).open(file).await?;
-        Ok((file, usize::try_from(size).unwrap()))
-    } else {
-        Ok((File::create(file).await?, 0))
+/// If a file exists, append to it. Otherwise, create a new file
+async fn create_or_append(path: impl AsRef<Path>) -> io::Result<File> {
+    match fs::File::create_new(&path).await {
+        // New file created
+        Ok(file) => Ok(file),
+        // Append to an existing file
+        Err(_err) => fs::OpenOptions::new().append(true).open(path).await,
     }
 }
 
@@ -183,21 +190,23 @@ impl Iterator for RangeIter {
     }
 }
 
-struct WriterWithProgress<'a, PU: ProgressUpdater> {
-    file: BufWriter<File>,
+struct WriterWithProgress<'a, PU: ProgressUpdater, Writer> {
+    writer: Writer,
     progress_updater: &'a mut PU,
     written_nbytes: usize,
     /// Actual or estimated total number of bytes
     total_nbytes: usize,
 }
 
-impl<PU: ProgressUpdater> AsyncWrite for WriterWithProgress<'_, PU> {
+impl<PU: ProgressUpdater, Writer: AsyncWrite + Unpin> AsyncWrite
+    for WriterWithProgress<'_, PU, Writer>
+{
     fn poll_write(
         mut self: Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
         buf: &[u8],
     ) -> Poll<Result<usize, io::Error>> {
-        let file = Pin::new(&mut self.file);
+        let file = Pin::new(&mut self.writer);
         let nbytes = ready!(file.poll_write(cx, buf))?;
 
         let total_nbytes = self.total_nbytes;
@@ -214,13 +223,51 @@ impl<PU: ProgressUpdater> AsyncWrite for WriterWithProgress<'_, PU> {
         mut self: Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
     ) -> Poll<Result<(), std::io::Error>> {
-        Pin::new(&mut self.file).poll_flush(cx)
+        Pin::new(&mut self.writer).poll_flush(cx)
     }
 
     fn poll_shutdown(
         mut self: Pin<&mut Self>,
         cx: &mut std::task::Context<'_>,
     ) -> Poll<Result<(), std::io::Error>> {
-        Pin::new(&mut self.file).poll_shutdown(cx)
+        Pin::new(&mut self.writer).poll_shutdown(cx)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use async_tempfile::TempDir;
+    use tokio::{fs, io::AsyncWriteExt};
+
+    use super::*;
+
+    #[tokio::test]
+    async fn test_create_or_append() -> anyhow::Result<()> {
+        let temp_dir = TempDir::new().await?;
+        let file_path = temp_dir.join("test");
+
+        // Write to a new file
+        const CONTENT: &[u8] = b"very important file";
+
+        let mut file = create_or_append(&file_path).await?;
+        file.write_all(CONTENT).await?;
+        file.flush().await?;
+        drop(file);
+
+        assert_eq!(fs::read(&file_path).await?, CONTENT);
+
+        // Append some stuff
+        const EXTRA: &[u8] = b"my addition";
+
+        let mut file = create_or_append(&file_path).await?;
+        file.write_all(EXTRA).await?;
+        file.flush().await?;
+        drop(file);
+
+        // Append occurred correctly
+        const COMPLETE_STRING: &[u8] = b"very important filemy addition";
+        assert_eq!(fs::read(file_path).await?, COMPLETE_STRING);
+
+        Ok(())
     }
 }
