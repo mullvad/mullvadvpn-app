@@ -7,8 +7,10 @@ use std::{
 };
 
 use reqwest::header::{HeaderValue, CONTENT_LENGTH, RANGE};
-use tokio::fs::{self, File};
-use tokio::io::{self, AsyncSeek, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter};
+use tokio::{
+    fs::{self, File},
+    io::{self, AsyncSeek, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter},
+};
 
 use anyhow::Context;
 
@@ -246,7 +248,10 @@ impl<PU: ProgressUpdater, Writer: AsyncWrite + Unpin> AsyncWrite
 
 #[cfg(test)]
 mod test {
+    use std::io::Cursor;
+
     use async_tempfile::TempDir;
+    use rand::RngCore;
     use tokio::{fs, io::AsyncWriteExt};
 
     use super::*;
@@ -285,5 +290,151 @@ mod test {
         assert_eq!(fs::read(file_path).await?, COMPLETE_STRING);
 
         Ok(())
+    }
+
+    #[derive(Default)]
+    struct FakeProgressUpdater {
+        complete: f32,
+        url: String,
+    }
+
+    impl ProgressUpdater for FakeProgressUpdater {
+        fn set_progress(&mut self, fraction_complete: f32) {
+            self.complete = fraction_complete;
+        }
+
+        fn set_url(&mut self, url: &str) {
+            self.url = url.to_owned();
+        }
+    }
+
+    /// Test that [get_to_writer] correctly downloads new files
+    #[tokio::test]
+    async fn test_fetch_complete() -> anyhow::Result<()> {
+        // Generate random data
+        let file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024 + 1]));
+        rand::thread_rng().fill_bytes(file_data);
+
+        // Start server
+        let mut server = mockito::Server::new_async().await;
+        let file_url = format!("{}/my_file", server.url());
+        add_file_server_mock(&mut server, "/my_file", file_data);
+
+        // Download the file to `writer` and compare it to `file_data`
+        let mut writer = Cursor::new(vec![]);
+        let mut progress_updater = FakeProgressUpdater::default();
+
+        get_to_writer(
+            &mut writer,
+            &file_url,
+            &mut progress_updater,
+            SizeHint::Exact(file_data.len()),
+        )
+        .await
+        .context("Complete download failed")?;
+
+        assert_eq!(progress_updater.url, file_url);
+        assert_eq!(progress_updater.complete, 1.);
+        assert_eq!(&mut writer.into_inner(), file_data);
+
+        Ok(())
+    }
+
+    /// Test that [get_to_writer] correctly downloads partial files
+    #[tokio::test]
+    async fn test_fetch_interrupted() -> anyhow::Result<()> {
+        // Generate random data
+        let file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024]));
+        rand::thread_rng().fill_bytes(file_data);
+
+        // Start server
+        let mut server = mockito::Server::new_async().await;
+        let file_url = format!("{}/my_file", server.url());
+        add_file_server_mock(&mut server, "/my_file", file_data);
+
+        // Interrupt after exactly half the file has been downloaded
+        let mut limited_buffer = vec![0u8; file_data.len() / 2].into_boxed_slice();
+        let mut writer = Cursor::new(&mut limited_buffer[..]);
+
+        let mut progress_updater = FakeProgressUpdater::default();
+
+        get_to_writer(
+            &mut writer,
+            &file_url,
+            &mut progress_updater,
+            SizeHint::Exact(file_data.len()),
+        )
+        .await
+        .expect_err("Expected interrupted download");
+
+        assert_eq!(progress_updater.url, file_url);
+
+        let completed = progress_updater.complete;
+        assert!(
+            (completed - 0.5).abs() < f32::EPSILON,
+            "expected half to be completed, got {completed}"
+        );
+
+        assert_eq!(
+            &*limited_buffer,
+            &file_data[..limited_buffer.len()],
+            "partial download incorrect"
+        );
+
+        // Download the remainder
+        let writer = limited_buffer.into_vec();
+        let partial_len = writer.len();
+        let mut writer = Cursor::new(writer);
+        writer.set_position(partial_len as u64);
+
+        let mut progress_updater = FakeProgressUpdater::default();
+
+        get_to_writer(
+            &mut writer,
+            &file_url,
+            &mut progress_updater,
+            SizeHint::Exact(file_data.len()),
+        )
+        .await
+        .context("Partial download failed")?;
+
+        assert_eq!(progress_updater.url, file_url);
+        assert_eq!(progress_updater.complete, 1.);
+        assert_eq!(&mut writer.into_inner(), file_data);
+
+        Ok(())
+    }
+
+    /// Create endpoints that serve a file at `url_path` using range requests
+    fn add_file_server_mock(server: &mut mockito::Server, url_path: &str, data: &'static [u8]) {
+        // Respond to head requests with file size
+        server
+            .mock("HEAD", url_path)
+            .with_header(CONTENT_LENGTH, &data.len().to_string())
+            .create();
+
+        // Respond to range requests with file
+        server
+            .mock("GET", url_path)
+            .with_body_from_request(|request| {
+                let range = request.header(RANGE);
+                let range = range[0].to_str().expect("expected str");
+                let (begin, end) = parse_http_range(range).expect("invalid range");
+
+                data[begin..=end].to_vec()
+            })
+            .create();
+    }
+
+    /// Parse a range header value, e.g. "bytes=0-31"
+    fn parse_http_range(val: &str) -> anyhow::Result<(usize, usize)> {
+        // parse: bytes=0-31
+        let (_, val) = val.split_once('=').context("invalid range header")?;
+        let (begin, end) = val.split_once('-').context("invalid range")?;
+
+        let begin: usize = begin.parse().context("invalid range begin")?;
+        let end: usize = end.parse().context("invalid range end")?;
+
+        Ok((begin, end))
     }
 }
