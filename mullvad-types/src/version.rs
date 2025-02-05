@@ -8,10 +8,46 @@ use std::{
 };
 
 static STABLE_REGEX: LazyLock<Regex> = LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)$").unwrap());
-static BETA_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)-beta(\d+)$").unwrap());
-static DEV_REGEX: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"^(\d{4})\.(\d+)(\.\d+)?(-beta(\d+))?-dev-(\w+)$").unwrap());
+
+// The `BETA_REGEX` and `DEV_REGEX` both support parsing -alpha and -beta versions.
+// However, the -alpha version is currently only used by Android to tag internal
+// alpha builds, so the code in this file will simply parse alpha versions as beta versions, so
+// as far as the Rust code is concerned there is no difference between -alpha and -beta.
+static BETA_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?x)                     # Enable insignification whitespace mode
+        ^                           # Start of string
+        (\d{4})                     # Year
+        \.                          # Literal dot separator
+        (\d+)                       # Version number
+        -                           # Literal -
+        (?:alpha|beta)              # Alpha or beta (non-capturing group)
+        (\d+)                       # Alpha or beta version
+        $                           # End of string
+        "#,
+    )
+    .unwrap()
+});
+
+static DEV_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(
+        r#"(?x)                     # Enable insignificant whitespace mode
+        ^                           # Start of string
+        (\d{4})                     # Year
+        \.                          # Literal dot separator
+        (\d+)                       # Version number
+        (\.\d+)?                    # Optional patch number
+        (-                          # Literal -
+            (?:alpha|beta)          # Alpha or beta (non-capturing group)
+            (\d+)                   # Alpha or beta version
+        )?
+        -dev-
+        (\w+)                       # Commit hash
+        $                           # End of string
+        "#,
+    )
+    .unwrap()
+});
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
 /// Mullvad VPN app.
@@ -159,16 +195,21 @@ mod test {
     fn test_version_regex() {
         assert!(STABLE_REGEX.is_match("2020.4"));
         assert!(!STABLE_REGEX.is_match("2020.4-beta3"));
+        assert!(!STABLE_REGEX.is_match("2020.4-alpha3"));
         assert!(BETA_REGEX.is_match("2020.4-beta3"));
+        assert!(BETA_REGEX.is_match("2020.4-alpha99"));
         assert!(!STABLE_REGEX.is_match("2020.5-beta1-dev-f16be4"));
         assert!(!STABLE_REGEX.is_match("2020.5-dev-f16be4"));
         assert!(!BETA_REGEX.is_match("2020.5-beta1-dev-f16be4"));
+        assert!(!BETA_REGEX.is_match("2020.5-alpha2-dev-f16be4"));
         assert!(!BETA_REGEX.is_match("2020.5-dev-f16be4"));
         assert!(!BETA_REGEX.is_match("2020.4"));
         assert!(DEV_REGEX.is_match("2020.5-dev-f16be4"));
         assert!(DEV_REGEX.is_match("2020.5-beta1-dev-f16be4"));
+        assert!(DEV_REGEX.is_match("2020.5-alpha4-dev-f16be4"));
         assert!(!DEV_REGEX.is_match("2020.5"));
         assert!(!DEV_REGEX.is_match("2020.5-beta1"));
+        assert!(!DEV_REGEX.is_match("2020.5-alpha1"));
     }
 
     #[test]
@@ -196,5 +237,13 @@ mod test {
         for (input, expected_output) in tests {
             assert_eq!(ParsedAppVersion::from_str(input).ok(), expected_output,);
         }
+    }
+
+    #[test]
+    fn test_alpha_version_string_is_parsed_as_beta() {
+        assert_eq!(
+            ParsedAppVersion::from_str("2020.4-alpha13").unwrap(),
+            ParsedAppVersion::from_str("2020.4-beta13").unwrap(),
+        );
     }
 }
