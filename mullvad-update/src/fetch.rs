@@ -114,7 +114,15 @@ pub async fn get_to_writer(
                 .context("Download failed");
         }
 
+        let mut bytes_read = 0;
+
         while let Some(chunk) = response.chunk().await.context("Failed to read chunk")? {
+            bytes_read += chunk.len();
+            if bytes_read > RangeIter::CHUNK_SIZE {
+                // Protect against servers responding with more data than expected
+                anyhow::bail!("Server returned more than chunk-sized bytes");
+            }
+
             writer
                 .write_all(&chunk)
                 .await
@@ -166,7 +174,7 @@ struct RangeIter {
 
 impl RangeIter {
     /// Number of bytes to read per range request
-    const CHUNK_SIZE: usize = 512 * 1024;
+    pub const CHUNK_SIZE: usize = 512 * 1024;
 
     fn new(current: usize, end: usize) -> Self {
         Self { current, end }
