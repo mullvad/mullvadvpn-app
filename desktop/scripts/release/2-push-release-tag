@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# This script creates and pushes a signed release tag. This should be run after `1-prepare-release`.
+
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

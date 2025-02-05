@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
 
+# This script verifies the build produced by the buildserver. It helps the user verify the staging
+# repository versions and triggers a e2e run with a small subset of the tests to verify the build.
+# This should be be run after `2-push-release-tag` and after the build server has finished biulding.
+
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
