@@ -3,7 +3,6 @@
 	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 252 252"
 	 style="enable-background:new 0 0 252 252;" xml:space="preserve">
 <style type="text/css">
-	.background{fill-rule:evenodd;clip-rule:evenodd;fill:#192E45;}
 	.fur{fill-rule:evenodd;clip-rule:evenodd;fill:#D2943B;}
 	.nose{fill-rule:evenodd;clip-rule:evenodd;fill:#FFCD86;}
 	.helmet{fill-rule:evenodd;clip-rule:evenodd;fill:#FFD524;}
@@ -11,7 +10,6 @@
 	.lamp-ring{fill:#192E45;}
 </style>
 <g id="mole">
-	<path id="bg" class="background" d="M0,126c0,69.6,56.5,126,126,126s126-56.4,126-126S195.6,0,126,0S0,56.4,0,126L0,126L0,126L0,126z"/>
 	<g id="body">
 		<path id="fur" class="fur" d="M23.9,96.6L16.8,111l9.6-13.4c0,0.1-0.6,19.3-0.6,19.3l2.7-14.5c7.2,13.7,23.1,34.8,45.4,50.5
 			c1.7,1.2,3.9,3.3,4.6,4.1c0,0,21.3,10.8,54.1-14.2c0.3-0.2,0.7-0.4,1-0.6l0.5,0.3l7.2,4.8c-2.5-0.7-7.3-1.9-7.3-1.9
