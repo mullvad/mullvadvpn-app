@@ -21,3 +21,5 @@ async-trait = "0.1"
 
 [dev-dependencies]
 async-tempfile = "0.6"
+mockito = "1.6.1"
+rand = "0.8.5"
