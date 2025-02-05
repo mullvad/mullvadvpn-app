@@ -119,6 +119,12 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
         protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
 
+        #if DEBUG
+        if #available(iOS 17.4, *) {
+            protocolConfig.excludeDeviceCommunication = true
+        }
+        #endif
+
         let alwaysOnRule = NEOnDemandRuleConnect()
         alwaysOnRule.interfaceTypeMatch = .any
 
