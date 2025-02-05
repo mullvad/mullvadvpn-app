@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This is a small utility script that can be sourced to provide a function that prints its arguments
+# and then calls them as a command, e.g. `print_and_run sleep 5`.
+
 function print_and_run {
     echo "+ $*"
     "$@"
