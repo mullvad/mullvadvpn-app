@@ -120,7 +120,15 @@ pub async fn get_to_writer(
                 .context("Download failed");
         }
 
+        let mut bytes_read = 0;
+
         while let Some(chunk) = response.chunk().await.context("Failed to read chunk")? {
+            bytes_read += chunk.len();
+            if bytes_read > RangeIter::CHUNK_SIZE {
+                // Protect against servers responding with more data than expected
+                anyhow::bail!("Server returned more than chunk-sized bytes");
+            }
+
             writer
                 .write_all(&chunk)
                 .await
@@ -172,7 +180,7 @@ struct RangeIter {
 
 impl RangeIter {
     /// Number of bytes to read per range request
-    const CHUNK_SIZE: usize = 512 * 1024;
+    pub const CHUNK_SIZE: usize = 512 * 1024;
 
     fn new(current: usize, end: usize) -> Self {
         Self { current, end }
@@ -436,5 +444,52 @@ mod test {
         let end: usize = end.parse().context("invalid range end")?;
 
         Ok((begin, end))
+    }
+
+    /// Make sure unexpectedly large files are rejected
+    #[tokio::test]
+    async fn test_nefarious_sizes() -> anyhow::Result<()> {
+        // Head length is too large
+        let mut server = mockito::Server::new_async().await;
+        let file_url = format!("{}/my_file", server.url());
+        server
+            .mock("HEAD", "/my_file")
+            .with_header(CONTENT_LENGTH, "2")
+            .create();
+
+        get_to_writer(
+            Cursor::new(vec![]),
+            &file_url,
+            &mut FakeProgressUpdater::default(),
+            SizeHint::Exact(1),
+        )
+        .await
+        .expect_err("Reject unexpected content length");
+
+        // Malicious range response
+        // Serve the entire file rather than the requested range
+        let file_data = vec![0u8; 2 * RangeIter::CHUNK_SIZE];
+
+        let mut server = mockito::Server::new_async().await;
+        let file_url = format!("{}/my_file", server.url());
+        server
+            .mock("HEAD", "/my_file")
+            .with_header(CONTENT_LENGTH, &file_data.len().to_string())
+            .create();
+        server
+            .mock("GET", "/my_file")
+            .with_body(&file_data)
+            .create();
+
+        get_to_writer(
+            Cursor::new(vec![]),
+            &file_url,
+            &mut FakeProgressUpdater::default(),
+            SizeHint::Exact(file_data.len()),
+        )
+        .await
+        .expect_err("Reject unexpected chunk sizes");
+
+        Ok(())
     }
 }
