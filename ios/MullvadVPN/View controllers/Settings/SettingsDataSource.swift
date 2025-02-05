@@ -143,12 +143,6 @@ final class SettingsDataSource: UITableViewDiffableDataSource<SettingsDataSource
     // MARK: - Private
 
     private func registerClasses() {
-        CellReuseIdentifier.allCases.forEach { cellIdentifier in
-            tableView?.register(
-                cellIdentifier.reusableViewClass,
-                forCellReuseIdentifier: cellIdentifier.rawValue
-            )
-        }
 
         HeaderFooterReuseIdentifier.allCases.forEach { reuseIdentifier in
             tableView?.register(
