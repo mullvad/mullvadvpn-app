@@ -20,10 +20,10 @@ use crate::resource::{
 };
 
 /// Logo render in the banner
-const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../logo-icon.svg");
+const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.svg");
 
 /// Logo banner text
-const LOGO_TEXT_DATA: &[u8] = include_bytes!("../logo-text.svg");
+const LOGO_TEXT_DATA: &[u8] = include_bytes!("../../assets/logo-text.svg");
 
 /// Banner background color: #192e45
 static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {

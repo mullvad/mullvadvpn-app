@@ -19,8 +19,8 @@ use crate::resource::{
 
 use super::delegate::QueueContext;
 
-static BANNER_IMAGE_DATA: &[u8] = include_bytes!("../logo-icon.png");
-static BANNER_TEXT_IMAGE_DATA: &[u8] = include_bytes!("../logo-text.png");
+static BANNER_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.png");
+static BANNER_TEXT_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-text.png");
 
 const BACKGROUND_COLOR: [u8; 3] = [0x19, 0x2e, 0x45];
 /// Beta link color: #003E92
