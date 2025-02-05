@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+# This script controls that the gh (GitHub CLI) command is installed and authenticated. This can be
+# called in the beginning of all scripts depending on gh.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+# shellcheck source=scripts/utils/log
+source ./log
+
+if ! command -v gh > /dev/null; then
+    log_error "gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
+
+if ! gh auth status > /dev/null; then
+    log_error "Authentication through gh (GitHub CLI) is required to run this script"
+    exit 1
+fi

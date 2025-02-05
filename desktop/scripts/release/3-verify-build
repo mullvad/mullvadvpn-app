@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+
+# This script verifies the build produced by the buildserver. It helps the user verify the staging
+# repository versions and triggers a e2e run with a small subset of the tests to verify the build.
+# This should be be run after `2-push-release-tag` and after the build server has finished building.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+REPO_ROOT=../../../
+PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
+PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
+
+$REPO_ROOT/scripts/utils/gh-ready-check
+source $REPO_ROOT/scripts/utils/log
+
+function verify_repository_versions {
+  print_versions_args=( --staging )
+
+  if [[ "$PRODUCT_VERSION" == *-beta* ]]; then
+    print_versions_args+=( --beta )
+  fi
+
+  ./print-package-versions "${print_versions_args[@]}"
+  read -r -n 1 -p "Does the versions look correct? (y/N): " response
+  printf "\n\n"
+
+  if [[ "$response" =~ ^[Yy]$ ]]; then
+      return
+  elif [[ "$response" =~ ^[Nn]$ ]]; then
+      log_info "Aborting"
+      exit 1
+  else
+      log_error "Invalid response"
+      exit 1
+  fi
+}
+
+verify_repository_versions
+gh workflow run desktop-e2e.yml --ref "$PRODUCT_VERSION" \
+    -f oses="fedora41 ubuntu2404 windows11 macos15" \
+    -f tests="test_quantum_resistant_tunnel test_ui_tunnel_settings"

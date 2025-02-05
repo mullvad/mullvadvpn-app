@@ -1,22 +1,21 @@
 #!/usr/bin/env bash
 
 # This script prepares for a release. Run it with the release version as the first argument and it
-# will update version numbers, commit and add a signed tag.
+# will update version numbers, update the changelog, and update copyright year.
 
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-REPO_ROOT=../../
+REPO_ROOT=../../../
 
 source $REPO_ROOT/scripts/utils/log
+source $REPO_ROOT/scripts/utils/print-and-run
 
-PUSH_TAG="false"
 
 for argument in "$@"; do
     case "$argument" in
-        --push-tag) PUSH_TAG="true" ;;
         -*)
             log_error "Unknown option \"$argument\""
             exit 1
@@ -27,14 +26,9 @@ for argument in "$@"; do
     esac
 done
 
-changes_path=../packages/mullvad-vpn/changes.txt
+changes_path=$REPO_ROOT/desktop/packages/mullvad-vpn/changes.txt
 changelog_path=$REPO_ROOT/CHANGELOG.md
 product_version_path=$REPO_ROOT/dist-assets/desktop-product-version.txt
-
-function print_and_run {
-    echo "+ $*"
-    "$@"
-}
 
 function checks {
     if [[ -z ${PRODUCT_VERSION+x} ]]; then
@@ -88,7 +82,9 @@ function check_changelog {
 
 function update_copyright_year {
     $REPO_ROOT/scripts/update-copyright
-    print_and_run git commit -A -S -m "Update copyright year in project files and code"
+    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+        print_and_run git commit -a -S -m "Update copyright year in project files and code"
+    fi
 }
 
 function update_changelog {
@@ -107,31 +103,18 @@ function update_product_version {
         $product_version_path
 }
 
-function push_tag {
-    product_version=$(echo -n "$(cat $product_version_path)")
-    echo "Tagging current git commit with release tag $product_version..."
-    print_and_run git tag -s "$product_version" -m "$product_version"
-    print_and_run git push origin "$product_version"
-    log_success "\nTag pushed!"
-}
+checks
+check_commit_signature
+check_changelog
+update_changelog
+update_copyright_year
+update_product_version
 
-if [[ $PUSH_TAG == "true" ]]; then
-    check_commit_signature
-    push_tag
-else
-    checks
-    check_commit_signature
-    check_changelog
-    update_changelog
-    update_copyright_year
-    update_product_version
-
-    log_success "\n================================================="
-    log_success "| DONE preparing for a release!                 |"
-    log_success "|    Now verify that everything looks correct   |"
-    log_success "|    and then create and push the tag by        |"
-    log_success "|    running:                                   |"
-    log_success "|    $ $0 \\ "
-    log_success "|        --push-tag                             |"
-    log_success "================================================="
-fi
+log_success "\n================================================="
+log_success "| DONE preparing for a release!                 |"
+log_success "|    Now verify that everything looks correct   |"
+log_success "|    and then create and push the tag by        |"
+log_success "|    running:                                   |"
+log_success "|    $ $0 \\ "
+log_success "|        --push-tag                             |"
+log_success "================================================="
