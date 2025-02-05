@@ -28,7 +28,8 @@ pub enum SizeHint {
     Maximum(usize),
 }
 
-/// Download `url` to `file`.
+/// Download `url` to `file`. If the file already exists, this appends to it, as long
+/// as the file pointed to by `url` is larger than it.
 ///
 /// # Arguments
 /// - `progress_updater` - This interface is notified of download progress.
@@ -121,7 +122,7 @@ pub async fn get_to_writer(
         }
     }
 
-    writer.flush().await.context("Failed to flush")?;
+    writer.shutdown().await.context("Failed to flush")?;
 
     Ok(())
 }
@@ -148,7 +149,12 @@ async fn create_or_append(path: impl AsRef<Path>) -> io::Result<File> {
         // New file created
         Ok(file) => Ok(file),
         // Append to an existing file
-        Err(_err) => fs::OpenOptions::new().append(true).open(path).await,
+        Err(_err) => {
+            let mut file = fs::OpenOptions::new().append(true).open(path).await?;
+            // Seek to end, or else the seek position might be wrong
+            file.seek(io::SeekFrom::End(0)).await?;
+            Ok(file)
+        }
     }
 }
 
@@ -256,7 +262,13 @@ mod test {
 
         assert_eq!(fs::read(&file_path).await?, CONTENT);
 
-        // Append some stuff
+        // Verify that we can trust the stream position
+        let mut file = create_or_append(&file_path).await?;
+        let content_len: u64 = CONTENT.len().try_into()?;
+        assert_eq!(file.stream_position().await?, content_len);
+        drop(file);
+
+        // Append some more stuff
         const EXTRA: &[u8] = b"my addition";
 
         let mut file = create_or_append(&file_path).await?;
