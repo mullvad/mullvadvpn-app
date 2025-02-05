@@ -363,7 +363,7 @@ fn create_link_font() -> Result<nwg::Font, nwg::NwgError> {
         CreateFontIndirectW(&logfont)
     };
 
-    if raw_font.is_null() {
+    if raw_font == 0 {
         return Err(nwg::NwgError::Unknown);
     }
 
