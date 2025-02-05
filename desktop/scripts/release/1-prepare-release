@@ -82,7 +82,9 @@ function check_changelog {
 
 function update_copyright_year {
     $REPO_ROOT/scripts/update-copyright
-    print_and_run git commit -A -S -m "Update copyright year in project files and code"
+    if [[ $(git diff --shortstat 2> /dev/null | tail -n1) != "" ]]; then
+        print_and_run git commit -a -S -m "Update copyright year in project files and code"
+    fi
 }
 
 function update_changelog {
