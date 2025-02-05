@@ -2,12 +2,12 @@
 
 use crate::delegate::{AppDelegate, AppDelegateQueue};
 use crate::resource;
-use crate::ui_downloader::{UiAppDownloader, UiProgressUpdater};
+use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
 use mullvad_update::api::Version;
 use mullvad_update::{
     api::{self, VersionInfoProvider},
-    app::{self, AppDownloaderFactory, AppDownloaderParameters},
+    app::{self, AppDownloaderFactory},
 };
 
 use std::future::Future;
@@ -45,10 +45,8 @@ impl AppController {
     where
         Delegate: AppDelegate + 'static,
         VersionProvider: VersionInfoProvider + 'static,
-        DownloaderFactory: AppDownloaderFactory<
-                SigProgress = UiProgressUpdater<Delegate>,
-                AppProgress = UiProgressUpdater<Delegate>,
-            > + 'static,
+        DownloaderFactory:
+            AppDownloaderFactory<Parameters = UiAppDownloaderParameters<Delegate>> + 'static,
     {
         delegate.hide_download_progress();
         delegate.show_download_button();
@@ -114,10 +112,8 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
     mut rx: mpsc::Receiver<TaskMessage>,
 ) where
     Delegate: AppDelegate + 'static,
-    DownloaderFactory: AppDownloaderFactory<
-        SigProgress = UiProgressUpdater<Delegate>,
-        AppProgress = UiProgressUpdater<Delegate>,
-    >,
+    DownloaderFactory:
+        AppDownloaderFactory<Parameters = UiAppDownloaderParameters<Delegate>> + 'static,
 {
     let mut version_info = None;
     let mut active_download = None;
@@ -162,7 +158,7 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
                     self_.enable_cancel_button();
                     self_.show_download_progress();
 
-                    let downloader = DownloaderFactory::new_downloader(AppDownloaderParameters {
+                    let downloader = DownloaderFactory::new_downloader(UiAppDownloaderParameters {
                         signature_url: signature_url.to_owned(),
                         app_url: app_url.to_owned(),
                         app_size,
@@ -185,7 +181,10 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
                 let _ = active_download.await;
 
                 let (version_label, has_beta) = if let Some(version_info) = &version_info {
-                    (format_latest_version(&version_info.stable), version_info.beta.is_some())
+                    (
+                        format_latest_version(&version_info.stable),
+                        version_info.beta.is_some(),
+                    )
                 } else {
                     ("".to_owned(), false)
                 };

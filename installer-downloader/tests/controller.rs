@@ -1,12 +1,11 @@
 //! Tests for integrations between UI controller and other components
 
 use installer_downloader::controller::AppController;
-use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, UiProgressUpdater};
+use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
 use installer_downloader::resource;
+use installer_downloader::ui_downloader::UiAppDownloaderParameters;
 use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider};
-use mullvad_update::app::{
-    AppDownloader, AppDownloaderFactory, AppDownloaderParameters, DownloadError,
-};
+use mullvad_update::app::{AppDownloader, AppDownloaderFactory, DownloadError};
 use mullvad_update::fetch::ProgressUpdater;
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
@@ -31,54 +30,42 @@ impl VersionInfoProvider for FakeVersionInfoProvider {
     }
 }
 
-/// Creates an app downloader based on a few parameters:
-/// * SigSucceed - whether fetching the signature succeeds
-/// * ExeSucceed - whether fetching the app succeeds
-/// * VerifySucceed - whether verifying the signature succeeds
-pub struct FakeAppDownloaderFactory<
-    const SIG_SUCCEED: bool,
-    const EXE_SUCCEED: bool,
-    const VERIFY_SUCCEED: bool,
-> {}
-
 /// Downloader for which all steps immediately succeed
-pub type FakeAppDownloaderFactoryHappyPath = FakeAppDownloaderFactory<true, true, true>;
+pub type FakeAppDownloaderFactoryHappyPath = FakeAppDownloader<true, true, true>;
 
 /// Downloader for which all but the final verification step succeed
-pub type FakeAppDownloaderFactoryVerifyFail = FakeAppDownloaderFactory<true, true, false>;
+pub type FakeAppDownloaderFactoryVerifyFail = FakeAppDownloader<true, true, false>;
 
-impl<const SIG_SUCCEED: bool, const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool>
-    AppDownloaderFactory for FakeAppDownloaderFactory<SIG_SUCCEED, EXE_SUCCEED, VERIFY_SUCCEED>
+impl<const A: bool, const B: bool, const C: bool> AppDownloaderFactory
+    for FakeAppDownloader<A, B, C>
 {
-    type Downloader = FakeAppDownloader<Self::SigProgress, Self::AppProgress>;
-    type SigProgress = UiProgressUpdater<FakeAppDelegate>;
-    type AppProgress = UiProgressUpdater<FakeAppDelegate>;
+    type Parameters = UiAppDownloaderParameters<FakeAppDelegate>;
 
-    fn new_downloader(
-        params: AppDownloaderParameters<Self::SigProgress, Self::AppProgress>,
-    ) -> Self::Downloader {
-        FakeAppDownloader {
-            params,
-            sig_succeed: SIG_SUCCEED,
-            exe_succeed: EXE_SUCCEED,
-            verify_succeed: VERIFY_SUCCEED,
-        }
+    fn new_downloader(params: Self::Parameters) -> Self {
+        FakeAppDownloader { params }
     }
 }
 
-pub struct FakeAppDownloader<SigProgress, AppProgress> {
-    params: AppDownloaderParameters<SigProgress, AppProgress>,
-    sig_succeed: bool,
-    exe_succeed: bool,
-    verify_succeed: bool,
+/// Fake app downloader
+///
+/// Parameters:
+/// * SIG_SUCCEED - whether fetching the signature succeeds
+/// * EXE_SUCCEED - whether fetching the binary succeeds
+/// * VERIFY_SUCCEED - whether verifying the signature succeeds
+pub struct FakeAppDownloader<
+    const SIG_SUCCEED: bool,
+    const EXE_SUCCEED: bool,
+    const VERIFY_SUCCEED: bool,
+> {
+    params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
 #[async_trait::async_trait]
-impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
-    for FakeAppDownloader<SigProgress, AppProgress>
+impl<const SIG_SUCCEED: bool, const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> AppDownloader
+    for FakeAppDownloader<SIG_SUCCEED, EXE_SUCCEED, VERIFY_SUCCEED>
 {
     async fn download_signature(&mut self) -> Result<(), DownloadError> {
-        if self.sig_succeed {
+        if SIG_SUCCEED {
             self.params.sig_progress.set_url(&self.params.signature_url);
             self.params.sig_progress.set_progress(1.);
             Ok(())
@@ -90,7 +77,7 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
     }
 
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
-        if self.exe_succeed {
+        if EXE_SUCCEED {
             self.params.app_progress.set_url(&self.params.app_url);
             self.params.app_progress.set_progress(1.);
             Ok(())
@@ -102,7 +89,7 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
     }
 
     async fn verify(&mut self) -> Result<(), DownloadError> {
-        if self.verify_succeed {
+        if VERIFY_SUCCEED {
             Ok(())
         } else {
             Err(DownloadError::Verification(anyhow::anyhow!(
