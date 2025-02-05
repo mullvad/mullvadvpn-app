@@ -320,7 +320,6 @@ fun VpnSettingsScreen(
         ) {
             if (state.systemVpnSettingsAvailable) {
                 item {
-                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                     NavigationComposeCell(
                         title = stringResource(id = R.string.auto_connect_and_lockdown_mode),
                         onClick = { navigateToAutoConnectScreen() },
@@ -333,7 +332,6 @@ fun VpnSettingsScreen(
                 }
             } else {
                 item {
-                    Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                     HeaderSwitchComposeCell(
                         title = stringResource(R.string.connect_on_start),
                         isToggled = state.autoStartAndConnectOnBoot,
@@ -350,7 +348,6 @@ fun VpnSettingsScreen(
             }
 
             item {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
                 HeaderSwitchComposeCell(
                     title = stringResource(R.string.local_network_sharing),
                     isToggled = state.isLocalNetworkSharingEnabled,
@@ -358,7 +355,7 @@ fun VpnSettingsScreen(
                     onCellClicked = { newValue -> onToggleLocalNetworkSharing(newValue) },
                     onInfoClicked = navigateToLocalNetworkSharingInfo,
                 )
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }
 
             itemWithDivider {
@@ -443,7 +440,7 @@ fun VpnSettingsScreen(
                                     start = Dimens.cellStartPadding,
                                     top = topPadding,
                                     end = Dimens.cellEndPadding,
-                                    bottom = Dimens.cellLabelVerticalPadding,
+                                    bottom = Dimens.cellVerticalSpacing,
                                 )
                         )
                     }
@@ -497,7 +494,7 @@ fun VpnSettingsScreen(
                             start = Dimens.cellStartPadding,
                             top = topPadding,
                             end = Dimens.cellEndPadding,
-                            bottom = Dimens.cellLabelVerticalPadding,
+                            bottom = Dimens.cellVerticalSpacing,
                         ),
                 )
             }
@@ -588,7 +585,7 @@ fun VpnSettingsScreen(
             }
 
             itemWithDivider {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
                 InformationComposeCell(
                     title = stringResource(R.string.obfuscation_title),
                     onInfoClicked = navigateToObfuscationInfo,
@@ -633,7 +630,7 @@ fun VpnSettingsScreen(
             }
 
             itemWithDivider {
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
                 InformationComposeCell(
                     title = stringResource(R.string.quantum_resistant_title),
                     onInfoClicked = navigateToQuantumResistanceInfo,
@@ -662,16 +659,13 @@ fun VpnSettingsScreen(
                     isSelected = state.quantumResistant == QuantumResistantState.Off,
                     onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) },
                 )
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }
 
             item {
                 MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
             }
-            item {
-                MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG))
-                Spacer(modifier = Modifier.height(Dimens.cellLabelVerticalPadding))
-            }
+            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
 
             item { ServerIpOverrides(navigateToServerIpOverrides) }
         }
