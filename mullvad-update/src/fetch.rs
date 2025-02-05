@@ -443,4 +443,51 @@ mod test {
 
         Ok((begin, end))
     }
+
+    /// Make sure unexpectedly large files are rejected
+    #[tokio::test]
+    async fn test_nefarious_sizes() -> anyhow::Result<()> {
+        // Head length is too large
+        let mut server = mockito::Server::new_async().await;
+        let file_url = format!("{}/my_file", server.url());
+        server
+            .mock("HEAD", "/my_file")
+            .with_header(CONTENT_LENGTH, "2")
+            .create();
+
+        get_to_writer(
+            Cursor::new(vec![]),
+            &file_url,
+            &mut FakeProgressUpdater::default(),
+            SizeHint::Exact(1),
+        )
+        .await
+        .expect_err("Reject unexpected content length");
+
+        // Malicious range response
+        // Serve the entire file rather than the requested range
+        let file_data = vec![0u8; 2 * RangeIter::CHUNK_SIZE];
+
+        let mut server = mockito::Server::new_async().await;
+        let file_url = format!("{}/my_file", server.url());
+        server
+            .mock("HEAD", "/my_file")
+            .with_header(CONTENT_LENGTH, &file_data.len().to_string())
+            .create();
+        server
+            .mock("GET", "/my_file")
+            .with_body(&file_data)
+            .create();
+
+        get_to_writer(
+            Cursor::new(vec![]),
+            &file_url,
+            &mut FakeProgressUpdater::default(),
+            SizeHint::Exact(file_data.len()),
+        )
+        .await
+        .expect_err("Reject unexpected chunk sizes");
+
+        Ok(())
+    }
 }
