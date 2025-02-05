@@ -59,9 +59,6 @@ on:
 
 permissions: {}
 
-env:
-  E2E_TEST_INFRA_FLAVOR: ${{ github.event.inputs.e2e_tests_infra_flavor || 'stagemole' }}
-
 jobs:
   prepare:
     name: Prepare
@@ -79,8 +76,17 @@ jobs:
         if: ${{ github.event.inputs.override_container_image == '' }}
         run: |
           echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+
+      # Preparing variables this way instead of using `env.*` due to:
+      # https://github.com/orgs/community/discussions/26388
+      - name: Prepare environment variables
+        run: |
+          echo "INNER_E2E_TEST_INFRA_FLAVOR=${{ github.event.inputs.e2e_tests_infra_flavor || 'stagemole' }}" >> $GITHUB_ENV
+          echo "INNER_E2E_TEST_REPEAT=${{ github.event.inputs.e2e_test_repeat || 0 }}" >> $GITHUB_ENV
     outputs:
       container_image: ${{ env.inner_container_image }}
+      E2E_TEST_INFRA_FLAVOR: ${{ env.INNER_E2E_TEST_INFRA_FLAVOR }}
+      E2E_TEST_REPEAT: ${{ env.INNER_E2E_TEST_REPEAT }}
 
   build-native:
     name: Build native # Used by wait for jobs.
@@ -272,7 +278,7 @@ jobs:
       - name: Build stagemole app
         uses: burrunan/gradle-cache-action@v1
         if: >
-          (github.event.inputs.e2e_test_repeat != '0' && env.E2E_TEST_INFRA_FLAVOR == 'stagemole') ||
+          (needs.prepare.outputs.E2E_TEST_REPEAT != '0' && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole') ||
           github.event.inputs.run_firebase_tests == 'true'
         with:
           job-id: jdk17
@@ -426,14 +432,14 @@ jobs:
     name: Run instrumented e2e tests
     # Temporary workaround for targeting the runner android-runner-v1
     runs-on: [self-hosted, android-device, android-emulator]
+    needs: [prepare, build-app, build-instrumented-tests]
     if: >
       github.event_name == 'schedule' ||
-      (github.event.inputs.e2e_test_repeat != '0' && github.event_name != 'pull_request')
-    needs: [build-app, build-instrumented-tests]
+      (github.event_name != 'pull_request' && needs.prepare.outputs.E2E_TEST_REPEAT != '0')
     strategy:
       matrix:
         include:
-          - test-repeat: ${{ github.event.inputs.e2e_test_repeat || 1 }}
+          - test-repeat: ${{ needs.prepare.outputs.E2E_TEST_REPEAT || 1 }}
     steps:
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
@@ -474,12 +480,12 @@ jobs:
         env:
           AUTO_FETCH_TEST_HELPER_APKS: true
           TEST_TYPE: e2e
-          BILLING_FLAVOR: ${{ env.E2E_TEST_INFRA_FLAVOR == 'prod' && 'oss' || 'play' }}
-          INFRA_FLAVOR: ${{ env.E2E_TEST_INFRA_FLAVOR }}
+          BILLING_FLAVOR: ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod' && 'oss' || 'play' }}
+          INFRA_FLAVOR: "${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR }}"
           PARTNER_AUTH: |-
-            ${{ env.E2E_TEST_INFRA_FLAVOR == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
+            ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
           VALID_TEST_ACCOUNT_NUMBER: |-
-            ${{ env.E2E_TEST_INFRA_FLAVOR == 'prod' && secrets.ANDROID_PROD_TEST_ACCOUNT || '' }}
+            ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod' && secrets.ANDROID_PROD_TEST_ACCOUNT || '' }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
@@ -489,7 +495,7 @@ jobs:
       - name: Upload e2e instrumentation report
         uses: actions/upload-artifact@v4
         if: >
-          always() && matrix.test-repeat != 0 && env.E2E_TEST_INFRA_FLAVOR == 'stagemole'
+          always() && matrix.test-repeat != 0 && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole'
         with:
           name: e2e-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
