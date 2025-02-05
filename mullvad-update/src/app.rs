@@ -83,9 +83,7 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloaderFa
 {
     type Parameters = AppDownloaderParameters<SigProgress, AppProgress>;
 
-    fn new_downloader(
-        parameters: Self::Parameters,
-    ) -> Self
+    fn new_downloader(parameters: Self::Parameters) -> Self
     where
         Self: Sized,
     {
