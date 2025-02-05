@@ -12,6 +12,7 @@ PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
 PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 
 source $REPO_ROOT/scripts/utils/print-and-run
+source $REPO_ROOT/scripts/utils/log
 
 function push_tag {
     product_version=$(echo -n "$PRODUCT_VERSION")
