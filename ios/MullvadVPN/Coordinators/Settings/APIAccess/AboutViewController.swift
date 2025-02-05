@@ -57,7 +57,7 @@ class AboutViewController: UIViewController {
 
             label.text = header
             label.font = .systemFont(ofSize: 28, weight: .bold)
-            label.textColor = .white
+            label.textColor = .primaryTextColor
             label.numberOfLines = 0
             label.textAlignment = .center
 
@@ -70,7 +70,7 @@ class AboutViewController: UIViewController {
 
             label.text = preamble
             label.font = .systemFont(ofSize: 18)
-            label.textColor = .white
+            label.textColor = .primaryTextColor
             label.numberOfLines = 0
             label.textAlignment = .center
 
@@ -83,7 +83,7 @@ class AboutViewController: UIViewController {
 
             label.text = text
             label.font = .systemFont(ofSize: 15)
-            label.textColor = .white
+            label.textColor = .secondaryTextColor
             label.numberOfLines = 0
 
             contentView.addArrangedSubview(label)

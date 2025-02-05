@@ -52,7 +52,7 @@ extension IPOverrideCoordinator: @preconcurrency IPOverrideViewControllerDelegat
         let header = NSLocalizedString(
             "IP_OVERRIDE_HEADER",
             tableName: "IPOverride",
-            value: "IP Override",
+            value: "Server IP override",
             comment: ""
         )
         let body = [
