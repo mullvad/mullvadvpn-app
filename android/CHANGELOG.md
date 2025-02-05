@@ -22,8 +22,13 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+- Disable Wireguard port setting when a obfuscation is selected since it is not used when an 
+  obfuscation is applied.
+
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
+
 
 ## [android/2024.10-beta2] - 2024-12-20
 
