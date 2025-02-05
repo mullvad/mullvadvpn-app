@@ -10,7 +10,31 @@ PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
 PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
 
 $REPO_ROOT/scripts/utils/gh-ready-check
+source $REPO_ROOT/scripts/utils/log
 
+function verify_repository_versions {
+  print_versions_args=( --staging )
+
+  if [[ "$PRODUCT_VERSION" == *-beta* ]]; then
+    print_versions_args+=( --beta )
+  fi
+
+  ./print-package-versions "${print_versions_args[@]}"
+  read -r -n 1 -p "Does the versions look correct? (y/N): " response
+  printf "\n\n"
+
+  if [[ "$response" =~ ^[Yy]$ ]]; then
+      return
+  elif [[ "$response" =~ ^[Nn]$ ]]; then
+      log_info "Aborting"
+      exit 1
+  else
+      log_error "Invalid response"
+      exit 1
+  fi
+}
+
+verify_repository_versions
 gh workflow run desktop-e2e.yml --ref "$PRODUCT_VERSION" \
     -f oses="fedora41 ubuntu2404 windows11 macos15" \
     -f tests="test_quantum_resistant_tunnel test_ui_tunnel_settings"
