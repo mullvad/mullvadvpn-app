@@ -62,49 +62,40 @@ fn to_semver(version: &str) -> String {
 /// Version: 2021.34-dev
 /// versionCode: 21349000
 fn to_android_version_code(version: &str) -> String {
-    let version = Version::parse(version);
+    let version: Version = version.parse().unwrap();
 
     let (build_type, build_number) = if version.dev.is_some() {
-        ("9", "000")
+        ("9", "000".to_string())
     } else {
         match &version.pre_stable {
-            Some(PreStableType::Alpha(v)) => ("0", v.as_str()),
-            Some(PreStableType::Beta(v)) => ("1", v.as_str()),
+            Some(PreStableType::Alpha(v)) => ("0", v.to_string()),
+            Some(PreStableType::Beta(v)) => ("1", v.to_string()),
             // Stable version
-            None => ("9", "000"),
+            None => ("9", "000".to_string()),
         }
     };
 
+    let year_last_two_digits = version.year % 100;
+
     format!(
         "{}{:0>2}{}{:0>3}",
-        version.year, version.incremental, build_type, build_number,
+        year_last_two_digits, version.incremental, build_type, build_number,
     )
 }
 
 fn to_windows_h_format(version_str: &str) -> String {
-    let version = Version::parse(version_str);
-    assert!(
-        is_valid_windows_version(&version),
-        "Invalid Windows version: {version:?}"
-    );
+    let version = version_str.parse().unwrap();
 
     let Version {
         year, incremental, ..
     } = version;
 
     format!(
-        "#define MAJOR_VERSION 20{year}
+        "#define MAJOR_VERSION {year}
 #define MINOR_VERSION {incremental}
 #define PATCH_VERSION 0
 #define PRODUCT_VERSION \"{version_str}\""
     )
-}
-
-/// On Windows we currently support the following versions: stable, beta and dev.
-fn is_valid_windows_version(version: &Version) -> bool {
-    version.is_stable()
-        || version.beta().is_some()
-        || (version.dev.is_some() && version.alpha().is_none())
 }
 
 #[cfg(test)]
@@ -132,8 +123,12 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
-    fn test_invalid_windows_version_code() {
-        to_windows_h_format("2021.34-alpha1");
+    fn test_windows_version_h() {
+        let version_h = to_windows_h_format("2025.4-beta2-dev-abcdef");
+        let expected_version_h = "#define MAJOR_VERSION 2025
+#define MINOR_VERSION 4
+#define PATCH_VERSION 0
+#define PRODUCT_VERSION \"2025.4-beta2-dev-abcdef\"";
+        assert_eq!(expected_version_h, version_h);
     }
 }
