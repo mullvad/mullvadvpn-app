@@ -82,7 +82,7 @@ impl ConnectivityListener {
         };
 
         Ok(ConnectivityListener {
-            jvm: android_context.clone().jvm,
+            jvm: android_context.jvm,
             android_listener,
         })
     }
@@ -98,18 +98,16 @@ impl ConnectivityListener {
 
     /// Return the current offline/connectivity state
     pub fn connectivity(&self) -> Connectivity {
-        self.get_is_connected()
-            .map(|(ipv4, ipv6)| Connectivity::Status { ipv4, ipv6 })
-            .unwrap_or_else(|error| {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to check connectivity status")
-                );
-                Connectivity::PresumeOnline
-            })
+        self.get_is_connected().unwrap_or_else(|error| {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to check connectivity status")
+            );
+            Connectivity::PresumeOnline
+        })
     }
 
-    fn get_is_connected(&self) -> Result<(bool, bool), Error> {
+    fn get_is_connected(&self) -> Result<Connectivity, Error> {
         let env = JnixEnv::from(
             self.jvm
                 .attach_current_thread_as_daemon()
@@ -120,26 +118,14 @@ impl ConnectivityListener {
             .call_method(
                 self.android_listener.as_obj(),
                 "isConnected",
-                "()Lnet/mullvad/talpid/model/ConnectionStatus;",
+                "()Lnet/mullvad/talpid/model/Connectivity;",
                 &[],
             )
             .expect("Missing isConnected")
             .l()
             .expect("isConnected is not an object");
 
-        let ipv4 = env
-            .call_method(is_connected, "component1", "()Z", &[])
-            .expect("Missing ConnectionStatus.ipv4")
-            .z()
-            .expect("ipv4 is not a boolean");
-
-        let ipv6 = env
-            .call_method(is_connected, "component2", "()Z", &[])
-            .expect("Missing ConnectionStatus.ipv6")
-            .z()
-            .expect("ipv6 is not a boolean");
-
-        Ok((ipv4, ipv6))
+        Ok(Connectivity::from_java(&env, is_connected))
     }
 
     /// Return the current DNS servers according to Android
@@ -183,13 +169,13 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
         return;
     };
 
-    let isIPv4 = JNI_TRUE == is_ipv4;
-    let isIPv6 = JNI_TRUE == is_ipv6;
+    let is_ipv4 = JNI_TRUE == is_ipv4;
+    let is_ipv6 = JNI_TRUE == is_ipv6;
 
     if tx
         .unbounded_send(Connectivity::Status {
-            ipv4: isIPv4,
-            ipv6: isIPv6,
+            ipv4: is_ipv4,
+            ipv6: is_ipv6,
         })
         .is_err()
     {
