@@ -1,4 +1,5 @@
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
+use jnix::FromJava;
 use obfuscation::ObfuscatorConfig;
 use serde::{Deserialize, Serialize};
 #[cfg(windows)]
@@ -564,7 +565,8 @@ pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
 ///
 /// Information about the host's connectivity, such as the preesence of
 /// configured IPv4 and/or IPv6.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, FromJava)]
+#[jnix(package = "net.mullvad.talpid.model")]
 pub enum Connectivity {
     Status {
         /// Whether IPv4 connectivity seems to be available on the host.
