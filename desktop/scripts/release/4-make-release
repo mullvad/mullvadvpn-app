@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script downloads the build artifacts along with the signatures, verifies the signatures and
+# creates a GitHub draft release. This should be run after `3-verify-build`.
+
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"

@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script controls that the gh (GitHub CLI) command is installed and authenticated. This can be
+# called in the beginning of all scripts depending on gh.
+
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
