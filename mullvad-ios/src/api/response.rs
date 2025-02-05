@@ -36,7 +36,7 @@ impl SwiftMullvadApiResponse {
         })
     }
 
-    pub fn error() -> Self {
+    pub fn error(err: mullvad_api::rest::Error) -> Self {
         Self {
             body: null_mut(),
             body_size: 0,
@@ -48,9 +48,6 @@ impl SwiftMullvadApiResponse {
         }
     }
 
-    pub fn retryable_error() -> Self {
-        unimplemented!()
-    }
 
     pub fn cancelled() -> Self {
         Self {
