@@ -65,19 +65,21 @@ fn to_android_version_code(version: &str) -> String {
     let version = Version::parse(version);
 
     let (build_type, build_number) = if version.dev.is_some() {
-        ("9", "000")
+        ("9", "000".to_string())
     } else {
         match &version.pre_stable {
-            Some(PreStableType::Alpha(v)) => ("0", v.as_str()),
-            Some(PreStableType::Beta(v)) => ("1", v.as_str()),
+            Some(PreStableType::Alpha(v)) => ("0", v.to_string()),
+            Some(PreStableType::Beta(v)) => ("1", v.to_string()),
             // Stable version
-            None => ("9", "000"),
+            None => ("9", "000".to_string()),
         }
     };
 
+    let decade_and_year = version.year % 2000;
+
     format!(
         "{}{:0>2}{}{:0>3}",
-        version.year, version.incremental, build_type, build_number,
+        decade_and_year, version.incremental, build_type, build_number,
     )
 }
 
@@ -93,7 +95,7 @@ fn to_windows_h_format(version_str: &str) -> String {
     } = version;
 
     format!(
-        "#define MAJOR_VERSION 20{year}
+        "#define MAJOR_VERSION {year}
 #define MINOR_VERSION {incremental}
 #define PATCH_VERSION 0
 #define PRODUCT_VERSION \"{version_str}\""
