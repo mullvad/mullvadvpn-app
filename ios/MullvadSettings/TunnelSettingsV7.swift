@@ -1,10 +1,11 @@
 //
-//  TunnelSettingsV7.swift
-//  MullvadSettings
+//  TunnelSettingsV6 2.swift
+//  MullvadVPN
 //
-//  Created by Marco Nikic on 2025-01-31.
+//  Created by Steffen Ernst on 2025-02-04.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
+
 
 import Foundation
 import MullvadTypes
@@ -27,8 +28,9 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
 
     /// DAITA settings.
     public var daita: DAITASettings
-
-    public var excludeLocalNetwork: Bool
+    
+    /// Local networks sharing.
+    public var localNetworkSharing: Bool
 
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
@@ -37,7 +39,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
         tunnelMultihopState: MultihopState = .off,
         daita: DAITASettings = DAITASettings(),
-        excludeLocalNetwork: Bool = false
+        localNetworkSharing: Bool = false
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -45,7 +47,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.tunnelQuantumResistance = tunnelQuantumResistance
         self.tunnelMultihopState = tunnelMultihopState
         self.daita = daita
-        self.excludeLocalNetwork = false
+        self.localNetworkSharing = localNetworkSharing
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
