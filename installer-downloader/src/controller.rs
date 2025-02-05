@@ -4,10 +4,9 @@ use crate::delegate::{AppDelegate, AppDelegateQueue};
 use crate::resource;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
-use mullvad_update::api::Version;
 use mullvad_update::{
-    api::{self, VersionInfoProvider},
-    app::{self, AppDownloaderFactory},
+    api::{self, Version, VersionInfoProvider},
+    app::{self, AppDownloader},
 };
 
 use std::future::Future;
@@ -25,8 +24,7 @@ pub struct AppController {}
 
 /// Public entry function for registering a [AppDelegate].
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    use mullvad_update::api::LatestVersionInfoProvider;
-    use mullvad_update::app::HttpAppDownloader;
+    use mullvad_update::{api::LatestVersionInfoProvider, app::HttpAppDownloader};
 
     // App downloader (factory) to use
     type DownloaderFactory<T> = HttpAppDownloader<UiProgressUpdater<T>, UiProgressUpdater<T>>;
@@ -41,12 +39,11 @@ impl AppController {
     ///
     /// Providing the downloader and version info fetcher as type arguments, they're decoupled from
     /// the logic of [AppController], allowing them to be mocked.
-    pub fn initialize<Delegate, DownloaderFactory, VersionProvider>(delegate: &mut Delegate)
+    pub fn initialize<D, A, V>(delegate: &mut D)
     where
-        Delegate: AppDelegate + 'static,
-        VersionProvider: VersionInfoProvider + 'static,
-        DownloaderFactory:
-            AppDownloaderFactory<Parameters = UiAppDownloaderParameters<Delegate>> + 'static,
+        D: AppDelegate + 'static,
+        V: VersionInfoProvider + 'static,
+        A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
     {
         delegate.hide_download_progress();
         delegate.show_download_button();
@@ -55,15 +52,9 @@ impl AppController {
         delegate.hide_beta_text();
 
         let (task_tx, task_rx) = mpsc::channel(1);
-        tokio::spawn(handle_action_messages::<Delegate, DownloaderFactory>(
-            delegate.queue(),
-            task_rx,
-        ));
+        tokio::spawn(handle_action_messages::<D, A>(delegate.queue(), task_rx));
         delegate.set_status_text(resource::FETCH_VERSION_DESC);
-        tokio::spawn(fetch_app_version_info::<Delegate, VersionProvider>(
-            delegate,
-            task_tx.clone(),
-        ));
+        tokio::spawn(fetch_app_version_info::<D, V>(delegate, task_tx.clone()));
         Self::register_user_action_callbacks(delegate, task_tx);
     }
 
@@ -107,13 +98,10 @@ where
 
 /// Async worker that handles actions such as initiating a download, cancelling it, and updating
 /// labels.
-async fn handle_action_messages<Delegate, DownloaderFactory>(
-    queue: Delegate::Queue,
-    mut rx: mpsc::Receiver<TaskMessage>,
-) where
-    Delegate: AppDelegate + 'static,
-    DownloaderFactory:
-        AppDownloaderFactory<Parameters = UiAppDownloaderParameters<Delegate>> + 'static,
+async fn handle_action_messages<D, A>(queue: D::Queue, mut rx: mpsc::Receiver<TaskMessage>)
+where
+    D: AppDelegate + 'static,
+    A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
 {
     let mut version_info = None;
     let mut active_download = None;
@@ -158,7 +146,7 @@ async fn handle_action_messages<Delegate, DownloaderFactory>(
                     self_.enable_cancel_button();
                     self_.show_download_progress();
 
-                    let downloader = DownloaderFactory::new_downloader(UiAppDownloaderParameters {
+                    let downloader = A::from(UiAppDownloaderParameters {
                         signature_url: signature_url.to_owned(),
                         app_url: app_url.to_owned(),
                         app_size,
