@@ -21,7 +21,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.plus
-import net.mullvad.talpid.model.ConnectionStatus
+import net.mullvad.talpid.model.Connectivity
 import net.mullvad.talpid.model.NetworkState
 import net.mullvad.talpid.util.IPAvailabilityUtils
 import net.mullvad.talpid.util.NetworkEvent
@@ -33,7 +33,7 @@ class ConnectivityListener(
     val connectivityManager: ConnectivityManager,
     val protect: (socket: DatagramSocket) -> Unit,
 ) {
-    private lateinit var _isConnected: StateFlow<ConnectionStatus>
+    private lateinit var _isConnected: StateFlow<Connectivity>
     // Used by JNI
     val isConnected
         get() = _isConnected.value
@@ -60,27 +60,26 @@ class ConnectivityListener(
                 .stateIn(scope, SharingStarted.Eagerly, null)
 
         _isConnected =
-            combine(_currentNetworkState, hasInternetCapability()) {
-                    linkPropertiesChanged: NetworkState,
+            combine(_currentNetworkState, hasInternetCapability()) { linkPropertiesChanged: NetworkState?,
                     hasInternetCapability: Boolean ->
                     if (hasInternetCapability) {
-                        ConnectionStatus(
+                        Connectivity.Status(
                                 IPAvailabilityUtils.isIPv4Available(protect = { protect(it) }),
                                 IPAvailabilityUtils.isIPv6Available(protect = { protect(it) }),
                             )
                             // If we have internet, but both IPv4 and IPv6 are not available, we
                             // assume something is wrong and instead
                             // will return both as available since this is the previous behavior.
-                            .takeUnless { !it.ipv4 && !it.ipv6 } ?: ConnectionStatus(true, true)
+                            .takeUnless { !it.ipv4 && !it.ipv6 } ?: Connectivity.Status(true, true)
                     } else {
-                        ConnectionStatus(false, false)
+                        Connectivity.Status(false, false)
                     }
                 }
                 .onEach { notifyConnectivityChange(it.ipv4, it.ipv6) }
                 .stateIn(
                     scope + Dispatchers.IO,
                     SharingStarted.Eagerly,
-                    ConnectionStatus(false, false),
+                    Connectivity.Status(false, false),
                 )
     }
 
