@@ -233,6 +233,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "async-tempfile"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acb90d9834a8015109afc79f1f548223a0614edcbab62fb35b62d4b707e975e7"
+dependencies = [
+ "tokio",
+]
+
+[[package]]
 name = "async-trait"
 version = "0.1.80"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3170,6 +3179,7 @@ name = "mullvad-update"
 version = "0.0.0"
 dependencies = [
  "anyhow",
+ "async-tempfile",
  "async-trait",
  "pgp",
  "reqwest",
