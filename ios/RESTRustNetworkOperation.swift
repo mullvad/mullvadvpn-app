@@ -13,13 +13,14 @@ import MullvadTypes
 import Operations
 
 extension REST {
-    typealias RustRequestFactory = ((((MullvadApiResponse) -> Void)?) -> AnyCancellable)
+    typealias RustRequestFactory = ((((MullvadApiResponse) throws -> Void)?) -> AnyCancellable)
 
     class RustNetworkOperation<Success: Sendable>: ResultOperation<Success>, @unchecked Sendable {
         private let logger: Logger
 
         private let requestFactory: RustRequestFactory
-        private let responseHandler: ProxyCompletionHandler<[AnyIPEndpoint]>
+        private var responseDecoder: JSONDecoder
+        private let responseHandler: any RESTRustResponseHandler<Success>
         private var networkTask: Cancellable?
 
         private let retryStrategy: RetryStrategy
@@ -32,11 +33,13 @@ extension REST {
             dispatchQueue: DispatchQueue,
             retryStrategy: RetryStrategy,
             requestFactory: @escaping RustRequestFactory,
-            responseHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>,
+            responseDecoder: JSONDecoder,
+            responseHandler: some RESTRustResponseHandler<Success>,
             completionHandler: CompletionHandler? = nil
         ) {
             self.retryStrategy = retryStrategy
             retryDelayIterator = retryStrategy.makeDelayIterator()
+            self.responseDecoder = responseDecoder
             self.requestFactory = requestFactory
             self.responseHandler = responseHandler
 
@@ -64,7 +67,7 @@ extension REST {
         }
 
         func startRequest() {
-//            dispatchPrecondition(condition: .onQueue(dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(dispatchQueue))
 
             guard !isCancelled else {
                 finish(result: .failure(OperationError.cancelled))
@@ -72,15 +75,51 @@ extension REST {
             }
 
             networkTask = requestFactory({ [weak self] response in
-                // TODO: if body is empty, we should still handle this as an error
-                guard let self, let body = response.body else { return }
+                guard let self else { return }
+
+                if let error = try response.restError(decoder: responseDecoder) {
+                    finish(result: .failure(error))
+                    return
+                }
+
                 // TODO: invoke the retry strategy if the request failed with a transport error, generally the response should contain enough information to make such a judgement call.
 
-                let decoder = JSONDecoder()
-                let decodedResponse = try! decoder.decode([AnyIPEndpoint].self, from: body)
+                let decodedResponse = responseHandler.handleResponse(response)
 
-                responseHandler(.success(decodedResponse))
+                switch decodedResponse {
+                case .success(let value):
+                    finish(result: .success(value))
+                case .decoding(let block):
+                    finish(result: .success(try block()))
+                case .unhandledResponse(let error):
+                    finish(result: .failure(REST.Error.unhandledResponse(Int(response.statusCode), error)))
+                }
             })
         }
     }
+}
+
+extension MullvadApiResponse {
+    // TODO: Construct all the real error types from Rust side.
+    public func restError(decoder: JSONDecoder) throws -> REST.Error? {
+        guard !success else {
+            return nil
+        }
+
+        guard let body else {
+            return .transport(RustTransportError.connectionFailed(description: errorDescription))
+        }
+
+        do {
+            let response = try decoder.decode(REST.ServerErrorResponse.self, from: body)
+            return .unhandledResponse(Int(statusCode), response)
+        } catch {
+            return .transport(RustTransportError.connectionFailed(description: errorDescription))
+        }
+    }
+}
+
+// TODO: Add all the things. Or remove and use a proper type.
+enum RustTransportError: Error {
+    case connectionFailed(description: String?)
 }
