@@ -6,7 +6,7 @@ use crate::{
     resource,
 };
 use mullvad_update::{
-    app::{self, AppDownloader},
+    app::{self, AppDownloader, AppDownloaderParameters},
     fetch,
 };
 
@@ -17,6 +17,10 @@ pub struct UiAppDownloader<Delegate: AppDelegate, Downloader> {
     /// Queue used to control the app UI
     queue: Delegate::Queue,
 }
+
+/// Parameters for [UiAppDownloader]
+pub type UiAppDownloaderParameters<Delegate> =
+    AppDownloaderParameters<UiProgressUpdater<Delegate>, UiProgressUpdater<Delegate>>;
 
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
     UiAppDownloader<Delegate, Downloader>
