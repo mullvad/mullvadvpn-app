@@ -1,0 +1,31 @@
+---
+source: installer-downloader/tests/controller.rs
+expression: delegate.state
+snapshot_kind: text
+---
+status_text: "Version: 2025.1"
+download_text: ""
+download_button_visible: false
+cancel_button_visible: true
+cancel_button_enabled: true
+download_button_enabled: true
+download_progress: 0
+download_progress_visible: true
+beta_text_visible: false
+call_log:
+  - hide_download_progress
+  - show_download_button
+  - disable_download_button
+  - hide_cancel_button
+  - hide_beta_text
+  - "set_status_text: Loading version details..."
+  - on_download
+  - on_cancel
+  - "set_status_text: Version: 2025.1"
+  - enable_download_button
+  - "set_download_text: "
+  - hide_download_button
+  - hide_beta_text
+  - show_cancel_button
+  - enable_cancel_button
+  - show_download_progress
