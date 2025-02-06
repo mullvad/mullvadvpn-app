@@ -1,0 +1,95 @@
+{
+    "signature": {
+        "keyid": "8B84D57D8E94DC03D9E3A17DA77358FD8BA21D2C65B0C63B580F32A79332F727",
+        "sig": "085672c70dffe26610e58542ee552843633cfed973abdad94c56138dbf0cd991644f2d3f27e4dda3098e08ab676e7f52627b587947ae69db1012d59a6da18e0c"
+    },
+    "signed": {
+        "expires": "2025-07-02T15:33:00Z",
+        "stable": {
+            "current": {
+                "version": "2025.1",
+                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
+                "installers": {
+                    "x86": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    },
+                    "arm64": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    }
+                }
+            },
+            "next": {
+                "rollout": 0.3,
+                "version": "2025.1",
+                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
+                "installers": {
+                    "x86": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    },
+                    "arm64": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    }
+                }
+            }
+        },
+        "beta": {
+            "current": {
+                "version": "2025.1-beta1",
+                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
+                "installers": {
+                    "x86": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    },
+                    "arm64": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    }
+                }
+            },
+            "next": {
+                "rollout": 0.3,
+                "version": "2025.1-beta1",
+                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
+                "installers": {
+                    "x86": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    },
+                    "arm64": {
+                        "urls": [
+                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
+                        ],
+                        "size": 123456789,
+                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
+                    }
+                }
+            }
+        }
+    }
+}

@@ -2,5 +2,6 @@
 
 pub mod api;
 pub mod app;
+mod deserializer;
 pub mod fetch;
 pub mod verify;
