@@ -31,7 +31,10 @@ extension REST {
     public static let defaultAPINetworkTimeout: Duration = .seconds(10)
 
     /// API context used for API requests via Rust runtime.
-    public static let apiContext = try! MullvadApiContext(host: defaultAPIHostname, address: defaultAPIEndpoint.description)
+    public static let apiContext = try! MullvadApiContext(
+        host: defaultAPIHostname,
+        address: defaultAPIEndpoint.description
+    )
 }
 
 // swiftlint:enable force_cast
