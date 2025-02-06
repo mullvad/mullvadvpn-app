@@ -17,4 +17,6 @@ jobs:
       actions: read
 
     # yamllint disable rule:line-length
-    uses: "google/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@19ec1116569a47416e11a45848722b1af31a857b"  # v1.9.0
+    uses: "mullvad/osv-scanner-action/.github/workflows/osv-scanner-reusable-pr.yml@026fdd7a38cecb41f8e8a00c56e48feb9bea47fc"  # v1.9.0
+    with:
+      checkout-submodules: true
