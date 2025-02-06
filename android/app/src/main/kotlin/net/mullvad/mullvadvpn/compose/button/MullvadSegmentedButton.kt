@@ -54,7 +54,7 @@ private fun SingleChoiceSegmentedButtonRowScope.MullvadSegmentedButton(
             Text(
                 text = text,
                 textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleMedium,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
             )
