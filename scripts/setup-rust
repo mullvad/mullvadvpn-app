@@ -1,0 +1,92 @@
+#!/usr/bin/env bash
+#
+# Installs the default toolchains and components for different platforms.
+# To use this script rustup must be installed first.
+
+set -eu
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR/.."
+
+source scripts/utils/log
+
+ANDROID_TARGETS="x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi"
+ANDROID_COMPONENTS="rust-analyzer"
+
+DESKTOP_TARGETS="x86_64-pc-windows-msvc x86_64-pc-windows-gnu i686-pc-windows-msvc"
+DESKTOP_COMPONENTS="rust-analyzer"
+
+IOS_TARGETS="aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios"
+IOS_COMPONENTS="rust-analyzer"
+
+function main {
+    if [[ $# -eq 0 ]]; then
+        print_usage
+        exit 1
+    fi
+
+    case "$1" in
+    "android")
+        setup "Android" "$ANDROID_TARGETS" "$ANDROID_COMPONENTS"
+        ;;
+    "desktop")
+        setup "Desktop" "$DESKTOP_TARGETS" "$DESKTOP_COMPONENTS"
+        ;;
+    "ios")
+        setup "Android" "$IOS_TARGETS" "$IOS_COMPONENTS"
+        ;;
+    "install-hook")
+        install_hook
+        ;;
+    "--help")
+        print_usage
+        exit 0
+        ;;
+    *)
+        log_error "Invalid argument: \`$1\`"
+        print_usage
+        exit 1
+        ;;
+    esac
+}
+
+function print_usage {
+    log "Setup default Rust targets and components for different platforms"
+    log ""
+    log "Usage: setup-rust android|desktop|ios|install-hook"
+    log "  android                    Run Android-specific setup"
+    log "  desktop                    Run Desktop-specific setup"
+    log "  ios                        Run iOS-specific setup"
+    log "  install-hook               Copies the setup-rust-post-checkout file to .git/hooks/post-checkout"
+}
+
+function setup {
+    local platform=$1
+    local targets=$2
+    local components=$3
+
+    log "Installing default Rust targets/components"
+    log "platform: $platform"
+    log "targets: $targets"
+    log "components: $components"
+    # shellcheck disable=SC2086
+    rustup target add $targets
+    # shellcheck disable=SC2086
+    rustup component add $components
+}
+
+function install_hook {
+    local hook=$SCRIPT_DIR/../.git/hooks/post-checkout
+    if [[ -f "$hook" ]]; then
+        log_error "$(realpath "$hook") file already exists - will not overwrite"
+        exit 1
+    else
+        cp "$SCRIPT_DIR/setup-rust-post-checkout" "$hook"
+        chmod +x "$hook"
+        log "Hook installed. You must now set the environment variable MULLVAD_SETUP_PLATFORM to "
+        log "\`android\`, \`desktop\` or \`ios\` in your shell environment."
+    fi
+}
+
+# Run script
+main "$@"

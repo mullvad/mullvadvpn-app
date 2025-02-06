@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+#
+# To install the hook copy this file to `.git/hooks/post-checkout` or run
+# scripts/setup-rust install_hook
+
+set -u
+
+# Set to "android", "desktop", or "ios".
+MULLVAD_SETUP_PLATFORM="${MULLVAD_SETUP_PLATFORM:-}"
+
+SETUP_RUST_SCRIPT="scripts/setup-rust"
+
+if [[ ! -f "$SETUP_RUST_SCRIPT" ]]; then
+    exit 0
+fi
+
+if [[ -z ${MULLVAD_SETUP_PLATFORM+x} ]]; then
+    echo "MULLVAD_SETUP_PLATFORM is not set, must be set to " >&2
+    echo "\`android\`, \`desktop\` or \`ios\`" >&2
+    exit 1
+fi
+
+git diff-tree --exit-code "$1".."$2" --quiet -- rust-toolchain.toml
+
+# Exit code 1 means there was a change, 0 means no change.
+if [[ $? -eq 1 ]]; then
+    $SETUP_RUST_SCRIPT "$MULLVAD_SETUP_PLATFORM"
+fi
