@@ -31,6 +31,13 @@ class BaseUITestCase: XCTestCase {
     /// Default relay to use in tests
     static let testsDefaultRelayName = "se-got-wg-001"
 
+    /// True when the current test case is capturing packets
+    private var currentTestCaseShouldCapturePackets = false
+
+    /// True when a packet capture session is active
+    private var packetCaptureSessionIsActive = false
+    private var packetCaptureSession: PacketCaptureSession?
+
     // swiftlint:disable force_cast
     let displayName = Bundle(for: BaseUITestCase.self)
         .infoDictionary?["DisplayName"] as! String
@@ -90,7 +97,7 @@ class BaseUITestCase: XCTestCase {
 
     /// Create temporary account without time. Will be created using partner API if token is configured, else falling back to app API
     func createTemporaryAccountWithoutTime() -> String {
-        if let partnerApiToken {
+        if partnerApiToken != nil {
             let partnerAPIClient = PartnerAPIClient()
             return partnerAPIClient.createAccount()
         } else {
@@ -136,7 +143,7 @@ class BaseUITestCase: XCTestCase {
         let springboard = XCUIApplication(bundleIdentifier: "com.apple.springboard")
 
         if springboard.buttons["Allow"].waitForExistence(timeout: Self.shortTimeout) {
-            let alertAllowButton = springboard.buttons.element(boundBy: 0)
+            let alertAllowButton = springboard.buttons["Allow"]
             if alertAllowButton.waitForExistence(timeout: Self.defaultTimeout) {
                 alertAllowButton.tap()
             }
@@ -160,6 +167,29 @@ class BaseUITestCase: XCTestCase {
         }
     }
 
+    /// Start packet capture for this test case
+    func startPacketCapture() {
+        currentTestCaseShouldCapturePackets = true
+        packetCaptureSessionIsActive = true
+        let packetCaptureClient = PacketCaptureClient()
+        packetCaptureSession = packetCaptureClient.startCapture()
+    }
+
+    /// Stop the current packet capture and return captured traffic
+    func stopPacketCapture() -> [Stream] {
+        packetCaptureSessionIsActive = false
+        guard let packetCaptureSession else {
+            XCTFail("Trying to stop capture when there is no active capture")
+            return []
+        }
+
+        let packetCaptureAPIClient = PacketCaptureClient()
+        packetCaptureAPIClient.stopCapture(session: packetCaptureSession)
+        let capturedData = packetCaptureAPIClient.getParsedCaptureObjects(session: packetCaptureSession)
+
+        return capturedData
+    }
+
     // MARK: - Setup & teardown
 
     /// Override this class function to change the uninstall behaviour in suite level teardown
@@ -176,12 +206,42 @@ class BaseUITestCase: XCTestCase {
 
     /// Test level setup
     override func setUp() {
+        currentTestCaseShouldCapturePackets = false // Reset for each test case run
         continueAfterFailure = false
         app.launch()
     }
 
     /// Test level teardown
     override func tearDown() {
+        if currentTestCaseShouldCapturePackets {
+            guard let packetCaptureSession = packetCaptureSession else {
+                XCTFail("Packet capture session unexpectedly not set up")
+                return
+            }
+
+            let packetCaptureClient = PacketCaptureClient()
+
+            // If there's a an active session due to cancelled/failed test run make sure to end it
+            if packetCaptureSessionIsActive {
+                packetCaptureSessionIsActive = false
+                packetCaptureClient.stopCapture(session: packetCaptureSession)
+            }
+
+            let pcapFileContents = packetCaptureClient.getPCAP(session: packetCaptureSession)
+            let parsedCapture = packetCaptureClient.getParsedCapture(session: packetCaptureSession)
+            self.packetCaptureSession = nil
+
+            let pcapAttachment = XCTAttachment(data: pcapFileContents)
+            pcapAttachment.name = self.name + ".pcap"
+            pcapAttachment.lifetime = .keepAlways
+            self.add(pcapAttachment)
+
+            let jsonAttachment = XCTAttachment(data: parsedCapture)
+            jsonAttachment.name = self.name + ".json"
+            jsonAttachment.lifetime = .keepAlways
+            self.add(jsonAttachment)
+        }
+
         app.terminate()
 
         if let testRun = self.testRun, testRun.failureCount > 0, attachAppLogsOnFailure == true {
@@ -341,4 +401,5 @@ class BaseUITestCase: XCTestCase {
             XCTFail("Failed to find 'Delete'")
         }
     }
+    // swiftlint:disable:next file_length
 }
