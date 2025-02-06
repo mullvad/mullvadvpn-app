@@ -78,6 +78,8 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     /// Last processed device check.
     private var lastPacketTunnelKeyRotation: Date?
 
+    private var observer: TunnelObserver?
+
     // MARK: - Initialization
 
     init(
@@ -251,7 +253,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         operationQueue.addOperation(operation)
     }
 
-    func stopTunnel(completionHandler: ((Error?) -> Void)? = nil) {
+    func stopTunnel(disableOnDemand: Bool = true, completionHandler: ((Error?) -> Void)? = nil) {
         let operation = StopTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self)
@@ -273,7 +275,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
 
             completionHandler?(result.error)
         }
-
+        operation.disableOnDemand = disableOnDemand
         operation.addObserver(BackgroundObserver(
             backgroundTaskProvider: backgroundTaskProvider,
             name: "Stop tunnel",
@@ -319,6 +321,29 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         operation.addCondition(MutuallyExclusive(category: OperationCategory.manageTunnel.category))
 
         operationQueue.addOperation(operation)
+    }
+
+    func reapplyTunnelConfiguration() {
+        guard let tunnel else { return }
+        if self.tunnelStatus.state.isSecured {
+            let observer = TunnelBlockObserver(didUpdateTunnelStatus: { _, status in
+                if case .disconnected = status.state {
+                    if let observer = self.observer {
+                        self.removeObserver(observer)
+                        self.observer = nil
+                    }
+                    self.startTunnel()
+                }
+            })
+            addObserver(observer)
+            self.observer = observer
+
+            let configuration = TunnelConfiguration(excludeLocalNetworks: settings.localNetworkSharing)
+            tunnel.setConfiguration(configuration)
+            tunnel.saveToPreferences { _ in
+                self.stopTunnel(disableOnDemand: false)
+            }
+        }
     }
 
     func setNewAccount() async throws -> StoredAccountData {
@@ -942,11 +967,18 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
             modificationBlock(&updatedSettings)
 
             self.setSettings(updatedSettings, persist: true)
-            self.reconnectTunnel(
-                selectNewRelay: settingsStrategy
-                    .shouldReconnectToNewRelay(oldSettings: currentSettings, newSettings: updatedSettings),
-                completionHandler: nil
+            let reconnectionStrategy = settingsStrategy.getReconnectionStrategy(
+                oldSettings: currentSettings,
+                newSettings: updatedSettings
             )
+            switch reconnectionStrategy {
+            case .noReconnect:
+                self.reconnectTunnel(selectNewRelay: false)
+            case .softReconnect:
+                self.reconnectTunnel(selectNewRelay: true)
+            case .hardReconnect:
+                self.reapplyTunnelConfiguration()
+            }
         }
 
         operation.completionBlock = {

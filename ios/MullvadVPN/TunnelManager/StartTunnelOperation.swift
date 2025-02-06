@@ -110,38 +110,11 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     ) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
-        let configuration = makeTunnelConfiguration()
+        let configuration = TunnelConfiguration(excludeLocalNetworks: interactor.settings.localNetworkSharing)
 
         tunnel.setConfiguration(configuration)
         tunnel.saveToPreferences { error in
             completionHandler(error.map { .failure($0) } ?? .success(tunnel))
         }
-    }
-
-    private func makeTunnelConfiguration() -> TunnelConfiguration {
-        let protocolConfig = NETunnelProviderProtocol()
-        protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
-        protocolConfig.serverAddress = ""
-        protocolConfig.includeAllNetworks = true
-        protocolConfig.excludeLocalNetworks = tunnelSettings.excludeLocalNetwork
-        #if DEBUG
-        // Always exclude local networks to avoid killing the debugger immediately
-        // when debugging the app
-        protocolConfig.excludeLocalNetworks = true
-        if #available(iOS 17.4, *) {
-            protocolConfig.excludeDeviceCommunication = true
-        }
-        #endif
-
-        let alwaysOnRule = NEOnDemandRuleConnect()
-        alwaysOnRule.interfaceTypeMatch = .any
-
-        return TunnelConfiguration(
-            isEnabled: true,
-            localizedDescription: "WireGuard",
-            protocolConfiguration: protocolConfig,
-            onDemandRules: [alwaysOnRule],
-            isOnDemandEnabled: true
-        )
     }
 }
