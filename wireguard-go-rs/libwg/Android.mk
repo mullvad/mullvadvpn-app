@@ -26,7 +26,7 @@ default: $(DESTDIR)/libwg.so
 $(DESTDIR)/libwg.so:
 	mkdir -p $(DESTDIR)
 	# Build libmaybenot
-	make --directory wireguard-go libmaybenot.a LIBDEST="$(DESTDIR)" TARGET="$(TARGET)" CARGO_TARGET_DIR="$(CARGO_TARGET_DIR)"
+	make --directory wireguard-go/maybenot-ffi $(DESTDIR)/libmaybenot.a TARGET="$(TARGET)" CARGO_TARGET_DIR="$(CARGO_TARGET_DIR)"
 	# Build wireguard-go
 	go get -tags "linux android daita"
 	chmod -fR +w "$(GOPATH)/pkg/mod"
