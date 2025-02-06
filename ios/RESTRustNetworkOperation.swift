@@ -13,7 +13,7 @@ import MullvadTypes
 import Operations
 
 extension REST {
-    typealias RustRequestFactory = ((((MullvadApiResponse) throws -> Void)?) -> AnyCancellable)
+    typealias RustRequestFactory = (((MullvadApiResponse) throws -> Void)?) -> AnyCancellable
 
     class RustNetworkOperation<Success: Sendable>: ResultOperation<Success>, @unchecked Sendable {
         private let logger: Logger
@@ -74,7 +74,7 @@ extension REST {
                 return
             }
 
-            networkTask = requestFactory({ [weak self] response in
+            networkTask = requestFactory { [weak self] response in
                 guard let self else { return }
 
                 if let error = try response.restError(decoder: responseDecoder) {
@@ -87,35 +87,33 @@ extension REST {
                 let decodedResponse = responseHandler.handleResponse(response)
 
                 switch decodedResponse {
-                case .success(let value):
+                case let .success(value):
                     finish(result: .success(value))
-                case .decoding(let block):
+                case let .decoding(block):
                     finish(result: .success(try block()))
-                case .unhandledResponse(let error):
+                case let .unhandledResponse(error):
                     finish(result: .failure(REST.Error.unhandledResponse(Int(response.statusCode), error)))
                 }
-            })
+            }
         }
     }
 }
 
 extension MullvadApiResponse {
-    // TODO: Construct all the real error types from Rust side.
     public func restError(decoder: JSONDecoder) throws -> REST.Error? {
         guard !success else {
             return nil
         }
 
-        guard let body else {
+        guard let serverResponseCode else {
             return .transport(RustTransportError.connectionFailed(description: errorDescription))
         }
 
-        do {
-            let response = try decoder.decode(REST.ServerErrorResponse.self, from: body)
-            return .unhandledResponse(Int(statusCode), response)
-        } catch {
-            return .transport(RustTransportError.connectionFailed(description: errorDescription))
-        }
+        let response = REST.ServerErrorResponse(
+            code: REST.ServerResponseCode(rawValue: serverResponseCode),
+            detail: errorDescription
+        )
+        return .unhandledResponse(Int(statusCode), response)
     }
 }
 

@@ -64,6 +64,7 @@ typedef struct SwiftMullvadApiResponse {
   uintptr_t body_size;
   uint16_t status_code;
   uint8_t *error_description;
+  uint8_t *server_response_code;
   bool success;
   bool should_retry;
   uint64_t retry_after;
