@@ -271,7 +271,7 @@ fun VpnSettings(
     )
 }
 
-@Suppress("LongMethod", "LongParameterList", "CyclomaticComplexMethod")
+@Suppress("LongMethod", "LongParameterList")
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun VpnSettingsScreen(
@@ -504,9 +504,7 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.wireguard_port_title),
                     onInfoClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
                     onCellClicked = { navigateToWireguardPortInfo(state.availablePortRanges) },
-                    isEnabled =
-                        state.obfuscationMode == ObfuscationMode.Auto ||
-                            state.obfuscationMode == ObfuscationMode.Off,
+                    isEnabled = state.isWireguardPortEnabled,
                 )
             }
 
@@ -515,9 +513,7 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.automatic),
                     isSelected = state.selectedWireguardPort == Constraint.Any,
                     onCellClicked = { onWireguardPortSelected(Constraint.Any) },
-                    isEnabled =
-                        state.obfuscationMode == ObfuscationMode.Auto ||
-                            state.obfuscationMode == ObfuscationMode.Off,
+                    isEnabled = state.isWireguardPortEnabled,
                 )
             }
 
@@ -533,9 +529,7 @@ fun VpnSettingsScreen(
                             ),
                         isSelected = state.selectedWireguardPort.getOrNull() == port,
                         onCellClicked = { onWireguardPortSelected(Constraint.Only(port)) },
-                        isEnabled =
-                            state.obfuscationMode == ObfuscationMode.Auto ||
-                                state.obfuscationMode == ObfuscationMode.Off,
+                        isEnabled = state.isWireguardPortEnabled,
                     )
                 }
             }
@@ -553,18 +547,13 @@ fun VpnSettingsScreen(
                         }
                     },
                     onPortCellClicked = navigateToWireguardPortDialog,
-                    isEnabled =
-                        state.obfuscationMode == ObfuscationMode.Auto ||
-                            state.obfuscationMode == ObfuscationMode.Off,
+                    isEnabled = state.isWireguardPortEnabled,
                     mainTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_TEST_TAG,
                     numberTestTag = LAZY_LIST_WIREGUARD_CUSTOM_PORT_NUMBER_TEST_TAG,
                 )
             }
 
-            if (
-                state.obfuscationMode == ObfuscationMode.Shadowsocks ||
-                    state.obfuscationMode == ObfuscationMode.Udp2Tcp
-            ) {
+            if (!state.isWireguardPortEnabled) {
                 item {
                     Text(
                         text =

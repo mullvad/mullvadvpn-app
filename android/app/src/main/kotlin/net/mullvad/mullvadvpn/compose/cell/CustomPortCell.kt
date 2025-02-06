@@ -103,14 +103,7 @@ fun CustomPortCell(
                         } else {
                             MaterialTheme.colorScheme.onSurface
                         }
-                        .copy(
-                            alpha =
-                                if (isEnabled) {
-                                    AlphaVisible
-                                } else {
-                                    AlphaDisabled
-                                }
-                        ),
+                        .copy(alpha = if (isEnabled) AlphaVisible else AlphaDisabled),
             )
         }
         Spacer(modifier = Modifier.width(Dimens.verticalSpacer))

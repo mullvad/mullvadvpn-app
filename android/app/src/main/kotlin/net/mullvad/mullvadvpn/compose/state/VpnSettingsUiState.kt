@@ -29,6 +29,9 @@ data class VpnSettingsUiState(
         selectedWireguardPort is Constraint.Only &&
             selectedWireguardPort.value == customWireguardPort
 
+    val isWireguardPortEnabled =
+        obfuscationMode == ObfuscationMode.Auto || obfuscationMode == ObfuscationMode.Off
+
     companion object {
         fun createDefault(
             mtu: Mtu? = null,
