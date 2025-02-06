@@ -207,22 +207,17 @@ private enum class DaitaPages(
     FIRST(
         image = R.drawable.daita_illustration_1,
         textFirstParagraph =
+            @Composable { stringResource(R.string.daita_description_slide_1_first_paragraph) },
+        textSecondParagraph =
             @Composable {
                 stringResource(
-                    R.string.daita_description_slide_1_first_paragraph,
+                    R.string.daita_description_slide_1_second_paragraph,
                     stringResource(id = R.string.daita),
                     stringResource(id = R.string.daita_full),
                 )
             },
-        textSecondParagraph =
-            @Composable { stringResource(R.string.daita_description_slide_1_second_paragraph) },
         textThirdParagraph =
-            @Composable {
-                stringResource(
-                    R.string.daita_description_slide_1_third_paragraph,
-                    stringResource(id = R.string.daita),
-                )
-            },
+            @Composable { stringResource(R.string.daita_description_slide_1_third_paragraph) },
     ),
     SECOND(
         image = R.drawable.daita_illustration_2,
@@ -237,9 +232,6 @@ private enum class DaitaPages(
             @Composable {
                 stringResource(
                     R.string.daita_description_slide_2_second_paragraph,
-                    // Duplicated argument to keep compatibility with our common string template
-                    // (messages.pot) while also keeping lint happy.
-                    stringResource(id = R.string.daita),
                     stringResource(id = R.string.daita),
                 )
             },
@@ -247,6 +239,9 @@ private enum class DaitaPages(
             @Composable {
                 stringResource(
                     R.string.daita_description_slide_2_third_paragraph,
+                    // Duplicated argument to keep compatibility with our common string template
+                    // (messages.pot) while also keeping lint happy.
+                    stringResource(id = R.string.daita),
                     stringResource(id = R.string.daita),
                 )
             },
