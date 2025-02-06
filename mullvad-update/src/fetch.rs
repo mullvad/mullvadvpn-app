@@ -64,6 +64,9 @@ pub async fn get_to_writer(
 ) -> anyhow::Result<()> {
     let client = reqwest::Client::new();
 
+    progress_updater.set_url(url);
+    progress_updater.set_progress(0.);
+
     // Fetch content length first
     let response = client.head(url).send().await.context("HEAD failed")?;
     if !response.status().is_success() {
@@ -79,8 +82,6 @@ pub async fn get_to_writer(
         .context("Missing file size")?;
     let total_size: usize = total_size.to_str()?.parse().context("invalid size")?;
     check_size_hint(size_hint, total_size)?;
-
-    progress_updater.set_url(url);
 
     let already_fetched_bytes = writer
         .stream_position()
