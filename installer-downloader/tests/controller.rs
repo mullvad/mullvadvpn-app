@@ -9,7 +9,7 @@ use installer_downloader::controller::AppController;
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
 use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider};
-use mullvad_update::app::{AppDownloader, AppDownloaderFactory, DownloadError};
+use mullvad_update::app::{AppDownloader, DownloadError};
 use mullvad_update::fetch::ProgressUpdater;
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
@@ -43,12 +43,10 @@ pub type FakeAppDownloaderDownloadFail = FakeAppDownloader<true, false, false>;
 /// Downloader for which all but the final verification step succeed
 pub type FakeAppDownloaderVerifyFail = FakeAppDownloader<true, true, false>;
 
-impl<const A: bool, const B: bool, const C: bool> AppDownloaderFactory
+impl<const A: bool, const B: bool, const C: bool> From<UiAppDownloaderParameters<FakeAppDelegate>>
     for FakeAppDownloader<A, B, C>
 {
-    type Parameters = UiAppDownloaderParameters<FakeAppDelegate>;
-
-    fn new_downloader(params: Self::Parameters) -> Self {
+    fn from(params: UiAppDownloaderParameters<FakeAppDelegate>) -> Self {
         FakeAppDownloader { params }
     }
 }
