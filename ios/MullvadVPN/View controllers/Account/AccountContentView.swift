@@ -109,6 +109,7 @@ class AccountContentView: UIView {
             logoutButton,
             deleteButton,
         ])
+        arrangedSubviews.forEach { $0.isExclusiveTouch = true }
         let stackView = UIStackView(arrangedSubviews: arrangedSubviews)
         stackView.axis = .vertical
         stackView.spacing = UIMetrics.padding16
