@@ -273,7 +273,9 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
         // Set temporary target dir to prevent deadlock, since we are invoking cargo from within
         // another cargo process.
         .env("CARGO_TARGET_DIR", &tmp_build_dir)
-        .arg("build")
+        .arg("rustc")
+        // Build a shared library to consume from another language (go)
+        .arg("--crate-type=cdylib")
         // Always respect lockfiles
         .args(["--locked"])
         .args(["--profile", profile])
