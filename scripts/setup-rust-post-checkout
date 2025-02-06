@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+#
+# To install the hook copy this file to `.git/hooks/post-checkout`
+# Checks if the `rust-toolchain.toml` file has changed (indicating that the Rust version has
+# been updated), and if so runs the `scripts/setup-rust` script to install the default
+# toolchains and components.
+
+set -eu
+
+# Set to "android", "desktop", or "ios" or leave empty.
+# If empty this hook will not call the `setup-rust` script and only install the EXTRA_TARGETS
+# and EXTRA_COMPONENTS.
+PLATFORM=""
+# Any extra targets outside of the ones defined in `setup-rust` that should be installed.
+EXTRA_TARGETS=""
+# Any extra components outside of the ones defined in `setup-rust` that should be installed.
+EXTRA_COMPONENTS=""
+
+SETUP_RUST_SCRIPT="scripts/setup-rust"
+if [ ! -f "$SETUP_RUST_SCRIPT" ]; then
+    exit 0
+fi
+
+# Only query Rustup if the rust-toolchain.toml file has changed as a result of the checkout.
+CHANGED=$(git diff "$1" "$2" --stat -- rust-toolchain.toml | wc -l)
+if [ "$CHANGED" -gt 0 ];
+then
+    # Check installed targets vs required targets
+    # - 1 because we don't want to count the default target that is always installed by rustup
+    INSTALLED_TARGETS_COUNT=$(( $(rustup target list --installed | wc -l) - 1))
+
+    # - 6 because we don't want to count the default components that are installed by rustup
+    # (rustc, rust-std, cargo, rust-docs, rustfmt, clippy)
+    INSTALLED_COMPONENTS_COUNT=$(( $(rustup component list --installed | wc -l) - 6))
+
+    EXTRA_TARGETS_COUNT=$(echo "$EXTRA_TARGETS" | wc -w)
+    EXTRA_COMPONENTS_COUNT=$(echo "$EXTRA_COMPONENTS" | wc -w)
+
+    if [ -n "$PLATFORM" ]; then
+        REQUIRED_TARGETS_COUNT=$(( $("$SETUP_RUST_SCRIPT" "$PLATFORM" --print-targets | wc -w) + "$EXTRA_TARGETS_COUNT" ))
+    else
+        REQUIRED_TARGETS_COUNT="$EXTRA_TARGETS_COUNT"
+    fi
+
+    if [ "$INSTALLED_TARGETS_COUNT" -lt "$REQUIRED_TARGETS_COUNT" ]; then
+        if [ -n "$PLATFORM" ]; then
+            $SETUP_RUST_SCRIPT "$PLATFORM"
+        fi
+
+        if [ -n "$EXTRA_TARGETS" ]; then
+            echo "Installing extra targets"
+            # shellcheck disable=SC2086
+            rustup target add $EXTRA_TARGETS
+        fi
+    fi
+
+    if [ "$INSTALLED_COMPONENTS_COUNT" -lt "$EXTRA_COMPONENTS_COUNT" ]; then
+        echo "Installing extra components"
+        # shellcheck disable=SC2086
+        rustup component add $EXTRA_COMPONENTS
+    fi
+fi
+

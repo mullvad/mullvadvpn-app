@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+#
+# Installs the default toolchains and components for different platforms.
+# To use this script rustup must be installed first.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR/.."
+
+source scripts/utils/log
+
+function print_usage {
+  log "Setup default Rust targets and components for different platforms"
+  log ""
+  log "Usage: setup-rust android|desktop|ios|install-hook [--print-targets] [--print-components]"
+  log "  android                    Run Android-specific setup"
+  log "  desktop                    Run Desktop-specific setup"
+  log "  ios                        Run iOS-specific setup"
+  log "  install-hook [platform]    Copies the setup-rust-post-checkout file to .git/hooks/post-checkout"
+  log "                             Optionally supply a platform (android|desktop|ios) for the hook to use that"
+  log "                             platform as an argument to setup-rust (e.g. 'scripts/setup-rust install-hook android')"
+  log ""
+  log "Options:"
+  log "--print-targets        Only print the targets that would be added"
+  log "--print-components     Only print the components that would be added"
+}
+
+function setup_android {
+  local targets="x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi"
+  local components="rust-analyzer"
+  setup "Android" "$targets" "$components" "$@"
+}
+
+function setup_desktop {
+  local targets="x86_64-pc-windows-msvc x86_64-pc-windows-gnu i686-pc-windows-msvc"
+  local components="rust-analyzer"
+  setup "Desktop" "$targets" "$components" "$@"
+}
+
+function setup_ios {
+  local targets="aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios"
+  local components="rust-analyzer"
+  setup "iOS" "$targets" "$components" "$@"
+}
+
+function setup {
+  case "$4" in
+    "--print-targets")
+      echo "$2"
+      ;;
+    "--print-components")
+      echo "$3"
+      ;;
+    *)
+      log "Installing default Rust targets/components"
+      log "platform: $1"
+      log "targets: $2"
+      log "components: $3"
+      # shellcheck disable=SC2086
+      rustup target add $2
+      # shellcheck disable=SC2086
+      rustup component add $3
+      ;;
+  esac
+}
+
+function install_hook {
+  local hook=$SCRIPT_DIR/../.git/hooks/post-checkout
+  if [ -f "$hook" ]; then
+    log_error "$(realpath "$hook") file already exists - will not overwrite"
+    exit 1
+  else
+    cp "$SCRIPT_DIR/setup-rust-post-checkout" "$hook"
+    sed -i "s/PLATFORM=\"\"/PLATFORM=\"$1\"/" "$hook"
+    chmod +x "$hook"
+  fi
+}
+
+if [ $# -eq 0 ]; then
+    print_usage
+    exit 1
+fi
+
+case "$1" in
+  "android")
+    setup_android "${2:-}"
+    ;;
+  "desktop")
+    setup_desktop "${2:-}"
+    ;;
+  "ios")
+    setup_ios "${2:-}"
+    ;;
+  "install-hook")
+    install_hook "${2:-}"
+    ;;
+  *)
+    print_usage
+    exit 1
+    ;;
+esac
