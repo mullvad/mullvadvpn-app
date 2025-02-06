@@ -1,10 +1,14 @@
-use std::path::Path;
-use std::pin::Pin;
-use std::task::{ready, Poll};
+use std::{
+    path::Path,
+    pin::Pin,
+    task::{ready, Poll},
+};
 
 use reqwest::header::{HeaderValue, CONTENT_LENGTH, RANGE};
-use tokio::fs::{self, File};
-use tokio::io::{self, AsyncSeek, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter};
+use tokio::{
+    fs::{self, File},
+    io::{self, AsyncSeek, AsyncSeekExt, AsyncWrite, AsyncWriteExt, BufWriter},
+};
 
 use anyhow::Context;
 
@@ -250,7 +254,7 @@ impl<PU: ProgressUpdater, Writer: AsyncWrite + Unpin> AsyncWrite
 
 #[cfg(test)]
 mod test {
-    use std::{f32::EPSILON, io::Cursor};
+    use std::io::Cursor;
 
     use async_tempfile::TempDir;
     use rand::RngCore;
@@ -314,13 +318,13 @@ mod test {
     #[tokio::test]
     async fn test_fetch_complete() -> anyhow::Result<()> {
         // Generate random data
-        let mut file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024 + 1]));
-        rand::thread_rng().fill_bytes(&mut file_data);
+        let file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024 + 1]));
+        rand::thread_rng().fill_bytes(file_data);
 
         // Start server
         let mut server = mockito::Server::new_async().await;
         let file_url = format!("{}/my_file", server.url());
-        add_file_server_mock(&mut server, "/my_file", file_data).await;
+        add_file_server_mock(&mut server, "/my_file", file_data);
 
         // Download the file to `writer` and compare it to `file_data`
         let mut writer = Cursor::new(vec![]);
@@ -346,13 +350,13 @@ mod test {
     #[tokio::test]
     async fn test_fetch_interrupted() -> anyhow::Result<()> {
         // Generate random data
-        let mut file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024]));
-        rand::thread_rng().fill_bytes(&mut file_data);
+        let file_data = Box::leak(Box::new(vec![0u8; 1024 * 1024]));
+        rand::thread_rng().fill_bytes(file_data);
 
         // Start server
         let mut server = mockito::Server::new_async().await;
         let file_url = format!("{}/my_file", server.url());
-        add_file_server_mock(&mut server, "/my_file", file_data).await;
+        add_file_server_mock(&mut server, "/my_file", file_data);
 
         // Interrupt after exactly half the file has been downloaded
         let mut limited_buffer = vec![0u8; file_data.len() / 2].into_boxed_slice();
@@ -373,7 +377,7 @@ mod test {
 
         let completed = progress_updater.complete;
         assert!(
-            completed - 0.5 < EPSILON,
+            (completed - 0.5).abs() < f32::EPSILON,
             "expected half to be completed, got {completed}"
         );
 
@@ -408,11 +412,7 @@ mod test {
     }
 
     /// Create endpoints that serve a file at `url_path` using range requests
-    async fn add_file_server_mock(
-        server: &mut mockito::Server,
-        url_path: &str,
-        data: &'static [u8],
-    ) {
+    fn add_file_server_mock(server: &mut mockito::Server, url_path: &str, data: &'static [u8]) {
         // Respond to head requests with file size
         server
             .mock("HEAD", url_path)
