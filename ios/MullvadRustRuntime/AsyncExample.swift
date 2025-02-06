@@ -20,30 +20,30 @@ func finishCompletion(
 }
 
 public class CompletionBridge {
-    public var completion: ((MullvadApiResponse) -> Void)
+    public var completion: (MullvadApiResponse) -> Void
 
     public init(completion: @escaping ((MullvadApiResponse) -> Void)) {
         self.completion = completion
     }
 }
 
-//@_silgen_name("async_finish")
-//func finishAsyncExample(
+// @_silgen_name("async_finish")
+// func finishAsyncExample(
 //    response: SwiftMullvadApiResponse,
 //    asyncCookie: UnsafeMutableRawPointer
-//) {
+// ) {
 //    let completion = Unmanaged<AsyncCompletionBridge>
 //        .fromOpaque(asyncCookie)
 //        .takeUnretainedValue()
 //    let apiResponse = MullvadApiResponse(response: response)
 //
 //    completion.continuation.resume(returning: apiResponse)
-//}
+// }
 
-//public class AsyncCompletionBridge {
+// public class AsyncCompletionBridge {
 //    public let continuation: CheckedContinuation<MullvadApiResponse, Never>
 //
 //    public init(continuation: CheckedContinuation<MullvadApiResponse, Never>) {
 //        self.continuation = continuation
 //    }
-//}
+// }

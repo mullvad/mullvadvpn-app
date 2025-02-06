@@ -23,7 +23,6 @@ protocol RESTRustResponseHandler<Success> {
 }
 
 extension REST {
-
     // TODO: We could probably remove the `decoding` case when network requests are fully merged to Mullvad API.
     /// Responser handler result type.
     enum ResponseHandlerResult<Success> {

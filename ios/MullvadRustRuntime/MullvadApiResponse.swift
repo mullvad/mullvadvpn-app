@@ -38,6 +38,14 @@ public class MullvadApiResponse {
         response.status_code
     }
 
+    public var serverResponseCode: String? {
+        return if response.server_response_code == nil {
+            nil
+        } else {
+            String(cString: response.server_response_code)
+        }
+    }
+
     public var success: Bool {
         response.success
     }
