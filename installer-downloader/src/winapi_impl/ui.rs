@@ -179,7 +179,7 @@ impl AppWindow {
 
         self.window.set_visible(true);
 
-        let event_handle = self.window.handle.clone();
+        let event_handle = self.window.handle;
         let app = Rc::new(RefCell::new(self));
 
         handle_init_and_close_messages(event_handle, app.clone());
@@ -289,15 +289,13 @@ fn handle_beta_link_messages(
             color[0] as COLORREF | ((color[1] as COLORREF) << 8) | ((color[2] as COLORREF) << 16)
         }
 
-        if msg == WM_CTLCOLORSTATIC {
-            if Some(p) == link_hwnd.map(|hwnd| hwnd as isize) {
-                unsafe {
-                    SetBkMode(w as _, TRANSPARENT as _);
-                    SetTextColor(w as _, rgb(LINK_COLOR));
-                }
-                // Out of bounds background
-                return Some(COLOR_WINDOW as _);
+        if msg == WM_CTLCOLORSTATIC && Some(p) == link_hwnd {
+            unsafe {
+                SetBkMode(w as _, TRANSPARENT as _);
+                SetTextColor(w as _, rgb(LINK_COLOR));
             }
+            // Out of bounds background
+            return Some(COLOR_WINDOW as _);
         }
 
         None
@@ -311,11 +309,11 @@ fn handle_init_and_close_messages(
 ) -> nwg::EventHandler {
     let window = window.into();
     nwg::full_bind_event_handler(&window, move |event, _data, handle| match event {
-        nwg::Event::OnInit if &handle == &window => {
+        nwg::Event::OnInit if handle == window => {
             let app = app.borrow();
             app.on_init();
         }
-        nwg::Event::OnWindowClose if &handle == &window => {
+        nwg::Event::OnWindowClose if handle == window => {
             let app = app.borrow();
             app.on_close();
         }
@@ -339,7 +337,7 @@ fn handle_queue_message(
                 // good. See the implementation of `AppDelegateQueue` for `Queue`.
                 let context = unsafe { Box::from_raw(p as *mut QueueContext) };
                 let mut app = app.borrow_mut();
-                (context.callback)(&mut *app);
+                (context.callback)(&mut app);
             }
             None
         },

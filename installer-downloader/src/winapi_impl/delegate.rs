@@ -29,7 +29,7 @@ impl AppDelegate for AppWindow {
     }
 
     fn set_download_text(&mut self, text: &str) {
-        if text != "" {
+        if !text.is_empty() {
             self.download_text.set_visible(true);
             self.download_text.set_text(text);
         } else {
