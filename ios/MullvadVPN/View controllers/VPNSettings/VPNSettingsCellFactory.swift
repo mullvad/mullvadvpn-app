@@ -16,6 +16,7 @@ protocol VPNSettingsCellEventHandler {
     func selectCustomPortEntry(_ port: UInt16) -> Bool
     func selectObfuscationState(_ state: WireGuardObfuscationState)
     func switchMultihop(_ state: MultihopState)
+    func setLocalNetworkSettings(_ enabled: Bool, onCancel: @escaping () -> Void)
 }
 
 @MainActor
@@ -32,7 +33,6 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
 
     func makeCell(for item: VPNSettingsDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: item.reuseIdentifier.rawValue, for: indexPath)
-
         configureCell(cell, item: item, indexPath: indexPath)
 
         return cell
@@ -42,6 +42,24 @@ final class VPNSettingsCellFactory: @preconcurrency CellFactoryProtocol {
     func configureCell(_ cell: UITableViewCell, item: VPNSettingsDataSource.Item, indexPath: IndexPath) {
         (cell as? SettingsCell)?.detailTitleLabel.accessibilityIdentifier = nil
         switch item {
+        case .localNetworkSharing:
+            guard let cell = cell as? SettingsSwitchCell else { return }
+            cell.infoButtonHandler = { self.delegate?.showInfo(for: .localNetworkSharing) }
+            cell.action = { enable in
+                self.delegate?.setLocalNetworkSettings(enable) {
+                    cell.setOn(self.viewModel.localNetworkSharing, animated: true)
+                }
+            }
+
+            cell.titleLabel.text = NSLocalizedString(
+                "LOCAL_NETWORK_SHARING_CELL_LABEL",
+                tableName: "VPNSettings",
+                value: "Local network sharing",
+                comment: ""
+            )
+            cell.setAccessibilityIdentifier(item.accessibilityIdentifier)
+            cell.setOn(viewModel.localNetworkSharing, animated: true)
+
         case .dnsSettings:
             guard let cell = cell as? SettingsCell else { return }
 

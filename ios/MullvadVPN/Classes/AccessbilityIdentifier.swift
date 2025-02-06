@@ -175,6 +175,7 @@ public enum AccessibilityIdentifier: Equatable {
     case statusImageView
 
     // DNS settings
+    case localNetworkSharing
     case dnsSettings
     case ipOverrides
     case wireGuardCustomPort
