@@ -82,15 +82,15 @@ class IPOverrideViewController: UIViewController {
 
     private func addHeaderView() {
         let body = NSLocalizedString(
-            "ACCESS_METHOD_HEADER_BODY",
-            tableName: "APIAccess",
-            value: "Manage default and setup custom methods to access the Mullvad API.",
+            "IP_OVERRIDE_HEADER_BODY",
+            tableName: "IPOverride",
+            value: "Import files or text with the new IP addresses for the servers in the Select location view.",
             comment: ""
         )
         let link = NSLocalizedString(
-            "ACCESS_METHOD_HEADER_LINK",
-            tableName: "APIAccess",
-            value: "About API access...",
+            "IP_OVERRIDE_HEADER_LINK",
+            tableName: "IPOverride",
+            value: "About Server IP override...",
             comment: ""
         )
 
