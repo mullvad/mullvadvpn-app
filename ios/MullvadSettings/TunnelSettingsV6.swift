@@ -45,12 +45,14 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        TunnelSettingsV7(relayConstraints: relayConstraints,
-                         dnsSettings: dnsSettings,
-                         wireGuardObfuscation: wireGuardObfuscation,
-                         tunnelQuantumResistance: tunnelQuantumResistance,
-                         tunnelMultihopState: tunnelMultihopState,
-                         daita: daita,
-                         localNetworkSharing: false)
+        TunnelSettingsV7(
+            relayConstraints: relayConstraints,
+            dnsSettings: dnsSettings,
+            wireGuardObfuscation: wireGuardObfuscation,
+            tunnelQuantumResistance: tunnelQuantumResistance,
+            tunnelMultihopState: tunnelMultihopState,
+            daita: daita,
+            localNetworkSharing: false
+        )
     }
 }
