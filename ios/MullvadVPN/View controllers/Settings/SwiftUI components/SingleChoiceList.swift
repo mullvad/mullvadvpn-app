@@ -347,6 +347,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                         switch opt.value {
                         case let .literal(v):
                             literalRow(v)
+                                .listRowSeparator(.hidden)
                         case let .custom(
                             label,
                             prompt,
@@ -364,8 +365,10 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                                 toValue: toValue,
                                 fromValue: fromValue
                             )
+                            .listRowSeparator(.hidden)
                             if let legend {
                                 subtitleRow(legend)
+                                    .listRowSeparator(.hidden)
                             }
                         }
                     }
