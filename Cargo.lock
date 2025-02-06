@@ -3292,6 +3292,7 @@ name = "mullvad-version"
 version = "0.0.0"
 dependencies = [
  "regex",
+ "serde",
 ]
 
 [[package]]
