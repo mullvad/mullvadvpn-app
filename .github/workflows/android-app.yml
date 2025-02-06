@@ -81,7 +81,8 @@ jobs:
       # https://github.com/orgs/community/discussions/26388
       - name: Prepare environment variables
         run: |
-          echo "INNER_E2E_TEST_INFRA_FLAVOR=${{ github.event.inputs.e2e_tests_infra_flavor || 'stagemole' }}" >> $GITHUB_ENV
+          echo "INNER_E2E_TEST_INFRA_FLAVOR=${{ github.event.inputs.e2e_tests_infra_flavor || 'stagemole' }}" \
+          >> $GITHUB_ENV
           echo "INNER_E2E_TEST_REPEAT=${{ github.event.inputs.e2e_test_repeat || 0 }}" >> $GITHUB_ENV
     outputs:
       container_image: ${{ env.inner_container_image }}
@@ -278,7 +279,8 @@ jobs:
       - name: Build stagemole app
         uses: burrunan/gradle-cache-action@v1
         if: >
-          (needs.prepare.outputs.E2E_TEST_REPEAT != '0' && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole') ||
+          (needs.prepare.outputs.E2E_TEST_REPEAT != '0' &&
+          needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole') ||
           github.event.inputs.run_firebase_tests == 'true'
         with:
           job-id: jdk17
