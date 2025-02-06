@@ -15,6 +15,6 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
-
 [dependencies]
 regex = "1.6.0"
+serde = { workspace = true, optional = true }
