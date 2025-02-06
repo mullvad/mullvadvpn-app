@@ -36,14 +36,6 @@ pub trait AppDownloader: Send {
     async fn verify(&mut self) -> Result<(), DownloadError>;
 }
 
-/// Trait for constructing some [AppDownloader].
-pub trait AppDownloaderFactory: AppDownloader {
-    type Parameters;
-
-    /// Instantiate a new [AppDownloader].
-    fn new_downloader(parameters: Self::Parameters) -> Self;
-}
-
 /// Download the app and signature, and verify the app's signature
 pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(), DownloadError> {
     downloader.download_signature().await?;
@@ -78,15 +70,11 @@ impl<SigProgress, AppProgress> HttpAppDownloader<SigProgress, AppProgress> {
     }
 }
 
-impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloaderFactory
+impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater>
+    From<AppDownloaderParameters<SigProgress, AppProgress>>
     for HttpAppDownloader<SigProgress, AppProgress>
 {
-    type Parameters = AppDownloaderParameters<SigProgress, AppProgress>;
-
-    fn new_downloader(parameters: Self::Parameters) -> Self
-    where
-        Self: Sized,
-    {
+    fn from(parameters: AppDownloaderParameters<SigProgress, AppProgress>) -> Self {
         HttpAppDownloader::new(parameters)
     }
 }
