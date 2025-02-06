@@ -12,6 +12,7 @@ workspace = true
 
 [dependencies]
 anyhow = "1.0"
+json-canon = "0.1"
 chrono = { workspace = true, features = ["serde"] }
 ed25519-dalek = { version = "2.1", default-features = false }
 hex = { version = "0.4", default-features = false }
