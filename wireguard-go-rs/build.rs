@@ -268,11 +268,16 @@ fn build_shared_maybenot_lib(out_dir: impl AsRef<Path>) -> anyhow::Result<()> {
     tmp_build_dir = tmp_build_dir.join("target");
 
     build_command
-        .current_dir("./libwg/wireguard-go/maybenot/crates/maybenot-ffi")
+        .current_dir("./libwg/wireguard-go/maybenot-ffi")
         .env("RUSTFLAGS", "-C metadata=maybenot-ffi -Ctarget-feature=+crt-static")
-        // Set temporary target dir to prevent deadlock
+        // Set temporary target dir to prevent deadlock, since we are invoking cargo from within
+        // another cargo process.
         .env("CARGO_TARGET_DIR", &tmp_build_dir)
-        .arg("build")
+        .arg("rustc")
+        // Build a shared library to consume from another language (go)
+        .arg("--crate-type=cdylib")
+        // Always respect lockfiles
+        .args(["--locked"])
         .args(["--profile", profile])
         .args(["--target", &target_triple]);
 
