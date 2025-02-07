@@ -101,7 +101,7 @@ pub async fn test_ui_tunnel_settings(
 
     let ui_result = run_test_env(
         &rpc,
-        &["tunnel-state.spec"],
+        &["state-dependent/tunnel-state.spec"],
         [
             ("HOSTNAME", entry.hostname.as_str()),
             ("IN_IP", &entry.ipv4_addr_in.to_string()),
@@ -115,6 +115,22 @@ pub async fn test_ui_tunnel_settings(
     .unwrap();
     assert!(ui_result.success());
 
+    Ok(())
+}
+
+/// Test how various tunnel settings for OpenVPN are handled and displayed by the GUI
+#[test_function]
+pub async fn test_ui_openvpn_tunnel_settings(
+    _: TestContext,
+    rpc: ServiceClient,
+    mut mullvad_client: MullvadProxyClient,
+) -> anyhow::Result<()> {
+    // openvpn-tunnel-state.spec precondition: OpenVPN needs to be selected
+    let query = RelayQueryBuilder::new().openvpn().build();
+    helpers::apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+
+    let ui_result = run_test(&rpc, &["openvpn-tunnel-state.spec"]).await?;
+    assert!(ui_result.success());
     Ok(())
 }
 
