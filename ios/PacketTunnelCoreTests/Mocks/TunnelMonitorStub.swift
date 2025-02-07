@@ -34,6 +34,11 @@ class TunnelMonitorStub: TunnelMonitorProtocol, @unchecked Sendable {
 
     private let stateLock = NSLock()
 
+    // TODO: Fix this ?
+    var eventStream: AsyncStream<TunnelMonitorEvent> { AsyncStream { continuation in
+        continuation.yield(.connectionEstablished)
+    } }
+
     var onEvent: EventHandler? {
         get {
             stateLock.withLock { _onEvent }
@@ -52,19 +57,19 @@ class TunnelMonitorStub: TunnelMonitorProtocol, @unchecked Sendable {
         self.simulationBlock = simulationBlock
     }
 
-    func start(probeAddress: IPv4Address) {
+    func start(probeAddress: IPv4Address) async {
         sendCommand(.start)
     }
 
-    func stop() {
+    func stop() async {
         sendCommand(.stop)
     }
 
-    func onWake() {}
+    func wake() async {}
 
-    func onSleep() {}
+    func sleep() async {}
 
-    func handleNetworkPathUpdate(_ networkPath: NetworkPath) {}
+    func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) async {}
 
     func dispatch(_ event: TunnelMonitorEvent, after delay: DispatchTimeInterval = .never) {
         if case .never = delay {

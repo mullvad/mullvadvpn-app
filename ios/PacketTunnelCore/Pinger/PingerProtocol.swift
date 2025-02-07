@@ -32,7 +32,7 @@ public struct PingerSendResult {
 public protocol PingerProtocol: AnyObject, Sendable {
     var onReply: (@Sendable (PingerReply) -> Void)? { get set }
 
-    func startPinging(destAddress: IPv4Address) throws
+    func startPinging(destAddress: IPv4Address)
     func stopPinging()
     func send() throws -> PingerSendResult
 }
