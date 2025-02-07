@@ -54,6 +54,13 @@ impl RequestCancelHandle {
     }
 }
 
+/// Called by the Swift side to signal that a Mullvad API call should be cancelled.
+/// After this call, the cancel token is no longer valid.
+///
+/// # Safety
+/// 
+/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function 
+/// is not safe to call multiple times with the same `SwiftCancelHandle`.
 #[no_mangle]
 extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
     if handle_ptr.ptr.is_null() {
@@ -64,6 +71,13 @@ extern "C" fn mullvad_api_cancel_task(handle_ptr: SwiftCancelHandle) {
     handle.cancel()
 }
 
+/// Called by the Swift side to signal that the Rust `SwiftCancelHandle` can be safely
+/// dropped from memory.
+///
+/// # Safety
+/// 
+/// `handle_ptr` must be pointing to a valid instance of `SwiftCancelHandle`. This function 
+/// is not safe to call multiple times with the same `SwiftCancelHandle`.
 #[no_mangle]
 extern "C" fn mullvad_api_cancel_task_drop(handle_ptr: SwiftCancelHandle) {
     if handle_ptr.ptr.is_null() {

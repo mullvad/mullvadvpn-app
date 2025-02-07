@@ -1,11 +1,25 @@
-use mullvad_api::{rest::{self, MullvadRestHandle}, ApiProxy};
+use mullvad_api::{
+    rest::{self, MullvadRestHandle},
+    ApiProxy,
+};
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
-    response::SwiftMullvadApiResponse, SwiftApiContext,
+    response::SwiftMullvadApiResponse,
+    SwiftApiContext,
 };
 
+/// # Safety
+///
+/// `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+/// by calling `mullvad_api_init_new`.
+/// 
+/// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is 
+/// safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this 
+/// type is intended to be used.
+/// 
+/// This function is not safe to call multiple times with the same `CompletionCookie`.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_api_get_addresses(
     api_context: SwiftApiContext,
