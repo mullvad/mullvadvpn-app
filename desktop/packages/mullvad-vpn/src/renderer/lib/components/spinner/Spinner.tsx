@@ -18,6 +18,6 @@ const sizes = {
 };
 
 export const Spinner = ({ size = 'medium', ...props }: SpinnerProps) => {
-  const src = '../../assets/images/icon-spinner.svg';
+  const src = '../../assets/images/spinner.svg';
   return <StyledSpinner src={src} $size={sizes[size]} {...props} />;
 };
