@@ -73,7 +73,7 @@ struct DaemonContext {
 
 /// Spawn Mullvad daemon. There can only be a single instance, which must be shut down using
 /// `MullvadDaemon.shutdown`. On success, nothing is returned. On error, an exception is thrown.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initialize(
     env: JNIEnv<'_>,
     _class: JClass<'_>,
@@ -121,7 +121,7 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
 }
 
 /// Shut down Mullvad daemon that was initialized using `MullvadDaemon.initialize`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_shutdown(
     _: JNIEnv<'_>,

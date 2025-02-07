@@ -10,7 +10,7 @@ pub struct ProxyHandle {
     pub port: u16,
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub static CONFIG_SERVICE_PORT: u16 = talpid_tunnel_config_client::CONFIG_SERVICE_PORT;
 
 mod ios {
