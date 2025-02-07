@@ -2,6 +2,8 @@
 
 pub mod api;
 pub mod app;
-mod deserializer;
 pub mod fetch;
 pub mod verify;
+
+/// Parser and serializer for version metadata
+pub mod format;

@@ -2,7 +2,7 @@
 
 use anyhow::Context;
 
-use crate::deserializer;
+use crate::format;
 
 /// Parameters for [VersionInfoProvider]
 #[derive(Debug)]
@@ -60,7 +60,7 @@ pub struct ApiVersionInfoProvider;
 impl VersionInfoProvider for ApiVersionInfoProvider {
     async fn get_version_info(params: VersionParameters) -> anyhow::Result<VersionInfo> {
         // FIXME: Replace with actual API response
-        use deserializer::*;
+        use format::*;
 
         const TEST_PUBKEY: &str =
             "AEC24A08466F3D6A1EDCDB2AD3C234428AB9D991B6BEA7F53CB9F172E6CB40D8";
@@ -69,7 +69,7 @@ impl VersionInfoProvider for ApiVersionInfoProvider {
             ed25519_dalek::VerifyingKey::from_bytes(&pubkey.try_into().unwrap()).unwrap();
 
         let response = SignedResponse::deserialize_and_verify(
-            VerifyingKey(verifying_key),
+            format::key::VerifyingKey(verifying_key),
             include_bytes!("../test-version-response.json"),
         )?;
 
@@ -82,7 +82,7 @@ impl VersionInfo {
     /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
     fn try_from_signed_response(
         params: &VersionParameters,
-        response: deserializer::SignedResponse,
+        response: format::SignedResponse,
     ) -> anyhow::Result<Self> {
         let stable = Version::try_from_signed_response(params, response.signed.stable)?;
         let beta = response
@@ -100,7 +100,7 @@ impl Version {
     /// Convert response data to public version type
     fn try_from_signed_response(
         params: &VersionParameters,
-        response: deserializer::VersionResponse,
+        response: format::VersionResponse,
     ) -> anyhow::Result<Self> {
         // Check if the rollout version is acceptable according to threshold
         if let Some(next) = response.next {
@@ -118,7 +118,7 @@ impl Version {
     /// This may fail if the current architecture isn't included in the response
     fn try_for_arch(
         params: &VersionParameters,
-        response: deserializer::SpecificVersionResponse,
+        response: format::SpecificVersionResponse,
     ) -> anyhow::Result<Self> {
         let installer = match params.architecture {
             VersionArchitecture::X86 => response.installers.x86,
@@ -147,9 +147,9 @@ mod test {
     /// Test API version responses can be parsed
     #[test]
     fn test_api_version_info_provider_parser() -> anyhow::Result<()> {
-        let response = deserializer::SignedResponse::deserialize_and_verify_insecure(
-            include_bytes!("../test-version-response.json"),
-        )?;
+        let response = format::SignedResponse::deserialize_and_verify_insecure(include_bytes!(
+            "../test-version-response.json"
+        ))?;
 
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
