@@ -8,11 +8,11 @@ rust-version = "1.80.0"
 [workspace]
 resolver = "2"
 members = [
-    "test-manager",
-    "test-runner",
-    "test-rpc",
-    "socks-server",
-    "connection-checker",
+  "test-manager",
+  "test-runner",
+  "test-rpc",
+  "socks-server",
+  "connection-checker",
 ]
 
 # Keep all lints in sync with `../Cargo.toml`
@@ -60,7 +60,11 @@ tower = "0.5.1"
 prost = "0.13.3"
 prost-types = "0.13.3"
 tarpc = { version = "0.30", features = ["tokio1", "serde-transport", "serde1"] }
-hyper-util = {version = "0.1.8", features = ["client", "client-legacy", "http2"]}
+hyper-util = { version = "0.1.8", features = [
+  "client",
+  "client-legacy",
+  "http2",
+] }
 
 # Logging
 env_logger = "0.11.0"
