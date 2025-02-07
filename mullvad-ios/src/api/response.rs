@@ -1,11 +1,10 @@
 use std::{
-    ffi::{CStr, CString},
+    ffi::CString,
     ptr::null_mut,
 };
 
 use mullvad_api::rest::{self, Response};
 
-use super::Error;
 
 #[repr(C)]
 pub struct SwiftMullvadApiResponse {
