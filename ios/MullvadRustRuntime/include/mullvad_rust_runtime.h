@@ -209,8 +209,8 @@ void mullvad_api_cancel_task(struct SwiftCancelHandle handle_ptr);
 
 void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
 
-extern void completion_finish(struct SwiftMullvadApiResponse response,
-                              struct CompletionCookie completion_cookie);
+extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
+                                          struct CompletionCookie completion_cookie);
 
 void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 

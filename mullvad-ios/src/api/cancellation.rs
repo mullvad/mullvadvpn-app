@@ -14,12 +14,17 @@ impl SwiftCancelHandle {
         Self { ptr: null_mut() }
     }
 
-    unsafe fn to_handle(self) -> RequestCancelHandle {
+    /// This consumes and nulls out the pointer. The caller is responsible for the pointer being valid
+    /// when calling `to_handle`.
+    unsafe fn to_handle(mut self) -> RequestCancelHandle {
         // # Safety
         // This call is safe as long as the pointer is only ever used from a single thread and the
         // instance of `SwiftCancelHandle` was created with a valid pointer to
         // `RequestCancelHandle`.
-        unsafe { *Box::from_raw(self.ptr) }
+        let handle = unsafe { *Box::from_raw(self.ptr) };
+        self.ptr = null_mut();
+
+        handle
     }
 }
 
