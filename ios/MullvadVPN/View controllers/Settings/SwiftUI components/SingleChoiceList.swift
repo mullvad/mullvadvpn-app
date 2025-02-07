@@ -59,6 +59,8 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     let tableAccessibilityIdentifier: String
     let itemDescription: (Value) -> String
     let customFieldMode: CustomFieldMode
+    // a latch to keep the custom field selected through changes of focus until the user taps elsewhere
+    @State var customFieldSelected = false
 
     /// The configuration for the field for a custom value row
     enum CustomFieldMode {
@@ -206,7 +208,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     // Construct a literal row for a specific literal value
     private func literalRow(_ item: Value) -> some View {
         row(
-            isSelected: value.wrappedValue == item && !customValueIsFocused
+            isSelected: value.wrappedValue == item && !customFieldSelected
         ) {
             Text(verbatim: itemDescription(item))
             Spacer()
@@ -215,6 +217,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             value.wrappedValue = item
             customValueIsFocused = false
             customValueInput = ""
+            customFieldSelected = false
         }
     }
 
@@ -229,7 +232,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
         fromValue: @escaping (Value) -> String?
     ) -> some View {
         row(
-            isSelected: value.wrappedValue == toValue(customValueInput) || customValueIsFocused
+            isSelected: value.wrappedValue == toValue(customValueInput) || customFieldSelected
         ) {
             Text(label)
             Spacer()
@@ -304,6 +307,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
             }
         }
         .onTapGesture {
+            customFieldSelected = true
             if let v = toValue(customValueInput) {
                 value.wrappedValue = v
             } else {
@@ -343,6 +347,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                         switch opt.value {
                         case let .literal(v):
                             literalRow(v)
+                                .listRowSeparator(.hidden)
                         case let .custom(
                             label,
                             prompt,
@@ -360,8 +365,10 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
                                 toValue: toValue,
                                 fromValue: fromValue
                             )
+                            .listRowSeparator(.hidden)
                             if let legend {
                                 subtitleRow(legend)
+                                    .listRowSeparator(.hidden)
                             }
                         }
                     }
