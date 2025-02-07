@@ -3,17 +3,17 @@
 use std::{os::windows::io::AsRawHandle, ptr, sync::Arc, thread};
 use tokio::sync::broadcast;
 use windows_sys::{
-    w,
     Win32::{
         Foundation::{HANDLE, HWND, LPARAM, LRESULT, WPARAM},
         System::{LibraryLoader::GetModuleHandleW, Threading::GetThreadId},
         UI::WindowsAndMessaging::{
-            CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetMessageW,
-            GetWindowLongPtrW, PostQuitMessage, PostThreadMessageW, SetWindowLongPtrW,
-            TranslateMessage, GWLP_USERDATA, GWLP_WNDPROC, PBT_APMRESUMEAUTOMATIC,
-            PBT_APMRESUMESUSPEND, PBT_APMSUSPEND, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
+            CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GWLP_USERDATA,
+            GWLP_WNDPROC, GetMessageW, GetWindowLongPtrW, PBT_APMRESUMEAUTOMATIC,
+            PBT_APMRESUMESUSPEND, PBT_APMSUSPEND, PostQuitMessage, PostThreadMessageW,
+            SetWindowLongPtrW, TranslateMessage, WM_DESTROY, WM_POWERBROADCAST, WM_USER,
         },
     },
+    w,
 };
 
 const CLASS_NAME: *const u16 = w!("STATIC");
@@ -116,15 +116,15 @@ where
     F: Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT,
 {
     if message == WM_DESTROY {
-        PostQuitMessage(0);
+        unsafe { PostQuitMessage(0) };
         return 0;
     }
-    let raw_callback = GetWindowLongPtrW(window, GWLP_USERDATA);
+    let raw_callback = unsafe { GetWindowLongPtrW(window, GWLP_USERDATA) };
     if raw_callback != 0 {
-        let typed_callback = &mut *(raw_callback as *mut F);
+        let typed_callback = unsafe { &mut *(raw_callback as *mut F) };
         return typed_callback(window, message, wparam, lparam);
     }
-    DefWindowProcW(window, message, wparam, lparam)
+    unsafe { DefWindowProcW(window, message, wparam, lparam) }
 }
 
 /// Power management events

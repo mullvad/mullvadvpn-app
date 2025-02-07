@@ -69,7 +69,8 @@ fn generate_minidump(
     };
 
     // SAFETY: MiniDumpWriteDump is not thread-safe, so for this to be safe all threads need to be
-    // synchronized. logging_exception_filter takes precaution by adding a thread-safe reentrancy guard.
+    // synchronized. logging_exception_filter takes precaution by adding a thread-safe reentrancy
+    // guard.
     if unsafe {
         MiniDumpWriteDump(
             process,
@@ -148,9 +149,9 @@ unsafe extern "system" fn logging_exception_filter(info_ptr: *const EXCEPTION_PO
     }
     // SAFETY: We've explicitly checked for null pointer and
     // alignment. We assume that Windows gives us valid pointers, i.e. info points to valid data.
-    let info: &EXCEPTION_POINTERS = &*info_ptr;
-    let record: &EXCEPTION_RECORD = &*info.ExceptionRecord;
-    let context: &CONTEXT = &*info.ContextRecord;
+    let info: &EXCEPTION_POINTERS = unsafe { &*info_ptr };
+    let record: &EXCEPTION_RECORD = unsafe { &*info.ExceptionRecord };
+    let context: &CONTEXT = unsafe { &*info.ContextRecord };
 
     // Generate minidump
     let dump_path = match log_dir() {

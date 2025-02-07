@@ -715,7 +715,7 @@ mod logging {
         context: u64,
     ) {
         let managed_msg = if !msg.is_null() {
-            std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string()
+            unsafe { std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string() }
         } else {
             "Logging message from WireGuard is NULL".to_string()
         };
