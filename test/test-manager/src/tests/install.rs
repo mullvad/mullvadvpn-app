@@ -1,4 +1,5 @@
 use anyhow::{bail, ensure, Context};
+use std::str::FromStr;
 use std::time::Duration;
 
 use mullvad_management_interface::MullvadProxyClient;
@@ -109,8 +110,9 @@ pub async fn test_upgrade_app(
 
     // Verify that the correct version was installed
     let running_daemon_version = rpc.mullvad_daemon_version().await?;
-    let running_daemon_version =
-        mullvad_version::Version::parse(&running_daemon_version).to_string();
+    let running_daemon_version = mullvad_version::Version::from_str(&running_daemon_version)
+        .unwrap()
+        .to_string();
     ensure!(
         &TEST_CONFIG
             .app_package_filename
