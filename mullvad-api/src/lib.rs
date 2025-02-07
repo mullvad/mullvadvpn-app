@@ -758,9 +758,7 @@ impl ApiProxy {
             .get(&format!("{APP_URL_PREFIX}/api-addrs"))?
             .expected_status(&[StatusCode::OK]);
 
-        let _ = self.handle.service.request(request).await;
-
-        return Err(rest::Error::ApiError(StatusCode::UNAUTHORIZED, MAX_DEVICES_REACHED.to_string()));
+        self.handle.service.request(request).await
     }
 
     /// Check the availablility of `{APP_URL_PREFIX}/api-addrs`.
