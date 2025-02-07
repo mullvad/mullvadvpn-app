@@ -1,0 +1,28 @@
+name: "Check file size"
+description: "Fails a file exceeds a given size limit"
+inputs:
+  artifact:
+    description: "Path to the file"
+    required: true
+  max_size:
+    description: "Maximum allowed size in bytes"
+    required: true
+runs:
+  using: "composite"
+  steps:
+    - name: Check file size
+      shell: bash
+      run: |
+        if [ -f "${{ inputs.artifact }}" ]; then
+          SIZE=$(stat -c %s "${{ inputs.artifact }}")
+          echo "File size: $SIZE bytes"
+          echo "Size limit: ${{ inputs.max_size }} bytes"
+
+          if [ "$SIZE" -gt "${{ inputs.max_size }}" ]; then
+            echo "Error: Binary size exceeds limit."
+            exit 1
+          fi
+        else
+          echo "Error: File not found!"
+          exit 1
+        fi

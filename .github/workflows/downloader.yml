@@ -1,0 +1,80 @@
+---
+name: Installer downloader - Size test
+on:
+  pull_request:
+    paths:
+      - '**'
+      - '!**/**.md'
+      - '!.github/workflows/**'
+      - '.github/workflows/downloader.yml'
+      - '!.github/CODEOWNERS'
+      - '!android/**'
+      - '!audits/**'
+      - '!build.sh'
+      - '!ci/**'
+      - '!clippy.toml'
+      - '!deny.toml'
+      - '!rustfmt.toml'
+      - '!.yamllint'
+      - '!docs/**'
+      - '!graphics/**'
+      - '!desktop/**'
+      - '!ios/**'
+      - '!scripts/**'
+      - '!.*ignore'
+      - '!prepare-release.sh'
+      - '!**/osv-scanner.toml'
+
+permissions: {}
+
+jobs:
+  build-windows:
+    strategy:
+      matrix:
+        config:
+          - os: windows-latest
+            arch: x64
+    runs-on: ${{ matrix.config.os }}
+    env:
+      # If the file is larger than this, a regression has probably been introduced.
+      # You should think twice before increasing this limit.
+      MAX_BINARY_SIZE: 1572864
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build
+        shell: bash
+        env:
+          # On Windows, the checkout is on the D drive, which is very small.
+          # Moving the target directory to the C drive ensures that the runner
+          # doesn't run out of space on the D drive.
+          CARGO_TARGET_DIR: "C:/cargo-target"
+        run: ./installer-downloader/build.sh
+
+      - name: Check file size
+        uses: ./.github/actions/check-file-size
+        with:
+          artifact: "C:/cargo-target/release/installer-downloader.exe"
+          max_size: ${{ env.MAX_BINARY_SIZE }}
+
+  build-macos:
+    runs-on: macos-latest
+    env:
+      # TODO: Figure out a reasonable limit for macOS
+      # If the file is larger than this, a regression has probably been introduced.
+      # You should think twice before increasing this limit.
+      MAX_BINARY_SIZE: 2097152
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build
+        shell: bash
+        run: ./installer-downloader/build.sh
+
+      - name: Check file size
+        uses: ./.github/actions/check-file-size
+        with:
+          artifact: "./target/release/installer-downloader"
+          max_size: ${{ env.MAX_BINARY_SIZE }}
