@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for DAITA V2.
 - Add back wireguard-go (userspace WireGuard) support.
 
+### Changed
+- Update Electron from 33.2.1 to 33.4.0.
+
 
 ## [2025.3-beta1] - 2025-01-21
 ### Added
