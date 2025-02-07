@@ -44,7 +44,7 @@ impl DeviceService {
     pub fn generate_for_account(
         &self,
         account_number: AccountNumber,
-    ) -> impl Future<Output = Result<PrivateAccountAndDevice, Error>> + Send {
+    ) -> impl Future<Output = Result<PrivateAccountAndDevice, Error>> + Send + use<> {
         let private_key = PrivateKey::new_from_random();
         let pubkey = private_key.public_key();
 
@@ -261,7 +261,7 @@ pub struct AccountService {
 }
 
 impl AccountService {
-    pub fn create_account(&self) -> impl Future<Output = Result<AccountNumber, rest::Error>> {
+    pub fn create_account(&self) -> impl Future<Output = Result<AccountNumber, rest::Error>> + use<> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         retry_future(
@@ -274,7 +274,7 @@ impl AccountService {
     pub fn get_www_auth_token(
         &self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<String, rest::Error>> {
+    ) -> impl Future<Output = Result<String, rest::Error>> + use<> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         retry_future(

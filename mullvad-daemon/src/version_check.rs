@@ -252,7 +252,7 @@ impl VersionUpdaterInner {
     /// Wait until [Self::last_app_version_info] becomes stale and needs to be refreshed.
     ///
     /// This happens [UPDATE_INTERVAL] after the last version check.
-    fn wait_until_version_is_stale(&self) -> Pin<Box<impl FusedFuture<Output = ()>>> {
+    fn wait_until_version_is_stale(&self) -> Pin<Box<impl FusedFuture<Output = ()> + use<>>> {
         let time_until_stale = self.time_until_version_is_stale();
 
         // Boxed, pinned, and fused.
@@ -396,7 +396,7 @@ struct UpdateContext {
 impl UpdateContext {
     /// Write [VersionUpdaterInner::last_app_version_info], if any, to the cache file
     /// ([VERSION_INFO_FILENAME]). Also, notify `self.update_sender`
-    fn update(&self, last_app_version: AppVersionInfo) -> impl Future<Output = Result<(), Error>> {
+    fn update(&self, last_app_version: AppVersionInfo) -> impl Future<Output = Result<(), Error>> + use<> {
         let _ = self.update_sender.send(last_app_version.clone());
         let cache_path = self.cache_path.clone();
 

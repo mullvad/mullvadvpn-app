@@ -12,13 +12,13 @@ use talpid_types::{
 
 #[macro_export]
 macro_rules! print_option {
-    ($value:expr $(,)?) => {{
+    ($value:expr_2021 $(,)?) => {{
         println!("{:<4}{:<24}{}", "", "", $value,)
     }};
-    ($option:literal, $value:expr $(,)?) => {{
+    ($option:literal, $value:expr_2021 $(,)?) => {{
         println!("{:<4}{:<24}{}", "", concat!($option, ":"), $value,)
     }};
-    ($option:expr, $value:expr $(,)?) => {{
+    ($option:expr_2021, $value:expr_2021 $(,)?) => {{
         println!("{:<4}{:<24}{}", "", format!("{}:", $option), $value,)
     }};
 }
