@@ -3,7 +3,7 @@ use std::sync::{Arc, Mutex};
 use super::response::SwiftMullvadApiResponse;
 
 extern "C" {
-    pub fn completion_finish(
+    pub fn mullvad_api_completion_finish(
         response: SwiftMullvadApiResponse,
         completion_cookie: CompletionCookie,
     );
@@ -35,6 +35,6 @@ impl SwiftCompletionHandler {
             return;
         };
 
-        unsafe { completion_finish(response, cookie) };
+        unsafe { mullvad_api_completion_finish(response, cookie) };
     }
 }
