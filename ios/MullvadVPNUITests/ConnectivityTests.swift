@@ -231,6 +231,50 @@ class ConnectivityTests: LoggedOutUITestCase {
             .verifyFailIconShown()
     }
 
+    func testIfLocalNetworkSharingIsBlocking() throws {
+        let skipReason = """
+            This test is currently skipped since there is no way to allow local network access for UI tests.
+        Since its blocked by the system, there is no way of testing the `Local network sharing` switch.
+        Non of these solutions worked: https://developer.apple.com/forums/thread/668729
+        """
+        try XCTSkipIf(true, skipReason)
+        let hasTimeAccountNumber = getAccountWithTime()
+        addTeardownBlock {
+            self.deleteTemporaryAccountWithTime(accountNumber: hasTimeAccountNumber)
+        }
+        agreeToTermsOfServiceIfShown()
+
+        login(accountNumber: hasTimeAccountNumber)
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        try Networking.verifyCannotAccessLocalNetwork()
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapLocalNetworkSharingSwitch()
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        try Networking.verifyCanAccessLocalNetwork()
+    }
+
     private func verifyDeviceHasBeenRemoved(deviceName: String, accountNumber: String) {
         do {
             let devices = try MullvadAPIWrapper().getDevices(accountNumber)
