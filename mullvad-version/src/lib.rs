@@ -12,8 +12,7 @@ pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-versio
 pub struct Version {
     pub year: u32,
     pub incremental: u32,
-    /// A version can have an optional pre-stable type, e.g. alpha or beta. If `pre_stable`
-    /// and `dev` both are None the version is stable.
+    /// A version can have an optional pre-stable type, e.g. alpha or beta.
     pub pre_stable: Option<PreStableType>,
     /// All versions may have an optional -dev-[commit hash] suffix.
     pub dev: Option<String>,
