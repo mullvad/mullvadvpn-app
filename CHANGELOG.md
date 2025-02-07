@@ -27,7 +27,10 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for DAITA V2.
 - Add back wireguard-go (userspace WireGuard) support.
 
+
+## [2025.3] - 2025-02-07
 ### Changed
+- Change order of items in settings view to show DAITA and multihop at the top.
 - Update Electron from 33.2.1 to 33.4.0.
 
 
