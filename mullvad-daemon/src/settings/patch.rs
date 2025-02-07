@@ -274,9 +274,9 @@ fn merge_patch_to_value(
             match (&permitted_key.key_type, current_value, patch_value) {
                 // Append or replace keys to objects
                 (
-                    &PermittedKeyValue::Object(ref sub_permitted),
+                    &PermittedKeyValue::Object(sub_permitted),
                     &mut serde_json::Value::Object(ref mut current),
-                    &serde_json::Value::Object(ref patch),
+                    serde_json::Value::Object(patch),
                 ) => {
                     for (k, sub_patch) in patch {
                         let Some((_, sub_permitted)) = sub_permitted
