@@ -64,7 +64,7 @@ impl MullvadApiError {
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_error_drop(error: MullvadApiError) {
     error.drop()
 }
