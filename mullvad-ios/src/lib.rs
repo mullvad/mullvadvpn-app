@@ -34,20 +34,5 @@ mod ios {
 }
 
 use ios::*;
-use mullvad_api::{
-    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
-    rest::{MullvadRestHandle, Response},
-    ApiEndpoint, ApiProxy, Runtime,
-};
-use std::{
-    ffi::{CStr, CString},
-    net::Incoming,
-    ptr::{null, null_mut},
-    str::FromStr,
-    sync::{Arc, Mutex},
-    time::Duration,
-    u8,
-};
-use tokio::task::JoinHandle;
 
 
