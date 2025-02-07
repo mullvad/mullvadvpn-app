@@ -166,7 +166,7 @@ impl RelayListUpdater {
         api_handle: ApiAvailability,
         proxy: RelayListProxy,
         tag: Option<String>,
-    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + 'static {
+    ) -> impl Future<Output = Result<Option<RelayList>, mullvad_api::Error>> + use<> {
         let download_futures = move || {
             let available = api_handle.wait_background();
             let req = proxy.relay_list(tag.clone());

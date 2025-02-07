@@ -128,11 +128,14 @@ impl ApiAvailability {
         self.acquire().state
     }
 
-    pub fn wait_for_unsuspend(&self) -> impl Future<Output = Result<(), Error>> {
+    pub fn wait_for_unsuspend(&self) -> impl Future<Output = Result<(), Error>> + use<> {
         self.wait_for_state(|state| !state.is_suspended())
     }
 
-    pub fn when_bg_resumes<F: Future<Output = O>, O>(&self, task: F) -> impl Future<Output = O> {
+    pub fn when_bg_resumes<F: Future<Output = O>, O>(
+        &self,
+        task: F,
+    ) -> impl Future<Output = O> + use<F, O> {
         let wait_task = self.wait_for_state(|state| !state.is_background_paused());
         async move {
             let _ = wait_task.await;
@@ -140,11 +143,14 @@ impl ApiAvailability {
         }
     }
 
-    pub fn wait_background(&self) -> impl Future<Output = Result<(), Error>> {
+    pub fn wait_background(&self) -> impl Future<Output = Result<(), Error>> + use<> {
         self.wait_for_state(|state| !state.is_background_paused())
     }
 
-    pub fn when_online<F: Future<Output = O>, O>(&self, task: F) -> impl Future<Output = O> {
+    pub fn when_online<F: Future<Output = O>, O>(
+        &self,
+        task: F,
+    ) -> impl Future<Output = O> + use<F, O> {
         let wait_task = self.wait_for_state(|state| !state.is_offline());
         async move {
             let _ = wait_task.await;
@@ -156,10 +162,10 @@ impl ApiAvailability {
         self.wait_for_state(|state| !state.is_offline())
     }
 
-    fn wait_for_state(
+    fn wait_for_state<F: Fn(State) -> bool>(
         &self,
-        state_ready: impl Fn(State) -> bool,
-    ) -> impl Future<Output = Result<(), Error>> {
+        state_ready: F,
+    ) -> impl Future<Output = Result<(), Error>> + use<F> {
         let mut rx = { self.acquire().tx.subscribe() };
 
         let handle = self.clone();
