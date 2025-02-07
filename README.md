@@ -92,9 +92,9 @@ cd mullvadvpn-app
 git submodule update --init
 ```
 
-On Android, Linux and macOS you also want to checkout the wireguard-go submodule recursively:
+On Android, Windows, Linux and macOS you also want to checkout the wireguard-go submodule:
 ```bash
-git submodule update --init --recursive --depth=1 wireguard-go-rs
+git submodule update --init wireguard-go-rs/libwg/wireguard-go
 ```
 Further details on why this is necessary can be found in the [wireguard-go-rs crate](./wireguard-go-rs/README.md).
 
