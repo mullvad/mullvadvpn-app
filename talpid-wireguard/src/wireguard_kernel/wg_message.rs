@@ -575,7 +575,7 @@ unsafe fn struct_as_slice<T: Sized>(t: &T) -> &[u8] {
     let ptr = t as *const T as *const u8;
     // SAFETY: The memory from `ptr` and `size` bytes forward is always the same as the struct.
     // The caller is responsible for not using this with structs containing padding.
-    std::slice::from_raw_parts(ptr, size)
+    unsafe { std::slice::from_raw_parts(ptr, size) }
 }
 
 fn ip_addr_to_bytes(addr: &IpAddr) -> Vec<u8> {

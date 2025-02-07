@@ -1,6 +1,6 @@
 use super::windows::{
-    get_device_path, get_process_creation_time, get_process_device_path, open_process,
-    ProcessAccess,
+    ProcessAccess, get_device_path, get_process_creation_time, get_process_device_path,
+    open_process,
 };
 use bitflags::bitflags;
 use memoffset::offset_of;
@@ -10,7 +10,7 @@ use std::{
     ffi::{OsStr, OsString},
     fs::{self, OpenOptions},
     io,
-    mem::{self, size_of, MaybeUninit},
+    mem::{self, MaybeUninit, size_of},
     net::{Ipv4Addr, Ipv6Addr},
     os::windows::{
         ffi::{OsStrExt, OsStringExt},
@@ -28,13 +28,13 @@ use windows_sys::Win32::{
         ERROR_ACCESS_DENIED, ERROR_FILE_NOT_FOUND, ERROR_INVALID_PARAMETER, ERROR_IO_PENDING,
         HANDLE, NTSTATUS, WAIT_ABANDONED, WAIT_ABANDONED_0, WAIT_FAILED, WAIT_OBJECT_0,
     },
-    Networking::WinSock::{IN6_ADDR, IN_ADDR},
+    Networking::WinSock::{IN_ADDR, IN6_ADDR},
     Storage::FileSystem::FILE_FLAG_OVERLAPPED,
     System::{
         Diagnostics::ToolHelp::TH32CS_SNAPPROCESS,
-        Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
-        Threading::{WaitForMultipleObjects, WaitForSingleObject, INFINITE},
         IO::{DeviceIoControl, GetOverlappedResult, OVERLAPPED},
+        Ioctl::{FILE_ANY_ACCESS, METHOD_BUFFERED, METHOD_NEITHER},
+        Threading::{INFINITE, WaitForMultipleObjects, WaitForSingleObject},
     },
 };
 
@@ -278,7 +278,13 @@ impl DeviceHandle {
         internet_ipv4: Option<Ipv4Addr>,
         internet_ipv6: Option<Ipv6Addr>,
     ) -> io::Result<()> {
-        log::debug!("Register IPs: tunnel IPv4: {:?}, tunnel IPv6 {:?}, internet IPv4: {:?}, internet IPv6: {:?}", tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6);
+        log::debug!(
+            "Register IPs: tunnel IPv4: {:?}, tunnel IPv6 {:?}, internet IPv4: {:?}, internet IPv6: {:?}",
+            tunnel_ipv4,
+            tunnel_ipv6,
+            internet_ipv4,
+            internet_ipv6
+        );
         let mut addresses: SplitTunnelAddresses = unsafe { mem::zeroed() };
 
         unsafe {
@@ -840,18 +846,20 @@ pub unsafe fn device_io_control_buffer_async(
     };
     let input_len = input.map(|input| input.len()).unwrap_or(0);
 
-    let result = DeviceIoControl(
-        device.as_raw_handle() as HANDLE,
-        ioctl_code,
-        input_ptr,
-        u32::try_from(input_len).map_err(|_error| {
-            io::Error::new(io::ErrorKind::InvalidInput, "the input buffer is too large")
-        })?,
-        output_ptr as *mut _,
-        output_len,
-        ptr::null_mut(),
-        overlapped,
-    );
+    let result = unsafe {
+        DeviceIoControl(
+            device.as_raw_handle() as HANDLE,
+            ioctl_code,
+            input_ptr,
+            u32::try_from(input_len).map_err(|_error| {
+                io::Error::new(io::ErrorKind::InvalidInput, "the input buffer is too large")
+            })?,
+            output_ptr as *mut _,
+            output_len,
+            ptr::null_mut(),
+            overlapped,
+        )
+    };
 
     if result != 0 {
         return Err(io::Error::new(
@@ -912,7 +920,7 @@ pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) 
         })?,
         None => INFINITE,
     };
-    let result = WaitForSingleObject(object, timeout);
+    let result = unsafe { WaitForSingleObject(object, timeout) };
     match result {
         WAIT_OBJECT_0 => Ok(()),
         WAIT_FAILED => Err(io::Error::last_os_error()),
@@ -959,12 +967,14 @@ unsafe fn deserialize_buffer<T>(buffer: &[u8]) -> T {
     assert!(buffer.len() <= mem::size_of::<T>());
 
     let mut instance = MaybeUninit::zeroed();
-    ptr::copy_nonoverlapping(
-        buffer.as_ptr(),
-        instance.as_mut_ptr() as *mut u8,
-        buffer.len(),
-    );
-    instance.assume_init()
+    unsafe {
+        ptr::copy_nonoverlapping(
+            buffer.as_ptr(),
+            instance.as_mut_ptr() as *mut u8,
+            buffer.len(),
+        );
+        instance.assume_init()
+    }
 }
 
 fn buffer_to_osstring(buffer: &[u8]) -> OsString {

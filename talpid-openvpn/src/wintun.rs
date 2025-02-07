@@ -1,22 +1,22 @@
 use once_cell::sync::OnceCell;
 use std::{ffi::CStr, fmt, io, mem, os::windows::io::RawHandle, path::Path, ptr};
-use talpid_types::{win32_err, ErrorExt};
+use talpid_types::{ErrorExt, win32_err};
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
-    core::GUID,
     Win32::{
         Foundation::{FreeLibrary, HMODULE},
         NetworkManagement::{IpHelper::ConvertInterfaceLuidToGuid, Ndis::NET_LUID_LH},
         System::{
             Com::StringFromGUID2,
-            LibraryLoader::{GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH},
+            LibraryLoader::{GetProcAddress, LOAD_WITH_ALTERED_SEARCH_PATH, LoadLibraryExW},
             Registry::REG_SAM_FLAGS,
         },
     },
+    core::GUID,
 };
 use winreg::{
-    enums::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE},
     RegKey,
+    enums::{HKEY_LOCAL_MACHINE, KEY_READ, KEY_WRITE},
 };
 
 /// Shared `WintunDll` instance
@@ -214,7 +214,7 @@ impl WintunDll {
         handle: HMODULE,
         name: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
-        let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
+        let handle = unsafe { GetProcAddress(handle, name.as_ptr() as *const u8) };
         handle.ok_or(io::Error::last_os_error())
     }
 
@@ -252,13 +252,15 @@ impl WintunDll {
     }
 
     pub unsafe fn close_adapter(&self, adapter: RawHandle) {
-        (self.func_close)(adapter);
+        unsafe { (self.func_close)(adapter) };
     }
 
     pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID_LH {
         let mut luid = mem::MaybeUninit::<NET_LUID_LH>::zeroed();
-        (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
-        luid.assume_init()
+        unsafe {
+            (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
+            luid.assume_init()
+        }
     }
 
     pub fn activate_logging(&'static self) -> WintunLoggerHandle {

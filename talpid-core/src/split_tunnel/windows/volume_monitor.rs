@@ -1,20 +1,20 @@
 //! Used to monitor volume mounts and dismounts, and reapply the split
 //! tunnel config if any of the excluded paths are affected by them.
 use super::path_monitor::PathMonitorHandle;
-use crate::window::{create_hidden_window, WindowCloseHandle};
-use futures::{channel::mpsc, StreamExt};
+use crate::window::{WindowCloseHandle, create_hidden_window};
+use futures::{StreamExt, channel::mpsc};
 use std::{
     ffi::OsString,
     io,
     path::{self, Path},
-    sync::{mpsc as sync_mpsc, Arc, Mutex, MutexGuard},
+    sync::{Arc, Mutex, MutexGuard, mpsc as sync_mpsc},
 };
 use talpid_types::ErrorExt;
 use windows_sys::Win32::{
     Storage::FileSystem::GetLogicalDrives,
     UI::WindowsAndMessaging::{
-        DefWindowProcW, DBTF_NET, DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME,
-        DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME, WM_DEVICECHANGE,
+        DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME, DBTF_NET,
+        DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME, DefWindowProcW, WM_DEVICECHANGE,
     },
 };
 
@@ -188,7 +188,7 @@ unsafe fn parse_device_volume_broadcast(broadcast: &DEV_BROADCAST_HDR) -> u32 {
         return 0;
     }
 
-    let volume_broadcast = &*(broadcast as *const _ as *const DEV_BROADCAST_VOLUME);
+    let volume_broadcast = unsafe { &*(broadcast as *const _ as *const DEV_BROADCAST_VOLUME) };
     if volume_broadcast.dbcv_flags & DBTF_NET != 0 {
         // Ignore net event
         return 0;
