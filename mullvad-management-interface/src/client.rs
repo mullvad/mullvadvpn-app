@@ -133,7 +133,9 @@ impl MullvadProxyClient {
         TunnelState::try_from(state).map_err(Error::InvalidResponse)
     }
 
-    pub async fn events_listen(&mut self) -> Result<impl Stream<Item = Result<DaemonEvent>>> {
+    pub async fn events_listen<'a>(
+        &mut self,
+    ) -> Result<impl Stream<Item = Result<DaemonEvent>> + 'a> {
         let listener = self
             .0
             .events_listen(())

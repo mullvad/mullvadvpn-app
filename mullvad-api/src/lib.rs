@@ -504,7 +504,7 @@ impl AccountsProxy {
     pub fn get_data(
         &self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<AccountData, rest::Error>> {
+    ) -> impl Future<Output = Result<AccountData, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
         async move {
@@ -517,7 +517,9 @@ impl AccountsProxy {
         }
     }
 
-    pub fn create_account(&self) -> impl Future<Output = Result<AccountNumber, rest::Error>> {
+    pub fn create_account(
+        &self,
+    ) -> impl Future<Output = Result<AccountNumber, rest::Error>> + use<> {
         #[derive(serde::Deserialize)]
         struct AccountCreationResponse {
             number: AccountNumber,
@@ -540,7 +542,7 @@ impl AccountsProxy {
         &self,
         account: AccountNumber,
         voucher_code: String,
-    ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> {
+    ) -> impl Future<Output = Result<VoucherSubmission, rest::Error>> + use<> {
         #[derive(serde::Serialize)]
         struct VoucherSubmission {
             voucher_code: String,
@@ -562,7 +564,7 @@ impl AccountsProxy {
     pub fn delete_account(
         &self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<(), rest::Error>> {
+    ) -> impl Future<Output = Result<(), rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let factory = self.handle.factory.clone();
 
@@ -629,7 +631,7 @@ impl AccountsProxy {
     pub fn get_www_auth_token(
         &self,
         account: AccountNumber,
-    ) -> impl Future<Output = Result<String, rest::Error>> {
+    ) -> impl Future<Output = Result<String, rest::Error>> + use<> {
         #[derive(serde::Deserialize)]
         struct AuthTokenResponse {
             auth_token: String,
@@ -717,7 +719,7 @@ impl AppVersionProxy {
         app_version: AppVersion,
         platform: &str,
         platform_version: String,
-    ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> {
+    ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> + use<> {
         let service = self.handle.service.clone();
 
         let path = format!("{APP_URL_PREFIX}/releases/{platform}/{app_version}");
