@@ -1,95 +1,75 @@
 {
-    "signature": {
-        "keyid": "AEC24A08466F3D6A1EDCDB2AD3C234428AB9D991B6BEA7F53CB9F172E6CB40D8",
-        "sig": "d68ba75006ea3ac249e56849022a7d93603effe26ec0385bac42cf6675fc6e31322cae018a60428d5c670baedd46b59fa2b35a412f1ed285256c64dbafbcb905"
-    },
-    "signed": {
-        "expires": "2025-07-02T15:33:00Z",
-        "stable": {
-            "current": {
-                "version": "2025.1",
-                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
-                "installers": {
-                    "x86": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    },
-                    "arm64": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    }
-                }
-            },
-            "next": {
-                "rollout": 0.3,
-                "version": "2025.1",
-                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
-                "installers": {
-                    "x86": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    },
-                    "arm64": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1/MullvadVPN-2025.1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    }
-                }
-            }
-        },
-        "beta": {
-            "current": {
-                "version": "2025.1-beta1",
-                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
-                "installers": {
-                    "x86": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    },
-                    "arm64": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    }
-                }
-            },
-            "next": {
-                "rollout": 0.3,
-                "version": "2025.1-beta1",
-                "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
-                "installers": {
-                    "x86": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    },
-                    "arm64": {
-                        "urls": [
-                            "https://appcdn.mullvad.net/desktop/2025.1-beta1/MullvadVPN-2025.1-beta1-x64.exe"
-                        ],
-                        "size": 123456789,
-                        "sha256": "3b2b1cdcfbab2c87e392f5b31e1fed63b1111027dae71bbfaf4bcef2998c18bc"
-                    }
-                }
-            }
+  "signature": {
+    "keyid": "f4c262705b4ae8088bc8173889f779f77563edfd7de3b0ac4aa0e554a6896404",
+    "sig": "692ff231a4e12698b86c91c5c3e43dd8781db8022e7910ff5a0f640e7516ae55b1cef216b7e40774d3eae4c1b29129ce78587900779bec51ca51db274af0eb0d"
+  },
+  "signed": {
+    "expires": "2025-07-02T15:33:00Z",
+    "stable": {
+      "current": {
+        "version": "2025.2",
+        "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
+        "installers": {
+          "x86": {
+            "urls": [
+              "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2.exe"
+            ],
+            "size": 101384672,
+            "sha256": "F4B25713D13F2819A300F2FFA94D967463AAEEA0D357FBD7479A281154BA0460"
+          },
+          "arm64": {
+            "urls": [
+              "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2_arm64.exe"
+            ],
+            "size": 104146312,
+            "sha256": "AFD8098A1FF89D69A243EC4E2E946CF5FBF8D1C10998230D6C8FC0A5C9C39541"
+          }
         }
+      },
+      "next": {
+        "rollout": 0.3,
+        "version": "2025.1",
+        "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
+        "installers": {
+          "x86": {
+            "urls": [
+              "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2.exe"
+            ],
+            "size": 101384672,
+            "sha256": "F4B25713D13F2819A300F2FFA94D967463AAEEA0D357FBD7479A281154BA0460"
+          },
+          "arm64": {
+            "urls": [
+              "https://releases.mullvad.net/desktop/releases/2025.2/MullvadVPN-2025.2_arm64.exe"
+            ],
+            "size": 104146312,
+            "sha256": "AFD8098A1FF89D69A243EC4E2E946CF5FBF8D1C10998230D6C8FC0A5C9C39541"
+          }
+        }
+      }
+    },
+    "beta": {
+      "current": {
+        "version": "2025.1-beta1",
+        "changelog": "[macos] Adding support for quicfuscator\n[windows] Less bugs",
+        "installers": {
+          "x86": {
+            "urls": [
+              "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_x64.exe"
+            ],
+            "size": 106297504,
+            "sha256": "0c569aa0912eb93605a85073447d42ba0ca612361bef78ef04ef038e80b15403"
+          },
+          "arm64": {
+            "urls": [
+              "https://releases.mullvad.net/desktop/releases/2025.3-beta1/MullvadVPN-2025.3-beta1_arm64.exe"
+            ],
+            "size": 111488248,
+            "sha256": "82948D3DB5B869EE5F0D246DB557A81B72B68DFDDD2267872B7B8A5B19A05444"
+          }
+        }
+      },
+      "next": null
     }
+  }
 }
