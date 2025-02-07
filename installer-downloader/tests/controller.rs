@@ -56,7 +56,7 @@ impl<const A: bool, const B: bool, const C: bool> From<UiAppDownloaderParameters
 /// Parameters:
 /// * SIG_SUCCEED - whether fetching the signature succeeds
 /// * EXE_SUCCEED - whether fetching the binary succeeds
-/// * VERIFY_SUCCED - whether verifying the signature succeeds
+/// * VERIFY_SUCCEED - whether verifying the signature succeeds
 pub struct FakeAppDownloader<
     const SIG_SUCCEED: bool,
     const EXE_SUCCEED: bool,
