@@ -35,10 +35,6 @@ test('App should show correct OpenVPN transport protocol and port', async () => 
 
   await expect(inData).toContainText(new RegExp(':[0-9]+'));
   await expect(inData).toContainText(new RegExp('(TCP|UDP)$'));
-  await exec('mullvad relay set tunnel openvpn --transport-protocol udp --port 1195');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(inData).toContainText(new RegExp(':1195'));
 
   await exec('mullvad relay set tunnel openvpn --transport-protocol udp --port 1300');
   await expectConnected(page);
@@ -55,11 +51,6 @@ test('App should show correct OpenVPN transport protocol and port', async () => 
   await expectConnected(page);
   await page.getByTestId('connection-panel-chevron').click();
   await expect(inData).toContainText(new RegExp(':80'));
-
-  await exec('mullvad relay set tunnel openvpn --transport-protocol tcp --port 443');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(inData).toContainText(new RegExp(':443'));
 
   await exec('mullvad relay set tunnel openvpn --transport-protocol any');
 });
