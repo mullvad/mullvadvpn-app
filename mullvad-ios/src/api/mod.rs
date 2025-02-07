@@ -1,21 +1,13 @@
 use std::{ffi::CStr, ptr::null_mut, sync::Arc};
 
-use completion::CompletionCookie;
 use mullvad_api::{
-    proxy::{ApiConnectionMode, StaticConnectionModeProvider}, rest::MullvadRestHandle, ApiEndpoint, ApiProxy, Runtime
+    proxy::{ApiConnectionMode, StaticConnectionModeProvider}, rest::MullvadRestHandle, ApiEndpoint, Runtime
 };
-use response::SwiftMullvadApiResponse;
 
 mod api;
 mod cancellation;
 mod completion;
 mod response;
-
-#[derive(Debug)]
-enum Error {
-    Rest(mullvad_api::rest::Error),
-    CString(std::ffi::NulError),
-}
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
@@ -30,8 +22,8 @@ impl SwiftApiContext {
     }
 }
 
-struct ApiContext {
-    api_client: Runtime,
+pub struct ApiContext {
+    _api_client: Runtime,
     rest_client: MullvadRestHandle,
 }
 impl ApiContext {
@@ -74,7 +66,7 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
             .mullvad_rest_handle(StaticConnectionModeProvider::new(ApiConnectionMode::Direct));
 
         ApiContext {
-            api_client,
+            _api_client: api_client,
             rest_client,
         }
     });
