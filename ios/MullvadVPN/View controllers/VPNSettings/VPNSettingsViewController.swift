@@ -191,7 +191,10 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
                             comment: ""
                         ),
                         style: .destructive,
-                        handler: { completion(true) }
+                        accessibilityId: .acceptLocalNetworkSharingButton,
+                        handler: {
+                            completion(true)
+                        }
                     ),
                     AlertAction(
                         title: NSLocalizedString(
