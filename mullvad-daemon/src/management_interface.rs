@@ -1353,7 +1353,7 @@ fn map_device_error(error: &device::Error) -> Status {
         }
         device::Error::InvalidVoucher => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
         device::Error::UsedVoucher => Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE),
-        &device::Error::DeviceIoError(ref _error) => {
+        device::Error::DeviceIoError(_error) => {
             Status::new(Code::Unavailable, error.to_string())
         }
         device::Error::OtherRestError(error) => map_rest_error(error),
