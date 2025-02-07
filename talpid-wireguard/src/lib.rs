@@ -401,7 +401,6 @@ impl WireguardMonitor {
         let desired_mtu = get_desired_mtu(params);
         let mut config =
             Config::from_parameters(params, desired_mtu).map_err(Error::WireguardConfigError)?;
-
         let (close_obfs_sender, close_obfs_listener) = sync_mpsc::channel();
         // Start obfuscation server and patch the WireGuard config to point the endpoint to it.
         let obfuscator = args
@@ -460,6 +459,13 @@ impl WireguardMonitor {
             event_hook
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
+
+            // Wait for routes to come up
+            args.route_manager
+                .wait_for_routes()
+                .await
+                .map_err(Error::SetupRoutingError)
+                .map_err(CloseMsg::SetupError)?;
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();

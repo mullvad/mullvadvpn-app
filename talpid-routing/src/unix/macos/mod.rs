@@ -16,9 +16,10 @@ use std::{
 use talpid_types::ErrorExt;
 use watch::RoutingTable;
 
-use super::{DefaultRouteEvent, RouteManagerCommand};
+use super::RouteManagerCommand;
 use data::{Destination, RouteDestination, RouteMessage, RouteSocketMessage};
 
+pub use super::DefaultRouteEvent;
 pub use interface::DefaultRoute;
 
 mod data;
