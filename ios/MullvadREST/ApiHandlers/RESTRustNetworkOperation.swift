@@ -75,7 +75,7 @@ extension REST {
             networkTask = requestHandler { [weak self] response in
                 guard let self else { return }
 
-                if let error = try response.restError() {
+                if let error = response.restError() {
                     if response.shouldRetry {
                         retryRequest(with: error)
                     } else {
@@ -146,7 +146,7 @@ extension REST {
 }
 
 extension MullvadApiResponse {
-    public func restError() throws -> REST.Error? {
+    public func restError() -> REST.Error? {
         guard !success else {
             return nil
         }

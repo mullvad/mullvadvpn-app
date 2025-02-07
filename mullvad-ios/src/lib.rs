@@ -1,8 +1,8 @@
 #![cfg(target_os = "ios")]
+mod api_client;
 mod encrypted_dns_proxy;
 mod ephemeral_peer_proxy;
 mod shadowsocks_proxy;
-mod api;
 pub mod tunnel_obfuscator_proxy;
 
 #[repr(C)]
@@ -34,5 +34,3 @@ mod ios {
 }
 
 use ios::*;
-
-

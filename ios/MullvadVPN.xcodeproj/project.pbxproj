@@ -583,6 +583,8 @@
 		7A8A19242CF4C9BF000BCB5B /* MultihopPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19232CF4C9B8000BCB5B /* MultihopPage.swift */; };
 		7A8A19262CF4D37B000BCB5B /* DAITAPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19252CF4D373000BCB5B /* DAITAPage.swift */; };
 		7A8A19282CF603EB000BCB5B /* SettingsViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */; };
+		7A95B6792D5F729300687524 /* DAITASettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A95B6782D5F729300687524 /* DAITASettingsCoordinator.swift */; };
+		7A95B67B2D5F758300687524 /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 7A95B67A2D5F758300687524 /* relays.json */; };
 		7A99D36F2D56070400891FF7 /* MullvadApiRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */; };
 		7A99D3712D56222000891FF7 /* MullvadApiCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */; };
 		7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */; };
@@ -1992,6 +1994,8 @@
 		7A8A19232CF4C9B8000BCB5B /* MultihopPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopPage.swift; sourceTree = "<group>"; };
 		7A8A19252CF4D373000BCB5B /* DAITAPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITAPage.swift; sourceTree = "<group>"; };
 		7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewControllerFactory.swift; sourceTree = "<group>"; };
+		7A95B6782D5F729300687524 /* DAITASettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsCoordinator.swift; sourceTree = "<group>"; };
+		7A95B67A2D5F758300687524 /* relays.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
 		7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiRequestFactory.swift; sourceTree = "<group>"; };
 		7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiCancellable.swift; sourceTree = "<group>"; };
 		7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNodeTests.swift; sourceTree = "<group>"; };
@@ -2532,7 +2536,7 @@
 			isa = PBXGroup;
 			children = (
 				06799AB428F98CE700ACD94E /* le_root_cert.cer */,
-				7A99D36C2D54FCC400891FF7 /* relays.json */,
+				7A95B67A2D5F758300687524 /* relays.json */,
 			);
 			path = Assets;
 			sourceTree = "<group>";
@@ -4121,7 +4125,7 @@
 		7A8A19082CE5FFD7000BCB5B /* DAITA */ = {
 			isa = PBXGroup;
 			children = (
-				7A3215732D3E5A7B005DF395 /* DAITASettingsCoordinator.swift */,
+				7A95B6782D5F729300687524 /* DAITASettingsCoordinator.swift */,
 				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsViewModel.swift */,
 				7A8A19092CE5FFDF000BCB5B /* SettingsDAITAView.swift */,
@@ -5273,7 +5277,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */,
-				7A99D36D2D54FCC400891FF7 /* relays.json in Resources */,
+				7A95B67B2D5F758300687524 /* relays.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5940,6 +5944,7 @@
 				44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */,
 				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,
 				4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */,
+				7A95B6792D5F729300687524 /* DAITASettingsCoordinator.swift in Sources */,
 				7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */,
 				5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */,
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,
@@ -6042,7 +6047,6 @@
 				588D7EDC2AF3A55E005DF40A /* ListAccessMethodInteractorProtocol.swift in Sources */,
 				588D7ED62AF3903F005DF40A /* ListAccessMethodViewController.swift in Sources */,
 				7A8A190E2CEB77C1000BCB5B /* SettingsRowViewFooter.swift in Sources */,
-				7A3215742D3E5A85005DF395 /* DAITASettingsCoordinator.swift in Sources */,
 				7A6000FC2B628DF6001CF0D9 /* ListCellContentConfiguration.swift in Sources */,
 				582BB1B1229569620055B6EF /* UINavigationBar+Appearance.swift in Sources */,
 				7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */,
