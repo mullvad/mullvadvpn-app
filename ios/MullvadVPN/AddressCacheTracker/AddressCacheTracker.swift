@@ -91,7 +91,7 @@ final class AddressCacheTracker: @unchecked Sendable {
                 return AnyCancellable()
             }
 
-            return self.apiProxy.getAddressListNew(retryStrategy: .default) { result in
+            return self.apiProxy.mullvadApiGetAddressList(retryStrategy: .default) { result in
                 print("Address list: \(result)")
                 self.setEndpoints(from: result)
                 finish(result.map { _ in true })
