@@ -43,14 +43,6 @@ export const StyledEmptyResponse = styled.span({
   marginTop: '8px',
 });
 
-export const StyledStatusIcon = styled.div({
-  alignSelf: 'center',
-  width: '60px',
-  height: '60px',
-  marginBottom: '18px',
-  marginTop: '25px',
-});
-
 export const StyledTitle = styled.span(smallText, {
   lineHeight: '22px',
   fontWeight: 400,

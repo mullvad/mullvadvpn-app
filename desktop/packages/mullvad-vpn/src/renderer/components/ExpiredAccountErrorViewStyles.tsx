@@ -52,13 +52,6 @@ export const StyledAccountNumberMessage = styled.span(tinyText, {
   color: Colors.white,
 });
 
-export const StyledStatusIcon = styled.div({
-  alignSelf: 'center',
-  width: '60px',
-  height: '60px',
-  marginBottom: '18px',
-});
-
 export const StyledAccountNumberContainer = styled.div({
   display: 'flex',
   height: '50px',
