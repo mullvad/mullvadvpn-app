@@ -398,11 +398,7 @@ pub struct SettingsSummary<'a> {
 impl Display for SettingsSummary<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bool_to_label = |state| {
-            if state {
-                "on"
-            } else {
-                "off"
-            }
+            if state { "on" } else { "off" }
         };
 
         let relay_settings = self.settings.get_relay_settings();
@@ -504,11 +500,10 @@ impl Display for SettingsSummary<'_> {
 
 impl SettingsSummary<'_> {
     fn fmt_option<T: Display>(f: &mut fmt::Formatter<'_>, val: Option<T>) -> fmt::Result {
-        match &val { Some(inner) => {
-            inner.fmt(f)
-        } _ => {
-            f.write_str("unset")
-        }}
+        match &val {
+            Some(inner) => inner.fmt(f),
+            _ => f.write_str("unset"),
+        }
     }
 }
 

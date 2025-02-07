@@ -7,15 +7,15 @@
 use crate::DaemonCommand;
 use crate::DaemonEventSender;
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
 #[cfg(feature = "api-override")]
 use mullvad_api::ApiEndpoint;
 use mullvad_api::{
+    AddressCache,
     availability::ApiAvailability,
     proxy::{ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
-    AddressCache,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::RelaySelector;
@@ -25,7 +25,7 @@ use mullvad_types::access_method::{
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
 use talpid_types::net::{
-    proxy::CustomProxy, AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol,
+    AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol, proxy::CustomProxy,
 };
 
 pub enum Message {
@@ -344,7 +344,9 @@ impl AccessModeSelector {
             match execution {
                 Ok(_) => (),
                 Err(error) if error.is_critical_error() => {
-                    log::error!("AccessModeSelector failed due to an internal error and won't be able to recover without a restart. {error}");
+                    log::error!(
+                        "AccessModeSelector failed due to an internal error and won't be able to recover without a restart. {error}"
+                    );
                     break;
                 }
                 Err(error) => {

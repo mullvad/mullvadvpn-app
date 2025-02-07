@@ -2,7 +2,7 @@
 //! Mullvad API.
 #[cfg(feature = "api-override")]
 use mullvad_api::ApiEndpoint;
-use mullvad_api::{rest::MullvadRestHandle, AddressCache, ApiProxy};
+use mullvad_api::{AddressCache, ApiProxy, rest::MullvadRestHandle};
 use std::time::Duration;
 
 const API_IP_CHECK_INITIAL: Duration = Duration::from_secs(15 * 60);

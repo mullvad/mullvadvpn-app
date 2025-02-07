@@ -19,16 +19,16 @@ use std::{
     future::Future,
     path::Path,
     sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     },
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::{
+    ErrorExt,
     net::{TunnelEndpoint, TunnelType},
     tunnel::TunnelStateTransition,
-    ErrorExt,
 };
 use tokio::{
     fs,
@@ -1002,20 +1002,26 @@ impl AccountManager {
                 .is_ok()
         });
 
-        match old_config { Some(old_config) => {
-            let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
+        match old_config {
+            Some(old_config) => {
+                let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
 
-            tokio::spawn(async move {
-                let _response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
+                tokio::spawn(async move {
+                    let _response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
+                    let _ = tx.send(Ok(()));
+                });
+            }
+            _ => {
+                // The state was `revoked`.
                 let _ = tx.send(Ok(()));
-            });
-        } _ => {
-            // The state was `revoked`.
-            let _ = tx.send(Ok(()));
-        }}
+            }
+        }
     }
 
-    fn logout_api_call(&self, data: PrivateAccountAndDevice) -> impl Future<Output = ()> + 'static + use<> {
+    fn logout_api_call(
+        &self,
+        data: PrivateAccountAndDevice,
+    ) -> impl Future<Output = ()> + 'static + use<> {
         let service = self.device_service.clone();
 
         async move {
@@ -1067,7 +1073,10 @@ impl AccountManager {
         })
     }
 
-    fn key_rotation_timer(&self, key_created: DateTime<Utc>) -> impl Future<Output = ()> + 'static + use<> {
+    fn key_rotation_timer(
+        &self,
+        key_created: DateTime<Utc>,
+    ) -> impl Future<Output = ()> + 'static + use<> {
         let rotation_interval = self.rotation_interval;
 
         async move {
@@ -1104,7 +1113,9 @@ impl AccountManager {
         async move { device_service.get(account_number, device_id).await }
     }
 
-    fn validation_call(&self) -> Result<impl Future<Output = Result<Device, Error>> + use<>, Error> {
+    fn validation_call(
+        &self,
+    ) -> Result<impl Future<Output = Result<Device, Error>> + use<>, Error> {
         let old_config = self.data.device().ok_or(Error::NoDevice)?;
         Ok(self.fetch_device_config(old_config))
     }
@@ -1374,8 +1385,8 @@ impl TunnelStateChangeHandler {
 #[cfg(test)]
 mod test {
     use std::sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     };
     use talpid_types::tunnel::TunnelStateTransition;
 
