@@ -3,7 +3,7 @@ use std::fmt::Display;
 use std::str::FromStr;
 use std::sync::LazyLock;
 
-use regex::Regex;
+use regex_lite::Regex;
 
 /// The Mullvad VPN app product version
 pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
