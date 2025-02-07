@@ -17,4 +17,4 @@ workspace = true
 
 
 [dependencies]
-regex = "1.6.0"
+regex-lite = "0.1"
