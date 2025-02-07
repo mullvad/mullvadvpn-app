@@ -21,7 +21,7 @@ const StyledIcon = styled.div<
   background-color: ${({ $color }) => $color || 'currentColor'};
 `;
 
-const sizes = {
+export const iconSizes = {
   tiny: 12,
   small: 16,
   medium: 24,
@@ -37,5 +37,5 @@ export const Icon = ({
 }: IconProps) => {
   const icon = icons[iconProp];
   const src = iconProp.startsWith('data:') ? iconProp : `../../assets/icons/${icon}.svg`;
-  return <StyledIcon $src={src} $size={sizes[size]} $color={color} role="img" {...props} />;
+  return <StyledIcon $src={src} $size={iconSizes[size]} $color={color} role="img" {...props} />;
 };
