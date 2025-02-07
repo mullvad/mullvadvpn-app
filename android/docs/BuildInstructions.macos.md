@@ -28,11 +28,6 @@ Finish the install of `rustup`:
 rustup-init
 ```
 
-Install `cbindgen` which is required to build `wireguard-go-rs`:
-```bash
-cargo install --force cbindgen
-```
-
 ## 2. Install SDK Tools and Android NDK Toolchain
 Open Android Studio -> Tools -> SDK Manager, and install `Android SDK Command-line Tools (latest)`.
 
@@ -70,7 +65,7 @@ export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux
 wireguard-go-rs submodule need to be downloaded:
 
 ```bash
-git submodule update --init --recursive --depth=1 wireguard-go-rs
+git submodule update --init wireguard-go-rs/libwg/wireguard-go
 ```
 
 ## 4. Debug build

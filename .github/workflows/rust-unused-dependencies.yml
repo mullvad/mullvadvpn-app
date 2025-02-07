@@ -48,7 +48,7 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Install nightly Rust toolchain
         run: rustup override set $RUST_NIGHTLY_TOOLCHAIN
@@ -79,7 +79,7 @@ jobs:
       - name: Checkout wireguard-go submodule
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Install nightly Rust
         run: |
@@ -106,7 +106,7 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Install msbuild
         if: matrix.os == 'windows-latest'

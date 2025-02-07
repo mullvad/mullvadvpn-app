@@ -128,8 +128,6 @@ Linux distro:
 #### 5. Install and configure Rust toolchain
 
 - Get the latest **stable** Rust toolchain via [rustup.rs](https://rustup.rs/).
-  Also install `cbindgen` which is required to build `wireguard-go-rs`:
-  `cargo install --force cbindgen`
 
 - Configure Android cross-compilation targets and set up linker and archiver. This can be done by setting the following
 environment variables:
@@ -157,7 +155,7 @@ environment variables:
   ```
 
 #### 6. Download wireguard-go-rs submodule
-Run the following command to download wireguard-go-rs submodule: `git submodule update --init --recursive --depth=1 wireguard-go-rs`
+Run the following command to download wireguard-go-rs submodule: `git submodule update --init wireguard-go-rs/libwg/wireguard-go`
 
 ### Debug build
 Run the following command to build a debug build:
