@@ -34,7 +34,7 @@ test('App should connect', async () => {
   await expectConnected(page);
 
   const relay = page.getByTestId('hostname-line');
-  const inIp = page.locator(':text("In") + span');
+  const inIp = page.getByText('In', { exact: true }).locator('+ span');
   // If IPv6 is enabled, there will be two "Out" IPs, one for IPv4 and one for IPv6
   // Selecting the first resolves to the IPv4 address regardless of the IP setting
   const outIp = page.locator(':text("Out") + div > span').first();
