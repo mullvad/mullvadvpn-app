@@ -5,8 +5,8 @@ export interface IconBadgeProps {
 }
 
 const sources = {
-  positive: 'icon-success',
-  negative: 'icon-fail',
+  positive: 'positive',
+  negative: 'negative',
 };
 
 export const IconBadge = ({ state }: IconBadgeProps) => {
