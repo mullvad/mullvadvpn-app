@@ -16,8 +16,10 @@ import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Icon, Image, Spinner } from '../lib/components';
+import { Flex, Icon, Spinner } from '../lib/components';
+import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
+import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
@@ -232,9 +234,11 @@ function Sent() {
   return (
     <StyledContent>
       <StyledForm>
-        <StyledStatusIcon>
-          <Image source="icon-success" height={60} width={60} />
-        </StyledStatusIcon>
+        <Flex
+          $justifyContent="center"
+          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+          <IconBadge state="positive" />
+        </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
 
         <StyledSentMessage>
@@ -257,9 +261,11 @@ function Failed() {
   return (
     <StyledContent>
       <StyledForm>
-        <StyledStatusIcon>
-          <Image source="icon-fail" height={60} width={60} />
-        </StyledStatusIcon>
+        <Flex
+          $justifyContent="center"
+          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+          <IconBadge state="negative" />
+        </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>
         <StyledSentMessage>
           {messages.pgettext(
