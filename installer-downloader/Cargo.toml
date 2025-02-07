@@ -50,14 +50,3 @@ identifier = "net.mullvad.downloader"
 #
 #short_description =
 #long_description =
-
-[profile.release]
-strip = true
-opt-level = 'z'
-codegen-units = 1
-lto = true
-panic = 'abort'
-
-# ignored, use
-# RUSTFLAGS="-C codegen-units=1 -C panic=abort -C strip=symbols -C opt-level=z" cargo run --bin installer-downloader --release
-# these flags lower the binary size by ~1 MiB (2.7 -> 1.7)
