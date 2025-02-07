@@ -27,7 +27,8 @@ final class RequestExecutorTests: XCTestCase {
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: transportProvider,
-            addressCache: addressCache
+            addressCache: addressCache,
+            apiContext: REST.apiContext
         )
         timerServerProxy = TimeServerProxy(configuration: proxyFactory.configuration)
     }

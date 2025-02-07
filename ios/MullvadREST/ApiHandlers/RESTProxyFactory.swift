@@ -7,6 +7,8 @@
 //
 
 import Foundation
+import MullvadRustRuntime
+
 public protocol ProxyFactoryProtocol {
     var configuration: REST.AuthProxyConfiguration { get }
 
@@ -16,7 +18,8 @@ public protocol ProxyFactoryProtocol {
 
     static func makeProxyFactory(
         transportProvider: RESTTransportProvider,
-        addressCache: REST.AddressCache
+        addressCache: REST.AddressCache,
+        apiContext: MullvadApiContext
     ) -> ProxyFactoryProtocol
 }
 
@@ -26,11 +29,13 @@ extension REST {
 
         public static func makeProxyFactory(
             transportProvider: any RESTTransportProvider,
-            addressCache: REST.AddressCache
+            addressCache: REST.AddressCache,
+            apiContext: MullvadApiContext
         ) -> any ProxyFactoryProtocol {
             let basicConfiguration = REST.ProxyConfiguration(
                 transportProvider: transportProvider,
-                addressCacheStore: addressCache
+                addressCacheStore: addressCache,
+                apiContext: apiContext
             )
 
             let authenticationProxy = REST.AuthenticationProxy(
@@ -42,7 +47,8 @@ extension REST {
 
             let authConfiguration = REST.AuthProxyConfiguration(
                 proxyConfiguration: basicConfiguration,
-                accessTokenManager: accessTokenManager
+                accessTokenManager: accessTokenManager,
+                apiContext: apiContext
             )
 
             return ProxyFactory(configuration: authConfiguration)
