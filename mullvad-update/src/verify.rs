@@ -1,61 +1,80 @@
-use std::{fs::File, io::BufReader, path::Path};
-
 use anyhow::Context;
-use pgp::{
-    armor,
-    packet::{Packet, PacketParser},
-    types::PublicKeyTrait,
-    Deserializable, SignedPublicKey,
+use sha2::Digest;
+use tokio::{
+    fs,
+    io::{AsyncRead, AsyncReadExt, BufReader},
 };
 
-/// A verifier of digital file signatures
+use std::{future::Future, path::Path};
+
+/// A verifier of digital file signatures or hashes
 pub trait AppVerifier: 'static + Clone {
-    /// Verify `bin_path` using the signature at `sig_path`, and return an error if this fails for
-    /// any reason.
-    fn verify(bin_path: impl AsRef<Path>, sig_path: impl AsRef<Path>) -> anyhow::Result<()>;
+    type Parameters;
+
+    /// Verify `bin_path` using `parameters`, and return an error if this fails for any reason.
+    fn verify(
+        bin_path: impl AsRef<Path>,
+        parameters: Self::Parameters,
+    ) -> impl Future<Output = anyhow::Result<()>>;
 }
 
-/// Verification using pgp
+/// Checksum verifier that uses SHA256
 #[derive(Clone)]
-pub struct PgpVerifier;
+pub struct Sha256Verifier;
 
-impl PgpVerifier {
-    const SIGNING_PUBKEY: &[u8] = include_bytes!("../mullvad-code-signing.gpg");
+impl Sha256Verifier {
+    /// Maximum number of bytes to read at a time
+    const BUF_SIZE: usize = 1024 * 1024;
 }
 
-impl AppVerifier for PgpVerifier {
-    fn verify(bin_path: impl AsRef<Path>, sig_path: impl AsRef<Path>) -> anyhow::Result<()> {
-        let pubkey = SignedPublicKey::from_bytes(Self::SIGNING_PUBKEY)?;
+impl AppVerifier for Sha256Verifier {
+    /// The checksum
+    type Parameters = [u8; 32];
 
-        let sig_reader = BufReader::new(File::open(sig_path).context("Open signature file")?);
-        let signature = PacketParser::new(armor::Dearmor::new(sig_reader))
-            .find_map(|packet| {
-                if let Ok(Packet::Signature(sig)) = packet {
-                    Some(sig)
-                } else {
-                    None
-                }
-            })
-            .context("Missing signature")?;
-        let issuer = signature
-            .issuer()
-            .into_iter()
-            .next()
-            .context("Find issuer key ID")?;
+    fn verify(
+        bin_path: impl AsRef<Path>,
+        expected_hash: Self::Parameters,
+    ) -> impl Future<Output = anyhow::Result<()>> {
+        let bin_path = bin_path.as_ref().to_owned();
 
-        // Find subkey used for signing
-        let subkey = pubkey
-            .public_subkeys
-            .iter()
-            .find(|subkey| &subkey.key_id() == issuer)
-            .context("Find signing subkey")?;
-        //subkey.verify(&pubkey)?;
+        async move {
+            let file = fs::File::open(&bin_path)
+                .await
+                .context(format!("Failed to open file at {}", bin_path.display()))?;
+            let file = BufReader::new(file);
 
-        let bin = BufReader::with_capacity(1024 * 1024, File::open(bin_path)?);
+            Self::verify_inner(file, expected_hash).await
+        }
+    }
+}
 
-        signature
-            .verify(subkey, bin)
-            .context("Verification failed")?;
+impl Sha256Verifier {
+    async fn verify_inner(
+        mut reader: impl AsyncRead + Unpin,
+        expected_hash: [u8; 32],
+    ) -> anyhow::Result<()> {
+        let mut hasher = sha2::Sha256::new();
+
+        // Read data into hasher
+        let mut buffer = vec![0u8; Self::BUF_SIZE];
+        loop {
+            let read_n = reader
+                .read(&mut buffer)
+                .await
+                .context("Error reading bin file")?;
+            if read_n == 0 {
+                // We're done
+                break;
+            }
+            hasher.update(&buffer[..read_n]);
+        }
+
+        let actual_hash = hasher.finalize();
+
+        // Verify that hash is correct
+        if expected_hash != actual_hash[..] {
+            anyhow::bail!("Invalid checksum for bin file");
+        }
 
         Ok(())
     }
@@ -63,10 +82,32 @@ impl AppVerifier for PgpVerifier {
 
 #[cfg(test)]
 mod test {
+    use rand::RngCore;
+    use std::io::Cursor;
+
     use super::*;
 
-    #[test]
-    fn test_pgp_signing_pubkey() {
-        SignedPublicKey::from_bytes(PgpVerifier::SIGNING_PUBKEY).unwrap();
+    #[tokio::test]
+    async fn test_sha256_checksum() {
+        // Generate some random data
+        let mut data = vec![0u8; 1024 * 1024];
+        rand::thread_rng().fill_bytes(&mut data);
+
+        // Hash it
+        let mut hasher = sha2::Sha256::new();
+        hasher.update(&data);
+        let expected_hash = hasher.finalize();
+        let expected_hash: [u8; 32] = expected_hash[..].try_into().unwrap();
+
+        // Same data should be accepted
+        Sha256Verifier::verify_inner(Cursor::new(&data), expected_hash)
+            .await
+            .expect("expected checksum match");
+
+        // Compare the hash against some random data, which should fail
+        rand::thread_rng().fill_bytes(&mut data);
+        Sha256Verifier::verify_inner(Cursor::new(&data), expected_hash)
+            .await
+            .expect_err("expected checksum mismatch");
     }
 }

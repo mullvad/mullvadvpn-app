@@ -8,7 +8,7 @@ use insta::assert_yaml_snapshot;
 use installer_downloader::controller::AppController;
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
-use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider};
+use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider, VersionParameters};
 use mullvad_update::app::{AppDownloader, DownloadError};
 use mullvad_update::fetch::ProgressUpdater;
 use std::sync::{Arc, LazyLock, Mutex};
@@ -19,32 +19,33 @@ pub struct FakeVersionInfoProvider {}
 
 static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
     stable: Version {
-        version: "2025.1".to_owned(),
+        version: "2025.1".parse().unwrap(),
         urls: vec!["https://mullvad.net/fakeapp".to_owned()],
         size: 1234,
-        signature_urls: vec!["https://mullvad.net/fakesig".to_owned()],
+        changelog: "a changelog".to_owned(),
+        sha256: [0u8; 32],
     },
     beta: None,
 });
 
 #[async_trait::async_trait]
 impl VersionInfoProvider for FakeVersionInfoProvider {
-    async fn get_version_info() -> anyhow::Result<VersionInfo> {
+    async fn get_version_info(_params: VersionParameters) -> anyhow::Result<VersionInfo> {
         Ok(FAKE_VERSION.clone())
     }
 }
 
 /// Downloader for which all steps immediately succeed
-pub type FakeAppDownloaderHappyPath = FakeAppDownloader<true, true, true>;
+pub type FakeAppDownloaderHappyPath = FakeAppDownloader<true, true>;
 
 /// Downloader for which the download step fails
-pub type FakeAppDownloaderDownloadFail = FakeAppDownloader<true, false, false>;
+pub type FakeAppDownloaderDownloadFail = FakeAppDownloader<false, false>;
 
-/// Downloader for which all but the final verification step succeed
-pub type FakeAppDownloaderVerifyFail = FakeAppDownloader<true, true, false>;
+/// Downloader for which the final verification step fails
+pub type FakeAppDownloaderVerifyFail = FakeAppDownloader<true, false>;
 
-impl<const A: bool, const B: bool, const C: bool> From<UiAppDownloaderParameters<FakeAppDelegate>>
-    for FakeAppDownloader<A, B, C>
+impl<const A: bool, const B: bool> From<UiAppDownloaderParameters<FakeAppDelegate>>
+    for FakeAppDownloader<A, B>
 {
     fn from(params: UiAppDownloaderParameters<FakeAppDelegate>) -> Self {
         FakeAppDownloader { params }
@@ -54,32 +55,18 @@ impl<const A: bool, const B: bool, const C: bool> From<UiAppDownloaderParameters
 /// Fake app downloader
 ///
 /// Parameters:
-/// * SIG_SUCCEED - whether fetching the signature succeeds
 /// * EXE_SUCCEED - whether fetching the binary succeeds
-/// * VERIFY_SUCCEED - whether verifying the signature succeeds
-pub struct FakeAppDownloader<
-    const SIG_SUCCEED: bool,
-    const EXE_SUCCEED: bool,
-    const VERIFY_SUCCEED: bool,
-> {
+/// * VERIFY_SUCCEED - whether verifying the binary succeeds
+pub struct FakeAppDownloader<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> {
     params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
 #[async_trait::async_trait]
-impl<const SIG_SUCCEED: bool, const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> AppDownloader
-    for FakeAppDownloader<SIG_SUCCEED, EXE_SUCCEED, VERIFY_SUCCEED>
+impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> AppDownloader
+    for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED>
 {
     async fn download_signature(&mut self) -> Result<(), DownloadError> {
-        self.params.sig_progress.set_url(&self.params.signature_url);
-        self.params.sig_progress.set_progress(0.);
-        if SIG_SUCCEED {
-            self.params.sig_progress.set_progress(1.);
-            Ok(())
-        } else {
-            Err(DownloadError::FetchSignature(anyhow::anyhow!(
-                "fetching signature failed"
-            )))
-        }
+        Ok(())
     }
 
     async fn download_executable(&mut self) -> Result<(), DownloadError> {

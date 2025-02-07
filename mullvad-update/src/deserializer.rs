@@ -30,6 +30,20 @@ impl SignedResponse {
         Self::deserialize_and_verify_at_time(key, bytes, chrono::Utc::now())
     }
 
+    /// This method is used for testing, and skips all verification.
+    /// Own method to prevent accidental misuse.
+    #[cfg(test)]
+    pub fn deserialize_and_verify_insecure(bytes: &[u8]) -> Result<Self, anyhow::Error> {
+        let partial_data: PartialSignedResponse =
+            serde_json::from_slice(bytes).context("Invalid version JSON")?;
+        let signed = serde_json::from_value(partial_data.signed)
+            .context("Failed to deserialize response")?;
+        Ok(Self {
+            signature: partial_data.signature,
+            signed,
+        })
+    }
+
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
     fn deserialize_and_verify_at_time(
@@ -193,7 +207,7 @@ pub struct SpecificVersionArchitectureResponse {
     pub urls: Vec<String>,
     /// Size of the installer, in bytes
     pub size: usize,
-    /// TODO: hash of the installer, in bytes
+    /// Hash of the installer, hexadecimal string
     pub sha256: String,
 }
 

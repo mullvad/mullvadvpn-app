@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 use crate::{
     fetch::{self, ProgressUpdater},
-    verify::{AppVerifier, PgpVerifier},
+    verify::{AppVerifier, Sha256Verifier},
 };
 
 #[derive(Debug)]
@@ -15,12 +15,12 @@ pub enum DownloadError {
 }
 
 /// Parameters required to construct an [AppDownloader].
-pub struct AppDownloaderParameters<SigProgress, AppProgress> {
-    pub signature_url: String,
+#[derive(Clone)]
+pub struct AppDownloaderParameters<AppProgress> {
     pub app_url: String,
     pub app_size: usize,
-    pub sig_progress: SigProgress,
     pub app_progress: AppProgress,
+    pub app_sha256: [u8; 32],
 }
 
 /// See the [module-level documentation](self).
@@ -44,63 +44,40 @@ pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(
 }
 
 #[derive(Clone)]
-pub struct HttpAppDownloader<SigProgress, AppProgress> {
-    signature_url: String,
-    app_url: String,
-    app_size: usize,
-    signature_progress_updater: SigProgress,
-    app_progress_updater: AppProgress,
+pub struct HttpAppDownloader<AppProgress> {
+    params: AppDownloaderParameters<AppProgress>,
     // TODO: set permissions
     tmp_dir: PathBuf,
 }
 
-impl<SigProgress, AppProgress> HttpAppDownloader<SigProgress, AppProgress> {
-    const MAX_SIGNATURE_SIZE: usize = 1024;
-
-    pub fn new(parameters: AppDownloaderParameters<SigProgress, AppProgress>) -> Self {
+impl<AppProgress> HttpAppDownloader<AppProgress> {
+    pub fn new(params: AppDownloaderParameters<AppProgress>) -> Self {
         let tmp_dir = std::env::temp_dir();
-        Self {
-            signature_url: parameters.signature_url,
-            app_url: parameters.app_url,
-            app_size: parameters.app_size,
-            signature_progress_updater: parameters.sig_progress,
-            app_progress_updater: parameters.app_progress,
-            tmp_dir,
-        }
+        Self { params, tmp_dir }
     }
 }
 
-impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater>
-    From<AppDownloaderParameters<SigProgress, AppProgress>>
-    for HttpAppDownloader<SigProgress, AppProgress>
+impl<AppProgress: ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
+    for HttpAppDownloader<AppProgress>
 {
-    fn from(parameters: AppDownloaderParameters<SigProgress, AppProgress>) -> Self {
+    fn from(parameters: AppDownloaderParameters<AppProgress>) -> Self {
         HttpAppDownloader::new(parameters)
     }
 }
 
 #[async_trait::async_trait]
-impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
-    for HttpAppDownloader<SigProgress, AppProgress>
-{
+impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
     async fn download_signature(&mut self) -> Result<(), DownloadError> {
-        fetch::get_to_file(
-            self.sig_path(),
-            &self.signature_url,
-            &mut self.signature_progress_updater,
-            fetch::SizeHint::Maximum(Self::MAX_SIGNATURE_SIZE),
-        )
-        .await
-        .map_err(DownloadError::FetchSignature)
+        // TODO: no-op, remove
+        Ok(())
     }
 
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
         fetch::get_to_file(
             self.bin_path(),
-            &self.app_url,
-            &mut self.app_progress_updater,
-            // FIXME: use exact size hint
-            fetch::SizeHint::Maximum(self.app_size),
+            &self.params.app_url,
+            &mut self.params.app_progress,
+            fetch::SizeHint::Exact(self.params.app_size),
         )
         .await
         .map_err(DownloadError::FetchApp)
@@ -108,21 +85,19 @@ impl<SigProgress: ProgressUpdater, AppProgress: ProgressUpdater> AppDownloader
 
     async fn verify(&mut self) -> Result<(), DownloadError> {
         let bin_path = self.bin_path();
-        let sig_path = self.sig_path();
-        tokio::task::spawn_blocking(move || {
-            PgpVerifier::verify(bin_path, sig_path).map_err(DownloadError::Verification)
-        })
-        .await
-        .expect("verifier panicked")
+        let hash = self.hash_sha256();
+        Sha256Verifier::verify(bin_path, *hash)
+            .await
+            .map_err(DownloadError::Verification)
     }
 }
 
-impl<SigProgress, AppProgress> HttpAppDownloader<SigProgress, AppProgress> {
+impl<AppProgress> HttpAppDownloader<AppProgress> {
     fn bin_path(&self) -> PathBuf {
         self.tmp_dir.join("temp.exe")
     }
 
-    fn sig_path(&self) -> PathBuf {
-        self.tmp_dir.join("temp.exe.sig")
+    fn hash_sha256(&self) -> &[u8; 32] {
+        &self.params.app_sha256
     }
 }
