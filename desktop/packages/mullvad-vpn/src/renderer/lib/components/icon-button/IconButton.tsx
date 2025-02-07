@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Colors } from '../../foundations';
 import { buttonReset } from '../../styles';
-import { IconProps } from '../icon/Icon';
+import { IconProps, iconSizes } from '../icon/Icon';
 import { IconButtonIcon } from './components/IconButtonIcon';
 import { IconButtonProvider } from './IconButtonContext';
 
@@ -11,14 +11,6 @@ export interface IconButtonProps extends React.ButtonHTMLAttributes<HTMLButtonEl
   variant?: 'primary' | 'secondary';
   size?: IconProps['size'];
 }
-
-const sizes = {
-  tiny: 12,
-  small: 16,
-  medium: 24,
-  large: 32,
-  big: 48,
-};
 
 const StyledButton = styled.button({
   ...buttonReset,
@@ -35,7 +27,7 @@ const StyledButton = styled.button({
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   ({ variant = 'primary', size: sizeProp = 'medium', disabled, style, ...props }, ref) => {
-    const size = sizes[sizeProp];
+    const size = iconSizes[sizeProp];
     return (
       <IconButtonProvider size={sizeProp} variant={variant} disabled={disabled}>
         <StyledButton
