@@ -270,7 +270,7 @@ impl TunnelMonitor {
 
     /// Consumes the monitor and blocks until the tunnel exits or there is an error.
     pub fn wait(self) -> Result<()> {
-        self.monitor.wait().map_err(Error::from)
+        self.monitor.wait()
     }
 }
 
