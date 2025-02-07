@@ -13,7 +13,7 @@ import Operations
 import WireGuardKitTypes
 
 public protocol APIQuerying: Sendable {
-    func getAddressListNew(
+    func mullvadApiGetAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable
@@ -62,40 +62,30 @@ extension REST {
             )
         }
 
-        public func getAddressListNew(
+        public func mullvadApiGetAddressList(
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
-            let requestFactory: RustRequestFactory = { completion in
-                let pointerClass = CompletionBridge { apiResponse in
-                    try? completion?(apiResponse)
-                }
+            let requestHandler = mullvadApiRequestFactory.makeRequest(.getAddressList)
 
-                let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
-                mullvad_api_get_addresses(REST.apiContext.context, rawPointer)
-
-                // FIXME: Change to something real
-                return AnyCancellable()
-            }
-
-            let responseHandler = REST.rustResponseHandler(
+            let responseHandler = rustResponseHandler(
                 decoding: [AnyIPEndpoint].self,
                 with: responseDecoder
             )
 
-            let rustNetworkOperation = RustNetworkOperation(
+            let networkOperation = MullvadApiNetworkOperation(
                 name: "get-api-addrs",
                 dispatchQueue: dispatchQueue,
                 retryStrategy: retryStrategy,
-                requestFactory: requestFactory,
+                requestHandler: requestHandler,
                 responseDecoder: responseDecoder,
                 responseHandler: responseHandler,
                 completionHandler: completionHandler
             )
 
-            operationQueue.addOperation(rustNetworkOperation)
+            operationQueue.addOperation(networkOperation)
 
-            return rustNetworkOperation
+            return networkOperation
         }
 
         public func getAddressList(
