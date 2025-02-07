@@ -2986,6 +2986,7 @@ dependencies = [
  "async-tempfile",
  "async-trait",
  "chrono",
+ "clap",
  "ed25519-dalek",
  "hex",
  "json-canon",
