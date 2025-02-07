@@ -1,7 +1,9 @@
-use std::{ffi::CStr, ptr::null_mut, sync::Arc};
+use std::{ffi::CStr, sync::Arc};
 
 use mullvad_api::{
-    proxy::{ApiConnectionMode, StaticConnectionModeProvider}, rest::MullvadRestHandle, ApiEndpoint, Runtime
+    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
+    rest::MullvadRestHandle,
+    ApiEndpoint, Runtime,
 };
 
 mod api;
@@ -16,7 +18,7 @@ impl SwiftApiContext {
         SwiftApiContext(Arc::into_raw(Arc::new(context)))
     }
 
-    pub unsafe fn to_rust_context(self) -> Arc<ApiContext> {
+    pub unsafe fn into_rust_context(self) -> Arc<ApiContext> {
         Arc::increment_strong_count(self.0);
         Arc::from_raw(self.0)
     }
@@ -32,31 +34,32 @@ impl ApiContext {
     }
 }
 
+/// # Safety
+///
+/// `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
+/// This hostname will be used for TLS validation but not used for domain name resolution.
+///
+/// `address` must be a pointer to a null terminated string representing a socket address through which
+/// the Mullvad API can be reached directly.
+///
+/// If a context cannot be constructed this function will panic since the call site would not be able
+/// to proceed in a meaningful way anyway.
+///
+/// This function is safe.
 #[no_mangle]
 pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
     let address = unsafe { CStr::from_ptr(address.cast()) };
 
-    let Ok(host) = host.to_str() else {
-        return SwiftApiContext(null_mut());
-    };
-
-    let Ok(address) = address.to_str() else {
-        return SwiftApiContext(null_mut());
-    };
+    let host = host.to_str().unwrap();
+    let address = address.to_str().unwrap();
 
     let endpoint = ApiEndpoint {
         host: Some(String::from(host)),
         address: Some(address.parse().unwrap()),
     };
 
-    let tokio_handle = match crate::mullvad_ios_runtime() {
-        Ok(tokio_handle) => tokio_handle,
-        Err(err) => {
-            log::error!("Failed to obtain a handle to a tokio runtime: {err}");
-            return SwiftApiContext(null_mut());
-        }
-    };
+    let tokio_handle = crate::mullvad_ios_runtime().unwrap();
 
     let api_context = tokio_handle.clone().block_on(async move {
         // It is imperative that the REST runtime is created within an async context, otherwise
@@ -73,4 +76,3 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
 
     SwiftApiContext::new(api_context)
 }
-
