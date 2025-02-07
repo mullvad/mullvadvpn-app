@@ -10,47 +10,70 @@ XCASSETS_DIR = File.join(SCRIPT_DIR, "MullvadVPN/Supporting Files/Assets.xcasset
 
 # graphical assets sources
 APPICON_PATH = File.join(ROOT_DIR, "graphics/icon-square.svg")
-GRAPHICAL_ASSETS_DIR = File.join(
-  ROOT_DIR,
-  "desktop/packages/mullvad-vpn/assets/images"
-)
 ADDITIONAL_ASSETS_DIR = File.join(SCRIPT_DIR, "AdditionalAssets")
 
 # app icon output
 XCASSETS_APPICON_PATH = File.join(XCASSETS_DIR, "AppIcon.appiconset/AppIcon.png")
 XCASSETS_APPICON_SIZE = 1024
 
-# graphical assets to import
-GRAPHICAL_ASSETS = [
-  "icon-account.svg",
-  "icon-alert.svg",
-  "icon-arrow.svg",
-  "icon-back.svg",
-  "icon-chevron-down.svg",
-  "icon-chevron-up.svg",
-  "icon-chevron.svg",
-  "icon-extLink.svg",
-  "icon-fail.svg",
-  "icon-info.svg",
-  "icon-settings.svg",
-  "icon-spinner.svg",
-  "icon-success.svg",
-  "icon-tick.svg",
+ICON_ASSETS_DIR = File.join(
+  ROOT_DIR,
+  "desktop/packages/mullvad-vpn/assets/icons"
+)
+ICON_ASSETS = [
+  'icon-account-circle.svg',
+  'icon-add-circle.svg',
+  'icon-alert-circle.svg',
+  'icon-checkmark-circle.svg',
+  'icon-checkmark.svg',
+  'icon-chevron-down-circle.svg',
+  'icon-chevron-down.svg',
+  'icon-chevron-left-circle.svg',
+  'icon-chevron-left.svg',
+  'icon-chevron-right-circle.svg',
+  'icon-chevron-right.svg',
+  'icon-chevron-up-circle.svg',
+  'icon-chevron-up.svg',
+  'icon-copy.svg',
+  'icon-cross-circle.svg',
+  'icon-cross.svg',
+  'icon-edit-circle.svg',
+  'icon-external.svg',
+  'icon-filter-circle.svg',
+  'icon-grabber.svg',
+  'icon-hide.svg',
+  'icon-info-circle.svg',
+  'icon-more-horizontal-circle.svg',
+  'icon-more-horizontal.svg',
+  'icon-more-vertical-circle.svg',
+  'icon-more-vertical.svg',
+  'icon-reconnect.svg',
+  'icon-remove-circle.svg',
+  'icon-search-circle.svg',
+  'icon-search.svg',
+  'icon-settings-filled.svg',
+  'icon-show.svg',
+]
+
+IMAGE_ASSETS_DIR = File.join(
+  ROOT_DIR,
+  "desktop/packages/mullvad-vpn/assets/images"
+)
+IMAGE_ASSETS = [
+  "daita-off-illustration.svg",
+  "daita-on-illustration.svg",
   "location-marker-secure.svg",
   "location-marker-unsecure.svg",
-  "logo-icon.svg",
-  "logo-text.svg",
-  "icon-close.svg",
-  "icon-close-sml.svg",
-  "icon-copy.svg",
-  "icon-obscure.svg",
-  "icon-unobscure.svg"
+  "multihop-illustration.svg",
+  "negative.svg",
+  "positive.svg",
+  "spinner.svg",
 ]
 
 # graphical assets to resize.
 RESIZE_ASSETS = {
-  "icon-info.svg" => ["icon-info.svg", 18, 18],
-  "icon-tick.svg" => ["icon-tick-sml.svg", 16, 16]
+  "icon-info-circle.svg" => ["icon-info-circle.svg", 18, 18],
+  "icon-checkmark.svg" => ["icon-checkmark-sml.svg", 16, 16]
 }
 
 # Additional assets generated from SVG -> vector PDF
@@ -75,10 +98,9 @@ SVG_CONVERT_ENVIRONMENT_VARIABLES = {
 SVG_CONVERT_DEFAULT_OPTIONS = ["--dpi-x=72", "--dpi-y=72"]
 
 # Functions
-
-def generate_graphical_assets()
-  for asset_name in GRAPHICAL_ASSETS do
-    svg_file = File.join(GRAPHICAL_ASSETS_DIR, asset_name)
+def generate_graphical_assets(assets, asset_dir)
+  for asset_name in assets do
+    svg_file = File.join(asset_dir, asset_name)
     image_name = pascal_case(File.basename(svg_file, ".svg"))
     output_dir = File.join(XCASSETS_DIR, "#{image_name}.imageset")
 
@@ -98,7 +120,7 @@ def generate_resized_assets()
   RESIZE_ASSETS.each do |asset_name, resize_options|
     (new_asset_name, width, height) = resize_options
 
-    svg_file = File.join(GRAPHICAL_ASSETS_DIR, asset_name)
+    svg_file = File.join(ICON_ASSETS_DIR, asset_name)
     image_name = pascal_case(File.basename(new_asset_name, ".svg"))
     output_dir = File.join(XCASSETS_DIR, "#{image_name}.imageset")
 
@@ -170,7 +192,8 @@ OptionParser.new do |opts|
   end
 
   opts.on("--import-desktop-assets", "Import assets from the desktop app") do |v|
-    generate_graphical_assets
+    generate_graphical_assets(ICON_ASSETS, ICON_ASSETS_DIR)
+    generate_graphical_assets(IMAGE_ASSETS, IMAGE_ASSETS_DIR)
     generate_resized_assets
   end
 
