@@ -6,7 +6,7 @@
 //!
 //! The [`Tunnel`] type provides a safe Rust wrapper around the C FFI.
 
-use core::ffi::{c_char, CStr};
+use core::ffi::{CStr, c_char};
 use core::mem::ManuallyDrop;
 #[cfg(target_os = "windows")]
 use core::mem::MaybeUninit;
@@ -336,7 +336,7 @@ mod ffi {
     use super::{LoggingCallback, LoggingContext};
     use core::ffi::{c_char, c_void};
 
-    extern "C" {
+    unsafe extern "C" {
         /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
         /// for the tunnel device and logging. For targets other than android, this also takes an
         /// MTU value.
