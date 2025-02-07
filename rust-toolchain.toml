@@ -1,3 +1,4 @@
 [toolchain]
 # Must be greater than or equal to `rust-version` in `Cargo.toml`
-channel = "1.83.0"
+# TODO: temporarily be set to beta for rust-analyzer to behave as if `--beta` was passed
+channel = "beta"
