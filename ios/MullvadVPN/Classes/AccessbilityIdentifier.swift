@@ -61,6 +61,7 @@ public enum AccessibilityIdentifier: Equatable {
     case relayFilterChipCloseButton
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
+    case acceptLocalNetworkSharingButton
     // Cells
     case deviceCell
     case accessMethodProtocolSelectionCell
