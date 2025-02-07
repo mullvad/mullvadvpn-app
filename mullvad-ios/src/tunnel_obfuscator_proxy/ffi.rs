@@ -14,7 +14,7 @@ pub enum TunnelObfuscatorProtocol {
     Shadowsocks,
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
     peer_address: *const u8,
     peer_address_len: usize,
@@ -56,7 +56,7 @@ pub unsafe extern "C" fn start_tunnel_obfuscator_proxy(
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn stop_tunnel_obfuscator_proxy(proxy_handle: *mut ProxyHandle) -> i32 {
     let context_ptr = unsafe { (*proxy_handle).context };
     if context_ptr.is_null() {

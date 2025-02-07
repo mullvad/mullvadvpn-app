@@ -14,7 +14,7 @@ static INIT_LOGGING: Once = Once::new();
 ///
 /// `proxy_config` must be pointing to a valid memory region for the size of a `ProxyHandle`
 /// instance.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn start_shadowsocks_proxy(
     forward_address: *const u8,
     forward_address_len: usize,
@@ -90,7 +90,7 @@ pub unsafe extern "C" fn start_shadowsocks_proxy(
 /// # Safety
 /// `proxy_config` must be pointing to a valid instance of a `ProxyInstance`, as instantiated by
 /// `start_shadowsocks_proxy`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn stop_shadowsocks_proxy(proxy_config: *mut ProxyHandle) -> i32 {
     let context_ptr = unsafe { (*proxy_config).context };
     if context_ptr.is_null() {
