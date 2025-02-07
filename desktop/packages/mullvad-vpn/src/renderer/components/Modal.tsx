@@ -3,8 +3,9 @@ import ReactDOM from 'react-dom';
 import styled from 'styled-components';
 
 import log from '../../shared/logging';
-import { Icon, IconProps, Image, Spinner } from '../lib/components';
+import { Icon, IconProps, Spinner } from '../lib/components';
 import { Colors } from '../lib/foundations';
+import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useWillExit } from '../lib/will-exit';
 import * as AppButton from './AppButton';
@@ -333,9 +334,9 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
       case ModalAlertType.loading:
         return <Spinner size="big" />;
       case ModalAlertType.success:
-        return <Image source="icon-success" height={48} width={48} />;
+        return <IconBadge state="positive" />;
       case ModalAlertType.failure:
-        return <Image source="icon-fail" height={48} width={48} />;
+        return <IconBadge state="negative" />;
     }
 
     return <Icon size="big" icon={source} color={color} />;

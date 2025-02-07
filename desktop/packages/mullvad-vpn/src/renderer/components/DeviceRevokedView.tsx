@@ -2,8 +2,9 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Image } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { Flex } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
+import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
 import * as AppButton from './AppButton';
@@ -26,13 +27,6 @@ export const StyledBody = styled.div({
   flexDirection: 'column',
   flex: 1,
   padding: `0 ${measurements.horizontalViewMargin}`,
-});
-
-export const StyledStatusIcon = styled.div({
-  alignSelf: 'center',
-  width: '60px',
-  height: '60px',
-  marginBottom: '18px',
 });
 
 export const StyledTitle = styled.span(bigText, {
@@ -61,9 +55,9 @@ export function DeviceRevokedView() {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <StyledStatusIcon>
-              <Image source="icon-fail" height={60} width={60} />
-            </StyledStatusIcon>
+            <Flex $justifyContent="center" $margin={{ bottom: Spacings.spacing5 }}>
+              <IconBadge state="negative" />
+            </Flex>
             <StyledTitle data-testid="title">
               {messages.pgettext('device-management', 'Device is inactive')}
             </StyledTitle>

@@ -8,19 +8,10 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
-import {
-  Box,
-  Button,
-  Flex,
-  Icon,
-  Image,
-  Label,
-  LabelTiny,
-  Spinner,
-  TitleMedium,
-} from '../lib/components';
+import { Box, Button, Flex, Icon, Label, LabelTiny, Spinner, TitleMedium } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
+import { IconBadge } from '../lib/icon-badge';
 import accountActions from '../redux/account/actions';
 import { LoginState } from '../redux/account/reducers';
 import { useSelector } from '../redux/store';
@@ -262,9 +253,9 @@ class Login extends React.Component<IProps, IState> {
       case 'logging in':
         return <Spinner size="big" />;
       case 'failed':
-        return <Image source="icon-fail" height={48} width={48} />;
+        return <IconBadge state="negative" />;
       case 'ok':
-        return <Image source="icon-success" height={48} width={48} />;
+        return <IconBadge state="positive" />;
       default:
         return null;
     }

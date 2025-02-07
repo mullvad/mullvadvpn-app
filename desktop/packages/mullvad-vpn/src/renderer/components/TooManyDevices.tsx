@@ -7,10 +7,11 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
-import { Button, Flex, IconButton, Image, ImageProps, Spinner } from '../lib/components';
+import { Button, Flex, IconButton, Spinner } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
+import { IconBadge, IconBadgeProps } from '../lib/icon-badge';
 import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
@@ -28,7 +29,6 @@ const StyledCustomScrollbars = styled(CustomScrollbars)({
 });
 
 const StyledContainer = styled(SettingsContainer)({
-  paddingTop: '14px',
   minHeight: '100%',
 });
 
@@ -115,8 +115,10 @@ export default function TooManyDevices() {
         <StyledCustomScrollbars fillContainer>
           <StyledContainer>
             <StyledBody>
-              <Flex $justifyContent="center" $margin={{ vertical: Spacings.spacing3 }}>
-                <Image key={imageSource} source={imageSource} height={60} width={60} />
+              <Flex
+                $justifyContent="center"
+                $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+                <IconBadge key={imageSource} state={imageSource} />
               </Flex>
               {devices !== undefined && (
                 <>
@@ -297,11 +299,11 @@ function Device(props: IDeviceProps) {
   );
 }
 
-function getIconSource(devices: Array<IDevice>): ImageProps['source'] {
+function getIconSource(devices: Array<IDevice>): IconBadgeProps['state'] {
   if (devices.length === 5) {
-    return 'icon-fail';
+    return 'negative';
   } else {
-    return 'icon-success';
+    return 'positive';
   }
 }
 
