@@ -78,11 +78,13 @@ extension REST {
                 guard let self else { return }
 
                 if let error = try response.restError(decoder: responseDecoder) {
-                    finish(result: .failure(error))
+                    if response.shouldRetry {
+                        retryRequest(with: error)
+                    } else {
+                        finish(result: .failure(error))
+                    }
                     return
                 }
-
-                // TODO: invoke the retry strategy if the request failed with a transport error, generally the response should contain enough information to make such a judgement call.
 
                 let decodedResponse = responseHandler.handleResponse(response)
 
@@ -95,6 +97,51 @@ extension REST {
                     finish(result: .failure(REST.Error.unhandledResponse(Int(response.statusCode), error)))
                 }
             }
+        }
+
+        private func retryRequest(with error: REST.Error) {
+            // Check if retry count is not exceeded.
+            guard retryCount < retryStrategy.maxRetryCount else {
+                if retryStrategy.maxRetryCount > 0 {
+                    logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
+                }
+                finish(result: .failure(error))
+                return
+            }
+
+            // Increment retry count.
+            retryCount += 1
+
+            // Retry immediately if retry delay is set to never.
+            guard retryStrategy.delay != .never else {
+                startRequest()
+                return
+            }
+
+            guard let waitDelay = retryDelayIterator.next() else {
+                logger.debug("Retry delay iterator failed to produce next value.")
+
+                finish(result: .failure(error))
+                return
+            }
+
+            logger.debug("Retry in \(waitDelay.logFormat()).")
+
+            // Create timer to delay retry.
+            let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
+
+            timer.setEventHandler { [weak self] in
+                self?.startRequest()
+            }
+
+            timer.setCancelHandler { [weak self] in
+                self?.finish(result: .failure(OperationError.cancelled))
+            }
+
+            timer.schedule(wallDeadline: .now() + waitDelay.timeInterval)
+            timer.activate()
+
+            retryTimer = timer
         }
     }
 }

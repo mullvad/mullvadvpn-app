@@ -25,7 +25,6 @@ public class MullvadApiResponse {
         return Data(UnsafeBufferPointer(start: body, count: Int(response.body_size)))
     }
 
-    // TODO: Do we need this?
     public var errorDescription: String? {
         return if response.error_description == nil {
             nil
@@ -44,6 +43,10 @@ public class MullvadApiResponse {
         } else {
             String(cString: response.server_response_code)
         }
+    }
+
+    public var shouldRetry: Bool {
+        response.should_retry
     }
 
     public var success: Bool {
