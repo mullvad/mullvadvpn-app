@@ -16,7 +16,7 @@ pub struct SignedResponse {
     pub signed: Response,
 }
 
-/// Helper class that leaves the signed data untouched
+/// Helper type that leaves the signed data untouched
 /// Note that deserializing doesn't verify anything
 #[derive(Deserialize, Serialize)]
 struct PartialSignedResponse {
