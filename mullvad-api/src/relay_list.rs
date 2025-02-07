@@ -32,7 +32,7 @@ impl RelayListProxy {
     pub fn relay_list(
         &self,
         etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
+    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> + use<> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
 

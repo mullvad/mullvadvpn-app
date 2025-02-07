@@ -261,7 +261,9 @@ pub struct AccountService {
 }
 
 impl AccountService {
-    pub fn create_account(&self) -> impl Future<Output = Result<AccountNumber, rest::Error>> + use<> {
+    pub fn create_account(
+        &self,
+    ) -> impl Future<Output = Result<AccountNumber, rest::Error>> + use<> {
         let proxy = self.proxy.clone();
         let api_handle = self.api_availability.clone();
         retry_future(
