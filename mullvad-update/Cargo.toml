@@ -10,6 +10,10 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+default = []
+sign = ["rand", "clap"]
+
 [dependencies]
 anyhow = "1.0"
 json-canon = "0.1"
@@ -27,12 +31,13 @@ mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries
 clap = { workspace = true, optional = true }
-rand = "0.8.5"
+rand = { version = "0.8.5", optional = true }
 
 [dev-dependencies]
 async-tempfile = "0.6"
 mockito = "1.6.1"
+rand = "0.8.5"
 
 [[bin]]
 name = "mullvad-version-metadata"
-required-features = ["clap"]
+required-features = ["sign"]

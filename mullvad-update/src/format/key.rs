@@ -4,6 +4,7 @@ use std::str::FromStr;
 
 use anyhow::{bail, Context};
 use ed25519_dalek::ed25519::signature::SignerMut;
+#[cfg(feature = "sign")]
 use rand::RngCore;
 use serde::{Deserialize, Serialize};
 
@@ -13,6 +14,7 @@ pub struct SecretKey(pub ed25519_dalek::SecretKey);
 
 impl SecretKey {
     /// Generate a new secret ed25519 key
+    #[cfg(feature = "sign")]
     pub fn generate() -> Self {
         // Using OsRng is suggested by the docs
         let mut bytes = ed25519_dalek::SecretKey::default();
@@ -139,14 +141,19 @@ fn bytes_from_hex<const SIZE: usize>(key: &str) -> anyhow::Result<[u8; SIZE]> {
 
 #[cfg(test)]
 mod test {
+    use rand::RngCore;
+
     use super::*;
 
     #[test]
     fn test_serialization_and_deserialization() {
-        let secret = SecretKey::generate();
-        let pubkey = secret.pubkey();
+        let mut secret = [0u8; 32];
+        rand::thread_rng().fill_bytes(&mut secret);
 
-        let secret_hex = hex::encode(secret.0);
+        let secret_hex = hex::encode(secret);
+        let secret = SecretKey::from_str(&hex::encode(secret)).unwrap();
+
+        let pubkey = secret.pubkey();
         let pubkey_hex = hex::encode(pubkey.0);
 
         // Test serialization
