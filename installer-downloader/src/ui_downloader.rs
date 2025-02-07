@@ -19,8 +19,7 @@ pub struct UiAppDownloader<Delegate: AppDelegate, Downloader> {
 }
 
 /// Parameters for [UiAppDownloader]
-pub type UiAppDownloaderParameters<Delegate> =
-    AppDownloaderParameters<UiProgressUpdater<Delegate>, UiProgressUpdater<Delegate>>;
+pub type UiAppDownloaderParameters<Delegate> = AppDownloaderParameters<UiProgressUpdater<Delegate>>;
 
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
     UiAppDownloader<Delegate, Downloader>

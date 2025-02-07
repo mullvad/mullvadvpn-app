@@ -5,7 +5,7 @@ use crate::resource;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
 use mullvad_update::{
-    api::{self, Version, VersionInfoProvider},
+    api::{self, Version, VersionInfoProvider, VersionParameters},
     app::{self, AppDownloader},
 };
 
@@ -24,14 +24,14 @@ pub struct AppController {}
 
 /// Public entry function for registering a [AppDelegate].
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    use mullvad_update::{api::LatestVersionInfoProvider, app::HttpAppDownloader};
+    use mullvad_update::{api::ApiVersionInfoProvider, app::HttpAppDownloader};
 
-    // App downloader (factory) to use
-    type DownloaderFactory<T> = HttpAppDownloader<UiProgressUpdater<T>, UiProgressUpdater<T>>;
+    // App downloader to use
+    type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
     // Version info provider to use
-    type VersionInfoProvider = LatestVersionInfoProvider;
+    type VersionInfoProvider = ApiVersionInfoProvider;
 
-    AppController::initialize::<_, DownloaderFactory<T>, VersionInfoProvider>(delegate)
+    AppController::initialize::<_, Downloader<T>, VersionInfoProvider>(delegate)
 }
 
 impl AppController {
@@ -85,8 +85,15 @@ where
     let queue = delegate.queue();
 
     async move {
+        let version_params = VersionParameters {
+            // TODO: detect current architecture
+            architecture: api::VersionArchitecture::X86,
+            // For the downloader, the rollout version is always preferred
+            rollout: 1.,
+        };
+
         // TODO: handle errors, retry
-        let Ok(version_info) = VersionProvider::get_version_info().await else {
+        let Ok(version_info) = VersionProvider::get_version_info(version_params).await else {
             queue.queue_main(move |self_| {
                 self_.set_status_text("Failed to fetch version info");
             });
@@ -134,9 +141,7 @@ where
                     let Some(app_url) = version_info.stable.urls.first() else {
                         return;
                     };
-                    let Some(signature_url) = version_info.stable.signature_urls.first() else {
-                        return;
-                    };
+                    let app_sha256 = version_info.stable.sha256;
                     let app_size = version_info.stable.size;
 
                     self_.set_download_text("");
@@ -147,11 +152,10 @@ where
                     self_.show_download_progress();
 
                     let downloader = A::from(UiAppDownloaderParameters {
-                        signature_url: signature_url.to_owned(),
                         app_url: app_url.to_owned(),
                         app_size,
-                        sig_progress: UiProgressUpdater::new(self_.queue()),
                         app_progress: UiProgressUpdater::new(self_.queue()),
+                        app_sha256,
                     });
 
                     let ui_downloader = UiAppDownloader::new(self_, downloader);
