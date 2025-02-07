@@ -560,13 +560,13 @@ where
     InternalDaemonEvent: From<E>,
 {
     fn send(&self, event: E) -> Result<(), talpid_core::mpsc::Error> {
-        if let Some(sender) = self.sender.upgrade() {
+        match self.sender.upgrade() { Some(sender) => {
             sender
                 .unbounded_send(InternalDaemonEvent::from(event))
                 .map_err(|_| talpid_core::mpsc::Error::ChannelClosed)
-        } else {
+        } _ => {
             Err(talpid_core::mpsc::Error::ChannelClosed)
-        }
+        }}
     }
 }
 
@@ -958,11 +958,11 @@ impl Daemon {
         self.disconnect_tunnel();
 
         while let Some(event) = self.rx.next().await {
-            if let InternalDaemonEvent::TunnelStateTransition(transition) = event {
+            match event { InternalDaemonEvent::TunnelStateTransition(transition) => {
                 self.handle_tunnel_state_transition(transition).await;
-            } else {
+            } _ => {
                 log::trace!("Ignoring event because the daemon is shutting down");
-            }
+            }}
 
             if self.tunnel_state.is_disconnected() {
                 break;
@@ -1162,15 +1162,15 @@ impl Daemon {
             // If not connected, we have to guess whether the users local connection supports IPv6.
             // The only thing we have to go on is the wireguard setting.
             TunnelState::Disconnected { .. } => {
-                if let RelaySettings::Normal(relay_constraints) = &self.settings.relay_settings {
+                match &self.settings.relay_settings { RelaySettings::Normal(relay_constraints) => {
                     // Note that `Constraint::Any` corresponds to just IPv4
                     matches!(
                         relay_constraints.wireguard_constraints.ip_version,
                         mullvad_types::constraints::Constraint::Only(IpVersion::V6)
                     )
-                } else {
+                } _ => {
                     false
-                }
+                }}
             }
             // Fetching IP from am.i.mullvad.net should only be done from a tunnel state where a
             // connection is available. Otherwise we just exist.
@@ -1690,7 +1690,7 @@ impl Daemon {
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
-        if let Ok(Some(device)) = self.account_manager.data().await.map(|s| s.into_device()) {
+        match self.account_manager.data().await.map(|s| s.into_device()) { Ok(Some(device)) => {
             let future = self
                 .account_manager
                 .account_service
@@ -1702,13 +1702,13 @@ impl Daemon {
                     "get_www_auth_token response",
                 );
             });
-        } else {
+        } _ => {
             Self::oneshot_send(
                 tx,
                 Err(Error::NoAccountNumber),
                 "get_www_auth_token response",
             );
-        }
+        }}
     }
 
     fn on_submit_voucher(&mut self, tx: ResponseTx<VoucherSubmission, Error>, voucher: String) {
@@ -2710,11 +2710,11 @@ impl Daemon {
 
     async fn on_get_wireguard_key(&self, tx: ResponseTx<Option<PublicKey>, Error>) {
         let result =
-            if let Ok(Some(config)) = self.account_manager.data().await.map(|s| s.into_device()) {
+            match self.account_manager.data().await.map(|s| s.into_device()) { Ok(Some(config)) => {
                 Ok(Some(config.device.wg_data.get_public_key()))
-            } else {
+            } _ => {
                 Err(Error::NoAccountNumber)
-            };
+            }};
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 

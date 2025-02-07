@@ -152,25 +152,25 @@ impl futures::Future for Call {
         use Call::*;
         match &mut *self {
             Login(call, tx) => {
-                if let std::task::Poll::Ready(response) = Pin::new(call).poll(cx) {
+                match Pin::new(call).poll(cx) { std::task::Poll::Ready(response) => {
                     std::task::Poll::Ready(ApiResult::Login(response, tx.take().unwrap()))
-                } else {
+                } _ => {
                     std::task::Poll::Pending
-                }
+                }}
             }
             TimerKeyRotation(call) | OneshotKeyRotation(call) => {
                 Pin::new(call).poll(cx).map(ApiResult::Rotation)
             }
             Validation(call) => Pin::new(call).poll(cx).map(ApiResult::Validation),
             VoucherSubmission(call, tx) => {
-                if let std::task::Poll::Ready(response) = Pin::new(call).poll(cx) {
+                match Pin::new(call).poll(cx) { std::task::Poll::Ready(response) => {
                     std::task::Poll::Ready(ApiResult::VoucherSubmission(
                         response,
                         tx.take().unwrap(),
                     ))
-                } else {
+                } _ => {
                     std::task::Poll::Pending
-                }
+                }}
             }
             #[cfg(target_os = "android")]
             InitPlayPurchase(call, tx) => {
