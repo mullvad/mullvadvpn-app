@@ -124,7 +124,7 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
       - name: Build app
         env:
           USE_MOLD: false
@@ -187,7 +187,7 @@ jobs:
           submodules: true
       - name: Checkout submodules
         run: |
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
@@ -274,7 +274,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
       - name: Install Go
         uses: actions/setup-go@v3
         with:

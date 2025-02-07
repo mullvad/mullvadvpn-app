@@ -65,7 +65,7 @@ export CARGO_TARGET_X86_64_LINUX_ANDROID_LINKER="$NDK_TOOLCHAIN_DIR/x86_64-linux
 wireguard-go-rs submodule need to be downloaded:
 
 ```bash
-git submodule update --init --recursive --depth=1 wireguard-go-rs
+git submodule update --init wireguard-go-rs/libwg/wireguard-go
 ```
 
 ## 4. Debug build

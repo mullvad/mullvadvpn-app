@@ -77,7 +77,7 @@ jobs:
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       # The container image already has rustup and the pinned version of Rust
       - name: Install Rust toolchain
@@ -100,7 +100,7 @@ jobs:
       - name: Checkout wireguard-go submodule
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
@@ -131,7 +131,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git submodule update --init --depth=1
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Install Protoc
         # NOTE: ARM runner already has protoc

@@ -120,7 +120,7 @@ jobs:
       - name: Checkout wireguard-go-rs recursively
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --recursive --depth=1 wireguard-go-rs
+          git submodule update --init wireguard-go-rs/libwg/wireguard-go
 
       - name: Calculate native lib cache hash
         id: native-lib-cache-hash

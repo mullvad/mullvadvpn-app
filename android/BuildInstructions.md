@@ -155,7 +155,7 @@ environment variables:
   ```
 
 #### 6. Download wireguard-go-rs submodule
-Run the following command to download wireguard-go-rs submodule: `git submodule update --init --recursive --depth=1 wireguard-go-rs`
+Run the following command to download wireguard-go-rs submodule: `git submodule update --init wireguard-go-rs/libwg/wireguard-go`
 
 ### Debug build
 Run the following command to build a debug build:
