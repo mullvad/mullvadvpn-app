@@ -941,10 +941,10 @@ pub async fn resolve_location_constraint(
     relay_filter: impl FnOnce(&mullvad_types::relay_list::Relay) -> bool,
 ) -> Result<Constraint<GeographicLocationConstraint>> {
     let relay_iter = rpc.get_relay_locations().await?.into_relays();
-    if let Some(matching_relay) = relay_iter
+    match relay_iter
         .clone()
         .find(|relay| relay.hostname.to_lowercase() == location_constraint_args.country)
-    {
+    { Some(matching_relay) => {
         if relay_filter(&matching_relay) {
             Ok(Constraint::Only(relay_to_geographical_constraint(
                 matching_relay,
@@ -955,7 +955,7 @@ pub async fn resolve_location_constraint(
                 location_constraint_args.country
             )
         }
-    } else {
+    } _ => {
         // The Constraint was not a relay, assuming it to be a location
         let location_constraint: Constraint<GeographicLocationConstraint> =
             Constraint::from(location_constraint_args);
@@ -970,7 +970,7 @@ pub async fn resolve_location_constraint(
         }
 
         Ok(location_constraint)
-    }
+    }}
 }
 
 /// Return a list of all relays that are active and not bridges

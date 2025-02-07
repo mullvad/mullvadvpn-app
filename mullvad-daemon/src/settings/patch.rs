@@ -238,7 +238,7 @@ fn merge_relay_overrides(
                 // Replace or append to existing values
                 match (existing_val, patch_override) {
                     (
-                        serde_json::Value::Object(ref mut current),
+                        &mut serde_json::Value::Object(ref mut current),
                         serde_json::Value::Object(ref patch),
                     ) => {
                         for (k, v) in patch {
@@ -274,9 +274,9 @@ fn merge_patch_to_value(
             match (&permitted_key.key_type, current_value, patch_value) {
                 // Append or replace keys to objects
                 (
-                    PermittedKeyValue::Object(sub_permitted),
-                    serde_json::Value::Object(ref mut current),
-                    serde_json::Value::Object(ref patch),
+                    &PermittedKeyValue::Object(ref sub_permitted),
+                    &mut serde_json::Value::Object(ref mut current),
+                    &serde_json::Value::Object(ref patch),
                 ) => {
                     for (k, sub_patch) in patch {
                         let Some((_, sub_permitted)) = sub_permitted

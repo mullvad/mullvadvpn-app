@@ -1138,7 +1138,7 @@ impl ManagementInterfaceServer {
         let rpc_server_join_handle = mullvad_management_interface::spawn_rpc_server(
             server,
             async move {
-                server_abort_rx.into_future().await;
+                StreamExt::into_future(server_abort_rx).await;
             },
             &rpc_socket_path,
         )
@@ -1353,7 +1353,7 @@ fn map_device_error(error: &device::Error) -> Status {
         }
         device::Error::InvalidVoucher => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
         device::Error::UsedVoucher => Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE),
-        device::Error::DeviceIoError(ref _error) => {
+        &device::Error::DeviceIoError(ref _error) => {
             Status::new(Code::Unavailable, error.to_string())
         }
         device::Error::OtherRestError(error) => map_rest_error(error),
