@@ -3,6 +3,14 @@ use std::sync::{Arc, Mutex};
 use super::response::SwiftMullvadApiResponse;
 
 extern "C" {
+    /// Maps to `mullvadApiCompletionFinish` on Swift side to facilitate callback based completion flow when doing
+    /// network calls through Mullvad API on Rust side.
+    ///
+    /// # Safety
+    /// `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`.
+    /// `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is safe
+    /// because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this type is 
+    /// intended to be used.
     pub fn mullvad_api_completion_finish(
         response: SwiftMullvadApiResponse,
         completion_cookie: CompletionCookie,

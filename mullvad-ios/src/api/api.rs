@@ -1,9 +1,13 @@
-use mullvad_api::{rest::{self, MullvadRestHandle}, ApiProxy};
+use mullvad_api::{
+    rest::{self, MullvadRestHandle},
+    ApiProxy,
+};
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
-    response::SwiftMullvadApiResponse, SwiftApiContext,
+    response::SwiftMullvadApiResponse,
+    SwiftApiContext,
 };
 
 #[no_mangle]
