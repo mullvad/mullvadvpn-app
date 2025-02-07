@@ -2,7 +2,7 @@
 authors = ["Mullvad VPN"]
 repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0"
-edition = "2021"
+edition = "2024"
 rust-version = "1.80.0"
 
 [workspace]
