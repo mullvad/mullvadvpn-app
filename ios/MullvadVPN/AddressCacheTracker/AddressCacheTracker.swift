@@ -118,8 +118,7 @@ final class AddressCacheTracker: @unchecked Sendable {
         nslock.lock()
         defer { nslock.unlock() }
 
-        return Date()
-//        return _nextScheduleDate()
+        return _nextScheduleDate()
     }
 
     private func setEndpoints(from result: Result<[AnyIPEndpoint], Error>) {

@@ -16,7 +16,7 @@ enum MullvadApiRequest {
 struct MullvadApiRequestFactory {
     let apiContext: MullvadApiContext
 
-    func makeRequest(_ request: MullvadApiRequest) -> REST.MullvadApiRequestHandler  {
+    func makeRequest(_ request: MullvadApiRequest) -> REST.MullvadApiRequestHandler {
         { completion in
             let pointerClass = MullvadApiCompletion { apiResponse in
                 try? completion?(apiResponse)

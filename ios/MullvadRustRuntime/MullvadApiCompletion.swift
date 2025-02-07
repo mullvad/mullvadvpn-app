@@ -13,7 +13,7 @@ func mullvadApiCompletionFinish(
 ) {
     let completionBridge = Unmanaged<MullvadApiCompletion>
         .fromOpaque(completionCookie)
-        .takeUnretainedValue()
+        .takeRetainedValue()
     let apiResponse = MullvadApiResponse(response: response)
 
     completionBridge.completion(apiResponse)

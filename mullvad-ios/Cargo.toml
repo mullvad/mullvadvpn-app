@@ -10,6 +10,10 @@ rust-version.workspace = true
 [lints]
 workspace = true
 
+[features]
+# Allow the API server to be used
+api-override = ["mullvad-api/api-override"]
+
 [target.'cfg(target_os = "ios")'.dependencies]
 libc = "0.2"
 log = { workspace = true }

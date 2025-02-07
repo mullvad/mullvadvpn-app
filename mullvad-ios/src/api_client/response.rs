@@ -1,10 +1,6 @@
-use std::{
-    ffi::CString,
-    ptr::null_mut,
-};
+use std::{ffi::CString, ptr::null_mut};
 
 use mullvad_api::rest::{self, Response};
-
 
 #[repr(C)]
 pub struct SwiftMullvadApiResponse {
@@ -50,7 +46,7 @@ impl SwiftMullvadApiResponse {
 
         let should_retry = err.is_network_error();
         let error_description = to_cstr_pointer(err.to_string());
-        let (status_code, server_response_code):(u16, _) =
+        let (status_code, server_response_code): (u16, _) =
             if let rest::Error::ApiError(status_code, error_code) = err {
                 (status_code.into(), to_cstr_pointer(error_code))
             } else {
@@ -81,7 +77,7 @@ impl SwiftMullvadApiResponse {
             retry_after: 0,
         }
     }
-    
+
     pub fn no_tokio_runtime() -> Self {
         Self {
             success: false,
@@ -96,6 +92,13 @@ impl SwiftMullvadApiResponse {
     }
 }
 
+/// Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely
+/// dropped from memory.
+///
+/// # Safety
+///
+/// `response` must be pointing to a valid instance of `SwiftMullvadApiResponse`. This function
+/// is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_response_drop(response: SwiftMullvadApiResponse) {
     if !response.body.is_null() {
