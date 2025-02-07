@@ -4,7 +4,7 @@
 
 DESTDIR ?= $(OUT_DIR)
 # Default to the workspace root if not set
-CARGO_TARGET_DIR ?= ../../target
+CARGO_TARGET_DIR ?= $(CURDIR)/../../target
 TARGET ?=
 
 NDK_GO_ARCH_MAP_x86 := 386
