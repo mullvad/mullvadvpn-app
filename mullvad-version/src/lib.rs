@@ -60,7 +60,7 @@ impl Display for Version {
             dev,
         } = &self;
 
-        write!(f, "{year}.{incremental}")?;
+        write!(f, "20{year}.{incremental}")?;
 
         match pre_stable {
             Some(PreStableType::Alpha(version)) => write!(f, "-alpha{version}")?,
