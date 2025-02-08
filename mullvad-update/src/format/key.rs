@@ -102,6 +102,7 @@ impl Serialize for VerifyingKey {
 }
 
 /// ed25519 signature
+#[derive(Debug)]
 pub struct Signature(pub ed25519_dalek::Signature);
 
 impl<'de> Deserialize<'de> for Signature {
