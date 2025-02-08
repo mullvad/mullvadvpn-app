@@ -94,6 +94,8 @@ pub(super) fn deserialize_and_verify(
 
 #[cfg(test)]
 mod test {
+    use std::str::FromStr;
+
     use super::*;
 
     /// Test that a valid signed version response is successfully deserialized and verified
@@ -112,5 +114,14 @@ mod test {
             chrono::DateTime::UNIX_EPOCH,
         )
         .expect("expected valid signed version metadata");
+
+        // Reject expired data
+        SignedResponse::deserialize_and_verify_at_time(
+            VerifyingKey(verifying_key),
+            include_bytes!("../../test-version-response.json"),
+            // In the year 3000
+            chrono::DateTime::from_str("3000-01-01T00:00:00Z").unwrap(),
+        )
+        .expect_err("expected expired version metadata");
     }
 }
