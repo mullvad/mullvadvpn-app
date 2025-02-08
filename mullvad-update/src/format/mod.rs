@@ -1,3 +1,16 @@
+//! This module includes all that is needed for the (de)serialization of Mullvad version metadata.
+//! This includes ensuring authenticity and integrity of version metadata, and rejecting expired
+//! metadata. There are also tools for producing new versions.
+//!
+//! Fundamentally, a version object is a JSON object with a `signed` key and a `signature` key.
+//! `signature` contains a public key and an ed25519 signature of `signed` in canonical JSON form.
+//! `signed` also contains an `expires` field, which is a timestamp indicating when the object
+//! expires.
+//!
+//! For [deserializer] to succeed in deserializing a file, it must verify that the canonicalized
+//! form of `signed` is in fact signed by key/signature in `signature`. It also reads the `expires`
+//! and rejects the file if it has expired.
+
 use serde::{Deserialize, Serialize};
 
 pub mod deserializer;
