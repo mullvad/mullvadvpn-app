@@ -19,7 +19,7 @@ fn win_main() -> anyhow::Result<()> {
     ));
 
     println!("cargo:rerun-if-changed=loader.manifest");
-    //res.set_manifest_file("loader.manifest");
+    res.set_manifest_file("loader.manifest");
 
     res.compile().context("Failed to compile resources")
 }
