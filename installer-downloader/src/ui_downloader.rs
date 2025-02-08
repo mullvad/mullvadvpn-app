@@ -37,19 +37,6 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownloader
     for UiAppDownloader<Delegate, Downloader>
 {
-    async fn download_signature(&mut self) -> Result<(), app::DownloadError> {
-        if let Err(error) = self.downloader.download_signature().await {
-            self.queue.queue_main(move |self_| {
-                self_.set_download_text("ERROR: Failed to retrieve signature.");
-                self_.enable_download_button();
-                self_.hide_cancel_button();
-            });
-            Err(error)
-        } else {
-            Ok(())
-        }
-    }
-
     async fn download_executable(&mut self) -> Result<(), app::DownloadError> {
         match self.downloader.download_executable().await {
             Ok(()) => {

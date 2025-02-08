@@ -1,4 +1,4 @@
-//! This module implements the flow of downloading and verifying the app signature.
+//! This module implements the flow of downloading and verifying the app.
 
 use std::path::PathBuf;
 
@@ -26,9 +26,6 @@ pub struct AppDownloaderParameters<AppProgress> {
 /// See the [module-level documentation](self).
 #[async_trait::async_trait]
 pub trait AppDownloader: Send {
-    /// Download the app signature.
-    async fn download_signature(&mut self) -> Result<(), DownloadError>;
-
     /// Download the app binary.
     async fn download_executable(&mut self) -> Result<(), DownloadError>;
 
@@ -38,7 +35,6 @@ pub trait AppDownloader: Send {
 
 /// Download the app and signature, and verify the app's signature
 pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(), DownloadError> {
-    downloader.download_signature().await?;
     downloader.download_executable().await?;
     downloader.verify().await
 }
@@ -67,11 +63,6 @@ impl<AppProgress: ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
 
 #[async_trait::async_trait]
 impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
-    async fn download_signature(&mut self) -> Result<(), DownloadError> {
-        // TODO: no-op, remove
-        Ok(())
-    }
-
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
         fetch::get_to_file(
             self.bin_path(),
