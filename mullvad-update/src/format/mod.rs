@@ -21,7 +21,7 @@ pub mod serializer;
 /// JSON response including signature and signed content
 /// This type does not implement [serde::Deserialize] to prevent accidental deserialization without
 /// signature verification.
-#[derive(Serialize)]
+#[derive(Debug, Serialize)]
 pub struct SignedResponse {
     /// Signature of the canonicalized JSON of `signed`
     pub signature: ResponseSignature,
@@ -40,7 +40,7 @@ struct PartialSignedResponse {
 }
 
 /// Signed JSON response, not including the signature
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 pub struct Response {
     /// When the signature expires
@@ -51,7 +51,7 @@ pub struct Response {
     pub beta: Option<VersionResponse>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct VersionResponse {
     /// The current version in this channel
     pub current: SpecificVersionResponse,
@@ -59,7 +59,7 @@ pub struct VersionResponse {
     pub next: Option<NextSpecificVersionResponse>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct NextSpecificVersionResponse {
     /// The percentage of users that should receive the new version.
     pub rollout: f32,
@@ -67,7 +67,7 @@ pub struct NextSpecificVersionResponse {
     pub version: SpecificVersionResponse,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SpecificVersionResponse {
     /// Mullvad app version
     pub version: mullvad_version::Version,
@@ -78,7 +78,7 @@ pub struct SpecificVersionResponse {
 }
 
 /// Version details for supported architectures
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SpecificVersionArchitectureResponses {
     /// Details for x86 installer
     pub x86: Option<SpecificVersionArchitectureResponse>,
@@ -86,7 +86,7 @@ pub struct SpecificVersionArchitectureResponses {
     pub arm64: Option<SpecificVersionArchitectureResponse>,
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct SpecificVersionArchitectureResponse {
     /// Mirrors that host the artifact
     pub urls: Vec<String>,
@@ -97,7 +97,7 @@ pub struct SpecificVersionArchitectureResponse {
 }
 
 /// JSON response signature
-#[derive(Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize)]
 pub struct ResponseSignature {
     pub keyid: key::VerifyingKey,
     pub sig: key::Signature,
