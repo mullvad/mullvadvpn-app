@@ -26,7 +26,7 @@ object IPAvailabilityUtils {
         protect: (socket: DatagramSocket) -> Boolean,
     ): Boolean {
         val socket = DatagramSocket()
-        if(!protect(socket)) {
+        if (!protect(socket)) {
             Logger.e("Unable to protect the socket VPN is not set up correctly")
             return false
         }
