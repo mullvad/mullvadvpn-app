@@ -1,5 +1,6 @@
 #![cfg(target_os = "windows")]
 
+use std::marker::PhantomData;
 use std::sync::{mpsc, OnceLock};
 
 use neon::prelude::*;
@@ -114,22 +115,37 @@ fn strip_null_terminator(slice: &[u16]) -> String {
 }
 
 /// Struct for safely handling initialization and deinitialization of the Windows COM library.
-/// A call to CoInitializeEx _needs_ to be accompanied by a call to CoUninitialize, which is
-/// taken care by the drop implementation on [ComContext]. It is up to the consumer of [ComContext]
-/// to every only call [ComContext::new] once per thread before calling drop.
-struct ComContext {}
+/// A successful call to [CoInitializeEx] _needs_ to be accompanied by a call to [CoUninitialize],
+/// which is taken care by the drop implementation on [ComContext].
+///
+/// [CoInitializeEx] sets up thread-local state. Thus this type is `!Send` to stop it being moved
+/// to another thread.
+struct ComContext {
+    // HACK: until negative impls are stable, this how we stop `Send` from being impld
+    _do_not_impl_send: PhantomData<*mut ()>,
+}
 
 impl ComContext {
+    /// Create a new [ComContext].
+    ///
+    /// This will call [CoInitializeEx] now, and [CoUninitialize] when dropped.
+    ///
+    /// May return an error if [CoInitializeEx] was previously called with different arguments on
+    /// the same thread.
     fn new() -> Result<Self, windows::core::Error> {
-        unsafe {
-            CoInitializeEx(None, COINIT_APARTMENTTHREADED).ok()?;
-        };
-        Ok(Self {})
+        // SAFETY: This is paired with CoUninitialize in impl Drop
+        unsafe { CoInitializeEx(None, COINIT_APARTMENTTHREADED) }.ok()?;
+
+        Ok(Self {
+            _do_not_impl_send: PhantomData,
+        })
     }
 }
 
 impl Drop for ComContext {
     fn drop(&mut self) {
+        // SAFETY: CoInitializeEx was called when this struct was created,
+        // and it was called on the same thread since ComContext is !Send.
         unsafe {
             CoUninitialize();
         }
