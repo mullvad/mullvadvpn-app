@@ -14,38 +14,44 @@ struct ConnectionView: View {
 
     @State private(set) var isExpanded = false
 
-    @State private(set) var showConnectionDetailsAnimated = false
-    @State private(set) var isExpandedAnimated = false
     @State private(set) var scrollViewHeight: CGFloat = 0
-
+    var hasFeatureIndicators: Bool { !indicatorsViewModel.chips.isEmpty }
     var action: ButtonPanel.Action?
 
     var body: some View {
-        Spacer()
-            .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
-
-        VStack(alignment: .leading, spacing: 16) {
-            VStack(alignment: .leading, spacing: 16) {
-                HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
-
-                if showConnectionDetailsAnimated {
+        VStack {
+            Spacer()
+                .accessibilityIdentifier(AccessibilityIdentifier.connectionView.asString)
+            VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 0) {
+                    HeaderView(viewModel: connectionViewModel, isExpanded: $isExpanded)
+                        .padding(.bottom, 8)
                     Divider()
                         .background(UIColor.secondaryTextColor.color)
-                        .showIf(isExpandedAnimated)
+                        .padding(.bottom, 16)
+                        .showIf(isExpanded)
 
                     ScrollView {
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(LocalizedStringKey("Active features"))
-                                .font(.footnote.weight(.semibold))
-                                .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
-                                .padding(.bottom, isExpandedAnimated ? 8 : 0)
-                                .showIf(!indicatorsViewModel.chips.isEmpty && isExpandedAnimated)
+                        HStack {
+                            VStack(alignment: .leading, spacing: 0) {
+                                Text(LocalizedStringKey("Active features"))
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(UIColor.primaryTextColor.color.opacity(0.6))
+                                    .showIf(isExpanded && hasFeatureIndicators)
 
-                            ChipContainerView(viewModel: indicatorsViewModel, isExpanded: $isExpanded)
+                                ChipContainerView(
+                                    viewModel: indicatorsViewModel,
+                                    tunnelState: connectionViewModel.tunnelStatus.state,
+                                    isExpanded: $isExpanded
+                                )
+                                .padding(.bottom, isExpanded ? 16 : 0)
+                                .showIf(hasFeatureIndicators)
 
-                            DetailsView(viewModel: connectionViewModel)
-                                .padding(.top, indicatorsViewModel.chips.isEmpty ? 0 : 16)
-                                .showIf(isExpandedAnimated)
+                                DetailsView(viewModel: connectionViewModel)
+                                    .padding(.bottom, 8)
+                                    .showIf(isExpanded)
+                            }
+                            Spacer()
                         }
                         .sizeOfView { size in
                             withAnimation {
@@ -61,41 +67,35 @@ struct ConnectionView: View {
                             $0
                         }
                     }
-                    .showIf(isExpandedAnimated || !indicatorsViewModel.chips.isEmpty)
                 }
+                .transformEffect(.identity)
+                .animation(.default, value: hasFeatureIndicators)
+                ButtonPanel(viewModel: connectionViewModel, action: action)
             }
-            .transformEffect(.identity)
-
-            ButtonPanel(viewModel: connectionViewModel, action: action)
-        }
-        .padding()
-        .background(BlurView(style: .dark))
-        .cornerRadius(12)
-        .padding()
-        .onChange(of: isExpanded) { newValue in
-            withAnimation {
-                isExpandedAnimated = newValue
-            }
-        }
-        .onChange(of: connectionViewModel.showsConnectionDetails) { newValue in
-            if !newValue {
-                isExpanded = false
-            }
-            withAnimation {
-                showConnectionDetailsAnimated = newValue
+            .padding(16)
+            .background(BlurView(style: .dark))
+            .cornerRadius(12)
+            .padding(16)
+            .apply
+            .onChange(of: connectionViewModel.showsConnectionDetails) { showsConnectionDetails in
+                if !showsConnectionDetails {
+                    withAnimation {
+                        isExpanded = false
+                    }
+                }
             }
         }
     }
 }
 
 #Preview("ConnectionView (Indicators)") {
-    ConnectionViewComponentPreview(showIndicators: true, isExpanded: true) { indicatorModel, viewModel, _ in
+    ConnectionViewComponentPreview(showIndicators: true) { indicatorModel, viewModel, _ in
         ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
     }
 }
 
 #Preview("ConnectionView (No indicators)") {
-    ConnectionViewComponentPreview(showIndicators: false, isExpanded: true) { indicatorModel, viewModel, _ in
+    ConnectionViewComponentPreview(showIndicators: false) { indicatorModel, viewModel, _ in
         ConnectionView(connectionViewModel: viewModel, indicatorsViewModel: indicatorModel)
     }
 }

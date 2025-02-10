@@ -15,6 +15,19 @@ import SwiftUI
 
 struct ConnectionViewComponentPreview<Content: View>: View {
     let showIndicators: Bool
+    let connectedTunnelStatus = TunnelStatus(
+        observedState: .connected(ObservedConnectionState(
+            selectedRelays: SelectedRelaysStub.selectedRelays,
+            relayConstraints: RelayConstraints(entryLocations: .any, exitLocations: .any, port: .any, filter: .any),
+            networkReachability: .reachable,
+            connectionAttemptCount: 0,
+            transportLayer: .udp,
+            remotePort: 80,
+            isPostQuantum: true,
+            isDaitaEnabled: true
+        )),
+        state: .connected(SelectedRelaysStub.selectedRelays, isPostQuantum: true, isDaita: true)
+    )
 
     private var tunnelSettings: LatestTunnelSettings {
         LatestTunnelSettings(
@@ -25,44 +38,39 @@ struct ConnectionViewComponentPreview<Content: View>: View {
         )
     }
 
-    private let viewModel = ConnectionViewViewModel(
-        tunnelStatus: TunnelStatus(
-            observedState: .connected(ObservedConnectionState(
-                selectedRelays: SelectedRelaysStub.selectedRelays,
-                relayConstraints: RelayConstraints(entryLocations: .any, exitLocations: .any, port: .any, filter: .any),
-                networkReachability: .reachable,
-                connectionAttemptCount: 0,
-                transportLayer: .udp,
-                remotePort: 80,
-                isPostQuantum: true,
-                isDaitaEnabled: true
-            )),
-            state: .connected(SelectedRelaysStub.selectedRelays, isPostQuantum: true, isDaita: true)
-        ),
-        relayConstraints: RelayConstraints(),
-        relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
-        customListRepository: CustomListRepository()
-    )
+    private let viewModel: ConnectionViewViewModel
 
     var content: (FeatureIndicatorsViewModel, ConnectionViewViewModel, Binding<Bool>) -> Content
 
-    @State var isExpanded: Bool
+    @State var isExpanded = false
 
     init(
         showIndicators: Bool,
-        isExpanded: Bool,
         content: @escaping (FeatureIndicatorsViewModel, ConnectionViewViewModel, Binding<Bool>) -> Content
     ) {
         self.showIndicators = showIndicators
-        self._isExpanded = State(wrappedValue: isExpanded)
         self.content = content
+        viewModel = ConnectionViewViewModel(
+            tunnelStatus: connectedTunnelStatus,
+            relayConstraints: RelayConstraints(),
+            relayCache: RelayCache(cacheDirectory: ApplicationConfiguration.containerURL),
+            customListRepository: CustomListRepository()
+        )
+        viewModel.outgoingConnectionInfo = OutgoingConnectionInfo(
+            ipv4: .init(ip: .allHostsGroup, exitIP: true),
+            ipv6: IPV6ConnectionData(
+                ip: .broadcast,
+                exitIP: true
+            )
+        )
     }
 
     var body: some View {
         content(
             FeatureIndicatorsViewModel(
                 tunnelSettings: tunnelSettings,
-                ipOverrides: []
+                ipOverrides: [],
+                tunnelState: connectedTunnelStatus.state
             ),
             viewModel,
             $isExpanded
