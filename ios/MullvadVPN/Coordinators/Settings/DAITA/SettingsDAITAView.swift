@@ -104,19 +104,18 @@ extension SettingsDAITAView {
                         "SETTINGS_INFO_DAITA_PAGE_1",
                         tableName: "Settings",
                         value: """
-                        Attention: This increases network traffic, which may affect speed, battery, and data usage. Use with caution on limited plans.
+                        **Attention: This increases network traffic, which may affect speed, battery, and data usage. Use with caution on limited plans.**
 
                         DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
                         your encrypted VPN traffic.
 
                         By using sophisticated AI it’s possible to analyze the traffic of data \
                         packets going in and out of your device (even if the traffic is encrypted).
-
-
                         """,
                         comment: ""
                     ),
-                    image: .daitaOffIllustration
+                    image: .daitaOffIllustration,
+                    format: .attributedText
                 ),
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(

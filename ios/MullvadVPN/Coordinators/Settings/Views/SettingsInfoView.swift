@@ -13,8 +13,20 @@ struct SettingsInfoViewModel {
 }
 
 struct SettingsInfoViewModelPage: Hashable {
+    enum Format {
+        case plainText
+        case attributedText
+    }
+
     let body: String
     let image: ImageResource
+    let format: Format
+
+    init(body: String, image: ImageResource, format: Format = .plainText) {
+        self.body = body
+        self.image = image
+        self.format = format
+    }
 }
 
 struct SettingsInfoView: View {
@@ -50,6 +62,18 @@ struct SettingsInfoView: View {
         .hidden()
     }
 
+    private func bodyText(_ page: SettingsInfoViewModelPage) -> some View {
+        switch page.format {
+        case .plainText:
+            Text(page.body)
+        case .attributedText:
+            (try? AttributedString(
+                markdown: page.body,
+                options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+            )).map(Text.init) ?? Text(page.body)
+        }
+    }
+
     private func contentView() -> some View {
         ForEach(viewModel.pages, id: \.self) { page in
             VStack {
@@ -57,7 +81,7 @@ struct SettingsInfoView: View {
                     Image(page.image)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
-                    Text(page.body)
+                    bodyText(page)
                         .font(.subheadline)
                         .opacity(0.6)
                 }
@@ -130,33 +154,33 @@ struct SettingsInfoView: View {
                         "SETTINGS_INFO_DAITA_PAGE_1",
                         tableName: "Settings",
                         value: """
+                        **Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans.**
+
                         DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
                         your encrypted VPN traffic.
 
                         By using sophisticated AI it’s possible to analyze the traffic of data \
                         packets going in and out of your device (even if the traffic is encrypted).
-
-                        If an observer monitors these data packets, DAITA makes it significantly \
-                        harder for them to identify which websites you are visiting or with whom \
-                        you are communicating.
                         """,
                         comment: ""
                     ),
-                    image: .daitaOffIllustration
+                    image: .daitaOffIllustration,
+                    format: .attributedText
                 ),
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
                         "SETTINGS_INFO_DAITA_PAGE_2",
                         tableName: "Settings",
                         value: """
+                        If an observer monitors these data packets, DAITA makes it significantly \
+                        harder for them to identify which websites you are visiting or with whom \
+                        you are communicating.
+
                         DAITA does this by carefully adding network noise and making all network \
                         packets the same size.
 
                         Not all our servers are DAITA-enabled. Therefore, we use multihop \
                         automatically to enable DAITA with any server.
-
-                        Attention: Be cautious if you have a limited data plan as this feature \
-                        will increase your network traffic.
                         """,
                         comment: ""
                     ),
