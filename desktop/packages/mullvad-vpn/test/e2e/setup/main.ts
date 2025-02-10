@@ -126,7 +126,7 @@ class ApplicationMain {
       show: DEBUG,
       frame: true,
       webPreferences: {
-        preload: path.join(__dirname, '../../../src/renderer/preloadBundle.js'),
+        preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
@@ -141,8 +141,11 @@ class ApplicationMain {
 
     this.registerIpcListeners();
 
-    const filePath = path.resolve(path.join(__dirname, '../../../src/renderer/index.html'));
-    await window.loadFile(filePath);
+    if (process.env.NODE_ENV === 'development' && process.env.VITE_DEV_SERVER_URL) {
+      await window.loadURL(process.env.VITE_DEV_SERVER_URL);
+    } else {
+      await window.loadFile(path.join(__dirname, '../dist/index.html'));
+    }
 
     if (DEBUG) {
       window.webContents.openDevTools({ mode: 'detach' });
