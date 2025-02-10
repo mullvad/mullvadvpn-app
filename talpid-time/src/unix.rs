@@ -1,17 +1,20 @@
-use libc::{c_long, clock_gettime, clockid_t, timespec};
-use std::{mem::MaybeUninit, time::Duration};
+use nix::{
+    sys::time::TimeSpec,
+    time::{clock_gettime, ClockId},
+};
+use std::{ffi::c_long, time::Duration};
 
 const NSEC_PER_SEC: c_long = 1_000_000_000;
 
 #[cfg(any(target_os = "macos", target_os = "ios"))]
-const CLOCK_ID: clockid_t = libc::CLOCK_MONOTONIC;
+const CLOCK_ID: ClockId = ClockId::CLOCK_MONOTONIC;
 
 #[cfg(any(target_os = "linux", target_os = "android"))]
-const CLOCK_ID: clockid_t = libc::CLOCK_BOOTTIME;
+const CLOCK_ID: ClockId = ClockId::CLOCK_BOOTTIME;
 
 #[derive(Clone, Copy)]
 pub struct Instant {
-    t: timespec,
+    t: TimeSpec,
 }
 
 impl Instant {
@@ -24,15 +27,15 @@ impl Instant {
         // * `tv_sec >= 0`
         // * `tv_nsec < NSEC_PER_SEC`
 
-        let (tv_sec, tv_nsec) = if self.t.tv_nsec < earlier.t.tv_nsec {
+        let (tv_sec, tv_nsec) = if self.t.tv_nsec() < earlier.t.tv_nsec() {
             (
-                self.t.tv_sec - earlier.t.tv_sec - 1,
-                NSEC_PER_SEC - earlier.t.tv_nsec + self.t.tv_nsec,
+                self.t.tv_sec() - earlier.t.tv_sec() - 1,
+                NSEC_PER_SEC - earlier.t.tv_nsec() + self.t.tv_nsec(),
             )
         } else {
             (
-                self.t.tv_sec - earlier.t.tv_sec,
-                self.t.tv_nsec - earlier.t.tv_nsec,
+                self.t.tv_sec() - earlier.t.tv_sec(),
+                self.t.tv_nsec() - earlier.t.tv_nsec(),
             )
         };
 
@@ -49,10 +52,6 @@ impl Instant {
     }
 }
 
-fn now() -> timespec {
-    let mut t = MaybeUninit::zeroed();
-    unsafe {
-        clock_gettime(CLOCK_ID, t.as_mut_ptr());
-        t.assume_init()
-    }
+fn now() -> TimeSpec {
+    clock_gettime(CLOCK_ID).expect("Clock ID is valid")
 }

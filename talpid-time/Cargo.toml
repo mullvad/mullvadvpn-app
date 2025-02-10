@@ -19,4 +19,4 @@ test = []
 tokio = { workspace = true, features = ["time"] }
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2"
+nix = { version = "0.29", features = ["time"] }
