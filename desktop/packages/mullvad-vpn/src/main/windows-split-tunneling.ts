@@ -1,6 +1,7 @@
-import { app, shell } from 'electron';
+import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
+import { readShortcut } from 'rust-utils';
 
 import {
   ISplitTunnelingApplication,
@@ -114,7 +115,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
 
   public resolveExecutablePath(providedPath: string): Promise<string> {
     if (path.extname(providedPath) === '.lnk') {
-      return Promise.resolve(shell.readShortcutLink(path.resolve(providedPath)).target);
+      return Promise.resolve(readShortcut(path.resolve(providedPath)));
     }
 
     return Promise.resolve(providedPath);
@@ -124,9 +125,9 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
   public async addApplicationPathToCache(applicationPath: string): Promise<void> {
     const parsedPath = path.parse(applicationPath);
     if (parsedPath.ext === '.lnk') {
-      const shortcutDetiails = shell.readShortcutLink(path.resolve(applicationPath));
+      const target = readShortcut(path.resolve(applicationPath));
       this.additionalShortcuts.push({
-        ...shortcutDetiails,
+        target,
         name: path.parse(applicationPath).name,
         deletable: true,
       });
@@ -218,7 +219,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
       .map((link) => {
         try {
           return {
-            ...shell.readShortcutLink(path.resolve(link)),
+            target: readShortcut(path.resolve(link)),
             name: path.parse(link).name,
           };
         } catch {

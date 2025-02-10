@@ -25,7 +25,14 @@ task(
 );
 task(
   'develop',
-  series('clean', 'set-dev-env', scripts.buildProto, scripts.buildNseventforwarder, watch.start),
+  series(
+    'clean',
+    'set-dev-env',
+    scripts.buildProto,
+    scripts.buildNseventforwarder,
+    scripts.buildRustUtils,
+    watch.start,
+  ),
 );
 task('pack-win', series('build', dist.packWin));
 task('pack-linux', series('build', dist.packLinux));
