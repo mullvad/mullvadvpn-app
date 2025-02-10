@@ -6,7 +6,7 @@ import path from 'path';
 import log from '../shared/logging';
 
 const SOURCE_LANGUAGE = 'en';
-const LOCALES_DIR = path.resolve(__dirname, '../../locales');
+const LOCALES_DIR = path.resolve(__dirname, '../locales');
 
 export function loadTranslations(
   currentLocale: string,
