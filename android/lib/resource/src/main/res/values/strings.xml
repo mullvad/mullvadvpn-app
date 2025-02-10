@@ -380,7 +380,7 @@
     <string name="version">Version</string>
     <string name="local_network_sharing_info_block_connections_warning">Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work.</string>
     <string name="encrypted_dns_proxy_info_message_part1">With the “Encrypted DNS proxy” method, the app will communicate with our Mullvad API through a proxy address. It does this by retrieving an address from a DNS over HTTPS (DoH) server and then using that to reach our API servers.</string>
-    <string name="encrypted_dns_proxy_info_message_part2">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.</string>
     <string name="connection_details_out">Out</string>
     <string name="multihop">Multihop</string>
     <string name="multihop_description">Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.</string>
