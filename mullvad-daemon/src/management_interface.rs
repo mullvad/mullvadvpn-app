@@ -1,12 +1,12 @@
-use crate::{account_history, device, version_check, DaemonCommand, DaemonCommandSender};
+use crate::{DaemonCommand, DaemonCommandSender, account_history, device, version_check};
 use futures::{
-    channel::{mpsc, oneshot},
     StreamExt,
+    channel::{mpsc, oneshot},
 };
-use mullvad_api::{rest::Error as RestError, StatusCode};
+use mullvad_api::{StatusCode, rest::Error as RestError};
 use mullvad_management_interface::{
-    types::{self, daemon_event, management_service_server::ManagementService},
     Code, Request, Response, ServerJoinHandle, Status,
+    types::{self, daemon_event, management_service_server::ManagementService},
 };
 use mullvad_types::{
     account::AccountNumber,
@@ -290,7 +290,9 @@ impl ManagementService for ManagementServiceImpl {
     async fn set_block_when_disconnected(&self, request: Request<bool>) -> ServiceResult<()> {
         let block_when_disconnected = request.into_inner();
         log::debug!("set_block_when_disconnected({})", block_when_disconnected);
-        Err(Status::unimplemented("Setting Lockdown mode on Android is not supported - this is handled by the OS, not the daemon"))
+        Err(Status::unimplemented(
+            "Setting Lockdown mode on Android is not supported - this is handled by the OS, not the daemon",
+        ))
     }
 
     async fn set_auto_connect(&self, request: Request<bool>) -> ServiceResult<()> {
@@ -1353,9 +1355,7 @@ fn map_device_error(error: &device::Error) -> Status {
         }
         device::Error::InvalidVoucher => Status::new(Code::NotFound, INVALID_VOUCHER_MESSAGE),
         device::Error::UsedVoucher => Status::new(Code::ResourceExhausted, USED_VOUCHER_MESSAGE),
-        device::Error::DeviceIoError(_error) => {
-            Status::new(Code::Unavailable, error.to_string())
-        }
+        device::Error::DeviceIoError(_error) => Status::new(Code::Unavailable, error.to_string()),
         device::Error::OtherRestError(error) => map_rest_error(error),
         _ => Status::new(Code::Unknown, error.to_string()),
     }

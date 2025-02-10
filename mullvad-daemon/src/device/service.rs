@@ -1,7 +1,7 @@
 use std::{future::Future, time::Duration};
 
 use chrono::Utc;
-use futures::future::{abortable, AbortHandle};
+use futures::future::{AbortHandle, abortable};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
@@ -13,11 +13,11 @@ use talpid_types::net::wireguard::PrivateKey;
 
 use super::{Error, PrivateAccountAndDevice, PrivateDevice};
 use mullvad_api::{
+    AccountsProxy, DevicesProxy,
     availability::ApiAvailability,
     rest::{self, MullvadRestHandle},
-    AccountsProxy, DevicesProxy,
 };
-use talpid_future::retry::{retry_future, ConstantInterval, ExponentialBackoff, Jittered};
+use talpid_future::retry::{ConstantInterval, ExponentialBackoff, Jittered, retry_future};
 /// Retry strategy used for user-initiated actions that require immediate feedback
 const RETRY_ACTION_STRATEGY: ConstantInterval = ConstantInterval::new(Duration::ZERO, Some(3));
 /// Retry strategy used for background tasks

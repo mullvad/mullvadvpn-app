@@ -34,9 +34,9 @@ use crate::target_state::PersistentTargetState;
 use api::AccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
-    channel::{mpsc, oneshot},
-    future::{abortable, AbortHandle, Future},
     StreamExt,
+    channel::{mpsc, oneshot},
+    future::{AbortHandle, Future, abortable},
 };
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
@@ -55,7 +55,7 @@ use mullvad_types::{
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
-    features::{compute_feature_indicators, FeatureIndicator, FeatureIndicators},
+    features::{FeatureIndicator, FeatureIndicators, compute_feature_indicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
         BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
@@ -66,7 +66,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-use relay_list::{RelayListUpdater, RelayListUpdaterHandle, RELAYS_FILENAME};
+use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
 use settings::SettingsPersister;
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
@@ -90,9 +90,9 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
+    ErrorExt,
     net::{IpVersion, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
-    ErrorExt,
 };
 use tokio::io;
 
@@ -560,13 +560,12 @@ where
     InternalDaemonEvent: From<E>,
 {
     fn send(&self, event: E) -> Result<(), talpid_core::mpsc::Error> {
-        match self.sender.upgrade() { Some(sender) => {
-            sender
+        match self.sender.upgrade() {
+            Some(sender) => sender
                 .unbounded_send(InternalDaemonEvent::from(event))
-                .map_err(|_| talpid_core::mpsc::Error::ChannelClosed)
-        } _ => {
-            Err(talpid_core::mpsc::Error::ChannelClosed)
-        }}
+                .map_err(|_| talpid_core::mpsc::Error::ChannelClosed),
+            _ => Err(talpid_core::mpsc::Error::ChannelClosed),
+        }
     }
 }
 
@@ -958,11 +957,14 @@ impl Daemon {
         self.disconnect_tunnel();
 
         while let Some(event) = self.rx.next().await {
-            match event { InternalDaemonEvent::TunnelStateTransition(transition) => {
-                self.handle_tunnel_state_transition(transition).await;
-            } _ => {
-                log::trace!("Ignoring event because the daemon is shutting down");
-            }}
+            match event {
+                InternalDaemonEvent::TunnelStateTransition(transition) => {
+                    self.handle_tunnel_state_transition(transition).await;
+                }
+                _ => {
+                    log::trace!("Ignoring event because the daemon is shutting down");
+                }
+            }
 
             if self.tunnel_state.is_disconnected() {
                 break;
@@ -1162,15 +1164,16 @@ impl Daemon {
             // If not connected, we have to guess whether the users local connection supports IPv6.
             // The only thing we have to go on is the wireguard setting.
             TunnelState::Disconnected { .. } => {
-                match &self.settings.relay_settings { RelaySettings::Normal(relay_constraints) => {
-                    // Note that `Constraint::Any` corresponds to just IPv4
-                    matches!(
-                        relay_constraints.wireguard_constraints.ip_version,
-                        mullvad_types::constraints::Constraint::Only(IpVersion::V6)
-                    )
-                } _ => {
-                    false
-                }}
+                match &self.settings.relay_settings {
+                    RelaySettings::Normal(relay_constraints) => {
+                        // Note that `Constraint::Any` corresponds to just IPv4
+                        matches!(
+                            relay_constraints.wireguard_constraints.ip_version,
+                            mullvad_types::constraints::Constraint::Only(IpVersion::V6)
+                        )
+                    }
+                    _ => false,
+                }
             }
             // Fetching IP from am.i.mullvad.net should only be done from a tunnel state where a
             // connection is available. Otherwise we just exist.
@@ -1690,25 +1693,28 @@ impl Daemon {
     }
 
     async fn on_get_www_auth_token(&mut self, tx: ResponseTx<String, Error>) {
-        match self.account_manager.data().await.map(|s| s.into_device()) { Ok(Some(device)) => {
-            let future = self
-                .account_manager
-                .account_service
-                .get_www_auth_token(device.account_number);
-            tokio::spawn(async {
+        match self.account_manager.data().await.map(|s| s.into_device()) {
+            Ok(Some(device)) => {
+                let future = self
+                    .account_manager
+                    .account_service
+                    .get_www_auth_token(device.account_number);
+                tokio::spawn(async {
+                    Self::oneshot_send(
+                        tx,
+                        future.await.map_err(Error::RestError),
+                        "get_www_auth_token response",
+                    );
+                });
+            }
+            _ => {
                 Self::oneshot_send(
                     tx,
-                    future.await.map_err(Error::RestError),
+                    Err(Error::NoAccountNumber),
                     "get_www_auth_token response",
                 );
-            });
-        } _ => {
-            Self::oneshot_send(
-                tx,
-                Err(Error::NoAccountNumber),
-                "get_www_auth_token response",
-            );
-        }}
+            }
+        }
     }
 
     fn on_submit_voucher(&mut self, tx: ResponseTx<VoucherSubmission, Error>, voucher: String) {
@@ -2459,7 +2465,7 @@ impl Daemon {
 
     #[cfg(daita)]
     async fn on_set_daita_enabled(&mut self, tx: ResponseTx<(), settings::Error>, value: bool) {
-        use mullvad_types::{constraints::Constraint, Intersection};
+        use mullvad_types::{Intersection, constraints::Constraint};
 
         let result = self
             .settings
@@ -2498,7 +2504,7 @@ impl Daemon {
         tx: ResponseTx<(), settings::Error>,
         value: bool,
     ) {
-        use mullvad_types::{constraints::Constraint, Intersection};
+        use mullvad_types::{Intersection, constraints::Constraint};
 
         match self
             .settings
@@ -2709,12 +2715,10 @@ impl Daemon {
     }
 
     async fn on_get_wireguard_key(&self, tx: ResponseTx<Option<PublicKey>, Error>) {
-        let result =
-            match self.account_manager.data().await.map(|s| s.into_device()) { Ok(Some(config)) => {
-                Ok(Some(config.device.wg_data.get_public_key()))
-            } _ => {
-                Err(Error::NoAccountNumber)
-            }};
+        let result = match self.account_manager.data().await.map(|s| s.into_device()) {
+            Ok(Some(config)) => Ok(Some(config.device.wg_data.get_public_key())),
+            _ => Err(Error::NoAccountNumber),
+        };
         Self::oneshot_send(tx, result, "get_wireguard_key response");
     }
 

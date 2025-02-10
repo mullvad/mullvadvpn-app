@@ -1,9 +1,9 @@
 //! Relay list updater
 
 use futures::{
+    Future, FutureExt, SinkExt, StreamExt,
     channel::mpsc,
     future::{Fuse, FusedFuture},
-    Future, FutureExt, SinkExt, StreamExt,
 };
 use std::{
     path::{Path, PathBuf},
@@ -11,10 +11,10 @@ use std::{
 };
 use tokio::fs::File;
 
-use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, RelayListProxy};
+use mullvad_api::{RelayListProxy, availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::relay_list::RelayList;
-use talpid_future::retry::{retry_future, ExponentialBackoff, Jittered};
+use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
 use talpid_types::ErrorExt;
 
 /// How often the updater should wake up to check the cache of the in-memory cache of relays.

@@ -242,7 +242,9 @@ pub async fn ensure_daemon_environment(rpc: &ServiceClient) -> Result<(), anyhow
         .await
         .context("Failed to get daemon default env variables")?;
     if current_env != default_env {
-        log::debug!("Restarting daemon due changed environment variables. Values since last test {current_env:?}");
+        log::debug!(
+            "Restarting daemon due changed environment variables. Values since last test {current_env:?}"
+        );
         rpc.set_daemon_environment(default_env)
             .await
             .context("Failed to restart daemon")?;
