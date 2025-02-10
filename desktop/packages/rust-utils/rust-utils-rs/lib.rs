@@ -162,7 +162,13 @@ fn get_com_thread() -> mpsc::Sender<Message> {
             let (tx, rx) = mpsc::channel();
 
             std::thread::spawn(move || {
-                let _com = ComContext::new().expect("failed to initialize COM");
+                let com = match ComContext::new() {
+                    Ok(com) => com,
+                    Err(e) => {
+                        eprintln!("Failed to initialize ComContext: {e}");
+                        return;
+                    }
+                };
 
                 while let Ok(msg) = rx.recv() {
                     match msg {
@@ -171,6 +177,8 @@ fn get_com_thread() -> mpsc::Sender<Message> {
                         }
                     }
                 }
+
+                drop(com);
             });
 
             tx
