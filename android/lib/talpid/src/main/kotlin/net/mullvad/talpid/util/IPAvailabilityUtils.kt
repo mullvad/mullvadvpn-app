@@ -7,10 +7,10 @@ import java.net.InetSocketAddress
 import java.net.SocketException
 
 object IPAvailabilityUtils {
-    fun isIPv4Available(protect: (socket: DatagramSocket) -> Unit): Boolean =
+    fun isIPv4Available(protect: (socket: DatagramSocket) -> Boolean): Boolean =
         isIPAvailable(InetAddress.getByName(PUBLIC_IPV4_ADDRESS), protect)
 
-    fun isIPv6Available(protect: (socket: DatagramSocket) -> Unit): Boolean =
+    fun isIPv6Available(protect: (socket: DatagramSocket) -> Boolean): Boolean =
         isIPAvailable(InetAddress.getByName(PUBLIC_IPV6_ADDRESS), protect)
 
     // Fake a connection to a public ip address using a UDP socket.
@@ -23,11 +23,14 @@ object IPAvailabilityUtils {
     // exception. Otherwise we assume it is available.
     private inline fun <reified T : InetAddress> isIPAvailable(
         ip: T,
-        protect: (socket: DatagramSocket) -> Unit,
+        protect: (socket: DatagramSocket) -> Boolean,
     ): Boolean {
         val socket = DatagramSocket()
+        if(!protect(socket)) {
+            Logger.e("Unable to protect the socket VPN is not set up correctly")
+            return false
+        }
         return try {
-            protect(socket)
             socket.connect(InetSocketAddress(ip, 1))
             true
         } catch (_: SocketException) {
