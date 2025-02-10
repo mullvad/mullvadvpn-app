@@ -8,14 +8,19 @@
 
 import SwiftUI
 
-// A view modifier that can be used to conditionally apply other view modifiers. Here an example
-//    .apply {
-//        if #available(iOS 16.4, *) {
-//            $0.scrollBounceBehavior(.basedOnSize)
-//        } else {
-//            $0
-//        }
-//    }
 extension View {
+    /**
+      A view modifier that can be used to conditionally apply other view modifiers.
+      # Example #
+     ```
+     .apply {
+        if #available(iOS 16.4, *) {
+            $0.scrollBounceBehavior(.basedOnSize)
+        } else {
+            $0
+        }
+     }
+     ```
+     */
     func apply<V: View>(@ViewBuilder _ block: (Self) -> V) -> V { block(self) }
 }
