@@ -62,8 +62,7 @@ fn read_shortcut(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue> {
     match read_shortcut_inner(link_path) {
         Ok(Some(path)) => Ok(cx.string(path).as_value(&mut cx)),
         Ok(None) => Ok(cx.null().as_value(&mut cx)),
-        // TODO: handle err
-        _ => Ok(cx.null().as_value(&mut cx)),
+        Err(err) => cx.throw_error(format!("Failed to read shortcut: {}", err)),
     }
 }
 
