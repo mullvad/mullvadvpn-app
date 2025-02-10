@@ -34,13 +34,6 @@ class ConnectionViewViewModel: ObservableObject {
     @Published var relayConstraints: RelayConstraints
     let destinationDescriber: DestinationDescribing
 
-    var combinedState: Publishers.CombineLatest<
-        Published<TunnelStatus>.Publisher,
-        Published<Bool>.Publisher
-    > {
-        $tunnelStatus.combineLatest($showsActivityIndicator)
-    }
-
     var tunnelIsConnected: Bool {
         if case .connected = tunnelStatus.state {
             true
@@ -72,10 +65,6 @@ class ConnectionViewViewModel: ObservableObject {
 
     func update(tunnelStatus: TunnelStatus) {
         self.tunnelStatus = tunnelStatus
-
-        if !tunnelIsConnected {
-            outgoingConnectionInfo = nil
-        }
     }
 }
 

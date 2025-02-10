@@ -10,10 +10,11 @@ import SwiftUI
 
 struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol {
     @ObservedObject var viewModel: ViewModel
+    let tunnelState: TunnelState
     @Binding var isExpanded: Bool
 
     @State private var chipContainerHeight: CGFloat = .zero
-    private let verticalPadding: CGFloat = 6
+    private let verticalPadding: CGFloat = 8
 
     var body: some View {
         GeometryReader { geo in
@@ -31,7 +32,9 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
                 }
 
                 Button(LocalizedStringKey("\(viewModel.chips.count - chipsToAdd.count) more...")) {
-                    isExpanded.toggle()
+                    withAnimation {
+                        isExpanded.toggle()
+                    }
                 }
                 .font(.subheadline)
                 .lineLimit(1)
@@ -41,9 +44,6 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
 
                 Spacer()
             }
-            .animation(.default, value: isExpanded)
-            .animation(.default, value: showMoreButton)
-            .transition(.move(edge: .bottom).combined(with: .opacity))
             .sizeOfView { size in
                 withAnimation {
                     chipContainerHeight = size.height
@@ -51,7 +51,6 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
             }
         }
         .frame(height: chipContainerHeight)
-        .padding(.vertical, -(verticalPadding - 1)) // Remove extra padding from chip views on top and bottom.
     }
 
     private func createChipViews(chips: [ChipModel], containerWidth: CGFloat) -> some View {
@@ -96,6 +95,31 @@ struct ChipContainerView<ViewModel>: View where ViewModel: ChipViewModelProtocol
     StatefulPreviewWrapper(false) { isExpanded in
         ChipContainerView(
             viewModel: MockFeatureIndicatorsViewModel(),
+            tunnelState: .connected(
+                .init(
+                    entry: nil,
+                    exit: .init(
+                        endpoint: .init(
+                            ipv4Relay: .init(ip: .allHostsGroup, port: 1234),
+                            ipv4Gateway: .allHostsGroup,
+                            ipv6Gateway: .broadcast,
+                            publicKey: Data()
+                        ),
+                        hostname: "hostname",
+                        location: .init(
+                            country: "Sweden",
+                            countryCode: "SE",
+                            city: "Gothenburg",
+                            cityCode: "gbg",
+                            latitude: 1234,
+                            longitude: 1234
+                        )
+                    ),
+                    retryAttempt: 0
+                ),
+                isPostQuantum: false,
+                isDaita: false
+            ),
             isExpanded: isExpanded
         )
         .background(UIColor.secondaryColor.color)
