@@ -116,7 +116,7 @@ fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
     let parsed_version =
         Version::from_str(old_version).map_err(|_| Error::ParseVersionStringError)?;
 
-    Ok(if parsed_version < *APP_VERSION {
+    Ok(if APP_VERSION.is_later_version_than(&parsed_version) {
         ExitStatus::Ok
     } else {
         ExitStatus::VersionNotOlder
