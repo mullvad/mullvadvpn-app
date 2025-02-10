@@ -10,6 +10,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -23,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
@@ -48,6 +50,7 @@ fun CustomTextField(
     visualTransformation: VisualTransformation = VisualTransformation.None,
     supportingText: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = mullvadDarkTextFieldColors(),
+    textStyle: TextStyle = LocalTextStyle.current,
     capitalization: KeyboardCapitalization = KeyboardCapitalization.None,
     keyboardOptions: KeyboardOptions =
         KeyboardOptions(
@@ -101,6 +104,7 @@ fun CustomTextField(
         keyboardActions = KeyboardActions(onDone = { onSubmit(value) }),
         visualTransformation = visualTransformation,
         colors = colors,
+        textStyle = textStyle,
         isError = !isValidValue,
         modifier = modifier.clip(MaterialTheme.shapes.small).fillMaxWidth(),
         supportingText = supportingText,
