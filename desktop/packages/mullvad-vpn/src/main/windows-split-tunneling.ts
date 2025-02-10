@@ -686,14 +686,14 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
     return Math.ceil(offset / 4) * 4;
   }
 
-  private tryReadshortcut(appPath: string): string | undefined {
+  private tryReadshortcut(appPath: string): string | null {
     try {
       return readShortcut(path.resolve(appPath));
     } catch (e) {
       if (typeof e === 'object' && e && 'message' in e) {
         log.error(`Failed to read .lnk shortcut for ${appPath}.`, e.message);
       }
-      return undefined;
+      return null;
     }
   }
 }
