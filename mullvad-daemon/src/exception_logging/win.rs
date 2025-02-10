@@ -17,8 +17,8 @@ use windows_sys::Win32::{
     System::{
         Diagnostics::{
             Debug::{
-                MiniDumpNormal, MiniDumpWriteDump, SetUnhandledExceptionFilter, CONTEXT,
-                EXCEPTION_POINTERS, EXCEPTION_RECORD, MINIDUMP_EXCEPTION_INFORMATION,
+                CONTEXT, EXCEPTION_POINTERS, EXCEPTION_RECORD, MINIDUMP_EXCEPTION_INFORMATION,
+                MiniDumpNormal, MiniDumpWriteDump, SetUnhandledExceptionFilter,
             },
             ToolHelp::TH32CS_SNAPMODULE,
         },

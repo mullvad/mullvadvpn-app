@@ -1,10 +1,10 @@
-use crate::{version::is_beta_version, DaemonEventSender};
+use crate::{DaemonEventSender, version::is_beta_version};
 use futures::{
+    FutureExt, SinkExt, StreamExt, TryFutureExt,
     channel::{mpsc, oneshot},
     future::{BoxFuture, FusedFuture},
-    FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
-use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, AppVersionProxy};
+use mullvad_api::{AppVersionProxy, availability::ApiAvailability, rest::MullvadRestHandle};
 use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -18,7 +18,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
-use talpid_future::retry::{retry_future, ConstantInterval};
+use talpid_future::retry::{ConstantInterval, retry_future};
 use talpid_types::ErrorExt;
 use tokio::{fs::File, io::AsyncReadExt};
 
@@ -396,7 +396,10 @@ struct UpdateContext {
 impl UpdateContext {
     /// Write [VersionUpdaterInner::last_app_version_info], if any, to the cache file
     /// ([VERSION_INFO_FILENAME]). Also, notify `self.update_sender`
-    fn update(&self, last_app_version: AppVersionInfo) -> impl Future<Output = Result<(), Error>> + use<> {
+    fn update(
+        &self,
+        last_app_version: AppVersionInfo,
+    ) -> impl Future<Output = Result<(), Error>> + use<> {
         let _ = self.update_sender.send(last_app_version.clone());
         let cache_path = self.cache_path.clone();
 
@@ -561,8 +564,8 @@ fn suggested_upgrade(
 #[cfg(test)]
 mod test {
     use std::sync::{
-        atomic::{AtomicBool, Ordering},
         Arc,
+        atomic::{AtomicBool, Ordering},
     };
 
     use super::*;
