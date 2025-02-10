@@ -86,6 +86,7 @@
   "scripts": {
     "preinstall": "test -d node_modules || mkdir node_modules",
     "build": "gulp build",
+    "build:vite": "vite build",
     "pack-test-executable": "./scripts/build-test-executable.sh",
     "build-test-executable": "npm run build && npm run pack-test-executable",
     "lint": "eslint .",
@@ -96,6 +97,7 @@
     "e2e:sequential:no-build": "xvfb-maybe -- playwright test -c test/e2e/installed/playwright.config.ts --workers 1",
     "e2e:update-snapshots": "npm run e2e:no-build -- --update-snapshots",
     "develop": "gulp develop",
+    "develop:vite": "vite",
     "test": "cross-env NODE_ENV=test mocha --reporter spec --require ts-node/register --require \"test/unit/setup.ts\" \"test/unit/*.spec.ts\"",
     "update-translations": "node scripts/extract-translations",
     "pack:mac": "gulp pack-mac",
