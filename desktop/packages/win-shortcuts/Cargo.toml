@@ -1,0 +1,21 @@
+[package]
+name = "win-shortcuts"
+description = ""
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+exclude = ["index.node"]
+
+[lints]
+workspace = true
+
+[lib]
+crate-type = ["cdylib"]
+path = "win-shortcuts-rs/lib.rs"
+
+[target.'cfg(target_os = "windows")'.dependencies]
+neon = "1"
+windows = { version = "0.59.0", features = ["Win32", "Win32_UI", "Win32_UI_Shell", "Win32_System", "Win32_System_Com", "Win32_Storage_FileSystem"] }
+thiserror = { workspace = true }
