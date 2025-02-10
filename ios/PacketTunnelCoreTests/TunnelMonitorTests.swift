@@ -77,10 +77,10 @@ final class TunnelMonitorTests: XCTestCase {
         Task {
             for await event in await tunnelMonitor.eventStream {
                 switch event {
-                case .connectionEstablished:
-                    break
                 case .connectionLost:
                     connectionLostExpectation.fulfill()
+                default:
+                    break
                 }
             }
         }
