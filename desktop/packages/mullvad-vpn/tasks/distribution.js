@@ -62,7 +62,7 @@ function newConfig() {
       '!node_modules/grpc-tools',
       '!node_modules/@types',
       '!node_modules/nseventforwarder/debug',
-      '!node_modules/rust-utils/debug',
+      '!node_modules/win-shortcuts/debug',
     ],
 
     // Make sure that all files declared in "extraResources" exists and abort if they don't.
@@ -301,7 +301,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
             process.env.DIST_SUBDIR = '';
 
-            execFileSync('npm', ['-w', 'rust-utils', 'run', 'build-x86']);
+            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-x86']);
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
@@ -309,7 +309,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
             process.env.DIST_SUBDIR = 'aarch64-pc-windows-msvc';
 
-            execFileSync('npm', ['-w', 'rust-utils', 'run', 'build-arm']);
+            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-arm']);
             break;
           default:
             throw new Error('Invalid or unknown target (only one may be specified)');

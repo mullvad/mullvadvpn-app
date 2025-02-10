@@ -1,5 +1,5 @@
 [package]
-name = "rust-utils"
+name = "win-shortcuts"
 description = ""
 authors.workspace = true
 repository.workspace = true
@@ -13,7 +13,7 @@ workspace = true
 
 [lib]
 crate-type = ["cdylib"]
-path = "rust-utils-rs/lib.rs"
+path = "win-shortcuts-rs/lib.rs"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 neon = "1"

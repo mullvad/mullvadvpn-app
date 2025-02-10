@@ -121,14 +121,14 @@ function buildNseventforwarder(callback) {
   }
 }
 
-function buildRustUtils(callback) {
-  exec('npm -w rust-utils run build-debug', (err) => callback(err));
+function buildWinShortcuts(callback) {
+  exec('npm -w win-shortcts run build-debug', (err) => callback(err));
 }
 
 compileScripts.displayName = 'compile-scripts';
 buildProto.displayName = 'build-proto';
 buildNseventforwarder.displayName = 'build-nseventforwarder';
-buildRustUtils.displayName = 'build-rust-utils';
+buildWinShortcuts.displayName = 'build-win-shortcuts';
 
 exports.build = series(
   compileScripts,
@@ -136,5 +136,5 @@ exports.build = series(
 );
 exports.buildProto = buildProto;
 exports.buildNseventforwarder = buildNseventforwarder;
-exports.buildRustUtils = buildRustUtils;
+exports.buildWinShortcuts = buildWinShortcuts;
 exports.makeWatchCompiler = makeWatchCompiler;

@@ -1,8 +1,8 @@
-# Rust-utils
+# win-shortcuts
 
-## Building rust-utils
+## Building win-shortcuts
 
-Building rust-utils requires a [supported version of Node and Rust](https://github.com/neon-bindings/neon#platform-support).
+Building win-shortcuts requires a [supported version of Node and Rust](https://github.com/neon-bindings/neon#platform-support).
 
 To run the build, run:
 

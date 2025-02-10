@@ -1,7 +1,7 @@
 import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
-import { readShortcut } from 'rust-utils';
+import { readShortcut } from 'win-shortcuts';
 
 import {
   ISplitTunnelingApplication,

@@ -30,7 +30,7 @@ task(
     'set-dev-env',
     scripts.buildProto,
     scripts.buildNseventforwarder,
-    scripts.buildRustUtils,
+    scripts.buildWinShortcuts,
     watch.start,
   ),
 );
