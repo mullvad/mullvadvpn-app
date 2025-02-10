@@ -75,7 +75,7 @@ fn to_android_version_code(version: &str) -> String {
         }
     };
 
-    let decade_and_year = version.year % 2000;
+    let decade_and_year = version.year % 100;
 
     format!(
         "{}{:0>2}{}{:0>3}",
