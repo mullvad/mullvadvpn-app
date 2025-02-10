@@ -8,8 +8,8 @@
   "scripts": {
     "cargo-build": "tsc && cargo build",
     "build-debug": "npm run cargo-build && (test -d debug || mkdir debug) && cp ../../../target/debug/rust_utils.dll debug/index.node",
-    "build-arm": "npm run cargo-build -- --release --target aarch64-pc-windows-msvc && (test -d dist/windows-arm64 || mkdir dist/windows-arm64) && cp ../../../target/debug/target/aarch64-pc-windows-msvc/release/rust_utils.dll dist/windows-arm64/index.node",
-    "build-x86": "npm run cargo-build -- --release --target x86_64-pc-windows-msvc && (test -d dist/windows-x64 || mkdir dist/windows-x64) && cp ../../../target/debug/target/x86_64-pc-windows-msvc/release/rust_utils.dll dist/windows-x64/index.node",
+    "build-arm": "npm run cargo-build -- --release --target aarch64-pc-windows-msvc && mkdir "dist/windows-arm64" && cp ../../../target/release/target/aarch64-pc-windows-msvc/release/rust_utils.dll dist/windows-arm64/index.node",
+    "build-x86": "npm run cargo-build -- --release --target x86_64-pc-windows-msvc && mkdir "dist/windows-x64" && cp ../../../target/release/target/x86_64-pc-windows-msvc/release/rust_utils.dll dist/windows-x64/index.node",
     "clean": "rm -rf debug; rm -rf dist",
     "lint": "eslint .",
     "lint-fix": "eslint --fix ."
