@@ -10,7 +10,6 @@ import UIKit
 
 protocol WelcomeContentViewDelegate: AnyObject, Sendable {
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton)
-    func didTapRedeemVoucherButton(welcomeContentView: WelcomeContentView, button: AppButton)
     func didTapInfoButton(welcomeContentView: WelcomeContentView, button: UIButton)
 }
 
@@ -119,18 +118,6 @@ final class WelcomeContentView: UIView, Sendable {
         return button
     }()
 
-    private let redeemVoucherButton: AppButton = {
-        let button = AppButton(style: .success)
-        button.setAccessibilityIdentifier(.redeemVoucherButton)
-        button.setTitle(NSLocalizedString(
-            "REDEEM_VOUCHER_BUTTON_TITLE",
-            tableName: "Account",
-            value: "Redeem voucher",
-            comment: ""
-        ), for: .normal)
-        return button
-    }()
-
     private let textsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -171,23 +158,6 @@ final class WelcomeContentView: UIView, Sendable {
         }
     }
 
-    var isPurchasing = false {
-        didSet {
-            let alpha = isPurchasing ? 0.7 : 1.0
-            purchaseButton.isEnabled = !isPurchasing
-            purchaseButton.alpha = alpha
-            redeemVoucherButton.isEnabled = !isPurchasing
-            redeemVoucherButton.alpha = alpha
-        }
-    }
-
-    var isFetchingProducts = false {
-        didSet {
-            purchaseButton.isLoading = isFetchingProducts
-            purchaseButton.isEnabled = !isFetchingProducts
-        }
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -222,9 +192,6 @@ final class WelcomeContentView: UIView, Sendable {
         textsStackView.addArrangedSubview(descriptionLabel)
 
         buttonsStackView.addArrangedSubview(purchaseButton)
-        #if DEBUG
-        buttonsStackView.addArrangedSubview(redeemVoucherButton)
-        #endif
 
         addSubview(textsStackView)
         addSubview(buttonsStackView)
@@ -242,7 +209,7 @@ final class WelcomeContentView: UIView, Sendable {
     }
 
     private func addActions() {
-        [redeemVoucherButton, purchaseButton, infoButton].forEach {
+        [purchaseButton, infoButton].forEach {
             $0.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         }
     }
@@ -251,8 +218,6 @@ final class WelcomeContentView: UIView, Sendable {
         switch button.accessibilityIdentifier {
         case AccessibilityIdentifier.purchaseButton.asString:
             delegate?.didTapPurchaseButton(welcomeContentView: self, button: button)
-        case AccessibilityIdentifier.redeemVoucherButton.asString:
-            delegate?.didTapRedeemVoucherButton(welcomeContentView: self, button: button)
         case AccessibilityIdentifier.infoButton.asString:
             delegate?.didTapInfoButton(welcomeContentView: self, button: button)
         default: return

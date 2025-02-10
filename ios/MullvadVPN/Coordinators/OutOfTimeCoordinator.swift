@@ -36,7 +36,6 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
 
     func start(animated: Bool) {
         let interactor = OutOfTimeInteractor(
-            storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager
         )
 
@@ -74,27 +73,23 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
 
     // MARK: - OutOfTimeViewControllerDelegate
 
-    func didRequestShowPurchaseOptions(accountNumber: String) {
+    func didRequestShowInAppPurchase(
+        accountNumber: String,
+        paymentAction: PaymentAction
+    ) {
         let coordinator = InAppPurchaseCoordinator(
             storePaymentManager: storePaymentManager,
             accountNumber: accountNumber,
-            paymentAction: .purchase
+            paymentAction: paymentAction
         )
-        coordinator.didFinish = { coordinator, _ in
+        coordinator.didFinish = { [weak self] coordinator, event in
             coordinator.dismiss(animated: true)
-        }
-        coordinator.start()
-        presentChild(coordinator, animated: true)
-    }
-
-    func didRequestShowRestorePurchase(accountNumber: String) {
-        let coordinator = InAppPurchaseCoordinator(
-            storePaymentManager: storePaymentManager,
-            accountNumber: accountNumber,
-            paymentAction: .restorePurchase
-        )
-        coordinator.didFinish = { coordinator, _ in
-            coordinator.dismiss(animated: true)
+            switch event {
+            case .paymentEvent(.finished), .purchaseRestored:
+                guard let self else { return }
+                self.didFinishPayment?(self)
+            default: break
+            }
         }
         coordinator.start()
         presentChild(coordinator, animated: true)

@@ -16,11 +16,6 @@ enum AccountDismissReason: Equatable, Sendable {
     case accountDeletion
 }
 
-enum AddedMoreCreditOption: Equatable, Sendable {
-    case redeemingVoucher
-    case inAppPurchase
-}
-
 final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked Sendable {
     private let interactor: AccountInteractor
     private let storePaymentManager: StorePaymentManager
@@ -74,32 +69,20 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
         case .showFailedToLoadProducts:
             showFailToFetchProducts()
         case .showRestorePurchases:
-            showRestorePurchases()
+            didRequestShowInAppPurchase(paymentAction: .restorePurchase)
         case .showPurchaseOptions:
-            showPurchaseOptions()
+            didRequestShowInAppPurchase(paymentAction: .purchase)
         }
     }
 
-    private func showPurchaseOptions() {
+    private func didRequestShowInAppPurchase(
+        paymentAction: PaymentAction
+    ) {
         guard let accountNumber = interactor.deviceState.accountData?.number else { return }
         let coordinator = InAppPurchaseCoordinator(
             storePaymentManager: storePaymentManager,
             accountNumber: accountNumber,
-            paymentAction: .purchase
-        )
-        coordinator.didFinish = { coordinator, _ in
-            coordinator.dismiss(animated: true)
-        }
-        coordinator.start()
-        presentChild(coordinator, animated: true)
-    }
-
-    private func showRestorePurchases() {
-        guard let accountNumber = interactor.deviceState.accountData?.number else { return }
-        let coordinator = InAppPurchaseCoordinator(
-            storePaymentManager: storePaymentManager,
-            accountNumber: accountNumber,
-            paymentAction: .restorePurchase
+            paymentAction: paymentAction
         )
         coordinator.didFinish = { coordinator, _ in
             coordinator.dismiss(animated: true)
