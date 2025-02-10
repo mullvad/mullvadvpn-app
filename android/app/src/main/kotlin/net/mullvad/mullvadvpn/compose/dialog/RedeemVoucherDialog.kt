@@ -246,6 +246,7 @@ private fun EnterVoucherBody(
         keyboardType = KeyboardType.Password,
         placeholderText = stringResource(id = R.string.voucher_hint),
         visualTransformation = vouchersVisualTransformation(),
+        textStyle = MaterialTheme.typography.titleMedium,
         isDigitsOnlyAllowed = false,
         modifier = Modifier.testTag(VOUCHER_INPUT_TEST_TAG),
     )
