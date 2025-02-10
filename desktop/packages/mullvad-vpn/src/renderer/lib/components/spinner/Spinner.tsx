@@ -17,7 +17,9 @@ const sizes = {
   big: 48,
 };
 
+const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
+
 export const Spinner = ({ size = 'medium', ...props }: SpinnerProps) => {
-  const src = '../../assets/images/spinner.svg';
+  const src = `${PATH_PREFIX}assets/images/spinner.svg`;
   return <StyledSpinner src={src} $size={sizes[size]} {...props} />;
 };
