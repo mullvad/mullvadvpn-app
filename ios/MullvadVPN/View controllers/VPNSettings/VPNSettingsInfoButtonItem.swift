@@ -26,7 +26,6 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 tableName: "LocalNetworkSharing",
                 value: """
                 This feature allows access to other devices on the local network, such as for sharing, printing, streaming, etc.
-
                 It does this by allowing network communication outside the tunnel to local multicast and broadcast ranges as well as to and from these private IP ranges:
                 10.0.0.0/8
                 172.16.0.0/12
@@ -34,7 +33,6 @@ enum VPNSettingsInfoButtonItem: CustomStringConvertible {
                 169.254.0.0/16
                 fe80::/10
                 fc00::/7
-
                 Attention: toggling “Local network sharing” requires restarting the VPN connection.
                 """,
                 comment: ""
