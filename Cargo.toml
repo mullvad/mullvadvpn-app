@@ -74,6 +74,7 @@ single_use_lifetimes = "warn"
 
 [workspace.lints.clippy]
 unused_async = "deny"
+undocumented_unsafe_blocks = "warn"
 
 [workspace.dependencies]
 hickory-proto = "0.24.3"
