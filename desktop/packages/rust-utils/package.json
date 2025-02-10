@@ -1,0 +1,36 @@
+{
+  "name": "rust-utils",
+  "version": "0.0.0",
+  "author": "Mullvad VPN",
+  "license": "GPL-3.0",
+  "description": "",
+  "main": "./lib/index.cjs",
+  "scripts": {
+    "cargo-build": "tsc && cargo build",
+    "build-debug": "npm run cargo-build && (test -d debug || mkdir debug) && cp ../../../target/debug/rust_utils.dll debug/index.node",
+    "build-arm": "npm run cargo-build -- --release --target aarch64-pc-windows-msvc && (test -d dist || mkdir dist) && (test -d dist/windows-arm64 || mkdir \"dist/windows-arm64\") && cp ../../../target/aarch64-pc-windows-msvc/release/rust_utils.dll dist/windows-arm64/index.node",
+    "build-x86": "npm run cargo-build -- --release --target x86_64-pc-windows-msvc && (test -d dist || mkdir dist) && (test -d dist/windows-x64 || mkdir \"dist/windows-x64\") && cp ../../../target/x86_64-pc-windows-msvc/release/rust_utils.dll dist/windows-x64/index.node",
+    "clean": "rm -rf debug; rm -rf dist",
+    "lint": "eslint .",
+    "lint-fix": "eslint --fix ."
+  },
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./lib/index.d.mts",
+        "default": "./lib/index.mjs"
+      },
+      "require": {
+        "types": "./lib/index.d.cts",
+        "default": "./lib/index.cjs"
+      }
+    }
+  },
+  "types": "./lib/index.d.cts",
+  "files": [
+    "lib/**/*.?({c,m}){t,j}s"
+  ],
+  "dependencies": {
+    "@neon-rs/load": "^0.1.73"
+  }
+}

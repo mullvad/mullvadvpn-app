@@ -829,7 +829,13 @@ class ApplicationMain
       // If the applications is a string (path) it's an application picked with the file picker
       // that we want to add to the list of additional applications.
       if (typeof application === 'string') {
-        const executablePath = await splitTunneling!.resolveExecutablePath(application);
+        var executablePath;
+        try {
+          executablePath = await splitTunneling!.resolveExecutablePath(application);
+        }
+        catch {
+          return;
+        }
         this.settings.gui.addBrowsedForSplitTunnelingApplications(executablePath);
         await splitTunneling!.addApplicationPathToCache(application);
         await this.daemonRpc.addSplitTunnelingApplication(executablePath);
