@@ -96,6 +96,7 @@ fn get_shortcut_path(path: &str) -> Result<Option<String>, Error> {
 
     let mut target_buffer = [0u16; MAX_PATH_LEN];
 
+    // SAFETY: This function is trivially safe to call.
     unsafe {
         shell_link.GetPath(
             &mut target_buffer,
