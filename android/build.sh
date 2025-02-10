@@ -90,4 +90,8 @@ echo ""
 echo " Build checksums:"
 md5sum ../dist/MullvadVPN-"$PRODUCT_VERSION"* | sed 's/^/ /'
 echo ""
+if grep -q "^CARGO_TARGETS=" local.properties; then
+    echo " CARGO_TARGETS is set in local.properties, build may not be reproducible!"
+fi
+echo ""
 echo "**********************************"
