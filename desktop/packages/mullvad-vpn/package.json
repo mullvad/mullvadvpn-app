@@ -4,7 +4,7 @@
   "productName": "Mullvad VPN",
   "private": true,
   "description": "Mullvad VPN client",
-  "main": "init.js",
+  "main": "build/main.js",
   "author": {
     "name": "Mullvad VPN",
     "email": "support@mullvadvpn.net"
