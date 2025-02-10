@@ -433,7 +433,7 @@ jobs:
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
     # Temporary workaround for targeting the runner android-runner-v1
-    runs-on: [self-hosted, android-device, android-emulator]
+    runs-on: [self-hosted, android-device]
     needs: [prepare, build-app, build-instrumented-tests]
     if: >
       github.event_name == 'schedule' ||
@@ -443,6 +443,16 @@ jobs:
         include:
           - test-repeat: ${{ needs.prepare.outputs.E2E_TEST_REPEAT || 1 }}
     steps:
+      - name: Resolve unique runner test account secret name
+        if: needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod'
+        run: |
+          echo "RUNNER_SECRET_NAME=ANDROID_PROD_TEST_ACCOUNT_$(echo $RUNNER_NAME | tr '[:lower:]-' '[:upper:]_')" \
+          >> $GITHUB_ENV
+
+      - name: Resolve runner test account
+        if: needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod'
+        run: echo "RESOLVED_TEST_ACCOUNT=${{ secrets[env.RUNNER_SECRET_NAME] }}" >> $GITHUB_ENV
+
       - name: Prepare report dir
         if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
@@ -486,8 +496,7 @@ jobs:
           INFRA_FLAVOR: "${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR }}"
           PARTNER_AUTH: |-
             ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole' && secrets.STAGEMOLE_PARTNER_AUTH || '' }}
-          VALID_TEST_ACCOUNT_NUMBER: |-
-            ${{ needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod' && secrets.ANDROID_PROD_TEST_ACCOUNT || '' }}
+          VALID_TEST_ACCOUNT_NUMBER: ${{ env.RESOLVED_TEST_ACCOUNT }}
           INVALID_TEST_ACCOUNT_NUMBER: '0000000000000000'
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
