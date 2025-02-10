@@ -1,3 +1,4 @@
+#![cfg(target_os = "windows")]
 #![warn(clippy::undocumented_unsafe_blocks)]
 
 use std::sync::{mpsc, OnceLock};
