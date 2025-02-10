@@ -997,6 +997,18 @@ class ApplicationMain
 
   private allowDevelopmentRequest(url: string): boolean {
     if (process.env.NODE_ENV === 'development') {
+      const isViteDevServerRequest = (url: string): boolean => {
+        if (process.env.VITE_DEV_SERVER_URL) {
+          const viteDevServerUrl = new URL(process.env.VITE_DEV_SERVER_URL);
+          const viteDevServerUrlWs = new URL(viteDevServerUrl);
+          viteDevServerUrlWs.protocol = 'ws';
+
+          return url.startsWith(viteDevServerUrl.href) || url.startsWith(viteDevServerUrlWs.href);
+        }
+
+        return false;
+      };
+
       const isDevtoolsRequest = (url: string): boolean => {
         // Downloading of React and Redux developer tools.
         const devtoolsUrls = [
@@ -1009,7 +1021,7 @@ class ApplicationMain
         return devtoolsUrls.some((devtoolsUrl) => url.startsWith(devtoolsUrl));
       };
 
-      return isDevtoolsRequest(url);
+      return isViteDevServerRequest(url) || isDevtoolsRequest(url);
     }
 
     return false;
