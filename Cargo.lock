@@ -4839,9 +4839,9 @@ version = "0.0.0"
 dependencies = [
  "classic-mceliece-rust",
  "hyper-util",
- "libc",
  "log",
  "ml-kem",
+ "nix 0.29.0",
  "oslog",
  "prost 0.13.3",
  "rand 0.8.5",
