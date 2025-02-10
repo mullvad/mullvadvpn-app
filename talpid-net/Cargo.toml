@@ -15,3 +15,5 @@ libc = "0.2"
 talpid-types = { path = "../talpid-types" }
 socket2 = { workspace = true, features = ["all"] }
 log = { workspace = true }
+thiserror = { workspace = true }
+nix = { version = "0.29", features = ["net"] }
