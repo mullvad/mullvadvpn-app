@@ -54,6 +54,43 @@ impl Version {
             _ => None,
         }
     }
+
+    /// Returns true if self is a later version than `other`.
+    /// The following order is used: stable > beta > alpha
+    /// If two versions are identical except for one being a dev version
+    /// (ending with the suffix -dev-[SHA]), he dev version is considered greater than
+    /// the non-dev version, but if both are dev versions they are considered equal
+    /// since the dev version SHA is not ordered.
+    pub fn is_later_version_than(&self, other: &Self) -> bool {
+        let type_ordering = if self.is_stable() || other.is_stable() {
+            match (self.is_stable(), other.is_stable()) {
+                (true, false) => Ordering::Greater,
+                (false, true) => Ordering::Less,
+                (_, _) => Ordering::Equal,
+            }
+        } else if self.is_beta() || other.is_beta() {
+            self.beta().cmp(&other.beta())
+        } else if self.is_alpha() || other.is_alpha() {
+            self.alpha().cmp(&other.alpha())
+        } else {
+            Ordering::Equal
+        };
+
+        // The dev vs non-dev ordering. For a version of a given type, if all else is equal
+        // a dev version is greater than a non-dev version.
+        let dev_ordering = match (self.is_dev(), other.is_dev()) {
+            (true, false) => Ordering::Greater,
+            (false, true) => Ordering::Less,
+            (_, _) => Ordering::Equal,
+        };
+
+        self.year
+            .cmp(&other.year)
+            .then(self.incremental.cmp(&other.incremental))
+            .then(type_ordering)
+            .then(dev_ordering)
+            == Ordering::Greater
+    }
 }
 
 impl Display for Version {
@@ -136,45 +173,6 @@ impl FromStr for Version {
     }
 }
 
-impl Ord for Version {
-    fn cmp(&self, other: &Self) -> Ordering {
-        // The version type ordering (stable > beta > alpha)
-        let type_ordering = if self.is_stable() || other.is_stable() {
-            match (self.is_stable(), other.is_stable()) {
-                (true, false) => Ordering::Greater,
-                (false, true) => Ordering::Less,
-                (_, _) => Ordering::Equal,
-            }
-        } else if self.is_beta() || other.is_beta() {
-            self.beta().cmp(&other.beta())
-        } else if self.is_alpha() || other.is_alpha() {
-            self.alpha().cmp(&other.alpha())
-        } else {
-            Ordering::Equal
-        };
-
-        // The dev vs non-dev ordering. For a version of a given type, if all else is equal
-        // a dev version is greater than a non-dev version.
-        let dev_ordering = match (self.is_dev(), other.is_dev()) {
-            (true, false) => Ordering::Greater,
-            (false, true) => Ordering::Less,
-            (_, _) => Ordering::Equal,
-        };
-
-        self.year
-            .cmp(&other.year)
-            .then(self.incremental.cmp(&other.incremental))
-            .then(type_ordering)
-            .then(dev_ordering)
-    }
-}
-
-impl PartialOrd for Version {
-    fn partial_cmp(&self, other: &Version) -> Option<Ordering> {
-        Some(self.cmp(other))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -182,39 +180,47 @@ mod tests {
     #[test]
     fn test_version_ordering() {
         // Test year comparison
-        assert!(parse("2022.1") > parse("2021.1"));
+        assert!(parse("2022.1").is_later_version_than(&parse("2021.1")));
 
         // Test incremental comparison
-        assert!(parse("2021.2") > parse("2021.1"));
+        assert!(parse("2021.2").is_later_version_than(&parse("2021.1")));
 
         // Test stable vs pre-release
-        assert!(parse("2021.1") > parse("2021.1-beta1"));
-        assert!(parse("2021.1") > parse("2021.1-alpha1"));
+        assert!(parse("2021.1").is_later_version_than(&parse("2021.1-beta1")));
+        assert!(parse("2021.1").is_later_version_than(&parse("2021.1-alpha1")));
 
         // Test beta vs alpha
-        assert!(parse("2021.1-beta1") > parse("2021.1-alpha1"));
-        assert!(parse("2021.1-beta1") > parse("2021.1-alpha2"));
-        assert!(parse("2021.2-alpha1") > parse("2021.1-beta2"));
+        assert!(parse("2021.1-beta1").is_later_version_than(&parse("2021.1-alpha1")));
+        assert!(parse("2021.1-beta1").is_later_version_than(&parse("2021.1-alpha2")));
+        assert!(parse("2021.2-alpha1").is_later_version_than(&parse("2021.1-beta2")));
 
         // Test version numbers within same type
-        assert!(parse("2021.1-beta2") > parse("2021.1-beta1"));
-        assert!(parse("2021.1-alpha2") > parse("2021.1-alpha1"));
+        assert!(parse("2021.1-beta2").is_later_version_than(&parse("2021.1-beta1")));
+        assert!(parse("2021.1-alpha2").is_later_version_than(&parse("2021.1-alpha1")));
 
         // Test dev versions
-        assert!(parse("2021.1-dev-abc") > parse("2021.1"));
-        assert!(parse("2021.2") > parse("2021.1-dev-abc"));
-        assert!(parse("2021.1-dev-abc") > parse("2021.1-beta1"));
-        assert!(parse("2021.1-dev-abc") > parse("2021.1-alpha1"));
-        assert!(parse("2025.1-dev-abc") > parse("2025.1-beta1-dev-abc"));
-        assert!(parse("2025.1-dev-abc") > parse("2025.1-beta2-dev-abc"));
-        assert!(parse("2025.1-dev-abc") > parse("2025.1-alpha2-dev-abc"));
-        assert!(parse("2025.1-beta1-dev-abc") > parse("2025.1-alpha7-dev-abc"));
-        assert!(parse("2025.2-alpha1-dev-abc") > parse("2025.1-beta7-dev-abc"));
+        assert!(parse("2021.1-dev-abc").is_later_version_than(&parse("2021.1")));
+        assert!(parse("2021.2").is_later_version_than(&parse("2021.1-dev-abc")));
+        assert!(parse("2021.1-dev-abc").is_later_version_than(&parse("2021.1-beta1")));
+        assert!(parse("2021.1-dev-abc").is_later_version_than(&parse("2021.1-alpha1")));
+        assert!(parse("2025.1-dev-abc").is_later_version_than(&parse("2025.1-beta1-dev-abc")));
+        assert!(parse("2025.1-dev-abc").is_later_version_than(&parse("2025.1-beta2-dev-abc")));
+        assert!(parse("2025.1-dev-abc").is_later_version_than(&parse("2025.1-alpha2-dev-abc")));
+        assert!(
+            parse("2025.1-beta1-dev-abc").is_later_version_than(&parse("2025.1-alpha7-dev-abc"))
+        );
+        assert!(
+            parse("2025.2-alpha1-dev-abc").is_later_version_than(&parse("2025.1-beta7-dev-abc"))
+        );
 
         // Test equal versions
         assert_eq!(parse("2021.1"), parse("2021.1"));
         assert_eq!(parse("2021.1-beta1"), parse("2021.1-beta1"));
         assert_eq!(parse("2021.1-dev-abc123"), parse("2021.1-dev-abc123"));
+
+        assert!(!parse("2021.1").is_later_version_than(&parse("2021.1")));
+        assert!(!parse("2021.1-beta1").is_later_version_than(&parse("2021.1-beta1")));
+        assert!(!parse("2021.1-dev-abc123").is_later_version_than(&parse("2021.1-dev-abc123")));
     }
 
     #[test]
