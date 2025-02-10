@@ -1,6 +1,7 @@
-import { app, shell } from 'electron';
+import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
+import { readShortcut } from 'rust-utils';
 
 import {
   ISplitTunnelingApplication,
@@ -114,7 +115,12 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
 
   public resolveExecutablePath(providedPath: string): Promise<string> {
     if (path.extname(providedPath) === '.lnk') {
-      return Promise.resolve(shell.readShortcutLink(path.resolve(providedPath)).target);
+      const target = this.tryReadshortcut(path.resolve(providedPath));
+      if (target) {
+        return Promise.resolve(target);
+      } else {
+        return Promise.reject("Failed to resolve shortcut");
+      }
     }
 
     return Promise.resolve(providedPath);
@@ -124,12 +130,14 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
   public async addApplicationPathToCache(applicationPath: string): Promise<void> {
     const parsedPath = path.parse(applicationPath);
     if (parsedPath.ext === '.lnk') {
-      const shortcutDetiails = shell.readShortcutLink(path.resolve(applicationPath));
-      this.additionalShortcuts.push({
-        ...shortcutDetiails,
-        name: path.parse(applicationPath).name,
-        deletable: true,
-      });
+      const target = this.tryReadshortcut(path.resolve(applicationPath));
+      if (target) {
+        this.additionalShortcuts.push({
+          target,
+          name: path.parse(applicationPath).name,
+          deletable: true,
+        });
+      }
     } else {
       await this.addApplicationToAdditionalShortcuts(applicationPath);
     }
@@ -216,14 +224,14 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
   private resolveLinks(linkPaths: string[]): ShortcutDetails[] {
     return linkPaths
       .map((link) => {
-        try {
+        const target = this.tryReadshortcut(path.resolve(link));
+        if (target) {
           return {
-            ...shell.readShortcutLink(path.resolve(link)),
+            target: target,
             name: path.parse(link).name,
           };
-        } catch {
-          return null;
         }
+        return null;
       })
       .filter(
         (shortcut): shortcut is ShortcutDetails =>
@@ -676,5 +684,16 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
 
   private alignDword(offset: number): number {
     return Math.ceil(offset / 4) * 4;
+  }
+
+  private tryReadshortcut(appPath: string): string | undefined {
+    try {
+      return readShortcut(path.resolve(appPath));
+    } catch (e) {
+      if (typeof e === 'object' && e && 'message' in e) {
+        log.error(`Failed to read .lnk shortcut for ${appPath}.`, e.message);
+      }
+      return undefined;
+    }
   }
 }
