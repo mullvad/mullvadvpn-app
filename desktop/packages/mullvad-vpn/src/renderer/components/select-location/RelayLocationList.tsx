@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { RelayLocation } from '../../../shared/daemon-rpc-types';
+import { type RelayLocation } from '../../../shared/daemon-rpc-types';
 import * as Cell from '../cell';
 import LocationRow from './LocationRow';
 import { getLocationChildren, LocationSpecification, RelayList } from './select-location-types';
