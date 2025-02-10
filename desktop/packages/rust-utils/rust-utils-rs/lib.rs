@@ -47,7 +47,7 @@ enum Error {
 
 /// Maximum path length of shortcut
 /// 32 KiB: https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry
-const MAX_PATH_LEN: usize = u16::MAX as usize;
+const MAX_PATH_LEN: usize = 0x7fff;
 
 #[neon::main]
 fn main(mut cx: ModuleContext<'_>) -> NeonResult<()> {
