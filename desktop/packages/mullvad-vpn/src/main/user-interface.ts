@@ -146,9 +146,12 @@ export default class UserInterface implements WindowControllerDelegate {
     this.installWindowCloseHandler();
     this.installTrayClickHandlers();
 
-    const filePath = path.resolve(path.join(__dirname, '../renderer/index.html'));
     try {
-      await window.loadFile(filePath);
+      if (process.env.NODE_ENV === 'development' && process.env.VITE_DEV_SERVER_URL) {
+        await window.loadURL(process.env.VITE_DEV_SERVER_URL);
+      } else {
+        await window.loadFile(path.join(__dirname, 'index.html'));
+      }
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to load index file: ${error.message}`);
@@ -247,7 +250,7 @@ export default class UserInterface implements WindowControllerDelegate {
       show: false,
       frame: unpinnedWindow,
       webPreferences: {
-        preload: path.join(__dirname, '../renderer/preloadBundle.js'),
+        preload: path.join(__dirname, 'preload.js'),
         nodeIntegration: false,
         nodeIntegrationInWorker: false,
         nodeIntegrationInSubFrames: false,
