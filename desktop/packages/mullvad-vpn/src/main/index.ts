@@ -82,7 +82,8 @@ const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
 
-const GEO_DIR = path.resolve(__dirname, '../../assets/geo');
+const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../../../../dist-assets' : 'assets';
+const GEO_DIR = path.resolve(__dirname, PATH_PREFIX, 'geo');
 
 class ApplicationMain
   implements
