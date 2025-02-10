@@ -117,12 +117,18 @@ function buildNseventforwarder(callback) {
   }
 }
 
+function buildWinShortcuts(callback) {
+  exec('npm -w win-shortcuts run build-debug', (err) => callback(err));
+}
+
 compileScripts.displayName = 'compile-scripts';
 buildNseventforwarder.displayName = 'build-nseventforwarder';
+buildWinShortcuts.displayName = 'build-win-shortcuts';
 
 exports.build = series(
   compileScripts,
   parallel(makeBrowserifyPreload(false), makeBrowserifyRenderer(false)),
 );
 exports.buildNseventforwarder = buildNseventforwarder;
+exports.buildWinShortcuts = buildWinShortcuts;
 exports.makeWatchCompiler = makeWatchCompiler;

@@ -18,8 +18,21 @@ task('set-prod-env', function (done) {
 task('clean', function (done) {
   fs.rm('./build', { recursive: true, force: true }, done);
 });
-task('build', series('clean', 'set-prod-env', assets.copyAll, scripts.build));
-task('develop', series('clean', 'set-dev-env', scripts.buildNseventforwarder, watch.start));
+task('build-proto', scripts.buildProto);
+task(
+  'develop',
+  series(
+    'clean',
+    'set-dev-env',
+    scripts.buildNseventforwarder,
+    scripts.buildWinShortcuts,
+    watch.start,
+  ),
+);
+task(
+  'build',
+  series('clean', 'set-prod-env', assets.copyAll, scripts.build),
+);
 task('pack-win', series('build', dist.packWin));
 task('pack-linux', series('build', dist.packLinux));
 task('pack-mac', series('build', dist.packMac));
