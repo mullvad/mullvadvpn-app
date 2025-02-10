@@ -7,7 +7,7 @@ import log from '../shared/logging';
 // Reads and parses the changelog file.
 export function readChangelog(): IChangelog {
   try {
-    const changelogPath = path.join(__dirname, '..', '..', '..', 'changes.txt');
+    const changelogPath = path.join(__dirname, '..', 'changes.txt');
     const contents = fs.readFileSync(changelogPath).toString();
     return parseChangelog(contents);
   } catch (e) {

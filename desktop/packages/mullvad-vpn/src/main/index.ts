@@ -82,7 +82,10 @@ const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
 const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICATION === '1';
 
-const GEO_DIR = path.resolve(__dirname, '../../assets/geo');
+// TODO: Double check if we can use this import path
+// or if we should copy the files to a folder within
+// the mullvad-vpn workspace
+const GEO_DIR = path.resolve(__dirname, '../../../../dist-assets/geo');
 
 class ApplicationMain
   implements
