@@ -9,7 +9,6 @@ use mullvad_types::version::AppVersionInfo;
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
-    cmp::max,
     future::Future,
     io,
     path::{Path, PathBuf},
@@ -536,6 +535,7 @@ fn dev_version_cache() -> AppVersionInfo {
         suggested_upgrade: None,
     }
 }
+
 /// If current_version is not the latest, return a string containing the latest version.
 fn suggested_upgrade(
     current_version: &Version,
@@ -553,9 +553,20 @@ fn suggested_upgrade(
         None
     };
 
-    let latest_version = max(stable_version, beta_version)?;
+    let latest_version = match (&stable_version, &beta_version) {
+        (Some(_), None) => stable_version,
+        (None, Some(_)) => beta_version,
+        (Some(stable), Some(beta)) => {
+            if beta.is_later_version_than(stable) {
+                beta_version
+            } else {
+                stable_version
+            }
+        }
+        (None, None) => None,
+    }?;
 
-    if current_version < &latest_version {
+    if latest_version.is_later_version_than(current_version) {
         Some(latest_version.to_string())
     } else {
         None
