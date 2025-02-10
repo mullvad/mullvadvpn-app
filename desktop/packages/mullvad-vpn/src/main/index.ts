@@ -990,11 +990,13 @@ class ApplicationMain
   private allowDevelopmentRequest(url: string): boolean {
     return (
       process.env.NODE_ENV === 'development' &&
-      // Downloading of React and Redux developer tools.
-      (url.startsWith('devtools://') ||
-        url.startsWith('chrome-extension://') ||
-        url.startsWith('https://clients2.google.com') ||
-        url.startsWith('https://clients2.googleusercontent.com'))
+      // Vite development server
+      (url === process.env.VITE_DEV_SERVER_URL ||
+        // Downloading of React and Redux developer tools.
+        (url.startsWith('devtools://') ||
+          url.startsWith('chrome-extension://') ||
+          url.startsWith('https://clients2.google.com') ||
+          url.startsWith('https://clients2.googleusercontent.com')))
     );
   }
 
