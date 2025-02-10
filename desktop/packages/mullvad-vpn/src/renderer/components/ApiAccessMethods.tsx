@@ -290,7 +290,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
             ),
             messages.pgettext(
               'api-access-methods-view',
-              'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9 or CloudFlare.',
+              'If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare.',
             ),
           ]}
         />
