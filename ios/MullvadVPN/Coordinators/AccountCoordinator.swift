@@ -87,7 +87,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             accountNumber: accountNumber,
             paymentAction: .purchase
         )
-        coordinator.didFinish = { coordinator in
+        coordinator.didFinish = { coordinator, _ in
             coordinator.dismiss(animated: true)
         }
         coordinator.start()
@@ -101,7 +101,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             accountNumber: accountNumber,
             paymentAction: .restorePurchase
         )
-        coordinator.didFinish = { coordinator in
+        coordinator.didFinish = { coordinator, _ in
             coordinator.dismiss(animated: true)
         }
         coordinator.start()

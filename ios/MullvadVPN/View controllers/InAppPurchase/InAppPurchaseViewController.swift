@@ -9,6 +9,14 @@
 import StoreKit
 import UIKit
 
+enum InAppPurchaseEvent {
+    case paymentEvent(StorePaymentEvent)
+    case storePaymentError(StorePaymentManagerError)
+    case error(Error)
+    case cancelled
+    case purchaseRestored
+}
+
 class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymentObserver {
     private let storePaymentManager: StorePaymentManager
     private let accountNumber: String
@@ -19,7 +27,7 @@ class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymen
         SpinnerActivityIndicatorView(style: .large)
     }()
 
-    var didFinish: (() -> Void)?
+    var didFinish: ((InAppPurchaseEvent) -> Void)?
 
     init(
         storePaymentManager: StorePaymentManager,
@@ -66,10 +74,10 @@ class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymen
                         self.showPurchaseOptions(for: products)
                     case let .failure(failure as StorePaymentManagerError):
                         self.errorPresenter.showAlertForError(failure, context: .purchase) {
-                            self.didFinish?()
+                            self.didFinish?(.storePaymentError(failure))
                         }
-                    default:
-                        self.didFinish?()
+                    case let .failure(failure):
+                        self.didFinish?(.error(failure))
                     }
                 }
             }
@@ -81,14 +89,14 @@ class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymen
                     switch result {
                     case let .success(success):
                         self.errorPresenter.showAlertForResponse(success, context: .restoration) {
-                            self.didFinish?()
+                            self.didFinish?(.purchaseRestored)
                         }
                     case let .failure(failure as StorePaymentManagerError):
                         self.errorPresenter.showAlertForError(failure, context: .restoration) {
-                            self.didFinish?()
+                            self.didFinish?(.storePaymentError(failure))
                         }
-                    default:
-                        self.didFinish?()
+                    case let .failure(failure):
+                        self.didFinish?(.error(failure))
                     }
                 }
             }
@@ -133,7 +141,7 @@ class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymen
             value: "Cancel",
             comment: ""
         ), style: .cancel) { _ in
-            self.didFinish?()
+            self.didFinish?(.cancelled)
         }
         cancelAction.accessibilityIdentifier = "actoin-sheet-cancel-button"
         sheetController.addAction(cancelAction)
@@ -146,16 +154,16 @@ class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymen
         switch event {
         case let .finished(completion):
             errorPresenter.showAlertForResponse(completion.serverResponse, context: .purchase) {
-                self.didFinish?()
+                self.didFinish?(.paymentEvent(event))
             }
 
         case let .failure(paymentFailure):
             switch paymentFailure.error {
             case .storePayment(SKError.paymentCancelled):
-                self.didFinish?()
+                self.didFinish?(.paymentEvent(event))
             default:
                 errorPresenter.showAlertForError(paymentFailure.error, context: .purchase) {
-                    self.didFinish?()
+                    self.didFinish?(.paymentEvent(event))
                 }
             }
         }

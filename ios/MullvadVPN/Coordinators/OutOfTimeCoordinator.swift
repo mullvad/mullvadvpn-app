@@ -80,7 +80,7 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
             accountNumber: accountNumber,
             paymentAction: .purchase
         )
-        coordinator.didFinish = { coordinator in
+        coordinator.didFinish = { coordinator, _ in
             coordinator.dismiss(animated: true)
         }
         coordinator.start()
@@ -93,7 +93,7 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
             accountNumber: accountNumber,
             paymentAction: .restorePurchase
         )
-        coordinator.didFinish = { coordinator in
+        coordinator.didFinish = { coordinator, _ in
             coordinator.dismiss(animated: true)
         }
         coordinator.start()
