@@ -229,8 +229,7 @@ async fn create_daemon(log_dir: Option<PathBuf>) -> Result<Daemon, String> {
 
 #[cfg(unix)]
 fn running_as_admin() -> bool {
-    let uid = unsafe { libc::getuid() };
-    uid == 0
+    nix::unistd::Uid::current().is_root()
 }
 
 #[cfg(windows)]
