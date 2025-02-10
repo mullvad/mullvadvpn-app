@@ -170,10 +170,12 @@ class ApplicationMain
 
     this.initLogging();
 
-    log.verbose(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
-    if (!SANDBOX_DISABLED) {
-      app.enableSandbox();
-    }
+    // TODO: Figure out why we have to enable the sandbox to open devtools
+    app.enableSandbox();
+    // log.verbose(`Chromium sandbox is ${SANDBOX_DISABLED ? 'disabled' : 'enabled'}`);
+    // if (!SANDBOX_DISABLED) {
+    //   app.enableSandbox();
+    // }
 
     log.info(`Running version ${this.version.currentVersion.gui}`);
 
