@@ -21,6 +21,7 @@ pub fn set_mtu(interface_name: &str, mtu: u16) -> Result<(), io::Error> {
         Some(socket2::Protocol::TCP),
     )?;
 
+    // SAFETY: ifreq is a C struct, these can safely be zeroed.
     let mut ifr: libc::ifreq = unsafe { std::mem::zeroed() };
     if interface_name.len() >= ifr.ifr_name.len() {
         return Err(io::Error::new(
@@ -55,6 +56,7 @@ pub fn get_mtu(interface_name: &str) -> Result<u16, io::Error> {
         Some(socket2::Protocol::TCP),
     )?;
 
+    // SAFETY: ifreq is a C struct, these can safely be zeroed.
     let mut ifr: libc::ifreq = unsafe { std::mem::zeroed() };
     if interface_name.len() >= ifr.ifr_name.len() {
         return Err(io::Error::new(
