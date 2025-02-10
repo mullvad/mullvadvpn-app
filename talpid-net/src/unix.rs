@@ -1,9 +1,25 @@
 #![cfg(any(target_os = "linux", target_os = "macos"))]
 
-use std::{io, os::fd::AsRawFd};
+use std::{ffi::c_uint, io, os::fd::AsRawFd};
 
+use nix::{errno::Errno, net::if_::if_nametoindex};
 use socket2::Domain;
 use talpid_types::ErrorExt;
+
+/// Converts an interface name into the corresponding index.
+pub fn iface_index(name: &str) -> Result<c_uint, IfaceIndexLookupError> {
+    if_nametoindex(name).map_err(|error| IfaceIndexLookupError {
+        interface_name: name.to_owned(),
+        error,
+    })
+}
+
+#[derive(Debug, thiserror::Error)]
+#[error("Failed to get index for interface {interface_name}: {error}")]
+pub struct IfaceIndexLookupError {
+    pub interface_name: String,
+    pub error: Errno,
+}
 
 #[cfg(target_os = "macos")]
 const SIOCSIFMTU: u64 = 0x80206934;
