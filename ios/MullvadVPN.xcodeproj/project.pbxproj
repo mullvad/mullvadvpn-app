@@ -594,12 +594,10 @@
 		7A9BE5AB2B909A1700E2A7D0 /* LocationDataSourceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F050AE5D2B739A73003F4EDB /* LocationDataSourceProtocol.swift */; };
 		7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */; };
 		7A9CCCB32A96302800DD6A34 /* WelcomeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA12A96302700DD6A34 /* WelcomeCoordinator.swift */; };
-		7A9CCCB52A96302800DD6A34 /* AddCreditSucceededCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA32A96302700DD6A34 /* AddCreditSucceededCoordinator.swift */; };
 		7A9CCCB62A96302800DD6A34 /* OutOfTimeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */; };
 		7A9CCCB72A96302800DD6A34 /* RevokedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */; };
 		7A9CCCB82A96302800DD6A34 /* SetupAccountCompletedCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA62A96302700DD6A34 /* SetupAccountCompletedCoordinator.swift */; };
 		7A9CCCB92A96302800DD6A34 /* LocationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA72A96302700DD6A34 /* LocationCoordinator.swift */; };
-		7A9CCCBA2A96302800DD6A34 /* CreateAccountVoucherCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCA82A96302700DD6A34 /* CreateAccountVoucherCoordinator.swift */; };
 		7A9CCCBC2A96302800DD6A34 /* ChangeLogCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCAA2A96302700DD6A34 /* ChangeLogCoordinator.swift */; };
 		7A9CCCBD2A96302800DD6A34 /* LoginCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCAB2A96302800DD6A34 /* LoginCoordinator.swift */; };
 		7A9CCCBE2A96302800DD6A34 /* AccountDeletionCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCAC2A96302800DD6A34 /* AccountDeletionCoordinator.swift */; };
@@ -1996,12 +1994,10 @@
 		7A9BE5AC2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllLocationsDataSourceTests.swift; sourceTree = "<group>"; };
 		7A9CCCA12A96302700DD6A34 /* WelcomeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WelcomeCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA22A96302700DD6A34 /* TermsOfServiceCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsOfServiceCoordinator.swift; sourceTree = "<group>"; };
-		7A9CCCA32A96302700DD6A34 /* AddCreditSucceededCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OutOfTimeCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA52A96302700DD6A34 /* RevokedCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RevokedCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA62A96302700DD6A34 /* SetupAccountCompletedCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SetupAccountCompletedCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCA72A96302700DD6A34 /* LocationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationCoordinator.swift; sourceTree = "<group>"; };
-		7A9CCCA82A96302700DD6A34 /* CreateAccountVoucherCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CreateAccountVoucherCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCAA2A96302700DD6A34 /* ChangeLogCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChangeLogCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCAB2A96302800DD6A34 /* LoginCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoginCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCAC2A96302800DD6A34 /* AccountDeletionCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountDeletionCoordinator.swift; sourceTree = "<group>"; };
@@ -3651,11 +3647,9 @@
 				58EFC76F2AFB3FA800E9F4CB /* Settings */,
 				7A9CCCAF2A96302800DD6A34 /* AccountCoordinator.swift */,
 				7A9CCCAC2A96302800DD6A34 /* AccountDeletionCoordinator.swift */,
-				7A9CCCA32A96302700DD6A34 /* AddCreditSucceededCoordinator.swift */,
 				7A2960F52A963F7500389B82 /* AlertCoordinator.swift */,
 				7A9CCCB12A96302800DD6A34 /* ApplicationCoordinator.swift */,
 				7A9CCCAA2A96302700DD6A34 /* ChangeLogCoordinator.swift */,
-				7A9CCCA82A96302700DD6A34 /* CreateAccountVoucherCoordinator.swift */,
 				7A9CCCA72A96302700DD6A34 /* LocationCoordinator.swift */,
 				7A9CCCAB2A96302800DD6A34 /* LoginCoordinator.swift */,
 				7A9CCCA42A96302700DD6A34 /* OutOfTimeCoordinator.swift */,
@@ -6085,7 +6079,6 @@
 				7A9CCCBF2A96302800DD6A34 /* SettingsCoordinator.swift in Sources */,
 				58F70FE52AEA707800E6890E /* StoreTransactionLog.swift in Sources */,
 				582AE3102440A6CA00E6733A /* InputTextFormatter.swift in Sources */,
-				7A9CCCBA2A96302800DD6A34 /* CreateAccountVoucherCoordinator.swift in Sources */,
 				7A6F2FAD2AFD3DA7006D0856 /* CustomDNSViewController.swift in Sources */,
 				5820EDAB288FF0D2006BF4E4 /* DeviceRowView.swift in Sources */,
 				F0E8CC0C2A4EE672007ED3B4 /* SetupAccountCompletedController.swift in Sources */,
@@ -6104,7 +6097,6 @@
 				58CEB3022AFD365600E6E088 /* SwitchCellContentConfiguration.swift in Sources */,
 				7AA130A12D01B1E200640DF9 /* SplitMainButton.swift in Sources */,
 				7AA1309F2D007B2500640DF9 /* VisualEffectView.swift in Sources */,
-				7A9CCCB52A96302800DD6A34 /* AddCreditSucceededCoordinator.swift in Sources */,
 				7A0C0F632A979C4A0058EFCE /* Coordinator+Router.swift in Sources */,
 				7A6F2FAB2AFD3097006D0856 /* CustomDNSCellFactory.swift in Sources */,
 				58A99ED3240014A0006599E9 /* TermsOfServiceViewController.swift in Sources */,

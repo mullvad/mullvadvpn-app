@@ -16,7 +16,7 @@ enum PaymentAction {
 }
 
 final class InAppPurchaseCoordinator: Coordinator, Presentable, Presenting {
-    private var sheetController: InAppPurchaseViewController?
+    private var controller: InAppPurchaseViewController?
     private let storePaymentManager: StorePaymentManager
     private let accountNumber: String
     private let paymentAction: PaymentAction
@@ -24,7 +24,7 @@ final class InAppPurchaseCoordinator: Coordinator, Presentable, Presenting {
     var didFinish: ((InAppPurchaseCoordinator, InAppPurchaseEvent) -> Void)?
 
     var presentedViewController: UIViewController {
-        return sheetController!
+        return controller!
     }
 
     init(storePaymentManager: StorePaymentManager, accountNumber: String, paymentAction: PaymentAction) {
@@ -38,12 +38,12 @@ final class InAppPurchaseCoordinator: Coordinator, Presentable, Presenting {
     }
 
     func start() {
-        sheetController = InAppPurchaseViewController(
+        controller = InAppPurchaseViewController(
             storePaymentManager: storePaymentManager,
             accountNumber: accountNumber,
             errorPresenter: PaymentAlertPresenter(alertContext: self),
             paymentAction: paymentAction
         )
-        sheetController?.didFinish = dismiss
+        controller?.didFinish = dismiss
     }
 }

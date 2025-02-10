@@ -10,7 +10,6 @@ import StoreKit
 import UIKit
 
 protocol WelcomeViewControllerDelegate: AnyObject {
-    func didRequestToRedeemVoucher(controller: WelcomeViewController)
     func didRequestToShowInfo(controller: WelcomeViewController)
     func didRequestToViewPurchaseOptions(
         accountNumber: String
@@ -87,9 +86,5 @@ extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
 
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton) {
         delegate?.didRequestToViewPurchaseOptions(accountNumber: interactor.accountNumber)
-    }
-
-    func didTapRedeemVoucherButton(welcomeContentView: WelcomeContentView, button: AppButton) {
-        delegate?.didRequestToRedeemVoucher(controller: self)
     }
 }

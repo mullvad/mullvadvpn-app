@@ -15,23 +15,19 @@ import Operations
 @preconcurrency import StoreKit
 
 final class OutOfTimeInteractor: Sendable {
-    private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
 
     nonisolated(unsafe) private var tunnelObserver: TunnelObserver?
-    nonisolated(unsafe) private var paymentObserver: StorePaymentObserver?
 
     nonisolated(unsafe) private let logger = Logger(label: "OutOfTimeInteractor")
 
     private let accountUpdateTimerInterval: Duration = .minutes(1)
     nonisolated(unsafe) private var accountUpdateTimer: DispatchSourceTimer?
 
-    nonisolated(unsafe) var didReceivePaymentEvent: (@Sendable (StorePaymentEvent) -> Void)?
     nonisolated(unsafe) var didReceiveTunnelStatus: (@Sendable (TunnelStatus) -> Void)?
     nonisolated(unsafe) var didAddMoreCredit: (@Sendable () -> Void)?
 
-    init(storePaymentManager: StorePaymentManager, tunnelManager: TunnelManager) {
-        self.storePaymentManager = storePaymentManager
+    init(tunnelManager: TunnelManager) {
         self.tunnelManager = tunnelManager
 
         let tunnelObserver = TunnelBlockObserver(
@@ -47,15 +43,9 @@ final class OutOfTimeInteractor: Sendable {
             }
         )
 
-        let paymentObserver = StorePaymentBlockObserver { [weak self] _, event in
-            self?.didReceivePaymentEvent?(event)
-        }
-
         tunnelManager.addObserver(tunnelObserver)
-        storePaymentManager.addPaymentObserver(paymentObserver)
 
         self.tunnelObserver = tunnelObserver
-        self.paymentObserver = paymentObserver
     }
 
     var tunnelStatus: TunnelStatus {
@@ -68,33 +58,6 @@ final class OutOfTimeInteractor: Sendable {
 
     func stopTunnel() {
         tunnelManager.stopTunnel()
-    }
-
-    func addPayment(_ payment: SKPayment, for accountNumber: String) {
-        storePaymentManager.addPayment(payment, for: accountNumber)
-    }
-
-    func restorePurchases(
-        for accountNumber: String,
-        completionHandler: @escaping @Sendable (Result<
-            REST.CreateApplePaymentResponse,
-            Error
-        >) -> Void
-    ) -> Cancellable {
-        storePaymentManager.restorePurchases(
-            for: accountNumber,
-            completionHandler: completionHandler
-        )
-    }
-
-    func requestProducts(
-        with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @escaping @Sendable (Result<SKProductsResponse, Error>) -> Void
-    ) -> Cancellable {
-        storePaymentManager.requestProducts(
-            with: productIdentifiers,
-            completionHandler: completionHandler
-        )
     }
 
     func startAccountUpdateTimer() {

@@ -12,7 +12,6 @@ import MullvadTypes
 import StoreKit
 
 final class WelcomeInteractor: @unchecked Sendable {
-    private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
 
     /// Interval used for periodic polling account updates.
@@ -51,10 +50,8 @@ final class WelcomeInteractor: @unchecked Sendable {
     }
 
     init(
-        storePaymentManager: StorePaymentManager,
         tunnelManager: TunnelManager
     ) {
-        self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
         let tunnelObserver =
             TunnelBlockObserver(didUpdateDeviceState: { [weak self] _, deviceState, previousDeviceState in
@@ -67,16 +64,6 @@ final class WelcomeInteractor: @unchecked Sendable {
 
         tunnelManager.addObserver(tunnelObserver)
         self.tunnelObserver = tunnelObserver
-    }
-
-    func requestProducts(
-        with productIdentifiers: Set<StoreSubscription>,
-        completionHandler: @Sendable @escaping (Result<SKProductsResponse, Error>) -> Void
-    ) -> Cancellable {
-        storePaymentManager.requestProducts(
-            with: productIdentifiers,
-            completionHandler: completionHandler
-        )
     }
 
     private func startAccountUpdateTimer() {

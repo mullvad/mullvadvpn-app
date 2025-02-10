@@ -13,8 +13,10 @@ import Operations
 import UIKit
 
 protocol OutOfTimeViewControllerDelegate: AnyObject, Sendable {
-    func didRequestShowPurchaseOptions(accountNumber: String)
-    func didRequestShowRestorePurchase(accountNumber: String)
+    func didRequestShowInAppPurchase(
+        accountNumber: String,
+        paymentAction: PaymentAction
+    )
 }
 
 @MainActor
@@ -107,9 +109,6 @@ class OutOfTimeViewController: UIViewController, RootContainment {
 
     private func applyViewState() {
         let tunnelState = interactor.tunnelStatus.state
-        let purchaseButton = contentView.purchaseButton
-
-        let isOutOfTime = interactor.deviceState.accountData.map { $0.expiry < Date() } ?? false
         contentView.enableDisconnectButton(tunnelState.isSecured, animated: true)
 
         if tunnelState.isSecured {
@@ -145,14 +144,20 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         guard let accountNumber = interactor.deviceState.accountData?.number else {
             return
         }
-        delegate?.didRequestShowPurchaseOptions(accountNumber: accountNumber)
+        delegate?.didRequestShowInAppPurchase(
+            accountNumber: accountNumber,
+            paymentAction: .purchase
+        )
     }
 
     @objc func restorePurchases() {
         guard let accountNumber = interactor.deviceState.accountData?.number else {
             return
         }
-        delegate?.didRequestShowRestorePurchase(accountNumber: accountNumber)
+        delegate?.didRequestShowInAppPurchase(
+            accountNumber: accountNumber,
+            paymentAction: .restorePurchase
+        )
     }
 
     @objc private func handleDisconnect(_ sender: Any) {
