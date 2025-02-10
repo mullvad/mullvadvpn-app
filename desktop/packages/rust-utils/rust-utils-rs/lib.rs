@@ -82,6 +82,7 @@ fn read_shortcut_inner(link_path: String) -> Result<Option<String>, Error> {
 /// Retrieve shortcut .lnk to its target path
 fn get_shortcut_path(path: &str) -> Result<Option<String>, Error> {
     let shell_link_result: windows::core::Result<IShellLinkW> =
+        // SAFETY: We're passing a valid GUID pointer.
         unsafe { CoCreateInstance(&ShellLink, None, CLSCTX_INPROC_SERVER) };
     let shell_link = shell_link_result.map_err(Error::CreateInstance)?;
 
@@ -89,22 +90,20 @@ fn get_shortcut_path(path: &str) -> Result<Option<String>, Error> {
     let path = HSTRING::from(path);
     let persist_file_result: windows::core::Result<IPersistFile> = shell_link.cast();
     let persist_file = persist_file_result.map_err(Error::CastShortcut)?;
-    unsafe {
-        persist_file
-            .Load(PCWSTR(path.as_ptr()), STGM_READ)
-            .map_err(Error::LoadShortcut)?;
-    }
+
+    // SAFETY: HSTRING::from will ensure that path is a valid utf16 null-terminated string.
+    unsafe { persist_file.Load(PCWSTR(path.as_ptr()), STGM_READ) }.map_err(Error::LoadShortcut)?;
 
     let mut target_buffer = [0u16; MAX_PATH_LEN];
+
     unsafe {
-        shell_link
-            .GetPath(
-                &mut target_buffer,
-                std::ptr::null_mut(),
-                SLGP_UNCPRIORITY.0 as u32,
-            )
-            .map_err(Error::GetPath)?;
+        shell_link.GetPath(
+            &mut target_buffer,
+            std::ptr::null_mut(),
+            SLGP_UNCPRIORITY.0 as u32,
+        )
     }
+    .map_err(Error::GetPath)?;
 
     Ok(Some(strip_null_terminator(&target_buffer)))
 }
