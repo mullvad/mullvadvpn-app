@@ -15,7 +15,6 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
     private let navigationController: RootContainerViewController
     private let storePaymentManager: StorePaymentManager
     private let tunnelManager: TunnelManager
-    private let inAppPurchaseInteractor: InAppPurchaseInteractor
     private let accountsProxy: RESTAccountHandling
 
     private var viewController: WelcomeViewController?
@@ -37,7 +36,6 @@ final class WelcomeCoordinator: Coordinator, Poppable, Presenting {
         self.storePaymentManager = storePaymentManager
         self.tunnelManager = tunnelManager
         self.accountsProxy = accountsProxy
-        self.inAppPurchaseInteractor = InAppPurchaseInteractor(storePaymentManager: storePaymentManager)
     }
 
     func start(animated: Bool) {
@@ -158,8 +156,20 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             accountNumber: accountNumber,
             paymentAction: .purchase
         )
-        coordinator.didFinish = { coordinator in
+        coordinator.didFinish = { coordinator, event in
             coordinator.dismiss(animated: true)
+            switch event {
+            case .paymentEvent(.finished):
+                let coordinator = SetupAccountCompletedCoordinator(navigationController: self.navigationController)
+                coordinator.didFinish = { [weak self] coordinator in
+                    coordinator.removeFromParent()
+                    guard let self else { return }
+                    didFinish?()
+                }
+                self.addChild(coordinator)
+                coordinator.start(animated: true)
+            default: break
+            }
         }
         coordinator.start()
         presentChild(coordinator, animated: true)
