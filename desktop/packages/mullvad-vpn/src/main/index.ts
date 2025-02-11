@@ -832,8 +832,7 @@ class ApplicationMain
         let executablePath;
         try {
           executablePath = await splitTunneling!.resolveExecutablePath(application);
-        }
-        catch {
+        } catch {
           return;
         }
         this.settings.gui.addBrowsedForSplitTunnelingApplications(executablePath);
