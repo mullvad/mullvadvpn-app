@@ -170,9 +170,6 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
       </SettingsHeader>
 
       <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
-      {filteredApplications !== undefined && filteredApplications.length > 0 && (
-        <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
-      )}
 
       {searchTerm !== '' &&
         (filteredApplications === undefined || filteredApplications.length === 0) && (
@@ -186,9 +183,15 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           </StyledNoResult>
         )}
 
-      <StyledBrowseButton onClick={launchWithFilePicker}>
-        {messages.pgettext('split-tunneling-view', 'Find another app')}
-      </StyledBrowseButton>
+      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+        {filteredApplications !== undefined && filteredApplications.length > 0 && (
+          <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
+        )}
+
+        <StyledBrowseButton onClick={launchWithFilePicker}>
+          {messages.pgettext('split-tunneling-view', 'Find another app')}
+        </StyledBrowseButton>
+      </Flex>
 
       <ModalAlert
         isOpen={browseError !== undefined}
