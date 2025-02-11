@@ -68,7 +68,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
 
-        let tunnelMonitor = TunnelMonitorActor(
+        let tunnelMonitor = TunnelMonitor(
             pinger: pinger,
             tunnelDeviceInfo: adapter,
             timings: TunnelMonitorTimings()
@@ -90,7 +90,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             timings: PacketTunnelActorTimings(),
             tunnelAdapter: adapter,
             tunnelMonitor: tunnelMonitor,
-            defaultPathObserver: PacketTunnelPathObserver(packetTunnelProvider: self, eventQueue: internalQueue),
+            defaultPathObserver: PacketTunnelPathObserver(eventQueue: internalQueue),
             blockedStateErrorMapper: BlockedStateErrorMapper(),
             relaySelector: relaySelector,
             settingsReader: TunnelSettingsManager(settingsReader: SettingsReader()) { [weak self] settings in

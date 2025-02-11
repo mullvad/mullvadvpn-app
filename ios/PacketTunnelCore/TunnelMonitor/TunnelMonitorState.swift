@@ -212,15 +212,15 @@ public struct TunnelMonitorState {
         return .ok
     }
 
-    mutating func reset(resetRetryAttempts: Bool) {
+    mutating func reset() {
         netStats = WgStats()
         lastSeenRx = nil
         lastSeenTx = nil
         pingStats = PingStats()
         isHeartbeatSuspended = false
+    }
 
-        if resetRetryAttempts {
-            retryAttempt = 0
-        }
+    mutating func resetRetryAttempts() {
+        retryAttempt = 0
     }
 }
