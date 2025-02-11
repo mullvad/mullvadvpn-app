@@ -79,7 +79,10 @@ const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICA
 // TODO: Double check if we can use this import path
 // or if we should copy the files to a folder within
 // the mullvad-vpn workspace
-const GEO_DIR = path.resolve(__dirname, '../../../../dist-assets/geo');
+const GEO_DIR =
+  process.env.NODE_ENV === 'development'
+    ? path.resolve(__dirname, '../../../../dist-assets/geo')
+    : path.resolve(__dirname, 'assets/geo');
 
 class ApplicationMain
   implements
