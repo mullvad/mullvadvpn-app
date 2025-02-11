@@ -495,45 +495,44 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         <StyledSearchBar searchTerm={searchTerm} onSearch={setSearchTerm} />
       )}
 
+      {canEditSplitTunneling && searchTerm !== '' && !showSplitSection && !showNonSplitSection && (
+        <StyledNoResult>
+          <StyledNoResultText>
+            {formatHtml(
+              sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
+            )}
+          </StyledNoResultText>
+          <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
+        </StyledNoResult>
+      )}
+
       <Flex
         $flexDirection="column"
-        $gap={Spacings.spacing6}
+        $gap={Spacings.spacing5}
         $margin={{ bottom: measurements.verticalViewMargin }}>
-        <Flex $flexDirection="column" $gap={Spacings.spacing5}>
-          <Accordion expanded={showSplitSection}>
-            <Cell.Section sectionTitle={excludedTitle}>
-              <ApplicationList
-                data-testid="split-applications"
-                applications={filteredSplitApplications}
-                rowRenderer={excludedRowRenderer}
-              />
-            </Cell.Section>
-          </Accordion>
+        {(showSplitSection || showNonSplitSection) && (
+          <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+            <Accordion expanded={showSplitSection}>
+              <Cell.Section sectionTitle={excludedTitle}>
+                <ApplicationList
+                  data-testid="split-applications"
+                  applications={filteredSplitApplications}
+                  rowRenderer={excludedRowRenderer}
+                />
+              </Cell.Section>
+            </Accordion>
 
-          <Accordion expanded={showNonSplitSection}>
-            <Cell.Section sectionTitle={allTitle}>
-              <ApplicationList
-                data-testid="non-split-applications"
-                applications={filteredNonSplitApplications}
-                rowRenderer={includedRowRenderer}
-              />
-            </Cell.Section>
-          </Accordion>
-        </Flex>
-
-        {canEditSplitTunneling &&
-          searchTerm !== '' &&
-          !showSplitSection &&
-          !showNonSplitSection && (
-            <StyledNoResult>
-              <StyledNoResultText>
-                {formatHtml(
-                  sprintf(messages.gettext('No result for <b>%(searchTerm)s</b>.'), { searchTerm }),
-                )}
-              </StyledNoResultText>
-              <StyledNoResultText>{messages.gettext('Try a different search.')}</StyledNoResultText>
-            </StyledNoResult>
-          )}
+            <Accordion expanded={showNonSplitSection}>
+              <Cell.Section sectionTitle={allTitle}>
+                <ApplicationList
+                  data-testid="non-split-applications"
+                  applications={filteredNonSplitApplications}
+                  rowRenderer={includedRowRenderer}
+                />
+              </Cell.Section>
+            </Accordion>
+          </Flex>
+        )}
 
         {canEditSplitTunneling && (
           <Container size="3">
