@@ -31,3 +31,4 @@ exports.copyStaticAssets = copyStaticAssets;
 exports.copyCss = copyCss;
 exports.copyHtml = copyHtml;
 exports.copyGeoData = copyGeoData;
+exports.copyLocales = copyLocales;
