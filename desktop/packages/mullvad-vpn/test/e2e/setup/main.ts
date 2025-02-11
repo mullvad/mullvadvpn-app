@@ -144,7 +144,7 @@ class ApplicationMain {
     if (process.env.NODE_ENV === 'development' && process.env.VITE_DEV_SERVER_URL) {
       await window.loadURL(process.env.VITE_DEV_SERVER_URL);
     } else {
-      await window.loadFile(path.join(__dirname, '../dist/index.html'));
+      await window.loadFile(path.join(__dirname, 'index.html'));
     }
 
     if (DEBUG) {
