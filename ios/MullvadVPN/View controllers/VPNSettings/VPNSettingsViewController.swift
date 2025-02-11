@@ -172,7 +172,6 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
                         : "Disabling"
                 ) “Local network sharing” requires restarting the VPN connection, which will disconnect you and briefly expose your traffic. 
                 To prevent this, manually enable Airplane Mode and turn off Wi-Fi before continuing. 
-
                 Would you like to continue to enable “Local network sharing”?
                 """,
                 comment: ""
