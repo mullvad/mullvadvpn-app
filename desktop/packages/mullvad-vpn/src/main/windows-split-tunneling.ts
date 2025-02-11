@@ -692,6 +692,8 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
     } catch (e) {
       if (typeof e === 'object' && e && 'message' in e) {
         log.error(`Failed to read .lnk shortcut for ${appPath}.`, e.message);
+      } else {
+        log.error(`Failed to read .lnk shortcut for ${appPath}.`);
       }
       return null;
     }
