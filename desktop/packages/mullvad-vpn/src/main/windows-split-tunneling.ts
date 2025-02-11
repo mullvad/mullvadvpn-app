@@ -692,7 +692,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
     try {
       return readShortcut(path.resolve(appPath));
     } catch (e) {
-      if (typeof e === 'object' && e && 'message' in e) {
+      if (e && typeof e === 'object' && 'message' in e) {
         log.error(`Failed to read .lnk shortcut for ${appPath}.`, e.message);
       } else {
         log.error(`Failed to read .lnk shortcut for ${appPath}.`);
