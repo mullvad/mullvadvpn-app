@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class LocationSectionHeaderView: UIView, UIContentView {
+class LocationSectionHeaderFooterView: UIView, UIContentView {
     var configuration: UIContentConfiguration {
         get {
             actualConfiguration
@@ -24,7 +24,8 @@ class LocationSectionHeaderView: UIView, UIContentView {
     private var actualConfiguration: Configuration
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 1
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         label.textColor = .primaryTextColor
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         return label
@@ -63,7 +64,10 @@ class LocationSectionHeaderView: UIView, UIContentView {
 
     private func apply(configuration: Configuration) {
         let isActionHidden = configuration.primaryAction == nil
+        backgroundColor = configuration.style.backgroundColor
+        nameLabel.textColor = configuration.style.textColor
         nameLabel.text = configuration.name
+        nameLabel.font = configuration.style.font
         actionButton.isHidden = isActionHidden
         actionButton.accessibilityIdentifier = nil
         actualConfiguration.primaryAction.flatMap { action in
@@ -73,21 +77,25 @@ class LocationSectionHeaderView: UIView, UIContentView {
     }
 
     private func applyAppearance() {
-        backgroundColor = .primaryColor
-
         let leadingInset = UIMetrics.locationCellLayoutMargins.leading + 6
         directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: leadingInset, bottom: 8, trailing: 24)
     }
 }
 
-extension LocationSectionHeaderView {
+extension LocationSectionHeaderFooterView {
+    struct Style: Equatable {
+        let font: UIFont
+        let textColor: UIColor
+        let backgroundColor: UIColor
+    }
+
     struct Configuration: UIContentConfiguration, Equatable {
         let name: String
-
+        let style: Style
         var primaryAction: UIAction?
 
         func makeContentView() -> UIView & UIContentView {
-            LocationSectionHeaderView(configuration: self)
+            LocationSectionHeaderFooterView(configuration: self)
         }
 
         func updated(for state: UIConfigurationState) -> Configuration {
