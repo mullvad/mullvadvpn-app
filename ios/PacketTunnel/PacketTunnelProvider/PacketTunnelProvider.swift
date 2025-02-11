@@ -68,7 +68,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
 
-        let tunnelMonitor = TunnelMonitorActor(
+        let tunnelMonitor = TunnelMonitor(
             pinger: pinger,
             tunnelDeviceInfo: adapter,
             timings: TunnelMonitorTimings()

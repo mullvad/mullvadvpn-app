@@ -111,24 +111,14 @@ extension WgAdapter: TunnelDeviceInfoProtocol {
         return adapter.interfaceName
     }
 
-//    func getStats() throws -> WgStats {
-//        var result: String?
-//
-//        let dispatchGroup = DispatchGroup()
-//        dispatchGroup.enter()
-//        adapter.getRuntimeConfiguration { string in
-//            result = string
-//            dispatchGroup.leave()
-//        }
-//
-//        guard case .success = dispatchGroup.wait(wallTimeout: .now() + 1) else { throw StatsError.timeout }
-//        guard let result else { throw StatsError.nilValue }
-//        guard let newStats = WgStats(from: result) else { throw StatsError.parse }
-//
-//        return newStats
-//    }
-
+    /// Returns the number of bytes sent and read by the WireGuard device
+    ///
+    /// This methods gets the current WireGuard configuration
+    /// and parses the `rx_bytes` and `tx_bytes` found there if any.
+    /// - Returns: A structure containing the number of bytes read and sent by the WireGuard device
     func getStats() async throws -> WgStats {
+        /// Run `configurationTask` and `timeoutTask` in parallel.
+        /// Whichever finishes first cancels the other one
         let configurationTask = Task {
             let configuration = await getConfiguration()
             try Task.checkCancellation()
