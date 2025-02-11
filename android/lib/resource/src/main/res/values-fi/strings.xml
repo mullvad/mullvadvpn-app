@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">Mukautettu %1$s-portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
-    <string name="daita_description_slide_1_first_paragraph">Huomio: harkitse DAITAn käyttöäsi, jos sinulla on rajoitettu datasopimus, koska ominaisuus kasvattaa verkkoliikennettäsi.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) piilottaa kuviot salatusta VPN-liikenteestäsi.</string>
     <string name="daita_description_slide_1_third_paragraph">Käyttämällä edistynyttä tekoälyä on mahdollista analysoida laitteestasi lähtevä ja siihen tuleva datapakettiliikenne (vaikka liikenne olisi salattu).</string>
     <string name="daita_description_slide_2_first_paragraph">Jos havaitsija valvoo näitä datapaketteja, %1$s tekee hänelle huomattavasti hankalammaksi tunnistaa, millä verkkosivuilla käyt tai kenen kanssa viestit.</string>

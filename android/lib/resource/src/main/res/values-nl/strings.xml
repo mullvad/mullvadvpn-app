@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">Aangepaste %1$s-poort</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
-    <string name="daita_description_slide_1_first_paragraph">Let op: wees voorzichtig als u een beperkt data-abonnement hebt, want deze functie zorgt voor meer netwerkverkeer.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) verbergt patronen in uw versleutelde VPN-verkeer.</string>
     <string name="daita_description_slide_1_third_paragraph">Door gebruik te maken van geavanceerde AI is het mogelijk om het verkeer van datapakketten te analyseren die uw apparaat in- en uitgaan (zelfs als het verkeer versleuteld is).</string>
     <string name="daita_description_slide_2_first_paragraph">Als een waarnemer deze gegevenspakketten in de gaten houdt, maakt %1$s het aanzienlijk moeilijker voor diegene om vast te stellen welke websites u bezoekt of met wie u communiceert.</string>

@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">พอร์ต %1$s แบบกำหนดเอง</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
-    <string name="daita_description_slide_1_first_paragraph">โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลจำกัด เนื่องจากคุณลักษณะนี้จะเพิ่มปริมาณการรับส่งข้อมูลในเครือข่ายของคุณ</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ</string>
     <string name="daita_description_slide_1_third_paragraph">โดยการใช้ AI ที่ซับซ้อน จึงเป็นไปได้ที่จะวิเคราะห์ปริมาณการรับส่งข้อมูล ที่เข้าออกอุปกรณ์ของคุณได้ (แม้ว่าการรับส่งข้อมูลจะเข้ารหัสไว้ก็ตาม)</string>
     <string name="daita_description_slide_2_first_paragraph">หากผู้สังเกตการณ์เฝ้าดูแพ็กเก็ตข้อมูลเหล่านี้ %1$s จะทำให้พวกเขาระบุเว็บไซต์ที่คุณกำลังเยี่ยมชม หรือผู้ที่คุณกำลังติดต่อสื่อสารด้วยได้ยากขึ้นอย่างมาก</string>

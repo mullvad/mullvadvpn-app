@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">%1$s özel portu</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
-    <string name="daita_description_slide_1_first_paragraph">Dikkat: Bu özellik, ağ trafiğinizi artıracağından sınırlı bir veri planınız varsa dikkatli olun.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler.</string>
     <string name="daita_description_slide_1_third_paragraph">Gelişmiş yapay zeka kullanarak cihazınıza gelen ve giden veri paketlerinin trafiğini (trafik şifrelenmiş olsa bile) analiz etmek mümkündür.</string>
     <string name="daita_description_slide_2_first_paragraph">Bir gözlemci bu veri paketlerini izliyorsa, %1$s ziyaret ettiğiniz web sitelerini veya iletişim kurduğunuz alıcıları tespit etmesini önemli ölçüde zorlaştırır.</string>

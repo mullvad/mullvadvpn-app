@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">%1$s 自訂連接埠</string>
     <string name="custom_port_dialog_valid_ranges">有效範圍：%1$s</string>
     <string name="custom_tunnel_host_resolution_error">無法解析自訂通道的主機。請嘗試變更您的設定。</string>
-    <string name="daita_description_slide_1_first_paragraph">注意：如果您方案中的流量有限，請謹慎使用，因為此功能將增加您的網路流量。</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) 會在您的加密 VPN 流量中隱藏模式。</string>
     <string name="daita_description_slide_1_third_paragraph">可透過精密的 AI 分析進出裝置的資料封包流量 (即使流量已加密)。</string>
     <string name="daita_description_slide_2_first_paragraph">如果有觀察者正在監控這些資料封包，%1$s 會大大增加他們的難度，讓他們很難辨識您正在瀏覽哪些網站或者在和誰通訊。</string>

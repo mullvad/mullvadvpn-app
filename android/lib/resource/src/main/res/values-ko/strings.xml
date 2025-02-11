@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">%1$s 사용자 지정 포트</string>
     <string name="custom_port_dialog_valid_ranges">유효한 범위: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">사용자 지정 터널의 호스트를 확인할 수 없습니다. 설정을 변경해 보세요.</string>
-    <string name="daita_description_slide_1_first_paragraph">주의: 이 기능은 네트워크 트래픽을 증가시키므로 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s(%2$s)는 암호화된 VPN 트래픽의 패턴을 숨깁니다.</string>
     <string name="daita_description_slide_1_third_paragraph">정교한 AI를 사용하면, 트래픽이 암호화된 경우라도 장치를 드나드는 데이터 패킷의 트래픽을 분석하는 것이 가능합니다.</string>
     <string name="daita_description_slide_2_first_paragraph">이러한 데이터 패킷을 모니터링하고 있는 관찰자가 있는 경우, %1$s는 사용자가 어느 웹사이트를 방문하고 있는지, 누구와 대화하고 있는지 아주 식별하기 어렵게 만듭니다.</string>
