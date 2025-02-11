@@ -31,7 +31,7 @@ shadowsocks-service = { workspace = true, features = [
 ] }
 
 [target.'cfg(target_os = "macos")'.build-dependencies]
-cbindgen = { version = "0.27.0", default-features = false }
+cbindgen = { version = "0.28.0", default-features = false }
 
 [lib]
 crate-type = ["staticlib"]
