@@ -21,5 +21,10 @@ task('clean', function (done) {
 task('build', series('clean', 'set-prod-env', assets.copyAll, scripts.build));
 task('develop', series('clean', 'set-dev-env', scripts.buildNseventforwarder, watch.start));
 task('pack-win', series('build', dist.packWin));
-task('pack-linux', series('build', dist.packLinux));
+task('pack-linux', series(
+  assets.copyStaticAssets,
+  assets.copyLocales,
+  assets.copyGeoData,
+  dist.packLinux
+));
 task('pack-mac', series('build', dist.packMac));

@@ -181,14 +181,14 @@ function newConfig() {
 
     linux: {
       target: [
-        {
-          target: 'deb',
-          arch: getLinuxTargetArch(),
-        },
-        {
-          target: 'rpm',
-          arch: getLinuxTargetArch(),
-        },
+        // {
+        //   target: 'deb',
+        //   arch: getLinuxTargetArch(),
+        // },
+        // {
+        //   target: 'rpm',
+        //   arch: getLinuxTargetArch(),
+        // },
       ],
       artifactName: 'MullvadVPN-${version}_${arch}.${ext}',
       category: 'Network',

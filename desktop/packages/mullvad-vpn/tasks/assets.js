@@ -1,7 +1,7 @@
 const { parallel, src, dest } = require('gulp');
 
 function copyStaticAssets() {
-  return src('assets/**').pipe(dest('build/assets'));
+  return src('assets/**').pipe(dest('dist/assets'));
 }
 
 function copyCss() {
@@ -13,11 +13,11 @@ function copyHtml() {
 }
 
 function copyLocales() {
-  return src('locales/**/*.po').pipe(dest('build/locales'));
+  return src('locales/**/*.po').pipe(dest('dist/locales'));
 }
 
 function copyGeoData() {
-  return src('../../../dist-assets/geo/*.gl').pipe(dest('build/assets/geo'));
+  return src('../../../dist-assets/geo/*.gl').pipe(dest('dist/assets/geo'));
 }
 
 copyStaticAssets.displayName = 'copy-static-assets';
