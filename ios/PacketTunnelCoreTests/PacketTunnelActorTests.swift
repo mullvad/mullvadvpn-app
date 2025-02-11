@@ -311,7 +311,6 @@ final class PacketTunnelActorTests: XCTestCase {
 
         let connectedStateExpectation = expectation(description: "Connected state")
         let didStopObserverExpectation = expectation(description: "Did stop path observer")
-        didStopObserverExpectation.expectedFulfillmentCount = 2
         pathObserver.onStop = { didStopObserverExpectation.fulfill() }
 
         let expression: (ObservedState) -> Bool = { if case .connected = $0 { true } else { false } }

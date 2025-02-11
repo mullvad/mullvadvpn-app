@@ -12,7 +12,7 @@ import MullvadTypes
 import Network
 import NetworkExtension
 
-public actor TunnelMonitorActor: TunnelMonitorProtocol {
+public actor TunnelMonitor: TunnelMonitorProtocol {
     private let pinger: any PingerProtocol
     private let timings: TunnelMonitorTimings
     private var state: TunnelMonitorState
@@ -20,6 +20,7 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
     private var probeAddress: IPv4Address?
     private var timer: DispatchSourceTimer?
     private var eventHandler: AsyncStream<TunnelMonitorEvent>.Continuation?
+    nonisolated(unsafe) let logger = Logger(label: "TunnelMonitorActor")
 
     public let eventStream: AsyncStream<TunnelMonitorEvent>
 
@@ -46,7 +47,7 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
 
     public func start(probeAddress: IPv4Address) async {
         if case .stopped = state.connectionState {
-            print("Start with address: \(probeAddress).")
+            logger.debug("Start with address: \(probeAddress).")
         } else {
             _stop(restarting: true)
         }
@@ -88,17 +89,17 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
     }
 
     public func sleep() async {
-        print(#function)
+        logger.debug(#function)
         stopConnectivityCheckTimer()
     }
 
     public func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) async {
-        print(#function)
+        logger.debug(#function)
 
         let pathStatus = networkPath
         let isReachable = pathStatus == .satisfied || pathStatus == .requiresConnection
         let message = "handleNetworkPathUpdate considered reachable: \(isReachable)"
-        print(message)
+        logger.debug("\(message)")
 
         switch state.connectionState {
         case .pendingStart:
@@ -137,7 +138,10 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
     private func stopMonitoring(resetRetryAttempt: Bool) {
         stopConnectivityCheckTimer()
         pinger.stopPinging()
-        state.reset(resetRetryAttempts: resetRetryAttempt)
+        state.reset()
+        if resetRetryAttempt {
+            state.resetRetryAttempts()
+        }
     }
 
     private func handlePingerReply(_ reply: PingerReply) {
@@ -146,12 +150,12 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
             guard let probeAddress else { return }
 
             if sender.rawValue != probeAddress.rawValue {
-                print("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
+                logger.error("Got reply from unknown sender: \(sender), expected: \(probeAddress).")
             }
 
             let now = Date()
             guard state.setPingReplyReceived(sequenceNumber, now: now) != nil else {
-                print("Got unknown ping sequence: \(sequenceNumber).")
+                logger.error("Got unknown ping sequence: \(sequenceNumber).")
                 return
             }
 
@@ -162,15 +166,14 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
             }
 
         case let .parseError(error):
-            print("Failed to parse ICMP response: \(error)")
+            logger.error("Failed to parse ICMP response: \(error)")
         }
     }
 
     private func checkConnectivity() async {
-        print(#function)
         let newStats = try? await tunnelDeviceInfo.getStats()
-        let statsDebug = "bytes received: \(newStats?.bytesReceived), bytes sent: \(newStats?.bytesSent)"
-        print(statsDebug)
+        let statsDebug = "bytes received: \(newStats?.bytesReceived ?? 0), bytes sent: \(newStats?.bytesSent ?? 0)"
+        logger.debug("\(statsDebug)")
         guard let newStats,
               state.connectionState == .connecting || state.connectionState == .connected
         else { return }
@@ -189,7 +192,7 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
 
         let timeout = state.getPingTimeout()
         let expectedTimeout = "Expected timeout is \(timeout)"
-        print(expectedTimeout)
+        logger.debug("\(expectedTimeout)")
         let evaluation = state.evaluateConnection(now: now, pingTimeout: timeout)
 
         switch evaluation {
@@ -217,7 +220,7 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
             let sendResult = try pinger.send()
             state.updatePingStats(sendResult: sendResult, now: now)
         } catch {
-            print("Failed to send ping.")
+            logger.error("Failed to send ping: \(error)")
         }
     }
 
@@ -240,7 +243,7 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
     }
 
     private func startConnectivityCheckTimer() {
-        print(#function)
+        logger.debug(#function)
 
         let timerSource = DispatchSource.makeTimerSource()
 
@@ -260,7 +263,7 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
     }
 
     private func stopConnectivityCheckTimer() {
-        print(#function)
+        logger.debug(#function)
         timer?.setEventHandler(
             handler: {}
         )
