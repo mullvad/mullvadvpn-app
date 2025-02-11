@@ -114,8 +114,7 @@ extension SettingsDAITAView {
                         """,
                         comment: ""
                     ),
-                    image: .daitaOffIllustration,
-                    format: .attributedText
+                    image: .daitaOffIllustration
                 ),
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(

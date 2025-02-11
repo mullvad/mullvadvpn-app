@@ -13,19 +13,12 @@ struct SettingsInfoViewModel {
 }
 
 struct SettingsInfoViewModelPage: Hashable {
-    enum Format {
-        case plainText
-        case attributedText
-    }
-
     let body: String
     let image: ImageResource
-    let format: Format
 
-    init(body: String, image: ImageResource, format: Format = .plainText) {
+    init(body: String, image: ImageResource) {
         self.body = body
         self.image = image
-        self.format = format
     }
 }
 
@@ -63,15 +56,10 @@ struct SettingsInfoView: View {
     }
 
     private func bodyText(_ page: SettingsInfoViewModelPage) -> some View {
-        switch page.format {
-        case .plainText:
-            Text(page.body)
-        case .attributedText:
-            (try? AttributedString(
-                markdown: page.body,
-                options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
-            )).map(Text.init) ?? Text(page.body)
-        }
+        (try? AttributedString(
+            markdown: page.body,
+            options: AttributedString.MarkdownParsingOptions(interpretedSyntax: .inlineOnlyPreservingWhitespace)
+        )).map(Text.init) ?? Text(page.body)
     }
 
     private func contentView() -> some View {
@@ -164,8 +152,7 @@ struct SettingsInfoView: View {
                         """,
                         comment: ""
                     ),
-                    image: .daitaOffIllustration,
-                    format: .attributedText
+                    image: .daitaOffIllustration
                 ),
                 SettingsInfoViewModelPage(
                     body: NSLocalizedString(
