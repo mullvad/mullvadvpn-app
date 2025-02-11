@@ -122,9 +122,11 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
         let protocolConfig = NETunnelProviderProtocol()
         protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
-        protocolConfig.includeAllNetworks = true
         protocolConfig.excludeLocalNetworks = tunnelSettings.excludeLocalNetwork
         #if DEBUG
+        // Only includeAllNetworks in Debug builds for now.
+        // Upgrading the app while the tunnel is connected kills the internet connection on the phone when that flag is enabled.
+        protocolConfig.includeAllNetworks = true
         // Always exclude local networks to avoid killing the debugger immediately
         // when debugging the app
         protocolConfig.excludeLocalNetworks = true

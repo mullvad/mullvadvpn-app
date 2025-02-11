@@ -269,7 +269,6 @@ public actor TunnelMonitorActor: TunnelMonitorProtocol {
     }
 
     #if DEBUG
-    /// Helper function used to help the state pass across the actor's isolation region
     internal func getState() -> TunnelMonitorState {
         TunnelMonitorState(
             connectionState: state.connectionState,
