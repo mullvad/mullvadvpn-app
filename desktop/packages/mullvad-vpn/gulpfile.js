@@ -29,10 +29,7 @@ task(
     watch.start,
   ),
 );
-task(
-  'build',
-  series('clean', 'set-prod-env', assets.copyAll, scripts.build),
-);
+task('build', series('clean', 'set-prod-env', assets.copyAll, scripts.build));
 task('pack-win', series('build', dist.packWin));
 task('pack-linux', series('build', dist.packLinux));
 task('pack-mac', series('build', dist.packMac));
