@@ -82,7 +82,7 @@ const UPDATE_NOTIFICATION_DISABLED = process.env.MULLVAD_DISABLE_UPDATE_NOTIFICA
 const GEO_DIR =
   process.env.NODE_ENV === 'development'
     ? path.resolve(__dirname, '../../../../dist-assets/geo')
-    : path.resolve(__dirname, 'assets/geo');
+    : path.resolve(__dirname, '../dist/assets/geo');
 
 class ApplicationMain
   implements
