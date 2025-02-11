@@ -205,7 +205,7 @@ mod test {
     fn test_v9_to_v10_migration() {
         use crate::migrations::v9::{
             add_split_tunneling_settings,
-            test::constants::{V9_ANDROID_SETTINGS, V10_ANDROID_SETTINGS},
+            test::constants::{V10_ANDROID_SETTINGS, V9_ANDROID_SETTINGS},
         };
 
         let enabled = true;

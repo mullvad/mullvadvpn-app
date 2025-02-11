@@ -1,4 +1,4 @@
-use futures::{FutureExt, select};
+use futures::{select, FutureExt};
 pub use mullvad_leak_checker::LeakInfo;
 use std::time::Duration;
 use talpid_routing::RouteManagerHandle;
@@ -167,8 +167,8 @@ async fn check_for_leaks(
     route_manager: &RouteManagerHandle,
     destination: Endpoint,
 ) -> anyhow::Result<Option<LeakInfo>> {
-    use anyhow::{Context, anyhow};
-    use mullvad_leak_checker::{LeakStatus, traceroute::TracerouteOpt};
+    use anyhow::{anyhow, Context};
+    use mullvad_leak_checker::{traceroute::TracerouteOpt, LeakStatus};
 
     #[cfg(target_os = "linux")]
     let interface = {

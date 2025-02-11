@@ -6,7 +6,7 @@
 //!
 //! The [`Tunnel`] type provides a safe Rust wrapper around the C FFI.
 
-use core::ffi::{CStr, c_char};
+use core::ffi::{c_char, CStr};
 use core::mem::ManuallyDrop;
 #[cfg(target_os = "windows")]
 use core::mem::MaybeUninit;

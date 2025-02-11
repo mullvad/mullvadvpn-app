@@ -1,20 +1,20 @@
 //! Used to monitor volume mounts and dismounts, and reapply the split
 //! tunnel config if any of the excluded paths are affected by them.
 use super::path_monitor::PathMonitorHandle;
-use crate::window::{WindowCloseHandle, create_hidden_window};
-use futures::{StreamExt, channel::mpsc};
+use crate::window::{create_hidden_window, WindowCloseHandle};
+use futures::{channel::mpsc, StreamExt};
 use std::{
     ffi::OsString,
     io,
     path::{self, Path},
-    sync::{Arc, Mutex, MutexGuard, mpsc as sync_mpsc},
+    sync::{mpsc as sync_mpsc, Arc, Mutex, MutexGuard},
 };
 use talpid_types::ErrorExt;
 use windows_sys::Win32::{
     Storage::FileSystem::GetLogicalDrives,
     UI::WindowsAndMessaging::{
-        DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME, DBTF_NET,
-        DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME, DefWindowProcW, WM_DEVICECHANGE,
+        DefWindowProcW, DBTF_NET, DBT_DEVICEARRIVAL, DBT_DEVICEREMOVECOMPLETE, DBT_DEVTYP_VOLUME,
+        DEV_BROADCAST_HDR, DEV_BROADCAST_VOLUME, WM_DEVICECHANGE,
     },
 };
 

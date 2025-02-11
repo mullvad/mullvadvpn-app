@@ -1,13 +1,12 @@
 use crate::cli;
-use mullvad_daemon::{DaemonShutdownHandle, runtime::new_multi_thread};
+use mullvad_daemon::{runtime::new_multi_thread, DaemonShutdownHandle};
 use std::{
     env,
-    ffi::{OsString, c_void},
+    ffi::{c_void, OsString},
     ptr, slice,
     sync::{
-        Arc, LazyLock,
         atomic::{AtomicBool, AtomicUsize, Ordering},
-        mpsc,
+        mpsc, Arc, LazyLock,
     },
     thread,
     time::{Duration, Instant},

@@ -5,12 +5,12 @@ use std::{ffi::CStr, io, net::IpAddr, ptr, sync::LazyLock};
 use self::winfw::*;
 use super::{FirewallArguments, FirewallPolicy, InitialFirewallState};
 use talpid_types::{
-    ErrorExt,
     net::{AllowedEndpoint, AllowedTunnelTraffic},
     tunnel::FirewallPolicyError,
+    ErrorExt,
 };
 use widestring::WideCString;
-use windows_sys::Win32::Globalization::{CP_ACP, MultiByteToWideChar};
+use windows_sys::Win32::Globalization::{MultiByteToWideChar, CP_ACP};
 
 mod hyperv;
 
@@ -554,7 +554,7 @@ fn with_wmi_if_enabled(f: impl FnOnce(&wmi::WMIConnection)) {
 
 #[allow(non_snake_case)]
 mod winfw {
-    use super::{AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString, widestring_ip};
+    use super::{widestring_ip, AllowedEndpoint, AllowedTunnelTraffic, Error, WideCString};
     use std::ffi::{c_char, c_void};
     use talpid_types::net::TransportProtocol;
 

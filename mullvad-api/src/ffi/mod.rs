@@ -7,9 +7,9 @@ use std::{
 };
 
 use crate::{
-    AccountsProxy, ApiEndpoint, DevicesProxy,
     proxy::ApiConnectionMode,
     rest::{self, MullvadRestHandle},
+    AccountsProxy, ApiEndpoint, DevicesProxy,
 };
 
 mod device;

@@ -6,10 +6,10 @@
 //! This module is allowed to import a number of types, unlike other migration modules, as it
 //! does not modify any files directly and may safely fail.
 
-use super::{MigrationComplete, v5::MigrationData};
+use super::{v5::MigrationData, MigrationComplete};
 use crate::{
-    DaemonEventSender, InternalDaemonEvent,
     device::{self, DeviceService, PrivateAccountAndDevice, PrivateDevice},
+    DaemonEventSender, InternalDaemonEvent,
 };
 use mullvad_types::{account::AccountNumber, wireguard::WireguardData};
 use std::time::Duration;

@@ -1,6 +1,6 @@
 use super::{
-    Error, InterfaceAndGateway, Result, get_best_default_route,
-    get_best_default_route::route_has_gateway,
+    get_best_default_route, get_best_default_route::route_has_gateway, Error, InterfaceAndGateway,
+    Result,
 };
 use crate::debounce::BurstGuard;
 
@@ -14,9 +14,9 @@ use windows_sys::Win32::{
     Foundation::{BOOLEAN, HANDLE},
     NetworkManagement::{
         IpHelper::{
-            CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, MIB_IPFORWARD_ROW2,
+            CancelMibChangeNotify2, ConvertInterfaceLuidToIndex, NotifyIpInterfaceChange,
+            NotifyRouteChange2, NotifyUnicastIpAddressChange, MIB_IPFORWARD_ROW2,
             MIB_IPINTERFACE_ROW, MIB_NOTIFICATION_TYPE, MIB_UNICASTIPADDRESS_ROW,
-            NotifyIpInterfaceChange, NotifyRouteChange2, NotifyUnicastIpAddressChange,
         },
         Ndis::NET_LUID_LH,
     },

@@ -1,5 +1,5 @@
-use crate::{Daemon, api, settings};
-use mullvad_api::{ApiProxy, proxy::ApiConnectionMode, rest};
+use crate::{api, settings, Daemon};
+use mullvad_api::{proxy::ApiConnectionMode, rest, ApiProxy};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,

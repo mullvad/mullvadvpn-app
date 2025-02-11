@@ -3,8 +3,8 @@ use std::{path::PathBuf, thread, time::Duration};
 #[cfg(not(windows))]
 use mullvad_daemon::cleanup_old_rpc_socket;
 use mullvad_daemon::{
-    Daemon, DaemonCommandChannel, DaemonConfig, exception_logging, logging, rpc_uniqueness_check,
-    runtime, version,
+    exception_logging, logging, rpc_uniqueness_check, runtime, version, Daemon,
+    DaemonCommandChannel, DaemonConfig,
 };
 use talpid_types::ErrorExt;
 

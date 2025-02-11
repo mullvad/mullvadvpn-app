@@ -398,7 +398,11 @@ pub struct SettingsSummary<'a> {
 impl Display for SettingsSummary<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let bool_to_label = |state| {
-            if state { "on" } else { "off" }
+            if state {
+                "on"
+            } else {
+                "off"
+            }
         };
 
         let relay_settings = self.settings.get_relay_settings();
