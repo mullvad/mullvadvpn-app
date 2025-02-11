@@ -1,4 +1,4 @@
-edition = "2024"
+edition = "2021"
 
 # Activation of features, almost objectively better ;)
 use_try_shorthand = true
