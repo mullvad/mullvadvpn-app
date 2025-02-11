@@ -15,7 +15,4 @@ public protocol TunnelDeviceInfoProtocol: Sendable {
 
     /// Returns tunnel statistics.
     func getStats() async throws -> WgStats
-
-    /// Returns tunnel statistics.
-//    func getStats() throws -> WgStats
 }
