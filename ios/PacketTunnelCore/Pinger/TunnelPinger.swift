@@ -22,7 +22,7 @@ public final class TunnelPinger: PingerProtocol {
     public var onReply: (@Sendable (PingerReply) -> Void)?
     private var pingProvider: ICMPPingProvider
 
-    private let logger: Logger
+    nonisolated(unsafe) private let logger: Logger
 
     init(pingProvider: ICMPPingProvider, replyQueue: DispatchQueue) {
         self.pingProvider = pingProvider
@@ -39,7 +39,7 @@ public final class TunnelPinger: PingerProtocol {
             while let self {
                 do {
                     let seq = try pingProvider.receiveICMP()
-                    print("received seq \(seq)")
+                    logger.debug("received seq \(seq)")
 
                     replyQueue.async { [weak self] in
                         self?.stateLock.withLock {

@@ -16,7 +16,6 @@ extension PacketTunnelActor {
      */
     public func onWake() async {
         await tunnelMonitor.wake()
-//        tunnelMonitor.onWake()
     }
 
     /**
@@ -26,6 +25,5 @@ extension PacketTunnelActor {
      */
     public func onSleep() async {
         await tunnelMonitor.sleep()
-//        tunnelMonitor.onSleep()
     }
 }
