@@ -71,12 +71,6 @@ import Version, { GUI_VERSION } from './version';
 
 const execAsync = util.promisify(exec);
 
-// Only import split tunneling library on correct OS.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const linuxSplitTunneling = process.platform === 'linux' && require('./linux-split-tunneling');
-// This is used on Windows and macOS and will be undefined on Linux.
-const splitTunneling: ISplitTunnelingAppListRetriever | undefined = importSplitTunneling();
-
 const ALLOWED_PERMISSIONS = ['clipboard-sanitized-write'];
 
 const SANDBOX_DISABLED = app.commandLine.hasSwitch('no-sandbox');
@@ -111,6 +105,9 @@ class ApplicationMain
   private isPerformingPostUpgrade = false;
   private daemonAllowed?: boolean;
   private quitInitiated = false;
+
+  private linuxSplitTunneling?: typeof import('./linux-split-tunneling');
+  private splitTunneling?: ISplitTunnelingAppListRetriever;
 
   private tunnelStateExpectation?: Expectation;
 
@@ -454,6 +451,8 @@ class ApplicationMain
       }
     });
 
+    await this.loadSplitTunneling();
+
     this.registerIpcListeners();
 
     if (this.shouldShowWindowOnStart() || process.env.NODE_ENV === 'development') {
@@ -478,6 +477,19 @@ class ApplicationMain
       this.account.isLoggedIn(),
       this.tunnelState.tunnelState,
     );
+  };
+
+  private loadSplitTunneling = async () => {
+    // Only import split tunneling library on correct OS.
+    if (process.platform === 'linux') {
+      this.linuxSplitTunneling = await import('./linux-split-tunneling');
+    } else if (process.platform === 'win32') {
+      const { WindowsSplitTunnelingAppListRetriever } = await import('./windows-split-tunneling');
+      this.splitTunneling = new WindowsSplitTunnelingAppListRetriever();
+    } else if (process.platform === 'darwin') {
+      const { MacOsSplitTunnelingAppListRetriever } = await import('./macos-split-tunneling');
+      this.splitTunneling = new MacOsSplitTunnelingAppListRetriever();
+    }
   };
 
   private onSuspend = () => {
@@ -761,8 +773,8 @@ class ApplicationMain
   }
 
   private async updateSplitTunnelingApplications(appList: string[]): Promise<void> {
-    if (splitTunneling) {
-      const { applications } = await splitTunneling.getMetadataForApplications(appList);
+    if (this.splitTunneling) {
+      const { applications } = await this.splitTunneling.getMetadataForApplications(appList);
       this.splitTunnelingApplications = applications;
 
       IpcMainEventChannel.splitTunneling.notify?.(applications);
@@ -814,13 +826,13 @@ class ApplicationMain
     });
 
     IpcMainEventChannel.linuxSplitTunneling.handleGetApplications(() => {
-      return linuxSplitTunneling.getApplications(this.locale);
+      return this.linuxSplitTunneling!.getApplications(this.locale);
     });
     IpcMainEventChannel.splitTunneling.handleGetApplications((updateCaches: boolean) => {
-      return splitTunneling!.getApplications(updateCaches);
+      return this.splitTunneling!.getApplications(updateCaches);
     });
     IpcMainEventChannel.linuxSplitTunneling.handleLaunchApplication((application) => {
-      return linuxSplitTunneling.launchApplication(application);
+      return this.linuxSplitTunneling!.launchApplication(application);
     });
 
     IpcMainEventChannel.splitTunneling.handleSetState((enabled) => {
@@ -832,12 +844,12 @@ class ApplicationMain
       if (typeof application === 'string') {
         let executablePath;
         try {
-          executablePath = await splitTunneling!.resolveExecutablePath(application);
+          executablePath = await this.splitTunneling!.resolveExecutablePath(application);
         } catch {
           return;
         }
         this.settings.gui.addBrowsedForSplitTunnelingApplications(executablePath);
-        await splitTunneling!.addApplicationPathToCache(application);
+        await this.splitTunneling!.addApplicationPathToCache(application);
         await this.daemonRpc.addSplitTunnelingApplication(executablePath);
       } else {
         await this.daemonRpc.addSplitTunnelingApplication(application.absolutepath);
@@ -850,7 +862,7 @@ class ApplicationMain
     });
     IpcMainEventChannel.splitTunneling.handleForgetManuallyAddedApplication((application) => {
       this.settings.gui.deleteBrowsedForSplitTunnelingApplications(application.absolutepath);
-      splitTunneling!.removeApplicationFromCache(application);
+      this.splitTunneling!.removeApplicationFromCache(application);
       return Promise.resolve();
     });
     IpcMainEventChannel.macOsSplitTunneling.handleNeedFullDiskPermissions(async () => {
@@ -892,9 +904,9 @@ class ApplicationMain
     this.settings.registerIpcListeners();
     this.account.registerIpcListeners();
 
-    if (splitTunneling) {
+    if (this.splitTunneling) {
       this.settings.gui.browsedForSplitTunnelingApplications.forEach((application) => {
-        void splitTunneling.addApplicationPathToCache(application);
+        void this.splitTunneling!.addApplicationPathToCache(application);
       });
     }
   }
@@ -1164,18 +1176,6 @@ class ApplicationMain
     }
   };
   /* eslint-enable @typescript-eslint/member-ordering */
-}
-
-function importSplitTunneling() {
-  if (process.platform === 'win32') {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { WindowsSplitTunnelingAppListRetriever } = require('./windows-split-tunneling');
-    return new WindowsSplitTunnelingAppListRetriever();
-  } else if (process.platform === 'darwin') {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { MacOsSplitTunnelingAppListRetriever } = require('./macos-split-tunneling');
-    return new MacOsSplitTunnelingAppListRetriever();
-  }
 }
 
 if (CommandLineOptions.help.match) {
