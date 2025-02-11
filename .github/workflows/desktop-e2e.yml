@@ -154,7 +154,8 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download App
+        uses: actions/download-artifact@v4
         if: ${{ needs.build-linux.result == 'success' }}
         with:
           name: linux-build
@@ -167,7 +168,8 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -242,7 +244,8 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download App
+        uses: actions/download-artifact@v4
         if: ${{ needs.build-windows.result == 'success' }}
         with:
           name: windows-build
@@ -255,7 +258,8 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -314,7 +318,8 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.macos_matrix) }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download App
+        uses: actions/download-artifact@v4
         if: ${{ needs.build-macos.result == 'success' }}
         with:
           name: macos-build
@@ -327,7 +332,8 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
