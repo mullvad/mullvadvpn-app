@@ -161,7 +161,8 @@ extension VPNSettingsViewController: @preconcurrency VPNSettingsDataSourceDelega
     }
 
     func showLocalNetworkSharingWarning(_ enable: Bool, completion: @escaping (Bool) -> Void) {
-        if interactor.tunnelManager.tunnelStatus.state.isSecured && interactor.tunnelManager.tunnelStatus.observedState.connectionState?.isNetworkReachable ?? false {
+        if interactor.tunnelManager.tunnelStatus.state.isSecured && interactor.tunnelManager.tunnelStatus.observedState
+            .connectionState?.isNetworkReachable ?? false {
             let description = NSLocalizedString(
                 "VPN_SETTINGS_LOCAL_NETWORK_SHARING_WARNING",
                 tableName: "LocalNetworkSharing",

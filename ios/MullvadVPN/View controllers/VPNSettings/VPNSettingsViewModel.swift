@@ -103,6 +103,7 @@ struct VPNSettingsViewModel: Equatable {
     private(set) var quantumResistance: TunnelQuantumResistance
     private(set) var multihopState: MultihopState
 
+    private(set) var includeAllNetworks: Bool
     private(set) var localNetworkSharing: Bool
 
     static let defaultWireGuardPorts: [UInt16] = [51820, 53]
@@ -197,6 +198,10 @@ struct VPNSettingsViewModel: Equatable {
         multihopState = newState
     }
 
+    mutating func setIncludeAllNetworks(_ newState: Bool) {
+        includeAllNetworks = newState
+    }
+
     mutating func setLocalNetworkSharing(_ newState: Bool) {
         localNetworkSharing = newState
     }
@@ -259,6 +264,7 @@ struct VPNSettingsViewModel: Equatable {
         quantumResistance = tunnelSettings.tunnelQuantumResistance
         multihopState = tunnelSettings.tunnelMultihopState
 
+        includeAllNetworks = tunnelSettings.includeAllNetworks
         localNetworkSharing = tunnelSettings.localNetworkSharing
     }
 

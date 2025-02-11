@@ -27,9 +27,12 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
 
     /// DAITA settings.
     public var daita: DAITASettings
-    
+
     /// Local networks sharing.
     public var localNetworkSharing: Bool
+
+    /// Forces the system to route most traffic through the tunnel
+    public var includeAllNetworks: Bool
 
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
@@ -38,7 +41,8 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
         tunnelMultihopState: MultihopState = .off,
         daita: DAITASettings = DAITASettings(),
-        localNetworkSharing: Bool = false
+        localNetworkSharing: Bool = false,
+        includeAllNetworks: Bool = false
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -47,6 +51,7 @@ public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
         self.tunnelMultihopState = tunnelMultihopState
         self.daita = daita
         self.localNetworkSharing = localNetworkSharing
+        self.includeAllNetworks = includeAllNetworks
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {

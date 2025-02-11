@@ -11,6 +11,7 @@ import MullvadTypes
 
 public enum TunnelSettingsUpdate: Sendable {
     case localNetworkSharing(Bool)
+    case includeAllNetworks(Bool)
     case dnsSettings(DNSSettings)
     case obfuscation(WireGuardObfuscationSettings)
     case relayConstraints(RelayConstraints)
@@ -24,6 +25,8 @@ extension TunnelSettingsUpdate {
         switch self {
         case let .localNetworkSharing(enabled):
             settings.localNetworkSharing = enabled
+        case let .includeAllNetworks(enabled):
+            settings.includeAllNetworks = enabled
         case let .dnsSettings(newDNSSettings):
             settings.dnsSettings = newDNSSettings
         case let .obfuscation(newObfuscationSettings):
@@ -42,6 +45,7 @@ extension TunnelSettingsUpdate {
     public var subjectName: String {
         switch self {
         case .localNetworkSharing: "Local network sharing"
+        case .includeAllNetworks: "Include all networks"
         case .dnsSettings: "DNS settings"
         case .obfuscation: "obfuscation settings"
         case .relayConstraints: "relay constraints"
