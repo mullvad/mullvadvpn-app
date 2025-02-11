@@ -5,4 +5,5 @@
 /test-results/
 /standalone-tests.sea.blob
 dist-electron
+dist-prod
 dist
