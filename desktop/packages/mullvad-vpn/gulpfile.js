@@ -34,6 +34,6 @@ task(
     watch.start,
   ),
 );
-task('pack-win', series(scripts.buildWinShortcutsBindings, 'build', dist.packWin));
+task('pack-win', series('build', dist.packWin));
 task('pack-linux', series('build', dist.packLinux));
 task('pack-mac', series('build', dist.packMac));

@@ -125,15 +125,10 @@ function buildWinShortcuts(callback) {
   exec('npm -w win-shortcuts run build-debug', (err) => callback(err));
 }
 
-function buildWinShortcutsBindings(callback) {
-  exec('npm -w win-shortcuts exec tsc', (err) => callback(err));
-}
-
 compileScripts.displayName = 'compile-scripts';
 buildProto.displayName = 'build-proto';
 buildNseventforwarder.displayName = 'build-nseventforwarder';
 buildWinShortcuts.displayName = 'build-win-shortcuts';
-buildWinShortcutsBindings.displayName = 'build-win-shortcuts-bindings';
 
 exports.build = series(
   compileScripts,
@@ -142,5 +137,4 @@ exports.build = series(
 exports.buildProto = buildProto;
 exports.buildNseventforwarder = buildNseventforwarder;
 exports.buildWinShortcuts = buildWinShortcuts;
-exports.buildWinShortcutsBindings = buildWinShortcutsBindings;
 exports.makeWatchCompiler = makeWatchCompiler;
