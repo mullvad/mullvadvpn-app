@@ -121,9 +121,14 @@ function buildNseventforwarder(callback) {
   }
 }
 
+function buildWinShortcuts(callback) {
+  exec('npm -w win-shortcuts run build-debug', (err) => callback(err));
+}
+
 compileScripts.displayName = 'compile-scripts';
 buildProto.displayName = 'build-proto';
 buildNseventforwarder.displayName = 'build-nseventforwarder';
+buildWinShortcuts.displayName = 'build-win-shortcuts';
 
 exports.build = series(
   compileScripts,
@@ -131,4 +136,5 @@ exports.build = series(
 );
 exports.buildProto = buildProto;
 exports.buildNseventforwarder = buildNseventforwarder;
+exports.buildWinShortcuts = buildWinShortcuts;
 exports.makeWatchCompiler = makeWatchCompiler;
