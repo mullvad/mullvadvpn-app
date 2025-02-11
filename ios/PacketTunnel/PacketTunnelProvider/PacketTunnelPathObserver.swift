@@ -18,6 +18,7 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Se
     private let pathMonitor: NWPathMonitor
 
     private var gatewayConnection: NWConnection?
+    private var started = false
 
     public var currentPathStatus: Network.NWPath.Status {
         pathMonitor.currentPath.status
@@ -31,6 +32,8 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Se
     }
 
     func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
+        guard started == false else { return }
+        defer { started = true }
         pathMonitor.pathUpdateHandler = { updatedPath in
             var unsatisfiedReason = "<No value>"
             if updatedPath.status == .unsatisfied {
@@ -61,7 +64,9 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Se
     }
 
     func stop() {
-//        pathMonitor.pathUpdateHandler = nil
-//        pathMonitor.cancel()
+        guard started == true else { return }
+        defer { started = false }
+        pathMonitor.pathUpdateHandler = nil
+        pathMonitor.cancel()
     }
 }

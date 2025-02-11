@@ -198,8 +198,6 @@ extension PacketTunnelActor {
             fallthrough
 
         case .error:
-            stopDefaultPathObserver()
-
             do {
                 try await tunnelAdapter.stop()
             } catch {
