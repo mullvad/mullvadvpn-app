@@ -41,10 +41,12 @@ const ImageMask = styled.div<IImageMaskProps>((props) => {
 
 const HiddenImage = styled.img({ visibility: 'hidden' });
 
+const IMAGE_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '../dist/';
+
 export default function ImageView(props: IImageViewProps) {
   const url = props.source.startsWith('data:')
     ? props.source
-    : `/assets/images/${props.source}.svg`;
+    : `${IMAGE_PREFIX}assets/images/${props.source}.svg`;
 
   const style = useMemo(() => ({ WebkitMaskImage: `url('${url}')` }), [url]);
 
