@@ -1,4 +1,6 @@
 #![cfg(not(target_os = "android"))]
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use std::{
     ffi::{CStr, CString},
     net::SocketAddr,

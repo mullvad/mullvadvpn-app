@@ -5,6 +5,8 @@
 //! must be checked so that the user can be directed to approve the launch
 //! daemon in the system settings.
 
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use libc::c_longlong;
 use objc2::{class, msg_send, runtime::AnyObject, Encode, Encoding, RefEncode};
 use std::ffi::CStr;

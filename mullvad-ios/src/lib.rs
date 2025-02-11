@@ -1,4 +1,6 @@
 #![cfg(target_os = "ios")]
+#![allow(clippy::undocumented_unsafe_blocks)]
+
 mod encrypted_dns_proxy;
 mod ephemeral_peer_proxy;
 mod shadowsocks_proxy;
