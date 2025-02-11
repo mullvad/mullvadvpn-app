@@ -127,8 +127,8 @@ final class TunnelMonitorTests: XCTestCase {
 }
 
 extension TunnelMonitorTests {
-    private func createTunnelMonitor(pinger: PingerProtocol, timings: TunnelMonitorTimings) -> TunnelMonitorActor {
-        return TunnelMonitorActor(
+    private func createTunnelMonitor(pinger: PingerProtocol, timings: TunnelMonitorTimings) -> TunnelMonitor {
+        return TunnelMonitor(
             pinger: pinger,
             tunnelDeviceInfo: TunnelDeviceInfoStub(networkStatsProviding: networkCounters),
             timings: timings
