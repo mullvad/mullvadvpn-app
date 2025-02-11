@@ -128,3 +128,6 @@ strip = true
 opt-level = 3
 [profile.release.package."classic-mceliece-rust"]
 opt-level = 3
+
+[patch.crates-io]
+tun = { git = 'https://github.com/mullvad/rust-tun.git', branch = 'mullvad' }

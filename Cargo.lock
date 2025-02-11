@@ -5315,8 +5315,7 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 [[package]]
 name = "tun"
 version = "0.7.11"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0df2e279123d6a96b1611b1d2bc126323900f970819fea3c5c2ed0c657fa2132"
+source = "git+https://github.com/mullvad/rust-tun.git?branch=mullvad#53a4866e71ee3654510396ec1d8d7444c6dd6b45"
 dependencies = [
  "bytes",
  "cfg-if",
