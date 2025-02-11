@@ -426,6 +426,7 @@ pub fn ipaddr_from_in6addr(addr: IN6_ADDR) -> Ipv6Addr {
 
 /// Converts a `SocketAddr` to `SOCKADDR_INET`
 pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
+    // SAFETY: SOCKADDR_INET is a union of C structs, these can be safely zeroed.
     let mut sockaddr: SOCKADDR_INET = unsafe { mem::zeroed() };
     match addr {
         // SAFETY: `*const sockaddr` may be treated as `*const sockaddr_in` since we know it's a v4
@@ -444,6 +445,7 @@ pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
 
 /// Converts a `SOCKADDR_INET` to `SocketAddr`. Returns an error if the address family is invalid.
 pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAddr> {
+    // SAFETY: si_family is always valid
     let family = unsafe { addr.si_family };
     unsafe {
         let mut storage: sockaddr_storage = mem::zeroed();
