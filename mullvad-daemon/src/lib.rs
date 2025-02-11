@@ -34,9 +34,9 @@ use crate::target_state::PersistentTargetState;
 use api::AccessMethodEvent;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
-    StreamExt,
     channel::{mpsc, oneshot},
-    future::{AbortHandle, Future, abortable},
+    future::{abortable, AbortHandle, Future},
+    StreamExt,
 };
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
@@ -55,7 +55,7 @@ use mullvad_types::{
     auth_failed::AuthFailed,
     custom_list::CustomList,
     device::{Device, DeviceEvent, DeviceEventCause, DeviceId, DeviceState, RemoveDeviceEvent},
-    features::{FeatureIndicator, FeatureIndicators, compute_feature_indicators},
+    features::{compute_feature_indicators, FeatureIndicator, FeatureIndicators},
     location::{GeoIpLocation, LocationEventData},
     relay_constraints::{
         BridgeSettings, BridgeState, BridgeType, ObfuscationSettings, RelayOverride, RelaySettings,
@@ -66,7 +66,7 @@ use mullvad_types::{
     version::{AppVersion, AppVersionInfo},
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
-use relay_list::{RELAYS_FILENAME, RelayListUpdater, RelayListUpdaterHandle};
+use relay_list::{RelayListUpdater, RelayListUpdaterHandle, RELAYS_FILENAME};
 use settings::SettingsPersister;
 #[cfg(any(windows, target_os = "android", target_os = "macos"))]
 use std::collections::HashSet;
@@ -90,9 +90,9 @@ use talpid_types::android::AndroidContext;
 #[cfg(target_os = "windows")]
 use talpid_types::split_tunnel::ExcludedProcess;
 use talpid_types::{
-    ErrorExt,
     net::{IpVersion, TunnelType},
     tunnel::{ErrorStateCause, TunnelStateTransition},
+    ErrorExt,
 };
 use tokio::io;
 
@@ -2465,7 +2465,7 @@ impl Daemon {
 
     #[cfg(daita)]
     async fn on_set_daita_enabled(&mut self, tx: ResponseTx<(), settings::Error>, value: bool) {
-        use mullvad_types::{Intersection, constraints::Constraint};
+        use mullvad_types::{constraints::Constraint, Intersection};
 
         let result = self
             .settings
@@ -2504,7 +2504,7 @@ impl Daemon {
         tx: ResponseTx<(), settings::Error>,
         value: bool,
     ) {
-        use mullvad_types::{Intersection, constraints::Constraint};
+        use mullvad_types::{constraints::Constraint, Intersection};
 
         match self
             .settings

@@ -2,17 +2,17 @@
 #![warn(clippy::undocumented_unsafe_blocks)]
 
 use libc::siginfo_t;
-use nix::sys::signal::{SaFlags, SigAction, SigHandler, SigSet, Signal, sigaction};
+use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
 
 use core::fmt;
 use std::{
     backtrace::Backtrace,
     env,
-    ffi::{CString, c_int, c_void},
+    ffi::{c_int, c_void, CString},
     os::fd::{FromRawFd, RawFd},
     sync::{
-        Once, OnceLock,
         atomic::{AtomicBool, Ordering},
+        Once, OnceLock,
     },
 };
 

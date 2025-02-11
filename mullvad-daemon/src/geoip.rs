@@ -5,7 +5,7 @@ use mullvad_api::rest::{Error, RequestServiceHandle};
 use mullvad_types::location::{AmIMullvad, GeoIpLocation, LocationEventData};
 use std::sync::LazyLock;
 use talpid_core::mpsc::Sender;
-use talpid_future::retry::{ExponentialBackoff, Jittered, retry_future};
+use talpid_future::retry::{retry_future, ExponentialBackoff, Jittered};
 use talpid_types::ErrorExt;
 
 use crate::{DaemonEventSender, InternalDaemonEvent};

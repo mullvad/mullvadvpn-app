@@ -1,13 +1,15 @@
 use super::{
-    Tunnel,
     config::Config,
     logging,
     stats::{Stats, StatsMap},
+    Tunnel,
 };
 use bitflags::bitflags;
 use futures::SinkExt;
 use ipnetwork::IpNetwork;
 use once_cell::sync::OnceCell;
+#[cfg(daita)]
+use std::{ffi::c_uchar, path::PathBuf};
 use std::{
     ffi::CStr,
     fmt,
@@ -21,21 +23,19 @@ use std::{
     ptr,
     sync::{Arc, LazyLock, Mutex},
 };
-#[cfg(daita)]
-use std::{ffi::c_uchar, path::PathBuf};
 use talpid_types::{BoxedError, ErrorExt};
 use talpid_windows::net;
 use widestring::{U16CStr, U16CString};
 use windows_sys::{
+    core::GUID,
     Win32::{
-        Foundation::{BOOL, ERROR_MORE_DATA, FreeLibrary, HMODULE},
+        Foundation::{FreeLibrary, BOOL, ERROR_MORE_DATA, HMODULE},
         NetworkManagement::Ndis::NET_LUID_LH,
         Networking::WinSock::{
-            ADDRESS_FAMILY, AF_INET, AF_INET6, IN_ADDR, IN6_ADDR, SOCKADDR_INET,
+            ADDRESS_FAMILY, AF_INET, AF_INET6, IN6_ADDR, IN_ADDR, SOCKADDR_INET,
         },
-        System::LibraryLoader::{GetProcAddress, LOAD_WITH_ALTERED_SEARCH_PATH, LoadLibraryExW},
+        System::LibraryLoader::{GetProcAddress, LoadLibraryExW, LOAD_WITH_ALTERED_SEARCH_PATH},
     },
-    core::GUID,
 };
 
 #[cfg(daita)]

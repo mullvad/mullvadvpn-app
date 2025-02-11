@@ -7,8 +7,8 @@ use mullvad_types::{
 };
 use serde::{Deserialize, Serialize};
 use talpid_types::net::{
-    Endpoint, TransportProtocol,
     proxy::{CustomProxy, Shadowsocks, Socks5Local, Socks5Remote, SocksAuth},
+    Endpoint, TransportProtocol,
 };
 
 // ======================================================

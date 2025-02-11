@@ -19,16 +19,16 @@ use std::{
     future::Future,
     path::Path,
     sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     },
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
 use talpid_types::{
-    ErrorExt,
     net::{TunnelEndpoint, TunnelType},
     tunnel::TunnelStateTransition,
+    ErrorExt,
 };
 use tokio::{
     fs,
@@ -1385,8 +1385,8 @@ impl TunnelStateChangeHandler {
 #[cfg(test)]
 mod test {
     use std::sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     };
     use talpid_types::tunnel::TunnelStateTransition;
 

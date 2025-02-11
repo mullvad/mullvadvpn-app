@@ -17,13 +17,13 @@ use std::sync::LazyLock;
 use talpid_core::tunnel_state_machine::TunnelParametersGenerator;
 #[cfg(not(target_os = "android"))]
 use talpid_types::net::{
-    Endpoint, TunnelParameters, obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy,
-    wireguard,
+    obfuscation::ObfuscatorConfig, openvpn, proxy::CustomProxy, wireguard, Endpoint,
+    TunnelParameters,
 };
 #[cfg(target_os = "android")]
-use talpid_types::net::{TunnelParameters, obfuscation::ObfuscatorConfig, wireguard};
+use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParameters};
 
-use talpid_types::{ErrorExt, tunnel::ParameterGenerationError};
+use talpid_types::{tunnel::ParameterGenerationError, ErrorExt};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
 

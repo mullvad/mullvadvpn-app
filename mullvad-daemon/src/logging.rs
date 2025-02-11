@@ -1,6 +1,6 @@
 use fern::{
-    Output,
     colors::{Color, ColoredLevelConfig},
+    Output,
 };
 use std::{
     fmt, io,

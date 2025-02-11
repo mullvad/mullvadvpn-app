@@ -1,10 +1,10 @@
-use crate::{DaemonEventSender, version::is_beta_version};
+use crate::{version::is_beta_version, DaemonEventSender};
 use futures::{
-    FutureExt, SinkExt, StreamExt, TryFutureExt,
     channel::{mpsc, oneshot},
     future::{BoxFuture, FusedFuture},
+    FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
-use mullvad_api::{AppVersionProxy, availability::ApiAvailability, rest::MullvadRestHandle};
+use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, AppVersionProxy};
 use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
 use serde::{Deserialize, Serialize};
 use std::{
@@ -18,7 +18,7 @@ use std::{
     time::{Duration, SystemTime},
 };
 use talpid_core::mpsc::Sender;
-use talpid_future::retry::{ConstantInterval, retry_future};
+use talpid_future::retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
 use tokio::{fs::File, io::AsyncReadExt};
 
@@ -564,8 +564,8 @@ fn suggested_upgrade(
 #[cfg(test)]
 mod test {
     use std::sync::{
-        Arc,
         atomic::{AtomicBool, Ordering},
+        Arc,
     };
 
     use super::*;

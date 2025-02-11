@@ -6,7 +6,7 @@
 //! daemon in the system settings.
 
 use libc::c_longlong;
-use objc2::{Encode, Encoding, RefEncode, class, msg_send, runtime::AnyObject};
+use objc2::{class, msg_send, runtime::AnyObject, Encode, Encoding, RefEncode};
 use std::ffi::CStr;
 
 type Id = *mut AnyObject;

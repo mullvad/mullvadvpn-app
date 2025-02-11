@@ -1,7 +1,7 @@
 use std::pin::Pin;
 
 use chrono::{DateTime, Utc};
-use futures::{Future, future::FusedFuture};
+use futures::{future::FusedFuture, Future};
 #[cfg(target_os = "android")]
 use mullvad_types::account::PlayPurchasePaymentToken;
 use mullvad_types::{account::VoucherSubmission, device::Device, wireguard::WireguardData};

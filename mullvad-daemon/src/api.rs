@@ -7,15 +7,15 @@
 use crate::DaemonCommand;
 use crate::DaemonEventSender;
 use futures::{
-    StreamExt,
     channel::{mpsc, oneshot},
+    StreamExt,
 };
 #[cfg(feature = "api-override")]
 use mullvad_api::ApiEndpoint;
 use mullvad_api::{
-    AddressCache,
     availability::ApiAvailability,
     proxy::{ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
+    AddressCache,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::RelaySelector;
@@ -25,7 +25,7 @@ use mullvad_types::access_method::{
 use std::{net::SocketAddr, path::PathBuf};
 use talpid_core::mpsc::Sender;
 use talpid_types::net::{
-    AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol, proxy::CustomProxy,
+    proxy::CustomProxy, AllowedClients, AllowedEndpoint, Connectivity, Endpoint, TransportProtocol,
 };
 
 pub enum Message {

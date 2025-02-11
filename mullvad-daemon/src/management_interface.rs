@@ -1,12 +1,12 @@
-use crate::{DaemonCommand, DaemonCommandSender, account_history, device, version_check};
+use crate::{account_history, device, version_check, DaemonCommand, DaemonCommandSender};
 use futures::{
-    StreamExt,
     channel::{mpsc, oneshot},
+    StreamExt,
 };
-use mullvad_api::{StatusCode, rest::Error as RestError};
+use mullvad_api::{rest::Error as RestError, StatusCode};
 use mullvad_management_interface::{
-    Code, Request, Response, ServerJoinHandle, Status,
     types::{self, daemon_event, management_service_server::ManagementService},
+    Code, Request, Response, ServerJoinHandle, Status,
 };
 use mullvad_types::{
     account::AccountNumber,
