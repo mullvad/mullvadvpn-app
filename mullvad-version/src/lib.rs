@@ -10,6 +10,7 @@ pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-versio
 
 #[derive(Debug, Clone, PartialEq)]
 pub struct Version {
+    /// The last two digits of the version's year
     pub year: String,
     pub incremental: String,
     /// A version can have an optional pre-stable type, e.g. alpha or beta. If `pre_stable`
@@ -59,7 +60,7 @@ impl Display for Version {
             dev,
         } = &self;
 
-        write!(f, "{year}.{incremental}")?;
+        write!(f, "20{year}.{incremental}")?;
 
         match pre_stable {
             Some(PreStableType::Alpha(version)) => write!(f, "-alpha{version}")?,
@@ -226,5 +227,13 @@ mod tests {
     #[should_panic]
     fn test_panics_on_dev_without_commit_hash() {
         Version::parse("2021.1-dev");
+    }
+
+    #[test]
+    fn test_version_display() {
+        let version = "2024.8-beta1-dev-e5483d";
+        let parsed = Version::parse(version);
+
+        assert_eq!(format!("{parsed}"), version);
     }
 }
