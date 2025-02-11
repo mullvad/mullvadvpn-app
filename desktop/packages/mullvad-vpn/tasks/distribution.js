@@ -49,12 +49,7 @@ function newConfig() {
     files: [
       'package.json',
       'changes.txt',
-      'init.js',
       'build/',
-      '!build/src/renderer',
-      'build/src/renderer/index.html',
-      'build/src/renderer/bundle.js',
-      'build/src/renderer/preloadBundle.js',
       '!**/*.tsbuildinfo',
       '!test/',
       '!playwright.config.ts',
