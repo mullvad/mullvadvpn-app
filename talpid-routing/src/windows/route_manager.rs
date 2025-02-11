@@ -611,6 +611,7 @@ fn adapter_interface_enabled(
         // SAFETY: All fields in the Anonymous2 union are at represented by a u32 so dereferencing
         // them is safe
         AF_INET => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV4_ENABLED),
+        // SAFETY: Same as above.
         AF_INET6 => Ok(0 != unsafe { adapter.Anonymous2.Flags } & IP_ADAPTER_IPV6_ENABLED),
         _ => Err(Error::InvalidSiFamily),
     }
@@ -662,6 +663,7 @@ fn equal_address(lhs: &SOCKADDR_INET, rhs: &SOCKET_ADDRESS) -> Result<bool> {
         return Ok(false);
     }
 
+    // SAFETY: The si_family field is always valid
     match unsafe { lhs.si_family } {
         AF_INET => {
             let typed_rhs = rhs.lpSockaddr as *mut SOCKADDR_IN;
