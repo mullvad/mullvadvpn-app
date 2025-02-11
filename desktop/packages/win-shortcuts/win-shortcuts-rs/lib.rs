@@ -1,6 +1,7 @@
 #![cfg(target_os = "windows")]
 
 use std::marker::PhantomData;
+use std::string::FromUtf16Error;
 use std::sync::{mpsc, OnceLock};
 
 use neon::prelude::*;
@@ -43,6 +44,10 @@ enum Error {
     /// Failed to retrieve IShellLinkW path
     #[error("Failed to retrieve IShellLinkW link")]
     GetPath(#[source] windows::core::Error),
+
+    /// Path is not valid UTF-16
+    #[error("Path is not valid UTF-16")]
+    Utf16ToString(#[source] FromUtf16Error),
 }
 
 /// Maximum path length of shortcut
@@ -106,12 +111,13 @@ fn get_shortcut_path(path: &str) -> Result<Option<String>, Error> {
     }
     .map_err(Error::GetPath)?;
 
-    Ok(Some(strip_null_terminator(&target_buffer)))
+    let utf16_slice = split_at_null(&target_buffer);
+    let s = String::from_utf16(utf16_slice).map_err(Error::Utf16ToString)?;
+    Ok(Some(s))
 }
 
-fn strip_null_terminator(slice: &[u16]) -> String {
-    let s = slice.split(|&c| c == 0).next().unwrap_or(slice);
-    String::from_utf16_lossy(s)
+fn split_at_null(slice: &[u16]) -> &[u16] {
+    slice.split(|&c| c == 0).next().unwrap_or(slice)
 }
 
 /// Struct for safely handling initialization and deinitialization of the Windows COM library.
