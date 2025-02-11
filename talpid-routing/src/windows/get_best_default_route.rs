@@ -153,10 +153,12 @@ struct AnnotatedRoute<'a> {
 }
 
 fn annotate_route(route: &MIB_IPFORWARD_ROW2) -> Option<AnnotatedRoute<'_>> {
-    // SAFETY: `si_family` is valid in both `Ipv4` and `Ipv6` so we can safely access `si_family`.
     let iface = get_ip_interface_entry(
-        AddressFamily::try_from_af_family(unsafe { route.DestinationPrefix.Prefix.si_family })
-            .ok()?,
+        AddressFamily::try_from_af_family(
+            // SAFETY: `si_family` is valid in both `Ipv4` and `Ipv6` so we can safely access `si_family`.
+            unsafe { route.DestinationPrefix.Prefix.si_family },
+        )
+        .ok()?,
         &route.InterfaceLuid,
     )
     .ok()?;
