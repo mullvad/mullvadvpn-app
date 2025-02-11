@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 import Operations
 import PacketTunnelCore
@@ -55,3 +56,42 @@ struct PacketTunnelTransport: RESTTransport {
         }
     }
 }
+
+struct PacketTunnelAPITransport: APITransport {
+    var name: String {
+        "packet-tunnel"
+    }
+
+    let tunnel: any TunnelProtocol
+
+    init(tunnel: any TunnelProtocol) {
+        self.tunnel = tunnel
+    }
+
+    func sendRequest(
+        _ request: MullvadApiRequest,
+        completion: @escaping @Sendable (MullvadApiResponse) -> Void
+    ) -> Cancellable {
+        let proxyRequest = ProxyAPIRequest(
+            id: UUID(),
+            request: request
+        )
+
+        return tunnel.sendRequest(proxyRequest) { result in
+            switch result {
+            case let .success(reply):
+                completion(
+                    reply.data,
+                    reply.response?.originalResponse,
+                    reply.error?.originalError
+                )
+
+            case let .failure(error):
+                let returnError = error.isOperationCancellationError ? URLError(.cancelled) : error
+
+                completion(nil, nil, returnError)
+            }
+        }
+    }
+}
+

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 /// Struct describing serializable URLRequest data.
 public struct ProxyURLRequest: Codable {
@@ -32,5 +33,15 @@ public struct ProxyURLRequest: Codable {
         method = urlRequest.httpMethod
         httpBody = urlRequest.httpBody
         httpHeaders = urlRequest.allHTTPHeaderFields
+    }
+}
+
+public struct ProxyAPIRequest: Codable {
+    public let id: UUID
+    public let request: MullvadApiRequest
+
+    public init(id: UUID, request: MullvadApiRequest) {
+        self.id = id
+        self.request = request
     }
 }

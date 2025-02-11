@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadREST
+import MullvadRustRuntime
 import MullvadTypes
 import Operations
 import PacketTunnelCore
@@ -74,6 +75,48 @@ extension TunnelProtocol {
         let decoderHandler: (Data?) throws -> ProxyURLResponse = { data in
             if let data {
                 return try TunnelProviderReply<ProxyURLResponse>(messageData: data).value
+            } else {
+                throw EmptyTunnelProviderResponseError()
+            }
+        }
+
+        let operation = SendTunnelProviderMessageOperation(
+            dispatchQueue: dispatchQueue,
+            backgroundTaskProvider: backgroundTaskProvider,
+            tunnel: self,
+            message: .sendURLRequest(proxyRequest),
+            timeout: proxyRequestTimeout,
+            decoderHandler: decoderHandler,
+            completionHandler: completionHandler
+        )
+
+        operation.onCancel { [weak self] _ in
+            guard let self else { return }
+
+            let cancelOperation = SendTunnelProviderMessageOperation(
+                dispatchQueue: dispatchQueue,
+                backgroundTaskProvider: backgroundTaskProvider,
+                tunnel: self,
+                message: .cancelURLRequest(proxyRequest.id),
+                decoderHandler: decoderHandler,
+                completionHandler: nil
+            )
+
+            operationQueue.addOperation(cancelOperation)
+        }
+
+        operationQueue.addOperation(operation)
+
+        return operation
+    }
+
+    func sendAPIRequest(
+        _ proxyRequest: ProxyAPIRequest,
+        completionHandler: @escaping @Sendable (Result<MullvadApiResponse, Error>) -> Void
+    ) -> Cancellable {
+        let decoderHandler: (Data?) throws -> MullvadApiResponse = { data in
+            if let data {
+                return try TunnelProviderReply<MullvadApiResponse>(messageData: data).value
             } else {
                 throw EmptyTunnelProviderResponseError()
             }
