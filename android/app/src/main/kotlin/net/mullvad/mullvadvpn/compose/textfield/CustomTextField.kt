@@ -99,7 +99,7 @@ fun CustomTextField(
         },
         enabled = isEnabled,
         singleLine = true,
-        placeholder = placeholderText?.let { { Text(text = it) } },
+        placeholder = placeholderText?.let { { Text(text = it, style = textStyle) } },
         keyboardOptions = keyboardOptions,
         keyboardActions = KeyboardActions(onDone = { onSubmit(value) }),
         visualTransformation = visualTransformation,
