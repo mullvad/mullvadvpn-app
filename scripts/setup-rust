@@ -10,6 +10,41 @@ cd "$SCRIPT_DIR/.."
 
 source scripts/utils/log
 
+ANDROID_TARGETS="x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi"
+ANDROID_COMPONENTS="rust-analyzer"
+
+DESKTOP_TARGETS="x86_64-pc-windows-msvc x86_64-pc-windows-gnu i686-pc-windows-msvc"
+DESKTOP_COMPONENTS="rust-analyzer"
+
+IOS_TARGETS="aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios"
+IOS_COMPONENTS="rust-analyzer"
+
+function main {
+  if [ $# -eq 0 ]; then
+    print_usage
+    exit 1
+  fi
+
+  case "$1" in
+    "android")
+      setup "Android" "$ANDROID_TARGETS" "$ANDROID_COMPONENTS" "${2:-}"
+      ;;
+    "desktop")
+      setup "Desktop" "$DESKTOP_TARGETS" "$DESKTOP_COMPONENTS" "${2:-}"
+      ;;
+    "ios")
+      setup "Android" "$IOS_TARGETS" "$IOS_COMPONENTS" "${2:-}"
+      ;;
+    "install-hook")
+      install_hook "${2:-}"
+      ;;
+    *)
+      print_usage
+      exit 1
+      ;;
+  esac
+}
+
 function print_usage {
   log "Setup default Rust targets and components for different platforms"
   log ""
@@ -24,24 +59,6 @@ function print_usage {
   log "Options:"
   log "--print-targets        Only print the targets that would be added"
   log "--print-components     Only print the components that would be added"
-}
-
-function setup_android {
-  local targets="x86_64-linux-android i686-linux-android aarch64-linux-android armv7-linux-androideabi"
-  local components="rust-analyzer"
-  setup "Android" "$targets" "$components" "$@"
-}
-
-function setup_desktop {
-  local targets="x86_64-pc-windows-msvc x86_64-pc-windows-gnu i686-pc-windows-msvc"
-  local components="rust-analyzer"
-  setup "Desktop" "$targets" "$components" "$@"
-}
-
-function setup_ios {
-  local targets="aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios"
-  local components="rust-analyzer"
-  setup "iOS" "$targets" "$components" "$@"
 }
 
 function setup {
@@ -72,31 +89,10 @@ function install_hook {
     exit 1
   else
     cp "$SCRIPT_DIR/setup-rust-post-checkout" "$hook"
-    sed -i "s/PLATFORM=\"\"/PLATFORM=\"$1\"/" "$hook"
     chmod +x "$hook"
   fi
 }
 
-if [ $# -eq 0 ]; then
-    print_usage
-    exit 1
-fi
+# Run script
+main "$@"
 
-case "$1" in
-  "android")
-    setup_android "${2:-}"
-    ;;
-  "desktop")
-    setup_desktop "${2:-}"
-    ;;
-  "ios")
-    setup_ios "${2:-}"
-    ;;
-  "install-hook")
-    install_hook "${2:-}"
-    ;;
-  *)
-    print_usage
-    exit 1
-    ;;
-esac
