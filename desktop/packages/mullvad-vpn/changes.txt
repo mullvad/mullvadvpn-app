@@ -1,4 +1,5 @@
-[macOS, linux] Updated DAITA to version 2. More DAITA state machines will be used which better protects against AI traffic analysis.
-Added native support for Windows on Arm.
-Improved connection time with Quantum-resistant tunnel.
-[macOS, windows] Fixed Shadowsocks obfuscation not working on some relays.
+[windows] Fix bug that caused the app to crash on start for some users.
+[windows] Added native support for Windows on Arm.
+[windows] Improved connection time with Quantum-resistant tunnel.
+[windows] Fixed Shadowsocks obfuscation not working on some relays.
+[macos, linux] This version only contains changes for Windows.
