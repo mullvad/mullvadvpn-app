@@ -200,6 +200,7 @@ impl std::fmt::Debug for dyn WintunContext {
         write!(
             f,
             "WintunContext {{ luid: {}, ipv6: {} }}",
+            // SAFETY: It's always safe to interpet a LUID as an u64
             unsafe { self.luid().Value },
             self.ipv6()
         )
