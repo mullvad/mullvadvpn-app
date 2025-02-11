@@ -7,6 +7,7 @@
 //
 
 import Combine
+import MullvadLogging
 import MullvadTypes
 import Network
 import NetworkExtension
@@ -16,6 +17,7 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Se
     private weak var packetTunnelProvider: NEPacketTunnelProvider?
     private let eventQueue: DispatchQueue
     private let pathMonitor: NWPathMonitor
+    nonisolated(unsafe) let logger = Logger(label: "PacketTunnelPathObserver")
 
     private var gatewayConnection: NWConnection?
     private var started = false
@@ -35,6 +37,7 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Se
         guard started == false else { return }
         defer { started = true }
         pathMonitor.pathUpdateHandler = { updatedPath in
+            #if DEBUG
             var unsatisfiedReason = "<No value>"
             if updatedPath.status == .unsatisfied {
                 unsatisfiedReason += updatedPath.unsatisfiedReasonDescription
@@ -56,7 +59,8 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Se
             )
             Is expensive: \(updatedPath.isExpensive) Gateways: \(updatedPath.gateways.map { $0.customDebugDescription })
             """
-            print(message)
+            self.logger.debug("\(message)")
+            #endif
             body(updatedPath.status)
         }
 
