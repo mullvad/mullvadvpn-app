@@ -30,7 +30,7 @@ use tokio::{
     io::{AsyncReadExt, AsyncWriteExt},
     sync::broadcast,
 };
-use tun::Device;
+use tun::AbstractDevice;
 
 /// IP address used by the ST utun
 const ST_IFACE_IPV4: Ipv4Addr = Ipv4Addr::new(10, 123, 123, 123);
@@ -194,7 +194,7 @@ async fn create_utun() -> Result<tun::AsyncDevice, Error> {
     tun_config.address(ST_IFACE_IPV4).up();
     let tun_device =
         tun::create_as_async(&tun_config).map_err(Error::CreateSplitTunnelInterface)?;
-    let tun_name = tun_device.get_ref().name().to_owned();
+    let tun_name = tun_device.tun_name().unwrap().to_owned();
     add_ipv6_address(&tun_name, ST_IFACE_IPV6).await?;
     Ok(tun_device)
 }
@@ -231,7 +231,7 @@ fn redirect_packets(
     route_manager: RouteManagerHandle,
     classify: ClassifyFn,
 ) -> Result<SplitTunnelHandle, Error> {
-    let pktap_stream = capture_outbound_packets(st_tun_device.get_ref().name())?;
+    let pktap_stream = capture_outbound_packets(&st_tun_device.tun_name().unwrap())?;
     redirect_packets_for_pktap_stream(
         st_tun_device,
         Box::pin(pktap_stream),
@@ -260,7 +260,7 @@ fn redirect_packets_for_pktap_stream(
 ) -> Result<SplitTunnelHandle, Error> {
     let mtu_listener = vpn_interface.as_ref().map(|vpn_interface| {
         tokio::spawn(mtu_updater(
-            st_tun_device.get_ref().name().to_owned(),
+            st_tun_device.tun_name().unwrap().to_owned(),
             vpn_interface.name.clone(),
             route_manager.clone(),
         ))
@@ -268,7 +268,7 @@ fn redirect_packets_for_pktap_stream(
 
     let (default_stream, default_write, read_buffer_size) = open_default_bpf(&default_interface)?;
 
-    let st_utun_name = st_tun_device.get_ref().name().to_owned();
+    let st_utun_name = st_tun_device.tun_name().unwrap().to_owned();
 
     let (abort_tx, abort_rx) = broadcast::channel(1);
     let abort_read_rx = abort_tx.subscribe();

@@ -666,7 +666,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "117725a109d387c937a1533ce01b450cbde6b88abceea8473c4d7a85853cda3c"
 dependencies = [
  "lazy_static",
- "windows-sys 0.59.0",
+ "windows-sys 0.48.0",
 ]
 
 [[package]]
@@ -1428,7 +1428,7 @@ dependencies = [
  "indexmap 2.2.6",
  "slab",
  "tokio",
- "tokio-util 0.7.10",
+ "tokio-util",
  "tracing",
 ]
 
@@ -1447,7 +1447,7 @@ dependencies = [
  "indexmap 2.2.6",
  "slab",
  "tokio",
- "tokio-util 0.7.10",
+ "tokio-util",
  "tracing",
 ]
 
@@ -1559,7 +1559,7 @@ dependencies = [
  "thiserror 1.0.59",
  "time",
  "tokio",
- "tokio-util 0.7.10",
+ "tokio-util",
  "tracing",
 ]
 
@@ -2001,12 +2001,6 @@ dependencies = [
  "quote",
  "syn 2.0.89",
 ]
-
-[[package]]
-name = "ioctl-sys"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c429fffa658f288669529fc26565f728489a2e39bc7b24a428aaaf51355182e"
 
 [[package]]
 name = "ioctl-sys"
@@ -3337,7 +3331,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a44e65c0d3523afa79a600a3964c3ac0fabdabe2d7c68da624b2bb0b441b9d61"
 dependencies = [
  "derive_builder",
- "ioctl-sys 0.8.0",
+ "ioctl-sys",
  "ipnetwork",
  "libc",
 ]
@@ -4673,7 +4667,7 @@ dependencies = [
  "tokio",
  "tonic-build",
  "triggered",
- "tun 0.5.5",
+ "tun",
  "which",
  "widestring",
  "windows",
@@ -4827,7 +4821,7 @@ dependencies = [
  "talpid-windows",
  "thiserror 2.0.9",
  "tokio",
- "tun 0.7.10",
+ "tun",
  "windows-sys 0.52.0",
 ]
 
@@ -5120,20 +5114,6 @@ dependencies = [
 
 [[package]]
 name = "tokio-util"
-version = "0.6.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "36943ee01a6d67977dd3f84a5a1d2efeb4ada3a1ae771cadfaa535d9d9fc6507"
-dependencies = [
- "bytes",
- "futures-core",
- "futures-sink",
- "log",
- "pin-project-lite",
- "tokio",
-]
-
-[[package]]
-name = "tokio-util"
 version = "0.7.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5419f34732d9eb6ee4c3578b7989078579b7f039cbbb9ca2c4da015749371e15"
@@ -5246,7 +5226,7 @@ dependencies = [
  "rand 0.8.5",
  "slab",
  "tokio",
- "tokio-util 0.7.10",
+ "tokio-util",
  "tower-layer",
  "tower-service",
  "tracing",
@@ -5334,25 +5314,9 @@ checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "tun"
-version = "0.5.5"
+version = "0.7.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cbc25e23adc6cac7dd895ce2780f255902290fc39b00e1ae3c33e89f3d20fa66"
-dependencies = [
- "byteorder",
- "bytes",
- "futures-core",
- "ioctl-sys 0.6.0",
- "libc",
- "thiserror 1.0.59",
- "tokio",
- "tokio-util 0.6.10",
-]
-
-[[package]]
-name = "tun"
-version = "0.7.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5b5ea2466ffcdd0be0831f7d3981daa0b953586c0062f6d33398cb374689b090"
+checksum = "0df2e279123d6a96b1611b1d2bc126323900f970819fea3c5c2ed0c657fa2132"
 dependencies = [
  "bytes",
  "cfg-if",
@@ -5364,7 +5328,7 @@ dependencies = [
  "nix 0.29.0",
  "thiserror 2.0.9",
  "tokio",
- "tokio-util 0.7.10",
+ "tokio-util",
  "windows-sys 0.59.0",
  "wintun-bindings",
 ]
