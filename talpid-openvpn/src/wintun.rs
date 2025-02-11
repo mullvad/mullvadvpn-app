@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use once_cell::sync::OnceCell;
 use std::{ffi::CStr, fmt, io, mem, os::windows::io::RawHandle, path::Path, ptr};
 use talpid_types::{win32_err, ErrorExt};
