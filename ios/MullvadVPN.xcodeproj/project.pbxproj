@@ -1021,7 +1021,7 @@
 		F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F02BF751E300817A42 /* RelayWithDistance.swift */; };
 		F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */; };
 		F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */; };
-		F0BE65372B9F136A005CC385 /* LocationSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */; };
+		F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */; };
 		F0C13FE42C64F7CB00BD087D /* DAITASettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */; };
 		F0C13FE62C64FB3400BD087D /* TunnelSettingsV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
@@ -2292,7 +2292,7 @@
 		F0B894F02BF751E300817A42 /* RelayWithDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithDistance.swift; sourceTree = "<group>"; };
 		F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Wireguard.swift"; sourceTree = "<group>"; };
 		F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Shadowsocks.swift"; sourceTree = "<group>"; };
-		F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderView.swift; sourceTree = "<group>"; };
+		F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderFooterView.swift; sourceTree = "<group>"; };
 		F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettings.swift; sourceTree = "<group>"; };
 		F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV6.swift; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
@@ -2983,7 +2983,7 @@
 				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
 				7A5468AB2C6A55B100590086 /* LocationRelays.swift */,
 				F050AE512B70DFC0003F4EDB /* LocationSection.swift */,
-				F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */,
+				F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */,
 				5888AD86227B17950051EB06 /* LocationViewController.swift */,
 				7AB3BEB42BD7A6CB00E34384 /* LocationViewControllerWrapper.swift */,
 				F01DAE322C2B032A00521E46 /* RelaySelection.swift */,
@@ -6029,7 +6029,7 @@
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
-				F0BE65372B9F136A005CC385 /* LocationSectionHeaderView.swift in Sources */,
+				F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */,
 				7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */,
 				0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
