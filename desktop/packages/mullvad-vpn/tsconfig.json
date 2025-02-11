@@ -31,6 +31,7 @@
     "standalone-tests.ts",
     "scripts/**/*.ts",
     "test/**/*.ts",
-    "assets/geo/*.json"
+    "assets/geo/*.json",
+    "vite.config.ts"
   ]
 }
