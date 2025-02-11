@@ -198,8 +198,6 @@ extension PacketTunnelActor {
             fallthrough
 
         case .error:
-            stopDefaultPathObserver()
-
             do {
                 try await tunnelAdapter.stop()
             } catch {
@@ -294,13 +292,6 @@ extension PacketTunnelActor {
             settings: settings,
             connectionData: connectionState
         ).make()
-
-        /*
-         Stop default path observer while updating WireGuard configuration since it will call the system method
-         `NEPacketTunnelProvider.setTunnelNetworkSettings()` which may cause active interfaces to go down making it look
-         like network connectivity is not available, but only for a brief moment.
-         */
-        stopDefaultPathObserver()
 
         defer {
             // Restart default path observer and notify the observer with the current path that might have changed while

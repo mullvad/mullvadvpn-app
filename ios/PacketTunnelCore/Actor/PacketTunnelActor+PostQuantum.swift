@@ -36,8 +36,6 @@ extension PacketTunnelActor {
             return
         }
 
-        stopDefaultPathObserver()
-
         state = .connecting(connectionData)
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
