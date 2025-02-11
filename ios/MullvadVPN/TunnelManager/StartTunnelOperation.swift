@@ -107,7 +107,10 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     ) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
-        let configuration = TunnelConfiguration(excludeLocalNetworks: interactor.settings.localNetworkSharing)
+        let configuration = TunnelConfiguration(
+            includeAllNetworks: interactor.settings.includeAllNetworks,
+            excludeLocalNetworks: interactor.settings.localNetworkSharing
+        )
 
         tunnel.setConfiguration(configuration)
         tunnel.saveToPreferences { error in
