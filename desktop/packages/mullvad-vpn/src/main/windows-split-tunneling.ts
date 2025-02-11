@@ -227,7 +227,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
         const target = this.tryReadshortcut(path.resolve(link));
         if (target) {
           return {
-            target: target,
+            target,
             name: path.parse(link).name,
           };
         }
