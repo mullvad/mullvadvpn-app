@@ -29,7 +29,8 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
         oldSettings: LatestTunnelSettings,
         newSettings: LatestTunnelSettings
     ) -> TunnelSettingsReconnectionStrategy {
-        if oldSettings.localNetworkSharing != newSettings.localNetworkSharing {
+        if oldSettings.localNetworkSharing != newSettings.localNetworkSharing ||
+            oldSettings.includeAllNetworks != newSettings.includeAllNetworks {
             return .hardReconnect
         }
         switch (oldSettings, newSettings) {

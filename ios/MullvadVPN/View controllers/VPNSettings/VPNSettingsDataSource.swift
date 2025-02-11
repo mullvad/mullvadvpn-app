@@ -25,6 +25,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case wireGuardObfuscationOption
         case wireGuardObfuscationPort
         case quantumResistance
+        case includeAllNetworks
 
         var reusableViewClass: AnyClass {
             switch self {
@@ -46,6 +47,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
                 return SelectableSettingsCell.self
             case .quantumResistance:
                 return SelectableSettingsCell.self
+            case .includeAllNetworks:
+                return SettingsSwitchCell.self
             }
         }
     }
@@ -59,7 +62,9 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     enum Section: String, Hashable, CaseIterable {
+        #if DEBUG
         case localNetworkSharing
+        #endif
         case dnsSettings
         case ipOverrides
         case wireGuardPorts
@@ -69,6 +74,7 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
     }
 
     enum Item: Hashable {
+        case includeAllNetworks(_ enabled: Bool)
         case localNetworkSharing(_ enabled: Bool)
         case dnsSettings
         case ipOverrides
@@ -113,6 +119,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         var accessibilityIdentifier: AccessibilityIdentifier {
             switch self {
+            case .includeAllNetworks:
+                return .includeAllNetworks
             case .localNetworkSharing:
                 return .localNetworkSharing
             case .dnsSettings:
@@ -144,6 +152,8 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 
         var reuseIdentifier: CellReuseIdentifiers {
             switch self {
+            case .includeAllNetworks:
+                return .includeAllNetworks
             case .localNetworkSharing:
                 return .localNetworkSharing
             case .dnsSettings:
@@ -371,7 +381,6 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         case .quantumResistance:
             configureQuantumResistanceHeader(view)
             return view
-
         default:
             return nil
         }
@@ -387,8 +396,11 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         let sectionIdentifier = snapshot().sectionIdentifiers[section]
 
         switch sectionIdentifier {
-        case .dnsSettings, .ipOverrides, .privacyAndSecurity, .localNetworkSharing:
+        case .dnsSettings, .ipOverrides, .privacyAndSecurity:
             return .leastNonzeroMagnitude
+        #if DEBUG
+        case .localNetworkSharing: return .leastNonzeroMagnitude
+        #endif
         default:
             return tableView.estimatedRowHeight
         }
@@ -400,7 +412,10 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         return switch sectionIdentifier {
         // 0 due to there already being a separator between .dnsSettings and .ipOverrides.
         case .dnsSettings: 0
-        case .ipOverrides, .quantumResistance, .localNetworkSharing: UITableView.automaticDimension
+        case .ipOverrides, .quantumResistance: UITableView.automaticDimension
+        #if DEBUG
+        case .localNetworkSharing: UITableView.automaticDimension
+        #endif
         default: 0.5
         }
     }
@@ -454,7 +469,17 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         snapshot.appendSections(Section.allCases)
         snapshot.appendItems([.dnsSettings], toSection: .dnsSettings)
         snapshot.appendItems([.ipOverrides], toSection: .ipOverrides)
-        snapshot.appendItems([.localNetworkSharing(viewModel.localNetworkSharing)], toSection: .localNetworkSharing)
+        #if DEBUG
+        snapshot.appendItems(
+            [.localNetworkSharing(viewModel.localNetworkSharing)],
+            toSection: .localNetworkSharing
+        )
+        snapshot
+            .appendItems(
+                [.includeAllNetworks(viewModel.includeAllNetworks)],
+                toSection: .localNetworkSharing
+            )
+        #endif
 
         applySnapshot(snapshot, animated: animated, completion: completion)
     }
@@ -611,7 +636,12 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
 }
 
 extension VPNSettingsDataSource: @preconcurrency VPNSettingsCellEventHandler {
-    func setLocalNetworkSettings(_ enabled: Bool, onCancel: @escaping () -> Void) {
+    func setIncludeAllNetworks(_ enabled: Bool, onCancel: @escaping () -> Void) {
+        self.viewModel.setIncludeAllNetworks(enabled)
+        self.delegate?.didUpdateTunnelSettings(.includeAllNetworks(enabled))
+    }
+
+    func setLocalNetworkSharing(_ enabled: Bool, onCancel: @escaping () -> Void) {
         delegate?.showLocalNetworkSharingWarning(enabled) { accepted in
             if accepted {
                 self.delegate?.didUpdateTunnelSettings(.localNetworkSharing(enabled))
