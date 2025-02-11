@@ -27,9 +27,14 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for DAITA V2.
 - Add back wireguard-go (userspace WireGuard) support.
 
+### Changed
+#### Windows
+- Replace the Electron API `shell.readShortcutLink` with a custom, native rust module
+  `win-shortcuts`.
+
 ### Fixed
 #### Windows
-- Fix GUI crashing at launch on some systems.
+- Fix GUI crashing at launch on some systems by replacing Electron's shortcut parser.
 
 
 ## [2025.3] - 2025-02-07
