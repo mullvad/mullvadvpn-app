@@ -115,7 +115,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
 
   public resolveExecutablePath(providedPath: string): Promise<string> {
     if (path.extname(providedPath) === '.lnk') {
-      const target = this.tryReadshortcut(path.resolve(providedPath));
+      const target = this.tryReadShortcut(path.resolve(providedPath));
       if (target) {
         return Promise.resolve(target);
       } else {
@@ -130,7 +130,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
   public async addApplicationPathToCache(applicationPath: string): Promise<void> {
     const parsedPath = path.parse(applicationPath);
     if (parsedPath.ext === '.lnk') {
-      const target = this.tryReadshortcut(path.resolve(applicationPath));
+      const target = this.tryReadShortcut(path.resolve(applicationPath));
       if (target) {
         this.additionalShortcuts.push({
           target,
@@ -224,7 +224,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
   private resolveLinks(linkPaths: string[]): ShortcutDetails[] {
     return linkPaths
       .map((link) => {
-        const target = this.tryReadshortcut(path.resolve(link));
+        const target = this.tryReadShortcut(path.resolve(link));
         if (target) {
           return {
             target,
@@ -686,7 +686,7 @@ export class WindowsSplitTunnelingAppListRetriever implements ISplitTunnelingApp
     return Math.ceil(offset / 4) * 4;
   }
 
-  private tryReadshortcut(appPath: string): string | null {
+  private tryReadShortcut(appPath: string): string | null {
     try {
       return readShortcut(path.resolve(appPath));
     } catch (e) {
