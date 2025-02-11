@@ -325,19 +325,27 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     func reapplyTunnelConfiguration() {
         guard let tunnel else { return }
         if self.tunnelStatus.state.isSecured {
-            let observer = TunnelBlockObserver(didUpdateTunnelStatus: { _, status in
-                if case .disconnected = status.state {
-                    if let observer = self.observer {
-                        self.removeObserver(observer)
-                        self.observer = nil
+            let observer = TunnelBlockObserver(
+                didUpdateTunnelStatus: {
+                    _,
+                        status in
+                    if case .disconnected = status.state {
+                        if let observer = self.observer {
+                            self.removeObserver(observer)
+                            self.observer = nil
+                        }
+                        self.startTunnel()
                     }
-                    self.startTunnel()
                 }
-            })
+            )
             addObserver(observer)
             self.observer = observer
 
-            let configuration = TunnelConfiguration(excludeLocalNetworks: settings.localNetworkSharing)
+            let configuration = TunnelConfiguration(
+                includeAllNetworks: settings.includeAllNetworks,
+                excludeLocalNetworks: settings.localNetworkSharing
+            )
+
             tunnel.setConfiguration(configuration)
             tunnel.saveToPreferences { _ in
                 self.stopTunnel(disableOnDemand: false)

@@ -16,11 +16,13 @@ struct TunnelConfiguration {
     var onDemandRules: [NEOnDemandRule]
     var isOnDemandEnabled: Bool
 
-    init(excludeLocalNetworks: Bool, isOnDemandEnabled: Bool = true) {
+    init(includeAllNetworks: Bool, excludeLocalNetworks: Bool, isOnDemandEnabled: Bool = true) {
         let protocolConfig = NETunnelProviderProtocol()
         protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
-        protocolConfig.includeAllNetworks = true
+        #if DEBUG
+        protocolConfig.includeAllNetworks = includeAllNetworks
+        #endif
         protocolConfig.excludeLocalNetworks = excludeLocalNetworks
 
         let alwaysOnRule = NEOnDemandRuleConnect()
