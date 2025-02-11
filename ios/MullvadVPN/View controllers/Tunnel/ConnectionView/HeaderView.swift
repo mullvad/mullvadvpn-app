@@ -76,6 +76,7 @@ extension ConnectionView {
                     }
                 })
             }
+            .disabled(!viewModel.showsConnectionDetails)
         }
     }
 }
