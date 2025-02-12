@@ -106,8 +106,9 @@ jobs:
           echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
     outputs:
       container_image: ${{ env.inner_container_image }}
-  build-linux:
-    name: Build Linux
+
+  build-linux-app:
+    name: Build Linux App
     needs: prepare-linux
     runs-on: ubuntu-latest
     container:
@@ -126,7 +127,8 @@ jobs:
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v4
+      - name: Upload app
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: linux-build
@@ -135,9 +137,59 @@ jobs:
             ./dist/*.deb
             ./dist/app-e2e-*
 
+  build-mullvad-version-linux:
+    name: Build mullvad-version
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build mullvad-version
+        run: |
+          cargo build --package mullvad-version --release
+          # TODO: Remove
+          mkdir bin
+          mv -t ./bin/ "$CARGO_TARGET_DIR/release/mullvad-version"
+        shell: bash
+      - name: Upload mullvad-version
+        uses: actions/upload-artifact@v4
+        with:
+          name: mullvad-version-linux
+          path: ./bin/mullvad-version
+          if-no-files-found: error
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
+
+  build-test-manager-linux:
+    name: Build Test Manager
+    needs: prepare-linux
+    runs-on: [self-hosted, desktop-test, Linux]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build test-manager
+        run: ./test/scripts/container-run.sh cargo build --package test-manager --release
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-manager-build
+          path: |
+            ./test/target/release/test-manager
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
+
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: [prepare-matrices, build-linux]
+    needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux]
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -149,20 +201,44 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create binaries directory & add to PATH
+        shell: bash -ieo pipefail {0}
+        run: |
+          # TODO: Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
+          mkdir "${{ github.workspace }}/bin"
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
+      - name: Download Test Manager
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: Download mullvad-version
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: mullvad-version-linux
+          path: ${{ github.workspace }}/bin
+      - name: Check binaries
+        run: ls -la ${{ github.workspace }}/bin
+        shell: bash
       - name: Download App
         uses: actions/download-artifact@v4
-        if: ${{ needs.build-linux.result == 'success' }}
+        if: ${{ needs.build-linux-app.result == 'success' }}
         with:
           name: linux-build
           path: ~/.cache/mullvad-test/packages
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
+          # TODO: Explain this. A directory with all the binaries required to run test-manager
+          export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
-          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
+          # TEST_DIST_DIR
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4
         if: '!cancelled()'
