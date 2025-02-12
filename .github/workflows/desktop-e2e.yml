@@ -123,8 +123,6 @@ jobs:
       - name: Checkout repository
         uses: ./.github/actions/checkout-app
       - name: Build app
-        env:
-          USE_MOLD: false
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
