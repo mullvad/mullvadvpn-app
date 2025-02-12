@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
 import Operations
 
@@ -26,6 +27,8 @@ extension REST {
         /// URL request factory.
         let requestFactory: REST.RequestFactory
 
+        let mullvadApiRequestFactory: MullvadApiRequestFactory
+
         /// URL response decoder.
         let responseDecoder: JSONDecoder
 
@@ -40,6 +43,7 @@ extension REST {
 
             self.configuration = configuration
             self.requestFactory = requestFactory
+            self.mullvadApiRequestFactory = MullvadApiRequestFactory(apiContext: configuration.apiContext)
             self.responseDecoder = responseDecoder
         }
 
@@ -132,13 +136,16 @@ extension REST {
     public class ProxyConfiguration: @unchecked Sendable {
         public let transportProvider: RESTTransportProvider
         public let addressCacheStore: AddressCache
+        public let apiContext: MullvadApiContext
 
         public init(
             transportProvider: RESTTransportProvider,
-            addressCacheStore: AddressCache
+            addressCacheStore: AddressCache,
+            apiContext: MullvadApiContext
         ) {
             self.transportProvider = transportProvider
             self.addressCacheStore = addressCacheStore
+            self.apiContext = apiContext
         }
     }
 
@@ -147,13 +154,15 @@ extension REST {
 
         public init(
             proxyConfiguration: ProxyConfiguration,
-            accessTokenManager: RESTAccessTokenManagement
+            accessTokenManager: RESTAccessTokenManagement,
+            apiContext: MullvadApiContext
         ) {
             self.accessTokenManager = accessTokenManager
 
             super.init(
                 transportProvider: proxyConfiguration.transportProvider,
-                addressCacheStore: proxyConfiguration.addressCacheStore
+                addressCacheStore: proxyConfiguration.addressCacheStore,
+                apiContext: apiContext
             )
         }
     }

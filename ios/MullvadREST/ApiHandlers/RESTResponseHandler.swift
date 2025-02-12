@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadRustRuntime
 import MullvadTypes
 
 protocol RESTResponseHandler<Success> {
@@ -15,7 +16,14 @@ protocol RESTResponseHandler<Success> {
     func handleURLResponse(_ response: HTTPURLResponse, data: Data) -> REST.ResponseHandlerResult<Success>
 }
 
+protocol RESTRustResponseHandler<Success> {
+    associatedtype Success
+
+    func handleResponse(_ response: MullvadApiResponse) -> REST.ResponseHandlerResult<Success>
+}
+
 extension REST {
+    // TODO: We could probably remove the `decoding` case when network requests are fully merged to Mullvad API.
     /// Responser handler result type.
     enum ResponseHandlerResult<Success> {
         /// Response handler succeeded and produced a value.
@@ -64,6 +72,55 @@ extension REST {
                     )
                 )
             }
+        }
+    }
+
+    final class RustResponseHandler<Success>: RESTRustResponseHandler {
+        typealias HandlerBlock = (MullvadApiResponse) -> REST.ResponseHandlerResult<Success>
+
+        private let handlerBlock: HandlerBlock
+
+        init(_ block: @escaping HandlerBlock) {
+            handlerBlock = block
+        }
+
+        func handleResponse(_ response: MullvadApiResponse) -> REST.ResponseHandlerResult<Success> {
+            handlerBlock(response)
+        }
+    }
+
+    /// Returns default response handler that parses JSON response into the
+    /// given `Decodable` type if possible, otherwise attempts to decode
+    /// the server error.
+    static func rustResponseHandler<T: Decodable>(
+        decoding type: T.Type,
+        with decoder: JSONDecoder
+    ) -> RustResponseHandler<T> {
+        RustResponseHandler { response in
+            guard let body = response.body else {
+                return .unhandledResponse(nil)
+            }
+
+            do {
+                let decoded = try decoder.decode(type, from: body)
+                return .decoding { decoded }
+            } catch {
+                return .unhandledResponse(
+                    try? decoder.decode(
+                        ServerErrorResponse.self,
+                        from: body
+                    )
+                )
+            }
+        }
+    }
+
+    /// Returns default response handler that parses JSON response into the
+    /// given `Decodable` type if possible, otherwise attempts to decode
+    /// the server error.
+    static func rustEmptyResponseHandler() -> RustResponseHandler<Void> {
+        RustResponseHandler { _ in
+            .success(())
         }
     }
 }

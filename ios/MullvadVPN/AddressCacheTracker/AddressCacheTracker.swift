@@ -91,9 +91,9 @@ final class AddressCacheTracker: @unchecked Sendable {
                 return AnyCancellable()
             }
 
-            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
+            return self.apiProxy.mullvadApiGetAddressList(retryStrategy: .default) { result in
+                print("Address list: \(result)")
                 self.setEndpoints(from: result)
-
                 finish(result.map { _ in true })
             }
         }
@@ -118,7 +118,8 @@ final class AddressCacheTracker: @unchecked Sendable {
         nslock.lock()
         defer { nslock.unlock() }
 
-        return _nextScheduleDate()
+        return Date()
+//        return _nextScheduleDate()
     }
 
     private func setEndpoints(from result: Result<[AnyIPEndpoint], Error>) {
