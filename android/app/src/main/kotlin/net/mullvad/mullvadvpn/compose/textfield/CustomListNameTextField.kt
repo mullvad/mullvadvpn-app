@@ -49,6 +49,7 @@ fun CustomListNameTextField(
                 }
             },
         capitalization = KeyboardCapitalization.Words,
+        textStyle = MaterialTheme.typography.titleMedium,
         modifier =
             modifier.focusRequester(focusRequester).onFocusChanged { focusState ->
                 if (focusState.hasFocus) {
