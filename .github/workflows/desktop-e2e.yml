@@ -127,7 +127,8 @@ jobs:
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v4
+      - name: Upload app
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: linux-build
@@ -135,6 +136,36 @@ jobs:
             ./dist/*.rpm
             ./dist/*.deb
             ./dist/app-e2e-*
+
+  build-mullvad-version-linux:
+    name: Build mullvad-version
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: ./.github/actions/checkout-app
+      - name: Build mullvad-version
+        run: |
+          cargo build --package mullvad-version --release
+          # TODO: Remove
+          ls -la target/
+          ls -la target/release/
+      - name: Upload mullvad-version
+        uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: mullvad-version-linux
+          path: |
+            ./target/release/mullvad-version
 
   build-test-manager-linux:
     name: Build Test Manager
@@ -149,13 +180,12 @@ jobs:
         if: '!cancelled()'
         with:
           name: linux-test-manager-build
-          # TODO: Only actually use the test-manager binary.
           path: |
-            ./test/target
+            ./test/target/release/test-manager
 
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: [prepare-matrices, build-linux-app, build-test-manager-linux]
+    needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux]
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -180,12 +210,28 @@ jobs:
         if: ${{ needs.build-test-manager-linux.result == 'success' }}
         with:
           name: linux-test-manager-build
-          path: ./test/target
+          path: test-manager
+      - name: Download mullvad-version
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: mullvad-version-linux
+          path: mullvad-version
+      - name: Add binaries to PATH
+        shell: bash -ieo pipefail {0}
+        run: |
+          mkdir "${{ github.workspace }}/bin"
+          mv -t "${{ github.workspace }}/bin/" test-manager mullvad-version
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
+          # TODO: Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
+          # TODO: Explain this. A directory with all the binaries required to run test-manager
+          export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
+          # TEST_DIST_DIR
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4

@@ -235,10 +235,15 @@ function run_tests_for_os {
         if [ ! -x "${TEST_DIST_DIR%/}/test-manager" ]; then
             executable_not_found_in_dist_error test-manager
         fi
+        # TODO: Assume test-manager is in path.
+        #test_manager="${TEST_DIST_DIR%/}/test-manager"
         test_manager="${TEST_DIST_DIR%/}/test-manager"
+        # test_manager="$(which test-manager)"
         runner_dir_flag=("--runner-dir" "$TEST_DIST_DIR")
     else
-        test_manager="cargo run --bin test-manager"
+        # TODO: Assume test-manager is in path.
+        #test_manager="cargo run --bin test-manager"
+        test_manager="$(which test-manager)"
         runner_dir_flag=()
     fi
 
