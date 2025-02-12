@@ -13,14 +13,8 @@ pub struct VersionParameters {
     pub rollout: f32,
 }
 
-/// Architecture to retrieve data for
-#[derive(Debug, Clone, Copy)]
-pub enum VersionArchitecture {
-    /// x86-64 architecture
-    X86,
-    /// ARM64 architecture
-    Arm64,
-}
+/// Installer architecture
+pub type VersionArchitecture = format::Architecture;
 
 /// See [module-level](self) docs.
 #[async_trait::async_trait]
@@ -34,7 +28,8 @@ pub trait VersionInfoProvider {
 pub struct VersionInfo {
     /// Stable version info
     pub stable: Version,
-    /// Beta version info
+    /// Beta version info (if available and newer than `stable`).
+    /// If latest stable version is newer, this will be `None`.
     pub beta: Option<Version>,
 }
 
@@ -63,7 +58,7 @@ impl VersionInfoProvider for ApiVersionInfoProvider {
         use format::*;
 
         const TEST_PUBKEY: &str =
-            "f4c262705b4ae8088bc8173889f779f77563edfd7de3b0ac4aa0e554a6896404";
+            "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d";
         let pubkey = hex::decode(TEST_PUBKEY).unwrap();
         let verifying_key =
             ed25519_dalek::VerifyingKey::from_bytes(&pubkey.try_into().unwrap()).unwrap();
@@ -73,68 +68,110 @@ impl VersionInfoProvider for ApiVersionInfoProvider {
             include_bytes!("../test-version-response.json"),
         )?;
 
-        VersionInfo::try_from_signed_response(&params, response)
+        VersionInfo::try_from_response(&params, response.signed)
     }
+}
+
+/// Helper used to lift the relevant installer out of the array in [format::Release]
+#[derive(Clone)]
+struct IntermediateVersion {
+    version: mullvad_version::Version,
+    changelog: String,
+    installer: format::Installer,
 }
 
 impl VersionInfo {
     /// Convert signed response data to public version type
     /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
-    fn try_from_signed_response(
+    fn try_from_response(
         params: &VersionParameters,
-        response: format::SignedResponse,
+        response: format::Response,
     ) -> anyhow::Result<Self> {
-        let stable = Version::try_from_signed_response(params, response.signed.stable)?;
-        let beta = response
-            .signed
-            .beta
-            .map(|response| Version::try_from_signed_response(params, response))
-            .transpose()
-            .context("Failed to parse beta version")?;
+        let mut releases: Vec<_> = response
+            .releases
+            .into_iter()
+            // Filter out releases that are not rolled out to us
+            .filter(|release| release.rollout >= params.rollout)
+            // Include only installers for the requested architecture
+            .flat_map(|release| {
+                release
+                    .installers
+                    .into_iter()
+                    .filter(|installer| params.architecture == installer.architecture)
+                    // Map each artifact to a [IntermediateVersion]
+                    .map(move |installer| {
+                        IntermediateVersion {
+                            version: release.version.clone(),
+                            changelog: release.changelog.clone(),
+                            installer,
+                        }
+                    })
+            })
+            .collect();
 
-        Ok(Self { stable, beta })
+        // Sort releases by version
+        releases.sort_by(|a, b| mullvad_version::Version::version_ordering(&a.version, &b.version));
+
+        // Fail if there are duplicate versions
+        // Important! This must occur after sorting
+        if let Some(dup_version) = Self::find_duplicate_version(&releases) {
+            anyhow::bail!("API response contains at least one duplicated version: {dup_version}");
+        }
+
+        // Find latest stable version
+        let stable = releases
+            .iter()
+            .rfind(|release| release.version.is_stable() && !release.version.is_dev());
+        let Some(stable) = stable.cloned() else {
+            anyhow::bail!("No stable version found");
+        };
+
+        // Find the latest beta version
+        let beta = releases
+            .iter()
+            // Find most recent beta version
+            .rfind(|release| release.version.beta().is_some() && !release.version.is_dev())
+            // If the latest beta version is older than latest stable, dispose of it
+            .filter(|release| release.version.version_ordering(&stable.version).is_gt())
+            .cloned();
+
+        Ok(Self {
+            stable: Version::try_from(stable)?,
+            beta: beta.map(|beta| Version::try_from(beta)).transpose()?,
+        })
+    }
+
+    /// Returns the first duplicated version found in `releases`.
+    /// `None` is returned if there are no duplicates.
+    /// NOTE: `releases` MUST be sorted
+    fn find_duplicate_version(
+        releases: &[IntermediateVersion],
+    ) -> Option<&mullvad_version::Version> {
+        releases
+            .windows(2)
+            .find(|pair| {
+                mullvad_version::Version::version_ordering(&pair[0].version, &pair[1].version)
+                    .is_eq()
+            })
+            .map(|pair| &pair[0].version)
     }
 }
 
-impl Version {
-    /// Convert response data to public version type
-    fn try_from_signed_response(
-        params: &VersionParameters,
-        response: format::VersionResponse,
-    ) -> anyhow::Result<Self> {
-        // Check if the rollout version is acceptable according to threshold
-        if let Some(next) = response.next {
-            if next.rollout >= params.rollout {
-                // Use the version being rolled out
-                return Self::try_for_arch(params, next.version);
-            }
-        }
+impl TryFrom<IntermediateVersion> for Version {
+    type Error = anyhow::Error;
 
-        // Return the version not being rolled out
-        Self::try_for_arch(params, response.current)
-    }
-
-    /// Convert version response to the public version type for a given architecture
-    /// This may fail if the current architecture isn't included in the response
-    fn try_for_arch(
-        params: &VersionParameters,
-        response: format::SpecificVersionResponse,
-    ) -> anyhow::Result<Self> {
-        let installer = match params.architecture {
-            VersionArchitecture::X86 => response.installers.x86,
-            VersionArchitecture::Arm64 => response.installers.arm64,
-        };
-        let installer = installer.context("Installer missing for architecture")?;
-        let sha256 = hex::decode(installer.sha256)
+    fn try_from(version: IntermediateVersion) -> Result<Self, Self::Error> {
+        // Convert hex checksum to bytes
+        let sha256 = hex::decode(version.installer.sha256)
             .context("Invalid checksum hex")?
             .try_into()
             .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?;
 
-        Ok(Self {
-            changelog: response.changelog,
-            version: response.version,
-            urls: installer.urls,
-            size: installer.size,
+        Ok(Version {
+            version: version.version,
+            size: version.installer.size,
+            urls: version.installer.urls,
+            changelog: version.changelog,
             sha256,
         })
     }

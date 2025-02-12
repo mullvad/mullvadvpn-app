@@ -102,7 +102,7 @@ mod test {
     #[test]
     fn test_response_deserialization_and_verification() {
         const TEST_PUBKEY: &str =
-            "f4c262705b4ae8088bc8173889f779f77563edfd7de3b0ac4aa0e554a6896404";
+            "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d";
         let pubkey = hex::decode(TEST_PUBKEY).unwrap();
         let verifying_key =
             ed25519_dalek::VerifyingKey::from_bytes(&pubkey.try_into().unwrap()).unwrap();
