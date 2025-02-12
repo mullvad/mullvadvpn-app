@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
@@ -23,7 +24,10 @@ import net.mullvad.talpid.util.RawNetworkState
 import net.mullvad.talpid.util.defaultRawNetworkStateFlow
 import net.mullvad.talpid.util.networkEvents
 
-class ConnectivityListener(private val connectivityManager: ConnectivityManager) {
+class ConnectivityListener(
+    private val connectivityManager: ConnectivityManager,
+    private val resetDnsFlow: Flow<Unit>,
+) {
     private lateinit var _isConnected: StateFlow<Boolean>
     // Used by JNI
     val isConnected
@@ -44,8 +48,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
         // the default network may fail if the network on Android 11
         // https://issuetracker.google.com/issues/175055271?pli=1
         _currentNetworkState =
-            connectivityManager
-                .defaultRawNetworkStateFlow()
+            merge(connectivityManager.defaultRawNetworkStateFlow(), resetDnsFlow.map { null })
                 .map { it?.toNetworkState() }
                 .onEach { notifyDefaultNetworkChange(it) }
                 .stateIn(scope, SharingStarted.Eagerly, null)
