@@ -987,8 +987,6 @@ class ApplicationMain
   }
 
   private allowFileAccess(url: string): boolean {
-    return true;
-
     const buildDir = path.normalize(path.join(path.resolve(__dirname), '..', '..'));
 
     if (url.startsWith('file:')) {
