@@ -21,8 +21,8 @@ usage() {
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR"
 
-# shellcheck source=test/scripts/test-utils.sh
-source "scripts/test-utils.sh"
+# shellcheck source=test/scripts/utils/lib.sh
+source "scripts/utils/lib.sh"
 
 if [[ ("$*" == "--help") || "$*" == "-h" ]]; then
     usage

@@ -2,25 +2,22 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
+REPO_ROOT="$TEST_FRAMEWORK_ROOT/.."
+
+export BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
+export BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
+
 function executable_not_found_in_dist_error {
     1>&2 echo "Executable \"$1\" not found in specified dist dir. Exiting."
     exit 1
 }
 
-# Returns the directory of the test-utils.sh script
-function get_test_utls_dir {
-    local script_path="${BASH_SOURCE[0]}"
-    local script_dir
-    if [[ -n "$script_path" ]]; then
-        script_dir="$(cd "$(dirname "$script_path")" >/dev/null && pwd)"
-    else
-        script_dir="$(cd "$(dirname "$0")" >/dev/null && pwd)"
-    fi
-    echo "$script_dir"
+# Returns the directory of the lib.sh script
+function get_test_utils_dir {
+    echo "$SCRIPT_DIR"
 }
-
-export BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
-export BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
 
 # Infer stable version from GitHub repo
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
@@ -28,7 +25,7 @@ LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_nam
 
 function get_current_version {
     local app_dir
-    app_dir="$(get_test_utls_dir)/../.."
+    app_dir="$REPO_ROOT"
     if [ -n "${TEST_DIST_DIR+x}" ]; then
         if [ ! -x "${TEST_DIST_DIR%/}/mullvad-version" ]; then
             executable_not_found_in_dist_error mullvad-version
@@ -114,6 +111,30 @@ function is_dev_version {
     return 1
 }
 
+function get_e2e_filename {
+    local version=$1
+    local os=$2
+    if is_dev_version "$version"; then
+        parse_build_version "$version"
+        version="${BUILD_VERSION}${COMMIT_HASH}"
+    fi
+    case $os in
+    debian* | ubuntu* | fedora*)
+        echo "app-e2e-tests-${version}-x86_64-unknown-linux-gnu"
+        ;;
+    windows*)
+        echo "app-e2e-tests-${version}-x86_64-pc-windows-msvc.exe"
+        ;;
+    macos*)
+        echo "app-e2e-tests-${version}-aarch64-apple-darwin"
+        ;;
+    *)
+        echo "Unsupported target: $os" 1>&2
+        return 1
+        ;;
+    esac
+}
+
 function get_app_filename {
     local version=$1
     local os=$2
@@ -141,96 +162,16 @@ function get_app_filename {
     esac
 }
 
-function download_app_package {
-    local version=$1
-    local os=$2
-    local package_repo=""
-
-    if is_dev_version "$version"; then
-        package_repo="${BUILD_DEV_REPOSITORY}"
-    else
-        package_repo="${BUILD_RELEASE_REPOSITORY}"
-    fi
-
-    local filename
-    filename=$(get_app_filename "$version" "$os")
-    local url="${package_repo}/$version/$filename"
-
-    local package_dir
-    package_dir=$(get_package_dir)
-    if [[ ! -f "$package_dir/$filename" ]]; then
-        echo "Downloading build for $version ($os) from $url"
-        if ! curl -sf -o "$package_dir/$filename" "$url"; then
-            echo "Failed to download package from $url (hint: build may not exist, check the url)" 1>&2
-            exit 1
-        fi
-    else
-        echo "App package for version $version ($os) already exists at $package_dir/$filename, skipping download"
-    fi
-}
-
-function get_e2e_filename {
-    local version=$1
-    local os=$2
-    if is_dev_version "$version"; then
-        parse_build_version "$version"
-        version="${BUILD_VERSION}${COMMIT_HASH}"
-    fi
-    case $os in
-    debian* | ubuntu* | fedora*)
-        echo "app-e2e-tests-${version}-x86_64-unknown-linux-gnu"
-        ;;
-    windows*)
-        echo "app-e2e-tests-${version}-x86_64-pc-windows-msvc.exe"
-        ;;
-    macos*)
-        echo "app-e2e-tests-${version}-aarch64-apple-darwin"
-        ;;
-    *)
-        echo "Unsupported target: $os" 1>&2
-        return 1
-        ;;
-    esac
-}
-
-function download_e2e_executable {
-    local version=${1:?Error: version not set}
-    local os=${2:?Error: os not set}
-    local package_repo
-
-    if is_dev_version "$version"; then
-        package_repo="${BUILD_DEV_REPOSITORY}"
-    else
-        package_repo="${BUILD_RELEASE_REPOSITORY}"
-    fi
-
-    local filename
-    filename=$(get_e2e_filename "$version" "$os")
-    local url="${package_repo}/$version/additional-files/$filename"
-
-    local package_dir
-    package_dir=$(get_package_dir)
-    if [[ ! -f "$package_dir/$filename" ]]; then
-        echo "Downloading e2e executable for $version ($os) from $url"
-        if ! curl -sf -o "$package_dir/$filename" "$url"; then
-            echo "Failed to download package from $url (hint: build may not exist, check the url)" 1>&2
-            exit 1
-        fi
-    else
-        echo "GUI e2e executable for version $version ($os) already exists at $package_dir/$filename, skipping download"
-    fi
-}
-
 function build_test_runner {
     local script_dir
-    script_dir=$(get_test_utls_dir)
+    script_dir="$(get_test_utils_dir)/../"
     local test_os=${1:?Error: test os not set}
     if [[ "${test_os}" =~ "debian"|"ubuntu"|"fedora" ]]; then
-        "$script_dir"/container-run.sh scripts/build-runner.sh linux || exit 1
+        "$script_dir"/container-run.sh scripts/build/test-runner.sh linux || exit 1
     elif [[ "${test_os}" =~ "windows" ]]; then
-        "$script_dir"/container-run.sh scripts/build-runner.sh windows || exit 1
+        "$script_dir"/container-run.sh scripts/build/test-runner.sh windows || exit 1
     elif [[ "${test_os}" =~ "macos" ]]; then
-        "$script_dir"/build-runner.sh macos || exit 1
+        "$script_dir"/build/test-runner.sh macos || exit 1
     fi
 }
 
@@ -279,7 +220,7 @@ function run_tests_for_os {
     local package_dir
     package_dir=$(get_package_dir)
     local test_dir
-    test_dir=$(get_test_utls_dir)/..
+    test_dir=$(get_test_utils_dir)/../..
     read -ra test_filters_arg <<<"${TEST_FILTERS:-}" # Split the string by words into an array
     pushd "$test_dir"
     if [ -n "${TEST_DIST_DIR+x}" ]; then
@@ -321,7 +262,7 @@ function run_tests_for_os {
 # Currently unused, but may be useful in the future
 function build_current_version {
     local app_dir
-    app_dir="$(get_test_utls_dir)/../.."
+    app_dir="$REPO_ROOT"
     local app_filename
     # TODO: TEST_OS must be set to local OS manually, should be set automatically
     app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
