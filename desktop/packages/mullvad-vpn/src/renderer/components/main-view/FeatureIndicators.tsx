@@ -9,7 +9,6 @@ import { Colors } from '../../lib/foundations';
 import { useStyledRef } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import { tinyText } from '../common-styles';
-import { InfoIcon } from '../InfoButton';
 import { ConnectionPanelAccordion } from './styles';
 
 const LINE_HEIGHT = 22;
@@ -118,15 +117,6 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
 
   const ellipsis = messages.gettext('%(amount)d more...');
 
-  // Returns an optional callback for clickable feature indicators, or undefined.
-  const getFeatureIndicatorOnClick = (indicator: FeatureIndicator) => {
-    // NOTE: With the "smart routing" feature indicator removed, this function now does nothing, should it be removed?
-    switch (indicator) {
-      default:
-        return undefined;
-    }
-  };
-
   useEffect(() => {
     // We need to defer the visibility logic one painting cycle to make sure the elements are
     // rendered and available.
@@ -198,14 +188,11 @@ export default function FeatureIndicators(props: FeatureIndicatorsProps) {
             ref={featureIndicatorsContainerRef}
             $expanded={props.expanded}>
             {sortedIndicators.map((indicator) => {
-              const onClick = getFeatureIndicatorOnClick(indicator);
               return (
                 <StyledFeatureIndicatorLabel
                   key={indicator.toString()}
-                  data-testid="feature-indicator"
-                  onClick={onClick}>
+                  data-testid="feature-indicator">
                   {getFeatureIndicatorLabel(indicator)}
-                  {onClick ? <InfoIcon size={10} /> : null}
                 </StyledFeatureIndicatorLabel>
               );
             })}

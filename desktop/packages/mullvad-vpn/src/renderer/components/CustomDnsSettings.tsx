@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Colors } from '../lib/foundations';
+import { IconButton } from '../lib/components';
 import { formatHtml } from '../lib/html-formatter';
 import { IpAddress } from '../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../lib/utility-hooks';
@@ -19,14 +19,12 @@ import {
 } from './AriaGroup';
 import * as Cell from './cell';
 import {
-  StyledAddCustomDnsButton,
+  AddServerContainer,
   StyledAddCustomDnsLabel,
   StyledButton,
-  StyledContainer,
   StyledCustomDnsFooter,
+  StyledItemContainer,
   StyledLabel,
-  StyledRemoveButton,
-  StyledRemoveIcon,
 } from './CustomDnsSettingsStyles';
 import List, { stringValueAsKey } from './List';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -243,23 +241,20 @@ export default function CustomDnsSettings() {
           </div>
         )}
 
-        <StyledAddCustomDnsButton
-          ref={addButtonRef}
-          onClick={showInput}
-          disabled={inputVisible}
-          tabIndex={-1}>
-          <StyledAddCustomDnsLabel tabIndex={-1}>
-            {messages.pgettext('vpn-settings-view', 'Add a server')}
-          </StyledAddCustomDnsLabel>
-          <Cell.Icon
-            source="icon-add"
-            width={18}
-            height={18}
-            tintColor={Colors.white40}
-            tintHoverColor={Colors.white60}
-            tabIndex={-1}
-          />
-        </StyledAddCustomDnsButton>
+        <AddServerContainer>
+          <StyledButton
+            ref={addButtonRef}
+            onClick={showInput}
+            disabled={inputVisible}
+            tabIndex={-1}>
+            <StyledAddCustomDnsLabel tabIndex={-1}>
+              {messages.pgettext('vpn-settings-view', 'Add a server')}
+            </StyledAddCustomDnsLabel>
+          </StyledButton>
+          <IconButton variant="secondary" onClick={showInput}>
+            <IconButton.Icon icon="add-circle" />
+          </IconButton>
+        </AddServerContainer>
       </Accordion>
 
       <StyledCustomDnsFooter>
@@ -355,25 +350,21 @@ function CellListItem(props: ICellListItemProps) {
           />
         </div>
       ) : (
-        <StyledContainer>
+        <StyledItemContainer>
           <StyledButton onClick={startEditing}>
             <AriaDescription>
               <StyledLabel>{props.children}</StyledLabel>
             </AriaDescription>
           </StyledButton>
           <AriaDescribed>
-            <StyledRemoveButton
+            <IconButton
+              variant="secondary"
               onClick={onRemove}
               aria-label={messages.pgettext('accessibility', 'Remove item')}>
-              <StyledRemoveIcon
-                source="icon-close"
-                width={18}
-                height={18}
-                tintColor={editing ? Colors.black : Colors.white40}
-              />
-            </StyledRemoveButton>
+              <IconButton.Icon icon="cross-circle" />
+            </IconButton>
           </AriaDescribed>
-        </StyledContainer>
+        </StyledItemContainer>
       )}
     </AriaDescriptionGroup>
   );

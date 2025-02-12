@@ -6,12 +6,11 @@ import { ICustomList } from '../../../shared/daemon-rpc-types';
 import { messages, relayLocations } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
-import { Button, ButtonProps } from '../../lib/components';
+import { Button, ButtonProps, Icon } from '../../lib/components';
 import { transitions, useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { IRelayLocationCountryRedux, RelaySettingsRedux } from '../../redux/settings/reducers';
 import { useSelector } from '../../redux/store';
-import ImageView from '../ImageView';
 import { MultiButton } from '../MultiButton';
 
 export default function SelectLocationButtons() {
@@ -134,7 +133,7 @@ function ReconnectButton(props: ButtonProps) {
       size="auto"
       aria-label={messages.gettext('Reconnect')}
       {...props}>
-      <ImageView height={24} width={24} source="icon-reload" tintColor="white" />
+      <Icon icon="reconnect" />
     </StyledReconnectButton>
   );
 }

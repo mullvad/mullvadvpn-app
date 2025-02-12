@@ -1,6 +1,6 @@
-import ImageView from '../../../components/ImageView';
 import { Spacings } from '../../foundations';
 import { Flex } from '../flex';
+import { Image } from '../image';
 
 export interface LogoProps {
   variant?: 'icon' | 'text' | 'both';
@@ -21,19 +21,19 @@ export const Logo = ({ variant = 'icon', size: sizeProp = '1' }: LogoProps) => {
   switch (variant) {
     case 'icon': {
       const logoSize = logoSizes[sizeProp];
-      return <ImageView source="logo-icon" height={logoSize} />;
+      return <Image source="logo-icon" height={logoSize} />;
     }
     case 'text': {
       const textSize = textSizes[sizeProp];
-      return <ImageView source="logo-text" height={textSize} />;
+      return <Image source="logo-text" height={textSize} />;
     }
     case 'both': {
       const logoSize = logoSizes[sizeProp];
       const textSize = textSizes[sizeProp];
       return (
         <Flex $flex={1} $alignItems="center" $gap={Spacings.spacing3}>
-          <ImageView source="logo-icon" height={logoSize} />
-          <ImageView source="logo-text" height={textSize} />
+          <Image source="logo-icon" height={logoSize} />
+          <Image source="logo-text" height={textSize} />
         </Flex>
       );
     }

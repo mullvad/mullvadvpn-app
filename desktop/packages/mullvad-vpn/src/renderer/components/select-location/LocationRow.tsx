@@ -157,7 +157,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
 
         {props.allowAddToCustomList ? (
           <StyledHoverIconButton onClick={showAddToListDialog} $isLast {...background}>
-            <StyledHoverIcon source="icon-add" />
+            <StyledHoverIcon icon="add-circle" />
           </StyledHoverIconButton>
         ) : null}
 
@@ -166,7 +166,7 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
         'country' in props.source.location &&
         props.level === 1 ? (
           <StyledHoverIconButton onClick={onRemoveFromList} $isLast {...background}>
-            <StyledHoverIcon source="icon-remove" />
+            <StyledHoverIcon icon="remove-circle" />
           </StyledHoverIconButton>
         ) : null}
 
@@ -174,10 +174,10 @@ function LocationRow<C extends LocationSpecification>(props: IProps<C>) {
         {'customList' in props.source.location && !('country' in props.source.location) ? (
           <>
             <StyledHoverIconButton onClick={showEditDialog} {...background}>
-              <StyledHoverIcon source="icon-edit" />
+              <StyledHoverIcon icon="edit-circle" />
             </StyledHoverIconButton>
             <StyledHoverIconButton onClick={showDeleteDialog} $isLast {...background}>
-              <StyledHoverIcon source="icon-close" />
+              <StyledHoverIcon icon="cross-circle" />
             </StyledHoverIconButton>
           </>
         ) : null}

@@ -49,9 +49,7 @@ const StyledAddListCellButton = styled(StyledCellButton)({
   marginLeft: 'auto',
 });
 
-const StyledSideButtonIcon = styled(Cell.Icon)({
-  padding: '3px',
-
+const StyledSideButtonIcon = styled(Cell.CellIcon)({
   [`${StyledCellButton}:disabled &&, ${StyledAddListCellButton}:disabled &&`]: {
     backgroundColor: Colors.white40,
   },
@@ -104,7 +102,7 @@ export default function CustomLists(props: CustomListsProps) {
           $backgroundColor={Colors.blue}
           $backgroundColorHover={Colors.blue80}
           onClick={showAddList}>
-          <StyledSideButtonIcon source="icon-add" tintColor={Colors.white60} width={18} />
+          <StyledSideButtonIcon icon="add-circle" color={Colors.white60} />
         </StyledCellButton>
       </StyledCellContainer>
 
@@ -200,7 +198,7 @@ function AddListForm(props: AddListFormProps) {
             $backgroundColorHover={Colors.blue80}
             disabled={!nameValid}
             onClick={createList}>
-            <StyledSideButtonIcon source="icon-check" tintColor={Colors.white60} width={18} />
+            <StyledSideButtonIcon icon="checkmark" color={Colors.white60} />
           </StyledAddListCellButton>
         </StyledCellContainer>
         <Cell.CellFooter>

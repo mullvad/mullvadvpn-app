@@ -2,9 +2,9 @@ import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
 import { NonEmptyArray } from '../../shared/utils';
+import { IconButton } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { useStyledRef } from '../lib/utility-hooks';
-import { Icon } from './cell';
 
 const PAGE_GAP = 16;
 
@@ -160,18 +160,6 @@ const StyledPageIndicator = styled.div<{ $current: boolean }>((props) => ({
   },
 }));
 
-const StyledArrow = styled(Icon)((props) => ({
-  backgroundColor: props.disabled ? Colors.white20 : props.tintColor,
-
-  [`${StyledTransparentButton}:hover &&`]: {
-    backgroundColor: props.disabled ? Colors.white20 : props.tintHoverColor,
-  },
-}));
-
-const StyledLeftArrow = styled(StyledArrow)({
-  transform: 'scaleX(-100%)',
-});
-
 interface ControlsProps {
   pageNumber: number;
   numberOfPages: number;
@@ -197,26 +185,12 @@ function Controls(props: ControlsProps) {
         ))}
       </StyledPageIndicators>
       <StyledArrows>
-        <StyledTransparentButton onClick={props.prev}>
-          <StyledLeftArrow
-            disabled={!props.hasPrev}
-            height={12}
-            width={7}
-            source="icon-chevron"
-            tintColor={Colors.white}
-            tintHoverColor={Colors.white60}
-          />
-        </StyledTransparentButton>
-        <StyledTransparentButton onClick={props.next}>
-          <StyledArrow
-            disabled={!props.hasNext}
-            height={12}
-            width={7}
-            source="icon-chevron"
-            tintColor={Colors.white}
-            tintHoverColor={Colors.white60}
-          />
-        </StyledTransparentButton>
+        <IconButton disabled={!props.hasPrev} onClick={props.prev}>
+          <IconButton.Icon icon="chevron-left" />
+        </IconButton>
+        <IconButton disabled={!props.hasNext} onClick={props.next}>
+          <IconButton.Icon icon="chevron-right" />
+        </IconButton>
       </StyledArrows>
     </StyledControlsContainer>
   );

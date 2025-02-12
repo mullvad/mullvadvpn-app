@@ -6,8 +6,8 @@ import { messages } from '../../shared/gettext';
 import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Flex } from '../lib/components';
-import { Colors } from '../lib/foundations';
+import { Flex, Icon, IconProps } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
@@ -15,7 +15,6 @@ import settingsImportActions from '../redux/settings-import/actions';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import { measurements, normalText, tinyText } from './common-styles';
-import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -208,10 +207,7 @@ const StyledStatusTitle = styled.div(normalText, {
   fontWeight: 'bold',
   lineHeight: '20px',
   color: Colors.white,
-});
-
-const StyledStatusImage = styled(ImageView)({
-  margin: '5px',
+  gap: Spacings.spacing1,
 });
 
 const StyledStatusSubTitle = styled.div(tinyText, {
@@ -236,10 +232,15 @@ function SettingsImportStatus(props: ImportStatusProps) {
     title = messages.pgettext('settings-import', 'NO OVERRIDES IMPORTED');
   }
 
-  let icon = undefined;
+  let iconProps: Pick<IconProps, 'icon' | 'color'> | undefined = undefined;
   let subtitle;
   if (props.status !== undefined) {
-    icon = props.status.successful ? 'icon-checkmark' : 'icon-cross';
+    iconProps = props.status.successful
+      ? {
+          icon: 'checkmark',
+          color: Colors.green,
+        }
+      : { icon: 'cross', color: Colors.red };
 
     if (props.status.successful) {
       subtitle =
@@ -276,7 +277,7 @@ function SettingsImportStatus(props: ImportStatusProps) {
     <StyledStatusContainer>
       <StyledStatusTitle data-testid="status-title">
         {title}
-        {icon !== undefined && <StyledStatusImage source={icon} width={13} />}
+        {iconProps !== undefined && <Icon {...iconProps} size="medium" />}
       </StyledStatusTitle>
       {subtitle !== undefined && (
         <StyledStatusSubTitle data-testid="status-subtitle">{subtitle}</StyledStatusSubTitle>

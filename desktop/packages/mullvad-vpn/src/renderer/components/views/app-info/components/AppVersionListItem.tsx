@@ -36,7 +36,7 @@ export function AppVersionListItem() {
 
     const message = !consistentVersion ? inconsistentVersionMessage : updateAvailableMessage;
 
-    alertIcon = <Cell.UntintedIcon source="icon-alert" width={18} tintColor={Colors.red} />;
+    alertIcon = <Cell.CellIcon icon="alert-circle" color={Colors.red} />;
     footer = (
       <Cell.CellFooter>
         <Cell.CellFooterText>{message}</Cell.CellFooterText>
@@ -50,7 +50,7 @@ export function AppVersionListItem() {
         disabled={isOffline}
         onClick={openDownloadLink}
         icon={{
-          source: 'icon-extLink',
+          icon: 'external',
           'aria-label': messages.pgettext('accessibility', 'Opens externally'),
         }}>
         <LabelStack>

@@ -2,12 +2,11 @@ import React, { useCallback } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
-import { Colors } from '../../lib/foundations';
+import { Icon } from '../../lib/components';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
 import * as Cell from '../cell';
-import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
 import { SpecialLocationIndicator } from '../RelayStatusIndicator';
 import {
@@ -42,8 +41,6 @@ const StyledSpecialLocationInfoButton = styled(InfoButton)({
     zIndex: 10,
   },
 });
-
-const StyledSpecialLocationSideButton = styled(ImageView)({ padding: '0 3px' });
 
 interface SpecialLocationRowProps<T> {
   source: SpecialLocation<T>;
@@ -115,7 +112,7 @@ export function CustomBridgeLocationRow(
 
   const bridgeSettings = useSelector((state) => state.settings.bridgeSettings);
   const bridgeConfigured = bridgeSettings.custom !== undefined;
-  const icon = bridgeConfigured ? 'icon-edit' : 'icon-add';
+  const icon = bridgeConfigured ? 'edit-circle' : 'add-circle';
 
   const selectedRef = props.source.selected ? props.selectedElementRef : undefined;
   const background = getButtonColor(props.source.selected, 0, props.source.disabled);
@@ -151,12 +148,7 @@ export function CustomBridgeLocationRow(
             : messages.pgettext('accessibility', 'Add new custom bridge')
         }
         onClick={navigate}>
-        <StyledSpecialLocationSideButton
-          source={icon}
-          width={20}
-          tintColor={Colors.white}
-          tintHoverColor={Colors.white80}
-        />
+        <Icon icon={icon} />
       </Cell.SideButton>
     </StyledLocationRowContainerWithMargin>
   );

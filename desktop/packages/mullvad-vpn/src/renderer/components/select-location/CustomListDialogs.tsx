@@ -103,7 +103,7 @@ const StyledSelectListItemLabel = styled(Cell.Label)(normalText, {
   fontWeight: 'normal',
 });
 
-const StyledSelectListItemIcon = styled(Cell.Icon)({
+const StyledSelectListItemIcon = styled(Cell.CellTintedIcon)({
   [`${Cell.CellButton}:not(:disabled):hover &&`]: {
     backgroundColor: Colors.white80,
   },
@@ -130,7 +130,7 @@ function SelectList(props: SelectListProps) {
       <StyledSelectListItemLabel>
         {props.list.name} {disabled && messages.pgettext('select-location-view', '(Added)')}
       </StyledSelectListItemLabel>
-      <StyledSelectListItemIcon source="icon-add" width={18} />
+      <StyledSelectListItemIcon icon="add-circle" />
     </Cell.CellButton>
   );
 }

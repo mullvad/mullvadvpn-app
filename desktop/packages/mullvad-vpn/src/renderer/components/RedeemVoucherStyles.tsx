@@ -3,7 +3,6 @@ import styled from 'styled-components';
 import { Colors } from '../lib/foundations';
 import { normalText, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
-import ImageView from './ImageView';
 
 export const StyledLabel = styled.span(smallText, {
   color: Colors.white,
@@ -31,12 +30,6 @@ export const StyledResponse = styled.span(tinyText, {
   color: Colors.white,
 });
 
-export const StyledProgressWrapper = styled.div({
-  display: 'flex',
-  alignItems: 'center',
-  marginTop: '8px',
-});
-
 export const StyledProgressResponse = styled(StyledResponse)({
   marginTop: 0,
 });
@@ -48,18 +41,6 @@ export const StyledErrorResponse = styled(StyledResponse)({
 export const StyledEmptyResponse = styled.span({
   height: '20px',
   marginTop: '8px',
-});
-
-export const StyledSpinner = styled(ImageView)({
-  marginRight: '8px',
-});
-
-export const StyledStatusIcon = styled.div({
-  alignSelf: 'center',
-  width: '60px',
-  height: '60px',
-  marginBottom: '18px',
-  marginTop: '25px',
 });
 
 export const StyledTitle = styled.span(smallText, {

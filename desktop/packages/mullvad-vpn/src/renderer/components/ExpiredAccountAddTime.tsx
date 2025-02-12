@@ -9,8 +9,10 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Colors } from '../lib/foundations';
+import { Flex, Icon } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
+import { IconBadge } from '../lib/icon-badge';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
@@ -20,7 +22,6 @@ import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
-import ImageView from './ImageView';
 import { Container, Footer, Layout } from './Layout';
 import {
   RedeemVoucherContainer,
@@ -165,9 +166,9 @@ export function TimeAdded(props: ITimeAddedProps) {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <StyledStatusIcon>
-              <ImageView source="icon-success" height={60} width={60} />
-            </StyledStatusIcon>
+            <Flex $justifyContent="center" $margin={{ bottom: Spacings.spacing5 }}>
+              <IconBadge state="positive" />
+            </Flex>
             <StyledTitle>
               {props.title ?? messages.pgettext('connect-view', 'Time was successfully added')}
             </StyledTitle>
@@ -233,10 +234,8 @@ export function SetupFinished() {
                       {messages.pgettext('connect-view', 'Learn about privacy')}
                     </AppButton.Label>
                     <AriaDescription>
-                      <AppButton.Icon
-                        height={16}
-                        width={16}
-                        source="icon-extLink"
+                      <Icon
+                        icon="external"
                         aria-label={messages.pgettext('accessibility', 'Opens externally')}
                       />
                     </AriaDescription>

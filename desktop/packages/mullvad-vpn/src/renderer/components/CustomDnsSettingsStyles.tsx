@@ -2,14 +2,9 @@ import styled from 'styled-components';
 
 import { Colors } from '../lib/foundations';
 import * as Cell from './cell';
-import ImageView from './ImageView';
 
 export const StyledCustomDnsFooter = styled(Cell.CellFooter)({
   marginBottom: '2px',
-});
-
-export const StyledAddCustomDnsButton = styled(Cell.CellButton)({
-  backgroundColor: Colors.blue40,
 });
 
 export const StyledAddCustomDnsLabel = styled(Cell.Label)<{ $paddingLeft?: number }>((props) => ({
@@ -23,9 +18,20 @@ export const StyledAddCustomDnsLabel = styled(Cell.Label)<{ $paddingLeft?: numbe
   marginRight: '25px',
 }));
 
-export const StyledContainer = styled(Cell.Container)({
+export const StyledItemContainer = styled(Cell.Container)({
   display: 'flex',
   backgroundColor: Colors.blue40,
+  '&&:hover': {
+    backgroundColor: Colors.blue80,
+  },
+});
+
+export const AddServerContainer = styled(Cell.Container)({
+  display: 'flex',
+  backgroundColor: Colors.blue20,
+  '&&:hover': {
+    backgroundColor: Colors.blue60,
+  },
 });
 
 export const StyledButton = styled.button({
@@ -53,10 +59,4 @@ export const StyledRemoveButton = styled.button({
   background: 'transparent',
   border: 'none',
   padding: 0,
-});
-
-export const StyledRemoveIcon = styled(ImageView)({
-  [StyledRemoveButton + ':hover &&']: {
-    backgroundColor: Colors.white80,
-  },
 });

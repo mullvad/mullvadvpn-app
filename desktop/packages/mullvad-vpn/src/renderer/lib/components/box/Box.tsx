@@ -12,7 +12,9 @@ const StyledBox = styled(Layout)<BoxProps>((props) => ({
   display: 'block',
   boxSizing: 'border-box',
   height: props.$height,
+  minHeight: props.$height,
   width: props.$width,
+  minWidth: props.$width,
 }));
 
 const StyledCenter = styled.div({
