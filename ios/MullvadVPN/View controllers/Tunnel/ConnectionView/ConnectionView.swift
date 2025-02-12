@@ -75,7 +75,7 @@ struct ConnectionView: View {
             .padding(16)
             .background(BlurView(style: .dark))
             .cornerRadius(12)
-            .padding(16)
+            .padding(EdgeInsets(top: 16, leading: 16, bottom: 24, trailing: 16))
             .onChange(of: connectionViewModel.showsConnectionDetails) { showsConnectionDetails in
                 if !showsConnectionDetails {
                     withAnimation {
