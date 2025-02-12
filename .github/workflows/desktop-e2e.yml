@@ -149,9 +149,8 @@ jobs:
         if: '!cancelled()'
         with:
           name: linux-test-manager-build
-          # TODO: Only actually use the test-manager binary.
           path: |
-            ./test/target
+            ./test/target/release/test-manager
 
   e2e-test-linux:
     name: Linux end-to-end tests
@@ -180,7 +179,13 @@ jobs:
         if: ${{ needs.build-test-manager-linux.result == 'success' }}
         with:
           name: linux-test-manager-build
-          path: ./test/target
+          path: test-manager
+      - name: Add test-manager to PATH
+        shell: bash -ieo pipefail {0}
+        run: |
+          mkdir -p "$HOME/.local/bin"
+          mv test-manager "$HOME/.local/bin/"
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
