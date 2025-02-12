@@ -19,8 +19,8 @@ if [[ "$(uname -s)" == "Darwin" ]]; then
     rustup update
 fi
 
-# shellcheck source=test/scripts/test-utils.sh
-source "test-utils.sh"
+# shellcheck source=test/scripts/utils/lib.sh
+source "../utils/lib.sh"
 
 echo "**********************************"
 echo "* Version to upgrade from: $LATEST_STABLE_RELEASE"

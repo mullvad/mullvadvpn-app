@@ -7,7 +7,7 @@ function executable_not_found_in_dist_error {
     exit 1
 }
 
-# Returns the directory of the test-utils.sh script
+# Returns the directory of the lib.sh script
 function get_test_utls_dir {
     local script_path="${BASH_SOURCE[0]}"
     local script_dir
@@ -28,7 +28,7 @@ LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_nam
 
 function get_current_version {
     local app_dir
-    app_dir="$(get_test_utls_dir)/../.."
+    app_dir="$(get_test_utls_dir)/../../.."
     if [ -n "${TEST_DIST_DIR+x}" ]; then
         if [ ! -x "${TEST_DIST_DIR%/}/mullvad-version" ]; then
             executable_not_found_in_dist_error mullvad-version
@@ -223,7 +223,7 @@ function download_e2e_executable {
 
 function build_test_runner {
     local script_dir
-    script_dir=$(get_test_utls_dir)
+    script_dir="$(get_test_utls_dir)/../"
     local test_os=${1:?Error: test os not set}
     if [[ "${test_os}" =~ "debian"|"ubuntu"|"fedora" ]]; then
         "$script_dir"/container-run.sh scripts/build/test-runner.sh linux || exit 1
@@ -279,7 +279,7 @@ function run_tests_for_os {
     local package_dir
     package_dir=$(get_package_dir)
     local test_dir
-    test_dir=$(get_test_utls_dir)/..
+    test_dir=$(get_test_utls_dir)/../..
     read -ra test_filters_arg <<<"${TEST_FILTERS:-}" # Split the string by words into an array
     pushd "$test_dir"
     if [ -n "${TEST_DIST_DIR+x}" ]; then
@@ -321,7 +321,7 @@ function run_tests_for_os {
 # Currently unused, but may be useful in the future
 function build_current_version {
     local app_dir
-    app_dir="$(get_test_utls_dir)/../.."
+    app_dir="$(get_test_utls_dir)/../../.."
     local app_filename
     # TODO: TEST_OS must be set to local OS manually, should be set automatically
     app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
