@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 #### Windows
 - Fix GUI crashing at launch on some systems by replacing Electron's shortcut parser.
 
+#### macOS
+- Fix routing issue caused by upgrading `tun`.
+
 
 ## [2025.3] - 2025-02-07
 ### Changed
