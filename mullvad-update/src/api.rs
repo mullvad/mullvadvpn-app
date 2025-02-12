@@ -25,6 +25,7 @@ pub trait VersionInfoProvider {
 
 /// Contains information about all versions
 #[derive(Debug, Clone)]
+#[cfg_attr(test, derive(serde::Serialize))]
 pub struct VersionInfo {
     /// Stable version info
     pub stable: Version,
@@ -35,6 +36,7 @@ pub struct VersionInfo {
 
 /// Contains information about a version for the current target
 #[derive(Debug, Clone)]
+#[cfg_attr(test, derive(serde::Serialize))]
 pub struct Version {
     /// Version
     pub version: mullvad_version::Version,
@@ -179,11 +181,17 @@ impl TryFrom<IntermediateVersion> for Version {
 
 #[cfg(test)]
 mod test {
+    use insta::assert_yaml_snapshot;
+
     use super::*;
 
-    /// Test API version responses can be parsed
+    // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
+    // then most likely the snapshots need to be updated. The most convenient way to review
+    // changes to, and update, snapshots are by running `cargo insta review`.
+
+    /// Test parsing of API responses (rollout 1, x86)
     #[test]
-    fn test_api_version_info_provider_parser() -> anyhow::Result<()> {
+    fn test_api_version_info_provider_parser_x86() -> anyhow::Result<()> {
         let response = format::SignedResponse::deserialize_and_verify_insecure(include_bytes!(
             "../test-version-response.json"
         ))?;
@@ -193,7 +201,30 @@ mod test {
             rollout: 1.,
         };
 
-        VersionInfo::try_from_signed_response(&params, response)?;
+        // Expect: The available latest versions for X86, where the rollout is 1.
+        let info = VersionInfo::try_from_response(&params, response.signed.clone())?;
+
+        assert_yaml_snapshot!(info);
+
+        Ok(())
+    }
+
+    /// Test parsing of API responses (rollout 0.01, arm64)
+    #[test]
+    fn test_api_version_info_provider_parser_arm64() -> anyhow::Result<()> {
+        let response = format::SignedResponse::deserialize_and_verify_insecure(include_bytes!(
+            "../test-version-response.json"
+        ))?;
+
+        let params = VersionParameters {
+            architecture: VersionArchitecture::Arm64,
+            rollout: 0.01,
+        };
+
+        let info = VersionInfo::try_from_response(&params, response.signed)?;
+
+        // Expect: The available latest versions for arm64, where the rollout is .01.
+        assert_yaml_snapshot!(info);
 
         Ok(())
     }

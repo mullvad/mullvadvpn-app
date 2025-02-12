@@ -2989,6 +2989,7 @@ dependencies = [
  "clap",
  "ed25519-dalek",
  "hex",
+ "insta",
  "json-canon",
  "mockito",
  "mullvad-version",

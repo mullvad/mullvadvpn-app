@@ -42,6 +42,7 @@ struct PartialSignedResponse {
 /// Signed JSON response, not including the signature
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
+#[cfg_attr(test, derive(Clone))]
 pub struct Response {
     /// When the signature expires
     pub expires: chrono::DateTime<chrono::Utc>,
@@ -51,6 +52,7 @@ pub struct Response {
 
 /// App release
 #[derive(Debug, Deserialize, Serialize)]
+#[cfg_attr(test, derive(Clone))]
 pub struct Release {
     /// Mullvad app version
     pub version: mullvad_version::Version,

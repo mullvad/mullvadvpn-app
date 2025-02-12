@@ -34,7 +34,7 @@ objc_id = "0.1"
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dev-dependencies]
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features =  ["test-util"] }
-insta = { version = "1.42", features = ["yaml"] }
+insta = { workspace = true, features = ["yaml"] }
 
 [package.metadata.winres]
 LegalCopyright = "(c) 2025 Mullvad VPN AB"
