@@ -48,6 +48,8 @@ extension ConnectionView {
                     }
                 }
             }
+            .animation(.default, value: viewModel.inAddress)
+            .animation(.default, value: viewModel.tunnelIsConnected)
         }
 
         @ViewBuilder
@@ -72,7 +74,7 @@ extension ConnectionView {
 }
 
 #Preview {
-    ConnectionViewComponentPreview(showIndicators: true, isExpanded: true) { _, vm, _ in
+    ConnectionViewComponentPreview(showIndicators: true) { _, vm, _ in
         ConnectionView.DetailsView(viewModel: vm)
     }
 }
