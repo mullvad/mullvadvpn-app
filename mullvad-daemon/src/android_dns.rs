@@ -37,7 +37,9 @@ impl DnsResolver for AndroidDnsResolver {
         let group = NameServerConfigGroup::from_ips_clear(&ips, 53, false);
 
         let config = ResolverConfig::from_parts(None, vec![], group);
-        let resolver = TokioAsyncResolver::tokio(config, ResolverOpts::default());
+        let mut opts = ResolverOpts::default();
+        opts.attempts = 0;
+        let resolver = TokioAsyncResolver::tokio(config, opts);
 
         let lookup = resolver
             .lookup_ip(host)
