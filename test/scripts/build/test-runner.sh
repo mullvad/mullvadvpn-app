@@ -35,5 +35,5 @@ cargo build \
 
 # Only build runner image for Windows
 if [[ $TARGET == x86_64-pc-windows-gnu ]]; then
-    TARGET="$TARGET" ./build-runner-image.sh
+    TARGET="$TARGET" ./build/runner-image.sh
 fi

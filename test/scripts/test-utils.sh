@@ -226,11 +226,11 @@ function build_test_runner {
     script_dir=$(get_test_utls_dir)
     local test_os=${1:?Error: test os not set}
     if [[ "${test_os}" =~ "debian"|"ubuntu"|"fedora" ]]; then
-        "$script_dir"/container-run.sh scripts/build-runner.sh linux || exit 1
+        "$script_dir"/container-run.sh scripts/build/test-runner.sh linux || exit 1
     elif [[ "${test_os}" =~ "windows" ]]; then
-        "$script_dir"/container-run.sh scripts/build-runner.sh windows || exit 1
+        "$script_dir"/container-run.sh scripts/build/test-runner.sh windows || exit 1
     elif [[ "${test_os}" =~ "macos" ]]; then
-        "$script_dir"/build-runner.sh macos || exit 1
+        "$script_dir"/build/test-runner.sh macos || exit 1
     fi
 }
 

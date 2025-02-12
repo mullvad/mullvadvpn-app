@@ -4,7 +4,7 @@ set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
-TEST_DIR="$SCRIPT_DIR/.."
+TEST_DIR="$SCRIPT_DIR/../.."
 
 if [[ "$#" -lt 1 ]]; then
     echo "usage: $0 TEST_OS" 1>&2
