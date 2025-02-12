@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::ops::{ControlFlow, Not};
+use std::ops::{ControlFlow};
 use std::sync::Mutex;
 
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};
@@ -51,7 +51,7 @@ pub struct RouteManagerImpl {
     last_state: Option<NetworkState>,
 
     /// Clients waiting on response to [RouteManagerCommand::WaitForRoutes].
-    waiting_for_routes: Vec<oneshot::Sender<()>>,
+    waiting_for_routes: Vec<(oneshot::Sender<()>, Vec<Route>)>,
 }
 
 impl RouteManagerImpl {
@@ -64,7 +64,7 @@ impl RouteManagerImpl {
 
         // Try to poll for the current network state at startup.
         // This will most likely be null, but it covers the edge case where a NetworkState
-        // update has been emitted before we anyone starts to listen for route updates some
+        // update has been emitted before anyone starts to listen for route updates some
         // time in the future (when connecting).
         let last_state = match current_network_state(android_context) {
             Ok(initial_state) => initial_state,
@@ -105,12 +105,17 @@ impl RouteManagerImpl {
                     // update the last known NetworkState
                     self.last_state = network_state;
 
-                    if has_routes(self.last_state.as_ref()) {
-                        // notify waiting clients that routes exist
-                        for client in self.waiting_for_routes.drain(..) {
+                    // notify waiting clients that routes exist
+                    let mut unused_routes: Vec<(oneshot::Sender<()>, Vec<Route>)> = Vec::new();
+                    let ret = for (client, expected_routes) in self.waiting_for_routes.drain(..) {
+                        if has_routes(self.last_state.as_ref(), expected_routes.clone()) {
                             let _ = client.send(());
+                        } else {
+                            unused_routes.push((client, expected_routes));
                         }
-                    }
+                    };
+                    self.waiting_for_routes = unused_routes;
+                    ret
                 }
             }
         }
@@ -126,31 +131,44 @@ impl RouteManagerImpl {
                 let _ = tx.send(());
                 return ControlFlow::Break(());
             }
-            RouteManagerCommand::WaitForRoutes(response_tx) => {
+            RouteManagerCommand::WaitForRoutes(response_tx, expected_routes) => {
                 // check if routes have already been configured on the Android system.
                 // otherwise, register a listener for network state changes.
                 // routes may come in at any moment in the future.
-                if has_routes(self.last_state.as_ref()) {
+                if has_routes(self.last_state.as_ref(), expected_routes.clone()) {
                     let _ = response_tx.send(());
                 } else {
-                    self.waiting_for_routes.push(response_tx);
+                    self.waiting_for_routes.push((response_tx, expected_routes));
                 }
+            }
+            RouteManagerCommand::ClearRoutes(tx) => {
+                self.clear_routes();
+                let _ = tx.send(());
             }
         }
 
         ControlFlow::Continue(())
     }
+
+    pub fn clear_routes(&mut self) {
+        self.last_state = None;
+    }
 }
 
-/// Check whether the [NetworkState] contains any routes.
+/// Check whether the [NetworkState] contains expected routes.
 ///
-/// Since we are the ones telling Android what routes to set, we make the assumption that:
-/// If any routes exist whatsoever, they are the the routes we specified.
-fn has_routes(state: Option<&NetworkState>) -> bool {
+/// Matches the routes reported from Android and checks if all the routes we expect to be there is
+/// present.
+fn has_routes(state: Option<&NetworkState>, expected_routes: Vec<Route>) -> bool {
     let Some(network_state) = state else {
         return false;
     };
-    configured_routes(network_state).is_empty().not()
+
+    let routes = configured_routes(network_state);
+    if routes.is_empty() {
+        return false;
+    }
+    routes.is_superset(&HashSet::from_iter(expected_routes))
 }
 
 fn configured_routes(state: &NetworkState) -> HashSet<Route> {
