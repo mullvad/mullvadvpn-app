@@ -106,8 +106,8 @@ jobs:
           echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
     outputs:
       container_image: ${{ env.inner_container_image }}
-  build-linux:
-    name: Build Linux
+  build-linux-app:
+    name: Build Linux App
     needs: prepare-linux
     runs-on: ubuntu-latest
     container:
@@ -139,7 +139,7 @@ jobs:
 
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: [prepare-matrices, build-linux]
+    needs: [prepare-matrices, build-linux-app]
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -153,7 +153,7 @@ jobs:
     steps:
       - name: Download App
         uses: actions/download-artifact@v4
-        if: ${{ needs.build-linux.result == 'success' }}
+        if: ${{ needs.build-linux-app.result == 'success' }}
         with:
           name: linux-build
           path: ~/.cache/mullvad-test/packages
