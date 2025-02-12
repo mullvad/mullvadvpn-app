@@ -107,33 +107,33 @@ Next: build the `test-runner`
 
 ### Building the test runner
 
-Building the `test-runner` binary is done with the `build-runner.sh` script.
+Building the `test-runner` binary is done with the `build/test-runner.sh` script.
 Currently, only `x86_64` platforms are supported for Windows/Linux and `ARM64` (Apple Silicon) for macOS.
 
 For example, building `test-runner` for Windows would look like this:
 
 ``` bash
-./scripts/container-run.sh ./scripts/build-runner.sh windows
+./scripts/container-run.sh ./scripts/build/test-runner.sh windows
 ```
 
 #### Linux
 Using `podman` is the recommended way to build the `test-runner`. See the [Linux section under Prerequisities](#prerequisites) for more details.
 
 ``` bash
-./scripts/container-run.sh ./scripts/build-runner.sh linux
+./scripts/container-run.sh ./scripts/build/test-runner.sh linux
 ```
 
 #### macOS
 
 ``` bash
-./scripts/build-runner.sh macos
+./scripts/build/test-runner.sh macos
 ```
 
 #### Windows
 The `test-runner` binary for Windows may be cross-compiled from a Linux host.
 
 ``` bash
-./scripts/container-run.sh ./scripts/build-runner.sh windows
+./scripts/container-run.sh ./scripts/build/test-runner.sh windows
 ```
 
 ### Running the tests
@@ -164,6 +164,6 @@ cargo run --bin test-manager run-tests --vm macos-ventura \
     --app-package-to-upgrade-from 2023.2
 ```
 
-## Note on `scripts/ci-runtests.sh`
+## Note on `scripts/run/ci.sh`
 
-`scripts/ci-runtests.sh` is the script that GitHub actions uses to invokes the `test-manager`, with similar functionality as `test-by-version.sh`. Note that account numbers are read (newline-delimited) from the path specified by the environment variable `ACCOUNT_TOKENS`. Round robin is used to select an account for each VM.
+`scripts/run/ci.sh` is the script that GitHub actions uses to invokes the `test-manager`, with similar functionality as `test-by-version.sh`. Note that account numbers are read (newline-delimited) from the path specified by the environment variable `ACCOUNT_TOKENS`. Round robin is used to select an account for each VM.
