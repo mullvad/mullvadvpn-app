@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">Пользовательский порт %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Допустимые диапазоны: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Не удалось преобразовать имя узла пользовательского туннеля. Попробуйте изменить настройки.</string>
-    <string name="daita_description_slide_1_first_paragraph">Внимание! Будьте осторожны, если у вас ограниченный тариф: эта функция повышает объем сетевого трафика.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) скрывает характерные признаки в зашифрованном VPN-трафике.</string>
     <string name="daita_description_slide_1_third_paragraph">С помощью сложных ИИ-алгоритмов можно анализировать входящий и исходящий трафик пакетов данных вашего устройства (даже если трафик зашифрован).</string>
     <string name="daita_description_slide_2_first_paragraph">В случае, если наблюдатель отслеживает пакеты данных, %1$s значительно затрудняет определение того, какие веб-сайты вы посещаете или с кем общаетесь.</string>

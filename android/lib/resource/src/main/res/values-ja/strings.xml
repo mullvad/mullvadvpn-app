@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">%1$sカスタムポート</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
-    <string name="daita_description_slide_1_first_paragraph">注意: この機能はネットワークトラフィックを増加させるため、上限付きのデータプランをご利用の場合はご注意ください。</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) は暗号化されたVPNトラフィックのパターンを隠します。</string>
     <string name="daita_description_slide_1_third_paragraph">高度なAIを使用することで、(トラフィックが暗号化されている場合でも) デバイスが送受信するデータパケットのトラフィックを分析することは可能です。</string>
     <string name="daita_description_slide_2_first_paragraph">%1$sはこのようなデータパケットが監視されている場合でも、訪問先ウェブサイトや通信相手を特定するのを極めて困難にします。</string>

@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">tilpasset %1$s-port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige verdiområder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke løse vert for egendefinert tunnel. Forsøk å endre innstillingene dine.</string>
-    <string name="daita_description_slide_1_first_paragraph">OBS: Vær forsiktig hvis du har et abonnement med begrenset data, siden denne funksjonen vil øke nettverkstrafikken.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) skjuler mønstre i din krypterte VPN-trafikk.</string>
     <string name="daita_description_slide_1_third_paragraph">Ved hjelp av avansert kunstig intelligens er det mulig å analysere trafikken av datapakker som går inn og ut av enheten din (selv om trafikken er kryptert).</string>
     <string name="daita_description_slide_2_first_paragraph">Hvis en observatør overvåker disse datapakkene, gjør %1$s det betydelig vanskeligere for dem å identifisere hvilke nettsteder du besøker, eller hvem du kommuniserer med.</string>

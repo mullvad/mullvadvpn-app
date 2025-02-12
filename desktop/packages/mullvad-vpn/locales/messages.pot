@@ -2344,9 +2344,6 @@ msgstr ""
 msgid "At least one method needs to be enabled"
 msgstr ""
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr ""
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr ""
 
@@ -2354,6 +2351,9 @@ msgid "Attention: If \"Block connections without VPN\" is enabled, split apps wi
 msgstr ""
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
+msgstr ""
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
 msgstr ""
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."

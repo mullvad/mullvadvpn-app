@@ -109,7 +109,6 @@
     <string name="custom_port_dialog_title">Porta personalizada %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Intervalos válidos: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Não foi possível resolver o anfitrião do túnel personalizado. Experimente alterar as suas definições.</string>
-    <string name="daita_description_slide_1_first_paragraph">Atenção: tenha cuidado se tiver um plano de dados limitado, pois esta funcionalidade aumentará o tráfego de rede.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) oculta padrões no seu tráfego VPN encriptado.</string>
     <string name="daita_description_slide_1_third_paragraph">Utilizando uma IA sofisticada, é possível analisar o tráfego de pacotes de dados que entram e saem do seu dispositivo (mesmo que o tráfego esteja encriptado).</string>
     <string name="daita_description_slide_2_first_paragraph">Se um observador monitorizar estes pacotes de dados, %1$s dificulta significativamente a identificação dos sites que visita ou com quem comunica.</string>
