@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadTypes
+import Network
 import WireGuardKitTypes
 
 extension PacketTunnelActor {
@@ -17,7 +18,7 @@ extension PacketTunnelActor {
         case stopDefaultPathObserver
         case startTunnelMonitor
         case stopTunnelMonitor
-        case updateTunnelMonitorPath(NetworkPath)
+        case updateTunnelMonitorPath(Network.NWPath.Status)
         case startConnection(NextRelays)
         case restartConnection(NextRelays, ActorReconnectReason)
 
@@ -39,7 +40,7 @@ extension PacketTunnelActor {
             case (.stopDefaultPathObserver, .stopDefaultPathObserver): true
             case (.startTunnelMonitor, .startTunnelMonitor): true
             case (.stopTunnelMonitor, .stopTunnelMonitor): true
-            case let (.updateTunnelMonitorPath(lp), .updateTunnelMonitorPath(rp)): lp.status == rp.status
+            case let (.updateTunnelMonitorPath(lp), .updateTunnelMonitorPath(rp)): lp == rp
             case let (.startConnection(nr0), .startConnection(nr1)): nr0 == nr1
             case let (.restartConnection(nr0, rr0), .restartConnection(nr1, rr1)): nr0 == nr1 && rr0 == rr1
             case let (.reconnect(nr0), .reconnect(nr1)): nr0 == nr1

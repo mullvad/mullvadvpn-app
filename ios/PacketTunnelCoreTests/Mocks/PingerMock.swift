@@ -12,15 +12,15 @@ import Network
 @testable import PacketTunnelCore
 
 /// Ping client mock that can be used to simulate network transmission errors and delays.
-class PingerMock: PingerProtocol {
+final class PingerMock: PingerProtocol, @unchecked Sendable {
     typealias OutcomeDecider = (IPv4Address, UInt16) -> Outcome
 
-    private let decideOutcome: OutcomeDecider
-    private let networkStatsReporting: NetworkStatsReporting
-    private let stateLock = NSLock()
-    private var state = State()
+    let decideOutcome: OutcomeDecider
+    let networkStatsReporting: NetworkStatsReporting
+    let stateLock = NSLock()
+    var state = State()
 
-    var onReply: ((PingerReply) -> Void)? {
+    var onReply: (@Sendable (PingerReply) -> Void)? {
         get {
             stateLock.withLock { state.onReply }
         }
@@ -34,7 +34,7 @@ class PingerMock: PingerProtocol {
         self.decideOutcome = decideOutcome
     }
 
-    func startPinging(destAddress: IPv4Address) throws {
+    func startPinging(destAddress: IPv4Address) {
         stateLock.withLock {
             state.destAddress = destAddress
             state.isSocketOpen = true
@@ -92,10 +92,10 @@ class PingerMock: PingerProtocol {
     // MARK: - Types
 
     /// Internal state
-    private struct State {
+    struct State {
         var sequenceId: UInt16 = 0
         var isSocketOpen = false
-        var onReply: ((PingerReply) -> Void)?
+        var onReply: (@Sendable (PingerReply) -> Void)?
         var destAddress: IPv4Address?
 
         mutating func incrementSequenceId() -> UInt16 {

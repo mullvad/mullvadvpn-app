@@ -9,10 +9,13 @@
 import Foundation
 
 /// A type that can provide statistics and basic information about tunnel device.
-public protocol TunnelDeviceInfoProtocol {
+public protocol TunnelDeviceInfoProtocol: Sendable {
     /// Returns tunnel interface name (i.e utun0) if available.
     var interfaceName: String? { get }
 
     /// Returns tunnel statistics.
-    func getStats() throws -> WgStats
+    func getStats() async throws -> WgStats
+
+    /// Returns tunnel statistics.
+//    func getStats() throws -> WgStats
 }

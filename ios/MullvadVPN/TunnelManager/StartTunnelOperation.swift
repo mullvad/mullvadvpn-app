@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import NetworkExtension
 import Operations
 import PacketTunnelCore
@@ -18,13 +19,16 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
 
     private let interactor: TunnelInteractor
     private let logger = Logger(label: "StartTunnelOperation")
+    private let tunnelSettings: LatestTunnelSettings
 
     init(
         dispatchQueue: DispatchQueue,
         interactor: TunnelInteractor,
+        tunnelSettings: LatestTunnelSettings,
         completionHandler: @escaping CompletionHandler
     ) {
         self.interactor = interactor
+        self.tunnelSettings = tunnelSettings
 
         super.init(
             dispatchQueue: dispatchQueue,
@@ -48,7 +52,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
 
             finish(result: .success(()))
 
-        case .disconnected, .pendingReconnect:
+        case .disconnected, .pendingReconnect, .waitingForConnectivity:
             makeTunnelProviderAndStartTunnel { error in
                 self.finish(result: error.map { .failure($0) } ?? .success(()))
             }
@@ -106,7 +110,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     ) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
-        let configuration = Self.makeTunnelConfiguration()
+        let configuration = makeTunnelConfiguration()
 
         tunnel.setConfiguration(configuration)
         tunnel.saveToPreferences { error in
@@ -114,10 +118,22 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
         }
     }
 
-    private class func makeTunnelConfiguration() -> TunnelConfiguration {
+    private func makeTunnelConfiguration() -> TunnelConfiguration {
         let protocolConfig = NETunnelProviderProtocol()
         protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
         protocolConfig.serverAddress = ""
+        protocolConfig.excludeLocalNetworks = tunnelSettings.excludeLocalNetwork
+        #if DEBUG
+        // Only includeAllNetworks in Debug builds for now.
+        // Upgrading the app while the tunnel is connected kills the internet connection on the phone when that flag is enabled.
+        protocolConfig.includeAllNetworks = true
+        // Always exclude local networks to avoid killing the debugger immediately
+        // when debugging the app
+        protocolConfig.excludeLocalNetworks = true
+        if #available(iOS 17.4, *) {
+            protocolConfig.excludeDeviceCommunication = true
+        }
+        #endif
 
         let alwaysOnRule = NEOnDemandRuleConnect()
         alwaysOnRule.interfaceTypeMatch = .any

@@ -221,6 +221,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
         let operation = StartTunnelOperation(
             dispatchQueue: internalQueue,
             interactor: TunnelInteractorProxy(self),
+            tunnelSettings: settings,
             completionHandler: { [weak self] result in
                 guard let self else { return }
                 if let error = result.error {
@@ -845,7 +846,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     private func startNetworkMonitor() {
         cancelNetworkMonitor()
 
-        networkMonitor = NWPathMonitor()
+        networkMonitor = NWPathMonitor(prohibitedInterfaceTypes: [.other])
         networkMonitor?.pathUpdateHandler = { [weak self] path in
             self?.didUpdateNetworkPath(path)
         }
@@ -854,6 +855,7 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
     }
 
     private func cancelNetworkMonitor() {
+        networkMonitor?.pathUpdateHandler = nil
         networkMonitor?.cancel()
         networkMonitor = nil
     }
