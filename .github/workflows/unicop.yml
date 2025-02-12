@@ -1,0 +1,61 @@
+---
+name: Unicop - find evil unicode
+on:
+  pull_request:
+    paths:
+      - .github/workflows/unicop.yml
+      - '**/*.rs'
+      - '**/*.swift'
+      - '**/*.go'
+      - '**/*.ts'
+      - '**/*.py'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  prepare-containers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch container image names
+        run: |
+          echo "inner_container_image_linux=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image_linux: ${{ env.inner_container_image_linux }}
+
+  cargo-udeps-linux:
+    needs: prepare-containers
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-containers.outputs.container_image_linux }}
+
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1 dist-assets/binaries
+          git submodule update --init --depth=1 windows/libwfp
+          git submodule update --init --depth=1 windows/windows-libraries
+          git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
+
+      # Should be replaced with something smarter and nicer once there is a release
+      # available. Should probably use something like cargo-binstall.
+      # Or we should install the tool directly into our container image.
+      - name: Install unicop
+        run: |
+          cargo install --locked --git https://github.com/mullvad/unicop/
+          unicop --version
+
+      - name: Check for unwanted unicode
+        run: unicop --verbose .
