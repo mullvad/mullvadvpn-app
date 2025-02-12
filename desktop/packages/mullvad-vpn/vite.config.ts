@@ -5,6 +5,10 @@ import electron from 'vite-plugin-electron/simple';
 export default defineConfig({
   define: {
     global: 'window',
+    'process.env': {
+      platform: process.platform,
+      NODE_ENV: process.env.NODE_ENV,
+    },
   },
   plugins: [
     electron({
