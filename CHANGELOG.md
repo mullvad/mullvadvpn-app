@@ -23,6 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 ### Added
+- Clicking on a VPN setting now toggles the setting.
 #### Windows
 - Add support for DAITA V2.
 - Add back wireguard-go (userspace WireGuard) support.
