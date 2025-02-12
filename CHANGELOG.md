@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [2025.4] - 2025-02-12
+This release is identical to 2025.4-beta1
+
+
 ## [2025.4-beta1] - 2025-02-11
 ### Fixed
 #### Windows
