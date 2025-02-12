@@ -15,6 +15,9 @@ import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.properties.Delegates.observable
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.lib.common.util.establishSafe
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.PrepareError
@@ -42,6 +45,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             }
         }
 
+    private val resetDnsChannel = Channel<Unit>()
     private var currentTunConfig: TunConfig? = null
 
     // Used by JNI
@@ -50,40 +54,32 @@ open class TalpidVpnService : LifecycleVpnService() {
     @CallSuper
     override fun onCreate() {
         super.onCreate()
-        connectivityListener = ConnectivityListener(getSystemService<ConnectivityManager>()!!)
+        connectivityListener =
+            ConnectivityListener(
+                getSystemService<ConnectivityManager>()!!,
+                resetDnsChannel.receiveAsFlow(),
+            )
         connectivityListener.register(lifecycleScope)
     }
 
     // Used by JNI
     fun openTun(config: TunConfig): CreateTunResult =
         synchronized(this) {
-            val tunStatus = activeTunStatus
-
-            if (config == currentTunConfig && tunStatus != null && tunStatus.isOpen) {
-                tunStatus
-            } else {
-                openTunImpl(config)
+            createTun(config).merge().also {
+                currentTunConfig = config
+                activeTunStatus = it
             }
         }
 
     // Used by JNI
-    fun openTunForced(config: TunConfig): CreateTunResult =
-        synchronized(this) { openTunImpl(config) }
-
-    // Used by JNI
-    fun closeTun(): Unit = synchronized(this) { activeTunStatus = null }
+    fun closeTun(): Unit =
+        synchronized(this) {
+            runBlocking { resetDnsChannel.send(Unit) }
+            activeTunStatus = null
+        }
 
     // Used by JNI
     fun bypass(socket: Int): Boolean = protect(socket)
-
-    private fun openTunImpl(config: TunConfig): CreateTunResult {
-        val newTunStatus = createTun(config).merge()
-
-        currentTunConfig = config
-        activeTunStatus = newTunStatus
-
-        return newTunStatus
-    }
 
     private fun createTun(
         config: TunConfig
@@ -123,6 +119,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             builder.addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
         }
 
+        runBlocking { resetDnsChannel.send(Unit) }
         val vpnInterfaceFd =
             builder
                 .establishSafe()
