@@ -13,11 +13,11 @@ REPO_ROOT="$SCRIPT_DIR/../.."
 build_linux() {
     mkdir -p "$TEST_FRAMEWORK_ROOT/dist"
     # Build the test manager
-    "$SCRIPT_DIR/build-manager.sh" linux
+    "$SCRIPT_DIR/build/test-manager.sh" linux
     cp "$TEST_FRAMEWORK_ROOT/target/release/test-manager" "$TEST_FRAMEWORK_ROOT/dist/"
 
     # Build the test runner
-    "$SCRIPT_DIR/build-runner.sh" linux
+    "$SCRIPT_DIR/build/test-runner.sh" linux
     cp "$TEST_FRAMEWORK_ROOT/target/x86_64-unknown-linux-gnu/release/test-runner" "$TEST_FRAMEWORK_ROOT/dist/"
     cp "$TEST_FRAMEWORK_ROOT/target/x86_64-unknown-linux-gnu/release/connection-checker" "$TEST_FRAMEWORK_ROOT/dist/"
 
