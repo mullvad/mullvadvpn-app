@@ -106,6 +106,7 @@ jobs:
           echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
     outputs:
       container_image: ${{ env.inner_container_image }}
+
   build-linux-app:
     name: Build Linux App
     needs: prepare-linux
@@ -135,9 +136,26 @@ jobs:
             ./dist/*.deb
             ./dist/app-e2e-*
 
+  build-test-manager-linux:
+    name: Build Test Manager
+    needs: prepare-linux
+    runs-on: [self-hosted, desktop-test, Linux]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build test-manager
+        run: cargo build --manifest-path test/Cargo.toml --package test-manager --release
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-manager-build
+          # TODO: Only actually use the test-manager binary.
+          path: |
+            ./test/target
+
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: [prepare-matrices, build-linux-app]
+    needs: [prepare-matrices, build-linux-app, build-test-manager-linux]
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -157,12 +175,18 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Download Test Manager
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: linux-test-manager-build
+          path: ./test/target
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
-          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4
         if: '!cancelled()'
