@@ -34,7 +34,7 @@ test('App should connect', async () => {
   await expectConnected(page);
 
   const relay = page.getByTestId('hostname-line');
-  const inIp = page.locator(':text("In") + span');
+  const inIp = page.getByText('In', { exact: true }).locator('+ span');
   // If IPv6 is enabled, there will be two "Out" IPs, one for IPv4 and one for IPv6
   // Selecting the first resolves to the IPv4 address regardless of the IP setting
   const outIp = page.locator(':text("Out") + div > span').first();
@@ -93,61 +93,6 @@ test('App should connect with Shadowsocks', async () => {
   await expectConnected(page);
   await exec('mullvad obfuscation set mode off');
   await expectConnected(page);
-});
-
-test('App should show correct tunnel protocol', async () => {
-  const tunnelProtocol = page.getByTestId('tunnel-protocol');
-  await expect(tunnelProtocol).toHaveText('WireGuard');
-
-  await exec('mullvad relay set tunnel-protocol openvpn');
-  await exec('mullvad relay set location se');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(tunnelProtocol).toHaveText('OpenVPN');
-});
-
-test('App should show correct OpenVPN transport protocol and port', async () => {
-  const inData = page.getByTestId('in-ip');
-
-  await expect(inData).toContainText(new RegExp(':[0-9]+'));
-  await expect(inData).toContainText(new RegExp('(TCP|UDP)$'));
-  await exec('mullvad relay set tunnel openvpn --transport-protocol udp --port 1195');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(inData).toContainText(new RegExp(':1195'));
-
-  await exec('mullvad relay set tunnel openvpn --transport-protocol udp --port 1300');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(inData).toContainText(new RegExp(':1300'));
-
-  await exec('mullvad relay set tunnel openvpn --transport-protocol tcp --port any');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(inData).toContainText(new RegExp(':[0-9]+'));
-  await expect(inData).toContainText(new RegExp('TCP$'));
-
-  await exec('mullvad relay set tunnel openvpn --transport-protocol tcp --port 80');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(inData).toContainText(new RegExp(':80'));
-
-  await exec('mullvad relay set tunnel openvpn --transport-protocol tcp --port 443');
-  await expectConnected(page);
-  await page.getByTestId('connection-panel-chevron').click();
-  await expect(inData).toContainText(new RegExp(':443'));
-
-  await exec('mullvad relay set tunnel openvpn --transport-protocol any');
-});
-
-test('App should show bridge mode', async () => {
-  await exec('mullvad bridge set state on');
-  await expectConnected(page);
-  const relay = page.getByTestId('hostname-line');
-  await expect(relay).toHaveText(new RegExp(' via ', 'i'));
-  await exec('mullvad bridge set state off');
-
-  await exec('mullvad relay set tunnel-protocol wireguard');
 });
 
 test('App should enter blocked state', async () => {
