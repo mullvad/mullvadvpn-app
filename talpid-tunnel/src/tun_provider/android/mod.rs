@@ -99,12 +99,6 @@ impl AndroidTunProvider {
     }
 
     /// Open a tunnel with the current configuration.
-    /// Force recreation even if the tunnel config hasn't changed.
-    pub fn open_tun_forced(&mut self) -> Result<VpnServiceTun, Error> {
-        self.open_tun_inner("openTunForced")
-    }
-
-    /// Open a tunnel with the current configuration.
     fn open_tun_inner(&mut self, get_tun_func_name: &'static str) -> Result<VpnServiceTun, Error> {
         let tun_fd = self.open_tun_fd(get_tun_func_name)?;
 
