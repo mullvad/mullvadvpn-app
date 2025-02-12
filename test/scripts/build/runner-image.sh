@@ -4,6 +4,9 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
+
 TEST_RUNNER_IMAGE_SIZE_MB=5000
 
 case $TARGET in
@@ -20,10 +23,8 @@ echo "************************************************************"
 echo "* Preparing test runner image: $TARGET"
 echo "************************************************************"
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-mkdir -p "${SCRIPT_DIR}/../testrunner-images/"
-TEST_RUNNER_IMAGE_PATH="${SCRIPT_DIR}/../testrunner-images/${TEST_RUNNER_IMAGE_FILENAME}"
+mkdir -p "${TEST_FRAMEWORK_REPO}/testrunner-images"
+TEST_RUNNER_IMAGE_PATH="${TEST_FRAMEWORK_REPO}/testrunner-images/${TEST_RUNNER_IMAGE_FILENAME}"
 
 case $TARGET in
 
@@ -32,8 +33,8 @@ case $TARGET in
         mformat -F -i "${TEST_RUNNER_IMAGE_PATH}" "::"
         mcopy \
             -i "${TEST_RUNNER_IMAGE_PATH}" \
-            "${SCRIPT_DIR}/../target/$TARGET/release/test-runner.exe" \
-            "${SCRIPT_DIR}/../target/$TARGET/release/connection-checker.exe" \
+            "${TEST_FRAMEWORK_ROOT}/target/$TARGET/release/test-runner.exe" \
+            "${TEST_FRAMEWORK_ROOT}/target/$TARGET/release/connection-checker.exe" \
             "${PACKAGE_DIR}/"*.exe \
             "::"
         mdir -i "${TEST_RUNNER_IMAGE_PATH}"
