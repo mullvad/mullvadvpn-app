@@ -4,7 +4,7 @@ set -eu
 
 # Build `test-manager`
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/.."
+TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
 REPO_DIR="$TEST_FRAMEWORK_ROOT/.."
 
 # shellcheck disable=SC1091
