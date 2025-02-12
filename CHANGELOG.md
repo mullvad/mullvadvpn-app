@@ -27,6 +27,8 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for DAITA V2.
 - Add back wireguard-go (userspace WireGuard) support.
 
+
+## [2025.4-beta1] - 2025-02-11
 ### Changed
 #### Windows
 - Replace the Electron API `shell.readShortcutLink` with a custom, native rust module
