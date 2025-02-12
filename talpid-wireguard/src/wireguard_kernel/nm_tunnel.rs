@@ -13,6 +13,7 @@ use talpid_dbus::{
         WireguardTunnel,
     },
 };
+use talpid_net::unix::iface_index;
 use talpid_tunnel_config_client::DaitaSettings;
 
 #[derive(thiserror::Error, Debug)]
@@ -208,31 +209,4 @@ fn convert_config_to_dbus(config: &Config) -> DeviceConfig {
     settings.insert("connection".into(), connection_config);
 
     settings
-}
-
-/// Converts an interface name into the corresponding index.
-#[cfg(target_os = "linux")]
-fn iface_index(name: &str) -> std::result::Result<libc::c_uint, IfaceIndexLookupError> {
-    let c_name = std::ffi::CString::new(name)
-        .map_err(|e| IfaceIndexLookupError::InvalidInterfaceName(name.to_owned(), e))?;
-    let index = unsafe { libc::if_nametoindex(c_name.as_ptr()) };
-    if index == 0 {
-        Err(IfaceIndexLookupError::InterfaceLookupError(
-            name.to_owned(),
-            std::io::Error::last_os_error(),
-        ))
-    } else {
-        Ok(index)
-    }
-}
-
-/// Failure to lookup an interfaces index by its name.
-#[derive(Debug, thiserror::Error)]
-pub enum IfaceIndexLookupError {
-    /// The interface name is invalid -  contains null bytes or is too long.
-    #[error("Invalid network interface name: {0}")]
-    InvalidInterfaceName(String, #[source] std::ffi::NulError),
-    /// Interface wasn't found by its name.
-    #[error("Failed to get index for interface {0}")]
-    InterfaceLookupError(String, #[source] std::io::Error),
 }

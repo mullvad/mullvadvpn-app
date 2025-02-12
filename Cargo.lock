@@ -4719,8 +4719,10 @@ version = "0.0.0"
 dependencies = [
  "libc",
  "log",
+ "nix 0.29.0",
  "socket2",
  "talpid-types",
+ "thiserror 2.0.9",
 ]
 
 [[package]]
@@ -4809,7 +4811,7 @@ dependencies = [
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
- "libc",
+ "nix 0.29.0",
  "tokio",
 ]
 
@@ -4837,9 +4839,9 @@ version = "0.0.0"
 dependencies = [
  "classic-mceliece-rust",
  "hyper-util",
- "libc",
  "log",
  "ml-kem",
+ "nix 0.29.0",
  "oslog",
  "prost 0.13.3",
  "rand 0.8.5",

@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use crate::{Error, Result};
 use once_cell::sync::OnceCell;
 use std::{
@@ -362,6 +364,7 @@ fn adjust_token_privilege(
     privilege: &WideCStr,
     enable: bool,
 ) -> std::io::Result<()> {
+    // SAFETY: LUID is a C struct and can safely be zeroed.
     let mut privilege_luid: LUID = unsafe { mem::zeroed() };
 
     if unsafe { LookupPrivilegeValueW(ptr::null(), privilege.as_ptr(), &mut privilege_luid) } == 0 {

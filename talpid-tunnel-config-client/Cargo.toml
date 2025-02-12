@@ -28,7 +28,7 @@ ml-kem = { version = "0.2.1", features = ["zeroize"] }
 zeroize = "1.5.7"
 
 [target.'cfg(unix)'.dependencies]
-libc = "0.2"
+nix = { version = "0.29", features = ["socket"] }
 
 [target.'cfg(windows)'.dependencies.windows-sys]
 workspace = true
