@@ -119,6 +119,30 @@ function is_dev_version {
     return 1
 }
 
+function get_e2e_filename {
+    local version=$1
+    local os=$2
+    if is_dev_version "$version"; then
+        parse_build_version "$version"
+        version="${BUILD_VERSION}${COMMIT_HASH}"
+    fi
+    case $os in
+    debian* | ubuntu* | fedora*)
+        echo "app-e2e-tests-${version}-x86_64-unknown-linux-gnu"
+        ;;
+    windows*)
+        echo "app-e2e-tests-${version}-x86_64-pc-windows-msvc.exe"
+        ;;
+    macos*)
+        echo "app-e2e-tests-${version}-aarch64-apple-darwin"
+        ;;
+    *)
+        echo "Unsupported target: $os" 1>&2
+        return 1
+        ;;
+    esac
+}
+
 function get_app_filename {
     local version=$1
     local os=$2
@@ -144,86 +168,6 @@ function get_app_filename {
         return 1
         ;;
     esac
-}
-
-function download_app_package {
-    local version=$1
-    local os=$2
-    local package_repo=""
-
-    if is_dev_version "$version"; then
-        package_repo="${BUILD_DEV_REPOSITORY}"
-    else
-        package_repo="${BUILD_RELEASE_REPOSITORY}"
-    fi
-
-    local filename
-    filename=$(get_app_filename "$version" "$os")
-    local url="${package_repo}/$version/$filename"
-
-    local package_dir
-    package_dir=$(get_package_dir)
-    if [[ ! -f "$package_dir/$filename" ]]; then
-        echo "Downloading build for $version ($os) from $url"
-        if ! curl -sf -o "$package_dir/$filename" "$url"; then
-            echo "Failed to download package from $url (hint: build may not exist, check the url)" 1>&2
-            exit 1
-        fi
-    else
-        echo "App package for version $version ($os) already exists at $package_dir/$filename, skipping download"
-    fi
-}
-
-function get_e2e_filename {
-    local version=$1
-    local os=$2
-    if is_dev_version "$version"; then
-        parse_build_version "$version"
-        version="${BUILD_VERSION}${COMMIT_HASH}"
-    fi
-    case $os in
-    debian* | ubuntu* | fedora*)
-        echo "app-e2e-tests-${version}-x86_64-unknown-linux-gnu"
-        ;;
-    windows*)
-        echo "app-e2e-tests-${version}-x86_64-pc-windows-msvc.exe"
-        ;;
-    macos*)
-        echo "app-e2e-tests-${version}-aarch64-apple-darwin"
-        ;;
-    *)
-        echo "Unsupported target: $os" 1>&2
-        return 1
-        ;;
-    esac
-}
-
-function download_e2e_executable {
-    local version=${1:?Error: version not set}
-    local os=${2:?Error: os not set}
-    local package_repo
-
-    if is_dev_version "$version"; then
-        package_repo="${BUILD_DEV_REPOSITORY}"
-    else
-        package_repo="${BUILD_RELEASE_REPOSITORY}"
-    fi
-
-    local filename
-    filename=$(get_e2e_filename "$version" "$os")
-    local url="${package_repo}/$version/additional-files/$filename"
-
-    local package_dir
-    package_dir=$(get_package_dir)
-    if [[ ! -f "$package_dir/$filename" ]]; then
-        echo "Downloading e2e executable for $version ($os) from $url"
-        if ! curl -sf -o "$package_dir/$filename" "$url"; then
-            echo "Failed to download package from $url (hint: build may not exist, check the url)" 1>&2
-            exit 1
-        fi
-    else
-        echo "GUI e2e executable for version $version ($os) already exists at $package_dir/$filename, skipping download"
-    fi
 }
 
 function build_test_runner {
