@@ -3,7 +3,9 @@
 set -eu
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-REPO_DIR="$SCRIPT_DIR/../.."
+TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
+REPO_DIR="$TEST_FRAMEWORK_ROOT/.."
+
 cd "$SCRIPT_DIR"
 
 # shellcheck disable=SC1091
@@ -35,5 +37,5 @@ cargo build \
 
 # Only build runner image for Windows
 if [[ $TARGET == x86_64-pc-windows-gnu ]]; then
-    TARGET="$TARGET" ./build-runner-image.sh
+    TARGET="$TARGET" ./runner-image.sh
 fi
