@@ -65,14 +65,6 @@ nice_time download_e2e_executable "$CURRENT_VERSION" "$TEST_OS"
 # TODO: This should def be it's own step in the GitHub actions workflow
 
 echo "**********************************"
-echo "* Building test manager"
-echo "**********************************"
-
-cargo build -p test-manager
-
-# TODO: This should def be it's own step in the GitHub actions workflow
-
-echo "**********************************"
 echo "* Running tests"
 echo "**********************************"
 
