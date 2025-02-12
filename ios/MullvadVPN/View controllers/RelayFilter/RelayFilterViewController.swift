@@ -25,9 +25,9 @@ class RelayFilterViewController: UIViewController {
         button.setTitle(NSLocalizedString(
             "RELAY_FILTER_BUTTON_TITLE",
             tableName: "RelayFilter",
-            value: "Apply",
+            value: "No matching servers",
             comment: ""
-        ), for: .normal)
+        ), for: .disabled)
         return button
     }()
 
@@ -92,23 +92,17 @@ class RelayFilterViewController: UIViewController {
 
         viewModel.$relayFilter
             .sink { [weak self] filter in
-                switch filter.providers {
-                case .any:
-                    self?.applyButton.isEnabled = true
-                case let .only(providers):
-                    switch filter.ownership {
-                    case .any:
-                        self?.applyButton.isEnabled = !providers.isEmpty
-                    case .owned:
-                        let filterHasAtLeastOneOwnedProvider = viewModel.ownedProviders
-                            .first(where: { providers.contains($0) }) != nil
-                        self?.applyButton.isEnabled = filterHasAtLeastOneOwnedProvider
-                    case .rented:
-                        let filterHasAtLeastOneRentedProvider = viewModel.rentedProviders
-                            .first(where: { providers.contains($0) }) != nil
-                        self?.applyButton.isEnabled = filterHasAtLeastOneRentedProvider
-                    }
-                }
+                guard let self else { return }
+                let relays = viewModel.getFilteredRelays(with: filter)
+                let formattedCount = relays.count < 100 ? "\(relays.count)" : "99+"
+                let isEnabled = !relays.isEmpty
+                applyButton.isEnabled = isEnabled
+                applyButton.setTitle(String(format: NSLocalizedString(
+                    "RELAY_FILTER_BUTTON_TITLE",
+                    tableName: "RelayFilter",
+                    value: "Show %@ servers",
+                    comment: ""
+                ), formattedCount), for: .normal)
             }
             .store(in: &disposeBag)
 
