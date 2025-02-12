@@ -120,11 +120,8 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+      - name: Checkout repository
+        uses: ./.github/actions/checkout-app
       - name: Build app
         env:
           USE_MOLD: false
@@ -185,11 +182,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
-      - name: Checkout submodules
-        run: |
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+      - name: Checkout repository
+        uses: ./.github/actions/checkout-app
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
@@ -275,10 +269,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout submodules
-        run: |
-          git config --global --add safe.directory '*'
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+      - name: Checkout repository
+        uses: ./.github/actions/checkout-app
       - name: Install Go
         uses: actions/setup-go@v3
         with:
