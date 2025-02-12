@@ -7,8 +7,9 @@ export default defineConfig({
     global: 'window',
     process: {
       env: {
-      platform: process.platform,
-      NODE_ENV: process.env.NODE_ENV,
+        platform: process.platform,
+        NODE_ENV: process.env.NODE_ENV,
+      },
     },
   },
   plugins: [
