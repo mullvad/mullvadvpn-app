@@ -121,6 +121,7 @@ socket2 = "0.5.7"
 
 # Test dependencies
 proptest = "1.4"
+insta = { version = "1.42", features = ["yaml"] }
 
 [profile.release]
 opt-level = "s"
