@@ -16,6 +16,7 @@ use std::{
     os::unix::io::{AsRawFd, RawFd},
     sync::Arc,
 };
+use talpid_routing::Route;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 use talpid_types::{android::AndroidContext, ErrorExt};
 
@@ -188,6 +189,14 @@ impl AndroidTunProvider {
         }
     }
 
+    pub fn real_routes(&self) -> Vec<Route> {
+        self.config
+            .real_routes()
+            .iter()
+            .map(|ip_network| Route::new(ip_network.clone()))
+            .collect()
+    }
+
     fn call_method(
         &self,
         name: &'static str,
@@ -221,7 +230,7 @@ impl AndroidTunProvider {
 /// Configuration to use for VpnService
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava)]
 #[jnix(class_name = "net.mullvad.talpid.model.TunConfig")]
-struct VpnServiceConfig {
+pub struct VpnServiceConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
 
@@ -318,7 +327,7 @@ impl VpnServiceConfig {
 
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
-struct InetNetwork {
+pub struct InetNetwork {
     address: IpAddr,
     prefix: i16,
 }
@@ -329,6 +338,16 @@ impl From<IpNetwork> for InetNetwork {
             address: ip_network.ip(),
             prefix: ip_network.prefix() as i16,
         }
+    }
+}
+
+impl From<&InetNetwork> for IpNetwork {
+    fn from(inet_network: &InetNetwork) -> Self {
+        IpNetwork::new(
+            inet_network.address,
+            inet_network.prefix.to_be_bytes().last().unwrap().clone(),
+        )
+        .unwrap()
     }
 }
 
