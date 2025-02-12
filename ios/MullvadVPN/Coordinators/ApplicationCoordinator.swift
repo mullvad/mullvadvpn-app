@@ -524,7 +524,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
     private func presentAccount(animated: Bool, completion: @escaping (Coordinator) -> Void) {
         let accountInteractor = AccountInteractor(
-            storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager,
             accountsProxy: accountsProxy,
             apiProxy: apiProxy
@@ -532,7 +531,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
 
         let coordinator = AccountCoordinator(
             navigationController: CustomNavigationController(),
-            interactor: accountInteractor
+            interactor: accountInteractor,
+            storePaymentManager: storePaymentManager
         )
 
         coordinator.didFinish = { [weak self] _, reason in
@@ -557,7 +557,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         completion: @escaping @Sendable (Coordinator) -> Void
     ) {
         let interactorFactory = SettingsInteractorFactory(
-            storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager,
             apiProxy: apiProxy,
             relayCacheTracker: relayCacheTracker,

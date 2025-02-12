@@ -14,12 +14,6 @@ import Operations
 import StoreKit
 import UIKit
 
-struct PurchaseOptionDetails: Sendable {
-    let products: [SKProduct]
-    let accountNumber: String
-    let didRequestPurchase: @Sendable (SKProduct) -> Void
-}
-
 enum AccountViewControllerAction: Sendable {
     case deviceInfo
     case finish
@@ -27,8 +21,9 @@ enum AccountViewControllerAction: Sendable {
     case navigateToVoucher
     case navigateToDeleteAccount
     case restorePurchasesInfo
-    case showPurchaseOptions(PurchaseOptionDetails)
+    case showPurchaseOptions
     case showFailedToLoadProducts
+    case showRestorePurchases
 }
 
 class AccountViewController: UIViewController, @unchecked Sendable {
@@ -104,11 +99,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
             }
         }
 
-        interactor.didReceivePaymentEvent = { [weak self] event in
-            Task { @MainActor in
-                self?.didReceivePaymentEvent(event)
-            }
-        }
         configUI()
         addActions()
         updateView(from: interactor.deviceState)
@@ -151,17 +141,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         contentView.storeKit2Button.addTarget(self, action: #selector(handleStoreKit2Purchase), for: .touchUpInside)
     }
 
-    private func doPurchase(product: SKProduct) {
-        guard let accountData = interactor.deviceState.accountData else {
-            return
-        }
-
-        let payment = SKPayment(product: product)
-        interactor.addPayment(payment, for: accountData.number)
-
-        setPaymentState(.makingPayment(payment), animated: true)
-    }
-
     @MainActor
     private func setPaymentState(_ newState: PaymentState, animated: Bool) {
         paymentState = newState
@@ -188,15 +167,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     private func applyViewState(animated: Bool) {
         let isInteractionEnabled = paymentState.allowsViewInteraction
         let purchaseButton = contentView.purchaseButton
-        let activityIndicator = contentView.accountExpiryRowView.activityIndicator
-
-        if isFetchingProducts || paymentState != .none {
-            activityIndicator.startAnimating()
-        } else {
-            activityIndicator.stopAnimating()
-        }
-
-        contentView.purchaseButton.isLoading = isFetchingProducts
 
         purchaseButton.isEnabled = !isFetchingProducts && isInteractionEnabled
         contentView.accountDeviceRow.setButtons(enabled: isInteractionEnabled)
@@ -212,27 +182,6 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         isModalInPresentation = !isInteractionEnabled
 
         navigationItem.setHidesBackButton(!isInteractionEnabled, animated: animated)
-    }
-
-    private func didReceivePaymentEvent(_ event: StorePaymentEvent) {
-        guard case let .makingPayment(payment) = paymentState,
-              payment == event.payment else { return }
-
-        switch event {
-        case let .finished(completion):
-            errorPresenter.showAlertForResponse(completion.serverResponse, context: .purchase)
-
-        case let .failure(paymentFailure):
-            switch paymentFailure.error {
-            case .storePayment(SKError.paymentCancelled):
-                break
-
-            default:
-                errorPresenter.showAlertForError(paymentFailure.error, context: .purchase)
-            }
-        }
-
-        setPaymentState(.none, animated: true)
     }
 
     private func copyAccountToken() {
@@ -262,58 +211,11 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     }
 
     @objc private func requestStoreProducts() {
-        guard let accountData = interactor.deviceState.accountData else {
-            return
-        }
-        let productIdentifiers = Set(StoreSubscription.allCases)
-        setIsFetchingProducts(true)
-        _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
-            guard let self else { return }
-            Task { @MainActor in
-                switch result {
-                case let .success(success):
-                    let products = success.products
-                    if !products.isEmpty {
-                        actionHandler?(.showPurchaseOptions(PurchaseOptionDetails(
-                            products: products,
-                            accountNumber: accountData.number,
-                            didRequestPurchase: { product in Task { @MainActor in self.doPurchase(product: product) }}
-                        )))
-                    } else {
-                        actionHandler?(.showFailedToLoadProducts)
-                    }
-                case .failure:
-                    actionHandler?(.showFailedToLoadProducts)
-                }
-                setIsFetchingProducts(false)
-            }
-        }
+        actionHandler?(.showPurchaseOptions)
     }
 
     @objc private func restorePurchases() {
-        guard let accountData = interactor.deviceState.accountData else {
-            return
-        }
-
-        setPaymentState(.restoringPurchases, animated: true)
-        _ = interactor.restorePurchases(for: accountData.number) { [weak self] completion in
-            guard let self else { return }
-
-            Task { @MainActor in
-                switch completion {
-                case let .success(response):
-                    errorPresenter.showAlertForResponse(response, context: .restoration)
-
-                case let .failure(error as StorePaymentManagerError):
-                    errorPresenter.showAlertForError(error, context: .restoration)
-
-                default:
-                    break
-                }
-
-                setPaymentState(.none, animated: true)
-            }
-        }
+        actionHandler?(.showRestorePurchases)
     }
 
     @objc private func handleStoreKit2Purchase() {

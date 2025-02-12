@@ -10,14 +10,10 @@ import StoreKit
 import UIKit
 
 protocol WelcomeViewControllerDelegate: AnyObject {
-    func didRequestToRedeemVoucher(controller: WelcomeViewController)
     func didRequestToShowInfo(controller: WelcomeViewController)
     func didRequestToViewPurchaseOptions(
-        controller: WelcomeViewController,
-        products: [SKProduct],
         accountNumber: String
     )
-    func didRequestToShowFailToFetchProducts(controller: WelcomeViewController)
 }
 
 class WelcomeViewController: UIViewController, RootContainment {
@@ -89,42 +85,6 @@ extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
     }
 
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton) {
-        let productIdentifiers = Set(StoreSubscription.allCases)
-        contentView.isFetchingProducts = true
-        _ = interactor.requestProducts(with: productIdentifiers) { [weak self] result in
-            guard let self else { return }
-            Task { @MainActor in
-                switch result {
-                case let .success(success):
-                    let products = success.products
-                    if !products.isEmpty {
-                        delegate?.didRequestToViewPurchaseOptions(
-                            controller: self,
-                            products: products,
-                            accountNumber: interactor.accountNumber
-                        )
-                    } else {
-                        delegate?.didRequestToShowFailToFetchProducts(controller: self)
-                    }
-                case .failure:
-                    delegate?.didRequestToShowFailToFetchProducts(controller: self)
-                }
-                contentView.isFetchingProducts = false
-            }
-        }
-    }
-
-    func didTapRedeemVoucherButton(welcomeContentView: WelcomeContentView, button: AppButton) {
-        delegate?.didRequestToRedeemVoucher(controller: self)
-    }
-}
-
-extension WelcomeViewController: @preconcurrency InAppPurchaseViewControllerDelegate {
-    func didBeginPayment() {
-        contentView.isPurchasing = true
-    }
-
-    func didEndPayment() {
-        contentView.isPurchasing = false
+        delegate?.didRequestToViewPurchaseOptions(accountNumber: interactor.accountNumber)
     }
 }
