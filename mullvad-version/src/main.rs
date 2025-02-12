@@ -75,11 +75,11 @@ fn to_android_version_code(version: &str) -> String {
         }
     };
 
-    let decade_and_year = version.year % 100;
+    let year_last_two_digits = version.year % 100;
 
     format!(
         "{}{:0>2}{}{:0>3}",
-        decade_and_year, version.incremental, build_type, build_number,
+        year_last_two_digits, version.incremental, build_type, build_number,
     )
 }
 

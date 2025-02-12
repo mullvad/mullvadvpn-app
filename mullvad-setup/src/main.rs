@@ -1,9 +1,9 @@
 use clap::Parser;
-use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
-
 use mullvad_api::{proxy::ApiConnectionMode, ApiEndpoint, DEVICE_NOT_FOUND};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_version::Version;
+use std::cmp::Ordering;
+use std::{path::PathBuf, process, str::FromStr, sync::LazyLock, time::Duration};
 use talpid_core::firewall::{self, Firewall};
 use talpid_future::retry::{retry_future, ConstantInterval};
 use talpid_types::ErrorExt;
@@ -116,11 +116,13 @@ fn is_older_version(old_version: &str) -> Result<ExitStatus, Error> {
     let parsed_version =
         Version::from_str(old_version).map_err(|_| Error::ParseVersionStringError)?;
 
-    Ok(if APP_VERSION.is_later_version_than(&parsed_version) {
-        ExitStatus::Ok
-    } else {
-        ExitStatus::VersionNotOlder
-    })
+    Ok(
+        if APP_VERSION.version_ordering(&parsed_version) == Ordering::Greater {
+            ExitStatus::Ok
+        } else {
+            ExitStatus::VersionNotOlder
+        },
+    )
 }
 
 async fn prepare_restart() -> Result<(), Error> {
