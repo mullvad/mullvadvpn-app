@@ -89,8 +89,20 @@ impl VersionInfo {
         params: &VersionParameters,
         response: format::Response,
     ) -> anyhow::Result<Self> {
-        let mut releases: Vec<_> = response
-            .releases
+        let mut releases = response.releases;
+
+        // Sort releases by version
+        releases.sort_by(|a, b| mullvad_version::Version::version_ordering(&a.version, &b.version));
+
+        // Fail if there are duplicate versions.
+        // Check this before anything else so that it's rejected indepentently of `params`.
+        // Important! This must occur after sorting
+        if let Some(dup_version) = Self::find_duplicate_version(&releases) {
+            anyhow::bail!("API response contains at least one duplicated version: {dup_version}");
+        }
+
+        // Filter releases based on rollout and architecture
+        let releases: Vec<_> = releases
             .into_iter()
             // Filter out releases that are not rolled out to us
             .filter(|release| release.rollout >= params.rollout)
@@ -110,15 +122,6 @@ impl VersionInfo {
                     })
             })
             .collect();
-
-        // Sort releases by version
-        releases.sort_by(|a, b| mullvad_version::Version::version_ordering(&a.version, &b.version));
-
-        // Fail if there are duplicate versions
-        // Important! This must occur after sorting
-        if let Some(dup_version) = Self::find_duplicate_version(&releases) {
-            anyhow::bail!("API response contains at least one duplicated version: {dup_version}");
-        }
 
         // Find latest stable version
         let stable = releases
@@ -146,9 +149,7 @@ impl VersionInfo {
     /// Returns the first duplicated version found in `releases`.
     /// `None` is returned if there are no duplicates.
     /// NOTE: `releases` MUST be sorted
-    fn find_duplicate_version(
-        releases: &[IntermediateVersion],
-    ) -> Option<&mullvad_version::Version> {
+    fn find_duplicate_version(releases: &[format::Release]) -> Option<&mullvad_version::Version> {
         releases
             .windows(2)
             .find(|pair| {
