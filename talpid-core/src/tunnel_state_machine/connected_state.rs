@@ -260,14 +260,7 @@ impl ConnectedState {
                 let consequence = if shared_values.set_allow_lan(allow_lan) {
                     #[cfg(target_os = "android")]
                     {
-                        if let Err(_err) = shared_values.restart_tunnel(false) {
-                            self.disconnect(
-                                shared_values,
-                                AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
-                            )
-                        } else {
-                            self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                        }
+                        self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                     }
                     #[cfg(not(target_os = "android"))]
                     {
@@ -298,22 +291,7 @@ impl ConnectedState {
                 let consequence = if shared_values.set_dns_config(servers) {
                     #[cfg(target_os = "android")]
                     {
-                        if let Err(_err) = shared_values.restart_tunnel(false) {
-                            match _err {
-                                Error::InvalidDnsServers(ip_addrs) => self.disconnect(
-                                    shared_values,
-                                    AfterDisconnect::Block(ErrorStateCause::InvalidDnsServers(
-                                        ip_addrs,
-                                    )),
-                                ),
-                                _ => self.disconnect(
-                                    shared_values,
-                                    AfterDisconnect::Block(ErrorStateCause::StartTunnelError),
-                                ),
-                            }
-                        } else {
-                            self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                        }
+                        self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                     }
                     #[cfg(not(target_os = "android"))]
                     {
@@ -385,17 +363,8 @@ impl ConnectedState {
             #[cfg(target_os = "android")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 if shared_values.set_excluded_paths(paths) {
-                    if let Err(err) = shared_values.restart_tunnel(false) {
-                        let _ =
-                            result_tx.send(Err(crate::split_tunnel::Error::SetExcludedApps(err)));
-                        self.disconnect(
-                            shared_values,
-                            AfterDisconnect::Block(ErrorStateCause::SplitTunnelError),
-                        )
-                    } else {
-                        let _ = result_tx.send(Ok(()));
-                        self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
-                    }
+                    let _ = result_tx.send(Ok(()));
+                    self.disconnect(shared_values, AfterDisconnect::Reconnect(0))
                 } else {
                     let _ = result_tx.send(Ok(()));
                     SameState(self)
