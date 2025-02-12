@@ -118,7 +118,11 @@ function buildNseventforwarder(callback) {
 }
 
 function buildWinShortcuts(callback) {
-  exec('npm -w win-shortcuts run build-debug', (err) => callback(err));
+  if (process.platform === 'win32') {
+    exec('npm -w win-shortcuts run build-debug', (err) => callback(err));
+  } else {
+    callback();
+  }
 }
 
 compileScripts.displayName = 'compile-scripts';
