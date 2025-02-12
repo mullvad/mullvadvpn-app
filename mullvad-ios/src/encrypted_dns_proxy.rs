@@ -93,7 +93,7 @@ impl EncryptedDnsProxyState {
 ///
 /// * The caller must ensure that the pointer to the [domain_name] string contains a nul terminator
 ///   at the end of the string.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn encrypted_dns_proxy_init(
     domain_name: *const c_char,
 ) -> *mut EncryptedDnsProxyState {
@@ -116,7 +116,7 @@ pub unsafe extern "C" fn encrypted_dns_proxy_init(
 /// `ptr` must be a valid, exclusive pointer to `EncryptedDnsProxyState`, initialized
 /// by `encrypted_dns_proxy_init`. This function is not thread safe, and should only be called
 /// once.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn encrypted_dns_proxy_free(ptr: *mut EncryptedDnsProxyState) {
     let _ = unsafe { Box::from_raw(ptr) };
 }
@@ -130,7 +130,7 @@ pub unsafe extern "C" fn encrypted_dns_proxy_free(ptr: *mut EncryptedDnsProxySta
 ///
 /// `proxy_handle` will only contain valid values if the return value is zero. It is still valid to
 /// deallocate the memory.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn encrypted_dns_proxy_start(
     encrypted_dns_proxy: *mut EncryptedDnsProxyState,
     proxy_handle: *mut ProxyHandle,
@@ -166,7 +166,7 @@ pub unsafe extern "C" fn encrypted_dns_proxy_start(
 /// # Safety
 /// `proxy_config` must be a valid pointer to a `ProxyHandle` as initialized by
 /// [`encrypted_dns_proxy_start`]. It should only ever be called once.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn encrypted_dns_proxy_stop(proxy_config: *mut ProxyHandle) -> i32 {
     let ptr = unsafe { (*proxy_config).context };
     if !ptr.is_null() {

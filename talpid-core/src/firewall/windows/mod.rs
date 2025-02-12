@@ -720,7 +720,7 @@ mod winfw {
         }
     }
 
-    extern "system" {
+    unsafe extern "system" {
         #[link_name = "WinFw_Initialize"]
         pub fn WinFw_Initialize(
             timeout: libc::c_uint,

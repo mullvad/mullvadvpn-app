@@ -528,7 +528,7 @@ where
                 break Err(Error::Daemon(format!(
                     "Failed to get next event: {}",
                     status
-                )))
+                )));
             }
             None => break Err(Error::Daemon(String::from("Lost daemon event stream"))),
         }

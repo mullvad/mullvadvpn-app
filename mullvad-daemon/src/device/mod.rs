@@ -945,7 +945,7 @@ impl AccountManager {
 
     fn spawn_timed_key_rotation(
         &self,
-    ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static> {
+    ) -> Option<impl Future<Output = Result<WireguardData, Error>> + Send + 'static + use<>> {
         let config = self.data.device()?;
         let key_rotation_timer = self.key_rotation_timer(config.device.wg_data.created);
 
@@ -1002,20 +1002,26 @@ impl AccountManager {
                 .is_ok()
         });
 
-        if let Some(old_config) = old_config {
-            let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
+        match old_config {
+            Some(old_config) => {
+                let logout_call = tokio::spawn(Box::pin(self.logout_api_call(old_config)));
 
-            tokio::spawn(async move {
-                let _response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
+                tokio::spawn(async move {
+                    let _response = tokio::time::timeout(LOGOUT_TIMEOUT, logout_call).await;
+                    let _ = tx.send(Ok(()));
+                });
+            }
+            _ => {
+                // The state was `revoked`.
                 let _ = tx.send(Ok(()));
-            });
-        } else {
-            // The state was `revoked`.
-            let _ = tx.send(Ok(()));
+            }
         }
     }
 
-    fn logout_api_call(&self, data: PrivateAccountAndDevice) -> impl Future<Output = ()> + 'static {
+    fn logout_api_call(
+        &self,
+        data: PrivateAccountAndDevice,
+    ) -> impl Future<Output = ()> + 'static + use<> {
         let service = self.device_service.clone();
 
         async move {
@@ -1057,7 +1063,7 @@ impl AccountManager {
 
     fn initiate_key_rotation(
         &self,
-    ) -> Result<impl Future<Output = Result<WireguardData, Error>>, Error> {
+    ) -> Result<impl Future<Output = Result<WireguardData, Error>> + use<>, Error> {
         let data = self.data.device().cloned().ok_or(Error::NoDevice)?;
         let device_service = self.device_service.clone();
         Ok(async move {
@@ -1067,7 +1073,10 @@ impl AccountManager {
         })
     }
 
-    fn key_rotation_timer(&self, key_created: DateTime<Utc>) -> impl Future<Output = ()> + 'static {
+    fn key_rotation_timer(
+        &self,
+        key_created: DateTime<Utc>,
+    ) -> impl Future<Output = ()> + 'static + use<> {
         let rotation_interval = self.rotation_interval;
 
         async move {
@@ -1097,21 +1106,23 @@ impl AccountManager {
     fn fetch_device_config(
         &self,
         old_config: &PrivateAccountAndDevice,
-    ) -> impl Future<Output = Result<Device, Error>> {
+    ) -> impl Future<Output = Result<Device, Error>> + use<> {
         let device_service = self.device_service.clone();
         let account_number = old_config.account_number.clone();
         let device_id = old_config.device.id.clone();
         async move { device_service.get(account_number, device_id).await }
     }
 
-    fn validation_call(&self) -> Result<impl Future<Output = Result<Device, Error>>, Error> {
+    fn validation_call(
+        &self,
+    ) -> Result<impl Future<Output = Result<Device, Error>> + use<>, Error> {
         let old_config = self.data.device().ok_or(Error::NoDevice)?;
         Ok(self.fetch_device_config(old_config))
     }
 
     fn expiry_call(
         &self,
-    ) -> Result<impl Future<Output = Result<chrono::DateTime<Utc>, Error>>, Error> {
+    ) -> Result<impl Future<Output = Result<chrono::DateTime<Utc>, Error>> + use<>, Error> {
         let old_config = self.data.device().ok_or(Error::NoDevice)?;
         let account_number = old_config.account_number.clone();
         let account_service = self.account_service.clone();

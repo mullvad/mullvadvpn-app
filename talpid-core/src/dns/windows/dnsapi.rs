@@ -89,7 +89,7 @@ impl DnsApi {
 }
 
 #[link(name = "dnsapi")]
-extern "system" {
+unsafe extern "system" {
     // Flushes the DNS resolver cache
     pub fn DnsFlushResolverCache() -> BOOL;
 }

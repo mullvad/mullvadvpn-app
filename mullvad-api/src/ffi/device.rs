@@ -72,7 +72,7 @@ where
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_device_iter_next(
     mut iter: MullvadApiDeviceIterator,
     device_ptr: *mut MullvadApiDevice,
@@ -93,12 +93,12 @@ pub extern "C" fn mullvad_api_device_iter_next(
     true
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_device_iter_drop(iter: MullvadApiDeviceIterator) {
     iter.drop()
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_device_drop(device: MullvadApiDevice) {
     device.drop()
 }

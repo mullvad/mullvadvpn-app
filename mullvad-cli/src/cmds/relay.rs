@@ -941,35 +941,38 @@ pub async fn resolve_location_constraint(
     relay_filter: impl FnOnce(&mullvad_types::relay_list::Relay) -> bool,
 ) -> Result<Constraint<GeographicLocationConstraint>> {
     let relay_iter = rpc.get_relay_locations().await?.into_relays();
-    if let Some(matching_relay) = relay_iter
+    match relay_iter
         .clone()
         .find(|relay| relay.hostname.to_lowercase() == location_constraint_args.country)
     {
-        if relay_filter(&matching_relay) {
-            Ok(Constraint::Only(relay_to_geographical_constraint(
-                matching_relay,
-            )))
-        } else {
-            bail!(
-                "The relay `{}` is not valid for this operation",
-                location_constraint_args.country
-            )
-        }
-    } else {
-        // The Constraint was not a relay, assuming it to be a location
-        let location_constraint: Constraint<GeographicLocationConstraint> =
-            Constraint::from(location_constraint_args);
-
-        // If the location constraint was not "any", then validate the country/city
-        if let Constraint::Only(constraint) = &location_constraint {
-            let found = relay_iter.clone().any(|relay| constraint.matches(&relay));
-
-            if !found {
-                bail!("Invalid location argument");
+        Some(matching_relay) => {
+            if relay_filter(&matching_relay) {
+                Ok(Constraint::Only(relay_to_geographical_constraint(
+                    matching_relay,
+                )))
+            } else {
+                bail!(
+                    "The relay `{}` is not valid for this operation",
+                    location_constraint_args.country
+                )
             }
         }
+        _ => {
+            // The Constraint was not a relay, assuming it to be a location
+            let location_constraint: Constraint<GeographicLocationConstraint> =
+                Constraint::from(location_constraint_args);
 
-        Ok(location_constraint)
+            // If the location constraint was not "any", then validate the country/city
+            if let Constraint::Only(constraint) = &location_constraint {
+                let found = relay_iter.clone().any(|relay| constraint.matches(&relay));
+
+                if !found {
+                    bail!("Invalid location argument");
+                }
+            }
+
+            Ok(location_constraint)
+        }
     }
 }
 

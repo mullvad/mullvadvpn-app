@@ -237,7 +237,7 @@ impl FfiClient {
 /// * `hostname`: pointer to a null-terminated UTF-8 string representing the hostname that will be
 ///   used for TLS validation.
 /// * `disable_tls`: only valid when built for tests, can be ignored when consumed by Swift.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_client_initialize(
     client_ptr: *mut MullvadApiClient,
     api_address_ptr: *const libc::c_char,
@@ -275,7 +275,7 @@ pub unsafe extern "C" fn mullvad_api_client_initialize(
 ///
 /// * `account_str_ptr`: pointer to nul-terminated UTF-8 string containing the account number of the
 ///   account that will have all of it's devices removed.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_remove_all_devices(
     client_ptr: MullvadApiClient,
     account_ptr: *const libc::c_char,
@@ -297,7 +297,7 @@ pub unsafe extern "C" fn mullvad_api_remove_all_devices(
 ///
 /// * `expiry_unix_timestamp`: a pointer to a signed 64 bit integer. If this function returns no
 ///   error, the expiry timestamp will be written to this pointer.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_get_expiry(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
@@ -325,7 +325,7 @@ pub unsafe extern "C" fn mullvad_api_get_expiry(
 /// * `device_iter_ptr`: a pointer to a `device::MullvadApiDeviceIterator`. If this function doesn't
 ///   return an error, the pointer will be initialized with a valid instance of
 ///   `device::MullvadApiDeviceIterator`, which can be used to iterate through the devices.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_list_devices(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
@@ -355,7 +355,7 @@ pub unsafe extern "C" fn mullvad_api_list_devices(
 ///
 /// * `new_device_ptr`: a pointer to enough memory to allocate a `MullvadApiDevice`. If this
 ///   function doesn't return an error, it will be initialized.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_add_device(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
@@ -385,7 +385,7 @@ pub unsafe extern "C" fn mullvad_api_add_device(
 /// * `account_str_ptr`: If a new account is created successfully, a pointer to an allocated C
 ///   string containing the new account number will be written to this pointer. It must be freed via
 ///   `mullvad_api_cstring_drop`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_create_account(
     client_ptr: MullvadApiClient,
     account_str_ptr: *mut *const libc::c_char,
@@ -414,7 +414,7 @@ pub unsafe extern "C" fn mullvad_api_create_account(
 /// * `client_ptr`: Must be a valid, initialized instance of `MullvadApiClient`
 ///
 /// * `account_str_ptr`: Must be a null-terminated string representing the account to be deleted.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_delete_account(
     client_ptr: MullvadApiClient,
     account_str_ptr: *const libc::c_char,
@@ -426,7 +426,7 @@ pub unsafe extern "C" fn mullvad_api_delete_account(
     }
 }
 
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub extern "C" fn mullvad_api_client_drop(client: MullvadApiClient) {
     client.drop()
 }
@@ -436,7 +436,7 @@ pub extern "C" fn mullvad_api_client_drop(client: MullvadApiClient) {
 /// # Safety
 ///
 /// `cstr_ptr` must be a pointer to a string allocated by another `mullvad_api` function.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn mullvad_api_cstring_drop(cstr_ptr: *mut libc::c_char) {
     let _ = unsafe { CString::from_raw(cstr_ptr) };
 }

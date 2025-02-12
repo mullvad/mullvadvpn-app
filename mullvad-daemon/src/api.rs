@@ -344,7 +344,9 @@ impl AccessModeSelector {
             match execution {
                 Ok(_) => (),
                 Err(error) if error.is_critical_error() => {
-                    log::error!("AccessModeSelector failed due to an internal error and won't be able to recover without a restart. {error}");
+                    log::error!(
+                        "AccessModeSelector failed due to an internal error and won't be able to recover without a restart. {error}"
+                    );
                     break;
                 }
                 Err(error) => {

@@ -332,7 +332,9 @@ impl RouteManagerHandle {
 
     /// Listen for route changes.
     #[cfg(target_os = "linux")]
-    pub async fn change_listener(&self) -> Result<impl Stream<Item = CallbackMessage>, Error> {
+    pub async fn change_listener(
+        &self,
+    ) -> Result<impl Stream<Item = CallbackMessage> + use<>, Error> {
         let (response_tx, response_rx) = oneshot::channel();
         self.tx
             .unbounded_send(RouteManagerCommand::NewChangeListener(response_tx))

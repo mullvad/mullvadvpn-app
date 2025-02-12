@@ -188,7 +188,7 @@ unsafe fn parse_device_volume_broadcast(broadcast: &DEV_BROADCAST_HDR) -> u32 {
         return 0;
     }
 
-    let volume_broadcast = &*(broadcast as *const _ as *const DEV_BROADCAST_VOLUME);
+    let volume_broadcast = unsafe { &*(broadcast as *const _ as *const DEV_BROADCAST_VOLUME) };
     if volume_broadcast.dbcv_flags & DBTF_NET != 0 {
         // Ignore net event
         return 0;

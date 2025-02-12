@@ -42,7 +42,7 @@ const DRIVER_SYMBOLIC_NAME: &str = "\\\\.\\MULLVADSPLITTUNNEL";
 const ST_DEVICE_TYPE: u32 = 0x8000;
 
 const fn ctl_code(device_type: u32, function: u32, method: u32, access: u32) -> u32 {
-    device_type << 16 | access << 14 | function << 2 | method
+    (device_type << 16) | (access << 14) | (function << 2) | method
 }
 
 #[repr(u32)]
@@ -278,7 +278,13 @@ impl DeviceHandle {
         internet_ipv4: Option<Ipv4Addr>,
         internet_ipv6: Option<Ipv6Addr>,
     ) -> io::Result<()> {
-        log::debug!("Register IPs: tunnel IPv4: {:?}, tunnel IPv6 {:?}, internet IPv4: {:?}, internet IPv6: {:?}", tunnel_ipv4, tunnel_ipv6, internet_ipv4, internet_ipv6);
+        log::debug!(
+            "Register IPs: tunnel IPv4: {:?}, tunnel IPv6 {:?}, internet IPv4: {:?}, internet IPv6: {:?}",
+            tunnel_ipv4,
+            tunnel_ipv6,
+            internet_ipv4,
+            internet_ipv6
+        );
         let mut addresses: SplitTunnelAddresses = unsafe { mem::zeroed() };
 
         unsafe {
@@ -840,18 +846,20 @@ pub unsafe fn device_io_control_buffer_async(
     };
     let input_len = input.map(|input| input.len()).unwrap_or(0);
 
-    let result = DeviceIoControl(
-        device.as_raw_handle() as HANDLE,
-        ioctl_code,
-        input_ptr,
-        u32::try_from(input_len).map_err(|_error| {
-            io::Error::new(io::ErrorKind::InvalidInput, "the input buffer is too large")
-        })?,
-        output_ptr as *mut _,
-        output_len,
-        ptr::null_mut(),
-        overlapped,
-    );
+    let result = unsafe {
+        DeviceIoControl(
+            device.as_raw_handle() as HANDLE,
+            ioctl_code,
+            input_ptr,
+            u32::try_from(input_len).map_err(|_error| {
+                io::Error::new(io::ErrorKind::InvalidInput, "the input buffer is too large")
+            })?,
+            output_ptr as *mut _,
+            output_len,
+            ptr::null_mut(),
+            overlapped,
+        )
+    };
 
     if result != 0 {
         return Err(io::Error::new(
@@ -912,7 +920,7 @@ pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) 
         })?,
         None => INFINITE,
     };
-    let result = WaitForSingleObject(object, timeout);
+    let result = unsafe { WaitForSingleObject(object, timeout) };
     match result {
         WAIT_OBJECT_0 => Ok(()),
         WAIT_FAILED => Err(io::Error::last_os_error()),
@@ -928,22 +936,24 @@ pub unsafe fn wait_for_single_object(object: HANDLE, timeout: Option<Duration>) 
 ///
 /// * `objects` must be a slice of valid objects that can be signaled, such as event objects.
 pub unsafe fn wait_for_multiple_objects(objects: &[HANDLE], wait_all: bool) -> io::Result<HANDLE> {
-    let objects_len = u32::try_from(objects.len())
-        .map_err(|_error| io::Error::new(io::ErrorKind::InvalidInput, "too many objects"))?;
-    let result = WaitForMultipleObjects(
-        objects_len,
-        objects.as_ptr(),
-        if wait_all { 1 } else { 0 },
-        INFINITE,
-    );
-    let signaled_index = if result < objects_len {
-        result
-    } else if result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + objects_len {
-        return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex"));
-    } else {
-        return Err(io::Error::last_os_error());
-    };
-    Ok(objects[usize::try_from(signaled_index).expect("usize must be larger than u32")])
+    unsafe {
+        let objects_len = u32::try_from(objects.len())
+            .map_err(|_error| io::Error::new(io::ErrorKind::InvalidInput, "too many objects"))?;
+        let result = WaitForMultipleObjects(
+            objects_len,
+            objects.as_ptr(),
+            if wait_all { 1 } else { 0 },
+            INFINITE,
+        );
+        let signaled_index = if result < objects_len {
+            result
+        } else if result >= WAIT_ABANDONED_0 && result < WAIT_ABANDONED_0 + objects_len {
+            return Err(io::Error::new(io::ErrorKind::Other, "abandoned mutex"));
+        } else {
+            return Err(io::Error::last_os_error());
+        };
+        Ok(objects[usize::try_from(signaled_index).expect("usize must be larger than u32")])
+    }
 }
 
 /// Reads the value from `buffer`, zeroing any remaining bytes.
@@ -959,12 +969,14 @@ unsafe fn deserialize_buffer<T>(buffer: &[u8]) -> T {
     assert!(buffer.len() <= mem::size_of::<T>());
 
     let mut instance = MaybeUninit::zeroed();
-    ptr::copy_nonoverlapping(
-        buffer.as_ptr(),
-        instance.as_mut_ptr() as *mut u8,
-        buffer.len(),
-    );
-    instance.assume_init()
+    unsafe {
+        ptr::copy_nonoverlapping(
+            buffer.as_ptr(),
+            instance.as_mut_ptr() as *mut u8,
+            buffer.len(),
+        );
+        instance.assume_init()
+    }
 }
 
 fn buffer_to_osstring(buffer: &[u8]) -> OsString {

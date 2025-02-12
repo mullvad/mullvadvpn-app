@@ -116,15 +116,15 @@ where
     F: Fn(HWND, u32, WPARAM, LPARAM) -> LRESULT,
 {
     if message == WM_DESTROY {
-        PostQuitMessage(0);
+        unsafe { PostQuitMessage(0) };
         return 0;
     }
-    let raw_callback = GetWindowLongPtrW(window, GWLP_USERDATA);
+    let raw_callback = unsafe { GetWindowLongPtrW(window, GWLP_USERDATA) };
     if raw_callback != 0 {
-        let typed_callback = &mut *(raw_callback as *mut F);
+        let typed_callback = unsafe { &mut *(raw_callback as *mut F) };
         return typed_callback(window, message, wparam, lparam);
     }
-    DefWindowProcW(window, message, wparam, lparam)
+    unsafe { DefWindowProcW(window, message, wparam, lparam) }
 }
 
 /// Power management events

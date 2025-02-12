@@ -118,7 +118,7 @@ extern "C" {
 /// # Safety
 /// `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
 /// `PacketTunnelProvider`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn cancel_ephemeral_peer_exchange(
     sender: *mut peer_exchange::ExchangeCancelToken,
 ) {
@@ -132,7 +132,7 @@ pub unsafe extern "C" fn cancel_ephemeral_peer_exchange(
 /// # Safety
 /// `sender` must be pointing to a valid instance of a `EphemeralPeerCancelToken` created by the
 /// `PacketTunnelProvider`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn drop_ephemeral_peer_exchange_token(
     sender: *mut peer_exchange::ExchangeCancelToken,
 ) {
@@ -148,7 +148,7 @@ pub unsafe extern "C" fn drop_ephemeral_peer_exchange_token(
 /// function is called, and thus must be copied here. `packet_tunnel` must be valid pointers to a
 /// packet tunnel, the packet tunnel pointer must outlive the ephemeral peer exchange.
 /// `cancel_token` should be owned by the caller of this function.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn request_ephemeral_peer(
     public_key: *const u8,
     ephemeral_key: *const u8,

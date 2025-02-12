@@ -155,11 +155,13 @@ unsafe extern "system" fn inner_callback(
     row: *const MIB_IPINTERFACE_ROW,
     notify_type: i32,
 ) {
-    let context = &mut *(context as *mut IpNotifierHandle<'_>);
-    context
-        .callback
-        .lock()
-        .expect("NotifyIpInterfaceChange mutex poisoned")(&*row, notify_type);
+    unsafe {
+        let context = &mut *(context as *mut IpNotifierHandle<'_>);
+        context
+            .callback
+            .lock()
+            .expect("NotifyIpInterfaceChange mutex poisoned")(&*row, notify_type);
+    }
 }
 
 /// Registers a callback function that is invoked when an interface is added, removed,

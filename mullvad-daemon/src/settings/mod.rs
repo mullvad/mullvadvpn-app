@@ -504,10 +504,9 @@ impl Display for SettingsSummary<'_> {
 
 impl SettingsSummary<'_> {
     fn fmt_option<T: Display>(f: &mut fmt::Formatter<'_>, val: Option<T>) -> fmt::Result {
-        if let Some(inner) = &val {
-            inner.fmt(f)
-        } else {
-            f.write_str("unset")
+        match &val {
+            Some(inner) => inner.fmt(f),
+            _ => f.write_str("unset"),
         }
     }
 }

@@ -761,7 +761,7 @@ impl WgNtDll {
         handle: HMODULE,
         name: &CStr,
     ) -> io::Result<unsafe extern "system" fn() -> isize> {
-        let handle = GetProcAddress(handle, name.as_ptr() as *const u8);
+        let handle = unsafe { GetProcAddress(handle, name.as_ptr() as *const u8) };
         handle.ok_or(io::Error::last_os_error())
     }
 
@@ -783,13 +783,15 @@ impl WgNtDll {
     }
 
     pub unsafe fn close_adapter(&self, adapter: RawHandle) {
-        (self.func_close)(adapter);
+        unsafe { (self.func_close)(adapter) };
     }
 
     pub unsafe fn get_adapter_luid(&self, adapter: RawHandle) -> NET_LUID_LH {
         let mut luid = mem::MaybeUninit::<NET_LUID_LH>::zeroed();
-        (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
-        luid.assume_init()
+        unsafe {
+            (self.func_get_adapter_luid)(adapter, luid.as_mut_ptr());
+            luid.assume_init()
+        }
     }
 
     pub unsafe fn set_config(
@@ -798,8 +800,9 @@ impl WgNtDll {
         config: *const MaybeUninit<u8>,
         config_size: usize,
     ) -> io::Result<()> {
-        let result =
-            (self.func_set_configuration)(adapter, config, u32::try_from(config_size).unwrap());
+        let result = unsafe {
+            (self.func_set_configuration)(adapter, config, u32::try_from(config_size).unwrap())
+        };
         if result == 0 {
             return Err(io::Error::last_os_error());
         }
@@ -810,8 +813,9 @@ impl WgNtDll {
         let mut config_size = 0;
         let mut config = vec![];
         loop {
-            let result =
-                (self.func_get_configuration)(adapter, config.as_mut_ptr(), &mut config_size);
+            let result = unsafe {
+                (self.func_get_configuration)(adapter, config.as_mut_ptr(), &mut config_size)
+            };
             if result == 0 {
                 let last_error = io::Error::last_os_error();
                 if last_error.raw_os_error() != Some(ERROR_MORE_DATA as i32) {
@@ -829,7 +833,7 @@ impl WgNtDll {
         adapter: RawHandle,
         state: WgAdapterState,
     ) -> io::Result<()> {
-        let result = (self.func_set_adapter_state)(adapter, state);
+        let result = unsafe { (self.func_set_adapter_state)(adapter, state) };
         if result == 0 {
             return Err(io::Error::last_os_error());
         }
@@ -845,7 +849,7 @@ impl WgNtDll {
         adapter: RawHandle,
         state: WireGuardAdapterLogState,
     ) -> io::Result<()> {
-        if (self.func_set_adapter_logging)(adapter, state) == 0 {
+        if unsafe { (self.func_set_adapter_logging)(adapter, state) } == 0 {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -858,7 +862,7 @@ impl WgNtDll {
         events_capacity: usize,
         actions_capacity: usize,
     ) -> io::Result<()> {
-        if (self.func_daita_activate)(adapter, events_capacity, actions_capacity) == 0 {
+        if unsafe { (self.func_daita_activate)(adapter, events_capacity, actions_capacity) } == 0 {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -869,7 +873,7 @@ impl WgNtDll {
         &self,
         adapter: RawHandle,
     ) -> io::Result<RawHandle> {
-        let ready_event = (self.func_daita_event_data_available_event)(adapter);
+        let ready_event = unsafe { (self.func_daita_event_data_available_event)(adapter) };
         if ready_event.is_null() {
             return Err(io::Error::last_os_error());
         }
@@ -882,7 +886,7 @@ impl WgNtDll {
         adapter: RawHandle,
         events: *mut daita::Event,
     ) -> io::Result<usize> {
-        let num_events = (self.func_daita_receive_events)(adapter, events);
+        let num_events = unsafe { (self.func_daita_receive_events)(adapter, events) };
         if num_events == 0 {
             return Err(io::Error::last_os_error());
         }
@@ -895,7 +899,7 @@ impl WgNtDll {
         adapter: RawHandle,
         action: *const daita::Action,
     ) -> io::Result<()> {
-        if (self.func_daita_send_action)(adapter, action) == 0 {
+        if unsafe { (self.func_daita_send_action)(adapter, action) } == 0 {
             return Err(io::Error::last_os_error());
         }
         Ok(())
@@ -985,7 +989,7 @@ unsafe fn deserialize_config(
         return Err(Error::InvalidConfigData);
     }
     let (head, mut tail) = config.split_at(mem::size_of::<WgInterface>());
-    let interface: WgInterface = *(head.as_ptr() as *const WgInterface);
+    let interface: WgInterface = unsafe { *(head.as_ptr() as *const WgInterface) };
 
     let mut peers = vec![];
     for _ in 0..interface.peers_count {
@@ -993,7 +997,7 @@ unsafe fn deserialize_config(
             return Err(Error::InvalidConfigData);
         }
         let (peer_data, new_tail) = tail.split_at(mem::size_of::<WgPeer>());
-        let peer: WgPeer = *(peer_data.as_ptr() as *const WgPeer);
+        let peer: WgPeer = unsafe { *(peer_data.as_ptr() as *const WgPeer) };
         tail = new_tail;
 
         if let Err(error) = net::try_socketaddr_from_inet_sockaddr(peer.endpoint.addr) {
@@ -1011,7 +1015,8 @@ unsafe fn deserialize_config(
                 return Err(Error::InvalidConfigData);
             }
             let (allowed_ip_data, new_tail) = tail.split_at(mem::size_of::<WgAllowedIp>());
-            let allowed_ip: WgAllowedIp = *(allowed_ip_data.as_ptr() as *const WgAllowedIp);
+            let allowed_ip: WgAllowedIp =
+                unsafe { *(allowed_ip_data.as_ptr() as *const WgAllowedIp) };
             if let Err(error) = WgAllowedIp::validate(
                 &allowed_ip.address,
                 allowed_ip.address_family,

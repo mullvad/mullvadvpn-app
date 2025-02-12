@@ -4,59 +4,55 @@ repository = "https://github.com/mullvad/mullvadvpn-app/"
 license = "GPL-3.0"
 edition = "2021"
 # Must be less than or equal to `channel` in `rust-toolchain.toml`
-rust-version = "1.80.0"
+rust-version = "1.83.0"
 
 [workspace]
 resolver = "2"
 members = [
-    "android/translations-converter",
-    "desktop/packages/nseventforwarder",
-    "desktop/packages/win-shortcuts",
-    "mullvad-api",
-    "mullvad-cli",
-    "mullvad-daemon",
-    "mullvad-encrypted-dns-proxy",
-    "mullvad-exclude",
-    "mullvad-fs",
-    "mullvad-ios",
-    "mullvad-jni",
-    "mullvad-leak-checker",
-    "mullvad-management-interface",
-    "mullvad-nsis",
-    "mullvad-paths",
-    "mullvad-problem-report",
-    "mullvad-relay-selector",
-    "mullvad-setup",
-    "mullvad-types",
-    "mullvad-types/intersection-derive",
-    "mullvad-version",
-    "talpid-core",
-    "talpid-dbus",
-    "talpid-future",
-    "talpid-macos",
-    "talpid-net",
-    "talpid-openvpn",
-    "talpid-openvpn-plugin",
-    "talpid-platform-metadata",
-    "talpid-routing",
-    "talpid-time",
-    "talpid-tunnel",
-    "talpid-tunnel-config-client",
-    "talpid-windows",
-    "talpid-wireguard",
-    "tunnel-obfuscation",
-    "wireguard-go-rs",
-    "windows-installer",
+  "android/translations-converter",
+  "desktop/packages/nseventforwarder",
+  "desktop/packages/win-shortcuts",
+  "mullvad-api",
+  "mullvad-cli",
+  "mullvad-daemon",
+  "mullvad-encrypted-dns-proxy",
+  "mullvad-exclude",
+  "mullvad-fs",
+  "mullvad-ios",
+  "mullvad-jni",
+  "mullvad-leak-checker",
+  "mullvad-management-interface",
+  "mullvad-nsis",
+  "mullvad-paths",
+  "mullvad-problem-report",
+  "mullvad-relay-selector",
+  "mullvad-setup",
+  "mullvad-types",
+  "mullvad-types/intersection-derive",
+  "mullvad-version",
+  "talpid-core",
+  "talpid-dbus",
+  "talpid-future",
+  "talpid-macos",
+  "talpid-net",
+  "talpid-openvpn",
+  "talpid-openvpn-plugin",
+  "talpid-platform-metadata",
+  "talpid-routing",
+  "talpid-time",
+  "talpid-tunnel",
+  "talpid-tunnel-config-client",
+  "talpid-windows",
+  "talpid-wireguard",
+  "tunnel-obfuscation",
+  "wireguard-go-rs",
+  "windows-installer",
 ]
 # Default members dictate what is built when running `cargo build` in the root directory.
 # This is set to a minimal set of packages to speed up the build process and avoid building
 # crates which might not compile without additional input, such as the `windows-installer` crate.
 # To build or test everything, add `--workspace` to your cargo commands.
-default-members = [
-    "mullvad-cli",
-    "mullvad-daemon",
-    "mullvad-version",
-]
+default-members = ["mullvad-cli", "mullvad-daemon", "mullvad-version"]
 
 # Keep all lints in sync with `test/Cargo.toml`
 [workspace.lints.rust]
@@ -93,7 +89,12 @@ tonic-build = { version = "0.10.0", default-features = false }
 tower = { version = "0.5.1", features = ["util"] }
 prost = "0.13.3"
 prost-types = "0.13.3"
-hyper-util = {version = "0.1.8", features = ["client", "client-legacy", "http2", "http1"]}
+hyper-util = { version = "0.1.8", features = [
+  "client",
+  "client-legacy",
+  "http2",
+  "http1",
+] }
 
 env_logger = "0.10.0"
 thiserror = "2.0"

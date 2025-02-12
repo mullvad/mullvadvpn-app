@@ -25,13 +25,16 @@ pub async fn migrate_location(old_dir: &Path, new_dir: &Path) {
         return;
     }
 
-    if let Err(error) = fs::copy(&old_path, &new_path).await {
-        log::error!(
-            "{}",
-            error.display_chain_with_msg("Failed to migrate account history file location")
-        );
-    } else {
-        let _ = fs::remove_file(old_path).await;
+    match fs::copy(&old_path, &new_path).await {
+        Err(error) => {
+            log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to migrate account history file location")
+            );
+        }
+        _ => {
+            let _ = fs::remove_file(old_path).await;
+        }
     }
 }
 

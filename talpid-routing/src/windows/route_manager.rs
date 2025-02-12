@@ -51,7 +51,9 @@ impl Drop for CallbackHandle {
         match callbacks.remove(&self.nonce) {
             Some(_) => (),
             None => {
-                log::warn!("Could not un-register route manager callback due to it already being de-registered");
+                log::warn!(
+                    "Could not un-register route manager callback due to it already being de-registered"
+                );
             }
         }
     }
@@ -259,7 +261,9 @@ impl RouteManagerInternal {
                             if let Err(e) = win32_err!(unsafe {
                                 ConvertInterfaceAliasToLuid(device_name.as_ptr(), &mut luid)
                             }) {
-                                log::error!("Unable to get interface LUID for interface \"{device_name:?}\": {e}");
+                                log::error!(
+                                    "Unable to get interface LUID for interface \"{device_name:?}\": {e}"
+                                );
                                 return Err(Error::DeviceNameNotFound);
                             } else {
                                 luid
@@ -346,7 +350,9 @@ impl RouteManagerInternal {
         match win32_err!(unsafe { DeleteIpForwardEntry2(&r) }) {
             Ok(()) => Ok(()),
             Err(e) if e.raw_os_error() == Some(ERROR_NOT_FOUND as i32) => {
-                log::warn!("Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {route}");
+                log::warn!(
+                    "Attempting to delete route which was not present in routing table, ignoring and proceeding. Route: {route}"
+                );
                 Ok(())
             }
             Err(e) => {
@@ -594,7 +600,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
 unsafe fn get_first_gateway_address_reference(
     adapter: &IP_ADAPTER_ADDRESSES_LH,
 ) -> &IP_ADAPTER_GATEWAY_ADDRESS_LH {
-    &*adapter.FirstGatewayAddress
+    unsafe { &*adapter.FirstGatewayAddress }
 }
 
 fn adapter_interface_enabled(
@@ -622,7 +628,7 @@ unsafe fn isolate_gateway_address(
     loop {
         // SAFETY: The contract states that Address.lpSockaddr is dereferenceable if the element is
         // non-null
-        if family == (*gateway.Address.lpSockaddr).sa_family {
+        if family == (unsafe { *gateway.Address.lpSockaddr }).sa_family {
             // SAFETY: The contract states that this field must have lifetime 'a
             matches.push(&gateway.Address);
         }
@@ -633,7 +639,7 @@ unsafe fn isolate_gateway_address(
 
         // SAFETY: Gateway.Next is not null here and the contract states it must be dereferenceable
         // if non-null
-        gateway = &*gateway.Next;
+        gateway = unsafe { &*gateway.Next };
     }
 
     matches
@@ -753,9 +759,15 @@ impl Adapters {
         let code_size = u32::try_from(std::mem::size_of::<IP_ADAPTER_ADDRESSES_LH>()).unwrap();
 
         if system_size < code_size {
-            log::error!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes.");
-            return Err(Error::Adapter(io::Error::new(io::ErrorKind::Other,
-                format!("Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."))));
+            log::error!(
+                "Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."
+            );
+            return Err(Error::Adapter(io::Error::new(
+                io::ErrorKind::Other,
+                format!(
+                    "Expecting IP_ADAPTER_ADDRESSES to have size {code_size} bytes. Found structure with size {system_size} bytes."
+                ),
+            )));
         }
 
         // Initialize members.

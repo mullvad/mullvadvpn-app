@@ -23,7 +23,7 @@ const MAX_PATH_SIZE: isize = 32_767;
 
 /// SAFETY: path needs to be a windows path encoded as a string of u16 that terminates in 0 (two
 /// nul-bytes). The string is also not allowed to be greater than `MAX_PATH_SIZE`.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status {
     catch_and_log_unwind(|| {
         let mut i = 0;
@@ -52,7 +52,7 @@ pub unsafe extern "C" fn create_privileged_directory(path: *const u16) -> Status
 /// is returned, and the required buffer size (in chars) is returned in `buffer_size`.
 /// On success, `buffer_size` is set to the length of the string, including
 /// the final null terminator.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_system_local_appdata(
     buffer: *mut u16,
     buffer_size: *mut usize,
@@ -91,7 +91,7 @@ pub unsafe extern "C" fn get_system_local_appdata(
 /// `InsufficientBufferSize` is returned, and the required buffer size (in
 /// chars) is returned in `buffer_size`. On success, `buffer_size` is set to the
 /// length of the string, including the final null terminator.
-#[no_mangle]
+#[unsafe(no_mangle)]
 pub unsafe extern "C" fn get_system_version(buffer: *mut u16, buffer_size: *mut usize) -> Status {
     use talpid_platform_metadata::version;
     catch_and_log_unwind(|| {

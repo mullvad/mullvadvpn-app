@@ -336,7 +336,7 @@ mod ffi {
     use super::{LoggingCallback, LoggingContext};
     use core::ffi::{c_char, c_void};
 
-    extern "C" {
+    unsafe extern "C" {
         /// Creates a new wireguard tunnel, uses the specific interface name, and file descriptors
         /// for the tunnel device and logging. For targets other than android, this also takes an
         /// MTU value.
