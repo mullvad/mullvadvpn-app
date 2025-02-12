@@ -5,7 +5,7 @@ use std::{
     os::unix::io::{AsRawFd, RawFd},
     process::Command,
 };
-use tun::{AbstractDevice, Configuration};
+use tun::{Configuration, Device};
 
 /// Errors that can occur while setting up a tunnel device.
 #[derive(Debug, thiserror::Error)]
@@ -135,7 +135,7 @@ impl TunnelDeviceBuilder {
 
 impl AsRawFd for TunnelDevice {
     fn as_raw_fd(&self) -> RawFd {
-        self.dev.as_raw_fd()
+        self.dev.get_ref().as_raw_fd()
     }
 }
 
@@ -143,7 +143,10 @@ impl TunnelDevice {
     fn set_ip(&mut self, ip: IpAddr) -> Result<(), Error> {
         match ip {
             IpAddr::V4(ipv4) => {
-                self.dev.set_address(ipv4.into()).map_err(Error::SetIpv4)?;
+                self.dev
+                    .get_mut()
+                    .set_address(ipv4.into())
+                    .map_err(Error::SetIpv4)?;
             }
 
             // NOTE: On MacOs, As of `tun 0.7`, `Device::set_address` accepts an `IpAddr` but
@@ -153,7 +156,7 @@ impl TunnelDevice {
             IpAddr::V6(ipv6) => {
                 // ifconfig <device> inet6 <ipv6 address> alias
                 let ipv6 = ipv6.to_string();
-                let device = self.dev.tun_name().unwrap(); // TODO: Do not unwrap!
+                let device = self.dev.get_ref().name();
                 Command::new("ifconfig")
                     .args([&device, "inet6", &ipv6, "alias"])
                     .output()
@@ -166,7 +169,7 @@ impl TunnelDevice {
             IpAddr::V6(ipv6) => {
                 // ip -6 addr add <ipv6 address> dev <device>
                 let ipv6 = ipv6.to_string();
-                let device = self.dev.tun_name().unwrap(); // TODO: Do not unwrap!
+                let device = self.dev.get_ref().name();
                 Command::new("ip")
                     .args(["-6", "addr", "add", &ipv6, "dev", &device])
                     .output()
@@ -177,10 +180,10 @@ impl TunnelDevice {
     }
 
     fn set_up(&mut self, up: bool) -> Result<(), Error> {
-        self.dev.enabled(up).map_err(Error::ToggleDevice)
+        self.dev.get_mut().enabled(up).map_err(Error::ToggleDevice)
     }
 
     fn get_name(&self) -> Result<String, Error> {
-        self.dev.tun_name().map_err(Error::GetDeviceName)
+        Ok(self.dev.get_ref().name().to_owned())
     }
 }
