@@ -126,8 +126,6 @@ jobs:
           git submodule update --init --depth=1 dist-assets/binaries
           git submodule update --init wireguard-go-rs/libwg/wireguard-go
       - name: Build app
-        env:
-          USE_MOLD: false
         run: ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
