@@ -45,55 +45,50 @@ struct PartialSignedResponse {
 pub struct Response {
     /// When the signature expires
     pub expires: chrono::DateTime<chrono::Utc>,
-    /// Stable version response
-    pub stable: VersionResponse,
-    /// Beta version response
-    pub beta: Option<VersionResponse>,
+    /// Available app releases
+    pub releases: Vec<Release>,
 }
 
+/// App release
 #[derive(Debug, Deserialize, Serialize)]
-pub struct VersionResponse {
-    /// The current version in this channel
-    pub current: SpecificVersionResponse,
-    /// The version being rolled out in this channel
-    pub next: Option<NextSpecificVersionResponse>,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct NextSpecificVersionResponse {
-    /// The percentage of users that should receive the new version.
-    pub rollout: f32,
-    #[serde(flatten)]
-    pub version: SpecificVersionResponse,
-}
-
-#[derive(Debug, Deserialize, Serialize)]
-pub struct SpecificVersionResponse {
+pub struct Release {
     /// Mullvad app version
     pub version: mullvad_version::Version,
     /// Changelog entries
     pub changelog: String,
     /// Installer details for different architectures
-    pub installers: SpecificVersionArchitectureResponses,
+    pub installers: Vec<Installer>,
+    /// Fraction of users that should receive the new version
+    #[serde(default = "default_rollout")]
+    pub rollout: f32,
 }
 
-/// Version details for supported architectures
-#[derive(Debug, Deserialize, Serialize)]
-pub struct SpecificVersionArchitectureResponses {
-    /// Details for x86 installer
-    pub x86: Option<SpecificVersionArchitectureResponse>,
-    /// Details for ARM64 installer
-    pub arm64: Option<SpecificVersionArchitectureResponse>,
+/// By default, rollout includes all users
+fn default_rollout() -> f32 {
+    1.
 }
 
-#[derive(Debug, Deserialize, Serialize)]
-pub struct SpecificVersionArchitectureResponse {
+/// App installer
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Installer {
+    /// Installer architecture
+    pub architecture: Architecture,
     /// Mirrors that host the artifact
     pub urls: Vec<String>,
     /// Size of the installer, in bytes
     pub size: usize,
     /// Hash of the installer, hexadecimal string
     pub sha256: String,
+}
+
+/// Installer architecture
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum Architecture {
+    /// x86-64 architecture
+    X86,
+    /// ARM64 architecture
+    Arm64,
 }
 
 /// JSON response signature
