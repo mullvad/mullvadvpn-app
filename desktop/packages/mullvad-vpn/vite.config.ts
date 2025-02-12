@@ -5,7 +5,8 @@ import electron from 'vite-plugin-electron/simple';
 export default defineConfig({
   define: {
     global: 'window',
-    'process.env': {
+    process: {
+      env: {
       platform: process.platform,
       NODE_ENV: process.env.NODE_ENV,
     },
@@ -14,9 +15,13 @@ export default defineConfig({
     electron({
       main: {
         entry: 'src/main/index.ts',
+        onstart(args) {
+          console.log(args);
+          args.startup();
+        },
         vite: {
           build: {
-            emptyOutDir: true,
+            // emptyOutDir: true,
             commonjsOptions: {
               include: [/management-interface/, /nseventforwarder/, /node_modules/],
             },
@@ -24,7 +29,7 @@ export default defineConfig({
               output: {
                 entryFileNames: 'main.js',
               },
-              external: ['@grpc/grpc-js', 'google-protobuf'],
+              external: ['@grpc/grpc-js', 'google-protobuf', 'simple-plist'],
             },
           },
           optimizeDeps: {
@@ -34,6 +39,12 @@ export default defineConfig({
       },
       preload: {
         input: 'src/renderer/preload.ts',
+        onstart(args) {
+          console.log('preload on start called', args);
+          // Notify the Renderer process to reload the page when the Preload scripts build is complete,
+          // instead of restarting the entire Electron App.
+          args.reload();
+        },
       },
     }),
     react(),
