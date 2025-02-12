@@ -53,6 +53,16 @@ class VPNSettingsPage: Page {
         return self
     }
 
+    @discardableResult func tapLocalNetworkSharingSwitch() -> Self {
+        app.cells[AccessibilityIdentifier.localNetworkSharing]
+            .switches[AccessibilityIdentifier.customSwitch]
+            .tap()
+        app.buttons[AccessibilityIdentifier.acceptLocalNetworkSharingButton]
+            .tap()
+
+        return self
+    }
+
     @discardableResult func tapWireGuardPortsExpandButton() -> Self {
         cellExpandButton(AccessibilityIdentifier.wireGuardPortsCell).tap()
         return self

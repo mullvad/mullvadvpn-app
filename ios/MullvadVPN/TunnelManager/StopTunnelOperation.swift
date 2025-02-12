@@ -11,6 +11,7 @@ import Operations
 
 class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     private let interactor: TunnelInteractor
+    var disableOnDemand = true
 
     init(
         dispatchQueue: DispatchQueue,
@@ -50,8 +51,7 @@ class StopTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
             return
         }
 
-        // Disable on-demand when stopping the tunnel to prevent it from coming back up
-        tunnel.isOnDemandEnabled = false
+        tunnel.isOnDemandEnabled = !disableOnDemand
 
         tunnel.saveToPreferences { error in
             self.dispatchQueue.async {
