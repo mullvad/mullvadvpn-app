@@ -600,6 +600,7 @@ fn interface_luid_from_gateway(gateway: &SOCKADDR_INET) -> Result<NET_LUID_LH> {
 unsafe fn get_first_gateway_address_reference(
     adapter: &IP_ADAPTER_ADDRESSES_LH,
 ) -> &IP_ADAPTER_GATEWAY_ADDRESS_LH {
+    // SAFETY: See function docs
     unsafe { &*adapter.FirstGatewayAddress }
 }
 
