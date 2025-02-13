@@ -1,4 +1,5 @@
 const fs = require('fs');
+const { execSync } = require('child_process');
 const { task, series } = require('gulp');
 
 const scripts = require('./tasks/scripts');
@@ -18,6 +19,10 @@ task('set-prod-env', function (done) {
 task('clean', function (done) {
   fs.rm('./build', { recursive: true, force: true }, done);
 });
+task('build-vite-prod', function (done) {
+  execSync('npm run build:vite');
+  done();
+});
 task('build-proto', scripts.buildProto);
 task(
   'develop',
@@ -30,6 +35,7 @@ task(
   ),
 );
 task('build', series('clean', 'set-prod-env', assets.copyAll, scripts.build));
-task('pack-win', series('build', dist.packWin));
-task('pack-linux', series('build', dist.packLinux));
-task('pack-mac', series('build', dist.packMac));
+task('build-vite', series('clean', 'set-prod-env', 'build-vite-prod', assets.copyAllVite));
+task('pack-win', series('build-vite', dist.packWin));
+task('pack-linux', series('build-vite', dist.packLinux));
+task('pack-mac', series('build-vite', dist.packMac));
