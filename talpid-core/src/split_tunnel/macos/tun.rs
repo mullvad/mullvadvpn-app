@@ -20,7 +20,7 @@ use pnet_packet::{
     MutablePacket, Packet,
 };
 use std::{
-    ffi::{c_uint, CStr},
+    ffi::c_uint,
     io::{self, IoSlice, Write},
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
 };
@@ -887,8 +887,14 @@ impl PacketCodec for PktapCodec {
             return None;
         }
 
-        let iface = unsafe { CStr::from_ptr(header.pth_ifname.as_ptr() as *const _) };
-        if iface.to_bytes() != self.interface.as_bytes() {
+        // cast the array from [i8] to [u8] to enable comparison with String::as_bytes
+        let iface = header.pth_ifname.map(|b| b as u8);
+        // get the interface name by splitting on the first null byte (if any)
+        let iface = iface
+            .split(|&b| b == 0)
+            .next()
+            .expect("split will yield at least one element");
+        if iface != self.interface.as_bytes() {
             return None;
         }
 
