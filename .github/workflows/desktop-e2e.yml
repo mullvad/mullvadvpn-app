@@ -209,28 +209,27 @@ jobs:
           path: ~/.cache/mullvad-test/packages
       - name: Checkout repository
         uses: actions/checkout@v4
+      - name: Create binaries directory & add to PATH
+        shell: bash -ieo pipefail {0}
+        run: |
+          # TODO: Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
+          mkdir "${{ github.workspace }}/bin"
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
       - name: Download Test Manager
         uses: actions/download-artifact@v4
         if: ${{ needs.build-test-manager-linux.result == 'success' }}
         with:
           name: linux-test-manager-build
-          path: test-manager
+          path: ${{ github.workspace }}/bin/test-manager
       - name: Download mullvad-version
         uses: actions/download-artifact@v4
         if: ${{ needs.build-test-manager-linux.result == 'success' }}
         with:
           name: mullvad-version-linux
-          path: mullvad-version
-      - name: Add binaries to PATH
-        shell: bash -ieo pipefail {0}
-        run: |
-          mkdir "${{ github.workspace }}/bin"
-          mv -t "${{ github.workspace }}/bin/" test-manager mullvad-version
-          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
+          path: ${{ github.workspace }}/bin/mullvad-version
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
-          # TODO: Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
           # TODO: Explain this. A directory with all the binaries required to run test-manager
           export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           git fetch --tags --prune-tags --force
