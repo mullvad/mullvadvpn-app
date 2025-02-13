@@ -302,7 +302,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'x86_64-pc-windows-msvc';
             process.env.DIST_SUBDIR = '';
 
-            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-x86']);
+            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-x86'], { shell: true });
             break;
           case 'arm64':
             process.env.TARGET_TRIPLE = 'aarch64-pc-windows-msvc';
@@ -310,7 +310,7 @@ async function packWin() {
             process.env.TARGET_SUBDIR = 'aarch64-pc-windows-msvc';
             process.env.DIST_SUBDIR = 'aarch64-pc-windows-msvc';
 
-            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-arm']);
+            execFileSync('npm', ['-w', 'win-shortcuts', 'run', 'build-arm'], { shell: true });
             break;
           default:
             throw new Error('Invalid or unknown target (only one may be specified)');
