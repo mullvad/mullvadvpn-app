@@ -976,9 +976,9 @@ final class TunnelManager: StorePaymentObserver, @unchecked Sendable {
                 newSettings: updatedSettings
             )
             switch reconnectionStrategy {
-            case .noReconnect:
+            case .currentRelayReconnect:
                 self.reconnectTunnel(selectNewRelay: false)
-            case .softReconnect:
+            case .newRelayReconnect:
                 self.reconnectTunnel(selectNewRelay: true)
             case .hardReconnect:
                 self.reapplyTunnelConfiguration()
