@@ -258,7 +258,9 @@ jobs:
           name: linux-test-runner-binaries
           path: ${{ github.workspace }}/bin
       - name: Check binaries
-        run: ls -la ${{ github.workspace }}/bin
+        run: |
+          ls -la ${{ github.workspace }}/bin
+          ls -la ${{ github.workspace }}/bin/mullvad-version
         shell: bash
 # - name: Download App
 #uses: actions/download-artifact@v4
@@ -274,7 +276,7 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ls -la "$TEST_DIST_DIR"
-          ./mullvad-version
+          ${{ github.workspace }}/bin/mullvad-version
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4
