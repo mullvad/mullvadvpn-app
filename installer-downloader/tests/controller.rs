@@ -65,6 +65,10 @@ pub struct FakeAppDownloader<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool
 impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> AppDownloader
     for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED>
 {
+    async fn create_cache_dir(&mut self) -> Result<(), DownloadError> {
+        Ok(())
+    }
+
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
         self.params.app_progress.set_url(&self.params.app_url);
         self.params.app_progress.set_progress(0.);
