@@ -23,18 +23,22 @@ function verify_repository_versions {
     print_versions_args+=( --beta )
   fi
 
-  ./print-package-versions "${print_versions_args[@]}"
-  read -r -n 1 -p "Does the versions look correct? (y/N): " response
-  printf "\n\n"
+  deb_version_output=$(./print-package-versions --deb "${print_versions_args[@]}")
+  deb_version=$(echo "$deb_version_output" | grep mullvad-vpn | awk '{print $2}')
 
-  if [[ "$response" =~ ^[Yy]$ ]]; then
-      return
-  elif [[ "$response" =~ ^[Nn]$ ]]; then
-      log_info "Aborting"
-      exit 1
-  else
-      log_error "Invalid response"
-      exit 1
+  if [[ "$deb_version" != "$PRODUCT_VERSION" ]]; then
+    log_error "Incorrect deb version in repository ($deb_version)"
+    echo "$deb_version_output"
+    exit 1
+  fi
+
+  rpm_version_output=$(./print-package-versions --rpm "${print_versions_args[@]}")
+  rpm_version=$(echo "$rpm_version_output" | grep mullvad-vpn | awk '{print $2}')
+
+  if [[ "$rpm_version" != "$PRODUCT_VERSION-1" ]]; then
+    log_error "Incorrect rpm version in repository ($rpm_version)"
+    echo "$rpm_version_output"
+    exit 1
   fi
 }
 
