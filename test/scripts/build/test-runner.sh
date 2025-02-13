@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
 REPO_DIR="$TEST_FRAMEWORK_ROOT/.."
 
-cd "$SCRIPT_DIR"
+pushd "$SCRIPT_DIR"
 
 # shellcheck disable=SC1091
 source "$REPO_DIR/scripts/utils/log"
@@ -38,4 +38,14 @@ cargo build \
 # Only build runner image for Windows
 if [[ $TARGET == x86_64-pc-windows-gnu ]]; then
     TARGET="$TARGET" ./runner-image.sh
+fi
+
+popd
+
+# Optionally move binaries to some known location
+# TODO: Swap out for proper flag. Or something
+if [ "$1" ]; then
+  ARTIFACTS_DIR="$TEST_FRAMEWORK_ROOT/target/$TARGET/release/"
+  mv -t "$1" "$ARTIFACTS_DIR/test-runner" "$ARTIFACTS_DIR/connection-checker"
+  shift
 fi
