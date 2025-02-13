@@ -146,7 +146,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
-    continue-on-error: true
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -174,10 +173,12 @@ jobs:
   build-test-manager-linux:
     name: Build Test Manager
     needs: prepare-linux
-    runs-on: [self-hosted, desktop-test, Linux]
+    # Note: libssl-dev is installed on the test server, so build test-manager there for the sake of simplicity
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Build test-manager
         run: ./test/scripts/container-run.sh cargo build --package test-manager --release
       - uses: actions/upload-artifact@v4
@@ -186,13 +187,39 @@ jobs:
           name: linux-test-manager-build
           path: |
             ./test/target/release/test-manager
+          if-no-files-found: error
       - name: Clean up Cargo artifacts
         run: |
           cargo clean
 
+  build-test-runner-binaries-linux:
+    name: Build Test Runner Binaries
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build binaries
+        run: |
+          # Move test runner binaries to a known location. This is needed in the coming `upload-artifact` step.
+          mkdir bin
+          test/scripts/build/test-runner.sh linux
+          mv -t ./bin/ \
+            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" \
+            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-runner-binaries
+          path: bin/*
+          if-no-files-found: error
+
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux]
+    # yamllint disable-line rule:line-length
+    needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux, build-test-runner-binaries-linux]
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -224,15 +251,26 @@ jobs:
         with:
           name: mullvad-version-linux
           path: ${{ github.workspace }}/bin
-      - name: Check binaries
-        run: ls -la ${{ github.workspace }}/bin
-        shell: bash
-      - name: Download App
+      - name: Download Test Runner binaries
         uses: actions/download-artifact@v4
-        if: ${{ needs.build-linux-app.result == 'success' }}
+        if: ${{ needs.build-test-runner-binaries-linux.result == 'success' }}
         with:
-          name: linux-build
-          path: ~/.cache/mullvad-test/packages
+          name: linux-test-runner-binaries
+          path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
+        shell: bash
+      - name: Check binaries
+        run: |
+          ls -la ${{ github.workspace }}/bin
+        shell: bash
+# - name: Download App
+#uses: actions/download-artifact@v4
+#if: ${{ needs.build-linux-app.result == 'success' }}
+        #with:
+          #name: linux-build
+          #path: ~/.cache/mullvad-test/packages
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
@@ -241,7 +279,8 @@ jobs:
           export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
-          # TEST_DIST_DIR
+          ls -la "$TEST_DIST_DIR"
+          ${{ github.workspace }}/bin/mullvad-version
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4
