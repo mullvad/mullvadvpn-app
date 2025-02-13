@@ -171,10 +171,12 @@ jobs:
     name: Build Test Manager
     needs: prepare-linux
     # Note: libssl-dev is installed on the test server, so build test-manager there for the sake of simplicity
-    runs-on: [self-hosted, desktop-test, Linux]
+    #runs-on: [self-hosted, desktop-test, Linux]
+    runs-on: [self-hosted, se-got-github-runner-013]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
       - name: Build test-manager
         run: |
           cargo build --manifest-path test/Cargo.toml --package test-manager --release
@@ -206,10 +208,10 @@ jobs:
           mv -t bin/ "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
       - uses: actions/upload-artifact@v4
         if: '!cancelled()'
-        if-no-files-found: error
         with:
           name: linux-test-runner-binaries
           path: bin/*
+          if-no-files-found: error
 
   e2e-test-linux:
     name: Linux end-to-end tests
