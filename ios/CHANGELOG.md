@@ -21,7 +21,11 @@ Line wrap the file at 100 chars.                                              Th
 * **Fixed**: for any bug fixes.
 * **Security**: in case of vulnerabilities.
 
-## Unreleased
+## UNRELEASED
+### Added
+- Add animations to connect view.
+
+## [2025.2 - 2025-02-07]
 ### Fixed
 - Broken DAITA settings view on iOS 15.
 
