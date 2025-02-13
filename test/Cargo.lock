@@ -3472,7 +3472,7 @@ dependencies = [
 name = "talpid-time"
 version = "0.0.0"
 dependencies = [
- "libc",
+ "nix 0.29.0",
  "tokio",
 ]
 
