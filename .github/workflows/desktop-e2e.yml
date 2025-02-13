@@ -465,6 +465,9 @@ jobs:
         with:
           name: linux-test-manager-build
           path: test-manager
+      - name: chmod binaries
+        run: |
+          chmod +x test-manager
       - name: Generate test result matrix
         shell: bash -ieo pipefail {0}
         run: |
