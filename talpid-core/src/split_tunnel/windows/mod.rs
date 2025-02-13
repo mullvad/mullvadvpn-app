@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 mod driver;
 mod path_monitor;
 mod service;
