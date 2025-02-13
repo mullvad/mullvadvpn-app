@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use crate::dns::{DnsMonitorT, ResolvedDnsConfig};
 use std::{
     ffi::OsString,

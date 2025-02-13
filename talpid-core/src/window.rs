@@ -1,4 +1,5 @@
 //! Utilities for working with windows on Windows.
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
 
 use std::{os::windows::io::AsRawHandle, ptr, sync::Arc, thread};
 use tokio::sync::broadcast;

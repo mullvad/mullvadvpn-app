@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)]
+
 use mullvad_paths::log_dir;
 use std::{
     borrow::Cow,
