@@ -45,12 +45,7 @@ test('App should show too many devices', async () => {
 
   // Trigger transition: too-many-devices -> login -> main
   expect(await util.waitForNavigation(() => loginButton.click())).toEqual(RoutePath.login);
-
-  // Note: `util.waitForNavigation` won't return the navigation event when
-  // transitioning from login -> main, so we need to observe the state of the
-  // app after the entire transition chain has finished.
-  await util.waitForNoTransition();
-  await expect(page.getByTestId(RoutePath.main)).toBeVisible();
+  expect(await util.waitForNavigation()).toEqual(RoutePath.main);
 });
 
 function getInput(page: Page): Locator {

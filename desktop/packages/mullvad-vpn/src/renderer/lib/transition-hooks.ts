@@ -113,6 +113,16 @@ function animateNavigation(transition: TransitionType) {
   );
 }
 
+declare global {
+  interface Window {
+    isInViewTransition?: () => boolean;
+  }
+}
+
+if (window.env.e2e) {
+  window.isInViewTransition = () => viewTransitionRef.current !== undefined;
+}
+
 const oldToTransform = {
   [TransitionType.show]: 'translateY(0%)',
   [TransitionType.dismiss]: 'translateY(100%)',

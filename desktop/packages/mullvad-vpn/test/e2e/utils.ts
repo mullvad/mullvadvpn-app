@@ -63,28 +63,21 @@ const waitForNavigationFactory = (app: ElectronApplication, page: Page) => {
     const [route] = await Promise.all([waitForNextRoute(app), initiateNavigation?.()]);
 
     // Wait for view corresponding to new route to appear
-    await page.getByTestId(route).isVisible();
-    await waitForNoTransition(page);
+    await waitForTransitionEnd(page);
 
     return route;
   };
 };
 
-const waitForNoTransition = async (page: Page) => {
-  // Wait until there's only one transitionContents
-  let transitionContentsCount;
-  do {
-    if (transitionContentsCount !== undefined) {
-      await new Promise((resolve) => setTimeout(resolve, 5));
-    }
+// This function returns a promise that resolves when a view transition ends. This requires a view transition to also be ongoing.
+const waitForTransitionEnd = async (page: Page) => {
+  await page.waitForFunction(() => window.isInViewTransition!());
+  await waitForNoTransition(page);
+};
 
-    try {
-      transitionContentsCount = await page.getByTestId('transition-content').count();
-    } catch {
-      console.log('Transition content count failed');
-      break;
-    }
-  } while (transitionContentsCount !== 1);
+// This function returns a promise that resolves when there is no view transition ongoing, which would be immediately.
+const waitForNoTransition = async (page: Page) => {
+  await page.waitForFunction(() => !window.isInViewTransition!());
 };
 
 // Returns the route when it changes
