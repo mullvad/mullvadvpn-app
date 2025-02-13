@@ -294,6 +294,16 @@ final class VPNSettingsDataSource: UITableViewDiffableDataSource<
         }
     }
 
+    func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
+        let item = itemIdentifier(for: indexPath)
+
+        switch item {
+        case .includeAllNetworks, .localNetworkSharing:
+            return nil
+        default: return indexPath
+        }
+    }
+
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let item = itemIdentifier(for: indexPath)
 
