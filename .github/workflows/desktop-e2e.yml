@@ -155,6 +155,7 @@ jobs:
         run: |
           cargo build --package mullvad-version --release
           # TODO: Remove
+          ls -la .
           ls -la target/
           ls -la target/release/
       - name: Upload mullvad-version
@@ -164,6 +165,9 @@ jobs:
           name: mullvad-version-linux
           path: |
             ./target/release/mullvad-version
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
 
   build-test-manager-linux:
     name: Build Test Manager
@@ -173,13 +177,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
       - name: Build test-manager
-        run: cargo build --manifest-path test/Cargo.toml --package test-manager --release
+        run: |
+          cargo build --manifest-path test/Cargo.toml --package test-manager --release
       - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: linux-test-manager-build
           path: |
             ./test/target/release/test-manager
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
 
   e2e-test-linux:
     name: Linux end-to-end tests
