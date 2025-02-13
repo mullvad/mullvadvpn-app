@@ -41,6 +41,7 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     override init() {
         Self.configureLogging()
         providerLogger = Logger(label: "PacketTunnelProvider")
+        providerLogger.info("Starting new packet tunnel")
 
         let containerURL = ApplicationConfiguration.containerURL
         let addressCache = REST.AddressCache(canWriteToCache: false, cacheDirectory: containerURL)
