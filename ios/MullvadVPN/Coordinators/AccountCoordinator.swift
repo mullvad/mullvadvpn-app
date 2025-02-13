@@ -84,7 +84,7 @@ final class AccountCoordinator: Coordinator, Presentable, Presenting, @unchecked
             accountNumber: accountNumber,
             paymentAction: paymentAction
         )
-        coordinator.didFinish = { coordinator, _ in
+        coordinator.didFinish = { coordinator in
             coordinator.dismiss(animated: true)
         }
         coordinator.start()

@@ -158,13 +158,8 @@ extension WelcomeCoordinator: @preconcurrency WelcomeViewControllerDelegate {
             accountNumber: accountNumber,
             paymentAction: .purchase
         )
-        coordinator.didFinish = { [weak self] coordinator, event in
+        coordinator.didFinish = { coordinator in
             coordinator.dismiss(animated: true)
-            switch event {
-            case .paymentEvent(.finished):
-                self?.showSetupAccountCompleted()
-            default: break
-            }
         }
         coordinator.start()
         presentChild(coordinator, animated: true)
