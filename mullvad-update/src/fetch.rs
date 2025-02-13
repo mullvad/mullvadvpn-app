@@ -37,6 +37,8 @@ pub enum SizeHint {
 /// Download `url` to `file`. If the file already exists, this appends to it, as long
 /// as the file pointed to by `url` is larger than it.
 ///
+/// Make sure that `file` is stored in a secure directory.
+///
 /// # Arguments
 /// - `progress_updater` - This interface is notified of download progress.
 /// - `size_hint` - File size restrictions.
