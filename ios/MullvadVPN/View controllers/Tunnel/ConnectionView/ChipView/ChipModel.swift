@@ -10,6 +10,6 @@ import Foundation
 import SwiftUI
 
 struct ChipModel: Identifiable {
-    let id = UUID()
+    var id: String { name }
     let name: String
 }
