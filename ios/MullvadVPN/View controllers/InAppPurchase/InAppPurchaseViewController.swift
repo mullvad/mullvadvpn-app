@@ -9,7 +9,7 @@
 import StoreKit
 import UIKit
 
-class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymentObserver {
+class InAppPurchaseViewController: UIViewController, StorePaymentObserver {
     private let storePaymentManager: StorePaymentManager
     private let accountNumber: String
     private let paymentAction: PaymentAction
@@ -140,22 +140,23 @@ class InAppPurchaseViewController: UIViewController, @preconcurrency StorePaymen
         present(sheetController, animated: true)
     }
 
-    @MainActor
-    func storePaymentManager(_ manager: StorePaymentManager, didReceiveEvent event: StorePaymentEvent) {
-        spinnerView.stopAnimating()
-        switch event {
-        case let .finished(completion):
-            errorPresenter.showAlertForResponse(completion.serverResponse, context: .purchase) {
-                self.didFinish?()
-            }
-
-        case let .failure(paymentFailure):
-            switch paymentFailure.error {
-            case .storePayment(SKError.paymentCancelled):
-                self.didFinish?()
-            default:
-                errorPresenter.showAlertForError(paymentFailure.error, context: .purchase) {
+    nonisolated func storePaymentManager(_ manager: StorePaymentManager, didReceiveEvent event: StorePaymentEvent) {
+        Task { @MainActor in
+            spinnerView.stopAnimating()
+            switch event {
+            case let .finished(completion):
+                errorPresenter.showAlertForResponse(completion.serverResponse, context: .purchase) {
                     self.didFinish?()
+                }
+
+            case let .failure(paymentFailure):
+                switch paymentFailure.error {
+                case .storePayment(SKError.paymentCancelled):
+                    self.didFinish?()
+                default:
+                    errorPresenter.showAlertForError(paymentFailure.error, context: .purchase) {
+                        self.didFinish?()
+                    }
                 }
             }
         }
