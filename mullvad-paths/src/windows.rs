@@ -96,6 +96,8 @@ fn create_dir_with_permissions_recursive(path: &Path) -> Result<()> {
 
     match std::fs::create_dir(path) {
         Ok(()) => {
+            // TODO: Use CreateDirectory with security attributes here to prevent a race
+            // See https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createdirectory
             return set_security_permissions(path);
         }
         // Could not find parent directory, try creating parent
