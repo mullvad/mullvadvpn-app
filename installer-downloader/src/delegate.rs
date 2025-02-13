@@ -62,6 +62,9 @@ pub trait AppDelegate {
     /// Hide beta text
     fn hide_beta_text(&mut self);
 
+    /// Exit the application
+    fn quit(&mut self);
+
     /// Create queue for scheduling actions on UI thread
     fn queue(&self) -> Self::Queue;
 }

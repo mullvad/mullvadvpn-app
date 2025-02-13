@@ -36,16 +36,16 @@ impl VersionInfoProvider for FakeVersionInfoProvider {
 }
 
 /// Downloader for which all steps immediately succeed
-pub type FakeAppDownloaderHappyPath = FakeAppDownloader<true, true>;
+pub type FakeAppDownloaderHappyPath = FakeAppDownloader<true, true, true>;
 
 /// Downloader for which the download step fails
-pub type FakeAppDownloaderDownloadFail = FakeAppDownloader<false, false>;
+pub type FakeAppDownloaderDownloadFail = FakeAppDownloader<false, false, false>;
 
-/// Downloader for which the final verification step fails
-pub type FakeAppDownloaderVerifyFail = FakeAppDownloader<true, false>;
+/// Downloader for which the verification step fails
+pub type FakeAppDownloaderVerifyFail = FakeAppDownloader<true, false, false>;
 
-impl<const A: bool, const B: bool> From<UiAppDownloaderParameters<FakeAppDelegate>>
-    for FakeAppDownloader<A, B>
+impl<const A: bool, const B: bool, const C: bool> From<UiAppDownloaderParameters<FakeAppDelegate>>
+    for FakeAppDownloader<A, B, C>
 {
     fn from(params: UiAppDownloaderParameters<FakeAppDelegate>) -> Self {
         FakeAppDownloader { params }
@@ -57,13 +57,18 @@ impl<const A: bool, const B: bool> From<UiAppDownloaderParameters<FakeAppDelegat
 /// Parameters:
 /// * EXE_SUCCEED - whether fetching the binary succeeds
 /// * VERIFY_SUCCEED - whether verifying the binary succeeds
-pub struct FakeAppDownloader<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> {
+/// * LAUNCH_SUCCEED - whether launching the binary succeeds
+pub struct FakeAppDownloader<
+    const EXE_SUCCEED: bool,
+    const VERIFY_SUCCEED: bool,
+    const LAUNCH_SUCCEED: bool,
+> {
     params: UiAppDownloaderParameters<FakeAppDelegate>,
 }
 
 #[async_trait::async_trait]
-impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> AppDownloader
-    for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED>
+impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool> AppDownloader
+    for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
 {
     async fn create_cache_dir(&mut self) -> Result<(), DownloadError> {
         Ok(())
@@ -88,6 +93,16 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool> AppDownloader
         } else {
             Err(DownloadError::Verification(anyhow::anyhow!(
                 "verification failed"
+            )))
+        }
+    }
+
+    async fn install(&mut self) -> Result<(), DownloadError> {
+        if LAUNCH_SUCCEED {
+            Ok(())
+        } else {
+            Err(DownloadError::InstallFailed(anyhow::anyhow!(
+                "install failed"
             )))
         }
     }
@@ -140,6 +155,7 @@ pub struct DelegateState {
     pub download_progress: u32,
     pub download_progress_visible: bool,
     pub beta_text_visible: bool,
+    pub quit: bool,
     /// Record of method calls.
     pub call_log: Vec<String>,
 }
@@ -244,6 +260,11 @@ impl AppDelegate for FakeAppDelegate {
         self.state.beta_text_visible = false;
     }
 
+    fn quit(&mut self) {
+        self.state.call_log.push("quit".into());
+        self.state.quit = true;
+    }
+
     fn queue(&self) -> Self::Queue {
         self.queue.clone()
     }
@@ -311,6 +332,7 @@ async fn test_download() {
     queue.run_callbacks(&mut delegate);
 
     // Everything including verification should have succeeded
+    // Downloader should have quit
     assert_yaml_snapshot!(delegate.state);
 }
 
