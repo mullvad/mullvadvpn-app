@@ -155,6 +155,7 @@ jobs:
         run: |
           cargo build --package mullvad-version --release
           # TODO: Remove
+          ls -la "$CARGO_TARGET_DIR"
           ls -la .
           ls -la target/
           ls -la target/release/
