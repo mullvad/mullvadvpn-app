@@ -164,8 +164,11 @@ fn flush_dns_cache() -> Result<(), Error> {
 /// Obtain a string representation for a GUID object.
 fn string_from_guid(guid: &GUID) -> String {
     let mut buffer = [0u16; 40];
-    let length = unsafe { StringFromGUID2(guid, &mut buffer[0] as *mut _, buffer.len() as i32 - 1) }
-        as usize;
+
+    let length =
+        // SAFETY: `gui` and `buffer` are valid references.
+        unsafe { StringFromGUID2(guid, buffer.as_mut_ptr(), buffer.len() as i32 - 1) } as usize;
+
     // cannot fail because `buffer` is large enough
     assert!(length > 0);
     let length = length - 1;
