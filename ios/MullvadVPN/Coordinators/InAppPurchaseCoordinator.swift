@@ -21,7 +21,7 @@ final class InAppPurchaseCoordinator: Coordinator, Presentable, Presenting {
     private let accountNumber: String
     private let paymentAction: PaymentAction
 
-    var didFinish: ((InAppPurchaseCoordinator, InAppPurchaseEvent) -> Void)?
+    var didFinish: ((InAppPurchaseCoordinator) -> Void)?
 
     var presentedViewController: UIViewController {
         return controller!
@@ -33,8 +33,8 @@ final class InAppPurchaseCoordinator: Coordinator, Presentable, Presenting {
         self.paymentAction = paymentAction
     }
 
-    func dismiss(event: InAppPurchaseEvent) {
-        didFinish?(self, event)
+    func dismiss() {
+        didFinish?(self)
     }
 
     func start() {

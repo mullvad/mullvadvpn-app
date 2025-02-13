@@ -82,14 +82,8 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
             accountNumber: accountNumber,
             paymentAction: paymentAction
         )
-        coordinator.didFinish = { [weak self] coordinator, event in
+        coordinator.didFinish = { coordinator in
             coordinator.dismiss(animated: true)
-            switch event {
-            case .paymentEvent(.finished), .purchaseRestored:
-                guard let self else { return }
-                self.didFinishPayment?(self)
-            default: break
-            }
         }
         coordinator.start()
         presentChild(coordinator, animated: true)

@@ -21,7 +21,6 @@ final class AccountInteractor: Sendable {
     nonisolated(unsafe) var didReceiveDeviceState: (@Sendable (DeviceState) -> Void)?
 
     nonisolated(unsafe) private var tunnelObserver: TunnelObserver?
-    nonisolated(unsafe) private var paymentObserver: StorePaymentObserver?
 
     init(
         tunnelManager: TunnelManager,
