@@ -151,8 +151,6 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout repository
-        uses: ./.github/actions/checkout-app
       - name: Build mullvad-version
         run: |
           cargo build --package mullvad-version --release
