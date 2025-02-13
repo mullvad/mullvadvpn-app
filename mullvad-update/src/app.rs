@@ -1,11 +1,15 @@
 //! This module implements the flow of downloading and verifying the app.
 
-use std::path::PathBuf;
+use std::{path::PathBuf, time::Duration};
+
+use tokio::{process::Command, time::timeout};
 
 use crate::{
     fetch::{self, ProgressUpdater},
     verify::{AppVerifier, Sha256Verifier},
 };
+
+const INSTALLER_STARTUP_TIMEOUT: Duration = Duration::from_millis(500);
 
 #[derive(Debug)]
 pub enum DownloadError {
@@ -13,6 +17,8 @@ pub enum DownloadError {
     FetchSignature(anyhow::Error),
     FetchApp(anyhow::Error),
     Verification(anyhow::Error),
+    Launch(std::io::Error),
+    InstallFailed(anyhow::Error),
 }
 
 /// Parameters required to construct an [AppDownloader].
@@ -36,13 +42,17 @@ pub trait AppDownloader: Send {
 
     /// Verify the app signature.
     async fn verify(&mut self) -> Result<(), DownloadError>;
+
+    /// Execute installer.
+    async fn install(&mut self) -> Result<(), DownloadError>;
 }
 
 /// Download the app and signature, and verify the app's signature
 pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(), DownloadError> {
     downloader.create_cache_dir().await?;
     downloader.download_executable().await?;
-    downloader.verify().await
+    downloader.verify().await?;
+    downloader.install().await
 }
 
 #[derive(Clone)]
@@ -91,6 +101,27 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
         Sha256Verifier::verify(bin_path, *hash)
             .await
             .map_err(DownloadError::Verification)
+    }
+
+    async fn install(&mut self) -> Result<(), DownloadError> {
+        let bin_path = self.bin_path().expect("Performed after 'create_cache_dir'");
+
+        // Launch process
+        // TODO: move to launch.rs?
+        let mut cmd = Command::new(bin_path);
+        let mut child = cmd.spawn().map_err(DownloadError::Launch)?;
+
+        // Wait to see if the installer fails
+        match timeout(INSTALLER_STARTUP_TIMEOUT, child.wait()).await {
+            // Timeout: Quit and let the installer take over
+            Err(_timeout) => Ok(()),
+            // No timeout: Incredibly quick but successful (or wrong exit code, probably)
+            Ok(Ok(status)) if status.success() => Ok(()),
+            // Installer failed
+            Ok(Ok(status)) => Err(DownloadError::InstallFailed(anyhow::anyhow!("Install failed with status: {status}"))),
+            // Installer failed
+            Ok(Err(err)) => Err(DownloadError::InstallFailed(anyhow::anyhow!("Install failed : {err}"))),
+        }
     }
 }
 

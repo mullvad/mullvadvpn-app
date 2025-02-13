@@ -91,6 +91,10 @@ impl AppDelegate for AppWindow {
         self.beta_link.set_visible(false);
     }
 
+    fn quit(&mut self) {
+        nwg::stop_thread_dispatch();
+    }
+
     fn queue(&self) -> Self::Queue {
         Queue {
             main_wnd: self.window.handle,

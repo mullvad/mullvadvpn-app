@@ -12,6 +12,7 @@ download_button_enabled: true
 download_progress: 0
 download_progress_visible: false
 beta_text_visible: false
+quit: false
 call_log:
   - hide_download_progress
   - show_download_button

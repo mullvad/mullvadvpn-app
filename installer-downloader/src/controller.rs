@@ -161,9 +161,7 @@ where
                     });
 
                     let ui_downloader = UiAppDownloader::new(self_, downloader);
-                    let _ = tx.send(tokio::spawn(async move {
-                        let _ = app::install_and_upgrade(ui_downloader).await;
-                    }));
+                    let _ = tx.send(tokio::spawn(app::install_and_upgrade(ui_downloader)));
                 });
                 active_download = rx.await.ok();
             }

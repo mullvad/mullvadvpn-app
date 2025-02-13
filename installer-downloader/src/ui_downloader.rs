@@ -88,6 +88,25 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
         }
     }
+
+    async fn install(&mut self) -> Result<(), app::DownloadError> {
+        match self.downloader.install().await {
+            Ok(()) => {
+                self.queue.queue_main(move |self_| {
+                    // Success!
+                    self_.quit();
+                });
+                Ok(())
+            }
+            Err(error) => {
+                self.queue.queue_main(move |self_| {
+                    self_.set_download_text("ERROR: Failed to launch installer!");
+                });
+
+                Err(error)
+            }
+        }
+    }
 }
 
 /// Implementation of [fetch::ProgressUpdater] that updates some [AppDelegate].
