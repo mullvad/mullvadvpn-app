@@ -24,8 +24,6 @@ pub struct BroadcastListener {
     _notify_tx: Arc<UnboundedSender<Connectivity>>,
 }
 
-unsafe impl Send for BroadcastListener {}
-
 impl BroadcastListener {
     pub async fn start(
         notify_tx: UnboundedSender<Connectivity>,
