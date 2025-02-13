@@ -16,7 +16,8 @@ mod sys {
     use super::*;
 
     pub use libc::{setsockopt, socklen_t, IPPROTO_TCP, TCP_MAXSEG};
-    pub use std::os::fd::{AsRawFd, RawFd};
+    use std::ffi::c_int;
+    pub use std::os::fd::AsRawFd;
 
     /// MTU to set on the tunnel config client socket. We want a low value to prevent fragmentation.
     /// Especially on Android, we've found that the real MTU is often lower than the default MTU, and
@@ -33,7 +34,7 @@ mod sys {
     impl TcpSocket {
         pub fn new() -> io::Result<Self> {
             let socket = StdTcpSocket::new_v4()?;
-            try_set_tcp_sock_mtu(socket.as_raw_fd());
+            try_set_tcp_sock_mtu(&socket);
             Ok(Self { socket })
         }
 
@@ -42,13 +43,16 @@ mod sys {
         }
     }
 
-    fn try_set_tcp_sock_mtu(sock: RawFd) {
-        let mss = desired_mss();
+    fn try_set_tcp_sock_mtu(sock: &impl AsRawFd) {
+        let mss = c_int::from(desired_mss());
+
         log::debug!("Tunnel config TCP socket MSS: {mss}");
 
+        // TODO: replace with nix when TcpMaxSeg is added for macos
+        // SAFETY: `mss` is a valid pointer to a c_int.
         let result = unsafe {
             setsockopt(
-                sock,
+                sock.as_raw_fd(),
                 IPPROTO_TCP,
                 TCP_MAXSEG,
                 &mss as *const _ as _,
@@ -63,11 +67,11 @@ mod sys {
         }
     }
 
-    const fn desired_mss() -> u32 {
+    const fn desired_mss() -> u16 {
         const IPV4_HEADER_SIZE: u16 = 20;
         const MAX_TCP_HEADER_SIZE: u16 = 60;
         let mtu = CONFIG_CLIENT_MTU.saturating_sub(IPV4_HEADER_SIZE);
-        mtu.saturating_sub(MAX_TCP_HEADER_SIZE) as u32
+        mtu.saturating_sub(MAX_TCP_HEADER_SIZE)
     }
 }
 
