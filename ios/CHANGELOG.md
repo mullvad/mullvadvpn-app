@@ -22,12 +22,16 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+
+## 2025.2 - 2025-02-08
+### Added
+- Add different themes for app icons
+
 ### Fixed
 - Broken DAITA settings view on iOS 15.
 
 ### Changed
 - Move changelog to settings and add an in-app notification banner for app update.
-- Add different themes for app icons
 
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
