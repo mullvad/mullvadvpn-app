@@ -62,6 +62,7 @@ impl DnsApi {
         std::thread::spawn(move || {
             let begin = Instant::now();
 
+            // SAFETY: this function is trivially safe to call
             let result = if unsafe { (DnsFlushResolverCache)() } != 0 {
                 let elapsed = begin.elapsed();
                 if elapsed >= FLUSH_TIMEOUT {
