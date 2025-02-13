@@ -647,7 +647,12 @@ impl Interface {
                 actual_size: buffer.len(),
             });
         }
-        let header: libc::if_msghdr = unsafe { std::ptr::read(buffer.as_ptr() as *const _) };
+        let header = buffer.as_ptr().cast::<libc::if_msghdr>();
+
+        // SAFETY:
+        // - `buffer` points to initialized memory of the correct size.
+        // - if_msghdr is a C struct, and valid for any bit pattern
+        let header: libc::if_msghdr = unsafe { header.read_unaligned() };
         // let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
         Ok(Self { header })
     }
