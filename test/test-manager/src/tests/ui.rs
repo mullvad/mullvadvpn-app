@@ -1,6 +1,7 @@
 use super::{config::TEST_CONFIG, helpers, Error, TestContext};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
+use mullvad_types::{constraints::Constraint, relay_constraints::RelaySettings};
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -126,8 +127,14 @@ pub async fn test_ui_openvpn_tunnel_settings(
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
     // openvpn-tunnel-state.spec precondition: OpenVPN needs to be selected
-    let query = RelayQueryBuilder::new().openvpn().build();
-    helpers::apply_settings_from_relay_query(&mut mullvad_client, query).await?;
+    let relay_settings = mullvad_client.get_settings().await?.get_relay_settings();
+    let RelaySettings::Normal(mut constraints) = relay_settings else {
+        unimplemented!()
+    };
+    constraints.tunnel_protocol = Constraint::Only(talpid_types::net::TunnelType::OpenVpn);
+    mullvad_client
+        .set_relay_settings(RelaySettings::Normal(constraints))
+        .await?;
 
     let ui_result = run_test(&rpc, &["openvpn-tunnel-state.spec"]).await?;
     assert!(ui_result.success());
