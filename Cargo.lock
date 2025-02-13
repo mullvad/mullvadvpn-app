@@ -2996,6 +2996,7 @@ dependencies = [
  "insta",
  "json-canon",
  "mockito",
+ "mullvad-paths",
  "mullvad-version",
  "rand 0.8.5",
  "reqwest",
