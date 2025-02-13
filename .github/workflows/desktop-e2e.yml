@@ -124,7 +124,7 @@ jobs:
       - name: Checkout repository
         uses: ./.github/actions/checkout-app
       - name: Build app
-        run: ./build.sh
+        run: ./build.sh --optimize
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
@@ -155,15 +155,18 @@ jobs:
         run: |
           cargo build --package mullvad-version --release
           # TODO: Remove
-          ls -la target/
-          ls -la target/release/
+          mkdir bin
+          mv -t ./bin/ "$CARGO_TARGET_DIR/release/mullvad-version"
+        shell: bash
       - name: Upload mullvad-version
         uses: actions/upload-artifact@v4
-        if: '!cancelled()'
         with:
           name: mullvad-version-linux
-          path: |
-            ./target/release/mullvad-version
+          path: ./bin/mullvad-version
+          if-no-files-found: error
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
 
   build-test-manager-linux:
     name: Build Test Manager
@@ -180,6 +183,9 @@ jobs:
           name: linux-test-manager-build
           path: |
             ./test/target/release/test-manager
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
 
   e2e-test-linux:
     name: Linux end-to-end tests
@@ -195,36 +201,38 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create binaries directory & add to PATH
+        shell: bash -ieo pipefail {0}
+        run: |
+          # TODO: Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
+          mkdir "${{ github.workspace }}/bin"
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
+      - name: Download Test Manager
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: Download mullvad-version
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: mullvad-version-linux
+          path: ${{ github.workspace }}/bin
+      - name: Check binaries
+        run: ls -la ${{ github.workspace }}/bin
+        shell: bash
       - name: Download App
         uses: actions/download-artifact@v4
         if: ${{ needs.build-linux-app.result == 'success' }}
         with:
           name: linux-build
           path: ~/.cache/mullvad-test/packages
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - name: Download Test Manager
-        uses: actions/download-artifact@v4
-        if: ${{ needs.build-test-manager-linux.result == 'success' }}
-        with:
-          name: linux-test-manager-build
-          path: test-manager
-      - name: Download mullvad-version
-        uses: actions/download-artifact@v4
-        if: ${{ needs.build-test-manager-linux.result == 'success' }}
-        with:
-          name: mullvad-version-linux
-          path: mullvad-version
-      - name: Add binaries to PATH
-        shell: bash -ieo pipefail {0}
-        run: |
-          mkdir "${{ github.workspace }}/bin"
-          mv -t "${{ github.workspace }}/bin/" test-manager mullvad-version
-          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
-          # TODO: Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
           # TODO: Explain this. A directory with all the binaries required to run test-manager
           export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           git fetch --tags --prune-tags --force
