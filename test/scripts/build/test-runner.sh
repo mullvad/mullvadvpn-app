@@ -45,7 +45,7 @@ popd
 # Optionally move binaries to some known location
 # TODO: Swap out for proper flag. Or something
 if [ "$1" ]; then
-  ARTIFACTS_DIR="$TEST_FRAMEWORK_ROOT/target/$TARGET/release/"
+  ARTIFACTS_DIR="$TEST_FRAMEWORK_ROOT/target/$TARGET/release"
   mv -t "$1" "$ARTIFACTS_DIR/test-runner" "$ARTIFACTS_DIR/connection-checker"
   shift
 fi
