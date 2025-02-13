@@ -202,7 +202,8 @@ jobs:
         run: |
           # TODO: Remove
           mkdir bin/
-          test/scripts/build/test-runner.sh linux bin/
+          test/scripts/build/test-runner.sh linux
+          mv -t bin/ "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
       - uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
