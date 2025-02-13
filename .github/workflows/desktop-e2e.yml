@@ -221,10 +221,11 @@ jobs:
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
       needs.prepare-matrices.outputs.linux_matrix != ''
-    #runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
-    runs-on: ubuntu-latest
-    container:
-      image: ${{ needs.prepare-linux.outputs.container_image }}
+    runs-on: [self-hosted, se-got-github-runner-013] # Magnus<3
+    # runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    # runs-on: ubuntu-latest
+    # container:
+    #   image: ${{ needs.prepare-linux.outputs.container_image }}
     timeout-minutes: 240
     strategy:
       fail-fast: false
@@ -264,7 +265,6 @@ jobs:
       - name: Check binaries
         run: |
           ls -la ${{ github.workspace }}/bin
-          ls -la ${{ github.workspace }}/bin/mullvad-version
         shell: bash
 # - name: Download App
 #uses: actions/download-artifact@v4
