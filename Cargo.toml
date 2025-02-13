@@ -23,6 +23,7 @@ members = [
   "mullvad-jni",
   "mullvad-leak-checker",
   "mullvad-management-interface",
+  "mullvad-masque-proxy",
   "mullvad-nsis",
   "mullvad-paths",
   "mullvad-problem-report",
