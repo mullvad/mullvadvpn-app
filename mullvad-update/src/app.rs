@@ -98,9 +98,20 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
     async fn verify(&mut self) -> Result<(), DownloadError> {
         let bin_path = self.bin_path().expect("Performed after 'create_cache_dir'");
         let hash = self.hash_sha256();
-        Sha256Verifier::verify(bin_path, *hash)
+
+        match Sha256Verifier::verify(&bin_path, *hash)
             .await
             .map_err(DownloadError::Verification)
+        {
+            // Verification succeeded
+            Ok(()) => Ok(()),
+            // Verification failed
+            Err(err) => {
+                // Attempt to clean up
+                let _ = tokio::fs::remove_file(bin_path).await;
+                Err(err)
+            }
+        }
     }
 
     async fn install(&mut self) -> Result<(), DownloadError> {
