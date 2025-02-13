@@ -188,6 +188,26 @@ jobs:
         run: |
           cargo clean
 
+  build-test-runner-binaries-linux:
+    name: Build Test Runner Binaries
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build binaries
+        run: |
+          # TODO: Remove
+          mkdir bin/
+          test/scripts/build/test-runner.sh linux bin/
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-runner-binaries
+          path: bin/*
+
   e2e-test-linux:
     name: Linux end-to-end tests
     needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux]
@@ -221,6 +241,12 @@ jobs:
         if: ${{ needs.build-test-manager-linux.result == 'success' }}
         with:
           name: mullvad-version-linux
+          path: ${{ github.workspace }}/bin
+      - name: Download Test Runner binaries
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-runner-binaries-linux.result == 'success' }}
+        with:
+          name: linux-test-runner-binaries
           path: ${{ github.workspace }}/bin
       - name: Check binaries
         run: ls -la ${{ github.workspace }}/bin
