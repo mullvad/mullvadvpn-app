@@ -132,16 +132,17 @@ impl Bpf {
             return Err(Error::InterfaceNameTooLong);
         }
 
+        // SAFETY: `name_bytes` cannot exceed the size of `ifr_name`
         unsafe {
-            // SAFETY: `name_bytes` cannot exceed the size of `ifr_name`
             std::ptr::copy_nonoverlapping(
                 name_bytes.as_ptr(),
                 &mut ifr.ifr_name as *mut _ as *mut _,
                 name_bytes.len(),
-            );
-            // SAFETY: The fd is valid for the lifetime of `self`, and `ifr` has a valid interface
-            ioctl!(self.file.as_raw_fd(), BIOCSETIF, &ifr)
-        }
+            )
+        };
+
+        // SAFETY: The fd is valid for the lifetime of `self`, and `ifr` has a valid interface
+        unsafe { ioctl!(self.file.as_raw_fd(), BIOCSETIF, &ifr) }
     }
 
     /// Enable or disable immediate mode (BIOCIMMEDIATE)
