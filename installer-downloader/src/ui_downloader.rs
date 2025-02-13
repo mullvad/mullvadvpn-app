@@ -50,8 +50,6 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             Err(err) => {
                 self.queue.queue_main(move |self_| {
                     self_.set_download_text("ERROR: Download failed. Please try again.");
-                    self_.enable_download_button();
-                    self_.hide_cancel_button();
                 });
 
                 Err(err)
