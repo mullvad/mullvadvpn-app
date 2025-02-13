@@ -46,7 +46,7 @@ members = [
   "talpid-wireguard",
   "tunnel-obfuscation",
   "wireguard-go-rs",
-  "windows-installer",
+  "windows-installer", "mullvad-masque-proxy",
 ]
 # Default members dictate what is built when running `cargo build` in the root directory.
 # This is set to a minimal set of packages to speed up the build process and avoid building
