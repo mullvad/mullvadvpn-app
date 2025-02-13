@@ -393,9 +393,7 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID_LH> {
 /// Returns the alias of an interface given its LUID.
 pub fn alias_from_luid(luid: &NET_LUID_LH) -> io::Result<OsString> {
     let mut buffer = [0u16; IF_MAX_STRING_SIZE as usize + 1];
-    win32_err!(unsafe {
-        ConvertInterfaceLuidToAlias(luid, &mut buffer[0] as *mut _, buffer.len())
-    })?;
+    win32_err!(unsafe { ConvertInterfaceLuidToAlias(luid, buffer.as_mut_ptr(), buffer.len()) })?;
     let nul = buffer.iter().position(|&c| c == 0u16).unwrap();
     Ok(OsString::from_wide(&buffer[0..nul]))
 }
