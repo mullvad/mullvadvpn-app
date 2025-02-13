@@ -141,6 +141,7 @@ where
                     let Some(app_url) = version_info.stable.urls.first() else {
                         return;
                     };
+                    let app_version = version_info.stable.version;
                     let app_sha256 = version_info.stable.sha256;
                     let app_size = version_info.stable.size;
 
@@ -152,6 +153,7 @@ where
                     self_.show_download_progress();
 
                     let downloader = A::from(UiAppDownloaderParameters {
+                        app_version,
                         app_url: app_url.to_owned(),
                         app_size,
                         app_progress: UiProgressUpdater::new(self_.queue()),

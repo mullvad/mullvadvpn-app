@@ -27,6 +27,7 @@ sha2 = "0.10"
 tokio = { version = "1", features = ["full"] }
 async-trait = "0.1"
 
+mullvad-paths = { path = "../mullvad-paths" }
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries
