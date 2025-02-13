@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use crate::cli;
 use mullvad_daemon::{runtime::new_multi_thread, DaemonShutdownHandle};
 use std::{
