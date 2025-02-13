@@ -124,7 +124,7 @@ jobs:
       - name: Checkout repository
         uses: ./.github/actions/checkout-app
       - name: Build app
-        run: ./build.sh
+        run: ./build.sh --optimize
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
