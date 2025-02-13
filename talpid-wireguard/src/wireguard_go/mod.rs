@@ -761,12 +761,16 @@ mod logging {
     use std::ffi::c_char;
 
     // Callback that receives messages from WireGuard
+    //
+    // # Safety
+    // - `msg` must be a valid pointer to a null-terminated UTF-8 string.
     pub unsafe extern "system" fn wg_go_logging_callback(
         level: WgLogLevel,
         msg: *const c_char,
         context: u64,
     ) {
         let managed_msg = if !msg.is_null() {
+            // SAFETY: caller promises that the pointer is valid.
             unsafe { std::ffi::CStr::from_ptr(msg).to_string_lossy().to_string() }
         } else {
             "Logging message from WireGuard is NULL".to_string()
