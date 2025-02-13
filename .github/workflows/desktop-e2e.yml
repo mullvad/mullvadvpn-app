@@ -143,7 +143,6 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
-    continue-on-error: true
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -185,6 +184,7 @@ jobs:
           name: linux-test-manager-build
           path: |
             ./test/target/release/test-manager
+          if-no-files-found: error
       - name: Clean up Cargo artifacts
         run: |
           cargo clean
@@ -206,6 +206,7 @@ jobs:
           mv -t bin/ "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
       - uses: actions/upload-artifact@v4
         if: '!cancelled()'
+        if-no-files-found: error
         with:
           name: linux-test-runner-binaries
           path: bin/*
