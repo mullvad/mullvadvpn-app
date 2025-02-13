@@ -1,7 +1,11 @@
 import { startApp } from '../utils';
 
 export const startInstalledApp = async (): ReturnType<typeof startApp> => {
-  return startApp({ executablePath: getAppInstallPath() });
+  return startApp({
+    executablePath: getAppInstallPath(),
+    args: ['--ozone-platform=wayland', '--enable-features=WaylandWindowDecorations'],
+    bypassCSP: true,
+  });
 };
 
 function getAppInstallPath(): string {
