@@ -155,16 +155,14 @@ jobs:
         run: |
           cargo build --package mullvad-version --release
           # TODO: Remove
-          mkdir -p "${{ github.workspace }}/bin"
-          mv -t "${{ github.workspace }}/bin/" "$CARGO_TARGET_DIR/release/mullvad-version"
-          ls -la "${{ github.workspace }}/bin/"
+          mkdir bin
+          mv -t ./bin/ "$CARGO_TARGET_DIR/release/mullvad-version"
       - name: Upload mullvad-version
         uses: actions/upload-artifact@v4
-        if: '!cancelled()'
         with:
           name: mullvad-version-linux
-          path: |
-            ${{ github.workspace }}/bin/mullvad-version
+          path: ./bin/mullvad-version
+          if-no-files-found: error
       - name: Clean up Cargo artifacts
         run: |
           cargo clean
