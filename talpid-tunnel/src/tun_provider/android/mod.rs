@@ -107,6 +107,8 @@ impl AndroidTunProvider {
     fn open_tun_inner(&mut self, get_tun_func_name: &'static str) -> Result<VpnServiceTun, Error> {
         let tun_fd = self.open_tun_fd(get_tun_func_name)?;
 
+        // i have no idea why this is/isn't safe.
+        #[allow(clippy::undocumented_unsafe_blocks)]
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
 
