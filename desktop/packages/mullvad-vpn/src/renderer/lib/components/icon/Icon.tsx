@@ -22,8 +22,8 @@ const StyledIcon = styled.div<
 `;
 
 export const iconSizes = {
-  tiny: 12,
-  small: 16,
+  tiny: 14,
+  small: 18,
   medium: 24,
   large: 32,
   big: 48,
