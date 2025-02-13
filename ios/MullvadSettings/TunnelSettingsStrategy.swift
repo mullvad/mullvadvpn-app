@@ -22,7 +22,10 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
         oldSettings: LatestTunnelSettings,
         newSettings: LatestTunnelSettings
     ) -> Bool {
-        getReconnectionStrategy(oldSettings: oldSettings, newSettings: newSettings) != .noReconnect
+        getReconnectionStrategy(
+            oldSettings: oldSettings,
+            newSettings: newSettings
+        ) != .currentRelayReconnect
     }
 
     public func getReconnectionStrategy(
@@ -35,16 +38,16 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
         }
         switch (oldSettings, newSettings) {
         case let (old, new) where old != new:
-            return .softReconnect
+            return .newRelayReconnect
         default:
-            return .noReconnect
+            return .currentRelayReconnect
         }
     }
 }
 
 public enum TunnelSettingsReconnectionStrategy {
-    case noReconnect
-    case softReconnect
+    case currentRelayReconnect
+    case newRelayReconnect
 //    This will fully disconnect and start a new connection
 //    Attention: This will leak traffic!!!
     case hardReconnect

@@ -187,4 +187,66 @@ class TunnelManagerTests: XCTestCase {
             enforceOrder: true
         )
     }
+
+    /// This test verifies tunnel gets disconnected and reconnected on config reapply.
+    func testReapplyingConfigDisconnectsAndReconnects() async throws {
+        var connectedExpectation = expectation(description: "Connected!")
+        let disconnectedExpectation = expectation(description: "Disconnected!")
+
+        accountProxy.createAccountResult = .success(REST.NewAccountData.mockValue())
+
+        let relaySelector = RelaySelectorStub { _ in
+            try RelaySelectorStub.nonFallible().selectRelays(
+                tunnelSettings: LatestTunnelSettings(),
+                connectionAttemptCount: 0
+            )
+        }
+
+        let tunnelManager = TunnelManager(
+            backgroundTaskProvider: application,
+            tunnelStore: TunnelStore(application: application),
+            relayCacheTracker: relayCacheTracker,
+            accountsProxy: accountProxy,
+            devicesProxy: devicesProxy,
+            apiProxy: apiProxy,
+            accessTokenManager: accessTokenManager,
+            relaySelector: relaySelector
+        )
+
+        let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
+            relaySelector: relaySelector,
+            transportProvider: transportProvider
+        )
+        SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
+        let tunnelObserver = TunnelBlockObserver(
+            didUpdateTunnelStatus: { _, tunnelStatus in
+                switch tunnelStatus.state {
+                case .connected:
+                    connectedExpectation.fulfill()
+                case .disconnected:
+                    disconnectedExpectation.fulfill()
+                default:
+                    return
+                }
+            }
+        )
+
+        self.tunnelObserver = tunnelObserver
+        tunnelManager.addObserver(tunnelObserver)
+
+        _ = try await tunnelManager.setNewAccount()
+
+        XCTAssertTrue(tunnelManager.deviceState.isLoggedIn)
+
+        tunnelManager.startTunnel()
+        await fulfillment(of: [connectedExpectation])
+        tunnelManager
+            .reapplyTunnelConfiguration()
+        connectedExpectation = expectation(description: "Connected!")
+        await fulfillment(
+            of: [disconnectedExpectation, connectedExpectation],
+            timeout: .UnitTest.timeout,
+            enforceOrder: true
+        )
+    }
 }
