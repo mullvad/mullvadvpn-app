@@ -257,6 +257,10 @@ jobs:
         with:
           name: linux-test-runner-binaries
           path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
+        shell: bash
       - name: Check binaries
         run: |
           ls -la ${{ github.workspace }}/bin
