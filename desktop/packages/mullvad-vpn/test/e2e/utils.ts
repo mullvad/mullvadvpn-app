@@ -71,20 +71,7 @@ const waitForNavigationFactory = (app: ElectronApplication, page: Page) => {
 };
 
 const waitForNoTransition = async (page: Page) => {
-  // Wait until there's only one transitionContents
-  let transitionContentsCount;
-  do {
-    if (transitionContentsCount !== undefined) {
-      await new Promise((resolve) => setTimeout(resolve, 5));
-    }
-
-    try {
-      transitionContentsCount = await page.getByTestId('transition-content').count();
-    } catch {
-      console.log('Transition content count failed');
-      break;
-    }
-  } while (transitionContentsCount !== 1);
+  await page.waitForFunction(() => !document.querySelector('::view-transition'));
 };
 
 // Returns the route when it changes
