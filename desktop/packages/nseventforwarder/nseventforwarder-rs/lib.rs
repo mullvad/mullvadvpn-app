@@ -1,6 +1,5 @@
 //! Forward [NSEvent]s from macOS to node.
 #![cfg(target_os = "macos")]
-#![warn(clippy::undocumented_unsafe_blocks)]
 
 use std::ptr::NonNull;
 use std::sync::{mpsc, Arc, Mutex};

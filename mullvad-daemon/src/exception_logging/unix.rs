@@ -1,5 +1,4 @@
 //! Install signal handlers to catch critical program faults and log them. See [`enable`].
-#![warn(clippy::undocumented_unsafe_blocks)]
 
 use libc::siginfo_t;
 use nix::sys::signal::{sigaction, SaFlags, SigAction, SigHandler, SigSet, Signal};
