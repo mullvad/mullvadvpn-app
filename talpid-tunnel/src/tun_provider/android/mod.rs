@@ -102,6 +102,8 @@ impl AndroidTunProvider {
     pub fn open_tun(&mut self) -> Result<VpnServiceTun, Error> {
         let config = VpnServiceConfig::new(self.config.clone());
 
+        // i have no idea why this is/isn't safe.
+        #[allow(clippy::undocumented_unsafe_blocks)]
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
 
