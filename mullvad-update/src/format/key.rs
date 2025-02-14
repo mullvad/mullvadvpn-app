@@ -74,6 +74,15 @@ impl Serialize for SecretKey {
 #[derive(Debug, PartialEq, Eq)]
 pub struct VerifyingKey(pub ed25519_dalek::VerifyingKey);
 
+impl VerifyingKey {
+    pub fn from_hex(s: &str) -> anyhow::Result<Self> {
+        let bytes = bytes_from_hex::<{ ed25519_dalek::PUBLIC_KEY_LENGTH }>(s)?;
+        Ok(Self(
+            ed25519_dalek::VerifyingKey::from_bytes(&bytes).context("Invalid ed25519 key")?,
+        ))
+    }
+}
+
 impl<'de> Deserialize<'de> for VerifyingKey {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
