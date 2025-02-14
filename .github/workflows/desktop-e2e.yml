@@ -135,9 +135,9 @@ jobs:
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
-      - name: Move cache to right place
-        if: steps.cache-app-cargo-artifacts.outputs.cache-hit == 'true'
-        run: mv target/ "$CARGO_TARGET_DIR"
+      # - name: Move cache to right place
+      #   if: steps.cache-app-cargo-artifacts.outputs.cache-hit == 'true'
+      #   run: mv target/ "$CARGO_TARGET_DIR"
 
       - name: Check build directory
         run: |
@@ -146,7 +146,9 @@ jobs:
           # ls -la "${{ github.workspace }}"
           # ls -la target/
       - name: Build app
-        run: ./build.sh --optimize
+        run: |
+          export CARGO_TARGET_DIR=target/
+          ./build.sh --optimize
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
