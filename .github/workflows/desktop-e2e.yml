@@ -125,6 +125,7 @@ jobs:
         uses: ./.github/actions/checkout-app
       # - uses: Swatinem/rust-cache@v2
       - uses: actions/cache@v4
+        id: cache-app-cargo-artifacts
         with:
           path: |
             ~/.cargo/bin/
@@ -133,6 +134,10 @@ jobs:
             ~/.cargo/git/db/
             target/
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Move cache to right place
+        if: steps.cache-app-cargo-artifacts.outputs.cache-hit == 'true'
+        run: mv target/ "$CARGO_TARGET_DIR"
 
       - name: Check build directory
         run: |
