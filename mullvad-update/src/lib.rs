@@ -5,6 +5,7 @@ pub mod app;
 pub mod dir;
 pub mod fetch;
 pub mod verify;
+pub mod version;
 
 /// Parser and serializer for version metadata
 pub mod format;
