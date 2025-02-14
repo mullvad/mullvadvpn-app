@@ -164,9 +164,6 @@ jobs:
           name: mullvad-version-linux
           path: ./bin/mullvad-version
           if-no-files-found: error
-      - name: Clean up Cargo artifacts
-        run: |
-          cargo clean
 
   build-test-manager-linux:
     name: Build Test Manager
