@@ -10,6 +10,7 @@ use mullvad_update::{
 };
 
 use std::future::Future;
+use std::path::PathBuf;
 use tokio::sync::{mpsc, oneshot};
 
 /// Actions handled by an async worker task in [handle_action_messages].
@@ -17,6 +18,21 @@ enum TaskMessage {
     SetVersionInfo(api::VersionInfo),
     BeginDownload,
     Cancel,
+}
+
+/// Provide a directory to use for [AppDownloader]
+pub trait DirectoryProvider: 'static {
+    /// Provide a directory to use for [AppDownloader]
+    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send;
+}
+
+struct TempDirProvider;
+
+impl DirectoryProvider for TempDirProvider {
+    /// Create a locked-down directory to store downloads in
+    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send {
+        mullvad_update::dir::admin_temp_dir()
+    }
 }
 
 /// See the [module-level docs](self).
@@ -30,8 +46,10 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
     // Version info provider to use
     type VersionInfoProvider = ApiVersionInfoProvider;
+    // Directory provider to use
+    type DirProvider = TempDirProvider;
 
-    AppController::initialize::<_, Downloader<T>, VersionInfoProvider>(delegate)
+    AppController::initialize::<_, Downloader<T>, VersionInfoProvider, DirProvider>(delegate)
 }
 
 impl AppController {
@@ -39,11 +57,12 @@ impl AppController {
     ///
     /// Providing the downloader and version info fetcher as type arguments, they're decoupled from
     /// the logic of [AppController], allowing them to be mocked.
-    pub fn initialize<D, A, V>(delegate: &mut D)
+    pub fn initialize<D, A, V, DirProvider>(delegate: &mut D)
     where
         D: AppDelegate + 'static,
         V: VersionInfoProvider + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
+        DirProvider: DirectoryProvider,
     {
         delegate.hide_download_progress();
         delegate.show_download_button();
@@ -52,7 +71,10 @@ impl AppController {
         delegate.hide_beta_text();
 
         let (task_tx, task_rx) = mpsc::channel(1);
-        tokio::spawn(handle_action_messages::<D, A>(delegate.queue(), task_rx));
+        tokio::spawn(handle_action_messages::<D, A, DirProvider>(
+            delegate.queue(),
+            task_rx,
+        ));
         delegate.set_status_text(resource::FETCH_VERSION_DESC);
         tokio::spawn(fetch_app_version_info::<D, V>(delegate, task_tx.clone()));
         Self::register_user_action_callbacks(delegate, task_tx);
@@ -105,10 +127,13 @@ where
 
 /// Async worker that handles actions such as initiating a download, cancelling it, and updating
 /// labels.
-async fn handle_action_messages<D, A>(queue: D::Queue, mut rx: mpsc::Receiver<TaskMessage>)
-where
+async fn handle_action_messages<D, A, DirProvider>(
+    queue: D::Queue,
+    mut rx: mpsc::Receiver<TaskMessage>,
+) where
     D: AppDelegate + 'static,
     A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
+    DirProvider: DirectoryProvider,
 {
     let mut version_info = None;
     let mut active_download = None;
@@ -135,6 +160,18 @@ where
                     continue;
                 };
 
+                // Create temporary dir
+                let download_dir = match DirProvider::create_download_dir().await {
+                    Ok(dir) => dir,
+                    Err(_err) => {
+                        queue.queue_main(move |self_| {
+                            self_.set_status_text("Failed to create download directory");
+                        });
+                        continue;
+                    }
+                };
+
+                // Begin download
                 let (tx, rx) = oneshot::channel();
                 queue.queue_main(move |self_| {
                     // TODO: Select appropriate URLs
@@ -158,6 +195,7 @@ where
                         app_size,
                         app_progress: UiProgressUpdater::new(self_.queue()),
                         app_sha256,
+                        cache_dir: download_dir,
                     });
 
                     let ui_downloader = UiAppDownloader::new(self_, downloader);
