@@ -36,6 +36,7 @@ const MAX_ATTEMPT_CREATE_TUN: u32 = 4;
 const INITIAL_ALLOWED_TUNNEL_TRAFFIC: AllowedTunnelTraffic = AllowedTunnelTraffic::None;
 
 /// The tunnel has been started, but it is not established/functional.
+#[derive(Debug)]
 pub struct ConnectingState {
     tunnel_events: TunnelEventsReceiver,
     tunnel_parameters: TunnelParameters,

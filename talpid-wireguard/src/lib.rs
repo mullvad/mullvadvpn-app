@@ -425,7 +425,7 @@ impl WireguardMonitor {
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
-        let connectivity_check = connectivity::Check::new(
+        let mut connectivity_check = connectivity::Check::new(
             config.ipv4_gateway,
             args.retry_attempt,
             cancel_receiver.clone(),
@@ -497,6 +497,24 @@ impl WireguardMonitor {
                     ))
                     .await;
             }
+
+            match connectivity_check
+                .establish_connectivity(&tunnel.lock().await.as_ref().unwrap())
+                .await
+            {
+                Ok(true) => Ok(()),
+                Ok(false) => {
+                    log::warn!("Timeout while checking tunnel connection");
+                    Err(CloseMsg::PingErr)
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to check tunnel connection")
+                    );
+                    Err(CloseMsg::PingErr)
+                }
+            }?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
@@ -745,7 +763,7 @@ impl WireguardMonitor {
         #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<WgGoTunnel> {
-        #[cfg(unix)]
+        #[cfg(all(unix, not(target_os = "android")))]
         let routes = config
             .get_tunnel_destinations()
             .flat_map(Self::replace_default_prefixes);
@@ -778,7 +796,6 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 route_manager,
-                routes,
                 cancel_receiver,
             )
             .await
@@ -790,7 +807,6 @@ impl WireguardMonitor {
                 log_path,
                 tun_provider,
                 route_manager,
-                routes,
                 cancel_receiver,
             )
             .await
@@ -812,6 +828,7 @@ impl WireguardMonitor {
             Err(_) => Ok(()),
         };
 
+        log::debug!("Wait result : {:?}", wait_result);
         self.pinger_stop_sender.close();
 
         self.runtime
@@ -968,6 +985,7 @@ impl WireguardMonitor {
     }
 
     /// Replace default (0-prefix) routes with more specific routes.
+    #[cfg(all(unix, not(target_os = "android")))]
     fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
         #[cfg(windows)]
         if network.prefix() == 0 {

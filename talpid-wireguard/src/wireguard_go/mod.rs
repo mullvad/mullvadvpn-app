@@ -1,5 +1,6 @@
 #[cfg(target_os = "android")]
 use super::config;
+#[cfg(target_os = "android")]
 use super::{
     stats::{Stats, StatsMap},
     CloseMsg, Config, Error, Tunnel, TunnelError,
@@ -9,7 +10,7 @@ use crate::config::MULLVAD_INTERFACE_NAME;
 #[cfg(target_os = "android")]
 use crate::connectivity;
 use crate::logging::{clean_up_logging, initialize_logging};
-#[cfg(unix)]
+#[cfg(all(unix, not(target_os = "android")))]
 use ipnetwork::IpNetwork;
 #[cfg(daita)]
 use std::ffi::CString;
@@ -22,7 +23,8 @@ use std::{
     path::{Path, PathBuf},
     pin::Pin,
 };
-use talpid_routing::{RouteManagerHandle};
+#[cfg(target_os = "android")]
+use talpid_routing::RouteManagerHandle;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::Error as TunProviderError;
 #[cfg(not(target_os = "windows"))]
@@ -116,7 +118,6 @@ impl WgGoTunnel {
         let log_path = state._logging_context.path.clone();
         let cancel_receiver = state.cancel_receiver.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
-        let routes = config.get_tunnel_destinations();
         let route_manager = &state.route_manager.clone();
 
         match self {
@@ -127,7 +128,6 @@ impl WgGoTunnel {
                     log_path.as_deref(),
                     tun_provider,
                     route_manager.clone(),
-                    routes,
                     cancel_receiver,
                 )
                 .await
@@ -140,7 +140,6 @@ impl WgGoTunnel {
                     log_path.as_deref(),
                     tun_provider,
                     route_manager.clone(),
-                    routes,
                     cancel_receiver,
                 )
                 .await
@@ -347,7 +346,41 @@ impl WgGoTunnel {
         }
     }
 
-    #[cfg(unix)]
+    #[cfg(target_os = "android")]
+    fn get_tunnel(
+        tun_provider: Arc<Mutex<TunProvider>>,
+        config: &Config,
+    ) -> Result<(Tun, RawFd, bool)> {
+        log::debug!("WgGoTunnel get_tunnel");
+        let mut tun_provider = tun_provider.lock().unwrap();
+        let mut last_error = None;
+        let tun_config = tun_provider.config_mut();
+
+        tun_config.addresses = config.tunnel.addresses.clone();
+        tun_config.ipv4_gateway = config.ipv4_gateway;
+        tun_config.ipv6_gateway = config.ipv6_gateway;
+        tun_config.mtu = config.mtu;
+        tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
+
+        for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+            let (tunnel_device, is_new_tunnel) = tun_provider
+                .open_tun()
+                .map_err(TunnelError::SetupTunnelDevice)?;
+
+            match nix::unistd::dup(tunnel_device.as_raw_fd()) {
+                Ok(fd) => return Ok((tunnel_device, fd, is_new_tunnel)),
+                #[cfg(not(target_os = "macos"))]
+                Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
+                Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
+                Err(error) => return Err(TunnelError::FdDuplicationError(error)),
+            }
+        }
+
+        Err(TunnelError::FdDuplicationError(
+            last_error.expect("Should be collected in loop"),
+        ))
+    }
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
     fn get_tunnel(
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
@@ -399,13 +432,14 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: RouteManagerHandle,
-        routes: impl Iterator<Item = IpNetwork>,
         cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<Self> {
         let _ = route_manager.clear_android_routes().await;
 
-        let (mut tunnel_device, tunnel_fd) =
-            Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
+        let (mut tunnel_device, tunnel_fd, is_new_tunnel) =
+            Self::get_tunnel(Arc::clone(&tun_provider), config)?;
+
+        log::debug!("DEBUG: get_tunnel");
 
         let interface_name: String = tunnel_device
             .interface_name()
@@ -439,8 +473,9 @@ impl WgGoTunnel {
             cancel_receiver,
         });
 
-        // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        tunnel.ensure_tunnel_is_running().await?;
+        if is_new_tunnel {
+            tunnel.wait_for_routes().await?;
+        }
 
         Ok(tunnel)
     }
@@ -451,13 +486,12 @@ impl WgGoTunnel {
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: RouteManagerHandle,
-        routes: impl Iterator<Item = IpNetwork>,
         cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<Self> {
         let _ = route_manager.clear_android_routes().await;
 
-        let (mut tunnel_device, tunnel_fd) =
-            Self::get_tunnel(Arc::clone(&tun_provider), config, routes)?;
+        let (mut tunnel_device, tunnel_fd, is_new_tunnel) =
+            Self::get_tunnel(Arc::clone(&tun_provider), config)?;
 
         let interface_name: String = tunnel_device
             .interface_name()
@@ -507,8 +541,9 @@ impl WgGoTunnel {
             cancel_receiver: cancel_receiver.clone(),
         });
 
-        // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        tunnel.ensure_tunnel_is_running().await?;
+        if is_new_tunnel {
+            tunnel.wait_for_routes().await?;
+        }
 
         Ok(tunnel)
     }
@@ -528,7 +563,7 @@ impl WgGoTunnel {
 
     /// There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
     /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
-    async fn ensure_tunnel_is_running(&self) -> Result<()> {
+    async fn wait_for_routes(&self) -> Result<()> {
         let state = self.as_state();
 
         let expected_routes = state.tun_provider.lock().unwrap().real_routes();
@@ -543,25 +578,6 @@ impl WgGoTunnel {
             .map_err(Error::SetupRoutingError)
             .map_err(CloseMsg::SetupError)
             .unwrap();
-
-        let addr = state.config.ipv4_gateway;
-        let cancel_receiver = state.cancel_receiver.clone();
-        let mut check = connectivity::Check::new(addr, 0, cancel_receiver)
-            .map_err(|err| TunnelError::RecoverableStartWireguardError(Box::new(err)))?;
-
-        // TODO: retry attempt?
-
-        let connection_established = check
-            .establish_connectivity(self)
-            .await
-            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
-
-        // Timed out
-        if !connection_established {
-            return Err(TunnelError::RecoverableStartWireguardError(Box::new(
-                super::Error::TimeoutError,
-            )));
-        }
 
         Ok(())
     }

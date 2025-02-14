@@ -2,8 +2,6 @@ use futures::channel::{mpsc, oneshot};
 use futures::stream::Fuse;
 use futures::StreamExt;
 
-#[cfg(target_os = "android")]
-use talpid_tunnel::tun_provider::Error;
 use talpid_types::net::{AllowedClients, AllowedEndpoint, TunnelParameters};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::{BoxedError, ErrorExt};
