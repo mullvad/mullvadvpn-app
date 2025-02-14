@@ -1,182 +1,84 @@
-//! Fetch information about app versions from the Mullvad API
+//! This module implements fetching of information about app versions
 
 use anyhow::Context;
 
 use crate::format;
-
-/// Parameters for [VersionInfoProvider]
-#[derive(Debug)]
-pub struct VersionParameters {
-    /// Architecture to retrieve data for
-    pub architecture: VersionArchitecture,
-    /// Rollout threshold. Any version in the response below this threshold will be ignored
-    pub rollout: f32,
-}
-
-/// Installer architecture
-pub type VersionArchitecture = format::Architecture;
+use crate::version::{VersionInfo, VersionParameters};
 
 /// See [module-level](self) docs.
 #[async_trait::async_trait]
 pub trait VersionInfoProvider {
     /// Return info about the stable version
-    async fn get_version_info(params: VersionParameters) -> anyhow::Result<VersionInfo>;
+    async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo>;
 }
 
-/// Contains information about all versions
-#[derive(Debug, Clone)]
-#[cfg_attr(test, derive(serde::Serialize))]
-pub struct VersionInfo {
-    /// Stable version info
-    pub stable: Version,
-    /// Beta version info (if available and newer than `stable`).
-    /// If latest stable version is newer, this will be `None`.
-    pub beta: Option<Version>,
+/// Obtain version data using a GET request
+pub struct HttpVersionInfoProvider {
+    /// Endpoint for GET request
+    pub url: String,
+    /// Accepted root certificate. Defaults are used unless specified
+    pub pinned_certificate: Option<reqwest::Certificate>,
+    /// Key to use for verifying the response
+    pub verifying_key: format::key::VerifyingKey,
 }
-
-/// Contains information about a version for the current target
-#[derive(Debug, Clone)]
-#[cfg_attr(test, derive(serde::Serialize))]
-pub struct Version {
-    /// Version
-    pub version: mullvad_version::Version,
-    /// URLs to use for downloading the app installer
-    pub urls: Vec<String>,
-    /// Size of installer, in bytes
-    pub size: usize,
-    /// Version changelog
-    pub changelog: String,
-    /// App installer checksum
-    pub sha256: [u8; 32],
-}
-
-/// Obtain version data from the Mullvad API
-pub struct ApiVersionInfoProvider;
 
 #[async_trait::async_trait]
-impl VersionInfoProvider for ApiVersionInfoProvider {
-    async fn get_version_info(params: VersionParameters) -> anyhow::Result<VersionInfo> {
-        // FIXME: Replace with actual API response
-        use format::*;
-
-        const TEST_PUBKEY: &str =
-            "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d";
-        let pubkey = hex::decode(TEST_PUBKEY).unwrap();
-        let verifying_key =
-            ed25519_dalek::VerifyingKey::from_bytes(&pubkey.try_into().unwrap()).unwrap();
-
-        let response = SignedResponse::deserialize_and_verify(
-            format::key::VerifyingKey(verifying_key),
-            include_bytes!("../test-version-response.json"),
-        )?;
+impl VersionInfoProvider for HttpVersionInfoProvider {
+    async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo> {
+        let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
+        let response =
+            format::SignedResponse::deserialize_and_verify(&self.verifying_key, &raw_json)?;
 
         VersionInfo::try_from_response(&params, response.signed)
     }
 }
 
-/// Helper used to lift the relevant installer out of the array in [format::Release]
-#[derive(Clone)]
-struct IntermediateVersion {
-    version: mullvad_version::Version,
-    changelog: String,
-    installer: format::Installer,
-}
+impl HttpVersionInfoProvider {
+    /// Maximum size of the GET response, in bytes
+    const SIZE_LIMIT: usize = 1024 * 1024;
 
-impl VersionInfo {
-    /// Convert signed response data to public version type
-    /// NOTE: `response` is assumed to be verified and untampered. It is not verified.
-    fn try_from_response(
-        params: &VersionParameters,
-        response: format::Response,
-    ) -> anyhow::Result<Self> {
-        let mut releases = response.releases;
+    /// Perform a simple GET request, with a size limit, and return it as bytes
+    async fn get(
+        url: &str,
+        pinned_certificate: Option<reqwest::Certificate>,
+    ) -> anyhow::Result<Vec<u8>> {
+        let mut req_builder = reqwest::Client::builder();
 
-        // Sort releases by version
-        releases.sort_by(|a, b| mullvad_version::Version::version_ordering(&a.version, &b.version));
-
-        // Fail if there are duplicate versions.
-        // Check this before anything else so that it's rejected indepentently of `params`.
-        // Important! This must occur after sorting
-        if let Some(dup_version) = Self::find_duplicate_version(&releases) {
-            anyhow::bail!("API response contains at least one duplicated version: {dup_version}");
+        if let Some(pinned_certificate) = pinned_certificate {
+            req_builder = req_builder
+                .tls_built_in_root_certs(false)
+                .add_root_certificate(pinned_certificate);
         }
 
-        // Filter releases based on rollout and architecture
-        let releases: Vec<_> = releases
-            .into_iter()
-            // Filter out releases that are not rolled out to us
-            .filter(|release| release.rollout >= params.rollout)
-            // Include only installers for the requested architecture
-            .flat_map(|release| {
-                release
-                    .installers
-                    .into_iter()
-                    .filter(|installer| params.architecture == installer.architecture)
-                    // Map each artifact to a [IntermediateVersion]
-                    .map(move |installer| {
-                        IntermediateVersion {
-                            version: release.version.clone(),
-                            changelog: release.changelog.clone(),
-                            installer,
-                        }
-                    })
-            })
-            .collect();
+        // Initiate GET request
+        let mut req = req_builder
+            .build()?
+            .get(url)
+            .send()
+            .await
+            .context("Failed to fetch version")?;
 
-        // Find latest stable version
-        let stable = releases
-            .iter()
-            .rfind(|release| release.version.is_stable() && !release.version.is_dev());
-        let Some(stable) = stable.cloned() else {
-            anyhow::bail!("No stable version found");
-        };
+        // Fail if content length exceeds limit
+        let content_len_limit = Self::SIZE_LIMIT.try_into().expect("Invalid size limit");
+        if req.content_length() > Some(content_len_limit) {
+            anyhow::bail!("Version info exceeded limit: {} bytes", Self::SIZE_LIMIT);
+        }
 
-        // Find the latest beta version
-        let beta = releases
-            .iter()
-            // Find most recent beta version
-            .rfind(|release| release.version.beta().is_some() && !release.version.is_dev())
-            // If the latest beta version is older than latest stable, dispose of it
-            .filter(|release| release.version.version_ordering(&stable.version).is_gt())
-            .cloned();
+        let mut read_n = 0;
+        let mut data = vec![];
 
-        Ok(Self {
-            stable: Version::try_from(stable)?,
-            beta: beta.map(|beta| Version::try_from(beta)).transpose()?,
-        })
-    }
+        while let Some(chunk) = req.chunk().await.context("Failed to retrieve chunk")? {
+            read_n += chunk.len();
 
-    /// Returns the first duplicated version found in `releases`.
-    /// `None` is returned if there are no duplicates.
-    /// NOTE: `releases` MUST be sorted
-    fn find_duplicate_version(releases: &[format::Release]) -> Option<&mullvad_version::Version> {
-        releases
-            .windows(2)
-            .find(|pair| {
-                mullvad_version::Version::version_ordering(&pair[0].version, &pair[1].version)
-                    .is_eq()
-            })
-            .map(|pair| &pair[0].version)
-    }
-}
+            // Fail if content length exceeds limit
+            if read_n > Self::SIZE_LIMIT {
+                anyhow::bail!("Version info exceeded limit: {} bytes", Self::SIZE_LIMIT);
+            }
 
-impl TryFrom<IntermediateVersion> for Version {
-    type Error = anyhow::Error;
+            data.extend_from_slice(&chunk);
+        }
 
-    fn try_from(version: IntermediateVersion) -> Result<Self, Self::Error> {
-        // Convert hex checksum to bytes
-        let sha256 = hex::decode(version.installer.sha256)
-            .context("Invalid checksum hex")?
-            .try_into()
-            .map_err(|_| anyhow::anyhow!("Invalid checksum length"))?;
-
-        Ok(Version {
-            version: version.version,
-            size: version.installer.size,
-            urls: version.installer.urls,
-            changelog: version.changelog,
-            sha256,
-        })
+        Ok(data)
     }
 }
 
@@ -184,47 +86,51 @@ impl TryFrom<IntermediateVersion> for Version {
 mod test {
     use insta::assert_yaml_snapshot;
 
+    use crate::version::VersionArchitecture;
+
     use super::*;
 
     // These tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
     // then most likely the snapshots need to be updated. The most convenient way to review
     // changes to, and update, snapshots are by running `cargo insta review`.
 
-    /// Test parsing of API responses (rollout 1, x86)
-    #[test]
-    fn test_api_version_info_provider_parser_x86() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_and_verify_insecure(include_bytes!(
-            "../test-version-response.json"
-        ))?;
+    /// Test HTTP version info provider
+    ///
+    /// We're not testing the correctness of [version] here, only the HTTP client
+    #[tokio::test]
+    async fn test_http_version_provider() -> anyhow::Result<()> {
+        let verifying_key = crate::format::key::VerifyingKey::from_hex(
+            "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d",
+        )
+        .expect("valid key");
 
+        // Start HTTP server
+        let mut server = mockito::Server::new_async().await;
+        let _mock = server
+            .mock("GET", "/version")
+            // Respond with some version response payload
+            .with_body(include_bytes!("../test-version-response.json"))
+            .create();
+
+        let url = format!("{}/version", server.url());
+
+        // Construct query and provider
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
             rollout: 1.,
         };
-
-        // Expect: The available latest versions for X86, where the rollout is 1.
-        let info = VersionInfo::try_from_response(&params, response.signed.clone())?;
-
-        assert_yaml_snapshot!(info);
-
-        Ok(())
-    }
-
-    /// Test parsing of API responses (rollout 0.01, arm64)
-    #[test]
-    fn test_api_version_info_provider_parser_arm64() -> anyhow::Result<()> {
-        let response = format::SignedResponse::deserialize_and_verify_insecure(include_bytes!(
-            "../test-version-response.json"
-        ))?;
-
-        let params = VersionParameters {
-            architecture: VersionArchitecture::Arm64,
-            rollout: 0.01,
+        let info_provider = HttpVersionInfoProvider {
+            url,
+            pinned_certificate: None,
+            verifying_key,
         };
 
-        let info = VersionInfo::try_from_response(&params, response.signed)?;
+        let info = info_provider
+            .get_version_info(params)
+            .await
+            .context("Expected valid version info")?;
 
-        // Expect: The available latest versions for arm64, where the rollout is .01.
+        // Expect: Our query should yield some version response
         assert_yaml_snapshot!(info);
 
         Ok(())

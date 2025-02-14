@@ -8,9 +8,10 @@ use insta::assert_yaml_snapshot;
 use installer_downloader::controller::{AppController, DirectoryProvider};
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
-use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider, VersionParameters};
+use mullvad_update::api::VersionInfoProvider;
 use mullvad_update::app::{AppDownloader, DownloadError};
 use mullvad_update::fetch::ProgressUpdater;
+use mullvad_update::version::{Version, VersionInfo, VersionParameters};
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
@@ -31,7 +32,7 @@ static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
 
 #[async_trait::async_trait]
 impl VersionInfoProvider for FakeVersionInfoProvider {
-    async fn get_version_info(_params: VersionParameters) -> anyhow::Result<VersionInfo> {
+    async fn get_version_info(&self, _params: VersionParameters) -> anyhow::Result<VersionInfo> {
         Ok(FAKE_VERSION.clone())
     }
 }
@@ -283,12 +284,10 @@ impl AppDelegate for FakeAppDelegate {
 #[tokio::test(start_paused = true)]
 async fn test_fetch_version() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<
-        _,
-        FakeAppDownloaderHappyPath,
-        FakeVersionInfoProvider,
-        FakeDirectoryProvider<true>,
-    >(&mut delegate);
+    AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
+        &mut delegate,
+        FakeVersionInfoProvider {},
+    );
 
     // The app should start out by fetching the current app version
     assert_yaml_snapshot!(delegate.state);
@@ -308,12 +307,10 @@ async fn test_fetch_version() {
 #[tokio::test(start_paused = true)]
 async fn test_download() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<
-        _,
-        FakeAppDownloaderHappyPath,
-        FakeVersionInfoProvider,
-        FakeDirectoryProvider<true>,
-    >(&mut delegate);
+    AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
+        &mut delegate,
+        FakeVersionInfoProvider {},
+    );
 
     // Wait for the version info
     tokio::time::sleep(Duration::from_secs(1)).await;
@@ -355,12 +352,10 @@ async fn test_download() {
 #[tokio::test(start_paused = true)]
 async fn test_failed_verification() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<
-        _,
-        FakeAppDownloaderVerifyFail,
-        FakeVersionInfoProvider,
-        FakeDirectoryProvider<true>,
-    >(&mut delegate);
+    AppController::initialize::<_, FakeAppDownloaderVerifyFail, _, FakeDirectoryProvider<true>>(
+        &mut delegate,
+        FakeVersionInfoProvider {},
+    );
 
     // Wait for the version info
     tokio::time::sleep(Duration::from_secs(1)).await;
@@ -394,12 +389,10 @@ async fn test_failed_verification() {
 #[tokio::test(start_paused = true)]
 async fn test_failed_directory_creation() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<
-        _,
-        FakeAppDownloaderHappyPath,
-        FakeVersionInfoProvider,
-        FakeDirectoryProvider<false>,
-    >(&mut delegate);
+    AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<false>>(
+        &mut delegate,
+        FakeVersionInfoProvider {},
+    );
 
     // Wait for the version info
     tokio::time::sleep(Duration::from_secs(1)).await;
