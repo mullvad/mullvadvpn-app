@@ -107,35 +107,35 @@ jobs:
     outputs:
       container_image: ${{ env.inner_container_image }}
 
-  # build-linux-app:
-  #   name: Build Linux App
-  #   needs: prepare-linux
-  #   runs-on: ubuntu-latest
-  #   container:
-  #     image: ${{ needs.prepare-linux.outputs.container_image }}
-  #   continue-on-error: true
-  #   steps:
-  #     # Fix for HOME path overridden by GH runners when building in containers, see:
-  #     # https://github.com/actions/runner/issues/863
-  #     - name: Fix HOME path
-  #       run: echo "HOME=/root" >> $GITHUB_ENV
-  #     - name: Checkout repository
-  #       uses: actions/checkout@v4
-  #     - name: Checkout repository
-  #       uses: ./.github/actions/checkout-app
-  #     - name: Build app
-  #       run: ./build.sh --optimize
-  #     - name: Build test executable
-  #       run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-  #     - name: Upload app
-  #       uses: actions/upload-artifact@v4
-  #       if: '!cancelled()'
-  #       with:
-  #         name: linux-build
-  #         path: |
-  #           ./dist/*.rpm
-  #           ./dist/*.deb
-  #           ./dist/app-e2e-*
+  build-linux-app:
+    name: Build Linux App
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    continue-on-error: true
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: ./.github/actions/checkout-app
+      - name: Build app
+        run: ./build.sh --optimize
+      - name: Build test executable
+        run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
+      - name: Upload app
+        uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-build
+          path: |
+            ./dist/*.rpm
+            ./dist/*.deb
+            ./dist/app-e2e-*
 
   build-mullvad-version-linux:
     name: Build mullvad-version
@@ -216,8 +216,7 @@ jobs:
 
   e2e-test-linux:
     name: Linux end-to-end tests
-    #needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux, build-test-runner-binaries-linux]
-    needs: [prepare-matrices, build-mullvad-version-linux, build-test-manager-linux, build-test-runner-binaries-linux]
+    needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux, build-test-runner-binaries-linux]
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -267,12 +266,12 @@ jobs:
         run: |
           ls -la ${{ github.workspace }}/bin
         shell: bash
-# - name: Download App
-#uses: actions/download-artifact@v4
-#if: ${{ needs.build-linux-app.result == 'success' }}
-        #with:
-          #name: linux-build
-          #path: ~/.cache/mullvad-test/packages
+      - name: Download App
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-linux-app.result == 'success' }}
+        with:
+          name: linux-build
+          path: ~/.cache/mullvad-test/packages
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
