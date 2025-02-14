@@ -5,8 +5,9 @@ use crate::resource;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
 use mullvad_update::{
-    api::{self, Version, VersionInfoProvider, VersionParameters},
+    api::VersionInfoProvider,
     app::{self, AppDownloader},
+    version::{Version, VersionArchitecture, VersionInfo, VersionParameters},
 };
 
 use std::future::Future;
@@ -15,7 +16,7 @@ use tokio::sync::{mpsc, oneshot};
 
 /// Actions handled by an async worker task in [handle_action_messages].
 enum TaskMessage {
-    SetVersionInfo(api::VersionInfo),
+    SetVersionInfo(VersionInfo),
     BeginDownload,
     Cancel,
 }
@@ -40,16 +41,24 @@ pub struct AppController {}
 
 /// Public entry function for registering a [AppDelegate].
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
-    use mullvad_update::{api::ApiVersionInfoProvider, app::HttpAppDownloader};
+    use mullvad_update::{api::HttpVersionInfoProvider, app::HttpAppDownloader};
 
     // App downloader to use
     type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
-    // Version info provider to use
-    type VersionInfoProvider = ApiVersionInfoProvider;
     // Directory provider to use
     type DirProvider = TempDirProvider;
 
-    AppController::initialize::<_, Downloader<T>, VersionInfoProvider, DirProvider>(delegate)
+    // Version info provider to use
+    const TEST_PUBKEY: &str = "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d";
+    let verifying_key =
+        mullvad_update::format::key::VerifyingKey::from_hex(TEST_PUBKEY).expect("valid key");
+    let version_provider = HttpVersionInfoProvider {
+        url: "https://releases.mullvad.net/thing".to_owned(),
+        pinned_certificate: None,
+        verifying_key,
+    };
+
+    AppController::initialize::<_, Downloader<T>, _, DirProvider>(delegate, version_provider)
 }
 
 impl AppController {
@@ -57,10 +66,10 @@ impl AppController {
     ///
     /// Providing the downloader and version info fetcher as type arguments, they're decoupled from
     /// the logic of [AppController], allowing them to be mocked.
-    pub fn initialize<D, A, V, DirProvider>(delegate: &mut D)
+    pub fn initialize<D, A, V, DirProvider>(delegate: &mut D, version_provider: V)
     where
         D: AppDelegate + 'static,
-        V: VersionInfoProvider + 'static,
+        V: VersionInfoProvider + Send + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
         DirProvider: DirectoryProvider,
     {
@@ -76,7 +85,11 @@ impl AppController {
             task_rx,
         ));
         delegate.set_status_text(resource::FETCH_VERSION_DESC);
-        tokio::spawn(fetch_app_version_info::<D, V>(delegate, task_tx.clone()));
+        tokio::spawn(fetch_app_version_info::<D, V>(
+            delegate,
+            task_tx.clone(),
+            version_provider,
+        ));
         Self::register_user_action_callbacks(delegate, task_tx);
     }
 
@@ -99,23 +112,24 @@ impl AppController {
 fn fetch_app_version_info<Delegate, VersionProvider>(
     delegate: &mut Delegate,
     download_tx: mpsc::Sender<TaskMessage>,
+    version_provider: VersionProvider,
 ) -> impl Future<Output = ()>
 where
     Delegate: AppDelegate,
-    VersionProvider: VersionInfoProvider,
+    VersionProvider: VersionInfoProvider + Send,
 {
     let queue = delegate.queue();
 
     async move {
         let version_params = VersionParameters {
             // TODO: detect current architecture
-            architecture: api::VersionArchitecture::X86,
+            architecture: VersionArchitecture::X86,
             // For the downloader, the rollout version is always preferred
             rollout: 1.,
         };
 
         // TODO: handle errors, retry
-        let Ok(version_info) = VersionProvider::get_version_info(version_params).await else {
+        let Ok(version_info) = version_provider.get_version_info(version_params).await else {
             queue.queue_main(move |self_| {
                 self_.set_status_text("Failed to fetch version info");
             });
