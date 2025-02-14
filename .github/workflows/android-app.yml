@@ -61,7 +61,7 @@ permissions: {}
 
 env:
   DEFAULT_E2E_REPEAT: 0
-  SCHEDULE_E2E_REPEAT: 1
+  SCHEDULE_E2E_REPEAT: 10
 
 jobs:
   prepare:
