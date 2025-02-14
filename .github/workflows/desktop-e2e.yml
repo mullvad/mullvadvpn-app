@@ -121,6 +121,7 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
+      - uses: Swatinem/rust-cache@v2
       - name: Checkout repository
         uses: ./.github/actions/checkout-app
       - name: Build app
