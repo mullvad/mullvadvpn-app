@@ -183,24 +183,11 @@ enum VmConfig {
     List,
 }
 
-#[cfg(target_os = "linux")]
-impl Args {
-    fn get_vnc_port(&self) -> Option<u16> {
-        match self.cmd {
-            Commands::RunTests { vnc, .. } | Commands::RunVm { vnc, .. } => vnc,
-            _ => None,
-        }
-    }
-}
-
 #[tokio::main]
 async fn main() -> Result<()> {
     logging::Logger::get_or_init();
 
     let args = Args::parse();
-
-    #[cfg(target_os = "linux")]
-    container::relaunch_with_rootlesskit(args.get_vnc_port()).await;
 
     let mut config = config::ConfigFile::load_or_default()
         .await
@@ -250,11 +237,29 @@ async fn main() -> Result<()> {
                 }
             },
         },
+        Commands::ListTests => {
+            println!("priority\tname");
+            for test in tests::get_test_descriptions() {
+                println!(
+                    "{priority:8}\t{name}",
+                    name = test.name,
+                    priority = test.priority.unwrap_or(0),
+                );
+            }
+            Ok(())
+        }
+        Commands::FormatTestReports { reports } => {
+            summary::print_summary_table(&reports).await;
+            Ok(())
+        }
         Commands::RunVm {
             vm,
             vnc,
             keep_changes,
         } => {
+            #[cfg(target_os = "linux")]
+            container::relaunch_with_rootlesskit(vnc).await;
+
             let mut config = config.clone();
             config.runtime_opts.keep_changes = keep_changes;
             config.runtime_opts.display = if vnc.is_some() {
@@ -267,17 +272,6 @@ async fn main() -> Result<()> {
 
             instance.wait().await;
 
-            Ok(())
-        }
-        Commands::ListTests => {
-            println!("priority\tname");
-            for test in tests::get_test_descriptions() {
-                println!(
-                    "{priority:8}\t{name}",
-                    name = test.name,
-                    priority = test.priority.unwrap_or(0),
-                );
-            }
             Ok(())
         }
         Commands::RunTests {
@@ -296,6 +290,9 @@ async fn main() -> Result<()> {
             test_report,
             runner_dir,
         } => {
+            #[cfg(target_os = "linux")]
+            container::relaunch_with_rootlesskit(vnc).await;
+
             let mut config = config.clone();
             config.runtime_opts.display = match (display, vnc.is_some()) {
                 (false, false) => config::Display::None,
@@ -409,10 +406,6 @@ async fn main() -> Result<()> {
             socks.close();
             // Propagate any error from the test run if applicable
             result?.anyhow()
-        }
-        Commands::FormatTestReports { reports } => {
-            summary::print_summary_table(&reports).await;
-            Ok(())
         }
         Commands::Update { name } => {
             let vm_config = vm::get_vm_config(&config, &name).context("Cannot get VM config")?;
