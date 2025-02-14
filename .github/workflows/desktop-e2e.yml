@@ -481,9 +481,8 @@ jobs:
       - name: Generate test result matrix
         shell: bash -ieo pipefail {0}
         run: |
-          # "Unpack" the downloaded report artifacts: https://github.com/actions/download-artifact/issues/141
           ${{ github.workspace }}/bin/test-manager format-test-reports "${{ github.workspace }}/*_report" | tee summary.html >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:
           name: summary.html
-          path: test/summary.html
+          path: summary.html
