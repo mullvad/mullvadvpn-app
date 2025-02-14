@@ -432,6 +432,8 @@ impl WireguardMonitor {
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
+        log::debug!("DEBUG: WireguardMonitor start");
+
         let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
             &config,
             log_path,
@@ -528,6 +530,8 @@ impl WireguardMonitor {
                     error.display_chain_with_msg("Connectivity monitor failed")
                 );
             }
+
+            log::debug!("Monitor failed?!");
 
             Err::<Infallible, CloseMsg>(CloseMsg::PingErr)
         };
@@ -785,11 +789,14 @@ impl WireguardMonitor {
         // tunnel to where the ephemeral peer resides.
         //
         // Refer to `docs/architecture.md` for details on how to use multihop + PQ.
+        log::debug!("patching allowed ips");
         #[cfg(target_os = "android")]
         let config = Self::patch_allowed_ips(config, gateway_only);
 
         #[cfg(target_os = "android")]
         let tunnel = if let Some(exit_peer) = &config.exit_peer {
+
+            log::debug!("Starting multihop tunnel");
             WgGoTunnel::start_multihop_tunnel(
                 &config,
                 exit_peer,
@@ -801,6 +808,7 @@ impl WireguardMonitor {
             .await
             .map_err(Error::TunnelError)?
         } else {
+            log::debug!("Starting singlehop tunnel");
             WgGoTunnel::start_tunnel(
                 #[allow(clippy::needless_borrow)]
                 &config,
@@ -831,11 +839,13 @@ impl WireguardMonitor {
         log::debug!("Wait result : {:?}", wait_result);
         self.pinger_stop_sender.close();
 
+        log::debug!("Wait result : {:?}", wait_result);
         self.runtime
             .block_on(self.event_hook.on_event(TunnelEvent::Down));
 
+        log::debug!("About to stop tunnel: {:?}", wait_result);
         self.stop_tunnel();
-
+        log::debug!("Tunnel stopped: {:?}", wait_result);
         wait_result
     }
 
@@ -843,6 +853,7 @@ impl WireguardMonitor {
     ///
     /// NOTE: will panic if called from within a tokio runtime.
     fn stop_tunnel(&mut self) {
+        log::debug!("Blocking lock");
         match self.tunnel.blocking_lock().take() {
             Some(tunnel) => {
                 if let Err(e) = tunnel.stop() {

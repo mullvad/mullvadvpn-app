@@ -34,6 +34,7 @@ impl Monitor {
 
         loop {
             if self.connectivity_check.should_shut_down() {
+                log::debug!("Should shut down!:w");
                 return Ok(());
             }
 
@@ -42,8 +43,10 @@ impl Monitor {
             last_check = now;
 
             if time_slept >= SUSPEND_TIMEOUT {
+                log::debug!("Maybe this?");
                 self.connectivity_check.reset(now).await;
             } else if !self.tunnel_exists_and_is_connected(&tunnel_handle).await? {
+                log::debug!("Did we hit this?");
                 return Ok(());
             }
 
@@ -55,16 +58,22 @@ impl Monitor {
         &mut self,
         tunnel_handle: &Weak<Mutex<Option<TunnelType>>>,
     ) -> Result<bool, Error> {
+        log::debug!("tunnel_exists_and_is_connected");
         let Some(tunnel) = tunnel_handle.upgrade() else {
+            log::debug!("Tunnel closed!");
             // Tunnel closed
             return Ok(false);
         };
+        log::debug!("tunnel_exists_and_is_connected 2");
         let lock = tunnel.lock().await;
         let Some(tunnel) = lock.as_ref() else {
             // Tunnel closed
+            log::debug!("Tunnel closed2!");
             return Ok(false);
         };
+        log::debug!("tunnel_exists_and_is_connected 3");
 
+        log::debug!("Doing conncheck!");
         self.connectivity_check
             .check_connectivity(Instant::now(), tunnel)
             .await

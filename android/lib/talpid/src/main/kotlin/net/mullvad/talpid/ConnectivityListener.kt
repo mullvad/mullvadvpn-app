@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -50,46 +51,55 @@ class ConnectivityListener(
         _currentNetworkState =
             merge(connectivityManager.defaultRawNetworkStateFlow(), resetDnsFlow.map { null })
                 .map { it?.toNetworkState() }
-                .onEach { notifyDefaultNetworkChange(it) }
+                .onEach {
+                    Logger.d("NetworkState routes: ${it?.routes}")
+                    notifyDefaultNetworkChange(it)
+                }
                 .stateIn(scope, SharingStarted.Eagerly, null)
 
+        @Suppress("DEPRECATION")
         _isConnected =
             hasInternetCapability()
                 .onEach { notifyConnectivityChange(it) }
-                .stateIn(scope, SharingStarted.Eagerly, false)
+                .stateIn(
+                    scope,
+                    SharingStarted.Eagerly,
+                    true, // Assume we have internet until we know otherwise
+                )
     }
 
     private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
         dnsServers.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER }
 
+    private val nonVPNNetworksRequest =
+        NetworkRequest.Builder().addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN).build()
+
     private fun hasInternetCapability(): Flow<Boolean> {
-        val request =
-            NetworkRequest.Builder()
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-                .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-                .build()
 
         return connectivityManager
-            .networkEvents(request)
-            .scan(setOf<Network>()) { networks, event ->
+            .networkEvents(nonVPNNetworksRequest)
+            .scan(mapOf<Network, NetworkCapabilities?>()) { networks, event ->
                 when (event) {
-                    is NetworkEvent.Available -> {
-                        Logger.d("Network available ${event.network}")
-                        (networks + event.network).also {
+                    is NetworkEvent.Lost -> {
+                        Logger.d("Network lost ${event.network}")
+
+                        (networks - event.network).also {
                             Logger.d("Number of networks: ${it.size}")
                         }
                     }
-                    is NetworkEvent.Lost -> {
-                        Logger.d("Network lost ${event.network}")
-                        (networks - event.network).also {
+                    is NetworkEvent.CapabilitiesChanged -> {
+                        Logger.d("Network capabilities changed ${event.network}")
+                        (networks + (event.network to event.networkCapabilities)).also {
                             Logger.d("Number of networks: ${it.size}")
                         }
                     }
                     else -> networks
                 }
             }
-            .map { it.isNotEmpty() }
             .distinctUntilChanged()
+            .drop(1)
+            .map { it.any { it.value?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true} }
+            .onEach { Logger.d("Do we have connectivity? $it") }
     }
 
     private fun RawNetworkState.toNetworkState(): NetworkState =

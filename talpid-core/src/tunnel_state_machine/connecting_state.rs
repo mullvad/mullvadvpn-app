@@ -52,6 +52,7 @@ impl ConnectingState {
         shared_values: &mut SharedTunnelStateValues,
         retry_attempt: u32,
     ) -> (Box<dyn TunnelState>, TunnelStateTransition) {
+        log::debug!("DEBUG: ENTERING CONNECTING STATE");
         #[cfg(target_os = "macos")]
         if *LOCAL_DNS_RESOLVER {
             // Set system DNS to our local DNS resolver
@@ -73,6 +74,7 @@ impl ConnectingState {
         }
 
         if shared_values.connectivity.is_offline() {
+
             // FIXME: Temporary: Nudge route manager to update the default interface
             #[cfg(target_os = "macos")]
             {
@@ -128,6 +130,7 @@ impl ConnectingState {
                         &shared_values.route_manager,
                         retry_attempt,
                     );
+                    log::debug!("Connecting state {:?}", connecting_state);
 
                     let params = connecting_state.tunnel_parameters.clone();
                     (
@@ -209,6 +212,7 @@ impl ConnectingState {
         route_manager: &RouteManagerHandle,
         retry_attempt: u32,
     ) -> Self {
+        log::debug!("DEBUG: ConnectingState::start_tunnel");
         let (event_tx, event_rx) = mpsc::unbounded();
         let event_hook = EventHook::new(event_tx);
 
@@ -234,8 +238,10 @@ impl ConnectingState {
                 route_manager,
             };
 
+            log::debug!("DEBUG: ConnectingState::start_tunnel start");
             let block_reason = match TunnelMonitor::start(&tunnel_parameters, &log_dir, args) {
                 Ok(monitor) => {
+                    log::debug!("DEBUG: ConnectingState::start_tunnel success");
                     let reason = Self::wait_for_tunnel_monitor(monitor, retry_attempt);
                     log::debug!("Tunnel monitor exited with block reason: {:?}", reason);
                     reason

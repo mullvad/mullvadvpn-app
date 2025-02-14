@@ -155,7 +155,9 @@ impl Tunnel {
     pub fn turn_off(self) -> Result<(), Error> {
         // we manually turn off the tunnel here, so wrap it in ManuallyDrop to prevent the Drop
         // impl from doing the same.
+        log::debug!("About to turn off");
         let code = unsafe { ffi::wgTurnOff(self.handle) };
+        log::debug!("Did we turn off? :[");
         let _ = ManuallyDrop::new(self);
         result_from_code(code)
     }

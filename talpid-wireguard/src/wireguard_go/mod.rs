@@ -145,11 +145,13 @@ impl WgGoTunnel {
                 .await
             }
             WgGoTunnel::Singlehop(mut state) => {
+                log::debug!("Switching Singlehop WG conf");
                 state.set_config(config.clone())?;
                 let new_state = WgGoTunnel::Singlehop(state);
                 Ok(new_state)
             }
             WgGoTunnel::Multihop(mut state) => {
+                log::debug!("Switching Multihop WG conf");
                 state.set_config(config.clone())?;
                 let new_state = WgGoTunnel::Multihop(state);
                 Ok(new_state)
@@ -434,6 +436,7 @@ impl WgGoTunnel {
         route_manager: RouteManagerHandle,
         cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<Self> {
+        log::debug!("WgGoTunnel start_tunnel");
         let _ = route_manager.clear_android_routes().await;
 
         let (mut tunnel_device, tunnel_fd, is_new_tunnel) =
@@ -450,6 +453,7 @@ impl WgGoTunnel {
 
         let wg_config_str = config.to_userspace_format();
 
+        log::debug!("DEBUG: get_tunnel 1");
         let handle = wireguard_go_rs::Tunnel::turn_on(
             &wg_config_str,
             tunnel_fd,
@@ -457,6 +461,7 @@ impl WgGoTunnel {
             logging_context.ordinal,
         )
         .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+        log::debug!("DEBUG: get_tunnel 2");
 
         Self::bypass_tunnel_sockets(&handle, &mut tunnel_device)
             .map_err(TunnelError::BypassError)?;
@@ -477,6 +482,7 @@ impl WgGoTunnel {
             tunnel.wait_for_routes().await?;
         }
 
+        log::debug!("DEBUG: get_tunnel 4");
         Ok(tunnel)
     }
 

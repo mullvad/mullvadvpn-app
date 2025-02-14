@@ -347,6 +347,7 @@ impl TunnelStateMachine {
         )
         .await;
         let connectivity = offline_monitor.connectivity().await;
+        log::debug!("DEBUG: Initial connectivity: {:?}", connectivity);
         let _ = initial_offline_state_tx.unbounded_send(connectivity);
 
         #[cfg(windows)]
@@ -653,6 +654,7 @@ impl SharedTunnelStateValues {
     #[cfg(target_os = "android")]
     pub fn restart_tunnel(&self, blocking: bool) -> Result<(), talpid_tunnel::tun_provider::Error> {
         self.prepare_tun_config(blocking);
+        log::debug!("DEBUG: RESTART tunnel!");
 
         match self.tun_provider.lock().unwrap().open_tun() {
             Ok(_tun) => Ok(()),

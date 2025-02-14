@@ -41,6 +41,7 @@ open class TalpidVpnService : LifecycleVpnService() {
                 }
 
             if (oldTunFd != null) {
+                Logger.d("Closing old tunFd $oldTunFd")
                 ParcelFileDescriptor.adoptFd(oldTunFd).close()
             }
         }
@@ -65,6 +66,7 @@ open class TalpidVpnService : LifecycleVpnService() {
     // Used by JNI
     fun openTun(config: TunConfig): CreateTunResult =
         synchronized(this) {
+            Logger.d("TalpidVpnService.openTun")
             createTun(config).merge().also {
                 currentTunConfig = config
                 activeTunStatus = it
@@ -74,17 +76,22 @@ open class TalpidVpnService : LifecycleVpnService() {
     // Used by JNI
     fun closeTun(): Unit =
         synchronized(this) {
+            Logger.d("TalpidVpnService.closeTun")
             runBlocking { resetDnsChannel.send(Unit) }
             activeTunStatus = null
         }
 
     // Used by JNI
-    fun bypass(socket: Int): Boolean = protect(socket)
+    fun bypass(socket: Int): Boolean {
+        Logger.d("TalpidVpnService.bypass")
+        return protect(socket)
+    }
 
     private fun createTun(
         config: TunConfig
     ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
         prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
+        Logger.d("TalpidVpnService.createTun $config")
 
         val builder = Builder()
         builder.setMtu(config.mtu)
@@ -126,6 +133,7 @@ open class TalpidVpnService : LifecycleVpnService() {
                 .onLeft { Logger.w("Failed to establish tunnel $it") }
                 .mapLeft { EstablishError }
                 .bind()
+        Logger.d("Establish!")
 
         val tunFd = vpnInterfaceFd.detachFd()
 

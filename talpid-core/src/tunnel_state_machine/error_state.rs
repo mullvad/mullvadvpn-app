@@ -55,6 +55,7 @@ impl ErrorState {
         #[cfg(not(target_os = "android"))]
         let block_failure = Self::set_firewall_policy(shared_values).err();
 
+        log::debug!("DEBUG: DID WE REALLY ENTER ERROR?!");
         #[cfg(target_os = "android")]
         let block_failure = if shared_values.restart_tunnel(true).is_err() {
             Some(FirewallPolicyError::Generic)
@@ -125,6 +126,7 @@ impl TunnelState for ErrorState {
         match runtime.block_on(commands.next()) {
             Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
                 let consequence = if shared_values.set_allow_lan(allow_lan) {
+                    log::debug!("DEBUG: Just allowing lan in error, don't mind me");
                     #[cfg(target_os = "android")]
                     if let Err(_err) = shared_values.restart_tunnel(true) {
                         NewState(Self::enter(
@@ -217,6 +219,7 @@ impl TunnelState for ErrorState {
             #[cfg(target_os = "android")]
             Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
                 if shared_values.set_excluded_paths(paths) {
+                    log::debug!("DEBUG: Just excluding apps error, don't mind me");
                     if let Err(err) = shared_values.restart_tunnel(true) {
                         let _ =
                             result_tx.send(Err(crate::split_tunnel::Error::SetExcludedApps(err)));
