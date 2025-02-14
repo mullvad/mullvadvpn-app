@@ -9,7 +9,7 @@ use super::{PartialSignedResponse, SignedResponse};
 impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
-    pub fn deserialize_and_verify(key: VerifyingKey, bytes: &[u8]) -> Result<Self, anyhow::Error> {
+    pub fn deserialize_and_verify(key: &VerifyingKey, bytes: &[u8]) -> Result<Self, anyhow::Error> {
         Self::deserialize_and_verify_at_time(key, bytes, chrono::Utc::now())
     }
 
@@ -30,7 +30,7 @@ impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
     fn deserialize_and_verify_at_time(
-        key: VerifyingKey,
+        key: &VerifyingKey,
         bytes: &[u8],
         current_time: chrono::DateTime<chrono::Utc>,
     ) -> Result<Self, anyhow::Error> {
@@ -108,7 +108,7 @@ mod test {
             ed25519_dalek::VerifyingKey::from_bytes(&pubkey.try_into().unwrap()).unwrap();
 
         SignedResponse::deserialize_and_verify_at_time(
-            VerifyingKey(verifying_key),
+            &VerifyingKey(verifying_key),
             include_bytes!("../../test-version-response.json"),
             // It's 1970 again
             chrono::DateTime::UNIX_EPOCH,
@@ -117,7 +117,7 @@ mod test {
 
         // Reject expired data
         SignedResponse::deserialize_and_verify_at_time(
-            VerifyingKey(verifying_key),
+            &VerifyingKey(verifying_key),
             include_bytes!("../../test-version-response.json"),
             // In the year 3000
             chrono::DateTime::from_str("3000-01-01T00:00:00Z").unwrap(),
