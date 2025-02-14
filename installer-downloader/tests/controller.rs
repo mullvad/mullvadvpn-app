@@ -5,12 +5,13 @@
 //! changes to, and update, snapshots are by running `cargo insta review`.
 
 use insta::assert_yaml_snapshot;
-use installer_downloader::controller::AppController;
+use installer_downloader::controller::{AppController, DirectoryProvider};
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
 use mullvad_update::api::{Version, VersionInfo, VersionInfoProvider, VersionParameters};
 use mullvad_update::app::{AppDownloader, DownloadError};
 use mullvad_update::fetch::ProgressUpdater;
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
 use std::vec::Vec;
@@ -32,6 +33,18 @@ static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
 impl VersionInfoProvider for FakeVersionInfoProvider {
     async fn get_version_info(_params: VersionParameters) -> anyhow::Result<VersionInfo> {
         Ok(FAKE_VERSION.clone())
+    }
+}
+
+pub struct FakeDirectoryProvider<const SUCCEED: bool> {}
+
+impl<const SUCCEEDED: bool> DirectoryProvider for FakeDirectoryProvider<SUCCEEDED> {
+    async fn create_download_dir() -> anyhow::Result<PathBuf> {
+        if SUCCEEDED {
+            Ok(Path::new("/tmp/fake").to_owned())
+        } else {
+            anyhow::bail!("Failed to create directory");
+        }
     }
 }
 
@@ -70,10 +83,6 @@ pub struct FakeAppDownloader<
 impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: bool> AppDownloader
     for FakeAppDownloader<EXE_SUCCEED, VERIFY_SUCCEED, LAUNCH_SUCCEED>
 {
-    async fn create_cache_dir(&mut self) -> Result<(), DownloadError> {
-        Ok(())
-    }
-
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
         self.params.app_progress.set_url(&self.params.app_url);
         self.params.app_progress.set_progress(0.);
@@ -274,9 +283,12 @@ impl AppDelegate for FakeAppDelegate {
 #[tokio::test(start_paused = true)]
 async fn test_fetch_version() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeVersionInfoProvider>(
-        &mut delegate,
-    );
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeVersionInfoProvider,
+        FakeDirectoryProvider<true>,
+    >(&mut delegate);
 
     // The app should start out by fetching the current app version
     assert_yaml_snapshot!(delegate.state);
@@ -296,9 +308,12 @@ async fn test_fetch_version() {
 #[tokio::test(start_paused = true)]
 async fn test_download() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderHappyPath, FakeVersionInfoProvider>(
-        &mut delegate,
-    );
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeVersionInfoProvider,
+        FakeDirectoryProvider<true>,
+    >(&mut delegate);
 
     // Wait for the version info
     tokio::time::sleep(Duration::from_secs(1)).await;
@@ -340,9 +355,51 @@ async fn test_download() {
 #[tokio::test(start_paused = true)]
 async fn test_failed_verification() {
     let mut delegate = FakeAppDelegate::default();
-    AppController::initialize::<_, FakeAppDownloaderVerifyFail, FakeVersionInfoProvider>(
-        &mut delegate,
-    );
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderVerifyFail,
+        FakeVersionInfoProvider,
+        FakeDirectoryProvider<true>,
+    >(&mut delegate);
+
+    // Wait for the version info
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
+    // Initiate download
+    let cb = delegate
+        .download_callback
+        .take()
+        .expect("no download callback registered");
+    cb();
+
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    // Wait for queued actions to complete
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
+    // Verification failed
+    assert_yaml_snapshot!(delegate.state);
+}
+
+/// Test failing to create the download directory
+#[tokio::test(start_paused = true)]
+async fn test_failed_directory_creation() {
+    let mut delegate = FakeAppDelegate::default();
+    AppController::initialize::<
+        _,
+        FakeAppDownloaderHappyPath,
+        FakeVersionInfoProvider,
+        FakeDirectoryProvider<false>,
+    >(&mut delegate);
 
     // Wait for the version info
     tokio::time::sleep(Duration::from_secs(1)).await;
