@@ -59,6 +59,10 @@ on:
 
 permissions: {}
 
+env:
+  DEFAULT_E2E_REPEAT: 0
+  SCHEDULE_E2E_REPEAT: 10
+
 jobs:
   prepare:
     name: Prepare
@@ -83,7 +87,10 @@ jobs:
         run: |
           echo "INNER_E2E_TEST_INFRA_FLAVOR=${{ github.event.inputs.e2e_tests_infra_flavor || 'stagemole' }}" \
           >> $GITHUB_ENV
-          echo "INNER_E2E_TEST_REPEAT=${{ github.event.inputs.e2e_test_repeat || 0 }}" >> $GITHUB_ENV
+          echo "INNER_E2E_TEST_REPEAT=${{ github.event.inputs.e2e_test_repeat ||
+          (github.event_name == 'schedule' && env.SCHEDULE_E2E_REPEAT) ||
+          env.DEFAULT_E2E_REPEAT }}" \
+          >> $GITHUB_ENV
     outputs:
       container_image: ${{ env.inner_container_image }}
       E2E_TEST_INFRA_FLAVOR: ${{ env.INNER_E2E_TEST_INFRA_FLAVOR }}
@@ -295,7 +302,6 @@ jobs:
           read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Upload apks
-        # Using v3 due to v4 being very slow for this artifact.
         uses: actions/upload-artifact@v4
         with:
           name: apks
@@ -354,7 +360,6 @@ jobs:
           read-only: ${{ github.ref != 'refs/heads/main' }}
 
       - name: Upload apks
-        # Using v3 due to v4 being very slow for this artifact.
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.test-type }}-instrumentation-apks
@@ -390,14 +395,12 @@ jobs:
         if: ${{ matrix.test-repeat != 0 }}
         uses: actions/checkout@v4
 
-      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
           path: android/app/build/outputs/apk
 
-      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v4
         if: ${{ matrix.test-repeat != 0 }}
         with:
@@ -432,16 +435,9 @@ jobs:
 
   instrumented-e2e-tests:
     name: Run instrumented e2e tests
-    # Temporary workaround for targeting the runner android-runner-v1
     runs-on: [self-hosted, android-device]
     needs: [prepare, build-app, build-instrumented-tests]
-    if: >
-      github.event_name == 'schedule' ||
-      (github.event_name != 'pull_request' && needs.prepare.outputs.E2E_TEST_REPEAT != '0')
-    strategy:
-      matrix:
-        include:
-          - test-repeat: ${{ needs.prepare.outputs.E2E_TEST_REPEAT || 1 }}
+    if: needs.prepare.outputs.E2E_TEST_REPEAT != '0'
     steps:
       - name: Resolve unique runner test account secret name
         if: needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'prod'
@@ -454,7 +450,6 @@ jobs:
         run: echo "RESOLVED_TEST_ACCOUNT=${{ secrets[env.RUNNER_SECRET_NAME] }}" >> $GITHUB_ENV
 
       - name: Prepare report dir
-        if: ${{ matrix.test-repeat != 0 }}
         id: prepare-report-dir
         env:
           INNER_REPORT_DIR: /tmp/${{ github.run_id }}-${{ github.run_attempt }}
@@ -463,30 +458,24 @@ jobs:
           echo "report_dir=$INNER_REPORT_DIR" >> $GITHUB_OUTPUT
 
       - name: Checkout repository
-        if: ${{ matrix.test-repeat != 0 }}
         uses: actions/checkout@v4
 
-      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v4
-        if: ${{ matrix.test-repeat != 0 }}
         with:
           name: apks
           path: android/app/build/outputs/apk
 
-      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v4
-        if: ${{ matrix.test-repeat != 0 }}
         with:
           name: e2e-instrumentation-apks
           path: android/test/e2e/build/outputs/apk
 
       - name: Calculate timeout
         id: calculate-timeout
-        run: echo "timeout=$(( ${{ matrix.test-repeat }} * 15 ))" >> $GITHUB_OUTPUT
+        run: echo "timeout=$(( ${{ needs.prepare.outputs.E2E_TEST_REPEAT }} * 15 ))" >> $GITHUB_OUTPUT
         shell: bash
 
       - name: Run instrumented test script
-        if: ${{ matrix.test-repeat != 0 }}
         timeout-minutes: ${{ fromJSON(steps.calculate-timeout.outputs.timeout) }}
         shell: bash -ieo pipefail {0}
         env:
@@ -501,12 +490,12 @@ jobs:
           ENABLE_HIGHLY_RATE_LIMITED_TESTS: ${{ github.event_name == 'schedule' && 'true' || 'false' }}
           ENABLE_ACCESS_TO_LOCAL_API_TESTS: true
           REPORT_DIR: ${{ steps.prepare-report-dir.outputs.report_dir }}
-        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ matrix.test-repeat }}
+        run: ./android/scripts/run-instrumented-tests-repeat.sh ${{ needs.prepare.outputs.E2E_TEST_REPEAT }}
 
       - name: Upload e2e instrumentation report
         uses: actions/upload-artifact@v4
         if: >
-          always() && matrix.test-repeat != 0 && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole'
+          always() && needs.prepare.outputs.E2E_TEST_INFRA_FLAVOR == 'stagemole'
         with:
           name: e2e-instrumentation-report
           path: ${{ steps.prepare-report-dir.outputs.report_dir }}
@@ -539,13 +528,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v4
         with:
           name: apks
           path: android/app/build/outputs/apk
 
-      # Using v3 due to v4 being very slow for this artifact.
       - uses: actions/download-artifact@v4
         with:
           name: ${{ matrix.test-type }}-instrumentation-apks
