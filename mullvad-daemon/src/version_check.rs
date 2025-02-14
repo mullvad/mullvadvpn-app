@@ -8,7 +8,6 @@ use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, AppVer
 use mullvad_types::version::AppVersionInfo;
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
-use std::cmp::Ordering;
 use std::{
     future::Future,
     io,
@@ -558,7 +557,7 @@ fn suggested_upgrade(
         (Some(_), None) => stable_version,
         (None, Some(_)) => beta_version,
         (Some(stable), Some(beta)) => {
-            if beta.version_ordering(stable) == Ordering::Greater {
+            if beta > stable {
                 beta_version
             } else {
                 stable_version
@@ -567,7 +566,7 @@ fn suggested_upgrade(
         (None, None) => None,
     }?;
 
-    if latest_version.version_ordering(current_version) == Ordering::Greater {
+    if &latest_version > current_version {
         Some(latest_version.to_string())
     } else {
         None

@@ -8,7 +8,7 @@ use regex::Regex;
 /// The Mullvad VPN app product version
 pub const VERSION: &str = include_str!(concat!(env!("OUT_DIR"), "/product-version.txt"));
 
-#[derive(Debug, Clone, Eq, PartialEq)]
+#[derive(Debug, Clone, PartialEq)]
 pub struct Version {
     pub year: u32,
     pub incremental: u32,
@@ -26,7 +26,7 @@ pub enum PreStableType {
 
 impl Version {
     pub fn is_stable(&self) -> bool {
-        self.pre_stable.is_none()
+        self.pre_stable.is_none() && !self.is_dev()
     }
 
     pub fn is_alpha(&self) -> bool {
@@ -54,20 +54,15 @@ impl Version {
             _ => None,
         }
     }
+}
 
-    /// Returns the ordering between two versions. The reason the Ord trait isn't implemented
-    /// is that dev versions are not ordered, so for example 2025.1-dev-fd42ad is equal to
-    /// 2025.1-dev-af23b4 when it comes to the version ordering, but they are not equal when it
-    /// comes to the derived Eq and PartialEq implementations.
-    ///
-    /// The following order is used: stable > beta > alpha
-    /// If two versions are identical except for one being a dev version
-    /// (ending with the suffix -dev-[SHA]), the dev version is considered greater than
-    /// the non-dev version, but if both are dev versions they are considered equal
-    /// since the dev version SHA is not ordered.
-    pub fn version_ordering(&self, other: &Self) -> Ordering {
-        let type_ordering = if self.is_stable() || other.is_stable() {
-            match (self.is_stable(), other.is_stable()) {
+impl PartialOrd for Version {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        let type_ordering = if self.pre_stable.is_none() || other.pre_stable.is_none() {
+            // If pre-stable is None we have either a stable version (e.g. 2025.1) or "stable dev"
+            // version (e.g. 2025.1-dev-abc123). At this point we do not consider the dev part,
+            // as that should be compared last, after the stable-beta-alpha comparison is done.
+            match (self.pre_stable.is_none(), other.pre_stable.is_none()) {
                 (true, false) => Ordering::Greater,
                 (false, true) => Ordering::Less,
                 (_, _) => Ordering::Equal,
@@ -88,11 +83,21 @@ impl Version {
             (_, _) => Ordering::Equal,
         };
 
-        self.year
+        let ordering = self
+            .year
             .cmp(&other.year)
             .then(self.incremental.cmp(&other.incremental))
             .then(type_ordering)
-            .then(dev_ordering)
+            .then(dev_ordering);
+
+        if ordering == Ordering::Equal && self.is_dev() && other.is_dev() && self.dev != other.dev {
+            // We have two dev versions that are equal except that their commit SHAs are different,
+            // e.g. 2025.1-dev-ddf354 and 2025.1-dev-623hf9
+            // This is the partial order case where the versions do not have an ordering.
+            None
+        } else {
+            Some(ordering)
+        }
     }
 }
 
@@ -183,111 +188,41 @@ mod tests {
     #[test]
     fn test_version_ordering() {
         // Test year comparison
-        assert_eq!(
-            parse("2022.1").version_ordering(&parse("2021.1")),
-            Ordering::Greater
-        );
+        assert!(parse("2022.1") > parse("2021.1"),);
 
         // Test incremental comparison
-        assert_eq!(
-            parse("2021.2").version_ordering(&parse("2021.1")),
-            Ordering::Greater
-        );
+        assert!(parse("2021.2") > parse("2021.1"),);
 
         // Test stable vs pre-release
-        assert_eq!(
-            parse("2021.1").version_ordering(&parse("2021.1-beta1")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2021.1").version_ordering(&parse("2021.1-alpha1")),
-            Ordering::Greater
-        );
+        assert!(parse("2021.1") > parse("2021.1-beta1"),);
+        assert!(parse("2021.1") > parse("2021.1-alpha1"),);
 
         // Test beta vs alpha
-        assert_eq!(
-            parse("2021.1-beta1").version_ordering(&parse("2021.1-alpha1")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2021.1-beta1").version_ordering(&parse("2021.1-alpha2")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2021.2-alpha1").version_ordering(&parse("2021.1-beta2")),
-            Ordering::Greater
-        );
+        assert!(parse("2021.1-beta1") > parse("2021.1-alpha1"),);
+        assert!(parse("2021.1-beta1") > parse("2021.1-alpha2"),);
+        assert!(parse("2021.2-alpha1") > parse("2021.1-beta2"),);
 
         // Test version numbers within same type
-        assert_eq!(
-            parse("2021.1-beta2").version_ordering(&parse("2021.1-beta1")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2021.1-alpha2").version_ordering(&parse("2021.1-alpha1")),
-            Ordering::Greater
-        );
+        assert!(parse("2021.1-beta2") > parse("2021.1-beta1"),);
+        assert!(parse("2021.1-alpha2") > parse("2021.1-alpha1"),);
 
         // Test dev versions
-        assert_eq!(
-            parse("2021.1-dev-abc").version_ordering(&parse("2021.1")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2021.2").version_ordering(&parse("2021.1-dev-abc")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2021.1-dev-abc").version_ordering(&parse("2021.1-beta1")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2021.1-dev-abc").version_ordering(&parse("2021.1-alpha1")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2025.1-dev-abc").version_ordering(&parse("2025.1-beta1-dev-abc")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2025.1-dev-abc").version_ordering(&parse("2025.1-beta2-dev-abc")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2025.1-dev-abc").version_ordering(&parse("2025.1-alpha2-dev-abc")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2025.1-beta1-dev-abc").version_ordering(&parse("2025.1-alpha7-dev-abc")),
-            Ordering::Greater
-        );
-        assert_eq!(
-            parse("2025.2-alpha1-dev-abc").version_ordering(&parse("2025.1-beta7-dev-abc")),
-            Ordering::Greater
-        );
+        assert!(parse("2021.1-dev-abc") > parse("2021.1"),);
+        assert!(parse("2021.2") > parse("2021.1-dev-abc"),);
+        assert!(parse("2021.1-dev-abc") > parse("2021.1-beta1"),);
+        assert!(parse("2021.1-dev-abc") > parse("2021.1-alpha1"),);
+        assert!(parse("2025.1-dev-abc") > parse("2025.1-beta1-dev-abc"),);
+        assert!(parse("2025.1-dev-abc") > parse("2025.1-beta2-dev-abc"),);
+        assert!(parse("2025.1-dev-abc") > parse("2025.1-alpha2-dev-abc"),);
+        assert!(parse("2025.1-beta1-dev-abc") > parse("2025.1-alpha7-dev-abc"),);
+        assert!(parse("2025.2-alpha1-dev-abc") > parse("2025.1-beta7-dev-abc"),);
 
-        // Test equal versions
+        // Test version equality
         assert_eq!(parse("2021.1"), parse("2021.1"));
         assert_eq!(parse("2021.1-beta1"), parse("2021.1-beta1"));
+        assert_eq!(parse("2021.1-alpha7"), parse("2021.1-alpha7"));
         assert_eq!(parse("2021.1-dev-abc123"), parse("2021.1-dev-abc123"));
         assert_ne!(parse("2021.1-dev-abc123"), parse("2021.1-dev-def123"));
-
-        assert_eq!(
-            parse("2021.1").version_ordering(&parse("2021.1")),
-            Ordering::Equal
-        );
-        assert_eq!(
-            parse("2021.1-beta1").version_ordering(&parse("2021.1-beta1")),
-            Ordering::Equal
-        );
-        assert_eq!(
-            parse("2021.1-dev-abc123").version_ordering(&parse("2021.1-dev-abc123")),
-            Ordering::Equal
-        );
-        assert_eq!(
-            parse("2021.1-dev-abc123").version_ordering(&parse("2021.1-dev-abc123")),
-            Ordering::Equal
-        );
     }
 
     #[test]
@@ -361,7 +296,7 @@ mod tests {
         let parsed = parse(version);
         assert_eq!(parsed.year, 2021);
         assert_eq!(parsed.incremental, 34);
-        assert!(parsed.is_stable());
+        assert!(!parsed.is_stable());
         assert_eq!(parsed.dev, Some("0b60e4d87".to_string()));
         assert_eq!(parsed.alpha(), None);
         assert_eq!(parsed.beta(), None);

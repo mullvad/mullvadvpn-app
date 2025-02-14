@@ -104,7 +104,7 @@ fn to_windows_h_format(version_str: &str) -> String {
 
 /// On Windows we currently support the following versions: stable, beta and dev.
 fn is_valid_windows_version(version: &Version) -> bool {
-    version.is_stable() || version.is_beta()
+    version.is_stable() || version.is_beta() || (version.is_dev() && !version.is_alpha())
 }
 
 #[cfg(test)]
