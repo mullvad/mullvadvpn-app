@@ -242,8 +242,8 @@ jobs:
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
       needs.prepare-matrices.outputs.linux_matrix != ''
-    # runs-on: [self-hosted, se-got-github-runner-013] # Magnus<3
-    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    runs-on: [self-hosted, se-got-github-runner-013] # Magnus<3
+    # runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
     # runs-on: ubuntu-latest
     # container:
     #   image: ${{ needs.prepare-linux.outputs.container_image }}
