@@ -481,6 +481,8 @@ jobs:
       - name: Generate test result matrix
         shell: bash -ieo pipefail {0}
         run: |
+          la -la
+          la -la debian12_report
           ${{ github.workspace }}/bin/test-manager format-test-reports "${{ github.workspace }}/*_report" | tee summary.html >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:
