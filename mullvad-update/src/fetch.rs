@@ -23,8 +23,6 @@ pub trait ProgressUpdater: Send + 'static {
     fn set_url(&mut self, url: &str);
 }
 
-// TODO: save file to protected dir so it cannot be tampered with after verification
-
 /// This describes how to handle files that do not match an expected size
 #[derive(Debug, Clone, Copy)]
 pub enum SizeHint {

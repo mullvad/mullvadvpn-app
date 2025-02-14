@@ -9,8 +9,6 @@ use crate::{
     verify::{AppVerifier, Sha256Verifier},
 };
 
-const INSTALLER_STARTUP_TIMEOUT: Duration = Duration::from_millis(500);
-
 #[derive(Debug)]
 pub enum DownloadError {
     CreateDir(anyhow::Error),
@@ -29,14 +27,14 @@ pub struct AppDownloaderParameters<AppProgress> {
     pub app_size: usize,
     pub app_progress: AppProgress,
     pub app_sha256: [u8; 32],
+    /// Directory to store the installer in.
+    /// Ensure that this has proper permissions set.
+    pub cache_dir: PathBuf,
 }
 
 /// See the [module-level documentation](self).
 #[async_trait::async_trait]
 pub trait AppDownloader: Send {
-    /// Create download directory.
-    async fn create_cache_dir(&mut self) -> Result<(), DownloadError>;
-
     /// Download the app binary.
     async fn download_executable(&mut self) -> Result<(), DownloadError>;
 
@@ -47,9 +45,11 @@ pub trait AppDownloader: Send {
     async fn install(&mut self) -> Result<(), DownloadError>;
 }
 
+/// How long to wait for the installer to exit before returning
+const INSTALLER_STARTUP_TIMEOUT: Duration = Duration::from_millis(500);
+
 /// Download the app and signature, and verify the app's signature
 pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(), DownloadError> {
-    downloader.create_cache_dir().await?;
     downloader.download_executable().await?;
     downloader.verify().await?;
     downloader.install().await
@@ -58,12 +58,11 @@ pub async fn install_and_upgrade(mut downloader: impl AppDownloader) -> Result<(
 #[derive(Clone)]
 pub struct HttpAppDownloader<AppProgress> {
     params: AppDownloaderParameters<AppProgress>,
-    cache_dir: Option<PathBuf>,
 }
 
 impl<AppProgress> HttpAppDownloader<AppProgress> {
     pub fn new(params: AppDownloaderParameters<AppProgress>) -> Self {
-        Self { params, cache_dir: None }
+        Self { params }
     }
 }
 
@@ -77,14 +76,8 @@ impl<AppProgress: ProgressUpdater> From<AppDownloaderParameters<AppProgress>>
 
 #[async_trait::async_trait]
 impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgress> {
-    async fn create_cache_dir(&mut self) -> Result<(), DownloadError> {
-        let dir = crate::dir::update_directory().await.map_err(DownloadError::CreateDir)?;
-        self.cache_dir = Some(dir);
-        Ok(())
-    }
-
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path().expect("Performed after 'create_cache_dir'");
+        let bin_path = self.bin_path();
         fetch::get_to_file(
             bin_path,
             &self.params.app_url,
@@ -96,7 +89,7 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
     }
 
     async fn verify(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path().expect("Performed after 'create_cache_dir'");
+        let bin_path = self.bin_path();
         let hash = self.hash_sha256();
 
         match Sha256Verifier::verify(&bin_path, *hash)
@@ -115,10 +108,9 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
     }
 
     async fn install(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path().expect("Performed after 'create_cache_dir'");
+        let bin_path = self.bin_path();
 
         // Launch process
-        // TODO: move to launch.rs?
         let mut cmd = Command::new(bin_path);
         let mut child = cmd.spawn().map_err(DownloadError::Launch)?;
 
@@ -129,22 +121,26 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
             // No timeout: Incredibly quick but successful (or wrong exit code, probably)
             Ok(Ok(status)) if status.success() => Ok(()),
             // Installer failed
-            Ok(Ok(status)) => Err(DownloadError::InstallFailed(anyhow::anyhow!("Install failed with status: {status}"))),
+            Ok(Ok(status)) => Err(DownloadError::InstallFailed(anyhow::anyhow!(
+                "Install failed with status: {status}"
+            ))),
             // Installer failed
-            Ok(Err(err)) => Err(DownloadError::InstallFailed(anyhow::anyhow!("Install failed : {err}"))),
+            Ok(Err(err)) => Err(DownloadError::InstallFailed(anyhow::anyhow!(
+                "Install failed: {err}"
+            ))),
         }
     }
 }
 
 impl<AppProgress> HttpAppDownloader<AppProgress> {
-    fn bin_path(&self) -> Option<PathBuf> {
+    fn bin_path(&self) -> PathBuf {
         #[cfg(windows)]
-        let bin_filename = format!("{}.exe", self.params.app_version);
+        let bin_filename = format!("mullvad-{}.exe", self.params.app_version);
 
         #[cfg(unix)]
         let bin_filename = self.params.app_version.to_string();
 
-        self.cache_dir.as_ref().map(|dir| dir.join(bin_filename))
+        self.params.cache_dir.join(bin_filename)
     }
 
     fn hash_sha256(&self) -> &[u8; 32] {

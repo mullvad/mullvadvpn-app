@@ -1,0 +1,27 @@
+---
+source: installer-downloader/tests/controller.rs
+expression: delegate.state
+snapshot_kind: text
+---
+status_text: Failed to create download directory
+download_text: ""
+download_button_visible: true
+cancel_button_visible: false
+cancel_button_enabled: false
+download_button_enabled: true
+download_progress: 0
+download_progress_visible: false
+beta_text_visible: false
+quit: false
+call_log:
+  - hide_download_progress
+  - show_download_button
+  - disable_download_button
+  - hide_cancel_button
+  - hide_beta_text
+  - "set_status_text: Loading version details..."
+  - on_download
+  - on_cancel
+  - "set_status_text: Version: 2025.1"
+  - enable_download_button
+  - "set_status_text: Failed to create download directory"

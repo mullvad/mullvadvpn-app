@@ -37,19 +37,6 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static>
 impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownloader
     for UiAppDownloader<Delegate, Downloader>
 {
-    async fn create_cache_dir(&mut self) -> Result<(), app::DownloadError> {
-        match self.downloader.create_cache_dir().await {
-            Ok(()) => Ok(()),
-            Err(err) => {
-                self.queue.queue_main(move |self_| {
-                    self_.set_download_text("ERROR: Failed to create cache directory.");
-                });
-
-                Err(err)
-            }
-        }
-    }
-
     async fn download_executable(&mut self) -> Result<(), app::DownloadError> {
         match self.downloader.download_executable().await {
             Ok(()) => {
