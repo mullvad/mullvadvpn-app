@@ -1,5 +1,5 @@
 ---
-source: mullvad-update/src/api.rs
+source: mullvad-update/src/version.rs
 expression: info
 snapshot_kind: text
 ---
