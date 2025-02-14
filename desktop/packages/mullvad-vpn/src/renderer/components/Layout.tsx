@@ -18,6 +18,7 @@ export const Layout = styled.div({
   flexDirection: 'column',
   flex: 1,
   height: '100vh',
+  maxWidth: '100%',
 });
 
 export const SettingsContainer = styled(Container)({
