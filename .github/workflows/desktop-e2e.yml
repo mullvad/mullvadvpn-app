@@ -483,7 +483,7 @@ jobs:
         run: |
           la -la
           la -la debian12_report
-          ${{ github.workspace }}/bin/test-manager format-test-reports "${{ github.workspace }}/*_report" | tee summary.html >> $GITHUB_STEP_SUMMARY
+          ${{ github.workspace }}/bin/test-manager format-test-reports ${{ github.workspace }}/*_report | tee summary.html >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:
           name: summary.html
