@@ -36,185 +36,79 @@ impl DisconnectingState {
         command: Option<TunnelCommand>,
         shared_values: &mut SharedTunnelStateValues,
     ) -> EventConsequence {
-        let after_disconnect = self.after_disconnect;
+        match command {
+            Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
+                let _ = shared_values.set_allow_lan(allow_lan);
+                let _ = complete_tx.send(());
+            }
+            #[cfg(not(target_os = "android"))]
+            Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
+                shared_values.allowed_endpoint = endpoint;
+                let _ = tx.send(());
+            }
+            Some(TunnelCommand::Dns(servers, complete_tx)) => {
+                let _ = shared_values.set_dns_config(servers);
+                let _ = complete_tx.send(());
+            }
+            #[cfg(not(target_os = "android"))]
+            Some(TunnelCommand::BlockWhenDisconnected(block_when_disconnected, complete_tx)) => {
+                shared_values.block_when_disconnected = block_when_disconnected;
+                let _ = complete_tx.send(());
+            }
+            Some(TunnelCommand::Connectivity(connectivity)) => {
+                shared_values.connectivity = connectivity;
 
-        self.after_disconnect = match after_disconnect {
-            AfterDisconnect::Nothing => match command {
-                Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
-                    let _ = shared_values.set_allow_lan(allow_lan);
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Nothing
-                }
-                #[cfg(not(target_os = "android"))]
-                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    shared_values.allowed_endpoint = endpoint;
-                    let _ = tx.send(());
-                    AfterDisconnect::Nothing
-                }
-                Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                    let _ = shared_values.set_dns_config(servers);
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Nothing
-                }
-                #[cfg(not(target_os = "android"))]
-                Some(TunnelCommand::BlockWhenDisconnected(
-                    block_when_disconnected,
-                    complete_tx,
-                )) => {
-                    shared_values.block_when_disconnected = block_when_disconnected;
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Nothing
-                }
-                Some(TunnelCommand::Connectivity(connectivity)) => {
-                    shared_values.connectivity = connectivity;
-                    AfterDisconnect::Nothing
-                }
-                Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
-                Some(TunnelCommand::Disconnect) | Some(TunnelCommand::Block(_)) | None => {
-                    AfterDisconnect::Nothing
-                }
-                #[cfg(target_os = "android")]
-                Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
-                    shared_values.bypass_socket(fd, done_tx);
-                    AfterDisconnect::Nothing
-                }
-                #[cfg(windows)]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.exclude_paths(paths, result_tx);
-                    AfterDisconnect::Nothing
-                }
-                #[cfg(target_os = "android")]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.set_excluded_paths(paths);
-                    let _ = result_tx.send(Ok(()));
-                    AfterDisconnect::Nothing
-                }
-                #[cfg(target_os = "macos")]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
-                    AfterDisconnect::Nothing
-                }
-            },
-            AfterDisconnect::Block(reason) => match command {
-                Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
-                    let _ = shared_values.set_allow_lan(allow_lan);
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Block(reason)
-                }
-
-                #[cfg(not(target_os = "android"))]
-                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    shared_values.allowed_endpoint = endpoint;
-                    let _ = tx.send(());
-                    AfterDisconnect::Block(reason)
-                }
-                Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                    let _ = shared_values.set_dns_config(servers);
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Block(reason)
-                }
-                #[cfg(not(target_os = "android"))]
-                Some(TunnelCommand::BlockWhenDisconnected(
-                    block_when_disconnected,
-                    complete_tx,
-                )) => {
-                    shared_values.block_when_disconnected = block_when_disconnected;
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Block(reason)
-                }
-                Some(TunnelCommand::Connectivity(connectivity)) => {
-                    shared_values.connectivity = connectivity;
-                    if !connectivity.is_offline() && matches!(reason, ErrorStateCause::IsOffline) {
-                        AfterDisconnect::Reconnect(0)
-                    } else {
-                        AfterDisconnect::Block(reason)
+                match self.after_disconnect {
+                    AfterDisconnect::Reconnect(_) if connectivity.is_offline() => {
+                        self.after_disconnect = AfterDisconnect::Block(ErrorStateCause::IsOffline)
                     }
+                    AfterDisconnect::Block(ErrorStateCause::IsOffline)
+                        if !connectivity.is_offline() =>
+                    {
+                        self.after_disconnect = AfterDisconnect::Reconnect(0);
+                    }
+                    _ => {}
                 }
-                Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(0),
-                Some(TunnelCommand::Disconnect) => AfterDisconnect::Nothing,
-                Some(TunnelCommand::Block(new_reason)) => AfterDisconnect::Block(new_reason),
-                #[cfg(target_os = "android")]
-                Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
-                    shared_values.bypass_socket(fd, done_tx);
-                    AfterDisconnect::Block(reason)
-                }
-                #[cfg(windows)]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.exclude_paths(paths, result_tx);
-                    AfterDisconnect::Block(reason)
-                }
-                #[cfg(target_os = "android")]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.set_excluded_paths(paths);
-                    let _ = result_tx.send(Ok(()));
-                    AfterDisconnect::Block(reason)
-                }
-                #[cfg(target_os = "macos")]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
-                    AfterDisconnect::Block(reason)
-                }
-                None => AfterDisconnect::Block(reason),
-            },
-            AfterDisconnect::Reconnect(retry_attempt) => match command {
-                Some(TunnelCommand::AllowLan(allow_lan, complete_tx)) => {
-                    let _ = shared_values.set_allow_lan(allow_lan);
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-                #[cfg(not(target_os = "android"))]
-                Some(TunnelCommand::AllowEndpoint(endpoint, tx)) => {
-                    shared_values.allowed_endpoint = endpoint;
-                    let _ = tx.send(());
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-                Some(TunnelCommand::Dns(servers, complete_tx)) => {
-                    let _ = shared_values.set_dns_config(servers);
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-                #[cfg(not(target_os = "android"))]
-                Some(TunnelCommand::BlockWhenDisconnected(
-                    block_when_disconnected,
-                    complete_tx,
-                )) => {
-                    shared_values.block_when_disconnected = block_when_disconnected;
-                    let _ = complete_tx.send(());
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-                Some(TunnelCommand::Connectivity(connectivity)) => {
-                    shared_values.connectivity = connectivity;
-                    if connectivity.is_offline() {
-                        AfterDisconnect::Block(ErrorStateCause::IsOffline)
-                    } else {
+            }
+            Some(TunnelCommand::Connect) => {
+                self.after_disconnect = match self.after_disconnect {
+                    AfterDisconnect::Reconnect(retry_attempt) => {
                         AfterDisconnect::Reconnect(retry_attempt)
                     }
+                    _ => AfterDisconnect::Reconnect(0),
+                };
+            }
+            Some(TunnelCommand::Disconnect) => {
+                self.after_disconnect = AfterDisconnect::Nothing;
+            }
+            Some(TunnelCommand::Block(reason)) => {
+                self.after_disconnect = match self.after_disconnect {
+                    AfterDisconnect::Nothing => AfterDisconnect::Nothing,
+                    _ => AfterDisconnect::Block(reason),
                 }
-                Some(TunnelCommand::Connect) => AfterDisconnect::Reconnect(retry_attempt),
-                Some(TunnelCommand::Disconnect) | None => AfterDisconnect::Nothing,
-                Some(TunnelCommand::Block(reason)) => AfterDisconnect::Block(reason),
-                #[cfg(target_os = "android")]
-                Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
-                    shared_values.bypass_socket(fd, done_tx);
-                    AfterDisconnect::Reconnect(retry_attempt)
+            }
+            None => {
+                if let AfterDisconnect::Reconnect(_) = self.after_disconnect {
+                    self.after_disconnect = AfterDisconnect::Nothing;
                 }
-                #[cfg(windows)]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.exclude_paths(paths, result_tx);
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-                #[cfg(target_os = "android")]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    shared_values.set_excluded_paths(paths);
-                    let _ = result_tx.send(Ok(()));
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-                #[cfg(target_os = "macos")]
-                Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
-                    let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
-                    AfterDisconnect::Reconnect(retry_attempt)
-                }
-            },
+            }
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::BypassSocket(fd, done_tx)) => {
+                shared_values.bypass_socket(fd, done_tx);
+            }
+            #[cfg(windows)]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                shared_values.exclude_paths(paths, result_tx);
+            }
+            #[cfg(target_os = "android")]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                shared_values.set_excluded_paths(paths);
+                let _ = result_tx.send(Ok(()));
+            }
+            #[cfg(target_os = "macos")]
+            Some(TunnelCommand::SetExcludedApps(result_tx, paths)) => {
+                let _ = result_tx.send(shared_values.set_exclude_paths(paths).map(|_| ()));
+            }
         };
 
         EventConsequence::SameState(self)
