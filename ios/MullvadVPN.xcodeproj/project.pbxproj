@@ -502,6 +502,11 @@
 		7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */; };
 		7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960F52A963F7500389B82 /* AlertCoordinator.swift */; };
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
+		7A2E7B702D6C9FCF009EF2C3 /* APITransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */; };
+		7A2E7B712D6C9FE0009EF2C3 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */; };
+		7A2E7B722D6C9FE5009EF2C3 /* APIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */; };
+		7A2E7B732D6C9FEB009EF2C3 /* APIRequestProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A95B6742D5DF86400687524 /* APIRequestProxy.swift */; };
+		7A2E7B752D6CA0B1009EF2C3 /* APITransportProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */; };
 		7A307AD92A8CD8DA0017618B /* Duration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307AD82A8CD8DA0017618B /* Duration.swift */; };
 		7A307ADB2A8F56DF0017618B /* Duration+Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */; };
 		7A3215722D3934E6005DF395 /* MullvadApiCompletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */; };
@@ -598,8 +603,8 @@
 		7A8A19242CF4C9BF000BCB5B /* MultihopPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19232CF4C9B8000BCB5B /* MultihopPage.swift */; };
 		7A8A19262CF4D37B000BCB5B /* DAITAPage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19252CF4D373000BCB5B /* DAITAPage.swift */; };
 		7A8A19282CF603EB000BCB5B /* SettingsViewControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */; };
-		7A95B6792D5F729300687524 /* DAITASettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A95B6782D5F729300687524 /* DAITASettingsCoordinator.swift */; };
 		7A95B67B2D5F758300687524 /* relays.json in Resources */ = {isa = PBXBuildFile; fileRef = 7A95B67A2D5F758300687524 /* relays.json */; };
+		7A95B67D2D5F7C5B00687524 /* DAITASettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A95B67C2D5F7C5B00687524 /* DAITASettingsCoordinator.swift */; };
 		7A99D36F2D56070400891FF7 /* MullvadApiRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */; };
 		7A99D3712D56222000891FF7 /* MullvadApiCancellable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */; };
 		7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */; };
@@ -644,7 +649,7 @@
 		7AB4CCBB2B691BBB006037F5 /* IPOverrideInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */; };
 		7AB931242D43C2CA005FCEBA /* MullvadApiContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */; };
 		7AB931262D43D22F005FCEBA /* MullvadApiResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */; };
-		7AB9312F2D4A5D0A005FCEBA /* RESTRustNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB9312D2D4A5D0A005FCEBA /* RESTRustNetworkOperation.swift */; };
+		7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */; };
 		7ABCA5B32A9349F20044A708 /* Routing.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; };
 		7ABCA5B42A9349F20044A708 /* Routing.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 7A88DCCE2A8FABBE00D2FF0E /* Routing.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		7ABCA5B72A9353C60044A708 /* Coordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CAF9F72983D36800BE19F7 /* Coordinator.swift */; };
@@ -2027,6 +2032,10 @@
 		7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsCoordinator.swift; sourceTree = "<group>"; };
 		7A2960F52A963F7500389B82 /* AlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCoordinator.swift; sourceTree = "<group>"; };
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
+		7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransport.swift; sourceTree = "<group>"; };
+		7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRequest.swift; sourceTree = "<group>"; };
+		7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
+		7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransportProvider.swift; sourceTree = "<group>"; };
 		7A307AD82A8CD8DA0017618B /* Duration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Duration.swift; sourceTree = "<group>"; };
 		7A307ADA2A8F56DF0017618B /* Duration+Extensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Duration+Extensions.swift"; sourceTree = "<group>"; };
 		7A3215702D392F0B005DF395 /* MullvadApiCompletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiCompletion.swift; sourceTree = "<group>"; };
@@ -2112,8 +2121,9 @@
 		7A8A19232CF4C9B8000BCB5B /* MultihopPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultihopPage.swift; sourceTree = "<group>"; };
 		7A8A19252CF4D373000BCB5B /* DAITAPage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITAPage.swift; sourceTree = "<group>"; };
 		7A8A19272CF603E3000BCB5B /* SettingsViewControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewControllerFactory.swift; sourceTree = "<group>"; };
-		7A95B6782D5F729300687524 /* DAITASettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsCoordinator.swift; sourceTree = "<group>"; };
+		7A95B6742D5DF86400687524 /* APIRequestProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRequestProxy.swift; sourceTree = "<group>"; };
 		7A95B67A2D5F758300687524 /* relays.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = relays.json; sourceTree = "<group>"; };
+		7A95B67C2D5F7C5B00687524 /* DAITASettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsCoordinator.swift; sourceTree = "<group>"; };
 		7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiRequestFactory.swift; sourceTree = "<group>"; };
 		7A99D3702D56220E00891FF7 /* MullvadApiCancellable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiCancellable.swift; sourceTree = "<group>"; };
 		7A9BE5A12B8F88C500E2A7D0 /* LocationNodeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationNodeTests.swift; sourceTree = "<group>"; };
@@ -2155,7 +2165,7 @@
 		7AB4CCBA2B691BBB006037F5 /* IPOverrideInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IPOverrideInteractor.swift; sourceTree = "<group>"; };
 		7AB931232D43C2C2005FCEBA /* MullvadApiContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiContext.swift; sourceTree = "<group>"; };
 		7AB931252D43D222005FCEBA /* MullvadApiResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiResponse.swift; sourceTree = "<group>"; };
-		7AB9312D2D4A5D0A005FCEBA /* RESTRustNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RESTRustNetworkOperation.swift; sourceTree = "<group>"; };
+		7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadApiNetworkOperation.swift; sourceTree = "<group>"; };
 		7ABE318C2A1CDD4500DF4963 /* UIFont+Weight.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Weight.swift"; sourceTree = "<group>"; };
 		7ABFB09D2BA316220074A49E /* RelayConstraintsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayConstraintsTests.swift; sourceTree = "<group>"; };
 		7AC8A3AD2ABC6FBB00DC4939 /* SettingsHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsHeaderView.swift; sourceTree = "<group>"; };
@@ -2662,6 +2672,7 @@
 			isa = PBXGroup;
 			children = (
 				F06045F02B2324DA00B2D37A /* ApiHandlers */,
+				7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */,
 				062B45A228FD4C0F00746E77 /* Assets */,
 				7AD63A422CDA661B00445268 /* Extensions */,
 				582FFA82290A84E700895745 /* Info.plist */,
@@ -4139,6 +4150,16 @@
 			path = Alert;
 			sourceTree = "<group>";
 		};
+		7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */ = {
+			isa = PBXGroup;
+			children = (
+				7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */,
+				7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */,
+				7A95B6742D5DF86400687524 /* APIRequestProxy.swift */,
+			);
+			path = APIRequest;
+			sourceTree = "<group>";
+		};
 		7A45CFCD2C08697100D80B21 /* Screenshots */ = {
 			isa = PBXGroup;
 			children = (
@@ -4242,7 +4263,7 @@
 		7A8A19082CE5FFD7000BCB5B /* DAITA */ = {
 			isa = PBXGroup;
 			children = (
-				7A95B6782D5F729300687524 /* DAITASettingsCoordinator.swift */,
+				7A95B67C2D5F7C5B00687524 /* DAITASettingsCoordinator.swift */,
 				F041BE4E2C983C2B0083EC28 /* DAITASettingsPromptItem.swift */,
 				7A8A19132CEF2527000BCB5B /* DAITATunnelSettingsViewModel.swift */,
 				7A8A19092CE5FFDF000BCB5B /* SettingsDAITAView.swift */,
@@ -4505,6 +4526,7 @@
 				06AC114128F8413A0037AF9A /* AddressCache.swift */,
 				A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */,
 				06FAE67128F83CA40033DD93 /* HTTP.swift */,
+				7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */,
 				06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */,
 				06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */,
 				06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */,
@@ -4521,7 +4543,6 @@
 				06FAE66A28F83CA30033DD93 /* RESTRequestFactory.swift */,
 				06FAE67428F83CA40033DD93 /* RESTRequestHandler.swift */,
 				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
-				7AB9312D2D4A5D0A005FCEBA /* RESTRustNetworkOperation.swift */,
 				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
 				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
 				7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */,
@@ -4635,6 +4656,8 @@
 		F0DC77A02B2223290087F09D /* Transport */ = {
 			isa = PBXGroup;
 			children = (
+				7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */,
+				7A2E7B742D6CA0AC009EF2C3 /* APITransportProvider.swift */,
 				F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */,
 				F0DC77A32B2315800087F09D /* Direct */,
 				F0E5B2F62C9C689C0007F78C /* EncryptedDNS */,
@@ -5664,6 +5687,7 @@
 				06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */,
 				A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */,
 				06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */,
+				7A2E7B712D6C9FE0009EF2C3 /* APIError.swift in Sources */,
 				58E7BA192A975DF70068EC3A /* RESTTransportProvider.swift in Sources */,
 				F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */,
 				06799ADE28F98E4800ACD94E /* RESTRequestHandler.swift in Sources */,
@@ -5673,6 +5697,7 @@
 				7A4D849E2C0F289800687980 /* RelaySelectorProtocol.swift in Sources */,
 				F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */,
 				A9A1DE792AD5708E0073F689 /* TransportStrategy.swift in Sources */,
+				7A2E7B732D6C9FEB009EF2C3 /* APIRequestProxy.swift in Sources */,
 				A90763BF2B2857D50045ADF0 /* Socks5Handshake.swift in Sources */,
 				7AFBE38D2D09AB2E002335FC /* MultihopPicker.swift in Sources */,
 				7A3AD5012C1068A800E9AD90 /* RelayPicking.swift in Sources */,
@@ -5695,6 +5720,8 @@
 				06799AF228F98E4800ACD94E /* RESTAccessTokenManager.swift in Sources */,
 				A90763B12B2857D50045ADF0 /* Socks5Endpoint.swift in Sources */,
 				7AFBE38B2D09AAFF002335FC /* SinglehopPicker.swift in Sources */,
+				7A2E7B702D6C9FCF009EF2C3 /* APITransport.swift in Sources */,
+				7A2E7B752D6CA0B1009EF2C3 /* APITransportProvider.swift in Sources */,
 				06799AF328F98E4800ACD94E /* RESTAuthenticationProxy.swift in Sources */,
 				F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */,
 				7AD63A442CDA663300445268 /* UInt+Counting.swift in Sources */,
@@ -5710,7 +5737,7 @@
 				F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */,
 				F0DDE42C2B220A15006B57A7 /* Midpoint.swift in Sources */,
 				A90763C72B2858DC0045ADF0 /* CancellableChain.swift in Sources */,
-				7AB9312F2D4A5D0A005FCEBA /* RESTRustNetworkOperation.swift in Sources */,
+				7AB9312F2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift in Sources */,
 				06799AF128F98E4800ACD94E /* RESTAPIProxy.swift in Sources */,
 				F0DDE42A2B220A15006B57A7 /* Haversine.swift in Sources */,
 				589E76C02A9378F100E502F3 /* RESTRequestExecutor.swift in Sources */,
@@ -5737,6 +5764,7 @@
 				06799AE428F98E4800ACD94E /* RESTAccountsProxy.swift in Sources */,
 				5897F1742913EAF800AF5695 /* ExponentialBackoff.swift in Sources */,
 				44CAEAA12D442F5E004A8E65 /* LocationIdentifier.swift in Sources */,
+				7A2E7B722D6C9FE5009EF2C3 /* APIRequest.swift in Sources */,
 				06799AE328F98E4800ACD94E /* RESTNetworkOperation.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6073,7 +6101,7 @@
 				44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */,
 				7A6389DC2B7E3BD6008E77E1 /* CustomListViewModel.swift in Sources */,
 				4422C0712CCFF6790001A385 /* UDPOverTCPObfuscationSettingsView.swift in Sources */,
-				7A95B6792D5F729300687524 /* DAITASettingsCoordinator.swift in Sources */,
+				7A95B67D2D5F7C5B00687524 /* DAITASettingsCoordinator.swift in Sources */,
 				7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */,
 				5827B0A42B0F38FD00CCBBA1 /* EditAccessMethodInteractorProtocol.swift in Sources */,
 				586C0D852B03D31E00E7CDD7 /* SocksSectionHandler.swift in Sources */,
