@@ -56,7 +56,7 @@ android {
             checkDependencies = true
         }
 
-        if(isReleaseBuild()) {
+        if (isReleaseBuild()) {
             ndk { debugSymbolLevel = "none" }
         }
     }
@@ -291,9 +291,7 @@ cargo {
             add("--locked")
         }
     }
-    exec = { spec, _ ->
-        spec.environment("RUSTFLAGS", generateRemapArguments())
-    }
+    exec = { spec, _ -> spec.environment("RUSTFLAGS", generateRemapArguments()) }
 }
 
 tasks.register<Exec>("cargoClean") {
