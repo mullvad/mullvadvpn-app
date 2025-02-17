@@ -36,7 +36,6 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
 
     func start(animated: Bool) {
         let interactor = OutOfTimeInteractor(
-            storePaymentManager: storePaymentManager,
             tunnelManager: tunnelManager
         )
 
@@ -74,54 +73,19 @@ class OutOfTimeCoordinator: Coordinator, Presenting, @preconcurrency OutOfTimeVi
 
     // MARK: - OutOfTimeViewControllerDelegate
 
-    func outOfTimeViewControllerDidBeginPayment(_ controller: OutOfTimeViewController) {
-        isMakingPayment = true
-    }
-
-    func outOfTimeViewControllerDidEndPayment(_ controller: OutOfTimeViewController) {
-        isMakingPayment = false
-
-        didFinishPayment?(self)
-    }
-
-    func outOfTimeViewControllerDidRequestShowPurchaseOptions(
-        _ controller: OutOfTimeViewController,
-        products: [SKProduct],
-        didRequestPurchase: @escaping (SKProduct) -> Void
+    func didRequestShowInAppPurchase(
+        accountNumber: String,
+        paymentAction: PaymentAction
     ) {
-        let alert = UIAlertController.showInAppPurchaseAlert(products: products, didRequestPurchase: didRequestPurchase)
-        presentationContext.present(alert, animated: true)
-    }
-
-    func outOfTimeViewControllerDidFailToFetchProducts(_ controller: OutOfTimeViewController) {
-        let message = NSLocalizedString(
-            "WELCOME_FAILED_TO_FETCH_PRODUCTS_DIALOG",
-            tableName: "Welcome",
-            value:
-            """
-            Failed to connect to App store, please try again later.
-            """,
-            comment: ""
+        let coordinator = InAppPurchaseCoordinator(
+            storePaymentManager: storePaymentManager,
+            accountNumber: accountNumber,
+            paymentAction: paymentAction
         )
-
-        let presentation = AlertPresentation(
-            id: "welcome-failed-to-fetch-products-alert",
-            icon: .info,
-            message: message,
-            buttons: [
-                AlertAction(
-                    title: NSLocalizedString(
-                        "WELCOME_FAILED_TO_FETCH_PRODUCTS_OK_ACTION",
-                        tableName: "Welcome",
-                        value: "Got it!",
-                        comment: ""
-                    ),
-                    style: .default
-                ),
-            ]
-        )
-
-        let presenter = AlertPresenter(context: self)
-        presenter.showAlert(presentation: presentation, animated: true)
+        coordinator.didFinish = { coordinator in
+            coordinator.dismiss(animated: true)
+        }
+        coordinator.start()
+        presentChild(coordinator, animated: true)
     }
 }

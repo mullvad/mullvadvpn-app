@@ -309,11 +309,10 @@ class AlertViewController: UIViewController {
     }
 
     @objc private func didTapButton(_ button: AppButton) {
+        onDismiss?()
         if let handler = handlers.removeValue(forKey: button) {
             handler()
         }
-
         handlers.removeAll()
-        onDismiss?()
     }
 }
