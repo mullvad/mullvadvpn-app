@@ -24,6 +24,20 @@ impl AppDelegate for AppWindow {
         register_click_handler(self.window.handle, self.cancel_button.handle, callback);
     }
 
+    fn on_beta_link<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        register_label_click_handler(self.window.handle, self.beta_link.handle, callback);
+    }
+
+    fn on_stable_link<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        register_label_click_handler(self.window.handle, self.stable_link.handle, callback);
+    }
+
     fn set_status_text(&mut self, text: &str) {
         self.status_text.set_text(text);
     }
@@ -91,6 +105,14 @@ impl AppDelegate for AppWindow {
         self.beta_link.set_visible(false);
     }
 
+    fn show_stable_text(&mut self) {
+        self.stable_link.set_visible(true);
+    }
+
+    fn hide_stable_text(&mut self) {
+        self.stable_link.set_visible(false);
+    }
+
     fn quit(&mut self) {
         nwg::stop_thread_dispatch();
     }
@@ -108,8 +130,27 @@ fn register_click_handler(
     button: nwg::ControlHandle,
     callback: impl Fn() + 'static,
 ) {
+    register_click_handler_inner(parent, button, callback, Event::OnButtonClick);
+}
+
+/// Register a window message for clicking this button that triggers `callback`.
+fn register_label_click_handler(
+    parent: nwg::ControlHandle,
+    button: nwg::ControlHandle,
+    callback: impl Fn() + 'static,
+) {
+    register_click_handler_inner(parent, button, callback, Event::OnLabelClick);
+}
+
+/// Register a window message for clicking this button that triggers `callback`.
+fn register_click_handler_inner(
+    parent: nwg::ControlHandle,
+    button: nwg::ControlHandle,
+    callback: impl Fn() + 'static,
+    click_event: Event,
+) {
     nwg::bind_event_handler(&button, &parent, move |evt, _, handle| {
-        if evt == Event::OnButtonClick && handle == button {
+        if evt == click_event && handle == button {
             callback();
         }
     });
