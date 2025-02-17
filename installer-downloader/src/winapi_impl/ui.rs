@@ -1,6 +1,5 @@
 //! This module handles setting up and rendering changes to the UI
 
-//use std::borrow::Cow;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -22,6 +21,7 @@ use super::delegate::QueueContext;
 
 static BANNER_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.png");
 static BANNER_TEXT_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-text.png");
+static ERROR_IMAGE_DATA: &[u8] = include_bytes!("../../assets/alert-circle.png");
 
 const BACKGROUND_COLOR: [u8; 3] = [0x19, 0x2e, 0x45];
 /// Beta link color: #003E92
@@ -68,6 +68,76 @@ pub struct AppWindow {
     pub stable_message_frame: nwg::ImageFrame,
     pub stable_prefix: nwg::Label,
     pub stable_link: nwg::Label,
+
+    pub error_view: ErrorView,
+}
+
+#[derive(Default)]
+pub struct ErrorView {
+    pub error_frame: nwg::Frame,
+    pub error_text: nwg::Label,
+    pub error_icon: nwg::ImageFrame,
+    pub error_icon_bmp: nwg::Bitmap,
+    pub error_cancel_button: nwg::Button,
+    pub error_retry_button: nwg::Button,
+}
+
+impl ErrorView {
+    pub fn layout(&mut self, parent: &nwg::ControlHandle) -> Result<(), nwg::NwgError> {
+        nwg::Frame::builder()
+            .parent(parent)
+            .position((0, 102))
+            .size((WINDOW_WIDTH as i32, 204))
+            .flags(nwg::FrameFlags::empty())
+            .build(&mut self.error_frame)?;
+
+        nwg::Label::builder()
+            .parent(&self.error_frame)
+            .v_align(nwg::VTextAlign::Center)
+            .position((80, 45))
+            .size((488, 64))
+            .build(&mut self.error_text)?;
+
+        nwg::ImageFrame::builder()
+            .parent(&self.error_frame)
+            .size((32, 32))
+            .position((34, 49))
+            .build(&mut self.error_icon)?;
+
+        // TODO: put buttons 24px below bottom edge of text label
+        let text_bottom_y = 96; // TODO
+        let button_top_y = text_bottom_y + 24;
+
+        nwg::Button::builder()
+            .parent(&self.error_frame)
+            .position((304, button_top_y))
+            .size((232, 32))
+            .build(&mut self.error_cancel_button)?;
+
+        nwg::Button::builder()
+            .parent(&self.error_frame)
+            .position((64, button_top_y))
+            .size((232, 32))
+            .build(&mut self.error_retry_button)?;
+
+        self.load_error_icon()?;
+
+        Ok(())
+    }
+
+    /// Load the error icon and display it in ``
+    fn load_error_icon(&mut self) -> Result<(), nwg::NwgError> {
+        let src = ImageDecoder::new()?.from_stream(ERROR_IMAGE_DATA)?;
+        let frame = src.frame(0)?;
+        //let size = frame.size();
+        self.error_icon_bmp = frame.as_bitmap().unwrap();
+
+        self.error_icon.set_bitmap(Some(&self.error_icon_bmp));
+        //self.error_icon.set_position(24, 24);
+        //self.error_icon.set_size(size.0, size.1);
+
+        Ok(())
+    }
 }
 
 impl AppWindow {
@@ -234,6 +304,8 @@ impl AppWindow {
         handle_link_messages(&self.window.handle, &self.beta_link, BETA_LINK_HANDLER_ID)?;
 
         self.window.set_visible(true);
+
+        self.error_view.layout(&self.window.handle)?;
 
         let event_handle = self.window.handle;
         let app = Rc::new(RefCell::new(self));

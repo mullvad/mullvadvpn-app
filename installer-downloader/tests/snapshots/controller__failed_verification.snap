@@ -3,16 +3,21 @@ source: installer-downloader/tests/controller.rs
 expression: delegate.state
 snapshot_kind: text
 ---
-status_text: "Version: 2025.1"
-download_text: "ERROR: Verification failed!"
+status_text: ""
+download_text: ""
 download_button_visible: false
-cancel_button_visible: true
+cancel_button_visible: false
 cancel_button_enabled: false
 download_button_enabled: true
 download_progress: 100
-download_progress_visible: true
+download_progress_visible: false
 beta_text_visible: false
 stable_text_visible: false
+error_message_visible: true
+error_message:
+  status_text: "Couldn’t verify download, please try downloading again or contact our support by sending an email at support@mullvadvpn.net"
+  cancel_button_text: Cancel
+  retry_button_text: Redownload
 quit: false
 call_log:
   - hide_download_progress
@@ -28,6 +33,9 @@ call_log:
   - on_stable_link
   - "set_status_text: Version: 2025.1"
   - enable_download_button
+  - hide_error_message
+  - on_error_message_retry
+  - on_error_message_cancel
   - "set_download_text: "
   - hide_download_button
   - hide_beta_text
@@ -41,4 +49,9 @@ call_log:
   - "set_download_text: Downloading from mullvad.net... (100%)"
   - "set_download_text: Download complete. Verifying..."
   - disable_cancel_button
-  - "set_download_text: ERROR: Verification failed!"
+  - "set_status_text: "
+  - "set_download_text: "
+  - hide_download_progress
+  - hide_download_button
+  - hide_cancel_button
+  - show_error_message
