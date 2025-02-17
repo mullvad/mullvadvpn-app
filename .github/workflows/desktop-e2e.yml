@@ -124,10 +124,22 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git submodule update --init --depth=1
+      - uses: actions/cache@v4
+        id: cache-app-cargo-artifacts
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Build app
-        run: ./build.sh
+        run: |
+          export CARGO_TARGET_DIR=target/
+          ./build.sh
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
@@ -166,9 +178,6 @@ jobs:
           name: mullvad-version-linux
           path: ./bin/mullvad-version
           if-no-files-found: error
-      - name: Clean up Cargo artifacts
-        run: |
-          cargo clean
 
   build-test-manager-linux:
     name: Build Test Manager
@@ -265,12 +274,12 @@ jobs:
         run: |
           ls -la ${{ github.workspace }}/bin
         shell: bash
-# - name: Download App
-#uses: actions/download-artifact@v4
-#if: ${{ needs.build-linux-app.result == 'success' }}
-        #with:
-          #name: linux-build
-          #path: ~/.cache/mullvad-test/packages
+      - name: Download App
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-linux-app.result == 'success' }}
+        with:
+          name: linux-build
+          path: ~/.cache/mullvad-test/packages
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
