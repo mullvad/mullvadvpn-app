@@ -49,7 +49,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         // Assert that we have too many devices
         device.findObjectWithTimeout(By.text("Too many devices"))
         // And that the continue with login button is disabled
-        device.findObjectWithTimeout(By.text("Continue with login").enabled(false))
+        device.findObjectWithTimeout(By.text("Continue with login").hasParent(By.enabled((false))))
 
         // Act
         app.attemptToRemoveDevice()
