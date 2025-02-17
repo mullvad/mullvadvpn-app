@@ -19,7 +19,7 @@ protocol RESTResponseHandler<Success> {
 protocol RESTRustResponseHandler<Success> {
     associatedtype Success
 
-    func handleResponse(_ response: MullvadApiResponse) -> REST.ResponseHandlerResult<Success>
+    func handleResponse(_ body: Data?) -> REST.ResponseHandlerResult<Success>
 }
 
 extension REST {
@@ -76,7 +76,7 @@ extension REST {
     }
 
     final class RustResponseHandler<Success>: RESTRustResponseHandler {
-        typealias HandlerBlock = (MullvadApiResponse) -> REST.ResponseHandlerResult<Success>
+        typealias HandlerBlock = (Data?) -> REST.ResponseHandlerResult<Success>
 
         private let handlerBlock: HandlerBlock
 
@@ -84,8 +84,8 @@ extension REST {
             handlerBlock = block
         }
 
-        func handleResponse(_ response: MullvadApiResponse) -> REST.ResponseHandlerResult<Success> {
-            handlerBlock(response)
+        func handleResponse(_ body: Data?) -> REST.ResponseHandlerResult<Success> {
+            handlerBlock(body)
         }
     }
 
@@ -96,28 +96,20 @@ extension REST {
         decoding type: T.Type,
         with decoder: JSONDecoder
     ) -> RustResponseHandler<T> {
-        RustResponseHandler { response in
-            guard let body = response.body else {
+        RustResponseHandler { data in
+            guard let data else {
                 return .unhandledResponse(nil)
             }
 
-            do {
-                let decoded = try decoder.decode(type, from: body)
-                return .decoding { decoded }
-            } catch {
-                return .unhandledResponse(
-                    try? decoder.decode(
-                        ServerErrorResponse.self,
-                        from: body
-                    )
-                )
+            return if let decoded = try? decoder.decode(type, from: data) {
+                .decoding { decoded }
+            } else {
+                .unhandledResponse(nil)
             }
         }
     }
 
-    /// Returns default response handler that parses JSON response into the
-    /// given `Decodable` type if possible, otherwise attempts to decode
-    /// the server error.
+    /// Response handler for reponses where the body is empty.
     static func rustEmptyResponseHandler() -> RustResponseHandler<Void> {
         RustResponseHandler { _ in
             .success(())

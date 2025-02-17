@@ -20,16 +20,25 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unche
     private var observedState: ObservedState = .disconnected
     private var selectedRelays: SelectedRelays?
     private let urlRequestProxy: URLRequestProxy
+    private let apiRequestProxy: APIRequestProxy
     private let relaySelector: RelaySelectorProtocol
 
     private let providerLogger = Logger(label: "SimulatorTunnelProviderHost")
     private let dispatchQueue = DispatchQueue(label: "SimulatorTunnelProviderHostQueue")
 
-    init(relaySelector: RelaySelectorProtocol, transportProvider: TransportProvider) {
+    init(
+        relaySelector: RelaySelectorProtocol,
+        transportProvider: TransportProvider,
+        apiTransportProvider: APITransportProvider
+    ) {
         self.relaySelector = relaySelector
         self.urlRequestProxy = URLRequestProxy(
             dispatchQueue: dispatchQueue,
             transportProvider: transportProvider
+        )
+        self.apiRequestProxy = APIRequestProxy(
+            dispatchQueue: dispatchQueue,
+            transportProvider: apiTransportProvider
         )
     }
 
@@ -153,8 +162,27 @@ final class SimulatorTunnelProviderHost: SimulatorTunnelProviderDelegate, @unche
                 handler?(reply)
             }
 
+        case let .sendAPIRequest(proxyRequest):
+            apiRequestProxy.sendRequest(proxyRequest) { response in
+                var reply: Data?
+                do {
+                    reply = try TunnelProviderReply(response).encode()
+                } catch {
+                    self.providerLogger.error(
+                        error: error,
+                        message: "Failed to encode ProxyURLResponse."
+                    )
+                }
+                handler?(reply)
+            }
+
         case let .cancelURLRequest(listId):
             urlRequestProxy.cancelRequest(identifier: listId)
+
+            completionHandler?(nil)
+
+        case let .cancelAPIRequest(listId):
+            apiRequestProxy.cancelRequest(identifier: listId)
 
             completionHandler?(nil)
 
