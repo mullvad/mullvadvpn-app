@@ -40,6 +40,7 @@ task(
 );
 task('build', series('clean', 'set-prod-env', assets.copyAll, scripts.build));
 task('build-vite', series('clean', 'set-prod-env', 'build-vite-prod', assets.copyAllVite));
+task('build-test', series('clean', 'set-test-env', 'build-vite-prod', assets.copyAllVite));
 task('pack-win', series('build-vite', dist.packWin));
 task('pack-linux', series('build-vite', dist.packLinux));
 task('pack-mac', series('build-vite', dist.packMac));
