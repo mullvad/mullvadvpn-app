@@ -9,14 +9,14 @@
 import MullvadRustRuntime
 import MullvadTypes
 
-enum MullvadApiRequest {
-    case getAddressList
-}
+public struct MullvadApiRequestFactory: Sendable {
+    public let apiContext: MullvadApiContext
 
-struct MullvadApiRequestFactory {
-    let apiContext: MullvadApiContext
+    public init(apiContext: MullvadApiContext) {
+        self.apiContext = apiContext
+    }
 
-    func makeRequest(_ request: MullvadApiRequest) -> REST.MullvadApiRequestHandler {
+    public func makeRequest(_ request: APIRequest) -> REST.MullvadApiRequestHandler {
         { completion in
             let pointerClass = MullvadApiCompletion { apiResponse in
                 try? completion?(apiResponse)
@@ -33,5 +33,5 @@ struct MullvadApiRequestFactory {
 }
 
 extension REST {
-    typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) -> MullvadApiCancellable
+    public typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) -> MullvadApiCancellable
 }

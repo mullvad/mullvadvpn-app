@@ -25,10 +25,14 @@ final class RequestExecutorTests: XCTestCase {
             }
         }
 
+        let apiTransportProvider = REST.AnyAPITransportProvider {
+            APITransportStub()
+        }
+
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: transportProvider,
-            addressCache: addressCache,
-            apiContext: REST.apiContext
+            apiTransportProvider: apiTransportProvider,
+            addressCache: addressCache
         )
         timerServerProxy = TimeServerProxy(configuration: proxyFactory.configuration)
     }
@@ -74,5 +78,18 @@ final class RequestExecutorTests: XCTestCase {
         cancellationToken.cancel()
 
         waitForExpectations(timeout: .UnitTest.timeout)
+    }
+}
+
+final class APITransportStub: APITransportProtocol, Sendable {
+    public var name: String {
+        "api-transport-dummy"
+    }
+
+    public func sendRequest(
+        _ request: APIRequest,
+        completion: @escaping @Sendable (ProxyAPIResponse) -> Void
+    ) -> Cancellable {
+        AnyCancellable()
     }
 }
