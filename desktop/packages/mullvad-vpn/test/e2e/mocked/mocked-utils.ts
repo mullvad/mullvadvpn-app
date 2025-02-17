@@ -16,7 +16,7 @@ export interface MockedTestUtils extends TestUtils {
 }
 
 export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
-  const args = ['build/test/e2e/setup/main.js'];
+  const args = ['.'];
   if (noSandbox) {
     console.log('Running tests without chromium sandbox');
     args.unshift('--no-sandbox');
