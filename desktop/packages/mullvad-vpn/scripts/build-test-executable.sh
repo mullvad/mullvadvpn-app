@@ -66,6 +66,8 @@ function build_test_executable {
     rm -rf "$temp_dir"
 }
 
+npx gulp build-standalone
+
 case "$TARGET" in
     "aarch64-unknown-linux-gnu")
         build_test_executable linux-arm64
