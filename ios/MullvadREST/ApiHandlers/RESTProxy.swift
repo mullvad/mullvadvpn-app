@@ -27,8 +27,6 @@ extension REST {
         /// URL request factory.
         let requestFactory: REST.RequestFactory
 
-        let mullvadApiRequestFactory: MullvadApiRequestFactory
-
         /// URL response decoder.
         let responseDecoder: JSONDecoder
 
@@ -43,7 +41,6 @@ extension REST {
 
             self.configuration = configuration
             self.requestFactory = requestFactory
-            self.mullvadApiRequestFactory = MullvadApiRequestFactory(apiContext: configuration.apiContext)
             self.responseDecoder = responseDecoder
         }
 
@@ -135,17 +132,17 @@ extension REST {
 
     public class ProxyConfiguration: @unchecked Sendable {
         public let transportProvider: RESTTransportProvider
+        public let apiTransportProvider: APITransportProviderProtocol
         public let addressCacheStore: AddressCache
-        public let apiContext: MullvadApiContext
 
         public init(
             transportProvider: RESTTransportProvider,
-            addressCacheStore: AddressCache,
-            apiContext: MullvadApiContext
+            apiTransportProvider: APITransportProviderProtocol,
+            addressCacheStore: AddressCache
         ) {
             self.transportProvider = transportProvider
+            self.apiTransportProvider = apiTransportProvider
             self.addressCacheStore = addressCacheStore
-            self.apiContext = apiContext
         }
     }
 
@@ -154,15 +151,14 @@ extension REST {
 
         public init(
             proxyConfiguration: ProxyConfiguration,
-            accessTokenManager: RESTAccessTokenManagement,
-            apiContext: MullvadApiContext
+            accessTokenManager: RESTAccessTokenManagement
         ) {
             self.accessTokenManager = accessTokenManager
 
             super.init(
                 transportProvider: proxyConfiguration.transportProvider,
-                addressCacheStore: proxyConfiguration.addressCacheStore,
-                apiContext: apiContext
+                apiTransportProvider: proxyConfiguration.apiTransportProvider,
+                addressCacheStore: proxyConfiguration.addressCacheStore
             )
         }
     }
