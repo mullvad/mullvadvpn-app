@@ -75,6 +75,14 @@
     "vite-plugin-electron": "^0.29.0",
     "xvfb-maybe": "^0.2.1"
   },
+  "optionalDependencies": {
+    "@rollup/rollup-darwin-arm64": "4.34.6",
+    "@rollup/rollup-darwin-x64": "4.34.6",
+    "@rollup/rollup-win32-arm64-msvc": "4.34.6",
+    "@rollup/rollup-win32-x64-msvc": "4.34.6",
+    "@rollup/rollup-linux-arm64-gnu": "4.34.6",
+    "@rollup/rollup-linux-x64-gnu": "4.34.6"
+  },
   "scripts": {
     "preinstall": "test -d node_modules || mkdir node_modules",
     "build": "gulp build",
