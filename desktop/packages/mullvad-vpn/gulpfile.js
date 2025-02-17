@@ -15,6 +15,10 @@ task('set-prod-env', function (done) {
   process.env.NODE_ENV = 'production';
   done();
 });
+task('set-test-env', function (done) {
+  process.env.NODE_ENV = 'test';
+  done();
+});
 
 task('clean', function (done) {
   fs.rm('./build', { recursive: true, force: true }, done);
