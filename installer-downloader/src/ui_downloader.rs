@@ -49,7 +49,17 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
             Err(err) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_download_text("ERROR: Download failed. Please try again.");
+                    self_.set_status_text("");
+                    self_.set_download_text("");
+                    self_.hide_download_progress();
+                    self_.hide_download_button();
+                    self_.hide_cancel_button();
+
+                    self_.show_error_message(crate::delegate::ErrorMessage {
+                        status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
+                        cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
+                        retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                    });
                 });
 
                 Err(err)
@@ -68,7 +78,19 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
             Err(error) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_download_text("ERROR: Verification failed!");
+                    self_.set_status_text("");
+                    self_.set_download_text("");
+                    self_.hide_download_progress();
+                    self_.hide_download_button();
+                    self_.hide_cancel_button();
+
+                    self_.show_error_message(crate::delegate::ErrorMessage {
+                        status_text: resource::VERIFICATION_FAILED_DESC.to_owned(),
+                        cancel_button_text: resource::VERIFICATION_FAILED_CANCEL_BUTTON_TEXT
+                            .to_owned(),
+                        retry_button_text: resource::VERIFICATION_FAILED_RETRY_BUTTON_TEXT
+                            .to_owned(),
+                    });
                 });
 
                 Err(error)
@@ -87,7 +109,17 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
             Err(error) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_download_text("ERROR: Failed to launch installer!");
+                    self_.set_status_text("");
+                    self_.set_download_text("");
+                    self_.hide_download_progress();
+                    self_.hide_download_button();
+                    self_.hide_cancel_button();
+
+                    self_.show_error_message(crate::delegate::ErrorMessage {
+                        status_text: resource::LAUNCH_FAILED_DESC.to_owned(),
+                        cancel_button_text: resource::LAUNCH_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
+                        retry_button_text: resource::LAUNCH_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                    });
                 });
 
                 Err(error)

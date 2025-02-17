@@ -12,6 +12,12 @@ download_button_enabled: true
 download_progress: 100
 download_progress_visible: true
 beta_text_visible: false
+stable_text_visible: false
+error_message_visible: false
+error_message:
+  status_text: ""
+  cancel_button_text: ""
+  retry_button_text: ""
 quit: true
 call_log:
   - hide_download_progress
@@ -19,14 +25,21 @@ call_log:
   - disable_download_button
   - hide_cancel_button
   - hide_beta_text
+  - hide_stable_text
   - "set_status_text: Loading version details..."
   - on_download
   - on_cancel
+  - on_beta_link
+  - on_stable_link
   - "set_status_text: Version: 2025.1"
   - enable_download_button
+  - hide_error_message
+  - on_error_message_retry
+  - on_error_message_cancel
   - "set_download_text: "
   - hide_download_button
   - hide_beta_text
+  - hide_stable_text
   - show_cancel_button
   - enable_cancel_button
   - show_download_progress

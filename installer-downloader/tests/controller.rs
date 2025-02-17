@@ -6,7 +6,7 @@
 
 use insta::assert_yaml_snapshot;
 use installer_downloader::controller::{AppController, DirectoryProvider};
-use installer_downloader::delegate::{AppDelegate, AppDelegateQueue};
+use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage};
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
 use mullvad_update::api::VersionInfoProvider;
 use mullvad_update::app::{AppDownloader, DownloadError};
@@ -151,6 +151,10 @@ pub struct FakeAppDelegate {
     pub beta_callback: Option<Box<dyn Fn() + Send>>,
     /// Callback registered by `on_stable_link`
     pub stable_callback: Option<Box<dyn Fn() + Send>>,
+    /// Callback registered by `on_error_cancel`
+    pub error_cancel_callback: Option<Box<dyn Fn() + Send>>,
+    /// Callback registered by `on_error_retry`
+    pub error_retry_callback: Option<Box<dyn Fn() + Send>>,
     /// State of delegate
     pub state: DelegateState,
     /// Queue used to simulate the main thread
@@ -170,6 +174,8 @@ pub struct DelegateState {
     pub download_progress_visible: bool,
     pub beta_text_visible: bool,
     pub stable_text_visible: bool,
+    pub error_message_visible: bool,
+    pub error_message: ErrorMessage,
     pub quit: bool,
     /// Record of method calls.
     pub call_log: Vec<String>,
@@ -299,6 +305,33 @@ impl AppDelegate for FakeAppDelegate {
     fn hide_stable_text(&mut self) {
         self.state.call_log.push("hide_stable_text".into());
         self.state.stable_text_visible = false;
+    }
+
+    fn show_error_message(&mut self, message: ErrorMessage) {
+        self.state.call_log.push("show_error_message".into());
+        self.state.error_message = message;
+        self.state.error_message_visible = true;
+    }
+
+    fn hide_error_message(&mut self) {
+        self.state.call_log.push("hide_error_message".into());
+        self.state.error_message_visible = false;
+    }
+
+    fn on_error_message_cancel<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        self.state.call_log.push("on_error_message_cancel".into());
+        self.error_cancel_callback = Some(Box::new(callback));
+    }
+
+    fn on_error_message_retry<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        self.state.call_log.push("on_error_message_retry".into());
+        self.error_retry_callback = Some(Box::new(callback));
     }
 
     fn quit(&mut self) {
