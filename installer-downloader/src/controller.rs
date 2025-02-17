@@ -85,11 +85,12 @@ impl AppController {
         let (task_tx, task_rx) = mpsc::channel(1);
         tokio::spawn(handle_action_messages::<D, A, DirProvider>(
             delegate.queue(),
+            task_tx.clone(),
             task_rx,
         ));
         delegate.set_status_text(resource::FETCH_VERSION_DESC);
         tokio::spawn(fetch_app_version_info::<D, V>(
-            delegate,
+            delegate.queue(),
             task_tx.clone(),
             version_provider,
         ));
@@ -121,32 +122,77 @@ impl AppController {
 
 /// Background task that fetches app version data.
 fn fetch_app_version_info<Delegate, VersionProvider>(
-    delegate: &mut Delegate,
+    queue: Delegate::Queue,
     download_tx: mpsc::Sender<TaskMessage>,
     version_provider: VersionProvider,
 ) -> impl Future<Output = ()>
 where
-    Delegate: AppDelegate,
+    Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
 {
-    let queue = delegate.queue();
-
     async move {
-        let version_params = VersionParameters {
-            // TODO: detect current architecture
-            architecture: VersionArchitecture::X86,
-            // For the downloader, the rollout version is always preferred
-            rollout: 1.,
-        };
+        loop {
+            let version_params = VersionParameters {
+                // TODO: detect current architecture
+                architecture: VersionArchitecture::X86,
+                // For the downloader, the rollout version is always preferred
+                rollout: 1.,
+            };
 
-        // TODO: handle errors, retry
-        let Ok(version_info) = version_provider.get_version_info(version_params).await else {
+            let err = match version_provider.get_version_info(version_params).await {
+                Ok(version_info) => {
+                    let _ = download_tx.try_send(TaskMessage::SetVersionInfo(version_info));
+                    return;
+                }
+                Err(err) => err,
+            };
+
+            eprintln!("Failed to get version info: {err}");
+
+            enum Action {
+                Retry,
+                Cancel,
+            }
+
+            let (action_tx, mut action_rx) = mpsc::channel(1);
+
+            // show error message (needs to happen on the UI thread)
+            // send Action when user presses a button to contin
             queue.queue_main(move |self_| {
-                self_.set_status_text("Failed to fetch version info");
+                self_.hide_download_button();
+
+                let (retry_tx, cancel_tx) = (action_tx.clone(), action_tx);
+
+                self_.set_status_text("");
+                self_.on_error_message_retry(move || {
+                    let _ = retry_tx.try_send(Action::Retry);
+                });
+                self_.on_error_message_cancel(move || {
+                    let _ = cancel_tx.try_send(Action::Cancel);
+                });
+                self_.show_error_message(crate::delegate::ErrorMessage {
+                    status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
+                    cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
+                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+                });
             });
-            return;
-        };
-        let _ = download_tx.try_send(TaskMessage::SetVersionInfo(version_info));
+
+            // wait for user to press either button
+            let Some(action) = action_rx.recv().await else {
+                panic!("channel was dropped? argh")
+            };
+
+            match action {
+                Action::Retry => {
+                    continue;
+                }
+                Action::Cancel => {
+                    queue.queue_main(|self_| {
+                        self_.quit();
+                    });
+                }
+            }
+        }
     }
 }
 
@@ -160,6 +206,7 @@ enum TargetVersion {
 /// labels.
 async fn handle_action_messages<D, A, DirProvider>(
     queue: D::Queue,
+    tx: mpsc::Sender<TaskMessage>,
     mut rx: mpsc::Receiver<TaskMessage>,
 ) where
     D: AppDelegate + 'static,
@@ -218,19 +265,39 @@ async fn handle_action_messages<D, A, DirProvider>(
                 });
             }
             TaskMessage::BeginDownload => {
-                if active_download.is_some() {
-                    continue;
+                if let Some(_) = active_download.take() {
+                    println!("Interrupting ongoing download");
                 }
                 let Some(version_info) = version_info.clone() else {
                     continue;
                 };
+
+                let (retry_tx, cancel_tx) = (tx.clone(), tx.clone());
+                queue.queue_main(move |self_| {
+                    self_.hide_error_message();
+                    self_.on_error_message_retry(move || {
+                        let _ = retry_tx.try_send(TaskMessage::BeginDownload);
+                    });
+                    self_.on_error_message_cancel(move || {
+                        let _ = cancel_tx.try_send(TaskMessage::Cancel);
+                    });
+                });
 
                 // Create temporary dir
                 let download_dir = match DirProvider::create_download_dir().await {
                     Ok(dir) => dir,
                     Err(_err) => {
                         queue.queue_main(move |self_| {
-                            self_.set_status_text("Failed to create download directory");
+                            self_.set_status_text("");
+                            self_.hide_download_button();
+                            self_.hide_beta_text();
+                            self_.hide_stable_text();
+
+                            self_.show_error_message(crate::delegate::ErrorMessage {
+                                status_text: "Failed to create download directory".to_owned(),
+                                cancel_button_text: "Cancel".to_owned(),
+                                retry_button_text: "Try again".to_owned(),
+                            });
                         });
                         continue;
                     }
@@ -277,11 +344,10 @@ async fn handle_action_messages<D, A, DirProvider>(
                 active_download = rx.await.ok();
             }
             TaskMessage::Cancel => {
-                let Some(active_download) = active_download.take() else {
-                    continue;
-                };
-                active_download.abort();
-                let _ = active_download.await;
+                if let Some(active_download) = active_download.take() {
+                    active_download.abort();
+                    let _ = active_download.await;
+                }
 
                 let Some(version_info) = version_info.as_ref() else {
                     continue;
@@ -301,6 +367,7 @@ async fn handle_action_messages<D, A, DirProvider>(
                     self_.set_status_text(&version_label);
                     self_.set_download_text("");
                     self_.show_download_button();
+                    self_.hide_error_message();
 
                     if target_version == TargetVersion::Stable {
                         if has_beta {
