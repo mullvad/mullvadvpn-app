@@ -85,7 +85,7 @@
   },
   "scripts": {
     "preinstall": "test -d node_modules || mkdir node_modules",
-    "build": "gulp build",
+    "build": "gulp build-vite",
     "build:vite": "vite build",
     "pack-test-executable": "./scripts/build-test-executable.sh",
     "build-test-executable": "npm run build && npm run pack-test-executable",
