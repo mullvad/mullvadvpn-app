@@ -9,6 +9,7 @@ use mullvad_update::{
     app::{self, AppDownloader},
     version::{Version, VersionArchitecture, VersionInfo, VersionParameters},
 };
+use rand::seq::SliceRandom;
 
 use std::future::Future;
 use std::path::PathBuf;
@@ -313,8 +314,7 @@ async fn handle_action_messages<D, A, DirProvider>(
                         }
                     };
 
-                    // TODO: Select appropriate URLs
-                    let Some(app_url) = selected_version.urls.first() else {
+                    let Some(app_url) = select_cdn_url(&selected_version.urls) else {
                         return;
                     };
                     let app_version = selected_version.version.clone();
@@ -384,6 +384,12 @@ async fn handle_action_messages<D, A, DirProvider>(
             }
         }
     }
+}
+
+/// Select a mirror to download from
+/// Currently, the selection is random
+fn select_cdn_url(urls: &[String]) -> Option<&str> {
+    urls.choose(&mut rand::thread_rng()).map(String::as_str)
 }
 
 fn format_latest_version(version: &Version) -> String {
