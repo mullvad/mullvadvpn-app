@@ -13,6 +13,11 @@ download_progress: 0
 download_progress_visible: false
 beta_text_visible: false
 stable_text_visible: false
+error_message_visible: false
+error_message:
+  status_text: ""
+  cancel_button_text: ""
+  retry_button_text: ""
 quit: false
 call_log:
   - hide_download_progress
