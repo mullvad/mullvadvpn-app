@@ -19,6 +19,7 @@ windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_Li
 anyhow = "1.0"
 tokio = { version = "1", features = ["full"] }
 async-trait = "0.1"
+rand = { version = "0.8.5" }
 serde = { workspace = true, features = ["derive"] }
 
 mullvad-update = { path = "../mullvad-update" }
