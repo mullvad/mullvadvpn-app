@@ -42,6 +42,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     nonisolated(unsafe) private(set) var relayCacheTracker: RelayCacheTracker!
     nonisolated(unsafe) private(set) var storePaymentManager: StorePaymentManager!
     nonisolated(unsafe) private var transportMonitor: TransportMonitor!
+    nonisolated(unsafe) private var apiTransportMonitor: APITransportMonitor!
     private var settingsObserver: TunnelBlockObserver!
     private var migrationManager: MigrationManager!
 
@@ -155,8 +156,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             transportStrategy: transportStrategy,
             encryptedDNSTransport: encryptedDNSTransport
         )
+
+        let apiRequestFactory = MullvadApiRequestFactory(apiContext: REST.apiContext)
+        let apiTransportProvider = APITransportProvider(requestFactory: apiRequestFactory)
+
+        apiTransportMonitor = APITransportMonitor(
+            tunnelManager: tunnelManager,
+            tunnelStore: tunnelStore,
+            requestFactory: apiRequestFactory
+        )
+
         setUpTransportMonitor(transportProvider: transportProvider)
-        setUpSimulatorHost(transportProvider: transportProvider, relaySelector: relaySelector)
+        setUpSimulatorHost(
+            transportProvider: transportProvider,
+            apiTransportProvider: apiTransportProvider,
+            relaySelector: relaySelector
+        )
 
         registerBackgroundTasks()
         setupPaymentHandler()
@@ -188,18 +203,22 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
         if launchArguments.target == .screenshots {
             proxyFactory = MockProxyFactory.makeProxyFactory(
                 transportProvider: REST.AnyTransportProvider { [weak self] in
-                    return self?.transportMonitor.makeTransport()
+                    self?.transportMonitor.makeTransport()
                 },
-                addressCache: addressCache,
-                apiContext: REST.apiContext
+                apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
+                    self?.apiTransportMonitor.makeTransport()
+                },
+                addressCache: addressCache
             )
         } else {
             proxyFactory = REST.ProxyFactory.makeProxyFactory(
                 transportProvider: REST.AnyTransportProvider { [weak self] in
-                    return self?.transportMonitor.makeTransport()
+                    self?.transportMonitor.makeTransport()
                 },
-                addressCache: addressCache,
-                apiContext: REST.apiContext
+                apiTransportProvider: REST.AnyAPITransportProvider { [weak self] in
+                    self?.apiTransportMonitor.makeTransport()
+                },
+                addressCache: addressCache
             )
         }
         apiProxy = proxyFactory.createAPIProxy()
@@ -217,13 +236,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     private func setUpSimulatorHost(
         transportProvider: TransportProvider,
+        apiTransportProvider: APITransportProvider,
         relaySelector: RelaySelectorWrapper
     ) {
         #if targetEnvironment(simulator)
         // Configure mock tunnel provider on simulator
         simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
             relaySelector: relaySelector,
-            transportProvider: transportProvider
+            transportProvider: transportProvider,
+            apiTransportProvider: apiTransportProvider
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         #endif
