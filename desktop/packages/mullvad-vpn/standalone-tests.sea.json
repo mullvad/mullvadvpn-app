@@ -1,10 +1,10 @@
 {
-  "main": "./build/standalone-tests.js",
+  "main": "./build-standalone/standalone-tests.js",
   "output": "./standalone-tests.sea.blob",
   "disableExperimentalSEAWarning": true,
   "useSnapshot": false,
   "useCodeCache": false,
   "assets": {
-    "assets.tar.gz": "./build/test/assets.tar.gz"
+    "assets.tar.gz": "./build-standalone/assets.tar.gz"
   }
 }
