@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 /// Struct describing serializable URLResponse data.
 public struct ProxyURLResponse: Codable, Sendable {

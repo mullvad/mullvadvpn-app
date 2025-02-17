@@ -29,13 +29,13 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
 
     public static func makeProxyFactory(
         transportProvider: any RESTTransportProvider,
-        addressCache: REST.AddressCache,
-        apiContext: MullvadApiContext
+        apiTransportProvider: any APITransportProviderProtocol,
+        addressCache: REST.AddressCache
     ) -> any ProxyFactoryProtocol {
         let basicConfiguration = REST.ProxyConfiguration(
             transportProvider: transportProvider,
-            addressCacheStore: addressCache,
-            apiContext: apiContext
+            apiTransportProvider: apiTransportProvider,
+            addressCacheStore: addressCache
         )
 
         let authenticationProxy = REST.AuthenticationProxy(
@@ -47,8 +47,7 @@ public struct MockProxyFactory: ProxyFactoryProtocol {
 
         let authConfiguration = REST.AuthProxyConfiguration(
             proxyConfiguration: basicConfiguration,
-            accessTokenManager: accessTokenManager,
-            apiContext: apiContext
+            accessTokenManager: accessTokenManager
         )
 
         return MockProxyFactory(configuration: authConfiguration)
