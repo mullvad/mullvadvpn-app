@@ -9,14 +9,14 @@ TARGET=${1:-$(rustc -vV | sed -n 's|host: ||p')}
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
 
 ASSETS=(
-    "build/src/renderer/lib/routes.js"
-    "build/src/renderer/lib/foundations/*.js"
-    "build/src/renderer/lib/foundations/**/*.js"
-    "build/src/shared/constants/*.js"
-    "build/test/e2e/utils.js"
-    "build/test/e2e/shared/*.js"
-    "build/test/e2e/installed/*.js"
-    "build/test/e2e/installed/**/*.js"
+    "standalone/src/renderer/lib/routes.js"
+    "standalone/src/renderer/lib/foundations/*.js"
+    "standalone/src/renderer/lib/foundations/**/*.js"
+    "standalone/src/shared/constants/*.js"
+    "standalone/test/e2e/utils.js"
+    "standalone/test/e2e/shared/*.js"
+    "standalone/test/e2e/installed/*.js"
+    "standalone/test/e2e/installed/**/*.js"
 )
 
 NODE_MODULES=(
