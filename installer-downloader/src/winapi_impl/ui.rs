@@ -14,7 +14,8 @@ use windows_sys::Win32::UI::WindowsAndMessaging::WM_CTLCOLORSTATIC;
 
 use crate::resource::{
     BANNER_DESC, BETA_LINK_TEXT, BETA_PREFACE_DESC, CANCEL_BUTTON_SIZE, CANCEL_BUTTON_TEXT,
-    DOWNLOAD_BUTTON_SIZE, DOWNLOAD_BUTTON_TEXT, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
+    DOWNLOAD_BUTTON_SIZE, DOWNLOAD_BUTTON_TEXT, STABLE_LINK_TEXT, WINDOW_HEIGHT, WINDOW_TITLE,
+    WINDOW_WIDTH,
 };
 
 use super::delegate::QueueContext;
@@ -32,6 +33,8 @@ pub const SET_LABEL_HANDLER_ID: usize = 0x10000;
 pub const QUEUE_MESSAGE_HANDLER_ID: usize = 0x10001;
 /// Custom window message used to process requests from other threads.
 pub const QUEUE_MESSAGE: u32 = 0x10001;
+/// Unique ID of the handler for the stable link.
+pub const STABLE_LINK_HANDLER_ID: usize = 0x10003;
 /// Unique ID of the handler for the beta link.
 pub const BETA_LINK_HANDLER_ID: usize = 0x10002;
 
@@ -57,6 +60,7 @@ pub struct AppWindow {
 
     pub beta_prefix: nwg::Label,
     pub beta_link: nwg::Label,
+    pub stable_link: nwg::Label,
 }
 
 impl AppWindow {
@@ -121,13 +125,25 @@ impl AppWindow {
             .text(BETA_PREFACE_DESC)
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.beta_prefix)?;
+
+        let link_font = create_link_font()?;
+
         nwg::Label::builder()
             .parent(&self.window)
             .size((128, 24))
             .text(BETA_LINK_TEXT)
-            .font(Some(&create_link_font()?))
+            .font(Some(&link_font))
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.beta_link)?;
+
+        nwg::Label::builder()
+            .parent(&self.window)
+            .size((240, 24))
+            .text(STABLE_LINK_TEXT)
+            .font(Some(&link_font))
+            .h_align(nwg::HTextAlign::Left)
+            .build(&mut self.stable_link)?;
+        self.stable_link.set_visible(false);
 
         const PROGRESS_BAR_MARGIN: i32 = 48;
         nwg::ProgressBar::builder()
@@ -167,6 +183,11 @@ impl AppWindow {
                 + LOWER_AREA_YPADDING,
         );
 
+        self.stable_link.set_position(
+            24,
+            self.window.size().1 as i32 - 24 - self.stable_link.size().1 as i32,
+        );
+        handle_link_messages(&self.window, &self.stable_link, STABLE_LINK_HANDLER_ID)?;
         self.beta_prefix.set_position(
             24,
             self.window.size().1 as i32 - 24 - self.beta_prefix.size().1 as i32,
@@ -175,7 +196,7 @@ impl AppWindow {
             self.beta_prefix.position().0 + self.beta_prefix.size().0 as i32,
             self.beta_prefix.position().1,
         );
-        handle_beta_link_messages(&self.window, &self.beta_link, BETA_LINK_HANDLER_ID)?;
+        handle_link_messages(&self.window, &self.beta_link, BETA_LINK_HANDLER_ID)?;
 
         self.window.set_visible(true);
 
@@ -277,7 +298,7 @@ fn handle_banner_label_colors(
 }
 
 /// Register a window message handler for the beta link component
-fn handle_beta_link_messages(
+fn handle_link_messages(
     parent: &nwg::Window,
     link: &nwg::Label,
     handler_id: usize,

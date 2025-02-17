@@ -19,6 +19,8 @@ enum TaskMessage {
     SetVersionInfo(VersionInfo),
     BeginDownload,
     Cancel,
+    TryBeta,
+    TryStable,
 }
 
 /// Provide a directory to use for [AppDownloader]
@@ -78,6 +80,7 @@ impl AppController {
         delegate.disable_download_button();
         delegate.hide_cancel_button();
         delegate.hide_beta_text();
+        delegate.hide_stable_text();
 
         let (task_tx, task_rx) = mpsc::channel(1);
         tokio::spawn(handle_action_messages::<D, A, DirProvider>(
@@ -104,6 +107,14 @@ impl AppController {
         let tx = task_tx.clone();
         delegate.on_cancel(move || {
             let _ = tx.try_send(TaskMessage::Cancel);
+        });
+        let tx = task_tx.clone();
+        delegate.on_beta_link(move || {
+            let _ = tx.try_send(TaskMessage::TryBeta);
+        });
+        let tx = task_tx.clone();
+        delegate.on_stable_link(move || {
+            let _ = tx.try_send(TaskMessage::TryStable);
         });
     }
 }
@@ -139,6 +150,12 @@ where
     }
 }
 
+#[derive(Clone, Copy, PartialEq)]
+enum TargetVersion {
+    Beta,
+    Stable,
+}
+
 /// Async worker that handles actions such as initiating a download, cancelling it, and updating
 /// labels.
 async fn handle_action_messages<D, A, DirProvider>(
@@ -151,6 +168,8 @@ async fn handle_action_messages<D, A, DirProvider>(
 {
     let mut version_info = None;
     let mut active_download = None;
+
+    let mut target_version = TargetVersion::Stable;
 
     while let Some(msg) = rx.recv().await {
         match msg {
@@ -165,6 +184,38 @@ async fn handle_action_messages<D, A, DirProvider>(
                     }
                 });
                 version_info = Some(new_version_info);
+            }
+            TaskMessage::TryBeta => {
+                let Some(version_info) = version_info.as_ref() else {
+                    continue;
+                };
+                let Some(beta_info) = version_info.beta.as_ref() else {
+                    continue;
+                };
+
+                target_version = TargetVersion::Beta;
+                let version_label = format_latest_version(beta_info);
+
+                queue.queue_main(move |self_| {
+                    self_.show_stable_text();
+                    self_.hide_beta_text();
+                    self_.set_status_text(&version_label);
+                });
+            }
+            TaskMessage::TryStable => {
+                let Some(version_info) = version_info.as_ref() else {
+                    continue;
+                };
+                let stable_info = &version_info.stable;
+
+                target_version = TargetVersion::Stable;
+                let version_label = format_latest_version(stable_info);
+
+                queue.queue_main(move |self_| {
+                    self_.hide_stable_text();
+                    self_.show_beta_text();
+                    self_.set_status_text(&version_label);
+                });
             }
             TaskMessage::BeginDownload => {
                 if active_download.is_some() {
@@ -188,17 +239,25 @@ async fn handle_action_messages<D, A, DirProvider>(
                 // Begin download
                 let (tx, rx) = oneshot::channel();
                 queue.queue_main(move |self_| {
+                    let selected_version = match target_version {
+                        TargetVersion::Stable => &version_info.stable,
+                        TargetVersion::Beta => {
+                            version_info.beta.as_ref().expect("selected version exists")
+                        }
+                    };
+
                     // TODO: Select appropriate URLs
-                    let Some(app_url) = version_info.stable.urls.first() else {
+                    let Some(app_url) = selected_version.urls.first() else {
                         return;
                     };
-                    let app_version = version_info.stable.version;
-                    let app_sha256 = version_info.stable.sha256;
-                    let app_size = version_info.stable.size;
+                    let app_version = selected_version.version.clone();
+                    let app_sha256 = selected_version.sha256;
+                    let app_size = selected_version.size;
 
                     self_.set_download_text("");
                     self_.hide_download_button();
                     self_.hide_beta_text();
+                    self_.hide_stable_text();
                     self_.show_cancel_button();
                     self_.enable_cancel_button();
                     self_.show_download_progress();
@@ -224,22 +283,33 @@ async fn handle_action_messages<D, A, DirProvider>(
                 active_download.abort();
                 let _ = active_download.await;
 
-                let (version_label, has_beta) = if let Some(version_info) = &version_info {
-                    (
-                        format_latest_version(&version_info.stable),
-                        version_info.beta.is_some(),
-                    )
-                } else {
-                    ("".to_owned(), false)
+                let Some(version_info) = version_info.as_ref() else {
+                    continue;
                 };
+
+                let selected_version = match target_version {
+                    TargetVersion::Stable => &version_info.stable,
+                    TargetVersion::Beta => {
+                        version_info.beta.as_ref().expect("selected version exists")
+                    }
+                };
+
+                let version_label = format_latest_version(&selected_version);
+                let has_beta = version_info.beta.is_some();
 
                 queue.queue_main(move |self_| {
                     self_.set_status_text(&version_label);
                     self_.set_download_text("");
                     self_.show_download_button();
-                    if has_beta {
-                        self_.show_beta_text();
+
+                    if target_version == TargetVersion::Stable {
+                        if has_beta {
+                            self_.show_beta_text();
+                        }
+                    } else {
+                        self_.show_stable_text();
                     }
+
                     self_.hide_cancel_button();
                     self_.hide_download_progress();
                     self_.set_download_progress(0);
