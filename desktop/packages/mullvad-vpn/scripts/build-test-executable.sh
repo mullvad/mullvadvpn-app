@@ -40,7 +40,7 @@ function build_test_executable {
     # pack assets
     cp "$node_path" "$node_copy_path"
     # shellcheck disable=SC2068
-    tar -czf ./build/test/assets.tar.gz ${ASSETS[@]} -C ../../ ${NODE_MODULES[@]}
+    tar -czf ./standalone/assets.tar.gz ${ASSETS[@]} -C ../../ ${NODE_MODULES[@]}
 
     cp "$node_copy_path" "$temp_executable"
     node --experimental-sea-config standalone-tests.sea.json
