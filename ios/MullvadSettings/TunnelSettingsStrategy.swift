@@ -45,10 +45,11 @@ public struct TunnelSettingsStrategy: TunnelSettingsStrategyProtocol, Sendable {
     }
 }
 
+/// This enum representes reconnection strategies.
+/// > Warning: `hardReconnect` will disconnect and reconnect which
+/// > potentially leads to traffic leaking outside the tunnel.
 public enum TunnelSettingsReconnectionStrategy {
     case currentRelayReconnect
     case newRelayReconnect
-//    This will fully disconnect and start a new connection
-//    Attention: This will leak traffic!!!
     case hardReconnect
 }
