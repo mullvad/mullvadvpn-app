@@ -2130,6 +2130,7 @@ dependencies = [
  "native-windows-gui",
  "nsvg",
  "objc_id",
+ "rand 0.8.5",
  "serde",
  "tokio",
  "windows-sys 0.52.0",
