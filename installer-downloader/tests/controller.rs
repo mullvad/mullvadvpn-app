@@ -147,6 +147,10 @@ pub struct FakeAppDelegate {
     pub download_callback: Option<Box<dyn Fn() + Send>>,
     /// Callback registered by `on_cancel`
     pub cancel_callback: Option<Box<dyn Fn() + Send>>,
+    /// Callback registered by `on_beta_link`
+    pub beta_callback: Option<Box<dyn Fn() + Send>>,
+    /// Callback registered by `on_stable_link`
+    pub stable_callback: Option<Box<dyn Fn() + Send>>,
     /// State of delegate
     pub state: DelegateState,
     /// Queue used to simulate the main thread
@@ -165,6 +169,7 @@ pub struct DelegateState {
     pub download_progress: u32,
     pub download_progress_visible: bool,
     pub beta_text_visible: bool,
+    pub stable_text_visible: bool,
     pub quit: bool,
     /// Record of method calls.
     pub call_log: Vec<String>,
@@ -187,6 +192,22 @@ impl AppDelegate for FakeAppDelegate {
     {
         self.state.call_log.push("on_cancel".into());
         self.cancel_callback = Some(Box::new(callback));
+    }
+
+    fn on_beta_link<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        self.state.call_log.push("on_beta_link".into());
+        self.beta_callback = Some(Box::new(callback));
+    }
+
+    fn on_stable_link<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        self.state.call_log.push("on_stable_link".into());
+        self.stable_callback = Some(Box::new(callback));
     }
 
     fn set_status_text(&mut self, text: &str) {
@@ -268,6 +289,16 @@ impl AppDelegate for FakeAppDelegate {
     fn hide_beta_text(&mut self) {
         self.state.call_log.push("hide_beta_text".into());
         self.state.beta_text_visible = false;
+    }
+
+    fn show_stable_text(&mut self) {
+        self.state.call_log.push("show_stable_text".into());
+        self.state.stable_text_visible = true;
+    }
+
+    fn hide_stable_text(&mut self) {
+        self.state.call_log.push("hide_stable_text".into());
+        self.state.stable_text_visible = false;
     }
 
     fn quit(&mut self) {
