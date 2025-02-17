@@ -31,6 +31,7 @@ startup.exit = async () => {
   }
 };
 
+const MAIN = process.env.NODE_ENV === 'test' ? 'test/e2e/setup/main.ts' : 'src/main/index.ts';
 const OUT_DIR = 'build';
 
 const viteConfig = defineConfig({
@@ -49,7 +50,7 @@ const viteConfig = defineConfig({
   plugins: [
     electron({
       main: {
-        entry: 'src/main/index.ts',
+        entry: MAIN,
         onstart({ startup }) {
           // NOTE: vite-plugin-electron automatically adds --no-sandbox to its
           // command line arguments when spawning electron. From a security
