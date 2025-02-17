@@ -64,6 +64,10 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             addressCache: addressCache
         )
 
+        let apiTransportProvider = APITransportProvider(
+            requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+        )
+
         adapter = WgAdapter(packetTunnelProvider: self)
 
         let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
@@ -77,8 +81,8 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
 
         let proxyFactory = REST.ProxyFactory.makeProxyFactory(
             transportProvider: transportProvider,
-            addressCache: addressCache,
-            apiContext: REST.apiContext
+            apiTransportProvider: apiTransportProvider,
+            addressCache: addressCache
         )
         let accountsProxy = proxyFactory.createAccountsProxy()
         let devicesProxy = proxyFactory.createDevicesProxy()
@@ -102,8 +106,19 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
             protocolObfuscator: ProtocolObfuscator<TunnelObfuscator>()
         )
 
-        let urlRequestProxy = URLRequestProxy(dispatchQueue: internalQueue, transportProvider: transportProvider)
-        appMessageHandler = AppMessageHandler(packetTunnelActor: actor, urlRequestProxy: urlRequestProxy)
+        let urlRequestProxy = URLRequestProxy(
+            dispatchQueue: internalQueue,
+            transportProvider: transportProvider
+        )
+        let apiRequestProxy = APIRequestProxy(
+            dispatchQueue: internalQueue,
+            transportProvider: apiTransportProvider
+        )
+        appMessageHandler = AppMessageHandler(
+            packetTunnelActor: actor,
+            urlRequestProxy: urlRequestProxy,
+            apiRequestProxy: apiRequestProxy
+        )
 
         ephemeralPeerExchangingPipeline = EphemeralPeerExchangingPipeline(
             EphemeralPeerExchangeActor(

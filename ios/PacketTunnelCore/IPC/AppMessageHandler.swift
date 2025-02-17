@@ -16,10 +16,16 @@ public struct AppMessageHandler {
     private let logger = Logger(label: "AppMessageHandler")
     private let packetTunnelActor: PacketTunnelActorProtocol
     private let urlRequestProxy: URLRequestProxyProtocol
+    private let apiRequestProxy: APIRequestProxyProtocol
 
-    public init(packetTunnelActor: PacketTunnelActorProtocol, urlRequestProxy: URLRequestProxyProtocol) {
+    public init(
+        packetTunnelActor: PacketTunnelActorProtocol,
+        urlRequestProxy: URLRequestProxyProtocol,
+        apiRequestProxy: APIRequestProxyProtocol
+    ) {
         self.packetTunnelActor = packetTunnelActor
         self.urlRequestProxy = urlRequestProxy
+        self.apiRequestProxy = apiRequestProxy
     }
 
     /**
@@ -42,8 +48,15 @@ public struct AppMessageHandler {
         case let .sendURLRequest(request):
             return await encodeReply(urlRequestProxy.sendRequest(request))
 
+        case let .sendAPIRequest(request):
+            return await encodeReply(apiRequestProxy.sendRequest(request))
+
         case let .cancelURLRequest(id):
             urlRequestProxy.cancelRequest(identifier: id)
+            return nil
+
+        case let .cancelAPIRequest(id):
+            apiRequestProxy.cancelRequest(identifier: id)
             return nil
 
         case .getTunnelStatus:

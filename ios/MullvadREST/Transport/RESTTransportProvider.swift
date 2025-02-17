@@ -26,3 +26,33 @@ extension REST {
         }
     }
 }
+
+public protocol APITransportProviderProtocol {
+    func makeTransport() -> APITransportProtocol?
+}
+
+extension REST {
+    public struct AnyAPITransportProvider: APITransportProviderProtocol {
+        private let block: () -> APITransportProtocol?
+
+        public init(_ block: @escaping @Sendable () -> APITransportProtocol?) {
+            self.block = block
+        }
+
+        public func makeTransport() -> APITransportProtocol? {
+            return block()
+        }
+    }
+}
+
+public final class APITransportProvider: APITransportProviderProtocol, Sendable {
+    let requestFactory: MullvadApiRequestFactory
+
+    public init(requestFactory: MullvadApiRequestFactory) {
+        self.requestFactory = requestFactory
+    }
+
+    public func makeTransport() -> APITransportProtocol? {
+        APITransport(requestFactory: requestFactory)
+    }
+}
