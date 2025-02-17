@@ -33,6 +33,8 @@ pub const SET_LABEL_HANDLER_ID: usize = 0x10000;
 pub const QUEUE_MESSAGE_HANDLER_ID: usize = 0x10001;
 /// Custom window message used to process requests from other threads.
 pub const QUEUE_MESSAGE: u32 = 0x10001;
+/// Unique ID of the handler for the stable link prefix.
+pub const STABLE_LINK_PREFIX_HANDLER_ID: usize = 0x10004;
 /// Unique ID of the handler for the stable link.
 pub const STABLE_LINK_HANDLER_ID: usize = 0x10003;
 /// Unique ID of the handler for the beta link.
@@ -60,6 +62,11 @@ pub struct AppWindow {
 
     pub beta_prefix: nwg::Label,
     pub beta_link: nwg::Label,
+
+    pub arrow_font: nwg::Font,
+
+    pub stable_message_frame: nwg::ImageFrame,
+    pub stable_prefix: nwg::Label,
     pub stable_link: nwg::Label,
 }
 
@@ -136,14 +143,30 @@ impl AppWindow {
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.beta_link)?;
 
-        nwg::Label::builder()
+        nwg::ImageFrame::builder()
             .parent(&self.window)
+            .size((240, 24))
+            .build(&mut self.stable_message_frame)?;
+
+        nwg::Font::builder()
+            // TODO: Ensure font always exists
+            .family("Segoe Fluent Icons")
+            .size(10)
+            .build(&mut self.arrow_font)?;
+        nwg::Label::builder()
+            .parent(&self.stable_message_frame)
+            .size((16, 24))
+            .text("")
+            .font(Some(&self.arrow_font))
+            .h_align(nwg::HTextAlign::Left)
+            .build(&mut self.stable_prefix)?;
+        nwg::Label::builder()
+            .parent(&self.stable_message_frame)
             .size((240, 24))
             .text(STABLE_LINK_TEXT)
             .font(Some(&link_font))
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.stable_link)?;
-        self.stable_link.set_visible(false);
 
         const PROGRESS_BAR_MARGIN: i32 = 48;
         nwg::ProgressBar::builder()
@@ -183,11 +206,23 @@ impl AppWindow {
                 + LOWER_AREA_YPADDING,
         );
 
-        self.stable_link.set_position(
+        self.stable_message_frame.set_position(
             24,
-            self.window.size().1 as i32 - 24 - self.stable_link.size().1 as i32,
+            self.window.size().1 as i32 - 24 - self.stable_message_frame.size().1 as i32,
         );
-        handle_link_messages(&self.window, &self.stable_link, STABLE_LINK_HANDLER_ID)?;
+        self.stable_link.set_position(16, 0);
+        self.stable_prefix.set_position(4, 12 - 4);
+        handle_link_messages(
+            &self.stable_message_frame.handle,
+            &self.stable_prefix,
+            STABLE_LINK_PREFIX_HANDLER_ID,
+        )?;
+        handle_link_messages(
+            &self.stable_message_frame.handle,
+            &self.stable_link,
+            STABLE_LINK_HANDLER_ID,
+        )?;
+
         self.beta_prefix.set_position(
             24,
             self.window.size().1 as i32 - 24 - self.beta_prefix.size().1 as i32,
@@ -196,7 +231,7 @@ impl AppWindow {
             self.beta_prefix.position().0 + self.beta_prefix.size().0 as i32,
             self.beta_prefix.position().1,
         );
-        handle_link_messages(&self.window, &self.beta_link, BETA_LINK_HANDLER_ID)?;
+        handle_link_messages(&self.window.handle, &self.beta_link, BETA_LINK_HANDLER_ID)?;
 
         self.window.set_visible(true);
 
@@ -299,12 +334,12 @@ fn handle_banner_label_colors(
 
 /// Register a window message handler for the beta link component
 fn handle_link_messages(
-    parent: &nwg::Window,
+    parent: &nwg::ControlHandle,
     link: &nwg::Label,
     handler_id: usize,
 ) -> Result<nwg::RawEventHandler, nwg::NwgError> {
     let link_hwnd = link.handle.hwnd().map(|hwnd| hwnd as isize);
-    nwg::bind_raw_event_handler(&parent.handle, handler_id, move |_hwnd, msg, w, p| {
+    nwg::bind_raw_event_handler(&parent, handler_id, move |_hwnd, msg, w, p| {
         /// This is the RGB() macro except it takes in a slice representing RGB values
         pub fn rgb(color: [u8; 3]) -> COLORREF {
             color[0] as COLORREF | ((color[1] as COLORREF) << 8) | ((color[2] as COLORREF) << 16)
