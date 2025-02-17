@@ -17,6 +17,16 @@ pub trait AppDelegate {
     where
         F: Fn() + Send + 'static;
 
+    /// Register click handler for the beta link
+    fn on_beta_link<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static;
+
+    /// Register click handler for the stable link
+    fn on_stable_link<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static;
+
     /// Set status text
     fn set_status_text(&mut self, text: &str);
 
@@ -61,6 +71,12 @@ pub trait AppDelegate {
 
     /// Hide beta text
     fn hide_beta_text(&mut self);
+
+    /// Show stable text
+    fn show_stable_text(&mut self);
+
+    /// Hide stable text
+    fn hide_stable_text(&mut self);
 
     /// Exit the application
     fn quit(&mut self);
