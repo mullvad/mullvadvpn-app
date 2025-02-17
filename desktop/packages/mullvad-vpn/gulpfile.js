@@ -15,6 +15,10 @@ task('set-prod-env', function (done) {
   process.env.NODE_ENV = 'production';
   done();
 });
+task('set-test-env', function (done) {
+  process.env.NODE_ENV = 'test';
+  done();
+});
 
 task('clean', function (done) {
   fs.rm('./build', { recursive: true, force: true }, done);
@@ -36,6 +40,7 @@ task(
 );
 task('build', series('clean', 'set-prod-env', assets.copyAll, scripts.build));
 task('build-vite', series('clean', 'set-prod-env', 'build-vite-prod', assets.copyAllVite));
+task('build-test', series('clean', 'set-test-env', 'build-vite-prod', assets.copyAllVite));
 task('pack-win', series('build-vite', dist.packWin));
 task('pack-linux', series('build-vite', dist.packLinux));
 task('pack-mac', series('build-vite', dist.packMac));
