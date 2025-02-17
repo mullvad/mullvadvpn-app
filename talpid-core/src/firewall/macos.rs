@@ -926,6 +926,9 @@ impl Firewall {
         // remove_anchor() does not deactivate active rules
         self.pf
             .flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Filter)?;
+        if *NAT_WORKAROUND {
+            self.pf.flush_rules(ANCHOR_NAME, pfctl::RulesetKind::Nat)?;
+        }
         Ok(())
     }
 
