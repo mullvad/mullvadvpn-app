@@ -1,6 +1,7 @@
 //! This module implements [AppDelegate] and [Queue], which allows the NWG UI to be hooked up to our
 //! generic controller.
 
+use installer_downloader::delegate::ErrorMessage;
 use native_windows_gui::{self as nwg, Event};
 use windows_sys::Win32::UI::WindowsAndMessaging::PostMessageW;
 
@@ -39,7 +40,12 @@ impl AppDelegate for AppWindow {
     }
 
     fn set_status_text(&mut self, text: &str) {
-        self.status_text.set_text(text);
+        if !text.is_empty() {
+            self.status_text.set_visible(true);
+            self.status_text.set_text(text);
+        } else {
+            self.status_text.set_visible(false);
+        }
     }
 
     fn set_download_text(&mut self, text: &str) {
@@ -111,6 +117,44 @@ impl AppDelegate for AppWindow {
 
     fn hide_stable_text(&mut self) {
         self.stable_message_frame.set_visible(false);
+    }
+
+    fn show_error_message(&mut self, error: ErrorMessage) {
+        self.error_view.error_text.set_text(&error.status_text);
+        self.error_view
+            .error_retry_button
+            .set_text(&error.retry_button_text);
+        self.error_view
+            .error_cancel_button
+            .set_text(&error.cancel_button_text);
+
+        self.error_view.error_frame.set_visible(true);
+    }
+
+    fn hide_error_message(&mut self) {
+        self.error_view.error_frame.set_visible(false);
+    }
+
+    fn on_error_message_retry<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        register_click_handler(
+            self.error_view.error_frame.handle,
+            self.error_view.error_retry_button.handle,
+            callback,
+        );
+    }
+
+    fn on_error_message_cancel<F>(&mut self, callback: F)
+    where
+        F: Fn() + Send + 'static,
+    {
+        register_click_handler(
+            self.error_view.error_frame.handle,
+            self.error_view.error_cancel_button.handle,
+            callback,
+        );
     }
 
     fn quit(&mut self) {
