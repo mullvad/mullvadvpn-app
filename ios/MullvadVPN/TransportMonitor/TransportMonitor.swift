@@ -60,3 +60,44 @@ final class TransportMonitor: RESTTransportProvider {
         }
     }
 }
+
+final class APITransportMonitor: APITransportProviderProtocol {
+    private let tunnelManager: TunnelManager
+    private let tunnelStore: TunnelStore
+    private let requestFactory: MullvadApiRequestFactory
+
+    init(tunnelManager: TunnelManager, tunnelStore: TunnelStore, requestFactory: MullvadApiRequestFactory) {
+        self.tunnelManager = tunnelManager
+        self.tunnelStore = tunnelStore
+        self.requestFactory = requestFactory
+    }
+
+    func makeTransport() -> APITransportProtocol? {
+        let tunnel = tunnelStore.getPersistentTunnels().first { tunnel in
+            tunnel.status == .connecting || tunnel.status == .reasserting || tunnel.status == .connected
+        }
+
+        return if let tunnel, shouldBypassVPN(tunnel: tunnel) {
+            PacketTunnelAPITransport(tunnel: tunnel)
+        } else {
+            APITransport(requestFactory: requestFactory)
+        }
+    }
+
+    private func shouldBypassVPN(tunnel: any TunnelProtocol) -> Bool {
+        switch tunnel.status {
+        case .connected:
+            if case .error = tunnelManager.tunnelStatus.state {
+                true
+            } else {
+                tunnelManager.isConfigurationLoaded && tunnelManager.deviceState == .revoked
+            }
+
+        case .connecting, .reasserting:
+            true
+
+        default:
+            false
+        }
+    }
+}
