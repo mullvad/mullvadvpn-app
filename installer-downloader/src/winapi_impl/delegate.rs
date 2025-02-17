@@ -35,7 +35,7 @@ impl AppDelegate for AppWindow {
     where
         F: Fn() + Send + 'static,
     {
-        register_label_click_handler(self.window.handle, self.stable_link.handle, callback);
+        register_frame_click_handler(self.stable_message_frame.handle, callback);
     }
 
     fn set_status_text(&mut self, text: &str) {
@@ -106,11 +106,11 @@ impl AppDelegate for AppWindow {
     }
 
     fn show_stable_text(&mut self) {
-        self.stable_link.set_visible(true);
+        self.stable_message_frame.set_visible(true);
     }
 
     fn hide_stable_text(&mut self) {
-        self.stable_link.set_visible(false);
+        self.stable_message_frame.set_visible(false);
     }
 
     fn quit(&mut self) {
@@ -151,6 +151,15 @@ fn register_click_handler_inner(
 ) {
     nwg::bind_event_handler(&button, &parent, move |evt, _, handle| {
         if evt == click_event && handle == button {
+            callback();
+        }
+    });
+}
+
+/// Register a window message for clicking anything within a frame.
+fn register_frame_click_handler(frame: nwg::ControlHandle, callback: impl Fn() + 'static) {
+    nwg::bind_event_handler(&frame, &frame, move |evt, _, _handle| {
+        if [Event::OnLabelClick, Event::OnImageFrameClick].contains(&evt) {
             callback();
         }
     });
