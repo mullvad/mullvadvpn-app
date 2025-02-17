@@ -88,7 +88,14 @@ function createSealessNode() {
 function runTests(): Promise<number> {
   const nodeBin = createSealessNode();
   const playwrightBin = path.join(tmpDir, 'node_modules', '@playwright', 'test', 'cli.js');
-  const configPath = path.join(tmpDir, 'build', 'test', 'e2e', 'installed', 'playwright.config.js');
+  const configPath = path.join(
+    tmpDir,
+    'build-standalone',
+    'test',
+    'e2e',
+    'installed',
+    'playwright.config.js',
+  );
 
   return new Promise((resolve) => {
     // Tests need to be run sequentially since they interact with the same daemon instance.
