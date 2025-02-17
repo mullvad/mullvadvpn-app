@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "standalone"
+  },
+  "exclude": [
+    "node_modules",
+    "scripts",
+    "assets",
+    "vite.config.ts"
+  ]
+}
