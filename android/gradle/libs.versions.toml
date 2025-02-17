@@ -32,7 +32,7 @@ compose-constraintlayout = "1.1.0"
 compose-material3 = "1.3.1"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.69.1"
+grpc = "1.70.0"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
@@ -122,6 +122,7 @@ compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compo
 # gRPC
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }
 grpc-android = { module = "io.grpc:grpc-android", version.ref = "grpc" }
+grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-kotlin-stub = { module = "io.grpc:grpc-kotlin-stub", version.ref = "grpc-kotlin" }
 grpc-protobuf-lite = { module = "io.grpc:grpc-protobuf-lite", version.ref = "grpc" }
 
