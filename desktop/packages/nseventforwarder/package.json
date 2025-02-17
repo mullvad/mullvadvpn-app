@@ -6,13 +6,15 @@
   "description": "",
   "main": "./lib/index.cjs",
   "scripts": {
-    "cargo-build": "tsc && cargo build",
+    "cargo-build": "npm run build-typescript && cargo build",
+    "build-typescript": "tsc",
     "build-debug": "npm run cargo-build && mkdir -p debug && cp ${CARGO_TARGET_DIR:-../../../target}/debug/libnseventforwarder.dylib debug/index.node",
     "build-arm": "npm run cargo-build -- --release --locked --target aarch64-apple-darwin && mkdir -p dist/darwin-arm64 && cp ${CARGO_TARGET_DIR:-../../../target}/aarch64-apple-darwin/release/libnseventforwarder.dylib dist/darwin-arm64/index.node",
     "build-x86": "npm run cargo-build -- --release --locked --target x86_64-apple-darwin && mkdir -p dist/darwin-x64 && cp ${CARGO_TARGET_DIR:-../../../target}/x86_64-apple-darwin/release/libnseventforwarder.dylib dist/darwin-x64/index.node",
     "clean": "rm -rf debug; rm -rf dist",
     "lint": "eslint .",
-    "lint-fix": "eslint --fix ."
+    "lint-fix": "eslint --fix .",
+    "postinstall": "npm run build-typescript"
   },
   "exports": {
     ".": {
