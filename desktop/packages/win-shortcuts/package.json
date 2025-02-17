@@ -6,13 +6,15 @@
   "description": "",
   "main": "./lib/index.cjs",
   "scripts": {
-    "cargo-build": "tsc && cargo build",
+    "cargo-build": "npm run build-typescript && cargo build",
     "build-debug": "npm run cargo-build && (test -d debug || mkdir debug) && cp ../../../target/debug/win_shortcuts.dll debug/index.node",
     "build-arm": "npm run cargo-build -- --release --target aarch64-pc-windows-msvc && (test -d dist || mkdir dist) && (test -d dist/win32-arm64-msvc || mkdir \"dist/win32-arm64-msvc\") && cp ../../../target/aarch64-pc-windows-msvc/release/win_shortcuts.dll dist/win32-arm64-msvc/index.node",
+    "build-typescript": "tsc",
     "build-x86": "npm run cargo-build -- --release --target x86_64-pc-windows-msvc && (test -d dist || mkdir dist) && (test -d dist/win32-x64-msvc || mkdir \"dist/win32-x64-msvc\") && cp ../../../target/x86_64-pc-windows-msvc/release/win_shortcuts.dll dist/win32-x64-msvc/index.node",
     "clean": "rm -rf debug; rm -rf dist",
     "lint": "eslint .",
-    "lint-fix": "eslint --fix ."
+    "lint-fix": "eslint --fix .",
+    "postinstall": "npm run build-typescript"
   },
   "exports": {
     ".": {
