@@ -996,14 +996,23 @@ class ApplicationMain
   }
 
   private allowDevelopmentRequest(url: string): boolean {
-    return (
-      process.env.NODE_ENV === 'development' &&
-      // Downloading of React and Redux developer tools.
-      (url.startsWith('devtools://') ||
-        url.startsWith('chrome-extension://') ||
-        url.startsWith('https://clients2.google.com') ||
-        url.startsWith('https://clients2.googleusercontent.com'))
-    );
+    if (process.env.NODE_ENV === 'development') {
+      const isDevtoolsRequest = (url: string): boolean => {
+        // Downloading of React and Redux developer tools.
+        const devtoolsUrls = [
+          'devtools://',
+          'chrome-extension://',
+          'https://clients2.google.com',
+          'https://clients2.googleusercontent.com',
+        ];
+
+        return devtoolsUrls.some((devtoolsUrl) => url.startsWith(devtoolsUrl));
+      };
+
+      return isDevtoolsRequest(url);
+    }
+
+    return false;
   }
 
   // Blocks navigation and window.open since it's not needed.
