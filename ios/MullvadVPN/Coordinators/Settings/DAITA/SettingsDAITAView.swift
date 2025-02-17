@@ -104,7 +104,8 @@ extension SettingsDAITAView {
                         "SETTINGS_INFO_DAITA_PAGE_1",
                         tableName: "Settings",
                         value: """
-                        **Attention: This increases network traffic, which may affect speed, battery, and data usage. Use with caution on limited plans.**
+                        **Attention: This increases network traffic and will also negatively affect speed, latency, \
+                        and battery usage. Use with caution on limited plans.**
 
                         DAITA (Defense against AI-guided Traffic Analysis) hides patterns in \
                         your encrypted VPN traffic.
