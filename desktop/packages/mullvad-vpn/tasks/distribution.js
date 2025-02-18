@@ -108,7 +108,6 @@ function newConfig() {
           to: '.',
         },
         { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
-        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
         { from: distAssets('uninstall_macos.sh'), to: './uninstall.sh' },
         { from: buildAssets('shell-completions/_mullvad'), to: '.' },
         { from: buildAssets('shell-completions/mullvad.fish'), to: '.' },
@@ -159,10 +158,6 @@ function newConfig() {
         // TODO: OpenVPN does not have an ARM64 build yet.
         { from: distAssets('binaries/x86_64-pc-windows-msvc/openvpn.exe'), to: '.' },
         {
-          from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'apisocks5.exe')),
-          to: '.',
-        },
-        {
           from: distAssets(path.join('binaries', '${env.TARGET_SUBDIR}', 'wintun/wintun.dll')),
           to: '.',
         },
@@ -207,7 +202,6 @@ function newConfig() {
         },
         { from: distAssets(path.join('linux', 'apparmor_mullvad')), to: '.' },
         { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'openvpn')), to: '.' },
-        { from: distAssets(path.join('binaries', '${env.TARGET_TRIPLE}', 'apisocks5')), to: '.' },
       ],
     },
 
