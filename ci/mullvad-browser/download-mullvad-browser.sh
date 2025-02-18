@@ -2,9 +2,7 @@
 
 set -eu
 
-# TODO: Uncomment when alpha is to be released
-# BROWSER_RELEASES=("alpha" "stable")
-BROWSER_RELEASES=("stable")
+BROWSER_RELEASES=("stable" "alpha")
 REPOSITORIES=("stable" "beta")
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
