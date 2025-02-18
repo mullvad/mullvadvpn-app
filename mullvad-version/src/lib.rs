@@ -24,6 +24,23 @@ pub enum PreStableType {
     Beta(u32),
 }
 
+impl Ord for PreStableType {
+    fn cmp(&self, other: &Self) -> Ordering {
+        match (self, other) {
+            (PreStableType::Alpha(a), PreStableType::Alpha(b)) => a.cmp(b),
+            (PreStableType::Beta(a), PreStableType::Beta(b)) => a.cmp(b),
+            (PreStableType::Alpha(_), PreStableType::Beta(_)) => Ordering::Less,
+            (PreStableType::Beta(_), PreStableType::Alpha(_)) => Ordering::Greater,
+        }
+    }
+}
+
+impl PartialOrd for PreStableType {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.cmp(other))
+    }
+}
+
 impl Version {
     pub fn is_stable(&self) -> bool {
         self.pre_stable.is_none() && !self.is_dev()
@@ -58,45 +75,32 @@ impl Version {
 
 impl PartialOrd for Version {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        let type_ordering = if self.pre_stable.is_none() || other.pre_stable.is_none() {
-            // If pre-stable is None we have either a stable version (e.g. 2025.1) or "stable dev"
-            // version (e.g. 2025.1-dev-abc123). At this point we do not consider the dev part,
-            // as that should be compared last, after the stable-beta-alpha comparison is done.
-            match (self.pre_stable.is_none(), other.pre_stable.is_none()) {
-                (true, false) => Ordering::Greater,
-                (false, true) => Ordering::Less,
-                (_, _) => Ordering::Equal,
+        let type_ordering = match (&self.pre_stable, &other.pre_stable) {
+            (None, None) => Ordering::Equal,
+            (Some(_), None) => Ordering::Less,
+            (None, Some(_)) => Ordering::Greater,
+            (Some(self_pre_stable), Some(other_pre_stable)) => {
+                self_pre_stable.cmp(other_pre_stable)
             }
-        } else if self.is_beta() || other.is_beta() {
-            self.beta().cmp(&other.beta())
-        } else if self.is_alpha() || other.is_alpha() {
-            self.alpha().cmp(&other.alpha())
-        } else {
-            Ordering::Equal
         };
 
         // The dev vs non-dev ordering. For a version of a given type, if all else is equal
         // a dev version is greater than a non-dev version.
         let dev_ordering = match (self.is_dev(), other.is_dev()) {
-            (true, false) => Ordering::Greater,
-            (false, true) => Ordering::Less,
-            (_, _) => Ordering::Equal,
+            (true, false) => Some(Ordering::Greater),
+            (false, true) => Some(Ordering::Less),
+            (_, _) => None,
         };
 
-        let ordering = self
+        let release_ordering = self
             .year
             .cmp(&other.year)
             .then(self.incremental.cmp(&other.incremental))
-            .then(type_ordering)
-            .then(dev_ordering);
+            .then(type_ordering);
 
-        if ordering == Ordering::Equal && self.is_dev() && other.is_dev() && self.dev != other.dev {
-            // We have two dev versions that are equal except that their commit SHAs are different,
-            // e.g. 2025.1-dev-ddf354 and 2025.1-dev-623hf9
-            // This is the partial order case where the versions do not have an ordering.
-            None
-        } else {
-            Some(ordering)
+        match release_ordering {
+            Ordering::Equal => dev_ordering,
+            _ => Some(release_ordering),
         }
     }
 }
