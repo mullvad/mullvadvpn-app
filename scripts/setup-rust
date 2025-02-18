@@ -61,18 +61,18 @@ function print_usage {
 }
 
 function setup {
-    local PLATFORM=$1
-    local TARGETS=$2
-    local COMPONENTS=$3
+    local platform=$1
+    local targets=$2
+    local components=$3
 
     log "Installing default Rust targets/components"
-    log "platform: $PLATFORM"
-    log "targets: $TARGETS"
-    log "components: $COMPONENTS"
+    log "platform: $platform"
+    log "targets: $targets"
+    log "components: $components"
     # shellcheck disable=SC2086
-    rustup target add $2
+    rustup target add $targets
     # shellcheck disable=SC2086
-    rustup component add $3
+    rustup component add $components
 }
 
 function install_hook {
