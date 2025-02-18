@@ -2,7 +2,10 @@
 name: Android - Check kotlin formatting
 on:
   pull_request:
-    paths: [.github/workflows/android-kotlin-format-check.yml, android/**/*.kt]
+    paths:
+      - .github/workflows/android-kotlin-format-check.yml
+      - android/**/*.kt
+      - android/**/*.kts
   workflow_dispatch:
     inputs:
       override_container_image:
