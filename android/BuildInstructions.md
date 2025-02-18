@@ -151,7 +151,13 @@ environment variables:
 
 - Install Android targets
   ```bash
-  rustup target add aarch64-linux-android armv7-linux-androideabi i686-linux-android x86_64-linux-android
+  ./scripts/setup-rust android
+  ```
+
+- (Optional) Run the following to install a git `post-checkout` hook that will automatically
+  run the `setup-rust` script when the Rust version specified in the `rust-toolchain.toml` file changes:
+  ```bash
+  .scripts/setup-rust install-hook
   ```
 
 #### 6. Download wireguard-go-rs submodule
