@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import co.touchlab.kermit.Logger
 
 fun Lifecycle.State.dropUnlessResumed(block: () -> Unit) =
     runOnAtLeast(Lifecycle.State.RESUMED, block)
@@ -30,6 +31,9 @@ fun <T> LifecycleOwner.runOnAtLeast(
     return {
         if (lifecycle.currentState.isAtLeast(expectedState)) {
             block(it)
+        } else {
+            Logger.d("AAAAA Dropped navigation!")
+            Logger.d("AAAAA Stacktrace: ${Thread.currentThread().stackTrace}")
         }
     }
 }
