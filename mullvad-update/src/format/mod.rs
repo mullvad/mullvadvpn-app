@@ -11,6 +11,8 @@
 //! form of `signed` is in fact signed by key/signature in `signature`. It also reads the `expires`
 //! and rejects the file if it has expired.
 
+use std::fmt::Display;
+
 use serde::{Deserialize, Serialize};
 
 pub mod deserializer;
@@ -40,7 +42,7 @@ struct PartialSignedResponse {
 }
 
 /// Signed JSON response, not including the signature
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Default, Debug, Deserialize, Serialize)]
 #[serde(deny_unknown_fields)]
 #[cfg_attr(test, derive(Clone))]
 pub struct Response {
@@ -98,6 +100,15 @@ pub enum Architecture {
     X86,
     /// ARM64 architecture
     Arm64,
+}
+
+impl Display for Architecture {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Architecture::X86 => f.write_str("x86"),
+            Architecture::Arm64 => f.write_str("arm64"),
+        }
+    }
 }
 
 /// JSON response signature
