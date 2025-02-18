@@ -9,6 +9,7 @@
 import Foundation
 import MullvadLogging
 import MullvadREST
+import MullvadSettings
 import NetworkExtension
 import Operations
 import PacketTunnelCore
@@ -48,7 +49,7 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
 
             finish(result: .success(()))
 
-        case .disconnected, .pendingReconnect:
+        case .disconnected, .pendingReconnect, .waitingForConnectivity:
             makeTunnelProviderAndStartTunnel { error in
                 self.finish(result: error.map { .failure($0) } ?? .success(()))
             }
@@ -106,28 +107,14 @@ class StartTunnelOperation: ResultOperation<Void>, @unchecked Sendable {
     ) {
         let persistentTunnels = interactor.getPersistentTunnels()
         let tunnel = persistentTunnels.first ?? interactor.createNewTunnel()
-        let configuration = Self.makeTunnelConfiguration()
+        let configuration = TunnelConfiguration(
+            includeAllNetworks: interactor.settings.includeAllNetworks,
+            excludeLocalNetworks: interactor.settings.localNetworkSharing
+        )
 
         tunnel.setConfiguration(configuration)
         tunnel.saveToPreferences { error in
             completionHandler(error.map { .failure($0) } ?? .success(tunnel))
         }
-    }
-
-    private class func makeTunnelConfiguration() -> TunnelConfiguration {
-        let protocolConfig = NETunnelProviderProtocol()
-        protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
-        protocolConfig.serverAddress = ""
-
-        let alwaysOnRule = NEOnDemandRuleConnect()
-        alwaysOnRule.interfaceTypeMatch = .any
-
-        return TunnelConfiguration(
-            isEnabled: true,
-            localizedDescription: "WireGuard",
-            protocolConfiguration: protocolConfig,
-            onDemandRules: [alwaysOnRule],
-            isOnDemandEnabled: true
-        )
     }
 }

@@ -22,4 +22,5 @@ protocol VPNSettingsDataSourceDelegate: AnyObject {
     func showIPOverrides()
     func didSelectWireGuardPort(_ port: UInt16?)
     func humanReadablePortRepresentation() -> String
+    func showLocalNetworkSharingWarning(_ enable: Bool, completion: @escaping (Bool) -> Void)
 }

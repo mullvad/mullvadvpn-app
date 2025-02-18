@@ -16,6 +16,25 @@ struct TunnelConfiguration {
     var onDemandRules: [NEOnDemandRule]
     var isOnDemandEnabled: Bool
 
+    init(includeAllNetworks: Bool, excludeLocalNetworks: Bool, isOnDemandEnabled: Bool = true) {
+        let protocolConfig = NETunnelProviderProtocol()
+        protocolConfig.providerBundleIdentifier = ApplicationTarget.packetTunnel.bundleIdentifier
+        protocolConfig.serverAddress = ""
+        #if DEBUG
+        protocolConfig.includeAllNetworks = includeAllNetworks
+        #endif
+        protocolConfig.excludeLocalNetworks = excludeLocalNetworks
+
+        let alwaysOnRule = NEOnDemandRuleConnect()
+        alwaysOnRule.interfaceTypeMatch = .any
+
+        isEnabled = true
+        localizedDescription = "WireGuard"
+        protocolConfiguration = protocolConfig
+        onDemandRules = [alwaysOnRule]
+        self.isOnDemandEnabled = isOnDemandEnabled
+    }
+
     func apply(to manager: TunnelProviderManagerType) {
         manager.isEnabled = isEnabled
         manager.localizedDescription = localizedDescription

@@ -265,4 +265,22 @@ class Networking {
             XCTFail("Request to connection check API failed - timeout")
         }
     }
+
+    public static func verifyCanAccessLocalNetwork() throws {
+        let apiIPAddress = "192.168.105.1"
+        let apiPort = "80"
+        XCTAssertTrue(
+            try canConnectSocket(host: apiIPAddress, port: apiPort),
+            "Failed to verify that local network can be accessed"
+        )
+    }
+
+    public static func verifyCannotAccessLocalNetwork() throws {
+        let apiIPAddress = "192.168.105.1"
+        let apiPort = "80"
+        XCTAssertFalse(
+            try canConnectSocket(host: apiIPAddress, port: apiPort),
+            "Failed to verify that local network cannot be accessed"
+        )
+    }
 }

@@ -61,6 +61,7 @@ public enum AccessibilityIdentifier: Equatable {
     case relayFilterChipCloseButton
     case openPortSelectorMenuButton
     case cancelPurchaseListButton
+    case acceptLocalNetworkSharingButton
     // Cells
     case deviceCell
     case accessMethodProtocolSelectionCell
@@ -175,6 +176,8 @@ public enum AccessibilityIdentifier: Equatable {
     case statusImageView
 
     // DNS settings
+    case includeAllNetworks
+    case localNetworkSharing
     case dnsSettings
     case ipOverrides
     case wireGuardCustomPort

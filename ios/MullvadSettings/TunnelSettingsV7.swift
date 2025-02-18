@@ -1,15 +1,15 @@
 //
-//  TunnelSettingsV6.swift
-//  MullvadSettings
+//  TunnelSettingsV6 2.swift
+//  MullvadVPN
 //
-//  Created by Mojgan on 2024-08-08.
+//  Created by Steffen Ernst on 2025-02-04.
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
 import Foundation
 import MullvadTypes
 
-public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
+public struct TunnelSettingsV7: Codable, Equatable, TunnelSettings, Sendable {
     /// Relay constraints.
     public var relayConstraints: RelayConstraints
 
@@ -28,13 +28,21 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
     /// DAITA settings.
     public var daita: DAITASettings
 
+    /// Local networks sharing.
+    public var localNetworkSharing: Bool
+
+    /// Forces the system to route most traffic through the tunnel
+    public var includeAllNetworks: Bool
+
     public init(
         relayConstraints: RelayConstraints = RelayConstraints(),
         dnsSettings: DNSSettings = DNSSettings(),
         wireGuardObfuscation: WireGuardObfuscationSettings = WireGuardObfuscationSettings(),
         tunnelQuantumResistance: TunnelQuantumResistance = .automatic,
         tunnelMultihopState: MultihopState = .off,
-        daita: DAITASettings = DAITASettings()
+        daita: DAITASettings = DAITASettings(),
+        localNetworkSharing: Bool = false,
+        includeAllNetworks: Bool = false
     ) {
         self.relayConstraints = relayConstraints
         self.dnsSettings = dnsSettings
@@ -42,18 +50,11 @@ public struct TunnelSettingsV6: Codable, Equatable, TunnelSettings, Sendable {
         self.tunnelQuantumResistance = tunnelQuantumResistance
         self.tunnelMultihopState = tunnelMultihopState
         self.daita = daita
+        self.localNetworkSharing = localNetworkSharing
+        self.includeAllNetworks = includeAllNetworks
     }
 
     public func upgradeToNextVersion() -> any TunnelSettings {
-        TunnelSettingsV7(
-            relayConstraints: relayConstraints,
-            dnsSettings: dnsSettings,
-            wireGuardObfuscation: wireGuardObfuscation,
-            tunnelQuantumResistance: tunnelQuantumResistance,
-            tunnelMultihopState: tunnelMultihopState,
-            daita: daita,
-            localNetworkSharing: false,
-            includeAllNetworks: false
-        )
+        self
     }
 }
