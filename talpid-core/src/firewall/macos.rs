@@ -550,7 +550,7 @@ impl Firewall {
         tunnel: &crate::tunnel::TunnelMetadata,
         server: IpAddr,
     ) -> Result<Vec<pfctl::FilterRule>> {
-        let mut rules = Vec::with_capacity(4);
+        let mut rules = Vec::with_capacity(2);
 
         // Allow outgoing requests on the tunnel interface only
         let allow_tunnel_tcp = self
