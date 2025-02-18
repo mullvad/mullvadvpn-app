@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/android-kotlin-format-check.yml
+      - android/gradle/libs.versions.toml
       - android/**/*.kt
       - android/**/*.kts
   workflow_dispatch:
