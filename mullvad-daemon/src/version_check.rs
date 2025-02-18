@@ -5,10 +5,10 @@ use futures::{
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
 use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, AppVersionProxy};
-use mullvad_types::version::{AppVersionInfo, ParsedAppVersion};
+use mullvad_types::version::AppVersionInfo;
+use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
 use std::{
-    cmp::max,
     future::Future,
     io,
     path::{Path, PathBuf},
@@ -24,8 +24,8 @@ use tokio::{fs::File, io::AsyncReadExt};
 
 const VERSION_INFO_FILENAME: &str = "version-info.json";
 
-static APP_VERSION: LazyLock<ParsedAppVersion> =
-    LazyLock::new(|| ParsedAppVersion::from_str(mullvad_version::VERSION).unwrap());
+static APP_VERSION: LazyLock<Version> =
+    LazyLock::new(|| Version::from_str(mullvad_version::VERSION).unwrap());
 static IS_DEV_BUILD: LazyLock<bool> = LazyLock::new(|| APP_VERSION.is_dev());
 
 const DOWNLOAD_TIMEOUT: Duration = Duration::from_secs(15);
@@ -535,26 +535,38 @@ fn dev_version_cache() -> AppVersionInfo {
         suggested_upgrade: None,
     }
 }
+
 /// If current_version is not the latest, return a string containing the latest version.
 fn suggested_upgrade(
-    current_version: &ParsedAppVersion,
+    current_version: &Version,
     latest_stable: &Option<String>,
     latest_beta: &str,
     show_beta: bool,
 ) -> Option<String> {
     let stable_version = latest_stable
         .as_ref()
-        .and_then(|stable| ParsedAppVersion::from_str(stable).ok());
+        .and_then(|stable| Version::from_str(stable).ok());
 
     let beta_version = if show_beta {
-        ParsedAppVersion::from_str(latest_beta).ok()
+        Version::from_str(latest_beta).ok()
     } else {
         None
     };
 
-    let latest_version = max(stable_version, beta_version)?;
+    let latest_version = match (&stable_version, &beta_version) {
+        (Some(_), None) => stable_version,
+        (None, Some(_)) => beta_version,
+        (Some(stable), Some(beta)) => {
+            if beta > stable {
+                beta_version
+            } else {
+                stable_version
+            }
+        }
+        (None, None) => None,
+    }?;
 
-    if current_version < &latest_version {
+    if &latest_version > current_version {
         Some(latest_version.to_string())
     } else {
         None
@@ -736,13 +748,17 @@ mod test {
         let latest_stable = Some("2020.4".to_string());
         let latest_beta = "2020.5-beta3";
 
-        let older_stable = ParsedAppVersion::from_str("2020.3").unwrap();
-        let current_stable = ParsedAppVersion::from_str("2020.4").unwrap();
-        let newer_stable = ParsedAppVersion::from_str("2021.5").unwrap();
+        let older_stable = Version::from_str("2020.3").unwrap();
+        let current_stable = Version::from_str("2020.4").unwrap();
+        let newer_stable = Version::from_str("2021.5").unwrap();
 
-        let older_beta = ParsedAppVersion::from_str("2020.3-beta3").unwrap();
-        let current_beta = ParsedAppVersion::from_str("2020.5-beta3").unwrap();
-        let newer_beta = ParsedAppVersion::from_str("2021.5-beta3").unwrap();
+        let older_beta = Version::from_str("2020.3-beta3").unwrap();
+        let current_beta = Version::from_str("2020.5-beta3").unwrap();
+        let newer_beta = Version::from_str("2021.5-beta3").unwrap();
+
+        let older_alpha = Version::from_str("2020.3-alpha3").unwrap();
+        let current_alpha = Version::from_str("2020.5-alpha3").unwrap();
+        let newer_alpha = Version::from_str("2021.5-alpha3").unwrap();
 
         assert_eq!(
             suggested_upgrade(&older_stable, &latest_stable, latest_beta, false),
@@ -768,6 +784,7 @@ mod test {
             suggested_upgrade(&newer_stable, &latest_stable, latest_beta, true),
             None
         );
+
         assert_eq!(
             suggested_upgrade(&older_beta, &latest_stable, latest_beta, false),
             Some("2020.4".to_owned())
@@ -790,6 +807,31 @@ mod test {
         );
         assert_eq!(
             suggested_upgrade(&newer_beta, &latest_stable, latest_beta, true),
+            None
+        );
+
+        assert_eq!(
+            suggested_upgrade(&older_alpha, &latest_stable, latest_beta, false),
+            Some("2020.4".to_owned())
+        );
+        assert_eq!(
+            suggested_upgrade(&older_alpha, &latest_stable, latest_beta, true),
+            Some("2020.5-beta3".to_owned())
+        );
+        assert_eq!(
+            suggested_upgrade(&current_alpha, &latest_stable, latest_beta, false),
+            None,
+        );
+        assert_eq!(
+            suggested_upgrade(&current_alpha, &latest_stable, latest_beta, true),
+            Some("2020.5-beta3".to_owned())
+        );
+        assert_eq!(
+            suggested_upgrade(&newer_alpha, &latest_stable, latest_beta, false),
+            None
+        );
+        assert_eq!(
+            suggested_upgrade(&newer_alpha, &latest_stable, latest_beta, true),
             None
         );
     }
