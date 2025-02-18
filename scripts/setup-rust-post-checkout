@@ -1,72 +1,28 @@
 #!/usr/bin/env bash
 #
-# To install the hook copy this file to `.git/hooks/post-checkout`
-# Checks if the `rust-toolchain.toml` file has changed (indicating that the Rust version has
-# been updated), and if so runs the `scripts/setup-rust` script to install the default
-# toolchains and components.
+# To install the hook copy this file to `.git/hooks/post-checkout` or run
+# scripts/setup-rust install_hook
 
-set -eu
+set -u
 
-function main() {
-    # Set to "android", "desktop", or "ios" or leave empty.
-    # If empty this hook will not call the `setup-rust` script and only install the EXTRA_TARGETS
-    # and EXTRA_COMPONENTS.
-    local platform="${MULLVAD_SETUP_PLATFORM:-}"
-    # Any extra targets outside of the ones defined in `setup-rust` that should be installed.
-    local extra_targets="${MULLVAD_SETUP_EXTRA_TARGETS:-}"
-    # Any extra components outside of the ones defined in `setup-rust` that should be installed.
-    local extra_components="${MULLVAD_SETUP_EXTRA_COMPONENTS:-}"
+# Set to "android", "desktop", or "ios".
+MULLVAD_SETUP_PLATFORM="${MULLVAD_SETUP_PLATFORM:-}"
 
-    local setup_rust_script="scripts/setup-rust"
-    if [ ! -f "$setup_rust_script" ]; then
-        exit 0
-    fi
+SETUP_RUST_SCRIPT="scripts/setup-rust"
 
-    # Only query Rustup if the rust-toolchain.toml file has changed as a result of the checkout.
-    # shellcheck disable=SC2155
-    local changed=$(git diff "$1" "$2" --stat -- rust-toolchain.toml | wc -l)
+if [[ ! -f "$SETUP_RUST_SCRIPT" ]]; then
+    exit 0
+fi
 
-    if [ "$changed" -gt 0 ];
-    then
-        # Check installed targets vs required targets
-        # - 1 because we don't want to count the default target that is always installed by rustup
-        local installed_targets_count=$(( $(rustup target list --installed | wc -l) - 1))
+if [[ -z ${MULLVAD_SETUP_PLATFORM+x} ]]; then
+    echo "MULLVAD_SETUP_PLATFORM is not set, must be set to " >&2
+    echo "\`android\`, \`desktop\` or \`ios\`" >&2
+    exit 1
+fi
 
-        # - 6 because we don't want to count the default components that are installed by rustup
-        # (rustc, rust-std, cargo, rust-docs, rustfmt, clippy)
-        local installed_components_count=$(( $(rustup component list --installed | wc -l) - 6))
+git diff-tree --exit-code "$1".."$2" --quiet -- rust-toolchain.toml
 
-        # shellcheck disable=SC2155
-        local extra_targets_count=$(echo "$extra_targets" | wc -w)
-        # shellcheck disable=SC2155
-        local extra_components_count=$(echo "$extra_components" | wc -w)
-
-        if [ -n "$platform" ]; then
-            required_targets_count=$(( $("$setup_rust_script" "$platform" --print-targets | wc -w) + "$extra_targets_count" ))
-        else
-            required_targets_count="$extra_targets_count"
-        fi
-
-        if [ "$installed_targets_count" -lt "$required_targets_count" ]; then
-            if [ -n "$platform" ]; then
-                $setup_rust_script "$platform"
-            fi
-
-            if [ -n "$extra_targets" ]; then
-                echo "Installing extra targets"
-                # shellcheck disable=SC2086
-                rustup target add $extra_targets
-            fi
-        fi
-
-        if [ "$installed_components_count" -lt "$extra_components_count" ]; then
-            echo "Installing extra components"
-            # shellcheck disable=SC2086
-            rustup component add $extra_components
-        fi
-    fi
-}
-
-# Run script
-main "$@"
-
+# Exit code 1 means there was a change, 0 means no change.
+if [[ $? -eq 1 ]]; then
+    $SETUP_RUST_SCRIPT "$MULLVAD_SETUP_PLATFORM"
+fi

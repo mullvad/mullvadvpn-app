@@ -5,7 +5,7 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$SCRIPT_DIR/.."
 
 source scripts/utils/log
@@ -20,79 +20,73 @@ IOS_TARGETS="aarch64-apple-ios-sim aarch64-apple-ios x86_64-apple-ios"
 IOS_COMPONENTS="rust-analyzer"
 
 function main {
-  if [ $# -eq 0 ]; then
-    print_usage
-    exit 1
-  fi
+    if [[ $# -eq 0 ]]; then
+        print_usage
+        exit 1
+    fi
 
-  case "$1" in
+    case "$1" in
     "android")
-      setup "Android" "$ANDROID_TARGETS" "$ANDROID_COMPONENTS" "${2:-}"
-      ;;
+        setup "Android" "$ANDROID_TARGETS" "$ANDROID_COMPONENTS"
+        ;;
     "desktop")
-      setup "Desktop" "$DESKTOP_TARGETS" "$DESKTOP_COMPONENTS" "${2:-}"
-      ;;
+        setup "Desktop" "$DESKTOP_TARGETS" "$DESKTOP_COMPONENTS"
+        ;;
     "ios")
-      setup "Android" "$IOS_TARGETS" "$IOS_COMPONENTS" "${2:-}"
-      ;;
+        setup "Android" "$IOS_TARGETS" "$IOS_COMPONENTS"
+        ;;
     "install-hook")
-      install_hook "${2:-}"
-      ;;
+        install_hook
+        ;;
+    "--help")
+        print_usage
+        exit 0
+        ;;
     *)
-      print_usage
-      exit 1
-      ;;
-  esac
+        log_error "Invalid argument: \`$1\`"
+        print_usage
+        exit 1
+        ;;
+    esac
 }
 
 function print_usage {
-  log "Setup default Rust targets and components for different platforms"
-  log ""
-  log "Usage: setup-rust android|desktop|ios|install-hook [--print-targets] [--print-components]"
-  log "  android                    Run Android-specific setup"
-  log "  desktop                    Run Desktop-specific setup"
-  log "  ios                        Run iOS-specific setup"
-  log "  install-hook [platform]    Copies the setup-rust-post-checkout file to .git/hooks/post-checkout"
-  log "                             Optionally supply a platform (android|desktop|ios) for the hook to use that"
-  log "                             platform as an argument to setup-rust (e.g. 'scripts/setup-rust install-hook android')"
-  log ""
-  log "Options:"
-  log "--print-targets        Only print the targets that would be added"
-  log "--print-components     Only print the components that would be added"
+    log "Setup default Rust targets and components for different platforms"
+    log ""
+    log "Usage: setup-rust android|desktop|ios|install-hook"
+    log "  android                    Run Android-specific setup"
+    log "  desktop                    Run Desktop-specific setup"
+    log "  ios                        Run iOS-specific setup"
+    log "  install-hook               Copies the setup-rust-post-checkout file to .git/hooks/post-checkout"
 }
 
 function setup {
-  case "$4" in
-    "--print-targets")
-      echo "$2"
-      ;;
-    "--print-components")
-      echo "$3"
-      ;;
-    *)
-      log "Installing default Rust targets/components"
-      log "platform: $1"
-      log "targets: $2"
-      log "components: $3"
-      # shellcheck disable=SC2086
-      rustup target add $2
-      # shellcheck disable=SC2086
-      rustup component add $3
-      ;;
-  esac
+    local PLATFORM=$1
+    local TARGETS=$2
+    local COMPONENTS=$3
+
+    log "Installing default Rust targets/components"
+    log "platform: $PLATFORM"
+    log "targets: $TARGETS"
+    log "components: $COMPONENTS"
+    # shellcheck disable=SC2086
+    rustup target add $2
+    # shellcheck disable=SC2086
+    rustup component add $3
 }
 
 function install_hook {
-  local hook=$SCRIPT_DIR/../.git/hooks/post-checkout
-  if [ -f "$hook" ]; then
-    log_error "$(realpath "$hook") file already exists - will not overwrite"
-    exit 1
-  else
-    cp "$SCRIPT_DIR/setup-rust-post-checkout" "$hook"
-    chmod +x "$hook"
-  fi
+    local hook=$SCRIPT_DIR/../.git/hooks/post-checkout
+    if [[ -f "$hook" ]]; then
+        log_error "$(realpath "$hook") file already exists - will not overwrite"
+        exit 1
+    else
+        cp "$SCRIPT_DIR/setup-rust-post-checkout" "$hook"
+        chmod +x "$hook"
+        log "Hook installed. You must now set the environment variable MULLVAD_SETUP_PLATFORM to "
+        log "\`android\`, \`desktop\` or \`ios\` in your shell environment."
+    fi
 }
 
 # Run script
 main "$@"
-
