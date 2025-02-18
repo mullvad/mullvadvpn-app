@@ -89,7 +89,7 @@
     "build:vite": "vite build",
     "build:test": "gulp build-test",
     "pack-test-executable": "./scripts/build-test-executable.sh",
-    "build-test-executable": "npm run build && npm run pack-test-executable",
+    "build-test-executable": "npm run pack-test-executable",
     "lint": "eslint .",
     "lint-fix": "eslint --fix .",
     "e2e": "npm run build && npm run e2e:no-build",
