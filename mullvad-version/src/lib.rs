@@ -216,7 +216,7 @@ mod tests {
 
         // Exactly the same version are equal, but has no ordering
         assert_eq!(v1, v1);
-        assert!(v1.partial_cmp(&v2).is_none());
+        assert!(v1.partial_cmp(&v1).is_none());
 
         // Equal down to the dev suffix are not equal, and has no ordering
         assert_ne!(v1, v2);
