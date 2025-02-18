@@ -121,8 +121,8 @@ jobs:
         run: echo "HOME=/root" >> $GITHUB_ENV
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout repository
-        uses: ./.github/actions/checkout-app
+        with:
+          submodules: recursive
       - uses: actions/cache@v4
         id: cache-app-cargo-artifacts
         with:
@@ -310,8 +310,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout repository
-        uses: ./.github/actions/checkout-app
+        with:
+          submodules: recursive
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
@@ -397,8 +397,8 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Checkout repository
-        uses: ./.github/actions/checkout-app
+        with:
+          submodules: recursive
       - name: Install Go
         uses: actions/setup-go@v3
         with:
