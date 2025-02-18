@@ -9,14 +9,18 @@ use crate::{
     verify::{AppVerifier, Sha256Verifier},
 };
 
-#[derive(Debug)]
+#[derive(Debug, thiserror::Error)]
 pub enum DownloadError {
-    CreateDir(anyhow::Error),
-    FetchSignature(anyhow::Error),
-    FetchApp(anyhow::Error),
-    Verification(anyhow::Error),
-    Launch(std::io::Error),
-    InstallFailed(anyhow::Error),
+    #[error("Failed to create download directory")]
+    CreateDir(#[source] anyhow::Error),
+    #[error("Failed to download app")]
+    FetchApp(#[source] anyhow::Error),
+    #[error("Failed to verify app")]
+    Verification(#[source] anyhow::Error),
+    #[error("Failed to launch app")]
+    Launch(#[source] std::io::Error),
+    #[error("App installer failed")]
+    InstallFailed(#[source] anyhow::Error),
 }
 
 /// Parameters required to construct an [AppDownloader].
