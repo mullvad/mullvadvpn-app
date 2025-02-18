@@ -15,11 +15,6 @@ struct SettingsInfoViewModel {
 struct SettingsInfoViewModelPage: Hashable {
     let body: String
     let image: ImageResource
-
-    init(body: String, image: ImageResource) {
-        self.body = body
-        self.image = image
-    }
 }
 
 struct SettingsInfoView: View {
