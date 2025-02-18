@@ -85,10 +85,6 @@ fn to_android_version_code(version: &str) -> String {
 
 fn to_windows_h_format(version_str: &str) -> String {
     let version = version_str.parse().unwrap();
-    assert!(
-        is_valid_windows_version(&version),
-        "Invalid Windows version: {version:?}"
-    );
 
     let Version {
         year, incremental, ..
@@ -100,11 +96,6 @@ fn to_windows_h_format(version_str: &str) -> String {
 #define PATCH_VERSION 0
 #define PRODUCT_VERSION \"{version_str}\""
     )
-}
-
-/// On Windows we currently support the following versions: stable, beta and dev.
-fn is_valid_windows_version(version: &Version) -> bool {
-    version.is_stable() || version.is_beta() || (version.is_dev() && !version.is_alpha())
 }
 
 #[cfg(test)]
@@ -132,8 +123,12 @@ mod tests {
     }
 
     #[test]
-    #[should_panic]
-    fn test_invalid_windows_version_code() {
-        to_windows_h_format("2021.34-alpha1");
+    fn test_windows_version_h() {
+        let version_h = to_windows_h_format("2025.4-beta2-dev-abcdef");
+        let expected_version_h = "#define MAJOR_VERSION 2025
+#define MINOR_VERSION 4
+#define PATCH_VERSION 0
+#define PRODUCT_VERSION \"2025.4-beta2-dev-abcdef\"";
+        assert_eq!(expected_version_h, version_h);
     }
 }
