@@ -72,7 +72,7 @@ if [[ $deb == "true" ]]; then
         log_header "deb"
     fi
 
-    bash -c " podman run --rm -it debian:latest sh -c \
+    bash -c " podman run --rm -it debian:12 sh -c \
         \"apt update $silent_stderr $silent_stdout; \
         apt install -y curl $silent_stderr $silent_stdout; \
         curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc $repository_server_public_url/deb/mullvad-keyring.asc; \
@@ -86,7 +86,7 @@ if [[ $rpm == "true" ]]; then
         log_header "rpm"
     fi
 
-    bash -c "podman run --rm -it fedora:latest sh -c \
+    bash -c "podman run --rm -it fedora:41 sh -c \
         \"dnf install -y 'dnf-command(config-manager)' $silent_stderr $silent_stdout; \
         dnf config-manager addrepo --from-repofile=$repository_server_public_url/rpm/$release_channel/mullvad.repo $silent_stderr; \
         dnf list --refresh mullvad-* $silent_stderr | grep 'x86_64'\" $silent_stderr"
