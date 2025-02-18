@@ -8,6 +8,7 @@
 
 import Foundation
 import Logging
+import MullvadRustRuntime
 import MullvadTypes
 
 public final class TransportProvider: RESTTransportProvider, Sendable {
@@ -38,7 +39,8 @@ public final class TransportProvider: RESTTransportProvider, Sendable {
 
             let currentStrategy = transportStrategy
             return TransportWrapper(wrapped: actualTransport) { [weak self] error in
-                if let error = error as? URLError, error.shouldResetNetworkTransport {
+                if (error as? URLError)?.shouldResetNetworkTransport ?? false ||
+                    (error as? EncryptedDnsProxyError)?.shouldResetNetworkTransport ?? false {
                     self?.resetTransportMatching(currentStrategy)
                 }
             }
@@ -101,6 +103,15 @@ public final class TransportProvider: RESTTransportProvider, Sendable {
     /// To ensure  both process `Packet Tunnel` and `Main` uses the latest changes, the `TransportProvider` compares the `transportType` with the latest value in the cache and reuse it if it's still valid .
     private var shouldNotReuseCurrentTransport: Bool {
         currentTransportType != transportStrategy.connectionTransport()
+    }
+}
+
+private extension EncryptedDnsProxyError {
+    var shouldResetNetworkTransport: Bool {
+        switch self {
+        case .start:
+            return true
+        }
     }
 }
 
