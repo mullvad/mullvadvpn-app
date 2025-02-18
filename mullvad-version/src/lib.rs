@@ -164,6 +164,11 @@ impl FromStr for Version {
 mod tests {
     use super::*;
 
+    // Helper to parse a version string
+    fn parse(version: &str) -> Version {
+        version.parse().unwrap()
+    }
+
     #[test]
     fn test_version_ordering() {
         // Test year comparison
@@ -220,70 +225,87 @@ mod tests {
 
     #[test]
     fn test_parse() {
-        let version = "2021.34";
-        let parsed = parse(version);
-        assert_eq!(parsed.year, 2021);
-        assert_eq!(parsed.incremental, 34);
-        assert_eq!(alpha(&parsed), None);
-        assert_eq!(beta(&parsed), None);
-        assert_eq!(parsed.dev, None);
-        assert!(is_stable(&parsed));
+        assert_eq!(
+            parse("2021.34"),
+            Version {
+                year: 2021,
+                incremental: 34,
+                pre_stable: None,
+                dev: None,
+            }
+        );
     }
 
     #[test]
     fn test_parse_with_alpha() {
-        let version = "2023.1-alpha77";
-        let parsed = parse(version);
-        assert_eq!(parsed.year, 2023);
-        assert_eq!(parsed.incremental, 1);
-        assert_eq!(alpha(&parsed), Some(77));
-        assert_eq!(beta(&parsed), None);
-        assert_eq!(parsed.dev, None);
-        assert!(!is_stable(&parsed));
+        assert_eq!(
+            parse("2023.1-alpha77"),
+            Version {
+                year: 2023,
+                incremental: 1,
+                pre_stable: Some(PreStableType::Alpha(77)),
+                dev: None,
+            }
+        );
 
-        let version = "2021.34-alpha777";
-        let parsed = parse(version);
-        assert_eq!(alpha(&parsed), Some(777));
+        assert_eq!(
+            parse("2021.34-alpha777"),
+            Version {
+                year: 2021,
+                incremental: 34,
+                pre_stable: Some(PreStableType::Alpha(777)),
+                dev: None,
+            }
+        );
     }
 
     #[test]
     fn test_parse_with_beta() {
-        let version = "2021.34-beta5";
-        let parsed = parse(version);
-        assert_eq!(parsed.year, 2021);
-        assert_eq!(parsed.incremental, 34);
-        assert_eq!(alpha(&parsed), None);
-        assert_eq!(beta(&parsed), Some(5));
-        assert_eq!(parsed.dev, None);
-        assert!(!is_stable(&parsed));
+        assert_eq!(
+            parse("2021.34-beta5"),
+            Version {
+                year: 2021,
+                incremental: 34,
+                pre_stable: Some(PreStableType::Beta(5)),
+                dev: None,
+            }
+        );
 
-        let version = "2021.34-beta453";
-        let parsed = parse(version);
-        assert_eq!(beta(&parsed), Some(453));
+        assert_eq!(
+            parse("2021.34-beta453"),
+            Version {
+                year: 2021,
+                incremental: 34,
+                pre_stable: Some(PreStableType::Beta(453)),
+                dev: None,
+            }
+        );
     }
 
     #[test]
     fn test_parse_with_dev() {
-        let version = "2021.34-dev-0b60e4d87";
-        let parsed = parse(version);
-        assert_eq!(parsed.year, 2021);
-        assert_eq!(parsed.incremental, 34);
-        assert!(!is_stable(&parsed));
-        assert_eq!(parsed.dev, Some("0b60e4d87".to_string()));
-        assert_eq!(alpha(&parsed), None);
-        assert_eq!(beta(&parsed), None);
+        assert_eq!(
+            parse("2021.34-dev-0b60e4d87"),
+            Version {
+                year: 2021,
+                incremental: 34,
+                pre_stable: None,
+                dev: Some("0b60e4d87".to_string()),
+            }
+        );
     }
 
     #[test]
     fn test_parse_both_beta_and_dev() {
-        let version = "2024.8-beta1-dev-e5483d";
-        let parsed = parse(version);
-        assert_eq!(parsed.year, 2024);
-        assert_eq!(parsed.incremental, 8);
-        assert_eq!(alpha(&parsed), None);
-        assert_eq!(beta(&parsed), Some(1));
-        assert_eq!(parsed.dev, Some("e5483d".to_string()));
-        assert!(!is_stable(&parsed));
+        assert_eq!(
+            parse("2024.8-beta1-dev-e5483d"),
+            Version {
+                year: 2024,
+                incremental: 8,
+                pre_stable: Some(PreStableType::Beta(1)),
+                dev: Some("e5483d".to_string()),
+            }
+        );
     }
 
     #[test]
@@ -318,10 +340,6 @@ mod tests {
         assert!("2021.1-dev".parse::<Version>().is_err())
     }
 
-    fn parse(version: &str) -> Version {
-        version.parse().unwrap()
-    }
-
     #[test]
     fn test_version_display() {
         let version = "2024.8-beta1-dev-e5483d";
@@ -343,23 +361,5 @@ mod tests {
         let parsed: Version = version.parse().unwrap();
 
         assert_eq!(format!("{parsed}"), version);
-    }
-
-    fn alpha(version: &Version) -> Option<u32> {
-        match version.pre_stable {
-            Some(PreStableType::Alpha(alpha)) => Some(alpha),
-            _ => None,
-        }
-    }
-
-    fn beta(version: &Version) -> Option<u32> {
-        match version.pre_stable {
-            Some(PreStableType::Beta(beta)) => Some(beta),
-            _ => None,
-        }
-    }
-
-    fn is_stable(version: &Version) -> bool {
-        version.pre_stable.is_none() && !version.is_dev()
     }
 }
