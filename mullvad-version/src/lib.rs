@@ -342,24 +342,15 @@ mod tests {
 
     #[test]
     fn test_version_display() {
-        let version = "2024.8-beta1-dev-e5483d";
-        let parsed: Version = version.parse().unwrap();
+        let assert_same_display = |version: &str| {
+            let parsed = Version::from_str(version).unwrap();
+            assert_eq!(parsed.to_string(), version);
+        };
 
-        assert_eq!(format!("{parsed}"), version);
-
-        let version = "2024.8-beta1";
-        let parsed: Version = version.parse().unwrap();
-
-        assert_eq!(format!("{parsed}"), version);
-
-        let version = "2024.8-alpha77-dev-85483d";
-        let parsed: Version = version.parse().unwrap();
-
-        assert_eq!(format!("{parsed}"), version);
-
-        let version = "2024.12";
-        let parsed: Version = version.parse().unwrap();
-
-        assert_eq!(format!("{parsed}"), version);
+        assert_same_display("2024.8-beta1-dev-e5483d");
+        assert_same_display("2024.8-beta1");
+        assert_same_display("2024.8-alpha77-dev-85483d");
+        assert_same_display("2024.12");
+        assert_same_display("2045.2-dev-123");
     }
 }
