@@ -339,7 +339,16 @@ async fn handle_action_messages<D, A, DirProvider>(
                     });
 
                     let ui_downloader = UiAppDownloader::new(self_, downloader);
-                    let _ = tx.send(tokio::spawn(app::install_and_upgrade(ui_downloader)));
+                    let _ = tx.send(tokio::spawn(async move {
+                        if let Err(err) = app::install_and_upgrade(ui_downloader).await {
+                            eprintln!("install_and_upgrade failed: {err}");
+                            let mut source = err.source();
+                            while let Some(error) = source {
+                                eprintln!("caused by: {error}");
+                                source = error.source();
+                            }
+                        }
+                    }));
                 });
                 active_download = rx.await.ok();
             }
