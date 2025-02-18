@@ -16,6 +16,6 @@
     <issue id="NewerVersionAvailable" severity="ignore" />
     <!-- Ignored, see more: https://github.com/grpc/grpc-java/blob/e8ff6da2cf57a39a62497e9f317e6976b5bfb98c/core/src/main/java/io/grpc/internal/JndiResourceResolverFactory.java#L199 -->
     <issue id="InvalidPackage">
-      <ignore path="**/io.grpc/grpc-core/1.69.1/d9f6383e1903af6e9502e7c1c8e4fbe28a236321/grpc-core-1.69.1.jar" />
+      <ignore path="**/io.grpc/grpc-core/1.70.0/727f3b07d5ef9b21d9eb00c166991ea4273a3794/grpc-core-1.70.0.jar" />
     </issue>
 </lint>
