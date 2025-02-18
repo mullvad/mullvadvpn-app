@@ -88,6 +88,6 @@ if [[ $rpm == "true" ]]; then
 
     bash -c "podman run --rm -it fedora:latest sh -c \
         \"dnf install -y 'dnf-command(config-manager)' $silent_stdout; \
-        dnf config-manager --add-repo $repository_server_public_url/rpm/$release_channel/mullvad.repo $silent_stdout; \
+        dnf config-manager addrepo --from-repofile=$repository_server_public_url/rpm/$release_channel/mullvad.repo $silent_stdout; \
         dnf list --refresh mullvad-vpn mullvad-browser $silent_stderr | grep -E 'mullvad-(vpn|browser)'\" $silent_stderr"
 fi
