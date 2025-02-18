@@ -92,7 +92,7 @@
     "build-test-executable": "npm run build && npm run pack-test-executable",
     "lint": "eslint .",
     "lint-fix": "eslint --fix .",
-    "e2e": "npm run build && npm run e2e:no-build",
+    "e2e": "npm run build:test && npm run e2e:no-build",
     "e2e:no-build": "xvfb-maybe -- playwright test mocked",
     "e2e:sequential": "npm run build && npm run e2e:sequential:no-build",
     "e2e:sequential:no-build": "xvfb-maybe -- playwright test -c test/e2e/installed/playwright.config.ts --workers 1",
