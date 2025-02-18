@@ -42,7 +42,7 @@ extension ConnectionView {
                             connectionDetailRow(
                                 title: LocalizedStringKey("Out IPv6"),
                                 value: outAddressIpv6,
-                                accessibilityId: .connectionPanelOutAddressRow
+                                accessibilityId: .connectionPanelOutIpv6AddressRow
                             )
                         }
                     }

@@ -131,6 +131,78 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapCancelButton()
     }
 
+    func testWireGuardOverTCPCustomPort80() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapWireGuardObfuscationExpandButton()
+                .tapWireGuardObfuscationOffCell()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationUdpOverTcpCell()
+            .tapUDPOverTCPPortSelectorButton()
+
+        UDPOverTCPObfuscationSettingsPage(app)
+            .tapPort80Cell()
+            .tapBackButton()
+
+        VPNSettingsPage(app)
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        // The packet capture has to start before the tunnel is up,
+        // otherwise the device cannot reach the in-house router anymore
+        startPacketCapture()
+
+        TunnelControlPage(app)
+            .tapConnectButton()
+
+        allowAddVPNConfigurationsIfAsked()
+
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        let connectedToIPAddress = TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPv4AddressLabel()
+
+        try Networking.verifyCanAccessInternet()
+
+        let targetIPAddress = Networking.getAlwaysReachableIPAddress()
+        let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
+        trafficGenerator.startGeneratingUDPTraffic(interval: 0.1)
+
+        RunLoop.current.run(until: .now + 1)
+        trafficGenerator.stopGeneratingUDPTraffic()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+        let capturedStreams = stopPacketCapture()
+
+        let streamFromPeeerToRelay = try XCTUnwrap(
+            capturedStreams
+                .filter { $0.destinationAddress == connectedToIPAddress }.first
+        )
+
+        XCTAssertTrue(streamFromPeeerToRelay.destinationPort == 80)
+        XCTAssertTrue(streamFromPeeerToRelay.transportProtocol == .TCP)
+    }
+
     func testWireGuardOverTCPManually() throws {
         addTeardownBlock {
             HeaderBar(self.app)
