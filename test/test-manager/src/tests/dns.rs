@@ -8,7 +8,6 @@ use std::{
 use itertools::Itertools;
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_types::{
-    relay_constraints::RelaySettings,
     settings,
     wireguard::{DaitaSettings, QuantumResistantState},
     ConnectionConfig, CustomTunnelEndpoint,
@@ -18,7 +17,7 @@ use test_macro::test_function;
 use test_rpc::ServiceClient;
 
 use super::{
-    helpers::{self, connect_and_wait, set_relay_settings},
+    helpers::{self, connect_and_wait, set_custom_endpoint},
     Error, TestContext,
 };
 use crate::{
@@ -658,7 +657,7 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
         CUSTOM_TUN_REMOTE_REAL_PORT,
     );
 
-    let relay_settings = RelaySettings::CustomTunnelEndpoint(CustomTunnelEndpoint {
+    let custom_tunnel_endpoint = CustomTunnelEndpoint {
         host: peer_addr.ip().to_string(),
         config: ConnectionConfig::Wireguard(wireguard::ConnectionConfig {
             tunnel: wireguard::TunnelConfig {
@@ -678,9 +677,8 @@ async fn connect_local_wg_relay(mullvad_client: &mut MullvadProxyClient) -> Resu
             fwmark: None,
             ipv6_gateway: None,
         }),
-    });
-
-    set_relay_settings(mullvad_client, relay_settings)
+    };
+    set_custom_endpoint(mullvad_client, custom_tunnel_endpoint)
         .await
         .expect("failed to update relay settings");
 
