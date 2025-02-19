@@ -26,6 +26,8 @@ typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct RequestCancelHandle RequestCancelHandle;
 
+typedef struct RetryStrategy RetryStrategy;
+
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
@@ -34,6 +36,10 @@ typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
 } SwiftCancelHandle;
 
+typedef struct SwiftRetryStrategy {
+  struct RetryStrategy *_0;
+} SwiftRetryStrategy;
+
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
@@ -41,8 +47,6 @@ typedef struct SwiftMullvadApiResponse {
   uint8_t *error_description;
   uint8_t *server_response_code;
   bool success;
-  bool should_retry;
-  uint64_t retry_after;
 } SwiftMullvadApiResponse;
 
 typedef struct CompletionCookie {
@@ -106,7 +110,8 @@ struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
 struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_context,
-                                                   void *completion_cookie);
+                                                   void *completion_cookie,
+                                                   struct SwiftRetryStrategy retry_strategy);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.
@@ -155,6 +160,29 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
  * is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
  */
 void mullvad_response_drop(struct SwiftMullvadApiResponse response);
+
+/**
+ * Creates a retry strategy that never retries after failure.
+ * The result needs to be consumed.
+ */
+struct SwiftRetryStrategy mullvad_api_retry_strategy_never(void);
+
+/**
+ * Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
+ * The result needs to be consumed.
+ */
+struct SwiftRetryStrategy mullvad_api_retry_strategy_constant(uintptr_t max_retries,
+                                                              uint64_t delay_sec);
+
+/**
+ * Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
+ * The delay will never exceed `max_delay_sec`
+ * The result needs to be consumed.
+ */
+struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_retries,
+                                                                 uint64_t initial_sec,
+                                                                 uint32_t factor,
+                                                                 uint64_t max_delay_sec);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
