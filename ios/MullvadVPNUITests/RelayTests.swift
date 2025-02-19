@@ -194,12 +194,12 @@ class RelayTests: LoggedInWithTimeUITestCase {
             .tapDisconnectButton()
         let capturedStreams = stopPacketCapture()
 
+        // The capture will contain several streams where `other_addr` contains the IP the device connected to
+        // One stream will be for the source port, the other for the destination port
         let streamFromPeeerToRelay = try XCTUnwrap(
-            capturedStreams
-                .filter { $0.destinationAddress == connectedToIPAddress }.first
+            capturedStreams.filter { $0.destinationAddress == connectedToIPAddress && $0.destinationPort == 80 }.first
         )
 
-        XCTAssertTrue(streamFromPeeerToRelay.destinationPort == 80)
         XCTAssertTrue(streamFromPeeerToRelay.transportProtocol == .TCP)
     }
 
