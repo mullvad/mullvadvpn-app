@@ -630,14 +630,32 @@ pub async fn apply_settings_from_relay_query(
         .map_err(|error| Error::Daemon(format!("Failed to set obfuscation settings: {}", error)))
 }
 
-pub async fn set_relay_settings(
+pub async fn set_custom_endpoint(
     mullvad_client: &mut MullvadProxyClient,
-    relay_settings: impl Into<RelaySettings>,
+    custom_endpoint: mullvad_types::CustomTunnelEndpoint,
 ) -> Result<(), Error> {
     mullvad_client
-        .set_relay_settings(relay_settings.into())
+        .set_relay_settings(RelaySettings::CustomTunnelEndpoint(custom_endpoint))
         .await
         .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))
+}
+
+pub async fn update_relay_constraints(
+    mullvad_client: &mut MullvadProxyClient,
+    fn_mut: impl FnOnce(&mut RelayConstraints),
+) -> Result<(), Error> {
+    let settings = mullvad_client
+        .get_settings()
+        .await
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
+    let RelaySettings::Normal(mut relay_constraints) = settings.relay_settings else {
+        unimplemented!("Mutating custom endpoint not supported");
+    };
+    fn_mut(&mut relay_constraints);
+    mullvad_client
+        .set_relay_settings(RelaySettings::Normal(relay_constraints))
+        .await?;
+    Ok(())
 }
 
 /// Wait for the relay list to be updated, to make sure we have the overridden one.
@@ -1221,25 +1239,26 @@ pub async fn set_location(
     mullvad_client: &mut MullvadProxyClient,
     location: impl Into<LocationConstraint>,
 ) -> anyhow::Result<()> {
-    let constraints = get_location_relay_constraints(location.into());
-
-    mullvad_client
-        .set_relay_settings(constraints.into())
+    let location_constraint: LocationConstraint = location.into();
+    let mut settings = mullvad_client
+        .get_settings()
         .await
-        .context("Failed to set relay settings")
-}
+        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
 
-fn get_location_relay_constraints(custom_list: LocationConstraint) -> RelayConstraints {
-    let wireguard_constraints = mullvad_types::relay_constraints::WireguardConstraints {
-        entry_location: Constraint::Only(custom_list.clone()),
-        ..Default::default()
+    settings.bridge_settings.normal.location = Constraint::Only(location_constraint.clone());
+    mullvad_client
+        .set_bridge_settings(settings.bridge_settings)
+        .await?;
+
+    let RelaySettings::Normal(mut constraint) = settings.relay_settings else {
+        unimplemented!("Setting location for a custom endpoint is not supported");
     };
-
-    RelayConstraints {
-        location: Constraint::Only(custom_list),
-        wireguard_constraints,
-        ..Default::default()
-    }
+    constraint.location = Constraint::Only(location_constraint.clone());
+    constraint.wireguard_constraints.entry_location = Constraint::Only(location_constraint);
+    mullvad_client
+        .set_relay_settings(RelaySettings::Normal(constraint))
+        .await?;
+    Ok(())
 }
 
 /// Dig out a custom list from the daemon settings based on the custom list's name.
