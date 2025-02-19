@@ -1,7 +1,7 @@
 use super::{
     helpers::{
-        self, connect_and_wait, send_guest_probes, set_relay_settings,
-        unreachable_wireguard_tunnel, wait_for_tunnel_state,
+        self, connect_and_wait, send_guest_probes, unreachable_wireguard_tunnel,
+        wait_for_tunnel_state,
     },
     ui, Error, TestContext,
 };
@@ -185,14 +185,15 @@ pub async fn test_connecting_state(
     log::info!("Verify tunnel state: disconnected");
     assert_tunnel_state!(&mut mullvad_client, TunnelState::Disconnected { .. });
 
-    let relay_settings = RelaySettings::CustomTunnelEndpoint(CustomTunnelEndpoint {
-        host: "1.3.3.7".to_owned(),
-        config: mullvad_types::ConnectionConfig::Wireguard(unreachable_wireguard_tunnel()),
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    set_custom_endpoint(
+        &mut mullvad_client,
+        CustomTunnelEndpoint {
+            host: "1.3.3.7".to_owned(),
+            config: mullvad_types::ConnectionConfig::Wireguard(unreachable_wireguard_tunnel()),
+        },
+    )
+    .await
+    .expect("failed to update relay settings");
 
     mullvad_client
         .connect_tunnel()
