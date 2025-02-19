@@ -6,6 +6,11 @@ on:
       - .github/workflows/android-audit.yml
       - android/gradle/verification-metadata.xml
       - android/scripts/update-lockfile.sh
+      # libs.versions.toml and *.kts are necessary to ensure that the verification-metadata.xml is up-to-date
+      # with our dependency usage due to the dependency verification not working as expected when keys are
+      # specified for dependencies (DROID-1425).
+      - android/gradle/libs.versions.toml
+      - android/**/*.kts
   schedule:
     # At 06:20 UTC every day.
     # Notifications for scheduled workflows are sent to the user who last modified the cron
