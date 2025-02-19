@@ -14,8 +14,6 @@ pub struct Overlapped {
 
 // SAFETY: Both OVERLAPPED and Event is used for async I/O, so this *should* be safe.
 unsafe impl Send for Overlapped {}
-// SAFETY: See above.
-unsafe impl Sync for Overlapped {}
 
 impl Overlapped {
     /// Creates an `OVERLAPPED` object with `hEvent` set.
