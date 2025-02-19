@@ -13,7 +13,8 @@ use anyhow::{anyhow, bail, ensure, Context};
 use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_relay_selector::{
-    query::RelayQuery, GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
+    query::{OpenVpnRelayQuery, RelayQuery, WireguardRelayQuery},
+    GetRelay, RelaySelector, SelectorConfig, WireguardConfig,
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -602,7 +603,9 @@ pub async fn apply_settings_from_relay_query(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
 ) -> Result<(), Error> {
-    let intersected_relay_query = intersect_with_current_settings(mullvad_client, query)
+    // To prevent overwriting default custom list location constraint, we make an intersection with
+    // a query containing only the current location constraint
+    let intersected_relay_query = intersect_with_current_location(mullvad_client, query)
         .await
         .map_err(|error| {
             Error::Other(format!(
@@ -723,9 +726,9 @@ pub async fn get_app_env() -> anyhow::Result<HashMap<String, String>> {
     ]))
 }
 
-/// Constrain the daemon to only select the relay selected with `query` when establishing all
-/// future tunnels (until relay settings are updated, see [`set_relay_settings`]). Returns the
-/// selected [`Relay`] for future reference.
+/// Constrain the daemon to only select the relay compatible with `query` and the current relay
+/// settings when establishing all future tunnels (until relay settings are updated, see [`set_relay_settings`]).
+/// Returns the selected [`Relay`] for future reference.
 ///
 /// # Note
 /// This function does not handle bridges and multihop configurations (currently). There is no
@@ -735,6 +738,94 @@ pub async fn constrain_to_relay(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
 ) -> anyhow::Result<Relay> {
+    let intersect_query = intersect_with_current_location(mullvad_client, query).await?;
+    let (exit, relay_constraints) =
+        get_single_relay_location_contraint(mullvad_client, intersect_query).await?;
+
+    update_relay_constraints(mullvad_client, |current_constraints| {
+        *current_constraints = relay_constraints
+    })
+    .await
+    .unwrap();
+
+    Ok(exit)
+}
+
+/// Intersects the given query with the current location constraints, to prevent accidentally
+/// overwriting the default location custom list
+async fn intersect_with_current_location(
+    mullvad_client: &mut MullvadProxyClient,
+    query: RelayQuery,
+) -> anyhow::Result<RelayQuery> {
+    let settings = mullvad_client
+        .get_settings()
+        .await
+        .context("Failed to get settings")?;
+    let RelaySettings::Normal(constraint) = settings.relay_settings else {
+        unimplemented!("Setting locatio for a custom endpoint is not supported");
+    };
+
+    // Construct a relay query preverving only the information about the current location
+    let current_location_query = RelayQuery::new(
+        constraint.location,
+        Constraint::Any,
+        Constraint::Any,
+        Constraint::Any,
+        WireguardRelayQuery {
+            entry_location: constraint.wireguard_constraints.entry_location,
+            ..Default::default()
+        },
+        OpenVpnRelayQuery {
+            bridge_settings: mullvad_relay_selector::query::BridgeQuery::Normal(
+                settings.bridge_settings.normal,
+            ),
+            ..Default::default()
+        },
+    )?;
+    use mullvad_types::Intersection;
+    let intersect_query = query
+        .intersection(current_location_query)
+        .context("Relay query incompatible with default settings")?;
+    Ok(intersect_query)
+}
+
+/// Get a query representing the current daemon settings
+async fn get_query_from_current_settings(
+    mullvad_client: &mut MullvadProxyClient,
+) -> anyhow::Result<RelayQuery> {
+    let settings = mullvad_client
+        .get_settings()
+        .await
+        .context("Failed to get settings")?;
+    let current_query =
+        RelayQuery::try_from(settings).context("Failed to convert settings to relay query")?;
+    Ok(current_query)
+}
+
+pub async fn get_all_pickable_relays(
+    mullvad_client: &mut MullvadProxyClient,
+) -> anyhow::Result<Vec<Relay>> {
+    let settings = mullvad_client.get_settings().await?;
+    let relay_list = mullvad_client.get_relay_locations().await?;
+    let relays = mullvad_relay_selector::filter_matching_relay_list(
+        &helpers::get_query_from_current_settings(mullvad_client).await?,
+        &relay_list,
+        &settings.custom_lists,
+    );
+    Ok(relays)
+}
+
+/// Selects a relay compatible with the given query and relay list from the client, and returns a
+/// location constraint for only that relay, along with the relay itself.
+///
+/// # Note
+/// This function does not handle bridges and multihop configurations (currently). There is no
+/// particular reason for this other than it not being needed at the time, so feel free to extend
+/// this function :).
+async fn get_single_relay_location_contraint(
+    mullvad_client: &mut MullvadProxyClient,
+    query: RelayQuery,
+) -> anyhow::Result<(Relay, RelayConstraints)> {
     /// Convert the result of invoking the relay selector to a relay constraint.
     fn convert_to_relay_constraints(
         query: RelayQuery,
@@ -754,18 +845,11 @@ pub async fn constrain_to_relay(
             unsupported => bail!("Can not constrain to a {unsupported:?}"),
         }
     }
-
     let settings = mullvad_client.get_settings().await?;
-    // Construct a relay selector with up-to-date information from the runnin daemon's relay list
     let relay_list = mullvad_client.get_relay_locations().await?;
     let relay_selector = get_daemon_relay_selector(&settings, relay_list);
-    // Select an(y) appropriate relay for the given query and constrain the daemon to only connect
-    // to that specific relay (when connecting).
     let relay = relay_selector.get_relay_by_query(query.clone())?;
-    let (exit, relay_constraints) = convert_to_relay_constraints(query, relay)?;
-    set_relay_settings(mullvad_client, RelaySettings::Normal(relay_constraints)).await?;
-
-    Ok(exit)
+    convert_to_relay_constraints(query, relay)
 }
 
 /// Get a mirror of the relay selector used by the daemon.
@@ -1228,13 +1312,8 @@ fn parse_am_i_mullvad(result: String) -> anyhow::Result<bool> {
     })
 }
 
-/// Set the location to the given [`LocationConstraint`]. This also includes
-/// entry location for multihop. It does not, however, affect bridge location for OpenVPN.
-/// This is for simplify, as bridges default to using the server closest to the exit anyway, and
-/// OpenVPN is slated for removal.
-///
-/// NOTE: Calling this from within a test will overwrite the default test lcoation specified in
-/// the settings.
+/// Set the location to the given [`LocationConstraint`]. The same location constraint will be set
+/// for the multihop entry and OpenVPN bridge location as well.
 pub async fn set_location(
     mullvad_client: &mut MullvadProxyClient,
     location: impl Into<LocationConstraint>,
