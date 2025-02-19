@@ -596,11 +596,21 @@ impl<T> Drop for AbortOnDrop<T> {
     }
 }
 
+/// Applies the given query to the daemon location selection. The query will be intersected with
+/// the current location settings, so that the default location custom list is still used.
 pub async fn apply_settings_from_relay_query(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
 ) -> Result<(), Error> {
-    let (constraints, bridge_state, bridge_settings, obfuscation) = query.into_settings();
+    let intersected_relay_query = intersect_with_current_settings(mullvad_client, query)
+        .await
+        .map_err(|error| {
+            Error::Other(format!(
+                "Failed to join query with current daemon settings: {error}"
+            ))
+        })?;
+    let (constraints, bridge_state, bridge_settings, obfuscation) =
+        intersected_relay_query.into_settings();
 
     mullvad_client
         .set_relay_settings(constraints.into())
