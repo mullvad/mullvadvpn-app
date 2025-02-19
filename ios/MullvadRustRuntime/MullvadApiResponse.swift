@@ -45,10 +45,6 @@ public class MullvadApiResponse {
         }
     }
 
-    public var shouldRetry: Bool {
-        response.should_retry
-    }
-
     public var success: Bool {
         response.success
     }

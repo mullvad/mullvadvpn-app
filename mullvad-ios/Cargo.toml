@@ -24,6 +24,7 @@ hyper-util = { workspace = true }
 tower = { workspace = true }
 tunnel-obfuscation = { path = "../tunnel-obfuscation" }
 oslog = "0.2"
+talpid-future = { path = "../talpid-future" }
 talpid-types = { path = "../talpid-types" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }

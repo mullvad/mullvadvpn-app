@@ -2,11 +2,13 @@ use mullvad_api::{
     rest::{self, MullvadRestHandle},
     ApiProxy,
 };
+use talpid_future::retry::retry_future;
 
 use super::{
     cancellation::{RequestCancelHandle, SwiftCancelHandle},
     completion::{CompletionCookie, SwiftCompletionHandler},
     response::SwiftMullvadApiResponse,
+    retry_strategy::{RetryStrategy, SwiftRetryStrategy},
     SwiftApiContext,
 };
 
@@ -24,6 +26,7 @@ use super::{
 pub unsafe extern "C" fn mullvad_api_get_addresses(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
+    retry_strategy: SwiftRetryStrategy,
 ) -> SwiftCancelHandle {
     let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
 
@@ -33,10 +36,11 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
     };
 
     let api_context = api_context.into_rust_context();
+    let retry_strategy = unsafe { retry_strategy.into_rust() };
 
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_api_get_addresses_inner(api_context.rest_handle()).await {
+        match mullvad_api_get_addresses_inner(api_context.rest_handle(), retry_strategy).await {
             Ok(response) => completion.finish(response),
             Err(err) => {
                 log::error!("{err:?}");
@@ -50,9 +54,18 @@ pub unsafe extern "C" fn mullvad_api_get_addresses(
 
 async fn mullvad_api_get_addresses_inner(
     rest_client: MullvadRestHandle,
+    retry_strategy: RetryStrategy,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let api = ApiProxy::new(rest_client);
-    let response = api.get_api_addrs_response().await?;
+
+    let future_factory = || api.get_api_addrs_response();
+
+    let should_retry = |result: &Result<_, rest::Error>| match result {
+        Err(err) => err.is_network_error(),
+        Ok(_) => false,
+    };
+
+    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
 
     SwiftMullvadApiResponse::with_body(response).await
 }
