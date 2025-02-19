@@ -26,6 +26,8 @@ typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct RequestCancelHandle RequestCancelHandle;
 
+typedef struct RetryStrategy RetryStrategy;
+
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
@@ -33,6 +35,10 @@ typedef struct SwiftApiContext {
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
 } SwiftCancelHandle;
+
+typedef struct SwiftRetryStrategy {
+  struct RetryStrategy *_0;
+} SwiftRetryStrategy;
 
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
@@ -106,7 +112,8 @@ struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
  * This function is not safe to call multiple times with the same `CompletionCookie`.
  */
 struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_context,
-                                                   void *completion_cookie);
+                                                   void *completion_cookie,
+                                                   struct SwiftRetryStrategy retry_strategy);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.
@@ -155,6 +162,16 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
  * is not safe to call multiple times with the same `SwiftMullvadApiResponse`.
  */
 void mullvad_response_drop(struct SwiftMullvadApiResponse response);
+
+struct SwiftRetryStrategy mullvad_api_retry_strategy_never(void);
+
+struct SwiftRetryStrategy mullvad_api_retry_strategy_constant(uintptr_t max_retries,
+                                                              uint64_t delay_sec);
+
+struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_retries,
+                                                                 uint64_t initial_seconds,
+                                                                 uint32_t factor,
+                                                                 uint64_t max_delay);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
