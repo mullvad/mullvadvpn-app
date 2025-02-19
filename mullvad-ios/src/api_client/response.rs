@@ -10,8 +10,6 @@ pub struct SwiftMullvadApiResponse {
     error_description: *mut u8,
     server_response_code: *mut u8,
     success: bool,
-    should_retry: bool,
-    retry_after: u64,
 }
 impl SwiftMullvadApiResponse {
     pub async fn with_body(response: Response<hyper::body::Incoming>) -> Result<Self, rest::Error> {
@@ -28,8 +26,6 @@ impl SwiftMullvadApiResponse {
             error_description: null_mut(),
             server_response_code: null_mut(),
             success: true,
-            should_retry: false,
-            retry_after: 0,
         })
     }
 
@@ -44,7 +40,6 @@ impl SwiftMullvadApiResponse {
                 .unwrap_or(null_mut())
         };
 
-        let should_retry = err.is_network_error();
         let error_description = to_cstr_pointer(err.to_string());
         let (status_code, server_response_code): (u16, _) =
             if let rest::Error::ApiError(status_code, error_code) = err {
@@ -60,34 +55,28 @@ impl SwiftMullvadApiResponse {
             error_description,
             server_response_code,
             success: false,
-            should_retry,
-            retry_after: 0,
         }
     }
 
     pub fn cancelled() -> Self {
         Self {
             success: false,
-            should_retry: false,
             error_description: c"Request was cancelled".to_owned().into_raw().cast(),
             body: null_mut(),
             body_size: 0,
             status_code: 0,
             server_response_code: null_mut(),
-            retry_after: 0,
         }
     }
 
     pub fn no_tokio_runtime() -> Self {
         Self {
             success: false,
-            should_retry: false,
             error_description: c"Failed to get Tokio runtime".to_owned().into_raw().cast(),
             body: null_mut(),
             body_size: 0,
             status_code: 0,
             server_response_code: null_mut(),
-            retry_after: 0,
         }
     }
 }
