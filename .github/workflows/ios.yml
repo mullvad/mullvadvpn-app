@@ -6,6 +6,7 @@ on:
       - .github/workflows/ios.yml
       - ios/build-rust-library.sh
       - ios/.swiftformat
+      - ios/wireguard-apple
       - ios/**/*.swift
       - ios/**/*.xctestplan
   workflow_dispatch:
