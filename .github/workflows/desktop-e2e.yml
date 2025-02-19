@@ -166,9 +166,6 @@ jobs:
       - name: Build mullvad-version
         run: |
           cargo build --package mullvad-version --release
-          # TODO: Remove
-          mkdir bin
-          mv -t ./bin/ "$CARGO_TARGET_DIR/release/mullvad-version"
         shell: bash
       - name: Upload mullvad-version
         uses: actions/upload-artifact@v4
