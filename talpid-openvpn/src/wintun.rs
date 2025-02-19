@@ -350,7 +350,7 @@ fn find_adapter_registry_key(find_guid: &str, permissions: REG_SAM_FLAGS) -> io:
 fn string_from_guid(guid: &GUID) -> String {
     let mut buffer = [0u16; 40];
 
-    // SAFETY: `gui` and `buffer` are valid references.
+    // SAFETY: `guid` and `buffer` are valid references.
     let length =
         unsafe { StringFromGUID2(guid, buffer.as_mut_ptr(), buffer.len() as i32 - 1) } as usize;
 
