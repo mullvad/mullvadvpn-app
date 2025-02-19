@@ -9,7 +9,12 @@ import {
   usePreventDueToCustomBridgeSelected,
   useSelectedLocation,
 } from './RelayListContext';
-import { isCustomListDisabled, isExpanded, isSelected } from './select-location-helpers';
+import {
+  formatRowName,
+  isCustomListDisabled,
+  isExpanded,
+  isSelected,
+} from './select-location-helpers';
 import {
   CitySpecification,
   CountrySpecification,
@@ -73,7 +78,7 @@ function prepareCustomList(
 
   const disabledReason = isCustomListDisabled(location, locations, disabledLocation);
   return {
-    label: list.name,
+    label: formatRowName(list.name, location, disabledReason),
     list,
     location,
     active: disabledReason !== DisabledReason.inactive,
