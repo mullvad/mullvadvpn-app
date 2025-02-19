@@ -8,20 +8,17 @@ use mullvad_types::{
         GeographicLocationConstraint, InternalBridgeConstraints, LocationConstraint, Ownership,
         Providers, ShadowsocksSettings,
     },
-    relay_list::{Relay, RelayEndpointData, WireguardRelayEndpointData},
+    relay_list::{Relay, RelayEndpointData, RelayList, WireguardRelayEndpointData},
 };
 use talpid_types::net::{IpVersion, TunnelType};
 
-use super::{
-    parsed_relays::ParsedRelays,
-    query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery},
-};
+use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
 
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
 pub fn filter_matching_relay_list(
     query: &RelayQuery,
-    relay_list: &ParsedRelays,
+    relay_list: &RelayList,
     custom_lists: &CustomListsSettings,
 ) -> Vec<Relay> {
     let relays = relay_list.relays();
@@ -133,13 +130,13 @@ pub fn filter_on_daita(filter: &Constraint<bool>, relay: &Relay) -> bool {
 /// Returns whether `relay` satisfies the obfuscation settings.
 fn filter_on_obfuscation(
     query: &WireguardRelayQuery,
-    relay_list: &ParsedRelays,
+    relay_list: &RelayList,
     relay: &Relay,
 ) -> bool {
     match &query.obfuscation {
         // Shadowsocks has relay-specific constraints
         ObfuscationQuery::Shadowsocks(settings) => {
-            let wg_data = &relay_list.parsed_list().wireguard;
+            let wg_data = &relay_list.wireguard;
             filter_on_shadowsocks(
                 &wg_data.shadowsocks_port_ranges,
                 &query.ip_version,
