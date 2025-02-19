@@ -122,7 +122,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: true
       - uses: actions/cache@v4
         id: cache-app-cargo-artifacts
         with:
@@ -311,7 +311,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: true
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
@@ -398,7 +398,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          submodules: recursive
+          submodules: true
       - name: Install Go
         uses: actions/setup-go@v3
         with:
