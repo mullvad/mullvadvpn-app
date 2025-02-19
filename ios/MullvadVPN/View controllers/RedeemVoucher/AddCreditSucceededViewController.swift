@@ -63,10 +63,6 @@ class AddCreditSucceededViewController: UIViewController, RootContainment {
         true
     }
 
-    var prefersNotificationBarHidden: Bool {
-        true
-    }
-
     weak var delegate: AddCreditSucceededViewControllerDelegate? {
         didSet {
             dismissButton.setTitle(delegate?.titleForAction(in: self), for: .normal)

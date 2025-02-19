@@ -56,10 +56,6 @@ class RedeemVoucherViewController: UIViewController, UINavigationControllerDeleg
         true
     }
 
-    var prefersNotificationBarHidden: Bool {
-        true
-    }
-
     // MARK: - Life Cycle
 
     override func viewDidLoad() {
