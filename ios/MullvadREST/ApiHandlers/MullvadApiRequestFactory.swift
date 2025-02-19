@@ -10,7 +10,7 @@ import MullvadRustRuntime
 import MullvadTypes
 
 enum MullvadApiRequest {
-    case getAddressList
+    case getAddressList(retryStrategy: REST.RetryStrategy)
 }
 
 struct MullvadApiRequestFactory {
@@ -25,8 +25,8 @@ struct MullvadApiRequestFactory {
             let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
 
             return switch request {
-            case .getAddressList:
-                MullvadApiCancellable(handle: mullvad_api_get_addresses(apiContext.context, rawPointer))
+            case let .getAddressList(retryStrategy):
+                MullvadApiCancellable(handle: mullvad_api_get_addresses(apiContext.context, rawPointer, retryStrategy.toRustStrategy()))
             }
         }
     }

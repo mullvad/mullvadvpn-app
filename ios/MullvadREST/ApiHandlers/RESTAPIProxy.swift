@@ -66,7 +66,7 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
-            let requestHandler = mullvadApiRequestFactory.makeRequest(.getAddressList)
+            let requestHandler = mullvadApiRequestFactory.makeRequest(.getAddressList(retryStrategy: retryStrategy))
 
             let responseHandler = rustResponseHandler(
                 decoding: [AnyIPEndpoint].self,
