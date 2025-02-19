@@ -14,6 +14,10 @@ extension Duration {
         return timeInterval.isFinite
     }
 
+    public var seconds: Int64 {
+        return components.seconds
+    }
+
     public var timeInterval: TimeInterval {
         return TimeInterval(components.seconds) + (TimeInterval(components.attoseconds) * 1e-18)
     }
