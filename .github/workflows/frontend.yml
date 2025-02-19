@@ -47,6 +47,11 @@ jobs:
         shell: bash
         run: npm run build -w mullvad-vpn
 
+      - name: Build test
+        working-directory: desktop
+        shell: bash
+        run: npm run build:test -w mullvad-vpn
+
       - name: Run headless test Linux
         if: runner.os == 'Linux'
         working-directory: desktop
