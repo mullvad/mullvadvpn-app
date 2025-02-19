@@ -167,6 +167,7 @@ fn string_from_guid(guid: &GUID) -> String {
 
     let length =
         // SAFETY: `guid` and `buffer` are valid references.
+        // StringFromGUID2 won't write past the end of the provided length.
         unsafe { StringFromGUID2(guid, buffer.as_mut_ptr(), buffer.len() as i32 - 1) } as usize;
 
     // cannot fail because `buffer` is large enough
