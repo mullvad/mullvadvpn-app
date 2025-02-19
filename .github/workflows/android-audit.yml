@@ -5,6 +5,9 @@ on:
     paths:
       - .github/workflows/android-audit.yml
       - android/gradle/verification-metadata.xml
+      # Necessary to ensure that the verification-metadata.xml is up-to-date with libs.version.toml due to the
+      # dependency verification not working as expected when keys are specified for dependencies.
+      - android/gradle/libs.versions.toml
       - android/scripts/update-lockfile.sh
   schedule:
     # At 06:20 UTC every day.
