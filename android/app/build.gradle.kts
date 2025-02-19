@@ -58,6 +58,10 @@ android {
 
         if (isReleaseBuild()) {
             ndk { debugSymbolLevel = "none" }
+        } else {
+            ndk {
+                debugSymbolLevel = "full"
+            }
         }
     }
 

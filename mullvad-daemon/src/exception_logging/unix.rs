@@ -28,7 +28,7 @@ static LOG_FILE_PATH: OnceLock<CString> = OnceLock::new();
 /// The [Backtrace] implementation we use does not guarantee signal-safety; Invoking it from a
 /// signal handler can be unsound. In practice this usually works fine, but to avoid any risk to
 /// users, we disable backtracing by default in release-builds.
-static ENABLE_BACKTRACE: AtomicBool = AtomicBool::new(cfg!(debug_assertions));
+static ENABLE_BACKTRACE: AtomicBool = AtomicBool::new(true);
 
 /// Name of the environment variable that sets [ENABLE_BACKTRACE].
 const ENABLE_BACKTRACE_VAR: &str = "MULLVAD_BACKTRACE_ON_FAULT";
@@ -116,6 +116,7 @@ extern "C" fn fault_handler(
     _siginfo: *mut siginfo_t,
     _thread_context_ptr: *mut c_void,
 ) {
+    log::error!("Received exception signal {}", signum);
     // 128 + signum is the convention set by bash.
     let signum_code: c_int = signum.saturating_add(0x80);
 

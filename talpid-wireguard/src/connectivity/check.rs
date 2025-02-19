@@ -3,6 +3,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::broadcast;
+use tokio::task::yield_now;
 use tokio::time::Instant;
 
 use super::constants::*;
@@ -184,7 +185,7 @@ impl Check {
                 {
                     return Ok(true);
                 }
-                tokio::time::sleep(Duration::from_millis(20)).await;
+                yield_now().await;
             }
         };
 

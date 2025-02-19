@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
@@ -51,9 +52,9 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
                 .stateIn(scope, SharingStarted.Eagerly, null)
 
         _isConnected =
-            hasInternetCapability()
+            emptyFlow<Boolean>()
                 .onEach { notifyConnectivityChange(it) }
-                .stateIn(scope, SharingStarted.Eagerly, false)
+                .stateIn(scope, SharingStarted.Eagerly, true)
     }
 
     private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =

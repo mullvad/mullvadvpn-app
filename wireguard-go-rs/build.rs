@@ -477,7 +477,7 @@ fn build_android_dynamic_lib(out_dir: &str) -> anyhow::Result<()> {
         .env("ANDROID_ARCH_NAME", android_arch_name(target))
         .env("GOPATH", &go_path)
         // Note: -w -s results in a stripped binary
-        .env("LDFLAGS", format!("-L{out_dir} -w -s"))
+        .env("LDFLAGS", format!("-L{out_dir}"))
         // Note: the build container overrides CARGO_TARGET_DIR, which will cause problems
         // since we will spawn another cargo process as part of building maybenot (which we
         // link into libwg). A work around is to simply override the overridden value, and we
