@@ -98,6 +98,11 @@ jobs:
           clean: true
           ref: ${{ env.COMMIT_HASH }}
 
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init ios/wireguard-apple
+
       - name: Configure Rust
         run: rustup target add aarch64-apple-ios
 
