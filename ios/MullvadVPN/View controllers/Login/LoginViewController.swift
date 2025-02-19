@@ -87,10 +87,6 @@ class LoginViewController: UIViewController, RootContainment {
         contentView.accountInputGroup.satisfiesMinimumTokenLengthRequirement
     }
 
-    var prefersNotificationBarHidden: Bool {
-        true
-    }
-
     var prefersDeviceInfoBarHidden: Bool {
         true
     }
