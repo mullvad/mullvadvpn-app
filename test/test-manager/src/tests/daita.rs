@@ -3,8 +3,8 @@ use futures::StreamExt;
 use mullvad_management_interface::{client::DaemonEvent, MullvadProxyClient};
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
-    relay_constraints::GeographicLocationConstraint, relay_list::RelayEndpointData,
-    states::TunnelState,
+    constraints::Constraint, relay_constraints::GeographicLocationConstraint,
+    relay_list::RelayEndpointData, states::TunnelState,
 };
 use talpid_types::{net::TunnelEndpoint, tunnel::ErrorStateCause};
 use test_macro::test_function;
@@ -29,13 +29,11 @@ pub async fn test_daita(
     _rpc: ServiceClient,
     mut mullvad_client: MullvadProxyClient,
 ) -> anyhow::Result<()> {
-    let relay_list = mullvad_client.get_relay_locations().await?;
-    let wg_relays = relay_list
-        .relays()
-        .flat_map(|relay| match &relay.endpoint_data {
-            RelayEndpointData::Wireguard(wireguard) => Some((relay, wireguard)),
-            _ => None,
-        });
+    let relays = helpers::get_all_pickable_relays(&mut mullvad_client).await?;
+    let wg_relays = relays.iter().flat_map(|relay| match &relay.endpoint_data {
+        RelayEndpointData::Wireguard(wireguard) => Some((relay, wireguard)),
+        _ => None,
+    });
 
     // Select two relays to use for the test, one with DAITA and one without.
     let daita_relay = wg_relays
@@ -62,38 +60,24 @@ pub async fn test_daita(
     );
     log::info!("Selected non-daita relay: {}", non_daita_relay.hostname);
 
-    let non_daita_location_query = RelayQueryBuilder::new()
-        .wireguard()
-        .location(non_daita_relay_location.clone())
-        .build();
-
-    let daita_location_query = RelayQueryBuilder::new()
-        .wireguard()
-        .location(daita_relay_location.clone())
-        .build();
-
-    let daita_to_non_daita_multihop_query = RelayQueryBuilder::new()
-        .wireguard()
-        .multihop()
-        .entry(daita_relay_location.clone())
-        .location(non_daita_relay_location.clone())
-        .build();
-
-    let non_daita_multihop_query = RelayQueryBuilder::new()
-        .wireguard()
-        .multihop()
-        .entry(non_daita_relay_location.clone())
-        .build();
+    log::info!("Setting wireguard and DAITA");
+    let wireguard_query = RelayQueryBuilder::new().wireguard().build();
+    helpers::apply_settings_from_relay_query(&mut mullvad_client, wireguard_query.clone()).await?;
+    mullvad_client.set_enable_daita(true).await?;
 
     let mut events = mullvad_client
         .events_listen()
         .await?
         .inspect(|event| log::debug!("New daemon event: {event:?}"));
 
-    log::info!("Connecting to non-daita relay with DAITA by automatically using multihop");
+    log::info!("Connecting to non-daita relay with DAITA should automatically use multihop");
     {
-        helpers::set_relay_settings(&mut mullvad_client, non_daita_location_query.clone()).await?;
-        mullvad_client.set_enable_daita(true).await?;
+        helpers::update_relay_constraints(&mut mullvad_client, |constraint| {
+            constraint.location = Constraint::Only(non_daita_relay_location.clone().into());
+        })
+        .await?;
+        mullvad_client.set_daita_direct_only(false).await?;
+
         mullvad_client.connect_tunnel().await?;
         let state = wait_for_daemon_reconnect(&mut events)
             .await
@@ -106,8 +90,12 @@ pub async fn test_daita(
         log::info!("Successfully multihopped with 'direct only' disabled");
     }
 
-    log::info!("Connecting to non-daita relay with 'DAITA: direct only'");
+    log::info!("Connecting to non-daita relay with 'direct_only' shoud fail");
     {
+        helpers::update_relay_constraints(&mut mullvad_client, |constraint| {
+            constraint.location = Constraint::Only(non_daita_relay_location.clone().into());
+        })
+        .await?;
         mullvad_client.set_daita_direct_only(true).await?;
 
         let result = wait_for_daemon_reconnect(&mut events).await;
@@ -121,9 +109,13 @@ pub async fn test_daita(
         log::info!("Failed to connect, this is expected!");
     }
 
-    log::info!("Connecting to daita relay with 'direct_only' disabled");
+    log::info!("Connecting to daita relay with 'direct_only' should not use multihop");
     {
-        helpers::set_relay_settings(&mut mullvad_client, daita_location_query).await?;
+        helpers::update_relay_constraints(&mut mullvad_client, |constraint| {
+            constraint.location = Constraint::Only(daita_relay_location.clone().into());
+        })
+        .await?;
+        mullvad_client.set_daita_direct_only(true).await?;
 
         let state = wait_for_daemon_reconnect(&mut events)
             .await
@@ -139,9 +131,17 @@ pub async fn test_daita(
         log::info!("Successfully singlehopped with 'direct_only' disabled");
     }
 
-    log::info!("Connecting to daita relay with multihop");
+    log::info!("Connecting to a daita relay as entry for multihop and `direct_only` should work");
     {
-        helpers::set_relay_settings(&mut mullvad_client, daita_to_non_daita_multihop_query).await?;
+        helpers::update_relay_constraints(&mut mullvad_client, |constraint| {
+            constraint.location = Constraint::Only(non_daita_relay_location.clone().into());
+            constraint.wireguard_constraints.entry_location =
+                Constraint::Only(daita_relay_location.clone().into());
+            constraint.wireguard_constraints.use_multihop = true;
+        })
+        .await?;
+        mullvad_client.set_daita_direct_only(true).await?;
+
         let state = wait_for_daemon_reconnect(&mut events)
             .await
             .context("Failed to connect via daita location with multihop enabled")?;
@@ -153,9 +153,19 @@ pub async fn test_daita(
         log::info!("Successfully connected with multihop");
     }
 
-    log::info!("Connecting to non_daita relay with multihop");
+    log::info!(
+        "Connecting to a non daita relay as entry for multihop and `direct_only` should fail"
+    );
     {
-        helpers::set_relay_settings(&mut mullvad_client, non_daita_multihop_query).await?;
+        helpers::update_relay_constraints(&mut mullvad_client, |constraint| {
+            constraint.location = Constraint::Only(daita_relay_location.clone().into());
+            constraint.wireguard_constraints.entry_location =
+                Constraint::Only(non_daita_relay_location.into());
+            constraint.wireguard_constraints.use_multihop = true;
+        })
+        .await?;
+        mullvad_client.set_daita_direct_only(true).await?;
+
         let result = wait_for_daemon_reconnect(&mut events).await;
         let Err(Error::UnexpectedErrorState(state)) = result else {
             bail!("Connection failed unsuccessfully, reason: {:?}", result);
