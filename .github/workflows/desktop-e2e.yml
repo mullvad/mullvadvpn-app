@@ -171,7 +171,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mullvad-version-linux
-          path: ./bin/mullvad-version
+          path: ${{ env.CARGO_TARGET_DIR }}/release/mullvad-version
           if-no-files-found: error
 
   build-test-manager-linux:
