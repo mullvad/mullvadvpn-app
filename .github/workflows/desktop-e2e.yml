@@ -123,6 +123,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           submodules: true
+          set-safe-directory: "*"
       - uses: actions/cache@v4
         id: cache-app-cargo-artifacts
         with:
