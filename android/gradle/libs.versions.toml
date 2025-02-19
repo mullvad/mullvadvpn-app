@@ -41,6 +41,7 @@ koin = "4.0.2"
 koin-compose = "4.0.2"
 
 # Ktor
+# Bumping to 3.1.0 causes and AbstractMethodError in the serialization logic (DROID-1817).
 ktor = "3.0.3"
 
 # Kotlin
