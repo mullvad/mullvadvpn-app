@@ -27,6 +27,9 @@ Line wrap the file at 100 chars.                                              Th
 - Add support for DAITA V2.
 - Add back wireguard-go (userspace WireGuard) support.
 
+### Removed
+- Stop bundling https://github.com/mullvad/apisocks5 as a standalone binary.
+
 
 ## [2025.4] - 2025-02-12
 This release is identical to 2025.4-beta1
