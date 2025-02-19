@@ -72,7 +72,6 @@ pub enum Error {
     #[error("GUI test binary missing")]
     MissingGuiTest,
 
-    #[cfg(target_os = "macos")]
     #[error("An error occurred: {0}")]
     Other(String),
 }
