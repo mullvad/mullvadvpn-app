@@ -62,12 +62,17 @@ pub struct Release {
     pub installers: Vec<Installer>,
     /// Fraction of users that should receive the new version
     #[serde(default = "default_rollout")]
+    #[serde(skip_serializing_if = "is_default_rollout")]
     pub rollout: f32,
 }
 
 /// By default, rollout includes all users
 fn default_rollout() -> f32 {
     1.
+}
+
+fn is_default_rollout(b: impl std::borrow::Borrow<f32>) -> bool {
+    (b.borrow() - default_rollout()).abs() < f32::EPSILON
 }
 
 /// App installer
@@ -98,4 +103,50 @@ pub enum Architecture {
 pub struct ResponseSignature {
     pub keyid: key::VerifyingKey,
     pub sig: key::Signature,
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_default_rollout_serialize() {
+        // rollout should not be serialized if equal to default value
+        let serialized = serde_json::to_value(Release {
+            version: "2024.1".parse().unwrap(),
+            changelog: "".to_owned(),
+            installers: vec![],
+            rollout: default_rollout(),
+        })
+        .unwrap();
+
+        assert_eq!(
+            serialized,
+            serde_json::json!({
+                "version": "2024.1",
+                "changelog": "",
+                "installers": [],
+            })
+        );
+
+        // rollout *should* be serialized if not equal to default value
+        let rollout = 0.99;
+        let serialized = serde_json::to_value(Release {
+            version: "2024.1".parse().unwrap(),
+            changelog: "".to_owned(),
+            installers: vec![],
+            rollout,
+        })
+        .unwrap();
+
+        assert_eq!(
+            serialized,
+            serde_json::json!({
+                "version": "2024.1",
+                "changelog": "",
+                "installers": [],
+                "rollout": rollout,
+            })
+        );
+    }
 }
