@@ -1,14 +1,11 @@
 use super::{
     config::TEST_CONFIG,
-    helpers::{
-        self, apply_settings_from_relay_query, connect_and_wait, disconnect_and_wait,
-        set_relay_settings,
-    },
+    helpers::{self, apply_settings_from_relay_query, connect_and_wait, disconnect_and_wait},
     Error, TestContext,
 };
 use crate::{
     network_monitor::{start_packet_monitor, MonitorOptions},
-    tests::helpers::login_with_retries,
+    tests::helpers::{login_with_retries, update_relay_constraints},
 };
 
 use anyhow::Context;
@@ -17,8 +14,7 @@ use mullvad_relay_selector::query::builder::RelayQueryBuilder;
 use mullvad_types::{
     constraints::Constraint,
     relay_constraints::{
-        self, BridgeConstraints, BridgeSettings, BridgeType, OpenVpnConstraints, RelayConstraints,
-        RelaySettings, TransportPort,
+        self, BridgeConstraints, BridgeSettings, BridgeType, OpenVpnConstraints, TransportPort,
     },
     wireguard,
 };
@@ -63,15 +59,12 @@ pub async fn test_openvpn_tunnel(
     for (protocol, constraint) in CONSTRAINTS {
         log::info!("Connect to {protocol} OpenVPN endpoint");
 
-        let relay_settings = RelaySettings::Normal(RelayConstraints {
-            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
-            openvpn_constraints: OpenVpnConstraints { port: constraint },
-            ..Default::default()
-        });
-
-        set_relay_settings(&mut mullvad_client, relay_settings)
-            .await
-            .expect("failed to update relay settings");
+        update_relay_constraints(&mut mullvad_client, |relay_constraints| {
+            relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+            relay_constraints.openvpn_constraints = OpenVpnConstraints { port: constraint };
+        })
+        .await
+        .expect("failed to update relay constraints");
 
         connect_and_wait(&mut mullvad_client).await?;
 
@@ -353,15 +346,11 @@ pub async fn test_wireguard_autoconnect(
     mut mullvad_client: MullvadProxyClient,
 ) -> Result<(), Error> {
     log::info!("Setting tunnel protocol to WireGuard");
-
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::Wireguard),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    update_relay_constraints(&mut mullvad_client, |relay_constraints| {
+        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
+    })
+    .await
+    .expect("failed to update relay constraints");
 
     mullvad_client
         .set_auto_connect(true)
@@ -396,14 +385,11 @@ pub async fn test_openvpn_autoconnect(
 ) -> Result<(), Error> {
     log::info!("Setting tunnel protocol to OpenVPN");
 
-    let relay_settings = RelaySettings::Normal(RelayConstraints {
-        tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
-        ..Default::default()
-    });
-
-    set_relay_settings(&mut mullvad_client, relay_settings)
-        .await
-        .expect("failed to update relay settings");
+    update_relay_constraints(&mut mullvad_client, |relay_constraints| {
+        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+    })
+    .await
+    .expect("failed to update relay constraints");
 
     mullvad_client
         .set_auto_connect(true)
@@ -596,15 +582,11 @@ pub async fn test_remote_socks_bridge(
         .await
         .expect("failed to update bridge settings");
 
-    set_relay_settings(
-        &mut mullvad_client,
-        RelaySettings::Normal(RelayConstraints {
-            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
-            ..Default::default()
-        }),
-    )
+    update_relay_constraints(&mut mullvad_client, |relay_constraints| {
+        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+    })
     .await
-    .expect("failed to update relay settings");
+    .expect("failed to update relay constraints");
 
     // Connect to VPN
     //
@@ -694,15 +676,11 @@ pub async fn test_local_socks_bridge(
         .await
         .expect("failed to update bridge settings");
 
-    set_relay_settings(
-        &mut mullvad_client,
-        RelaySettings::Normal(RelayConstraints {
-            tunnel_protocol: Constraint::Only(TunnelType::OpenVpn),
-            ..Default::default()
-        }),
-    )
+    update_relay_constraints(&mut mullvad_client, |relay_constraints| {
+        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+    })
     .await
-    .expect("failed to update relay settings");
+    .expect("failed to update relay constraints");
 
     // Connect to VPN
     //
