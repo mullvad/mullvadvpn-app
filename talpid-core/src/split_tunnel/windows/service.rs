@@ -4,6 +4,7 @@ use std::{
     path::Path,
     time::Duration,
 };
+use talpid_types::ErrorExt;
 use windows_service::{
     service::{
         Service, ServiceAccess, ServiceErrorControl, ServiceInfo, ServiceStartType, ServiceState,
@@ -41,9 +42,9 @@ pub enum Error {
     #[error("Failed to install split tunnel driver")]
     InstallService(#[source] windows_service::Error),
 
-    /// Failed to start ST service
-    #[error("Timed out waiting on service to start")]
-    StartTimeout,
+    /// Failed to wait for ST service status
+    #[error("Timed out waiting on service status")]
+    StatusTimeout,
 
     /// Failed to connect to existing driver
     #[error("Failed to open service handle")]
@@ -78,7 +79,21 @@ pub fn install_driver_if_required(resource_dir: &Path) -> Result<(), Error> {
         }
     };
 
-    start_and_wait_for_service(&service)
+    if let Err(error) = start_and_wait_for_service(&service) {
+        log::error!(
+            "{}",
+            error.display_chain_with_msg("Failed to start driver service. Attempting reinstall")
+        );
+
+        let _ = reset_driver(&service);
+        stop_service(&service)?;
+        let _ = service.delete();
+        drop(service);
+
+        return install_driver(&scm, &expected_syspath);
+    }
+
+    Ok(())
 }
 
 pub fn stop_driver_service() -> Result<(), Error> {
@@ -105,6 +120,16 @@ pub fn stop_driver_service() -> Result<(), Error> {
 fn stop_service(service: &Service) -> Result<(), Error> {
     let _ = service.stop();
     wait_for_status(service, ServiceState::Stopped)
+}
+
+fn reset_driver(service: &Service) -> Result<(), Error> {
+    let status = service.query_status().map_err(Error::QueryServiceStatus)?;
+    if status.current_state == ServiceState::Running {
+        let old_handle =
+            super::driver::DeviceHandle::new_handle_only().map_err(Error::OpenHandle)?;
+        old_handle.reset().map_err(Error::ResetDriver)?;
+    }
+    Ok(())
 }
 
 fn install_driver(scm: &ServiceManager, syspath: &Path) -> Result<(), Error> {
@@ -158,7 +183,7 @@ fn wait_for_status(service: &Service, target_state: ServiceState) -> Result<(), 
         }
 
         if initial_time.elapsed() >= WAIT_STATUS_TIMEOUT {
-            return Err(Error::StartTimeout);
+            return Err(Error::StatusTimeout);
         }
 
         std::thread::sleep(std::time::Duration::from_secs(1));
