@@ -56,7 +56,7 @@ class TunnelViewController: UIViewController, RootContainment {
     var prefersHeaderBarHidden: Bool {
         false
     }
-    
+
     var prefersNotificationBarHidden: Bool {
         false
     }
