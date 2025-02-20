@@ -34,6 +34,9 @@ class TalpidVpnServiceFallbackDnsTest {
         every { talpidVpnService.prepareVpnSafe() } returns Prepared.right()
         builderMockk = mockk<VpnService.Builder>()
 
+        every { talpidVpnService getProperty "connectivityListener" } returns
+            mockk<ConnectivityListener>(relaxed = true)
+
         mockkConstructor(VpnService.Builder::class)
         every { anyConstructed<VpnService.Builder>().setMtu(any()) } returns builderMockk
         every { anyConstructed<VpnService.Builder>().setBlocking(any()) } returns builderMockk

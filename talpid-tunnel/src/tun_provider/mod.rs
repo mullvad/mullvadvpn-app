@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+use crate::tun_provider::imp::VpnServiceConfig;
 use cfg_if::cfg_if;
 use ipnetwork::IpNetwork;
 use std::{
@@ -72,6 +74,16 @@ impl TunConfig {
             servers.push(gateway.into());
         }
         servers
+    }
+
+    /// Routes to configure for the tunnel.
+    #[cfg(target_os = "android")]
+    pub fn real_routes(&self) -> Vec<IpNetwork> {
+        VpnServiceConfig::new(self.clone())
+            .routes
+            .iter()
+            .map(IpNetwork::from)
+            .collect()
     }
 }
 
