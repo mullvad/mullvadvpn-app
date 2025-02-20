@@ -134,7 +134,7 @@ pub async fn reboot(rpc: &mut ServiceClient) -> Result<(), Error> {
     #[cfg(target_os = "macos")]
     crate::vm::network::macos::configure_tunnel()
         .await
-        .map_err(|error| Error::Other(format!("Failed to recreate custom wg tun: {error}")))?;
+        .context("Failed to recreate custom wg tun: {error}")?;
 
     Ok(())
 }
@@ -602,15 +602,13 @@ impl<T> Drop for AbortOnDrop<T> {
 pub async fn apply_settings_from_relay_query(
     mullvad_client: &mut MullvadProxyClient,
     query: RelayQuery,
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     // To prevent overwriting default custom list location constraint, we make an intersection with
     // a query containing only the current location constraint
-    let intersected_relay_query = intersect_with_current_location(mullvad_client, query)
+    let intersected_relay_query = intersect_with_current_location(mullvad_client, query.clone())
         .await
-        .map_err(|error| {
-            Error::Other(format!(
-                "Failed to join query with current daemon settings: {error}"
-            ))
+        .with_context(|| {
+            format!("Failed to join query with current daemon settings. Query: {query:#?}")
         })?;
     let (constraints, bridge_state, bridge_settings, obfuscation) =
         intersected_relay_query.into_settings();
@@ -618,19 +616,20 @@ pub async fn apply_settings_from_relay_query(
     mullvad_client
         .set_relay_settings(constraints.into())
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
+        .context("Failed to set daemon settings")?;
     mullvad_client
         .set_bridge_state(bridge_state)
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set bridge state: {}", error)))?;
+        .context("Failed to set bridge state")?;
     mullvad_client
         .set_bridge_settings(bridge_settings)
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set bridge settings: {}", error)))?;
+        .context("Failed to set bridge settings")?;
     mullvad_client
         .set_obfuscation_settings(obfuscation)
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set obfuscation settings: {}", error)))
+        .context("Failed to set obfuscation settings")?;
+    Ok(())
 }
 
 pub async fn set_custom_endpoint(
@@ -646,18 +645,19 @@ pub async fn set_custom_endpoint(
 pub async fn update_relay_constraints(
     mullvad_client: &mut MullvadProxyClient,
     fn_mut: impl FnOnce(&mut RelayConstraints),
-) -> Result<(), Error> {
+) -> anyhow::Result<()> {
     let settings = mullvad_client
         .get_settings()
         .await
-        .map_err(|error| Error::Daemon(format!("Failed to set relay settings: {}", error)))?;
+        .context("Failed to get setting from daemon")?;
     let RelaySettings::Normal(mut relay_constraints) = settings.relay_settings else {
-        unimplemented!("Mutating custom endpoint not supported");
+        bail!("Mutating custom endpoint not supported");
     };
     fn_mut(&mut relay_constraints);
     mullvad_client
         .set_relay_settings(RelaySettings::Normal(relay_constraints))
-        .await?;
+        .await
+        .context("Failed to set relay settings")?;
     Ok(())
 }
 
@@ -792,9 +792,7 @@ async fn get_query_from_current_settings(
         .get_settings()
         .await
         .context("Failed to get settings")?;
-    let current_query =
-        RelayQuery::try_from(settings).context("Failed to convert settings to relay query")?;
-    Ok(current_query)
+    RelayQuery::try_from(settings).context("Failed to convert settings to relay query")
 }
 
 pub async fn get_all_pickable_relays(
