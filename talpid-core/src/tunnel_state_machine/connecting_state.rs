@@ -29,8 +29,6 @@ use crate::tunnel::{self, TunnelMonitor};
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
-#[cfg(target_os = "android")]
-const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 #[cfg(target_os = "windows")]
 const MAX_ATTEMPT_CREATE_TUN: u32 = 4;
@@ -114,20 +112,11 @@ impl ConnectingState {
                         ErrorStateCause::SetFirewallPolicyError(error),
                     )
                 } else {
+                    // This is magically shimmed in on the side on Android to prep the TunConfig
+                    // with the right DNS servers. On Android DNS is part of creating the VPN
+                    // interface and this call should be part of start_tunnel call instead
                     #[cfg(target_os = "android")]
-                    {
-                        shared_values.prepare_tun_config(false);
-                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
-                            if let Err(error) =
-                                { shared_values.tun_provider.lock().unwrap().open_tun_forced() }
-                            {
-                                log::error!(
-                                    "{}",
-                                    error.display_chain_with_msg("Failed to recreate tun device")
-                                );
-                            }
-                        }
-                    }
+                    shared_values.prepare_tun_config(false);
 
                     let connecting_state = Self::start_tunnel(
                         shared_values.runtime.clone(),
