@@ -44,10 +44,6 @@ class OutOfTimeViewController: UIViewController, RootContainment {
         false
     }
 
-    var prefersNotificationBarHidden: Bool {
-        true
-    }
-
     init(interactor: OutOfTimeInteractor, errorPresenter: PaymentAlertPresenter) {
         self.interactor = interactor
 

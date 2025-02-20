@@ -53,7 +53,7 @@ protocol RootContainment: Sendable {
 
 extension RootContainment {
     var prefersNotificationBarHidden: Bool {
-        false
+        true
     }
 
     var prefersDeviceInfoBarHidden: Bool {

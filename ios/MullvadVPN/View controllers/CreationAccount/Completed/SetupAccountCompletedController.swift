@@ -32,10 +32,6 @@ class SetupAccountCompletedController: UIViewController, RootContainment {
         true
     }
 
-    var prefersNotificationBarHidden: Bool {
-        true
-    }
-
     weak var delegate: SetupAccountCompletedControllerDelegate?
 
     override func viewDidLoad() {

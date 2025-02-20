@@ -57,6 +57,10 @@ class TunnelViewController: UIViewController, RootContainment {
         false
     }
 
+    var prefersNotificationBarHidden: Bool {
+        false
+    }
+
     init(interactor: TunnelViewControllerInteractor) {
         self.interactor = interactor
 

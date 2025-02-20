@@ -35,10 +35,6 @@ class WelcomeViewController: UIViewController, RootContainment {
         false
     }
 
-    var prefersNotificationBarHidden: Bool {
-        true
-    }
-
     var prefersDeviceInfoBarHidden: Bool {
         true
     }
