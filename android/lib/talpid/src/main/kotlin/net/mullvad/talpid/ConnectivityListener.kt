@@ -30,6 +30,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
         get() = _isConnected.value
 
     private lateinit var _currentNetworkState: StateFlow<NetworkState?>
+    private val resetNetworkState: Channel<Unit> = Channel()
 
     // Used by JNI
     val currentDefaultNetworkState: NetworkState?
@@ -44,8 +45,10 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
         // the default network may fail if the network on Android 11
         // https://issuetracker.google.com/issues/175055271?pli=1
         _currentNetworkState =
-            connectivityManager
-                .defaultRawNetworkStateFlow()
+            merge(
+                    connectivityManager.defaultRawNetworkStateFlow(),
+                    resetNetworkState.receiveAsFlow().map { null },
+                )
                 .map { it?.toNetworkState() }
                 .onEach { notifyDefaultNetworkChange(it) }
                 .stateIn(scope, SharingStarted.Eagerly, null)
@@ -54,6 +57,14 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
             hasInternetCapability()
                 .onEach { notifyConnectivityChange(it) }
                 .stateIn(scope, SharingStarted.Eagerly, false)
+
+    /**
+     * Invalidates the network state cache. E.g when the VPN is connected or disconnected, and we
+     * know the last known values not to be correct anymore.
+     */
+    fun invalidateNetworkStateCache() {
+        // TODO remove runBlocking
+        runBlocking { resetNetworkState.send(Unit) }
     }
 
     private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
