@@ -250,8 +250,7 @@ impl RouteManagerHandle {
         Ok(())
     }
 
-    /// xD
-    /// 
+    /// (Android) Clear the cached routes
     #[cfg(target_os = "android")]
     pub async fn clear_android_routes(&self) -> Result<(), Error> {
         let (result_tx, result_rx) = oneshot::channel();
