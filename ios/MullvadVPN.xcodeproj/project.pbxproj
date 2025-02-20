@@ -753,6 +753,7 @@
 		A94D691B2ABAD66700413DD4 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 58FE25E72AA7399D003D1918 /* WireGuardKitTypes */; };
 		A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */; };
 		A95EEE382B722DFC00A8A39B /* PingStats.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95EEE372B722DFC00A8A39B /* PingStats.swift */; };
+		A96D0B432D671A4E00DD6C59 /* TunnelMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96D0B422D671A4E00DD6C59 /* TunnelMonitor.swift */; };
 		A970C89D2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */; };
 		A97275562CE36CAE00029F15 /* DaitaV2Parameters.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */; };
 		A97D25AE2B0BB18100946B2D /* ProtocolObfuscator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */; };
@@ -2159,6 +2160,7 @@
 		A948809A2BC9308D0090A44C /* EphemeralPeerExchangeActor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EphemeralPeerExchangeActor.swift; sourceTree = "<group>"; };
 		A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitorState.swift; sourceTree = "<group>"; };
 		A95EEE372B722DFC00A8A39B /* PingStats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PingStats.swift; sourceTree = "<group>"; };
+		A96D0B422D671A4E00DD6C59 /* TunnelMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelMonitor.swift; sourceTree = "<group>"; };
 		A970C89C2B29E38C000A7684 /* Socks5UsernamePasswordCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Socks5UsernamePasswordCommand.swift; sourceTree = "<group>"; };
 		A97275552CE36CAE00029F15 /* DaitaV2Parameters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DaitaV2Parameters.swift; sourceTree = "<group>"; };
 		A97D25AD2B0BB18100946B2D /* ProtocolObfuscator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProtocolObfuscator.swift; sourceTree = "<group>"; };
@@ -3871,11 +3873,11 @@
 				58225D252A84E8A10083D7F1 /* DefaultPathObserverProtocol.swift */,
 				A95EEE372B722DFC00A8A39B /* PingStats.swift */,
 				582403162A821FD700163DE8 /* TunnelDeviceInfoProtocol.swift */,
+				A96D0B422D671A4E00DD6C59 /* TunnelMonitor.swift */,
 				58C7A42C2A85067A0060C66F /* TunnelMonitorProtocol.swift */,
 				A95EEE352B722CD600A8A39B /* TunnelMonitorState.swift */,
 				7A6B4F582AB8412E00123853 /* TunnelMonitorTimings.swift */,
 				58A3BDAF28A1821A00C8C2C6 /* WgStats.swift */,
-				A93A0BED2D4CEA7B001C9246 /* TunnelMonitor.swift */,
 			);
 			path = TunnelMonitor;
 			sourceTree = "<group>";
@@ -5836,6 +5838,7 @@
 				587A5E522ADD7569003A70F1 /* ObservedState+Extensions.swift in Sources */,
 				58FE25E62AA738E8003D1918 /* TunnelAdapterProtocol.swift in Sources */,
 				44DF8AC42BF20BD200869CA4 /* PacketTunnelActor+PostQuantum.swift in Sources */,
+				A96D0B432D671A4E00DD6C59 /* TunnelMonitor.swift in Sources */,
 				583832252AC318A100EA2071 /* PacketTunnelActor+ConnectionMonitoring.swift in Sources */,
 				F05919752C45194B00C301F3 /* EphemeralPeerKey.swift in Sources */,
 				58C7AF182ABD84AB007EDD7A /* ProxyURLResponse.swift in Sources */,
@@ -5852,7 +5855,6 @@
 				44B3C43A2BFE2C800079782C /* PacketTunnelActorReducer.swift in Sources */,
 				7A6B4F592AB8412E00123853 /* TunnelMonitorTimings.swift in Sources */,
 				A95EEE362B722CD600A8A39B /* TunnelMonitorState.swift in Sources */,
-				A93A0BEE2D4CEA7B001C9246 /* TunnelMonitor.swift in Sources */,
 				58FE25DB2AA72A8F003D1918 /* StartOptions.swift in Sources */,
 				A97D25AE2B0BB18100946B2D /* ProtocolObfuscator.swift in Sources */,
 				583832212AC3174700EA2071 /* PacketTunnelActor+NetworkReachability.swift in Sources */,
