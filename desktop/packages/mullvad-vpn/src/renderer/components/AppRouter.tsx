@@ -39,6 +39,7 @@ import TransitionContainer, { TransitionView } from './TransitionContainer';
 import UdpOverTcp from './UdpOverTcp';
 import UserInterfaceSettings from './UserInterfaceSettings';
 import { AppInfoView, ChangelogView } from './views';
+import { DownloadUpdateView } from './views/download-update';
 import VpnSettings from './VpnSettings';
 import WireguardSettings from './WireguardSettings';
 
@@ -106,6 +107,7 @@ export default function AppRouter() {
             <Route exact path={RoutePath.filter} component={Filter} />
             <Route exact path={RoutePath.appInfo} component={AppInfoView} />
             <Route exact path={RoutePath.changelog} component={ChangelogView} />
+            <Route exact path={RoutePath.downloadUpdate} component={DownloadUpdateView} />
           </Switch>
         </TransitionView>
       </TransitionContainer>
