@@ -34,7 +34,7 @@ extension REST {
     // swiftlint:disable:next force_try
     public static let apiContext = try! MullvadApiContext(
         host: defaultAPIHostname,
-        address: defaultAPIEndpoint.description
+        address: defaultAPIEndpoint
     )
 }
 

@@ -9,13 +9,17 @@
 import MullvadTypes
 
 public struct MullvadApiContext: Sendable {
+    enum MullvadApiContextError: Error {
+        case failedToConstructApiClient
+    }
+
     public let context: SwiftApiContext
 
-    public init(host: String, address: String) throws {
-        context = mullvad_api_init_new(host, address)
+    public init(host: String, address: AnyIPEndpoint) throws {
+        context = mullvad_api_init_new(host, address.description)
 
         if context._0 == nil {
-            throw NSError(domain: "", code: 0)
+            throw MullvadApiContextError.failedToConstructApiClient
         }
     }
 }
