@@ -351,7 +351,6 @@ impl WgGoTunnel {
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
     ) -> Result<(Tun, RawFd, bool)> {
-        log::debug!("WgGoTunnel get_tunnel");
         let mut tun_provider = tun_provider.lock().unwrap();
         let mut last_error = None;
         let tun_config = tun_provider.config_mut();
@@ -438,8 +437,6 @@ impl WgGoTunnel {
 
         let (mut tunnel_device, tunnel_fd, is_new_tunnel) =
             Self::get_tunnel(Arc::clone(&tun_provider), config)?;
-
-        log::debug!("DEBUG: get_tunnel");
 
         let interface_name: String = tunnel_device
             .interface_name()

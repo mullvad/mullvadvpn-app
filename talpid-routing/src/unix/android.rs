@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-use std::ops::{ControlFlow};
+use std::ops::ControlFlow;
 use std::sync::Mutex;
 
 use futures::channel::mpsc::{self, UnboundedReceiver, UnboundedSender};

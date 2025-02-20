@@ -118,7 +118,7 @@ impl ConnectingState {
                     // interface and this call should be part of start_tunnel call instead
                     #[cfg(target_os = "android")]
                     shared_values.prepare_tun_config(false);
-                    
+
                     let connecting_state = Self::start_tunnel(
                         shared_values.runtime.clone(),
                         tunnel_parameters,

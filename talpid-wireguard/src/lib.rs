@@ -810,14 +810,12 @@ impl WireguardMonitor {
             Err(_) => Ok(()),
         };
 
-        log::debug!("Wait result : {:?}", wait_result);
         self.pinger_stop_sender.close();
 
         self.runtime
             .block_on(self.event_hook.on_event(TunnelEvent::Down));
 
         self.stop_tunnel();
-
         wait_result
     }
 
