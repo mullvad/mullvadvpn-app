@@ -34,7 +34,7 @@ impl SignedResponse {
         let response: Response = serde_json::from_value(partial_signed.signed)?;
 
         Ok(SignedResponse {
-            signature: partial_signed.signature,
+            signatures: partial_signed.signatures,
             signed: response,
         })
     }
@@ -58,10 +58,10 @@ fn sign<T: Serialize>(
 
     // Attach signature
     Ok(PartialSignedResponse {
-        signature: ResponseSignature {
+        signatures: vec![ResponseSignature::Ed25519 {
             keyid: key.pubkey(),
             sig,
-        },
+        }],
         // Attach now-signed data
         signed,
     })
