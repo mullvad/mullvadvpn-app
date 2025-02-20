@@ -23,8 +23,8 @@ pub mod serializer;
 /// signature verification.
 #[derive(Debug, Serialize)]
 pub struct SignedResponse {
-    /// Signature of the canonicalized JSON of `signed`
-    pub signature: ResponseSignature,
+    /// Signatures of the canonicalized JSON of `signed`
+    pub signatures: Vec<ResponseSignature>,
     /// Content signed by `signature`
     pub signed: Response,
 }
@@ -33,8 +33,8 @@ pub struct SignedResponse {
 /// Note that deserializing doesn't verify anything
 #[derive(Deserialize, Serialize)]
 struct PartialSignedResponse {
-    /// Signature of the canonicalized JSON of `signed`
-    pub signature: ResponseSignature,
+    /// Signatures of the canonicalized JSON of `signed`
+    pub signatures: Vec<ResponseSignature>,
     /// Content signed by `signature`
     pub signed: serde_json::Value,
 }
@@ -102,9 +102,15 @@ pub enum Architecture {
 
 /// JSON response signature
 #[derive(Debug, Deserialize, Serialize)]
-pub struct ResponseSignature {
-    pub keyid: key::VerifyingKey,
-    pub sig: key::Signature,
+#[serde(tag = "keytype")]
+#[serde(rename_all = "lowercase")]
+pub enum ResponseSignature {
+    Ed25519 {
+        keyid: key::VerifyingKey,
+        sig: key::Signature,
+    },
+    #[serde(untagged)]
+    Other { keyid: String, sig: String },
 }
 
 #[cfg(test)]
