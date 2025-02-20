@@ -52,6 +52,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var ipOverrideRepository = IPOverrideRepository()
     private var launchArguments = LaunchArguments()
     private var encryptedDNSTransport: EncryptedDNSTransport!
+    var apiContext: MullvadApiContext!
 
     // MARK: - Application lifecycle
 
@@ -99,6 +100,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
             shadowsocksLoader: shadowsocksLoader
         )
 
+        apiContext = try! MullvadApiContext(
+            host: REST.defaultAPIHostname,
+            address: REST.defaultAPIEndpoint.description,
+            provider: transportStrategy.opaqueConnectionModeProvider
+        )
         setUpProxies(containerURL: containerURL)
         let backgroundTaskProvider = BackgroundTaskProvider(
             backgroundTimeRemaining: application.backgroundTimeRemaining,
@@ -191,7 +197,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     return self?.transportMonitor.makeTransport()
                 },
                 addressCache: addressCache,
-                apiContext: REST.apiContext
+                apiContext: apiContext
             )
         } else {
             proxyFactory = REST.ProxyFactory.makeProxyFactory(
@@ -199,7 +205,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
                     return self?.transportMonitor.makeTransport()
                 },
                 addressCache: addressCache,
-                apiContext: REST.apiContext
+                apiContext: apiContext
             )
         }
         apiProxy = proxyFactory.createAPIProxy()

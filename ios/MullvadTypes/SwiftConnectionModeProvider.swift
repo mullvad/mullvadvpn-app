@@ -8,16 +8,16 @@
 
 import Foundation
 
-public protocol SwiftConnectionModeProviding {
+public protocol SwiftConnectionModeProviding: Sendable {
     func initial()
     func pickMethod()
     func rotate()
 }
 
-public class SwiftConnectionModeProvider: SwiftConnectionModeProviding {
+public final class SwiftConnectionModeProviderProxy: SwiftConnectionModeProviding, Sendable {
     let provider: SwiftConnectionModeProviding
 
-    init(provider: SwiftConnectionModeProviding) {
+    public init(provider: SwiftConnectionModeProviding) {
         self.provider = provider
     }
 

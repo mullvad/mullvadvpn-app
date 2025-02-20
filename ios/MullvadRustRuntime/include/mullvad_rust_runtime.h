@@ -26,9 +26,15 @@ typedef struct ExchangeCancelToken ExchangeCancelToken;
 
 typedef struct RequestCancelHandle RequestCancelHandle;
 
+typedef struct SwiftConnectionModeProviderContext SwiftConnectionModeProviderContext;
+
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
+
+typedef struct SwiftConnectionModeProvider {
+  const struct SwiftConnectionModeProviderContext *_0;
+} SwiftConnectionModeProvider;
 
 typedef struct SwiftCancelHandle {
   struct RequestCancelHandle *ptr;
@@ -91,7 +97,8 @@ extern const uint16_t CONFIG_SERVICE_PORT;
  * This function is safe.
  */
 struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
-                                            const uint8_t *address);
+                                            const uint8_t *address,
+                                            struct SwiftConnectionModeProvider provider);
 
 /**
  * # Safety
@@ -157,6 +164,8 @@ extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse respons
 void mullvad_response_drop(struct SwiftMullvadApiResponse response);
 
 extern void connection_mode_provider_initial(const void *rawPointer);
+
+struct SwiftConnectionModeProvider init_connection_mode_provider(const void *raw_provider);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.

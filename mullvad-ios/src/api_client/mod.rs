@@ -1,7 +1,10 @@
-use std::{ffi::CStr, sync::Arc};
+use std::{ffi::CStr, ops::Deref, sync::Arc};
 
-use mullvad_api::{rest::MullvadRestHandle, ApiEndpoint, Runtime};
-
+use mullvad_api::{
+    proxy::{ApiConnectionMode, StaticConnectionModeProvider},
+    rest::MullvadRestHandle,
+    ApiEndpoint, Runtime,
+};
 use swift_connection_mode_provider::SwiftConnectionModeProvider;
 
 mod api;
@@ -46,7 +49,11 @@ impl ApiContext {
 ///
 /// This function is safe.
 #[no_mangle]
-pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> SwiftApiContext {
+pub extern "C" fn mullvad_api_init_new(
+    host: *const u8,
+    address: *const u8,
+    provider: SwiftConnectionModeProvider,
+) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
     let address = unsafe { CStr::from_ptr(address.cast()) };
 
@@ -60,13 +67,15 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
 
     let tokio_handle = crate::mullvad_ios_runtime().unwrap();
 
+    let connection_mode_provider_context = unsafe { provider.into_rust_context() };
+
     let api_context = tokio_handle.clone().block_on(async move {
         // It is imperative that the REST runtime is created within an async context, otherwise
         // ApiAvailability panics.
         let api_client = mullvad_api::Runtime::new(tokio_handle, &endpoint);
         let rest_client = api_client
-        //    .mullvad_rest_handle(StaticConnectionModeProvider::new(ApiConnectionMode::Direct));
-            .mullvad_rest_handle(SwiftConnectionModeProvider::new());
+            // .mullvad_rest_handle(StaticConnectionModeProvider::new(ApiConnectionMode::Direct));
+        .mullvad_rest_handle(*connection_mode_provider_context);
 
         ApiContext {
             _api_client: api_client,
