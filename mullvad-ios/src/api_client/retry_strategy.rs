@@ -31,7 +31,6 @@ impl RetryStrategy {
             RetryDelay::Exponential(exponential_delays) => Box::new(
                 exponential_delays
                     .take(max_retries)
-                    .inspect(|d| inspect_delay(d)),
             ),
         };
 
@@ -91,9 +90,4 @@ pub unsafe extern "C" fn mullvad_api_retry_strategy_exponential(
 
     let ptr = Box::into_raw(Box::new(retry_strategy));
     return SwiftRetryStrategy(ptr);
-}
-
-#[no_mangle]
-extern "C" fn inspect_delay(delay: &Duration) {
-    println!("Should sleep for {} seconds", delay.as_secs());
 }

@@ -26,7 +26,11 @@ struct MullvadApiRequestFactory {
 
             return switch request {
             case let .getAddressList(retryStrategy):
-                MullvadApiCancellable(handle: mullvad_api_get_addresses(apiContext.context, rawPointer, retryStrategy.toRustStrategy()))
+                MullvadApiCancellable(handle: mullvad_api_get_addresses(
+                    apiContext.context,
+                    rawPointer,
+                    retryStrategy.toRustStrategy()
+                ))
             }
         }
     }
