@@ -425,7 +425,7 @@ impl WireguardMonitor {
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
-        let mut connectivity_check = connectivity::Check::new(
+        let connectivity_check = connectivity::Check::new(
             config.ipv4_gateway,
             args.retry_attempt,
             cancel_receiver.clone(),
@@ -497,24 +497,6 @@ impl WireguardMonitor {
                     ))
                     .await;
             }
-
-            match connectivity_check
-                .establish_connectivity(&tunnel.lock().await.as_ref().unwrap())
-                .await
-            {
-                Ok(true) => Ok(()),
-                Ok(false) => {
-                    log::warn!("Timeout while checking tunnel connection");
-                    Err(CloseMsg::PingErr)
-                }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Failed to check tunnel connection")
-                    );
-                    Err(CloseMsg::PingErr)
-                }
-            }?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;

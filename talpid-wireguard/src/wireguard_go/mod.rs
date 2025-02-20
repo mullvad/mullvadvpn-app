@@ -477,6 +477,9 @@ impl WgGoTunnel {
             tunnel.wait_for_routes().await?;
         }
 
+        // This seemingly fixes the GO crash we see
+        tunnel.ensure_tunnel_is_running().await?;
+
         Ok(tunnel)
     }
 
@@ -545,6 +548,9 @@ impl WgGoTunnel {
             tunnel.wait_for_routes().await?;
         }
 
+        // This seemingly fixes the GO crash we see
+        tunnel.ensure_tunnel_is_running().await?;
+
         Ok(tunnel)
     }
 
@@ -578,6 +584,29 @@ impl WgGoTunnel {
             .map_err(Error::SetupRoutingError)
             .map_err(CloseMsg::SetupError)
             .unwrap();
+
+        Ok(())
+    }
+    async fn ensure_tunnel_is_running(&self) -> Result<()> {
+        let state = self.as_state();
+        let addr = state.config.ipv4_gateway;
+        let cancel_receiver = state.cancel_receiver.clone();
+        let mut check = connectivity::Check::new(addr, 0, cancel_receiver)
+            .map_err(|err| TunnelError::RecoverableStartWireguardError(Box::new(err)))?;
+
+        // TODO: retry attempt?
+
+        let connection_established = check
+            .establish_connectivity(self)
+            .await
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+
+        // Timed out
+        if !connection_established {
+            return Err(TunnelError::RecoverableStartWireguardError(Box::new(
+                super::Error::TimeoutError,
+            )));
+        }
 
         Ok(())
     }
