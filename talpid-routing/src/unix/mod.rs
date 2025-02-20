@@ -37,6 +37,8 @@ mod imp;
 #[path = "android.rs"]
 mod imp;
 
+#[cfg(target_os = "android")]
+use crate::Route;
 #[cfg(any(target_os = "macos", target_os = "linux"))]
 pub use imp::Error as PlatformError;
 
@@ -103,7 +105,8 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    WaitForRoutes(oneshot::Sender<()>),
+    ClearRoutes(oneshot::Sender<()>),
+    WaitForRoutes(oneshot::Sender<()>, Vec<Route>),
     Shutdown(oneshot::Sender<()>),
 }
 
@@ -215,7 +218,7 @@ impl RouteManagerHandle {
     /// This function is guaranteed to *not* wait for longer than 2 seconds.
     /// Please, see the implementation of this function for further details.
     #[cfg(target_os = "android")]
-    pub async fn wait_for_routes(&self) -> Result<(), Error> {
+    pub async fn wait_for_routes(&self, expect_routes: Vec<Route>) -> Result<(), Error> {
         use std::time::Duration;
         use tokio::time::timeout;
         /// Maximum time to wait for routes to come up. The expected mean time is low (~200 ms), but
@@ -224,7 +227,7 @@ impl RouteManagerHandle {
 
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
-            .unbounded_send(RouteManagerCommand::WaitForRoutes(result_tx))
+            .unbounded_send(RouteManagerCommand::WaitForRoutes(result_tx, expect_routes))
             .map_err(|_| Error::RouteManagerDown)?;
 
         timeout(WAIT_FOR_ROUTES_TIMEOUT, result_rx)
@@ -244,6 +247,17 @@ impl RouteManagerHandle {
     /// (Android) This is a noop since we don't directly control the routes on Android.
     #[cfg(target_os = "android")]
     pub fn clear_routes(&self) -> Result<(), Error> {
+        Ok(())
+    }
+
+    /// (Android) Clear the cached routes
+    #[cfg(target_os = "android")]
+    pub async fn clear_android_routes(&self) -> Result<(), Error> {
+        let (result_tx, result_rx) = oneshot::channel();
+        self.tx
+            .unbounded_send(RouteManagerCommand::ClearRoutes(result_tx))
+            .map_err(|_| Error::RouteManagerDown)?;
+        let _ = result_rx.await;
         Ok(())
     }
 

@@ -10,6 +10,7 @@ import kotlin.collections.ArrayList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
@@ -18,7 +19,7 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import net.mullvad.talpid.model.NetworkState
 import net.mullvad.talpid.util.NetworkEvent
 import net.mullvad.talpid.util.RawNetworkState
@@ -31,29 +32,30 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
     val isConnected
         get() = _isConnected.value
 
-    private lateinit var _currentNetworkState: StateFlow<NetworkState?>
+    private val _mutableNetworkState = MutableStateFlow<NetworkState?>(null)
     private val resetNetworkState: Channel<Unit> = Channel()
 
     // Used by JNI
     val currentDefaultNetworkState: NetworkState?
-        get() = _currentNetworkState.value
+        get() = _mutableNetworkState.value
 
     // Used by JNI
     val currentDnsServers: ArrayList<InetAddress>
-        get() = _currentNetworkState.value?.dnsServers ?: ArrayList()
+        get() = _mutableNetworkState.value?.dnsServers ?: ArrayList()
 
     fun register(scope: CoroutineScope) {
         // Consider implementing retry logic for the flows below, because registering a listener on
         // the default network may fail if the network on Android 11
         // https://issuetracker.google.com/issues/175055271?pli=1
-        _currentNetworkState =
+        scope.launch {
             merge(
                     connectivityManager.defaultRawNetworkStateFlow(),
                     resetNetworkState.receiveAsFlow().map { null },
                 )
                 .map { it?.toNetworkState() }
                 .onEach { notifyDefaultNetworkChange(it) }
-                .stateIn(scope, SharingStarted.Eagerly, null)
+                .collect(_mutableNetworkState)
+        }
 
         _isConnected =
             hasInternetCapability()
@@ -70,8 +72,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
      * know the last known values not to be correct anymore.
      */
     fun invalidateNetworkStateCache() {
-        // TODO remove runBlocking
-        runBlocking { resetNetworkState.send(Unit) }
+        _mutableNetworkState.value = null
     }
 
     private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
