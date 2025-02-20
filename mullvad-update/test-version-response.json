@@ -1,8 +1,11 @@
 {
-  "signature": {
-    "keyid": "bb4ef63ffdcc6bd5a19c30cd23b9de03099407a04463418f17ae338b98aa09d4",
-    "sig": "253ec37846dcd909bfc5119c0e0d06535767e179eb8b4465015eaa95f4bed362c8c9186311192c987871722bf7d319d44e4f04eaf79c269820bc13ff1a901f0b"
-  },
+  "signatures": [
+    {
+      "keytype": "ed25519",
+      "keyid": "bb4ef63ffdcc6bd5a19c30cd23b9de03099407a04463418f17ae338b98aa09d4",
+      "sig": "253ec37846dcd909bfc5119c0e0d06535767e179eb8b4465015eaa95f4bed362c8c9186311192c987871722bf7d319d44e4f04eaf79c269820bc13ff1a901f0b"
+    }
+  ],
   "signed": {
     "metadata_version": 0,
     "metadata_expiry": "2025-07-02T15:33:00Z",
