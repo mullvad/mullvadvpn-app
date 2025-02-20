@@ -53,7 +53,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     type DirProvider = TempDirProvider;
 
     // Version info provider to use
-    const TEST_PUBKEY: &str = "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d";
+    const TEST_PUBKEY: &str = include_str!("../../mullvad-update/test-pubkey");
     let verifying_key =
         mullvad_update::format::key::VerifyingKey::from_hex(TEST_PUBKEY).expect("valid key");
     let version_provider = HttpVersionInfoProvider {
@@ -139,6 +139,8 @@ where
                 architecture: VersionArchitecture::X86,
                 // For the downloader, the rollout version is always preferred
                 rollout: 1.,
+                // The downloader allows any version
+                lowest_metadata_version: 0,
             };
 
             let err = match version_provider.get_version_info(version_params).await {
