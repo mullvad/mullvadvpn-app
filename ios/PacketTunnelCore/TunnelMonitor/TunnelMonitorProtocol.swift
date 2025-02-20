@@ -40,5 +40,5 @@ public protocol TunnelMonitorProtocol: AnyObject, Sendable {
     func onSleep()
 
     /// Handle changes in network path, eg. update connection state and monitoring.
-    func handleNetworkPathUpdate(_ networkPath: NetworkPath)
+    func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status)
 }

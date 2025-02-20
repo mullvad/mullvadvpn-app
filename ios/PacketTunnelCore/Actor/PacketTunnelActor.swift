@@ -294,17 +294,10 @@ extension PacketTunnelActor {
             connectionData: connectionState
         ).make()
 
-        /*
-         Stop default path observer while updating WireGuard configuration since it will call the system method
-         `NEPacketTunnelProvider.setTunnelNetworkSettings()` which may cause active interfaces to go down making it look
-         like network connectivity is not available, but only for a brief moment.
-         */
-        stopDefaultPathObserver()
-
         defer {
             // Restart default path observer and notify the observer with the current path that might have changed while
             // path observer was paused.
-            startDefaultPathObserver(notifyObserverWithCurrentPath: true)
+            startDefaultPathObserver()
         }
 
         // Daita parameters are gotten from an ephemeral peer
@@ -342,7 +335,7 @@ extension PacketTunnelActor {
         reason: ActorReconnectReason
     ) throws -> State.ConnectionData? {
         var keyPolicy: State.KeyPolicy = .useCurrent
-        var networkReachability = defaultPathObserver.defaultPath?.networkReachability ?? .undetermined
+        var networkReachability = defaultPathObserver.currentPathStatus.networkReachability
         var lastKeyRotation: Date?
 
         let callRelaySelector = { [self] maybeCurrentRelays, connectionCount in

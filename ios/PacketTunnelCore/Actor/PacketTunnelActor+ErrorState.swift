@@ -62,7 +62,7 @@ extension PacketTunnelActor {
                 relayConstraints: nil,
                 currentKey: nil,
                 keyPolicy: .useCurrent,
-                networkReachability: defaultPathObserver.defaultPath?.networkReachability ?? .undetermined,
+                networkReachability: defaultPathObserver.currentPathStatus.networkReachability,
                 recoveryTask: startRecoveryTaskIfNeeded(reason: reason),
                 priorState: .initial
             )
