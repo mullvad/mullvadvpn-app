@@ -44,8 +44,10 @@ struct PartialSignedResponse {
 #[serde(deny_unknown_fields)]
 #[cfg_attr(test, derive(Clone))]
 pub struct Response {
+    /// Version counter
+    pub metadata_version: usize,
     /// When the signature expires
-    pub expires: chrono::DateTime<chrono::Utc>,
+    pub metadata_expiry: chrono::DateTime<chrono::Utc>,
     /// Available app releases
     pub releases: Vec<Release>,
 }
