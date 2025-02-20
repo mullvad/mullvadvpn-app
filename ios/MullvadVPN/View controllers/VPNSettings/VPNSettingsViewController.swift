@@ -41,6 +41,7 @@ class VPNSettingsViewController: UITableViewController {
 
         tableView.setAccessibilityIdentifier(.vpnSettingsTableView)
         tableView.backgroundColor = .secondaryColor
+        tableView.separatorColor = .secondaryColor
         tableView.rowHeight = UITableView.automaticDimension
         tableView.estimatedRowHeight = 60
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
