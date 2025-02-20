@@ -1,17 +1,25 @@
 import { useCallback } from 'react';
 
 import { messages } from '../../../../../shared/gettext';
+import { Icon } from '../../../../lib/components';
+import { ListItem } from '../../../../lib/components/list-item/ListItem';
 import { useHistory } from '../../../../lib/history';
 import { RoutePath } from '../../../../lib/routes';
-import * as Cell from '../../../cell';
 
 export function ChangelogListItem() {
   const history = useHistory();
   const navigate = useCallback(() => history.push(RoutePath.changelog), [history]);
 
   return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{messages.pgettext('settings-view', 'What’s new')}</Cell.Label>
-    </Cell.CellNavigationButton>
+    <ListItem>
+      <ListItem.Item>
+        <ListItem.Trigger onClick={navigate}>
+          <ListItem.Content>
+            <ListItem.Label>{messages.pgettext('settings-view', 'What’s new')}</ListItem.Label>
+            <Icon icon="chevron-right" />
+          </ListItem.Content>
+        </ListItem.Trigger>
+      </ListItem.Item>
+    </ListItem>
   );
 }
