@@ -58,7 +58,19 @@ async fn mullvad_api_get_addresses_inner(
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let api = ApiProxy::new(rest_client);
 
-    let future_factory = || api.get_api_addrs_response();
+    let mut counter = 0;
+    let future_factory = move || {
+        let api = api.clone();
+        counter += 1;
+        async move {
+            if counter < 3 {
+                called_it();
+                Err(rest::Error::TimeoutError)
+            } else {
+                api.get_api_addrs_response().await
+            }
+        }
+    };
 
     let should_retry = |result: &Result<_, rest::Error>| match result {
         Err(err) => err.is_network_error(),
@@ -68,4 +80,10 @@ async fn mullvad_api_get_addresses_inner(
     let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
 
     SwiftMullvadApiResponse::with_body(response).await
+}
+
+#[no_mangle]
+extern "C" fn called_it() {
+    println!("I get called");
+
 }
