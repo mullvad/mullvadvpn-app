@@ -26,8 +26,11 @@ pub struct HttpVersionInfoProvider {
 impl VersionInfoProvider for HttpVersionInfoProvider {
     async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
-        let response =
-            format::SignedResponse::deserialize_and_verify(&self.verifying_key, &raw_json)?;
+        let response = format::SignedResponse::deserialize_and_verify(
+            &self.verifying_key,
+            &raw_json,
+            params.lowest_metadata_version,
+        )?;
 
         VersionInfo::try_from_response(&params, response.signed)
     }
@@ -99,10 +102,9 @@ mod test {
     /// We're not testing the correctness of [version] here, only the HTTP client
     #[tokio::test]
     async fn test_http_version_provider() -> anyhow::Result<()> {
-        let verifying_key = crate::format::key::VerifyingKey::from_hex(
-            "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d",
-        )
-        .expect("valid key");
+        let verifying_key =
+            crate::format::key::VerifyingKey::from_hex(include_str!("../test-pubkey"))
+                .expect("valid key");
 
         // Start HTTP server
         let mut server = mockito::Server::new_async().await;
@@ -118,6 +120,7 @@ mod test {
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
             rollout: 1.,
+            lowest_metadata_version: 0,
         };
         let info_provider = HttpVersionInfoProvider {
             url,
