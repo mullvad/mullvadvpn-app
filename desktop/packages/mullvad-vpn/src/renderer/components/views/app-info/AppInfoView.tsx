@@ -1,15 +1,29 @@
+import styled from 'styled-components';
+
 import { messages } from '../../../../shared/gettext';
+import { Flex } from '../../../lib/components';
+import { ListItemFooter } from '../../../lib/components/list-item/components';
 import { useHistory } from '../../../lib/history';
+import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../KeyboardNavigation';
-import { Layout, SettingsContainer, SettingsGroup, SettingsStack } from '../../Layout';
+import { Layout, SettingsContainer, SettingsStack } from '../../Layout';
 import { NavigationContainer } from '../../NavigationContainer';
 import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
-import { AppVersionListItem, ChangelogListItem } from './components';
+import { ChangelogListItem, UpdateAvailableListItem, VersionListItem } from './components';
+import { BetaListItem } from './components/BetaListItem';
+
+const StyledFlex = styled(Flex)`
+  gap: 1px;
+  &&:has(${ListItemFooter}) {
+    gap: 8px;
+  }
+`;
 
 export const AppInfoView = () => {
   const { pop } = useHistory();
+  const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
   return (
     <BackAction action={pop}>
       <Layout>
@@ -23,12 +37,12 @@ export const AppInfoView = () => {
               </SettingsHeader>
               <SettingsContainer>
                 <SettingsStack>
-                  <SettingsGroup>
-                    <AppVersionListItem />
-                  </SettingsGroup>
-                  <SettingsGroup>
+                  {suggestedUpgrade && <UpdateAvailableListItem />}
+                  <StyledFlex $flexDirection="column">
+                    <VersionListItem />
                     <ChangelogListItem />
-                  </SettingsGroup>
+                  </StyledFlex>
+                  <BetaListItem />
                 </SettingsStack>
               </SettingsContainer>
             </NavigationScrollbars>
