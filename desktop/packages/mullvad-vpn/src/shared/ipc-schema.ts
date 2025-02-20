@@ -155,6 +155,7 @@ export const ipcSchema = {
   },
   upgradeVersion: {
     '': notifyRenderer<IAppVersionInfo>(),
+    dismissedUpgrade: send<string>(),
   },
   app: {
     quit: send<void>(),
