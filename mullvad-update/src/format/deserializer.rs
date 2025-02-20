@@ -4,7 +4,7 @@ use anyhow::Context;
 
 use super::key::*;
 use super::Response;
-use super::{PartialSignedResponse, SignedResponse};
+use super::{PartialSignedResponse, ResponseSignature, SignedResponse};
 
 impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
@@ -26,7 +26,7 @@ impl SignedResponse {
         let signed = serde_json::from_value(partial_data.signed)
             .context("Failed to deserialize response")?;
         Ok(Self {
-            signature: partial_data.signature,
+            signatures: partial_data.signatures,
             signed,
         })
     }
@@ -64,7 +64,7 @@ impl SignedResponse {
         }
 
         Ok(SignedResponse {
-            signature: partial_data.signature,
+            signatures: partial_data.signatures,
             signed: signed_response,
         })
     }
@@ -82,24 +82,26 @@ pub(super) fn deserialize_and_verify(
         serde_json::from_slice(bytes).context("Invalid version JSON")?;
 
     // Check if the key matches
-    if partial_data.signature.keyid.0 != key.0 {
+    let Some(sig) = partial_data.signatures.iter().find_map(|sig| match sig {
+        // Check if ed25519 key matches
+        ResponseSignature::Ed25519 { keyid, sig } if keyid.0 == key.0 => Some(sig),
+        // Ignore all non-matching key
+        _ => None,
+    }) else {
         anyhow::bail!("Unrecognized key");
-    }
+    };
 
     // Serialize to canonical json format
     let canon_data = json_canon::to_vec(&partial_data.signed)
         .context("Failed to serialize to canonical JSON")?;
 
     // Check if the data is signed by our key
-    partial_data
-        .signature
-        .keyid
-        .0
-        .verify_strict(&canon_data, &partial_data.signature.sig.0)
+    key.0
+        .verify_strict(&canon_data, &sig.0)
         .context("Signature verification failed")?;
 
     Ok(PartialSignedResponse {
-        signature: partial_data.signature,
+        signatures: partial_data.signatures,
         signed: partial_data.signed,
     })
 }
@@ -146,5 +148,54 @@ mod test {
             usize::MAX,
         )
         .expect_err("expected rejected version number");
+    }
+
+    /// Test that invalid key types deserialized to "other"
+    #[test]
+    fn test_response_unknown_keytypes() {
+        //let secret = "F6631A59EBBF8AADEAC64CC30A08A83FC7283F39DE53B7F1BFBA6BE52663DC94";
+        let pubkey = "8F735E412015D8976079E5FA0E090100A43A34937CCFC3A2341219E30291DD39";
+        let fakesig = "08954286A9284718B83CAADA5DF8A9A9DF0CE569F8EFF669D8C2A2E5945C809C465C38168E2F6018461DD8801DBFC74126A2ED9102F99A49F6DD54722C9B3605";
+        let value = serde_json::json!({
+            "signatures": [
+                {
+                    "keytype": "ed25519",
+                    "keyid": pubkey,
+                    "sig": fakesig,
+                },
+                {
+                    "keytype": "new shiny key",
+                    "keyid": "test 1",
+                    "sig": "test 2",
+                }
+            ],
+            "signed": {
+                "metadata_expiry": "3000-01-01T00:00:00Z",
+                "metadata_version": 0,
+                "releases": []
+            }
+        });
+
+        let bytes = serde_json::to_vec(&value).expect("serialize should succeed");
+
+        let response = SignedResponse::deserialize_and_verify_insecure(&bytes)
+            .expect("deserialization failed");
+
+        let expected_key = VerifyingKey::from_hex(pubkey).unwrap();
+        let expected_sig = Signature::from_hex(&fakesig).unwrap();
+
+        // Ed25519 key
+        assert!(
+            matches!(&response.signatures[0], ResponseSignature::Ed25519 { keyid, sig } if keyid == &expected_key && sig == &expected_sig),
+            "unexpected response sig: {:?}",
+            response.signatures[0]
+        );
+
+        // Unrecognized key type
+        assert!(
+            matches!(&response.signatures[1], ResponseSignature::Other { keyid, sig } if keyid == "test 1" && sig == "test 2"),
+            "expected unrecognized key: {:?}",
+            response.signatures[1]
+        );
     }
 }

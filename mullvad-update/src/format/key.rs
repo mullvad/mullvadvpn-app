@@ -111,8 +111,15 @@ impl Serialize for VerifyingKey {
 }
 
 /// ed25519 signature
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub struct Signature(pub ed25519_dalek::Signature);
+
+impl Signature {
+    pub fn from_hex(s: &str) -> anyhow::Result<Self> {
+        let bytes = bytes_from_hex::<{ ed25519_dalek::SIGNATURE_LENGTH }>(s)?;
+        Ok(Self(ed25519_dalek::Signature::from_bytes(&bytes)))
+    }
+}
 
 impl<'de> Deserialize<'de> for Signature {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
