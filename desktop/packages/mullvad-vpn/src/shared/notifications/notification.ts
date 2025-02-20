@@ -28,7 +28,7 @@ export type InAppNotificationAction =
     }
   | {
       type: 'close';
-      close: () => void;
+      close?: () => void;
     }
   | {
       type: 'navigate-internal';

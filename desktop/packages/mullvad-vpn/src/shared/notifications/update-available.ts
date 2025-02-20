@@ -17,6 +17,7 @@ interface UpdateAvailableNotificationContext {
   suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
   updateDismissedForVersion?: string;
+  close?: () => void;
 }
 
 export class UpdateAvailableNotificationProvider
@@ -64,6 +65,9 @@ export class UpdateAvailableNotificationProvider
           },
         },
       ],
+      action: this.context.suggestedIsBeta
+        ? { type: 'close', close: this.context.close }
+        : undefined,
     };
   }
 

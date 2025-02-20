@@ -62,7 +62,7 @@ export default function NotificationArea(props: IProps) {
 
   const { hideNewDeviceBanner } = useActions(accountActions);
 
-  const { setDisplayedChangelog } = useAppContext();
+  const { setDisplayedChangelog, setDismissedUpgrade } = useAppContext();
 
   const currentVersion = useSelector((state) => state.version.current);
   const displayedForVersion = useSelector(
@@ -73,7 +73,7 @@ export default function NotificationArea(props: IProps) {
   );
   const changelog = useSelector((state) => state.userInterface.changelog);
 
-  const close = useCallback(() => {
+  const displayedChangelog = useCallback(() => {
     setDisplayedChangelog();
   }, [setDisplayedChangelog]);
 
@@ -120,10 +120,12 @@ export default function NotificationArea(props: IProps) {
       currentVersion,
       displayedForVersion,
       changelog,
-      close,
+      close: displayedChangelog,
     }),
     new UpdateAvailableNotificationProvider({
-      ...version,
+      suggestedIsBeta: version.suggestedIsBeta,
+      suggestedUpgrade: version.suggestedUpgrade,
+      close: setDismissedUpgrade,
       updateDismissedForVersion,
     }),
   );
@@ -147,16 +149,27 @@ export default function NotificationArea(props: IProps) {
               {notification.title}
             </NotificationTitle>
             <NotificationSubtitle data-testid="notificationSubTitle">
-              {notification.subtitleAction?.type === 'navigate-internal' ? (
-                <InternalLink
-                  variant="labelTiny"
-                  color={Colors.white60}
-                  {...notification.subtitleAction.link}>
-                  {formatHtml(notification.subtitle ?? '')}
-                </InternalLink>
-              ) : (
-                formatHtml(notification.subtitle ?? '')
-              )}
+              {Array.isArray(notification.subtitle)
+                ? notification.subtitle.map((subtitle, index, arr) => {
+                    const content =
+                      subtitle.action && subtitle.action.type === 'navigate-internal' ? (
+                        <InternalLink
+                          variant="labelTiny"
+                          color={Colors.white60}
+                          {...subtitle.action.link}>
+                          {formatHtml(subtitle.content)}
+                        </InternalLink>
+                      ) : (
+                        formatHtml(subtitle.content)
+                      );
+                    return (
+                      <span key={index}>
+                        {content}
+                        {index !== arr.length - 1 && ' '}
+                      </span>
+                    );
+                  })
+                : formatHtml(notification.subtitle ?? '')}
             </NotificationSubtitle>
           </NotificationContent>
           {notification.action && (
@@ -192,7 +205,7 @@ function NotificationActionWrapper({
   const { push } = useHistory();
   const { openUrlWithAuth, openUrl } = useAppContext();
 
-  const closeTroubleshootModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
+  const closeModal = useCallback(() => setIsModalOpen(false), [setIsModalOpen]);
 
   const handleClick = useCallback(() => {
     if (action) {
@@ -207,7 +220,9 @@ function NotificationActionWrapper({
           setIsModalOpen(true);
           break;
         case 'close':
-          action.close();
+          if (action.close) {
+            action.close();
+          }
           break;
       }
     }
@@ -216,9 +231,9 @@ function NotificationActionWrapper({
   }, [action, setIsModalOpen, openUrlWithAuth, openUrl]);
 
   const goToProblemReport = useCallback(() => {
-    closeTroubleshootModal();
+    closeModal();
     push(RoutePath.problemReport, { transition: transitions.show });
-  }, [closeTroubleshootModal, push]);
+  }, [closeModal, push]);
 
   let actionComponent: React.ReactElement | undefined;
   if (action) {
@@ -254,7 +269,7 @@ function NotificationActionWrapper({
 
   let buttons = [
     problemReportButton,
-    <AppButton.BlueButton key="back" onClick={closeTroubleshootModal}>
+    <AppButton.BlueButton key="back" onClick={closeModal}>
       {messages.gettext('Back')}
     </AppButton.BlueButton>,
   ];
@@ -291,7 +306,7 @@ function NotificationActionWrapper({
         isOpen={isModalOpen}
         type={ModalAlertType.info}
         buttons={buttons}
-        close={closeTroubleshootModal}>
+        close={closeModal}>
         <ModalMessage>{action.troubleshoot?.details}</ModalMessage>
         <ModalMessage>
           <ModalMessageList>
