@@ -11,6 +11,7 @@ use mullvad_update::{
 };
 use rand::seq::SliceRandom;
 
+use std::error::Error;
 use std::future::Future;
 use std::path::PathBuf;
 use tokio::sync::{mpsc, oneshot};
