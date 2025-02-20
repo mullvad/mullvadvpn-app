@@ -623,6 +623,12 @@ export default class AppRenderer {
     IpcRendererEventChannel.currentVersion.displayedChangelog();
   };
 
+  public setDismissedUpgrade = (): void => {
+    IpcRendererEventChannel.upgradeVersion.dismissedUpgrade(
+      this.reduxStore.getState().version.suggestedUpgrade ?? '',
+    );
+  };
+
   public setNavigationHistory(history: IHistoryObject) {
     IpcRendererEventChannel.navigation.setHistory(history);
 
