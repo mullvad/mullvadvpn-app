@@ -1,5 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
+import { RoutePath } from '../../renderer/lib/routes';
 import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../version';
 import {
@@ -14,6 +15,8 @@ import {
 interface UpdateAvailableNotificationContext {
   suggestedUpgrade?: string;
   suggestedIsBeta?: boolean;
+  updateDismissedForVersion?: string;
+  close?: () => void;
 }
 
 export class UpdateAvailableNotificationProvider
@@ -21,8 +24,17 @@ export class UpdateAvailableNotificationProvider
 {
   public constructor(private context: UpdateAvailableNotificationContext) {}
 
-  public mayDisplay() {
-    return this.context.suggestedUpgrade ? true : false;
+  public mayDisplay(): boolean {
+    if (!this.context.suggestedUpgrade) {
+      return false;
+    }
+    if (
+      this.context.suggestedIsBeta &&
+      this.context.suggestedUpgrade === this.context.updateDismissedForVersion
+    ) {
+      return false;
+    }
+    return true;
   }
 
   public getInAppNotification(): InAppNotification {
@@ -31,11 +43,30 @@ export class UpdateAvailableNotificationProvider
       title: this.context.suggestedIsBeta
         ? messages.pgettext('in-app-notifications', 'BETA UPDATE AVAILABLE')
         : messages.pgettext('in-app-notifications', 'UPDATE AVAILABLE'),
-      subtitle: this.inAppMessage(),
-      action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-      },
+      subtitle: [
+        {
+          content: this.inAppMessage(),
+        },
+        {
+          content:
+            // TRANSLATORS: Link text to go to the download update view
+            messages.pgettext('in-app-notifications', 'Click here to update.'),
+          action: {
+            type: 'navigate',
+            link: {
+              to: RoutePath.downloadUpdate,
+              // TRANSLATORS: The aria-label for the link to go to the download update view
+              'aria-label': messages.pgettext(
+                'accessibility',
+                'New version available, click here to update',
+              ),
+            },
+          },
+        },
+      ],
+      action: this.context.suggestedIsBeta
+        ? { type: 'close', close: this.context.close }
+        : undefined,
     };
   }
 

@@ -28,7 +28,7 @@ export type InAppNotificationAction =
     }
   | {
       type: 'close';
-      close: () => void;
+      close?: () => void;
     }
   | {
       type: 'navigate';
@@ -69,8 +69,13 @@ export interface InAppNotification {
   indicator?: InAppNotificationIndicatorType;
   action?: InAppNotificationAction;
   title: string;
-  subtitle?: string;
+  subtitle?: string | InAppNotificationSubtitle[];
   subtitleAction?: InAppNotificationAction;
+}
+
+export interface InAppNotificationSubtitle {
+  content: string;
+  action?: InAppNotificationAction;
 }
 
 export interface SystemNotificationProvider extends NotificationProvider {
