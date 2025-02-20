@@ -22,7 +22,7 @@ use super::{key, PartialSignedResponse, Response, ResponseSignature, SignedRespo
 impl SignedResponse {
     pub fn sign(key: key::SecretKey, response: Response) -> anyhow::Result<SignedResponse> {
         // Refuse to sign expired data
-        if response.expires < chrono::Utc::now() {
+        if response.metadata_expiry < chrono::Utc::now() {
             anyhow::bail!("Signing failed since the data has expired");
         }
 
