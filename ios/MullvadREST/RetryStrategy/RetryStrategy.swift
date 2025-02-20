@@ -21,16 +21,21 @@ extension REST {
             self.delay = delay
             self.applyJitter = applyJitter
         }
-        
+
         /// The return value of this function *must* be passed to a Rust FFI funciton that will consume it, otherwise it will leak.
-        public func toRustStrategy() -> SwiftRetryStrategy  {
+        public func toRustStrategy() -> SwiftRetryStrategy {
             switch delay {
             case .never:
                 return mullvad_api_retry_strategy_never()
             case let .constant(duration):
                 return mullvad_api_retry_strategy_constant(UInt(maxRetryCount), UInt64(duration.seconds))
             case let .exponentialBackoff(initial, multiplier, maxDelay):
-                return mullvad_api_retry_strategy_exponential(UInt(maxRetryCount), UInt64(initial.seconds), UInt32(multiplier), UInt64(maxDelay.seconds))
+                return mullvad_api_retry_strategy_exponential(
+                    UInt(maxRetryCount),
+                    UInt64(initial.seconds),
+                    UInt32(multiplier),
+                    UInt64(maxDelay.seconds)
+                )
             }
         }
 

@@ -76,7 +76,6 @@ extension REST {
             let networkOperation = MullvadApiNetworkOperation(
                 name: "get-api-addrs",
                 dispatchQueue: dispatchQueue,
-                retryStrategy: retryStrategy,
                 requestHandler: requestHandler,
                 responseDecoder: responseDecoder,
                 responseHandler: responseHandler,

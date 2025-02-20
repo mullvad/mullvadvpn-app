@@ -21,22 +21,14 @@ extension REST {
         private let responseHandler: any RESTRustResponseHandler<Success>
         private var networkTask: MullvadApiCancellable?
 
-        private let retryStrategy: RetryStrategy
-        private var retryDelayIterator: AnyIterator<Duration>
-        private var retryTimer: DispatchSourceTimer?
-        private var retryCount = 0
-
         init(
             name: String,
             dispatchQueue: DispatchQueue,
-            retryStrategy: RetryStrategy,
             requestHandler: @escaping MullvadApiRequestHandler,
             responseDecoder: JSONDecoder,
             responseHandler: some RESTRustResponseHandler<Success>,
             completionHandler: CompletionHandler? = nil
         ) {
-            self.retryStrategy = retryStrategy
-            retryDelayIterator = retryStrategy.makeDelayIterator()
             self.responseDecoder = responseDecoder
             self.requestHandler = requestHandler
             self.responseHandler = responseHandler
@@ -53,10 +45,7 @@ extension REST {
         }
 
         override public func operationDidCancel() {
-            retryTimer?.cancel()
             networkTask?.cancel()
-
-            retryTimer = nil
             networkTask = nil
         }
 
@@ -76,12 +65,7 @@ extension REST {
                 guard let self else { return }
 
                 if let error = response.restError() {
-                    if response.shouldRetry {
-                        retryRequest(with: error)
-                    } else {
-                        finish(result: .failure(error))
-                    }
-
+                    finish(result: .failure(error))
                     return
                 }
 
@@ -96,51 +80,6 @@ extension REST {
                     finish(result: .failure(REST.Error.unhandledResponse(Int(response.statusCode), error)))
                 }
             }
-        }
-
-        private func retryRequest(with error: REST.Error) {
-            // Check if retry count is not exceeded.
-            guard retryCount < retryStrategy.maxRetryCount else {
-                if retryStrategy.maxRetryCount > 0 {
-                    logger.debug("Ran out of retry attempts (\(retryStrategy.maxRetryCount))")
-                }
-                finish(result: .failure(error))
-                return
-            }
-
-            // Increment retry count.
-            retryCount += 1
-
-            // Retry immediately if retry delay is set to never.
-            guard retryStrategy.delay != .never else {
-                startRequest()
-                return
-            }
-
-            guard let waitDelay = retryDelayIterator.next() else {
-                logger.debug("Retry delay iterator failed to produce next value.")
-
-                finish(result: .failure(error))
-                return
-            }
-
-            logger.debug("Retry in \(waitDelay.logFormat()).")
-
-            // Create timer to delay retry.
-            let timer = DispatchSource.makeTimerSource(queue: dispatchQueue)
-
-            timer.setEventHandler { [weak self] in
-                self?.startRequest()
-            }
-
-            timer.setCancelHandler { [weak self] in
-                self?.finish(result: .failure(OperationError.cancelled))
-            }
-
-            timer.schedule(wallDeadline: .now() + waitDelay.timeInterval)
-            timer.activate()
-
-            retryTimer = timer
         }
     }
 }
