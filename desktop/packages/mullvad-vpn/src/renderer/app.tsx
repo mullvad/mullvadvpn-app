@@ -53,6 +53,7 @@ import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
+import { downloadUpdateActions } from './redux/download-update/actions';
 import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
@@ -96,6 +97,7 @@ export default class AppRenderer {
   private reduxActions = {
     account: bindActionCreators(accountActions, this.reduxStore.dispatch),
     connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
+    downloadUpdate: bindActionCreators(downloadUpdateActions, this.reduxStore.dispatch),
     settings: bindActionCreators(settingsActions, this.reduxStore.dispatch),
     version: bindActionCreators(versionActions, this.reduxStore.dispatch),
     userInterface: bindActionCreators(userInterfaceActions, this.reduxStore.dispatch),
