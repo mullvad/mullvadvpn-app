@@ -122,10 +122,9 @@ public final class TunnelMonitor: TunnelMonitorProtocol {
         stopConnectivityCheckTimer()
     }
 
-    public func handleNetworkPathUpdate(_ networkPath: NetworkPath) {
+    public func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) {
         nslock.withLock {
-            let pathStatus = networkPath.status
-            let isReachable = pathStatus == .satisfiable || pathStatus == .satisfied
+            let isReachable = networkPath == .satisfied || networkPath == .requiresConnection
 
             switch state.connectionState {
             case .pendingStart:

@@ -36,15 +36,13 @@ extension PacketTunnelActor {
             return
         }
 
-        stopDefaultPathObserver()
-
         state = .connecting(connectionData)
 
         // Resume tunnel monitoring and use IPv4 gateway as a probe address.
         tunnelMonitor.start(probeAddress: connectionData.selectedRelays.exit.endpoint.ipv4Gateway)
         // Restart default path observer and notify the observer with the current path that might have changed while
         // path observer was paused.
-        startDefaultPathObserver(notifyObserverWithCurrentPath: false)
+        startDefaultPathObserver()
     }
 
     /**

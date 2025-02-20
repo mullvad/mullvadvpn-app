@@ -8,6 +8,7 @@
 
 import Foundation
 import MullvadTypes
+import Network
 import WireGuardKitTypes
 
 extension PacketTunnelActor {
@@ -35,7 +36,7 @@ extension PacketTunnelActor {
         case monitorEvent(_ event: TunnelMonitorEvent)
 
         /// Network reachability events.
-        case networkReachability(NetworkPath)
+        case networkReachability(Network.NWPath.Status)
 
         /// Update the device private key, as per post-quantum protocols
         case ephemeralPeerNegotiationStateChanged(EphemeralPeerNegotiationState, OneshotChannel)
