@@ -57,33 +57,21 @@ open class TalpidVpnService : LifecycleVpnService() {
     // Used by JNI
     fun openTun(config: TunConfig): CreateTunResult =
         synchronized(this) {
-            val tunStatus = activeTunStatus
-
-            if (config == currentTunConfig && tunStatus != null && tunStatus.isOpen) {
-                tunStatus
-            } else {
-                openTunImpl(config)
+            createTun(config).merge().also {
+                currentTunConfig = config
+                activeTunStatus = it
             }
         }
 
     // Used by JNI
-    fun openTunForced(config: TunConfig): CreateTunResult =
-        synchronized(this) { openTunImpl(config) }
-
-    // Used by JNI
-    fun closeTun(): Unit = synchronized(this) { activeTunStatus = null }
+    fun closeTun(): Unit =
+        synchronized(this) {
+            connectivityListener.invalidateNetworkStateCache()
+            activeTunStatus = null
+        }
 
     // Used by JNI
     fun bypass(socket: Int): Boolean = protect(socket)
-
-    private fun openTunImpl(config: TunConfig): CreateTunResult {
-        val newTunStatus = createTun(config).merge()
-
-        currentTunConfig = config
-        activeTunStatus = newTunStatus
-
-        return newTunStatus
-    }
 
     private fun createTun(
         config: TunConfig
@@ -123,6 +111,7 @@ open class TalpidVpnService : LifecycleVpnService() {
             builder.addDnsServer(FALLBACK_DUMMY_DNS_SERVER)
         }
 
+        connectivityListener.invalidateNetworkStateCache()
         val vpnInterfaceFd =
             builder
                 .establishSafe()
