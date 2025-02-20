@@ -34,7 +34,7 @@ impl SignedResponse {
         let response: Response = serde_json::from_value(partial_signed.signed)?;
 
         Ok(SignedResponse {
-            signature: partial_signed.signature,
+            signatures: partial_signed.signatures,
             signed: response,
         })
     }
@@ -58,10 +58,10 @@ fn sign<T: Serialize>(
 
     // Attach signature
     Ok(PartialSignedResponse {
-        signature: ResponseSignature {
+        signatures: vec![ResponseSignature::Ed25519 {
             keyid: key.pubkey(),
             sig,
-        },
+        }],
         // Attach now-signed data
         signed,
     })
@@ -86,7 +86,12 @@ mod test {
         // Verify that we can deserialize and verify the data
         let partial = sign(&key, &data).context("Signing failed")?;
 
-        assert_eq!(partial.signature.keyid, pubkey);
+        assert!(
+            matches!(&partial.signatures[0], ResponseSignature::Ed25519 {
+            keyid,
+            ..
+        } if keyid == &pubkey)
+        );
 
         let bytes = serde_json::to_vec(&partial)?;
 
