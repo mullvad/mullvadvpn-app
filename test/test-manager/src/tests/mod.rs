@@ -73,7 +73,7 @@ pub enum Error {
     MissingGuiTest,
 
     #[error("An error occurred: {0}")]
-    Other(String),
+    Other(#[from] anyhow::Error),
 }
 
 #[derive(Clone)]
