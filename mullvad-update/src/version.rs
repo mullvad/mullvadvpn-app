@@ -15,6 +15,9 @@ pub struct VersionParameters {
     pub architecture: VersionArchitecture,
     /// Rollout threshold. Any version in the response below this threshold will be ignored
     pub rollout: f32,
+    /// Lowest allowed `metadata_version` in the version data
+    /// Typically the current version plus 1
+    pub lowest_metadata_version: usize,
 }
 
 /// Installer architecture
@@ -173,6 +176,7 @@ mod test {
         let params = VersionParameters {
             architecture: VersionArchitecture::X86,
             rollout: 1.,
+            lowest_metadata_version: 0,
         };
 
         // Expect: The available latest versions for X86, where the rollout is 1.
@@ -193,6 +197,7 @@ mod test {
         let params = VersionParameters {
             architecture: VersionArchitecture::Arm64,
             rollout: 0.01,
+            lowest_metadata_version: 0,
         };
 
         let info = VersionInfo::try_from_response(&params, response.signed)?;

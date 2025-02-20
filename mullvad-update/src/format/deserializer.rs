@@ -9,8 +9,12 @@ use super::{PartialSignedResponse, SignedResponse};
 impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
-    pub fn deserialize_and_verify(key: &VerifyingKey, bytes: &[u8]) -> Result<Self, anyhow::Error> {
-        Self::deserialize_and_verify_at_time(key, bytes, chrono::Utc::now())
+    pub fn deserialize_and_verify(
+        key: &VerifyingKey,
+        bytes: &[u8],
+        min_metadata_version: usize,
+    ) -> Result<Self, anyhow::Error> {
+        Self::deserialize_and_verify_at_time(key, bytes, chrono::Utc::now(), min_metadata_version)
     }
 
     /// This method is used for testing, and skips all verification.
@@ -33,6 +37,7 @@ impl SignedResponse {
         key: &VerifyingKey,
         bytes: &[u8],
         current_time: chrono::DateTime<chrono::Utc>,
+        min_metadata_version: usize,
     ) -> Result<Self, anyhow::Error> {
         // Deserialize and verify signature
         let partial_data = deserialize_and_verify(&key, bytes)?;
@@ -42,10 +47,19 @@ impl SignedResponse {
             .context("Failed to deserialize response")?;
 
         // Reject time if the data has expired
-        if current_time >= signed_response.expires {
+        if current_time >= signed_response.metadata_expiry {
             anyhow::bail!(
                 "Version metadata has expired: valid until {}",
-                signed_response.expires
+                signed_response.metadata_expiry
+            );
+        }
+
+        // Reject data if the version counter is below `min_metadata_version`
+        if signed_response.metadata_version < min_metadata_version {
+            anyhow::bail!(
+                "Version metadata has is too old: {}, must be at least {}",
+                signed_response.metadata_version,
+                min_metadata_version,
             );
         }
 
@@ -99,9 +113,7 @@ mod test {
     /// Test that a valid signed version response is successfully deserialized and verified
     #[test]
     fn test_response_deserialization_and_verification() {
-        const TEST_PUBKEY: &str =
-            "4d35f5376f1f58c41b2a0ee4600ae7811eace354f100227e853994deef38942d";
-        let pubkey = hex::decode(TEST_PUBKEY).unwrap();
+        let pubkey = hex::decode(include_str!("../../test-pubkey")).unwrap();
         let verifying_key =
             ed25519_dalek::VerifyingKey::from_bytes(&pubkey.try_into().unwrap()).unwrap();
 
@@ -110,6 +122,8 @@ mod test {
             include_bytes!("../../test-version-response.json"),
             // It's 1970 again
             chrono::DateTime::UNIX_EPOCH,
+            // Accept any version
+            0,
         )
         .expect("expected valid signed version metadata");
 
@@ -119,7 +133,18 @@ mod test {
             include_bytes!("../../test-version-response.json"),
             // In the year 3000
             chrono::DateTime::from_str("3000-01-01T00:00:00Z").unwrap(),
+            // Accept any version
+            0,
         )
         .expect_err("expected expired version metadata");
+
+        // Reject expired version number
+        SignedResponse::deserialize_and_verify_at_time(
+            &VerifyingKey(verifying_key),
+            include_bytes!("../../test-version-response.json"),
+            chrono::DateTime::UNIX_EPOCH,
+            usize::MAX,
+        )
+        .expect_err("expected rejected version number");
     }
 }
