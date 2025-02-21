@@ -67,7 +67,8 @@ const ACCOUNTS_URL_PREFIX: &str = "accounts/v1";
 const APP_URL_PREFIX: &str = "app/v1";
 #[cfg(target_os = "android")]
 const GOOGLE_PAYMENTS_URL_PREFIX: &str = "payments/google-play/v1";
-
+#[cfg(target_os = "ios")]
+const APPLE_PAYMENT_URL_PREFIX: &str = "payments/apple/v2";
 pub mod env {
     pub const API_HOST_VAR: &str = "MULLVAD_API_HOST";
     pub const API_ADDR_VAR: &str = "MULLVAD_API_ADDR";
@@ -579,6 +580,19 @@ impl AccountsProxy {
             let _ = service.request(request).await?;
             Ok(())
         }
+    }
+    #[cfg(target_os = "ios")]
+    pub async fn init_storekit_payment(
+        &self,
+        account: AccountNumber,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let request = self
+            .handle
+            .factory
+            .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
+            .expected_status(&[StatusCode::OK])
+            .account(account)?;
+        self.handle.service.request(request).await
     }
 
     #[cfg(target_os = "android")]

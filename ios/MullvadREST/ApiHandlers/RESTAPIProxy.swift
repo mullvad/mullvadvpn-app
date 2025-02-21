@@ -34,6 +34,12 @@ public protocol APIQuerying: Sendable {
         receiptString: Data
     ) -> any RESTRequestExecutor<REST.CreateApplePaymentResponse>
 
+    func mullvadApiInitStorekitPayment(
+        retryStrategy: REST.RetryStrategy,
+        accountNumber: String,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<String>
+    ) -> Cancellable
+
     func sendProblemReport(
         _ body: REST.ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
@@ -226,6 +232,43 @@ extension REST {
                 requestHandler: requestHandler,
                 responseHandler: responseHandler
             )
+        }
+
+        public func mullvadApiInitStorekitPayment(
+            retryStrategy: REST.RetryStrategy,
+            accountNumber: String,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<String>
+        ) -> Cancellable {
+            let requestHandler = mullvadApiRequestFactory.makeRequest(
+                .initStorekitPayment(
+                    retryStrategy: retryStrategy,
+                    accountNumber: accountNumber
+                )
+            )
+
+            struct InitStorekitPaymentResponse: Codable {
+                let paymentToken: String
+            }
+
+            let responseHandler = rustResponseHandler(
+                decoding: InitStorekitPaymentResponse.self,
+                with: responseDecoder
+            )
+
+            let networkOperation = MullvadApiNetworkOperation(
+                name: "init-storekit-payment",
+                dispatchQueue: dispatchQueue,
+                requestHandler: requestHandler,
+                responseDecoder: responseDecoder,
+                responseHandler: responseHandler,
+                completionHandler: {
+                    completionHandler($0.map { $0.paymentToken })
+                }
+            )
+
+            operationQueue.addOperation(networkOperation)
+
+            return networkOperation
         }
 
         public func sendProblemReport(

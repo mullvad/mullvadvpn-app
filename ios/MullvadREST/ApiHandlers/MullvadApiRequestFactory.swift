@@ -11,6 +11,7 @@ import MullvadTypes
 
 enum MullvadApiRequest {
     case getAddressList(retryStrategy: REST.RetryStrategy)
+    case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
 }
 
 struct MullvadApiRequestFactory {
@@ -30,6 +31,16 @@ struct MullvadApiRequestFactory {
                     apiContext.context,
                     rawPointer,
                     retryStrategy.toRustStrategy()
+                ))
+            case let .initStorekitPayment(
+                retryStrategy: retryStrategy,
+                accountNumber: accountNumber
+            ):
+                MullvadApiCancellable(handle: mullvad_api_init_storekit_payment(
+                    apiContext.context,
+                    rawPointer,
+                    retryStrategy.toRustStrategy(),
+                    accountNumber
                 ))
             }
         }

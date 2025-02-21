@@ -29,6 +29,7 @@ talpid-types = { path = "../talpid-types" }
 talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-api = { path = "../mullvad-api" }
+mullvad-types = { path = "../mullvad-types" }
 serde_json = { workspace = true }
 
 shadowsocks-service = { workspace = true, features = [
