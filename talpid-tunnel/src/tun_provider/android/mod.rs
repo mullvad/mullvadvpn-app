@@ -126,11 +126,12 @@ impl AndroidTunProvider {
 
         // If we are recreating the same tunnel we return the same file descriptor to avoid calling
         // open_tun in android since it may cause leaks.
-        if let Some(current_config) = &self.current_config {
-            if current_config.0 == config {
-                return Ok((current_config.1, false));
+        if let Some((vpn_service_config, raw_fd)) = &self.current_config {
+            if vpn_service_config == &config {
+                return Ok((*raw_fd, false));
             }
         }
+        
         let create_result = {
             let env = self.env()?;
             let java_config = config.clone().into_java(&env);
