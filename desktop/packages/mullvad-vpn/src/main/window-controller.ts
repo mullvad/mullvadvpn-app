@@ -83,8 +83,8 @@ class AttachedToTrayWindowPositioning implements IWindowPositioning {
         break;
 
       case 'none':
-        x = workArea.x + (workArea.width - windowBounds.width) * 0.5;
-        y = workArea.y + (workArea.height - windowBounds.height) * 0.5;
+        x = workArea.x + (workArea.width - windowBounds.width);
+        y = workArea.y + (workArea.height - windowBounds.height);
         break;
     }
 
