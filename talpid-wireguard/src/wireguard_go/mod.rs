@@ -476,6 +476,7 @@ impl WgGoTunnel {
         }
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel.
+        // Moving this check to WireguardMonitor.start caused DROID-1825
         tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
@@ -547,6 +548,7 @@ impl WgGoTunnel {
         }
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel.
+        // Moving this check to WireguardMonitor.start caused DROID-1825
         tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
