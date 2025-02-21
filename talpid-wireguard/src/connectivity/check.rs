@@ -184,7 +184,8 @@ impl Check {
                 {
                     return Ok(true);
                 }
-                tokio::time::sleep(Duration::from_millis(20)).await;
+                // Avoid spamming get_config in Go, related DROID-1825
+                tokio::time::sleep(Duration::from_millis(100)).await;
             }
         };
 
