@@ -2048,6 +2048,7 @@ dependencies = [
  "objc_id",
  "rand 0.8.5",
  "serde",
+ "talpid-platform-metadata",
  "tokio",
  "windows-sys 0.52.0",
  "winres",
