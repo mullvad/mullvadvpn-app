@@ -105,7 +105,23 @@ pub trait AppDelegate {
 pub struct ErrorMessage {
     pub status_text: String,
     pub cancel_button_text: String,
-    pub retry_button_text: String,
+    pub retry_button_text: Button,
+}
+
+#[derive(serde::Serialize)]
+pub struct Button {
+    pub text: String,
+    pub enabled: bool,
+}
+
+impl Default for Button {
+    fn default() -> Self {
+        Self {
+            text: Default::default(),
+            // It makes sense to mark buttons as enabled by default, me thinks.
+            enabled: true,
+        }
+    }
 }
 
 /// Schedules actions on the UI thread from other threads
