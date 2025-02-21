@@ -2,7 +2,7 @@
 //! [fetch::ProgressUpdater].
 
 use crate::{
-    delegate::{AppDelegate, AppDelegateQueue},
+    delegate::{AppDelegate, AppDelegateQueue, Button},
     resource,
 };
 use mullvad_update::{
@@ -58,7 +58,10 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
                     self_.show_error_message(crate::delegate::ErrorMessage {
                         status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
                         cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
-                        retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                        retry_button: Button {
+                            text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                            ..Default::default()
+                        },
                     });
                 });
 
@@ -88,8 +91,10 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
                         status_text: resource::VERIFICATION_FAILED_DESC.to_owned(),
                         cancel_button_text: resource::VERIFICATION_FAILED_CANCEL_BUTTON_TEXT
                             .to_owned(),
-                        retry_button_text: resource::VERIFICATION_FAILED_RETRY_BUTTON_TEXT
-                            .to_owned(),
+                        retry_button: Button {
+                            text: resource::VERIFICATION_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                            ..Default::default()
+                        },
                     });
                 });
 
@@ -118,7 +123,10 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
                     self_.show_error_message(crate::delegate::ErrorMessage {
                         status_text: resource::LAUNCH_FAILED_DESC.to_owned(),
                         cancel_button_text: resource::LAUNCH_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
-                        retry_button_text: resource::LAUNCH_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                        retry_button: Button {
+                            text: resource::LAUNCH_FAILED_RETRY_BUTTON_TEXT.to_owned(),
+                            ..Default::default()
+                        },
                     });
                 });
 

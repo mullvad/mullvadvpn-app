@@ -1,6 +1,6 @@
 //! This module implements the actual logic performed by different UI components.
 
-use crate::delegate::{AppDelegate, AppDelegateQueue};
+use crate::delegate::{AppDelegate, AppDelegateQueue, Button};
 use crate::resource;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
@@ -130,9 +130,22 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
     Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
 {
-    // TODO: Do not unwrap
-    // TODO: Construct a proper error instead
-    let architecture = get_arch().unwrap().unwrap();
+    let Some(architecture) = get_arch().ok().flatten() else {
+        // Could not retrieve the host's CPU architecture for whatever reason
+        queue.queue_main(|self_| {
+            self_.show_error_message(crate::delegate::ErrorMessage {
+                status_text: "Could not detect your CPU architecture".to_owned(),
+                cancel_button_text: resource::CANCEL_BUTTON_TEXT.to_owned(),
+                retry_button: Button {
+                    enabled: false,
+                    ..Default::default()
+                },
+            });
+        });
+        // TODO: Should we assume something here and just continue?
+        return;
+    };
+
     async move {
         loop {
             let version_params = VersionParameters {
@@ -177,7 +190,10 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
             self_.show_error_message(crate::delegate::ErrorMessage {
                 status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
                 cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
-                retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+                retry_button: Button {
+                    text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+                    ..Default::default()
+                },
             });
         });
 
@@ -303,7 +319,10 @@ async fn handle_action_messages<D, A, DirProvider>(
                             self_.show_error_message(crate::delegate::ErrorMessage {
                                 status_text: "Failed to create download directory".to_owned(),
                                 cancel_button_text: "Cancel".to_owned(),
-                                retry_button_text: "Try again".to_owned(),
+                                retry_button: Button {
+                                    text: "Try again".to_owned(),
+                                    ..Default::default()
+                                },
                             });
                         });
                         continue;

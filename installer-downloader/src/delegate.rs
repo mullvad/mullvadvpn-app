@@ -105,7 +105,7 @@ pub trait AppDelegate {
 pub struct ErrorMessage {
     pub status_text: String,
     pub cancel_button_text: String,
-    pub retry_button_text: Button,
+    pub retry_button: Button,
 }
 
 #[derive(serde::Serialize)]
