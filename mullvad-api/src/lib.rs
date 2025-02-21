@@ -3,6 +3,8 @@ use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use hyper::body::Incoming;
+#[cfg(target_os = "ios")]
+use mullvad_types::account::StorekitTransaction;
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
 use mullvad_types::{
@@ -581,6 +583,7 @@ impl AccountsProxy {
             Ok(())
         }
     }
+
     #[cfg(target_os = "ios")]
     pub async fn init_storekit_payment(
         &self,
@@ -590,6 +593,22 @@ impl AccountsProxy {
             .handle
             .factory
             .post(&format!("{APPLE_PAYMENT_URL_PREFIX}/init"))?
+            .expected_status(&[StatusCode::OK])
+            .account(account)?;
+        self.handle.service.request(request).await
+    }
+
+    #[cfg(target_os = "ios")]
+    pub async fn check_storekit_payment(
+        &self,
+        account: AccountNumber,
+        transaction: String,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
+        let transaction = StorekitTransaction { transaction };
+        let request = self
+            .handle
+            .factory
+            .post_json(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), &transaction)?
             .expected_status(&[StatusCode::OK])
             .account(account)?;
         self.handle.service.request(request).await
@@ -785,4 +804,32 @@ impl ApiProxy {
         let response = self.handle.service.request(request).await?;
         Ok(response.status().is_success())
     }
+
+    // pub async fn check_storekit_payment(
+    //     &self,
+    //     payment_transaction: SwiftStorekitTransaction,
+    // ) -> Result<rest::Response<Incoming>, rest::Error> {
+    //     let request = self
+    //         .handle
+    //         .factory
+    //         .post_json(
+    //             &format!("{APPLE_PAYMENT_URL_PREFIX}/check"),
+    //             &payment_transaction,
+    //         )?
+    //         .expected_status(&[StatusCode::OK]);
+    //     self.handle.service.request(request).await
+    // }
 }
+
+// #[cfg(target_os = "ios")]
+// #[derive(Clone)]
+// pub struct StorekitPaymentProxy {
+//     handle: rest::MullvadRestHandle,
+// }
+
+// impl StorekitPaymentProxy {
+//     pub fn new(handle: rest::MullvadRestHandle) -> Self {
+//         Self { handle }
+//     }
+
+// }

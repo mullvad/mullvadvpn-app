@@ -49,10 +49,28 @@ final class AccountInteractor: Sendable {
         await tunnelManager.unsetAccount()
     }
 
-    func sendStoreKitReceipt(_ transaction: VerificationResult<Transaction>, for accountNumber: String) async throws {
-        try await apiProxy.createApplePayment(
-            accountNumber: accountNumber,
-            receiptString: transaction.jwsRepresentation.data(using: .utf8)!
-        ).execute()
+    func getPaymentToken(for accountNumber: String) async -> Result<String, Error> {
+        await withCheckedContinuation { c in
+            _ = apiProxy
+                .mullvadApiInitStorekitPayment(
+                    retryStrategy: .noRetry,
+                    accountNumber: accountNumber
+                ) { result in
+                    c.resume(returning: result)
+                }
+        }
+    }
+
+    func sendStoreKitReceipt(_ transaction: VerificationResult<Transaction>, for accountNumber: String) async -> Result<Void, Error> {
+        await withCheckedContinuation { c in
+            _ = apiProxy
+                .mullvadApiCheckStorekitPayment(
+                    retryStrategy: .noRetry,
+                    accountNumber: accountNumber,
+                    transaction: transaction.jwsRepresentation
+                ) { result in
+                    c.resume(returning: result)
+                }
+        }
     }
 }

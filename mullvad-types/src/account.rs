@@ -48,6 +48,12 @@ pub struct PlayPurchase {
     pub purchase_token: PlayPurchasePaymentToken,
 }
 
+#[derive(Deserialize, Serialize, Debug, Clone)]
+#[cfg(target_os = "ios")]
+pub struct StorekitTransaction {
+    pub transaction: String,
+}
+
 /// Token used for authentication in the API.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct AccessTokenData {

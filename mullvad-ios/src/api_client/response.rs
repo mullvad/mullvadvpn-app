@@ -1,4 +1,7 @@
-use std::{ffi::CString, ptr::null_mut};
+use std::{
+    ffi::{CStr, CString},
+    ptr::null_mut,
+};
 
 use mullvad_api::rest::{self, Response};
 
@@ -73,6 +76,17 @@ impl SwiftMullvadApiResponse {
         Self {
             success: false,
             error_description: c"Failed to get Tokio runtime".to_owned().into_raw().cast(),
+            body: null_mut(),
+            body_size: 0,
+            status_code: 0,
+            server_response_code: null_mut(),
+        }
+    }
+
+    pub fn invalid_input(description: &'static CStr) -> Self {
+        Self {
+            success: false,
+            error_description: description.to_owned().into_raw().cast(),
             body: null_mut(),
             body_size: 0,
             status_code: 0,

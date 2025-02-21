@@ -40,6 +40,13 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<String>
     ) -> Cancellable
 
+    func mullvadApiCheckStorekitPayment(
+        retryStrategy: REST.RetryStrategy,
+        accountNumber: String,
+        transaction: String,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+    ) -> Cancellable
+
     func sendProblemReport(
         _ body: REST.ProblemReportRequest,
         retryStrategy: REST.RetryStrategy,
@@ -264,6 +271,34 @@ extension REST {
                 completionHandler: {
                     completionHandler($0.map { $0.paymentToken })
                 }
+            )
+
+            operationQueue.addOperation(networkOperation)
+
+            return networkOperation
+        }
+
+        public func mullvadApiCheckStorekitPayment(
+            retryStrategy: REST.RetryStrategy,
+            accountNumber: String,
+            transaction: String,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<Void>
+        ) -> Cancellable {
+            let requestHandler = mullvadApiRequestFactory.makeRequest(
+                .checkStorekitPayment(
+                    retryStrategy: retryStrategy,
+                    accountNumber: accountNumber,
+                    transaction: transaction
+                )
+            )
+
+            let networkOperation = MullvadApiNetworkOperation(
+                name: "check-storekit-payment",
+                dispatchQueue: dispatchQueue,
+                requestHandler: requestHandler,
+                responseDecoder: responseDecoder,
+                responseHandler: rustEmptyResponseHandler(),
+                completionHandler: completionHandler
             )
 
             operationQueue.addOperation(networkOperation)

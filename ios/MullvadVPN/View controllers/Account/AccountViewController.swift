@@ -230,12 +230,25 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         Task {
             do {
                 let product = try await Product.products(for: productIdentifiers).first!
-                let result = try await product.purchase()
+                let token = switch await interactor
+                    .getPaymentToken(for: accountData.number) {
+                case let .success(token):
+                    UUID(uuidString: token)!
+                case let .failure(error):
+                    throw error
+                }
+
+                let result = try await product.purchase(
+                    options: [.appAccountToken(token)]
+                )
 
                 switch result {
                 case let .success(verification):
                     let transaction = try checkVerified(verification)
-                    await sendReceiptToAPI(accountNumber: accountData.identifier, receipt: verification)
+                    await sendReceiptToAPI(
+                        accountNumber: accountData.number,
+                        receipt: verification
+                    )
                     await transaction.finish()
                 case .userCancelled:
                     print("User cancelled the purchase")
