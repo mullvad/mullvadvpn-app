@@ -11,9 +11,10 @@ rust-version.workspace = true
 workspace = true
 
 [target.'cfg(all(target_os = "windows", target_arch = "x86_64"))'.dependencies]
-windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemInformation", "Win32_System_Threading"] }
-tempfile = "3.10"
 anyhow.workspace = true
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+tempfile = "3.10"
+windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemInformation", "Win32_System_Threading"] }
 
 [build-dependencies]
 winres = "0.1"
