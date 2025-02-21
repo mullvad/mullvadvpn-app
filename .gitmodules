@@ -10,3 +10,6 @@
 [submodule "wireguard-go-rs/libwg/wireguard-go"]
 	path = wireguard-go-rs/libwg/wireguard-go
 	url = https://github.com/mullvad/wireguard-go/
+[submodule "ios/wireguard-apple"]
+	path = ios/wireguard-apple
+	url = https://github.com/mullvad/wireguard-apple.git

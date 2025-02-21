@@ -6,6 +6,7 @@ on:
       - .github/workflows/ios.yml
       - ios/build-rust-library.sh
       - ios/.swiftformat
+      - ios/wireguard-apple
       - ios/**/*.swift
       - ios/**/*.xctestplan
   workflow_dispatch:
@@ -53,6 +54,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Checkout submodules
+        run: |
+          git config --global --add safe.directory '*'
+          git submodule update --init ios/wireguard-apple
+
 
       - name: Configure cache
         uses: actions/cache@v3
