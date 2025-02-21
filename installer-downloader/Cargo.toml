@@ -28,6 +28,7 @@ chrono = { workspace = true, features = ["clock"] }
 fern = { version = "0.6", default-features = false }
 log = { workspace = true }
 
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 hex = "0.4"
