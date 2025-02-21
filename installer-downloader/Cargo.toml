@@ -15,6 +15,9 @@ anyhow = "1.0"
 winres = "0.1"
 windows-sys = { version = "0.52.0", features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemServices"] }
 
+[dependencies]
+talpid-platform-metadata = { path = "../talpid-platform-metadata" }
+
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 anyhow = "1.0"
 tokio = { version = "1", features = ["full"] }
@@ -45,7 +48,7 @@ LegalCopyright = "(c) 2025 Mullvad VPN AB"
 #name =
 identifier = "net.mullvad.downloader"
 #icon =
-#version = 
+#version =
 #resources =
 #script =
 #copyright =

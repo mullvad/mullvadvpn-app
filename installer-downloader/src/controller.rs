@@ -132,11 +132,13 @@ where
     Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
 {
+    // TODO: Do not unwrap
+    // TODO: Construct a proper error instead
+    let architecture = get_arch().unwrap().unwrap();
     async move {
         loop {
             let version_params = VersionParameters {
-                // TODO: detect current architecture
-                architecture: VersionArchitecture::X86,
+                architecture,
                 // For the downloader, the rollout version is always preferred
                 rollout: 1.,
                 // The downloader allows any version
@@ -406,4 +408,13 @@ fn select_cdn_url(urls: &[String]) -> Option<&str> {
 
 fn format_latest_version(version: &Version) -> String {
     format!("{}: {}", resource::LATEST_VERSION_PREFIX, version.version)
+}
+
+/// Try to map the host's CPU architecture to one of the CPU architectures the Mullvad VPN app
+/// supports.
+fn get_arch() -> Result<Option<VersionArchitecture>, std::io::Error> {
+    match talpid_platform_metadata::get_native_arch()?? {
+        talpid_platform_metadata::Architecture::X86 => VersionArchitecture::X86,
+        talpid_platform_metadata::Architecture::Arm64 => VersionArchitecture::Arm64,
+    }
 }
