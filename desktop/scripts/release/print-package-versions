@@ -23,6 +23,9 @@ function usage() {
     exit 1
 }
 
+# List of packages to print the version of
+PACKAGES=( "mullvad-vpn" "mullvad-browser" "mullvad-browser-alpha" )
+
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
@@ -78,7 +81,7 @@ if [[ $deb == "true" ]]; then
         curl -fsSLo /usr/share/keyrings/mullvad-keyring.asc $repository_server_public_url/deb/mullvad-keyring.asc; \
         echo \\\"deb [signed-by=/usr/share/keyrings/mullvad-keyring.asc arch=amd64] $repository_server_public_url/deb/$release_channel bookworm main\\\" > /etc/apt/sources.list.d/mullvad.list; \
         apt update $silent_stderr $silent_stdout; \
-        apt search mullvad $silent_stderr | grep -E 'mullvad-'\" $silent_stderr"
+        apt list ${PACKAGES[*]} $silent_stderr | grep 'amd64'\" $silent_stderr"
 fi
 
 if [[ $rpm == "true" ]]; then
@@ -89,5 +92,5 @@ if [[ $rpm == "true" ]]; then
     bash -c "podman run --rm -it fedora:41 sh -c \
         \"dnf install -y 'dnf-command(config-manager)' $silent_stderr $silent_stdout; \
         dnf config-manager addrepo --from-repofile=$repository_server_public_url/rpm/$release_channel/mullvad.repo $silent_stderr; \
-        dnf search --refresh mullvad $silent_stderr | grep -E 'mullvad-'\" $silent_stderr"
+        dnf list --refresh ${PACKAGES[*]} $silent_stderr | grep 'x86_64'\" $silent_stderr"
 fi
