@@ -162,7 +162,7 @@ export function isCountryDisabled(
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
 ): DisabledReason | undefined {
   const citiesDisabled = country.cities.map((city) =>
-    isCityDisabled(city, { ...location, city: city.code }),
+    isCityDisabled(city, { ...location, city: city.code }, disabledLocation),
   );
   if (citiesDisabled.every((status) => status === DisabledReason.inactive)) {
     return DisabledReason.inactive;
