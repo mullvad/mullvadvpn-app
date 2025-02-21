@@ -17,7 +17,7 @@ actor LogFileOutputStreamTests {
 
     init() async throws {
         directoryPath = FileManager.default.temporaryDirectory.appendingPathComponent(
-            "LogFileOutputStreamTests",
+            UUID().uuidString,
             isDirectory: true
         )
 
