@@ -12,6 +12,7 @@ use cacao::objc::{class, msg_send, sel, sel_impl};
 use cacao::progress::ProgressIndicator;
 use cacao::text::{AttributedString, Label};
 use cacao::view::View;
+use installer_downloader::delegate::ErrorMessage;
 use objc_id::Id;
 
 use crate::resource::{
@@ -24,6 +25,8 @@ const LOGO_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.svg");
 
 /// Logo banner text
 const LOGO_TEXT_DATA: &[u8] = include_bytes!("../../assets/logo-text.svg");
+
+const ALERT_CIRCLE_IMAGE_DATA: &[u8] = include_bytes!("../../assets/alert-circle.svg");
 
 /// Banner background color: #192e45
 static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {
@@ -44,6 +47,7 @@ static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {
 
 static LOGO: LazyLock<Image> = LazyLock::new(|| Image::with_data(LOGO_IMAGE_DATA));
 static LOGO_TEXT: LazyLock<Image> = LazyLock::new(|| Image::with_data(LOGO_TEXT_DATA));
+static ALERT_CIRCLE: LazyLock<Image> = LazyLock::new(|| Image::with_data(ALERT_CIRCLE_IMAGE_DATA));
 
 pub struct AppImpl {
     window: Window<AppWindowWrapper>,
@@ -80,6 +84,12 @@ pub enum Action {
     CancelClick(Arc<Mutex<Box<dyn Fn() + Send>>>),
     /// Run callback on main thread
     QueueMain(Mutex<Option<Box<dyn for<'a> FnOnce(&'a mut AppWindow) + Send>>>),
+    /// User clicked the retry button in the error view
+    ErrorRetry(Arc<Mutex<Box<dyn Fn() + Send>>>),
+    /// User clicked the cancel button in the error view
+    ErrorCancel(Arc<Mutex<Box<dyn Fn() + Send>>>),
+    /// Quit the application.
+    Quit,
 }
 
 impl Dispatcher for AppImpl {
@@ -101,6 +111,17 @@ impl Dispatcher for AppImpl {
                 let mut borrowed = delegate.inner.borrow_mut();
                 let cb = cb.lock().unwrap().take().unwrap();
                 cb(&mut borrowed);
+            }
+            Action::ErrorRetry(cb) => {
+                let cb = cb.lock().unwrap();
+                cb();
+            }
+            Action::ErrorCancel(cb) => {
+                let cb = cb.lock().unwrap();
+                cb();
+            }
+            Action::Quit => {
+                self.window.close();
             }
         }
     }
@@ -132,10 +153,23 @@ pub struct AppWindow {
     pub progress: ProgressIndicator,
 
     pub status_text: Label,
+
+    pub error_view: Option<ErrorView>,
+    pub error_retry_callback: Option<Arc<Mutex<Box<dyn Fn() + Send>>>>,
+    pub error_cancel_callback: Option<Arc<Mutex<Box<dyn Fn() + Send>>>>,
+
     pub download_text: Label,
 
     pub beta_link_preface: Label,
     pub beta_link: Label,
+}
+
+pub struct ErrorView {
+    pub view: View,
+    pub text: Label,
+    pub circle: ImageView,
+    pub retry_button: Button,
+    pub cancel_button: Button,
 }
 
 pub struct DownloadButton {
@@ -259,13 +293,6 @@ impl AppWindow {
         self.main_view.add_subview(&self.beta_link);
 
         LayoutConstraint::activate(&[
-            self.status_text
-                .top
-                .constraint_greater_than_or_equal_to(&self.main_view.top)
-                .offset(24.),
-            self.status_text
-                .center_x
-                .constraint_equal_to(&self.main_view.center_x),
             self.download_text
                 .top
                 .constraint_equal_to(&self.status_text.bottom)
@@ -331,5 +358,96 @@ impl WindowDelegate for AppWindowWrapper {
         window.set_maximum_content_size(WINDOW_WIDTH as f64, WINDOW_HEIGHT as f64);
         window.set_content_size(WINDOW_WIDTH as f64, WINDOW_HEIGHT as f64);
         window.set_content_view(&self.inner.borrow().content);
+    }
+}
+
+impl ErrorView {
+    pub fn new(
+        main_view: &View,
+        message: ErrorMessage,
+        on_retry: Option<impl Fn() + Send + Sync + 'static>,
+        on_cancel: Option<impl Fn() + Send + Sync + 'static>,
+    ) -> Self {
+        let mut error_view = ErrorView {
+            view: Default::default(),
+            text: Default::default(),
+            circle: Default::default(),
+            retry_button: Button::new(&message.retry_button_text),
+            cancel_button: Button::new(&message.cancel_button_text),
+        };
+
+        let ErrorView {
+            view,
+            text,
+            circle,
+            retry_button,
+            cancel_button,
+        } = &mut error_view;
+
+        text.set_text(message.status_text);
+        circle.set_image(&ALERT_CIRCLE);
+
+        if let Some(on_cancel) = on_cancel {
+            cancel_button.set_action(on_cancel);
+        }
+        if let Some(on_retry) = on_retry {
+            retry_button.set_action(on_retry);
+        }
+
+        view.add_subview(text);
+        view.add_subview(circle);
+        main_view.add_subview(view);
+        main_view.add_subview(retry_button);
+        main_view.add_subview(cancel_button);
+
+        LayoutConstraint::activate(&[
+            view.center_x.constraint_equal_to(&main_view.center_x),
+            view.center_y
+                .constraint_equal_to(&main_view.top)
+                .offset(74.),
+            view.width.constraint_equal_to_constant(536.),
+            text.center_y.constraint_equal_to(&view.center_y),
+            text.left.constraint_equal_to(&circle.right).offset(16.),
+            text.right.constraint_equal_to(&view.right),
+            circle.left.constraint_equal_to(&view.left),
+            circle.center_y.constraint_equal_to(&text.center_y),
+            retry_button
+                .top
+                .constraint_equal_to(&text.bottom)
+                .offset(24.),
+            cancel_button
+                .top
+                .constraint_equal_to(&text.bottom)
+                .offset(24.),
+            retry_button
+                .left
+                .constraint_equal_to(&view.center_x)
+                .offset(8.),
+            cancel_button
+                .right
+                .constraint_equal_to(&view.center_x)
+                .offset(-8.),
+            retry_button.width.constraint_equal_to_constant(213.),
+            cancel_button.width.constraint_equal_to_constant(213.),
+        ]);
+
+        error_view
+    }
+}
+
+impl Drop for ErrorView {
+    fn drop(&mut self) {
+        let ErrorView {
+            view,
+            text,
+            circle,
+            retry_button,
+            cancel_button,
+        } = self;
+        view.remove_from_superview();
+        text.remove_from_superview();
+        circle.remove_from_superview();
+        retry_button.remove_from_superview();
+        cancel_button.remove_from_superview();
     }
 }
