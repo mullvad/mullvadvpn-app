@@ -61,8 +61,26 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
         pinned_certificate: None,
         verifying_key,
     };
+    let Some(architecture) = get_arch().ok().flatten() else {
+        // Could not retrieve the host's CPU architecture for whatever reason
+        delegate.queue_main(|self_| {
+            self_.show_error_message(crate::delegate::ErrorMessage {
+                status_text: "Could not detect your CPU architecture".to_owned(),
+                cancel_button_text: resource::CANCEL_BUTTON_TEXT.to_owned(),
+                retry_button: Button {
+                    enabled: false,
+                    ..Default::default()
+                },
+            });
+        });
+        return;
+    };
 
-    AppController::initialize::<_, Downloader<T>, _, DirProvider>(delegate, version_provider)
+    AppController::initialize::<_, Downloader<T>, _, DirProvider>(
+        delegate,
+        version_provider,
+        architecture,
+    )
 }
 
 impl AppController {
@@ -70,8 +88,11 @@ impl AppController {
     ///
     /// Providing the downloader and version info fetcher as type arguments, they're decoupled from
     /// the logic of [AppController], allowing them to be mocked.
-    pub fn initialize<D, A, V, DirProvider>(delegate: &mut D, version_provider: V)
-    where
+    pub fn initialize<D, A, V, DirProvider>(
+        delegate: &mut D,
+        version_provider: V,
+        architecture: VersionArchitecture,
+    ) where
         D: AppDelegate + 'static,
         V: VersionInfoProvider + Send + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
@@ -95,6 +116,7 @@ impl AppController {
             delegate.queue(),
             task_tx.clone(),
             version_provider,
+            architecture,
         ));
         Self::register_user_action_callbacks(delegate, task_tx);
     }
@@ -127,27 +149,12 @@ fn fetch_app_version_info<Delegate, VersionProvider>(
     queue: Delegate::Queue,
     download_tx: mpsc::Sender<TaskMessage>,
     version_provider: VersionProvider,
+    architecture: VersionArchitecture,
 ) -> impl Future<Output = ()>
 where
     Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
 {
-    let Some(architecture) = get_arch().ok().flatten() else {
-        // Could not retrieve the host's CPU architecture for whatever reason
-        queue.queue_main(|self_| {
-            self_.show_error_message(crate::delegate::ErrorMessage {
-                status_text: "Could not detect your CPU architecture".to_owned(),
-                cancel_button_text: resource::CANCEL_BUTTON_TEXT.to_owned(),
-                retry_button: Button {
-                    enabled: false,
-                    ..Default::default()
-                },
-            });
-        });
-        // TODO: Should we assume something here and just continue?
-        return;
-    };
-
     async move {
         loop {
             let version_params = VersionParameters {

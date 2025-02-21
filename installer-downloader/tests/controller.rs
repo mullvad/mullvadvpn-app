@@ -351,6 +351,7 @@ async fn test_fetch_version() {
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        VersionArchitecture::X86,
     );
 
     // The app should start out by fetching the current app version
@@ -374,6 +375,7 @@ async fn test_download() {
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        VersionArchitecture::X86,
     );
 
     // Wait for the version info
@@ -419,6 +421,7 @@ async fn test_failed_verification() {
     AppController::initialize::<_, FakeAppDownloaderVerifyFail, _, FakeDirectoryProvider<true>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        VersionArchitecture::X86,
     );
 
     // Wait for the version info
@@ -456,6 +459,7 @@ async fn test_failed_directory_creation() {
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<false>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        VersionArchitecture::X86,
     );
 
     // Wait for the version info
