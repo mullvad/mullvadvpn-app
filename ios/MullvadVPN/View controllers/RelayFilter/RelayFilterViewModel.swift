@@ -8,11 +8,39 @@
 
 import Combine
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 
 class RelayFilterViewModel {
-    @Published var relays: [REST.ServerRelay]
-    @Published var relayFilter: RelayFilter
+    private var settings: LatestTunnelSettings
+    private var relaysWithLocation: LocationRelays
+
+    var onNewSettings: ((LatestTunnelSettings) -> Void)?
+    var onNewRelays: ((LocationRelays) -> Void)?
+
+    init(settings: LatestTunnelSettings, relaysWithLocation: LocationRelays) {
+        self.settings = settings
+        self.relaysWithLocation = relaysWithLocation
+
+        self.onNewRelays = { [weak self] newRelays in
+            self?.relaysWithLocation = newRelays
+        }
+
+        self.onNewSettings = { [weak self] newSettings in
+            self?.settings = newSettings
+        }
+    }
+
+    private var relayFilter: RelayFilter {
+        if case let .only(filter) = settings.relayConstraints.filter {
+            return filter
+        }
+        return RelayFilter()
+    }
+    
+    private var relays: [REST.ServerRelay] {
+        relaysWithLocation.relays
+    }
 
     var uniqueProviders: [String] {
         Set(relays.map { $0.provider }).caseInsensitiveSorted()
@@ -26,10 +54,10 @@ class RelayFilterViewModel {
         Set(relays.filter { $0.owned == false }.map { $0.provider }).caseInsensitiveSorted()
     }
 
-    init(relays: [REST.ServerRelay], relayFilter: RelayFilter) {
-        self.relays = relays
-        self.relayFilter = relayFilter
-    }
+//    init(relaysWithLocation: LocationRelays, relayFilter: RelayFilter) {
+//        self.relaysWithLocation = relaysWithLocation
+//        self.relayFilter = relayFilter
+//    }
 
     func addItemToFilter(_ item: RelayFilterDataSource.Item) {
         switch item {
@@ -123,26 +151,5 @@ class RelayFilterViewModel {
         case .rented:
             return rentedProviders
         }
-    }
-}
-
-extension RelayFilterViewModel {
-    func getFilteredRelays(with filter: RelayFilter) -> [String] {
-        let relays = { relays in
-            switch (filter.ownership, filter.providers) {
-            case (.any, .any):
-                return relays
-            case let (.owned, .only(providers)), let (.rented, .only(providers)):
-                let isOwned = filter.ownership == .owned
-                return relays.filter { $0.owned == isOwned && providers.contains($0.provider) }
-            case (.owned, .any), (.rented, .any):
-                let isOwned = filter.ownership == .owned
-                return relays.filter { $0.owned == isOwned }
-            case let (.any, .only(providers)):
-                return relays.filter { providers.contains($0.provider) }
-            }
-        }(relays)
-
-        return relays.map { $0.hostname }
     }
 }

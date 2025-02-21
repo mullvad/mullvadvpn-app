@@ -9,32 +9,27 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 
-enum RelayFilterError: Error {
-    case notFound
-}
-
 protocol RelayFilterable {
-    func matches(relays: [REST.ServerRelay], criteria: RelayFilterCriteria) throws(RelayFilterError)
-        -> [REST.ServerRelay]
+    func matches(relays: LocationRelays, criteria: RelayFilterCriteria) -> LocationRelays
 }
 
 struct RelayFilterCriteria {
-    let daitaSettings: DAITASettings
+    let isDirectOnly: Bool
     let filterConstraints: RelayFilter
 }
 
-struct RelayFilterSelector: RelayFilterable {
-    func matches(
-        relays: [REST.ServerRelay],
-        criteria: RelayFilterCriteria
-    ) throws(RelayFilterError) -> [REST.ServerRelay] {
-        var relaysWithLocation = LocationRelays(
-            relays: relays.wireguard.relays,
-            locations: relays.locations
-        )
-        relaysWithLocation.relays = relaysWithLocation.relays.filter { relay in
-            RelaySelector.relayMatchesFilter(relay, filter: filter)
+struct RelayFilterManager: RelayFilterable {
+    func matches(relays: LocationRelays, criteria: RelayFilterCriteria) -> LocationRelays {
+        var relaysWithLocation = relays
+        relaysWithLocation.relays = if criteria.isDirectOnly {
+            relaysWithLocation.relays.filter { relay in
+                RelaySelector.relayMatchesFilter(relay, filter: criteria.filterConstraints) && relay.daita == true
+            }
+        } else {
+            relaysWithLocation.relays.filter { relay in
+                RelaySelector.relayMatchesFilter(relay, filter: criteria.filterConstraints)
+            }
         }
-        throw RelayFilterError.notFound
+        return relaysWithLocation
     }
 }

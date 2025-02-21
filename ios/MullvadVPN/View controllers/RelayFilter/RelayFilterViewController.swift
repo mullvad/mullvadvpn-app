@@ -8,6 +8,7 @@
 
 import Combine
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import UIKit
 
@@ -15,8 +16,6 @@ class RelayFilterViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .grouped)
     private var viewModel: RelayFilterViewModel?
     private var dataSource: RelayFilterDataSource?
-    private var cachedRelays: CachedRelays?
-    private var filter = RelayFilter()
     private var disposeBag = Set<Combine.AnyCancellable>()
 
     private let applyButton: AppButton = {
@@ -33,6 +32,21 @@ class RelayFilterViewController: UIViewController {
 
     var onApplyFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
+
+    var onNewSettings: ((LatestTunnelSettings) -> Void)?
+    var onNewRelays: ((LocationRelays) -> Void)?
+
+
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+        self.onNewSettings = { [weak self] newSettings in
+            self?.viewModel?.onNewSettings?(newSettings)
+        }
+        self.onNewRelays = { [weak self] newRelays in
+            self?.viewModel?.onNewRelays?(newRelays)
+        }
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,13 +89,13 @@ class RelayFilterViewController: UIViewController {
         setUpDataSource()
     }
 
-    func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
-        self.cachedRelays = cachedRelays
-        self.filter = filter
-
-        viewModel?.relays = cachedRelays.relays.wireguard.relays
-        viewModel?.relayFilter = filter
-    }
+//    private func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
+//        self.cachedRelays = cachedRelays
+//        self.filter = filter
+//
+//        viewModel?.relays = cachedRelays.relays.wireguard.relays
+//        viewModel?.relayFilter = filter
+//    }
 
     private func setUpDataSource() {
         let viewModel = RelayFilterViewModel(
