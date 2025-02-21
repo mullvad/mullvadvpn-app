@@ -28,7 +28,7 @@ serde_json = { workspace = true }
 async-trait = { version = "0.1", optional = true }
 reqwest = { version = "0.12.9", default-features = false, optional = true }
 sha2 = { version = "0.10", optional = true }
-tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process"], optional = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process", "macros"], optional = true }
 thiserror = { workspace = true, optional = true }
 
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
@@ -42,7 +42,7 @@ async-tempfile = "0.6"
 insta = { workspace = true }
 mockito = "1.6.1"
 rand = "0.8.5"
-tokio = { workspace = true, features = ["test-util", "time", "macros"] }
+tokio = { workspace = true, features = ["fs", "test-util", "time", "macros"] }
 
 [[bin]]
 name = "mullvad-version-metadata"
