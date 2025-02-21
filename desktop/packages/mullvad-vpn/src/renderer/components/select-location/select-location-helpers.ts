@@ -128,7 +128,7 @@ export function isCityDisabled(
   disabledLocation?: { location: RelayLocation; reason: DisabledReason },
 ): DisabledReason | undefined {
   const relaysDisabled = city.relays.map((relay) =>
-    isRelayDisabled(relay, { ...location, hostname: relay.hostname }),
+    isRelayDisabled(relay, { ...location, hostname: relay.hostname }, disabledLocation),
   );
   if (relaysDisabled.every((status) => status === DisabledReason.inactive)) {
     return DisabledReason.inactive;
