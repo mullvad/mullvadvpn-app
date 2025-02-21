@@ -18,3 +18,4 @@ workspace = true
 
 [dependencies]
 regex-lite = "0.1"
+serde = { workspace = true, optional = true }
