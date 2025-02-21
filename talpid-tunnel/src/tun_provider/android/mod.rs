@@ -151,8 +151,8 @@ impl AndroidTunProvider {
             }
             .map(|raw_fd| (raw_fd, true))
         };
-        if let Ok((rawFd, _)) = create_result {
-            self.current_config = Some((config, rawFd));
+        if let Ok((raw_fd, _)) = create_result {
+            self.current_config = Some((config, raw_fd));
         }
         create_result
     }
