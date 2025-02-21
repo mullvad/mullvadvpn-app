@@ -71,7 +71,8 @@ extension REST {
                     pathPrefix: "/app/v1",
                     bodyEncoder: Coding.makeJSONEncoder()
                 ),
-                responseDecoder: Coding.makeJSONDecoder()
+                responseDecoder: Coding.makeJSONDecoder(),
+                requestEncoder: Coding.makeJSONEncoder()
             )
         }
 
@@ -288,7 +289,7 @@ extension REST {
                 .checkStorekitPayment(
                     retryStrategy: retryStrategy,
                     accountNumber: accountNumber,
-                    transaction: transaction
+                    transaction: StorekitTransaction(transaction: transaction)
                 )
             )
 

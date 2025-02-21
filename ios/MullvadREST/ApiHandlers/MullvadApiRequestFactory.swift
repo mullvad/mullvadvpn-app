@@ -12,34 +12,29 @@ import MullvadTypes
 enum MullvadApiRequest {
     case getAddressList(retryStrategy: REST.RetryStrategy)
     case initStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String)
-    case checkStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String, transaction: String)
+    case checkStorekitPayment(retryStrategy: REST.RetryStrategy, accountNumber: String, transaction: StorekitTransaction)
 }
 
 struct MullvadApiRequestFactory {
     let apiContext: MullvadApiContext
+    let encoder: JSONEncoder
 
     func makeRequest(_ request: MullvadApiRequest) -> REST.MullvadApiRequestHandler {
         { completion in
-            let pointerClass = MullvadApiCompletion { apiResponse in
-                try? completion?(apiResponse)
-            }
-
-            let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
-
-            return switch request {
+            switch request {
             case let .getAddressList(retryStrategy):
-                MullvadApiCancellable(handle: mullvad_api_get_addresses(
+                return MullvadApiCancellable(handle: mullvad_api_get_addresses(
                     apiContext.context,
-                    rawPointer,
+                    makeRawPointer(completion),
                     retryStrategy.toRustStrategy()
                 ))
             case let .initStorekitPayment(
                 retryStrategy: retryStrategy,
                 accountNumber: accountNumber
             ):
-                MullvadApiCancellable(handle: mullvad_api_init_storekit_payment(
+                return MullvadApiCancellable(handle: mullvad_api_init_storekit_payment(
                     apiContext.context,
-                    rawPointer,
+                    makeRawPointer(completion),
                     retryStrategy.toRustStrategy(),
                     accountNumber
                 ))
@@ -48,18 +43,29 @@ struct MullvadApiRequestFactory {
                 accountNumber: accountNumber,
                 transaction: transaction
             ):
-                MullvadApiCancellable(handle: mullvad_api_check_storekit_payment(
+                let body = try encoder.encode(transaction)
+                return MullvadApiCancellable(handle: mullvad_api_check_storekit_payment(
                     apiContext.context,
-                    rawPointer,
+                    makeRawPointer(completion),
                     retryStrategy.toRustStrategy(),
                     accountNumber,
-                    transaction
+                    body.map { $0 },
+                    UInt(body.count)
                 ))
             }
         }
     }
+
+    /// This pointer must be consumed
+    func makeRawPointer(_ completion: ((MullvadApiResponse) throws -> Void)?) -> UnsafeMutableRawPointer {
+        let pointerClass = MullvadApiCompletion { apiResponse in
+            try? completion?(apiResponse)
+        }
+
+        return Unmanaged.passRetained(pointerClass).toOpaque()
+    }
 }
 
 extension REST {
-    typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) -> MullvadApiCancellable
+    typealias MullvadApiRequestHandler = (((MullvadApiResponse) throws -> Void)?) throws -> MullvadApiCancellable
 }

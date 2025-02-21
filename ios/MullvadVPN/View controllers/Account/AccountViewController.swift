@@ -276,10 +276,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
     }
 
     private func sendReceiptToAPI(accountNumber: String, receipt: VerificationResult<Transaction>) async {
-        do {
-            try await interactor.sendStoreKitReceipt(receipt, for: accountNumber)
+        switch await interactor.sendStoreKitReceipt(receipt, for: accountNumber) {
+        case .success:
             print("Receipt sent successfully")
-        } catch {
+        case let .failure(error):
             print("Error sending receipt: \(error)")
             errorPresenter.showAlertForStoreKitError(error, context: .purchase)
         }

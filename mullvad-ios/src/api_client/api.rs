@@ -169,7 +169,8 @@ pub unsafe extern "C" fn mullvad_api_check_storekit_payment(
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
     account: *const u8,
-    transaction: *const u8,
+    body: *const u8,
+    body_size: usize,
 ) -> SwiftCancelHandle {
     let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
 
@@ -192,21 +193,13 @@ pub unsafe extern "C" fn mullvad_api_check_storekit_payment(
     };
     let account = AccountNumber::from(account);
 
-    let transaction = unsafe { std::ffi::CStr::from_ptr(transaction.cast()) };
-    let Ok(transaction) = transaction.to_str() else {
-        completion_handler.finish(SwiftMullvadApiResponse::invalid_input(
-            c"Invalid transaction string",
-        ));
-        return SwiftCancelHandle::empty();
-    };
-    let transaction = String::from(transaction);
-
+    let body = unsafe { std::slice::from_raw_parts(body, body_size) }.to_vec();
     let task = tokio_handle.clone().spawn(async move {
         match mullvad_api_check_storekit_payment_inner(
             api_context.rest_handle(),
             retry_strategy,
             account,
-            transaction,
+            body,
         )
         .await
         {
@@ -225,12 +218,11 @@ async fn mullvad_api_check_storekit_payment_inner(
     rest_client: MullvadRestHandle,
     retry_strategy: RetryStrategy,
     account: AccountNumber,
-    transaction: String,
+    body: Vec<u8>,
 ) -> Result<SwiftMullvadApiResponse, rest::Error> {
     let account_proxy = AccountsProxy::new(rest_client);
 
-    let future_factory =
-        || account_proxy.check_storekit_payment(account.clone(), transaction.clone());
+    let future_factory = || account_proxy.check_storekit_payment(account.clone(), body.clone());
 
     let should_retry = |result: &Result<_, rest::Error>| match result {
         Err(err) => err.is_network_error(),

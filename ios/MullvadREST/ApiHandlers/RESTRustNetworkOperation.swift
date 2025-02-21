@@ -60,25 +60,28 @@ extension REST {
                 finish(result: .failure(OperationError.cancelled))
                 return
             }
+            do {
+                networkTask = try requestHandler { [weak self] response in
+                    guard let self else { return }
 
-            networkTask = requestHandler { [weak self] response in
-                guard let self else { return }
+                    if let error = response.restError() {
+                        finish(result: .failure(error))
+                        return
+                    }
 
-                if let error = response.restError() {
-                    finish(result: .failure(error))
-                    return
+                    let decodedResponse = responseHandler.handleResponse(response)
+
+                    switch decodedResponse {
+                    case let .success(value):
+                        finish(result: .success(value))
+                    case let .decoding(block):
+                        finish(result: .success(try block()))
+                    case let .unhandledResponse(error):
+                        finish(result: .failure(REST.Error.unhandledResponse(Int(response.statusCode), error)))
+                    }
                 }
-
-                let decodedResponse = responseHandler.handleResponse(response)
-
-                switch decodedResponse {
-                case let .success(value):
-                    finish(result: .success(value))
-                case let .decoding(block):
-                    finish(result: .success(try block()))
-                case let .unhandledResponse(error):
-                    finish(result: .failure(REST.Error.unhandledResponse(Int(response.statusCode), error)))
-                }
+            } catch {
+                finish(result: .failure(REST.Error.createURLRequest(error)))
             }
         }
     }

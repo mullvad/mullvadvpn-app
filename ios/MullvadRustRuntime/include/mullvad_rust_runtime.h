@@ -152,7 +152,8 @@ struct SwiftCancelHandle mullvad_api_check_storekit_payment(struct SwiftApiConte
                                                             void *completion_cookie,
                                                             struct SwiftRetryStrategy retry_strategy,
                                                             const uint8_t *account,
-                                                            const uint8_t *transaction);
+                                                            const uint8_t *body,
+                                                            uintptr_t body_size);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.

@@ -602,13 +602,12 @@ impl AccountsProxy {
     pub async fn check_storekit_payment(
         &self,
         account: AccountNumber,
-        transaction: String,
+        body: Vec<u8>,
     ) -> Result<rest::Response<Incoming>, rest::Error> {
-        let transaction = StorekitTransaction { transaction };
         let request = self
             .handle
             .factory
-            .post_json(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), &transaction)?
+            .post_json_bytes(&format!("{APPLE_PAYMENT_URL_PREFIX}/check"), body)?
             .expected_status(&[StatusCode::OK])
             .account(account)?;
         self.handle.service.request(request).await

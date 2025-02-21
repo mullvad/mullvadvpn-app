@@ -36,14 +36,18 @@ extension REST {
             name: String,
             configuration: ConfigurationType,
             requestFactory: REST.RequestFactory,
-            responseDecoder: JSONDecoder
+            responseDecoder: JSONDecoder,
+            requestEncoder: JSONEncoder
         ) {
             dispatchQueue = DispatchQueue(label: "REST.\(name).dispatchQueue")
             operationQueue.name = "REST.\(name).operationQueue"
 
             self.configuration = configuration
             self.requestFactory = requestFactory
-            self.mullvadApiRequestFactory = MullvadApiRequestFactory(apiContext: configuration.apiContext)
+            self.mullvadApiRequestFactory = MullvadApiRequestFactory(
+                apiContext: configuration.apiContext,
+                encoder: requestEncoder
+            )
             self.responseDecoder = responseDecoder
         }
 

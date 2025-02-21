@@ -584,6 +584,10 @@ impl RequestFactory {
         self.json_request(Method::POST, path, body)
     }
 
+    pub fn post_json_bytes(&self, path: &str, body: Vec<u8>) -> Result<Request<Full<Bytes>>> {
+        self.json_request_with_bytes(Method::POST, path, body)
+    }
+
     pub fn put_json<S: serde::Serialize>(
         &self,
         path: &str,
@@ -596,17 +600,17 @@ impl RequestFactory {
         self.default_timeout = timeout;
         self
     }
-    fn json_request<S: serde::Serialize>(
+
+    fn json_request_with_bytes(
         &self,
         method: Method,
         path: &str,
-        body: &S,
+        body: Vec<u8>,
     ) -> Result<Request<Full<Bytes>>> {
         let mut request = self.hyper_request(path, method)?;
 
-        let json_body = serde_json::to_vec(&body)?;
-        let body_length = json_body.len();
-        *request.body_mut() = Full::new(Bytes::from(json_body));
+        let body_length = body.len();
+        *request.body_mut() = Full::new(Bytes::from(body));
 
         let headers = request.headers_mut();
         headers.insert(header::CONTENT_LENGTH, HeaderValue::from(body_length));
@@ -616,6 +620,16 @@ impl RequestFactory {
         );
 
         Ok(Request::new(request, self.token_store.clone()).timeout(self.default_timeout))
+    }
+
+    fn json_request<S: serde::Serialize>(
+        &self,
+        method: Method,
+        path: &str,
+        body: &S,
+    ) -> Result<Request<Full<Bytes>>> {
+        let json_body = serde_json::to_vec(&body)?;
+        self.json_request_with_bytes(method, path, json_body)
     }
 
     fn hyper_request<B: Default>(&self, path: &str, method: Method) -> Result<http::Request<B>> {

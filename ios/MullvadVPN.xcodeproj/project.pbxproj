@@ -1074,6 +1074,7 @@
 		F910A8572D523812002FF3BB /* TunnelSettingsV7.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A8562D523812002FF3BB /* TunnelSettingsV7.swift */; };
 		F95C1C252D3E5E8E00EBE769 /* UIAlertController+InAppPurchase.swift in Sources */ = {isa = PBXBuildFile; fileRef = F95C1C242D3E5E7A00EBE769 /* UIAlertController+InAppPurchase.swift */; };
 		F910A4012D3FF23A002FF3BB /* View+Modifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4002D3FF22E002FF3BB /* View+Modifier.swift */; };
+		F924C4262D68D7D7001F4660 /* Storekit.swift in Sources */ = {isa = PBXBuildFile; fileRef = F924C4252D68D7C8001F4660 /* Storekit.swift */; };
 		F998EFF82D359C4600D88D01 /* SKProduct+Formatting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58FD5BEF24238EB300112C88 /* SKProduct+Formatting.swift */; };
 		F998EFFA2D3656BA00D88D01 /* SKProduct+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */; };
 /* End PBXBuildFile section */
@@ -2348,6 +2349,7 @@
 		F95C1C242D3E5E7A00EBE769 /* UIAlertController+InAppPurchase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertController+InAppPurchase.swift"; sourceTree = "<group>"; };
 		F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
 		F910A4392D4A2839002FF3BB /* InAppPurchaseViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseViewController.swift; sourceTree = "<group>"; };
+		F924C4252D68D7C8001F4660 /* Storekit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Storekit.swift; sourceTree = "<group>"; };
 		F998EFF92D3656B100D88D01 /* SKProduct+Sorting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SKProduct+Sorting.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -2859,6 +2861,7 @@
 				5898D2AF2902A67C00EB5EBA /* RelayLocation.swift */,
 				581DA2722A1E227D0046ED47 /* RESTTypes.swift */,
 				58F1311427E0B2AB007AC5BC /* Result+Extensions.swift */,
+				F924C4252D68D7C8001F4660 /* Storekit.swift */,
 				F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */,
 				A91614D02B108D1B00F416EB /* TransportLayer.swift */,
 				58E511E028DDB7F100B0BCDE /* WrappingError.swift */,
@@ -6430,6 +6433,7 @@
 				58D2240C294C90210029F5F8 /* WrappingError.swift in Sources */,
 				F0ADF1CD2CFDFF3100299F09 /* StringConversionError.swift in Sources */,
 				A9A8A8EB2A262AB30086D569 /* FileCache.swift in Sources */,
+				F924C4262D68D7D7001F4660 /* Storekit.swift in Sources */,
 				A90C48692C36BF3900DCB94C /* TunnelProvider.swift in Sources */,
 				58D2240D294C90210029F5F8 /* CustomErrorDescriptionProtocol.swift in Sources */,
 				58D2240E294C90210029F5F8 /* Error+Chain.swift in Sources */,
