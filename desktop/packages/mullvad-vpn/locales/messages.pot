@@ -2179,8 +2179,10 @@ msgctxt "wireguard-settings-view"
 msgid "Obfuscation"
 msgstr ""
 
+#. Describes what WireGuard obfuscation does, how it works and when
+#. it would be useful to enable it.
 msgctxt "wireguard-settings-view"
-msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
@@ -2573,6 +2575,9 @@ msgid "No result for \"%s\", please try a different search"
 msgstr ""
 
 msgid "Not found"
+msgstr ""
+
+msgid "Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked."
 msgstr ""
 
 msgid "Overrides active"
