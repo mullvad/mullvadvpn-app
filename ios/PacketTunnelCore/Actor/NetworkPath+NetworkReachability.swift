@@ -7,22 +7,20 @@
 //
 
 import Foundation
+import Network
 
-extension NetworkPath {
+extension Network.NWPath.Status {
     /// Converts `NetworkPath.status` into `NetworkReachability`.
     var networkReachability: NetworkReachability {
-        switch status {
-        case .satisfiable, .satisfied:
-            return .reachable
-
+        switch self {
+        case .satisfied:
+            .reachable
         case .unsatisfied:
-            return .unreachable
-
-        case .invalid:
-            return .undetermined
-
+            .unreachable
+        case .requiresConnection:
+            .reachable
         @unknown default:
-            return .undetermined
+            .undetermined
         }
     }
 }

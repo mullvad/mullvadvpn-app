@@ -64,7 +64,7 @@ class TunnelMonitorStub: TunnelMonitorProtocol, @unchecked Sendable {
 
     func onSleep() {}
 
-    func handleNetworkPathUpdate(_ networkPath: NetworkPath) {}
+    func handleNetworkPathUpdate(_ networkPath: Network.NWPath.Status) {}
 
     func dispatch(_ event: TunnelMonitorEvent, after delay: DispatchTimeInterval = .never) {
         if case .never = delay {
