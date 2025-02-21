@@ -42,8 +42,6 @@ open class TalpidVpnService : LifecycleVpnService() {
             }
         }
 
-    private var currentTunConfig: TunConfig? = null
-
     // Used by JNI
     lateinit var connectivityListener: ConnectivityListener
 
@@ -56,12 +54,7 @@ open class TalpidVpnService : LifecycleVpnService() {
 
     // Used by JNI
     fun openTun(config: TunConfig): CreateTunResult =
-        synchronized(this) {
-            createTun(config).merge().also {
-                currentTunConfig = config
-                activeTunStatus = it
-            }
-        }
+        synchronized(this) { createTun(config).merge().also { activeTunStatus = it } }
 
     // Used by JNI
     fun closeTun(): Unit =
