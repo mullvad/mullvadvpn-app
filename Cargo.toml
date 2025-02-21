@@ -30,6 +30,7 @@ members = [
   "mullvad-types",
   "mullvad-types/intersection-derive",
   "mullvad-update",
+  "mullvad-update/meta",
   "mullvad-version",
   "talpid-core",
   "talpid-dbus",

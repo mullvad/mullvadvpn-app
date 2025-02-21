@@ -17,9 +17,8 @@ impl SignedResponse {
         Self::deserialize_and_verify_at_time(key, bytes, chrono::Utc::now(), min_metadata_version)
     }
 
-    /// This method is used for testing, and skips all verification.
+    /// This method is used mostly for testing, and skips all verification.
     /// Own method to prevent accidental misuse.
-    #[cfg(test)]
     pub fn deserialize_and_verify_insecure(bytes: &[u8]) -> Result<Self, anyhow::Error> {
         let partial_data: PartialSignedResponse =
             serde_json::from_slice(bytes).context("Invalid version JSON")?;
