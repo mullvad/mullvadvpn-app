@@ -5886,6 +5886,7 @@ version = "0.0.0"
 dependencies = [
  "anyhow",
  "mullvad-version",
+ "talpid-platform-metadata",
  "tempfile",
  "windows-sys 0.52.0",
  "winres",
