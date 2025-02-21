@@ -4,7 +4,10 @@
 //!
 //! The main input here is [VersionParameters], and the main output is [VersionInfo].
 
+use std::cmp::Ordering;
+
 use anyhow::Context;
+use mullvad_version::PreStableType;
 
 use crate::format;
 
@@ -68,7 +71,7 @@ impl VersionInfo {
         let mut releases = response.releases;
 
         // Sort releases by version
-        releases.sort_by(|a, b| mullvad_version::Version::version_ordering(&a.version, &b.version));
+        releases.sort_by(|a, b| a.version.partial_cmp(&b.version).unwrap_or(Ordering::Equal));
 
         // Fail if there are duplicate versions.
         // Check this before anything else so that it's rejected indepentently of `params`.
@@ -102,7 +105,7 @@ impl VersionInfo {
         // Find latest stable version
         let stable = releases
             .iter()
-            .rfind(|release| release.version.is_stable() && !release.version.is_dev());
+            .rfind(|release| release.version.pre_stable.is_none() && !release.version.is_dev());
         let Some(stable) = stable.cloned() else {
             anyhow::bail!("No stable version found");
         };
@@ -111,9 +114,9 @@ impl VersionInfo {
         let beta = releases
             .iter()
             // Find most recent beta version
-            .rfind(|release| release.version.beta().is_some() && !release.version.is_dev())
+            .rfind(|release| matches!(release.version.pre_stable, Some(PreStableType::Beta(_))) && !release.version.is_dev())
             // If the latest beta version is older than latest stable, dispose of it
-            .filter(|release| release.version.version_ordering(&stable.version).is_gt())
+            .filter(|release| release.version > stable.version)
             .cloned();
 
         Ok(Self {
@@ -128,10 +131,7 @@ impl VersionInfo {
     fn find_duplicate_version(releases: &[format::Release]) -> Option<&mullvad_version::Version> {
         releases
             .windows(2)
-            .find(|pair| {
-                mullvad_version::Version::version_ordering(&pair[0].version, &pair[1].version)
-                    .is_eq()
-            })
+            .find(|pair| &pair[0].version == &pair[1].version)
             .map(|pair| &pair[0].version)
     }
 }
