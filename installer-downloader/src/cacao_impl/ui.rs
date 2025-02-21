@@ -155,8 +155,8 @@ pub struct AppWindow {
     pub status_text: Label,
 
     pub error_view: Option<ErrorView>,
-    pub error_retry_callback: Option<Arc<Mutex<Box<dyn Fn() + Send + 'static>>>>,
-    pub error_cancel_callback: Option<Arc<Mutex<Box<dyn Fn() + Send + 'static>>>>,
+    pub error_retry_callback: Option<Arc<Mutex<Box<dyn Fn() + Send>>>>,
+    pub error_cancel_callback: Option<Arc<Mutex<Box<dyn Fn() + Send>>>>,
 
     pub download_text: Label,
 
