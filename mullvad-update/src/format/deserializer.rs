@@ -40,7 +40,7 @@ impl SignedResponse {
         min_metadata_version: usize,
     ) -> Result<Self, anyhow::Error> {
         // Deserialize and verify signature
-        let partial_data = deserialize_and_verify(&key, bytes)?;
+        let partial_data = deserialize_and_verify(key, bytes)?;
 
         // Deserialize the canonical JSON to structured representation
         let signed_response: Response = serde_json::from_value(partial_data.signed)
@@ -182,7 +182,7 @@ mod test {
             .expect("deserialization failed");
 
         let expected_key = VerifyingKey::from_hex(pubkey).unwrap();
-        let expected_sig = Signature::from_hex(&fakesig).unwrap();
+        let expected_sig = Signature::from_hex(fakesig).unwrap();
 
         // Ed25519 key
         assert!(

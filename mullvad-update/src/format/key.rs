@@ -1,6 +1,6 @@
 //! Key and signature types for API version response format
 
-use std::str::FromStr;
+use std::{fmt, str::FromStr};
 
 use anyhow::{bail, Context};
 use ed25519_dalek::ed25519::signature::SignerMut;
@@ -34,9 +34,9 @@ impl SecretKey {
     }
 }
 
-impl ToString for SecretKey {
-    fn to_string(&self) -> String {
-        hex::encode(self.0)
+impl fmt::Display for SecretKey {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", hex::encode(self.0))
     }
 }
 
@@ -56,7 +56,7 @@ impl FromStr for SecretKey {
     type Err = anyhow::Error;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let bytes = bytes_from_hex::<{ ed25519_dalek::SECRET_KEY_LENGTH }>(&s)?;
+        let bytes = bytes_from_hex::<{ ed25519_dalek::SECRET_KEY_LENGTH }>(s)?;
         Ok(SecretKey(bytes))
     }
 }

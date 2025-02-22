@@ -123,78 +123,75 @@ impl AppController {
 }
 
 /// Background task that fetches app version data.
-fn fetch_app_version_info<Delegate, VersionProvider>(
+async fn fetch_app_version_info<Delegate, VersionProvider>(
     queue: Delegate::Queue,
     download_tx: mpsc::Sender<TaskMessage>,
     version_provider: VersionProvider,
-) -> impl Future<Output = ()>
-where
+) where
     Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
 {
-    async move {
-        loop {
-            let version_params = VersionParameters {
-                // TODO: detect current architecture
-                architecture: VersionArchitecture::X86,
-                // For the downloader, the rollout version is always preferred
-                rollout: 1.,
-                // The downloader allows any version
-                lowest_metadata_version: 0,
-            };
+    loop {
+        let version_params = VersionParameters {
+            // TODO: detect current architecture
+            architecture: VersionArchitecture::X86,
+            // For the downloader, the rollout version is always preferred
+            rollout: 1.,
+            // The downloader allows any version
+            lowest_metadata_version: 0,
+        };
 
-            let err = match version_provider.get_version_info(version_params).await {
-                Ok(version_info) => {
-                    let _ = download_tx.try_send(TaskMessage::SetVersionInfo(version_info));
-                    return;
-                }
-                Err(err) => err,
-            };
-
-            eprintln!("Failed to get version info: {err}");
-
-            enum Action {
-                Retry,
-                Cancel,
+        let err = match version_provider.get_version_info(version_params).await {
+            Ok(version_info) => {
+                let _ = download_tx.try_send(TaskMessage::SetVersionInfo(version_info));
+                return;
             }
+            Err(err) => err,
+        };
 
-            let (action_tx, mut action_rx) = mpsc::channel(1);
+        eprintln!("Failed to get version info: {err}");
 
-            // show error message (needs to happen on the UI thread)
-            // send Action when user presses a button to contin
-            queue.queue_main(move |self_| {
-                self_.hide_download_button();
+        enum Action {
+            Retry,
+            Cancel,
+        }
 
-                let (retry_tx, cancel_tx) = (action_tx.clone(), action_tx);
+        let (action_tx, mut action_rx) = mpsc::channel(1);
 
-                self_.set_status_text("");
-                self_.on_error_message_retry(move || {
-                    let _ = retry_tx.try_send(Action::Retry);
-                });
-                self_.on_error_message_cancel(move || {
-                    let _ = cancel_tx.try_send(Action::Cancel);
-                });
-                self_.show_error_message(crate::delegate::ErrorMessage {
-                    status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
-                    cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
-                    retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
-                });
+        // show error message (needs to happen on the UI thread)
+        // send Action when user presses a button to continue
+        queue.queue_main(move |self_| {
+            self_.hide_download_button();
+
+            let (retry_tx, cancel_tx) = (action_tx.clone(), action_tx);
+
+            self_.set_status_text("");
+            self_.on_error_message_retry(move || {
+                let _ = retry_tx.try_send(Action::Retry);
             });
+            self_.on_error_message_cancel(move || {
+                let _ = cancel_tx.try_send(Action::Cancel);
+            });
+            self_.show_error_message(crate::delegate::ErrorMessage {
+                status_text: resource::FETCH_VERSION_ERROR_DESC.to_owned(),
+                cancel_button_text: resource::FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT.to_owned(),
+                retry_button_text: resource::FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT.to_owned(),
+            });
+        });
 
-            // wait for user to press either button
-            let Some(action) = action_rx.recv().await else {
-                panic!("channel was dropped? argh")
-            };
+        // wait for user to press either button
+        let Some(action) = action_rx.recv().await else {
+            panic!("channel was dropped? argh")
+        };
 
-            match action {
-                Action::Retry => {
-                    continue;
-                }
-                Action::Cancel => {
-                    queue.queue_main(|self_| {
-                        self_.quit();
-                    });
-                }
+        match action {
+            Action::Retry => {
+                continue;
+            }
+            Action::Cancel => {
+                queue.queue_main(|self_| {
+                    self_.quit();
+                });
             }
         }
     }
@@ -269,7 +266,7 @@ async fn handle_action_messages<D, A, DirProvider>(
                 });
             }
             TaskMessage::BeginDownload => {
-                if let Some(_) = active_download.take() {
+                if active_download.take().is_some() {
                     println!("Interrupting ongoing download");
                 }
                 let Some(version_info) = version_info.clone() else {
@@ -372,7 +369,7 @@ async fn handle_action_messages<D, A, DirProvider>(
                     }
                 };
 
-                let version_label = format_latest_version(&selected_version);
+                let version_label = format_latest_version(selected_version);
                 let has_beta = version_info.beta.is_some();
 
                 queue.queue_main(move |self_| {
