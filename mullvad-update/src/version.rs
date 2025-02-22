@@ -121,7 +121,7 @@ impl VersionInfo {
 
         Ok(Self {
             stable: Version::try_from(stable)?,
-            beta: beta.map(|beta| Version::try_from(beta)).transpose()?,
+            beta: beta.map(Version::try_from).transpose()?,
         })
     }
 
@@ -131,7 +131,7 @@ impl VersionInfo {
     fn find_duplicate_version(releases: &[format::Release]) -> Option<&mullvad_version::Version> {
         releases
             .windows(2)
-            .find(|pair| &pair[0].version == &pair[1].version)
+            .find(|pair| pair[0].version == pair[1].version)
             .map(|pair| &pair[0].version)
     }
 }
