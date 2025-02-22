@@ -13,33 +13,39 @@ workspace = true
 [features]
 default = []
 sign = ["rand", "clap"]
+client = ["async-trait", "mullvad-paths", "reqwest", "sha2", "tokio", "thiserror"]
+native-tls = ["reqwest/native-tls"]
 
 [dependencies]
-anyhow = "1.0"
+anyhow = { workspace = true }
 json-canon = "0.1"
 chrono = { workspace = true, features = ["serde", "now"] }
 ed25519-dalek = { version = "2.1" }
 hex = { version = "0.4" }
-reqwest = { version = "0.12.9", features = ["blocking", "json"] }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
-sha2 = "0.10"
-thiserror = { workspace = true }
-tokio = { version = "1", features = ["full"] }
-async-trait = "0.1"
 
-mullvad-paths = { path = "../mullvad-paths" }
+async-trait = { version = "0.1", optional = true }
+reqwest = { version = "0.12.9", default-features = false, optional = true }
+sha2 = { version = "0.10", optional = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process"], optional = true }
+thiserror = { workspace = true, optional = true }
+
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
 # features required by binaries
 clap = { workspace = true, optional = true }
 rand = { version = "0.8.5", optional = true }
 
+[target.'cfg(target_os = "windows")'.dependencies]
+mullvad-paths = { path = "../mullvad-paths", optional = true }
+
 [dev-dependencies]
 async-tempfile = "0.6"
 insta = { workspace = true }
 mockito = "1.6.1"
 rand = "0.8.5"
+tokio = { workspace = true, features = ["test-util", "time", "macros"] }
 
 [[bin]]
 name = "mullvad-version-metadata"

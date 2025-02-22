@@ -1,3 +1,5 @@
+#![cfg(any(target_os = "windows", target_os = "macos"))]
+
 //! Tests for integrations between UI controller and other components
 //!
 //! The tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
