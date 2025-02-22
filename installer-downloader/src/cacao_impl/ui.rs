@@ -83,7 +83,7 @@ pub enum Action {
     /// User clicked the cancel button
     CancelClick(Arc<Mutex<Box<dyn Fn() + Send>>>),
     /// Run callback on main thread
-    QueueMain(Mutex<Option<Box<dyn for<'a> FnOnce(&'a mut AppWindow) + Send>>>),
+    QueueMain(Mutex<Option<MainThreadCallback>>),
     /// User clicked the retry button in the error view
     ErrorRetry(Arc<Mutex<Box<dyn Fn() + Send>>>),
     /// User clicked the cancel button in the error view
@@ -91,6 +91,9 @@ pub enum Action {
     /// Quit the application.
     Quit,
 }
+
+/// Callback used for `QueueMain`
+pub type MainThreadCallback = Box<dyn for<'a> FnOnce(&'a mut AppWindow) + Send>;
 
 impl Dispatcher for AppImpl {
     type Message = Action;
@@ -155,8 +158,8 @@ pub struct AppWindow {
     pub status_text: Label,
 
     pub error_view: Option<ErrorView>,
-    pub error_retry_callback: Option<Arc<Mutex<Box<dyn Fn() + Send>>>>,
-    pub error_cancel_callback: Option<Arc<Mutex<Box<dyn Fn() + Send>>>>,
+    pub error_retry_callback: Option<Arc<Mutex<ErrorViewClickCallback>>>,
+    pub error_cancel_callback: Option<Arc<Mutex<ErrorViewClickCallback>>>,
 
     pub download_text: Label,
 
@@ -171,6 +174,8 @@ pub struct ErrorView {
     pub retry_button: Button,
     pub cancel_button: Button,
 }
+
+pub type ErrorViewClickCallback = Box<dyn Fn() + Send>;
 
 pub struct DownloadButton {
     pub button: Button,
@@ -286,7 +291,7 @@ impl AppWindow {
         self.beta_link_preface.set_text(BETA_PREFACE_DESC);
         self.main_view.add_subview(&self.beta_link_preface);
 
-        let mut attr_text = AttributedString::new(&BETA_LINK_TEXT);
+        let mut attr_text = AttributedString::new(BETA_LINK_TEXT);
         attr_text.set_text_color(Color::Link, 0..BETA_LINK_TEXT.len() as isize);
 
         self.beta_link.set_attributed_text(attr_text);

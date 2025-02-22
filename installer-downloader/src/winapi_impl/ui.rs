@@ -406,7 +406,7 @@ fn handle_link_messages(
     handler_id: usize,
 ) -> Result<nwg::RawEventHandler, nwg::NwgError> {
     let link_hwnd = link.handle.hwnd().map(|hwnd| hwnd as isize);
-    nwg::bind_raw_event_handler(&parent, handler_id, move |_hwnd, msg, w, p| {
+    nwg::bind_raw_event_handler(parent, handler_id, move |_hwnd, msg, w, p| {
         /// This is the RGB() macro except it takes in a slice representing RGB values
         pub fn rgb(color: [u8; 3]) -> COLORREF {
             color[0] as COLORREF | ((color[1] as COLORREF) << 8) | ((color[2] as COLORREF) << 16)

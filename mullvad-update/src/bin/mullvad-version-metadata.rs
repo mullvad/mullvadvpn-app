@@ -35,7 +35,7 @@ async fn main() -> anyhow::Result<()> {
 
     match opt {
         Opt::GenerateKey => {
-            println!("{}", key::SecretKey::generate().to_string());
+            println!("{}", key::SecretKey::generate());
             Ok(())
         }
         Opt::Sign { file, secret } => sign(file, secret).await,
