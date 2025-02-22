@@ -26,7 +26,7 @@ mullvad-update = { path = "../mullvad-update", features = ["client", "native-tls
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { workspace = true, features = ["Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_Graphics", "Win32_Graphics_Gdi"] }
-native-windows-gui = { version = "1.0.12", features = ["image-decoder"] }
+native-windows-gui = { version = "1.0.12", features = ["frame", "image-decoder", "progress-bar"], default-features = false }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cacao = "0.3.2"
