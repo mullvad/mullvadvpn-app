@@ -1,6 +1,6 @@
 //! This module implements the flow of downloading and verifying the app.
 
-use std::{path::PathBuf, time::Duration};
+use std::{ffi::OsString, path::PathBuf, time::Duration};
 
 use tokio::{process::Command, time::timeout};
 
@@ -112,10 +112,11 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
     }
 
     async fn install(&mut self) -> Result<(), DownloadError> {
-        let bin_path = self.bin_path();
+        let launch_path = self.launch_path();
 
         // Launch process
-        let mut cmd = Command::new(bin_path);
+        let mut cmd = Command::new(launch_path);
+        cmd.args(self.launch_args());
         let mut child = cmd.spawn().map_err(DownloadError::Launch)?;
 
         // Wait to see if the installer fails
@@ -141,10 +142,36 @@ impl<AppProgress> HttpAppDownloader<AppProgress> {
         #[cfg(windows)]
         let bin_filename = format!("mullvad-{}.exe", self.params.app_version);
 
-        #[cfg(unix)]
-        let bin_filename = self.params.app_version.to_string();
+        #[cfg(target_os = "macos")]
+        let bin_filename = format!("mullvad-{}.pkg", self.params.app_version);
 
         self.params.cache_dir.join(bin_filename)
+    }
+
+    fn launch_path(&self) -> PathBuf {
+        #[cfg(target_os = "windows")]
+        {
+            self.bin_path()
+        }
+
+        #[cfg(target_os = "macos")]
+        {
+            use std::path::Path;
+
+            Path::new("/usr/bin/open").to_owned()
+        }
+    }
+
+    fn launch_args(&self) -> Vec<OsString> {
+        #[cfg(target_os = "windows")]
+        {
+            vec![]
+        }
+
+        #[cfg(target_os = "macos")]
+        {
+            vec![self.bin_path().into()]
+        }
     }
 
     fn hash_sha256(&self) -> &[u8; 32] {
