@@ -55,13 +55,12 @@ jobs:
       - name: Check file size
         uses: ./.github/actions/check-file-size
         with:
-          artifact: "C:/cargo-target/release/installer-downloader.exe"
+          artifact: "./installer-downloader/dist/MullvadDownloader.exe"
           max_size: ${{ env.MAX_BINARY_SIZE }}
 
   build-macos:
     runs-on: macos-latest
     env:
-      # TODO: Figure out a reasonable limit for macOS
       # If the file is larger than this, a regression has probably been introduced.
       # You should think twice before increasing this limit.
       MAX_BINARY_SIZE: 2097152
@@ -69,12 +68,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Install Rust
+        run: rustup target add x86_64-apple-darwin
+
       - name: Build
-        shell: bash
         run: ./installer-downloader/build.sh
 
       - name: Check file size
         uses: ./.github/actions/check-file-size
         with:
-          artifact: "./target/release/installer-downloader"
+          artifact: "./installer-downloader/dist/MullvadDownloader.dmg"
           max_size: ${{ env.MAX_BINARY_SIZE }}
