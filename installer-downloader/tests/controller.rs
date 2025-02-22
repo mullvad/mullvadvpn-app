@@ -123,8 +123,10 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
 /// A fake queue that stores callbacks so that tests can run them later.
 #[derive(Clone, Default)]
 pub struct FakeQueue {
-    callbacks: Arc<Mutex<Vec<Box<dyn FnOnce(&mut FakeAppDelegate) + Send>>>>,
+    callbacks: Arc<Mutex<Vec<MainThreadCallback>>>,
 }
+
+pub type MainThreadCallback = Box<dyn FnOnce(&mut FakeAppDelegate) + Send>;
 
 impl FakeQueue {
     /// Run all queued callbacks on the given delegate.

@@ -168,7 +168,7 @@ impl AppWindow {
     fn sync_callback(
         callback: impl Fn() + Send + 'static,
     ) -> Arc<Mutex<Box<dyn Fn() + Send + 'static>>> {
-        Arc::new(Mutex::new(Box::new(move || callback())))
+        Arc::new(Mutex::new(Box::new(callback)))
     }
 }
 
@@ -178,8 +178,7 @@ pub struct Queue {}
 impl AppDelegateQueue<AppWindow> for Queue {
     fn queue_main<F: FnOnce(&mut AppWindow) + 'static + Send>(&self, callback: F) {
         // NOTE: We need this horrible lock because Dispatcher demands Sync
-        let cb: Mutex<Option<Box<dyn FnOnce(&mut AppWindow) + Send>>> =
-            Mutex::new(Some(Box::new(callback)));
+        let cb: Mutex<Option<super::ui::MainThreadCallback>> = Mutex::new(Some(Box::new(callback)));
         cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(Action::QueueMain(cb));
     }
 }
