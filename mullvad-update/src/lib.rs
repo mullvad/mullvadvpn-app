@@ -1,10 +1,11 @@
 //! Support functions for securely installing or updating Mullvad VPN
 
-pub mod api;
-pub mod app;
-pub mod dir;
-pub mod fetch;
-pub mod verify;
+#[cfg(all(feature = "client", any(target_os = "windows", target_os = "macos")))]
+mod client;
+
+#[cfg(all(feature = "client", any(target_os = "windows", target_os = "macos")))]
+pub use client::*;
+
 pub mod version;
 
 /// Parser and serializer for version metadata

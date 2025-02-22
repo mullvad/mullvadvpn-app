@@ -103,7 +103,7 @@ mod test {
     #[tokio::test]
     async fn test_http_version_provider() -> anyhow::Result<()> {
         let verifying_key =
-            crate::format::key::VerifyingKey::from_hex(include_str!("../test-pubkey"))
+            crate::format::key::VerifyingKey::from_hex(include_str!("../../test-pubkey"))
                 .expect("valid key");
 
         // Start HTTP server
@@ -111,7 +111,7 @@ mod test {
         let _mock = server
             .mock("GET", "/version")
             // Respond with some version response payload
-            .with_body(include_bytes!("../test-version-response.json"))
+            .with_body(include_bytes!("../../test-version-response.json"))
             .create();
 
         let url = format!("{}/version", server.url());
