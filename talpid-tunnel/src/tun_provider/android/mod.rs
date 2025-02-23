@@ -95,48 +95,53 @@ impl AndroidTunProvider {
         &mut self.config
     }
 
-    /// Open a tunnel with the current configuration.
+    /// Returns an open tunnel with the current configuration, if a tunnel already with the
+    /// corresponding VpnTunConfig it returns a cached copy.
     pub fn open_tun(&mut self) -> Result<(VpnServiceTun, bool), Error> {
-        self.open_tun_inner("openTun")
-    }
-
-    /// Open a tunnel with the current configuration.
-    fn open_tun_inner(
-        &mut self,
-        get_tun_func_name: &'static str,
-    ) -> Result<(VpnServiceTun, bool), Error> {
-        let (tun_fd, is_new_tunnel) = self.open_tun_fd(get_tun_func_name)?;
+        let config = VpnServiceConfig::new(self.config.clone());
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
-
-        Ok((
-            VpnServiceTun {
-                tunnel: tun_fd,
-                jvm,
-                class: self.class.clone(),
-                object: self.object.clone(),
-            },
-            is_new_tunnel,
-        ))
-    }
-
-    fn open_tun_fd(&mut self, get_tun_func_name: &'static str) -> Result<(RawFd, bool), Error> {
-        let config = VpnServiceConfig::new(self.config.clone());
 
         // If we are recreating the same tunnel we return the same file descriptor to avoid calling
         // open_tun in android since it may cause leaks.
         if let Some((vpn_service_config, raw_fd)) = &self.current_config {
             if vpn_service_config == &config {
-                return Ok((*raw_fd, false));
+                return Ok((
+                    VpnServiceTun {
+                        tunnel: *raw_fd,
+                        jvm,
+                        class: self.class.clone(),
+                        object: self.object.clone(),
+                    },
+                    false,
+                ));
             }
         }
 
+        let raw_fd = self
+            .open_tun_fd(config.clone())
+            .inspect(|raw_fd| self.current_config = Some((config, *raw_fd)))?;
+
+        Ok((
+            VpnServiceTun {
+                tunnel: raw_fd,
+                jvm,
+                class: self.class.clone(),
+                object: self.object.clone(),
+            },
+            true,
+        ))
+    }
+
+    // Opens a tunnel in Android with the provided VpnServiceConfig.
+    fn open_tun_fd(&mut self, config: VpnServiceConfig) -> Result<RawFd, Error> {
+        let method_name = "openTun";
         let create_result = {
             let env = self.env()?;
             let java_config = config.clone().into_java(&env);
             let result = self.call_method(
-                get_tun_func_name,
+                method_name,
                 "(Lnet/mullvad/talpid/model/TunConfig;)Lnet/mullvad/talpid/model/CreateTunResult;",
                 JavaType::Object("net/mullvad/talpid/model/CreateTunResult".to_owned()),
                 &[JValue::Object(java_config.as_obj())],
@@ -145,15 +150,11 @@ impl AndroidTunProvider {
             match result {
                 JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
                 value => Err(Error::InvalidMethodResult(
-                    get_tun_func_name,
+                    method_name,
                     format!("{:?}", value),
                 )),
             }
-            .map(|raw_fd| (raw_fd, true))
         };
-        if let Ok((raw_fd, _)) = create_result {
-            self.current_config = Some((config, raw_fd));
-        }
         create_result
     }
 
