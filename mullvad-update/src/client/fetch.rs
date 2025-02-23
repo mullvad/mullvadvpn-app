@@ -362,13 +362,13 @@ mod test {
         add_file_server_mock(&mut server, "/my_file", file_data);
 
         // Interrupt after exactly half the file has been downloaded
-        let mut limited_buffer = vec![0u8; file_data.len() / 2].into_boxed_slice();
-        let mut writer = Cursor::new(&mut limited_buffer[..]);
+        let mut buffer = vec![0u8; file_data.len() / 2];
+        let mut limited_writer = Cursor::new(&mut buffer[..]);
 
         let mut progress_updater = FakeProgressUpdater::default();
 
         get_to_writer(
-            &mut writer,
+            &mut limited_writer,
             &file_url,
             &mut progress_updater,
             SizeHint::Exact(file_data.len()),
@@ -385,15 +385,14 @@ mod test {
         );
 
         assert_eq!(
-            &*limited_buffer,
-            &file_data[..limited_buffer.len()],
+            &*buffer,
+            &file_data[..buffer.len()],
             "partial download incorrect"
         );
 
         // Download the remainder
-        let writer = limited_buffer.into_vec();
-        let partial_len = writer.len();
-        let mut writer = Cursor::new(writer);
+        let partial_len = buffer.len();
+        let mut writer = Cursor::new(buffer);
         writer.set_position(partial_len as u64);
 
         let mut progress_updater = FakeProgressUpdater::default();
