@@ -11,7 +11,6 @@ use mullvad_update::{
 };
 use rand::seq::SliceRandom;
 
-use std::error::Error;
 use std::future::Future;
 use std::path::PathBuf;
 use tokio::sync::{mpsc, oneshot};
@@ -149,7 +148,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
             Err(err) => err,
         };
 
-        eprintln!("Failed to get version info: {err}");
+        log::error!("Failed to get version info: {err:?}");
 
         enum Action {
             Retry,
@@ -235,9 +234,11 @@ async fn handle_action_messages<D, A, DirProvider>(
             }
             TaskMessage::TryBeta => {
                 let Some(version_info) = version_info.as_ref() else {
+                    log::error!("Attempted 'try beta' before having version info");
                     continue;
                 };
                 let Some(beta_info) = version_info.beta.as_ref() else {
+                    log::error!("Attempted 'try beta' without beta version");
                     continue;
                 };
 
@@ -252,6 +253,7 @@ async fn handle_action_messages<D, A, DirProvider>(
             }
             TaskMessage::TryStable => {
                 let Some(version_info) = version_info.as_ref() else {
+                    log::error!("Attempted 'try stable' before having version info");
                     continue;
                 };
                 let stable_info = &version_info.stable;
@@ -267,9 +269,10 @@ async fn handle_action_messages<D, A, DirProvider>(
             }
             TaskMessage::BeginDownload => {
                 if active_download.take().is_some() {
-                    println!("Interrupting ongoing download");
+                    log::debug!("Interrupting ongoing download");
                 }
                 let Some(version_info) = version_info.clone() else {
+                    log::error!("Attempted 'begin download' before having version info");
                     continue;
                 };
 
@@ -341,12 +344,7 @@ async fn handle_action_messages<D, A, DirProvider>(
                     let ui_downloader = UiAppDownloader::new(self_, downloader);
                     let _ = tx.send(tokio::spawn(async move {
                         if let Err(err) = app::install_and_upgrade(ui_downloader).await {
-                            eprintln!("install_and_upgrade failed: {err}");
-                            let mut source = err.source();
-                            while let Some(error) = source {
-                                eprintln!("caused by: {error}");
-                                source = error.source();
-                            }
+                            log::error!("install_and_upgrade failed: {err:?}");
                         }
                     }));
                 });
@@ -359,6 +357,7 @@ async fn handle_action_messages<D, A, DirProvider>(
                 }
 
                 let Some(version_info) = version_info.as_ref() else {
+                    log::error!("Attempted 'cancel' before having version info");
                     continue;
                 };
 

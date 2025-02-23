@@ -314,16 +314,16 @@ impl AppWindow {
     /// This function is called when the top-level window has been created
     fn on_init(&self) {
         if let Err(err) = self.load_banner_image() {
-            eprintln!("load_banner_image failed: {err}");
+            log::error!("load_banner_image failed: {err}");
             // not fatal, so continue
         }
         if let Err(err) = self.load_banner_text_image() {
-            eprintln!("load_banner_text_image failed: {err}");
+            log::error!("load_banner_text_image failed: {err}");
             // not fatal, so continue
         }
 
         if let Err(err) = handle_banner_label_colors(&self.banner.handle, SET_LABEL_HANDLER_ID) {
-            eprintln!("handle_banner_label_colors failed: {err}");
+            log::error!("handle_banner_label_colors failed: {err}");
             // not fatal, so continue
         }
 

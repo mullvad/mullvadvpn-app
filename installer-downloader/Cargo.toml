@@ -22,6 +22,10 @@ async-trait = "0.1"
 rand = { version = "0.8.5" }
 serde = { workspace = true, features = ["derive"] }
 
+# Note: Not using workspace since we want fewer features
+env_logger = { version = "0.10.0", default-features = false }
+log = { workspace = true }
+
 mullvad-update = { path = "../mullvad-update", features = ["client", "native-tls"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
