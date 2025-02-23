@@ -373,7 +373,7 @@ impl From<&InetNetwork> for IpNetwork {
 
 /// Handle to a tunnel device on Android.
 pub struct VpnServiceTun {
-    pub tunnel: RawFd,
+    tunnel: RawFd,
     jvm: JavaVM,
     class: GlobalRef,
     object: GlobalRef,
