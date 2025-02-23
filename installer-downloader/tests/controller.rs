@@ -14,6 +14,7 @@ use mullvad_update::api::VersionInfoProvider;
 use mullvad_update::app::{AppDownloader, DownloadError};
 use mullvad_update::fetch::ProgressUpdater;
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
+use std::io;
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, LazyLock, Mutex};
 use std::time::Duration;
@@ -113,8 +114,8 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
         if LAUNCH_SUCCEED {
             Ok(())
         } else {
-            Err(DownloadError::InstallFailed(anyhow::anyhow!(
-                "install failed"
+            Err(DownloadError::InstallFailed(io::Error::other(
+                "install failed",
             )))
         }
     }
