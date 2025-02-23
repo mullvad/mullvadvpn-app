@@ -13,6 +13,8 @@ mod inner {
     pub use installer_downloader::resource;
 
     pub fn run() {
+        env_logger::init();
+
         let rt = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
             .build()

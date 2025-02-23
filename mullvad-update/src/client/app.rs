@@ -11,16 +11,16 @@ use crate::{
 
 #[derive(Debug, thiserror::Error)]
 pub enum DownloadError {
-    #[error("Failed to create download directory")]
-    CreateDir(#[source] anyhow::Error),
     #[error("Failed to download app")]
     FetchApp(#[source] anyhow::Error),
     #[error("Failed to verify app")]
     Verification(#[source] anyhow::Error),
     #[error("Failed to launch app")]
     Launch(#[source] std::io::Error),
-    #[error("App installer failed")]
-    InstallFailed(#[source] anyhow::Error),
+    #[error("Installer exited with error: {0}")]
+    InstallExited(std::process::ExitStatus),
+    #[error("Installer failed on child.wait(): {0}")]
+    InstallFailed(std::io::Error),
 }
 
 /// Parameters required to construct an [AppDownloader].
@@ -125,14 +125,10 @@ impl<AppProgress: ProgressUpdater> AppDownloader for HttpAppDownloader<AppProgre
             Err(_timeout) => Ok(()),
             // No timeout: Incredibly quick but successful (or wrong exit code, probably)
             Ok(Ok(status)) if status.success() => Ok(()),
-            // Installer failed
-            Ok(Ok(status)) => Err(DownloadError::InstallFailed(anyhow::anyhow!(
-                "Install failed with status: {status}"
-            ))),
-            // Installer failed
-            Ok(Err(err)) => Err(DownloadError::InstallFailed(anyhow::anyhow!(
-                "Install failed: {err}"
-            ))),
+            // Installer exited with error code
+            Ok(Ok(status)) => Err(DownloadError::InstallExited(status)),
+            // `child.wait()` returned an error
+            Ok(Err(err)) => Err(DownloadError::InstallFailed(err)),
         }
     }
 }
