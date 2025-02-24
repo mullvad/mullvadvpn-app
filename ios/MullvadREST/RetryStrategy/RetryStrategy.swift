@@ -22,7 +22,7 @@ extension REST {
             self.applyJitter = applyJitter
         }
 
-        /// The return value of this function *must* be passed to a Rust FFI funciton that will consume it, otherwise it will leak.
+        /// The return value of this function *must* be passed to a Rust FFI function that will consume it, otherwise it will leak.
         public func toRustStrategy() -> SwiftRetryStrategy {
             switch delay {
             case .never:

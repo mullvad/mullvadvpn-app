@@ -28,10 +28,9 @@ impl RetryStrategy {
         let delays: Box<dyn Iterator<Item = Duration> + Send> = match delays {
             RetryDelay::Never => Box::new(std::iter::empty()),
             RetryDelay::Constant(constant_delays) => Box::new(constant_delays.take(max_retries)),
-            RetryDelay::Exponential(exponential_delays) => Box::new(
-                exponential_delays
-                    .take(max_retries)
-            ),
+            RetryDelay::Exponential(exponential_delays) => {
+                Box::new(exponential_delays.take(max_retries))
+            }
         };
 
         Jittered::jitter(delays)
@@ -45,6 +44,8 @@ pub enum RetryDelay {
     Exponential(ExponentialBackoff),
 }
 
+/// Creates a retry strategy that never retries after failure.
+/// The result needs to be consumed.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_api_retry_strategy_never() -> SwiftRetryStrategy {
     let retry_strategy = RetryStrategy {
@@ -56,6 +57,8 @@ pub unsafe extern "C" fn mullvad_api_retry_strategy_never() -> SwiftRetryStrateg
     return SwiftRetryStrategy(ptr);
 }
 
+/// Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
+/// The result needs to be consumed.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_api_retry_strategy_constant(
     max_retries: usize,
@@ -71,17 +74,20 @@ pub unsafe extern "C" fn mullvad_api_retry_strategy_constant(
     return SwiftRetryStrategy(ptr);
 }
 
+/// Creates a retry strategy that retries `max_retries` times with a exponantially increating delay.
+/// The delay will never exceed `max_delay_sec`
+/// The result needs to be consumed.
 #[no_mangle]
 pub unsafe extern "C" fn mullvad_api_retry_strategy_exponential(
     max_retries: usize,
-    initial_seconds: u64,
+    initial_sec: u64,
     factor: u32,
-    max_delay: u64,
+    max_delay_sec: u64,
 ) -> SwiftRetryStrategy {
-    let initial_delay = Duration::from_secs(initial_seconds);
+    let initial_delay = Duration::from_secs(initial_sec);
 
     let backoff = ExponentialBackoff::new(initial_delay, factor)
-        .max_delay(Some(Duration::from_secs(max_delay)));
+        .max_delay(Some(Duration::from_secs(max_delay_sec)));
 
     let retry_strategy = RetryStrategy {
         delays: RetryDelay::Exponential(backoff),
