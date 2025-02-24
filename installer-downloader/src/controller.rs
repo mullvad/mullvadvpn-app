@@ -2,6 +2,7 @@
 
 use crate::delegate::{AppDelegate, AppDelegateQueue};
 use crate::resource;
+use crate::temp::DirectoryProvider;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
 use mullvad_update::{
@@ -11,8 +12,6 @@ use mullvad_update::{
 };
 use rand::seq::SliceRandom;
 
-use std::future::Future;
-use std::path::PathBuf;
 use tokio::sync::{mpsc, oneshot};
 
 /// Actions handled by an async worker task in [handle_action_messages].
@@ -22,21 +21,6 @@ enum TaskMessage {
     Cancel,
     TryBeta,
     TryStable,
-}
-
-/// Provide a directory to use for [AppDownloader]
-pub trait DirectoryProvider: 'static {
-    /// Provide a directory to use for [AppDownloader]
-    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send;
-}
-
-struct TempDirProvider;
-
-impl DirectoryProvider for TempDirProvider {
-    /// Create a locked-down directory to store downloads in
-    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send {
-        mullvad_update::dir::admin_temp_dir()
-    }
 }
 
 /// See the [module-level docs](self).
@@ -49,7 +33,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     // App downloader to use
     type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
     // Directory provider to use
-    type DirProvider = TempDirProvider;
+    type DirProvider = crate::temp::TempDirProvider;
 
     // Version info provider to use
     const TEST_PUBKEY: &str = include_str!("../../mullvad-update/test-pubkey");
@@ -218,6 +202,8 @@ async fn handle_action_messages<D, A, DirProvider>(
 
     let mut target_version = TargetVersion::Stable;
 
+    let temp_dir = DirProvider::create_download_dir().await;
+
     while let Some(msg) = rx.recv().await {
         match msg {
             TaskMessage::SetVersionInfo(new_version_info) => {
@@ -288,9 +274,11 @@ async fn handle_action_messages<D, A, DirProvider>(
                 });
 
                 // Create temporary dir
-                let download_dir = match DirProvider::create_download_dir().await {
-                    Ok(dir) => dir,
-                    Err(_err) => {
+                let download_dir = match &temp_dir {
+                    Ok(dir) => dir.clone(),
+                    Err(error) => {
+                        log::error!("Failed to create temporary directory: {error:?}");
+
                         queue.queue_main(move |self_| {
                             self_.set_status_text("");
                             self_.hide_download_button();
@@ -306,6 +294,8 @@ async fn handle_action_messages<D, A, DirProvider>(
                         continue;
                     }
                 };
+
+                log::debug!("Download directory: {}", download_dir.display());
 
                 // Begin download
                 let (tx, rx) = oneshot::channel();

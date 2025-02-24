@@ -13,7 +13,7 @@ workspace = true
 [features]
 default = []
 sign = ["rand", "clap"]
-client = ["async-trait", "mullvad-paths", "reqwest", "sha2", "tokio", "thiserror"]
+client = ["async-trait", "reqwest", "sha2", "tokio", "thiserror"]
 native-tls = ["reqwest/native-tls"]
 
 [dependencies]
@@ -36,9 +36,6 @@ mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 # features required by binaries
 clap = { workspace = true, optional = true }
 rand = { version = "0.8.5", optional = true }
-
-[target.'cfg(target_os = "windows")'.dependencies]
-mullvad-paths = { path = "../mullvad-paths", optional = true }
 
 [dev-dependencies]
 async-tempfile = "0.6"
