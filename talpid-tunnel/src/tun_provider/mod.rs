@@ -81,7 +81,6 @@ impl TunConfig {
     pub fn real_routes(&self) -> Vec<IpNetwork> {
         VpnServiceConfig::new(self.clone())
             .routes
-            .clone()
             .iter()
             .map(IpNetwork::from)
             .collect()
