@@ -28,7 +28,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout submodules 
+      - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
           git submodule update --init ios/wireguard-apple
