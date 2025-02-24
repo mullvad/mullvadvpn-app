@@ -139,8 +139,8 @@ impl AppDelegate for AppWindow {
         self.error_view = Some(ErrorView::new(
             &self.main_view,
             message,
-            on_cancel,
             on_retry,
+            on_cancel,
         ));
     }
 
