@@ -184,10 +184,11 @@ impl Check {
                 {
                     return Ok(true);
                 }
-                // Calling get_stats has an unwanted effect of possible causing segmentation fault, 
-                // the cause it yet not determined. It could be because we get too many SIGCHLD, 
-                // FFI towards go from Rust, or race condition inside WG. So for now we avoid 
-                // spamming get_config in FFI too much since it seems to lower the risk. 
+                // Calling get_stats has an unwanted effect of possibly causing segmentation fault,
+                // stacktrace hints towards Garbage Collector failing. The cause has yet not been
+                // determined, it could be because some dangling pointer, bug inside WG-go or 
+                // something else. So for now we avoid spamming get_config too much since it lowers 
+                // the risk of crash happening.
                 // Tracked by DROID-1825
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }
