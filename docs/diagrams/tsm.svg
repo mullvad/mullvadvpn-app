@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" contentStyleType="text/css" height="321px" preserveAspectRatio="none" style="width:935px;height:321px;background:#FFFFFF;" version="1.1" viewBox="0 0 935 321" width="935px" zoomAndPan="magnify"><defs/><g><rect height="29.0654" style="stroke:#00000000;stroke-width:1.0;fill:none;" width="229" x="346" y="5"/><text fill="#000000" font-family="sans-serif" font-size="14" font-weight="bold" lengthAdjust="spacing" textLength="219" x="351" y="24.9639">Various tunnel state transitions</text><rect fill="#F1F1F1" height="40" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="138" x="86" y="65.4354"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="128" x="91" y="90.8666">Disconnected state</text><rect fill="#F1F1F1" height="40" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="142" x="646" y="104.4354"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="132" x="651" y="129.8666">Disconnecting state</text><rect fill="#008000" height="40" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="81" x="848" y="141.4354"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="71" x="853" y="166.8666">Error state</text><rect fill="#008000" height="40" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="123" x="284" y="169.4354"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="113" x="289" y="194.8666">Connecting state</text><rect fill="#008000" height="40" rx="12.5" ry="12.5" style="stroke:#181818;stroke-width:0.5;" width="119" x="467" y="177.4354"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="109" x="472" y="202.8666">Connected state</text><ellipse cx="16" cy="85.4354" fill="#222222" rx="10" ry="10" style="stroke:none;stroke-width:1.0;"/><ellipse cx="345.5" cy="116.4354" fill="none" rx="10" ry="10" style="stroke:#222222;stroke-width:1.0;"/><ellipse cx="346" cy="116.9354" fill="#222222" rx="6" ry="6" style="stroke:none;stroke-width:1.0;"/><!--MD5=[4e3872f91ad4cdbc2574a0b7a168ae48]
+link *start to disconnected_state--><g id="link_*start_disconnected_state"><path d="M26.42,85.4354 C38.06,85.4354 58.99,85.4354 80.58,85.4354 " fill="none" id="*start-to-disconnected_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="85.78,85.4354,76.78,81.4354,80.78,85.4354,76.78,89.4354,85.78,85.4354" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[4b69bfeba8528d947e742c2d93e095b9]
+link disconnected_state to connecting_state--><g id="link_disconnected_state_connecting_state"><path d="M192.34,105.4854 C224.19,123.0554 270.43,148.5654 303.56,166.8454 " fill="none" id="disconnected_state-to-connecting_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="307.95,169.2654,301.9947,161.4211,303.5698,166.8542,298.1367,168.4293,307.95,169.2654" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[eb673d8d9a5033804fbfa38342141a94]
+link connecting_state to connected_state--><g id="link_connecting_state_connected_state"><path d="M407.1,192.1454 C424.57,192.9254 443.67,193.7754 461.35,194.5654 " fill="none" id="connecting_state-to-connected_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="466.78,194.8054,457.9595,190.4237,461.7846,194.5913,457.617,198.4164,466.78,194.8054" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[c318e8e496c44d31a550de57e24f735f]
+link connecting_state to disconnecting_state--><g id="link_connecting_state_disconnecting_state"><path d="M407.25,173.6554 C426.3,169.0154 447.45,164.1854 467,160.4354 C525.06,149.2754 591.33,139.8554 640.9,133.4454 " fill="none" id="connecting_state-to-disconnecting_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="645.95,132.7954,636.5103,129.9861,640.9915,133.4385,637.5392,137.9197,645.95,132.7954" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[0a8d79747805ac9b48946def490ab392]
+link connected_state to disconnecting_state--><g id="link_connected_state_disconnecting_state"><path d="M579.26,177.3854 C604.09,167.7754 633.9,156.2254 659.33,146.3754 " fill="none" id="connected_state-to-disconnecting_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="664.03,144.5554,654.1932,144.069,659.3662,146.358,657.0773,151.5311,664.03,144.5554" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[c9fb755186bbbd678d4ff22801ec1b7c]
+link disconnecting_state to disconnected_state--><g id="link_disconnecting_state_disconnected_state"><path d="M645.91,114.5354 C583.4,106.1754 489.3,94.7354 407,89.4354 C347.29,85.5854 279.44,84.7154 229.35,84.7354 " fill="none" id="disconnecting_state-to-disconnected_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="224.25,84.7354,233.25,88.7354,229.25,84.7354,233.25,80.7354,224.25,84.7354" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[5adfbc79919ad8897b682dd33ae86b76]
+link disconnected_state to error_state--><g id="link_disconnected_state_error_state"><path d="M224.06,69.6154 C243.33,65.8254 264.39,62.3254 284,60.4354 C432.49,46.0654 775.21,82.6854 788,87.4354 C817.09,98.2154 844.95,120.3054 863.76,137.5554 " fill="none" id="disconnected_state-to-error_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="867.87,141.3854,864.0021,132.3279,864.2081,137.981,858.555,138.187,867.87,141.3854" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[83954428e8114e5ea025a867fbeeb1ba]
+link disconnecting_state to error_state--><g id="link_disconnecting_state_error_state"><path d="M788.41,139.8054 C806.71,143.7954 825.93,147.9954 842.52,151.6154 " fill="none" id="disconnecting_state-to-error_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="847.58,152.7154,839.6457,146.8804,842.6961,151.6444,837.9321,154.6947,847.58,152.7154" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[691f028527c5d3f02a9d6095f58a8b7d]
+link connecting_state to error_state--><g id="link_connecting_state_error_state"><path d="M387.79,209.4954 C410.57,219.4454 439.69,230.3954 467,235.4354 C603.78,260.6554 765.94,209.1554 842.81,179.8454 " fill="none" id="connecting_state-to-error_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="847.75,177.9454,837.9137,177.4489,843.0844,179.7432,840.7901,184.9139,847.75,177.9454" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[f8e0dc9e638c589ed0cc2a08ce3a468b]
+link connected_state to error_state--><g id="link_connected_state_error_state"><path d="M586.14,191.5654 C657.84,184.3954 777.64,172.4154 842.49,165.9354 " fill="none" id="connected_state-to-error_state" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="847.83,165.4054,838.4749,162.3261,842.8551,165.9058,839.2755,170.286,847.83,165.4054" style="stroke:#181818;stroke-width:1.0;"/></g><!--MD5=[b8e34bfb375477f6ef6f70b046f610d1]
+link disconnected_state to *end--><g id="link_disconnected_state_*end"><path d="M224.05,96.6254 C262.75,102.9854 307.84,110.4054 330.29,114.0954 " fill="none" id="disconnected_state-to-*end" style="stroke:#181818;stroke-width:1.0;"/><polygon fill="#181818" points="335.49,114.9554,327.2624,109.5419,330.5569,114.1404,325.9583,117.4349,335.49,114.9554" style="stroke:#181818;stroke-width:1.0;"/></g><rect fill="#DDDDDD" height="31.0654" rx="7.5" ry="7.5" style="stroke:#000000;stroke-width:1.0;" width="334" x="293.5" y="274.6554"/><text fill="#000000" font-family="sans-serif" font-size="14" lengthAdjust="spacing" textLength="322" x="299.5" y="295.6193">Green states imply that firewall rules are active.</text><!--MD5=[edd7434b43cba504e4e7aa303aad5c78]
+@startuml
+hide empty description
+
+left to right direction
+
+title Various tunnel state transitions
+
+state "Disconnected state" as disconnected_state
+state "Disconnecting state" as disconnecting_state
+state "Error state" as error_state #green
+state "Connecting state" as connecting_state #green
+state "Connected state" as connected_state #green
+
+
+[*] - -> disconnected_state
+disconnected_state - -> connecting_state
+connecting_state - -> connected_state
+connecting_state - -> disconnecting_state
+connected_state - -> disconnecting_state
+disconnecting_state - -> disconnected_state
+
+disconnected_state - -> error_state
+disconnecting_state - -> error_state
+connecting_state - -> error_state
+connected_state - -> error_state
+disconnected_state - -> [*]
+
+legend
+  Green states imply that firewall rules are active.
+end legend
+
+
+@enduml
+
+PlantUML version 1.2022.3(Tue Mar 29 17:10:57 BST 2022)
+(GPL source distribution)
+Java Runtime: OpenJDK Runtime Environment
+JVM: OpenJDK 64-Bit Server VM
+Default Encoding: UTF-8
+Language: en
+Country: GB
+--></g></svg>
