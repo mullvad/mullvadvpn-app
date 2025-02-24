@@ -60,7 +60,7 @@ pub enum Error {
     OtherAlwaysOnApp { app_name: String },
 }
 
-type TunnelCache = (VpnServiceConfig, RawFd);
+type TunnelCache = Option<(VpnServiceConfig, RawFd)>;
 
 /// Factory of tunnel devices on Android.
 pub struct AndroidTunProvider {
@@ -68,7 +68,7 @@ pub struct AndroidTunProvider {
     class: GlobalRef,
     object: GlobalRef,
     config: TunConfig,
-    current_tunnel: Option<TunnelCache>,
+    current_tunnel: TunnelCache,
 }
 
 impl AndroidTunProvider {
@@ -97,7 +97,7 @@ impl AndroidTunProvider {
         &mut self.config
     }
 
-    /// Returns an open tunnel with the current configuration, if a tunnel already with the
+    /// Returns an open tunnel with the current configuration, if a tunnel already exists with the
     /// corresponding VpnTunConfig it returns a cached copy.
     pub fn open_tun(&mut self) -> Result<VpnServiceTun, Error> {
         let config = VpnServiceConfig::new(self.config.clone());
@@ -119,9 +119,9 @@ impl AndroidTunProvider {
             }
         }
 
-        let raw_fd = self
-            .open_tun_fd(config.clone())
-            .inspect(|raw_fd| self.current_tunnel = Some((config, *raw_fd)))?;
+        let raw_fd = self.open_tun_fd(config.clone())?;
+
+        self.current_tunnel = Some((config, raw_fd));
 
         Ok(VpnServiceTun {
             tunnel: raw_fd,
@@ -135,25 +135,23 @@ impl AndroidTunProvider {
     // Opens a tunnel in Android with the provided VpnServiceConfig.
     fn open_tun_fd(&mut self, config: VpnServiceConfig) -> Result<RawFd, Error> {
         let method_name = "openTun";
-        let create_result = {
-            let env = self.env()?;
-            let java_config = config.clone().into_java(&env);
-            let result = self.call_method(
-                method_name,
-                "(Lnet/mullvad/talpid/model/TunConfig;)Lnet/mullvad/talpid/model/CreateTunResult;",
-                JavaType::Object("net/mullvad/talpid/model/CreateTunResult".to_owned()),
-                &[JValue::Object(java_config.as_obj())],
-            )?;
 
-            match result {
-                JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
-                value => Err(Error::InvalidMethodResult(
-                    method_name,
-                    format!("{:?}", value),
-                )),
-            }
-        };
-        create_result
+        let env = self.env()?;
+        let java_config = config.into_java(&env);
+        let result = self.call_method(
+            method_name,
+            "(Lnet/mullvad/talpid/model/TunConfig;)Lnet/mullvad/talpid/model/CreateTunResult;",
+            JavaType::Object("net/mullvad/talpid/model/CreateTunResult".to_owned()),
+            &[JValue::Object(java_config.as_obj())],
+        )?;
+
+        match result {
+            JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
+            value => Err(Error::InvalidMethodResult(
+                method_name,
+                format!("{:?}", value),
+            )),
+        }
     }
 
     /// Close currently active tunnel device.
@@ -169,14 +167,17 @@ impl AndroidTunProvider {
             Err(error) => Some(error),
         };
 
-        if let Some(error) = error {
-            log::error!(
-                "{}",
-                error.display_chain_with_msg("Failed to close the tunnel")
-            );
-        } else {
-            // Remove the cache of config
-            self.current_tunnel = None;
+        match error {
+            Some(error) => {
+                log::error!(
+                    "{}",
+                    error.display_chain_with_msg("Failed to close the tunnel")
+                );
+            }
+            None => {
+                // Remove the cache of config
+                self.current_tunnel = None;
+            }
         }
     }
 
@@ -210,8 +211,8 @@ impl AndroidTunProvider {
     pub fn real_routes(&self) -> Vec<Route> {
         self.config
             .real_routes()
-            .iter()
-            .map(|ip_network| Route::new(*ip_network))
+            .into_iter()
+            .map(Route::new)
             .collect()
     }
 
@@ -361,11 +362,7 @@ impl From<IpNetwork> for InetNetwork {
 
 impl From<&InetNetwork> for IpNetwork {
     fn from(inet_network: &InetNetwork) -> Self {
-        IpNetwork::new(
-            inet_network.address,
-            *inet_network.prefix.to_be_bytes().last().unwrap(),
-        )
-        .unwrap()
+        IpNetwork::new(inet_network.address, inet_network.prefix as u8).unwrap()
     }
 }
 

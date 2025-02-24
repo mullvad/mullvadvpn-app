@@ -406,7 +406,10 @@ impl WgGoTunnel {
         route_manager: RouteManagerHandle,
         cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<Self> {
-        let _ = route_manager.clear_android_routes().await;
+        route_manager
+            .clear_route_cache()
+            .await
+            .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(Arc::clone(&tun_provider), config)?;
         let is_new_tunnel = tunnel_device.is_new_tunnel;
@@ -447,8 +450,11 @@ impl WgGoTunnel {
             tunnel.wait_for_routes().await?;
         }
 
-        // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        // Moving this check to WireguardMonitor.start caused DROID-1825
+        // HACK: Check if the tunnel is working by sending a ping in the tunnel. For other platforms
+        // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it crash in
+        // GO on Android.
+        //
+        // Tacked by DROID-1825 (Investigate GO crash issue with runtime.GC())
         tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
@@ -462,7 +468,10 @@ impl WgGoTunnel {
         route_manager: RouteManagerHandle,
         cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<Self> {
-        let _ = route_manager.clear_android_routes().await;
+        route_manager
+            .clear_route_cache()
+            .await
+            .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(Arc::clone(&tun_provider), config)?;
         let is_new_tunnel = tunnel_device.is_new_tunnel;
@@ -519,8 +528,11 @@ impl WgGoTunnel {
             tunnel.wait_for_routes().await?;
         }
 
-        // HACK: Check if the tunnel is working by sending a ping in the tunnel.
-        // Moving this check to WireguardMonitor.start caused DROID-1825
+        // HACK: Check if the tunnel is working by sending a ping in the tunnel. For other platforms
+        // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it crash in
+        // GO on Android.
+        //
+        // Tacked by DROID-1825 (Investigate GO crash issue with runtime.GC())
         tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
