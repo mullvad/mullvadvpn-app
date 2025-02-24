@@ -184,7 +184,11 @@ impl Check {
                 {
                     return Ok(true);
                 }
-                // Avoid spamming get_config in Go, related DROID-1825
+                // Calling get_stats has an unwanted effect of possible causing segmentation fault, 
+                // the cause it yet not determined. It could be because we get too many SIGCHLD, 
+                // FFI towards go from Rust, or race condition inside WG. So for now we avoid 
+                // spamming get_config in FFI too much since it seems to lower the risk. 
+                // Tracked by DROID-1825
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }
         };

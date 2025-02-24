@@ -60,13 +60,15 @@ pub enum Error {
     OtherAlwaysOnApp { app_name: String },
 }
 
+type TunnelCache = (VpnServiceConfig, RawFd);
+
 /// Factory of tunnel devices on Android.
 pub struct AndroidTunProvider {
     jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
     config: TunConfig,
-    current_config: Option<(VpnServiceConfig, RawFd)>,
+    current_tunnel: Option<TunnelCache>,
 }
 
 impl AndroidTunProvider {
@@ -85,7 +87,7 @@ impl AndroidTunProvider {
             class: talpid_vpn_service_class,
             object: context.vpn_service,
             config,
-            current_config: None,
+            current_tunnel: None,
         }
     }
 
@@ -97,7 +99,7 @@ impl AndroidTunProvider {
 
     /// Returns an open tunnel with the current configuration, if a tunnel already with the
     /// corresponding VpnTunConfig it returns a cached copy.
-    pub fn open_tun(&mut self) -> Result<(VpnServiceTun), Error> {
+    pub fn open_tun(&mut self) -> Result<VpnServiceTun, Error> {
         let config = VpnServiceConfig::new(self.config.clone());
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
@@ -105,7 +107,7 @@ impl AndroidTunProvider {
 
         // If we are recreating the same tunnel we return the same file descriptor to avoid calling
         // open_tun in android since it may cause leaks.
-        if let Some((vpn_service_config, raw_fd)) = &self.current_config {
+        if let Some((vpn_service_config, raw_fd)) = &self.current_tunnel {
             if vpn_service_config == &config {
                 return Ok(VpnServiceTun {
                     tunnel: *raw_fd,
@@ -119,7 +121,7 @@ impl AndroidTunProvider {
 
         let raw_fd = self
             .open_tun_fd(config.clone())
-            .inspect(|raw_fd| self.current_config = Some((config, *raw_fd)))?;
+            .inspect(|raw_fd| self.current_tunnel = Some((config, *raw_fd)))?;
 
         Ok(VpnServiceTun {
             tunnel: raw_fd,
@@ -174,7 +176,7 @@ impl AndroidTunProvider {
             );
         } else {
             // Remove the cache of config
-            self.current_config = None;
+            self.current_tunnel = None;
         }
     }
 
