@@ -2,6 +2,7 @@
 
 use crate::delegate::{AppDelegate, AppDelegateQueue};
 use crate::resource;
+use crate::temp::DirectoryProvider;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
 use mullvad_update::{
@@ -11,8 +12,6 @@ use mullvad_update::{
 };
 use rand::seq::SliceRandom;
 
-use std::future::Future;
-use std::path::PathBuf;
 use std::sync::LazyLock;
 use tokio::sync::{mpsc, oneshot};
 
@@ -23,21 +22,6 @@ enum TaskMessage {
     Cancel,
     TryBeta,
     TryStable,
-}
-
-/// Provide a directory to use for [AppDownloader]
-pub trait DirectoryProvider: 'static {
-    /// Provide a directory to use for [AppDownloader]
-    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send;
-}
-
-struct TempDirProvider;
-
-impl DirectoryProvider for TempDirProvider {
-    /// Create a locked-down directory to store downloads in
-    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send {
-        mullvad_update::dir::admin_temp_dir()
-    }
 }
 
 /// See the [module-level docs](self).
@@ -75,7 +59,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     // App downloader to use
     type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
     // Directory provider to use
-    type DirProvider = TempDirProvider;
+    type DirProvider = crate::temp::TempDirProvider;
 
     // Version info provider to use
     /*const TEST_PUBKEY: &str = include_str!("../../mullvad-update/test-pubkey");
@@ -334,6 +318,8 @@ async fn handle_action_messages<D, A, DirProvider>(
                         continue;
                     }
                 };
+
+                log::debug!("Download directory: {}", download_dir.display());
 
                 // Begin download
                 let (tx, rx) = oneshot::channel();
