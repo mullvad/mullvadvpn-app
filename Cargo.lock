@@ -2039,6 +2039,7 @@ dependencies = [
  "async-trait",
  "cacao",
  "env_logger 0.10.2",
+ "hex",
  "insta",
  "log",
  "mullvad-update",
