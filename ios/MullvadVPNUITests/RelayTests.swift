@@ -183,24 +183,63 @@ class RelayTests: LoggedInWithTimeUITestCase {
 
         try Networking.verifyCanAccessInternet()
 
-        let targetIPAddress = Networking.getAlwaysReachableIPAddress()
-        let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
-        trafficGenerator.startGeneratingUDPTraffic(interval: 0.1)
+        try generateTraffic(to: connectedToIPAddress, on: 80, assertProtocol: .TCP)
+    }
 
-        RunLoop.current.run(until: .now + 1)
-        trafficGenerator.stopGeneratingUDPTraffic()
+    func testWireGuardOverShadowsocksCustomPort() throws {
+        addTeardownBlock {
+            HeaderBar(self.app)
+                .tapSettingsButton()
+
+            SettingsPage(self.app)
+                .tapVPNSettingsCell()
+
+            VPNSettingsPage(self.app)
+                .tapWireGuardObfuscationExpandButton()
+                .tapWireGuardObfuscationOffCell()
+        }
+
+        HeaderBar(app)
+            .tapSettingsButton()
+
+        SettingsPage(app)
+            .tapVPNSettingsCell()
+
+        VPNSettingsPage(app)
+            .tapWireGuardObfuscationExpandButton()
+            .tapWireGuardObfuscationShadowsocksCell()
+            .tapShadowsocksPortSelectorButton()
+
+        ShadowsocksObfuscationSettingsPage(app)
+            .tapCustomCell()
+            .typeTextIntoCustomField("51900")
+            .tapBackButton()
+
+        VPNSettingsPage(app)
+            .tapBackButton()
+
+        SettingsPage(app)
+            .tapDoneButton()
+
+        // The packet capture has to start before the tunnel is up,
+        // otherwise the device cannot reach the in-house router anymore
+        startPacketCapture()
 
         TunnelControlPage(app)
-            .tapDisconnectButton()
-        let capturedStreams = stopPacketCapture()
+            .tapConnectButton()
 
-        // The capture will contain several streams where `other_addr` contains the IP the device connected to
-        // One stream will be for the source port, the other for the destination port
-        let streamFromPeeerToRelay = try XCTUnwrap(
-            capturedStreams.filter { $0.destinationAddress == connectedToIPAddress && $0.destinationPort == 80 }.first
-        )
+        allowAddVPNConfigurationsIfAsked()
 
-        XCTAssertTrue(streamFromPeeerToRelay.transportProtocol == .TCP)
+        TunnelControlPage(app)
+            .waitForConnectedLabel()
+
+        let connectedToIPAddress = TunnelControlPage(app)
+            .tapRelayStatusExpandCollapseButton()
+            .getInIPv4AddressLabel()
+
+        try Networking.verifyCanAccessInternet()
+
+        try generateTraffic(to: connectedToIPAddress, on: 51900, assertProtocol: .UDP)
     }
 
     func testWireGuardOverTCPManually() throws {
@@ -507,5 +546,30 @@ extension RelayTests {
             .tapDisconnectButton()
 
         return RelayInfo(name: relayName, ipAddress: relayIPAddress)
+    }
+
+    private func generateTraffic(
+        to connectedToIPAddress: String,
+        on port: Int,
+        assertProtocol transportProtocol: NetworkTransportProtocol
+    ) throws {
+        let targetIPAddress = Networking.getAlwaysReachableIPAddress()
+        let trafficGenerator = TrafficGenerator(destinationHost: targetIPAddress, port: 80)
+        trafficGenerator.startGeneratingUDPTraffic(interval: 0.1)
+
+        RunLoop.current.run(until: .now + 1)
+        trafficGenerator.stopGeneratingUDPTraffic()
+
+        TunnelControlPage(app)
+            .tapDisconnectButton()
+        let capturedStreams = stopPacketCapture()
+
+        // The capture will contain several streams where `other_addr` contains the IP the device connected to
+        // One stream will be for the source port, the other for the destination port
+        let streamFromPeeerToRelay = try XCTUnwrap(
+            capturedStreams.filter { $0.destinationAddress == connectedToIPAddress && $0.destinationPort == port }.first
+        )
+
+        XCTAssertTrue(streamFromPeeerToRelay.transportProtocol == transportProtocol)
     }
 } // swiftlint:disable:this file_length
