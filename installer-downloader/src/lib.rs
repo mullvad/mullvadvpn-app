@@ -5,4 +5,6 @@ pub mod delegate;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
 pub mod resource;
 #[cfg(any(target_os = "windows", target_os = "macos"))]
+pub mod temp;
+#[cfg(any(target_os = "windows", target_os = "macos"))]
 pub mod ui_downloader;
