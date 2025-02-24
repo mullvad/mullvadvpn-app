@@ -346,6 +346,8 @@ impl WgGoTunnel {
             UpdatedDetails(_) => (),
         }
     }
+    
+    #[cfg(unix)]
     fn get_tunnel(
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
@@ -365,7 +367,7 @@ impl WgGoTunnel {
         tun_config.mtu = config.mtu;
 
         // Route everything into the tunnel and have wireguard-go act as a firewall.
-        #[cfg(not(target_os = "android"))]
+        #[cfg(target_os = "linux")]
         {
             tun_config.routes = routes.collect();
         }
