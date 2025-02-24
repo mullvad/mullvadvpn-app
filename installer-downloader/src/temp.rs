@@ -1,4 +1,4 @@
-//!
+//! Creates a temporary directory for the installer.
 //!
 //! # Windows
 //!
@@ -9,6 +9,9 @@
 //!
 //! The downloader does not run as a privileged user, so we store downloads in a temporary
 //! directory.
+//!
+//! This is vulnerable to TOCTOU, ie replacing the file after its hash has been verified, but only
+//! by the current user. Using a random directory name mitigates this issue.
 
 use anyhow::Context;
 use std::{future::Future, path::PathBuf};
