@@ -17,7 +17,9 @@ use mullvad_daemon::{
     DaemonCommandChannel, DaemonCommandSender, DaemonConfig,
 };
 use std::{
+    ffi::CString,
     io,
+    os::unix::ffi::OsStrExt,
     path::{Path, PathBuf},
     sync::{Arc, Mutex, Once, OnceLock},
 };
@@ -215,16 +217,21 @@ async fn spawn_daemon_inner(
 fn start_logging(log_dir: &Path) -> Result<(), String> {
     static LOGGER_RESULT: OnceLock<Result<(), String>> = OnceLock::new();
     LOGGER_RESULT
-        .get_or_init(|| start_logging_inner(log_dir).map_err(|e| e.display_chain()))
+        .get_or_init(|| start_logging_inner(log_dir))
         .to_owned()
 }
 
-fn start_logging_inner(log_dir: &Path) -> Result<(), logging::Error> {
+fn start_logging_inner(log_dir: &Path) -> Result<(), String> {
     let log_file = log_dir.join(LOG_FILENAME);
 
-    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)?;
-    exception_logging::enable();
+    logging::init_logger(log::LevelFilter::Debug, Some(&log_file), true)
+        .map_err(|e| e.display_chain())?;
     log_panics::init();
+    exception_logging::set_log_file(
+        CString::new(log_file.as_os_str().as_bytes())
+            .map_err(|_| "Log file path contained interior null bytes: {log_file:?}")?,
+    );
+    exception_logging::enable();
 
     Ok(())
 }
