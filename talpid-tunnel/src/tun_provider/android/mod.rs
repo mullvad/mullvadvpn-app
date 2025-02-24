@@ -168,16 +168,13 @@ impl AndroidTunProvider {
         };
 
         match error {
-            Some(error) => {
-                log::error!(
-                    "{}",
-                    error.display_chain_with_msg("Failed to close the tunnel")
-                );
-            }
-            None => {
-                // Remove the cache of config
-                self.current_tunnel = None;
-            }
+            Some(error) => log::error!(
+                "{}",
+                error.display_chain_with_msg("Failed to close the tunnel")
+            ),
+
+            // Remove the cache of config
+            None => self.current_tunnel = None,
         }
     }
 
