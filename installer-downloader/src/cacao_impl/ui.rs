@@ -68,7 +68,7 @@ impl AppDelegate for AppImpl {
         self.window.show();
 
         let delegate = self.window.delegate.as_ref().unwrap();
-        delegate.inner.borrow().layout();
+        delegate.inner.borrow_mut().layout();
     }
 
     fn should_terminate_after_last_window_closed(&self) -> bool {
@@ -156,6 +156,9 @@ pub struct AppWindow {
     pub progress: ProgressIndicator,
 
     pub status_text: Label,
+    /// The y position constraint of [Self::status_text].
+    /// This exists because we need to shift it up when download_text is revealed.
+    pub status_text_position_y: Option<LayoutConstraint>,
 
     pub error_view: Option<ErrorView>,
     pub error_retry_callback: Option<Arc<Mutex<ErrorViewClickCallback>>>,
@@ -200,7 +203,7 @@ impl Default for CancelButton {
 }
 
 impl AppWindow {
-    pub fn layout(&self) {
+    pub fn layout(&mut self) {
         self.banner_logo_view.set_image(&LOGO);
         self.banner_logo_text_view.set_image(&LOGO_TEXT);
         self.banner.set_background_color(&*BANNER_COLOR);
@@ -297,11 +300,22 @@ impl AppWindow {
         self.beta_link.set_attributed_text(attr_text);
         self.main_view.add_subview(&self.beta_link);
 
+        let status_text_position_y = self.status_text_position_y.get_or_insert_with(|| {
+            self.status_text
+                .top
+                .constraint_equal_to(&self.main_view.top)
+                .offset(59.)
+        });
+
         LayoutConstraint::activate(&[
+            status_text_position_y.clone(),
+            self.status_text
+                .center_x
+                .constraint_equal_to(&self.main_view.center_x),
             self.download_text
                 .top
                 .constraint_equal_to(&self.status_text.bottom)
-                .offset(16.),
+                .offset(4.),
             self.download_text
                 .center_x
                 .constraint_equal_to(&self.main_view.center_x),
@@ -311,13 +325,19 @@ impl AppWindow {
                 .constraint_equal_to(&self.main_view.center_x),
             self.download_button
                 .button
-                .top
-                .constraint_equal_to(&self.status_text.bottom)
-                .offset(16.),
+                .center_y
+                .constraint_equal_to(&self.main_view.center_y),
+            self.download_button
+                .button
+                .width
+                .constraint_equal_to_constant(213.),
+            self.download_button
+                .button
+                .height
+                .constraint_equal_to_constant(22.),
             self.progress
                 .top
-                .constraint_equal_to(&self.download_button.button.top)
-                .offset(32.),
+                .constraint_equal_to(&self.download_text.bottom),
             self.progress
                 .left
                 .constraint_equal_to(&self.main_view.left)
@@ -326,7 +346,7 @@ impl AppWindow {
                 .right
                 .constraint_equal_to(&self.main_view.right)
                 .offset(-30.),
-            self.progress.height.constraint_equal_to_constant(16.0f64),
+            self.progress.height.constraint_equal_to_constant(36.),
             self.cancel_button
                 .button
                 .center_x
@@ -334,8 +354,15 @@ impl AppWindow {
             self.cancel_button
                 .button
                 .top
-                .constraint_equal_to(&self.progress.bottom)
-                .offset(16.),
+                .constraint_equal_to(&self.progress.bottom),
+            self.cancel_button
+                .button
+                .width
+                .constraint_equal_to_constant(213.),
+            self.cancel_button
+                .button
+                .height
+                .constraint_equal_to_constant(22.),
             self.beta_link_preface
                 .bottom
                 .constraint_equal_to(&self.main_view.bottom)

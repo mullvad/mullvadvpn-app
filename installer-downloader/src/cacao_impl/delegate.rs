@@ -1,6 +1,9 @@
 use std::sync::{Arc, Mutex};
 
-use cacao::{control::Control, layout::Layout};
+use cacao::{
+    control::Control,
+    layout::{Layout, LayoutConstraint},
+};
 
 use super::ui::{Action, AppWindow, ErrorView};
 use crate::delegate::{AppDelegate, AppDelegateQueue};
@@ -42,6 +45,22 @@ impl AppDelegate for AppWindow {
 
     fn set_download_text(&mut self, text: &str) {
         self.download_text.set_text(text);
+
+        // If there is a download_text, move status_text up to make room
+
+        let offset = if text.is_empty() { 59.0 } else { 39.0 };
+
+        if let Some(previous_constraint) = self.status_text_position_y.take() {
+            LayoutConstraint::deactivate(&[previous_constraint]);
+        }
+
+        let new_constraint = self
+            .status_text
+            .top
+            .constraint_equal_to(&self.main_view.top)
+            .offset(offset);
+        self.status_text_position_y = Some(new_constraint.clone());
+        LayoutConstraint::activate(&[new_constraint]);
     }
 
     fn show_download_progress(&mut self) {
