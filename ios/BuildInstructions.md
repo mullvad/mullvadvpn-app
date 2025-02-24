@@ -29,6 +29,14 @@ A protobuf compiler is also required in order to build some of the rust dependen
 brew install protobuf
 ```
 
+## Submodules
+
+The iOS app imports Mullvad's version of `wireguard-go` as a Git submodule. Before building, this must be checked out with
+
+```bash
+git submodule update --init ios/wireguard-apple
+```
+
 ## Configure Xcode project
 
 Copy template files of Xcode build configuration:
