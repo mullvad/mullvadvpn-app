@@ -143,8 +143,8 @@ impl RouteManagerImpl {
                     self.waiting_for_routes.push((response_tx, expected_routes));
                 }
             }
-            RouteManagerCommand::ClearRoutes(tx) => {
-                self.clear_routes();
+            RouteManagerCommand::ClearRouteCache(tx) => {
+                self.clear_route_cache();
                 let _ = tx.send(());
             }
         }
@@ -152,7 +152,7 @@ impl RouteManagerImpl {
         ControlFlow::Continue(())
     }
 
-    pub fn clear_routes(&mut self) {
+    fn clear_route_cache(&mut self) {
         self.last_state = None;
     }
 }
@@ -167,9 +167,7 @@ fn has_routes(state: Option<&NetworkState>, expected_routes: Vec<Route>) -> bool
     };
 
     let routes = configured_routes(network_state);
-    if routes.is_empty() {
-        return false;
-    }
+
     routes.is_superset(&HashSet::from_iter(expected_routes))
 }
 

@@ -112,9 +112,10 @@ impl ConnectingState {
                         ErrorStateCause::SetFirewallPolicyError(error),
                     )
                 } else {
-                    // This is magically shimmed in on the side on Android to prep the TunConfig
-                    // with the right DNS servers. On Android DNS is part of creating the VPN
-                    // interface and this call should be part of start_tunnel call instead
+                    // On Android, DNS is part of creating the VPN interface, this call ensures that
+                    // the vpn_config is prepared with correct DNS servers in case they previously
+                    // set to something else, e.g. in the case of blocking. This call should
+                    // probably be part of start_tunnel call.
                     #[cfg(target_os = "android")]
                     shared_values.prepare_tun_config(false);
 

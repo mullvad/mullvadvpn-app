@@ -105,7 +105,7 @@ pub(crate) enum RouteManagerCommand {
 #[cfg(target_os = "android")]
 #[derive(Debug)]
 pub(crate) enum RouteManagerCommand {
-    ClearRoutes(oneshot::Sender<()>),
+    ClearRouteCache(oneshot::Sender<()>),
     WaitForRoutes(oneshot::Sender<()>, Vec<Route>),
     Shutdown(oneshot::Sender<()>),
 }
@@ -252,10 +252,10 @@ impl RouteManagerHandle {
 
     /// (Android) Clear the cached routes
     #[cfg(target_os = "android")]
-    pub async fn clear_android_routes(&self) -> Result<(), Error> {
+    pub async fn clear_route_cache(&self) -> Result<(), Error> {
         let (result_tx, result_rx) = oneshot::channel();
         self.tx
-            .unbounded_send(RouteManagerCommand::ClearRoutes(result_tx))
+            .unbounded_send(RouteManagerCommand::ClearRouteCache(result_tx))
             .map_err(|_| Error::RouteManagerDown)?;
         let _ = result_rx.await;
         Ok(())

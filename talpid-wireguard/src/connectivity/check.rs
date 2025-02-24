@@ -189,7 +189,11 @@ impl Check {
                 // determined, it could be because some dangling pointer, bug inside WG-go or
                 // something else. So for now we avoid spamming get_config too much since it lowers
                 // the risk of crash happening.
-                // Tracked by DROID-1825
+                //
+                // The value was previously set to 20 ms, depending on when we called
+                // establish_connectivity, this caused the crash to reliably occur.
+                //
+                // Tacked by DROID-1825 (Investigate GO crash issue with runtime.GC())
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }
         };
