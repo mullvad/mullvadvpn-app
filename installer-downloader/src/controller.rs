@@ -1,6 +1,7 @@
 //! This module implements the actual logic performed by different UI components.
 
 use crate::delegate::{AppDelegate, AppDelegateQueue};
+use crate::environment::Environment;
 use crate::resource;
 use crate::temp::DirectoryProvider;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
@@ -8,7 +9,7 @@ use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgres
 use mullvad_update::{
     api::VersionInfoProvider,
     app::{self, AppDownloader},
-    version::{Version, VersionArchitecture, VersionInfo, VersionParameters},
+    version::{Version, VersionInfo, VersionParameters},
 };
 use rand::seq::SliceRandom;
 
@@ -29,7 +30,7 @@ enum TaskMessage {
 pub struct AppController {}
 
 /// Public entry function for registering a [AppDelegate].
-pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
+pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environment: Environment) {
     use mullvad_update::{api::HttpVersionInfoProvider, app::HttpAppDownloader};
 
     // App downloader to use
@@ -48,7 +49,11 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
         verifying_key,
     };
 
-    AppController::initialize::<_, Downloader<T>, _, DirProvider>(delegate, version_provider)
+    AppController::initialize::<_, Downloader<T>, _, DirProvider>(
+        delegate,
+        version_provider,
+        environment,
+    )
 }
 
 /// JSON files should be stored at `<base url>/<platform>.json`.
@@ -68,8 +73,11 @@ impl AppController {
     ///
     /// Providing the downloader and version info fetcher as type arguments, they're decoupled from
     /// the logic of [AppController], allowing them to be mocked.
-    pub fn initialize<D, A, V, DirProvider>(delegate: &mut D, version_provider: V)
-    where
+    pub fn initialize<D, A, V, DirProvider>(
+        delegate: &mut D,
+        version_provider: V,
+        environment: Environment,
+    ) where
         D: AppDelegate + 'static,
         V: VersionInfoProvider + Send + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
@@ -93,6 +101,7 @@ impl AppController {
             delegate.queue(),
             task_tx.clone(),
             version_provider,
+            environment,
         ));
         Self::register_user_action_callbacks(delegate, task_tx);
     }
@@ -125,13 +134,11 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
     queue: Delegate::Queue,
     download_tx: mpsc::Sender<TaskMessage>,
     version_provider: VersionProvider,
+    Environment { architecture }: Environment,
 ) where
     Delegate: AppDelegate + 'static,
     VersionProvider: VersionInfoProvider + Send,
 {
-    // TODO: Do not unwrap
-    // TODO: Construct a proper error instead
-    let architecture = get_arch().unwrap().unwrap();
     loop {
         let version_params = VersionParameters {
             architecture,
@@ -411,13 +418,4 @@ fn select_cdn_url(urls: &[String]) -> Option<&str> {
 
 fn format_latest_version(version: &Version) -> String {
     format!("{}: {}", resource::LATEST_VERSION_PREFIX, version.version)
-}
-
-/// Try to map the host's CPU architecture to one of the CPU architectures the Mullvad VPN app
-/// supports.
-fn get_arch() -> Result<Option<VersionArchitecture>, std::io::Error> {
-    match talpid_platform_metadata::get_native_arch()?? {
-        talpid_platform_metadata::Architecture::X86 => VersionArchitecture::X86,
-        talpid_platform_metadata::Architecture::Arm64 => VersionArchitecture::Arm64,
-    }
 }
