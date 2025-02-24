@@ -314,9 +314,11 @@ async fn handle_action_messages<D, A, DirProvider>(
                             self_.hide_stable_text();
 
                             self_.show_error_message(crate::delegate::ErrorMessage {
-                                status_text: "Failed to create download directory".to_owned(),
-                                cancel_button_text: "Cancel".to_owned(),
-                                retry_button_text: "Try again".to_owned(),
+                                status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
+                                cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT
+                                    .to_owned(),
+                                retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT
+                                    .to_owned(),
                             });
                         });
                         continue;
