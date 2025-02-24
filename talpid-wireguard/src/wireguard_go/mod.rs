@@ -346,7 +346,7 @@ impl WgGoTunnel {
             UpdatedDetails(_) => (),
         }
     }
-    
+
     #[cfg(unix)]
     fn get_tunnel(
         tun_provider: Arc<Mutex<TunProvider>>,
