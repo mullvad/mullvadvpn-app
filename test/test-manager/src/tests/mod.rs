@@ -72,9 +72,8 @@ pub enum Error {
     #[error("GUI test binary missing")]
     MissingGuiTest,
 
-    #[cfg(target_os = "macos")]
     #[error("An error occurred: {0}")]
-    Other(String),
+    Other(#[from] anyhow::Error),
 }
 
 #[derive(Clone)]
@@ -145,13 +144,13 @@ pub async fn prepare_daemon(
         .context("Failed to restart daemon")?;
 
     log::debug!("Resetting daemon settings before test");
+    helpers::disconnect_and_wait(&mut mullvad_client)
+        .await
+        .context("Failed to disconnect daemon after test")?;
     mullvad_client
         .reset_settings()
         .await
         .context("Failed to reset settings")?;
-    helpers::disconnect_and_wait(&mut mullvad_client)
-        .await
-        .context("Failed to disconnect daemon after test")?;
     helpers::ensure_logged_in(&mut mullvad_client).await?;
 
     Ok(mullvad_client)
