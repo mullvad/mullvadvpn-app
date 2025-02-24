@@ -346,45 +346,10 @@ impl WgGoTunnel {
             UpdatedDetails(_) => (),
         }
     }
-
-    #[cfg(target_os = "android")]
     fn get_tunnel(
         tun_provider: Arc<Mutex<TunProvider>>,
         config: &Config,
-    ) -> Result<(Tun, RawFd, bool)> {
-        let mut tun_provider = tun_provider.lock().unwrap();
-        let mut last_error = None;
-        let tun_config = tun_provider.config_mut();
-
-        tun_config.addresses = config.tunnel.addresses.clone();
-        tun_config.ipv4_gateway = config.ipv4_gateway;
-        tun_config.ipv6_gateway = config.ipv6_gateway;
-        tun_config.mtu = config.mtu;
-        tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
-
-        for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
-            let (tunnel_device, is_new_tunnel) = tun_provider
-                .open_tun()
-                .map_err(TunnelError::SetupTunnelDevice)?;
-
-            match nix::unistd::dup(tunnel_device.as_raw_fd()) {
-                Ok(fd) => return Ok((tunnel_device, fd, is_new_tunnel)),
-                #[cfg(not(target_os = "macos"))]
-                Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
-                Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
-                Err(error) => return Err(TunnelError::FdDuplicationError(error)),
-            }
-        }
-
-        Err(TunnelError::FdDuplicationError(
-            last_error.expect("Should be collected in loop"),
-        ))
-    }
-    #[cfg(any(target_os = "linux", target_os = "macos"))]
-    fn get_tunnel(
-        tun_provider: Arc<Mutex<TunProvider>>,
-        config: &Config,
-        routes: impl Iterator<Item = IpNetwork>,
+        #[cfg(not(target_os = "android"))] routes: impl Iterator<Item = IpNetwork>,
     ) -> Result<(Tun, RawFd)> {
         let mut last_error = None;
         let mut tun_provider = tun_provider.lock().unwrap();
@@ -436,8 +401,7 @@ impl WgGoTunnel {
     ) -> Result<Self> {
         let _ = route_manager.clear_android_routes().await;
 
-        let (mut tunnel_device, tunnel_fd, is_new_tunnel) =
-            Self::get_tunnel(Arc::clone(&tun_provider), config)?;
+        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(Arc::clone(&tun_provider), config)?;
 
         let interface_name: String = tunnel_device
             .interface_name()
@@ -471,7 +435,7 @@ impl WgGoTunnel {
             cancel_receiver,
         });
 
-        if is_new_tunnel {
+        if tunnel_device.is_new_tunnel {
             tunnel.wait_for_routes().await?;
         }
 
@@ -492,8 +456,7 @@ impl WgGoTunnel {
     ) -> Result<Self> {
         let _ = route_manager.clear_android_routes().await;
 
-        let (mut tunnel_device, tunnel_fd, is_new_tunnel) =
-            Self::get_tunnel(Arc::clone(&tun_provider), config)?;
+        let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(Arc::clone(&tun_provider), config)?;
 
         let interface_name: String = tunnel_device
             .interface_name()
@@ -543,7 +506,7 @@ impl WgGoTunnel {
             cancel_receiver: cancel_receiver.clone(),
         });
 
-        if is_new_tunnel {
+        if tunnel_device.is_new_tunnel {
             tunnel.wait_for_routes().await?;
         }
 

@@ -97,7 +97,7 @@ impl AndroidTunProvider {
 
     /// Returns an open tunnel with the current configuration, if a tunnel already with the
     /// corresponding VpnTunConfig it returns a cached copy.
-    pub fn open_tun(&mut self) -> Result<(VpnServiceTun, bool), Error> {
+    pub fn open_tun(&mut self) -> Result<(VpnServiceTun), Error> {
         let config = VpnServiceConfig::new(self.config.clone());
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
@@ -107,15 +107,13 @@ impl AndroidTunProvider {
         // open_tun in android since it may cause leaks.
         if let Some((vpn_service_config, raw_fd)) = &self.current_config {
             if vpn_service_config == &config {
-                return Ok((
-                    VpnServiceTun {
-                        tunnel: *raw_fd,
-                        jvm,
-                        class: self.class.clone(),
-                        object: self.object.clone(),
-                    },
-                    false,
-                ));
+                return Ok(VpnServiceTun {
+                    tunnel: *raw_fd,
+                    is_new_tunnel: false,
+                    jvm,
+                    class: self.class.clone(),
+                    object: self.object.clone(),
+                });
             }
         }
 
@@ -123,15 +121,13 @@ impl AndroidTunProvider {
             .open_tun_fd(config.clone())
             .inspect(|raw_fd| self.current_config = Some((config, *raw_fd)))?;
 
-        Ok((
-            VpnServiceTun {
-                tunnel: raw_fd,
-                jvm,
-                class: self.class.clone(),
-                object: self.object.clone(),
-            },
-            true,
-        ))
+        Ok(VpnServiceTun {
+            tunnel: raw_fd,
+            is_new_tunnel: true,
+            jvm,
+            class: self.class.clone(),
+            object: self.object.clone(),
+        })
     }
 
     // Opens a tunnel in Android with the provided VpnServiceConfig.
@@ -374,6 +370,7 @@ impl From<&InetNetwork> for IpNetwork {
 /// Handle to a tunnel device on Android.
 pub struct VpnServiceTun {
     tunnel: RawFd,
+    pub is_new_tunnel: bool,
     jvm: JavaVM,
     class: GlobalRef,
     object: GlobalRef,
