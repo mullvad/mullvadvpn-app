@@ -106,15 +106,18 @@ impl RouteManagerImpl {
                     self.last_state = network_state;
 
                     // notify waiting clients that routes exist
-                    let mut unused_routes: Vec<(oneshot::Sender<()>, Vec<Route>)> = Vec::new();
-                    for (client, expected_routes) in self.waiting_for_routes.drain(..) {
-                        if has_routes(self.last_state.as_ref(), expected_routes.clone()) {
-                            let _ = client.send(());
-                        } else {
-                            unused_routes.push((client, expected_routes));
-                        }
-                    };
-                    self.waiting_for_routes = unused_routes;
+                    self.waiting_for_routes = self
+                        .waiting_for_routes
+                        .into_iter()
+                        .filter_map(|(client, expected_routes)| {
+                            if has_routes(self.last_state.as_ref(), expected_routes.clone()) {
+                                let _ = client.send(());
+                                None
+                            } else {
+                                Some((client, expected_routes))
+                            }
+                        })
+                        .collect();
                 }
             }
         }
