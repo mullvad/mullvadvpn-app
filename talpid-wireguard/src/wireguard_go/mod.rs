@@ -367,7 +367,7 @@ impl WgGoTunnel {
         tun_config.mtu = config.mtu;
 
         // Route everything into the tunnel and have wireguard-go act as a firewall.
-        #[cfg(target_os = "linux")]
+        #[cfg(not(target_os = "android"))]
         {
             tun_config.routes = routes.collect();
         }
