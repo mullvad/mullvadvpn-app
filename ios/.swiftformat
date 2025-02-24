@@ -1,5 +1,5 @@
 # file options
---exclude Build, .spm, MullvadVPNScreenshots/SnapshotHelper.swift, PacketTunnelCore/Daita/Maybenot.swift
+--exclude Build, .spm, MullvadVPNScreenshots/SnapshotHelper.swift, PacketTunnelCore/Daita/Maybenot.swift, wireguard-apple
 
 # general options
 --swiftversion 5.8

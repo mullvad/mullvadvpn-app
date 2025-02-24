@@ -20,10 +20,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Checkout wireguard-go-rs
+      - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init wireguard-go-rs
+          git submodule update --init --recursive ios/wireguard-apple
 
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
