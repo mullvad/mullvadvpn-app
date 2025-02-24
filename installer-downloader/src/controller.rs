@@ -230,6 +230,8 @@ async fn handle_action_messages<D, A, DirProvider>(
 
     let mut target_version = TargetVersion::Stable;
 
+    let temp_dir = DirProvider::create_download_dir().await;
+
     while let Some(msg) = rx.recv().await {
         match msg {
             TaskMessage::SetVersionInfo(new_version_info) => {
@@ -300,9 +302,11 @@ async fn handle_action_messages<D, A, DirProvider>(
                 });
 
                 // Create temporary dir
-                let download_dir = match DirProvider::create_download_dir().await {
-                    Ok(dir) => dir,
-                    Err(_err) => {
+                let download_dir = match &temp_dir {
+                    Ok(dir) => dir.clone(),
+                    Err(error) => {
+                        log::error!("Failed to create temporary directory: {error:?}");
+
                         queue.queue_main(move |self_| {
                             self_.set_status_text("");
                             self_.hide_download_button();
