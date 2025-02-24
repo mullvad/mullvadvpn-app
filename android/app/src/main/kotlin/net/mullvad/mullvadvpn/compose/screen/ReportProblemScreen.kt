@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -31,12 +32,14 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.max
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
 import com.ramcosta.composedestinations.annotation.Destination
@@ -169,6 +172,12 @@ private fun ReportProblemScreen(
                     singleLine = true,
                     placeholder = { Text(text = stringResource(id = R.string.user_email_hint)) },
                     colors = mullvadWhiteTextFieldColors(),
+                    keyboardOptions =
+                        KeyboardOptions(
+                            autoCorrectEnabled = false,
+                            keyboardType = KeyboardType.Email,
+                            imeAction = ImeAction.Next,
+                        ),
                 )
 
                 ProblemMessageTextField(
@@ -221,6 +230,12 @@ fun ProblemMessageTextField(
         onValueChange = onDescriptionChanged,
         placeholder = { Text(stringResource(R.string.user_message_hint)) },
         colors = mullvadWhiteTextFieldColors(),
+        keyboardOptions =
+            KeyboardOptions(
+                capitalization = KeyboardCapitalization.Sentences,
+                keyboardType = KeyboardType.Text,
+                imeAction = ImeAction.Next,
+            ),
     )
 }
 
