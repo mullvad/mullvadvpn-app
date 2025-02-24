@@ -11,6 +11,7 @@ mod cancellation;
 mod completion;
 mod response;
 mod retry_strategy;
+mod storekit;
 
 #[repr(C)]
 pub struct SwiftApiContext(*const ApiContext);
