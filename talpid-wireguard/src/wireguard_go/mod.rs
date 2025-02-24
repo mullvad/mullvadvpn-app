@@ -363,12 +363,17 @@ impl WgGoTunnel {
         tun_config.ipv4_gateway = config.ipv4_gateway;
         tun_config.ipv6_gateway = config.ipv6_gateway;
         tun_config.mtu = config.mtu;
-        tun_config.routes = if cfg!(target_os = "android") {
-            // Route everything into the tunnel and have wireguard-go act as a firewall.
-            vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()]
-        } else {
-            routes.collect()
-        };
+
+        // Route everything into the tunnel and have wireguard-go act as a firewall.
+        #[cfg(not(target_os = "android"))]
+        {
+            tun_config.routes = routes.collect();
+        }
+
+        #[cfg(target_os = "android")]
+        {
+            tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
+        }
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
             let tunnel_device = tun_provider
@@ -402,6 +407,7 @@ impl WgGoTunnel {
         let _ = route_manager.clear_android_routes().await;
 
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(Arc::clone(&tun_provider), config)?;
+        let is_new_tunnel = tunnel_device.is_new_tunnel;
 
         let interface_name: String = tunnel_device
             .interface_name()
@@ -435,7 +441,7 @@ impl WgGoTunnel {
             cancel_receiver,
         });
 
-        if tunnel_device.is_new_tunnel {
+        if is_new_tunnel {
             tunnel.wait_for_routes().await?;
         }
 
@@ -457,6 +463,7 @@ impl WgGoTunnel {
         let _ = route_manager.clear_android_routes().await;
 
         let (mut tunnel_device, tunnel_fd) = Self::get_tunnel(Arc::clone(&tun_provider), config)?;
+        let is_new_tunnel = tunnel_device.is_new_tunnel;
 
         let interface_name: String = tunnel_device
             .interface_name()
@@ -506,7 +513,7 @@ impl WgGoTunnel {
             cancel_receiver: cancel_receiver.clone(),
         });
 
-        if tunnel_device.is_new_tunnel {
+        if is_new_tunnel {
             tunnel.wait_for_routes().await?;
         }
 
