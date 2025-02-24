@@ -119,7 +119,7 @@ impl WgGoTunnel {
         let log_path = state._logging_context.path.clone();
         let cancel_receiver = state.cancel_receiver.clone();
         let tun_provider = Arc::clone(&state.tun_provider);
-        let route_manager = &state.route_manager.clone();
+        let route_manager = state.route_manager.clone();
 
         match self {
             WgGoTunnel::Multihop(state) if !config.is_multihop() => {
@@ -128,7 +128,7 @@ impl WgGoTunnel {
                     config,
                     log_path.as_deref(),
                     tun_provider,
-                    route_manager.clone(),
+                    route_manager,
                     cancel_receiver,
                 )
                 .await
@@ -140,7 +140,7 @@ impl WgGoTunnel {
                     &config.exit_peer.clone().unwrap().clone(),
                     log_path.as_deref(),
                     tun_provider,
-                    route_manager.clone(),
+                    route_manager,
                     cancel_receiver,
                 )
                 .await
