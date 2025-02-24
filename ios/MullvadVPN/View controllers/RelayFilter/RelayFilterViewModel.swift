@@ -14,14 +14,21 @@ import MullvadTypes
 class RelayFilterViewModel {
     private var settings: LatestTunnelSettings
     private var relaysWithLocation: LocationRelays
+    private let relayFilterManager: relayFilterManager
 
     var onNewSettings: ((LatestTunnelSettings) -> Void)?
     var onNewRelays: ((LocationRelays) -> Void)?
+    @Published var relayFilter: RelayFilter
 
-    init(settings: LatestTunnelSettings, relaysWithLocation: LocationRelays) {
+    init(settings: LatestTunnelSettings, relaysWithLocation: LocationRelays,relayFilterManager: RelayFilterable) {
         self.settings = settings
         self.relaysWithLocation = relaysWithLocation
-
+        self.relayFilterManager = relayFilterManager
+        self.relayFilter = if case let .only(filter) = settings.relayConstraints.filter {
+            filter
+        } else {
+            RelayFilter()
+        }
         self.onNewRelays = { [weak self] newRelays in
             self?.relaysWithLocation = newRelays
         }
@@ -31,13 +38,6 @@ class RelayFilterViewModel {
         }
     }
 
-    private var relayFilter: RelayFilter {
-        if case let .only(filter) = settings.relayConstraints.filter {
-            return filter
-        }
-        return RelayFilter()
-    }
-    
     private var relays: [REST.ServerRelay] {
         relaysWithLocation.relays
     }
@@ -53,11 +53,6 @@ class RelayFilterViewModel {
     var rentedProviders: [String] {
         Set(relays.filter { $0.owned == false }.map { $0.provider }).caseInsensitiveSorted()
     }
-
-//    init(relaysWithLocation: LocationRelays, relayFilter: RelayFilter) {
-//        self.relaysWithLocation = relaysWithLocation
-//        self.relayFilter = relayFilter
-//    }
 
     func addItemToFilter(_ item: RelayFilterDataSource.Item) {
         switch item {

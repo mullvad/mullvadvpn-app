@@ -13,7 +13,7 @@ import UIKit
 
 protocol LocationViewControllerWrapperDelegate: AnyObject {
     func navigateToCustomLists(nodes: [LocationNode])
-    func navigateToFilter()
+    func navigateToFilter(_ relayFilterManager : RelayFilterManager)
     func navigateToDaitaSettings()
     func didSelectEntryRelays(_ relays: UserSelectedRelays)
     func didSelectExitRelays(_ relays: UserSelectedRelays)
@@ -129,32 +129,13 @@ final class LocationViewControllerWrapper: UIViewController {
     }
 
     private func setRelaysWithLocation() {
-        if settings.tunnelMultihopState.isEnabled {
-            entryLocationViewController?.setDaitaChip(settings.daita.isDirectOnly)
-            entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: settings.daita.isAutomaticRouting)
-            entryLocationViewController?.setRelaysWithLocation(
-                relayFilterManager.matches(relays: relaysWithLocation, criteria: RelayFilterCriteria(
-                    isDirectOnly: settings.daita.isDirectOnly,
-                    filterConstraints: relayFilter
-                )),
-                filter: relayFilter
-            )
-            exitLocationViewController.setRelaysWithLocation(
-                relayFilterManager.matches(relays: relaysWithLocation, criteria: RelayFilterCriteria(
-                    isDirectOnly: false,
-                    filterConstraints: relayFilter
-                )),
-                filter: relayFilter
-            )
-        } else {
-            exitLocationViewController.setRelaysWithLocation(
-                relayFilterManager.matches(relays: relaysWithLocation, criteria: RelayFilterCriteria(
-                    isDirectOnly: settings.daita.isDirectOnly,
-                    filterConstraints: relayFilter
-                )),
-                filter: relayFilter
-            )
+        let relayFilterResult = relayFilterManager.matches(relays: relaysWithLocation, settings: settings)
+        entryLocationViewController?.setDaitaChip(settings.daita.isDirectOnly)
+        entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: settings.daita.isAutomaticRouting)
+        if let entryRelays = relayFilterResult.entryRelays {
+            entryLocationViewController?.setRelaysWithLocation(entryRelays, filter: relayFilter)
         }
+        exitLocationViewController.setRelaysWithLocation(relayFilterResult.exitRelays, filter: relayFilter)
     }
 
     func refreshCustomLists() {
@@ -187,7 +168,8 @@ final class LocationViewControllerWrapper: UIViewController {
                 comment: ""
             ),
             primaryAction: UIAction(handler: { [weak self] _ in
-                self?.delegate?.navigateToFilter()
+                guard let self = self else { return }
+                delegate?.navigateToFilter(relayFilterManager)
             })
         )
         navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.selectLocationFilterButton)

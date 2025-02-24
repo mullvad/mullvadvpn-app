@@ -14,9 +14,11 @@ import UIKit
 
 class RelayFilterViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .grouped)
-    private var viewModel: RelayFilterViewModel?
+    private var viewModel: RelayFilterViewModel
+    private var relayFilterManager : RelayFilterable
     private var dataSource: RelayFilterDataSource?
     private var disposeBag = Set<Combine.AnyCancellable>()
+   
 
     private let applyButton: AppButton = {
         let button = AppButton(style: .success)
@@ -32,13 +34,16 @@ class RelayFilterViewController: UIViewController {
 
     var onApplyFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
-
     var onNewSettings: ((LatestTunnelSettings) -> Void)?
     var onNewRelays: ((LocationRelays) -> Void)?
 
-
-
-    init() {
+    init(
+        settings: LatestTunnelSettings,
+        relays: LocationRelays,
+        relayFilterManager : RelayFilterable
+    ) {
+        self.relayFilterManager = relayFilterManager
+        setUpDataSource(settings: settings, relays: relays, relayFilterManager: relayFilterManager)
         super.init(nibName: nil, bundle: nil)
         self.onNewSettings = { [weak self] newSettings in
             self?.viewModel?.onNewSettings?(newSettings)
@@ -85,8 +90,6 @@ class RelayFilterViewController: UIViewController {
                 constant: UIMetrics.contentLayoutMargins.top
             )
         }
-
-        setUpDataSource()
     }
 
 //    private func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
@@ -97,57 +100,53 @@ class RelayFilterViewController: UIViewController {
 //        viewModel?.relayFilter = filter
 //    }
 
-    private func setUpDataSource() {
-        let viewModel = RelayFilterViewModel(
-            relays: cachedRelays?.relays.wireguard.relays ?? [],
-            relayFilter: filter
-        )
-        self.viewModel = viewModel
-
+    private func setUpDataSource(settings: LatestTunnelSettings, relays: LocationRelays,relayFilterManager : RelayFilterable) {
+        self.viewModel = RelayFilterViewModel(settings: settings, relaysWithLocation: relays)
         viewModel.$relayFilter
             .sink { [weak self] filter in
                 guard let self else { return }
-                let relays = viewModel.getFilteredRelays(with: filter)
-                let formattedCount = relays.count < 100 ? "\(relays.count)" : "99+"
-                let isEnabled = !relays.isEmpty
-                applyButton.isEnabled = isEnabled
-                applyButton.setTitle(String(format: NSLocalizedString(
-                    "RELAY_FILTER_BUTTON_TITLE",
-                    tableName: "RelayFilter",
-                    value: "Show %@ servers",
-                    comment: ""
-                ), formattedCount), for: .normal)
+                let filterResult = relayFilterManager.matches(relays: l, settings: <#T##LatestTunnelSettings#>)
+//                let relays = viewModel.getFilteredRelays(with: filter)
+//                let formattedCount = relays.count < 100 ? "\(relays.count)" : "99+"
+//                let isEnabled = !relays.isEmpty
+//                applyButton.isEnabled = isEnabled
+//                applyButton.setTitle(String(format: NSLocalizedString(
+//                    "RELAY_FILTER_BUTTON_TITLE",
+//                    tableName: "RelayFilter",
+//                    value: "Show %@ servers",
+//                    comment: ""
+//                ), formattedCount), for: .normal)
             }
             .store(in: &disposeBag)
-
-        dataSource = RelayFilterDataSource(tableView: tableView, viewModel: viewModel)
+//
+//        dataSource = RelayFilterDataSource(tableView: tableView, viewModel: viewModel)
     }
 
     @objc private func applyFilter() {
-        guard let viewModel = viewModel else { return }
-        var relayFilter = viewModel.relayFilter
-
-        switch viewModel.relayFilter.ownership {
-        case .any:
-            break
-        case .owned:
-            switch relayFilter.providers {
-            case .any:
-                break
-            case let .only(providers):
-                let ownedProviders = viewModel.ownedProviders.filter { providers.contains($0) }
-                relayFilter.providers = .only(ownedProviders)
-            }
-        case .rented:
-            switch relayFilter.providers {
-            case .any:
-                break
-            case let .only(providers):
-                let rentedProviders = viewModel.rentedProviders.filter { providers.contains($0) }
-                relayFilter.providers = .only(rentedProviders)
-            }
-        }
-
-        onApplyFilter?(relayFilter)
+//        guard let viewModel = viewModel else { return }
+//        var relayFilter = viewModel.relayFilter
+//
+//        switch viewModel.relayFilter.ownership {
+//        case .any:
+//            break
+//        case .owned:
+//            switch relayFilter.providers {
+//            case .any:
+//                break
+//            case let .only(providers):
+//                let ownedProviders = viewModel.ownedProviders.filter { providers.contains($0) }
+//                relayFilter.providers = .only(ownedProviders)
+//            }
+//        case .rented:
+//            switch relayFilter.providers {
+//            case .any:
+//                break
+//            case let .only(providers):
+//                let rentedProviders = viewModel.rentedProviders.filter { providers.contains($0) }
+//                relayFilter.providers = .only(rentedProviders)
+//            }
+//        }
+//
+//        onApplyFilter?(relayFilter)
     }
 }

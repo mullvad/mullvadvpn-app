@@ -115,33 +115,6 @@ class LocationCoordinator: Coordinator, Presentable, Presenting {
         self.tunnelObserver = tunnelObserver
     }
 
-    private func makeRelayFilterCoordinator(forModalPresentation isModalPresentation: Bool)
-        -> RelayFilterCoordinator {
-        let navigationController = CustomNavigationController()
-
-        let relayFilterCoordinator = RelayFilterCoordinator(
-            navigationController: navigationController,
-            tunnelManager: tunnelManager,
-            relayCacheTracker: relayCacheTracker
-        )
-
-        relayFilterCoordinator.didFinish = { [weak self] coordinator, filter in
-            guard let self else { return }
-
-//            if let cachedRelays = try? relayCacheTracker.getCachedRelays(), let locationViewControllerWrapper,
-//               let filter {
-//                locationViewControllerWrapper.setRelaysWithLocation(LocationRelays(
-//                    relays: cachedRelays.relays.wireguard.relays,
-//                    locations: cachedRelays.relays.locations
-//                ), filter: filter)
-//            }
-
-            coordinator.dismiss(animated: true)
-        }
-
-        return relayFilterCoordinator
-    }
-
     private func showAddCustomList(nodes: [LocationNode]) {
         let coordinator = AddCustomListCoordinator(
             navigationController: CustomNavigationController(),
@@ -201,6 +174,10 @@ extension LocationCoordinator: @preconcurrency RelayCacheTrackerObserver {
 }
 
 extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDelegate {
+    func navigateToFilter(_ relayFilterManager: RelayFilterManager) {
+        <#code#>
+    }
+    
     func didSelectEntryRelays(_ relays: UserSelectedRelays) {
         var relayConstraints = tunnelManager.settings.relayConstraints
         relayConstraints.entryLocations = .only(relays)
@@ -237,10 +214,33 @@ extension LocationCoordinator: @preconcurrency LocationViewControllerWrapperDele
     }
 
     func navigateToFilter() {
-        let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
-        coordinator.start()
+        let navigationController = CustomNavigationController()
 
-        presentChild(coordinator, animated: true)
+        let relayFilterCoordinator = RelayFilterCoordinator(
+            navigationController: navigationController,
+            tunnelManager: tunnelManager,
+            relayCacheTracker: relayCacheTracker
+        )
+
+        relayFilterCoordinator.didFinish = { [weak self] coordinator, filter in
+            guard let self else { return }
+
+//            if let cachedRelays = try? relayCacheTracker.getCachedRelays(), let locationViewControllerWrapper,
+//               let filter {
+//                locationViewControllerWrapper.setRelaysWithLocation(LocationRelays(
+//                    relays: cachedRelays.relays.wireguard.relays,
+//                    locations: cachedRelays.relays.locations
+//                ), filter: filter)
+//            }
+
+            coordinator.dismiss(animated: true)
+        }
+
+        return relayFilterCoordinator
+//        let coordinator = makeRelayFilterCoordinator(forModalPresentation: true)
+//        coordinator.start()
+//
+//        presentChild(coordinator, animated: true)
     }
 
     func navigateToCustomLists(nodes: [LocationNode]) {

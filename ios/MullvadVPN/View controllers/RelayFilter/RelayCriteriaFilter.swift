@@ -10,26 +10,36 @@ import MullvadSettings
 import MullvadTypes
 
 protocol RelayFilterable {
-    func matches(relays: LocationRelays, criteria: RelayFilterCriteria) -> LocationRelays
+    func matches(relays: LocationRelays, settings: LatestTunnelSettings) -> RelayFilterResult
 }
 
-struct RelayFilterCriteria {
-    let isDirectOnly: Bool
-    let filterConstraints: RelayFilter
+struct RelayFilterResult {
+    var entryRelays: LocationRelays?
+    var exitRelays: LocationRelays
 }
 
 struct RelayFilterManager: RelayFilterable {
-    func matches(relays: LocationRelays, criteria: RelayFilterCriteria) -> LocationRelays {
-        var relaysWithLocation = relays
-        relaysWithLocation.relays = if criteria.isDirectOnly {
-            relaysWithLocation.relays.filter { relay in
-                RelaySelector.relayMatchesFilter(relay, filter: criteria.filterConstraints) && relay.daita == true
-            }
-        } else {
-            relaysWithLocation.relays.filter { relay in
-                RelaySelector.relayMatchesFilter(relay, filter: criteria.filterConstraints)
+    func matches(relays: LocationRelays, settings: LatestTunnelSettings) -> RelayFilterResult {
+        var entryRelays: LocationRelays? = settings.tunnelMultihopState.isEnabled ? relays : nil
+        var exitRelays = relays
+
+        if settings.daita.isDirectOnly {
+            if var entry = entryRelays {
+                entry.relays = relays.relays.filter { $0.daita == true }
+                entryRelays = entry
+            } else {
+                exitRelays.relays = relays.relays.filter { $0.daita == true }
             }
         }
-        return relaysWithLocation
+
+        if case let .only(relayFilter) = settings.relayConstraints.filter {
+            if var entry = entryRelays {
+                entry.relays = entry.relays.filter { RelaySelector.relayMatchesFilter($0, filter: relayFilter) }
+                entryRelays = entry
+            }
+            exitRelays.relays = exitRelays.relays.filter { RelaySelector.relayMatchesFilter($0, filter: relayFilter) }
+        }
+
+        return RelayFilterResult(entryRelays: entryRelays, exitRelays: exitRelays)
     }
 }

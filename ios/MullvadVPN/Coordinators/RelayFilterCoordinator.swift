@@ -14,8 +14,9 @@ import UIKit
 class RelayFilterCoordinator: Coordinator, Presentable, @preconcurrency RelayCacheTrackerObserver {
     private let tunnelManager: TunnelManager
     private let relayCacheTracker: RelayCacheTracker
-    private var cachedRelays: CachedRelays?
-
+    private let relayFilterManager : RelayFilterable
+    private var tunnelObserver: TunnelObserver?
+    
     let navigationController: UINavigationController
 
     var presentedViewController: UIViewController {
@@ -28,29 +29,35 @@ class RelayFilterCoordinator: Coordinator, Presentable, @preconcurrency RelayCac
         } as? RelayFilterViewController
     }
 
-    var relayFilter: RelayFilter {
-        switch tunnelManager.settings.relayConstraints.filter {
-        case .any:
-            return RelayFilter()
-        case let .only(filter):
-            return filter
-        }
-    }
-
     var didFinish: ((RelayFilterCoordinator, RelayFilter?) -> Void)?
 
     init(
         navigationController: UINavigationController,
         tunnelManager: TunnelManager,
-        relayCacheTracker: RelayCacheTracker
+        relayCacheTracker: RelayCacheTracker,
+        relayFilterManager : RelayFilterable
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
         self.relayCacheTracker = relayCacheTracker
+        self.relayFilterManager = relayFilterManager
+        addTunnelObserver()
     }
 
     func start() {
-        let relayFilterViewController = RelayFilterViewController()
+        let locationRelays = if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
+            LocationRelays(
+                relays: cachedRelays.relays.wireguard.relays,
+                locations: cachedRelays.relays.locations
+            )
+        } else {
+            LocationRelays(relays: [], locations: [:])
+        }
+        let relayFilterViewController = RelayFilterViewController(
+            settings: tunnelManager.settings,
+            relays: locationRelays,
+            relayFilterManager: relayFilterManager
+        )
 
         relayFilterViewController.onApplyFilter = { [weak self] filter in
             guard let self else { return }
@@ -65,25 +72,38 @@ class RelayFilterCoordinator: Coordinator, Presentable, @preconcurrency RelayCac
 
         relayFilterViewController.didFinish = { [weak self] in
             guard let self else { return }
-
             didFinish?(self, nil)
         }
 
         relayCacheTracker.addObserver(self)
-
-        if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
-            self.cachedRelays = cachedRelays
-            relayFilterViewController.setCachedRelays(cachedRelays, filter: relayFilter)
-        }
-
         navigationController.pushViewController(relayFilterViewController, animated: false)
+    }
+
+    private func addTunnelObserver() {
+        let tunnelObserver =
+            TunnelBlockObserver(
+                didUpdateTunnelSettings: { [weak self] _, settings in
+                    guard let self else { return }
+                    relayFilterViewController?.onNewSettings?(settings)
+                }
+            )
+
+        tunnelManager.addObserver(tunnelObserver)
+        self.tunnelObserver = tunnelObserver
     }
 
     func relayCacheTracker(
         _ tracker: RelayCacheTracker,
         didUpdateCachedRelays cachedRelays: CachedRelays
     ) {
-        self.cachedRelays = cachedRelays
-        relayFilterViewController?.setCachedRelays(cachedRelays, filter: relayFilter)
+        let locationRelays = if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
+            LocationRelays(
+                relays: cachedRelays.relays.wireguard.relays,
+                locations: cachedRelays.relays.locations
+            )
+        } else {
+            LocationRelays(relays: [], locations: [:])
+        }
+        relayFilterViewController?.onNewRelays?(locationRelays)
     }
 }
