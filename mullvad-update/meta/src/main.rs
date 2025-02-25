@@ -2,6 +2,7 @@
 
 use anyhow::{bail, Context};
 use clap::Parser;
+use config::Config;
 use io_util::create_dir_and_write;
 
 use mullvad_update::format::{self, key, SignedResponse};
@@ -9,6 +10,7 @@ use mullvad_update::format::{self, key, SignedResponse};
 use platform::Platform;
 
 mod artifacts;
+mod config;
 mod github;
 mod io_util;
 mod platform;
@@ -110,6 +112,7 @@ pub enum Opt {
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let opt = Opt::parse();
+    let config = Config::load_or_create().await?;
 
     match opt {
         Opt::GenerateKey => {
