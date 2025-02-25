@@ -287,9 +287,7 @@ cargo {
     targetIncludes = arrayOf("libmullvad_jni.so")
     extraCargoBuildArguments = buildList {
         add("--package=mullvad-jni")
-        if (isReleaseBuild) {
-            add("--locked")
-        }
+        add("--locked")
     }
     exec = { spec, _ -> spec.environment("RUSTFLAGS", generateRemapArguments()) }
 }
