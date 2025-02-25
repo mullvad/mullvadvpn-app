@@ -113,7 +113,7 @@ impl AndroidTunProvider {
             if vpn_service_config == &config {
                 return Ok(VpnServiceTun {
                     tunnel: *raw_fd,
-                    is_new_tunnel: false,
+                    is_new: false,
                     jvm,
                     class: self.class.clone(),
                     object: self.object.clone(),
@@ -140,7 +140,7 @@ impl AndroidTunProvider {
 
         Ok(VpnServiceTun {
             tunnel: raw_fd,
-            is_new_tunnel: true,
+            is_new: true,
             jvm,
             class: self.class.clone(),
             object: self.object.clone(),
@@ -381,7 +381,8 @@ impl From<&InetNetwork> for IpNetwork {
 /// Handle to a tunnel device on Android.
 pub struct VpnServiceTun {
     tunnel: RawFd,
-    pub is_new_tunnel: bool,
+    // True if a new file descriptor was created, false if cache was returned.
+    pub is_new: bool,
     jvm: JavaVM,
     class: GlobalRef,
     object: GlobalRef,
