@@ -332,7 +332,7 @@ fun MullvadTopBarWithDeviceName(
     iconTintColor: Color,
     isIconAndLogoVisible: Boolean = true,
     deviceName: String?,
-    daysLeftUntilExpiry: Int?,
+    daysLeftUntilExpiry: Long?,
 ) {
     Column {
         MullvadTopBar(
@@ -383,8 +383,8 @@ fun MullvadTopBarWithDeviceName(
                             if (daysLeftUntilExpiry >= 0) {
                                 pluralStringResource(
                                     id = R.plurals.days,
-                                    daysLeftUntilExpiry,
-                                    daysLeftUntilExpiry,
+                                    daysLeftUntilExpiry.toInt(),
+                                    daysLeftUntilExpiry.toInt(),
                                 )
                             } else {
                                 stringResource(id = R.string.out_of_time)

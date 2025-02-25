@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
+import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
@@ -17,7 +18,6 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_3
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_4
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_5
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_6
-import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import org.junit.jupiter.api.Test
 
 class TooManyDevicesMockApiTest : MockApiTest() {
@@ -27,7 +27,7 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
-            accountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
+            accountExpiry = ZonedDateTime.now().plusMonths(1)
             devices =
                 mutableMapOf(
                     DUMMY_ID_1 to DUMMY_DEVICE_NAME_1,

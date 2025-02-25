@@ -5,6 +5,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import java.time.Duration
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.minutes
@@ -25,8 +27,6 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
-import org.joda.time.DateTime
-import org.joda.time.Duration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -80,7 +80,9 @@ class AccountExpiryNotificationProviderTest {
     @Test
     fun `should emit notification if expiry time is shorter than expiry warning threshold`() =
         runTest {
-            setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
+            setExpiry(
+                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1)
+            )
             provider.notifications.test {
                 assertTrue(awaitItem() is Notify)
                 expectNoEvents()
@@ -90,7 +92,7 @@ class AccountExpiryNotificationProviderTest {
     @Test
     fun `should emit cancel notification if user account is new`() = runTest {
         isNewDevice.value = true
-        setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
+        setExpiry(ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
         provider.notifications.test {
             assertTrue(awaitItem() is Cancel)
             expectNoEvents()
@@ -100,7 +102,7 @@ class AccountExpiryNotificationProviderTest {
     @Test
     fun `should emit cancel notification if user account is logged out`() = runTest {
         setIsLoggedIn(false)
-        setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
+        setExpiry(ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
         provider.notifications.test {
             assertTrue(awaitItem() is Cancel)
             expectNoEvents()
@@ -117,7 +119,7 @@ class AccountExpiryNotificationProviderTest {
 
     @Test
     fun `should emit zero duration notification when remaining time runs out`() = runTest {
-        setExpiry(DateTime.now().plus(Duration.standardSeconds(60)))
+        setExpiry(ZonedDateTime.now().plus(Duration.ofSeconds(60)))
         provider.notifications.test {
             assertTrue(awaitItem() is Notify)
             expectNoEvents()
@@ -135,7 +137,10 @@ class AccountExpiryNotificationProviderTest {
     @Test
     fun `should emit notification when update interval is passed`() = runTest {
         setExpiry(
-            DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1).plusHours(1)
+            ZonedDateTime.now()
+                .plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD)
+                .minusDays(1)
+                .plusHours(1)
         )
         provider.notifications.test {
             assertTrue(awaitItem() is Notify)
@@ -152,12 +157,14 @@ class AccountExpiryNotificationProviderTest {
 
     @Test
     fun `should cancel existing notification if more time is added to account`() = runTest {
-        setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
+        setExpiry(ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
         provider.notifications.test {
             assertTrue(awaitItem() is Notify)
             expectNoEvents()
 
-            setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusDays(1))
+            setExpiry(
+                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusDays(1)
+            )
             assertTrue(awaitItem() is Cancel)
             expectNoEvents()
         }
@@ -165,12 +172,14 @@ class AccountExpiryNotificationProviderTest {
 
     @Test
     fun `should not cancel existing notification if too little time is added`() = runTest {
-        setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
+        setExpiry(ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusDays(1))
         provider.notifications.test {
             assertTrue(awaitItem() is Notify)
             expectNoEvents()
 
-            setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusHours(1))
+            setExpiry(
+                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).minusHours(1)
+            )
             assertTrue(awaitItem() is Notify)
             expectNoEvents()
         }
@@ -184,7 +193,7 @@ class AccountExpiryNotificationProviderTest {
             is Notify -> awaitItem.value
         }
 
-    private fun setExpiry(expiryDateTime: DateTime): DateTime {
+    private fun setExpiry(expiryDateTime: ZonedDateTime): ZonedDateTime {
         val expiry = AccountData(mockk(relaxed = true), expiryDateTime)
         accountData.value = expiry
         return expiryDateTime

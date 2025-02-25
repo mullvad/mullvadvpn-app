@@ -78,7 +78,7 @@ fun ScaffoldWithTopBarAndDeviceName(
     isIconAndLogoVisible: Boolean = true,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     deviceName: String?,
-    timeLeft: Int?,
+    timeLeft: Long?,
     content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(

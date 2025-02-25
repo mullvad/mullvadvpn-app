@@ -8,6 +8,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -18,7 +19,6 @@ import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.model.RedeemVoucherSuccess
 import net.mullvad.mullvadvpn.lib.model.VoucherCode
 import net.mullvad.mullvadvpn.lib.shared.VoucherRepository
-import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -50,7 +50,7 @@ class VoucherDialogViewModelTest {
 
         // Arrange
         val timeAdded = 0L
-        val newExpiry = DateTime()
+        val newExpiry = ZonedDateTime.now()
         coEvery { mockVoucherRepository.submitVoucher(parsedVoucher) } returns
             RedeemVoucherSuccess(timeAdded, newExpiry).right()
 
@@ -89,7 +89,7 @@ class VoucherDialogViewModelTest {
         every { mockVoucherSubmission.timeAdded } returns 0
         coEvery {
             mockVoucherRepository.submitVoucher(VoucherCode.fromString(voucher).getOrNull()!!)
-        } returns RedeemVoucherSuccess(0, DateTime()).right()
+        } returns RedeemVoucherSuccess(0, ZonedDateTime.now()).right()
 
         // Act, Assert
         viewModel.uiState.test {

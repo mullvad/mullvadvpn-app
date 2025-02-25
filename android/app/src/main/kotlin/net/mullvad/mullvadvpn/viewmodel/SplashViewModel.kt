@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.selects.onTimeout
 import kotlinx.coroutines.selects.select
 import net.mullvad.mullvadvpn.constant.ACCOUNT_EXPIRY_TIMEOUT_MS
+import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
@@ -72,7 +73,7 @@ class SplashViewModel(
             onTimeout(ACCOUNT_EXPIRY_TIMEOUT_MS) { null }
         }
 
-        return if (accountData != null && accountData.expiryDate.isBeforeNow) {
+        return if (accountData != null && accountData.expiryDate.isBeforeNowInstant()) {
             SplashUiSideEffect.NavigateToOutOfTime
         } else {
             SplashUiSideEffect.NavigateToConnect

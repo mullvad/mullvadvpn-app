@@ -24,6 +24,7 @@ import net.mullvad.mullvadvpn.compose.state.LoginState.Idle
 import net.mullvad.mullvadvpn.compose.state.LoginState.Loading
 import net.mullvad.mullvadvpn.compose.state.LoginState.Success
 import net.mullvad.mullvadvpn.compose.state.LoginUiState
+import net.mullvad.mullvadvpn.lib.common.util.isBeforeNowInstant
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
@@ -137,7 +138,9 @@ class LoginViewModel(
         viewModelScope.launch(dispatcher) {
             // Find if user is out of time
             val isOutOfTimeDeferred = async {
-                accountRepository.accountData.mapNotNull { it?.expiryDate?.isBeforeNow }.first()
+                accountRepository.accountData
+                    .mapNotNull { it?.expiryDate?.isBeforeNowInstant() }
+                    .first()
             }
 
             // Always show successful login for some time.

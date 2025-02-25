@@ -399,7 +399,6 @@ dependencies {
     implementation(libs.compose.destinations)
     ksp(libs.compose.destinations.ksp)
 
-    implementation(libs.jodatime)
     implementation(libs.kermit)
     implementation(libs.koin)
     implementation(libs.koin.android)

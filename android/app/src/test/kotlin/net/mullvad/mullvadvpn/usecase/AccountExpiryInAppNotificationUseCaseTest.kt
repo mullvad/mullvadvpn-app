@@ -7,6 +7,8 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import java.time.Duration
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.seconds
@@ -19,8 +21,6 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL
-import org.joda.time.DateTime
-import org.joda.time.Duration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -33,7 +33,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
     private lateinit var accountExpiryInAppNotificationUseCase:
         AccountExpiryInAppNotificationUseCase
 
-    private lateinit var notificationThreshold: DateTime
+    private lateinit var notificationThreshold: ZonedDateTime
 
     @BeforeEach
     fun setup() {
@@ -45,7 +45,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
         accountExpiryInAppNotificationUseCase =
             AccountExpiryInAppNotificationUseCase(accountRepository)
 
-        notificationThreshold = DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD)
+        notificationThreshold = ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD)
     }
 
     @AfterEach
@@ -102,7 +102,7 @@ class AccountExpiryInAppNotificationUseCaseTest {
 
             // Set expiry to to be in the final update interval.
             val inLastUpdate =
-                DateTime.now()
+                ZonedDateTime.now()
                     .plus(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL)
                     .minusSeconds(1)
             val expiry = setExpiry(inLastUpdate)
@@ -113,34 +113,37 @@ class AccountExpiryInAppNotificationUseCaseTest {
             expectNoEvents()
 
             // Advance past the delay before the while loop:
-            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
+            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.toMillis())
             // Advance past the delay after the while loop:
-            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.millis)
+            advanceTimeBy(ACCOUNT_EXPIRY_IN_APP_NOTIFICATION_UPDATE_INTERVAL.toMillis())
             assertEquals(Duration.ZERO, getExpiryNotificationDuration(expectMostRecentItem()))
             expectNoEvents()
 
             // Make sure we reset the list of notifications emitted when new time is added
-            setExpiry(DateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusDays(1))
+            setExpiry(
+                ZonedDateTime.now().plus(ACCOUNT_EXPIRY_CLOSE_TO_EXPIRY_THRESHOLD).plusDays(1)
+            )
             assertEquals(emptyList(), expectMostRecentItem())
         }
     }
 
-    private fun setExpiry(expiryDateTime: DateTime): DateTime {
+    private fun setExpiry(expiryDateTime: ZonedDateTime): ZonedDateTime {
         val expiry = AccountData(mockk(relaxed = true), expiryDateTime)
         accountExpiry.value = expiry
         return expiryDateTime
     }
 
     // Assert that we got a single AccountExpiry notification and that the expiry duration is within
-    // the expected range (checking exact duration value is not possible since we use DateTime.now)
+    // the expected range (checking exact duration value is not possible since we use
+    // ZonedDateTime.now)
     private fun assertExpiryNotificationDuration(
-        expiry: DateTime,
+        expiry: ZonedDateTime,
         notifications: List<InAppNotification>,
     ) {
         val notificationDuration = getExpiryNotificationDuration(notifications)
-        val expiresFromNow = Duration(DateTime.now(), expiry)
+        val expiresFromNow = Duration.between(ZonedDateTime.now(), expiry)
         assertTrue(expiresFromNow <= notificationDuration)
-        assertTrue(expiresFromNow.plus(Duration.standardSeconds(5)) > notificationDuration)
+        assertTrue(expiresFromNow.plus(Duration.ofSeconds(5)) > notificationDuration)
     }
 
     private fun getExpiryNotificationDuration(notifications: List<InAppNotification>): Duration {

@@ -14,11 +14,11 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
+import net.mullvad.mullvadvpn.lib.common.util.millisFromNow
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
-import org.joda.time.DateTime
 
 class OutOfTimeUseCase(
     private val connectionProxy: ConnectionProxy,
@@ -60,7 +60,7 @@ class OutOfTimeUseCase(
             .flatMapLatest {
                 if (it != null) {
                     flow {
-                        val millisUntilExpiry = it.expiryDate.millis - DateTime.now().millis
+                        val millisUntilExpiry = it.expiryDate.millisFromNow()
                         if (millisUntilExpiry > 0) {
                             emit(false)
                             delay(millisUntilExpiry)

@@ -64,7 +64,6 @@ commonsvalidator = "1.9.0"
 # Upgrading to 12.0.1 results in task failing, DROID-1517
 dependency-versions = "0.52.0"
 detekt = "1.23.7"
-jodatime = "2.13.1"
 kermit = "2.0.5"
 konsist = "0.17.3"
 ktfmt = "0.22.0"
@@ -160,7 +159,6 @@ mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
 
 # Misc
 commons-validator = { module = "commons-validator:commons-validator", version.ref = "commonsvalidator" }
-jodatime = { module = "joda-time:joda-time", version.ref = "jodatime" }
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 konsist = { module = "com.lemonappdev:konsist", version.ref = "konsist" }
 leakCanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }

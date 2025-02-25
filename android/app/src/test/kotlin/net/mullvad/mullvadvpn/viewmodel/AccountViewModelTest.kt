@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +29,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.PurchaseResult
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -42,7 +42,11 @@ class AccountViewModelTest {
     private val mockPaymentUseCase: PaymentUseCase = mockk(relaxed = true)
 
     private val dummyDevice =
-        Device(id = DeviceId.fromString(UUID), name = "fake_name", creationDate = DateTime.now())
+        Device(
+            id = DeviceId.fromString(UUID),
+            name = "fake_name",
+            creationDate = ZonedDateTime.now(),
+        )
     private val dummyAccountNumber: AccountNumber = AccountNumber(DUMMY_DEVICE_NAME)
 
     private val deviceState: MutableStateFlow<DeviceState?> =

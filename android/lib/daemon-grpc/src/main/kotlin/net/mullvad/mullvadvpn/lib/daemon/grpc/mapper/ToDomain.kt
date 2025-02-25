@@ -5,6 +5,8 @@ package net.mullvad.mullvadvpn.lib.daemon.grpc.mapper
 import io.grpc.ConnectivityState
 import java.net.InetAddress
 import java.net.InetSocketAddress
+import java.time.Instant
+import java.time.ZoneId
 import java.util.UUID
 import mullvad_daemon.management_interface.ManagementInterface
 import net.mullvad.mullvadvpn.lib.daemon.grpc.GrpcConnectivityState
@@ -72,7 +74,6 @@ import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.model.WireguardEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardRelayEndpointData
 import net.mullvad.mullvadvpn.lib.model.WireguardTunnelOptions
-import org.joda.time.Instant
 
 internal fun ManagementInterface.TunnelState.toDomain(): TunnelState =
     when (stateCase!!) {
@@ -570,8 +571,10 @@ internal fun ManagementInterface.Relay.toDomain(
             } else false,
     )
 
+private fun Instant.atDefaultZone() = atZone(ZoneId.systemDefault())
+
 internal fun ManagementInterface.Device.toDomain(): Device =
-    Device(DeviceId.fromString(id), name, Instant.ofEpochSecond(created.seconds).toDateTime())
+    Device(DeviceId.fromString(id), name, Instant.ofEpochSecond(created.seconds).atDefaultZone())
 
 internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
     when (state) {
@@ -587,13 +590,13 @@ internal fun ManagementInterface.DeviceState.toDomain(): DeviceState =
 internal fun ManagementInterface.AccountData.toDomain(): AccountData =
     AccountData(
         AccountId(UUID.fromString(id)),
-        expiryDate = Instant.ofEpochSecond(expiry.seconds).toDateTime(),
+        expiryDate = Instant.ofEpochSecond(expiry.seconds).atDefaultZone(),
     )
 
 internal fun ManagementInterface.VoucherSubmission.toDomain(): RedeemVoucherSuccess =
     RedeemVoucherSuccess(
         timeAdded = secondsAdded,
-        newExpiryDate = Instant.ofEpochSecond(newExpiry.seconds).toDateTime(),
+        newExpiryDate = Instant.ofEpochSecond(newExpiry.seconds).atDefaultZone(),
     )
 
 internal fun ManagementInterface.SplitTunnelSettings.toDomain(): SplitTunnelSettings =
