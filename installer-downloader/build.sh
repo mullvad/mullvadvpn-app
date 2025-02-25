@@ -25,6 +25,7 @@ source ../scripts/utils/host
 source ../scripts/utils/log
 
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"../target"}
+export CARGO_TARGET_DIR
 
 # Temporary build directory
 BUILD_DIR="./build"
