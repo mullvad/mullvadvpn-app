@@ -25,11 +25,16 @@ source ../scripts/utils/host
 source ../scripts/utils/log
 
 CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"../target"}
+
+# Temporary build directory
 BUILD_DIR="./build"
+# Successfully built (and signed) artifacts
 DIST_DIR="./dist"
 
 BUNDLE_NAME="MullvadDownloader"
 BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
+
+FILENAME="mullvad-downloader"
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
@@ -188,8 +193,8 @@ function sign_macos {
 # Build app bundle and dmg, and optionally sign it.
 # If `$SIGN` is false, the app bundle is only ad-hoc signed.
 function dist_macos_app {
-    local app_path="$BUILD_DIR/$BUNDLE_NAME.app/"
-    local dmg_path="$BUILD_DIR/$BUNDLE_NAME.dmg"
+    local app_path="$BUILD_DIR/$FILENAME.app/"
+    local dmg_path="$BUILD_DIR/$FILENAME.dmg"
 
     # Build app bundle
     log_info "Building $app_path..."
@@ -212,7 +217,7 @@ function dist_macos_app {
 
     # Pack in .dmg
     log_info "Creating $dmg_path image..."
-    hdiutil create -volname "MullvadDownloader" -srcfolder "$app_path" -ov -format UDZO \
+    hdiutil create -volname "$FILENAME" -srcfolder "$app_path" -ov -format UDZO \
         "$dmg_path"
 
     # Sign .dmg
@@ -247,7 +252,7 @@ function sign_win {
         log_info "Signing $binary..."
         if signtool sign \
             -tr http://timestamp.digicert.com -td sha256 \
-            -fd sha256 -d "Mullvad VPN downloader" \
+            -fd sha256 -d "Mullvad VPN installer" \
             -du "https://github.com/mullvad/mullvadvpn-app#readme" \
             -sha1 "$CERT_HASH" "$binary"
         then
@@ -264,11 +269,11 @@ function sign_win {
 
 # Copy executable and optionally sign it.
 function dist_windows_app {
-    cp "$CARGO_TARGET_DIR/release/installer-downloader.exe" "$BUILD_DIR/MullvadDownloader.exe"
+    cp "$CARGO_TARGET_DIR/release/installer-downloader.exe" "$BUILD_DIR/$FILENAME.exe"
     if [[ "$SIGN" != "false" ]]; then
-        sign_win "$BUILD_DIR/MullvadDownloader.exe"
+        sign_win "$BUILD_DIR/$FILENAME.exe"
     fi
-    mv "$BUILD_DIR/MullvadDownloader.exe" "$DIST_DIR/"
+    mv "$BUILD_DIR/$FILENAME.exe" "$DIST_DIR/"
 }
 
 function main {
