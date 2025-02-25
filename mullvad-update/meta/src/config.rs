@@ -15,6 +15,7 @@ pub struct Config {
 }
 
 impl Config {
+    /// Try to load [CONFIG_FILENAME] from the working directory, create one if it does not exist.
     pub async fn load_or_create() -> anyhow::Result<Self> {
         match fs::read_to_string(CONFIG_FILENAME).await {
             Ok(toml_str) => toml::from_str(&toml_str).context("Failed to parse TOML file"),

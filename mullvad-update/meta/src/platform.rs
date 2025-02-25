@@ -140,7 +140,7 @@ impl Platform {
 
         let signed_path = self.signed_path();
 
-        // Confirm if file exists
+        // Require confirmation if a signed file exists
         if !assume_yes && signed_path.exists() {
             let msg = format!(
                 "This will replace the existing file at {}. Continue?",

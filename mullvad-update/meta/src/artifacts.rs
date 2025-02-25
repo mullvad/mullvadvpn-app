@@ -1,4 +1,5 @@
 //! Generate metadata for installer artifacts
+
 use anyhow::Context;
 use std::path::Path;
 use tokio::{
@@ -8,7 +9,10 @@ use tokio::{
 
 use mullvad_update::{format, hash};
 
-/// Generate `format::Installer`
+/// Generate `format::Installer` for a given `artifact`.
+///
+/// The presence of the files relative to `base_urls` is not verified.
+/// See [crate::config::Config::base_urls] for the assumptions made.
 pub async fn generate_installer_details(
     architecture: format::Architecture,
     base_urls: &[String],
