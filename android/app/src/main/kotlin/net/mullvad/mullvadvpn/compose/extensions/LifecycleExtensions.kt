@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import co.touchlab.kermit.Logger
 
 fun Lifecycle.State.dropUnlessResumed(block: () -> Unit) =
     runOnAtLeast(Lifecycle.State.RESUMED, block)
@@ -30,6 +31,8 @@ fun <T> LifecycleOwner.runOnAtLeast(
     return {
         if (lifecycle.currentState.isAtLeast(expectedState)) {
             block(it)
+        } else {
+            Logger.v("runOnAtLeast skipped due to ${lifecycle.currentState}<${expectedState}")
         }
     }
 }
@@ -52,6 +55,8 @@ fun <T, T2> LifecycleOwner.runOnAtLeast(
     return { t, t1 ->
         if (lifecycle.currentState.isAtLeast(expectedState)) {
             block(t, t1)
+        } else {
+            Logger.v("runOnAtLeast skipped due to ${lifecycle.currentState}<${expectedState}")
         }
     }
 }
