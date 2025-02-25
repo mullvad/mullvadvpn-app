@@ -248,9 +248,10 @@ impl Platform {
         &self,
         version: &mullvad_version::Version,
         changes: &str,
+        base_urls: &[String],
         rollout: f32,
     ) -> anyhow::Result<()> {
-        let installers = self.installers(version).await?;
+        let installers = self.installers(version, base_urls).await?;
 
         // Fetch WIP versions and verify that release does not exist
         let work_path = self.work_path();
@@ -292,18 +293,28 @@ impl Platform {
     async fn installers(
         &self,
         version: &mullvad_version::Version,
+        base_urls: &[String],
     ) -> anyhow::Result<Vec<format::Installer>> {
         let mut installers = vec![];
         let artifacts = self.artifact_filenames(version);
         for artifact in artifacts.arm64_artifacts {
             installers.push(
-                artifacts::generate_installer_details(format::Architecture::Arm64, &artifact)
-                    .await?,
+                artifacts::generate_installer_details(
+                    format::Architecture::Arm64,
+                    base_urls,
+                    &artifact,
+                )
+                .await?,
             );
         }
         for artifact in artifacts.x86_artifacts {
             installers.push(
-                artifacts::generate_installer_details(format::Architecture::X86, &artifact).await?,
+                artifacts::generate_installer_details(
+                    format::Architecture::X86,
+                    base_urls,
+                    &artifact,
+                )
+                .await?,
             );
         }
         Ok(installers)
