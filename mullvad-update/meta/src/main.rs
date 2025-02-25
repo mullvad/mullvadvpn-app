@@ -1,4 +1,7 @@
 //! See [Opt].
+//!
+//! The tool can be installed using `cargo install --locked --path .`, after which it can be invoked
+//! with `meta ...`.
 
 use anyhow::{bail, Context};
 use clap::Parser;
