@@ -451,8 +451,8 @@ impl WgGoTunnel {
         }
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel. For other platforms
-        // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it crash in
-        // GO on Android.
+        // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it to crash
+        // in GO on Android.
         //
         // Tracked by DROID-1825 (Investigate GO crash issue with runtime.GC())
         tunnel.ensure_tunnel_is_running().await?;
@@ -529,8 +529,8 @@ impl WgGoTunnel {
         }
 
         // HACK: Check if the tunnel is working by sending a ping in the tunnel. For other platforms
-        // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it crash in
-        // GO on Android.
+        // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it to crash
+        // in GO on Android.
         //
         // Tracked by DROID-1825 (Investigate GO crash issue with runtime.GC())
         tunnel.ensure_tunnel_is_running().await?;
