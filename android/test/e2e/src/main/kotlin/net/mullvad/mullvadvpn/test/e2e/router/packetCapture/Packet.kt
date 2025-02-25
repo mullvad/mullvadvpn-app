@@ -4,7 +4,6 @@ import kotlinx.serialization.Contextual
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import net.mullvad.mullvadvpn.test.e2e.serializer.PacketSerializer
-import org.joda.time.DateTime
 
 @Serializable(with = PacketSerializer::class)
 sealed interface Packet {

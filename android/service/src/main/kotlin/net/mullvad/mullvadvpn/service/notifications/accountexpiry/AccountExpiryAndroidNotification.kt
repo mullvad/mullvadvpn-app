@@ -5,12 +5,12 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Resources
 import androidx.core.app.NotificationCompat
+import java.time.Duration
 import net.mullvad.mullvadvpn.lib.common.constant.MAIN_ACTIVITY_CLASS
 import net.mullvad.mullvadvpn.lib.common.util.SdkUtils
 import net.mullvad.mullvadvpn.lib.common.util.createAccountUri
 import net.mullvad.mullvadvpn.lib.model.Notification
 import net.mullvad.mullvadvpn.service.R
-import org.joda.time.Duration
 
 internal fun Notification.AccountExpiry.toNotification(context: Context) =
     NotificationCompat.Builder(context, channelId.value)
@@ -40,19 +40,19 @@ private fun Notification.AccountExpiry.contentIntent(context: Context): PendingI
 
 private fun Resources.contentTitle(remainingTime: Duration): String =
     when {
-        remainingTime.isShorterThan(Duration.ZERO) || remainingTime == Duration.ZERO -> {
+        remainingTime <= Duration.ZERO -> {
             getString(R.string.account_credit_has_expired)
         }
-        remainingTime.standardDays >= 1 -> {
+        remainingTime.toDays() >= 1 -> {
             getRemainingText(
                 R.plurals.account_credit_expires_in_days,
-                remainingTime.standardDays.toInt(),
+                remainingTime.toDays().toInt(),
             )
         }
-        remainingTime.standardHours >= 1 -> {
+        remainingTime.toHours() >= 1 -> {
             getRemainingText(
                 R.plurals.account_credit_expires_in_hours,
-                remainingTime.standardHours.toInt(),
+                remainingTime.toHours().toInt(),
             )
         }
         else -> getString(R.string.account_credit_expires_in_a_few_minutes)

@@ -29,6 +29,7 @@ import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
+import java.util.concurrent.TimeUnit
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.button.PrimaryButton
@@ -46,7 +47,6 @@ import net.mullvad.mullvadvpn.lib.model.RedeemVoucherError
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.viewmodel.VoucherDialogViewModel
-import org.joda.time.DateTimeConstants
 import org.koin.androidx.compose.koinViewModel
 
 @Preview(device = Devices.TV_720p)
@@ -157,9 +157,10 @@ fun RedeemVoucherDialog(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                TimeUnit.DAYS.toSeconds(1)
                 if (state.voucherState is VoucherDialogState.Success) {
                     val days: Int =
-                        (state.voucherState.addedTime / DateTimeConstants.SECONDS_PER_DAY).toInt()
+                        (state.voucherState.addedTime / TimeUnit.DAYS.toSeconds(1)).toInt()
                     val message =
                         stringResource(
                             R.string.added_to_your_account,

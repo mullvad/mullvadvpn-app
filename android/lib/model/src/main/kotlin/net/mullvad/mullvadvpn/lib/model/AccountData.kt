@@ -1,5 +1,5 @@
 package net.mullvad.mullvadvpn.lib.model
 
-import org.joda.time.DateTime
+import java.time.ZonedDateTime
 
-data class AccountData(val id: AccountId, val expiryDate: DateTime)
+data class AccountData(val id: AccountId, val expiryDate: ZonedDateTime)

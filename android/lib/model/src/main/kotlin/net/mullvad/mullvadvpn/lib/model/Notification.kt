@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.lib.model
 
-import org.joda.time.Duration
+import java.time.Duration
 
 sealed interface Notification {
     val actions: List<NotificationAction>

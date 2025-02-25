@@ -17,6 +17,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
+import net.mullvad.mullvadvpn.lib.common.util.daysFromNow
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ConnectError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
@@ -34,7 +35,6 @@ import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.usecase.SelectedLocationTitleUseCase
 import net.mullvad.mullvadvpn.util.combine
-import net.mullvad.mullvadvpn.util.daysFromNow
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.withPrev
 

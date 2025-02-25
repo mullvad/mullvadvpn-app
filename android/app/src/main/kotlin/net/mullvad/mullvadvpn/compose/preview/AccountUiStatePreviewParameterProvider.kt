@@ -1,6 +1,8 @@
 package net.mullvad.mullvadvpn.compose.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import net.mullvad.mullvadvpn.compose.state.PaymentState
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.payment.model.PaymentProduct
@@ -8,7 +10,6 @@ import net.mullvad.mullvadvpn.lib.payment.model.PaymentStatus
 import net.mullvad.mullvadvpn.lib.payment.model.ProductId
 import net.mullvad.mullvadvpn.lib.payment.model.ProductPrice
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
-import org.joda.time.DateTime
 
 class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<AccountUiState> {
     override val values =
@@ -16,7 +17,11 @@ class AccountUiStatePreviewParameterProvider : PreviewParameterProvider<AccountU
             AccountUiState(
                 deviceName = "Test Name",
                 accountNumber = AccountNumber("1234123412341234"),
-                accountExpiry = DateTime.parse("2050-12-01"),
+                accountExpiry =
+                    ZonedDateTime.parse(
+                        "2050-12-01T00:00:00.000Z",
+                        DateTimeFormatter.ISO_ZONED_DATE_TIME,
+                    ),
                 showSitePayment = true,
                 billingPaymentState =
                     PaymentState.PaymentAvailable(

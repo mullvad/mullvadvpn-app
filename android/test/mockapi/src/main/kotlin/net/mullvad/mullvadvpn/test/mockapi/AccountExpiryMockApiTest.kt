@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
+import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
 import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShown
@@ -8,8 +9,7 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
-import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
-import net.mullvad.mullvadvpn.util.toExpiryDateString
+import net.mullvad.mullvadvpn.test.mockapi.util.toExpiryDateString
 import org.junit.jupiter.api.Test
 
 class AccountExpiryMockApiTest : MockApiTest() {
@@ -18,7 +18,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
     fun testAccountExpiryDateUpdated() {
         // Arrange
         val validAccountNumber = "1234123412341234"
-        val oldAccountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
+        val oldAccountExpiry = ZonedDateTime.now().plusMonths(1)
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = oldAccountExpiry
@@ -52,7 +52,7 @@ class AccountExpiryMockApiTest : MockApiTest() {
     fun testAccountTimeExpiredWhileUsingTheAppShouldShowOutOfTimeScreen() {
         // Arrange
         val validAccountNumber = "1234123412341234"
-        val oldAccountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
+        val oldAccountExpiry = ZonedDateTime.now().plusMonths(1)
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
             accountExpiry = oldAccountExpiry

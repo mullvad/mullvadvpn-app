@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.lib.shared
 
 import arrow.core.Either
 import arrow.core.raise.nullable
+import java.time.ZonedDateTime
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +22,6 @@ import net.mullvad.mullvadvpn.lib.model.CreateAccountError
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
-import org.joda.time.DateTime
 
 class AccountRepository(
     private val managementService: ManagementService,
@@ -87,7 +87,7 @@ class AccountRepository(
     suspend fun getWebsiteAuthToken(): WebsiteAuthToken? =
         managementService.getWebsiteAuthToken().getOrNull()
 
-    internal suspend fun onVoucherRedeemed(newExpiry: DateTime) {
+    internal suspend fun onVoucherRedeemed(newExpiry: ZonedDateTime) {
         accountData.value?.copy(expiryDate = newExpiry)?.let { _mutableAccountDataCache.emit(it) }
     }
 }

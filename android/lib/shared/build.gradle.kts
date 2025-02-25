@@ -41,7 +41,6 @@ dependencies {
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.jodatime)
 
     testImplementation(libs.kotlin.test)
     testImplementation(libs.kotlinx.coroutines.test)

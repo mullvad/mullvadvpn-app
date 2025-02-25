@@ -4,8 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.mullvad.mullvadvpn.test.e2e.router.NetworkingProtocol
-import org.joda.time.DateTime
-import org.joda.time.Interval
 
 @Serializable
 data class Stream(

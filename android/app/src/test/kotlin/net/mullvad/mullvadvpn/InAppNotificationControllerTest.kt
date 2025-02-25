@@ -5,6 +5,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import java.time.Duration
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -21,7 +22,6 @@ import net.mullvad.mullvadvpn.usecase.NewChangelogNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.NewDeviceNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.TunnelStateNotificationUseCase
 import net.mullvad.mullvadvpn.usecase.VersionNotificationUseCase
-import org.joda.time.Duration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

@@ -56,6 +56,7 @@ import net.mullvad.mullvadvpn.compose.state.DeviceListUiState
 import net.mullvad.mullvadvpn.compose.transitions.DefaultTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
+import net.mullvad.mullvadvpn.lib.common.util.formatDate
 import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
@@ -64,7 +65,6 @@ import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.selected
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemSubText
 import net.mullvad.mullvadvpn.lib.theme.typeface.listItemText
-import net.mullvad.mullvadvpn.util.formatDate
 import net.mullvad.mullvadvpn.viewmodel.DeviceListSideEffect
 import net.mullvad.mullvadvpn.viewmodel.DeviceListViewModel
 import org.koin.androidx.compose.koinViewModel

@@ -35,7 +35,6 @@ android {
 }
 
 dependencies {
-    implementation(libs.jodatime)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.arrow)

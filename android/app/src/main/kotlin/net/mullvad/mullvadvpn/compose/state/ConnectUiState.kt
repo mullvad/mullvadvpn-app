@@ -11,7 +11,7 @@ data class ConnectUiState(
     val showLocation: Boolean,
     val inAppNotification: InAppNotification?,
     val deviceName: String?,
-    val daysLeftUntilExpiry: Int?,
+    val daysLeftUntilExpiry: Long?,
     val isPlayBuild: Boolean,
 ) {
 
