@@ -240,3 +240,36 @@ ENABLE_IN_APP_VERSION_NOTIFICATIONS=false
 
 ### Run tests highly affected by rate limiting
 To avoid being rate limited we avoid running tests sending requests that are highly rate limited too often. If you want to run these tests you can set `enable_highly_rate_limited_tests=true` in `local.properties`. The default value is `false`.
+
+## Reproducible builds
+
+Reproducible builds are a way to verify that the app was built from the exact source code it claims to be built from. When a build is reproducible, compiling the same source code with the same tools will always produce bit-for-bit identical output.
+
+The Mullvad Android app is by default reproducible when built using our build container, as the container ensures a consistent build environment with fixed versions of all tools and dependencies.
+
+When building without the container on Linux systems, reproducibility depends on having the exact same versions of system tools (compilers, build tools, etc) installed. Small differences in tool versions or configurations can lead to different build outputs even when using the same source code.
+
+> **Make sure that the `local.properties` file has not changed keys that affect the reproducibility of the build such as `CARGO_TARGETS` and `ENABLE_IN_APP_VERSION_NOTIFICATIONS`.**
+
+To maximize reproducibility when building without the container:
+
+- Build the app on a **Linux system or virtual machine**.
+- Use the exact same versions of all build dependencies as specified in the [root Dockerfile](../building/Dockerfile) and [Android Dockerfile](docker/Dockerfile). This includes for example the Go version and Android SDK and NDK versions.
+
+### How to verify reproducible builds across environments
+
+A simple way to check that a build is reproducible across environments is to build the `fdroid` version of the app with and without the container and comparing the checksums of the produced APKs.
+
+1. Build the app with the container: `../building/containerized-build.sh android --fdroid`
+2. Copy the resulting APK to a different folder as it will be overwritten in the following step: `app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk fdroid-container.apk`
+3. Build the app locally without the container: `./build.sh --fdroid`
+4. Compare the checksums of the two APKs: `md5sum fdroid-container.apk app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk`
+
+### Troubleshooting reproducibility
+
+If two APKs built from the same commit have different checksums the build is not reproducible. This could be because of either:
+
+1. A build dependency on the local system has the wrong version.
+2. There is a bug that breaks the build reproducibility.
+
+If you suspect that a bug is causing the build to not be reproducible, please open a Github issue.
