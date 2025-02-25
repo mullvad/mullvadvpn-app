@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use super::windows::{
     get_device_path, get_process_creation_time, get_process_device_path, open_process,
     ProcessAccess,

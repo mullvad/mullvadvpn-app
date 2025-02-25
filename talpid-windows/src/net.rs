@@ -1,3 +1,5 @@
+#![allow(clippy::undocumented_unsafe_blocks)] // Remove me if you dare.
+
 use socket2::SockAddr;
 use std::{
     ffi::{OsStr, OsString},
@@ -391,9 +393,7 @@ pub fn luid_from_alias<T: AsRef<OsStr>>(alias: T) -> io::Result<NET_LUID_LH> {
 /// Returns the alias of an interface given its LUID.
 pub fn alias_from_luid(luid: &NET_LUID_LH) -> io::Result<OsString> {
     let mut buffer = [0u16; IF_MAX_STRING_SIZE as usize + 1];
-    win32_err!(unsafe {
-        ConvertInterfaceLuidToAlias(luid, &mut buffer[0] as *mut _, buffer.len())
-    })?;
+    win32_err!(unsafe { ConvertInterfaceLuidToAlias(luid, buffer.as_mut_ptr(), buffer.len()) })?;
     let nul = buffer.iter().position(|&c| c == 0u16).unwrap();
     Ok(OsString::from_wide(&buffer[0..nul]))
 }
@@ -426,6 +426,7 @@ pub fn ipaddr_from_in6addr(addr: IN6_ADDR) -> Ipv6Addr {
 
 /// Converts a `SocketAddr` to `SOCKADDR_INET`
 pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
+    // SAFETY: SOCKADDR_INET is a union of C structs, these can be safely zeroed.
     let mut sockaddr: SOCKADDR_INET = unsafe { mem::zeroed() };
     match addr {
         // SAFETY: `*const sockaddr` may be treated as `*const sockaddr_in` since we know it's a v4
@@ -444,6 +445,7 @@ pub fn inet_sockaddr_from_socketaddr(addr: SocketAddr) -> SOCKADDR_INET {
 
 /// Converts a `SOCKADDR_INET` to `SocketAddr`. Returns an error if the address family is invalid.
 pub fn try_socketaddr_from_inet_sockaddr(addr: SOCKADDR_INET) -> Result<SocketAddr> {
+    // SAFETY: si_family is always valid
     let family = unsafe { addr.si_family };
     unsafe {
         let mut storage: sockaddr_storage = mem::zeroed();

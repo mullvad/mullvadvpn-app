@@ -647,7 +647,12 @@ impl Interface {
                 actual_size: buffer.len(),
             });
         }
-        let header: libc::if_msghdr = unsafe { std::ptr::read(buffer.as_ptr() as *const _) };
+        let header = buffer.as_ptr().cast::<libc::if_msghdr>();
+
+        // SAFETY:
+        // - `buffer` points to initialized memory of the correct size.
+        // - if_msghdr is a C struct, and valid for any bit pattern
+        let header: libc::if_msghdr = unsafe { header.read_unaligned() };
         // let payload = buffer[INTERFACE_MESSAGE_HEADER_SIZE..header.ifm_msglen.into()].to_vec();
         Ok(Self { header })
     }
@@ -856,17 +861,17 @@ impl RouteSocketAddress {
 
                 // The "serialized" socket addresses must be padded to be aligned to 4 bytes, with
                 // the smallest size being 4 bytes.
-                let buffer_size = len + len % 4;
+                let buffer_size = len.next_multiple_of(4);
                 let mut buffer = vec![0u8; buffer_size];
+                // SAFETY: copying contents of addr into buffer is safe, as long as addr.len()
+                // returns a correct size for the socket address pointer.
                 unsafe {
-                    // SAFETY: copying conents of addr into buffer is safe, as long as addr.len()
-                    // returns a correct size for the socket address pointer.
                     std::ptr::copy_nonoverlapping(
                         addr.as_ptr() as *const _,
                         buffer.as_mut_ptr(),
                         len,
-                    );
-                }
+                    )
+                };
                 buffer
             }
         }
