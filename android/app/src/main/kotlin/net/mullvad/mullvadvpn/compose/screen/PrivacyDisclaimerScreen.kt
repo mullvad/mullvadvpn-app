@@ -27,13 +27,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -50,7 +48,6 @@ import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicator
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
-import net.mullvad.mullvadvpn.compose.util.toDp
 import net.mullvad.mullvadvpn.constant.DAEMON_READY_TIMEOUT_MS
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -138,33 +135,33 @@ private fun Content(isPlayBuild: Boolean) {
     Column {
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_title),
-            style = MaterialTheme.typography.headlineSmall,
+            style = MaterialTheme.typography.headlineLarge,
             color = MaterialTheme.colorScheme.onSurface,
-            fontWeight = FontWeight.Bold,
         )
 
-        val fontSize = 14.sp
+        Spacer(modifier = Modifier.height(Dimens.smallPadding))
+
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_first_paragraph),
-            fontSize = fontSize,
             color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 10.dp),
+            style = MaterialTheme.typography.bodySmall,
         )
 
-        Spacer(modifier = Modifier.height(fontSize.toDp() + Dimens.smallPadding))
+        Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
 
         Text(
             text = stringResource(id = R.string.privacy_disclaimer_body_second_paragraph),
-            fontSize = fontSize,
             color = MaterialTheme.colorScheme.onSurface,
+            style = MaterialTheme.typography.bodySmall,
         )
 
-        Spacer(modifier = Modifier.height(fontSize.toDp() + Dimens.smallPadding))
+        Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
                 text = buildPrivacyPolicyAnnotatedString(isPlayBuild),
                 modifier = Modifier.padding(end = Dimens.miniPadding),
+                style = MaterialTheme.typography.bodySmall,
             )
 
             Icon(
