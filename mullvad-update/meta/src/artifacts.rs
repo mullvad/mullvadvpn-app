@@ -11,6 +11,7 @@ use mullvad_update::{format, verify::Sha256Verifier};
 /// Generate `format::Installer`
 pub async fn generate_installer_details(
     architecture: format::Architecture,
+    base_urls: &[String],
     artifact: &Path,
 ) -> anyhow::Result<format::Installer> {
     let mut file = fs::File::open(artifact)
@@ -28,14 +29,28 @@ pub async fn generate_installer_details(
         .context("Failed to reset file pos")?;
     let file = BufReader::new(file);
 
+    println!("Generating checksum for {}", artifact.display());
+
     let checksum = Sha256Verifier::generate_hash(file)
         .await
         .context("Failed to compute checksum")?;
 
+    // Construct URLs from base URLs
+    let filename = artifact
+        .file_name()
+        .and_then(|f| f.to_str())
+        .context("Unexpected filename")?;
+    let urls = base_urls
+        .iter()
+        .map(|base_url| {
+            let base_url = base_url.split('/').next().unwrap_or(base_url);
+            format!("{base_url}/{}", filename)
+        })
+        .collect();
+
     Ok(format::Installer {
         architecture,
-        // TODO: fetch cdns from config
-        urls: vec![],
+        urls,
         size: file_size.try_into().context("Invalid file size")?,
         sha256: hex::encode(checksum),
     })
