@@ -2461,9 +2461,11 @@ dependencies = [
  "mullvad-version",
  "rand 0.8.5",
  "reqwest",
+ "serde",
  "serde_json",
  "sha2",
  "tokio",
+ "toml 0.8.19",
 ]
 
 [[package]]
