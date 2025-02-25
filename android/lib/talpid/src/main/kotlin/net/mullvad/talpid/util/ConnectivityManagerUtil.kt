@@ -109,24 +109,19 @@ fun ConnectivityManager.networkEvents(networkRequest: NetworkRequest): Flow<Netw
     }
 
 internal fun ConnectivityManager.defaultRawNetworkStateFlow(): Flow<RawNetworkState?> =
-    defaultNetworkEvents()
-        .scan(
-            null as RawNetworkState?,
-            { state, event ->
-                return@scan when (event) {
-                    is NetworkEvent.Available -> RawNetworkState(network = event.network)
-                    is NetworkEvent.BlockedStatusChanged ->
-                        state?.copy(blockedStatus = event.blocked)
-                    is NetworkEvent.CapabilitiesChanged ->
-                        state?.copy(networkCapabilities = event.networkCapabilities)
-                    is NetworkEvent.LinkPropertiesChanged ->
-                        state?.copy(linkProperties = event.linkProperties)
-                    is NetworkEvent.Losing -> state?.copy(maxMsToLive = event.maxMsToLive)
-                    is NetworkEvent.Lost -> null
-                    NetworkEvent.Unavailable -> null
-                }
-            },
-        )
+    defaultNetworkEvents().scan(null as RawNetworkState?) { state, event -> state.reduce(event) }
+
+private fun RawNetworkState?.reduce(event: NetworkEvent): RawNetworkState? =
+    when (event) {
+        is NetworkEvent.Available -> RawNetworkState(network = event.network)
+        is NetworkEvent.BlockedStatusChanged -> this?.copy(blockedStatus = event.blocked)
+        is NetworkEvent.CapabilitiesChanged ->
+            this?.copy(networkCapabilities = event.networkCapabilities)
+        is NetworkEvent.LinkPropertiesChanged -> this?.copy(linkProperties = event.linkProperties)
+        is NetworkEvent.Losing -> this?.copy(maxMsToLive = event.maxMsToLive)
+        is NetworkEvent.Lost -> null
+        NetworkEvent.Unavailable -> null
+    }
 
 sealed interface NetworkEvent {
     data class Available(val network: Network) : NetworkEvent
