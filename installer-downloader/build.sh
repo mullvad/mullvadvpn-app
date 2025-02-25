@@ -30,7 +30,7 @@ export CARGO_TARGET_DIR
 # Temporary build directory
 BUILD_DIR="./build"
 # Successfully built (and signed) artifacts
-DIST_DIR="./dist"
+DIST_DIR="../dist"
 
 BUNDLE_NAME="MullvadDownloader"
 BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
@@ -236,6 +236,8 @@ function dist_macos_app {
 
     # Move to dist dir
     log_info "Moving final artifacts to $DIST_DIR"
+    rm -rf "$DIST_DIR/$FILENAME.app/"
+    rm -rf "$DIST_DIR/$FILENAME.dmg"
     mv "$app_path" "$DIST_DIR/"
     mv "$dmg_path" "$DIST_DIR/"
 }
