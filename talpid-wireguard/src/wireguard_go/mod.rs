@@ -454,7 +454,7 @@ impl WgGoTunnel {
         // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it crash in
         // GO on Android.
         //
-        // Tacked by DROID-1825 (Investigate GO crash issue with runtime.GC())
+        // Tracked by DROID-1825 (Investigate GO crash issue with runtime.GC())
         tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)
@@ -532,7 +532,7 @@ impl WgGoTunnel {
         // this is done in the tunnel_fut in WireguardMonitor.start, however that caused it crash in
         // GO on Android.
         //
-        // Tacked by DROID-1825 (Investigate GO crash issue with runtime.GC())
+        // Tracked by DROID-1825 (Investigate GO crash issue with runtime.GC())
         tunnel.ensure_tunnel_is_running().await?;
 
         Ok(tunnel)

@@ -193,7 +193,7 @@ impl Check {
                 // The value was previously set to 20 ms, depending on when we called
                 // establish_connectivity, this caused the crash to reliably occur.
                 //
-                // Tacked by DROID-1825 (Investigate GO crash issue with runtime.GC())
+                // Tracked by DROID-1825 (Investigate GO crash issue with runtime.GC())
                 tokio::time::sleep(Duration::from_millis(100)).await;
             }
         };
