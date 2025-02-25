@@ -210,7 +210,7 @@ function dist_macos_app {
 
     # Pack in .dmg
     log_info "Creating $dmg_path image..."
-    hdiutil create -volname "MullvadDownloader" -srcfolder "$app_path" -ov -format UDZO \
+    hdiutil create -volname "mullvad-downloader" -srcfolder "$app_path" -ov -format UDZO \
         "$dmg_path"
 
     # Sign .dmg
@@ -245,7 +245,7 @@ function sign_win {
         log_info "Signing $binary..."
         if signtool sign \
             -tr http://timestamp.digicert.com -td sha256 \
-            -fd sha256 -d "Mullvad VPN downloader" \
+            -fd sha256 -d "Mullvad VPN installer" \
             -du "https://github.com/mullvad/mullvadvpn-app#readme" \
             -sha1 "$CERT_HASH" "$binary"
         then
@@ -262,11 +262,11 @@ function sign_win {
 
 # Copy executable and optionally sign it.
 function dist_windows_app {
-    cp "$CARGO_TARGET_DIR/release/installer-downloader.exe" "$BUILD_DIR/MullvadDownloader.exe"
+    cp "$CARGO_TARGET_DIR/release/installer-downloader.exe" "$BUILD_DIR/mullvad-downloader.exe"
     if [[ "$SIGN" != "false" ]]; then
-        sign_win "$BUILD_DIR/MullvadDownloader.exe"
+        sign_win "$BUILD_DIR/mullvad-downloader.exe"
     fi
-    mv "$BUILD_DIR/MullvadDownloader.exe" "$DIST_DIR/"
+    mv "$BUILD_DIR/mullvad-downloader.exe" "$DIST_DIR/"
 }
 
 function main {
