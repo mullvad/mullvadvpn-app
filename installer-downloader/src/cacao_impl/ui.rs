@@ -1,4 +1,5 @@
 use std::cell::RefCell;
+use std::ops::Deref;
 use std::sync::{Arc, LazyLock, Mutex, RwLock};
 
 use cacao::appkit::window::{Window, WindowConfig, WindowDelegate};
@@ -10,14 +11,14 @@ use cacao::layout::{Layout, LayoutConstraint};
 use cacao::notification_center::Dispatcher;
 use cacao::objc::{class, msg_send, sel, sel_impl};
 use cacao::progress::ProgressIndicator;
-use cacao::text::{AttributedString, Label};
+use cacao::text::Label;
 use cacao::view::View;
-use installer_downloader::delegate::ErrorMessage;
 use objc_id::Id;
 
+use crate::delegate::ErrorMessage;
 use crate::resource::{
     BANNER_DESC, BETA_LINK_TEXT, BETA_PREFACE_DESC, CANCEL_BUTTON_TEXT, DOWNLOAD_BUTTON_TEXT,
-    WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
+    STABLE_LINK_TEXT, WINDOW_HEIGHT, WINDOW_TITLE, WINDOW_WIDTH,
 };
 
 /// Logo render in the banner
@@ -167,7 +168,9 @@ pub struct AppWindow {
     pub download_text: Label,
 
     pub beta_link_preface: Label,
-    pub beta_link: Label,
+    pub beta_link: LinkToBeta,
+
+    pub stable_link: LinkToStable,
 }
 
 pub struct ErrorView {
@@ -180,27 +183,34 @@ pub struct ErrorView {
 
 pub type ErrorViewClickCallback = Box<dyn Fn() + Send>;
 
-pub struct DownloadButton {
-    pub button: Button,
+/// Create a Button newtype that impls Default
+macro_rules! button_wrapper {
+    ($name:ident, $text:expr) => {
+        pub struct $name {
+            pub button: ::cacao::button::Button,
+        }
+
+        impl Default for $name {
+            fn default() -> Self {
+                Self {
+                    button: Button::new($text),
+                }
+            }
+        }
+
+        impl Deref for $name {
+            type Target = ::cacao::button::Button;
+            fn deref(&self) -> &Self::Target {
+                &self.button
+            }
+        }
+    };
 }
 
-impl Default for DownloadButton {
-    fn default() -> Self {
-        let button = Button::new(DOWNLOAD_BUTTON_TEXT);
-        Self { button }
-    }
-}
-
-pub struct CancelButton {
-    pub button: Button,
-}
-
-impl Default for CancelButton {
-    fn default() -> Self {
-        let button = Button::new(CANCEL_BUTTON_TEXT);
-        Self { button }
-    }
-}
+button_wrapper!(LinkToBeta, BETA_LINK_TEXT);
+button_wrapper!(LinkToStable, STABLE_LINK_TEXT);
+button_wrapper!(DownloadButton, DOWNLOAD_BUTTON_TEXT);
+button_wrapper!(CancelButton, CANCEL_BUTTON_TEXT);
 
 impl AppWindow {
     pub fn layout(&mut self) {
@@ -294,11 +304,13 @@ impl AppWindow {
         self.beta_link_preface.set_text(BETA_PREFACE_DESC);
         self.main_view.add_subview(&self.beta_link_preface);
 
-        let mut attr_text = AttributedString::new(BETA_LINK_TEXT);
-        attr_text.set_text_color(Color::Link, 0..BETA_LINK_TEXT.len() as isize);
+        self.beta_link.set_text_color(Color::Link);
+        self.beta_link.set_bordered(false);
+        self.main_view.add_subview(&*self.beta_link);
 
-        self.beta_link.set_attributed_text(attr_text);
-        self.main_view.add_subview(&self.beta_link);
+        self.stable_link.set_text_color(Color::Link);
+        self.stable_link.set_bordered(false);
+        self.main_view.add_subview(&*self.stable_link);
 
         let status_text_position_y = self.status_text_position_y.get_or_insert_with(|| {
             self.status_text
@@ -372,11 +384,17 @@ impl AppWindow {
                 .constraint_equal_to(&self.main_view.left)
                 .offset(24.),
             self.beta_link
-                .bottom
-                .constraint_equal_to(&self.beta_link_preface.bottom),
+                .center_y
+                .constraint_equal_to(&self.beta_link_preface.center_y),
             self.beta_link
                 .left
                 .constraint_equal_to(&self.beta_link_preface.right),
+            self.stable_link
+                .left
+                .constraint_equal_to(&self.beta_link_preface.left),
+            self.stable_link
+                .center_y
+                .constraint_equal_to(&self.beta_link_preface.center_y),
         ]);
     }
 }
