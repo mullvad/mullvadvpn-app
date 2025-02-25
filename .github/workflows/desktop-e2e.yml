@@ -106,8 +106,9 @@ jobs:
           echo "inner_container_image=$(cat ./building/linux-container-image.txt)" >> $GITHUB_ENV
     outputs:
       container_image: ${{ env.inner_container_image }}
-  build-linux:
-    name: Build Linux
+
+  build-linux-app:
+    name: Build Linux App
     needs: prepare-linux
     runs-on: ubuntu-latest
     container:
@@ -123,15 +124,26 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init --depth=1 dist-assets/binaries
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git submodule update --init --depth=1
+      - uses: actions/cache@v4
+        id: cache-app-cargo-artifacts
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
       - name: Build app
-        env:
-          USE_MOLD: false
-        run: ./build.sh
+        run: |
+          export CARGO_TARGET_DIR=target/
+          ./build.sh --optimize
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
-      - uses: actions/upload-artifact@v4
+      - name: Upload app
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: linux-build
@@ -140,9 +152,83 @@ jobs:
             ./dist/*.deb
             ./dist/app-e2e-*
 
+  build-mullvad-version-linux:
+    name: Build mullvad-version
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build mullvad-version
+        run: |
+          cargo build --package mullvad-version --release
+          # Move `mullvad-version` to a known location. This is needed in the coming `upload-artifact` step.
+          mkdir bin
+          mv -t ./bin/ "$CARGO_TARGET_DIR/release/mullvad-version"
+        shell: bash
+      - name: Upload mullvad-version
+        uses: actions/upload-artifact@v4
+        with:
+          name: mullvad-version-linux
+          path: ./bin/mullvad-version
+          if-no-files-found: error
+
+  build-test-manager-linux:
+    name: Build Test Manager
+    needs: prepare-linux
+    # Note: libssl-dev is installed on the test server, so build test-manager there for the sake of simplicity
+    runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
+      - name: Build test-manager
+        run: ./test/scripts/container-run.sh cargo build --package test-manager --release
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-manager-build
+          path: |
+            ./test/target/release/test-manager
+          if-no-files-found: error
+      - name: Clean up Cargo artifacts
+        run: |
+          cargo clean
+
+  build-test-runner-binaries-linux:
+    name: Build Test Runner Binaries
+    needs: prepare-linux
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Build binaries
+        run: |
+          # Move test runner binaries to a known location. This is needed in the coming `upload-artifact` step.
+          mkdir bin
+          test/scripts/build/test-runner.sh linux
+          mv -t ./bin/ \
+            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/test-runner" \
+            "$CARGO_TARGET_DIR/x86_64-unknown-linux-gnu/release/connection-checker"
+      - uses: actions/upload-artifact@v4
+        if: '!cancelled()'
+        with:
+          name: linux-test-runner-binaries
+          path: bin/*
+          if-no-files-found: error
+
   e2e-test-linux:
     name: Linux end-to-end tests
-    needs: [prepare-matrices, build-linux]
+    # yamllint disable-line rule:line-length
+    needs: [prepare-matrices, build-linux-app, build-mullvad-version-linux, build-test-manager-linux, build-test-runner-binaries-linux]
     if: |
       !cancelled() &&
       needs.prepare-matrices.outputs.linux_matrix != '[]' &&
@@ -154,20 +240,59 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.linux_matrix) }}
     steps:
-      - uses: actions/download-artifact@v4
-        if: ${{ needs.build-linux.result == 'success' }}
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create binaries directory & add to PATH
+        shell: bash -ieo pipefail {0}
+        run: |
+          # Put all binaries in a known folder: test-runner, connection-checker, mullvad-version
+          mkdir "${{ github.workspace }}/bin"
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
+      - name: Download Test Manager
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: Download mullvad-version
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: mullvad-version-linux
+          path: ${{ github.workspace }}/bin
+      - name: Download Test Runner binaries
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-runner-binaries-linux.result == 'success' }}
+        with:
+          name: linux-test-runner-binaries
+          path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
+        shell: bash
+      - name: Check binaries
+        run: |
+          ls -la ${{ github.workspace }}/bin
+        shell: bash
+      - name: Download App
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-linux-app.result == 'success' }}
         with:
           name: linux-build
           path: ~/.cache/mullvad-test/packages
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         run: |
+          # A directory with all the binaries is required to run test-manager.
+          # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
+          export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
-          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v4
+          ls -la "$TEST_DIST_DIR"
+          ${{ github.workspace }}/bin/mullvad-version
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -183,11 +308,10 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          submodules: true
       - name: Checkout submodules
         run: |
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git config --global --add safe.directory '*'
+          git submodule update --init --depth=1
       - name: Install Protoc
         uses: arduino/setup-protoc@v3
         with:
@@ -242,7 +366,8 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download App
+        uses: actions/download-artifact@v4
         if: ${{ needs.build-windows.result == 'success' }}
         with:
           name: windows-build
@@ -255,7 +380,8 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -274,7 +400,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init wireguard-go-rs/libwg/wireguard-go
+          git submodule update --init --depth=1
       - name: Install Go
         uses: actions/setup-go@v3
         with:
@@ -314,7 +440,8 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.macos_matrix) }}
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Download App
+        uses: actions/download-artifact@v4
         if: ${{ needs.build-macos.result == 'success' }}
         with:
           name: macos-build
@@ -327,7 +454,8 @@ jobs:
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/ci-runtests.sh ${{ matrix.os }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload test report
+        uses: actions/upload-artifact@v4
         if: '!cancelled()'
         with:
           name: ${{ matrix.os }}_report
@@ -337,25 +465,38 @@ jobs:
     name: Result matrix
     needs: [e2e-test-linux, e2e-test-windows, e2e-test-macos]
     if: '!cancelled()'
-    runs-on: [self-hosted, desktop-test, Linux]
-    timeout-minutes: 240
-    strategy:
-      fail-fast: false
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare-linux.outputs.container_image }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: Download test report
+        uses: actions/download-artifact@v4
         with:
-          path: ./test/.ci-logs/artifacts
+          pattern: '*_report'
+          merge-multiple: true
+      - name: Create binaries directory
+        shell: bash -ieo pipefail {0}
+        run: |
+          mkdir "${{ github.workspace }}/bin"
+      - name: Download report compiler
+        uses: actions/download-artifact@v4
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
+      - name: Check binaries
+        run: |
+          ls -la ${{ github.workspace }}/bin
+        shell: bash
       - name: Generate test result matrix
         shell: bash -ieo pipefail {0}
         run: |
-          cd test
-          # "Unpack" the downloaded report artifacts: https://github.com/actions/download-artifact/issues/141
-          cp ./.ci-logs/artifacts/*_report/*_report ./.ci-logs/
-          cargo run --bin test-manager format-test-reports ./.ci-logs/*_report \
-            | tee summary.html >> $GITHUB_STEP_SUMMARY
+          ${{ github.workspace }}/bin/test-manager \
+          format-test-reports ${{ github.workspace }}/*_report \
+          | tee summary.html >> $GITHUB_STEP_SUMMARY
       - uses: actions/upload-artifact@v4
         with:
           name: summary.html
-          path: test/summary.html
+          path: summary.html

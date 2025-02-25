@@ -2,25 +2,22 @@
 
 set -eu
 
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
+REPO_ROOT="$TEST_FRAMEWORK_ROOT/.."
+
+export BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
+export BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
+
 function executable_not_found_in_dist_error {
     1>&2 echo "Executable \"$1\" not found in specified dist dir. Exiting."
     exit 1
 }
 
-# Returns the directory of the test-utils.sh script
-function get_test_utls_dir {
-    local script_path="${BASH_SOURCE[0]}"
-    local script_dir
-    if [[ -n "$script_path" ]]; then
-        script_dir="$(cd "$(dirname "$script_path")" >/dev/null && pwd)"
-    else
-        script_dir="$(cd "$(dirname "$0")" >/dev/null && pwd)"
-    fi
-    echo "$script_dir"
+# Returns the directory of the lib.sh script
+function get_test_utils_dir {
+    echo "$SCRIPT_DIR"
 }
-
-export BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
-export BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
 
 # Infer stable version from GitHub repo
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
@@ -28,7 +25,7 @@ LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_nam
 
 function get_current_version {
     local app_dir
-    app_dir="$(get_test_utls_dir)/../.."
+    app_dir="$REPO_ROOT"
     if [ -n "${TEST_DIST_DIR+x}" ]; then
         if [ ! -x "${TEST_DIST_DIR%/}/mullvad-version" ]; then
             executable_not_found_in_dist_error mullvad-version
@@ -218,141 +215,5 @@ function download_e2e_executable {
         fi
     else
         echo "GUI e2e executable for version $version ($os) already exists at $package_dir/$filename, skipping download"
-    fi
-}
-
-function build_test_runner {
-    local script_dir
-    script_dir=$(get_test_utls_dir)
-    local test_os=${1:?Error: test os not set}
-    if [[ "${test_os}" =~ "debian"|"ubuntu"|"fedora" ]]; then
-        "$script_dir"/container-run.sh scripts/build-runner.sh linux || exit 1
-    elif [[ "${test_os}" =~ "windows" ]]; then
-        "$script_dir"/container-run.sh scripts/build-runner.sh windows || exit 1
-    elif [[ "${test_os}" =~ "macos" ]]; then
-        "$script_dir"/build-runner.sh macos || exit 1
-    fi
-}
-
-function run_tests_for_os {
-    local vm=$1
-
-    if [[ -z "${ACCOUNT_TOKEN+x}" ]]; then
-        echo "'ACCOUNT_TOKEN' must be specified" 1>&2
-        exit 1
-    fi
-
-    if [ -n "${TEST_DIST_DIR+x}" ]; then
-        if [ ! -x "${TEST_DIST_DIR%/}/test-runner" ]; then
-            executable_not_found_in_dist_error test-runner
-        fi
-
-        echo "**********************************"
-        echo "* Using test-runner in $TEST_DIST_DIR"
-        echo "**********************************"
-    else
-        echo "**********************************"
-        echo "* Building test runner"
-        echo "**********************************"
-        nice_time build_test_runner "$vm"
-    fi
-
-    echo "**********************************"
-    echo "* Running tests"
-    echo "**********************************"
-
-    local upgrade_package_arg
-    if [[ -z "${APP_PACKAGE_TO_UPGRADE_FROM+x}" ]]; then
-        echo "'APP_PACKAGE_TO_UPGRADE_FROM' env not set, not testing upgrades"
-        upgrade_package_arg=()
-    else
-        upgrade_package_arg=(--app-package-to-upgrade-from "${APP_PACKAGE_TO_UPGRADE_FROM}")
-    fi
-
-    if [[ -z "${TEST_REPORT+x}" ]]; then
-        echo "'TEST_REPORT' env not set, not saving test report"
-        test_report_arg=()
-    else
-        test_report_arg=(--test-report "${TEST_REPORT}")
-    fi
-
-    local package_dir
-    package_dir=$(get_package_dir)
-    local test_dir
-    test_dir=$(get_test_utls_dir)/..
-    read -ra test_filters_arg <<<"${TEST_FILTERS:-}" # Split the string by words into an array
-    pushd "$test_dir"
-    if [ -n "${TEST_DIST_DIR+x}" ]; then
-        if [ ! -x "${TEST_DIST_DIR%/}/test-manager" ]; then
-            executable_not_found_in_dist_error test-manager
-        fi
-        test_manager="${TEST_DIST_DIR%/}/test-manager"
-        runner_dir_flag=("--runner-dir" "$TEST_DIST_DIR")
-    else
-        test_manager="cargo run --bin test-manager"
-        runner_dir_flag=()
-    fi
-
-    if [ -n "${MULLVAD_HOST+x}" ]; then
-        mullvad_host_arg=("--mullvad-host" "$MULLVAD_HOST")
-    else
-        mullvad_host_arg=()
-    fi
-
-    if ! RUST_LOG_STYLE=always $test_manager run-tests \
-        --account "${ACCOUNT_TOKEN:?Error: ACCOUNT_TOKEN not set}" \
-        --app-package "${APP_PACKAGE:?Error: APP_PACKAGE not set}" \
-        "${upgrade_package_arg[@]}" \
-        "${test_report_arg[@]}" \
-        --package-dir "${package_dir}" \
-        --vm "$vm" \
-        --openvpn-certificate "${OPENVPN_CERTIFICATE:-"assets/openvpn.ca.crt"}" \
-        "${mullvad_host_arg[@]}" \
-        "${test_filters_arg[@]}" \
-        "${runner_dir_flag[@]}" \
-        2>&1 | sed -r "s/${ACCOUNT_TOKEN}/\{ACCOUNT_TOKEN\}/g"; then
-        echo "Test run failed"
-        exit 1
-    fi
-    popd
-}
-
-# Build the current version of the app and move the package to the package folder
-# Currently unused, but may be useful in the future
-function build_current_version {
-    local app_dir
-    app_dir="$(get_test_utls_dir)/../.."
-    local app_filename
-    # TODO: TEST_OS must be set to local OS manually, should be set automatically
-    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
-    local package_dir
-    package_dir=$(get_package_dir)
-    local app_package="$package_dir"/"$app_filename"
-
-    local gui_test_filename
-    gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
-    local gui_test_bin="$package_dir"/"$gui_test_filename"
-
-    if [ ! -f "$app_package" ]; then
-        pushd "$app_dir"
-        if [[ $(git diff --quiet) ]]; then
-            echo "WARNING: the app repository contains uncommitted changes, this script will only rebuild the app package when the git hash changes"
-        fi
-        ./build.sh
-        popd
-        echo "Moving '$(realpath "$app_dir/dist/$app_filename")' to '$(realpath "$app_package")'"
-        mv -n "$app_dir"/dist/"$app_filename" "$app_package"
-    else
-        echo "App package for current version already exists at $app_package, skipping build"
-    fi
-
-    if [ ! -f "$gui_test_bin" ]; then
-        pushd "$app_dir"/gui
-        npm run build-test-executable
-        popd
-        echo "Moving '$(realpath "$app_dir/dist/$gui_test_filename")' to '$(realpath "$gui_test_bin")'"
-        mv -n "$app_dir"/dist/"$gui_test_filename" "$gui_test_bin"
-    else
-        echo "GUI e2e executable for current version already exists at $gui_test_bin, skipping build"
     fi
 }
