@@ -119,8 +119,18 @@ impl AndroidTunProvider {
             }
         }
 
+        self.open_tun_forced()
+    }
+
+    /// Returns an open tunnel with the current configuration
+    pub fn open_tun_forced(&mut self) -> Result<VpnServiceTun, Error> {
+        let config = VpnServiceConfig::new(self.config.clone());
+        let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
+            .map_err(Error::CloneJavaVm)?;
+
         let raw_fd = self.open_tun_fd(config.clone())?;
 
+        // Cache the current tunnel
         self.current_tunnel = Some((config, raw_fd));
 
         Ok(VpnServiceTun {

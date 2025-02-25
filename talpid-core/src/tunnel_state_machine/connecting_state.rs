@@ -29,6 +29,8 @@ use crate::tunnel::{self, TunnelMonitor};
 
 pub(crate) type TunnelCloseEvent = Fuse<oneshot::Receiver<Option<ErrorStateCause>>>;
 
+#[cfg(target_os = "android")]
+const MAX_ATTEMPTS_WITH_SAME_TUN: u32 = 5;
 const MIN_TUNNEL_ALIVE_TIME: Duration = Duration::from_millis(1000);
 #[cfg(target_os = "windows")]
 const MAX_ATTEMPT_CREATE_TUN: u32 = 4;
@@ -117,7 +119,19 @@ impl ConnectingState {
                     // set to something else, e.g. in the case of blocking. This call should
                     // probably be part of start_tunnel call.
                     #[cfg(target_os = "android")]
-                    shared_values.prepare_tun_config(false);
+                    {
+                        shared_values.prepare_tun_config(false);
+                        if retry_attempt > 0 && retry_attempt % MAX_ATTEMPTS_WITH_SAME_TUN == 0 {
+                            if let Err(error) =
+                                { shared_values.tun_provider.lock().unwrap().open_tun_forced() }
+                            {
+                                log::error!(
+                                    "{}",
+                                    error.display_chain_with_msg("Failed to recreate tun device")
+                                );
+                            }
+                        }
+                    }
 
                     let connecting_state = Self::start_tunnel(
                         shared_values.runtime.clone(),
