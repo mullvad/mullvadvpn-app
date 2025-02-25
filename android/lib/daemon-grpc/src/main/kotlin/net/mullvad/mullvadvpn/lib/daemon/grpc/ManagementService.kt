@@ -152,6 +152,9 @@ class ManagementService(
                 rpcSocketFile.absolutePath,
                 LocalSocketAddress.Namespace.FILESYSTEM,
             )
+            // Workaround for handling WiFi with proxy
+            // https://github.com/grpc/grpc-java/issues/11922
+            .proxyDetector { null }
             .build()
 
     val connectionState: StateFlow<GrpcConnectivityState> =
