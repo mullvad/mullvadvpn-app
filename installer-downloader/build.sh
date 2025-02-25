@@ -206,7 +206,12 @@ function dist_macos_app {
     if [[ "$SIGN" != "false" ]]; then
         setup_macos_keychain
     fi
-    sign_macos "$BUILD_DIR/$BUNDLE_NAME.app"
+    sign_macos "$app_path"
+
+    # Notarize app bundle
+    if [[ "$SIGN" != "false" ]]; then
+        notarize_mac "$$app_path"
+    fi
 
     # Pack in .dmg
     log_info "Creating $dmg_path image..."
@@ -218,20 +223,29 @@ function dist_macos_app {
 
     # Notarize .dmg
     if [[ "$SIGN" != "false" ]]; then
-        log_info "Notarizing .dmg image"
-        xcrun notarytool submit "$dmg_path" \
-            --keychain "$NOTARIZE_KEYCHAIN" \
-            --keychain-profile "$NOTARIZE_KEYCHAIN_PROFILE" \
-            --wait
-
-        log_info "Stapling .dmg image"
-        xcrun stapler staple "$dmg_path"
+        notarize_mac "$dmg_path"
     fi
 
     # Move to dist dir
     log_info "Moving final artifacts to $DIST_DIR"
     mv "$app_path" "$DIST_DIR/"
     mv "$dmg_path" "$DIST_DIR/"
+}
+
+# Notarize and staple a file.
+# Arguments:
+# - file to sign
+function notarize_mac {
+    local file="$1"
+
+    log_info "Notarizing $file"
+    xcrun notarytool submit "$file" \
+        --keychain "$NOTARIZE_KEYCHAIN" \
+        --keychain-profile "$NOTARIZE_KEYCHAIN_PROFILE" \
+        --wait
+
+    log_info "Stapling $file"
+    xcrun stapler staple "$file"
 }
 
 # Sign a file.
