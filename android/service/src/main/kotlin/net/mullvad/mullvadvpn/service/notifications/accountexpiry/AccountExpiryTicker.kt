@@ -1,10 +1,12 @@
 package net.mullvad.mullvadvpn.service.notifications.accountexpiry
 
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.joda.time.DateTime
-import org.joda.time.Duration
+import net.mullvad.mullvadvpn.lib.common.util.millisFromNow
 
 sealed interface AccountExpiryTicker {
     data object NotWithinThreshold : AccountExpiryTicker
@@ -13,9 +15,9 @@ sealed interface AccountExpiryTicker {
 
     companion object {
         fun tickerFlow(
-            expiry: DateTime,
+            expiry: ZonedDateTime,
             tickStart: Duration,
-            updateInterval: (expiry: DateTime) -> Duration,
+            updateInterval: (expiry: ZonedDateTime) -> Duration,
         ): Flow<AccountExpiryTicker> = flow {
             expiry.millisFromNow().let { expiryMillis ->
                 if (expiryMillis <= 0) {
@@ -23,20 +25,20 @@ sealed interface AccountExpiryTicker {
                     emit(Tick(Duration.ZERO))
                     return@flow
                 }
-                if (expiryMillis > tickStart.millis) {
+                if (expiryMillis > tickStart.toMillis()) {
                     // Emit NotWithinThreshold if no expiry notification should be provided.
                     emit(NotWithinThreshold)
                     // Delay until the time we should start emitting.
-                    delay(expiryMillis - tickStart.millis + 1)
+                    delay(expiryMillis - tickStart.toMillis() + 1)
                 }
             }
 
-            var currentUpdateInterval = updateInterval(expiry).millis
+            var currentUpdateInterval = updateInterval(expiry).toMillis()
 
             do {
-                emit(Tick(Duration(DateTime.now(), expiry)))
+                emit(Tick(Duration.between(Instant.now(), expiry)))
                 delay(millisUntilNextUpdate(expiry.millisFromNow(), currentUpdateInterval))
-                currentUpdateInterval = updateInterval(expiry).millis
+                currentUpdateInterval = updateInterval(expiry).toMillis()
             } while (hasAnotherEmission(expiry.millisFromNow(), currentUpdateInterval))
 
             // We may have remaining time if the update interval wasn't a multiple of the remaining
@@ -67,5 +69,3 @@ private fun calculateDelaysNeeded(
     millisUntilExpiry: Long,
     currentUpdateIntervalMillis: Long,
 ): Long = millisUntilExpiry.coerceAtLeast(0) / currentUpdateIntervalMillis
-
-private fun DateTime.millisFromNow(): Long = Duration(DateTime.now(), this).millis

@@ -72,7 +72,6 @@ dependencies {
     implementation(libs.androidx.test.rules)
     implementation(libs.androidx.test.uiautomator)
     implementation(libs.kermit)
-    implementation(libs.jodatime)
     implementation(Dependencies.junitJupiterApi)
     implementation(Dependencies.junit5AndroidTestExtensions)
     implementation(Dependencies.junit5AndroidTestRunner)

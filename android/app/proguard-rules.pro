@@ -13,12 +13,6 @@
 -keep class java.net.InetSocketAddress { *; }
 -keep class java.util.ArrayList { *; }
 
-# Joda Time
--dontwarn org.joda.convert.**
--dontwarn org.joda.time.**
--keep class org.joda.time.** { *; }
--keep interface org.joda.time.** { *; }
-
 # grpc
 -keep class io.grpc.okhttp.OkHttpChannelBuilder { *; }
 -keep class mullvad_daemon.management_interface.** { *; }

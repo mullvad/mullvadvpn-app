@@ -11,6 +11,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import java.time.ZonedDateTime
 import kotlin.test.assertIs
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -29,7 +30,6 @@ import net.mullvad.mullvadvpn.lib.model.AccountNumber
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.usecase.InternetAvailableUseCase
-import org.joda.time.DateTime
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -133,7 +133,9 @@ class LoginViewModelTest {
             val sideEffects = loginViewModel.uiSideEffect.testIn(backgroundScope)
             coEvery { mockedAccountRepository.login(any()) } returns Unit.right()
             coEvery { mockedAccountRepository.accountData } returns
-                MutableStateFlow(AccountData(mockk(relaxed = true), DateTime.now().plusDays(3)))
+                MutableStateFlow(
+                    AccountData(mockk(relaxed = true), ZonedDateTime.now().plusDays(3))
+                )
 
             // Act, Assert
             uiStates.skipDefaultItem()

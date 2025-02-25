@@ -10,6 +10,9 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
 import io.mockk.verify
+import java.time.Duration
+import java.time.Instant
+import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.compose.createEdgeToEdgeComposeExtension
 import net.mullvad.mullvadvpn.compose.setContentWithTheme
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
@@ -30,8 +33,6 @@ import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
-import org.joda.time.DateTime
-import org.joda.time.Duration
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -556,7 +557,7 @@ class ConnectScreenTest {
     fun testAccountExpiredNotification() {
         composeExtension.use {
             // Arrange
-            val expiryDate = DateTime(2020, 11, 11, 10, 10)
+            val expiryDate = ZonedDateTime.parse("2020-11-11T10:10Z")
             initScreen(
                 state =
                     ConnectUiState(
@@ -567,7 +568,9 @@ class ConnectScreenTest {
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
-                            InAppNotification.AccountExpiry(Duration(DateTime.now(), expiryDate)),
+                            InAppNotification.AccountExpiry(
+                                Duration.between(Instant.now(), expiryDate)
+                            ),
                         isPlayBuild = false,
                     )
             )
@@ -612,7 +615,7 @@ class ConnectScreenTest {
         composeExtension.use {
             // Arrange
             val mockedClickHandler: () -> Unit = mockk(relaxed = true)
-            val expiryDate = DateTime(2020, 11, 11, 10, 10)
+            val expiryDate = ZonedDateTime.parse("2020-11-11T10:10Z")
             initScreen(
                 onManageAccountClick = mockedClickHandler,
                 state =
@@ -624,7 +627,9 @@ class ConnectScreenTest {
                         deviceName = "",
                         daysLeftUntilExpiry = null,
                         inAppNotification =
-                            InAppNotification.AccountExpiry(Duration(DateTime.now(), expiryDate)),
+                            InAppNotification.AccountExpiry(
+                                Duration.between(Instant.now(), expiryDate)
+                            ),
                         isPlayBuild = false,
                     ),
             )

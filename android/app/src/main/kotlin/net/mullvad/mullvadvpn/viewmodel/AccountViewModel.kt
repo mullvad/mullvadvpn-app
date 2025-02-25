@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import android.app.Activity
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import java.time.ZonedDateTime
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,6 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
 import net.mullvad.mullvadvpn.util.isSuccess
 import net.mullvad.mullvadvpn.util.toPaymentState
-import org.joda.time.DateTime
 
 class AccountViewModel(
     private val accountRepository: AccountRepository,
@@ -155,7 +155,7 @@ class AccountViewModel(
 data class AccountUiState(
     val deviceName: String?,
     val accountNumber: AccountNumber?,
-    val accountExpiry: DateTime?,
+    val accountExpiry: ZonedDateTime?,
     val showSitePayment: Boolean,
     val billingPaymentState: PaymentState? = null,
     val showLogoutLoading: Boolean = false,

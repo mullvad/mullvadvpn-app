@@ -9,6 +9,7 @@ import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.cancel
@@ -32,7 +33,6 @@ import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -146,7 +146,9 @@ class WelcomeViewModelTest {
     @Test
     fun `when user has added time then uiSideEffect should emit OpenConnectScreen`() = runTest {
         // Arrange
-        accountExpiryStateFlow.emit(AccountData(mockk(relaxed = true), DateTime().plusDays(1)))
+        accountExpiryStateFlow.emit(
+            AccountData(mockk(relaxed = true), ZonedDateTime.now().plusDays(1))
+        )
 
         // Act, Assert
         viewModel.uiSideEffect.test {

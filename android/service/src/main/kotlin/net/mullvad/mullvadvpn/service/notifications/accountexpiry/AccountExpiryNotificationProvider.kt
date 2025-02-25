@@ -1,5 +1,6 @@
 package net.mullvad.mullvadvpn.service.notifications.accountexpiry
 
+import java.time.ZonedDateTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -16,7 +17,6 @@ import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
 import net.mullvad.mullvadvpn.service.constant.IS_PLAY_BUILD
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
-import org.joda.time.DateTime
 
 class AccountExpiryNotificationProvider(
     private val channelId: NotificationChannelId,
@@ -45,7 +45,7 @@ class AccountExpiryNotificationProvider(
             }
 
     private fun accountExpiryNotificationFlow(
-        expiryDate: DateTime
+        expiryDate: ZonedDateTime
     ): Flow<NotificationUpdate<Notification.AccountExpiry>> =
         AccountExpiryTicker.tickerFlow(
                 expiry = expiryDate,
