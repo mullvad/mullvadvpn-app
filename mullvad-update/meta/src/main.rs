@@ -172,7 +172,9 @@ async fn main() -> anyhow::Result<()> {
             println!("\nchanges.txt for tag {version}:\n\n-- begin\n{changes}\n--end\n\n");
 
             for platform in all_platforms_if_empty(platforms) {
-                platform.add_release(&version, &changes, rollout).await?;
+                platform
+                    .add_release(&version, &changes, &config.base_urls, rollout)
+                    .await?;
             }
             Ok(())
         }
