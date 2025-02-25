@@ -2,12 +2,12 @@ import { useCallback, useRef, useState } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
+import { Icon } from '../../lib/components';
 import { Colors, Spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useStyledRef } from '../../lib/utility-hooks';
 import { AriaDetails, AriaInput, AriaLabel } from '../AriaGroup';
-import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
 import * as Cell from '.';
 
@@ -136,7 +136,7 @@ export default function Selector<T, U>(props: SelectorProps<T, U>) {
   }
 }
 
-const StyledCellIcon = styled(Cell.Icon)<{ $visible: boolean }>((props) => ({
+const StyledCellIcon = styled(Icon)<{ $visible: boolean }>((props) => ({
   opacity: props.$visible ? 1 : 0,
   marginRight: '8px',
 }));
@@ -155,10 +155,6 @@ interface SelectorCellProps<T> {
 
 const StyledSelectorCell = styled.div({
   display: 'flex',
-});
-
-const StyledSideButtonImage = styled(ImageView)({
-  padding: '0 3px',
 });
 
 const StyledSideButton = styled(Cell.SideButton)({
@@ -193,12 +189,7 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
         aria-selected={props.isSelected}
         aria-disabled={props.disabled}
         data-testid={props['data-testid']}>
-        <StyledCellIcon
-          $visible={props.isSelected}
-          source="icon-tick"
-          width={18}
-          tintColor={Colors.white}
-        />
+        <StyledCellIcon $visible={props.isSelected} icon="checkmark" />
         <SelectorCellLabel subLabel={props.subLabel}>{props.children}</SelectorCellLabel>
       </Cell.CellButton>
       {props.details && (
@@ -207,12 +198,7 @@ function SelectorCell<T>(props: SelectorCellProps<T>) {
           $backgroundColorHover={Colors.blue80}
           aria-label={props.details.ariaLabel}
           onClick={navigate}>
-          <StyledSideButtonImage
-            source="icon-chevron"
-            width={7}
-            tintColor={Colors.white}
-            tintHoverColor={Colors.white80}
-          />
+          <Icon icon="chevron-right" />
         </StyledSideButton>
       )}
     </StyledSelectorCell>
@@ -362,12 +348,7 @@ export function SelectorWithCustomItem<T, U>(props: SelectorWithCustomItemProps<
           role="option"
           aria-selected={customIsSelected}
           aria-disabled={props.disabled}>
-          <StyledCellIcon
-            $visible={customIsSelected}
-            source="icon-tick"
-            width={18}
-            tintColor={Colors.white}
-          />
+          <StyledCellIcon $visible={customIsSelected} icon="checkmark" />
           <Cell.ValueLabel>{messages.gettext('Custom')}</Cell.ValueLabel>
           <AriaInput>
             <Cell.AutoSizingTextInput

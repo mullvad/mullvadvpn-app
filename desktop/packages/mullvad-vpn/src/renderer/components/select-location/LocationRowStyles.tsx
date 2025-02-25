@@ -1,11 +1,11 @@
 import styled from 'styled-components';
 import { Styles } from 'styled-components/dist/types';
 
+import { Icon } from '../../lib/components';
 import { Colors } from '../../lib/foundations';
 import * as Cell from '../cell';
 import { buttonColor, ButtonColors } from '../cell/styles';
 import { measurements, normalText } from '../common-styles';
-import ImageView from '../ImageView';
 import InfoButton from '../InfoButton';
 
 export const StyledLocationRowContainer = styled(Cell.Container)({
@@ -82,11 +82,8 @@ export const StyledHoverIconButton = styled.button<ButtonColors & HoverButtonPro
   hoverButton,
 );
 
-export const StyledHoverIcon = styled(ImageView).attrs({
-  width: 18,
-  height: 18,
-  tintColor: Colors.white60,
-  tintHoverColor: Colors.white,
+export const StyledHoverIcon = styled(Icon).attrs({
+  color: Colors.white60,
 })({
   [`${StyledHoverIconButton}:hover &&`]: {
     backgroundColor: Colors.white,

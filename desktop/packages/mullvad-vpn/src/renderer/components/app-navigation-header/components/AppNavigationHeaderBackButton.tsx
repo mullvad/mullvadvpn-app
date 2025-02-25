@@ -17,16 +17,12 @@ export const AppNavigationHeaderBackButton = () => {
 
   if (!parentBackAction) return null;
 
-  const iconSource = backIcon ? 'icon-back' : 'icon-close-down';
+  const iconSource = backIcon ? 'chevron-left-circle' : 'chevron-down-circle';
   const ariaLabel = backIcon ? messages.gettext('Back') : messages.gettext('Close');
 
   return (
-    <IconButton
-      variant="secondary"
-      size="medium"
-      icon={iconSource}
-      aria-label={ariaLabel}
-      onClick={parentBackAction}
-    />
+    <IconButton variant="secondary" aria-label={ariaLabel} onClick={parentBackAction}>
+      <IconButton.Icon icon={iconSource} />
+    </IconButton>
   );
 };

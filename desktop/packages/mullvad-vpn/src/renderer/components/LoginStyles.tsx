@@ -1,12 +1,11 @@
 import styled from 'styled-components';
 
-import { Colors } from '../lib/foundations';
-import { Spacings } from '../lib/foundations';
+import { Icon } from '../lib/components';
+import { Colors, Spacings } from '../lib/foundations';
 import { buttonReset } from '../lib/styles';
 import * as Cell from './cell';
 import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
 import FormattableTextInput from './FormattableTextInput';
-import ImageView from './ImageView';
 import { Footer } from './Layout';
 
 export const StyledAccountDropdownContainer = styled.ul({
@@ -14,26 +13,7 @@ export const StyledAccountDropdownContainer = styled.ul({
   flexDirection: 'column',
 });
 
-export const StyledAccountDropdownRemoveButton = styled.button({
-  border: 'none',
-  background: 'none',
-});
-
-export const StyledAccountDropdownRemoveIcon = styled(ImageView)({
-  justifyContent: 'center',
-  paddingTop: '10px',
-  paddingRight: '12px',
-  paddingBottom: '12px',
-  paddingLeft: '12px',
-  marginLeft: '0px',
-});
-
-export const StyledInputSubmitIcon = styled(ImageView)<{ $visible: boolean }>((props) => ({
-  flex: 0,
-  borderWidth: '0px',
-  width: '48px',
-  alignItems: 'center',
-  justifyContent: 'center',
+export const StyledInputSubmitIcon = styled(Icon)<{ $visible: boolean }>((props) => ({
   opacity: props.$visible ? 1 : 0,
 }));
 
@@ -144,7 +124,6 @@ export const StyledAccountInputBackdrop = styled.div({
 
 export const StyledInputButton = styled.button<{ $visible: boolean }>((props) => ({
   display: 'flex',
-  flex: 0,
   borderWidth: 0,
   width: '48px',
   alignItems: 'center',

@@ -1,13 +1,13 @@
 import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
+import { IconButton } from '../../lib/components';
 import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
 import CustomScrollbars from '../CustomScrollbars';
 import { BackAction } from '../KeyboardNavigation';
 import ConnectionActionButton from './ConnectionActionButton';
 import ConnectionDetails from './ConnectionDetails';
-import ConnectionPanelChevron from './ConnectionPanelChevron';
 import ConnectionStatus from './ConnectionStatus';
 import FeatureIndicators from './FeatureIndicators';
 import Hostname from './Hostname';
@@ -48,7 +48,7 @@ const StyledCustomScrollbars = styled(CustomScrollbars)({
   flexShrink: 1,
 });
 
-const StyledConnectionPanelChevron = styled(ConnectionPanelChevron)({
+const StyledConnectionPanelChevron = styled(IconButton)({
   position: 'absolute',
   top: '16px',
   right: '16px',
@@ -96,7 +96,11 @@ export default function ConnectionPanel() {
     <BackAction disabled={!expanded} action={collapse}>
       <StyledConnectionPanel $expanded={expanded}>
         {allowExpand && (
-          <StyledConnectionPanelChevron pointsUp={!expanded} onToggle={toggleExpanded} />
+          <StyledConnectionPanelChevron
+            onClick={toggleExpanded}
+            data-testid="connection-panel-chevron">
+            <IconButton.Icon icon={expanded ? 'chevron-down' : 'chevron-up'} />
+          </StyledConnectionPanelChevron>
         )}
         <StyledConnectionStatusContainer
           $expanded={expanded}

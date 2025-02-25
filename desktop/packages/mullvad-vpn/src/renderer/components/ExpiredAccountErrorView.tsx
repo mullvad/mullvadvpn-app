@@ -6,7 +6,10 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
+import { Flex, Icon } from '../lib/components';
+import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
+import { IconBadge } from '../lib/icon-badge';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
@@ -24,10 +27,8 @@ import {
   StyledDeviceLabel,
   StyledMessage,
   StyledModalCellContainer,
-  StyledStatusIcon,
   StyledTitle,
 } from './ExpiredAccountErrorViewStyles';
-import ImageView from './ImageView';
 import { Footer, Layout } from './Layout';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
 
@@ -121,8 +122,8 @@ function WelcomeView() {
         </StyledAccountNumberContainer>
       </StyledAccountNumberMessage>
 
-      <StyledDeviceLabel>
-        <span>
+      <Flex $alignItems="center" $gap={Spacings.spacing1} $margin={{ bottom: Spacings.spacing5 }}>
+        <StyledDeviceLabel>
           {sprintf(
             // TRANSLATORS: A label that will display the newly created device name to inform the user
             // TRANSLATORS: about it.
@@ -133,9 +134,9 @@ function WelcomeView() {
               deviceName: capitalizeEveryWord(account.deviceName ?? ''),
             },
           )}
-        </span>
+        </StyledDeviceLabel>
         <DeviceInfoButton />
-      </StyledDeviceLabel>
+      </Flex>
 
       <StyledMessage>
         {sprintf('%(introduction)s %(recoveryMessage)s', {
@@ -155,9 +156,9 @@ function Content() {
 
   return (
     <>
-      <StyledStatusIcon>
-        <ImageView source="icon-fail" height={60} width={60} />
-      </StyledStatusIcon>
+      <Flex $justifyContent="center" $margin={{ bottom: Spacings.spacing5 }}>
+        <IconBadge state="negative" />
+      </Flex>
       <StyledTitle data-testid="title">
         {messages.pgettext('connect-view', 'Out of time')}
       </StyledTitle>
@@ -201,10 +202,8 @@ function ExternalPaymentButton() {
           <AppButton.GreenButton>
             <AppButton.Label>{buttonText}</AppButton.Label>
             <AriaDescription>
-              <AppButton.Icon
-                source="icon-extLink"
-                height={16}
-                width={16}
+              <Icon
+                icon="external"
                 aria-label={messages.pgettext('accessibility', 'Opens externally')}
               />
             </AriaDescription>

@@ -250,7 +250,7 @@ function LanguageButton() {
   return (
     <Cell.CellNavigationButton onClick={navigate}>
       <LabelStack>
-        <Cell.UntintedIcon width={24} height={24} source="icon-language" />
+        <Cell.CellImage source="icon-language" />
         <Cell.Label>
           {
             // TRANSLATORS: Navigation button to the 'Language' settings view

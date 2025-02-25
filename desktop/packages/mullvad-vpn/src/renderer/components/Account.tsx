@@ -4,6 +4,8 @@ import { formatDate, hasExpired } from '../../shared/account-expiry';
 import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
+import { Flex, Icon } from '../lib/components';
+import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
@@ -17,7 +19,6 @@ import {
   AccountRows,
   AccountRowValue,
   DeviceRowValue,
-  StyledDeviceNameRow,
 } from './AccountStyles';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
@@ -90,10 +91,8 @@ export default function Account() {
                       <AppButton.GreenButton>
                         <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
                         <AriaDescription>
-                          <AppButton.Icon
-                            source="icon-extLink"
-                            height={16}
-                            width={16}
+                          <Icon
+                            icon="external"
                             aria-label={messages.pgettext('accessibility', 'Opens externally')}
                           />
                         </AriaDescription>
@@ -119,10 +118,10 @@ export default function Account() {
 function DeviceNameRow() {
   const deviceName = useSelector((state) => state.account.deviceName);
   return (
-    <StyledDeviceNameRow>
+    <Flex $gap={Spacings.spacing3} $alignItems="center">
       <DeviceRowValue>{deviceName}</DeviceRowValue>
       <DeviceInfoButton />
-    </StyledDeviceNameRow>
+    </Flex>
   );
 }
 

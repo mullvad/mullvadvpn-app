@@ -3,6 +3,7 @@ import styled from 'styled-components';
 
 import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
+import { Icon } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import {
   EndpointType,
@@ -22,7 +23,6 @@ import { AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector from './cell/Selector';
 import { normalText } from './common-styles';
-import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
@@ -239,11 +239,7 @@ function FilterByOwnership(props: IFilterByOwnershipProps) {
         <AriaLabel>
           <Cell.Label>{messages.pgettext('filter-view', 'Ownership')}</Cell.Label>
         </AriaLabel>
-        <ImageView
-          tintColor={Colors.white80}
-          source={expanded ? 'icon-chevron-up' : 'icon-chevron-down'}
-          height={24}
-        />
+        <Icon color={Colors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
 
       <Accordion expanded={expanded}>
@@ -289,11 +285,7 @@ function FilterByProvider(props: IFilterByProviderProps) {
     <>
       <Cell.CellButton onClick={toggleExpanded}>
         <Cell.Label>{messages.pgettext('filter-view', 'Providers')}</Cell.Label>
-        <ImageView
-          tintColor={Colors.white80}
-          source={expanded ? 'icon-chevron-up' : 'icon-chevron-down'}
-          height={24}
-        />
+        <Icon color={Colors.white80} icon={expanded ? 'chevron-up' : 'chevron-down'} />
       </Cell.CellButton>
       <Accordion expanded={expanded}>
         <CheckboxRow
@@ -358,7 +350,7 @@ function CheckboxRow(props: ICheckboxRowProps) {
   return (
     <StyledRow onClick={onToggle}>
       <StyledCheckbox role="checkbox" aria-label={props.label} aria-checked={props.checked}>
-        {props.checked && <ImageView source="icon-tick" width={18} tintColor={Colors.green} />}
+        {props.checked && <Icon icon="checkmark" color={Colors.green} />}
       </StyledCheckbox>
       <StyledRowTitle aria-hidden $bold={props.$bold}>
         {props.label}

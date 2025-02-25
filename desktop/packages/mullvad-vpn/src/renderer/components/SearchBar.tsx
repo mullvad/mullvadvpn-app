@@ -2,10 +2,10 @@ import { useCallback, useEffect } from 'react';
 import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
+import { Icon, IconButton } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { normalText } from './common-styles';
-import ImageView from './ImageView';
 
 export const StyledSearchContainer = styled.div({
   position: 'relative',
@@ -34,34 +34,23 @@ export const StyledSearchInput = styled.input.attrs({ type: 'text' })({
   },
 });
 
-export const StyledClearButton = styled.button({
+// TODO: The focus styling can be removed once we implement the new colors from foundations
+export const StyledClearButton = styled(IconButton)({
   position: 'absolute',
   top: '50%',
   transform: 'translateY(-50%)',
   right: '9px',
-  border: 'none',
-  background: 'none',
-  padding: 0,
+  [`${StyledSearchInput}:focus ~ && > div`]: {
+    backgroundColor: Colors.blue40,
+  },
 });
 
-export const StyledSearchIcon = styled(ImageView)({
+export const StyledSearchIcon = styled(Icon)({
   position: 'absolute',
   top: '50%',
   transform: 'translateY(-50%)',
-  left: '9px',
+  left: '8px',
   [`${StyledSearchInput}:focus ~ &&`]: {
-    backgroundColor: Colors.blue,
-  },
-});
-
-export const StyledClearIcon = styled(ImageView)({
-  '&&:hover': {
-    backgroundColor: Colors.white60,
-  },
-  [`${StyledSearchInput}:focus ~ ${StyledClearButton} &&`]: {
-    backgroundColor: Colors.blue40,
-  },
-  [`${StyledSearchInput}:focus ~ ${StyledClearButton} &&:hover`]: {
     backgroundColor: Colors.blue,
   },
 });
@@ -107,10 +96,10 @@ export default function SearchBar(props: ISearchBarProps) {
         onInput={onInput}
         placeholder={messages.gettext('Search for...')}
       />
-      <StyledSearchIcon source="icon-search" width={24} tintColor={Colors.white60} />
+      <StyledSearchIcon icon="search" color={Colors.white60} />
       {props.searchTerm.length > 0 && (
-        <StyledClearButton onClick={onClear}>
-          <StyledClearIcon source="icon-close" width={18} tintColor={Colors.white40} />
+        <StyledClearButton variant="secondary" onClick={onClear}>
+          <IconButton.Icon icon="cross-circle" />
         </StyledClearButton>
       )}
     </StyledSearchContainer>

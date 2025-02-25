@@ -1,11 +1,10 @@
 import React, { useContext } from 'react';
 import styled from 'styled-components';
 
-import { Box } from '../../lib/components';
+import { Box, IconProps } from '../../lib/components';
 import { Colors, Spacings } from '../../lib/foundations';
-import { IImageViewProps } from '../ImageView';
 import { CellDisabledContext } from './Container';
-import { Icon } from './Label';
+import { CellTintedIcon } from './Label';
 import { Row } from './Row';
 import { CellSectionContext } from './Section';
 
@@ -60,13 +59,13 @@ export const CellButton = styled(
 
 interface ICellNavigationButtonProps extends ICellButtonProps {
   isAriaDescription?: boolean;
-  icon?: IImageViewProps;
+  icon?: IconProps;
 }
 
 export function CellNavigationButton({
   children,
   icon = {
-    source: 'icon-chevron',
+    icon: 'chevron-right',
   },
   ...props
 }: ICellNavigationButtonProps) {
@@ -74,7 +73,7 @@ export function CellNavigationButton({
     <CellButton {...props}>
       {children}
       <Box $height="24px" $width="24px" center>
-        <Icon {...icon} />
+        <CellTintedIcon {...icon} />
       </Box>
     </CellButton>
   );

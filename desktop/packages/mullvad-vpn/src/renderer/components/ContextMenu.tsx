@@ -1,6 +1,7 @@
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
 import styled from 'styled-components';
 
+import { IconButton } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { useBoolean, useStyledRef } from '../lib/utility-hooks';
 import { smallText } from './common-styles';
@@ -86,18 +87,14 @@ export function ContextMenuContainer(props: React.PropsWithChildren) {
   );
 }
 
-const StyledTrigger = styled.button({
-  borderWidth: 0,
-  padding: 0,
-  margin: 0,
-  cursor: 'default',
-  backgroundColor: 'transparent',
-});
-
-export function ContextMenuTrigger(props: React.PropsWithChildren) {
+export function ContextMenuTrigger() {
   const { toggleVisibility } = useContext(menuContext);
 
-  return <StyledTrigger onClick={toggleVisibility}>{props.children}</StyledTrigger>;
+  return (
+    <IconButton onClick={toggleVisibility}>
+      <IconButton.Icon icon="more-horizontal-circle" />
+    </IconButton>
+  );
 }
 
 interface StyledMenuProps {

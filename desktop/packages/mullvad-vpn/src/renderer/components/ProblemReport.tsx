@@ -16,14 +16,16 @@ import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
+import { Flex, Icon, Spinner } from '../lib/components';
+import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
+import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
 import { AppNavigationHeader } from './';
 import * as AppButton from './AppButton';
 import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
-import ImageView from './ImageView';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -187,10 +189,8 @@ function Form() {
                   {messages.pgettext('support-view', 'View app logs')}
                 </AppButton.Label>
                 <AriaDescription>
-                  <AppButton.Icon
-                    source="icon-extLink"
-                    height={16}
-                    width={16}
+                  <Icon
+                    icon="external"
                     aria-label={messages.pgettext('accessibility', 'Opens externally')}
                   />
                 </AriaDescription>
@@ -211,7 +211,7 @@ function Sending() {
     <StyledContent>
       <StyledForm>
         <StyledStatusIcon>
-          <ImageView source="icon-spinner" height={60} width={60} />
+          <Spinner size="big" />
         </StyledStatusIcon>
         <StyledSendStatus>{messages.pgettext('support-view', 'Sending...')}</StyledSendStatus>
       </StyledForm>
@@ -234,9 +234,11 @@ function Sent() {
   return (
     <StyledContent>
       <StyledForm>
-        <StyledStatusIcon>
-          <ImageView source="icon-success" height={60} width={60} />
-        </StyledStatusIcon>
+        <Flex
+          $justifyContent="center"
+          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+          <IconBadge state="positive" />
+        </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
 
         <StyledSentMessage>
@@ -259,9 +261,11 @@ function Failed() {
   return (
     <StyledContent>
       <StyledForm>
-        <StyledStatusIcon>
-          <ImageView source="icon-fail" height={60} width={60} />
-        </StyledStatusIcon>
+        <Flex
+          $justifyContent="center"
+          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+          <IconBadge state="negative" />
+        </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>
         <StyledSentMessage>
           {messages.pgettext(
@@ -353,10 +357,8 @@ function OutdatedVersionWarningDialog() {
             <AppButton.GreenButton disabled={isOffline} onClick={openDownloadLink}>
               <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
               <AriaDescription>
-                <AppButton.Icon
-                  height={16}
-                  width={16}
-                  source="icon-extLink"
+                <Icon
+                  icon="external"
                   aria-label={messages.pgettext('accessibility', 'Opens externally')}
                 />
               </AriaDescription>

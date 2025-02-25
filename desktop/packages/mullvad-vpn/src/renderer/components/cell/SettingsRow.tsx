@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import styled from 'styled-components';
 
+import { Icon } from '../../lib/components';
 import { Colors } from '../../lib/foundations';
 import { AriaInputGroup, AriaLabel } from '../AriaGroup';
 import { measurements, smallNormalText, tinyText } from '../common-styles';
-import ImageView from '../ImageView';
 import { StyledSettingsGroup, useSettingsGroupContext } from './SettingsGroup';
 
 const StyledSettingsRow = styled.label<{ $invalid: boolean }>((props) => ({
@@ -64,7 +64,7 @@ const StyledSettingsRowErrorMessage = styled.div(tinyText, {
   color: Colors.white60,
 });
 
-const StyledErrorMessageAlertIcon = styled(ImageView)({
+const StyledErrorMessageAlertIcon = styled(Icon)({
   marginRight: '5px',
 });
 
@@ -132,7 +132,7 @@ export function SettingsRow(props: React.PropsWithChildren<IndentedRowProps>) {
 export function SettingsRowErrorMessage(props: React.PropsWithChildren) {
   return (
     <StyledSettingsRowErrorMessage>
-      <StyledErrorMessageAlertIcon source="icon-alert" tintColor={Colors.red} width={12} />
+      <StyledErrorMessageAlertIcon icon="alert-circle" color={Colors.red} size="small" />
       {props.children}
     </StyledSettingsRowErrorMessage>
   );

@@ -1,10 +1,10 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
+import { IconButton } from '../../lib/components';
 import { Colors } from '../../lib/foundations';
 import { useBoolean, useCombinedRefs, useEffectEvent, useStyledRef } from '../../lib/utility-hooks';
 import { normalText } from '../common-styles';
-import ImageView from '../ImageView';
 import { BackAction } from '../KeyboardNavigation';
 import StandaloneSwitch from '../Switch';
 import { CellDisabledContext, Container } from './Container';
@@ -256,12 +256,6 @@ const StyledCellInputRowContainer = styled(Container)({
   marginBottom: '1px',
 });
 
-const StyledSubmitButton = styled.button({
-  border: 'none',
-  backgroundColor: 'transparent',
-  padding: '10px 0',
-});
-
 const StyledInputWrapper = styled.div<{ $marginLeft: number }>(normalText, (props) => ({
   position: 'relative',
   flex: 1,
@@ -297,6 +291,16 @@ const StyledInputFiller = styled.div({
   color: 'transparent',
   marginRight: '25px',
 });
+
+// TODO: This can be removed once we implement the new colors from foundations
+const StyledIconButton = styled(IconButton)<{ $disabled: boolean }>(({ $disabled }) => ({
+  ['> div']: {
+    backgroundColor: $disabled ? Colors.blue60 : Colors.blue,
+  },
+  ['&&:hover > div']: {
+    backgroundColor: $disabled ? Colors.blue60 : Colors.blue80,
+  },
+}));
 
 interface IRowInputProps {
   initialValue?: string;
@@ -395,14 +399,9 @@ export function RowInput(props: IRowInputProps) {
             placeholder={props.placeholder}
           />
         </StyledInputWrapper>
-        <StyledSubmitButton onClick={submit}>
-          <ImageView
-            source="icon-check"
-            height={18}
-            tintColor={value === '' ? Colors.blue60 : Colors.blue}
-            tintHoverColor={value === '' ? Colors.blue60 : Colors.blue80}
-          />
-        </StyledSubmitButton>
+        <StyledIconButton variant="secondary" onClick={submit} $disabled={value === ''}>
+          <IconButton.Icon icon="checkmark-circle" />
+        </StyledIconButton>
       </StyledCellInputRowContainer>
     </BackAction>
   );

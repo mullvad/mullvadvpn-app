@@ -1,29 +1,20 @@
-import styled from 'styled-components';
-
 import { messages } from '../../shared/gettext';
+import { IconButton } from '../lib/components';
 import { useBoolean } from '../lib/utility-hooks';
 import * as AppButton from './AppButton';
-import { InfoIcon } from './InfoButton';
 import { ModalAlert, ModalAlertType, ModalMessage } from './Modal';
-
-const StyledInfoButton = styled.button({
-  margin: '0 0 0 10px',
-  borderWidth: 0,
-  padding: 0,
-  cursor: 'default',
-  backgroundColor: 'transparent',
-});
 
 export default function DeviceInfoButton() {
   const [deviceHelpVisible, showDeviceHelp, hideDeviceHelp] = useBoolean();
 
   return (
     <>
-      <StyledInfoButton
+      <IconButton
+        size="small"
         onClick={showDeviceHelp}
         aria-label={messages.pgettext('accessibility', 'More information')}>
-        <InfoIcon size={16} />
-      </StyledInfoButton>
+        <IconButton.Icon icon="info-circle" />
+      </IconButton>
       <ModalAlert
         isOpen={deviceHelpVisible}
         type={ModalAlertType.info}
