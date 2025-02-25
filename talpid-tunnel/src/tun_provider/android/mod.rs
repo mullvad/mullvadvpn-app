@@ -16,6 +16,7 @@ use std::{
     os::unix::io::{AsRawFd, RawFd},
     sync::Arc,
 };
+use talpid_routing::Route;
 use talpid_types::net::{ALLOWED_LAN_MULTICAST_NETS, ALLOWED_LAN_NETS};
 use talpid_types::{android::AndroidContext, ErrorExt};
 
@@ -59,12 +60,15 @@ pub enum Error {
     OtherAlwaysOnApp { app_name: String },
 }
 
+type TunnelCache = Option<(VpnServiceConfig, RawFd)>;
+
 /// Factory of tunnel devices on Android.
 pub struct AndroidTunProvider {
     jvm: Arc<JavaVM>,
     class: GlobalRef,
     object: GlobalRef,
     config: TunConfig,
+    current_tunnel: TunnelCache,
 }
 
 impl AndroidTunProvider {
@@ -83,6 +87,7 @@ impl AndroidTunProvider {
             class: talpid_vpn_service_class,
             object: context.vpn_service,
             config,
+            current_tunnel: None,
         }
     }
 
@@ -92,40 +97,59 @@ impl AndroidTunProvider {
         &mut self.config
     }
 
-    /// Open a tunnel with the current configuration.
+    /// Returns an open tunnel with the current configuration, if a tunnel already exists with the
+    /// corresponding VpnTunConfig it returns a cached copy.
     pub fn open_tun(&mut self) -> Result<VpnServiceTun, Error> {
-        self.open_tun_inner("openTun")
-    }
-
-    /// Open a tunnel with the current configuration.
-    /// Force recreation even if the tunnel config hasn't changed.
-    pub fn open_tun_forced(&mut self) -> Result<VpnServiceTun, Error> {
-        self.open_tun_inner("openTunForced")
-    }
-
-    /// Open a tunnel with the current configuration.
-    fn open_tun_inner(&mut self, get_tun_func_name: &'static str) -> Result<VpnServiceTun, Error> {
-        let tun_fd = self.open_tun_fd(get_tun_func_name)?;
+        let config = VpnServiceConfig::new(self.config.clone());
 
         let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
             .map_err(Error::CloneJavaVm)?;
 
+        // If we are recreating the same tunnel we return the same file descriptor to avoid calling
+        // open_tun in android since it may cause leaks.
+        if let Some((vpn_service_config, raw_fd)) = &self.current_tunnel {
+            if vpn_service_config == &config {
+                return Ok(VpnServiceTun {
+                    tunnel: *raw_fd,
+                    is_new_tunnel: false,
+                    jvm,
+                    class: self.class.clone(),
+                    object: self.object.clone(),
+                });
+            }
+        }
+
+        self.open_tun_forced()
+    }
+
+    /// Returns an open tunnel with the current configuration
+    pub fn open_tun_forced(&mut self) -> Result<VpnServiceTun, Error> {
+        let config = VpnServiceConfig::new(self.config.clone());
+        let jvm = unsafe { JavaVM::from_raw(self.jvm.get_java_vm_pointer()) }
+            .map_err(Error::CloneJavaVm)?;
+
+        let raw_fd = self.open_tun_fd(config.clone())?;
+
+        // Cache the current tunnel
+        self.current_tunnel = Some((config, raw_fd));
+
         Ok(VpnServiceTun {
-            tunnel: tun_fd,
+            tunnel: raw_fd,
+            is_new_tunnel: true,
             jvm,
             class: self.class.clone(),
             object: self.object.clone(),
         })
     }
 
-    fn open_tun_fd(&self, get_tun_func_name: &'static str) -> Result<RawFd, Error> {
-        let config = VpnServiceConfig::new(self.config.clone());
+    // Opens a tunnel in Android with the provided VpnServiceConfig.
+    fn open_tun_fd(&mut self, config: VpnServiceConfig) -> Result<RawFd, Error> {
+        let method_name = "openTun";
 
         let env = self.env()?;
         let java_config = config.into_java(&env);
-
         let result = self.call_method(
-            get_tun_func_name,
+            method_name,
             "(Lnet/mullvad/talpid/model/TunConfig;)Lnet/mullvad/talpid/model/CreateTunResult;",
             JavaType::Object("net/mullvad/talpid/model/CreateTunResult".to_owned()),
             &[JValue::Object(java_config.as_obj())],
@@ -134,7 +158,7 @@ impl AndroidTunProvider {
         match result {
             JValue::Object(result) => CreateTunResult::from_java(&env, result).into(),
             value => Err(Error::InvalidMethodResult(
-                get_tun_func_name,
+                method_name,
                 format!("{:?}", value),
             )),
         }
@@ -153,11 +177,14 @@ impl AndroidTunProvider {
             Err(error) => Some(error),
         };
 
-        if let Some(error) = error {
-            log::error!(
+        match error {
+            Some(error) => log::error!(
                 "{}",
                 error.display_chain_with_msg("Failed to close the tunnel")
-            );
+            ),
+
+            // Remove the cache of config
+            None => self.current_tunnel = None,
         }
     }
 
@@ -186,6 +213,14 @@ impl AndroidTunProvider {
             JValue::Bool(_) => Ok(()),
             value => Err(Error::InvalidMethodResult("bypass", format!("{:?}", value))),
         }
+    }
+
+    pub fn real_routes(&self) -> Vec<Route> {
+        self.config
+            .real_routes()
+            .into_iter()
+            .map(Route::new)
+            .collect()
     }
 
     fn call_method(
@@ -221,7 +256,7 @@ impl AndroidTunProvider {
 /// Configuration to use for VpnService
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava)]
 #[jnix(class_name = "net.mullvad.talpid.model.TunConfig")]
-struct VpnServiceConfig {
+pub struct VpnServiceConfig {
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
 
@@ -318,7 +353,7 @@ impl VpnServiceConfig {
 
 #[derive(Clone, Debug, Eq, PartialEq, IntoJava)]
 #[jnix(package = "net.mullvad.talpid.model")]
-struct InetNetwork {
+pub struct InetNetwork {
     address: IpAddr,
     prefix: i16,
 }
@@ -332,9 +367,16 @@ impl From<IpNetwork> for InetNetwork {
     }
 }
 
+impl From<&InetNetwork> for IpNetwork {
+    fn from(inet_network: &InetNetwork) -> Self {
+        IpNetwork::new(inet_network.address, inet_network.prefix as u8).unwrap()
+    }
+}
+
 /// Handle to a tunnel device on Android.
 pub struct VpnServiceTun {
     tunnel: RawFd,
+    pub is_new_tunnel: bool,
     jvm: JavaVM,
     class: GlobalRef,
     object: GlobalRef,

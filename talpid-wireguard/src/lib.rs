@@ -28,6 +28,8 @@ use talpid_tunnel::{
     tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
 };
 
+#[cfg(target_os = "android")]
+use talpid_routing::RouteManagerHandle;
 #[cfg(not(target_os = "windows"))]
 use talpid_tunnel_config_client::DaitaSettings;
 use talpid_types::{
@@ -427,6 +429,7 @@ impl WireguardMonitor {
             &config,
             log_path,
             args.tun_provider.clone(),
+            args.route_manager,
             // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
             // that we only allows traffic to/from the gateway. This is only needed on Android
             // since we lack a firewall there.
@@ -457,13 +460,6 @@ impl WireguardMonitor {
             event_hook
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
-
-            // Wait for routes to come up
-            args.route_manager
-                .wait_for_routes()
-                .await
-                .map_err(Error::SetupRoutingError)
-                .map_err(CloseMsg::SetupError)?;
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
@@ -712,9 +708,11 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(target_os = "android")] route_manager: RouteManagerHandle,
         #[cfg(target_os = "android")] gateway_only: bool,
         #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<WgGoTunnel> {
+        #[cfg(all(unix, not(target_os = "android")))]
         let routes = config
             .get_tunnel_destinations()
             .flat_map(Self::replace_default_prefixes);
@@ -747,7 +745,7 @@ impl WireguardMonitor {
                 exit_peer,
                 log_path,
                 tun_provider,
-                routes,
+                route_manager,
                 cancel_receiver,
             )
             .await
@@ -758,7 +756,7 @@ impl WireguardMonitor {
                 &config,
                 log_path,
                 tun_provider,
-                routes,
+                route_manager,
                 cancel_receiver,
             )
             .await
@@ -936,6 +934,7 @@ impl WireguardMonitor {
     }
 
     /// Replace default (0-prefix) routes with more specific routes.
+    #[cfg(not(target_os = "android"))]
     fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
         #[cfg(windows)]
         if network.prefix() == 0 {
