@@ -55,7 +55,7 @@ jobs:
       - name: Check file size
         uses: ./.github/actions/check-file-size
         with:
-          artifact: "./installer-downloader/dist/mullvad-downloader.exe"
+          artifact: "./dist/mullvad-downloader.exe"
           max_size: ${{ env.MAX_BINARY_SIZE }}
 
   build-macos:
@@ -77,5 +77,5 @@ jobs:
       - name: Check file size
         uses: ./.github/actions/check-file-size
         with:
-          artifact: "./installer-downloader/dist/mullvad-downloader.dmg"
+          artifact: "./dist/mullvad-downloader.dmg"
           max_size: ${{ env.MAX_BINARY_SIZE }}
