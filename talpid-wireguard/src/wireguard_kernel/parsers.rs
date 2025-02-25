@@ -57,7 +57,7 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<InetAddr, DecodeError> {
             let buffer: &[u8; size_of::<libc::sockaddr_in>()] =
                 buffer.try_into().map_err(|_| wrong_len())?;
 
-            // SAFETY: sockaddr_in is valid for all bit patterns
+            // SAFETY: sockaddr_in6 has a defined repr(C) layout and is valid for all bit patterns
             let sockaddr: libc::sockaddr_in = unsafe { transmute(*buffer) };
 
             Ok(InetAddr::V4(sockaddr))
@@ -66,7 +66,7 @@ pub fn parse_inet_sockaddr(buffer: &[u8]) -> Result<InetAddr, DecodeError> {
             let buffer: &[u8; size_of::<libc::sockaddr_in6>()] =
                 buffer.try_into().map_err(|_| wrong_len())?;
 
-            // SAFETY: sockaddr_in6 is valid for all bit patterns
+            // SAFETY: sockaddr_in6 has a defined repr(C) layout and is valid for all bit patterns
             let sockaddr: libc::sockaddr_in6 = unsafe { transmute(*buffer) };
 
             Ok(InetAddr::V6(sockaddr))
