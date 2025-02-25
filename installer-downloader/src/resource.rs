@@ -17,7 +17,7 @@ pub const BETA_PREFACE_DESC: &str = "Want to try the new Beta version? ";
 pub const BETA_LINK_TEXT: &str = "Click here!";
 
 /// Stable link text
-pub const STABLE_LINK_TEXT: &str = "← Back to stable version";
+pub const STABLE_LINK_TEXT: &str = "Back to stable version";
 
 /// Dimensions of cancel button (including padding)
 pub const CANCEL_BUTTON_SIZE: (usize, usize) = (150, 40);

@@ -178,7 +178,7 @@ macro_rules! button_wrapper {
         impl Default for $name {
             fn default() -> Self {
                 Self {
-                    button: Button::new($text),
+                    button: Button::new(&$text),
                 }
             }
         }
@@ -197,7 +197,7 @@ macro_rules! button_wrapper {
         }
 
         impl $name {
-            /// Register a callback to be execued on the main thread when this button is pressed.
+            /// Register a callback to be executed on the main thread when this button is pressed.
             pub fn set_callback(&mut self, callback: impl Fn() + Send + 'static) {
                 // Wrap it in an Arc<Mutex> to make it Sync.
                 // We need this because Dispatcher demands sync, but the AppDelegate trait does not
@@ -215,7 +215,7 @@ macro_rules! button_wrapper {
 }
 
 button_wrapper!(LinkToBeta, BETA_LINK_TEXT);
-button_wrapper!(LinkToStable, STABLE_LINK_TEXT);
+button_wrapper!(LinkToStable, format!("← {STABLE_LINK_TEXT}"));
 button_wrapper!(DownloadButton, DOWNLOAD_BUTTON_TEXT);
 button_wrapper!(CancelButton, CANCEL_BUTTON_TEXT);
 
