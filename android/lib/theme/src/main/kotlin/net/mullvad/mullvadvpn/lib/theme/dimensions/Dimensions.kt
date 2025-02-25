@@ -53,7 +53,7 @@ data class Dimensions(
     val problemReportIconToTitlePadding: Dp = 60.dp,
     val reconnectButtonMinInteractiveComponentSize: Dp = 40.dp,
     val relayCircleSize: Dp = 16.dp,
-    val screenVerticalMargin: Dp = 22.dp,
+    val screenVerticalMargin: Dp = 24.dp,
     val searchFieldHeight: Dp = 42.dp,
     // Search view full screen header container height (material design guidelines)
     val searchFieldHeightExpanded: Dp = 72.dp,
@@ -62,7 +62,7 @@ data class Dimensions(
     val selectLocationTitlePadding: Dp = 12.dp,
     val selectableCellTextMargin: Dp = 12.dp,
     val settingsDetailsImageMaxWidth: Dp = 480.dp,
-    val sideMargin: Dp = 22.dp,
+    val sideMargin: Dp = 24.dp,
     val smallIconSize: Dp = 16.dp,
     val smallPadding: Dp = 8.dp,
     val smallSpacer: Dp = 8.dp,

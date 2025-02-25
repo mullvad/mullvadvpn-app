@@ -36,7 +36,8 @@ private val MullvadTypography =
                 lineHeight = TypeScale.HeadlineMediumLineHeight,
             ),
         headlineSmall = TextStyle(fontSize = TypeScale.TextBig, fontWeight = FontWeight.Bold),
-        bodySmall = TextStyle(fontSize = TypeScale.TextSmall),
+        bodySmall =
+            TextStyle(fontSize = TypeScale.TextSmall, lineHeight = TypeScale.TextMediumPlus),
         titleSmall = TextStyle(fontSize = TypeScale.TextMedium, fontWeight = FontWeight.SemiBold),
         titleMedium =
             TextStyle(fontSize = TypeScale.TextMediumPlus, fontWeight = FontWeight.SemiBold),
