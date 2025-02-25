@@ -143,11 +143,17 @@ impl WgGoTunnel {
             WgGoTunnel::Singlehop(mut state) => {
                 state.set_config(config.clone())?;
                 let new_state = WgGoTunnel::Singlehop(state);
+                // HACK: Check if the tunnel is working by sending a ping in the tunnel.
+                // This check is needed for PQ connections to be established.
+                new_state.ensure_tunnel_is_running().await?;
                 Ok(new_state)
             }
             WgGoTunnel::Multihop(mut state) => {
                 state.set_config(config.clone())?;
                 let new_state = WgGoTunnel::Multihop(state);
+                // HACK: Check if the tunnel is working by sending a ping in the tunnel.
+                // This check is needed for PQ connections to be established.
+                new_state.ensure_tunnel_is_running().await?;
                 Ok(new_state)
             }
         }
