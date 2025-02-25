@@ -1,5 +1,5 @@
 use std::cell::RefCell;
-use std::ops::Deref;
+use std::ops::{Deref, DerefMut};
 use std::sync::{Arc, LazyLock, Mutex, RwLock};
 
 use cacao::appkit::window::{Window, WindowConfig, WindowDelegate};
@@ -79,16 +79,13 @@ impl AppDelegate for AppImpl {
 
 /// Dispatcher actions
 pub enum Action {
-    /// User clicked the download button
-    DownloadClick(Arc<Mutex<Box<dyn Fn() + Send>>>),
-    /// User clicked the cancel button
-    CancelClick(Arc<Mutex<Box<dyn Fn() + Send>>>),
+    /// User clicked a button.
+    ButtonClick {
+        /// The callback to be invoked in the main thread.
+        callback: Arc<Mutex<Box<dyn Fn() + Send>>>,
+    },
     /// Run callback on main thread
     QueueMain(Mutex<Option<MainThreadCallback>>),
-    /// User clicked the retry button in the error view
-    ErrorRetry(Arc<Mutex<Box<dyn Fn() + Send>>>),
-    /// User clicked the cancel button in the error view
-    ErrorCancel(Arc<Mutex<Box<dyn Fn() + Send>>>),
     /// Quit the application.
     Quit,
 }
@@ -102,27 +99,15 @@ impl Dispatcher for AppImpl {
     fn on_ui_message(&self, message: Self::Message) {
         let delegate = self.window.delegate.as_ref().unwrap();
         match message {
-            Action::DownloadClick(cb) => {
-                let cb = cb.lock().unwrap();
-                cb();
-            }
-            Action::CancelClick(cb) => {
-                let cb = cb.lock().unwrap();
-                cb();
+            Action::ButtonClick { callback } => {
+                let callback = callback.lock().unwrap();
+                callback();
             }
             Action::QueueMain(cb) => {
                 // NOTE: We assume that this won't panic because they will never run simultaneously
                 let mut borrowed = delegate.inner.borrow_mut();
                 let cb = cb.lock().unwrap().take().unwrap();
                 cb(&mut borrowed);
-            }
-            Action::ErrorRetry(cb) => {
-                let cb = cb.lock().unwrap();
-                cb();
-            }
-            Action::ErrorCancel(cb) => {
-                let cb = cb.lock().unwrap();
-                cb();
             }
             Action::Quit => {
                 self.window.close();
@@ -202,6 +187,28 @@ macro_rules! button_wrapper {
             type Target = ::cacao::button::Button;
             fn deref(&self) -> &Self::Target {
                 &self.button
+            }
+        }
+
+        impl DerefMut for $name {
+            fn deref_mut(&mut self) -> &mut Self::Target {
+                &mut self.button
+            }
+        }
+
+        impl $name {
+            /// Register a callback to be execued on the main thread when this button is pressed.
+            pub fn set_callback(&mut self, callback: impl Fn() + Send + 'static) {
+                // Wrap it in an Arc<Mutex> to make it Sync.
+                // We need this because Dispatcher demands sync, but the AppDelegate trait does not
+                // impose that requirement on the callback.
+                let callback = Box::new(callback) as Box<dyn Fn() + Send>;
+                let callback = Arc::new(Mutex::new(callback));
+                self.button.set_action(move || {
+                    let callback = callback.clone();
+                    let callback = Action::ButtonClick { callback };
+                    cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(callback);
+                });
             }
         }
     };

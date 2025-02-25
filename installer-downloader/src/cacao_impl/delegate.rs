@@ -15,28 +15,21 @@ impl AppDelegate for AppWindow {
     where
         F: Fn() + Send + 'static,
     {
-        let cb = Self::sync_callback(callback);
-        self.download_button.button.set_action(move || {
-            let cb = Action::DownloadClick(cb.clone());
-            cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(cb);
-        });
+        self.download_button.set_callback(callback);
     }
 
     fn on_cancel<F>(&mut self, callback: F)
     where
         F: Fn() + Send + 'static,
     {
-        let cb = Self::sync_callback(callback);
-        self.cancel_button.button.set_action(move || {
-            let cb = Action::CancelClick(cb.clone());
-            cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(cb);
-        });
+        self.cancel_button.set_callback(callback);
     }
 
     fn on_beta_link<F>(&mut self, callback: F)
     where
         F: Fn() + Send + 'static,
     {
+        self.beta_link.set_callback(callback);
     }
 
     fn set_status_text(&mut self, text: &str) {
@@ -76,35 +69,35 @@ impl AppDelegate for AppWindow {
     }
 
     fn show_download_button(&mut self) {
-        self.download_button.button.set_hidden(false);
+        self.download_button.set_hidden(false);
     }
 
     fn hide_download_button(&mut self) {
-        self.download_button.button.set_hidden(true);
+        self.download_button.set_hidden(true);
     }
 
     fn enable_download_button(&mut self) {
-        self.download_button.button.set_enabled(true);
+        self.download_button.set_enabled(true);
     }
 
     fn disable_download_button(&mut self) {
-        self.download_button.button.set_enabled(false);
+        self.download_button.set_enabled(false);
     }
 
     fn show_cancel_button(&mut self) {
-        self.cancel_button.button.set_hidden(false);
+        self.cancel_button.set_hidden(false);
     }
 
     fn hide_cancel_button(&mut self) {
-        self.cancel_button.button.set_hidden(true);
+        self.cancel_button.set_hidden(true);
     }
 
     fn enable_cancel_button(&mut self) {
-        self.cancel_button.button.set_enabled(true);
+        self.cancel_button.set_enabled(true);
     }
 
     fn disable_cancel_button(&mut self) {
-        self.cancel_button.button.set_enabled(false);
+        self.cancel_button.set_enabled(false);
     }
 
     fn show_beta_text(&mut self) {
@@ -129,7 +122,7 @@ impl AppDelegate for AppWindow {
     where
         F: Fn() + Send + 'static,
     {
-        println!("todo. on stable link");
+        self.stable_link.set_callback(callback);
     }
 
     fn show_stable_text(&mut self) {
@@ -141,17 +134,19 @@ impl AppDelegate for AppWindow {
     }
 
     fn show_error_message(&mut self, message: installer_downloader::delegate::ErrorMessage) {
-        let on_cancel = self.error_cancel_callback.clone().map(|cb| {
+        let on_cancel = self.error_cancel_callback.clone().map(|callback| {
             move || {
-                let cb = Action::ErrorCancel(cb.clone());
-                cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(cb);
+                let callback = callback.clone();
+                let callback = Action::ButtonClick { callback };
+                cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(callback);
             }
         });
 
-        let on_retry = self.error_retry_callback.clone().map(|cb| {
+        let on_retry = self.error_retry_callback.clone().map(|callback| {
             move || {
-                let cb = Action::ErrorRetry(cb.clone());
-                cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(cb);
+                let callback = callback.clone();
+                let callback = Action::ButtonClick { callback };
+                cacao::appkit::App::<super::ui::AppImpl, _>::dispatch_main(callback);
             }
         });
 
