@@ -49,10 +49,10 @@ impl AppVerifier for Sha256Verifier {
 }
 
 impl Sha256Verifier {
-    async fn verify_inner(
+    pub async fn generate_hash(
         mut reader: impl AsyncRead + Unpin,
-        expected_hash: [u8; 32],
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<[u8; 32]>
+    {
         let mut hasher = sha2::Sha256::new();
 
         // Read data into hasher
@@ -69,10 +69,17 @@ impl Sha256Verifier {
             hasher.update(&buffer[..read_n]);
         }
 
-        let actual_hash = hasher.finalize();
+        Ok(hasher.finalize().into())
+    }
+
+    async fn verify_inner(
+        reader: impl AsyncRead + Unpin,
+        expected_hash: [u8; 32],
+    ) -> anyhow::Result<()> {
+        let actual_hash = Self::generate_hash(reader).await?;
 
         // Verify that hash is correct
-        if expected_hash != actual_hash[..] {
+        if expected_hash != actual_hash {
             anyhow::bail!("Invalid checksum for bin file");
         }
 
