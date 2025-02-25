@@ -133,11 +133,11 @@ impl AppDelegate for AppWindow {
     }
 
     fn show_stable_text(&mut self) {
-        println!("todo. show stable text");
+        self.stable_link.set_hidden(false);
     }
 
     fn hide_stable_text(&mut self) {
-        println!("todo. hide stable text");
+        self.stable_link.set_hidden(true);
     }
 
     fn show_error_message(&mut self, message: installer_downloader::delegate::ErrorMessage) {
