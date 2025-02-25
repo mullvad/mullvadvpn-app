@@ -565,7 +565,7 @@ impl WgGoTunnel {
             .wait_for_routes(expected_routes)
             .await
             .map_err(Error::SetupRoutingError)
-            .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
+            .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
 
         Ok(())
     }
