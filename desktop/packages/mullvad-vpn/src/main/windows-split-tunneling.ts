@@ -1,9 +1,7 @@
 import { app } from 'electron';
 import fs from 'fs';
 import path from 'path';
-
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const { readShortcut } = require('win-shortcuts');
+import { readShortcut } from 'win-shortcuts';
 
 import {
   ISplitTunnelingApplication,

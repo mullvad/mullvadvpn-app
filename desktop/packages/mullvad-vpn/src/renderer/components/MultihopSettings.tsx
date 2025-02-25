@@ -18,6 +18,8 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderSubTitle, HeaderTitle } from './SettingsHeader';
 
+const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
+
 export default function MultihopSettings() {
   const { pop } = useHistory();
 
@@ -34,7 +36,9 @@ export default function MultihopSettings() {
                   {messages.pgettext('wireguard-settings-view', 'Multihop')}
                 </HeaderTitle>
                 <HeaderSubTitle>
-                  <StyledIllustration src="../../assets/images/multihop-illustration.svg" />
+                  <StyledIllustration
+                    src={`${PATH_PREFIX}assets/images/multihop-illustration.svg`}
+                  />
                   {messages.pgettext(
                     'wireguard-settings-view',
                     'Multihop routes your traffic into one WireGuard server and out another, making it harder to trace. This results in increased latency but increases anonymity online.',

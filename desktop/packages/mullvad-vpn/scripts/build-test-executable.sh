@@ -9,14 +9,14 @@ TARGET=${1:-$(rustc -vV | sed -n 's|host: ||p')}
 PRODUCT_VERSION=$(cargo run -q --bin mullvad-version)
 
 ASSETS=(
-    "build/src/renderer/lib/routes.js"
-    "build/src/renderer/lib/foundations/*.js"
-    "build/src/renderer/lib/foundations/**/*.js"
-    "build/src/shared/constants/*.js"
-    "build/test/e2e/utils.js"
-    "build/test/e2e/shared/*.js"
-    "build/test/e2e/installed/*.js"
-    "build/test/e2e/installed/**/*.js"
+    "build-standalone/src/renderer/lib/routes.js"
+    "build-standalone/src/renderer/lib/foundations/*.js"
+    "build-standalone/src/renderer/lib/foundations/**/*.js"
+    "build-standalone/src/shared/constants/*.js"
+    "build-standalone/test/e2e/utils.js"
+    "build-standalone/test/e2e/shared/*.js"
+    "build-standalone/test/e2e/installed/*.js"
+    "build-standalone/test/e2e/installed/**/*.js"
 )
 
 NODE_MODULES=(
@@ -40,7 +40,7 @@ function build_test_executable {
     # pack assets
     cp "$node_path" "$node_copy_path"
     # shellcheck disable=SC2068
-    tar -czf ./build/test/assets.tar.gz ${ASSETS[@]} -C ../../ ${NODE_MODULES[@]}
+    tar -czf ./build-standalone/assets.tar.gz ${ASSETS[@]} -C ../../ ${NODE_MODULES[@]}
 
     cp "$node_copy_path" "$temp_executable"
     node --experimental-sea-config standalone-tests.sea.json
@@ -65,6 +65,8 @@ function build_test_executable {
 
     rm -rf "$temp_dir"
 }
+
+npx gulp build-standalone
 
 case "$TARGET" in
     "aarch64-unknown-linux-gnu")

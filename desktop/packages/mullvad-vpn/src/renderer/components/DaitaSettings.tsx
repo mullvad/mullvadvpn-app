@@ -36,6 +36,8 @@ const StyledInfoButton = styled(InfoButton)({
   marginRight: Spacings.spacing5,
 });
 
+const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
+
 export default function DaitaSettings() {
   const { pop } = useHistory();
 
@@ -52,7 +54,9 @@ export default function DaitaSettings() {
                 <PageSlider
                   content={[
                     <React.Fragment key="without-daita">
-                      <StyledIllustration src="../../assets/images/daita-off-illustration.svg" />
+                      <StyledIllustration
+                        src={`${PATH_PREFIX}assets/images/daita-off-illustration.svg`}
+                      />
                       <Flex $flexDirection="column" $gap={Spacings.spacing5}>
                         <StyledHeaderSubTitle>
                           {sprintf(
@@ -81,7 +85,9 @@ export default function DaitaSettings() {
                       </Flex>
                     </React.Fragment>,
                     <React.Fragment key="with-daita">
-                      <StyledIllustration src="../../assets/images/daita-on-illustration.svg" />
+                      <StyledIllustration
+                        src={`${PATH_PREFIX}assets/images/daita-on-illustration.svg`}
+                      />
                       <Flex $flexDirection="column" $gap={Spacings.spacing5}>
                         <StyledHeaderSubTitle>
                           {sprintf(

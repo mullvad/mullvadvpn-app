@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
 
-import { CustomListError, CustomLists, RelayLocation } from '../../../shared/daemon-rpc-types';
+import {
+  CustomListError,
+  type CustomLists,
+  type RelayLocation,
+} from '../../../shared/daemon-rpc-types';
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';

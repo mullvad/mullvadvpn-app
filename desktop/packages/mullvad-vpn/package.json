@@ -4,7 +4,7 @@
   "productName": "Mullvad VPN",
   "private": true,
   "description": "Mullvad VPN client",
-  "main": "init.js",
+  "main": "build/main.js",
   "author": {
     "name": "Mullvad VPN",
     "email": "support@mullvadvpn.net"
@@ -25,10 +25,10 @@
     "react-redux": "^7.2.9",
     "react-router": "^5.3.4",
     "redux": "^4.2.0",
-    "win-shortcuts": "0.0.0",
     "simple-plist": "^1.3.1",
     "sprintf-js": "^1.1.2",
-    "styled-components": "^6.1.13"
+    "styled-components": "^6.1.13",
+    "win-shortcuts": "0.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.41.1",
@@ -46,6 +46,7 @@
     "@types/sinon": "^10.0.13",
     "@types/sprintf-js": "^1.1.2",
     "@types/topojson-specification": "^1.0.2",
+    "@vitejs/plugin-react": "^4.3.4",
     "browserify": "^17.0.0",
     "chai": "^4.3.6",
     "chai-as-promised": "^7.1.1",
@@ -70,21 +71,34 @@
     "tsc-watch": "^5.0.3",
     "vinyl-buffer": "^1.0.1",
     "vinyl-source-stream": "^2.0.0",
+    "vite": "6.2.0",
+    "vite-plugin-electron": "^0.29.0",
     "xvfb-maybe": "^0.2.1"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-darwin-arm64": "4.34.6",
+    "@rollup/rollup-darwin-x64": "4.34.6",
+    "@rollup/rollup-win32-arm64-msvc": "4.34.6",
+    "@rollup/rollup-win32-x64-msvc": "4.34.6",
+    "@rollup/rollup-linux-arm64-gnu": "4.34.6",
+    "@rollup/rollup-linux-x64-gnu": "4.34.6"
   },
   "scripts": {
     "preinstall": "test -d node_modules || mkdir node_modules",
-    "build": "gulp build",
+    "build": "gulp build-vite",
+    "build:vite": "vite build",
+    "build:test": "gulp build-test",
     "pack-test-executable": "./scripts/build-test-executable.sh",
-    "build-test-executable": "npm run build && npm run pack-test-executable",
+    "build-test-executable": "npm run pack-test-executable",
     "lint": "eslint .",
     "lint-fix": "eslint --fix .",
-    "e2e": "npm run build && npm run e2e:no-build",
+    "e2e": "npm run build:test && npm run e2e:no-build",
     "e2e:no-build": "xvfb-maybe -- playwright test mocked",
     "e2e:sequential": "npm run build && npm run e2e:sequential:no-build",
     "e2e:sequential:no-build": "xvfb-maybe -- playwright test -c test/e2e/installed/playwright.config.ts --workers 1",
     "e2e:update-snapshots": "npm run e2e:no-build -- --update-snapshots",
     "develop": "gulp develop",
+    "develop:vite": "vite",
     "test": "cross-env NODE_ENV=test mocha --reporter spec --require ts-node/register --require \"test/unit/setup.ts\" \"test/unit/*.spec.ts\"",
     "update-translations": "node scripts/extract-translations",
     "pack:mac": "gulp pack-mac",
