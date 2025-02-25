@@ -1,3 +1,5 @@
+//! File and I/O utilities
+
 use std::path::Path;
 
 use anyhow::Context;
