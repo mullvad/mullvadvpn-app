@@ -6,7 +6,7 @@ use tokio::{
     io::{AsyncSeekExt, BufReader},
 };
 
-use mullvad_update::{format, verify::Sha256Verifier};
+use mullvad_update::{format, hash};
 
 /// Generate `format::Installer`
 pub async fn generate_installer_details(
@@ -31,7 +31,7 @@ pub async fn generate_installer_details(
 
     println!("Generating checksum for {}", artifact.display());
 
-    let checksum = Sha256Verifier::generate_hash(file)
+    let checksum = hash::checksum(file)
         .await
         .context("Failed to compute checksum")?;
 

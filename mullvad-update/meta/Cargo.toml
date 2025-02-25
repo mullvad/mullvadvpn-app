@@ -16,7 +16,7 @@ chrono = { workspace = true, features = ["serde", "now"] }
 clap = { workspace = true }
 hex = { version = "0.4" }
 rand = { version = "0.8.5" }
-reqwest = { version = "0.12.9", features = ["rustls-tls"] }
+reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
 serde_json = { workspace = true }
 serde = { workspace = true }
 sha2 = "0.10"
