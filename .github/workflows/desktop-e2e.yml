@@ -139,7 +139,7 @@ jobs:
       - name: Build app
         run: |
           export CARGO_TARGET_DIR=target/
-          ./build.sh
+          ./build.sh --optimize
       - name: Build test executable
         run: ./desktop/packages/mullvad-vpn/scripts/build-test-executable.sh
       - name: Upload app
