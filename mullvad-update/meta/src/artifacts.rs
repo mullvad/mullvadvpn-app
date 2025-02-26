@@ -44,13 +44,7 @@ pub async fn generate_installer_details(
         .file_name()
         .and_then(|f| f.to_str())
         .context("Unexpected filename")?;
-    let urls = base_urls
-        .iter()
-        .map(|base_url| {
-            let base_url = base_url.split('/').next().unwrap_or(base_url);
-            format!("{base_url}/{}", filename)
-        })
-        .collect();
+    let urls = derive_urls(base_urls, filename);
 
     Ok(format::Installer {
         architecture,
@@ -58,4 +52,33 @@ pub async fn generate_installer_details(
         size: file_size.try_into().context("Invalid file size")?,
         sha256: hex::encode(checksum),
     })
+}
+
+fn derive_urls(base_urls: &[String], filename: &str) -> Vec<String> {
+    base_urls
+        .iter()
+        .map(|base_url| {
+            let url = base_url.strip_suffix("/").unwrap_or(base_url);
+            format!("{url}/{}", filename)
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    /// Test derivation of URLs from base URLs
+    #[tokio::test]
+    pub async fn test_urls() {
+        let base_urls = vec![
+            "https://fake1.fake/".to_string(),
+            "https://fake2.fake".to_string(),
+        ];
+
+        assert_eq!(
+            &derive_urls(&base_urls, "test.exe"),
+            &["https://fake1.fake/test.exe", "https://fake2.fake/test.exe",]
+        );
+    }
 }
