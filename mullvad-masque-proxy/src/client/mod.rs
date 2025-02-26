@@ -185,7 +185,6 @@ impl Client {
             .into();
         let mut client_read_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE);
 
-        println!("Starting");
         let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
         loop {
             Into::<VarInt>::into(context_id).encode(&mut client_read_buf);
