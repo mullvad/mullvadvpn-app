@@ -5,12 +5,13 @@
 
 use anyhow::{bail, Context};
 use clap::Parser;
+use std::str::FromStr;
+
 use config::Config;
 use io_util::create_dir_and_write;
+use platform::Platform;
 
 use mullvad_update::format::{self, key, SignedResponse};
-
-use platform::Platform;
 
 mod artifacts;
 mod config;
@@ -94,10 +95,12 @@ pub enum Opt {
 
     /// Sign using an ed25519 key and output the signed metadata to `signed/`
     Sign {
-        /// Secret ed25519 key used for signing, as hexadecimal string
-        secret: key::SecretKey,
         /// Platforms to remove releases for. All if none are specified
         platforms: Vec<Platform>,
+        /// Secret ed25519 key used for signing, as hexadecimal string
+        /// If not specified, this will be read from user
+        #[arg(long)]
+        secret: Option<key::SecretKey>,
         /// When the metadata expires, in months from now
         #[arg(long, default_value_t = DEFAULT_EXPIRY_MONTHS)]
         expiry: usize,
@@ -146,11 +149,21 @@ async fn main() -> anyhow::Result<()> {
             Ok(())
         }
         Opt::Sign {
-            secret,
             platforms,
+            secret,
             expiry,
             assume_yes,
         } => {
+            let secret = match secret {
+                Some(secret) => secret,
+                None => {
+                    let key_str = io_util::wait_for_input("Enter ed25519 secret: ")
+                        .await
+                        .context("Failed to read secret from stdin")?;
+                    key::SecretKey::from_str(&key_str).context("Invalid secret")?
+                }
+            };
+
             for platform in all_platforms_if_empty(platforms) {
                 platform
                     .sign(secret.clone(), expiry, assume_yes)
