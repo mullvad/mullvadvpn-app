@@ -1,12 +1,6 @@
-#[cfg(target_os = "android")]
-#[path = "android.rs"]
-mod imp;
+mod icmp;
 
-#[cfg(any(target_os = "windows", target_os = "linux", target_os = "macos"))]
-#[path = "icmp.rs"]
-mod imp;
-
-pub use imp::Error;
+pub use icmp::Error;
 
 /// Trait for sending ICMP requests to get some traffic from a remote server
 #[async_trait::async_trait]
@@ -22,7 +16,7 @@ pub fn new_pinger(
     addr: std::net::Ipv4Addr,
     #[cfg(any(target_os = "linux", target_os = "macos"))] interface_name: String,
 ) -> Result<Box<dyn Pinger>, Error> {
-    Ok(Box::new(imp::Pinger::new(
+    Ok(Box::new(icmp::Pinger::new(
         addr,
         #[cfg(any(target_os = "linux", target_os = "macos"))]
         interface_name,
