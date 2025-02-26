@@ -12,7 +12,6 @@ use mullvad_update::{
 };
 use rand::seq::SliceRandom;
 
-use std::sync::LazyLock;
 use tokio::sync::{mpsc, oneshot};
 
 /// Actions handled by an async worker task in [handle_action_messages].
@@ -27,31 +26,6 @@ enum TaskMessage {
 /// See the [module-level docs](self).
 pub struct AppController {}
 
-pub struct FakeVersionInfoProvider {}
-
-static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
-    stable: Version {
-        version: "2025.1".parse().unwrap(),
-        urls: vec![
-            "https://releases.mullvad.net/desktop/releases/2025.4/MullvadVPN-2025.4.pkg".to_owned(),
-        ],
-        size: 226928055,
-        changelog: "a changelog".to_owned(),
-        sha256: hex::decode("af81d35022f6d1abecc0eacf33b3c767efbe16a0edb07beec5911c114092d69b")
-            .unwrap()
-            .try_into()
-            .unwrap(),
-    },
-    beta: None,
-});
-
-#[async_trait::async_trait]
-impl VersionInfoProvider for FakeVersionInfoProvider {
-    async fn get_version_info(&self, _params: VersionParameters) -> anyhow::Result<VersionInfo> {
-        Ok(FAKE_VERSION.clone())
-    }
-}
-
 /// Public entry function for registering a [AppDelegate].
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     use mullvad_update::{api::HttpVersionInfoProvider, app::HttpAppDownloader};
@@ -62,18 +36,29 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     type DirProvider = crate::temp::TempDirProvider;
 
     // Version info provider to use
-    /*const TEST_PUBKEY: &str = include_str!("../../mullvad-update/test-pubkey");
+    const STAGEMOLE_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
+    //"https://releases.mullvad.net/desktop/metadata/updater-windows.json"
     let verifying_key =
-        mullvad_update::format::key::VerifyingKey::from_hex(TEST_PUBKEY).expect("valid key");
+        mullvad_update::format::key::VerifyingKey::from_hex(STAGEMOLE_PUBKEY).expect("valid key");
     let version_provider = HttpVersionInfoProvider {
-        url: "https://releases.mullvad.net/thing".to_owned(),
+        url: get_metadata_url(),
         pinned_certificate: None,
         verifying_key,
-    };*/
-
-    let version_provider = FakeVersionInfoProvider {};
+    };
 
     AppController::initialize::<_, Downloader<T>, _, DirProvider>(delegate, version_provider)
+}
+
+/// JSON files should be stored at `<base url>/updates-<platform>.json`.
+fn get_metadata_url() -> String {
+    const PLATFORM: &str = if cfg!(target_os = "windows") {
+        "windows"
+    } else if cfg!(target_os = "macos") {
+        "macos"
+    } else {
+        panic!("Unsupported platform")
+    };
+    format!("https://releases.stagemole.eu/desktop/metadata/updates-{PLATFORM}.json")
 }
 
 impl AppController {
