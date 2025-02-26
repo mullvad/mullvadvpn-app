@@ -30,6 +30,7 @@ talpid-tunnel-config-client = { path = "../talpid-tunnel-config-client" }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-api = { path = "../mullvad-api", default-features = false }
 serde_json = { workspace = true }
+mockito = "1.6.1"
 
 shadowsocks-service = { workspace = true, features = [
     "local",

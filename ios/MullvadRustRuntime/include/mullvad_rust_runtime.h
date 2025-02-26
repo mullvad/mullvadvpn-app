@@ -54,6 +54,12 @@ typedef struct CompletionCookie {
   void *inner;
 } CompletionCookie;
 
+typedef struct SwiftServerMock {
+  const void *server_ptr;
+  const void *mock_ptr;
+  uint16_t port;
+} SwiftServerMock;
+
 typedef struct ProxyHandle {
   void *context;
   uint16_t port;
@@ -80,6 +86,23 @@ typedef struct EphemeralPeerParameters {
 } EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
+
+/**
+ * # Safety
+ *
+ * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
+ * This hostname will be used for TLS validation but not used for domain name resolution.
+ *
+ * `address` must be a pointer to a null terminated string representing a socket address through which
+ * the Mullvad API can be reached directly.
+ *
+ * If a context cannot be constructed this function will panic since the call site would not be able
+ * to proceed in a meaningful way anyway.
+ *
+ * This function is safe.
+ */
+struct SwiftApiContext mullvad_api_init_new_tls_disabled(const uint8_t *host,
+                                                         const uint8_t *address);
 
 /**
  * # Safety
@@ -223,6 +246,49 @@ void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
  */
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
+
+/**
+ * # Safety
+ *
+ * `method` must be a pointer to a null terminated string representing the http method.
+ *
+ * `path` must be a pointer to a null terminated string representing the url path.
+ *
+ * `response_code` must be a usize representing the http response code.
+ *
+ * `response_body` must be a pointer to a null terminated string representing the body.
+ *
+ * This function is safe.
+ */
+struct SwiftServerMock mullvad_api_mock_get(const char *path,
+                                            uintptr_t response_code,
+                                            const uint8_t *response_body);
+
+/**
+ * # Safety
+ *
+ * `path` must be a pointer to a null terminated string representing the url path.
+ *
+ * `response_code` must be a usize representing the http response code.
+ *
+ * `match_body` must be a pointer to a null terminated json string representing the body the server expects.
+ *
+ * This function is safe.
+ */
+struct SwiftServerMock mullvad_api_mock_post(const char *path,
+                                             uintptr_t response_code,
+                                             const char *match_body);
+
+/**
+ * Called by the Swift side to signal that the Rust `SwiftServerMock` can be safely
+ * dropped from memory.
+ *
+ * # Safety
+ *
+ * `mock_ptr` must be pointing to a valid instance of `SwiftServerMock`. This function
+ * is not safe to call multiple times with the same `SwiftServerMock`.
+ */
+void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely

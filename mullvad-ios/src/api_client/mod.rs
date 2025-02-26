@@ -13,6 +13,7 @@ mod account;
 mod api;
 mod cancellation;
 mod completion;
+mod mock;
 mod response;
 mod retry_strategy;
 
@@ -51,8 +52,40 @@ impl ApiContext {
 /// to proceed in a meaningful way anyway.
 ///
 /// This function is safe.
+#[cfg(feature = "api-override")]
+#[no_mangle]
+pub extern "C" fn mullvad_api_init_new_tls_disabled(
+    host: *const u8,
+    address: *const u8,
+) -> SwiftApiContext {
+    mullvad_api_init_inner(host, address, true)
+}
+
+/// # Safety
+///
+/// `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
+/// This hostname will be used for TLS validation but not used for domain name resolution.
+///
+/// `address` must be a pointer to a null terminated string representing a socket address through which
+/// the Mullvad API can be reached directly.
+///
+/// If a context cannot be constructed this function will panic since the call site would not be able
+/// to proceed in a meaningful way anyway.
+///
+/// This function is safe.
 #[no_mangle]
 pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> SwiftApiContext {
+    #[cfg(feature = "api-override")]
+    return mullvad_api_init_inner(host, address, false);
+    #[cfg(not(feature = "api-override"))]
+    return mullvad_api_init_inner(host, address);
+}
+
+fn mullvad_api_init_inner(
+    host: *const u8,
+    address: *const u8,
+    #[cfg(feature = "api-override")] disable_tls: bool,
+) -> SwiftApiContext {
     let host = unsafe { CStr::from_ptr(host.cast()) };
     let address = unsafe { CStr::from_ptr(address.cast()) };
 
@@ -63,7 +96,7 @@ pub extern "C" fn mullvad_api_init_new(host: *const u8, address: *const u8) -> S
         host: Some(String::from(host)),
         address: Some(address.parse().unwrap()),
         #[cfg(feature = "api-override")]
-        disable_tls: false,
+        disable_tls,
         #[cfg(feature = "api-override")]
         force_direct: false,
     };
