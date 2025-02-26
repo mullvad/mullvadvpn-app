@@ -65,8 +65,16 @@ impl Pinger {
         #[cfg(not(any(target_os = "windows", target_os = "android")))] interface_name: String,
     ) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
-        let sock =
-            Socket::new(Domain::IPV4, if cfg!(target_os = "android") { Type::DGRAM } else { Type::DGRAM }, Some(Protocol::ICMPV4)).map_err(Error::Open)?;
+        let sock = Socket::new(
+            Domain::IPV4,
+            if cfg!(target_os = "android") {
+                Type::DGRAM
+            } else {
+                Type::DGRAM
+            },
+            Some(Protocol::ICMPV4),
+        )
+        .map_err(Error::Open)?;
         sock.set_nonblocking(true).map_err(Error::Open)?;
 
         #[cfg(target_os = "linux")]
