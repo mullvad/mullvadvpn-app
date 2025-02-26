@@ -25,9 +25,6 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   const app = await launch(options);
   const page = await app.firstWindow();
 
-  // Wait for initial navigation to finish
-  await waitForNoTransition(page);
-
   page.on('pageerror', (error) => console.log(error));
   page.on('console', (msg) => console.log(msg.text()));
 
