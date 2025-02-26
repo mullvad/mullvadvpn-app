@@ -397,7 +397,7 @@ impl Platform {
             release.rollout = new_rollout;
         }
 
-        print_release_info(&release);
+        print_release_info(release);
 
         let json = serde_json::to_string_pretty(&work_response)
             .context("Failed to serialize updated metadata")?;
