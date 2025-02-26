@@ -1,5 +1,5 @@
 package net.mullvad.mullvadvpn.lib.model
 
-import org.joda.time.DateTime
+import java.time.ZonedDateTime
 
-data class RedeemVoucherSuccess(val timeAdded: Long, val newExpiryDate: DateTime)
+data class RedeemVoucherSuccess(val timeAdded: Long, val newExpiryDate: ZonedDateTime)

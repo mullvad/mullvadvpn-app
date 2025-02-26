@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
+import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.compose.test.LOGIN_INPUT_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
 import net.mullvad.mullvadvpn.test.common.extension.clickAllowOnNotificationPermissionPromptIfApiLevel33AndAbove
@@ -9,7 +10,6 @@ import net.mullvad.mullvadvpn.test.common.extension.findObjectWithTimeout
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
-import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 
@@ -21,7 +21,7 @@ class AccountHistoryMockApiTest : MockApiTest() {
         val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
-            accountExpiry = currentUtcTimeWithOffsetZero().plusMonths(1)
+            accountExpiry = ZonedDateTime.now().plusMonths(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }

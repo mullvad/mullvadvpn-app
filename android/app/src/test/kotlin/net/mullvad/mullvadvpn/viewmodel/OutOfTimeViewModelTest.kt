@@ -31,8 +31,6 @@ import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionManager
 import net.mullvad.mullvadvpn.ui.serviceconnection.ServiceConnectionState
 import net.mullvad.mullvadvpn.usecase.OutOfTimeUseCase
 import net.mullvad.mullvadvpn.usecase.PaymentUseCase
-import org.joda.time.DateTime
-import org.joda.time.ReadableInstant
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -132,10 +130,6 @@ class OutOfTimeViewModelTest {
     @Test
     fun `when OutOfTimeUseCase returns false uiSideEffect should emit OpenConnectScreen`() =
         runTest {
-            // Arrange
-            val mockExpiryDate: DateTime = mockk()
-            every { mockExpiryDate.isAfter(any<ReadableInstant>()) } returns true
-
             // Act, Assert
             viewModel.uiSideEffect.test {
                 outOfTimeFlow.value = false

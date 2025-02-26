@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
+import java.time.Duration
 import net.mullvad.mullvadvpn.compose.component.MullvadTopBar
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
@@ -43,7 +44,6 @@ import net.mullvad.mullvadvpn.lib.theme.color.warning
 import net.mullvad.mullvadvpn.repository.InAppNotification
 import net.mullvad.mullvadvpn.ui.VersionInfo
 import net.mullvad.mullvadvpn.ui.notification.StatusLevel
-import org.joda.time.Duration
 
 @Preview
 @Composable

@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.unmockkAll
+import java.time.ZonedDateTime
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -26,7 +27,6 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
-import org.joda.time.DateTime
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -91,7 +91,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val expiredAccountExpiry =
-                AccountData(mockk(relaxed = true), DateTime.now().plusDays(1))
+                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusDays(1))
             val tunnelStateChanges =
                 listOf(
                     TunnelState.Disconnected(),
@@ -120,7 +120,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val expiredAccountExpiry =
-                AccountData(mockk(relaxed = true), DateTime.now().minusDays(1))
+                AccountData(mockk(relaxed = true), ZonedDateTime.now().minusDays(1))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 assertEquals(null, awaitItem())
@@ -134,7 +134,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val notExpiredAccountExpiry =
-                AccountData(mockk(relaxed = true), DateTime.now().plusDays(1))
+                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusDays(1))
 
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
@@ -149,7 +149,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val expiredAccountExpiry =
-                AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
+                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusSeconds(100))
             // Act, Assert
             outOfTimeUseCase.isOutOfTime.test {
                 // Initial event
@@ -173,7 +173,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val initialAccountExpiry =
-                AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
+                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusSeconds(100))
             val updatedExpiry =
                 AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
 
@@ -203,7 +203,7 @@ class OutOfTimeUseCaseTest {
         scope.runTest {
             // Arrange
             val initialAccountExpiry =
-                AccountData(mockk(relaxed = true), DateTime.now().plusSeconds(100))
+                AccountData(mockk(relaxed = true), ZonedDateTime.now().plusSeconds(100))
             val updatedExpiry =
                 AccountData(mockk(relaxed = true), initialAccountExpiry.expiryDate.plusDays(30))
             // Act, Assert

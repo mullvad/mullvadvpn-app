@@ -79,5 +79,4 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.jodatime)
 }

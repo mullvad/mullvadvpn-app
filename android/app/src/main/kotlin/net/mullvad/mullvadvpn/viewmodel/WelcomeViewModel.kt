@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import net.mullvad.mullvadvpn.compose.state.WelcomeUiState
+import net.mullvad.mullvadvpn.lib.common.util.isAfterNowInstant
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 import net.mullvad.mullvadvpn.lib.shared.AccountRepository
 import net.mullvad.mullvadvpn.lib.shared.ConnectionProxy
@@ -66,7 +67,7 @@ class WelcomeViewModel(
     private fun hasAddedTimeEffect() =
         accountRepository.accountData
             .filterNotNull()
-            .filter { it.expiryDate.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNow }
+            .filter { it.expiryDate.minusHours(MIN_HOURS_PAST_ACCOUNT_EXPIRY).isAfterNowInstant() }
             .onEach { paymentUseCase.resetPurchaseResult() }
             .map { UiSideEffect.OpenConnectScreen }
 
@@ -125,6 +126,6 @@ class WelcomeViewModel(
     }
 
     companion object {
-        private const val MIN_HOURS_PAST_ACCOUNT_EXPIRY = 20
+        private const val MIN_HOURS_PAST_ACCOUNT_EXPIRY: Long = 20
     }
 }

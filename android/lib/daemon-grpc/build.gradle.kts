@@ -63,7 +63,6 @@ dependencies {
     implementation(projects.lib.model)
     implementation(projects.lib.talpid)
 
-    implementation(libs.jodatime)
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines)

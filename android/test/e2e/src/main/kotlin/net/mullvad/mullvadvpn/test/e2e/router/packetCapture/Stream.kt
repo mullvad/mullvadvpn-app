@@ -1,11 +1,11 @@
 package net.mullvad.mullvadvpn.test.e2e.router.packetCapture
 
+import java.time.Duration
+import java.time.ZonedDateTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.mullvad.mullvadvpn.test.e2e.router.NetworkingProtocol
-import org.joda.time.DateTime
-import org.joda.time.Interval
 
 @Serializable
 data class Stream(
@@ -18,24 +18,26 @@ data class Stream(
     @Transient val sourceHost = Host.fromString(sourceAddressAndPort)
     @Transient val destinationHost = Host.fromString(destinationAddressAndPort)
 
-    @Transient private val startDate: DateTime = packets.first().date
-    @Transient private val endDate: DateTime = packets.last().date
-    @Transient private val txStartDate: DateTime? = txPackets().firstOrNull()?.date
-    @Transient private val txEndDate: DateTime? = txPackets().lastOrNull()?.date
-    @Transient private val rxStartDate: DateTime? = rxPackets().firstOrNull()?.date
-    @Transient private val rxEndDate: DateTime? = rxPackets().lastOrNull()?.date
+    @Transient private val startDate: ZonedDateTime = packets.first().date
+    @Transient private val endDate: ZonedDateTime = packets.last().date
+    @Transient private val txStartDate: ZonedDateTime? = txPackets().firstOrNull()?.date
+    @Transient private val txEndDate: ZonedDateTime? = txPackets().lastOrNull()?.date
+    @Transient private val rxStartDate: ZonedDateTime? = rxPackets().firstOrNull()?.date
+    @Transient private val rxEndDate: ZonedDateTime? = rxPackets().lastOrNull()?.date
 
-    @Transient val interval = Interval(startDate, endDate)
+    @Transient val interval = Duration.between(startDate, endDate)
 
     fun txPackets(): List<TxPacket> = packets.filterIsInstance<TxPacket>()
 
     fun rxPackets(): List<RxPacket> = packets.filterIsInstance<RxPacket>()
 
-    fun txInterval(): Interval? =
-        if (txStartDate != null && txEndDate != null) Interval(txStartDate, txEndDate) else null
+    fun txInterval(): Duration? =
+        if (txStartDate != null && txEndDate != null) Duration.between(txStartDate, txEndDate)
+        else null
 
-    fun rxInterval(): Interval? =
-        if (rxStartDate != null && rxEndDate != null) Interval(rxStartDate, rxEndDate) else null
+    fun rxInterval(): Duration? =
+        if (rxStartDate != null && rxEndDate != null) Duration.between(rxStartDate, rxEndDate)
+        else null
 
     init {
         require(packets.isNotEmpty()) { "Stream must contain at least one packet" }

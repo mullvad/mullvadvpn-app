@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.test.mockapi
 
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.Until
+import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.compose.test.LOGIN_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
 import net.mullvad.mullvadvpn.test.common.extension.clickAgreeOnPrivacyDisclaimer
@@ -10,7 +11,6 @@ import net.mullvad.mullvadvpn.test.common.extension.dismissChangelogDialogIfShow
 import net.mullvad.mullvadvpn.test.mockapi.constant.DEFAULT_DEVICE_LIST
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_DEVICE_NAME_2
 import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_2
-import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
@@ -21,7 +21,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountNumber = null
-            accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
+            accountExpiry = ZonedDateTime.now().plusDays(1)
         }
         app.launch(endpoint)
 
@@ -47,7 +47,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
-            accountExpiry = currentUtcTimeWithOffsetZero().plusDays(1)
+            accountExpiry = ZonedDateTime.now().plusDays(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }
@@ -70,7 +70,7 @@ class LoginMockApiTest : MockApiTest() {
         val validAccountNumber = "1234123412341234"
         apiDispatcher.apply {
             expectedAccountNumber = validAccountNumber
-            accountExpiry = currentUtcTimeWithOffsetZero().minusDays(1)
+            accountExpiry = ZonedDateTime.now().minusDays(1)
             devices = DEFAULT_DEVICE_LIST.toMutableMap()
             devicePendingToGetCreated = DUMMY_ID_2 to DUMMY_DEVICE_NAME_2
         }

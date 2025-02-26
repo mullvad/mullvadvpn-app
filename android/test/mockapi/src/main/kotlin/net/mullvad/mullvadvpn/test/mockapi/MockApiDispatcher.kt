@@ -1,6 +1,7 @@
 package net.mullvad.mullvadvpn.test.mockapi
 
 import co.touchlab.kermit.Logger
+import java.time.ZonedDateTime
 import net.mullvad.mullvadvpn.test.mockapi.constant.ACCOUNT_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.AUTH_TOKEN_URL_PATH
 import net.mullvad.mullvadvpn.test.mockapi.constant.CREATE_ACCOUNT_URL_PATH
@@ -10,20 +11,18 @@ import net.mullvad.mullvadvpn.test.mockapi.constant.DUMMY_ID_1
 import net.mullvad.mullvadvpn.test.mockapi.util.accessTokenJsonResponse
 import net.mullvad.mullvadvpn.test.mockapi.util.accountCreationJson
 import net.mullvad.mullvadvpn.test.mockapi.util.accountInfoJson
-import net.mullvad.mullvadvpn.test.mockapi.util.currentUtcTimeWithOffsetZero
 import net.mullvad.mullvadvpn.test.mockapi.util.deviceJson
 import net.mullvad.mullvadvpn.test.mockapi.util.tooManyDevicesJsonResponse
 import okhttp3.mockwebserver.Dispatcher
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.RecordedRequest
 import okio.Buffer
-import org.joda.time.DateTime
 import org.json.JSONArray
 
 class MockApiDispatcher : Dispatcher() {
 
     var expectedAccountNumber: String? = null
-    var accountExpiry: DateTime? = null
+    var accountExpiry: ZonedDateTime? = null
     var devices: MutableMap<String, String>? = null
     private val canAddDevices: Boolean
         get() = (devices?.size ?: 0) < 5
@@ -84,7 +83,7 @@ class MockApiDispatcher : Dispatcher() {
                 .setBody(
                     accessTokenJsonResponse(
                             accessToken = DUMMY_ACCESS_TOKEN,
-                            expiry = currentUtcTimeWithOffsetZero().plusDays(1),
+                            expiry = ZonedDateTime.now().plusDays(1),
                         )
                         .toString()
                 )
@@ -115,7 +114,7 @@ class MockApiDispatcher : Dispatcher() {
                             id = deviceId,
                             name = devices!![deviceId]!!, // Should always exist
                             publicKey = cachedKey,
-                            creationDate = currentUtcTimeWithOffsetZero().minusDays(1),
+                            creationDate = ZonedDateTime.now().minusDays(1),
                         )
                         .toString()
                 )
@@ -136,7 +135,7 @@ class MockApiDispatcher : Dispatcher() {
                                     id = devicePendingToGetCreated!!.first,
                                     name = devicePendingToGetCreated!!.second,
                                     publicKey = newKey,
-                                    creationDate = currentUtcTimeWithOffsetZero().minusDays(1),
+                                    creationDate = ZonedDateTime.now().minusDays(1),
                                 )
                                 .toString()
                         )
@@ -158,7 +157,7 @@ class MockApiDispatcher : Dispatcher() {
                         id = entry.key,
                         name = entry.value,
                         publicKey = cachedKey,
-                        creationDate = currentUtcTimeWithOffsetZero().minusDays(index + 1),
+                        creationDate = ZonedDateTime.now().minusDays((index + 1).toLong()),
                     )
                 )
             }
@@ -174,7 +173,7 @@ class MockApiDispatcher : Dispatcher() {
                 .setBody(
                     accountCreationJson(
                             id = DUMMY_ID_1,
-                            expiry = DateTime(),
+                            expiry = ZonedDateTime.now(),
                             accountNumber = expectedAccountNumber,
                         )
                         .toString()
