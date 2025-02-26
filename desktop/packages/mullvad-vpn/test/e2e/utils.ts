@@ -11,6 +11,7 @@ export interface TestUtils {
   currentRoute: () => Promise<string | null>;
   waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
   waitForNoTransition: () => Promise<void>;
+  waitForRoute: (route: string) => Promise<void>;
 }
 
 interface History {
@@ -34,6 +35,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
     currentRoute: currentRouteFactory(app),
     waitForNavigation: waitForNavigationFactory(app, page),
     waitForNoTransition: () => waitForNoTransition(page),
+    waitForRoute: waitForRouteFactory(app),
   };
 
   return { app, page, util };
@@ -91,6 +93,21 @@ const waitForNoTransition = async (page: Page) => {
       break;
     }
   } while (transitionContentsCount !== 1);
+};
+
+// This factory returns a function which returns a boolean when the route passed to it matches that of the application.
+const waitForRouteFactory = (app: ElectronApplication) => {
+  const getCurrentRoute = currentRouteFactory(app);
+
+  const waitForRoute = async (route: string) => {
+    const currentRoute = await getCurrentRoute();
+
+    if (currentRoute !== route) {
+      return waitForRoute(route);
+    }
+  };
+
+  return waitForRoute;
 };
 
 // Returns the route when it changes
