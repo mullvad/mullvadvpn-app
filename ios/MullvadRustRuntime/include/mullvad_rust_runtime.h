@@ -28,6 +28,10 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
+typedef struct SwiftServerMock {
+  const void *_0;
+} SwiftServerMock;
+
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
@@ -80,6 +84,30 @@ typedef struct EphemeralPeerParameters {
 } EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
+
+struct SwiftServerMock mullvad_api_mock_server_response(const uint8_t *method,
+                                                        const uint8_t *path,
+                                                        uintptr_t response_code,
+                                                        const uint8_t *response_body);
+
+bool mullvad_api_mock_got_called(struct SwiftServerMock server);
+
+/**
+ * # Safety
+ *
+ * `host` must be a pointer to a null terminated string representing a hostname for Mullvad API host.
+ * This hostname will be used for TLS validation but not used for domain name resolution.
+ *
+ * `address` must be a pointer to a null terminated string representing a socket address through which
+ * the Mullvad API can be reached directly.
+ *
+ * If a context cannot be constructed this function will panic since the call site would not be able
+ * to proceed in a meaningful way anyway.
+ *
+ * This function is safe.
+ */
+struct SwiftApiContext mullvad_api_init_new_tls_disabled(const uint8_t *host,
+                                                         const uint8_t *address);
 
 /**
  * # Safety
