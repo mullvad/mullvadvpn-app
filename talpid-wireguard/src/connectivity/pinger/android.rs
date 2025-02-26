@@ -3,7 +3,7 @@ use std::process::Stdio;
 use std::time::Duration;
 
 use tokio::io;
-use tokio::process::{Child, Command};
+use std::process::{Child, Command};
 
 /// Pinger errors
 #[derive(thiserror::Error, Debug)]
@@ -65,8 +65,8 @@ fn ping_cmd(ip: Ipv4Addr, timeout: Duration) -> io::Result<Child> {
 
     cmd.stdin(Stdio::null())
         .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .kill_on_drop(true);
+        .stderr(Stdio::null());
+        //.kill_on_drop(true);
 
     cmd.spawn()
 }
