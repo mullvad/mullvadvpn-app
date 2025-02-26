@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -107,6 +108,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
                 }
             }
             .map { it.any { it.value.hasInternetCapability() } }
+            .distinctUntilChanged()
     }
 
     private fun NetworkCapabilities?.hasInternetCapability(): Boolean =
