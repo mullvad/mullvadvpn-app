@@ -20,7 +20,7 @@ use crate::{
 
 /// Base URL for metadata found with `meta pull`.
 /// Actual JSON files should be stored at `<base url>/updates-<platform>.json`.
-const META_REPOSITORY_URL: &str = "https://releases.mullvad.net/desktop/metadata/";
+const META_REPOSITORY_URL: &str = "https://releases.stagemole.eu/desktop/metadata/";
 
 #[derive(Clone, Copy)]
 pub enum Platform {
