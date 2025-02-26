@@ -19,7 +19,7 @@ use crate::{
 };
 
 /// Base URL for metadata found with `meta pull`.
-/// Actual JSON files should be stored at `<base url>/updates-<platform>.json`.
+/// Actual JSON files should be stored at `<base url>/<platform>.json`.
 const META_REPOSITORY_URL: &str = "https://releases.stagemole.eu/desktop/metadata/";
 
 #[derive(Clone, Copy)]
@@ -100,9 +100,9 @@ impl Platform {
 
     fn published_filename(&self) -> &str {
         match self {
-            Platform::Windows => "updates-windows.json",
-            Platform::Linux => "updates-linux.json",
-            Platform::Macos => "updates-macos.json",
+            Platform::Windows => "windows.json",
+            Platform::Linux => "linux.json",
+            Platform::Macos => "macos.json",
         }
     }
 
