@@ -37,7 +37,6 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
 
     // Version info provider to use
     const STAGEMOLE_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
-    //"https://releases.mullvad.net/desktop/metadata/updater-windows.json"
     let verifying_key =
         mullvad_update::format::key::VerifyingKey::from_hex(STAGEMOLE_PUBKEY).expect("valid key");
     let version_provider = HttpVersionInfoProvider {
@@ -49,7 +48,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     AppController::initialize::<_, Downloader<T>, _, DirProvider>(delegate, version_provider)
 }
 
-/// JSON files should be stored at `<base url>/updates-<platform>.json`.
+/// JSON files should be stored at `<base url>/<platform>.json`.
 fn get_metadata_url() -> String {
     const PLATFORM: &str = if cfg!(target_os = "windows") {
         "windows"
@@ -58,7 +57,7 @@ fn get_metadata_url() -> String {
     } else {
         panic!("Unsupported platform")
     };
-    format!("https://releases.stagemole.eu/desktop/metadata/updates-{PLATFORM}.json")
+    format!("https://releases.stagemole.eu/desktop/metadata/{PLATFORM}.json")
 }
 
 impl AppController {
