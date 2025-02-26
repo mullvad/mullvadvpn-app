@@ -10,18 +10,20 @@ use tokio::fs;
 pub async fn wait_for_confirm(prompt: &str) -> bool {
     const DEFAULT: bool = true;
 
-    print!("{prompt}");
-    if DEFAULT {
-        println!(" [Y/n]");
-    } else {
-        println!(" [y/N]");
-    }
+    let prompt = prompt.to_owned();
 
-    tokio::task::spawn_blocking(|| {
+    tokio::task::spawn_blocking(move || {
         let mut s = String::new();
         let stdin = std::io::stdin();
 
         loop {
+            print!("{prompt}");
+            if DEFAULT {
+                println!(" [Y/n]");
+            } else {
+                println!(" [y/N]");
+            }
+
             stdin.read_line(&mut s).context("Failed to read line")?;
 
             match s.trim().to_ascii_lowercase().as_str() {
@@ -35,6 +37,28 @@ pub async fn wait_for_confirm(prompt: &str) -> bool {
     .await
     .unwrap()
     .unwrap_or(false)
+}
+
+/// Wait for user to respond with any input, ignoring empty responses
+pub async fn wait_for_input(prompt: &str) -> anyhow::Result<String> {
+    let prompt = prompt.to_owned();
+    tokio::task::spawn_blocking(move || {
+        let mut s = String::new();
+        let stdin = std::io::stdin();
+
+        loop {
+            println!("{prompt}");
+
+            stdin.read_line(&mut s).context("Failed to read line")?;
+
+            match s.trim().to_ascii_lowercase().as_str() {
+                "" => continue,
+                input => break Ok(input.to_owned()),
+            }
+        }
+    })
+    .await
+    .unwrap()
 }
 
 /// Recursively create directories and write to 'file'
