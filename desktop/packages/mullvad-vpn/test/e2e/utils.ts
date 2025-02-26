@@ -11,6 +11,7 @@ export interface TestUtils {
   currentRoute: () => Promise<string>;
   waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
   waitForNoTransition: () => Promise<void>;
+  waitForRoute: (route: string) => Promise<void>;
 }
 
 interface History {
@@ -34,6 +35,7 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
     currentRoute: currentRouteFactory(app),
     waitForNavigation: waitForNavigationFactory(app, page),
     waitForNoTransition: () => waitForNoTransition(page),
+    waitForRoute: waitForRouteFactory(page),
   };
 
   return { app, page, util };
@@ -85,6 +87,15 @@ const waitForNoTransition = async (page: Page) => {
       break;
     }
   } while (transitionContentsCount !== 1);
+};
+
+// This factory returns a function which returns a boolean when the route passed to it matches that of the application.
+const waitForRouteFactory = (page: Page) => {
+  const waitForRoute = async (route: string) => {
+    await page.evaluate((route) => route === window.e2e?.location, route);
+  };
+
+  return waitForRoute;
 };
 
 // Returns the route when it changes
