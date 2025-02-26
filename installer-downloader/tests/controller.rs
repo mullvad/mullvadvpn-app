@@ -7,8 +7,9 @@
 //! changes to, and update, snapshots are by running `cargo insta review`.
 
 use insta::assert_yaml_snapshot;
-use installer_downloader::controller::{AppController, DirectoryProvider};
+use installer_downloader::controller::AppController;
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage};
+use installer_downloader::temp::DirectoryProvider;
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
 use mullvad_update::api::VersionInfoProvider;
 use mullvad_update::app::{AppDownloader, DownloadError};
