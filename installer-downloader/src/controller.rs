@@ -48,7 +48,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     AppController::initialize::<_, Downloader<T>, _, DirProvider>(delegate, version_provider)
 }
 
-/// JSON files should be stored at `<base url>/updates-<platform>.json`.
+/// JSON files should be stored at `<base url>/<platform>.json`.
 fn get_metadata_url() -> String {
     const PLATFORM: &str = if cfg!(target_os = "windows") {
         "windows"
@@ -57,7 +57,7 @@ fn get_metadata_url() -> String {
     } else {
         panic!("Unsupported platform")
     };
-    format!("https://releases.stagemole.eu/desktop/metadata/updates-{PLATFORM}.json")
+    format!("https://releases.stagemole.eu/desktop/metadata/{PLATFORM}.json")
 }
 
 impl AppController {
