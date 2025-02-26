@@ -402,6 +402,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     }
 
     private func presentWelcome(animated: Bool, completion: @escaping (Coordinator) -> Void) {
+        appPreferences.isShownOnboarding = true
+
         let coordinator = WelcomeCoordinator(
             navigationController: navigationContainer,
             storePaymentManager: storePaymentManager,
@@ -410,7 +412,6 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         )
         coordinator.didFinish = { [weak self] in
             guard let self else { return }
-            appPreferences.isShownOnboarding = true
             router.dismiss(.welcome, animated: false)
             continueFlow(animated: false)
         }
