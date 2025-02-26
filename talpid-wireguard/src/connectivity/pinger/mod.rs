@@ -1,5 +1,3 @@
-
-
 #[path = "icmp.rs"]
 mod imp;
 
