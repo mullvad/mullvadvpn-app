@@ -2985,6 +2985,7 @@ name = "mullvad-masque-proxy"
 version = "0.1.0"
 dependencies = [
  "bytes",
+ "clap",
  "h3",
  "h3-datagram",
  "h3-quinn",
