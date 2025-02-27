@@ -17,23 +17,23 @@ windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_Libr
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 anyhow = { workspace = true }
-tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
 async-trait = "0.1"
+chrono = { workspace = true, features = ["clock"] }
+fern = { version = "0.6", default-features = false }
+hex = "0.4"
+log = { workspace = true }
 rand = { version = "0.8.5" }
 reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
 serde = { workspace = true, features = ["derive"] }
-
-
-chrono = { workspace = true, features = ["clock"] }
-fern = { version = "0.6", default-features = false }
-log = { workspace = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "fs"] }
 
 talpid-platform-metadata = { path = "../talpid-platform-metadata" }
 mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
-windows-sys = { workspace = true, features = ["Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_Graphics", "Win32_Graphics_Gdi"] }
 native-windows-gui = { version = "1.0.12", features = ["frame", "image-decoder", "progress-bar"], default-features = false }
+windows-sys = { workspace = true, features = ["Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_Graphics", "Win32_Graphics_Gdi"] }
+
 mullvad-paths = { path = "../mullvad-paths" }
 
 [target.'cfg(target_os = "macos")'.dependencies]
@@ -41,9 +41,9 @@ cacao = "0.3.2"
 objc_id = "0.1"
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dev-dependencies]
+insta = { workspace = true, features = ["yaml"] }
 serde = { workspace = true, features = ["derive"] }
 tokio = { workspace = true, features =  ["test-util", "macros"] }
-insta = { workspace = true, features = ["yaml"] }
 
 [package.metadata.winres]
 LegalCopyright = "(c) 2025 Mullvad VPN AB"

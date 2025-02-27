@@ -2024,6 +2024,7 @@ dependencies = [
  "cacao",
  "chrono",
  "fern",
+ "hex",
  "insta",
  "log",
  "mullvad-paths",
