@@ -8,7 +8,7 @@ mod delegate;
 mod ui;
 
 pub fn main() {
-    let app = App::new("net.mullvad.downloader", AppImpl::default());
+    let app = App::new("net.mullvad.MullvadDownloader", AppImpl::default());
 
     // Load "global" values and resources
     let environment = match Environment::load() {
