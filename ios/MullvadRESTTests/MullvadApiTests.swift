@@ -42,7 +42,7 @@ class MullvadApiTests: XCTestCase {
         let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
         let context = mullvad_api_init_new_tls_disabled(
             "localhost",
-            "127.0.0.1:8080"
+            "127.0.0.1:\(mock.port)"
         )
 
         mullvad_api_get_addresses(context, rawPointer)

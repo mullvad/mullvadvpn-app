@@ -39,16 +39,27 @@ use std::{ffi::c_void, sync::Arc};
 use mockito::{Mock, Server, ServerOpts};
 
 #[repr(C)]
-pub struct SwiftServerMock(*const c_void);
+pub struct SwiftServerMock {
+    server_ptr: *const c_void,
+    mock_ptr: *const c_void,
+    port: u16,
+}
 
 impl SwiftServerMock {
-    pub fn new(mock: Mock) -> SwiftServerMock {
-        SwiftServerMock(Arc::into_raw(Arc::new(mock)) as *const c_void)
+    pub fn new(server: Server, mock: Mock) -> SwiftServerMock {
+        let port = server.socket_address().port();
+        let server_ptr = Box::into_raw(Box::new(server)) as *const c_void;
+        let mock_ptr = Box::into_raw(Box::new(mock)) as *const c_void;
+
+        SwiftServerMock {
+            server_ptr,
+            mock_ptr,
+            port,
+        }
     }
 
-    pub unsafe fn to_mock(self) -> Arc<Mock> {
-        Arc::increment_strong_count(self.0);
-        Arc::from_raw(self.0 as *const Mock)
+    pub unsafe fn to_mock(&mut self) -> &Mock {
+        return unsafe { &*self.mock_ptr.cast() }
     }
 }
 
@@ -69,21 +80,21 @@ pub unsafe extern "C" fn mullvad_api_mock_server_response(
     let response_body = unsafe { std::ffi::CStr::from_ptr(response_body.cast()) }
         .to_str()
         .unwrap();
-    // let mut server = server_guard.into_rust_server_guard();
-    let server = Server::new_with_opts(ServerOpts {
+    let mut server = mockito::Server::new_with_opts(ServerOpts {
         port: 8080,
         ..Default::default()
-    })
-    .mock(method, path)
-    .with_header("content-type", "application/json")
-    .with_status(response_code)
-    .with_body(response_body)
-    .create();
-    SwiftServerMock::new(server)
+    });
+    let mock = server
+        .mock(method, path)
+        .with_header("content-type", "application/json")
+        .with_status(response_code)
+        .with_body(response_body)
+        .create();
+    SwiftServerMock::new(server, mock)
 }
 
 #[unsafe(no_mangle)]
-pub unsafe extern "C" fn mullvad_api_mock_got_called(server: SwiftServerMock) -> bool {
+pub unsafe extern "C" fn mullvad_api_mock_got_called(mut server: SwiftServerMock) -> bool {
     server.to_mock().matched()
 }
 
