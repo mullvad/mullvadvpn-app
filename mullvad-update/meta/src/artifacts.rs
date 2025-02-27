@@ -20,7 +20,7 @@ pub async fn generate_installer_details(
 ) -> anyhow::Result<format::Installer> {
     let mut file = fs::File::open(artifact)
         .await
-        .context(format!("Failed to open file at {}", artifact.display()))?;
+        .with_context(|| format!("Failed to open file at {}", artifact.display()))?;
     file.seek(std::io::SeekFrom::End(0))
         .await
         .context("Failed to seek to end")?;
