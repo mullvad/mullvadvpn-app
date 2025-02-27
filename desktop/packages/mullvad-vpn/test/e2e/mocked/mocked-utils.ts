@@ -22,7 +22,7 @@ export const startMockedApp = async (): Promise<StartMockedAppResponse> => {
     args.unshift('--no-sandbox');
   }
 
-  const startAppResult = await startApp({ args });
+  const startAppResult = await startApp({ args, bypassCSP: true });
   const mockIpcHandle = generateMockIpcHandle(startAppResult.app);
   const sendMockIpcResponse = generateSendMockIpcResponse(startAppResult.app);
 
