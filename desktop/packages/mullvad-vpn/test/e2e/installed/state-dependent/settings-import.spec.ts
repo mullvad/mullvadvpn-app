@@ -35,10 +35,10 @@ async function navigateToSettingsImport() {
   await page.click('button[aria-label="Settings"]');
   await util.waitForRoute(RoutePath.settings);
 
-  await page.getByText('VPN settings').click();
+  await page.getByRole('button', { name: 'VPN settings' }).click();
   await util.waitForRoute(RoutePath.vpnSettings);
 
-  await page.getByText('Server IP override').click();
+  await page.getByRole('button', { name: 'Server IP override' }).click();
   await util.waitForRoute(RoutePath.settingsImport);
 
   const title = page.locator('h1');
@@ -52,7 +52,7 @@ test('App should display no overrides', async () => {
 });
 
 test('App should fail to import text', async () => {
-  await page.getByText('Import via text').click();
+  await page.getByRole('button', { name: 'Import via text' }).click();
   await util.waitForRoute(RoutePath.settingsTextImport);
 
   await page.locator('textarea').fill(INVALID_JSON);
@@ -66,7 +66,7 @@ test('App should fail to import text', async () => {
 });
 
 test('App should succeed to import text', async () => {
-  await page.getByText('Import via text').click();
+  await page.getByRole('button', { name: 'Import via text' }).click();
   await util.waitForRoute(RoutePath.settingsTextImport);
 
   const textarea = page.locator('textarea');
@@ -83,7 +83,7 @@ test('App should succeed to import text', async () => {
 
   await expect(page.getByTestId('status-title')).toHaveText('OVERRIDES ACTIVE');
 
-  await page.getByText('Import via text').click();
+  await page.getByRole('button', { name: 'Import via text' }).click();
   await util.waitForRoute(RoutePath.settingsTextImport);
 
   await expect(textarea).toHaveValue('');
@@ -96,7 +96,7 @@ test('App should show active overrides', async () => {
   await page.click('button[aria-label="Back"]');
   await util.waitForRoute(RoutePath.vpnSettings);
 
-  await page.getByText('Server IP override').click();
+  await page.getByRole('button', { name: 'Server IP override' }).click();
   await util.waitForRoute(RoutePath.settingsImport);
 
   await expect(page.getByTestId('status-title')).toHaveText('OVERRIDES ACTIVE');
