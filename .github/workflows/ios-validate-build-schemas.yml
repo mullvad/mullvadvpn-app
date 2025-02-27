@@ -31,7 +31,7 @@ jobs:
       - name: Checkout submodules
         run: |
           git config --global --add safe.directory '*'
-          git submodule update --init ios/wireguard-apple
+          git submodule update --init --recursive ios/wireguard-apple
 
       - name: Configure cache
         uses: actions/cache@v3
