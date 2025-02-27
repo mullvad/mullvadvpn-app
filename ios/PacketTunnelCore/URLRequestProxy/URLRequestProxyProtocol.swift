@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 public protocol URLRequestProxyProtocol {
     func sendRequest(_ proxyRequest: ProxyURLRequest, completionHandler: @escaping @Sendable (ProxyURLResponse) -> Void)

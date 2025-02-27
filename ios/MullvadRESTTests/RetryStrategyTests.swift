@@ -13,7 +13,7 @@ import XCTest
 
 class RetryStrategyTests: XCTestCase {
     func testJitteredBackoffDoesNotGoBeyondMaxDelay() throws {
-        let maxDelay = Duration(secondsComponent: 10, attosecondsComponent: 0)
+        let maxDelay = REST.CodableDuration(seconds: 10, attoseconds: 0)
         let retryDelay = REST.RetryDelay.exponentialBackoff(initial: .seconds(1), multiplier: 2, maxDelay: maxDelay)
         let retry = REST.RetryStrategy(maxRetryCount: 0, delay: retryDelay, applyJitter: true)
         let iterator = retry.makeDelayIterator()
@@ -22,7 +22,7 @@ class RetryStrategyTests: XCTestCase {
         for _ in 0 ... 10 {
             let currentDelay = try XCTUnwrap(iterator.next())
             XCTAssertLessThanOrEqual(previousDelay, currentDelay)
-            XCTAssertLessThanOrEqual(currentDelay, maxDelay)
+            XCTAssertLessThanOrEqual(currentDelay, maxDelay.toDuration)
             previousDelay = currentDelay
         }
     }

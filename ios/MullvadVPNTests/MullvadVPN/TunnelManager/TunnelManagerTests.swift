@@ -147,7 +147,10 @@ class TunnelManagerTests: XCTestCase {
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
             relaySelector: relaySelector,
-            transportProvider: transportProvider
+            transportProvider: transportProvider,
+            apiTransportProvider: APITransportProvider(
+                requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+            )
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
 
@@ -215,18 +218,18 @@ class TunnelManagerTests: XCTestCase {
 
         let simulatorTunnelProviderHost = SimulatorTunnelProviderHost(
             relaySelector: relaySelector,
-            transportProvider: transportProvider
+            transportProvider: transportProvider,
+            apiTransportProvider: APITransportProvider(
+                requestFactory: MullvadApiRequestFactory(apiContext: REST.apiContext)
+            )
         )
         SimulatorTunnelProvider.shared.delegate = simulatorTunnelProviderHost
         let tunnelObserver = TunnelBlockObserver(
             didUpdateTunnelStatus: { _, tunnelStatus in
                 switch tunnelStatus.state {
-                case .connected:
-                    connectedExpectation.fulfill()
-                case .disconnected:
-                    disconnectedExpectation.fulfill()
-                default:
-                    return
+                case .connected: connectedExpectation.fulfill()
+                case .disconnected: disconnectedExpectation.fulfill()
+                default: return
                 }
             }
         )
@@ -240,8 +243,7 @@ class TunnelManagerTests: XCTestCase {
 
         tunnelManager.startTunnel()
         await fulfillment(of: [connectedExpectation])
-        tunnelManager
-            .reapplyTunnelConfiguration()
+        tunnelManager.reapplyTunnelConfiguration()
         connectedExpectation = expectation(description: "Connected!")
         await fulfillment(
             of: [disconnectedExpectation, connectedExpectation],

@@ -6,7 +6,9 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-public class MullvadApiCancellable {
+import MullvadTypes
+
+public class MullvadApiCancellable: Cancellable {
     private let handle: SwiftCancelHandle
 
     public init(handle: consuming SwiftCancelHandle) {
