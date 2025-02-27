@@ -13,10 +13,11 @@ pub async fn wait_for_confirm(prompt: &str) -> bool {
     let prompt = prompt.to_owned();
 
     tokio::task::spawn_blocking(move || {
-        let mut s = String::new();
         let stdin = std::io::stdin();
 
         loop {
+            let mut s = String::new();
+
             print!("{prompt}");
             if DEFAULT {
                 println!(" [Y/n]");
@@ -43,10 +44,11 @@ pub async fn wait_for_confirm(prompt: &str) -> bool {
 pub async fn wait_for_input(prompt: &str) -> anyhow::Result<String> {
     let prompt = prompt.to_owned();
     tokio::task::spawn_blocking(move || {
-        let mut s = String::new();
         let stdin = std::io::stdin();
 
         loop {
+            let mut s = String::new();
+
             println!("{prompt}");
 
             stdin.read_line(&mut s).context("Failed to read line")?;
