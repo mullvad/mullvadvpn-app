@@ -62,11 +62,19 @@ impl Pinger {
     /// Creates a new `Pinger`.
     pub fn new(
         addr: Ipv4Addr,
-        #[cfg(not(target_os = "windows"))] interface_name: String,
+        #[cfg(any(target_os = "linux", target_os = "macos"))] interface_name: String,
     ) -> Result<Self> {
         let addr = SocketAddr::new(addr.into(), 0);
-        let sock =
-            Socket::new(Domain::IPV4, Type::RAW, Some(Protocol::ICMPV4)).map_err(Error::Open)?;
+        let sock = Socket::new(
+            Domain::IPV4,
+            if cfg!(target_os = "android") {
+                Type::DGRAM
+            } else {
+                Type::RAW
+            },
+            Some(Protocol::ICMPV4),
+        )
+        .map_err(Error::Open)?;
         sock.set_nonblocking(true).map_err(Error::Open)?;
 
         #[cfg(target_os = "linux")]
