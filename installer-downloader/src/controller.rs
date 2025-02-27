@@ -143,7 +143,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
         let version_params = VersionParameters {
             architecture,
             // For the downloader, the rollout version is always preferred
-            rollout: 1.,
+            rollout: 0.,
             // The downloader allows any version
             lowest_metadata_version: 0,
         };
