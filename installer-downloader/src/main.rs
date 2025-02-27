@@ -10,10 +10,11 @@ mod cacao_impl;
 mod inner {
     pub use installer_downloader::controller;
     pub use installer_downloader::delegate;
+    pub use installer_downloader::log;
     pub use installer_downloader::resource;
 
     pub fn run() {
-        env_logger::init();
+        log::init().expect("failed to set up logger");
 
         let rt = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
