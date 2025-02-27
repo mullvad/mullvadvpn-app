@@ -67,6 +67,7 @@ class ButtonCellContentView: UIView, UIContentView {
         button.isEnabled = actualConfiguration.isEnabled
         button.style = actualConfiguration.style
         button.configuration?.contentInsets = actualConfiguration.directionalContentEdgeInsets
+        button.setAccessibilityIdentifier(actualConfiguration.accessibilityIdentifier)
     }
 
     private func addSubviews() {
