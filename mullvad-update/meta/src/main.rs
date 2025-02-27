@@ -51,7 +51,7 @@ pub enum Opt {
         /// Platforms to write template for
         platforms: Vec<Platform>,
 
-        /// Replace signed files without user input
+        /// Replace signed files without asking for confirmation
         #[arg(long, short = 'y')]
         assume_yes: bool,
     },
@@ -97,13 +97,13 @@ pub enum Opt {
         /// Platforms to remove releases for. All if none are specified
         platforms: Vec<Platform>,
         /// Secret ed25519 key used for signing, as hexadecimal string
-        /// If not specified, this will be read from user
+        /// If not specified, this will be read from stdin
         #[arg(long)]
         secret: Option<key::SecretKey>,
         /// When the metadata expires, in months from now
         #[arg(long, default_value_t = DEFAULT_EXPIRY_MONTHS)]
         expiry: usize,
-        /// Replace signed files without user input
+        /// Replace signed files without asking for confirmation
         #[arg(long, short = 'y')]
         assume_yes: bool,
     },
