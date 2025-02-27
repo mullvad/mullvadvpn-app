@@ -25,7 +25,7 @@ impl Config {
                 self_.save().await?;
                 Ok(self_)
             }
-            Err(err) => Err(err).context(format!("Failed to read {CONFIG_FILENAME}")),
+            Err(err) => Err(err).with_context(|| format!("Failed to read {CONFIG_FILENAME}")),
         }
     }
 
@@ -33,6 +33,6 @@ impl Config {
         let toml_str = toml::to_string_pretty(self).expect("Expected valid toml");
         fs::write(CONFIG_FILENAME, toml_str.as_bytes())
             .await
-            .context(format!("Failed to save {CONFIG_FILENAME}"))
+            .with_context(|| format!("Failed to save {CONFIG_FILENAME}"))
     }
 }
