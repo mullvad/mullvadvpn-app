@@ -12,6 +12,7 @@ let util: MockedTestUtils;
 
 test.beforeEach(async () => {
   ({ page, util } = await startMockedApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterEach(async () => {
