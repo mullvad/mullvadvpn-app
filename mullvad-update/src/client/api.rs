@@ -46,6 +46,7 @@ impl HttpVersionInfoProvider {
         pinned_certificate: Option<reqwest::Certificate>,
     ) -> anyhow::Result<Vec<u8>> {
         let mut req_builder = reqwest::Client::builder();
+        req_builder = req_builder.min_tls_version(reqwest::tls::Version::TLS_1_3);
 
         if let Some(pinned_certificate) = pinned_certificate {
             req_builder = req_builder
