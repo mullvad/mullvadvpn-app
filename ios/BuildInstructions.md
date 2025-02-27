@@ -34,7 +34,7 @@ brew install protobuf
 The iOS app imports Mullvad's version of `wireguard-go` as a Git submodule. Before building, this must be checked out with
 
 ```bash
-git submodule update --init ios/wireguard-apple
+git submodule update --init --recursive ios/wireguard-apple
 ```
 
 ## Configure Xcode project
