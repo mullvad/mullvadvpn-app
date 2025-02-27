@@ -63,6 +63,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
+  await util.waitForRoute(RoutePath.main);
   await setMultihop();
   await page.getByLabel('Select location').click();
   await util.waitForRoute(RoutePath.selectLocation);
