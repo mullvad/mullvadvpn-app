@@ -27,7 +27,7 @@ chrono = { workspace = true, features = ["clock"] }
 fern = { version = "0.6", default-features = false }
 log = { workspace = true }
 
-mullvad-update = { path = "../mullvad-update", features = ["client", "native-tls"] }
+mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [target.'cfg(target_os = "windows")'.dependencies]
 windows-sys = { workspace = true, features = ["Win32_UI", "Win32_UI_WindowsAndMessaging", "Win32_Graphics", "Win32_Graphics_Gdi"] }
