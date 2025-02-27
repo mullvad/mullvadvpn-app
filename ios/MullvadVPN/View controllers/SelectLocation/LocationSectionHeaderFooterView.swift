@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class LocationSectionHeaderView: UIView, UIContentView {
+class LocationSectionHeaderFooterView: UIView, UIContentView {
     var configuration: UIContentConfiguration {
         get {
             actualConfiguration
@@ -22,9 +22,20 @@ class LocationSectionHeaderView: UIView, UIContentView {
     }
 
     private var actualConfiguration: Configuration
+
+    private let containerView: UIStackView = {
+        let containerView = UIStackView()
+        containerView.axis = .horizontal
+        containerView.spacing = 8
+        containerView.isLayoutMarginsRelativeArrangement = true
+        containerView.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 0)
+        return containerView
+    }()
+
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 1
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         label.textColor = .primaryTextColor
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         return label
@@ -50,20 +61,27 @@ class LocationSectionHeaderView: UIView, UIContentView {
     }
 
     private func addSubviews() {
-        addConstrainedSubviews([nameLabel, actionButton]) {
-            nameLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
-
-            actionButton.pinEdgesToSuperview(PinnableEdges([.trailing(8)]))
+        containerView.addArrangedSubview(nameLabel)
+        containerView.addArrangedSubview(actionButton)
+        addConstrainedSubviews([containerView]) {
+            containerView.pinEdgesToSuperview()
+//            nameLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
+//
+//            actionButton.pinEdgesToSuperview(PinnableEdges([.trailing(8)]))
             actionButton.heightAnchor.constraint(equalTo: heightAnchor)
             actionButton.widthAnchor.constraint(equalTo: actionButton.heightAnchor)
-
-            actionButton.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 16)
+//
+//            actionButton.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 16)
         }
     }
 
     private func apply(configuration: Configuration) {
         let isActionHidden = configuration.primaryAction == nil
+        backgroundColor = configuration.style.backgroundColor
+        nameLabel.textColor = configuration.style.textColor
         nameLabel.text = configuration.name
+        nameLabel.font = configuration.style.font
+        nameLabel.textAlignment = configuration.style.textAlignment
         actionButton.isHidden = isActionHidden
         actionButton.accessibilityIdentifier = nil
         actualConfiguration.primaryAction.flatMap { action in
@@ -73,21 +91,26 @@ class LocationSectionHeaderView: UIView, UIContentView {
     }
 
     private func applyAppearance() {
-        backgroundColor = .primaryColor
-
         let leadingInset = UIMetrics.locationCellLayoutMargins.leading + 6
         directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: leadingInset, bottom: 8, trailing: 24)
     }
 }
 
-extension LocationSectionHeaderView {
+extension LocationSectionHeaderFooterView {
+    struct Style: Equatable {
+        let font: UIFont
+        let textColor: UIColor
+        let textAlignment: NSTextAlignment
+        let backgroundColor: UIColor
+    }
+
     struct Configuration: UIContentConfiguration, Equatable {
         let name: String
-
+        let style: Style
         var primaryAction: UIAction?
 
         func makeContentView() -> UIView & UIContentView {
-            LocationSectionHeaderView(configuration: self)
+            LocationSectionHeaderFooterView(configuration: self)
         }
 
         func updated(for state: UIConfigurationState) -> Configuration {

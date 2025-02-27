@@ -9,6 +9,17 @@
 import MullvadSettings
 import MullvadTypes
 import Network
+public struct RelaysCandidates {
+    public let entryRelays: [RelayWithLocation<REST.ServerRelay>]?
+    public let exitRelays: [RelayWithLocation<REST.ServerRelay>]
+    public init(
+        entryRelays: [RelayWithLocation<REST.ServerRelay>]?,
+        exitRelays: [RelayWithLocation<REST.ServerRelay>]
+    ) {
+        self.entryRelays = entryRelays
+        self.exitRelays = exitRelays
+    }
+}
 
 protocol RelayPicking {
     var obfuscation: ObfuscatorPortSelection { get }
