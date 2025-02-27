@@ -20,7 +20,6 @@ mod io_util;
 mod platform;
 
 /// Metadata expiry to use when not specified (months from now)
-#[allow(dead_code)]
 const DEFAULT_EXPIRY_MONTHS: usize = 6;
 
 /// Rollout to use when not specified
