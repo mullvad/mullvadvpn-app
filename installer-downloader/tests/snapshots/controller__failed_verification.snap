@@ -1,7 +1,6 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
-snapshot_kind: text
 ---
 status_text: ""
 download_text: ""
@@ -15,9 +14,9 @@ beta_text_visible: false
 stable_text_visible: false
 error_message_visible: true
 error_message:
-  status_text: "Couldn’t verify download, please try downloading again or contact our support by sending an email at support@mullvadvpn.net"
+  status_text: "Failed to verify download, please try downloading again or contact our support by sending an email to support@mullvadvpn.net with a description of what happened."
   cancel_button_text: Cancel
-  retry_button_text: Redownload
+  retry_button_text: Try again
 quit: false
 call_log:
   - hide_download_progress
