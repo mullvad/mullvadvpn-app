@@ -1,6 +1,6 @@
 //! File and I/O utilities
 
-use std::{io::Read, path::Path};
+use std::path::Path;
 
 use anyhow::Context;
 use tokio::fs;
@@ -13,10 +13,7 @@ pub async fn wait_for_confirm(prompt: &str) -> bool {
     let prompt = prompt.to_owned();
 
     tokio::task::spawn_blocking(move || {
-        let mut stdin = std::io::stdin();
-
-        // Drain stdin
-        let _ = stdin.by_ref().take(1024);
+        let stdin = std::io::stdin();
 
         loop {
             let mut s = String::new();
@@ -47,10 +44,7 @@ pub async fn wait_for_confirm(prompt: &str) -> bool {
 pub async fn wait_for_input(prompt: &str) -> anyhow::Result<String> {
     let prompt = prompt.to_owned();
     tokio::task::spawn_blocking(move || {
-        let mut stdin = std::io::stdin();
-
-        // Drain stdin
-        let _ = stdin.by_ref().take(1024);
+        let stdin = std::io::stdin();
 
         loop {
             let mut s = String::new();
