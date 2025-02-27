@@ -1,16 +1,14 @@
-use anyhow::Context;
-use std::env;
-
+#[cfg(not(windows))]
 fn main() -> anyhow::Result<()> {
-    let target_os = env::var("CARGO_CFG_TARGET_OS").context("Missing 'CARGO_CFG_TARGET_OS")?;
-
-    match target_os.as_str() {
-        "windows" => win_main(),
-        _ => Ok(()),
-    }
+    Ok(())
 }
 
-fn win_main() -> anyhow::Result<()> {
+#[cfg(windows)]
+fn main() -> anyhow::Result<()> {
+    use anyhow::Context;
+    use std::env;
+    let target_os = env::var("CARGO_CFG_TARGET_OS").context("Missing 'CARGO_CFG_TARGET_OS")?;
+
     let mut res = winres::WindowsResource::new();
 
     res.set_language(make_lang_id(
@@ -25,6 +23,7 @@ fn win_main() -> anyhow::Result<()> {
 }
 
 // Sourced from winnt.h: https://learn.microsoft.com/en-us/windows/win32/api/winnt/nf-winnt-makelangid
+#[cfg(windows)]
 fn make_lang_id(p: u16, s: u16) -> u16 {
     (s << 10) | p
 }
