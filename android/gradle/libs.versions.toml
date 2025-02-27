@@ -3,17 +3,17 @@
 # The android-gradle-aapt plugin version must be in sync with the android plugin version.
 # Required for Gradle metadata verification to work properly, see:
 # https://github.com/gradle/gradle/issues/19228
-android-gradle-plugin = "8.8.1"
+android-gradle-plugin = "8.8.2"
 android-gradle-aapt = "12006047"
 android-billingclient = "7.1.1"
 android-volley = "1.2.1"
 
 # AndroidX
-androidx-activitycompose = "1.10.0"
+androidx-activitycompose = "1.10.1"
 androidx-appcompat = "1.7.0"
 androidx-ktx = "1.15.0"
 androidx-coresplashscreen = "1.1.0-rc01"
-androidx-datastore = "1.1.2"
+androidx-datastore = "1.1.3"
 androidx-espresso = "3.6.1"
 androidx-lifecycle = "2.8.7"
 androidx-test = "1.6.1"
@@ -28,7 +28,7 @@ arrow = "2.0.1"
 # Compose
 compose = "1.7.8"
 compose-destinations = "2.1.0-beta16"
-compose-constraintlayout = "1.1.0"
+compose-constraintlayout = "1.1.1"
 compose-material3 = "1.3.1"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
@@ -63,7 +63,7 @@ rust-android-gradle = "0.9.6"
 commonsvalidator = "1.9.0"
 # Upgrading to 12.0.1 results in task failing, DROID-1517
 dependency-versions = "0.52.0"
-detekt = "1.23.7"
+detekt = "1.23.8"
 kermit = "2.0.5"
 konsist = "0.17.3"
 ktfmt = "0.22.0"
