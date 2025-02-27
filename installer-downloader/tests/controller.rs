@@ -9,6 +9,7 @@
 use insta::assert_yaml_snapshot;
 use installer_downloader::controller::AppController;
 use installer_downloader::delegate::{AppDelegate, AppDelegateQueue, ErrorMessage};
+use installer_downloader::environment::{Architecture, Environment};
 use installer_downloader::temp::DirectoryProvider;
 use installer_downloader::ui_downloader::UiAppDownloaderParameters;
 use mullvad_update::api::VersionInfoProvider;
@@ -33,6 +34,10 @@ static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
     },
     beta: None,
 });
+
+const FAKE_ENVIRONMENT: Environment = Environment {
+    architecture: Architecture::X86,
+};
 
 #[async_trait::async_trait]
 impl VersionInfoProvider for FakeVersionInfoProvider {
@@ -357,6 +362,7 @@ async fn test_fetch_version() {
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        FAKE_ENVIRONMENT,
     );
 
     // The app should start out by fetching the current app version
@@ -380,6 +386,7 @@ async fn test_download() {
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        FAKE_ENVIRONMENT,
     );
 
     // Wait for the version info
@@ -425,6 +432,7 @@ async fn test_failed_verification() {
     AppController::initialize::<_, FakeAppDownloaderVerifyFail, _, FakeDirectoryProvider<true>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        FAKE_ENVIRONMENT,
     );
 
     // Wait for the version info
@@ -462,6 +470,7 @@ async fn test_failed_directory_creation() {
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<false>>(
         &mut delegate,
         FakeVersionInfoProvider {},
+        FAKE_ENVIRONMENT,
     );
 
     // Wait for the version info
