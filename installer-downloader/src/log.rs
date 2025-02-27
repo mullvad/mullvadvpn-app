@@ -13,8 +13,7 @@ pub fn init() -> Result<(), fern::InitError> {
                 message
             ))
         })
-        .level(LevelFilter::Warn) // Default level
-        .level_for("my_crate", LevelFilter::Debug) // Customize for a specific crate
+        .level(LevelFilter::Debug)
         .chain(io::stdout())
         .chain(fern::log_file(log_path())?)
         .apply()?;
