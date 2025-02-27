@@ -267,10 +267,6 @@ jobs:
         run: |
           chmod +x ${{ github.workspace }}/bin/*
         shell: bash
-      - name: Check binaries
-        run: |
-          ls -la ${{ github.workspace }}/bin
-        shell: bash
       - name: Download App
         uses: actions/download-artifact@v4
         if: ${{ needs.build-linux-app.result == 'success' }}
@@ -483,9 +479,6 @@ jobs:
       - name: chmod binaries
         run: |
           chmod +x ${{ github.workspace }}/bin/*
-      - name: Check binaries
-        run: |
-          ls -la ${{ github.workspace }}/bin
         shell: bash
       - name: Generate test result matrix
         shell: bash -ieo pipefail {0}
