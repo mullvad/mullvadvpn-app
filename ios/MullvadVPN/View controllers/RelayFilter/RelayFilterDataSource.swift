@@ -52,9 +52,8 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
 
         tableView.delegate = self
 
-        viewModel.$relays
-            .combineLatest(viewModel.$relayFilter)
-            .sink { [weak self] _, filter in
+        viewModel.$relayFilter
+            .sink { [weak self] filter in
                 self?.updateDataSnapshot(filter: filter)
             }
             .store(in: &disposeBag)
@@ -111,7 +110,7 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
         applySnapshot(snapshot, animated: false)
     }
 
-    private func updateDataSnapshot(filter: RelayFilter? = nil) {
+    func updateDataSnapshot(filter: RelayFilter? = nil) {
         let oldSnapshot = snapshot()
 
         var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
