@@ -36,9 +36,6 @@ internet-checksum = "0.2"
 socket2 = { workspace = true, features = ["all"] }
 tokio-stream = { version = "0.1", features = ["io-util"] }
 
-[target.'cfg(target_os="android")'.dependencies]
-duct = "0.13"
-
 [target.'cfg(unix)'.dependencies]
 nix = "0.23"
 libc = "0.2.150"

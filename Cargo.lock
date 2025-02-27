@@ -4783,7 +4783,6 @@ dependencies = [
  "bitflags 1.3.2",
  "byteorder",
  "chrono",
- "duct",
  "futures",
  "hex",
  "internet-checksum",
