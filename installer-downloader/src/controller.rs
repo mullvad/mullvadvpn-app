@@ -15,6 +15,10 @@ use rand::seq::SliceRandom;
 
 use tokio::sync::{mpsc, oneshot};
 
+/// ed25519 pubkey used to verify metadata from the Mullvad (stagemole) API
+const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
+
+/// Pinned root certificate used when fetching version metadata
 const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
 
 /// Actions handled by an async worker task in [handle_action_messages].
@@ -39,9 +43,8 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     type DirProvider = crate::temp::TempDirProvider;
 
     // Version info provider to use
-    const STAGEMOLE_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
     let verifying_key =
-        mullvad_update::format::key::VerifyingKey::from_hex(STAGEMOLE_PUBKEY).expect("valid key");
+        mullvad_update::format::key::VerifyingKey::from_hex(VERSION_PROVIDER_PUBKEY).expect("valid key");
     let cert = reqwest::Certificate::from_pem(PINNED_CERTIFICATE).expect("invalid cert");
     let version_provider = HttpVersionInfoProvider {
         url: get_metadata_url(),
