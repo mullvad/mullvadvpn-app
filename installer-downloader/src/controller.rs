@@ -12,8 +12,9 @@ use mullvad_update::{
     version::{Version, VersionInfo, VersionParameters},
 };
 use rand::seq::SliceRandom;
-
+use std::path::PathBuf;
 use tokio::sync::{mpsc, oneshot};
+use tokio::task::JoinHandle;
 
 /// ed25519 pubkey used to verify metadata from the Mullvad (stagemole) API
 const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
@@ -21,7 +22,7 @@ const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemo
 /// Pinned root certificate used when fetching version metadata
 const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
 
-/// Actions handled by an async worker task in [handle_action_messages].
+/// Actions handled by an async worker task in [ActionMessageHandler].
 enum TaskMessage {
     SetVersionInfo(VersionInfo),
     BeginDownload,
@@ -44,7 +45,8 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
 
     // Version info provider to use
     let verifying_key =
-        mullvad_update::format::key::VerifyingKey::from_hex(VERSION_PROVIDER_PUBKEY).expect("valid key");
+        mullvad_update::format::key::VerifyingKey::from_hex(VERSION_PROVIDER_PUBKEY)
+            .expect("valid key");
     let cert = reqwest::Certificate::from_pem(PINNED_CERTIFICATE).expect("invalid cert");
     let version_provider = HttpVersionInfoProvider {
         url: get_metadata_url(),
@@ -94,7 +96,7 @@ impl AppController {
         delegate.hide_stable_text();
 
         let (task_tx, task_rx) = mpsc::channel(1);
-        tokio::spawn(handle_action_messages::<D, A, DirProvider>(
+        tokio::spawn(ActionMessageHandler::<D, A>::run::<DirProvider>(
             delegate.queue(),
             task_tx.clone(),
             task_rx,
@@ -215,201 +217,233 @@ enum TargetVersion {
 
 /// Async worker that handles actions such as initiating a download, cancelling it, and updating
 /// labels.
-async fn handle_action_messages<D, A, DirProvider>(
-    queue: D::Queue,
-    tx: mpsc::Sender<TaskMessage>,
-    mut rx: mpsc::Receiver<TaskMessage>,
-) where
+struct ActionMessageHandler<
     D: AppDelegate + 'static,
     A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
-    DirProvider: DirectoryProvider,
+> {
+    queue: D::Queue,
+    tx: mpsc::Sender<TaskMessage>,
+    version_info: Option<VersionInfo>,
+    active_download: Option<JoinHandle<()>>,
+    target_version: TargetVersion,
+    temp_dir: anyhow::Result<PathBuf>,
+
+    _marker: std::marker::PhantomData<A>,
+}
+
+impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static>
+    ActionMessageHandler<D, A>
 {
-    let mut version_info = None;
-    let mut active_download = None;
+    async fn run<DP: DirectoryProvider>(
+        queue: D::Queue,
+        tx: mpsc::Sender<TaskMessage>,
+        mut rx: mpsc::Receiver<TaskMessage>,
+    ) {
+        let temp_dir = DP::create_download_dir().await;
 
-    let mut target_version = TargetVersion::Stable;
+        let mut handler = Self {
+            queue,
+            tx,
+            version_info: None,
+            active_download: None,
+            target_version: TargetVersion::Stable,
+            temp_dir,
 
-    let temp_dir = DirProvider::create_download_dir().await;
+            _marker: std::marker::PhantomData,
+        };
 
-    while let Some(msg) = rx.recv().await {
+        while let Some(msg) = rx.recv().await {
+            handler.handle_message(&msg).await;
+        }
+    }
+
+    async fn handle_message(&mut self, msg: &TaskMessage) {
         match msg {
             TaskMessage::SetVersionInfo(new_version_info) => {
-                let version_label = format_latest_version(&new_version_info.stable);
-                let has_beta = new_version_info.beta.is_some();
-                queue.queue_main(move |self_| {
-                    self_.set_status_text(&version_label);
-                    self_.enable_download_button();
-                    if has_beta {
-                        self_.show_beta_text();
-                    }
-                });
-                version_info = Some(new_version_info);
+                self.handle_set_version_info(new_version_info);
             }
-            TaskMessage::TryBeta => {
-                let Some(version_info) = version_info.as_ref() else {
-                    log::error!("Attempted 'try beta' before having version info");
-                    continue;
-                };
-                let Some(beta_info) = version_info.beta.as_ref() else {
-                    log::error!("Attempted 'try beta' without beta version");
-                    continue;
-                };
+            TaskMessage::TryBeta => self.handle_try_beta(),
+            TaskMessage::TryStable => self.handle_try_stable(),
+            TaskMessage::BeginDownload => self.begin_download().await,
+            TaskMessage::Cancel => self.cancel().await,
+        }
+    }
 
-                target_version = TargetVersion::Beta;
-                let version_label = format_latest_version(beta_info);
-
-                queue.queue_main(move |self_| {
-                    self_.show_stable_text();
-                    self_.hide_beta_text();
-                    self_.set_status_text(&version_label);
-                });
+    fn handle_set_version_info(&mut self, new_version_info: &VersionInfo) {
+        let version_label = format_latest_version(&new_version_info.stable);
+        let has_beta = new_version_info.beta.is_some();
+        self.queue.queue_main(move |self_| {
+            self_.set_status_text(&version_label);
+            self_.enable_download_button();
+            if has_beta {
+                self_.show_beta_text();
             }
-            TaskMessage::TryStable => {
-                let Some(version_info) = version_info.as_ref() else {
-                    log::error!("Attempted 'try stable' before having version info");
-                    continue;
-                };
-                let stable_info = &version_info.stable;
+        });
+        self.version_info = Some(new_version_info.to_owned());
+    }
 
-                target_version = TargetVersion::Stable;
-                let version_label = format_latest_version(stable_info);
+    fn handle_try_beta(&mut self) {
+        let Some(version_info) = self.version_info.as_ref() else {
+            log::error!("Attempted 'try beta' before having version info");
+            return;
+        };
+        let Some(beta_info) = version_info.beta.as_ref() else {
+            log::error!("Attempted 'try beta' without beta version");
+            return;
+        };
 
-                queue.queue_main(move |self_| {
-                    self_.hide_stable_text();
-                    self_.show_beta_text();
-                    self_.set_status_text(&version_label);
-                });
-            }
-            TaskMessage::BeginDownload => {
-                if active_download.take().is_some() {
-                    log::debug!("Interrupting ongoing download");
-                }
-                let Some(version_info) = version_info.clone() else {
-                    log::error!("Attempted 'begin download' before having version info");
-                    continue;
-                };
+        self.target_version = TargetVersion::Beta;
+        let version_label = format_latest_version(beta_info);
 
-                let (retry_tx, cancel_tx) = (tx.clone(), tx.clone());
-                queue.queue_main(move |self_| {
-                    self_.hide_error_message();
-                    self_.on_error_message_retry(move || {
-                        let _ = retry_tx.try_send(TaskMessage::BeginDownload);
-                    });
-                    self_.on_error_message_cancel(move || {
-                        let _ = cancel_tx.try_send(TaskMessage::Cancel);
-                    });
-                });
+        self.queue.queue_main(move |self_| {
+            self_.show_stable_text();
+            self_.hide_beta_text();
+            self_.set_status_text(&version_label);
+        });
+    }
 
-                // Create temporary dir
-                let download_dir = match &temp_dir {
-                    Ok(dir) => dir.clone(),
-                    Err(error) => {
-                        log::error!("Failed to create temporary directory: {error:?}");
+    fn handle_try_stable(&mut self) {
+        let Some(version_info) = self.version_info.as_ref() else {
+            log::error!("Attempted 'try stable' before having version info");
+            return;
+        };
+        let stable_info = &version_info.stable;
 
-                        queue.queue_main(move |self_| {
-                            self_.set_status_text("");
-                            self_.hide_download_button();
-                            self_.hide_beta_text();
-                            self_.hide_stable_text();
+        self.target_version = TargetVersion::Stable;
+        let version_label = format_latest_version(stable_info);
 
-                            self_.show_error_message(crate::delegate::ErrorMessage {
-                                status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
-                                cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT
-                                    .to_owned(),
-                                retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT
-                                    .to_owned(),
-                            });
-                        });
-                        continue;
-                    }
-                };
+        self.queue.queue_main(move |self_| {
+            self_.hide_stable_text();
+            self_.show_beta_text();
+            self_.set_status_text(&version_label);
+        });
+    }
 
-                log::debug!("Download directory: {}", download_dir.display());
+    async fn begin_download(&mut self) {
+        if self.active_download.take().is_some() {
+            log::debug!("Interrupting ongoing download");
+        }
+        let Some(version_info) = self.version_info.clone() else {
+            log::error!("Attempted 'begin download' before having version info");
+            return;
+        };
 
-                // Begin download
-                let (tx, rx) = oneshot::channel();
-                queue.queue_main(move |self_| {
-                    let selected_version = match target_version {
-                        TargetVersion::Stable => &version_info.stable,
-                        TargetVersion::Beta => {
-                            version_info.beta.as_ref().expect("selected version exists")
-                        }
-                    };
+        let (retry_tx, cancel_tx) = (self.tx.clone(), self.tx.clone());
+        self.queue.queue_main(move |self_| {
+            self_.hide_error_message();
+            self_.on_error_message_retry(move || {
+                let _ = retry_tx.try_send(TaskMessage::BeginDownload);
+            });
+            self_.on_error_message_cancel(move || {
+                let _ = cancel_tx.try_send(TaskMessage::Cancel);
+            });
+        });
 
-                    let Some(app_url) = select_cdn_url(&selected_version.urls) else {
-                        return;
-                    };
-                    let app_version = selected_version.version.clone();
-                    let app_sha256 = selected_version.sha256;
-                    let app_size = selected_version.size;
+        // Create temporary dir
+        let download_dir = match &self.temp_dir {
+            Ok(dir) => dir.clone(),
+            Err(error) => {
+                log::error!("Failed to create temporary directory: {error:?}");
 
-                    self_.set_download_text("");
+                self.queue.queue_main(move |self_| {
+                    self_.set_status_text("");
                     self_.hide_download_button();
                     self_.hide_beta_text();
                     self_.hide_stable_text();
-                    self_.show_cancel_button();
-                    self_.enable_cancel_button();
-                    self_.show_download_progress();
 
-                    let downloader = A::from(UiAppDownloaderParameters {
-                        app_version,
-                        app_url: app_url.to_owned(),
-                        app_size,
-                        app_progress: UiProgressUpdater::new(self_.queue()),
-                        app_sha256,
-                        cache_dir: download_dir,
+                    self_.show_error_message(crate::delegate::ErrorMessage {
+                        status_text: resource::DOWNLOAD_FAILED_DESC.to_owned(),
+                        cancel_button_text: resource::DOWNLOAD_FAILED_CANCEL_BUTTON_TEXT.to_owned(),
+                        retry_button_text: resource::DOWNLOAD_FAILED_RETRY_BUTTON_TEXT.to_owned(),
                     });
-
-                    let ui_downloader = UiAppDownloader::new(self_, downloader);
-                    let _ = tx.send(tokio::spawn(async move {
-                        if let Err(err) = app::install_and_upgrade(ui_downloader).await {
-                            log::error!("install_and_upgrade failed: {err:?}");
-                        }
-                    }));
                 });
-                active_download = rx.await.ok();
+                return;
             }
-            TaskMessage::Cancel => {
-                if let Some(active_download) = active_download.take() {
-                    active_download.abort();
-                    let _ = active_download.await;
+        };
+
+        log::debug!("Download directory: {}", download_dir.display());
+
+        // Begin download
+        let (tx, rx) = oneshot::channel();
+        let target_version = self.target_version;
+        self.queue.queue_main(move |self_| {
+            let selected_version = match target_version {
+                TargetVersion::Stable => &version_info.stable,
+                TargetVersion::Beta => version_info.beta.as_ref().expect("selected version exists"),
+            };
+
+            let Some(app_url) = select_cdn_url(&selected_version.urls) else {
+                return;
+            };
+            let app_version = selected_version.version.clone();
+            let app_sha256 = selected_version.sha256;
+            let app_size = selected_version.size;
+
+            self_.set_download_text("");
+            self_.hide_download_button();
+            self_.hide_beta_text();
+            self_.hide_stable_text();
+            self_.show_cancel_button();
+            self_.enable_cancel_button();
+            self_.show_download_progress();
+
+            let downloader = A::from(UiAppDownloaderParameters {
+                app_version,
+                app_url: app_url.to_owned(),
+                app_size,
+                app_progress: UiProgressUpdater::new(self_.queue()),
+                app_sha256,
+                cache_dir: download_dir,
+            });
+
+            let ui_downloader = UiAppDownloader::new(self_, downloader);
+            let _ = tx.send(tokio::spawn(async move {
+                if let Err(err) = app::install_and_upgrade(ui_downloader).await {
+                    log::error!("install_and_upgrade failed: {err:?}");
                 }
+            }));
+        });
+        self.active_download = rx.await.ok();
+    }
 
-                let Some(version_info) = version_info.as_ref() else {
-                    log::error!("Attempted 'cancel' before having version info");
-                    continue;
-                };
-
-                let selected_version = match target_version {
-                    TargetVersion::Stable => &version_info.stable,
-                    TargetVersion::Beta => {
-                        version_info.beta.as_ref().expect("selected version exists")
-                    }
-                };
-
-                let version_label = format_latest_version(selected_version);
-                let has_beta = version_info.beta.is_some();
-
-                queue.queue_main(move |self_| {
-                    self_.set_status_text(&version_label);
-                    self_.set_download_text("");
-                    self_.show_download_button();
-                    self_.hide_error_message();
-
-                    if target_version == TargetVersion::Stable {
-                        if has_beta {
-                            self_.show_beta_text();
-                        }
-                    } else {
-                        self_.show_stable_text();
-                    }
-
-                    self_.hide_cancel_button();
-                    self_.hide_download_progress();
-                    self_.set_download_progress(0);
-                });
-            }
+    async fn cancel(&mut self) {
+        if let Some(active_download) = self.active_download.take() {
+            active_download.abort();
+            let _ = active_download.await;
         }
+
+        let Some(version_info) = self.version_info.as_ref() else {
+            log::error!("Attempted 'cancel' before having version info");
+            return;
+        };
+
+        let selected_version = match self.target_version {
+            TargetVersion::Stable => &version_info.stable,
+            TargetVersion::Beta => version_info.beta.as_ref().expect("selected version exists"),
+        };
+
+        let version_label = format_latest_version(selected_version);
+        let has_beta = version_info.beta.is_some();
+        let target_version = self.target_version;
+
+        self.queue.queue_main(move |self_| {
+            self_.set_status_text(&version_label);
+            self_.set_download_text("");
+            self_.show_download_button();
+            self_.hide_error_message();
+
+            if target_version == TargetVersion::Stable {
+                if has_beta {
+                    self_.show_beta_text();
+                }
+            } else {
+                self_.show_stable_text();
+            }
+
+            self_.hide_cancel_button();
+            self_.hide_download_progress();
+            self_.set_download_progress(0);
+        });
     }
 }
 
