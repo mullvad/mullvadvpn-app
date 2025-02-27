@@ -2,8 +2,10 @@ use mullvad_update::version::VersionArchitecture;
 
 /// The environment consists of globals and/or constants which need to be computed at runtime.
 pub struct Environment {
-    pub architecture: mullvad_update::format::Architecture,
+    pub architecture: Architecture,
 }
+
+pub type Architecture = mullvad_update::format::Architecture;
 
 pub enum Error {
     /// Failed to get the host's CPU architecture.
