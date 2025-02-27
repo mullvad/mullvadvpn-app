@@ -75,6 +75,8 @@ pub async fn create_dir_and_write(
         .await
         .context("Failed to create directories")?;
 
-    fs::write(path, contents).await?;
+    fs::write(path, contents)
+        .await
+        .with_context(|| format!("Failed to write to {}", path.display()))?;
     Ok(())
 }
