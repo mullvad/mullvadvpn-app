@@ -89,9 +89,6 @@ jobs:
   prepare-linux:
     name: Prepare Linux build container
     needs: prepare-matrices
-    if: |
-      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
-      !startsWith(github.ref, 'refs/tags/') && github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
