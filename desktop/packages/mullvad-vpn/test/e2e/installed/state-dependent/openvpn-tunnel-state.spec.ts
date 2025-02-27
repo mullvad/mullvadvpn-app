@@ -3,7 +3,9 @@ import { exec as execAsync } from 'child_process';
 import { Page } from 'playwright';
 import { promisify } from 'util';
 
+import { RoutePath } from '../../../../src/renderer/lib/routes';
 import { expectConnected } from '../../shared/tunnel-state';
+import { TestUtils } from '../../utils';
 import { startInstalledApp } from '../installed-utils';
 
 const exec = promisify(execAsync);
@@ -12,9 +14,11 @@ const exec = promisify(execAsync);
 // selected and to be disconnected.
 
 let page: Page;
+let util: TestUtils;
 
 test.beforeAll(async () => {
-  ({ page } = await startInstalledApp());
+  ({ page, util } = await startInstalledApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
