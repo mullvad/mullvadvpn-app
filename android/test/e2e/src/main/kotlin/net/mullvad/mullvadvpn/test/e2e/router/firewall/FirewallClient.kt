@@ -14,10 +14,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.contextual
 import net.mullvad.mullvadvpn.test.e2e.BuildConfig
-import net.mullvad.mullvadvpn.test.e2e.serializer.NanoSecondsTimestampSerializer
 import org.junit.jupiter.api.fail
 
 class FirewallClient(private val httpClient: HttpClient = defaultHttpClient()) {
@@ -49,10 +46,6 @@ private fun defaultHttpClient(): HttpClient =
                 Json {
                     isLenient = true
                     prettyPrint = true
-
-                    serializersModule = SerializersModule {
-                        contextual(NanoSecondsTimestampSerializer)
-                    }
                 }
             )
         }
