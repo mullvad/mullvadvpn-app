@@ -379,7 +379,7 @@ jobs:
         run: |
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
-          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4
         if: '!cancelled()'
@@ -453,7 +453,7 @@ jobs:
         run: |
           git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
-          ./test/scripts/ci-runtests.sh ${{ matrix.os }}
+          ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
         uses: actions/upload-artifact@v4
         if: '!cancelled()'
