@@ -25,13 +25,7 @@ pub struct HttpVersionInfoProvider {
 #[async_trait::async_trait]
 impl VersionInfoProvider for HttpVersionInfoProvider {
     async fn get_version_info(&self, params: VersionParameters) -> anyhow::Result<VersionInfo> {
-        let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
-        let response = format::SignedResponse::deserialize_and_verify(
-            &self.verifying_key,
-            &raw_json,
-            params.lowest_metadata_version,
-        )?;
-
+        let response = self.get_versions(params.lowest_metadata_version).await?;
         VersionInfo::try_from_response(&params, response.signed)
     }
 }
@@ -39,6 +33,20 @@ impl VersionInfoProvider for HttpVersionInfoProvider {
 impl HttpVersionInfoProvider {
     /// Maximum size of the GET response, in bytes
     const SIZE_LIMIT: usize = 1024 * 1024;
+
+    /// Download and verify signed data
+    pub async fn get_versions(
+        &self,
+        lowest_metadata_version: usize,
+    ) -> anyhow::Result<format::SignedResponse> {
+        let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
+        let response = format::SignedResponse::deserialize_and_verify(
+            &self.verifying_key,
+            &raw_json,
+            lowest_metadata_version,
+        )?;
+        Ok(response)
+    }
 
     /// Perform a simple GET request, with a size limit, and return it as bytes
     async fn get(
@@ -66,6 +74,10 @@ impl HttpVersionInfoProvider {
         let content_len_limit = Self::SIZE_LIMIT.try_into().expect("Invalid size limit");
         if req.content_length() > Some(content_len_limit) {
             anyhow::bail!("Version info exceeded limit: {} bytes", Self::SIZE_LIMIT);
+        }
+
+        if let Err(err) = req.error_for_status_ref() {
+            return Err(err).context("GET request failed");
         }
 
         let mut read_n = 0;
