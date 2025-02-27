@@ -2529,6 +2529,7 @@ dependencies = [
  "oslog",
  "serde_json",
  "shadowsocks-service",
+ "talpid-future",
  "talpid-tunnel-config-client",
  "talpid-types",
  "tokio",
