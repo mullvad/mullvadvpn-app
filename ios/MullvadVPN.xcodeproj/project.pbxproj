@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */; };
+		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
+		01B2FF872D70B914004AED35 /* MullvadRustRuntime.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
@@ -1087,6 +1089,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		01B2FF882D70B914004AED35 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 58CE5E58224146200008646E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A992DA1C2C24709F00DE7CE5;
+			remoteInfo = MullvadRustRuntime;
+		};
 		06410DF9292C4ABC00AFC18C /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -1436,6 +1445,7 @@
 			dstSubfolderSpec = 10;
 			files = (
 				44A2624D2D6373E000085380 /* WireGuardKitTypes in Embed Frameworks */,
+				01B2FF872D70B914004AED35 /* MullvadRustRuntime.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2477,6 +2487,7 @@
 				58D223BF294C8AE90029F5F8 /* Operations.framework in Frameworks */,
 				58D2241D294C91D20029F5F8 /* MullvadLogging.framework in Frameworks */,
 				58D223DC294C8EB90029F5F8 /* MullvadTypes.framework in Frameworks */,
+				01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */,
 				44A2624B2D6373E000085380 /* WireGuardKitTypes in Frameworks */,
 				F07C9D952B220C77006F1C5E /* libmullvad_ios.a in Frameworks */,
 			);
@@ -4874,6 +4885,7 @@
 				58D223C2294C8AE90029F5F8 /* PBXTargetDependency */,
 				58D223E4294C8EE70029F5F8 /* PBXTargetDependency */,
 				58D22420294C91D20029F5F8 /* PBXTargetDependency */,
+				01B2FF892D70B914004AED35 /* PBXTargetDependency */,
 			);
 			name = MullvadREST;
 			packageProductDependencies = (
@@ -6756,6 +6768,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		01B2FF892D70B914004AED35 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */;
+			targetProxy = 01B2FF882D70B914004AED35 /* PBXContainerItemProxy */;
+		};
 		062B45A628FD4FD500746E77 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 06799ABB28F98E1D00ACD94E /* MullvadREST */;
