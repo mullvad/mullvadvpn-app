@@ -103,6 +103,7 @@ env_logger = "0.10.0"
 thiserror = "2.0"
 anyhow = "1.0"
 log = "0.4"
+fern = { version = "0.6", default-features = false }
 
 shadowsocks = "1.20.3"
 shadowsocks-service = "1.20.3"

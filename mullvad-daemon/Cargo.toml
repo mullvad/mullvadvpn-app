@@ -19,7 +19,7 @@ anyhow = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
 either = "1.11"
-fern = { version = "0.6", features = ["colored"] }
+fern = { workspace = true, features = ["colored"] }
 futures = { workspace = true }
 libc = "0.2"
 log = { workspace = true }
