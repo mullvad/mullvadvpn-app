@@ -143,8 +143,8 @@ function setup_macos_keychain {
     /usr/bin/security unlock-keychain -p "$SIGN_KEYCHAIN_PASS" "$SIGN_KEYCHAIN_PATH"
     /usr/bin/security set-keychain-settings "$SIGN_KEYCHAIN_PATH"
 
-    # Set search list to our keychain, or codesign won't find it
-    /usr/bin/security list-keychains -d user -s "$SIGN_KEYCHAIN_PATH"
+    # Add our keychain to the search list, keeping existing keychains, or codesign won't find it
+    /usr/bin/security list-keychains -d user -s "$SIGN_KEYCHAIN_PATH" "$(security list-keychains -d user | tr -d '"')"
 
     log_info "Importing PKCS #12 to keychain"
 
@@ -158,7 +158,7 @@ function setup_macos_keychain {
     # Find identity
     log_info "Find the identity to use"
 
-    /usr/bin/security find-identity -v -p codesigning
+    /usr/bin/security find-identity -p codesigning
     read -rp "Enter identity: " SIGN_KEYCHAIN_IDENTITY
     export SIGN_KEYCHAIN_IDENTITY
 
