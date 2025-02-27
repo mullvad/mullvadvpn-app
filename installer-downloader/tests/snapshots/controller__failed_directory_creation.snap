@@ -1,7 +1,6 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
-snapshot_kind: text
 ---
 status_text: ""
 download_text: ""
@@ -15,7 +14,7 @@ beta_text_visible: false
 stable_text_visible: false
 error_message_visible: true
 error_message:
-  status_text: Failed to create download directory
+  status_text: "Download failed, please check your internet connection or if you have enough space on your hard drive and try downloading again."
   cancel_button_text: Cancel
   retry_button_text: Try again
 quit: false
