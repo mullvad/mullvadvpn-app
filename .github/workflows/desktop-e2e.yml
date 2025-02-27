@@ -253,7 +253,6 @@ jobs:
           path: ${{ github.workspace }}/bin
       - name: Download mullvad-version
         uses: actions/download-artifact@v4
-        if: ${{ needs.build-test-manager-linux.result == 'success' }}
         with:
           name: mullvad-version-linux
           path: ${{ github.workspace }}/bin
