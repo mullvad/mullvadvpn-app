@@ -249,7 +249,7 @@ impl Platform {
         version: &mullvad_version::Version,
         changes: &str,
         base_urls: &[String],
-        rollout: Option<f32>,
+        rollout: f32,
     ) -> anyhow::Result<()> {
         let installers = self.installers(version, base_urls).await?;
 
@@ -273,7 +273,7 @@ impl Platform {
             changelog: changes.to_owned(),
             version: version.clone(),
             installers: installers.to_owned(),
-            rollout: rollout.unwrap_or(crate::DEFAULT_ROLLOUT),
+            rollout,
         };
 
         print_release_info(&new_release);

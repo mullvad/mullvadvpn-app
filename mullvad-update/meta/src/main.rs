@@ -68,9 +68,9 @@ pub enum Opt {
         version: mullvad_version::Version,
         /// Platforms to add releases for. All if none are specified
         platforms: Vec<Platform>,
-        /// Rollout fraction (0-1, default is 1)
-        #[arg(long)]
-        rollout: Option<f32>,
+        /// Rollout fraction 0-1. The default is 1, i.e. 100%
+        #[arg(long, default_value_t = DEFAULT_ROLLOUT)]
+        rollout: f32,
     },
 
     /// Remove release from `work/`
