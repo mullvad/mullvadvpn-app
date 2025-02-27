@@ -2,10 +2,7 @@
 
 use anyhow::Context;
 use std::path::Path;
-use tokio::{
-    fs,
-    io::{AsyncSeekExt, BufReader},
-};
+use tokio::{fs, io::BufReader};
 
 use mullvad_update::{format, hash};
 
@@ -18,19 +15,14 @@ pub async fn generate_installer_details(
     base_urls: &[String],
     artifact: &Path,
 ) -> anyhow::Result<format::Installer> {
-    let mut file = fs::File::open(artifact)
+    let file = fs::File::open(artifact)
         .await
         .with_context(|| format!("Failed to open file at {}", artifact.display()))?;
-    file.seek(std::io::SeekFrom::End(0))
+    let metadata = file
+        .metadata()
         .await
-        .context("Failed to seek to end")?;
-    let file_size = file
-        .stream_position()
-        .await
-        .context("Failed to get file size")?;
-    file.seek(std::io::SeekFrom::Start(0))
-        .await
-        .context("Failed to reset file pos")?;
+        .context("Failed to retrieve file metadata")?;
+    let file_size = metadata.len();
     let file = BufReader::new(file);
 
     println!("Generating checksum for {}", artifact.display());
