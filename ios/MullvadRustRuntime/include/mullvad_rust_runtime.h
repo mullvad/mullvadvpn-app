@@ -28,12 +28,6 @@ typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
 
-typedef struct SwiftServerMock {
-  const void *server_ptr;
-  const void *mock_ptr;
-  uint16_t port;
-} SwiftServerMock;
-
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
@@ -59,6 +53,12 @@ typedef struct SwiftMullvadApiResponse {
 typedef struct CompletionCookie {
   void *_0;
 } CompletionCookie;
+
+typedef struct SwiftServerMock {
+  const void *server_ptr;
+  const void *mock_ptr;
+  uint16_t port;
+} SwiftServerMock;
 
 typedef struct ProxyHandle {
   void *context;
@@ -86,13 +86,6 @@ typedef struct EphemeralPeerParameters {
 } EphemeralPeerParameters;
 
 extern const uint16_t CONFIG_SERVICE_PORT;
-
-struct SwiftServerMock mullvad_api_mock_server_response(const uint8_t *method,
-                                                        const uint8_t *path,
-                                                        uintptr_t response_code,
-                                                        const uint8_t *response_body);
-
-bool mullvad_api_mock_got_called(struct SwiftServerMock server);
 
 /**
  * # Safety
@@ -199,6 +192,35 @@ void mullvad_api_cancel_task_drop(struct SwiftCancelHandle handle_ptr);
  */
 extern void mullvad_api_completion_finish(struct SwiftMullvadApiResponse response,
                                           struct CompletionCookie completion_cookie);
+
+/**
+ * # Safety
+ *
+ * `method` must be a pointer to a null terminated string representing the http method.
+ *
+ * `path` must be a pointer to a null terminated string representing the url path.
+ *
+ * `response_code` must be a usize representing the http response code.
+ *
+ * `response_body` must be a pointer to a null terminated string representing the body.
+ *
+ * This function is safe.
+ */
+struct SwiftServerMock mullvad_api_mock_server_response(const uint8_t *method,
+                                                        const uint8_t *path,
+                                                        uintptr_t response_code,
+                                                        const uint8_t *response_body);
+
+/**
+ * Called by the Swift side to signal that the Rust `SwiftServerMock` can be safely
+ * dropped from memory.
+ *
+ * # Safety
+ *
+ * `mock_ptr` must be pointing to a valid instance of `SwiftServerMock`. This function
+ * is not safe to call multiple times with the same `SwiftServerMock`.
+ */
+void mullvad_api_mock_drop(struct SwiftServerMock mock_ptr);
 
 /**
  * Called by the Swift side to signal that the Rust `SwiftMullvadApiResponse` can be safely

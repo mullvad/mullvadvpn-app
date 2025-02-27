@@ -12,6 +12,7 @@ use talpid_future::retry::retry_future;
 mod api;
 mod cancellation;
 mod completion;
+mod mock;
 mod response;
 mod retry_strategy;
 
