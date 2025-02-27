@@ -22,7 +22,7 @@ pub async fn generate_installer_details(
         .metadata()
         .await
         .context("Failed to retrieve file metadata")?;
-    let file_size = get_file_size(&metadata);
+    let file_size = metadata.len();
     let file = BufReader::new(file);
 
     println!("Generating checksum for {}", artifact.display());
@@ -44,20 +44,6 @@ pub async fn generate_installer_details(
         size: file_size.try_into().context("Invalid file size")?,
         sha256: hex::encode(checksum),
     })
-}
-
-fn get_file_size(f: &std::fs::Metadata) -> u64 {
-    #[cfg(target_os = "windows")]
-    {
-        use std::os::windows::fs::MetadataExt;
-        f.file_size()
-    }
-
-    #[cfg(unix)]
-    {
-        use std::os::unix::fs::MetadataExt;
-        f.size()
-    }
 }
 
 fn derive_urls(base_urls: &[String], filename: &str) -> Vec<String> {
