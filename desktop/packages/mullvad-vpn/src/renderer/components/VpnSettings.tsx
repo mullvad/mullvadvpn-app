@@ -30,7 +30,7 @@ import { NavigationContainer } from './NavigationContainer';
 import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
-const StyledInfoButton = styled(InfoButton)({
+const StyledInfoButton = styled(InfoButton).attrs({ className: 'styled-info-button' })({
   marginRight: Spacings.spacing5,
 });
 
@@ -50,6 +50,16 @@ const LanIpRanges = styled.ul({
 const IndentedValueLabel = styled(Cell.ValueLabel)({
   marginLeft: Spacings.spacing5,
 });
+
+const clickedContainerAndNotInfoButton = (target: HTMLElement): boolean => {
+  return Boolean(target.closest('.styled-container') && !target.closest('.styled-info-button'));
+};
+
+const handleToggleWithInfoButton = (setState: (val: boolean) => void, state: boolean) => (e: React.MouseEvent) => {
+  if (clickedContainerAndNotInfoButton(e.target as HTMLElement)) {
+    setState(!state);
+  }
+}
 
 export default function VpnSettings() {
   const { pop } = useHistory();
@@ -139,7 +149,7 @@ function AutoStart() {
 
   return (
     <AriaInputGroup>
-      <Cell.Container>
+      <Cell.Container onClick={() => setAutoStart(!autoStart)}>
         <AriaLabel>
           <Cell.InputLabel>
             {messages.pgettext('vpn-settings-view', 'Launch app on start-up')}
@@ -159,7 +169,7 @@ function AutoConnect() {
 
   return (
     <AriaInputGroup>
-      <Cell.Container>
+      <Cell.Container onClick={() => setAutoConnect(!autoConnect)}>
         <AriaLabel>
           <Cell.InputLabel>
             {messages.pgettext('vpn-settings-view', 'Auto-connect')}
@@ -186,10 +196,11 @@ function AutoConnect() {
 function AllowLan() {
   const allowLan = useSelector((state) => state.settings.allowLan);
   const { setAllowLan } = useAppContext();
+  const handleAllowLanToggle = handleToggleWithInfoButton(setAllowLan, allowLan);
 
   return (
     <AriaInputGroup>
-      <Cell.Container>
+      <Cell.Container onClick={handleAllowLanToggle}>
         <AriaLabel>
           <Cell.InputLabel>
             {messages.pgettext('vpn-settings-view', 'Local network sharing')}
@@ -300,7 +311,7 @@ function BlockAds() {
 
   return (
     <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
+      <StyledSectionItem disabled={dns.state === 'custom'} onClick={() => setBlockAds(!dns.defaultOptions.blockAds)}>
         <AriaLabel>
           <IndentedValueLabel>
             {
@@ -325,7 +336,7 @@ function BlockTrackers() {
 
   return (
     <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
+      <StyledSectionItem disabled={dns.state === 'custom'} onClick={() => setBlockTrackers(!dns.defaultOptions.blockTrackers)}>
         <AriaLabel>
           <IndentedValueLabel>
             {
@@ -347,10 +358,11 @@ function BlockTrackers() {
 
 function BlockMalware() {
   const [dns, setBlockMalware] = useDns('blockMalware');
+  const handleBlockMalwareToggle = handleToggleWithInfoButton(setBlockMalware, dns.defaultOptions.blockMalware);
 
   return (
     <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
+      <StyledSectionItem disabled={dns.state === 'custom'} onClick={handleBlockMalwareToggle}>
         <AriaLabel>
           <IndentedValueLabel>
             {
@@ -385,7 +397,7 @@ function BlockGambling() {
 
   return (
     <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
+      <StyledSectionItem disabled={dns.state === 'custom'} onClick={() => setBlockGambling(!dns.defaultOptions.blockGambling)}>
         <AriaLabel>
           <IndentedValueLabel>
             {
@@ -410,7 +422,7 @@ function BlockAdultContent() {
 
   return (
     <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
+      <StyledSectionItem disabled={dns.state === 'custom'} onClick={() => setBlockAdultContent(!dns.defaultOptions.blockAdultContent)}>
         <AriaLabel>
           <IndentedValueLabel>
             {
@@ -435,7 +447,7 @@ function BlockSocialMedia() {
 
   return (
     <AriaInputGroup>
-      <StyledSectionItem disabled={dns.state === 'custom'}>
+      <StyledSectionItem disabled={dns.state === 'custom'} onClick={() => setBlockSocialMedia(!dns.defaultOptions.blockSocialMedia)}>
         <AriaLabel>
           <IndentedValueLabel>
             {
@@ -494,10 +506,11 @@ function EnableIpv6() {
     },
     [setEnableIpv6Impl],
   );
+  const handleEnableIpv6Toggle = handleToggleWithInfoButton(setEnableIpv6, enableIpv6);
 
   return (
     <AriaInputGroup>
-      <Cell.Container>
+      <Cell.Container onClick={handleEnableIpv6Toggle}>
         <AriaLabel>
           <Cell.InputLabel>{messages.pgettext('vpn-settings-view', 'Enable IPv6')}</Cell.InputLabel>
         </AriaLabel>
@@ -603,11 +616,16 @@ function LockdownMode() {
     hideConfirmationDialog();
     await setBlockWhenDisconnected(true);
   }, [hideConfirmationDialog, setBlockWhenDisconnected]);
+  const handleLockdownToggle = (e: React.MouseEvent) => {
+    if (clickedContainerAndNotInfoButton(e.target as HTMLElement)) {
+      setLockDownMode(!blockWhenDisconnected);
+      }
+  }
 
   return (
     <>
       <AriaInputGroup>
-        <Cell.Container>
+        <Cell.Container onClick={handleLockdownToggle}>
           <AriaLabel>
             <Cell.InputLabel>
               {messages.pgettext('vpn-settings-view', 'Lockdown mode')}
