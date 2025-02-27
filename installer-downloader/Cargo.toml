@@ -23,7 +23,7 @@ windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_Libr
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
 async-trait = "0.1"
 chrono = { workspace = true, features = ["clock"] }
-fern = { version = "0.6", default-features = false }
+fern = { workspace = true }
 hex = "0.4"
 log = { workspace = true }
 rand = { version = "0.8.5" }
