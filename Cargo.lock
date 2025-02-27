@@ -2032,6 +2032,7 @@ dependencies = [
  "native-windows-gui",
  "objc_id",
  "rand 0.8.5",
+ "reqwest",
  "serde",
  "tokio",
  "windows-sys 0.52.0",

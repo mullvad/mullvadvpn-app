@@ -14,6 +14,8 @@ use rand::seq::SliceRandom;
 
 use tokio::sync::{mpsc, oneshot};
 
+const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
+
 /// Actions handled by an async worker task in [handle_action_messages].
 enum TaskMessage {
     SetVersionInfo(VersionInfo),
@@ -39,9 +41,10 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T) {
     const STAGEMOLE_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
     let verifying_key =
         mullvad_update::format::key::VerifyingKey::from_hex(STAGEMOLE_PUBKEY).expect("valid key");
+    let cert = reqwest::Certificate::from_pem(PINNED_CERTIFICATE).expect("invalid cert");
     let version_provider = HttpVersionInfoProvider {
         url: get_metadata_url(),
-        pinned_certificate: None,
+        pinned_certificate: Some(cert),
         verifying_key,
     };
 
