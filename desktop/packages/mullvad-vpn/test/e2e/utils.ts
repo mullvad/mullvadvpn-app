@@ -64,11 +64,12 @@ const currentRouteFactory = (app: ElectronApplication) => {
 };
 
 const waitForNavigationFactory = (app: ElectronApplication, page: Page) => {
+  const waitForNextRoute = waitForNextRouteFactory(app);
   // Wait for navigation animation to finish. A function can be provided that initiates the
   // navigation, e.g. clicks a button.
   return async (initiateNavigation?: () => Promise<void> | void) => {
     // Wait for route to change after optionally initiating the navigation.
-    const [route] = await Promise.all([waitForNextRoute(app), initiateNavigation?.()]);
+    const [route] = await Promise.all([waitForNextRoute(), initiateNavigation?.()]);
 
     // Wait for view corresponding to new route to appear
     await page.getByTestId(route).isVisible();
@@ -111,15 +112,16 @@ const waitForRouteFactory = (app: ElectronApplication) => {
 };
 
 // Returns the route when it changes
-const waitForNextRoute = (app: ElectronApplication): Promise<string> => {
-  return app.evaluate(
-    ({ ipcMain }) =>
-      new Promise((resolve) => {
-        ipcMain.once('navigation-setHistory', (_event, history: History) => {
-          resolve(history.entries[history.index].pathname);
-        });
-      }),
-  );
+const waitForNextRouteFactory = (app: ElectronApplication) => {
+  return async () =>
+    app.evaluate<string>(
+      ({ ipcMain }) =>
+        new Promise((resolve) => {
+          ipcMain.once('navigation-setHistory', (_event, history: History) => {
+            resolve(history.entries[history.index].pathname);
+          });
+        }),
+    );
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {
