@@ -27,7 +27,7 @@ chrono = { workspace = true, features = ["clock"] }
 fern = { version = "0.6", default-features = false }
 log = { workspace = true }
 
-mullvad-update = { path = "../mullvad-update", features = ["client", "native-tls"] }
+mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 hex = "0.4"
 
