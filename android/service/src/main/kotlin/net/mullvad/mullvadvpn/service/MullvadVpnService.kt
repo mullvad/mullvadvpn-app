@@ -26,6 +26,7 @@ import net.mullvad.mullvadvpn.service.notifications.ForegroundNotificationManage
 import net.mullvad.mullvadvpn.service.notifications.NotificationChannelFactory
 import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.util.extractAndOverwriteIfAssetMoreRecent
+import net.mullvad.mullvadvpn.widget.MullvadWidgetUpdater
 import net.mullvad.talpid.TalpidVpnService
 import org.koin.android.ext.android.getKoin
 import org.koin.core.context.loadKoinModules
@@ -37,6 +38,7 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var keyguardManager: KeyguardManager
 
     private lateinit var managementService: ManagementService
+    private lateinit var mullvadWidgetUpdater: MullvadWidgetUpdater
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder
     private lateinit var connectionProxy: ConnectionProxy
@@ -58,6 +60,8 @@ class MullvadVpnService : TalpidVpnService() {
             get<NotificationChannelFactory>()
 
             managementService = get()
+
+            mullvadWidgetUpdater = get()
 
             foregroundNotificationHandler =
                 ForegroundNotificationManager(this@MullvadVpnService, get())
@@ -88,6 +92,9 @@ class MullvadVpnService : TalpidVpnService() {
 
         Logger.i("Start management service")
         managementService.start()
+
+        Logger.i("Start widget updater")
+        mullvadWidgetUpdater.start()
 
         lifecycleScope.launch {
             // If the service is started with a connect command and a non-blocking error occur (e.g.
@@ -202,6 +209,9 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Logger.i("Stop widget updater")
+        mullvadWidgetUpdater.stop()
+
         Logger.i("MullvadVpnService: onDestroy")
         // Shutting down the daemon gracefully
         managementService.stop()

@@ -70,6 +70,7 @@ dependencies {
     implementation(projects.lib.model)
     implementation(projects.lib.shared)
     implementation(projects.lib.talpid)
+    implementation(projects.widget)
 
     implementation(libs.androidx.ktx)
     implementation(libs.androidx.lifecycle.service)

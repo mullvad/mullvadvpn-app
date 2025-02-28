@@ -15,6 +15,7 @@ import net.mullvad.mullvadvpn.service.notifications.NotificationManager
 import net.mullvad.mullvadvpn.service.notifications.NotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.accountexpiry.AccountExpiryNotificationProvider
 import net.mullvad.mullvadvpn.service.notifications.tunnelstate.TunnelStateNotificationProvider
+import net.mullvad.mullvadvpn.widget.MullvadWidgetUpdater
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.createdAtStart
 import org.koin.core.module.dsl.withOptions
@@ -67,6 +68,13 @@ val vpnServiceModule = module {
                 } else {
                     null
                 },
+        )
+    }
+    single {
+        MullvadWidgetUpdater(
+            androidContext(),
+            get(),
+            MainScope(),
         )
     }
 }

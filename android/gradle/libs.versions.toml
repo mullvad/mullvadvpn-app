@@ -78,6 +78,8 @@ mockwebserver = "4.12.0"
 play-publisher = "3.12.1"
 turbine = "1.2.0"
 
+glance-appwidget = "1.1.0"
+
 [libraries]
 # Android
 android-billingclient = { module = "com.android.billingclient:billing-ktx", version.ref = "android-billingclient" }
@@ -201,6 +203,10 @@ grpc-protoc-gen-grpc-kotlin = { id = "io.grpc:protoc-gen-grpc-kotlin", version.r
 
 # Rust Android Gradle
 rust-android-gradle = { id = "org.mozilla.rust-android-gradle.rust-android", version.ref = "rust-android-gradle" }
+
+# Glance App Widget
+glance-app-widget = { id = "androidx.glance:glance-appwidget", version.ref = "glance-appwidget" }
+glance-material = { id = "androidx.glance:glance-material3", version.ref = "glance-appwidget" }
 
 dependency-versions = { id = "com.github.ben-manes.versions", version.ref = "dependency-versions" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
