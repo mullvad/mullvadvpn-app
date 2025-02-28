@@ -54,6 +54,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
     private var accessMethodRepository: AccessMethodRepositoryProtocol
     private let configuredTransportProvider: ProxyConfigurationTransportProvider
     private let ipOverrideRepository: IPOverrideRepository
+    private let relaySelectorWrapper: RelaySelectorWrapper
 
     private var outOfTimeTimer: Timer?
 
@@ -72,7 +73,8 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         appPreferences: AppPreferencesDataSource,
         accessMethodRepository: AccessMethodRepositoryProtocol,
         transportProvider: ProxyConfigurationTransportProvider,
-        ipOverrideRepository: IPOverrideRepository
+        ipOverrideRepository: IPOverrideRepository,
+        relaySelectorWrapper: RelaySelectorWrapper
 
     ) {
         self.tunnelManager = tunnelManager
@@ -86,6 +88,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         self.accessMethodRepository = accessMethodRepository
         self.configuredTransportProvider = transportProvider
         self.ipOverrideRepository = ipOverrideRepository
+        self.relaySelectorWrapper = relaySelectorWrapper
 
         super.init()
 
@@ -510,7 +513,7 @@ final class ApplicationCoordinator: Coordinator, Presenting, @preconcurrency Roo
         let locationCoordinator = LocationCoordinator(
             navigationController: navigationController,
             tunnelManager: tunnelManager,
-            relayCacheTracker: relayCacheTracker,
+            relaySelectorWrapper: relaySelectorWrapper,
             customListRepository: CustomListRepository()
         )
 
