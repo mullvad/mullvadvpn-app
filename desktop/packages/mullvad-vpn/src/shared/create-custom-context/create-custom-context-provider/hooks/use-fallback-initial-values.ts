@@ -6,11 +6,11 @@ const useFallbackInitialValues = <
 >(
   props: ProviderProps,
 ) => {
-  const defaultInitialValues = {
+  const initialValues = {
     ...props,
   } as unknown as ContextValues;
 
-  return defaultInitialValues;
+  return initialValues;
 };
 
 export default useFallbackInitialValues;

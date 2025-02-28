@@ -14,10 +14,7 @@ const createCustomContextProvider = <
   ProviderProps extends object,
 >(
   Context: CustomContextReact<ContextValues>,
-  useInitialValues: UseInitialValues<
-    Partial<ContextValues>,
-    ProviderProps
-  > = useFallbackInitialValues,
+  useInitialValues: UseInitialValues<ContextValues, ProviderProps> = useFallbackInitialValues,
   useUpdateValues: UseUpdateValues<
     ContextValues,
     Omit<ProviderProps, 'children'>,
@@ -42,8 +39,8 @@ const createCustomContextProvider = <
   };
 
   const CustomContextProvider: React.FunctionComponent<ProviderProps> = (props) => {
-    const initialValues: Partial<ContextValues> = useInitialValues(props);
-    const context = useInitialContext<ContextValues>(initialValues as ContextValues);
+    const initialValues = useInitialValues(props);
+    const context = useInitialContext<ContextValues>(initialValues);
 
     return (
       <Context.Provider value={context}>
