@@ -441,6 +441,7 @@ dependencies {
     implementation(projects.lib.usecase)
     implementation(libs.androidx.profileinstaller)
     implementation(libs.androidx.navigation3.ui)
+    implementation(libs.androidx.glance.appwidget)
 
     // Baseline profile
     baselineProfile(projects.test.baselineprofile)

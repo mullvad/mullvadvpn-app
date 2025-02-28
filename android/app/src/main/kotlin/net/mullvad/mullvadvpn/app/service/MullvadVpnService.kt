@@ -17,6 +17,7 @@ import kotlinx.coroutines.runBlocking
 import net.mullvad.mullvadvpn.BuildConfig
 import net.mullvad.mullvadvpn.app.service.migration.MigrateSplitTunneling
 import net.mullvad.mullvadvpn.app.service.notifications.ForegroundNotificationManager
+import net.mullvad.mullvadvpn.app.widget.MullvadWidgetUpdater
 import net.mullvad.mullvadvpn.di.vpnServiceModule
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_CONNECT_ACTION
 import net.mullvad.mullvadvpn.lib.common.constant.KEY_DISCONNECT_ACTION
@@ -38,6 +39,7 @@ class MullvadVpnService : TalpidVpnService() {
     private lateinit var keyguardManager: KeyguardManager
 
     private lateinit var managementService: ManagementService
+    private lateinit var mullvadWidgetUpdater: MullvadWidgetUpdater
     private lateinit var migrateSplitTunneling: MigrateSplitTunneling
     private lateinit var apiEndpointFromIntentHolder: ApiEndpointFromIntentHolder
     private lateinit var connectionProxy: ConnectionProxy
@@ -59,6 +61,8 @@ class MullvadVpnService : TalpidVpnService() {
             get<NotificationChannelFactory>()
 
             managementService = get()
+
+            mullvadWidgetUpdater = get()
 
             foregroundNotificationHandler =
                 ForegroundNotificationManager(this@MullvadVpnService, get())
@@ -89,6 +93,9 @@ class MullvadVpnService : TalpidVpnService() {
 
         Logger.i("Start management service")
         managementService.start()
+
+        Logger.i("Start widget updater")
+        mullvadWidgetUpdater.start()
 
         lifecycleScope.launch {
             // If the service is started with a connect command and a non-blocking error occur (e.g.
@@ -205,6 +212,9 @@ class MullvadVpnService : TalpidVpnService() {
 
     override fun onDestroy() {
         super.onDestroy()
+        Logger.i("Stop widget updater")
+        mullvadWidgetUpdater.stop()
+
         Logger.i("MullvadVpnService: onDestroy")
         // Shutting down the daemon gracefully
         managementService.stop()
