@@ -48,48 +48,56 @@ final class LocationViewControllerWrapper: UIViewController {
     private let exitLocationViewController: LocationViewController
     private let segmentedControl = UISegmentedControl()
     private let locationViewContainer = UIView()
+    private var settings: LatestTunnelSettings
+    private var relaySelectorWrapper: RelaySelectorWrapper
 
+    private var multihopContext: MultihopContext = .exit
     private var selectedEntry: UserSelectedRelays?
     private var selectedExit: UserSelectedRelays?
-    private let multihopEnabled: Bool
-    private var multihopContext: MultihopContext = .exit
-    private var daitaSettings: DAITASettings
 
     weak var delegate: LocationViewControllerWrapperDelegate?
 
+    var onNewSettings: ((LatestTunnelSettings) -> Void)?
+
+    private var relayFilter: RelayFilter {
+        if case let .only(filter) = settings.relayConstraints.filter {
+            return filter
+        }
+        return RelayFilter()
+    }
+
     init(
+        settings: LatestTunnelSettings,
+        relaySelectorWrapper: RelaySelectorWrapper,
         customListRepository: CustomListRepositoryProtocol,
-        constraints: RelayConstraints,
-        multihopEnabled: Bool,
-        daitaSettings: DAITASettings,
         startContext: MultihopContext
     ) {
-        self.multihopEnabled = multihopEnabled
-        self.daitaSettings = daitaSettings
-        multihopContext = startContext
+        self.selectedEntry = settings.relayConstraints.entryLocations.value
+        self.selectedExit = settings.relayConstraints.exitLocations.value
+        self.settings = settings
+        self.relaySelectorWrapper = relaySelectorWrapper
+        self.multihopContext = startContext
 
-        selectedEntry = constraints.entryLocations.value
-        selectedExit = constraints.exitLocations.value
-
-        if multihopEnabled {
-            entryLocationViewController = LocationViewController(
-                customListRepository: customListRepository,
-                selectedRelays: RelaySelection(),
-                shouldFilterDaita: daitaSettings.isDirectOnly
-            )
-
-            if daitaSettings.isAutomaticRouting {
-                entryLocationViewController?.enableDaitaAutomaticRouting()
-            }
-        }
+        entryLocationViewController = LocationViewController(
+            customListRepository: customListRepository,
+            selectedRelays: RelaySelection(),
+            shouldFilterDaita: settings.daita.isDirectOnly
+        )
 
         exitLocationViewController = LocationViewController(
             customListRepository: customListRepository,
             selectedRelays: RelaySelection(),
-            shouldFilterDaita: daitaSettings.isDirectOnly && !multihopEnabled
+            shouldFilterDaita: settings.daita.isDirectOnly && !settings.daita.isAutomaticRouting
         )
 
         super.init(nibName: nil, bundle: nil)
+
+        self.onNewSettings = { [weak self] newSettings in
+            self?.settings = newSettings
+            self?.setRelaysWithLocation()
+        }
+
+        setRelaysWithLocation()
 
         updateViewControllers {
             $0.delegate = self
@@ -116,39 +124,29 @@ final class LocationViewControllerWrapper: UIViewController {
         swapViewController()
     }
 
-    func setRelaysWithLocation(_ relaysWithLocation: LocationRelays, filter: RelayFilter) {
-        var daitaFilteredRelays = relaysWithLocation
-        if daitaSettings.daitaState.isEnabled && daitaSettings.directOnlyState.isEnabled {
-            daitaFilteredRelays.relays = relaysWithLocation.relays.filter { relay in
-                relay.daita == true
-            }
-        }
-
-        if multihopEnabled {
-            entryLocationViewController?.setRelaysWithLocation(daitaFilteredRelays, filter: filter)
-            exitLocationViewController.setRelaysWithLocation(relaysWithLocation, filter: filter)
+    private func setRelaysWithLocation() {
+        let emptyResult = LocationRelays(relays: [], locations: [:])
+        let relaysCandidates = try? relaySelectorWrapper.findCandidates(tunnelSettings: self.settings)
+        entryLocationViewController?.setDaitaChip(settings.daita.isDirectOnly)
+        exitLocationViewController.setDaitaChip(settings.daita.isDirectOnly && !settings.tunnelMultihopState.isEnabled)
+        entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: settings.daita.isAutomaticRouting)
+        if let entryRelays = relaysCandidates?.entryRelays {
+            entryLocationViewController?.setRelaysWithLocation(entryRelays.toLocationRelays(), filter: relayFilter)
         } else {
-            exitLocationViewController.setRelaysWithLocation(daitaFilteredRelays, filter: filter)
+            entryLocationViewController?.setRelaysWithLocation(
+                emptyResult,
+                filter: relayFilter
+            )
         }
+        exitLocationViewController.setRelaysWithLocation(
+            relaysCandidates?.exitRelays.toLocationRelays() ?? emptyResult,
+            filter: relayFilter
+        )
     }
 
     func refreshCustomLists() {
         updateViewControllers {
             $0.refreshCustomLists()
-        }
-    }
-
-    func onDaitaSettingsUpdate(_ settings: DAITASettings, relaysWithLocation: LocationRelays, filter: RelayFilter) {
-        daitaSettings = settings
-        guard multihopEnabled else { return }
-
-        setRelaysWithLocation(relaysWithLocation, filter: filter)
-        entryLocationViewController?.setShouldFilterDaita(settings.isDirectOnly)
-
-        if daitaSettings.isAutomaticRouting {
-            entryLocationViewController?.enableDaitaAutomaticRouting()
-        } else {
-            entryLocationViewController?.disableDaitaAutomaticRouting()
         }
     }
 
@@ -176,7 +174,8 @@ final class LocationViewControllerWrapper: UIViewController {
                 comment: ""
             ),
             primaryAction: UIAction(handler: { [weak self] _ in
-                self?.delegate?.navigateToFilter()
+                guard let self = self else { return }
+                delegate?.navigateToFilter()
             })
         )
         navigationItem.leftBarButtonItem?.setAccessibilityIdentifier(.selectLocationFilterButton)
@@ -220,7 +219,7 @@ final class LocationViewControllerWrapper: UIViewController {
 
             locationViewContainer.pinEdgesToSuperview(.all().excluding(.top))
 
-            if multihopEnabled {
+            if settings.tunnelMultihopState.isEnabled {
                 locationViewContainer.topAnchor.constraint(equalTo: segmentedControl.bottomAnchor, constant: 4)
             } else {
                 locationViewContainer.pinEdgeToSuperviewMargin(.top(0))
@@ -263,7 +262,7 @@ final class LocationViewControllerWrapper: UIViewController {
             (
                 RelaySelection(
                     selected: selectedExit,
-                    excluded: multihopEnabled ? selectedEntry : nil,
+                    excluded: settings.tunnelMultihopState.isEnabled ? selectedEntry : nil,
                     excludedTitle: MultihopContext.entry.description
                 ),
                 entryLocationViewController,
