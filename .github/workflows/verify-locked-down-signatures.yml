@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/verify-locked-down-signatures.yml
+      - .github/workflows/unicop.yml
       - .github/CODEOWNERS
       - Cargo.toml
       - test/Cargo.toml
