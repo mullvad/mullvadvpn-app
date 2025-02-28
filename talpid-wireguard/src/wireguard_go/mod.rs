@@ -354,6 +354,7 @@ impl WgGoTunnel {
     }
 }
 
+#[cfg(any(target_os = "linux", target_os = "macos"))]
 pub fn get_tunnel_for_userspace(
     tun_provider: Arc<Mutex<TunProvider>>,
     config: &Config,

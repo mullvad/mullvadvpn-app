@@ -9,15 +9,13 @@ use boringtun::device::{
     DeviceConfig, DeviceHandle,
 };
 use ipnetwork::IpNetwork;
-use std::ops::Deref;
-use std::os::fd::{AsRawFd, RawFd};
 use std::{
     future::Future,
+    ops::Deref,
     path::Path,
     sync::{Arc, Mutex},
 };
-use talpid_tunnel::tun_provider::Tun;
-use talpid_tunnel::tun_provider::TunProvider;
+use talpid_tunnel::tun_provider::{Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use tun::AbstractDevice;
 
@@ -30,8 +28,8 @@ pub struct BoringTun {
     config: Config,
 
     interface_name: String,
-    // /// holding on to the tunnel device and the log file ensures that the associated file handles
-    // /// live long enough and get closed when the tunnel is stopped
+    // /// holding on to the tunnel device and the log file ensures that the associated file
+    // handles /// live long enough and get closed when the tunnel is stopped
     // tunnel_device: Tun,
 }
 
@@ -50,13 +48,20 @@ impl BoringTun {
         let async_tun = {
             let tun = crate::boringtun::get_tunnel_for_userspace(tun_provider, config, routes)?;
 
-            tun.into_inner().into_inner()
+            #[cfg(unix)]
+            {
+                tun.into_inner().into_inner()
+            }
+            #[cfg(windows)]
+            {
+                tun.into_tun_lol()
+            }
         };
 
         let (mut config_tx, config_rx) = ConfigRx::new();
         let mut boringtun_config = DeviceConfig {
             n_threads: 4,
-            //use_connected_socket: false, // TODO: what is this?
+            // use_connected_socket: false, // TODO: what is this?
             #[cfg(target_os = "linux")]
             use_multi_queue: false, // TODO: what is this?
             api: Some(config_rx),
@@ -106,7 +111,7 @@ impl BoringTun {
             config: config.clone(),
             config_tx,
             interface_name,
-            //tunnel_device: tun,
+            // tunnel_device: tun,
         })
     }
 }
@@ -114,7 +119,7 @@ impl BoringTun {
 #[async_trait::async_trait]
 impl Tunnel for BoringTun {
     fn get_interface_name(&self) -> String {
-        //self.tunnel_device.interface_name()
+        // self.tunnel_device.interface_name()
         self.interface_name.clone()
     }
 
@@ -124,7 +129,7 @@ impl Tunnel for BoringTun {
         tokio::spawn(async {
             self.device_handle.stop().await;
         });
-        std::thread::sleep_ms(1000);
+        std::thread::sleep(std::time::Duration::from_millis(1000));
         Ok(())
     }
 
@@ -267,7 +272,7 @@ fn get_tunnel_for_userspace(
 pub fn get_tunnel_for_userspace(
     tun_provider: Arc<Mutex<TunProvider>>,
     config: &Config,
-) -> Result<(Tun, RawFd), TunnelError> {
+) -> Result<(Tun, os::fd::RawFd), TunnelError> {
     let mut last_error = None;
     let mut tun_provider = tun_provider.lock().unwrap();
 

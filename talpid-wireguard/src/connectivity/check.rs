@@ -1,18 +1,16 @@
-use std::net::Ipv4Addr;
-use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::Arc;
-use std::time::Duration;
-use tokio::sync::broadcast;
-use tokio::time::Instant;
+use std::{
+    net::Ipv4Addr,
+    sync::{
+        atomic::{AtomicBool, Ordering},
+        Arc,
+    },
+    time::Duration,
+};
+use tokio::{sync::broadcast, time::Instant};
 
-use super::constants::*;
-use super::error::Error;
-use super::pinger;
+use super::{constants::*, error::Error, pinger};
 
-use crate::stats::StatsMap;
-#[cfg(target_os = "android")]
-use crate::Tunnel;
-use crate::{TunnelError, TunnelType};
+use crate::{stats::StatsMap, Tunnel, TunnelError, TunnelType};
 use pinger::Pinger;
 use talpid_types::tunnel;
 
@@ -605,7 +603,10 @@ mod test {
         Check::maybe_send_ping(&mut checker.conn_state, &mut checker.ping_state, start)
             .await
             .unwrap();
-        assert!(!checker.check_connectivity(now, &tunnel).await.unwrap())
+        assert!(!checker
+            .check_connectivity(now, tunnel.as_ref())
+            .await
+            .unwrap())
     }
 
     #[tokio::test]
@@ -618,7 +619,10 @@ mod test {
         let start = now.checked_sub(Duration::from_secs(1)).unwrap();
         let (mut checker, _cancel_token) = mock_checker(start, Box::new(pinger));
 
-        assert!(!checker.check_connectivity(now, &tunnel).await.unwrap())
+        assert!(!checker
+            .check_connectivity(now, tunnel.as_ref())
+            .await
+            .unwrap())
     }
 
     #[tokio::test]
@@ -634,7 +638,10 @@ mod test {
         // Mock the state - connectivity has been established
         checker.conn_state = connected_state(start);
 
-        assert!(checker.check_connectivity(now, &tunnel).await.unwrap())
+        assert!(checker
+            .check_connectivity(now, tunnel.as_ref())
+            .await
+            .unwrap())
     }
 
     #[tokio::test(start_paused = true)]
@@ -672,7 +679,7 @@ mod test {
                             ESTABLISH_TIMEOUT,
                             ESTABLISH_TIMEOUT_MULTIPLIER,
                             MAX_ESTABLISH_TIMEOUT,
-                            &tunnel,
+                            tunnel.as_ref(),
                         )
                         .await,
                 )

@@ -23,9 +23,8 @@ use std::{
 use std::{env, sync::LazyLock};
 #[cfg(not(target_os = "android"))]
 use talpid_routing::{self, RequiredRoute};
-use talpid_tunnel::tun_provider;
 use talpid_tunnel::{
-    tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
+    tun_provider, tun_provider::TunProvider, EventHook, TunnelArgs, TunnelEvent, TunnelMetadata,
 };
 
 #[cfg(target_os = "android")]
@@ -239,11 +238,9 @@ impl WireguardMonitor {
             let tunnel = moved_tunnel;
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
-            /*
-            #[cfg(windows)]
-            Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
-                .await?;
-            */
+            // #[cfg(windows)]
+            // Self::add_device_ip_addresses(&iface_name, &config.tunnel.addresses, setup_done_rx)
+            // .await?;
 
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
@@ -330,7 +327,7 @@ impl WireguardMonitor {
             let lock = tunnel.lock().await;
             let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
             match connectivity_monitor
-                .establish_connectivity(borrowed_tun)
+                .establish_connectivity(borrowed_tun.as_ref())
                 .await
             {
                 Ok(true) => Ok(()),
@@ -669,7 +666,7 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         resource_dir: &Path,
-        _tun_provider: Arc<Mutex<TunProvider>>,
+        tun_provider: Arc<Mutex<TunProvider>>,
         route_manager: talpid_routing::RouteManagerHandle,
         setup_done_tx: mpsc::Sender<std::result::Result<(), BoxedError>>,
     ) -> Result<TunnelType> {

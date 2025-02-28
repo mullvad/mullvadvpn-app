@@ -1,12 +1,13 @@
 use std::{sync::Weak, time::Duration};
 
-use tokio::sync::Mutex;
-use tokio::time::{Instant, MissedTickBehavior};
+use tokio::{
+    sync::Mutex,
+    time::{Instant, MissedTickBehavior},
+};
 
 use crate::TunnelType;
 
-use super::check::Check;
-use super::error::Error;
+use super::{check::Check, error::Error};
 
 /// Sleep time used when checking if an established connection is still working.
 const REGULAR_LOOP_SLEEP: Duration = Duration::from_secs(1);
@@ -75,15 +76,17 @@ impl Monitor {
 mod test {
     use super::*;
 
-    use std::sync::atomic::{AtomicBool, Ordering};
-    use std::sync::Arc;
-    use std::time::Duration;
+    use std::{
+        sync::{
+            atomic::{AtomicBool, Ordering},
+            Arc,
+        },
+        time::Duration,
+    };
 
-    use tokio::sync::mpsc;
-    use tokio::sync::Mutex;
+    use tokio::sync::{mpsc, Mutex};
 
-    use crate::connectivity::constants::*;
-    use crate::connectivity::mock::*;
+    use crate::connectivity::{constants::*, mock::*};
 
     #[tokio::test(start_paused = true)]
     /// Verify that the connectivity monitor doesn't fail if the tunnel constantly sends traffic,
@@ -99,7 +102,7 @@ mod test {
         };
 
         tokio::spawn(async move {
-            let start_result = checker.establish_connectivity(&tunnel).await;
+            let start_result = checker.establish_connectivity(tunnel.as_ref()).await;
             result_tx.send(start_result).await.unwrap();
             // Pointer dance
             let tunnel = Arc::new(Mutex::new(Some(tunnel)));
@@ -155,7 +158,7 @@ mod test {
                 let start = now.checked_sub(Duration::from_secs(1)).unwrap();
                 mock_checker(start, Box::new(pinger))
             };
-            let start_result = checker.establish_connectivity(&tunnel).await;
+            let start_result = checker.establish_connectivity(tunnel.as_ref()).await;
             result_tx.send(start_result).await.unwrap();
             // Pointer dance
             let _tunnel = Arc::new(Mutex::new(Some(tunnel)));
