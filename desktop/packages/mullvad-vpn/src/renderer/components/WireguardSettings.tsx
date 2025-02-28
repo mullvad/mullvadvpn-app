@@ -245,10 +245,14 @@ function ObfuscationSettings() {
           title={messages.pgettext('wireguard-settings-view', 'Obfuscation')}
           details={
             <ModalMessage>
-              {messages.pgettext(
-                'wireguard-settings-view',
-                'Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connect would be blocked.',
-              )}
+              {
+                // TRANSLATORS: Describes what WireGuard obfuscation does, how it works and when
+                // TRANSLATORS: it would be useful to enable it.
+                messages.pgettext(
+                  'wireguard-settings-view',
+                  'Obfuscation hides the WireGuard traffic inside another protocol. It can be used to help circumvent censorship and other types of filtering, where a plain WireGuard connection would be blocked.',
+                )
+              }
             </ModalMessage>
           }
           items={obfuscationTypeItems}
