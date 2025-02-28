@@ -1,8 +1,7 @@
 import createCustomContext from './create-custom-context';
-import createCustomContextHooks from './create-custom-context-hooks';
 import withCustomContext from './create-custom-context-provider';
 import type {
-  GetContextProviderProps,
+  ContextProviderProps,
   UseInitialValues,
   UseUpdateValues,
 } from './create-custom-context-provider/types';
@@ -14,9 +13,9 @@ const createCustomContextWithProvider = <
   Values extends CustomContextValues,
   ProviderProps extends object,
 >(
-  getContextProviderProps: GetContextProviderProps<ProviderProps>,
+  contextProviderProps: ContextProviderProps<ProviderProps>,
   useInitialValues?: UseInitialValues<Values, ProviderProps>,
-  useUpdateValues?: UseUpdateValues<Values, Omit<ProviderProps, 'children'>>,
+  useUpdateValues?: UseUpdateValues<Values, Omit<ProviderProps, 'children'>, Values>,
 ): CreateContextWithProvider<Values, ProviderProps> => {
   const Context = createCustomContext<Values>();
 
@@ -28,26 +27,19 @@ const createCustomContextWithProvider = <
     useUpdateValues,
   );
 
-  const withContextProvider = <
-    ComponentProps extends object,
-    ReactComponent extends React.FunctionComponent<ComponentProps>,
-  >(
-    Component: ReactComponent,
+  const withContextProvider = <ComponentProps extends object>(
+    Component: React.FunctionComponent<ComponentProps>,
   ) => {
-    const ComponentWithContextProvider = withCustomContextProvider<ComponentProps, ProviderProps>(
-      Component,
-      CustomContextProvider,
-      {
-        useGetContextProviderProps: getContextProviderProps,
-      },
-    );
+    const ComponentWithContextProvider = withCustomContextProvider<
+      ComponentProps,
+      ProviderProps,
+      ComponentProps & ProviderProps
+    >(Component, CustomContextProvider, contextProviderProps);
 
     return ComponentWithContextProvider;
   };
 
-  const customContextHooks = createCustomContextHooks(Context, getContextProviderProps);
-
-  return [useCustomContext, customContextHooks, withContextProvider, CustomContextProvider];
+  return [useCustomContext, withContextProvider];
 };
 
 export default createCustomContextWithProvider;

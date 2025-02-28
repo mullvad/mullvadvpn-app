@@ -8,7 +8,7 @@ const useObjectWithContextKeysAndPropsValues = <
 >(
   values: ContextValues | undefined,
   props: ProviderProps,
-): Partial<ContextValues> => {
+) => {
   const objectWithContextKeysAndPropsValues = useMemo(() => {
     const defaultValue: Partial<ContextValues> = {};
     if (!values) {

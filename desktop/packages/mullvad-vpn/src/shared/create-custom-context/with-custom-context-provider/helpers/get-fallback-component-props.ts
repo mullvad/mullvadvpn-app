@@ -1,17 +1,14 @@
 import omit from 'lodash/omit';
 
-import { getObjectKeys } from '../../get-object-keys';
-
 const getFallbackComponentProps = <
   Props extends object,
   ContextProviderProps extends object,
-  ComponentActualProps extends object,
+  ComponentProps extends object,
 >(
   props: Props,
-  contextProviderProps: ContextProviderProps,
+  contextProviderProps: Array<keyof ContextProviderProps>,
 ) => {
-  const forbiddenProps = getObjectKeys(contextProviderProps);
-  const componentProps = omit(props, forbiddenProps) as unknown as ComponentActualProps;
+  const componentProps = omit(props, contextProviderProps) as unknown as ComponentProps;
 
   return componentProps;
 };

@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import type { CustomContextReact, CustomContextValues } from '../types';
-import { useFallbackInitialValues, useFallbackUpdateValues, useInitialContext } from './hooks';
+import {
+  useFallbackInitialValues,
+  useFallbackUpdateValues,
+  useInitialContext,
+  useShouldUpdateValues,
+} from './hooks';
 import type { UseInitialValues, UseUpdateValues } from './types';
 
 const createCustomContextProvider = <
@@ -15,14 +20,24 @@ const createCustomContextProvider = <
   > = useFallbackInitialValues,
   useUpdateValues: UseUpdateValues<
     ContextValues,
-    Omit<ProviderProps, 'children'>
+    Omit<ProviderProps, 'children'>,
+    ContextValues
   > = useFallbackUpdateValues,
 ) => {
   const ComponentWithContextEffects = ({
     children,
     ...props
   }: React.PropsWithChildren<ProviderProps>) => {
-    useUpdateValues(props, Context);
+    const { values, setValues } = useContext(Context);
+    const updateValues = useUpdateValues(values, props);
+    const shouldUpdateValues = useShouldUpdateValues(updateValues);
+
+    useEffect(() => {
+      if (shouldUpdateValues) {
+        console.log('will update values', updateValues);
+        setValues(updateValues);
+      }
+    }, [setValues, shouldUpdateValues, updateValues]);
 
     return <>{children}</>;
   };

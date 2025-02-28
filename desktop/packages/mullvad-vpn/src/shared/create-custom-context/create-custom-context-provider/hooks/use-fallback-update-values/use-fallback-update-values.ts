@@ -1,25 +1,17 @@
-import { useContext, useEffect } from 'react';
-
-import type { CustomContextReact, CustomContextValues } from '../../../types';
-import { useObjectWithContextKeysAndPropsValues, useShouldUpdateValues } from './hooks';
+import type { CustomContextValues } from '../../../types';
+import { useObjectWithContextKeysAndPropsValues } from './hooks';
 
 const useFallbackUpdateValues = <
   ContextValues extends CustomContextValues,
   ProviderProps extends object,
+  UpdatedContextValues extends CustomContextValues,
 >(
+  values: ContextValues,
   props: ProviderProps,
-  Context: CustomContextReact<ContextValues>,
-) => {
-  const { values, setValues } = useContext(Context);
-
+): UpdatedContextValues => {
   const propsValues = useObjectWithContextKeysAndPropsValues(values, props);
-  const shouldUpdateValues = useShouldUpdateValues(propsValues);
 
-  useEffect(() => {
-    if (shouldUpdateValues) {
-      setValues(propsValues);
-    }
-  }, [setValues, shouldUpdateValues, propsValues]);
+  return propsValues as UpdatedContextValues;
 };
 
 export default useFallbackUpdateValues;

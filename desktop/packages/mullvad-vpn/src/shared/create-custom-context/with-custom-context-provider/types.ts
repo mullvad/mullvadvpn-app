@@ -1,18 +1,12 @@
-export type GetComponentProps<
-  ComponentProps extends object,
-  ContextProviderProps extends object,
-  Props extends ContextProviderProps,
-> = (props: Props, contextProviderProps: ContextProviderProps) => ComponentProps;
-
-export type GetContextProviderProps<Props extends object, ContextProviderProps extends object> = (
+export type ContextProviderProps<Props extends object, ProviderProps extends object> = (
   props: Props,
-) => ContextProviderProps;
+) => ProviderProps;
 
-export type Options<
+export type WithCustomContextProvider<
   ComponentProps extends object,
-  ContextProviderProps extends object,
-  Props extends ContextProviderProps,
-> = {
-  useGetComponentProps?: GetComponentProps<ComponentProps, ContextProviderProps, Props>;
-  useGetContextProviderProps?: GetContextProviderProps<Props, ContextProviderProps>;
-};
+  ProviderProps extends object,
+> = (
+  Component: React.FunctionComponent<ComponentProps>,
+  ContextProvider: React.FunctionComponent<ProviderProps>,
+  contextProviderProps?: Array<keyof ProviderProps>,
+) => React.FunctionComponent<ComponentProps & ProviderProps>;

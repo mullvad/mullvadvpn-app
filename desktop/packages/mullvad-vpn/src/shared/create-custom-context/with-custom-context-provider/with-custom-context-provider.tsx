@@ -1,31 +1,25 @@
 import React from 'react';
 
-import { ForbiddenProps } from '../types';
 import { getFallbackComponentProps, getFallbackContextProviderProps } from './helpers';
-import type { Options } from './types';
 
 const withCustomContextProvider = <
   ComponentProps extends object,
-  ContextProviderProps extends object,
+  ProviderProps extends object,
+  CombinedProps extends object,
 >(
   Component: React.FunctionComponent<ComponentProps>,
-  ContextProvider: React.FunctionComponent<ContextProviderProps>,
-  options?: Options<ComponentProps, ContextProviderProps, ComponentProps & ContextProviderProps>,
+  ContextProvider: React.FunctionComponent<ProviderProps>,
+  contextProviderProps: Array<keyof ProviderProps> = [],
 ) => {
-  const {
-    useGetComponentProps = getFallbackComponentProps,
-    useGetContextProviderProps = getFallbackContextProviderProps,
-  } = options || {};
-
-  const ComponentWithContextProvider: React.ForwardRefRenderFunction<
-    React.ElementRef<typeof Component>,
-    ComponentProps & ForbiddenProps<ContextProviderProps>
-  > = (props, _ref) => {
-    const contextProviderProps = useGetContextProviderProps(props);
-    const componentProps = useGetComponentProps(props, contextProviderProps);
+  const ComponentWithContextProvider: React.FunctionComponent<CombinedProps> = (props) => {
+    const providerProps = getFallbackContextProviderProps(props, contextProviderProps);
+    const componentProps = getFallbackComponentProps<CombinedProps, ProviderProps, ComponentProps>(
+      props,
+      contextProviderProps,
+    );
 
     return (
-      <ContextProvider {...contextProviderProps}>
+      <ContextProvider {...providerProps}>
         <Component {...componentProps} />
       </ContextProvider>
     );

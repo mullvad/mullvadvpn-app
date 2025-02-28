@@ -1,8 +1,6 @@
-import type { CustomContextReact, CustomContextValues } from '../types';
+import type { CustomContextValues } from '../types';
 
-export type GetContextProviderProps<ProviderProps extends object> = <Props extends ProviderProps>(
-  props: Props,
-) => ProviderProps;
+export type ContextProviderProps<ProviderProps extends object> = Array<keyof ProviderProps>;
 
 export type UseInitialValues<
   ContextValues extends CustomContextValues,
@@ -12,4 +10,5 @@ export type UseInitialValues<
 export type UseUpdateValues<
   ContextValues extends CustomContextValues,
   ProviderProps extends object,
-> = (props: ProviderProps, Context: CustomContextReact<ContextValues>) => void;
+  UpdatedContextValues extends ContextValues,
+> = (values: ContextValues, props: ProviderProps) => UpdatedContextValues;

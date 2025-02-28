@@ -1,8 +1,11 @@
 import isEqual from 'lodash/isEqual';
 
-import useGetPrevious from './use-get-previous';
+import { CustomContextValues } from '../../types';
+import useGetPrevious from '../../use-get-previous';
 
-const useShouldUpdateValues = <PropsValues extends object>(propsValues: PropsValues) => {
+const useShouldUpdateValues = <PropsValues extends CustomContextValues>(
+  propsValues: PropsValues,
+) => {
   const getPreviousPropsValues = useGetPrevious(propsValues);
   const previousPropsValues = getPreviousPropsValues();
 
