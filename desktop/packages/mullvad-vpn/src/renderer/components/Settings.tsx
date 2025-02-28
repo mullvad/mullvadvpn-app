@@ -238,9 +238,11 @@ function QuitButton() {
 
   return (
     <Button variant="destructive" onClick={quit}>
-      {tunnelState.state === 'disconnected'
-        ? messages.gettext('Quit')
-        : messages.gettext('Disconnect & quit')}
+      <Button.Text>
+        {tunnelState.state === 'disconnected'
+          ? messages.gettext('Quit')
+          : messages.gettext('Disconnect & quit')}
+      </Button.Text>
     </Button>
   );
 }
