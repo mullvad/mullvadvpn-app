@@ -14,6 +14,7 @@ plugins {
     alias(libs.plugins.compose)
     alias(libs.plugins.protobuf.core)
     alias(libs.plugins.rust.android.gradle)
+    alias(libs.plugins.android.screenshot.testing)
 
     id(Dependencies.junit5AndroidPluginId) version Versions.junit5Plugin
 }
@@ -139,6 +140,8 @@ android {
         buildConfig = true
     }
 
+    experimentalProperties["android.experimental.enableScreenshotTest"] = true
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -165,6 +168,9 @@ android {
                 showCauses = true
                 showExceptions = true
             }
+        }
+        screenshotTests {
+            imageDifferenceThreshold = 0.0001f // 0.01%
         }
     }
 
@@ -411,6 +417,7 @@ dependencies {
     // UI tooling
     implementation(libs.compose.ui.tooling.preview)
     debugImplementation(libs.compose.ui.tooling)
+    screenshotTestImplementation(libs.compose.ui.tooling)
 
     // Leak canary
     leakCanaryImplementation(libs.leakCanary)

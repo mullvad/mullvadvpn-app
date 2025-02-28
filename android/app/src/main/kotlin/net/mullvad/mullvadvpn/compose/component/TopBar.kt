@@ -145,7 +145,7 @@ fun MullvadTopBar(
 
                         if (shouldShowText) {
                             Icon(
-                                painter = painterResource(id = R.drawable.logo_text),
+                                painter = logoTextPainter,
                                 tint = iconTintColor,
                                 contentDescription = null, // No meaningful user info or action.
                                 modifier =

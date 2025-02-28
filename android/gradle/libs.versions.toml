@@ -7,6 +7,7 @@ android-gradle-plugin = "8.8.2"
 android-gradle-aapt = "12006047"
 android-billingclient = "7.1.1"
 android-volley = "1.2.1"
+andorid-screenshot-testing = "0.0.1-alpha09"
 
 # AndroidX
 androidx-activitycompose = "1.10.1"
@@ -171,6 +172,7 @@ android-gradle-plugin = { id = "com.android.tools.build:gradle", version.ref = "
 android-application = { id = "com.android.application", version.ref = "android-gradle-plugin" }
 android-library = { id = "com.android.library", version.ref = "android-gradle-plugin" }
 android-test = { id = "com.android.test", version.ref = "android-gradle-plugin" }
+android-screenshot-testing = { id = "com.android.compose.screenshot", version.ref = "andorid-screenshot-testing" }
 
 # Compose
 compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }

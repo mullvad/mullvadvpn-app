@@ -126,7 +126,7 @@ private const val TALL_SCREEN_INDICATOR_BIAS = 0.3f
 
 @Preview("Initial|Connected|Disconnected|Connecting|Error.VpnPermissionDenied")
 @Composable
-private fun PreviewAccountScreen(
+private fun PreviewConnectScreen(
     @PreviewParameter(ConnectUiStatePreviewParameterProvider::class) state: ConnectUiState
 ) {
     AppTheme {
