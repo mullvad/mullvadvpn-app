@@ -8,11 +8,34 @@
 
 import Combine
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 
 class RelayFilterViewModel {
-    @Published var relays: [REST.ServerRelay]
+    private var settings: LatestTunnelSettings
+    private let relaysWithLocation: LocationRelays
+    private let relaySelectorWrapper: RelaySelectorWrapper
     @Published var relayFilter: RelayFilter
+
+    init(settings: LatestTunnelSettings, relaySelectorWrapper: RelaySelectorWrapper) {
+        self.settings = settings
+        self.relaySelectorWrapper = relaySelectorWrapper
+        relaysWithLocation = if let cachedResponse = try? relaySelectorWrapper.relayCache.read().relays {
+            LocationRelays(relays: cachedResponse.wireguard.relays, locations: cachedResponse.locations)
+        } else {
+            LocationRelays(relays: [], locations: [:])
+        }
+
+        self.relayFilter = if case let .only(filter) = settings.relayConstraints.filter {
+            filter
+        } else {
+            RelayFilter()
+        }
+    }
+
+    private var relays: [REST.ServerRelay] {
+        relaysWithLocation.relays
+    }
 
     var uniqueProviders: [String] {
         Set(relays.map { $0.provider }).caseInsensitiveSorted()
@@ -24,11 +47,6 @@ class RelayFilterViewModel {
 
     var rentedProviders: [String] {
         Set(relays.filter { $0.owned == false }.map { $0.provider }).caseInsensitiveSorted()
-    }
-
-    init(relays: [REST.ServerRelay], relayFilter: RelayFilter) {
-        self.relays = relays
-        self.relayFilter = relayFilter
     }
 
     func addItemToFilter(_ item: RelayFilterDataSource.Item) {
@@ -75,6 +93,21 @@ class RelayFilterViewModel {
         }
     }
 
+    func providerItem(for providerName: String?) -> RelayFilterDataSource.Item? {
+        return .provider(providerName ?? "")
+    }
+
+    func availableProviders(for ownership: RelayFilter.Ownership) -> [String] {
+        switch ownership {
+        case .any:
+            return uniqueProviders
+        case .owned:
+            return ownedProviders
+        case .rented:
+            return rentedProviders
+        }
+    }
+
     func ownership(for item: RelayFilterDataSource.Item?) -> RelayFilter.Ownership? {
         switch item {
         case .ownershipAny:
@@ -101,27 +134,16 @@ class RelayFilterViewModel {
         }
     }
 
-    func providerName(for item: RelayFilterDataSource.Item?) -> String? {
-        switch item {
-        case let .provider(name):
-            return name
-        default:
-            return nil
-        }
-    }
-
-    func providerItem(for providerName: String?) -> RelayFilterDataSource.Item? {
-        return .provider(providerName ?? "")
-    }
-
-    func availableProviders(for ownership: RelayFilter.Ownership) -> [String] {
-        switch ownership {
-        case .any:
-            return uniqueProviders
-        case .owned:
-            return ownedProviders
-        case .rented:
-            return rentedProviders
+    func getFilteredRelays(_ relayFilter: RelayFilter) -> FilterDescriptor {
+        settings.relayConstraints.filter = .only(relayFilter)
+        do {
+            let result = try relaySelectorWrapper.findCandidates(tunnelSettings: settings)
+            return FilterDescriptor(relayFilterResult: result, settings: settings)
+        } catch {
+            return FilterDescriptor(
+                relayFilterResult: RelaysCandidates(entryRelays: [], exitRelays: []),
+                settings: settings
+            )
         }
     }
 }

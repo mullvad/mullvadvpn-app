@@ -9,7 +9,6 @@
 import MullvadSettings
 import MullvadTypes
 import Network
-
 protocol RelayPicking {
     var obfuscation: ObfuscatorPortSelection { get }
     var constraints: RelayConstraints { get }

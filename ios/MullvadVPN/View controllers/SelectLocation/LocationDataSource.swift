@@ -253,12 +253,26 @@ extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         switch sections[section] {
         case .allLocations:
-            return LocationSectionHeaderView(
-                configuration: LocationSectionHeaderView.Configuration(name: LocationSection.allLocations.description)
+            return LocationSectionHeaderFooterView(
+                configuration: LocationSectionHeaderFooterView.Configuration(
+                    name: LocationSection.allLocations.header,
+                    style: LocationSectionHeaderFooterView.Style(
+                        font: .preferredFont(forTextStyle: .body, weight: .semibold),
+                        textColor: .primaryTextColor,
+                        textAlignment: .natural,
+                        backgroundColor: .primaryColor
+                    )
+                )
             )
         case .customLists:
-            return LocationSectionHeaderView(configuration: LocationSectionHeaderView.Configuration(
-                name: LocationSection.customLists.description,
+            return LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.customLists.header,
+                style: LocationSectionHeaderFooterView.Style(
+                    font: .preferredFont(forTextStyle: .body, weight: .semibold),
+                    textColor: .primaryTextColor,
+                    textAlignment: .natural,
+                    backgroundColor: .primaryColor
+                ),
                 primaryAction: UIAction(
                     handler: { [weak self] _ in
                         self?.didTapEditCustomLists?()
@@ -269,13 +283,26 @@ extension LocationDataSource: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        nil
+        switch sections[section] {
+        case .allLocations:
+            return LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
+                name: LocationSection.allLocations.footer,
+                style: LocationSectionHeaderFooterView.Style(
+                    font: .preferredFont(forTextStyle: .body, weight: .regular),
+                    textColor: .secondaryTextColor,
+                    textAlignment: .center,
+                    backgroundColor: .clear
+                )
+            ))
+        case .customLists:
+            return nil
+        }
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         switch sections[section] {
         case .allLocations:
-            return .zero
+            return dataSources[section].nodes.isEmpty ? 60.0 : .zero
         case .customLists:
             return 24
         }
