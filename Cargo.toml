@@ -134,3 +134,5 @@ strip = true
 opt-level = 3
 [profile.release.package."classic-mceliece-rust"]
 opt-level = 3
+[profile.release.package."boringtun"]
+opt-level = 3
