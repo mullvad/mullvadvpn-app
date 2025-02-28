@@ -34,7 +34,6 @@ const createCustomContextProvider = <
 
     useEffect(() => {
       if (shouldUpdateValues) {
-        console.log('will update values', updateValues);
         setValues(updateValues);
       }
     }, [setValues, shouldUpdateValues, updateValues]);
