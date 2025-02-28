@@ -1,9 +1,12 @@
-import { createContext, useContext } from 'react';
+/* eslint-disable react/jsx-no-bind */
+import { createContext, useContext, useState } from 'react';
 
+import { Button } from '../../lib/components';
 import { Heading, Wrapper } from '../custom-context-component/components';
 
 type Values = {
   count: number;
+  setCount: (count: number) => void;
 };
 
 const CountContext = createContext<Values | undefined>(undefined);
@@ -24,17 +27,34 @@ function CurrentCount() {
   return <div>Current count in a child {count}</div>;
 }
 
+function ButtonIncrease() {
+  const { count, setCount } = useCountContext();
+
+  function handleClick() {
+    setCount(count + 1);
+  }
+
+  return (
+    <Button variant="primary" onClick={handleClick}>
+      Increase count
+    </Button>
+  );
+}
+
 type Props = {
-  count: number;
   heading: string;
+  initialCount: number;
 };
 
-export default function ReactContextComponent({ count, heading }: Props) {
+export default function ReactContextComponent({ initialCount, heading }: Props) {
+  const [count, setCount] = useState(initialCount);
+
   return (
-    <CountContext.Provider value={{ count }}>
+    <CountContext.Provider value={{ count, setCount }}>
       <Wrapper>
         <Heading>{heading}</Heading>
         <CurrentCount />
+        <ButtonIncrease />
       </Wrapper>
     </CountContext.Provider>
   );
