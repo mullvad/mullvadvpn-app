@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+### Changed
+- Improve the filter view to display the number of available servers based on selected criteria.
 
 ## 2025.2 - 2025-02-08
 ### Added
