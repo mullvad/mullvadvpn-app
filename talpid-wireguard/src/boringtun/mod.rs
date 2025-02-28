@@ -60,7 +60,7 @@ impl BoringTun {
             #[cfg(target_os = "linux")]
             use_multi_queue: false, // TODO: what is this?
             api: Some(config_rx),
-            on_bind: None
+            on_bind: None,
         };
 
         #[cfg(target_os = "android")]

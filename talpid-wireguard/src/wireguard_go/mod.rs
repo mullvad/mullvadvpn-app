@@ -418,7 +418,8 @@ impl WgGoTunnel {
             .await
             .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
-        let (mut tunnel_device, tunnel_fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
+        let (mut tunnel_device, tunnel_fd) =
+            get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
         let is_new_tunnel = tunnel_device.is_new;
 
         let interface_name: String = tunnel_device
@@ -480,8 +481,8 @@ impl WgGoTunnel {
             .await
             .map_err(|e| TunnelError::FatalStartWireguardError(Box::new(e)))?;
 
-        
-        let (mut tunnel_device, tunnel_fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
+        let (mut tunnel_device, tunnel_fd) =
+            get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
         let is_new_tunnel = tunnel_device.is_new;
 
         let interface_name: String = tunnel_device

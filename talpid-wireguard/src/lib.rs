@@ -432,8 +432,13 @@ impl WireguardMonitor {
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
-        let tunnel = args.runtime
-            .block_on(Self::open_boringtun_tunnel(&config, log_path, args.tun_provider.clone()))
+        let tunnel = args
+            .runtime
+            .block_on(Self::open_boringtun_tunnel(
+                &config,
+                log_path,
+                args.tun_provider.clone(),
+            ))
             .map(Box::new)? as Box<dyn Tunnel>;
 
         // let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
@@ -466,12 +471,13 @@ impl WireguardMonitor {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
 
-
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
             event_hook
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
+
+            // TODO We should also wait for routes before sending any ping / connectivity check
 
             let lock = tunnel.lock().await;
             let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
