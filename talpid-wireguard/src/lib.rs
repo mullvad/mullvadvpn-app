@@ -435,6 +435,7 @@ impl WireguardMonitor {
                 &config,
                 log_path,
                 args.tun_provider.clone(),
+                args.route_manager,
             ))
             .map(Box::new)? as Box<dyn Tunnel>;
 
@@ -473,8 +474,6 @@ impl WireguardMonitor {
             event_hook
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
-
-            // TODO We should also wait for routes before sending any ping / connectivity check
 
             let lock = tunnel.lock().await;
             let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
@@ -842,6 +841,7 @@ impl WireguardMonitor {
         config: &Config,
         log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
+        #[cfg(target_os = "android")] route_manager_handle: RouteManagerHandle,
         //#[cfg(target_os = "android")] gateway_only: bool,
         //#[cfg(target_os = "android")] connectivity_check: connectivity::Check<
         //    connectivity::Cancellable,
@@ -851,9 +851,10 @@ impl WireguardMonitor {
             .get_tunnel_destinations()
             .flat_map(Self::replace_default_prefixes);
 
-        let tunnel = boringtun::BoringTun::start_tunnel(config, log_path, tun_provider, routes)
-            .await
-            .map_err(Error::TunnelError)?;
+        let tunnel =
+            BoringTun::start_tunnel(config, log_path, tun_provider, routes, route_manager_handle)
+                .await
+                .map_err(Error::TunnelError)?;
 
         Ok(tunnel)
     }

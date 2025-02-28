@@ -1,7 +1,8 @@
 use crate::{
     config::Config,
+    connectivity,
     stats::{Stats, StatsMap},
-    Tunnel, TunnelError,
+    Error, Tunnel, TunnelError,
 };
 use boringtun::device::{
     api::{command::*, ConfigRx, ConfigTx},
@@ -17,6 +18,7 @@ use std::{
     path::Path,
     sync::{Arc, Mutex},
 };
+use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use tun::AbstractDevice;
@@ -38,6 +40,7 @@ impl BoringTun {
         _log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
+        #[cfg(target_os = "android")] route_manager: RouteManagerHandle,
     ) -> Result<Self, TunnelError> {
         log::info!("BoringTun::start_tunnel");
 
@@ -74,8 +77,23 @@ impl BoringTun {
         #[cfg(target_os = "android")]
         let async_tun = {
             let _ = routes; // TODO: do we need this?
+            let (mut tun, fd) = get_tunnel_for_userspace(Arc::clone(&tun_provider), config)?;
+            let is_new_tunnel = tun.is_new;
 
-            let (mut tun, fd) = get_tunnel_for_userspace(tun_provider, config)?;
+            // TODO We should also wait for routes before sending any ping / connectivity check
+
+            /// There is a brief period of time between setting up a Wireguard-go tunnel and the tunnel being ready to serve
+            /// traffic. This function blocks until the tunnel starts to serve traffic or until [connectivity::Check] times out.
+            if (is_new_tunnel) {
+                let expected_routes = tun_provider.lock().unwrap().real_routes();
+
+                route_manager
+                    .clone()
+                    .wait_for_routes(expected_routes)
+                    .await
+                    .map_err(Error::SetupRoutingError)
+                    .map_err(|e| TunnelError::RecoverableStartWireguardError(Box::new(e)))?;
+            }
 
             let mut config = tun::Configuration::default();
             config.raw_fd(fd);
