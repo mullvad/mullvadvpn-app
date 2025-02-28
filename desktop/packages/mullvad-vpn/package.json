@@ -17,6 +17,7 @@
     "gettext-parser": "^6.0.0",
     "gl-matrix": "^3.4.3",
     "google-protobuf": "^3.21.0",
+    "lodash": "^4.17.21",
     "management-interface": "0.0.0",
     "node-gettext": "^3.0.0",
     "nseventforwarder": "0.0.0",
@@ -38,6 +39,7 @@
     "@types/gettext-parser": "^4.0.1",
     "@types/google-protobuf": "^3.15.6",
     "@types/history": "^4.7.11",
+    "@types/lodash": "^4.17.15",
     "@types/mocha": "^10.0.0",
     "@types/node-gettext": "^3.0.3",
     "@types/react": "^18.3.3",
@@ -78,10 +80,10 @@
   "optionalDependencies": {
     "@rollup/rollup-darwin-arm64": "4.34.6",
     "@rollup/rollup-darwin-x64": "4.34.6",
-    "@rollup/rollup-win32-arm64-msvc": "4.34.6",
-    "@rollup/rollup-win32-x64-msvc": "4.34.6",
     "@rollup/rollup-linux-arm64-gnu": "4.34.6",
-    "@rollup/rollup-linux-x64-gnu": "4.34.6"
+    "@rollup/rollup-linux-x64-gnu": "4.34.6",
+    "@rollup/rollup-win32-arm64-msvc": "4.34.6",
+    "@rollup/rollup-win32-x64-msvc": "4.34.6"
   },
   "scripts": {
     "preinstall": "test -d node_modules || mkdir node_modules",
