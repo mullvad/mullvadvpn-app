@@ -9,6 +9,8 @@ use boringtun::device::{
     DeviceConfig, DeviceHandle,
 };
 use ipnetwork::IpNetwork;
+#[cfg(target_os = "android")]
+use std::os::fd::AsRawFd;
 use std::{
     future::Future,
     ops::Deref,
@@ -18,9 +20,6 @@ use std::{
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
 use tun::AbstractDevice;
-
-#[cfg(unix)]
-const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
 pub struct BoringTun {
     device_handle: DeviceHandle,
@@ -59,7 +58,8 @@ impl BoringTun {
         };
 
         let (mut config_tx, config_rx) = ConfigRx::new();
-        let mut boringtun_config = DeviceConfig {
+
+        let boringtun_config = DeviceConfig {
             n_threads: 4,
             // use_connected_socket: false, // TODO: what is this?
             #[cfg(target_os = "linux")]
@@ -69,7 +69,12 @@ impl BoringTun {
         };
 
         #[cfg(target_os = "android")]
+        let mut boringtun_config = boringtun_config;
+
+        #[cfg(target_os = "android")]
         let async_tun = {
+            let _ = routes; // TODO: do we need this?
+
             let (mut tun, fd) = get_tunnel_for_userspace(tun_provider, config)?;
 
             let mut config = tun::Configuration::default();
@@ -272,7 +277,7 @@ fn get_tunnel_for_userspace(
 pub fn get_tunnel_for_userspace(
     tun_provider: Arc<Mutex<TunProvider>>,
     config: &Config,
-) -> Result<(Tun, os::fd::RawFd), TunnelError> {
+) -> Result<(Tun, std::os::fd::RawFd), TunnelError> {
     let mut last_error = None;
     let mut tun_provider = tun_provider.lock().unwrap();
 
@@ -286,6 +291,8 @@ pub fn get_tunnel_for_userspace(
     // blocking. These will not necessarily be the actual routes used by android. Those will
     // be generated at a later stage e.g. if Local Network Sharing is enabled.
     tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
+
+    const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
 
     for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
         let tunnel_device = tun_provider

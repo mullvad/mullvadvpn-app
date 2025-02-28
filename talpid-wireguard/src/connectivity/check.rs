@@ -10,9 +10,8 @@ use tokio::{sync::broadcast, time::Instant};
 
 use super::{constants::*, error::Error, pinger};
 
-use crate::{stats::StatsMap, Tunnel, TunnelError, TunnelType};
+use crate::{stats::StatsMap, Tunnel, TunnelError};
 use pinger::Pinger;
-use talpid_types::tunnel;
 
 /// Verifies if a connection to a tunnel is working.
 /// The connectivity monitor is biased to receiving traffic - it is expected that all outgoing
