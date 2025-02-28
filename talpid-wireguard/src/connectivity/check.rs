@@ -14,6 +14,7 @@ use crate::stats::StatsMap;
 use crate::Tunnel;
 use crate::{TunnelError, TunnelType};
 use pinger::Pinger;
+use talpid_types::tunnel;
 
 /// Verifies if a connection to a tunnel is working.
 /// The connectivity monitor is biased to receiving traffic - it is expected that all outgoing
@@ -132,7 +133,7 @@ impl Check {
     // successful at the start of a connection.
     pub async fn establish_connectivity(
         &mut self,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         // Send initial ping to prod WireGuard into connecting.
         self.ping_state
@@ -161,7 +162,7 @@ impl Check {
         timeout_initial: Duration,
         timeout_multiplier: u32,
         max_timeout: Duration,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         if self.conn_state.connected() {
             return Ok(true);
@@ -226,7 +227,7 @@ impl Check {
     pub(crate) async fn check_connectivity(
         &mut self,
         now: Instant,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         Self::check_connectivity_interval(
             &mut self.conn_state,
@@ -244,7 +245,7 @@ impl Check {
         ping_state: &mut PingState,
         now: Instant,
         timeout: Duration,
-        tunnel_handle: &TunnelType,
+        tunnel_handle: &dyn Tunnel,
     ) -> Result<bool, Error> {
         match Self::get_stats(tunnel_handle)
             .await
@@ -265,7 +266,7 @@ impl Check {
 
     /// If None is returned, then the underlying tunnel has already been closed and all subsequent
     /// calls will also return None.
-    async fn get_stats(tunnel_handle: &TunnelType) -> Result<Option<StatsMap>, TunnelError> {
+    async fn get_stats(tunnel_handle: &dyn Tunnel) -> Result<Option<StatsMap>, TunnelError> {
         let stats = tunnel_handle.get_tunnel_stats().await?;
         if stats.is_empty() {
             log::error!("Tunnel unexpectedly shut down");

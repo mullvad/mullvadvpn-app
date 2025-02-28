@@ -1,9 +1,3 @@
-use std::{
-    future::Future,
-    path::Path,
-    sync::{Arc, Mutex},
-};
-
 use crate::{
     config::Config,
     stats::{Stats, StatsMap},
@@ -15,9 +9,17 @@ use boringtun::device::{
     DeviceConfig, DeviceHandle,
 };
 use ipnetwork::IpNetwork;
+use std::ops::Deref;
+use std::os::fd::{AsRawFd, RawFd};
+use std::{
+    future::Future,
+    path::Path,
+    sync::{Arc, Mutex},
+};
 use talpid_tunnel::tun_provider::Tun;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel_config_client::DaitaSettings;
+use tun::AbstractDevice;
 
 #[cfg(unix)]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
@@ -44,20 +46,39 @@ impl BoringTun {
 
         log::info!("calling get_tunnel_for_userspace");
         // TODO: investigate timing bug when creating tun device? (Device or resource busy)
-        let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
+        #[cfg(not(target_os = "android"))]
+        let async_tun = {
+            let tun = crate::boringtun::get_tunnel_for_userspace(tun_provider, config, routes)?;
 
-        let interface_name = tun.interface_name().unwrap(); // TODO
-        let async_tun = tun.into_inner().into_inner();
+            tun.into_inner().into_inner()
+        };
 
         let (mut config_tx, config_rx) = ConfigRx::new();
-
-        let boringtun_config = DeviceConfig {
+        let mut boringtun_config = DeviceConfig {
             n_threads: 4,
             //use_connected_socket: false, // TODO: what is this?
             #[cfg(target_os = "linux")]
             use_multi_queue: false, // TODO: what is this?
             api: Some(config_rx),
+            on_bind: None
         };
+
+        #[cfg(target_os = "android")]
+        let async_tun = {
+            let (mut tun, fd) = get_tunnel_for_userspace(tun_provider, config)?;
+
+            let mut config = tun::Configuration::default();
+            config.raw_fd(fd);
+
+            boringtun_config.on_bind = Some(Box::new(move |socket| {
+                tun.bypass(socket.as_raw_fd()).unwrap()
+            }));
+
+            let device = tun::Device::new(&config).unwrap();
+            tun::AsyncDevice::new(device).unwrap()
+        };
+
+        let interface_name = async_tun.deref().tun_name().unwrap();
 
         log::info!("passing tunnel dev to boringtun");
         let device_handle: DeviceHandle =
@@ -216,7 +237,7 @@ fn get_tunnel_for_userspace(
         .map_err(TunnelError::SetupTunnelDevice2)
 }
 
-#[cfg(unix)]
+#[cfg(all(not(target_os = "android"), unix))]
 fn get_tunnel_for_userspace(
     tun_provider: Arc<Mutex<TunProvider>>,
     config: &Config,
@@ -240,4 +261,42 @@ fn get_tunnel_for_userspace(
         .map_err(TunnelError::SetupTunnelDevice)?;
 
     return Ok(tunnel_device);
+}
+
+#[cfg(target_os = "android")]
+pub fn get_tunnel_for_userspace(
+    tun_provider: Arc<Mutex<TunProvider>>,
+    config: &Config,
+) -> Result<(Tun, RawFd), TunnelError> {
+    let mut last_error = None;
+    let mut tun_provider = tun_provider.lock().unwrap();
+
+    let tun_config = tun_provider.config_mut();
+    tun_config.addresses = config.tunnel.addresses.clone();
+    tun_config.ipv4_gateway = config.ipv4_gateway;
+    tun_config.ipv6_gateway = config.ipv6_gateway;
+    tun_config.mtu = config.mtu;
+
+    // Route everything into the tunnel and have wireguard-go act as a firewall when
+    // blocking. These will not necessarily be the actual routes used by android. Those will
+    // be generated at a later stage e.g. if Local Network Sharing is enabled.
+    tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
+
+    for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {
+        let tunnel_device = tun_provider
+            .open_tun()
+            .map_err(TunnelError::SetupTunnelDevice)?;
+
+        match nix::unistd::dup(tunnel_device.as_raw_fd()) {
+            Ok(fd) => return Ok((tunnel_device, fd)),
+            #[cfg(not(target_os = "macos"))]
+            Err(error @ nix::errno::Errno::EBADFD) => last_error = Some(error),
+            Err(error @ nix::errno::Errno::EBADF) => last_error = Some(error),
+            Err(error) => return Err(TunnelError::FdDuplicationError(error)),
+        }
+    }
+
+    Err(TunnelError::FdDuplicationError(
+        last_error.expect("Should be collected in loop"),
+    ))
 }

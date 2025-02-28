@@ -60,10 +60,7 @@ mod mtu_detection;
 use self::wireguard_go::WgGoTunnel;
 
 // On android we only have Wireguard Go tunnel
-#[cfg(not(target_os = "android"))]
 type TunnelType = Box<dyn Tunnel>;
-#[cfg(target_os = "android")]
-type TunnelType = WgGoTunnel;
 
 type Result<T> = std::result::Result<T, Error>;
 
@@ -428,24 +425,28 @@ impl WireguardMonitor {
         let should_negotiate_ephemeral_peer = config.quantum_resistant || config.daita;
 
         let (cancel_token, cancel_receiver) = connectivity::CancelToken::new();
-        let connectivity_check = connectivity::Check::new(
+        let mut connectivity_monitor = connectivity::Check::new(
             config.ipv4_gateway,
             args.retry_attempt,
             cancel_receiver.clone(),
         )
         .map_err(Error::ConnectivityMonitorError)?;
 
-        let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
-            &config,
-            log_path,
-            args.tun_provider.clone(),
-            args.route_manager,
-            // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
-            // that we only allows traffic to/from the gateway. This is only needed on Android
-            // since we lack a firewall there.
-            should_negotiate_ephemeral_peer,
-            cancel_receiver,
-        ))?;
+        let tunnel = args.runtime
+            .block_on(Self::open_boringtun_tunnel(&config, log_path, args.tun_provider.clone()))
+            .map(Box::new)? as Box<dyn Tunnel>;
+
+        // let tunnel = args.runtime.block_on(Self::open_wireguard_go_tunnel(
+        //     &config,
+        //     log_path,
+        //     args.tun_provider.clone(),
+        //     args.route_manager,
+        //     // In case we should negotiate an ephemeral peer, we should specify via AllowedIPs
+        //     // that we only allows traffic to/from the gateway. This is only needed on Android
+        //     // since we lack a firewall there.
+        //     should_negotiate_ephemeral_peer,
+        //     cancel_receiver,
+        // ))?;
 
         let iface_name = tunnel.get_interface_name();
         let tunnel = Arc::new(AsyncMutex::new(Some(tunnel)));
@@ -465,11 +466,33 @@ impl WireguardMonitor {
             let close_obfs_sender: sync_mpsc::Sender<CloseMsg> = moved_close_obfs_sender;
             let obfuscator = moved_obfuscator;
 
+
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             let allowed_traffic = Self::allowed_traffic_during_tunnel_config(&config);
             event_hook
                 .on_event(TunnelEvent::InterfaceUp(metadata.clone(), allowed_traffic))
                 .await;
+
+            let lock = tunnel.lock().await;
+            let borrowed_tun = lock.as_ref().expect("The tunnel was dropped unexpectedly");
+            match connectivity_monitor
+                .establish_connectivity(borrowed_tun.as_ref())
+                .await
+            {
+                Ok(true) => Ok(()),
+                Ok(false) => {
+                    log::warn!("Timeout while checking tunnel connection");
+                    Err(CloseMsg::PingErr)
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Failed to check tunnel connection")
+                    );
+                    Err(CloseMsg::PingErr)
+                }
+            }?;
+            drop(lock);
 
             if should_negotiate_ephemeral_peer {
                 let ephemeral_obfs_sender = close_obfs_sender.clone();
@@ -504,7 +527,7 @@ impl WireguardMonitor {
             let metadata = Self::tunnel_metadata(&iface_name, &config);
             event_hook.on_event(TunnelEvent::Up(metadata)).await;
 
-            if let Err(error) = connectivity::Monitor::init(connectivity_check)
+            if let Err(error) = connectivity::Monitor::init(connectivity_monitor)
                 .run(Arc::downgrade(&tunnel))
                 .await
             {
@@ -825,7 +848,6 @@ impl WireguardMonitor {
             .get_tunnel_destinations()
             .flat_map(Self::replace_default_prefixes);
 
-        #[cfg(not(target_os = "android"))]
         let tunnel = boringtun::BoringTun::start_tunnel(config, log_path, tun_provider, routes)
             .await
             .map_err(Error::TunnelError)?;
@@ -1001,7 +1023,6 @@ impl WireguardMonitor {
     }
 
     /// Replace default (0-prefix) routes with more specific routes.
-    #[cfg(not(target_os = "android"))]
     fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
         #[cfg(windows)]
         if network.prefix() == 0 {

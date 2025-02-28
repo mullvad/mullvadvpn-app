@@ -66,7 +66,7 @@ impl Monitor {
         };
 
         self.connectivity_check
-            .check_connectivity(Instant::now(), tunnel)
+            .check_connectivity(Instant::now(), tunnel.as_ref())
             .await
     }
 }
