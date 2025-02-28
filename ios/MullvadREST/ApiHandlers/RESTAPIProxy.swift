@@ -66,8 +66,6 @@ extension REST {
             retryStrategy: REST.RetryStrategy,
             completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
         ) -> Cancellable {
-            let requestHandler = mullvadApiRequestFactory.makeRequest(.getAddressList)
-
             let responseHandler = rustResponseHandler(
                 decoding: [AnyIPEndpoint].self,
                 with: responseDecoder
@@ -76,8 +74,8 @@ extension REST {
             let networkOperation = MullvadApiNetworkOperation(
                 name: "get-api-addrs",
                 dispatchQueue: dispatchQueue,
-                retryStrategy: retryStrategy,
-                requestHandler: requestHandler,
+                request: .getAddressList(.default),
+                transportProvider: configuration.apiTransportProvider,
                 responseDecoder: responseDecoder,
                 responseHandler: responseHandler,
                 completionHandler: completionHandler

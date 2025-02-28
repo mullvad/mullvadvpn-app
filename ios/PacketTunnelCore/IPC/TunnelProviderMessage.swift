@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import MullvadREST
 
 /// Enum describing supported app messages handled by packet tunnel provider.
 public enum TunnelProviderMessage: Codable, CustomStringConvertible {
@@ -19,8 +20,14 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
     /// Send HTTP request outside of VPN tunnel.
     case sendURLRequest(ProxyURLRequest)
 
+    /// Send API request outside of VPN tunnel.
+    case sendAPIRequest(ProxyAPIRequest)
+
     /// Cancel HTTP request sent outside of VPN tunnel.
     case cancelURLRequest(UUID)
+
+    /// Cancel API request sent outside of VPN tunnel.
+    case cancelAPIRequest(UUID)
 
     /// Notify tunnel about private key rotation.
     case privateKeyRotation
@@ -33,8 +40,12 @@ public enum TunnelProviderMessage: Codable, CustomStringConvertible {
             return "get-tunnel-status"
         case .sendURLRequest:
             return "send-http-request"
+        case .sendAPIRequest:
+            return "send-api-request"
         case .cancelURLRequest:
             return "cancel-http-request"
+        case .cancelAPIRequest:
+            return "cancel-api-request"
         case .privateKeyRotation:
             return "private-key-rotation"
         }

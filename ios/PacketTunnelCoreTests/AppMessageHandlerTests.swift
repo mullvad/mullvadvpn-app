@@ -14,6 +14,8 @@ import PacketTunnelCore
 import XCTest
 
 final class AppMessageHandlerTests: XCTestCase {
+    // MARK: URLRequest
+
     func testHandleAppMessageForSendURLRequest() async throws {
         let sendRequestExpectation = expectation(description: "Expect sending request")
 
@@ -45,6 +47,41 @@ final class AppMessageHandlerTests: XCTestCase {
 
         await fulfillment(of: [cancelRequestExpectation], timeout: .UnitTest.timeout)
     }
+
+    // MARK: APIRequest
+
+    func testHandleAppMessageForSendAPIRequest() async throws {
+        let sendRequestExpectation = expectation(description: "Expect sending request")
+
+        let apiRequestProxy = APIRequestProxyStub(sendRequestExpectation: sendRequestExpectation)
+        let appMessageHandler = createAppMessageHandler(apiRequestProxy: apiRequestProxy)
+
+        let apiRequest = ProxyAPIRequest(
+            id: UUID(),
+            request: .getAddressList(.default)
+        )
+
+        _ = try? await appMessageHandler.handleAppMessage(
+            TunnelProviderMessage.sendAPIRequest(apiRequest).encode()
+        )
+
+        await fulfillment(of: [sendRequestExpectation], timeout: .UnitTest.timeout)
+    }
+
+    func testHandleAppMessageForCancelAPIRequest() async throws {
+        let cancelRequestExpectation = expectation(description: "Expect cancelling request")
+
+        let apiRequestProxy = APIRequestProxyStub(cancelRequestExpectation: cancelRequestExpectation)
+        let appMessageHandler = createAppMessageHandler(apiRequestProxy: apiRequestProxy)
+
+        _ = try? await appMessageHandler.handleAppMessage(
+            TunnelProviderMessage.cancelAPIRequest(UUID()).encode()
+        )
+
+        await fulfillment(of: [cancelRequestExpectation], timeout: .UnitTest.timeout)
+    }
+
+    // MARK: Other
 
     func testHandleAppMessageForTunnelStatus() async throws {
         let stateExpectation = expectation(description: "Expect getting state")
@@ -117,11 +154,13 @@ final class AppMessageHandlerTests: XCTestCase {
 extension AppMessageHandlerTests {
     func createAppMessageHandler(
         actor: PacketTunnelActorProtocol = PacketTunnelActorStub(),
-        urlRequestProxy: URLRequestProxyProtocol = URLRequestProxyStub()
+        urlRequestProxy: URLRequestProxyProtocol = URLRequestProxyStub(),
+        apiRequestProxy: APIRequestProxyProtocol = APIRequestProxyStub()
     ) -> AppMessageHandler {
         return AppMessageHandler(
             packetTunnelActor: actor,
-            urlRequestProxy: urlRequestProxy
+            urlRequestProxy: urlRequestProxy,
+            apiRequestProxy: apiRequestProxy
         )
     }
 }

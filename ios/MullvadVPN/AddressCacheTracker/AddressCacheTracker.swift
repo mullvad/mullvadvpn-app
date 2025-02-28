@@ -13,11 +13,19 @@ import Operations
 import UIKit
 
 final class AddressCacheTracker: @unchecked Sendable {
+    /* TODO: Revert after review */
+    //    /// Update interval.
+//    private static let updateInterval: Duration = .days(1)
+//
+//    /// Retry interval.
+//    private static let retryInterval: Duration = .minutes(15)
+
     /// Update interval.
-    private static let updateInterval: Duration = .days(1)
+    private static let updateInterval: Duration = .seconds(20)
 
     /// Retry interval.
-    private static let retryInterval: Duration = .minutes(15)
+    private static let retryInterval: Duration = .seconds(20)
+    /**/
 
     /// Logger.
     private let logger = Logger(label: "AddressCache.Tracker")
@@ -91,10 +99,17 @@ final class AddressCacheTracker: @unchecked Sendable {
                 return AnyCancellable()
             }
 
-            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
+            /* TODO: Revert after review */
+//            return self.apiProxy.getAddressList(retryStrategy: .default) { result in
+//                self.setEndpoints(from: result)
+//                finish(result.map { _ in true })
+//            }
+
+            return self.apiProxy.mullvadApiGetAddressList(retryStrategy: .default) { result in
                 self.setEndpoints(from: result)
                 finish(result.map { _ in true })
             }
+            /**/
         }
 
         operation.completionQueue = .main
