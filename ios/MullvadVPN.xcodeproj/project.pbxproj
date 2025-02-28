@@ -9,7 +9,6 @@
 /* Begin PBXBuildFile section */
 		014449952CA293B100C0C2F2 /* EncryptedDNSProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 014449942CA293B100C0C2F2 /* EncryptedDNSProxy.swift */; };
 		01B2FF862D70B914004AED35 /* MullvadRustRuntime.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; };
-		01B2FF872D70B914004AED35 /* MullvadRustRuntime.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A992DA1D2C24709F00DE7CE5 /* MullvadRustRuntime.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		01EF6F342B6A590700125696 /* libmullvad_api.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01EF6F332B6A590700125696 /* libmullvad_api.a */; };
 		062B45A328FD4CA700746E77 /* le_root_cert.cer in Resources */ = {isa = PBXBuildFile; fileRef = 06799AB428F98CE700ACD94E /* le_root_cert.cer */; };
 		062B45BC28FD8C3B00746E77 /* RESTDefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 062B45BB28FD8C3B00746E77 /* RESTDefaults.swift */; };
@@ -65,7 +64,6 @@
 		44A262472D6373D300085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262462D6373D300085380 /* WireGuardKitTypes */; };
 		44A262492D6373D300085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262462D6373D300085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A2624B2D6373E000085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624A2D6373E000085380 /* WireGuardKitTypes */; };
-		44A2624D2D6373E000085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624A2D6373E000085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262512D63742B00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624E2D63742B00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262532D63743A00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262522D63743A00085380 /* WireGuardKitTypes */; };
 		44A262552D63743A00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262522D63743A00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -1369,13 +1367,6 @@
 			remoteGlobalIDString = A992DA1C2C24709F00DE7CE5;
 			remoteInfo = MullvadRustRuntime;
 		};
-		A9D9A4B72C36D25C004088DD /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 58CE5E58224146200008646E /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = A992DA1C2C24709F00DE7CE5;
-			remoteInfo = MullvadRustRuntime;
-		};
 		A9D9A4B92C36D2FD004088DD /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 58CE5E58224146200008646E /* Project object */;
@@ -1444,8 +1435,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				44A2624D2D6373E000085380 /* WireGuardKitTypes in Embed Frameworks */,
-				01B2FF872D70B914004AED35 /* MullvadRustRuntime.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -4880,7 +4869,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				A9D9A4B82C36D25C004088DD /* PBXTargetDependency */,
 				06D9844A28F99056003AABE9 /* PBXTargetDependency */,
 				58D223C2294C8AE90029F5F8 /* PBXTargetDependency */,
 				58D223E4294C8EE70029F5F8 /* PBXTargetDependency */,
@@ -6982,11 +6970,6 @@
 			isa = PBXTargetDependency;
 			target = A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */;
 			targetProxy = A992DA212C24709F00DE7CE5 /* PBXContainerItemProxy */;
-		};
-		A9D9A4B82C36D25C004088DD /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = A992DA1C2C24709F00DE7CE5 /* MullvadRustRuntime */;
-			targetProxy = A9D9A4B72C36D25C004088DD /* PBXContainerItemProxy */;
 		};
 		A9D9A4BA2C36D2FD004088DD /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
