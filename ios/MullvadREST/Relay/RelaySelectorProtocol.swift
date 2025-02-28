@@ -16,6 +16,10 @@ public protocol RelaySelectorProtocol {
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays
+
+    func findCandidates(
+        tunnelSettings: LatestTunnelSettings
+    ) throws -> RelayCandidates
 }
 
 /// Struct describing the selected relay.
