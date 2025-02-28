@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+
+set -eu
+
+metadata_dir=$1
+cdn_host=$2
+
+buildserver_tmp_dir="/tmp/desktop-upload-release"
+buildserver_metadata_dir="$buildserver_tmp_dir/metadata"
+cdn_metadata_dir="desktop/metadata"
+
+buildserver_host="app-build-linux3"
+
+buildserver_builduser="build"
+
+rsync_options=(-av --mkpath)
+cdn_rsync_options=("${rsync_options[@]}" '--rsh="ssh -p 1122"')
+
+function run_on_build_server {
+  # shellcheck disable=SC2029
+  ssh "$buildserver_host" "$@"
+}
+
+function run_on_build_server_as_build_user {
+  run_on_build_server sudo -i -u "$buildserver_builduser" "$@"
+}
+
+function local_rsync {
+  rsync "${rsync_options[@]}" "$@"
+}
+
+function buildserver_rsync {
+  run_on_build_server_as_build_user rsync "${cdn_rsync_options[@]}" "$@"
+}
+
+function remove_buildserver_tmp_dir {
+  run_on_build_server rm -r $buildserver_metadata_dir 2> /dev/null || true
+}
+
+# Clean up previous metadata dir on build server
+remove_buildserver_tmp_dir
+
+# Send the local metadata dir to the build server
+local_rsync "$metadata_dir" $buildserver_host:$buildserver_metadata_dir
+
+# Send the metadata on the buildserver to the cdn server
+# TODO: Remove --dry-run when ready to take for a test drive
+buildserver_rsync --dry-run $buildserver_metadata_dir "$cdn_host":"$(dirname "$cdn_metadata_dir")"
+
+# Remove intermediate tmp dir when done
+remove_buildserver_tmp_dir
