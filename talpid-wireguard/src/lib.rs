@@ -647,12 +647,7 @@ impl WireguardMonitor {
         log::debug!("Tunnel MTU: {}", config.mtu);
 
         let tunnel = runtime
-            .block_on(Self::open_boringtun_tunnel(
-                config,
-                log_path,
-                resource_dir,
-                tun_provider,
-            ))
+            .block_on(Self::open_boringtun_tunnel(config, log_path, tun_provider))
             .map(Box::new)?;
         return Ok(tunnel);
 
@@ -708,6 +703,11 @@ impl WireguardMonitor {
         tun_provider: Arc<Mutex<TunProvider>>,
     ) -> Result<TunnelType> {
         log::debug!("Tunnel MTU: {}", config.mtu);
+
+        let tunnel = runtime
+            .block_on(Self::open_boringtun_tunnel(config, log_path, tun_provider))
+            .map(Box::new)?;
+        return Ok(tunnel);
 
         let userspace_wireguard = *FORCE_USERSPACE_WIREGUARD || config.daita;
         if userspace_wireguard {
@@ -815,7 +815,6 @@ impl WireguardMonitor {
     async fn open_boringtun_tunnel(
         config: &Config,
         log_path: Option<&Path>,
-        #[cfg(daita)] resource_dir: &Path,
         tun_provider: Arc<Mutex<TunProvider>>,
         //#[cfg(target_os = "android")] gateway_only: bool,
         //#[cfg(target_os = "android")] connectivity_check: connectivity::Check<
@@ -827,16 +826,9 @@ impl WireguardMonitor {
             .flat_map(Self::replace_default_prefixes);
 
         #[cfg(not(target_os = "android"))]
-        let tunnel = boringtun::BoringTun::start_tunnel(
-            config,
-            log_path,
-            tun_provider,
-            routes,
-            #[cfg(daita)]
-            resource_dir,
-        )
-        .await
-        .map_err(Error::TunnelError)?;
+        let tunnel = boringtun::BoringTun::start_tunnel(config, log_path, tun_provider, routes)
+            .await
+            .map_err(Error::TunnelError)?;
 
         Ok(tunnel)
     }

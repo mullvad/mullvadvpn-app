@@ -17,6 +17,7 @@ use boringtun::device::{
 use ipnetwork::IpNetwork;
 use talpid_tunnel::tun_provider::Tun;
 use talpid_tunnel::tun_provider::TunProvider;
+use talpid_tunnel_config_client::DaitaSettings;
 
 #[cfg(unix)]
 const MAX_PREPARE_TUN_ATTEMPTS: usize = 4;
@@ -38,7 +39,6 @@ impl BoringTun {
         _log_path: Option<&Path>,
         tun_provider: Arc<Mutex<TunProvider>>,
         routes: impl Iterator<Item = IpNetwork>,
-        #[cfg(daita)] _resource_dir: &Path,
     ) -> Result<Self, TunnelError> {
         log::info!("BoringTun::start_tunnel");
 
@@ -46,8 +46,8 @@ impl BoringTun {
         // TODO: investigate timing bug when creating tun device? (Device or resource busy)
         let tun = get_tunnel_for_userspace(tun_provider, config, routes)?;
 
-        let interface_name = tun.interface_name();
-        let async_tun = tun.into_tun_lol();
+        let interface_name = tun.interface_name().unwrap(); // TODO
+        let async_tun = tun.into_inner().into_inner();
 
         let (mut config_tx, config_rx) = ConfigRx::new();
 
@@ -90,6 +90,7 @@ impl BoringTun {
     }
 }
 
+#[async_trait::async_trait]
 impl Tunnel for BoringTun {
     fn get_interface_name(&self) -> String {
         //self.tunnel_device.interface_name()
@@ -106,11 +107,11 @@ impl Tunnel for BoringTun {
         Ok(())
     }
 
-    fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
+    async fn get_tunnel_stats(&self) -> Result<StatsMap, TunnelError> {
         let response = self
             .config_tx
-            // TODO: async?
-            .send_sync(Get::default())
+            .send(Get::default())
+            .await
             .expect("Failed to get peers");
 
         let Response::Get(response) = response else {
@@ -145,7 +146,7 @@ impl Tunnel for BoringTun {
         })
     }
 
-    fn start_daita(&mut self) -> Result<(), TunnelError> {
+    fn start_daita(&mut self, _settings: DaitaSettings) -> Result<(), TunnelError> {
         log::info!("Haha no");
         Ok(())
     }
