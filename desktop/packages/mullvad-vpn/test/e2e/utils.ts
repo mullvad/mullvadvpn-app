@@ -11,6 +11,8 @@ export interface TestUtils {
   currentRoute: () => Promise<string>;
   waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
   waitForNoTransition: () => Promise<void>;
+  waitForRoute: (route: string) => Promise<void>;
+  waitForNextRoute: () => Promise<string>;
 }
 
 interface History {
@@ -24,9 +26,6 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   const app = await launch(options);
   const page = await app.firstWindow();
 
-  // Wait for initial navigation to finish
-  await waitForNoTransition(page);
-
   page.on('pageerror', (error) => console.log(error));
   page.on('console', (msg) => console.log(msg.text()));
 
@@ -34,6 +33,8 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
     currentRoute: currentRouteFactory(app),
     waitForNavigation: waitForNavigationFactory(app, page),
     waitForNoTransition: () => waitForNoTransition(page),
+    waitForRoute: waitForRouteFactory(page),
+    waitForNextRoute: waitForNextRouteFactory(app),
   };
 
   return { app, page, util };
@@ -56,47 +57,51 @@ const currentRouteFactory = (app: ElectronApplication) => {
 };
 
 const waitForNavigationFactory = (app: ElectronApplication, page: Page) => {
+  const waitForNextRoute = waitForNextRouteFactory(app);
   // Wait for navigation animation to finish. A function can be provided that initiates the
   // navigation, e.g. clicks a button.
   return async (initiateNavigation?: () => Promise<void> | void) => {
     // Wait for route to change after optionally initiating the navigation.
-    const [route] = await Promise.all([waitForNextRoute(app), initiateNavigation?.()]);
+    const [route] = await Promise.all([waitForNextRoute(), initiateNavigation?.()]);
 
     // Wait for view corresponding to new route to appear
-    await page.getByTestId(route).isVisible();
-    await waitForNoTransition(page);
+    await waitForTransitionEnd(page);
 
     return route;
   };
 };
 
-const waitForNoTransition = async (page: Page) => {
-  // Wait until there's only one transitionContents
-  let transitionContentsCount;
-  do {
-    if (transitionContentsCount !== undefined) {
-      await new Promise((resolve) => setTimeout(resolve, 5));
-    }
+// This function returns a promise that resolves when a view transition ends. This requires a view transition to also be ongoing.
+const waitForTransitionEnd = async (page: Page) => {
+  await page.waitForFunction(() => window.isInViewTransition!());
+  await waitForNoTransition(page);
+};
 
-    try {
-      transitionContentsCount = await page.getByTestId('transition-content').count();
-    } catch {
-      console.log('Transition content count failed');
-      break;
-    }
-  } while (transitionContentsCount !== 1);
+// This function returns a promise that resolves when there is no view transition ongoing, which would be immediately.
+const waitForNoTransition = async (page: Page) => {
+  await page.waitForFunction(() => !window.isInViewTransition!());
+};
+
+// This factory returns a function which returns a boolean when the route passed to it matches that of the application.
+const waitForRouteFactory = (page: Page) => {
+  const waitForRoute = async (route: string) => {
+    await page.waitForFunction((route) => route === window.e2e?.location, route);
+  };
+
+  return waitForRoute;
 };
 
 // Returns the route when it changes
-const waitForNextRoute = (app: ElectronApplication): Promise<string> => {
-  return app.evaluate(
-    ({ ipcMain }) =>
-      new Promise((resolve) => {
-        ipcMain.once('navigation-setHistory', (_event, history: History) => {
-          resolve(history.entries[history.index].pathname);
-        });
-      }),
-  );
+const waitForNextRouteFactory = (app: ElectronApplication) => {
+  return async () =>
+    app.evaluate<string>(
+      ({ ipcMain }) =>
+        new Promise((resolve) => {
+          ipcMain.once('navigation-setHistory', (_event, history: History) => {
+            resolve(history.entries[history.index].pathname);
+          });
+        }),
+    );
 };
 
 const getStyleProperty = (locator: Locator, property: string) => {
