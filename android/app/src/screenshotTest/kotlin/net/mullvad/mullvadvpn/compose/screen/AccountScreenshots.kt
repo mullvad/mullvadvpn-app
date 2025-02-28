@@ -11,7 +11,6 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.viewmodel.AccountUiState
 
 class AccountScreenshots {
-
     @OptIn(ExperimentalMaterial3Api::class)
     @Preview("AccountScreen")
     @PreviewScreenSizes

@@ -115,7 +115,7 @@ fun NotificationBanner(
 
 @Composable
 @Suppress("LongMethod")
-private fun Notification(notificationBannerData: NotificationData) {
+fun Notification(notificationBannerData: NotificationData) {
     val (title, message, statusLevel, action) = notificationBannerData
     ConstraintLayout(
         modifier =
