@@ -1,7 +1,7 @@
 //! Shared text and other resources
 
 /// Window title
-pub const WINDOW_TITLE: &str = "Mullvad VPN downloader";
+pub const WINDOW_TITLE: &str = "Mullvad VPN installer";
 /// Window width
 pub const WINDOW_WIDTH: usize = 600;
 /// Window height
