@@ -22,8 +22,12 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+### Added
+- Prompt password manager to store new account number on account creation.
+
 ### Changed
-- Disable Wireguard port setting when a obfuscation is selected since it is not used when an 
+- Disable Wireguard port setting when a obfuscation is selected since it is not used when an
   obfuscation is applied.
 
 ### Removed
