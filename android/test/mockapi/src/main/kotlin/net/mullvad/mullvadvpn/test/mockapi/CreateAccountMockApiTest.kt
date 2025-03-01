@@ -24,6 +24,8 @@ class CreateAccountMockApiTest : MockApiTest() {
         app.waitForLoginPrompt()
         app.attemptCreateAccount()
 
+        app.dismissStorePasswordPromptIfShown()
+
         // Assert
         val expectedResult = "1234 1234 1234 1234"
         app.ensureAccountCreated(expectedResult)
