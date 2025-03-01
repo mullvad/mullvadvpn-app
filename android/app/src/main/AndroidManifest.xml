@@ -33,7 +33,7 @@
                  android:label="@string/app_name"
                  android:roundIcon="@mipmap/ic_launcher"
                  android:theme="@style/Theme.App.Starting"
-                 tools:ignore="GoogleAppIndexingWarning">
+                 tools:ignore="CredManMissingDal,CredentialDependency,GoogleAppIndexingWarning">
         <!--
             MainActivity
             Must be exported in order to be launchable.
