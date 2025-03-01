@@ -434,6 +434,7 @@ dependencies = [
  "base64 0.13.1",
  "blake2",
  "chacha20poly1305",
+ "etherparse",
  "eyre",
  "hex",
  "hmac",
@@ -1183,6 +1184,15 @@ checksum = "aa68f1b12764fab894d2755d2518754e71b4fd80ecfb822714a1206c2aab39bf"
 dependencies = [
  "cc",
  "libc",
+]
+
+[[package]]
+name = "etherparse"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "827292ea592108849932ad8e30218f8b1f21c0dfd0696698a18b5d0aed62d990"
+dependencies = [
+ "arrayvec",
 ]
 
 [[package]]

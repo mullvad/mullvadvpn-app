@@ -12,10 +12,7 @@ use ipnetwork::IpNetwork;
 #[cfg(target_os = "android")]
 use std::os::fd::AsRawFd;
 use std::{
-    future::Future,
-    ops::Deref,
-    path::Path,
-    sync::{Arc, Mutex},
+    future::Future, net::IpAddr, ops::Deref, path::Path, sync::{Arc, Mutex}
 };
 use talpid_tunnel::tun_provider::{Tun, TunProvider};
 use talpid_tunnel_config_client::DaitaSettings;
@@ -196,29 +193,41 @@ async fn set_boringtun_config(tx: &mut ConfigTx, config: &Config) {
         set_cmd.fwmark = config.fwmark;
     }
 
-    for peer in config.peers() {
-        let mut boring_peer = Peer::builder()
-            .public_key(*peer.public_key.as_bytes())
-            .endpoint(peer.endpoint)
-            .allowed_ip(
-                peer.allowed_ips
-                    .iter()
-                    .map(|net| AllowedIP {
-                        addr: net.ip(),
-                        cidr: net.prefix(),
-                    })
-                    .collect(),
-            )
-            .build();
+    let mut boring_peer = Peer::builder()
+        .public_key(*config.entry_peer.public_key.as_bytes())
+        .endpoint(config.entry_peer.endpoint)
+        .allowed_ip(
+            config.entry_peer.allowed_ips
+                .iter()
+                .map(|net| AllowedIP {
+                    addr: net.ip(),
+                    cidr: net.prefix(),
+                })
+                .collect(),
+        )
+        .build();
 
-        if let Some(psk) = &peer.psk {
-            boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
-        }
-
-        let boring_peer = SetPeer::builder().peer(boring_peer).build();
-
-        set_cmd.peers.push(boring_peer);
+    if let Some(exit) = &config.exit_peer {
+        boring_peer.exit_hop = Some(
+            ExitPeer::builder()
+                .endpoint(exit.endpoint)
+                // TODO
+                .tunnel_ip(*match config.tunnel.addresses.iter().find(|addr| addr.is_ipv4()).unwrap() {
+                    IpAddr::V4(ip) => ip,
+                    _ => unimplemented!(),
+                })
+                .public_key(*exit.public_key.as_bytes())
+                .build()
+        );
     }
+
+    if let Some(psk) = &config.entry_peer.psk {
+        boring_peer.preshared_key = Some(SetUnset::Set((*psk.as_bytes()).into()));
+    }
+
+    let boring_peer = SetPeer::builder().peer(boring_peer).build();
+
+    set_cmd.peers.push(boring_peer);
 
     tx.send(set_cmd)
         .await
