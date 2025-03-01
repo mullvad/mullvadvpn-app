@@ -12,6 +12,7 @@ class InternetAvailableUseCase(val context: Context) {
         val network = connectivityManager.activeNetwork
         val capabilities = connectivityManager.getNetworkCapabilities(network)
 
-        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+        // If we are not able to fetch capabilities we should assume we have connectivity
+        return capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)?: true
     }
 }
