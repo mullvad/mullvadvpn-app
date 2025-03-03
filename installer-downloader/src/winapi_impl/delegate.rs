@@ -71,6 +71,10 @@ impl AppDelegate for AppWindow {
         self.progress_bar.set_pos(complete);
     }
 
+    fn clear_download_progress(&mut self) {
+        self.progress_bar.set_pos(0);
+    }
+
     fn show_download_button(&mut self) {
         self.download_button.set_visible(true);
     }

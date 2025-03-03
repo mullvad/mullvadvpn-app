@@ -445,7 +445,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 
             self_.hide_cancel_button();
             self_.hide_download_progress();
-            self_.set_download_progress(0);
+            self_.clear_download_progress();
         });
     }
 }
