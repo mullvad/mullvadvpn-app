@@ -71,8 +71,8 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         _ ephemeralPeerPrivateKey: PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async {
-        self.daitaParameters = daitaParameters
         if state == .negotiatingWithEntry {
+            self.daitaParameters = daitaParameters
             entryPeerKey = EphemeralPeerKey(ephemeralKey: ephemeralPeerPrivateKey)
             await negotiateBetweenEntryAndExit()
         } else if state == .negotiatingBetweenEntryAndExit {
@@ -86,8 +86,8 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
         ephemeralKey: PrivateKey,
         daitaParameters: DaitaV2Parameters?
     ) async {
-        self.daitaParameters = daitaParameters
         if state == .negotiatingWithEntry {
+            self.daitaParameters = daitaParameters
             entryPeerKey = EphemeralPeerKey(preSharedKey: preSharedKey, ephemeralKey: ephemeralKey)
             await negotiateBetweenEntryAndExit()
         } else if state == .negotiatingBetweenEntryAndExit {
@@ -130,7 +130,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                 configuration: EphemeralPeerConfiguration(
                     privateKey: devicePrivateKey,
                     allowedIPs: defaultGatewayAddressRange,
-                    daitaParameters: self.daitaParameters
+                    daitaParameters: nil
                 )
             )
         ))
@@ -160,7 +160,7 @@ final class MultiHopEphemeralPeerExchanger: EphemeralPeerExchangingProtocol {
                     privateKey: exitPeerKey.ephemeralKey,
                     preSharedKey: exitPeerKey.preSharedKey,
                     allowedIPs: allTrafficRange,
-                    daitaParameters: self.daitaParameters
+                    daitaParameters: nil
                 )
             )
         ))
