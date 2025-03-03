@@ -99,7 +99,7 @@ class ConnectivityListener(private val connectivityManager: ConnectivityManager)
     private fun hasInternetConnectivity(): Flow<Boolean> {
         return connectivityManager
             .networkEvents(nonVPNInternetNetworksRequest)
-            .filter { it is NetworkEvent.Lost || it is NetworkEvent.CapabilitiesChanged }
+            .filter { it is NetworkEvent.Lost || it is NetworkEvent.Available }
             .scan(emptySet<Network>()) { networks, event ->
                 when (event) {
                     is NetworkEvent.Lost -> networks - event.network
