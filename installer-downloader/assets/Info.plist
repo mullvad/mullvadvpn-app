@@ -11,13 +11,13 @@
 	<key>CFBundleIconFile</key>
 	<string>icon.icns</string>
 	<key>CFBundleIdentifier</key>
-	<string>net.mullvad.MullvadDownloader</string>
+	<string>net.mullvad.MullvadVPNInstaller</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleLongVersionString</key>
 	<string></string>
 	<key>CFBundleName</key>
-	<string>net.mullvad.MullvadDownloader</string>
+	<string>net.mullvad.MullvadVPNInstaller</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
