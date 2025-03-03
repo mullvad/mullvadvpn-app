@@ -110,5 +110,6 @@ pub struct ErrorMessage {
 
 /// Schedules actions on the UI thread from other threads
 pub trait AppDelegateQueue<T: ?Sized>: Send {
+    /// Schedule action on the UI thread from other threads
     fn queue_main<F: FnOnce(&mut T) + 'static + Send>(&self, callback: F);
 }
