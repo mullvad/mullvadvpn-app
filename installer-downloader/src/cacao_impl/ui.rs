@@ -408,7 +408,7 @@ impl AppWindow {
     }
 
     // If there is a download_text, move status_text up to make room
-    fn readjust_status_text(&mut self) {
+    pub fn readjust_status_text(&mut self) {
         let text = self.download_text.get_text();
 
         let offset = if text.is_empty() { 59.0 } else { 39.0 };

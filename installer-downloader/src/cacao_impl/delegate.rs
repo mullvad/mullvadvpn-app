@@ -1,9 +1,6 @@
 use std::sync::{Arc, Mutex};
 
-use cacao::{
-    control::Control,
-    layout::{Layout, LayoutConstraint},
-};
+use cacao::{control::Control, layout::Layout};
 
 use super::ui::{Action, AppWindow, ErrorView};
 use crate::delegate::{AppDelegate, AppDelegateQueue};
