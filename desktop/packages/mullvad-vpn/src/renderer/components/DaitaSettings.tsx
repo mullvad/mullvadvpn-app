@@ -62,6 +62,15 @@ export default function DaitaSettings() {
                           {sprintf(
                             messages.pgettext(
                               'wireguard-settings-view',
+                              'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s.',
+                            ),
+                            { wireguard: strings.wireguard },
+                          )}
+                        </StyledHeaderSubTitle>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              'wireguard-settings-view',
                               '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic.',
                             ),
                             { daita: strings.daita, daitaFull: strings.daitaFull },
@@ -73,6 +82,13 @@ export default function DaitaSettings() {
                             'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
                           )}
                         </StyledHeaderSubTitle>
+                      </Flex>
+                    </React.Fragment>,
+                    <React.Fragment key="with-daita">
+                      <StyledIllustration
+                        src={`${PATH_PREFIX}assets/images/daita-on-illustration.svg`}
+                      />
+                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
@@ -82,13 +98,6 @@ export default function DaitaSettings() {
                             { daita: strings.daita },
                           )}
                         </StyledHeaderSubTitle>
-                      </Flex>
-                    </React.Fragment>,
-                    <React.Fragment key="with-daita">
-                      <StyledIllustration
-                        src={`${PATH_PREFIX}assets/images/daita-on-illustration.svg`}
-                      />
-                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
@@ -105,15 +114,6 @@ export default function DaitaSettings() {
                               'Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server.',
                             ),
                             { daita: strings.daita },
-                          )}
-                        </StyledHeaderSubTitle>
-                        <StyledHeaderSubTitle>
-                          {sprintf(
-                            messages.pgettext(
-                              'wireguard-settings-view',
-                              'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s.',
-                            ),
-                            { wireguard: strings.wireguard },
                           )}
                         </StyledHeaderSubTitle>
                       </Flex>
