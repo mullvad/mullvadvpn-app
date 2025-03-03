@@ -7,8 +7,8 @@ use crate::temp::DirectoryProvider;
 use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
 
 use mullvad_update::{
-    api::VersionInfoProvider,
-    app::{self, AppDownloader},
+    api::{HttpVersionInfoProvider, VersionInfoProvider},
+    app::{self, AppDownloader, HttpAppDownloader},
     version::{Version, VersionInfo, VersionParameters, ROLLOUT_ANY_VERSION},
 };
 use rand::seq::SliceRandom;
@@ -40,8 +40,6 @@ pub struct AppController {}
 /// verify the metadata, and the default HTTP client from `mullvad-update` and stores the files
 /// in a temporary directory.
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environment: Environment) {
-    use mullvad_update::{api::HttpVersionInfoProvider, app::HttpAppDownloader};
-
     // App downloader to use
     type Downloader<T> = HttpAppDownloader<UiProgressUpdater<T>>;
     // Directory provider to use
