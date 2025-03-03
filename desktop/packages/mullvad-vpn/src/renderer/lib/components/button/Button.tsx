@@ -1,5 +1,5 @@
 import React, { forwardRef } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Colors, Radius, Spacings } from '../../foundations';
 import { buttonReset } from '../../styles';
@@ -37,9 +37,8 @@ const sizes = {
   '1/2': '50%',
 };
 
-const StyledButton = styled.button({
+const StyledButtonBase = styled.button({
   ...buttonReset,
-
   minHeight: '32px',
   borderRadius: Radius.radius4,
   minWidth: '60px',
@@ -57,26 +56,42 @@ const StyledButton = styled.button({
   },
 });
 
+const StyledButton = styled(StyledButtonBase)<{
+  $size: ButtonProps['size'];
+  $variant: ButtonProps['variant'];
+}>`
+  ${({ $variant }) => {
+    if ($variant) {
+      const { background, disabled, hover } = variants[$variant];
+
+      return css`
+        --background: ${background};
+        --hover: ${hover};
+        --disabled: ${disabled};
+      `;
+    }
+
+    return null;
+  }}
+
+  ${({ $size }) => {
+    if ($size) {
+      return css`
+        --size: ${sizes[$size]};
+      `;
+    }
+
+    return null;
+  }}
+`;
+
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     { variant = 'primary', size = 'full', leading, trailing, children, disabled, style, ...props },
     ref,
   ) => {
-    const styles = variants[variant];
     return (
-      <StyledButton
-        ref={ref}
-        style={
-          {
-            '--background': styles.background,
-            '--hover': styles.hover,
-            '--disabled': styles.disabled,
-            '--size': sizes[size],
-            ...style,
-          } as React.CSSProperties
-        }
-        disabled={disabled}
-        {...props}>
+      <StyledButton ref={ref} disabled={disabled} $variant={variant} $size={size} {...props}>
         <Flex
           $flex={1}
           $gap={Spacings.spacing3}
