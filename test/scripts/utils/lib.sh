@@ -230,8 +230,8 @@ function run_tests_for_os {
         test_manager="${TEST_DIST_DIR%/}/test-manager"
         runner_dir_flag=("--runner-dir" "$TEST_DIST_DIR")
     else
-        # Assume test-manager is in path.
-        test_manager="$(which test-manager)"
+        # Build & run test-manager
+        test_manager="cargo run --bin test-manager"
         runner_dir_flag=()
     fi
 
