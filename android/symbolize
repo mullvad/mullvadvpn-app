@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+LSRW_REAL_EXE=$(which llvm-symbolizer)
+LLVM_SYMBOLIZER_PATH=$(which llvm-symbolizer-rust-wrapper)
+export LSRW_REAL_EXE
+export LLVM_SYMBOLIZER_PATH
+
+"$NDK_TOOLCHAIN_DIR"/../lib/clang/18/bin/hwasan_symbolize --symbols "./app/build/rustJniLibs/android/arm64-v8a/" <"$1"

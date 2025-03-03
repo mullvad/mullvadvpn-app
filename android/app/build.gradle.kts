@@ -55,10 +55,7 @@ android {
             warningsAsErrors = true
             checkDependencies = true
         }
-
-        if (isReleaseBuild()) {
-            ndk { debugSymbolLevel = "none" }
-        }
+        ndk { debugSymbolLevel = "full" }
     }
 
     playConfigs { register("playStagemoleRelease") { enabled = true } }
@@ -169,7 +166,12 @@ android {
     }
 
     packaging {
-        jniLibs.useLegacyPackaging = true
+        jniLibs {
+            useLegacyPackaging = true
+            keepDebugSymbols.add("*/arm64-v8a/*.so")
+            keepDebugSymbols.add("*/armeabi-v7a/*.so")
+        }
+
         resources {
             pickFirsts +=
                 setOf(
@@ -289,12 +291,25 @@ cargo {
         add("--package=mullvad-jni")
         add("--locked")
     }
-    exec = { spec, _ -> spec.environment("RUSTFLAGS", generateRemapArguments()) }
+    //    exec = { spec, _ -> spec.environment("RUSTFLAGS", generateRemapArguments()) }
+    exec = { spec, _ ->
+        spec.environment(
+            "RUSTFLAGS",
+            generateRemapArguments() + " -Zsanitizer=hwaddress -C target-feature=+tagged-globals",
+        )
+        spec.environment("RUSTUP_TOOLCHAIN", "nightly")
+    }
 }
 
 tasks.register<Exec>("cargoClean") {
     workingDir = File(repoRootPath)
     commandLine("cargo", "clean")
+}
+
+tasks.register<Exec>("hwasanRun") {
+    workingDir = File(repoRootPath)
+    //    environment("RUSTUP_TOOLCHAIN", "nightly")
+    finalizedBy("installOssProdDebug")
 }
 
 if (

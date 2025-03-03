@@ -73,6 +73,13 @@ struct DaemonContext {
     running_daemon: tokio::task::JoinHandle<()>,
 }
 
+fn use_after_free() -> i32 {
+    let boxed_int = Box::new(10);
+    let ptr = boxed_int.as_ref() as *const i32;
+    drop(boxed_int);
+    unsafe { *ptr }
+}
+
 /// Spawn Mullvad daemon. There can only be a single instance, which must be shut down using
 /// `MullvadDaemon.shutdown`. On success, nothing is returned. On error, an exception is thrown.
 #[unsafe(no_mangle)]
@@ -106,6 +113,8 @@ pub extern "system" fn Java_net_mullvad_mullvadvpn_service_MullvadDaemon_initial
     log::info!("Created Android Context");
 
     let api_endpoint = api::api_endpoint_from_java(&env, api_endpoint);
+
+    use_after_free();
 
     log::info!("Starting daemon");
     let daemon = ok_or_throw!(
