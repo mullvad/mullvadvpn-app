@@ -3,6 +3,8 @@ use fern::Dispatch;
 use log::LevelFilter;
 use std::{io, path::PathBuf};
 
+const LOG_FILENAME: &str = "mullvad-installer.log";
+
 pub fn init() -> Result<(), fern::InitError> {
     Dispatch::new()
         .format(|out, message, record| {
@@ -22,5 +24,5 @@ pub fn init() -> Result<(), fern::InitError> {
 }
 
 fn log_path() -> PathBuf {
-    std::env::temp_dir().join("mullvad-downloader.log")
+    std::env::temp_dir().join(LOG_FILENAME)
 }
