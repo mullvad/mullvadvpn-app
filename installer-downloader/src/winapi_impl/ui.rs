@@ -395,6 +395,7 @@ fn handle_banner_label_colors(
         }
 
         if msg == WM_CTLCOLORSTATIC {
+            // SAFETY: `w` is a valid device context for WM_CTLCOLORSTATIC
             unsafe {
                 SetTextColor(w as _, rgb([255, 255, 255]));
                 SetBkColor(w as _, rgb(BACKGROUND_COLOR));
@@ -418,6 +419,7 @@ fn handle_link_messages(
         }
 
         if msg == WM_CTLCOLORSTATIC && Some(p) == link_hwnd {
+            // SAFETY: `w` is a valid device context for WM_CTLCOLORSTATIC
             unsafe {
                 SetBkMode(w as _, TRANSPARENT as _);
                 SetTextColor(w as _, rgb(LINK_COLOR));
@@ -481,15 +483,15 @@ fn try_pair_into<A: TryInto<B>, B>(a: (A, A)) -> Result<(B, B), A::Error> {
 fn create_link_font() -> Result<nwg::Font, nwg::NwgError> {
     let face_name = "Segoe UI".encode_utf16();
 
-    let raw_font = unsafe {
-        let mut logfont: LOGFONTW = std::mem::zeroed();
-        logfont.lfUnderline = 1;
+    // SAFETY: Trivially safe. `LOGFONTW` is a C struct
+    let mut logfont: LOGFONTW = unsafe { std::mem::zeroed() };
+    logfont.lfUnderline = 1;
+    for (dest, src) in logfont.lfFaceName.iter_mut().zip(face_name) {
+        *dest = src;
+    }
 
-        for (dest, src) in logfont.lfFaceName.iter_mut().zip(face_name) {
-            *dest = src;
-        }
-        CreateFontIndirectW(&logfont)
-    };
+    // SAFETY: `logfont` is a valid font
+    let raw_font = unsafe { CreateFontIndirectW(&logfont) };
 
     if raw_font == 0 {
         return Err(nwg::NwgError::Unknown);
