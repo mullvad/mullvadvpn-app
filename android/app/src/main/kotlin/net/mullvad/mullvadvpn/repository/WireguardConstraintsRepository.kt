@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.RelayItemId
 
@@ -26,4 +27,7 @@ class WireguardConstraintsRepository(
 
     suspend fun setEntryLocation(relayItemId: RelayItemId) =
         managementService.setEntryLocation(relayItemId)
+
+    suspend fun setDeviceIpVersion(ipVersion: Constraint<IpVersion>) =
+        managementService.setDeviceIpVersion(ipVersion)
 }

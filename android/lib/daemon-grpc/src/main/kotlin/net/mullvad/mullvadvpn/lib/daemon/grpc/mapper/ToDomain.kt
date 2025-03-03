@@ -41,6 +41,7 @@ import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.FeatureIndicator
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationEndpoint
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
@@ -374,6 +375,12 @@ internal fun ManagementInterface.WireguardConstraints.toDomain(): WireguardConst
             },
         isMultihopEnabled = useMultihop,
         entryLocation = entryLocation.toDomain(),
+        ipVersion =
+            if (hasIpVersion()) {
+                Constraint.Only(ipVersion.toDomain())
+            } else {
+                Constraint.Any
+            },
     )
 
 internal fun ManagementInterface.Ownership.toDomain(): Constraint<Ownership> =
@@ -688,4 +695,11 @@ internal fun ManagementInterface.FeatureIndicator.toDomain() =
         ManagementInterface.FeatureIndicator.CUSTOM_MSS_FIX,
         ManagementInterface.FeatureIndicator.UNRECOGNIZED ->
             error("Feature not supported ${this.name}")
+    }
+
+internal fun ManagementInterface.IpVersion.toDomain() =
+    when (this) {
+        ManagementInterface.IpVersion.V4 -> IpVersion.IPV4
+        ManagementInterface.IpVersion.V6 -> IpVersion.IPV6
+        ManagementInterface.IpVersion.UNRECOGNIZED -> error("Not supported ${this.name}")
     }
