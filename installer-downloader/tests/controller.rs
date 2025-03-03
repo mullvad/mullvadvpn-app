@@ -4,7 +4,7 @@
 //!
 //! The tests rely on `insta` for snapshot testing. If they fail due to snapshot assertions,
 //! then most likely the snapshots need to be updated. The most convenient way to review
-//! changes to, and update, snapshots are by running `cargo insta review`.
+//! changes to, and update, snapshots is by running `cargo insta review`.
 
 use insta::assert_yaml_snapshot;
 use installer_downloader::controller::AppController;
