@@ -5,6 +5,9 @@
 //! Since the Windows downloader runs as admin, we can use a persistent directory and prevent
 //! non-admins from accessing it.
 //!
+//! The directory is created before being restricted, but this is fine as long as the checksum is
+//! verified before launching the app.
+//!
 //! # macOS
 //!
 //! The downloader does not run as a privileged user, so we store downloads in a temporary
@@ -45,8 +48,7 @@ impl DirectoryProvider for TempDirProvider {
 
 /// This returns a directory where only admins have write access.
 ///
-/// This function is a bit racey, as the directory is created before being restricted.
-/// This is acceptable as long as the checksum of each file is verified before being used.
+/// See [module-level](self) docs for more information.
 #[cfg(windows)]
 async fn admin_temp_dir() -> anyhow::Result<PathBuf> {
     /// Name of subdirectory in the temp directory
@@ -65,6 +67,9 @@ async fn admin_temp_dir() -> anyhow::Result<PathBuf> {
     Ok(temp_dir)
 }
 
+/// This returns a temporary directory for storing the downloaded app.
+///
+/// See [module-level](self) docs for more information.
 #[cfg(target_os = "macos")]
 async fn temp_dir() -> anyhow::Result<PathBuf> {
     use rand::{distributions::Alphanumeric, Rng};
