@@ -404,6 +404,25 @@ impl AppWindow {
                 .constraint_equal_to(&self.beta_link_preface.center_y),
         ]);
     }
+
+    // If there is a download_text, move status_text up to make room
+    fn readjust_status_text(&mut self) {
+        let text = self.download_text.get_text();
+
+        let offset = if text.is_empty() { 59.0 } else { 39.0 };
+
+        if let Some(previous_constraint) = self.status_text_position_y.take() {
+            LayoutConstraint::deactivate(&[previous_constraint]);
+        }
+
+        let new_constraint = self
+            .status_text
+            .top
+            .constraint_equal_to(&self.main_view.top)
+            .offset(offset);
+        self.status_text_position_y = Some(new_constraint.clone());
+        LayoutConstraint::activate(&[new_constraint]);
+    }
 }
 
 impl WindowDelegate for AppWindowWrapper {

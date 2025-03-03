@@ -179,7 +179,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
 
             let (retry_tx, cancel_tx) = (action_tx.clone(), action_tx);
 
-            self_.set_status_text("");
+            self_.clear_status_text();
             self_.on_error_message_retry(move || {
                 let _ = retry_tx.try_send(Action::Retry);
             });
@@ -349,7 +349,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
                 log::error!("Failed to create temporary directory: {error:?}");
 
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("");
+                    self_.clear_status_text();
                     self_.hide_download_button();
                     self_.hide_beta_text();
                     self_.hide_stable_text();
@@ -382,7 +382,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
             let app_sha256 = selected_version.sha256;
             let app_size = selected_version.size;
 
-            self_.set_download_text("");
+            self_.clear_download_text();
             self_.hide_download_button();
             self_.hide_beta_text();
             self_.hide_stable_text();
@@ -431,7 +431,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 
         self.queue.queue_main(move |self_| {
             self_.set_status_text(&version_label);
-            self_.set_download_text("");
+            self_.clear_download_text();
             self_.show_download_button();
             self_.hide_error_message();
 

@@ -36,24 +36,18 @@ impl AppDelegate for AppWindow {
         self.status_text.set_text(text);
     }
 
+    fn clear_status_text(&mut self) {
+        self.status_text.set_text("");
+    }
+
     fn set_download_text(&mut self, text: &str) {
         self.download_text.set_text(text);
+        self.readjust_status_text();
+    }
 
-        // If there is a download_text, move status_text up to make room
-
-        let offset = if text.is_empty() { 59.0 } else { 39.0 };
-
-        if let Some(previous_constraint) = self.status_text_position_y.take() {
-            LayoutConstraint::deactivate(&[previous_constraint]);
-        }
-
-        let new_constraint = self
-            .status_text
-            .top
-            .constraint_equal_to(&self.main_view.top)
-            .offset(offset);
-        self.status_text_position_y = Some(new_constraint.clone());
-        LayoutConstraint::activate(&[new_constraint]);
+    fn clear_download_text(&mut self) {
+        self.download_text.set_text("");
+        self.readjust_status_text();
     }
 
     fn show_download_progress(&mut self) {
