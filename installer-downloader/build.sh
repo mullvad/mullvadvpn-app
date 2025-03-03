@@ -35,7 +35,7 @@ DIST_DIR="../dist"
 BUNDLE_NAME="MullvadDownloader"
 BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
 
-FILENAME="mullvad-downloader"
+FILENAME="Install Mullvad VPN"
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
