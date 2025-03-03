@@ -234,6 +234,7 @@ struct ActionMessageHandler<
 impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static>
     ActionMessageHandler<D, A>
 {
+    /// Run the [ActionMessageHandler] actor until the end of the program/execution
     async fn run<DP: DirectoryProvider>(
         queue: D::Queue,
         tx: mpsc::Sender<TaskMessage>,
