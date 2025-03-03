@@ -35,10 +35,10 @@ async function navigateToSettingsImport() {
   await page.click('button[aria-label="Settings"]');
   await util.waitForRoute(RoutePath.settings);
 
-  await page.getByText('VPN settings').click();
+  await page.getByRole('button', { name: 'VPN settings' }).click();
   await util.waitForRoute(RoutePath.vpnSettings);
 
-  await page.getByText('Server IP override').click();
+  await page.getByRole('button', { name: 'Server IP override' }).click();
   await util.waitForRoute(RoutePath.settingsImport);
 
   const title = page.locator('h1');
