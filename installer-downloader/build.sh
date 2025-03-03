@@ -32,7 +32,7 @@ BUILD_DIR="./build"
 # Successfully built (and signed) artifacts
 DIST_DIR="../dist"
 
-BUNDLE_NAME="MullvadDownloader"
+BUNDLE_NAME="MullvadVPNInstaller"
 BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
 
 FILENAME="Install Mullvad VPN"
