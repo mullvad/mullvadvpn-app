@@ -14,28 +14,31 @@
 //! by the current user. Using a random directory name mitigates this issue.
 
 use anyhow::Context;
-use std::{future::Future, path::PathBuf};
+use async_trait::async_trait;
+use std::path::PathBuf;
 
 /// Provide a directory to use for [AppDownloader]
-pub trait DirectoryProvider: 'static {
+#[async_trait]
+pub trait DirectoryProvider {
     /// Provide a directory to use for [AppDownloader]
-    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send;
+    async fn create_download_dir() -> anyhow::Result<PathBuf>;
 }
 
 /// See [module-level](self) docs.
 pub struct TempDirProvider;
 
+#[async_trait]
 impl DirectoryProvider for TempDirProvider {
     /// Create a locked-down directory to store downloads in
-    fn create_download_dir() -> impl Future<Output = anyhow::Result<PathBuf>> + Send {
+    async fn create_download_dir() -> anyhow::Result<PathBuf> {
         #[cfg(windows)]
         {
-            admin_temp_dir()
+            admin_temp_dir().await
         }
 
         #[cfg(target_os = "macos")]
         {
-            temp_dir()
+            temp_dir().await
         }
     }
 }
