@@ -35,6 +35,24 @@ pub enum SizeHint {
     Maximum(usize),
 }
 
+impl SizeHint {
+    /// This function succeeds if `actual` is allowed according to the [SizeHint]. Otherwise, it
+    /// returns an error.
+    fn check_size(&self, actual: usize) -> anyhow::Result<()> {
+        match *self {
+            SizeHint::Exact(expected) if actual != expected => {
+                anyhow::bail!("File size mismatch: expected {expected} bytes, served {actual}")
+            }
+            SizeHint::Maximum(limit) if actual > limit => {
+                anyhow::bail!(
+                    "File size exceeds limit: expected at most {limit} bytes, served {actual}"
+                )
+            }
+            _ => Ok(()),
+        }
+    }
+}
+
 /// Download `url` to `file`. If the file already exists, this appends to it, as long
 /// as the file pointed to by `url` is larger than it.
 ///
@@ -84,7 +102,7 @@ pub async fn get_to_writer(
         .get(CONTENT_LENGTH)
         .context("Missing file size")?;
     let total_size: usize = total_size.to_str()?.parse().context("invalid size")?;
-    check_size_hint(size_hint, total_size)?;
+    size_hint.check_size(total_size)?;
 
     let already_fetched_bytes = writer
         .stream_position()
@@ -143,22 +161,6 @@ pub async fn get_to_writer(
     writer.shutdown().await.context("Failed to flush")?;
 
     Ok(())
-}
-
-/// This function succeeds if `actual` is allowed according to the [SizeHint]. Otherwise, it
-/// returns an error.
-fn check_size_hint(hint: SizeHint, actual: usize) -> anyhow::Result<()> {
-    match hint {
-        SizeHint::Exact(expected) if actual != expected => {
-            anyhow::bail!("File size mismatch: expected {expected} bytes, served {actual}")
-        }
-        SizeHint::Maximum(limit) if actual > limit => {
-            anyhow::bail!(
-                "File size exceeds limit: expected at most {limit} bytes, served {actual}"
-            )
-        }
-        _ => Ok(()),
-    }
 }
 
 /// If a file exists, append to it. Otherwise, create a new file
