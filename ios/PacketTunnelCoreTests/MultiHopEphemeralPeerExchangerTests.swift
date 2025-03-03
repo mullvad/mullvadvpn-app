@@ -160,7 +160,49 @@ final class MultiHopEphemeralPeerExchangerTests: XCTestCase {
             keyExchanger: peerExchangeActor,
             enablePostQuantum: false,
             enableDaita: true
-        ) { _ in
+        ) { params in
+            reconfigurationExpectation.fulfill()
+        } onFinish: {
+            negotiationSuccessful.fulfill()
+        }
+
+        peerExchangeActor.delegate = KeyExchangingResultStub(onReceiveEphemeralPeerPrivateKey: { ephemeralKey, daita in
+            await multiHopPeerExchanger.receiveEphemeralPeerPrivateKey(ephemeralKey, daitaParameters: daita)
+        })
+        await multiHopPeerExchanger.start()
+
+        wait(
+            for: [unexpectedNegotiationFailure, reconfigurationExpectation, negotiationSuccessful],
+            timeout: .UnitTest.invertedTimeout
+        )
+    }
+
+    func testEphemeralPeerExchangeSuccessPassesDaitaParameters() async throws {
+        let unexpectedNegotiationFailure = expectation(description: "Negotiation failed.")
+        unexpectedNegotiationFailure.isInverted = true
+
+        let reconfigurationExpectation = expectation(description: "Tunnel reconfiguration took place")
+        reconfigurationExpectation.expectedFulfillmentCount = 3
+
+        let negotiationSuccessful = expectation(description: "Negotiation succeeded.")
+        negotiationSuccessful.expectedFulfillmentCount = 1
+
+        let peerExchangeActor = EphemeralPeerExchangeActorStub()
+        let preSharedKey = try XCTUnwrap(PreSharedKey(hexKey: PrivateKey().hexKey))
+        peerExchangeActor.result = .success((preSharedKey, PrivateKey()))
+
+        let multiHopPeerExchanger = MultiHopEphemeralPeerExchanger(
+            entry: entryRelay,
+            exit: exitRelay,
+            devicePrivateKey: PrivateKey(),
+            keyExchanger: peerExchangeActor,
+            enablePostQuantum: false,
+            enableDaita: true
+        ) { params in
+            if case let .multi(entry, exit) = params {
+                XCTAssertNotNil(entry.configuration.daitaParameters)
+                XCTAssertNil(exit.configuration.daitaParameters)
+            }
             reconfigurationExpectation.fulfill()
         } onFinish: {
             negotiationSuccessful.fulfill()
