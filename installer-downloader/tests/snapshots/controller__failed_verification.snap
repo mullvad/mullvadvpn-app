@@ -54,4 +54,4 @@ call_log:
   - hide_download_progress
   - hide_download_button
   - hide_cancel_button
-  - show_error_message
+  - "show_error_message: Failed to verify download, please try downloading again or contact our support by sending an email to support@mullvadvpn.net with a description of what happened.. retry: Try again. cancel: Cancel"
