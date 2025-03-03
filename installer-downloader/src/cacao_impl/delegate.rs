@@ -177,7 +177,7 @@ impl AppWindow {
     }
 }
 
-/// This simply mutates the UI on the main thread using the GCD
+/// This simply mutates the UI on the main thread
 pub struct Queue {}
 
 impl AppDelegateQueue<AppWindow> for Queue {

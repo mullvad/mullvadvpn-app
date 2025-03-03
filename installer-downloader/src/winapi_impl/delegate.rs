@@ -212,7 +212,7 @@ fn register_frame_click_handler(frame: nwg::ControlHandle, callback: impl Fn() +
 }
 
 /// Queue sends a window message to the main window containing a [QueueContext], giving us mutable
-/// access to the [AppDelegate] on the main UI thread.
+/// access to the [AppDelegate] on the UI (main) thread.
 ///
 /// See [QueueContext] docs for more information.
 #[derive(Clone)]
