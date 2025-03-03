@@ -47,7 +47,7 @@ pub enum RetryDelay {
 /// Creates a retry strategy that never retries after failure.
 /// The result needs to be consumed.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_retry_strategy_never() -> SwiftRetryStrategy {
+pub extern "C" fn mullvad_api_retry_strategy_never() -> SwiftRetryStrategy {
     let retry_strategy = RetryStrategy {
         delays: RetryDelay::Never,
         max_retries: 0,
@@ -60,7 +60,7 @@ pub unsafe extern "C" fn mullvad_api_retry_strategy_never() -> SwiftRetryStrateg
 /// Creates a retry strategy that retries `max_retries` times with a constant delay of `delay_sec`.
 /// The result needs to be consumed.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_retry_strategy_constant(
+pub extern "C" fn mullvad_api_retry_strategy_constant(
     max_retries: usize,
     delay_sec: u64,
 ) -> SwiftRetryStrategy {
@@ -78,7 +78,7 @@ pub unsafe extern "C" fn mullvad_api_retry_strategy_constant(
 /// The delay will never exceed `max_delay_sec`
 /// The result needs to be consumed.
 #[no_mangle]
-pub unsafe extern "C" fn mullvad_api_retry_strategy_exponential(
+pub extern "C" fn mullvad_api_retry_strategy_exponential(
     max_retries: usize,
     initial_sec: u64,
     factor: u32,
