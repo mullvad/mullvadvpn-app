@@ -126,7 +126,7 @@ impl ErrorView {
         Ok(())
     }
 
-    /// Load the error icon and display it in ``
+    /// Load the error icon and display it in `error_icon`
     fn load_error_icon(&mut self) -> Result<(), nwg::NwgError> {
         let src = ImageDecoder::new()?.from_stream(ERROR_IMAGE_DATA)?;
         let frame = src.frame(0)?;
