@@ -52,6 +52,9 @@ class TooManyDevicesMockApiTest : MockApiTest() {
         device.findObjectWithTimeout(By.text("Continue with login").hasParent(By.enabled((false))))
 
         // Act
+        // Wait until the application is idle to avoid skipping input events that are filtered out
+        // depending on lifecycle state (dropUnlessResumed).
+        device.waitForIdle()
         app.attemptToRemoveDevice()
 
         // Assert that a device was removed
