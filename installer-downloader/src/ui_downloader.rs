@@ -143,29 +143,58 @@ impl<Delegate: AppDelegate> UiProgressUpdater<Delegate> {
             queue,
         }
     }
+
+    fn need_update(&mut self, complete: u32) -> bool {
+        if self.prev_progress == Some(complete) {
+            // Unconditionally updating causes flickering
+            return false;
+        }
+        self.prev_progress = Some(complete);
+        true
+    }
+
+    fn complete_from_percentage(fraction_complete: f32) -> u32 {
+        (100.0 * fraction_complete).min(100.0) as u32
+    }
+
+    fn status_text(&self, complete_percentage: u32) -> String {
+        format!(
+            "{} {}... ({complete_percentage}%)",
+            resource::DOWNLOADING_DESC_PREFIX,
+            self.domain
+        )
+    }
 }
 
 impl<Delegate: AppDelegate + 'static> fetch::ProgressUpdater for UiProgressUpdater<Delegate> {
     fn set_progress(&mut self, fraction_complete: f32) {
-        let value = (100.0 * fraction_complete).min(100.0) as u32;
+        let value = Self::complete_from_percentage(fraction_complete);
 
-        if self.prev_progress == Some(value) {
-            // Unconditionally updating causes flickering
+        if !self.need_update(value) {
             return;
         }
 
-        let status = format!(
-            "{} {}... ({value}%)",
-            resource::DOWNLOADING_DESC_PREFIX,
-            self.domain
-        );
+        let status = self.status_text(value);
 
         self.queue.queue_main(move |self_| {
             self_.set_download_progress(value);
             self_.set_download_text(&status);
         });
+    }
 
-        self.prev_progress = Some(value);
+    fn clear_progress(&mut self) {
+        let value = 0;
+
+        if !self.need_update(value) {
+            return;
+        }
+
+        let status = self.status_text(value);
+
+        self.queue.queue_main(move |self_| {
+            self_.clear_download_progress();
+            self_.set_download_text(&status);
+        });
     }
 
     fn set_url(&mut self, url: &str) {

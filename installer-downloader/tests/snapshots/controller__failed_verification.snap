@@ -43,7 +43,7 @@ call_log:
   - show_cancel_button
   - enable_cancel_button
   - show_download_progress
-  - "set_download_progress: 0"
+  - clear_download_progress
   - "set_download_text: Downloading from mullvad.net... (0%)"
   - "set_download_progress: 100"
   - "set_download_text: Downloading from mullvad.net... (100%)"
