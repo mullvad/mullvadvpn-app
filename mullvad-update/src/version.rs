@@ -136,7 +136,7 @@ impl VersionInfo {
 
     /// Returns the first duplicated version found in `releases`.
     /// `None` is returned if there are no duplicates.
-    /// NOTE: `releases` MUST be sorted
+    /// NOTE: `releases` MUST be sorted on the version number
     fn find_duplicate_version(releases: &[format::Release]) -> Option<&mullvad_version::Version> {
         releases
             .windows(2)
