@@ -130,13 +130,8 @@ impl ErrorView {
     fn load_error_icon(&mut self) -> Result<(), nwg::NwgError> {
         let src = ImageDecoder::new()?.from_stream(ERROR_IMAGE_DATA)?;
         let frame = src.frame(0)?;
-        //let size = frame.size();
         self.error_icon_bmp = frame.as_bitmap().unwrap();
-
         self.error_icon.set_bitmap(Some(&self.error_icon_bmp));
-        //self.error_icon.set_position(24, 24);
-        //self.error_icon.set_size(size.0, size.1);
-
         Ok(())
     }
 }
