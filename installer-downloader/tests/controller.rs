@@ -48,6 +48,7 @@ impl VersionInfoProvider for FakeVersionInfoProvider {
 
 pub struct FakeDirectoryProvider<const SUCCEED: bool> {}
 
+#[async_trait::async_trait]
 impl<const SUCCEEDED: bool> DirectoryProvider for FakeDirectoryProvider<SUCCEEDED> {
     async fn create_download_dir() -> anyhow::Result<PathBuf> {
         if SUCCEEDED {
