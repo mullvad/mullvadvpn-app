@@ -88,7 +88,7 @@ impl AppController {
         D: AppDelegate + 'static,
         V: VersionInfoProvider + Send + 'static,
         A: From<UiAppDownloaderParameters<D>> + AppDownloader + 'static,
-        DirProvider: DirectoryProvider,
+        DirProvider: DirectoryProvider + 'static,
     {
         delegate.hide_download_progress();
         delegate.show_download_button();
