@@ -12,15 +12,11 @@ workspace = true
 
 [build-dependencies]
 anyhow = { workspace = true }
-
-[dependencies]
-anyhow = { workspace = true }
-
-[target.'cfg(target_os = "windows")'.build-dependencies]
 winres = "0.1"
 windows-sys = { workspace = true, features = ["Win32_System", "Win32_System_LibraryLoader", "Win32_System_SystemServices"] }
 
 [target.'cfg(any(target_os = "windows", target_os = "macos"))'.dependencies]
+anyhow = { workspace = true }
 async-trait = "0.1"
 chrono = { workspace = true, features = ["clock"] }
 fern = { workspace = true }
