@@ -35,6 +35,10 @@ enum TaskMessage {
 pub struct AppController {}
 
 /// Public entry function for registering a [AppDelegate].
+///
+/// This function uses the Mullvad API to fetch the current releases, a hardcoded public key to
+/// verify the metadata, and the default HTTP client from `mullvad-update` and stores the files
+/// in a temporary directory.
 pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environment: Environment) {
     use mullvad_update::{api::HttpVersionInfoProvider, app::HttpAppDownloader};
 
@@ -76,8 +80,8 @@ fn get_metadata_url() -> String {
 impl AppController {
     /// Initialize [AppController] using the provided delegate.
     ///
-    /// Providing the downloader and version info fetcher as type arguments, they're decoupled from
-    /// the logic of [AppController], allowing them to be mocked.
+    /// This function lets the caller provide a version information provider, download client, etc.,
+    /// which is useful for testing.
     pub fn initialize<D, A, V, DirProvider>(
         delegate: &mut D,
         version_provider: V,
