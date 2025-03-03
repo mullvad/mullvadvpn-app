@@ -56,14 +56,14 @@ function publish_metadata {
     local platforms
     platforms=(windows macos linux)
 
-    rm -rf published_signed
+    rm -rf currently_published/
 
     echo ">>> Fetching current version metadata"
     meta pull --assume-yes "${platforms[@]}"
     echo ""
 
     echo ">>> Backing up released data"
-    cp -r signed/ published_signed/
+    cp -r signed/ currently_published/
     echo ""
 
     echo ">>> Adding new release $$PRODUCT_VERSION (rollout = 1)"
@@ -79,7 +79,7 @@ function publish_metadata {
     echo ""
 
     echo ">>> New metadata including $$PRODUCT_VERSION"
-    git diff --no-index -- published_signed/ signed/
+    git diff --no-index -- currently_published/ signed/
     echo ""
 
     read -rp "Press enter to upload if the diff looks good "
