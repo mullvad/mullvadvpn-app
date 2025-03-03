@@ -110,6 +110,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != ''
     continue-on-error: true
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
@@ -155,6 +159,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != ''
     steps:
       # Fix for HOME path overridden by GH runners when building in containers, see:
       # https://github.com/actions/runner/issues/863
@@ -181,6 +189,10 @@ jobs:
     needs: prepare-linux
     # Note: libssl-dev is installed on the test server, so build test-manager there for the sake of simplicity
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != ''
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -204,6 +216,10 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: ${{ needs.prepare-linux.outputs.container_image }}
+    if: |
+      !cancelled() &&
+      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
+      needs.prepare-matrices.outputs.linux_matrix != ''
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
