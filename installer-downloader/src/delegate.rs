@@ -48,6 +48,9 @@ pub trait AppDelegate {
     /// Update download progress bar
     fn set_download_progress(&mut self, complete: u32);
 
+    /// Clear download progress
+    fn clear_download_progress(&mut self);
+
     /// Enable download button
     fn enable_download_button(&mut self);
 

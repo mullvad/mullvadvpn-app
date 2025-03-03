@@ -96,7 +96,7 @@ impl<const EXE_SUCCEED: bool, const VERIFY_SUCCEED: bool, const LAUNCH_SUCCEED: 
 {
     async fn download_executable(&mut self) -> Result<(), DownloadError> {
         self.params.app_progress.set_url(&self.params.app_url);
-        self.params.app_progress.set_progress(0.);
+        self.params.app_progress.clear_progress();
         if EXE_SUCCEED {
             self.params.app_progress.set_progress(1.);
             Ok(())
@@ -267,6 +267,11 @@ impl AppDelegate for FakeAppDelegate {
             .call_log
             .push(format!("set_download_progress: {}", complete));
         self.state.download_progress = complete;
+    }
+
+    fn clear_download_progress(&mut self) {
+        self.state.call_log.push(format!("clear_download_progress"));
+        self.state.download_progress = 0;
     }
 
     fn show_download_button(&mut self) {

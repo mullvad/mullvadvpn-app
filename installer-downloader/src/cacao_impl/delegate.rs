@@ -59,6 +59,10 @@ impl AppDelegate for AppWindow {
         self.progress.set_value(complete as f64);
     }
 
+    fn clear_download_progress(&mut self) {
+        self.progress.set_value(0.);
+    }
+
     fn show_download_button(&mut self) {
         self.download_button.set_hidden(false);
     }
