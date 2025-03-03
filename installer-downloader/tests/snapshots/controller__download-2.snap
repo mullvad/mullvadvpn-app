@@ -36,7 +36,7 @@ call_log:
   - hide_error_message
   - on_error_message_retry
   - on_error_message_cancel
-  - "set_download_text: "
+  - clear_download_text
   - hide_download_button
   - hide_beta_text
   - hide_stable_text

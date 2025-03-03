@@ -40,21 +40,23 @@ impl AppDelegate for AppWindow {
     }
 
     fn set_status_text(&mut self, text: &str) {
-        if !text.is_empty() {
-            self.status_text.set_visible(true);
-            self.status_text.set_text(text);
-        } else {
-            self.status_text.set_visible(false);
-        }
+        self.status_text.set_visible(true);
+        self.status_text.set_text(text);
+    }
+
+    fn clear_status_text(&mut self) {
+        self.status_text.set_visible(false);
+        self.status_text.set_text("");
     }
 
     fn set_download_text(&mut self, text: &str) {
-        if !text.is_empty() {
-            self.download_text.set_visible(true);
-            self.download_text.set_text(text);
-        } else {
-            self.download_text.set_visible(false);
-        }
+        self.download_text.set_visible(true);
+        self.download_text.set_text(text);
+    }
+
+    fn clear_download_text(&mut self) {
+        self.download_text.set_visible(false);
+        self.download_text.set_text("");
     }
 
     fn show_download_progress(&mut self) {
