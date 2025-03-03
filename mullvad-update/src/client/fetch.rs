@@ -317,6 +317,10 @@ mod test {
             self.complete = fraction_complete;
         }
 
+        fn clear_progress(&mut self) {
+            self.complete = 0.;
+        }
+
         fn set_url(&mut self, url: &str) {
             self.url = url.to_owned();
         }
