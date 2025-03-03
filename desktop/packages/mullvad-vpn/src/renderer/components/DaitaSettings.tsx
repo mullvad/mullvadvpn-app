@@ -61,8 +61,11 @@ export default function DaitaSettings() {
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
+                              // TRANSLATORS: Information to the user that with this setting enabled
+                              // TRANSLATORS: their network and device's battery life will be
+                              // TRANSLATORS: affected negatively.
                               'wireguard-settings-view',
-                              'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s.',
+                              'Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s.',
                             ),
                             { wireguard: strings.wireguard },
                           )}
