@@ -76,6 +76,7 @@ import net.mullvad.mullvadvpn.lib.model.GetAccountHistoryError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceListError
 import net.mullvad.mullvadvpn.lib.model.GetDeviceStateError
 import net.mullvad.mullvadvpn.lib.model.GetVersionInfoError
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.LoginAccountError
 import net.mullvad.mullvadvpn.lib.model.LogoutAccountError
 import net.mullvad.mullvadvpn.lib.model.NameAlreadyExists
@@ -125,6 +126,7 @@ import net.mullvad.mullvadvpn.lib.model.addresses
 import net.mullvad.mullvadvpn.lib.model.customOptions
 import net.mullvad.mullvadvpn.lib.model.enabled
 import net.mullvad.mullvadvpn.lib.model.entryLocation
+import net.mullvad.mullvadvpn.lib.model.ipVersion
 import net.mullvad.mullvadvpn.lib.model.isMultihopEnabled
 import net.mullvad.mullvadvpn.lib.model.location
 import net.mullvad.mullvadvpn.lib.model.ownership
@@ -777,6 +779,22 @@ class ManagementService(
                     RelaySettings.relayConstraints.wireguardConstraints.entryLocation.set(
                         relaySettings,
                         Constraint.Only(entryLocation),
+                    )
+                grpc.setRelaySettings(updated.fromDomain())
+            }
+            .onLeft { Logger.e("Set multihop error") }
+            .mapLeft(SetWireguardConstraintsError::Unknown)
+            .mapEmpty()
+
+    suspend fun setDeviceIpVersion(
+        ipVersion: Constraint<IpVersion>
+    ): Either<SetWireguardConstraintsError, Unit> =
+        Either.catch {
+                val relaySettings = getSettings().relaySettings
+                val updated =
+                    RelaySettings.relayConstraints.wireguardConstraints.ipVersion.set(
+                        relaySettings,
+                        ipVersion,
                     )
                 grpc.setRelaySettings(updated.fromDomain())
             }

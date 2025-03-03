@@ -13,6 +13,7 @@ import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
 import net.mullvad.mullvadvpn.lib.model.GeoLocationId
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.NewAccessMethodSetting
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.ObfuscationSettings
@@ -133,6 +134,12 @@ internal fun WireguardConstraints.fromDomain(): ManagementInterface.WireguardCon
             when (val port = this@fromDomain.port) {
                 is Constraint.Any -> clearPort()
                 is Constraint.Only -> setPort(port.value.value)
+            }
+        }
+        .apply {
+            when (val ipVersion = this@fromDomain.ipVersion) {
+                is Constraint.Any -> clearIpVersion()
+                is Constraint.Only -> setIpVersion(ipVersion.value.fromDomain())
             }
         }
         .build()
@@ -260,3 +267,9 @@ internal fun DaitaSettings.fromDomain(): ManagementInterface.DaitaSettings =
         .setEnabled(enabled)
         .setDirectOnly(directOnly)
         .build()
+
+internal fun IpVersion.fromDomain(): ManagementInterface.IpVersion =
+    when (this) {
+        IpVersion.IPV4 -> ManagementInterface.IpVersion.V4
+        IpVersion.IPV6 -> ManagementInterface.IpVersion.V6
+    }
