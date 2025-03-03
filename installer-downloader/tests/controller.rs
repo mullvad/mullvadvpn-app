@@ -330,7 +330,10 @@ impl AppDelegate for FakeAppDelegate {
     }
 
     fn show_error_message(&mut self, message: ErrorMessage) {
-        self.state.call_log.push("show_error_message".into());
+        self.state.call_log.push(format!(
+            "show_error_message: {}. retry: {}. cancel: {}",
+            message.status_text, message.retry_button_text, message.cancel_button_text
+        ));
         self.state.error_message = message;
         self.state.error_message_visible = true;
     }
@@ -508,6 +511,6 @@ async fn test_failed_directory_creation() {
     let queue = delegate.queue.clone();
     queue.run_callbacks(&mut delegate);
 
-    // Verification failed
+    // "Download failed"
     assert_yaml_snapshot!(delegate.state);
 }
