@@ -11,7 +11,7 @@ import MullvadRustRuntime
 import MullvadTypes
 
 extension REST {
-    public struct RetryStrategy: Sendable {
+    public struct RetryStrategy: Codable, Sendable {
         public var maxRetryCount: Int
         public var delay: RetryDelay
         public var applyJitter: Bool
@@ -50,6 +50,8 @@ extension REST {
                     AnyIterator(Jittered(inner))
                 case let .exponentialBackoff(_, _, maxDelay):
                     AnyIterator(Transformer(inner: Jittered(inner)) { nextValue in
+                        let maxDelay = maxDelay.duration
+
                         guard let nextValue else { return maxDelay }
                         return nextValue >= maxDelay ? maxDelay : nextValue
                     })
@@ -108,15 +110,15 @@ extension REST {
         )
     }
 
-    public enum RetryDelay: Equatable, Sendable {
+    public enum RetryDelay: Codable, Equatable, Sendable {
         /// Never wait to retry.
         case never
 
         /// Constant delay.
-        case constant(Duration)
+        case constant(CodableDuration)
 
         /// Exponential backoff.
-        case exponentialBackoff(initial: Duration, multiplier: UInt64, maxDelay: Duration)
+        case exponentialBackoff(initial: CodableDuration, multiplier: UInt64, maxDelay: CodableDuration)
 
         func makeIterator() -> AnyIterator<Duration> {
             switch self {
@@ -127,16 +129,33 @@ extension REST {
 
             case let .constant(duration):
                 return AnyIterator {
-                    duration
+                    duration.duration
                 }
 
             case let .exponentialBackoff(initial, multiplier, maxDelay):
                 return AnyIterator(ExponentialBackoff(
-                    initial: initial,
+                    initial: initial.duration,
                     multiplier: multiplier,
-                    maxDelay: maxDelay
+                    maxDelay: maxDelay.duration
                 ))
             }
+        }
+    }
+
+    public struct CodableDuration: Codable, Equatable, Sendable {
+        public var seconds: Int64
+        public var attoseconds: Int64
+
+        public var duration: Duration {
+            Duration(secondsComponent: seconds, attosecondsComponent: attoseconds)
+        }
+
+        public static func seconds(_ seconds: Int) -> CodableDuration {
+            return CodableDuration(seconds: Int64(seconds), attoseconds: 0)
+        }
+
+        public static func minutes(_ minutes: Int) -> CodableDuration {
+            return .seconds(minutes.saturatingMultiplication(60))
         }
     }
 }

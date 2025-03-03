@@ -18,8 +18,8 @@ public protocol ProxyFactoryProtocol {
 
     static func makeProxyFactory(
         transportProvider: RESTTransportProvider,
-        addressCache: REST.AddressCache,
-        apiContext: MullvadApiContext
+        apiTransportProvider: APITransportProviderProtocol,
+        addressCache: REST.AddressCache
     ) -> ProxyFactoryProtocol
 }
 
@@ -29,13 +29,13 @@ extension REST {
 
         public static func makeProxyFactory(
             transportProvider: any RESTTransportProvider,
-            addressCache: REST.AddressCache,
-            apiContext: MullvadApiContext
+            apiTransportProvider: any APITransportProviderProtocol,
+            addressCache: REST.AddressCache
         ) -> any ProxyFactoryProtocol {
             let basicConfiguration = REST.ProxyConfiguration(
                 transportProvider: transportProvider,
-                addressCacheStore: addressCache,
-                apiContext: apiContext
+                apiTransportProvider: apiTransportProvider,
+                addressCacheStore: addressCache
             )
 
             let authenticationProxy = REST.AuthenticationProxy(
@@ -47,8 +47,7 @@ extension REST {
 
             let authConfiguration = REST.AuthProxyConfiguration(
                 proxyConfiguration: basicConfiguration,
-                accessTokenManager: accessTokenManager,
-                apiContext: apiContext
+                accessTokenManager: accessTokenManager
             )
 
             return ProxyFactory(configuration: authConfiguration)
