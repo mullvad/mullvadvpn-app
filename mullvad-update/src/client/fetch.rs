@@ -19,6 +19,9 @@ pub trait ProgressUpdater: Send + 'static {
     /// Progress so far
     fn set_progress(&mut self, fraction_complete: f32);
 
+    /// Clear progress so far
+    fn clear_progress(&mut self);
+
     /// URL that is being downloaded
     fn set_url(&mut self, url: &str);
 }
