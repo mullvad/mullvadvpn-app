@@ -118,9 +118,7 @@ impl Dispatcher for AppImpl {
         }
     }
 
-    fn on_background_message(&self, _message: Self::Message) {
-        // TODO
-    }
+    fn on_background_message(&self, _message: Self::Message) {}
 }
 
 #[derive(Default)]
