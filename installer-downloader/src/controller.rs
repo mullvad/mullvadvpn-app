@@ -171,7 +171,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
         let (action_tx, mut action_rx) = mpsc::channel(1);
 
         // show error message (needs to happen on the UI thread)
-        // send Action when user presses a button to contin
+        // send Action when user presses a button to continue
         queue.queue_main(move |self_| {
             self_.hide_download_button();
 
