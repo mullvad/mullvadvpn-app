@@ -11,6 +11,13 @@ use mullvad_version::PreStableType;
 
 use crate::format;
 
+/// Rollout threshold in [VersionParameters] that will accept *any* version (rollout >= 0)
+pub const ROLLOUT_ANY_VERSION: f32 = 0.;
+
+/// Rollout threshold in [VersionParameters] that will accept only fully rolled out versions
+/// (rollout = 1)
+pub const ROLLOUT_FULLY_ROLLED_OUT_ONLY: f32 = 1.;
+
 /// Query type for [VersionInfo]
 #[derive(Debug)]
 pub struct VersionParameters {
