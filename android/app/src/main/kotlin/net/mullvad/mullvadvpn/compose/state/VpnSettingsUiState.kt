@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -24,6 +25,7 @@ data class VpnSettingsUiState(
     val availablePortRanges: List<PortRange>,
     val systemVpnSettingsAvailable: Boolean,
     val autoStartAndConnectOnBoot: Boolean,
+    val deviceIpVersion: Constraint<IpVersion>,
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
@@ -48,6 +50,7 @@ data class VpnSettingsUiState(
             availablePortRanges: List<PortRange> = emptyList(),
             systemVpnSettingsAvailable: Boolean = false,
             autoStartAndConnectOnBoot: Boolean = false,
+            deviceIpVersion: Constraint<IpVersion> = Constraint.Any,
         ) =
             VpnSettingsUiState(
                 mtu,
@@ -64,6 +67,7 @@ data class VpnSettingsUiState(
                 availablePortRanges,
                 systemVpnSettingsAvailable,
                 autoStartAndConnectOnBoot,
+                deviceIpVersion,
             )
     }
 }
