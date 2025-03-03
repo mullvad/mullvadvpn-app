@@ -103,7 +103,7 @@ pub trait AppDelegate {
     /// Exit the application
     fn quit(&mut self);
 
-    /// Create queue for scheduling actions on UI thread
+    /// Create queue for scheduling actions on UI (main) thread
     fn queue(&self) -> Self::Queue;
 }
 
@@ -114,8 +114,8 @@ pub struct ErrorMessage {
     pub retry_button_text: String,
 }
 
-/// Schedules actions on the UI thread from other threads
+/// Schedules actions on the UI (main) thread from other threads
 pub trait AppDelegateQueue<T: ?Sized>: Send {
-    /// Schedule action on the UI thread from other threads
+    /// Schedule action on the UI (main) thread from other threads
     fn queue_main<F: FnOnce(&mut T) + 'static + Send>(&self, callback: F);
 }
