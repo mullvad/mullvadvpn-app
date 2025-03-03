@@ -32,6 +32,7 @@ class RelayFilterViewController: UIViewController {
         label.lineBreakMode = .byWordWrapping
         label.font = .preferredFont(forTextStyle: .body)
         label.textColor = .secondaryTextColor
+        label.textAlignment = .center
         return label
     }()
 
@@ -84,6 +85,7 @@ class RelayFilterViewController: UIViewController {
         tableView.estimatedRowHeight = 60
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
         tableView.allowsMultipleSelection = true
+        tableView.allowsSelection = true
 
         view.addSubview(tableView)
         buttonContainerView.addArrangedSubview(descriptionLabel)
@@ -103,9 +105,12 @@ class RelayFilterViewController: UIViewController {
 
     private func setupDataSource() {
         viewModel.$relayFilter
+            .receive(on: DispatchQueue.main)
+            .removeDuplicates()
             .sink { [weak self] filter in
                 guard let self else { return }
                 let filterDescriptor = viewModel.getFilteredRelays(filter)
+                descriptionLabel.isEnabled = filterDescriptor.isEnabled
                 applyButton.isEnabled = filterDescriptor.isEnabled
                 applyButton.setTitle(filterDescriptor.title, for: .normal)
                 descriptionLabel.text = filterDescriptor.description

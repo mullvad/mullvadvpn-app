@@ -40,7 +40,14 @@ struct FilterDescriptor {
 
     var description: String {
         guard settings.daita.isDirectOnly else {
-            return ""
+            return settings.daita.daitaState.isEnabled
+                ? NSLocalizedString(
+                    "RELAY_FILTER_BUTTON_DESCRIPTION",
+                    tableName: "RelayFilter",
+                    value: "DAITA is enabled, affecting your filters.",
+                    comment: ""
+                )
+                : ""
         }
         return NSLocalizedString(
             "RELAY_FILTER_BUTTON_DESCRIPTION",

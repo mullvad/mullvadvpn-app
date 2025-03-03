@@ -11,6 +11,12 @@ import UIKit
 class CheckableSettingsCell: SettingsCell {
     let checkboxView = CheckboxView()
 
+    var isEnabled = true {
+        didSet {
+            titleLabel.isEnabled = isEnabled
+        }
+    }
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
