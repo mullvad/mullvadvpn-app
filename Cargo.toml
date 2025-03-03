@@ -52,7 +52,7 @@ members = [
 # This is set to a minimal set of packages to speed up the build process and avoid building
 # crates which might not compile without additional input, such as the `windows-installer` crate.
 # To build or test everything, add `--workspace` to your cargo commands.
-default-members = ["mullvad-cli", "mullvad-daemon", "mullvad-version"]
+default-members = ["mullvad-cli", "mullvad-daemon", "mullvad-version", "mullvad-problem-report"]
 
 # Keep all lints in sync with `test/Cargo.toml`
 [workspace.lints.rust]
