@@ -66,14 +66,14 @@ done
 # Check that we have the correct environment set for signing
 function assert_can_sign {
     if [[ "$(uname -s)" == "Darwin" ]]; then
-        if [[ -z ${CSC_INSTALLER_LINK-} ]]; then
-            log_error "The variable CSC_INSTALLER_LINK is not set. It needs to point to a file containing the private key used for signing of binaries."
+        if [[ -z ${CSC_LINK-} ]]; then
+            log_error "The variable CSC_LINK is not set. It needs to point to a file containing the private key used for signing of binaries."
             exit 1
         fi
-        if [[ -z ${CSC_INSTALLER_KEY_PASSWORD-} ]]; then
-            read -rsp "CSC_INSTALLER_KEY_PASSWORD = " CSC_INSTALLER_KEY_PASSWORD
+        if [[ -z ${CSC_KEY_PASSWORD-} ]]; then
+            read -rsp "CSC_KEY_PASSWORD = " CSC_KEY_PASSWORD
             echo ""
-            export CSC_INSTALLER_KEY_PASSWORD
+            export CSC_KEY_PASSWORD
         fi
         if [[ -z ${NOTARIZE_KEYCHAIN-} || -z ${NOTARIZE_KEYCHAIN_PROFILE-} ]]; then
             log_error "The variables NOTARIZE_KEYCHAIN and NOTARIZE_KEYCHAIN_PROFILE must be set."
@@ -129,9 +129,9 @@ function lipo_executables {
     lipo "${target_exes[@]}" -create -output "$BUILD_DIR/installer-downloader"
 }
 
-# Create temporary keychain for importing $CSC_INSTALLER_LINK
+# Create temporary keychain for importing $CSC_LINK
 function setup_macos_keychain {
-    log_info "Creating a temporary keychain \"$SIGN_KEYCHAIN_PATH\" for $CSC_INSTALLER_LINK"
+    log_info "Creating a temporary keychain \"$SIGN_KEYCHAIN_PATH\" for $CSC_LINK"
 
     SIGN_KEYCHAIN_PASS=$(openssl rand -base64 64)
     export SIGN_KEYCHAIN_PASS
@@ -143,12 +143,12 @@ function setup_macos_keychain {
     /usr/bin/security unlock-keychain -p "$SIGN_KEYCHAIN_PASS" "$SIGN_KEYCHAIN_PATH"
     /usr/bin/security set-keychain-settings "$SIGN_KEYCHAIN_PATH"
 
-    # Add our keychain to the search list, keeping existing keychains, or codesign won't find it
-    /usr/bin/security list-keychains -d user -s "$SIGN_KEYCHAIN_PATH" "$(security list-keychains -d user | tr -d '"')"
+    # Include keychain in the search list, or codesign won't find it
+    /usr/bin/security list-keychains -d user -s "$SIGN_KEYCHAIN_PATH"
 
     log_info "Importing PKCS #12 to keychain"
 
-    /usr/bin/security import "$CSC_INSTALLER_LINK" -k "$SIGN_KEYCHAIN_PATH" -P "$CSC_INSTALLER_KEY_PASSWORD" -T /usr/bin/codesign
+    /usr/bin/security import "$CSC_LINK" -k "$SIGN_KEYCHAIN_PATH" -P "$CSC_KEY_PASSWORD" -T /usr/bin/codesign
 
     # Prevent password prompt when signing
     /usr/bin/security set-key-partition-list -S "apple-tool:,apple:" -s -k "$SIGN_KEYCHAIN_PASS" "$SIGN_KEYCHAIN_PATH"
