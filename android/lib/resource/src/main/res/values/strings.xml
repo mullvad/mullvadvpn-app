@@ -409,4 +409,7 @@
     <string name="see_full_changelog">See full changelog</string>
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
+    <string name="device_ip_version_title">Device IP version</string>
+    <string name="device_ip_version_ipv4">IPv4</string>
+    <string name="device_ip_version_ipv6">IPv6</string>
 </resources>
