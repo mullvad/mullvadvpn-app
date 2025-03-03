@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DefaultDnsOptions
 import net.mullvad.mullvadvpn.lib.model.DnsState
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.QuantumResistantState
@@ -46,7 +47,7 @@ sealed interface VpnSettingsSideEffect {
 @Suppress("TooManyFunctions")
 class VpnSettingsViewModel(
     private val repository: SettingsRepository,
-    private val relayListRepository: RelayListRepository,
+    relayListRepository: RelayListRepository,
     private val systemVpnSettingsUseCase: SystemVpnSettingsAvailableUseCase,
     private val autoStartAndConnectOnBootRepository: AutoStartAndConnectOnBootRepository,
     private val wireguardConstraintsRepository: WireguardConstraintsRepository,
@@ -83,6 +84,7 @@ class VpnSettingsViewModel(
                     availablePortRanges = portRanges,
                     systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                     autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
+                    deviceIpVersion = settings?.getDeviceIpVersion() ?: Constraint.Any,
                 )
             }
             .stateIn(
@@ -117,14 +119,6 @@ class VpnSettingsViewModel(
     fun onToggleLocalNetworkSharing(isEnabled: Boolean) {
         viewModelScope.launch(dispatcher) {
             repository.setLocalNetworkSharing(isEnabled).onLeft {
-                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
-            }
-        }
-    }
-
-    fun onToggleDaita(enable: Boolean) {
-        viewModelScope.launch(dispatcher) {
-            repository.setDaitaEnabled(enable).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
@@ -251,6 +245,14 @@ class VpnSettingsViewModel(
         }
     }
 
+    fun onDeviceIpVersionSelected(ipVersion: Constraint<IpVersion>) {
+        viewModelScope.launch(dispatcher) {
+            wireguardConstraintsRepository.setDeviceIpVersion(ipVersion).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            }
+        }
+    }
+
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
             repository
@@ -265,7 +267,7 @@ class VpnSettingsViewModel(
     private fun List<String>.asInetAddressList(): List<InetAddress> {
         return try {
             map { InetAddress.getByName(it) }
-        } catch (ex: UnknownHostException) {
+        } catch (_: UnknownHostException) {
             Logger.e("Error parsing the DNS address list.")
             emptyList()
         }
@@ -289,6 +291,9 @@ class VpnSettingsViewModel(
 
     private fun Settings.getWireguardPort() =
         relaySettings.relayConstraints.wireguardConstraints.port
+
+    private fun Settings.getDeviceIpVersion() =
+        relaySettings.relayConstraints.wireguardConstraints.ipVersion
 
     private fun InetAddress.isLocalAddress(): Boolean {
         return isLinkLocalAddress || isSiteLocalAddress
