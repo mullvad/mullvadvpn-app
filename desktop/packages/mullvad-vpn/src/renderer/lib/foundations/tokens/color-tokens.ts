@@ -30,3 +30,66 @@ export enum DeprecatedColorTokens {
   green90 = 'rgba(68, 173, 77, 0.9)',
   green40 = 'rgba(68, 173, 77, 0.4)',
 }
+
+export const colorTokens = {
+  white100: 'rgba(255, 255, 255, 1)',
+  white80: 'rgba(255, 255, 255, 0.8)',
+  white60: 'rgba(255, 255, 255, 0.6)',
+  white40: 'rgba(255, 255, 255, 0.4)',
+  white20: 'rgba(255, 255, 255, 0.2)',
+
+  black: 'rgba(0, 0, 0, 1)',
+  black50: 'rgba(0, 0, 0, 0.5)',
+
+  brandRed: 'rgba(227, 64, 57, 1)',
+  brandGreen: 'rgba(68, 173, 77, 1)',
+  brandYellow: 'rgba(255, 213, 36, 1)',
+  brandFur: 'rgba(210, 148, 59, 1)',
+  brandNose: 'rgba(255, 205, 134, 1)',
+  brandBlue: 'rgba(41, 77, 115, 1)',
+  brandDarkBlue: 'rgba(25, 46, 69, 1)',
+
+  greenAlpha: 'rgba(68, 173, 77, 0.4)',
+  green80: 'rgba(59, 148, 75, 1)',
+  green40: 'rgba(59, 148, 75, 1)',
+
+  redAlpha: 'rgba(227, 64, 57, 0.4)',
+  red: 'rgba(235, 93, 64, 1)',
+  red80: 'rgba(187, 60, 59, 1)',
+  red40: 'rgba(106, 53, 64, 1)',
+
+  dark: 'rgba(78, 73, 73, 1)',
+  darkerBlue50: 'rgba(25, 38, 56, 1)',
+  darkerBlue10: 'rgba(16, 24, 35, 1)',
+  darkerBlue10Alpha80: 'rgba(16, 24, 35, 0.8)',
+  darkerBlue10Alpha40: 'rgba(16, 24, 35, 0.4)',
+  darkerBlue50Alpha80: 'rgba(25, 38, 56, 0.8)',
+
+  blue10: 'rgba(27, 49, 74, 1)',
+  blue20: 'rgba(28, 52, 78, 1)',
+  blue40: 'rgba(31, 58, 87, 1)',
+  blue50: 'rgba(33, 62, 92, 1)',
+  blue60: 'rgba(35, 65, 97, 1)',
+  blue80: 'rgba(38, 71, 106, 1)',
+
+  whiteOnDarkBlue5: 'rgba(37, 57, 78, 1)',
+  whiteOnDarkBlue10: 'rgba(48, 67, 88, 1)',
+  whiteOnDarkBlue20: 'rgba(71, 88, 106, 1)',
+  whiteOnDarkBlue40: 'rgba(117, 130, 143, 1)',
+  whiteOnDarkBlue50: 'rgba(140, 150, 162, 1)',
+  whiteOnDarkBlue60: 'rgba(163, 171, 181, 1)',
+  whiteOnDarkBlue80: 'rgba(209, 213, 218, 1)',
+
+  whiteOnBlue5: 'rgba(56, 86, 116, 1)',
+  whiteOnBlue10: 'rgba(62, 95, 129, 1)',
+  whiteOnBlue20: 'rgba(84, 113, 143, 1)',
+  whiteOnBlue40: 'rgba(127, 148, 171, 1)',
+  whiteOnBlue50: 'rgba(148, 166, 185, 1)',
+  whiteOnBlue60: 'rgba(169, 184, 199, 1)',
+  whiteOnBlue80: 'rgba(212, 219, 227, 1)',
+
+  chalk100: 'rgba(248, 247, 241, 1)',
+  chalk80: 'rgba(246, 242, 213, 1)',
+  chalk80Alpha: 'rgba(248, 247, 241, 0.8)',
+  chalk40Alpha: 'rgba(248, 247, 241, 0.4)',
+} as const;
