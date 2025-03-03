@@ -9,7 +9,7 @@ use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgres
 use mullvad_update::{
     api::VersionInfoProvider,
     app::{self, AppDownloader},
-    version::{Version, VersionInfo, VersionParameters},
+    version::{Version, VersionInfo, VersionParameters, ROLLOUT_ANY_VERSION},
 };
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
@@ -148,7 +148,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
         let version_params = VersionParameters {
             architecture,
             // For the downloader, the rollout version is always preferred
-            rollout: 0.,
+            rollout: ROLLOUT_ANY_VERSION,
             // The downloader allows any version
             lowest_metadata_version: 0,
         };
