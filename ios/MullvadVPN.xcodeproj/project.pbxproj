@@ -633,6 +633,7 @@
 		7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */; };
 		7A9F293B2CAC4443005F2089 /* InfoHeaderConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F293A2CAC4420005F2089 /* InfoHeaderConfig.swift */; };
 		7A9F293D2CAD2FD5005F2089 /* InfoModalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */; };
+		7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */; };
 		7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1412A2E3306000B728D /* CheckboxView.swift */; };
 		7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */; };
 		7AA130992CFF365D00640DF9 /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA130982CFF365A00640DF9 /* ConnectionView.swift */; };
@@ -2148,6 +2149,7 @@
 		7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoHeaderView.swift; sourceTree = "<group>"; };
 		7A9F293A2CAC4420005F2089 /* InfoHeaderConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoHeaderConfig.swift; sourceTree = "<group>"; };
 		7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoModalConfig.swift; sourceTree = "<group>"; };
+		7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodsTests.swift; sourceTree = "<group>"; };
 		7A9FA1412A2E3306000B728D /* CheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxView.swift; sourceTree = "<group>"; };
 		7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckableSettingsCell.swift; sourceTree = "<group>"; };
 		7AA130982CFF365A00640DF9 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
@@ -4355,6 +4357,7 @@
 				8556EB532B9A1D7100D26DD4 /* BridgingHeader.h */,
 				85B267602B849ADB0098E3CD /* mullvad-api.h */,
 				852969372B4ED20E007EAD4C /* Info.plist */,
+				7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */,
 				852969272B4D9C1F007EAD4C /* AccountTests.swift */,
 				85557B112B594FC900795FE1 /* ConnectivityTests.swift */,
 				A9BFAFFE2BD004ED00F2BCA1 /* CustomListsTests.swift */,
@@ -6683,6 +6686,7 @@
 				85021CAE2BDBC4290098B400 /* AppLogsPage.swift in Sources */,
 				4495ECD12D0B170700A7358B /* UDPOverTCPObfuscationSettingsPage.swift in Sources */,
 				850201DB2B503D7700EF8C96 /* RelayTests.swift in Sources */,
+				7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */,
 				7A45CFC62C05FF6A00D80B21 /* ScreenshotTests.swift in Sources */,
 				852D054D2BC3DE3A008578D2 /* APIAccessPage.swift in Sources */,
 				85139B2D2B84B4A700734217 /* OutOfTimePage.swift in Sources */,
