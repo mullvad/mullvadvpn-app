@@ -210,7 +210,7 @@ impl AppWindow {
             .parent(&self.window)
             .size((128, 24))
             .text(BETA_LINK_TEXT)
-            .font(Some(&link_font))
+            .font(Some(link_font))
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.beta_link)?;
 
@@ -235,7 +235,7 @@ impl AppWindow {
             .parent(&self.stable_message_frame)
             .size((240, 24))
             .text(STABLE_LINK_TEXT)
-            .font(Some(&link_font))
+            .font(Some(link_font))
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.stable_link)?;
 
