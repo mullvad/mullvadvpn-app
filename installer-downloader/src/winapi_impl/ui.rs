@@ -2,6 +2,7 @@
 
 use std::cell::RefCell;
 use std::rc::Rc;
+use std::sync::LazyLock;
 
 use native_windows_gui::{self as nwg, ControlHandle, ImageDecoder, WindowFlags};
 
@@ -204,7 +205,7 @@ impl AppWindow {
             .parent(&self.window)
             .size((128, 24))
             .text(BETA_LINK_TEXT)
-            .font(Some(&link_font))
+            .font(Some(link_font))
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.beta_link)?;
 
@@ -229,7 +230,7 @@ impl AppWindow {
             .parent(&self.stable_message_frame)
             .size((240, 24))
             .text(STABLE_LINK_TEXT)
-            .font(Some(&link_font))
+            .font(Some(link_font))
             .h_align(nwg::HTextAlign::Left)
             .build(&mut self.stable_link)?;
 
@@ -474,25 +475,34 @@ fn try_pair_into<A: TryInto<B>, B>(a: (A, A)) -> Result<(B, B), A::Error> {
 }
 
 /// Create a link font
-/// TODO: upstream to nwg
-fn create_link_font() -> Result<nwg::Font, nwg::NwgError> {
-    let face_name = "Segoe UI".encode_utf16();
+///
+/// NOTE: The font is never freed using DeleteObject. This is acceptable since it exists for the
+///       lifetime of the program.
+fn create_link_font() -> Result<&'static nwg::Font, nwg::NwgError> {
+    static LINK_FONT: LazyLock<Result<nwg::Font, nwg::NwgError>> = LazyLock::new(|| {
+        let face_name = "Segoe UI".encode_utf16();
 
-    // SAFETY: Trivially safe. `LOGFONTW` is a C struct
-    let mut logfont: LOGFONTW = unsafe { std::mem::zeroed() };
-    logfont.lfUnderline = 1;
-    for (dest, src) in logfont.lfFaceName.iter_mut().zip(face_name) {
-        *dest = src;
+        // SAFETY: Trivially safe. `LOGFONTW` is a C struct
+        let mut logfont: LOGFONTW = unsafe { std::mem::zeroed() };
+        logfont.lfUnderline = 1;
+        for (dest, src) in logfont.lfFaceName.iter_mut().zip(face_name) {
+            *dest = src;
+        }
+
+        // SAFETY: `logfont` is a valid font
+        let raw_font = unsafe { CreateFontIndirectW(&logfont) };
+
+        if raw_font == 0 {
+            return Err(nwg::NwgError::Unknown);
+        }
+
+        Ok(nwg::Font {
+            handle: raw_font as _,
+        })
+    });
+
+    match &*LINK_FONT {
+        Ok(font) => Ok(font),
+        Err(err) => Err(err.to_owned()),
     }
-
-    // SAFETY: `logfont` is a valid font
-    let raw_font = unsafe { CreateFontIndirectW(&logfont) };
-
-    if raw_font == 0 {
-        return Err(nwg::NwgError::Unknown);
-    }
-
-    Ok(nwg::Font {
-        handle: raw_font as _,
-    })
 }
