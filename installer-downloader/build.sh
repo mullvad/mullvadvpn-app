@@ -218,7 +218,7 @@ function dist_macos_app {
 
     # Notarize app bundle
     if [[ "$SIGN" != "false" ]]; then
-        notarize_mac "$$app_path"
+        notarize_mac "$app_path"
     fi
 
     # Pack in .dmg
