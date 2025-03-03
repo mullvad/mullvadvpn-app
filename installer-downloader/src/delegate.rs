@@ -30,8 +30,14 @@ pub trait AppDelegate {
     /// Set status text
     fn set_status_text(&mut self, text: &str);
 
+    /// Clear status text
+    fn clear_status_text(&mut self);
+
     /// Set download text
     fn set_download_text(&mut self, text: &str);
+
+    /// Clear download text
+    fn clear_download_text(&mut self);
 
     /// Show download progress bar
     fn show_download_progress(&mut self);

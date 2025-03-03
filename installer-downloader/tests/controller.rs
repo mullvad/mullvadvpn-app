@@ -234,11 +234,21 @@ impl AppDelegate for FakeAppDelegate {
         self.state.status_text = text.to_owned();
     }
 
+    fn clear_status_text(&mut self) {
+        self.state.call_log.push(format!("clear_status_text"));
+        self.state.status_text = "".to_owned();
+    }
+
     fn set_download_text(&mut self, text: &str) {
         self.state
             .call_log
             .push(format!("set_download_text: {}", text));
         self.state.download_text = text.to_owned();
+    }
+
+    fn clear_download_text(&mut self) {
+        self.state.call_log.push(format!("clear_download_text"));
+        self.state.download_text = "".to_owned();
     }
 
     fn show_download_progress(&mut self) {

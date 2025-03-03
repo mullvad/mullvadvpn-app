@@ -1,6 +1,7 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
+snapshot_kind: text
 ---
 status_text: ""
 download_text: ""
@@ -35,7 +36,7 @@ call_log:
   - hide_error_message
   - on_error_message_retry
   - on_error_message_cancel
-  - "set_status_text: "
+  - clear_status_text
   - hide_download_button
   - hide_beta_text
   - hide_stable_text
