@@ -1,3 +1,5 @@
+#![cfg(any(target_os = "macos", target_os = "windows"))]
+
 //! This module implements the flow of downloading and verifying the app.
 
 use std::{ffi::OsString, path::PathBuf, time::Duration};
