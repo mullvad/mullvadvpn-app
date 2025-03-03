@@ -49,8 +49,8 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
             Err(err) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("");
-                    self_.set_download_text("");
+                    self_.clear_status_text();
+                    self_.clear_download_text();
                     self_.hide_download_progress();
                     self_.hide_download_button();
                     self_.hide_cancel_button();
@@ -78,8 +78,8 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
             Err(error) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("");
-                    self_.set_download_text("");
+                    self_.clear_status_text();
+                    self_.clear_download_text();
                     self_.hide_download_progress();
                     self_.hide_download_button();
                     self_.hide_cancel_button();
@@ -109,8 +109,8 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
             }
             Err(error) => {
                 self.queue.queue_main(move |self_| {
-                    self_.set_status_text("");
-                    self_.set_download_text("");
+                    self_.clear_status_text();
+                    self_.clear_download_text();
                     self_.hide_download_progress();
                     self_.hide_download_button();
                     self_.hide_cancel_button();
