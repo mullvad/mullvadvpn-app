@@ -11,24 +11,26 @@ use mullvad_version::PreStableType;
 
 use crate::format;
 
-/// Rollout threshold in [VersionParameters] that will accept *any* version (rollout >= 0)
-pub const ROLLOUT_ANY_VERSION: f32 = 0.;
-
-/// Rollout threshold in [VersionParameters] that will accept only fully rolled out versions
-/// (rollout = 1)
-pub const ROLLOUT_FULLY_ROLLED_OUT_ONLY: f32 = 1.;
-
 /// Query type for [VersionInfo]
 #[derive(Debug)]
 pub struct VersionParameters {
     /// Architecture to retrieve data for
     pub architecture: VersionArchitecture,
     /// Rollout threshold. Any version in the response below this threshold will be ignored
-    pub rollout: f32,
+    pub rollout: Rollout,
     /// Lowest allowed `metadata_version` in the version data
     /// Typically the current version plus 1
     pub lowest_metadata_version: usize,
 }
+
+/// Rollout threshold. Any version in the response below this threshold will be ignored
+pub type Rollout = f32;
+
+/// Accept *any* version (rollout >= 0) when querying for app info.
+pub const IGNORE: Rollout = 0.;
+
+/// Accept only fully rolled out versions (rollout >= 1) when querying for app info.
+pub const FULLY_ROLLED_OUT: Rollout = 1.;
 
 /// Installer architecture
 pub type VersionArchitecture = format::Architecture;
