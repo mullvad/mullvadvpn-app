@@ -3,6 +3,11 @@ use std::env;
 
 fn main() -> anyhow::Result<()> {
     let target_os = env::var("CARGO_CFG_TARGET_OS").context("Missing 'CARGO_CFG_TARGET_OS")?;
+    let building_tests = env::var("CARGO_TARGET_TMPDIR").is_ok();
+
+    if building_tests {
+        return Ok(());
+    }
 
     match target_os.as_str() {
         "windows" => win_main(),
