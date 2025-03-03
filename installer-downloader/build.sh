@@ -216,11 +216,6 @@ function dist_macos_app {
     fi
     sign_macos "$app_path"
 
-    # Notarize app bundle
-    if [[ "$SIGN" != "false" ]]; then
-        notarize_mac "$app_path"
-    fi
-
     # Pack in .dmg
     log_info "Creating $dmg_path image..."
     hdiutil create -volname "$FILENAME" -srcfolder "$app_path" -ov -format UDZO \
