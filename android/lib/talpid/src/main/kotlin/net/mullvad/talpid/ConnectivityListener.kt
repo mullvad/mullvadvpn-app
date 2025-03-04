@@ -4,44 +4,38 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
-import co.touchlab.kermit.Logger
 import java.net.DatagramSocket
 import java.net.Inet4Address
 import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.collections.ArrayList
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
-import net.mullvad.mullvadvpn.lib.common.util.debounceFirst
+import kotlinx.coroutines.runBlocking
 import net.mullvad.talpid.model.Connectivity
 import net.mullvad.talpid.model.NetworkState
-import net.mullvad.talpid.util.IPAvailabilityUtils
-import net.mullvad.talpid.util.NetworkEvent
+import net.mullvad.talpid.util.IpUtils
 import net.mullvad.talpid.util.RawNetworkState
 import net.mullvad.talpid.util.defaultRawNetworkStateFlow
-import net.mullvad.talpid.util.networkEvents
 
 class ConnectivityListener(
-    val connectivityManager: ConnectivityManager,
+    private val connectivityManager: ConnectivityManager,
     val protect: (socket: DatagramSocket) -> Boolean,
 ) {
     private lateinit var _isConnected: StateFlow<Connectivity>
@@ -60,6 +54,7 @@ class ConnectivityListener(
     val currentDnsServers: ArrayList<InetAddress>
         get() = _mutableNetworkState.value?.dnsServers ?: ArrayList()
 
+    @OptIn(FlowPreview::class)
     fun register(scope: CoroutineScope) {
         // Consider implementing retry logic for the flows below, because registering a listener on
         // the default network may fail if the network on Android 11
@@ -75,51 +70,54 @@ class ConnectivityListener(
         }
 
         _isConnected =
-            combine(connectivityManager.defaultRawNetworkStateFlow(), hasInternetConnectivity()) {
-                    rawNetworkState,
-                    hasInternetCapability: Boolean ->
-                    if (hasInternetCapability) {
-                        if (rawNetworkState.isNotVpn()) {
-                                // If the default network is not a VPN we can check the addresses
-                                // directly
-                                Connectivity.Status(
-                                    ipv4 =
-                                        rawNetworkState?.linkProperties?.routes?.any {
-                                            it.destination.address is Inet4Address
-                                        } == true,
-                                    ipv6 =
-                                        rawNetworkState?.linkProperties?.routes?.any {
-                                            it.destination.address is Inet6Address
-                                        } == true,
-                                )
-                            } else {
-                                // If the default network is a VPN we need to use a socket to check
-                                // the underlying network
-                                Connectivity.Status(
-                                    IPAvailabilityUtils.isIPv4Available(protect = { protect(it) }),
-                                    IPAvailabilityUtils.isIPv6Available(protect = { protect(it) }),
-                                )
-                            }
-                            // If we have internet, but both IPv4 and IPv6 are not available, we
-                            // assume something is wrong and instead will return presume online.
-                            .takeUnless { !it.ipv4 && !it.ipv6 } ?: Connectivity.PresumeOnline
-                    } else {
-                        Connectivity.Status(false, false)
-                    }
-                }
+            connectivityManager
+                .defaultRawNetworkStateFlow()
+                .debounce(300.milliseconds)
+                .map { it.toConnectivity() }
                 .distinctUntilChanged()
-                .onEach {
-                    when (it) {
-                        Connectivity.PresumeOnline -> notifyConnectivityChange(true, true)
-                        is Connectivity.Status -> notifyConnectivityChange(it.ipv4, it.ipv6)
-                    }
-                }
+                .onEach { notifyConnectivityChange(it.ipv4, it.ipv6) }
                 .stateIn(
                     scope + Dispatchers.IO,
                     SharingStarted.Eagerly,
-                    Connectivity.PresumeOnline, // Assume we have internet until we know otherwise
+                    // Has to happen on IO to avoid NetworkOnMainThreadException, we actually don't
+                    // send any traffic just open a socket to detect the IP version.
+                    runBlocking(Dispatchers.IO) {
+                        connectivityManager.activeRawNetworkState().toConnectivity()
+                    },
                 )
     }
+
+    private fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
+        activeNetwork?.let { initialNetwork: Network ->
+            RawNetworkState(
+                network = initialNetwork,
+                linkProperties = getLinkProperties(initialNetwork),
+                networkCapabilities = getNetworkCapabilities(initialNetwork),
+            )
+        }
+
+    private fun RawNetworkState?.toConnectivity(): Connectivity.Status =
+        if (isVpn()) {
+            // If the default network is a VPN we need to use a socket to check
+            // the underlying network
+            Connectivity.Status(
+                IpUtils.hasIPv4(protect = { protect(it) }),
+                IpUtils.hasIPv6(protect = { protect(it) }),
+            )
+        } else {
+            // If the default network is not a VPN we can check the addresses
+            // directly
+            Connectivity.Status(
+                ipv4 =
+                    this?.linkProperties?.routes?.any { it.destination.address is Inet4Address } ==
+                        true,
+                ipv6 =
+                    this?.linkProperties?.routes?.any { it.destination.address is Inet6Address } ==
+                        true,
+            )
+            // If we have internet, but both IPv4 and IPv6 are not available, we
+            // assume something is wrong and instead will return presume online.
+        }
 
     /**
      * Invalidates the network state cache. E.g when the VPN is connected or disconnected, and we
@@ -132,66 +130,9 @@ class ConnectivityListener(
     private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
         dnsServers.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER }
 
-    private val nonVPNInternetNetworksRequest =
-        NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build()
-
-    /**
-     * Return a flow notifying us if we have internet connectivity. Initial state will be taken from
-     * `allNetworks` and then updated when network events occur. Important to note that
-     * `allNetworks` may return a network that we never get updates from if turned off at the moment
-     * of the initial query.
-     */
-    private fun hasInternetConnectivity(): Flow<Boolean> {
-        return connectivityManager
-            .networkEvents(nonVPNInternetNetworksRequest)
-            .filter { it is NetworkEvent.Lost || it is NetworkEvent.CapabilitiesChanged }
-            .scan(emptySet<Network>()) { networks, event ->
-                when (event) {
-                    is NetworkEvent.Lost -> networks - event.network
-                    is NetworkEvent.Available -> networks + event.network
-                    else -> networks // Should never happen
-                }.also { Logger.d("Networks: $it") }
-            }
-            // NetworkEvents are slow, can several 100 millis to arrive. If we are online, we don't
-            // want to emit a false offline with the initial accumulator, so we wait a bit before
-            // emitting, and rely on `networksWithInternetConnectivity`.
-            //
-            // Also if our initial state was "online", but it just got turned off we might not see
-            // any updates for this network even though we already were registered for updated, and
-            // thus we can't drop initial value accumulator value.
-            .debounceFirst(1.seconds)
-            .onStart {
-                // We should not use this as initial state in scan, because it may contain networks
-                // that won't be included in `networkEvents` updates.
-                emit(
-                    connectivityManager.networksWithInternetConnectivity().also {
-                        Logger.d("Networks (Initial): $it")
-                    }
-                )
-            }
-            .map { it.isNotEmpty() }
-            .distinctUntilChanged()
-    }
-
-    @Suppress("DEPRECATION")
-    private fun ConnectivityManager.networksWithInternetConnectivity(): Set<Network> =
-        // Currently the use of `allNetworks` (which is deprecated in favor of listening to network
-        // events) is our only option because network events does not give us the initial state fast
-        // enough.
-        allNetworks
-            .filter {
-                val capabilities = getNetworkCapabilities(it) ?: return@filter false
-
-                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                    capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
-            }
-            .toSet()
-
-    private fun RawNetworkState?.isNotVpn(): Boolean =
-        this?.networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) == true
+    private fun RawNetworkState?.isVpn(): Boolean =
+        this?.networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) ==
+            false
 
     private fun RawNetworkState.toNetworkState(): NetworkState =
         NetworkState(
