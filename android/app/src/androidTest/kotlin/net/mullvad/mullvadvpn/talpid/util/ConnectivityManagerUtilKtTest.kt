@@ -119,6 +119,57 @@ class ConnectivityManagerUtilKtTest {
         }
     }
 
+    /** User roaming from cellular to WiFi. This behavior has been recorded on a Pixel 8 */
+    @Test
+    fun roamingFromCellularToWifi() = runTest {
+        val wifiNetwork = mockk<Network>()
+        val cellularNetwork = mockk<Network>()
+
+        every { connectivityManager.networksWithInternetConnectivity() } returns
+            setOf(cellularNetwork)
+        every { connectivityManager.networkEvents(any()) } returns
+            callbackFlow {
+                send(NetworkEvent.Available(cellularNetwork))
+                delay(5.seconds)
+                // Turning on WiFi, we'll have duplicate networks until phone decides to turn of
+                // cellular
+                send(NetworkEvent.Available(wifiNetwork))
+                delay(30.seconds)
+                // Phone turning off cellular network
+                send(NetworkEvent.Lost(cellularNetwork))
+                awaitClose {}
+            }
+
+        connectivityManager.hasInternetConnectivity().test {
+            assertEquals(true, awaitItem())
+            expectNoEvents()
+        }
+    }
+
+    /** User roaming from WiFi to Cellular. This behavior has been recorded on a Pixel 8 */
+    @Test
+    fun roamingFromWifiToCellular() = runTest {
+        val wifiNetwork = mockk<Network>()
+        val cellularNetwork = mockk<Network>()
+
+        every { connectivityManager.networksWithInternetConnectivity() } returns setOf(wifiNetwork)
+        every { connectivityManager.networkEvents(any()) } returns
+            callbackFlow {
+                send(NetworkEvent.Available(wifiNetwork))
+                delay(5.seconds)
+                send(NetworkEvent.Lost(wifiNetwork))
+                // We will have no network for a little time until cellular chip is on.
+                delay(150.milliseconds)
+                send(NetworkEvent.Available(cellularNetwork))
+                awaitClose {}
+            }
+
+        connectivityManager.hasInternetConnectivity().test {
+            assertEquals(true, awaitItem())
+            expectNoEvents()
+        }
+    }
+
     companion object {
         private const val CONNECTIVITY_MANAGER_UTIL_CLASS =
             "net.mullvad.talpid.util.ConnectivityManagerUtilKt"
