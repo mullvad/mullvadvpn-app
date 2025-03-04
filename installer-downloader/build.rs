@@ -25,6 +25,7 @@ fn win_main() -> anyhow::Result<()> {
 
     println!("cargo:rerun-if-changed=loader.manifest");
     res.set_manifest_file("loader.manifest");
+    res.set_icon("../dist-assets/icon.ico");
 
     res.compile().context("Failed to compile resources")
 }
