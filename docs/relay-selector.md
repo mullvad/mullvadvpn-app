@@ -22,7 +22,7 @@ into account certain user-configurable criteria. Relays can be filtered by their
 (country, city, hostname), by the protocols and ports they support (transport protocol, tunnel
 protocol, port), and by other constraints. The constraints are user specified and stored in the
 settings. The default value for location constraints restricts relay selection to relays from Sweden.
-The default protocol constraints default to _Auto_, which implies specific behavior.
+The default protocol constraints default to Wireguard, which implies specific behavior.
 
 Generally, the filtering process consists of going through each relay in our relay list and
 removing relay and endpoint combinations that do not match the constraints outlined above. The
@@ -49,18 +49,24 @@ Endpoints may be filtered by:
 ### Default constraints for tunnel endpoints
 
 Whilst all user selected constraints are always honored, when the user hasn't selected any specific
-constraints the following default ones will take effect:
+constraints the following default ones will take effect
 
-- The first three connection attempts will use Wireguard
-  - The first attempt will connect to a Wireguard relay on a random port
-  - The second attempt will connect to a Wireguard relay on port 443
-  - The third attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host) on a random port
-- The fourth-to-seventh attempt will alternate between Wireguard and OpenVPN
-  - The fourth attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
-  - The fifth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
-  - The sixth attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
-  - The seventh attempt will connect to an OpenVPN relay over TCP on port 443
-  - The eighth attempt will connect to an OpenVPN relay over a bridge on a random port
+#### Tunnel protocol is Wireguard
+
+- The first attempt will connect to a Wireguard relay on a random port
+- The second attempt will connect to a Wireguard relay on port 443
+- The third attempt will connect to a Wireguard relay over IPv6 (if IPv6 is configured on the host) on a random port
+- The fourth attempt will connect to a Wireguard relay on a random port using Shadowsocks for obfuscation
+- The fifth attempt will connect to a Wireguard relay on a random port using [UDP2TCP obfuscation](https://github.com/mullvad/udp-over-tcp)
+- The sixth attempt will connect to a Wireguard relay over IPv6 on a random port using UDP2TCP obfuscation (if IPv6 is configured on the host)
+
+#### Tunnel protocol is OpenVPN
+
+Note: This is not applicable to Android nor iOS.
+
+- The first attempt will connect to an OpenVPN relay on a random port
+- The second attempt will connect to an OpenVPN relay over TCP on port 443
+- The third attempt will connect to an OpenVPN relay over a bridge on a random port
 
 ### Default constraints for tunnel endpoints on iOS
 
@@ -110,7 +116,6 @@ The explicit constraints are:
 The transport protocol is supposedly inferred by the selected bridge- but for now, the daemon only
 supports TCP bridges, so only TCP bridges are being selected. If no location constraint is specified
 explicitly, then the relay location will be used.
-
 
 ### Selecting a bridge endpoint between filtered relays
 
