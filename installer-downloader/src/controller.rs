@@ -1,10 +1,12 @@
 //! This module implements the actual logic performed by different UI components.
 
-use crate::delegate::{AppDelegate, AppDelegateQueue};
-use crate::environment::Environment;
-use crate::resource;
-use crate::temp::DirectoryProvider;
-use crate::ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater};
+use crate::{
+    delegate::{AppDelegate, AppDelegateQueue},
+    environment::Environment,
+    resource,
+    temp::DirectoryProvider,
+    ui_downloader::{UiAppDownloader, UiAppDownloaderParameters, UiProgressUpdater},
+};
 
 use mullvad_update::{
     api::{HttpVersionInfoProvider, VersionInfoProvider},
@@ -13,8 +15,10 @@ use mullvad_update::{
 };
 use rand::seq::SliceRandom;
 use std::path::PathBuf;
-use tokio::sync::{mpsc, oneshot};
-use tokio::task::JoinHandle;
+use tokio::{
+    sync::{mpsc, oneshot},
+    task::JoinHandle,
+};
 
 /// ed25519 pubkey used to verify metadata from the Mullvad (stagemole) API
 const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
@@ -22,12 +26,12 @@ const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemo
 /// Pinned root certificate used when fetching version metadata
 const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
 
-/// Base URL for pulling metadata. Actual JSON files should be stored at `<base url>/<platform>.json`
+/// Base URL for pulling metadata. Actual JSON files should be stored at `<base
+/// url>/<platform>.json`
 const META_REPOSITORY_URL: &str = "https://api.stagemole.eu/app/releases/";
 
 /// Actions handled by an async worker task in [ActionMessageHandler].
 enum TaskMessage {
-    SetVersionInfo(VersionInfo),
     BeginDownload,
     Cancel,
     TryBeta,
@@ -101,18 +105,21 @@ impl AppController {
         delegate.hide_stable_text();
 
         let (task_tx, task_rx) = mpsc::channel(1);
-        tokio::spawn(ActionMessageHandler::<D, A>::run::<DirProvider>(
-            delegate.queue(),
-            task_tx.clone(),
-            task_rx,
-        ));
+        let queue = delegate.queue();
+        let task_tx_clone = task_tx.clone();
+        tokio::spawn(async move {
+            let version_info =
+                fetch_app_version_info::<D, V>(queue.clone(), version_provider, environment).await;
+            ActionMessageHandler::<D, A>::run::<DirProvider>(
+                queue,
+                task_tx_clone,
+                task_rx,
+                version_info,
+            )
+            .await;
+        });
         delegate.set_status_text(resource::FETCH_VERSION_DESC);
-        tokio::spawn(fetch_app_version_info::<D, V>(
-            delegate.queue(),
-            task_tx.clone(),
-            version_provider,
-            environment,
-        ));
+
         Self::register_user_action_callbacks(delegate, task_tx);
     }
 
@@ -142,11 +149,11 @@ impl AppController {
 /// Background task that fetches app version data.
 async fn fetch_app_version_info<Delegate, VersionProvider>(
     queue: Delegate::Queue,
-    download_tx: mpsc::Sender<TaskMessage>,
     version_provider: VersionProvider,
     Environment { architecture }: Environment,
-) where
-    Delegate: AppDelegate + 'static,
+) -> VersionInfo
+where
+    Delegate: AppDelegate,
     VersionProvider: VersionInfoProvider + Send,
 {
     loop {
@@ -160,8 +167,16 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
 
         let err = match version_provider.get_version_info(version_params).await {
             Ok(version_info) => {
-                let _ = download_tx.try_send(TaskMessage::SetVersionInfo(version_info));
-                return;
+                let version_label = format_latest_version(&version_info.stable);
+                let has_beta = version_info.beta.is_some();
+                queue.queue_main(move |self_| {
+                    self_.set_status_text(&version_label);
+                    self_.enable_download_button();
+                    if has_beta {
+                        self_.show_beta_text();
+                    }
+                });
+                return version_info;
             }
             Err(err) => err,
         };
@@ -226,7 +241,7 @@ struct ActionMessageHandler<
 > {
     queue: D::Queue,
     tx: mpsc::Sender<TaskMessage>,
-    version_info: Option<VersionInfo>,
+    version_info: VersionInfo,
     active_download: Option<JoinHandle<()>>,
     target_version: TargetVersion,
     temp_dir: anyhow::Result<PathBuf>,
@@ -242,13 +257,14 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
         queue: D::Queue,
         tx: mpsc::Sender<TaskMessage>,
         mut rx: mpsc::Receiver<TaskMessage>,
+        version_info: VersionInfo,
     ) {
         let temp_dir = DP::create_download_dir().await;
 
         let mut handler = Self {
             queue,
             tx,
-            version_info: None,
+            version_info,
             active_download: None,
             target_version: TargetVersion::Stable,
             temp_dir,
@@ -263,9 +279,6 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 
     async fn handle_message(&mut self, msg: &TaskMessage) {
         match msg {
-            TaskMessage::SetVersionInfo(new_version_info) => {
-                self.handle_set_version_info(new_version_info);
-            }
             TaskMessage::TryBeta => self.handle_try_beta(),
             TaskMessage::TryStable => self.handle_try_stable(),
             TaskMessage::BeginDownload => self.begin_download().await,
@@ -273,26 +286,9 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
         }
     }
 
-    fn handle_set_version_info(&mut self, new_version_info: &VersionInfo) {
-        let version_label = format_latest_version(&new_version_info.stable);
-        let has_beta = new_version_info.beta.is_some();
-        self.queue.queue_main(move |self_| {
-            self_.set_status_text(&version_label);
-            self_.enable_download_button();
-            if has_beta {
-                self_.show_beta_text();
-            }
-        });
-        self.version_info = Some(new_version_info.to_owned());
-    }
-
     fn handle_try_beta(&mut self) {
-        let Some(version_info) = self.version_info.as_ref() else {
-            log::error!("Attempted 'try beta' before having version info");
-            return;
-        };
-        let Some(beta_info) = version_info.beta.as_ref() else {
-            log::error!("Attempted 'try beta' without beta version");
+        log::error!("Attempted 'try beta' without beta version");
+        let Some(beta_info) = self.version_info.beta.as_ref() else {
             return;
         };
 
@@ -307,11 +303,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     }
 
     fn handle_try_stable(&mut self) {
-        let Some(version_info) = self.version_info.as_ref() else {
-            log::error!("Attempted 'try stable' before having version info");
-            return;
-        };
-        let stable_info = &version_info.stable;
+        let stable_info = &self.version_info.stable;
 
         self.target_version = TargetVersion::Stable;
         let version_label = format_latest_version(stable_info);
@@ -325,10 +317,6 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
 
     async fn begin_download(&mut self) {
         self.cancel_download().await;
-        let Some(version_info) = self.version_info.clone() else {
-            log::error!("Attempted 'begin download' before having version info");
-            return;
-        };
 
         let (retry_tx, cancel_tx) = (self.tx.clone(), self.tx.clone());
         self.queue.queue_main(move |self_| {
@@ -368,6 +356,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
         // Begin download
         let (tx, rx) = oneshot::channel();
         let target_version = self.target_version;
+        let version_info = self.version_info.clone();
         self.queue.queue_main(move |self_| {
             let selected_version = match target_version {
                 TargetVersion::Stable => &version_info.stable,
@@ -411,18 +400,17 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     async fn cancel(&mut self) {
         self.cancel_download().await;
 
-        let Some(version_info) = self.version_info.as_ref() else {
-            log::error!("Attempted 'cancel' before having version info");
-            return;
-        };
-
         let selected_version = match self.target_version {
-            TargetVersion::Stable => &version_info.stable,
-            TargetVersion::Beta => version_info.beta.as_ref().expect("selected version exists"),
+            TargetVersion::Stable => &self.version_info.stable,
+            TargetVersion::Beta => self
+                .version_info
+                .beta
+                .as_ref()
+                .expect("selected version exists"),
         };
 
         let version_label = format_latest_version(selected_version);
-        let has_beta = version_info.beta.is_some();
+        let has_beta = self.version_info.beta.is_some();
         let target_version = self.target_version;
 
         self.queue.queue_main(move |self_| {
