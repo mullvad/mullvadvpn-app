@@ -224,7 +224,8 @@ pub struct Queue {
     main_wnd: nwg::ControlHandle,
 }
 
-// SAFETY: It is safe to post window messages across threads
+// SAFETY: It is safe to send HWND and HMENU handles across threads, particularly since we're always
+//         using them on the main UI thread.
 unsafe impl Send for Queue {}
 
 /// The context contains a callback function that is passed as a pointer to the main thread
