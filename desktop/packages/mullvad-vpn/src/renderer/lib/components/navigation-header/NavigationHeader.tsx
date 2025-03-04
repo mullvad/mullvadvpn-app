@@ -24,7 +24,7 @@ export const StyledContent = styled.div({
   placeContent: 'center',
   minHeight: '32px',
   height: '32px',
-  gap: Spacings.spacing1,
+  gap: Spacings.tiny,
 });
 
 const NavigationHeader = ({ titleVisible, children, ...props }: NavigationHeaderProps) => {
@@ -35,8 +35,8 @@ const NavigationHeader = ({ titleVisible, children, ...props }: NavigationHeader
           $flexDirection="column"
           $justifyContent="center"
           $padding={{
-            horizontal: Spacings.spacing5,
-            vertical: Spacings.spacing3,
+            horizontal: Spacings.medium,
+            vertical: Spacings.small,
           }}>
           <StyledContent>{children}</StyledContent>
         </Flex>

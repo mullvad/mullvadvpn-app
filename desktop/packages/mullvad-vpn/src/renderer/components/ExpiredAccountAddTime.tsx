@@ -166,7 +166,7 @@ export function TimeAdded(props: ITimeAddedProps) {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <Flex $justifyContent="center" $margin={{ bottom: Spacings.spacing5 }}>
+            <Flex $justifyContent="center" $margin={{ bottom: Spacings.medium }}>
               <IconBadge state="positive" />
             </Flex>
             <StyledTitle>

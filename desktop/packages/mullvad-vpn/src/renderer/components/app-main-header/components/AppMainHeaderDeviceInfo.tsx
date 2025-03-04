@@ -29,7 +29,7 @@ export const AppMainHeaderDeviceInfo = () => {
       : '';
 
   return (
-    <Flex $gap={Spacings.spacing6} $margin={{ top: Spacings.spacing1 }}>
+    <Flex $gap={Spacings.large} $margin={{ top: Spacings.tiny }}>
       <StyledDeviceLabel color={Colors.white80}>
         {sprintf(
           // TRANSLATORS: A label that will display the newly created device name to inform the user

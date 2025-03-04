@@ -38,12 +38,12 @@ const disabledApplication = (props: DisabledApplicationProps) => ({
 });
 
 export const StyledIcon = styled(Cell.CellImage)<DisabledApplicationProps>(disabledApplication, {
-  marginRight: Spacings.spacing4,
+  marginRight: Spacings.small,
 });
 
 export const StyledCellWarningIcon = styled(Cell.CellTintedIcon)({
-  marginLeft: Spacings.spacing3,
-  marginRight: Spacings.spacing1,
+  marginLeft: Spacings.small,
+  marginRight: Spacings.tiny,
 });
 
 export const StyledCellLabel = styled(Cell.Label)<DisabledApplicationProps>(
@@ -58,14 +58,14 @@ export const StyledCellLabel = styled(Cell.Label)<DisabledApplicationProps>(
 
 export const StyledIconPlaceholder = styled.div({
   width: '35px',
-  marginRight: Spacings.spacing4,
+  marginRight: Spacings.small,
 });
 
 export const StyledSpinnerRow = styled(Cell.CellButton)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: `${Spacings.spacing3} 0`,
+  padding: `${Spacings.small} 0`,
   marginBottom: measurements.rowVerticalMargin,
   background: Colors.blue40,
 });
@@ -79,7 +79,7 @@ export const StyledNoResult = styled(Cell.CellFooter)({
   flexDirection: 'column',
   paddingTop: 0,
   marginTop: 0,
-  marginBottom: Spacings.spacing9,
+  marginBottom: '48px',
 });
 
 export const StyledNoResultText = styled(Cell.CellFooterText)({

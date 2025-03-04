@@ -156,10 +156,10 @@ export default function SelectLocation() {
                 <>
                   {showFilters && (
                     <Flex
-                      $gap={Spacings.spacing3}
+                      $gap={Spacings.small}
                       $alignItems="center"
                       $flexWrap="wrap"
-                      $margin={{ horizontal: Spacings.spacing3, bottom: Spacings.spacing5 }}>
+                      $margin={{ horizontal: Spacings.small, bottom: Spacings.medium }}>
                       <LabelTiny>
                         {messages.pgettext('select-location-view', 'Filtered:')}
                       </LabelTiny>
