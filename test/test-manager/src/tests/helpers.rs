@@ -765,7 +765,7 @@ async fn intersect_with_current_location(
         constraint.location,
         Constraint::Any,
         Constraint::Any,
-        Constraint::Any,
+        query.tunnel_protocol(),
         WireguardRelayQuery {
             entry_location: constraint.wireguard_constraints.entry_location,
             ..Default::default()
