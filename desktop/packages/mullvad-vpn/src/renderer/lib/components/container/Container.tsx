@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Spacings } from '../../foundations';
+import { spacings } from '../../foundations';
 import { Flex, FlexProps } from '../flex';
 
 export interface ContainerProps extends FlexProps {
@@ -10,8 +10,8 @@ export interface ContainerProps extends FlexProps {
 }
 
 const sizes: Record<'3' | '4', string> = {
-  '3': `calc(100% - ${Spacings.large} * 2)`,
-  '4': `calc(100% - ${Spacings.medium} * 2)`,
+  '3': `calc(100% - ${spacings.large} * 2)`,
+  '4': `calc(100% - ${spacings.medium} * 2)`,
 };
 
 const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({

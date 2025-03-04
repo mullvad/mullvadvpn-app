@@ -9,7 +9,7 @@ import { useAppContext } from '../context';
 import { formatAccountNumber } from '../lib/account';
 import useActions from '../lib/actionsHook';
 import { Box, Button, Flex, Icon, Label, LabelTiny, Spinner, TitleMedium } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge } from '../lib/icon-badge';
 import accountActions from '../redux/account/actions';
@@ -312,7 +312,7 @@ class Login extends React.Component<IProps, IState> {
       this.props.loginState.method === 'existing_account';
 
     return (
-      <Flex $flexDirection="column" $gap={Spacings.small}>
+      <Flex $flexDirection="column" $gap="small">
         <Label htmlFor={inputId} data-testid="subtitle">
           {this.formSubtitle()}
         </Label>
@@ -370,7 +370,7 @@ class Login extends React.Component<IProps, IState> {
 
   private createFooter() {
     return (
-      <Flex $flexDirection="column" $gap={Spacings.small}>
+      <Flex $flexDirection="column" $gap="small">
         <LabelTiny color={Colors.white60}>
           {messages.pgettext('login-view', 'Don’t have an account number?')}
         </LabelTiny>

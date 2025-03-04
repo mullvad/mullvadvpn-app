@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import styled from 'styled-components';
 
-import { Spacings } from '../lib/foundations';
+import { spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import { AppNavigationHeader } from './';
@@ -21,7 +21,7 @@ const StyledContent = styled.div({
 });
 
 const StyledButtonGroup = styled.div({
-  margin: `${Spacings.large} ${measurements.horizontalViewMargin}`,
+  margin: `${spacings.large} ${measurements.horizontalViewMargin}`,
 });
 
 export default function Debug() {

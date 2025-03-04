@@ -1,4 +1,3 @@
-import { Spacings } from '../../foundations';
 import { Flex } from '../flex';
 import { Image } from '../image';
 
@@ -31,7 +30,7 @@ export const Logo = ({ variant = 'icon', size: sizeProp = '1' }: LogoProps) => {
       const logoSize = logoSizes[sizeProp];
       const textSize = textSizes[sizeProp];
       return (
-        <Flex $flex={1} $alignItems="center" $gap={Spacings.small}>
+        <Flex $flex={1} $alignItems="center" $gap="small">
           <Image source="logo-icon" height={logoSize} />
           <Image source="logo-text" height={textSize} />
         </Flex>

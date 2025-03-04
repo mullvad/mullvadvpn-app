@@ -12,7 +12,7 @@ import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
@@ -21,7 +21,6 @@ import { AppNavigationHeader } from './';
 import Accordion from './Accordion';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
-import { measurements } from './common-styles';
 import { CustomScrollbarsRef } from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -183,7 +182,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           </StyledNoResult>
         )}
 
-      <Flex $flexDirection="column" $gap={Spacings.medium}>
+      <Flex $flexDirection="column" $gap="medium">
         {filteredApplications !== undefined && filteredApplications.length > 0 && (
           <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
         )}
@@ -486,7 +485,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         )}
       </SettingsHeader>
       {loadingDiskPermissions && (
-        <Flex $justifyContent="center" $margin={{ top: Spacings.large }}>
+        <Flex $justifyContent="center" $margin={{ top: 'large' }}>
           <Spinner size="big" />
         </Flex>
       )}
@@ -506,12 +505,9 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         </StyledNoResult>
       )}
 
-      <Flex
-        $flexDirection="column"
-        $gap={Spacings.medium}
-        $margin={{ bottom: measurements.verticalViewMargin }}>
+      <Flex $flexDirection="column" $gap="medium" $margin={{ bottom: 'large' }}>
         {(showSplitSection || showNonSplitSection) && (
-          <Flex $flexDirection="column" $gap={Spacings.medium}>
+          <Flex $flexDirection="column" $gap="medium">
             <Accordion expanded={showSplitSection}>
               <Cell.Section sectionTitle={excludedTitle}>
                 <ApplicationList
@@ -561,15 +557,15 @@ function MacOsSplitTunnelingAvailability({
   if (!needFullDiskPermissions) return null;
 
   return (
-    <Flex $flexDirection="column" $gap={Spacings.large}>
+    <Flex $flexDirection="column" $gap="large">
       <HeaderSubTitle>
         {messages.pgettext(
           'split-tunneling-view',
           'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
         )}
       </HeaderSubTitle>
-      <Flex $flexDirection="column" $gap={Spacings.small}>
-        <Flex $flexDirection="column" $gap={Spacings.big}>
+      <Flex $flexDirection="column" $gap="small">
+        <Flex $flexDirection="column" $gap="big">
           <WideSmallButton onClick={showFullDiskAccessSettings}>
             {messages.pgettext('split-tunneling-view', 'Open System Settings')}
           </WideSmallButton>
@@ -653,7 +649,7 @@ function ApplicationRow(props: IApplicationRowProps) {
         <StyledIconPlaceholder />
       )}
       <StyledCellLabel>{props.application.name}</StyledCellLabel>
-      <Flex $gap={Spacings.small}>
+      <Flex $gap="small">
         {props.onDelete && (
           <IconButton variant="secondary" onClick={onDelete}>
             <IconButton.Icon icon="cross-circle" />

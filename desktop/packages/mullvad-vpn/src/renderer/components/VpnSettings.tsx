@@ -8,7 +8,7 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { useTunnelProtocol } from '../lib/relay-settings-hooks';
@@ -31,7 +31,7 @@ import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledInfoButton = styled(InfoButton)({
-  marginRight: Spacings.medium,
+  marginRight: spacings.medium,
 });
 
 const StyledTitleLabel = styled(Cell.SectionTitle)({
@@ -44,11 +44,11 @@ const StyledSectionItem = styled(Cell.Container)({
 
 const LanIpRanges = styled.ul({
   listStyle: 'disc outside',
-  marginLeft: Spacings.large,
+  marginLeft: spacings.large,
 });
 
 const IndentedValueLabel = styled(Cell.ValueLabel)({
-  marginLeft: Spacings.medium,
+  marginLeft: spacings.medium,
 });
 
 export default function VpnSettings() {

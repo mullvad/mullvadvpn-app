@@ -7,7 +7,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { useApiAccessMethodTest } from '../lib/api-access-methods';
 import { Container, Flex, Spinner } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { generateRoutePath } from '../lib/routeHelpers';
 import { RoutePath } from '../lib/routes';
@@ -41,7 +41,7 @@ const StyledTestResultCircle = styled.div<{ $result: boolean }>((props) => ({
   height: '10px',
   borderRadius: '50%',
   backgroundColor: props.$result ? Colors.green : Colors.red,
-  marginRight: Spacings.small,
+  marginRight: spacings.small,
 }));
 
 // This component is the topmost component in the API access methods view.
@@ -100,7 +100,7 @@ export default function ApiAccessMethods() {
                   </HeaderSubTitle>
                 </SettingsHeader>
 
-                <Flex $flexDirection="column" $gap={Spacings.large}>
+                <Flex $flexDirection="column" $gap="large">
                   <Cell.Group $noMarginBottom>
                     <ApiAccessMethod
                       method={methods.direct}
@@ -226,7 +226,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         <StyledNameLabel>{props.method.name}</StyledNameLabel>
         {testing && (
           <Cell.SubLabel>
-            <Flex $gap={Spacings.tiny} $alignItems="center">
+            <Flex $gap="tiny" $alignItems="center">
               <Spinner size="small" />
               {messages.pgettext('api-access-methods-view', 'Testing...')}
             </Flex>
@@ -244,7 +244,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           <Cell.SubLabel>{messages.pgettext('api-access-methods-view', 'In use')}</Cell.SubLabel>
         )}
       </Cell.LabelContainer>
-      <Flex $gap={Spacings.small} $alignItems="center">
+      <Flex $gap="small" $alignItems="center">
         {props.method.type === 'direct' && (
           <InfoButton
             message={[

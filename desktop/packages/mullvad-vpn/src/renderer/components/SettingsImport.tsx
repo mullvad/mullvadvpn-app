@@ -7,7 +7,7 @@ import { useScheduler } from '../../shared/scheduler';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Flex, Icon, IconProps } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useBoolean, useEffectEvent } from '../lib/utility-hooks';
@@ -207,7 +207,7 @@ const StyledStatusTitle = styled.div(normalText, {
   fontWeight: 'bold',
   lineHeight: '20px',
   color: Colors.white,
-  gap: Spacings.tiny,
+  gap: spacings.tiny,
 });
 
 const StyledStatusSubTitle = styled.div(tinyText, {

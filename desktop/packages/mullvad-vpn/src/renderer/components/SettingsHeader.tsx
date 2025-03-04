@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components';
 
 import { Flex, LabelTiny, TitleBig } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 
 export const HeaderTitle = styled(TitleBig)({
   wordWrap: 'break-word',
@@ -23,10 +23,10 @@ function SettingsHeader(props: SettingsHeaderProps, forwardRef: React.Ref<HTMLDi
     <Flex
       ref={forwardRef}
       $flexDirection="column"
-      $gap={Spacings.small}
+      $gap="small"
       $margin={{
-        horizontal: Spacings.medium,
-        bottom: Spacings.small,
+        horizontal: 'medium',
+        bottom: 'small',
       }}
       className={props.className}>
       {props.children}

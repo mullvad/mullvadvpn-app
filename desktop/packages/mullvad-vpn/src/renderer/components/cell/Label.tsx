@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { Icon, IconProps, Image, ImageProps } from '../../lib/components';
-import { Colors, Spacings } from '../../lib/foundations';
+import { Colors, spacings } from '../../lib/foundations';
 import { buttonText, normalText, tinyText } from '../common-styles';
 import { CellButton } from './CellButton';
 import { CellDisabledContext } from './Container';
@@ -30,7 +30,7 @@ const StyledSubText = styled.span<{ disabled: boolean }>(tinyText, (props) => ({
   color: props.disabled ? Colors.white20 : Colors.white60,
   flex: -1,
   textAlign: 'right',
-  margin: `0 ${Spacings.small}`,
+  margin: `0 ${spacings.small}`,
 }));
 
 const StyledImage = styled(Image)<ImageProps & { disabled?: boolean }>(({ disabled }) => ({
