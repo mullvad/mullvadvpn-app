@@ -7,21 +7,21 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import co.touchlab.kermit.Logger
+import kotlinx.coroutines.FlowPreview
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
-import net.mullvad.mullvadvpn.lib.common.util.debounceFirst
 
-private val INITIAL_CONNECTIVITY_TIMEOUT = 1.seconds
-private val DEFAULT_CONNECTIVITY_DEBOUNCE = 300.milliseconds
+private val CONNECTIVITY_DEBOUNCE = 300.milliseconds
 
 internal fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> = callbackFlow {
     val callback =
@@ -180,6 +180,7 @@ private sealed interface InternalConnectivityEvent {
  * may return a network that we never get updates from if turned off at the moment of the initial
  * query.
  */
+@OptIn(FlowPreview::class)
 fun ConnectivityManager.hasInternetConnectivity(): Flow<Boolean> =
     networkEvents(nonVPNInternetNetworksRequest)
         .mapNotNull {
@@ -202,7 +203,7 @@ fun ConnectivityManager.hasInternetConnectivity(): Flow<Boolean> =
         // Also if our initial state was "online", but it just got turned off we might not see
         // any updates for this network even though we already were registered for updated, and
         // thus we can't drop initial value accumulator value.
-        .debounceFirst(INITIAL_CONNECTIVITY_TIMEOUT, DEFAULT_CONNECTIVITY_DEBOUNCE)
+        .debounce(CONNECTIVITY_DEBOUNCE)
         .onStart {
             // We should not use this as initial state in scan, because it may contain networks
             // that won't be included in `networkEvents` updates.
