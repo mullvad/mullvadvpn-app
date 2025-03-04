@@ -116,7 +116,7 @@
     <string name="set_firewall_policy_error">Unable to apply firewall rules. Please troubleshoot or send a problem report.</string>
     <string name="set_dns_error">Unable to set system DNS server. Please send a problem report.</string>
     <string name="start_tunnel_error">Unable to start tunnel connection. Please send a problem report.</string>
-    <string name="vpn_permission_denied_error">VPN permission was denied when creating the tunnel. Please try connecting again.</string>
+    <string name="vpn_permission_denied_error">VPN permission was denied or another app has "Always-on VPN" enabled</string>
     <string name="no_matching_relay">No servers match your settings, try changing server or other settings.</string>
     <string name="no_wireguard_key">Valid WireGuard key is missing. Manage keys under Advanced settings.</string>
     <string name="custom_dns_hint">Enter IP</string>

@@ -2745,7 +2745,7 @@ msgstr ""
 msgid "VPN permission error"
 msgstr ""
 
-msgid "VPN permission was denied when creating the tunnel. Please try connecting again."
+msgid "VPN permission was denied or another app has \"Always-on VPN\" enabled"
 msgstr ""
 
 msgid "VPN tunnel status"

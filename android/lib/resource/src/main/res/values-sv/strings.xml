@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Kupongkoden har redan använts.</string>
     <string name="voucher_is_account_number">Det verkar som om du angett ett kontonummer istället för en kupongkod. Logga först ut om du vill ändra den aktiva koden.</string>
     <string name="voucher_success_title">Kupongen har lösts in.</string>
-    <string name="vpn_permission_denied_error">VPN-behörighet nekades när tunneln skapades. Försök att ansluta igen.</string>
     <string name="vpn_permission_error_notification_message">Tryck på anslut för att begära VPN-behörighet</string>
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
