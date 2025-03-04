@@ -97,9 +97,9 @@ class ConnectivityManagerUtilKtTest {
     }
 
     /**
-     * User turning of Airplane mode as our connectivity starts so we never get any onAvailable
-     * event from our listener. Initial value will be `true`, followed by no `networkEvent` and then
-     * turning on network again after 5 seconds
+     * User turning on Airplane mode as our connectivity listener starts so we never get any
+     * onAvailable event from our listener. Initial value will be `true`, followed by no
+     * `networkEvent` and then turning on network again after 5 seconds
      */
     @Test
     fun incorrectInitialValueThenBecomingOnline() = runTest {
@@ -178,15 +178,15 @@ class ConnectivityManagerUtilKtTest {
 
         every { connectivityManager.networksWithInternetConnectivity() } returns setOf(wifiNetwork)
         every { connectivityManager.networkEvents(any()) } returns
-                callbackFlow {
-                    send(NetworkEvent.Available(wifiNetwork))
-                    delay(5.seconds)
-                    send(NetworkEvent.Lost(wifiNetwork))
-                    // We will have no network for a little time until cellular chip is on.
-                    delay(500.milliseconds)
-                    send(NetworkEvent.Available(cellularNetwork))
-                    awaitClose {}
-                }
+            callbackFlow {
+                send(NetworkEvent.Available(wifiNetwork))
+                delay(5.seconds)
+                send(NetworkEvent.Lost(wifiNetwork))
+                // We will have no network for a little time until cellular chip is on.
+                delay(500.milliseconds)
+                send(NetworkEvent.Available(cellularNetwork))
+                awaitClose {}
+            }
 
         connectivityManager.hasInternetConnectivity().test {
             assertEquals(true, awaitItem())
