@@ -20,10 +20,10 @@ use anyhow::Context;
 use async_trait::async_trait;
 use std::path::PathBuf;
 
-/// Provide a directory to use for [AppDownloader]
+/// Provide a directory to use for [mullvad_update::app::AppDownloader]
 #[async_trait]
 pub trait DirectoryProvider {
-    /// Provide a directory to use for [AppDownloader]
+    /// Provide a directory to use for [mullvad_update::app::AppDownloader]
     async fn create_download_dir() -> anyhow::Result<PathBuf>;
 }
 
