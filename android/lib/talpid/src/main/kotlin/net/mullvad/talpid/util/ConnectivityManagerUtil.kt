@@ -14,8 +14,8 @@ import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import net.mullvad.mullvadvpn.lib.common.util.debounceFirst
@@ -168,6 +168,12 @@ private val nonVPNInternetNetworksRequest =
         .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
         .build()
 
+private sealed interface InternalConnectivityEvent {
+    data class Available(val network: Network) : InternalConnectivityEvent
+
+    data class Lost(val network: Network) : InternalConnectivityEvent
+}
+
 /**
  * Return a flow notifying us if we have internet connectivity. Initial state will be taken from
  * `allNetworks` and then updated when network events occur. Important to note that `allNetworks`
@@ -176,12 +182,17 @@ private val nonVPNInternetNetworksRequest =
  */
 fun ConnectivityManager.hasInternetConnectivity(): Flow<Boolean> =
     networkEvents(nonVPNInternetNetworksRequest)
-        .filter { it is NetworkEvent.Lost || it is NetworkEvent.Available }
+        .mapNotNull {
+            when (it) {
+                is NetworkEvent.Available -> InternalConnectivityEvent.Available(it.network)
+                is NetworkEvent.Lost -> InternalConnectivityEvent.Lost(it.network)
+                else -> null
+            }
+        }
         .scan(emptySet<Network>()) { networks, event ->
             when (event) {
-                is NetworkEvent.Lost -> networks - event.network
-                is NetworkEvent.Available -> networks + event.network
-                else -> networks // Should never happen
+                is InternalConnectivityEvent.Lost -> networks - event.network
+                is InternalConnectivityEvent.Available -> networks + event.network
             }.also { Logger.d("Networks: $it") }
         }
         // NetworkEvents are slow, can several 100 millis to arrive. If we are online, we don't
