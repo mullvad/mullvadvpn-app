@@ -194,9 +194,7 @@ async fn fetch_app_version_info<Delegate, VersionProvider>(
         });
 
         // wait for user to press either button
-        let Some(action) = action_rx.recv().await else {
-            panic!("channel was dropped? argh")
-        };
+        let action = action_rx.recv().await.expect("sender unexpectedly dropped");
 
         match action {
             Action::Retry => {
