@@ -130,7 +130,7 @@ impl<Delegate: AppDelegate, Downloader: AppDownloader + Send + 'static> AppDownl
 
 /// Implementation of [fetch::ProgressUpdater] that updates some [AppDelegate].
 pub struct UiProgressUpdater<Delegate: AppDelegate> {
-    domain: String,
+    domain: Option<String>,
     prev_progress: Option<u32>,
     queue: Delegate::Queue,
 }
@@ -138,7 +138,7 @@ pub struct UiProgressUpdater<Delegate: AppDelegate> {
 impl<Delegate: AppDelegate> UiProgressUpdater<Delegate> {
     pub fn new(queue: Delegate::Queue) -> Self {
         Self {
-            domain: "unknown source".to_owned(),
+            domain: None,
             prev_progress: None,
             queue,
         }
@@ -161,8 +161,12 @@ impl<Delegate: AppDelegate> UiProgressUpdater<Delegate> {
         format!(
             "{} {}... ({complete_percentage}%)",
             resource::DOWNLOADING_DESC_PREFIX,
-            self.domain
+            self.domain()
         )
+    }
+
+    fn domain(&self) -> &str {
+        self.domain.as_deref().unwrap_or("unknown source")
     }
 }
 
@@ -201,6 +205,6 @@ impl<Delegate: AppDelegate + 'static> fetch::ProgressUpdater for UiProgressUpdat
         // Parse out domain name
         let url = url.strip_prefix("https://").unwrap_or(url);
         let (domain, _) = url.split_once('/').unwrap_or((url, ""));
-        self.domain = domain.to_owned();
+        self.domain = Some(domain.to_owned());
     }
 }
