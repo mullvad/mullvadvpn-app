@@ -29,9 +29,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.credentials.CreatePasswordRequest
+import androidx.credentials.CredentialManager
+import androidx.credentials.exceptions.CreateCredentialException
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
 import com.ramcosta.composedestinations.generated.NavGraphs
@@ -140,6 +144,17 @@ fun Welcome(
                 snackbarHostState.showSnackbarImmediately(
                     message = context.getString(R.string.error_occurred)
                 )
+            is WelcomeViewModel.UiSideEffect.StoreCredentialsRequest -> {
+                // UserId is not allowed to be empty
+                val createPasswordRequest =
+                    CreatePasswordRequest(id = "-", password = uiSideEffect.accountNumber.value)
+                val credentialsManager = CredentialManager.create(context)
+                try {
+                    credentialsManager.createCredential(context, createPasswordRequest)
+                } catch (e: CreateCredentialException) {
+                    Logger.w("Unable to create Credentials")
+                }
+            }
         }
     }
 

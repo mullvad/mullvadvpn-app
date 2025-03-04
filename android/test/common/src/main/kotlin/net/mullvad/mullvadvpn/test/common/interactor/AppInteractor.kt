@@ -6,6 +6,8 @@ import android.widget.Button
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
+import co.touchlab.kermit.Logger
+import kotlinx.coroutines.delay
 import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointOverride
 import net.mullvad.mullvadvpn.lib.endpoint.putApiEndpointConfigurationExtra
 import net.mullvad.mullvadvpn.test.common.constant.DEFAULT_TIMEOUT
@@ -151,5 +153,17 @@ class AppInteractor(
     fun attemptToRemoveDevice() {
         device.findObjectWithTimeout(By.desc("Remove")).click()
         clickActionButtonByText("Yes, log out device")
+    }
+
+    fun dismissStorePasswordPromptIfShown() {
+        try {
+            device.waitForIdle()
+            val selector = By.text("password")
+            device.wait(Until.hasObject(selector), DEFAULT_TIMEOUT)
+            device.findObjectWithTimeout(selector).click()
+            device.pressBack()
+        } catch (e: IllegalArgumentException) {
+            // This is OK since it means the password prompt wasn't shown.
+        }
     }
 }
