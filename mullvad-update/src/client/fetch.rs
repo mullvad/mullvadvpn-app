@@ -1,4 +1,4 @@
-//! A downloader that supports range requests and resuming downloads
+//! A downloader that supports HTTP range requests and resuming downloads
 
 use std::{
     path::Path,
@@ -146,9 +146,9 @@ pub async fn get_to_writer(
 
         while let Some(chunk) = response.chunk().await.context("Failed to read chunk")? {
             bytes_read += chunk.len();
-            if bytes_read > RangeIter::CHUNK_SIZE {
+            if bytes_read > total_size - already_fetched_bytes {
                 // Protect against servers responding with more data than expected
-                anyhow::bail!("Server returned more than chunk-sized bytes");
+                anyhow::bail!("Server returned more than requested bytes");
             }
 
             writer
@@ -185,9 +185,6 @@ struct RangeIter {
 }
 
 impl RangeIter {
-    /// Number of bytes to read per range request
-    pub const CHUNK_SIZE: usize = 512 * 1024;
-
     fn new(current: usize, end: usize) -> Self {
         Self { current, end }
     }
@@ -202,7 +199,7 @@ impl Iterator for RangeIter {
         }
         let prev = self.current;
 
-        let read_n = self.end.saturating_sub(self.current).min(Self::CHUNK_SIZE);
+        let read_n = self.end.saturating_sub(self.current);
         if read_n == 0 {
             return None;
         }
@@ -422,7 +419,7 @@ mod test {
         Ok(())
     }
 
-    /// Create endpoints that serve a file at `url_path` using range requests
+    /// Create endpoints that serve a file at `url_path` using HTTP range requests
     fn add_file_server_mock(server: &mut mockito::Server, url_path: &str, data: &'static [u8]) {
         // Respond to head requests with file size
         server
@@ -430,7 +427,7 @@ mod test {
             .with_header(CONTENT_LENGTH, &data.len().to_string())
             .create();
 
-        // Respond to range requests with file
+        // Respond to HTTP range requests with file
         server
             .mock("GET", url_path)
             .with_body_from_request(|request| {
@@ -475,15 +472,15 @@ mod test {
         .await
         .expect_err("Reject unexpected content length");
 
-        // Malicious range response
-        // Serve the entire file rather than the requested range
-        let file_data = vec![0u8; 2 * RangeIter::CHUNK_SIZE];
+        // Reject larger than expected files
+        let file_data = vec![0u8; 2];
 
         let mut server = mockito::Server::new_async().await;
         let file_url = format!("{}/my_file", server.url());
         server
             .mock("HEAD", "/my_file")
-            .with_header(CONTENT_LENGTH, &file_data.len().to_string())
+            // Lie about size in header
+            .with_header(CONTENT_LENGTH, "1")
             .create();
         server
             .mock("GET", "/my_file")
