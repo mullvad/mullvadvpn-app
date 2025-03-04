@@ -35,12 +35,7 @@ jobs:
           git submodule update --init --depth=1 wireguard-go-rs/libwg/wireguard-go
 
       - name: Install Rust toolchain
-        run: |
-          rustup default stable
-          rustup update stable
-
-      - name: Remove Rust toolchain pinning
-        run: rm rust-toolchain.toml
+        run: rustup override set stable
 
       - name: Install unicop
         run: cargo install --locked unicop
