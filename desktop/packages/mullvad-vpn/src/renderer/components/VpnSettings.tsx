@@ -725,7 +725,6 @@ function TunnelProtocolSetting() {
         items={tunnelProtocolItems}
         value={tunnelProtocol ?? null}
         onSelect={setTunnelProtocol}
-        automaticValue={null}
       />
       {openVpnDisabled ? (
         <Cell.CellFooter>
