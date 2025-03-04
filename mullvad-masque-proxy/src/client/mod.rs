@@ -4,13 +4,16 @@ use std::{
     net::{Ipv4Addr, SocketAddr},
     path::Path,
     sync::{Arc, LazyLock},
+    time::Duration,
 };
-use tokio::net::UdpSocket;
+use tokio::{net::UdpSocket, time::interval};
 
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::datagram_traits::HandleDatagramsExt;
 use http::{uri::Scheme, Response, StatusCode};
 use quinn::{crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, TransportConfig};
+
+use crate::fragment::{self, Fragments};
 
 const MAX_HEADER_SIZE: u64 = 8192;
 
@@ -26,6 +29,10 @@ pub struct Client {
     /// Request stream for the currently open request, must not be dropped, otherwise proxy
     /// connection is terminated
     request_stream: client::RequestStream<h3_quinn::BidiStream<bytes::Bytes>, bytes::Bytes>,
+    /// Packet fragments
+    fragments: Fragments,
+    /// Maximum packet size
+    maximum_packet_size: u16,
 }
 
 pub type Result<T> = std::result::Result<T, Error>;
@@ -57,8 +64,12 @@ pub enum Error {
     Uri(http::Error),
     /// Failed to send datagram to proxy
     SendDatagram(h3::Error),
+    /// Failed to read certificates
     ReadCerts(io::Error),
+    /// Failed to parse certificates
     ParseCerts,
+    /// Failed to fragment a packet - it is too large
+    PacketTooLarge(fragment::PacketTooLarge),
 }
 
 impl Client {
@@ -68,6 +79,7 @@ impl Client {
         local_addr: SocketAddr,
         target_addr: SocketAddr,
         server_host: &str,
+        maximum_packet_size: u16,
     ) -> Result<Self> {
         Self::connect_with_tls_config(
             client_socket,
@@ -76,6 +88,7 @@ impl Client {
             target_addr,
             server_host,
             default_tls_config(),
+            maximum_packet_size,
         )
         .await
     }
@@ -87,6 +100,7 @@ impl Client {
         target_addr: SocketAddr,
         server_host: &str,
         tls_config: Arc<rustls::ClientConfig>,
+        maximum_packet_size: u16,
     ) -> Result<Self> {
         let quic_client_config = QuicClientConfig::try_from(tls_config)
             .expect("Failed to construct a valid TLS configuration");
@@ -105,6 +119,7 @@ impl Client {
             target_addr,
             server_host,
             client_config,
+            maximum_packet_size,
         )
         .await
     }
@@ -116,6 +131,7 @@ impl Client {
         target_addr: SocketAddr,
         server_host: &str,
         client_config: ClientConfig,
+        maximum_packet_size: u16,
     ) -> Result<Self> {
         let endpoint = Endpoint::client(local_addr).map_err(Error::Bind)?;
 
@@ -132,7 +148,9 @@ impl Client {
             connection,
             client_socket,
             request_stream,
+            fragments: Fragments::default(),
             _send_stream: send_stream,
+            maximum_packet_size,
         })
     }
 
@@ -180,43 +198,70 @@ impl Client {
     pub async fn run(mut self) -> Result<()> {
         let stream_id: StreamId = self.request_stream.id();
         // this is the variable ID used to signify UDP payloads in HTTP datagrams.
-        let context_id: VarInt = h3::quic::StreamId::try_from(0)
-            .expect("need to be able to create stream IDs with 0, no?")
-            .into();
         let mut client_read_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE);
+        crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
 
         let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
+        let mut fragment_id = 1u16;
+        let mut interval = interval(Duration::from_secs(3));
+
         loop {
-            Into::<VarInt>::into(context_id).encode(&mut client_read_buf);
             tokio::select! {
                 client_read = self.client_socket.recv_buf_from(&mut client_read_buf) => {
                     let (_bytes_received, recv_addr) = client_read.map_err(Error::ClientRead)?;
                     return_addr = recv_addr;
-                    let send_buf = client_read_buf.split();
 
-                    self.connection
-                        .send_datagram(stream_id, send_buf.freeze())
-                        .map_err(Error::SendDatagram)?;
+                    let mut send_buf = client_read_buf.split().freeze();
+                    if send_buf.len() < self.maximum_packet_size.into() {
+                        self.connection
+                            .send_datagram(stream_id, send_buf)
+                            .map_err(Error::SendDatagram)?;
+                    } else {
+                        // drop the added context ID, since packet will have to be fragmented.
+                        {
+                            let _ = VarInt::decode(&mut send_buf);
+                        }
+                        for fragment in fragment::fragment_packet(
+                                self.maximum_packet_size,
+                                &mut send_buf,
+                                fragment_id)
+                            .map_err(Error::PacketTooLarge)
+                            ? {
+                                self.connection.send_datagram(stream_id, fragment).map_err(Error::SendDatagram)?;
+                            }
+                        fragment_id = fragment_id.wrapping_add(1);
+                    }
+
+                    client_read_buf.reserve(crate::PACKET_BUFFER_SIZE);
+                    crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
                 },
                 server_response = self.connection.read_datagram() => {
                     match server_response {
                         Ok(Some(response)) => {
                             if response.stream_id() != stream_id {
-                                // log::trace!("Received unexpected stream ID from server");
+                                // log::trace!("Received datagram with an unexpected stream ID");
                                 continue;
                             }
                             let mut payload = response.into_payload();
-                            let received_stream_id = VarInt::decode(&mut payload);
-                            // TODO: Explain what this context_id means
-                            if received_stream_id  != Ok(context_id) {
-                                // log::trace!("Unsupported datagram with stream ID {stream_id:?}");
-                                continue;
-                            }
+                            let context = VarInt::decode(&mut payload);
+                            match  context {
+                                Ok(crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID) => {
+                                    self.client_socket
+                                        .send_to(payload.as_ref(), return_addr)
+                                        .await
+                                        .map_err(Error::ClientWrite)?;
+                                }
+                                Ok(crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID) => {
+                                    if let Ok(Some(payload)) = self.fragments.handle_incoming_packet(payload) {
+                                        self.client_socket
+                                            .send_to(payload.chunk(), return_addr)
+                                            .await
+                                            .map_err(Error::ClientWrite)?;
+                                    }
+                                },
+                                _ => (),
 
-                            self.client_socket
-                                .send_to(payload.chunk(), return_addr)
-                                .await
-                                .map_err(Error::ClientWrite)?;
+                            }
                         }
                         Ok(None) => {
                             return Ok(());
@@ -226,9 +271,12 @@ impl Client {
                         }
                     }
                 },
+                _ = interval.tick() => {
+                    self.fragments.clear_old_fragments(
+                        Duration::from_secs(3)
+                    );
+                },
             };
-
-            client_read_buf.reserve(crate::PACKET_BUFFER_SIZE);
         }
     }
 }
@@ -287,6 +335,11 @@ fn client_tls_config_with_certs(certs: rustls::RootCertStore) -> Arc<rustls::Cli
     Arc::new(config)
 }
 
+fn read_cert_store() -> rustls::RootCertStore {
+    read_cert_store_from_reader(&mut std::io::BufReader::new(LE_ROOT_CERT))
+        .expect("failed to read built-in cert store")
+}
+
 pub fn client_tls_config_from_cert_path(path: &Path) -> Result<Arc<rustls::ClientConfig>> {
     let certs = read_cert_store_from_path(path)?;
     Ok(client_tls_config_with_certs(certs))
@@ -309,11 +362,6 @@ fn read_cert_store_from_reader(reader: &mut dyn io::BufRead) -> Result<rustls::R
     }
 
     Ok(cert_store)
-}
-
-fn read_cert_store() -> rustls::RootCertStore {
-    read_cert_store_from_reader(&mut std::io::BufReader::new(LE_ROOT_CERT))
-        .expect("failed to read built-in cert store")
 }
 
 #[test]

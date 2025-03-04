@@ -22,13 +22,11 @@ pub struct ServerArgs {
     key_path: PathBuf,
 
     /// Allowed IPs
-    #[arg(
-        long = "alloewd-ip",
-        short = 'a',
-        required = false,
-        requires = "cert_path"
-    )]
+    #[arg(long = "alloewd-ip", short = 'a', required = false)]
     allowed_ips: Vec<IpAddr>,
+    /// Maximums packet size
+    #[arg(long = "maximum-packet-size", short = 'm', default_value = "1700")]
+    maximum_packet_size: u16,
 }
 
 #[tokio::main]
@@ -42,6 +40,7 @@ async fn main() {
         args.bind_addr,
         args.allowed_ips.iter().cloned().collect(),
         tls_config.into(),
+        args.maximum_packet_size,
     )
     .expect("Failed to initialize server");
     println!("Listening on {}", args.bind_addr);
