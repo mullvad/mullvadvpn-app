@@ -485,7 +485,7 @@ fn create_link_font() -> Result<&'static nwg::Font, nwg::NwgError> {
         }
 
         Ok(nwg::Font {
-            handle: raw_font as _,
+            handle: raw_font as *mut _,
         })
     });
 
