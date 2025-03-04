@@ -102,7 +102,7 @@ function build_executable {
 
     local rustflags="-C codegen-units=1 -C panic=abort -C strip=symbols -C opt-level=z"
 
-    if [[ "$(uname -s)" == "MINGW"* || $1 == *"windows"* ]]; then
+    if [[ -z "$1" && "$(uname -s)" == "MINGW"* ]] || [[ $1 == *"windows"* ]]; then
         rustflags+=" -Ctarget-feature=+crt-static"
     fi
 
