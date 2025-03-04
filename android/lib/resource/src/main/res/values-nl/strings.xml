@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Vouchercode is al gebruikt.</string>
     <string name="voucher_is_account_number">Het lijkt erop dat u een accountnummer hebt ingevoerd in plaats van een vouchercode. Als u het actieve account wilt wijzigen, meld u dan eerst af.</string>
     <string name="voucher_success_title">Voucher is ingewisseld.</string>
-    <string name="vpn_permission_denied_error">VPN-toestemming is geweigerd tijdens maken van de tunnel. Probeer opnieuw verbinding te maken.</string>
     <string name="vpn_permission_error_notification_message">Druk op Verbinding maken om VPN-toestemming te verzoeken</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
