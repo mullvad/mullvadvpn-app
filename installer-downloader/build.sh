@@ -100,8 +100,13 @@ function build_executable {
     # Old bash versions complain about empty array expansion when -u is set
     set +u
 
-    RUSTFLAGS="-C codegen-units=1 -C panic=abort -C strip=symbols -C opt-level=z" \
-        cargo build --bin installer-downloader --release "${target_args[@]}"
+    local rustflags="-C codegen-units=1 -C panic=abort -C strip=symbols -C opt-level=z"
+
+    if [[ -z "$1" && "$(uname -s)" == "MINGW"* ]] || [[ $1 == *"windows"* ]]; then
+        rustflags+=" -Ctarget-feature=+crt-static"
+    fi
+
+    RUSTFLAGS="$rustflags" cargo build --bin installer-downloader --release "${target_args[@]}"
 
     set -u
 }
