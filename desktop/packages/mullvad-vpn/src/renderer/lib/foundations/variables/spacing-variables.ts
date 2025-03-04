@@ -8,10 +8,12 @@ export const spacingPrimitives = {
   '--spc-32': spacingTokens.spc32,
 } as const;
 
-export enum Spacings {
-  tiny = 'var(--spc-4)',
-  small = 'var(--spc-8)',
-  medium = 'var(--spc-16)',
-  large = 'var(--spc-24)',
-  big = 'var(--spc-32)',
-}
+export const spacings = {
+  tiny: 'var(--spc-4)',
+  small: 'var(--spc-8)',
+  medium: 'var(--spc-16)',
+  large: 'var(--spc-24)',
+  big: 'var(--spc-32)',
+} as const;
+
+export type Spacings = keyof typeof spacings;

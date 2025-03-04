@@ -5,7 +5,7 @@ import { closeToExpiry, formatRemainingTime, hasExpired } from '../../../../shar
 import { messages } from '../../../../shared/gettext';
 import { capitalizeEveryWord } from '../../../../shared/string-helpers';
 import { Flex, FootnoteMini } from '../../../lib/components';
-import { Colors, Spacings } from '../../../lib/foundations';
+import { Colors } from '../../../lib/foundations';
 import { useSelector } from '../../../redux/store';
 
 const StyledTimeLeftLabel = styled(FootnoteMini)({
@@ -29,7 +29,7 @@ export const AppMainHeaderDeviceInfo = () => {
       : '';
 
   return (
-    <Flex $gap={Spacings.large} $margin={{ top: Spacings.tiny }}>
+    <Flex $gap="large" $margin={{ top: 'tiny' }}>
       <StyledDeviceLabel color={Colors.white80}>
         {sprintf(
           // TRANSLATORS: A label that will display the newly created device name to inform the user

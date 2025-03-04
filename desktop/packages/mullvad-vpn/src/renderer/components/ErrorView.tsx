@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 
 import { Flex, Logo } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 import { AppMainHeader } from './app-main-header';
 import { measurements } from './common-styles';
 import { Container, Layout } from './Layout';
@@ -43,12 +43,8 @@ export default function ErrorView(props: ErrorViewProps) {
         {!props.settingsUnavailable && <AppMainHeader.SettingsButton />}
       </AppMainHeader>
       <StyledContainer>
-        <Flex $flexDirection="column" $gap={Spacings.small}>
-          <Flex
-            $flexDirection="column"
-            $alignItems="center"
-            $justifyContent="end"
-            $gap={Spacings.medium}>
+        <Flex $flexDirection="column" $gap="medium">
+          <Flex $flexDirection="column" $alignItems="center" $justifyContent="end" $gap="medium">
             <Logo variant="icon" size="2" />
             <Logo variant="text" size="2" />
           </Flex>

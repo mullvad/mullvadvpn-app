@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../../shared/gettext';
 import { BodySmall, Container, Flex, TitleBig, TitleLarge } from '../../../lib/components';
-import { Colors, Spacings } from '../../../lib/foundations';
+import { Colors } from '../../../lib/foundations';
 import { useHistory } from '../../../lib/history';
 import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
@@ -32,17 +32,17 @@ export const ChangelogView = () => {
             <AppNavigationHeader title={messages.pgettext('changelog-view', 'What’s new')} />
 
             <NavigationScrollbars>
-              <Flex $flexDirection="column" $gap={Spacings.large}>
+              <Flex $flexDirection="column" $gap="large">
                 <Container size="4">
                   <TitleBig as={'h1'}>{messages.pgettext('changelog-view', 'What’s new')}</TitleBig>
                 </Container>
-                <Flex $flexDirection="column" $gap={Spacings.small}>
+                <Flex $flexDirection="column" $gap="small">
                   <Container size="4">
                     <TitleLarge as="h2">{version}</TitleLarge>
                   </Container>
                   <Container size="3" $flexDirection="column">
                     {changelog.length ? (
-                      <StyledList as="ul" $flexDirection="column" $gap={Spacings.medium}>
+                      <StyledList as="ul" $flexDirection="column" $gap="medium">
                         {changelog.map((item, i) => (
                           <BodySmall as="li" key={i} color={Colors.white60}>
                             {item}

@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import { Styles } from 'styled-components/dist/types';
 
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 import * as Cell from './cell';
 
 const indicatorStyles: Styles<
@@ -19,7 +19,7 @@ const StyledRelayStatus = styled.div<{ $active: boolean }>(indicatorStyles, (pro
 
 const TickIcon = styled(Cell.CellIcon)({
   marginLeft: '3px',
-  marginRight: Spacings.small,
+  marginRight: spacings.small,
 });
 
 interface IProps {

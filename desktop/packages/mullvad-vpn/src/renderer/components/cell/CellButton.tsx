@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import styled from 'styled-components';
 
 import { Box, IconProps } from '../../lib/components';
-import { Colors, Spacings } from '../../lib/foundations';
+import { Colors, spacings } from '../../lib/foundations';
 import { CellDisabledContext } from './Container';
 import { CellTintedIcon } from './Label';
 import { Row } from './Row';
@@ -22,8 +22,8 @@ const StyledCellButton = styled(Row)<IStyledCellButtonProps>((props) => {
   const backgroundColorHover = props.$selected ? Colors.green : Colors.blue80;
 
   return {
-    paddingRight: Spacings.medium,
-    paddingLeft: Spacings.medium,
+    paddingRight: spacings.medium,
+    paddingLeft: spacings.medium,
     flex: 1,
     alignContent: 'center',
     cursor: 'default',

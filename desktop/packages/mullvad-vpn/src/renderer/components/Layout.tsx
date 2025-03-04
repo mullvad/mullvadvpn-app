@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { Flex } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 import { measurements } from './common-styles';
 import { NavigationScrollbars } from './NavigationScrollbars';
 
@@ -40,7 +40,7 @@ export const Footer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  padding: `${Spacings.large} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
+  padding: `${spacings.large} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
   [`${SettingsContent} &&`]: {
     paddingBottom: 0,
   },
@@ -48,7 +48,7 @@ export const Footer = styled.div({
 
 export const SettingsStack = styled(Flex).attrs({
   $flexDirection: 'column',
-  $gap: Spacings.medium,
+  $gap: 'medium',
 })({});
 
 export const SettingsGroup = styled(Flex).attrs({
@@ -58,10 +58,10 @@ export const SettingsGroup = styled(Flex).attrs({
 
 export const ButtonStack = styled(Flex).attrs({
   $flexDirection: 'column',
-  $gap: Spacings.medium,
+  $gap: 'medium',
 })({
   [`${Footer} &&`]: {
-    margin: `0 ${Spacings.small}`,
+    margin: `0 ${spacings.small}`,
   },
 });
 
@@ -69,5 +69,5 @@ export const LabelStack = styled(Flex).attrs({
   $flexGrow: 1,
   $flexDirection: 'row',
   $alignItems: 'center',
-  $gap: Spacings.small,
+  $gap: 'small',
 })({});

@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 
 export const openSans: React.CSSProperties = {
   fontFamily: 'Open Sans',
@@ -65,8 +65,8 @@ export const hugeText = {
 
 export const measurements = {
   rowMinHeight: '48px',
-  horizontalViewMargin: Spacings.medium,
-  verticalViewMargin: Spacings.large,
-  rowVerticalMargin: Spacings.large,
-  buttonVerticalMargin: Spacings.medium,
+  horizontalViewMargin: spacings.medium,
+  verticalViewMargin: spacings.large,
+  rowVerticalMargin: spacings.large,
+  buttonVerticalMargin: spacings.medium,
 };
