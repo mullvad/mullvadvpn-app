@@ -60,7 +60,7 @@ pub async fn test_openvpn_tunnel(
         log::info!("Connect to {protocol} OpenVPN endpoint");
 
         update_relay_constraints(&mut mullvad_client, |relay_constraints| {
-            relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+            relay_constraints.tunnel_protocol = TunnelType::OpenVpn;
             relay_constraints.openvpn_constraints = OpenVpnConstraints { port: constraint };
         })
         .await
@@ -347,7 +347,7 @@ pub async fn test_wireguard_autoconnect(
 ) -> Result<(), Error> {
     log::info!("Setting tunnel protocol to WireGuard");
     update_relay_constraints(&mut mullvad_client, |relay_constraints| {
-        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
+        relay_constraints.tunnel_protocol = TunnelType::Wireguard;
     })
     .await
     .expect("failed to update relay constraints");
@@ -386,7 +386,7 @@ pub async fn test_openvpn_autoconnect(
     log::info!("Setting tunnel protocol to OpenVPN");
 
     update_relay_constraints(&mut mullvad_client, |relay_constraints| {
-        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+        relay_constraints.tunnel_protocol = TunnelType::OpenVpn;
     })
     .await
     .expect("failed to update relay constraints");
@@ -583,7 +583,7 @@ pub async fn test_remote_socks_bridge(
         .expect("failed to update bridge settings");
 
     update_relay_constraints(&mut mullvad_client, |relay_constraints| {
-        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+        relay_constraints.tunnel_protocol = TunnelType::OpenVpn;
     })
     .await
     .expect("failed to update relay constraints");
@@ -677,7 +677,7 @@ pub async fn test_local_socks_bridge(
         .expect("failed to update bridge settings");
 
     update_relay_constraints(&mut mullvad_client, |relay_constraints| {
-        relay_constraints.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+        relay_constraints.tunnel_protocol = TunnelType::OpenVpn;
     })
     .await
     .expect("failed to update relay constraints");
