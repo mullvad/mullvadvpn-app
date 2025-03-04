@@ -10,7 +10,6 @@ export interface StartAppResponse {
 export interface TestUtils {
   currentRoute: () => Promise<string | null>;
   waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
-  waitForNoTransition: () => Promise<void>;
   waitForRoute: (route: string) => Promise<void>;
   waitForNextRoute: () => Promise<string>;
 }
@@ -26,16 +25,12 @@ export const startApp = async (options: LaunchOptions): Promise<StartAppResponse
   const app = await launch(options);
   const page = await app.firstWindow();
 
-  // Wait for initial navigation to finish
-  await waitForNoTransition(page);
-
   page.on('pageerror', (error) => console.log(error));
   page.on('console', (msg) => console.log(msg.text()));
 
   const util: TestUtils = {
     currentRoute: currentRouteFactory(app),
-    waitForNavigation: waitForNavigationFactory(app, page),
-    waitForNoTransition: () => waitForNoTransition(page),
+    waitForNavigation: waitForNavigationFactory(app),
     waitForRoute: waitForRouteFactory(app),
     waitForNextRoute: waitForNextRouteFactory(app),
   };
@@ -65,7 +60,7 @@ const currentRouteFactory = (app: ElectronApplication) => {
   };
 };
 
-const waitForNavigationFactory = (app: ElectronApplication, page: Page) => {
+const waitForNavigationFactory = (app: ElectronApplication) => {
   const waitForNextRoute = waitForNextRouteFactory(app);
   // Wait for navigation animation to finish. A function can be provided that initiates the
   // navigation, e.g. clicks a button.
@@ -73,29 +68,8 @@ const waitForNavigationFactory = (app: ElectronApplication, page: Page) => {
     // Wait for route to change after optionally initiating the navigation.
     const [route] = await Promise.all([waitForNextRoute(), initiateNavigation?.()]);
 
-    // Wait for view corresponding to new route to appear
-    await page.getByTestId(route).isVisible();
-    await waitForNoTransition(page);
-
     return route;
   };
-};
-
-const waitForNoTransition = async (page: Page) => {
-  // Wait until there's only one transitionContents
-  let transitionContentsCount;
-  do {
-    if (transitionContentsCount !== undefined) {
-      await new Promise((resolve) => setTimeout(resolve, 5));
-    }
-
-    try {
-      transitionContentsCount = await page.getByTestId('transition-content').count();
-    } catch {
-      console.log('Transition content count failed');
-      break;
-    }
-  } while (transitionContentsCount !== 1);
 };
 
 // This factory returns a function which returns a boolean when the route passed to it matches that of the application.
