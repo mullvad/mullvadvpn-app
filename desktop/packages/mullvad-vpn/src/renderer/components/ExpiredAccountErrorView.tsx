@@ -7,7 +7,6 @@ import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { Flex, Icon } from '../lib/components';
-import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { RoutePath } from '../lib/routes';
@@ -122,7 +121,7 @@ function WelcomeView() {
         </StyledAccountNumberContainer>
       </StyledAccountNumberMessage>
 
-      <Flex $alignItems="center" $gap={Spacings.tiny} $margin={{ bottom: Spacings.medium }}>
+      <Flex $alignItems="center" $gap="tiny" $margin={{ bottom: 'medium' }}>
         <StyledDeviceLabel>
           {sprintf(
             // TRANSLATORS: A label that will display the newly created device name to inform the user
@@ -156,7 +155,7 @@ function Content() {
 
   return (
     <>
-      <Flex $justifyContent="center" $margin={{ bottom: Spacings.medium }}>
+      <Flex $justifyContent="center" $margin={{ bottom: 'medium' }}>
         <IconBadge state="negative" />
       </Flex>
       <StyledTitle data-testid="title">

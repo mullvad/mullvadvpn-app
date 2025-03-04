@@ -1,7 +1,7 @@
 import React, { forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
-import { Colors, Radius, Spacings } from '../../foundations';
+import { Colors, Radius } from '../../foundations';
 import { Flex } from '../flex';
 import { ButtonBase } from './ButtonBase';
 import { ButtonProvider } from './ButtonContext';
@@ -108,10 +108,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <StyledButton ref={ref} disabled={disabled} {...props}>
           <StyledFlex
             $flex={1}
-            $gap={Spacings.small}
+            $gap="small"
             $alignItems="center"
             $padding={{
-              horizontal: Spacings.small,
+              horizontal: 'small',
             }}>
             {children}
           </StyledFlex>

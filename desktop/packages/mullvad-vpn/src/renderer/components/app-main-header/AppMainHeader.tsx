@@ -1,6 +1,5 @@
 import { TunnelState } from '../../../shared/daemon-rpc-types';
 import { Flex, HeaderProps, Logo, LogoProps, MainHeader } from '../../lib/components';
-import { Spacings } from '../../lib/foundations';
 import { useSelector } from '../../redux/store';
 import { FocusFallback } from '../Focus';
 import {
@@ -39,7 +38,7 @@ const AppMainHeader = ({
         <FocusFallback>
           {logoVariant !== 'none' ? <Logo variant={logoVariant} /> : <div />}
         </FocusFallback>
-        <Flex $gap={Spacings.medium} $alignItems="center">
+        <Flex $gap="medium" $alignItems="center">
           {children}
         </Flex>
       </Flex>

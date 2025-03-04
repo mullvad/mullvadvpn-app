@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 
-import { Spacings } from '../../foundations';
+import { Spacings, spacings } from '../../foundations';
 import { Layout, LayoutProps } from '../layout';
 
 export interface FlexProps extends LayoutProps {
@@ -17,18 +17,19 @@ export interface FlexProps extends LayoutProps {
   children?: React.ReactNode;
 }
 
-export const Flex = styled(Layout)<FlexProps>(
-  ({
-    $gap,
-    $flex,
-    $flexDirection,
-    $alignItems,
-    $justifyContent,
-    $flexGrow,
-    $flexShrink,
-    $flexBasis,
-    $flexWrap,
-  }) => ({
+export const Flex = styled(Layout)<FlexProps>(({
+  $gap: gapProp,
+  $flex,
+  $flexDirection,
+  $alignItems,
+  $justifyContent,
+  $flexGrow,
+  $flexShrink,
+  $flexBasis,
+  $flexWrap,
+}) => {
+  const $gap = gapProp ? spacings[gapProp] : undefined;
+  return {
     display: 'flex',
     gap: $gap,
     flex: $flex,
@@ -39,5 +40,5 @@ export const Flex = styled(Layout)<FlexProps>(
     flexShrink: $flexShrink,
     flexBasis: $flexBasis,
     flexWrap: $flexWrap,
-  }),
-);
+  };
+});

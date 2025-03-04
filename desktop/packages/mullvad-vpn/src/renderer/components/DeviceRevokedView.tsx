@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Flex } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
@@ -55,7 +55,7 @@ export function DeviceRevokedView() {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <Flex $justifyContent="center" $margin={{ bottom: Spacings.medium }}>
+            <Flex $justifyContent="center" $margin={{ bottom: 'medium' }}>
               <IconBadge state="negative" />
             </Flex>
             <StyledTitle data-testid="title">

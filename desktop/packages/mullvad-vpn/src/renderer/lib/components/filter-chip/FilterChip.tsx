@@ -1,7 +1,7 @@
 import { forwardRef } from 'react';
 import styled, { WebTarget } from 'styled-components';
 
-import { Colors, Radius, Spacings } from '../../foundations';
+import { Colors, Radius } from '../../foundations';
 import { buttonReset } from '../../styles';
 import { Flex } from '../flex';
 import { FilterChipIcon, FilterChipText } from './components';
@@ -57,11 +57,11 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
           {...props}>
           <Flex
             $flex={1}
-            $gap={Spacings.tiny}
+            $gap="tiny"
             $alignItems="center"
             $justifyContent="space-between"
             $padding={{
-              horizontal: Spacings.small,
+              horizontal: 'small',
             }}>
             {children}
           </Flex>
