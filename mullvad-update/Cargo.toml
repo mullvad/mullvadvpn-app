@@ -1,0 +1,48 @@
+[package]
+name = "mullvad-update"
+description = "Support functions for securely installing or updating Mullvad VPN"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+default = []
+sign = ["rand", "clap"]
+client = ["async-trait", "reqwest", "sha2", "tokio", "thiserror"]
+
+[dependencies]
+anyhow = { workspace = true }
+json-canon = "0.1"
+chrono = { workspace = true, features = ["serde", "now"] }
+ed25519-dalek = { version = "2.1" }
+hex = { version = "0.4" }
+serde = { workspace = true, features = ["derive"] }
+serde_json = { workspace = true }
+
+async-trait = { version = "0.1", optional = true }
+reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"], optional = true }
+sha2 = { version = "0.10", optional = true }
+tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process", "macros"], optional = true }
+thiserror = { workspace = true, optional = true }
+
+mullvad-version = { path = "../mullvad-version", features = ["serde"] }
+
+# features required by binaries
+clap = { workspace = true, optional = true }
+rand = { version = "0.8.5", optional = true }
+
+[dev-dependencies]
+async-tempfile = "0.6"
+insta = { workspace = true }
+mockito = "1.6.1"
+rand = "0.8.5"
+tokio = { workspace = true, features = ["test-util", "time", "macros"] }
+
+[[bin]]
+name = "mullvad-version-metadata"
+required-features = ["sign"]
