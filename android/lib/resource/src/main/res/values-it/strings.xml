@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Il codice voucher è già stato utilizzato.</string>
     <string name="voucher_is_account_number">Sembra che tu abbia inserito un numero di account anziché un codice voucher. Se desideri modificare l\'account attivo, effettua prima la disconnessione.</string>
     <string name="voucher_success_title">Il voucher è stato riscattato correttamente.</string>
-    <string name="vpn_permission_denied_error">L\'autorizzazione VPN è stata negata durante la creazione del tunnel. Prova a connetterti di nuovo.</string>
     <string name="vpn_permission_error_notification_message">Premi Connetti per richiedere l\'autorizzazione VPN</string>
     <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
