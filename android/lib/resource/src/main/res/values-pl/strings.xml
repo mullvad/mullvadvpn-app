@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Kod z tego kuponu został już użyty.</string>
     <string name="voucher_is_account_number">Wygląda na to, że wpisano numer konta zamiast kodu kuponu. Jeśli chcesz zmienić aktywne konto, najpierw się wyloguj.</string>
     <string name="voucher_success_title">Kupon został zrealizowany.</string>
-    <string name="vpn_permission_denied_error">Uprawnienie VPN zostało odrzucone podczas tworzenia tunelu. Spróbuj połączyć się ponownie.</string>
     <string name="vpn_permission_error_notification_message">Naciśnij przycisk Połącz, aby zażądać uprawnienia VPN</string>
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
