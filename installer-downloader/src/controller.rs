@@ -323,9 +323,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     }
 
     async fn begin_download(&mut self) {
-        if self.active_download.take().is_some() {
-            log::debug!("Interrupting ongoing download");
-        }
+        self.cancel_download().await;
         let Some(version_info) = self.version_info.clone() else {
             log::error!("Attempted 'begin download' before having version info");
             return;
@@ -410,10 +408,7 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
     }
 
     async fn cancel(&mut self) {
-        if let Some(active_download) = self.active_download.take() {
-            active_download.abort();
-            let _ = active_download.await;
-        }
+        self.cancel_download().await;
 
         let Some(version_info) = self.version_info.as_ref() else {
             log::error!("Attempted 'cancel' before having version info");
@@ -447,6 +442,14 @@ impl<D: AppDelegate + 'static, A: From<UiAppDownloaderParameters<D>> + AppDownlo
             self_.hide_download_progress();
             self_.clear_download_progress();
         });
+    }
+
+    async fn cancel_download(&mut self) {
+        if let Some(active_download) = self.active_download.take() {
+            log::debug!("Interrupting ongoing download");
+            active_download.abort();
+            let _ = active_download.await;
+        }
     }
 }
 
