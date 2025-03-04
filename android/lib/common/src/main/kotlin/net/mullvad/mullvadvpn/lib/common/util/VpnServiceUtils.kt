@@ -22,8 +22,9 @@ import net.mullvad.mullvadvpn.lib.model.Prepared
  * Invoking VpnService.prepare() can result in 3 out comes:
  * 1. IllegalStateException - There is a legacy VPN profile marked as always on
  * 2. Intent
- *     - A: Can-prepare - Create Vpn profile
- *     - B: Always-on-VPN - Another Vpn Profile is marked as always on
+ *     - A: Can-prepare - Create Vpn profile or Always-on-VPN is not detected in case of Android 11+
+ *     - B: Always-on-VPN - Another Vpn Profile is marked as always on (Only available up to Android
+ *       11 or where testOnly is set, e.g builds from Android Studio)
  * 3. null - The app has the VPN permission
  *
  * In case 1 and 2b, you don't know if you have a VPN profile or not.
