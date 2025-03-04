@@ -22,7 +22,7 @@ into account certain user-configurable criteria. Relays can be filtered by their
 (country, city, hostname), by the protocols and ports they support (transport protocol, tunnel
 protocol, port), and by other constraints. The constraints are user specified and stored in the
 settings. The default value for location constraints restricts relay selection to relays from Sweden.
-The default protocol constraints default to Wireguard, which implies specific behavior.
+The tunnel protocol constraint defaults to Wireguard.
 
 Generally, the filtering process consists of going through each relay in our relay list and
 removing relay and endpoint combinations that do not match the constraints outlined above. The
