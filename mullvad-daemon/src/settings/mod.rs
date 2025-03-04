@@ -554,9 +554,7 @@ mod test {
                       }
                     }
                   },
-                  "tunnel_protocol": {
-                    "only": "wireguard"
-                  },
+                  "tunnel_protocol": "wireguard",
                   "wireguard_constraints": {
                     "port": "any"
                   },

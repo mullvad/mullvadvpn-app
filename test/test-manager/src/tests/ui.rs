@@ -1,7 +1,7 @@
 use super::{config::TEST_CONFIG, helpers, Error, TestContext};
 use mullvad_management_interface::MullvadProxyClient;
 use mullvad_relay_selector::query::builder::RelayQueryBuilder;
-use mullvad_types::{constraints::Constraint, relay_constraints::RelaySettings};
+use mullvad_types::relay_constraints::RelaySettings;
 use std::{
     collections::BTreeMap,
     fmt::Debug,
@@ -131,7 +131,7 @@ pub async fn test_ui_openvpn_tunnel_settings(
     let RelaySettings::Normal(mut constraints) = relay_settings else {
         unimplemented!()
     };
-    constraints.tunnel_protocol = Constraint::Only(talpid_types::net::TunnelType::OpenVpn);
+    constraints.tunnel_protocol = talpid_types::net::TunnelType::OpenVpn;
     mullvad_client
         .set_relay_settings(RelaySettings::Normal(constraints))
         .await?;

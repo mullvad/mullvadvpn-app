@@ -96,8 +96,8 @@ pub enum SetCommands {
     #[clap(subcommand)]
     Tunnel(SetTunnelCommands),
 
-    /// Set tunnel protocol to use: 'any', 'wireguard', or 'openvpn'.
-    TunnelProtocol { protocol: Constraint<TunnelType> },
+    /// Set tunnel protocol to use: 'wireguard', or 'openvpn'.
+    TunnelProtocol { protocol: TunnelType },
 
     /// Set a custom VPN relay to use
     #[clap(subcommand)]
@@ -565,27 +565,18 @@ impl Relay {
 
         // Depending on the current configured tunnel protocol, we filter only the relevant hosts
         let location_constraint = match constraints.tunnel_protocol {
-            Constraint::Any => {
+            TunnelType::OpenVpn => {
                 resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
-                    relay.active && relay.endpoint_data != RelayEndpointData::Bridge
+                    relay.active && relay.endpoint_data == RelayEndpointData::Openvpn
                 })
                 .await
             }
-            Constraint::Only(tunnel) => match tunnel {
-                TunnelType::OpenVpn => {
-                    resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
-                        relay.active && relay.endpoint_data == RelayEndpointData::Openvpn
-                    })
-                    .await
-                }
-                TunnelType::Wireguard => {
-                    resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
-                        relay.active
-                            && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
-                    })
-                    .await
-                }
-            },
+            TunnelType::Wireguard => {
+                resolve_location_constraint(&mut rpc, location_constraint_args, |relay| {
+                    relay.active && matches!(relay.endpoint_data, RelayEndpointData::Wireguard(_))
+                })
+                .await
+            }
         }?;
 
         Self::update_constraints(|constraints| {
@@ -721,7 +712,7 @@ impl Relay {
         }
     }
 
-    async fn set_tunnel_protocol(protocol: Constraint<TunnelType>) -> Result<()> {
+    async fn set_tunnel_protocol(protocol: TunnelType) -> Result<()> {
         Self::update_constraints(|constraints| {
             constraints.tunnel_protocol = protocol;
         })

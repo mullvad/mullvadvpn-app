@@ -123,7 +123,7 @@ pub struct RelayConstraints {
     pub location: Constraint<LocationConstraint>,
     pub providers: Constraint<Providers>,
     pub ownership: Constraint<Ownership>,
-    pub tunnel_protocol: Constraint<TunnelType>,
+    pub tunnel_protocol: TunnelType,
     pub wireguard_constraints: WireguardConstraints,
     pub openvpn_constraints: OpenVpnConstraints,
 }

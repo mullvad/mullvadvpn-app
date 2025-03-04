@@ -188,7 +188,7 @@ pub async fn test_bridge_ip_override(
     };
 
     let relay_constraints = RelayConstraints {
-        tunnel_protocol: TunnelType::OpenVpn.into(),
+        tunnel_protocol: TunnelType::OpenVpn,
         ..Default::default()
     };
 
