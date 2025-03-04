@@ -7,6 +7,7 @@ import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import co.touchlab.kermit.Logger
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
@@ -18,7 +19,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
 import net.mullvad.mullvadvpn.lib.common.util.debounceFirst
-import kotlin.time.Duration.Companion.milliseconds
+
+private val INITIAL_CONNECTIVITY_TIMEOUT = 1.seconds
+private val DEFAULT_CONNECTIVITY_DEBOUNCE = 300.milliseconds
 
 internal fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> = callbackFlow {
     val callback =
@@ -188,7 +191,7 @@ fun ConnectivityManager.hasInternetConnectivity(): Flow<Boolean> =
         // Also if our initial state was "online", but it just got turned off we might not see
         // any updates for this network even though we already were registered for updated, and
         // thus we can't drop initial value accumulator value.
-        .debounceFirst(1.seconds, otherTimeout = 300.milliseconds)
+        .debounceFirst(INITIAL_CONNECTIVITY_TIMEOUT, DEFAULT_CONNECTIVITY_DEBOUNCE)
         .onStart {
             // We should not use this as initial state in scan, because it may contain networks
             // that won't be included in `networkEvents` updates.
