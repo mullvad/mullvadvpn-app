@@ -1,9 +1,9 @@
 import React, { forwardRef } from 'react';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 import { Colors, Radius, Spacings } from '../../foundations';
-import { buttonReset } from '../../styles';
 import { Flex } from '../flex';
+import { ButtonBase } from './ButtonBase';
 import { ButtonProvider } from './ButtonContext';
 import { ButtonIcon, ButtonText, StyledIcon, StyledText } from './components';
 
@@ -12,49 +12,65 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   size?: 'auto' | 'full' | '1/2';
 }
 
-const variants = {
-  primary: {
-    background: Colors.blue,
-    hover: Colors.blue60,
-    disabled: Colors.blue50,
+const styles = {
+  radius: Radius.radius4,
+  variants: {
+    primary: {
+      background: Colors.blue,
+      hover: Colors.blue60,
+      disabled: Colors.blue50,
+    },
+    success: {
+      background: Colors.green,
+      hover: Colors.green90,
+      disabled: Colors.green40,
+    },
+    destructive: {
+      background: Colors.red,
+      hover: Colors.red80,
+      disabled: Colors.red60,
+    },
   },
-  success: {
-    background: Colors.green,
-    hover: Colors.green90,
-    disabled: Colors.green40,
+  sizes: {
+    auto: 'auto',
+    full: '100%',
+    '1/2': '50%',
   },
-  destructive: {
-    background: Colors.red,
-    hover: Colors.red80,
-    disabled: Colors.red60,
-  },
-} as const;
-
-const sizes = {
-  auto: 'auto',
-  full: '100%',
-  '1/2': '50%',
 };
 
-const StyledButton = styled.button({
-  ...buttonReset,
+const StyledButton = styled(ButtonBase)<ButtonProps>`
+  ${({ size: sizeProp = 'full', variant: variantProp = 'primary' }) => {
+    const variant = styles.variants[variantProp];
+    const size = styles.sizes[sizeProp];
 
-  minHeight: '32px',
-  borderRadius: Radius.radius4,
-  minWidth: '60px',
-  width: 'var(--size)',
-  background: 'var(--background)',
-  '&:not(:disabled):hover': {
-    background: 'var(--hover)',
-  },
-  '&:disabled': {
-    background: 'var(--disabled)',
-  },
-  '&:focus-visible': {
-    outline: `2px solid ${Colors.white}`,
-    outlineOffset: '2px',
-  },
-});
+    return css`
+      --background: ${variant.background};
+      --hover: ${variant.hover};
+      --disabled: ${variant.disabled};
+      --radius: ${styles.radius};
+      --size: ${size};
+
+      min-height: 32px;
+      min-width: 60px;
+      border-radius: var(--radius);
+      width: var(--size);
+      background: var(--background);
+
+      &:not(:disabled):hover {
+        background: var(--hover);
+      }
+
+      &:disabled {
+        background: var(--disabled);
+      }
+
+      &:focus-visible {
+        outline: 2px solid ${Colors.white};
+        outline-offset: 2px;
+      }
+    `;
+  }}
+`;
 
 const StyledFlex = styled(Flex)`
   justify-content: space-between;
@@ -86,23 +102,10 @@ const StyledFlex = styled(Flex)`
 `;
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ variant = 'primary', size = 'full', children, disabled = false, style, ...props }, ref) => {
-    const styles = variants[variant];
+  ({ children, disabled = false, style, ...props }, ref) => {
     return (
       <ButtonProvider disabled={disabled}>
-        <StyledButton
-          ref={ref}
-          style={
-            {
-              '--background': styles.background,
-              '--hover': styles.hover,
-              '--disabled': styles.disabled,
-              '--size': sizes[size],
-              ...style,
-            } as React.CSSProperties
-          }
-          disabled={disabled}
-          {...props}>
+        <StyledButton ref={ref} disabled={disabled} {...props}>
           <StyledFlex
             $flex={1}
             $gap={Spacings.spacing3}
