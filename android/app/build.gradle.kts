@@ -431,6 +431,7 @@ dependencies {
     androidTestImplementation(libs.koin.test)
     androidTestImplementation(libs.kotlin.test)
     androidTestImplementation(libs.mockk.android)
+    androidTestImplementation(libs.turbine)
     androidTestImplementation(Dependencies.junitJupiterApi)
     androidTestImplementation(Dependencies.junit5AndroidTestCompose)
 }

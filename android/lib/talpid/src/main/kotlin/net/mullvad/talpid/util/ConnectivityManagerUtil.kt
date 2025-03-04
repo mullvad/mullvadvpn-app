@@ -6,11 +6,18 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import android.net.NetworkRequest
+import co.touchlab.kermit.Logger
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.channels.trySendBlocking
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.scan
+import net.mullvad.mullvadvpn.lib.common.util.debounceFirst
 
 internal fun ConnectivityManager.defaultNetworkEvents(): Flow<NetworkEvent> = callbackFlow {
     val callback =
@@ -150,3 +157,55 @@ internal data class RawNetworkState(
     val blockedStatus: Boolean = false,
     val maxMsToLive: Int? = null,
 )
+
+private val nonVPNInternetNetworksRequest =
+    NetworkRequest.Builder()
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+        .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
+        .build()
+
+/**
+ * Return a flow notifying us if we have internet connectivity. Initial state will be taken from
+ * `allNetworks` and then updated when network events occur. Important to note that `allNetworks`
+ * may return a network that we never get updates from if turned off at the moment of the initial
+ * query.
+ */
+fun ConnectivityManager.hasInternetConnectivity(): Flow<Boolean> =
+    networkEvents(nonVPNInternetNetworksRequest)
+        .filter { it is NetworkEvent.Lost || it is NetworkEvent.Available }
+        .scan(emptySet<Network>()) { networks, event ->
+            when (event) {
+                is NetworkEvent.Lost -> networks - event.network
+                is NetworkEvent.Available -> networks + event.network
+                else -> networks // Should never happen
+            }.also { Logger.d("Networks: $it") }
+        }
+        // NetworkEvents are slow, can several 100 millis to arrive. If we are online, we don't
+        // want to emit a false offline with the initial accumulator, so we wait a bit before
+        // emitting, and rely on `networksWithInternetConnectivity`.
+        //
+        // Also if our initial state was "online", but it just got turned off we might not see
+        // any updates for this network even though we already were registered for updated, and
+        // thus we can't drop initial value accumulator value.
+        .debounceFirst(1.seconds)
+        .onStart {
+            // We should not use this as initial state in scan, because it may contain networks
+            // that won't be included in `networkEvents` updates.
+            emit(networksWithInternetConnectivity().also { Logger.d("Networks (Initial): $it") })
+        }
+        .map { it.isNotEmpty() }
+        .distinctUntilChanged()
+
+@Suppress("DEPRECATION")
+fun ConnectivityManager.networksWithInternetConnectivity(): Set<Network> =
+    // Currently the use of `allNetworks` (which is deprecated in favor of listening to network
+    // events) is our only option because network events does not give us the initial state fast
+    // enough.
+    allNetworks
+        .filter {
+            val capabilities = getNetworkCapabilities(it) ?: return@filter false
+
+            capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
+                capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN)
+        }
+        .toSet()
