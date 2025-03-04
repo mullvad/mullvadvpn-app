@@ -147,7 +147,7 @@ fn bytes_from_hex<const SIZE: usize>(key: &str) -> anyhow::Result<[u8; SIZE]> {
     let bytes = hex::decode(key).context("invalid hex")?;
     if bytes.len() != SIZE {
         bail!(
-            "hex-encoded string of {SIZE} bytes, found {} bytes",
+            "expected hex-encoded string of {SIZE} bytes, found {} bytes",
             bytes.len()
         );
     }
