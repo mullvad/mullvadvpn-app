@@ -562,9 +562,8 @@ impl RelaySelector {
     }
 
     /// Returns a random relay and relay endpoint matching the current constraints corresponding to
-    /// `retry_attempt` in [`WIREGUARD_RETRY_ORDER`] while considering [runtime_params][`RuntimeParameters`].
-    ///
-    /// [`WIREGUARD_RETRY_ORDER`]: crate::WIREGUARD_RETRY_ORDER
+    /// `retry_attempt` in one of the retry orders while considering
+    /// [runtime_params][`RuntimeParameters`].
     pub fn get_relay(
         &self,
         retry_attempt: usize,
