@@ -247,6 +247,6 @@ impl AppDelegateQueue<AppWindow> for Queue {
         };
         let context_ptr = Box::into_raw(Box::new(context));
         // SAFETY: This is safe since `callback` is Send
-        unsafe { PostMessageW(hwnd as _, QUEUE_MESSAGE, 0, context_ptr as isize) };
+        unsafe { PostMessageW(hwnd as isize, QUEUE_MESSAGE, 0, context_ptr as isize) };
     }
 }
