@@ -378,7 +378,6 @@
     <string name="voucher_already_used">El código del cupón ya se ha usado.</string>
     <string name="voucher_is_account_number">Parece que ha introducido un número de cuenta en lugar de un código de cupón. Si desea cambiar la cuenta activa, cierre primero la sesión.</string>
     <string name="voucher_success_title">El cupón se canjeó correctamente.</string>
-    <string name="vpn_permission_denied_error">Se denegó el permiso para usar una conexión VPN al crear el túnel. Intente volver a establecer la conexión.</string>
     <string name="vpn_permission_error_notification_message">Pulse conectar para solicitar el permiso de VPN</string>
     <string name="vpn_permission_error_notification_title">Error en la autorización de la VPN</string>
     <string name="we_will_look_into_this">Revisaremos esto.</string>

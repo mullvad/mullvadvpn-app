@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Этот код ваучера уже использовался.</string>
     <string name="voucher_is_account_number">Вы ввели номер учетной записи вместо кода ваучера. Чтобы изменить активную учетную запись, сначала выйдите из системы.</string>
     <string name="voucher_success_title">Ваучер погашен.</string>
-    <string name="vpn_permission_denied_error">При создании туннеля в доступе к VPN было отказано. Попробуйте подключиться снова.</string>
     <string name="vpn_permission_error_notification_message">Чтобы запросить разрешение для VPN, нажмите «Подключить»</string>
     <string name="vpn_permission_error_notification_title">Ошибка разрешения для VPN</string>
     <string name="we_will_look_into_this">Мы рассмотрим эту проблему.</string>

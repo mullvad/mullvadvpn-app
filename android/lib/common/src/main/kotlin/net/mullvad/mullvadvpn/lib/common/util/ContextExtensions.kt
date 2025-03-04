@@ -20,14 +20,16 @@ fun createAccountUri(accountUri: String, websiteAuthToken: WebsiteAuthToken?): U
 }
 
 // NOTE: This function will return the current Always-on VPN package's name. In case of either
-// Always-on VPN being disabled or not being able to read the state, NULL will be returned.
-fun Context.resolveAlwaysOnVpnPackageName(): String? {
-    return try {
+// Always-on VPN being disabled or not being able to read the state, null will be returned.
+//
+// Caveat: For Android 11+ it will always return null unless the app is a test build (e.g running
+// from Android Studio).
+fun Context.resolveAlwaysOnVpnPackageName(): String? =
+    try {
         Settings.Secure.getString(contentResolver, ALWAYS_ON_VPN_APP)
     } catch (ex: SecurityException) {
         null
     }
-}
 
 fun Context.openVpnSettings() {
     val intent = Intent("android.settings.VPN_SETTINGS")

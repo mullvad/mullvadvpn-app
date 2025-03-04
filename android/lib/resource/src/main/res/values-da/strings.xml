@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Kuponkode er allerede brugt.</string>
     <string name="voucher_is_account_number">Det ser ud til, at du har indtastet et kontonummer i stedet for en rabatkuponkode. Hvis du vil ændre den aktive konto, skal du først logge ud.</string>
     <string name="voucher_success_title">Indløsning af kuponen lykkedes.</string>
-    <string name="vpn_permission_denied_error">VPN-tilladelse blev nægtet, da tunnelen blev oprettet. Prøv at oprette forbindelse igen.</string>
     <string name="vpn_permission_error_notification_message">Tryk på Opret forbindelse for at anmode om VPN-tilladelse</string>
     <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>

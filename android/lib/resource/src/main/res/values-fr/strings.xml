@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Le code du bon a déjà été utilisé.</string>
     <string name="voucher_is_account_number">Vous semblez avoir saisi un numéro de compte plutôt qu\'un code de bon. Si vous souhaitez modifier le compte actif, veuillez d\'abord vous déconnecter.</string>
     <string name="voucher_success_title">Le bon a bien été échangé.</string>
-    <string name="vpn_permission_denied_error">La permission VPN a été refusée lors de la création du tunnel. Veuillez essayer de vous reconnecter.</string>
     <string name="vpn_permission_error_notification_message">Veuillez appuyer sur connexion pour demander l\'autorisation VPN</string>
     <string name="vpn_permission_error_notification_title">Erreur de permission VPN</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>

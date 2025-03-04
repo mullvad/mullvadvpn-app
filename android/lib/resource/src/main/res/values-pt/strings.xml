@@ -378,7 +378,6 @@
     <string name="voucher_already_used">O código do voucher já foi utilizado.</string>
     <string name="voucher_is_account_number">Parece que introduziu um número de conta em vez de um código de voucher. Se pretender alterar a conta ativa, termine a sessão primeiro.</string>
     <string name="voucher_success_title">O voucher foi reclamado com sucesso.</string>
-    <string name="vpn_permission_denied_error">A transmissão foi negada durante a criação do túnel. Tente fazer novamente a ligação.</string>
     <string name="vpn_permission_error_notification_message">Prima \"ligar\" para solicitar a permissão de VPN</string>
     <string name="vpn_permission_error_notification_title">Erro de permissão da VPN</string>
     <string name="we_will_look_into_this">Vamos analisar esta situação.</string>

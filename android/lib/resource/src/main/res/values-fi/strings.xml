@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Kuponkikoodi on jo käytetty.</string>
     <string name="voucher_is_account_number">Näytät syöttäneen tilin numeron etusetelin koodin sijaan. Jos haluat vaihtaa tiliä, kirjaudu ensin ulos nykyiseltä tililtä.</string>
     <string name="voucher_success_title">Kupongin lunastus onnistui.</string>
-    <string name="vpn_permission_denied_error">VPN-lupa evättiin tunnelia luotaessa. Yritä muodostaa yhteys uudelleen.</string>
     <string name="vpn_permission_error_notification_message">Pyydä VPN:n käyttölupa yhteydenluontipainiketta painamalla</string>
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>

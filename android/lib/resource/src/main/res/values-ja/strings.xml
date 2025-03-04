@@ -378,7 +378,6 @@
     <string name="voucher_already_used">バウチャーコードはすでに使用されています。</string>
     <string name="voucher_is_account_number">バウチャーコードではなくアカウント番号を入力したようです。有効なアカウントを変更する場合は、先にログアウトしてください。</string>
     <string name="voucher_success_title">バウチャーを正常に使用しました。</string>
-    <string name="vpn_permission_denied_error">トンネルを作成中にVPNへのアクセスが拒否されました。もう一度接続してみてください。</string>
     <string name="vpn_permission_error_notification_message">[接続] を押してVPNへのアクセス許可をリクエストしてください</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>

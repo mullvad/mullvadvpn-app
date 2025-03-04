@@ -378,7 +378,6 @@
     <string name="voucher_already_used">이미 사용된 바우처 코드입니다.</string>
     <string name="voucher_is_account_number">바우처 코드 대신 계정 번호를 입력한 것 같습니다. 활성 계정을 변경하려면 먼저 로그아웃하세요.</string>
     <string name="voucher_success_title">바우처가 성공적으로 사용되었습니다.</string>
-    <string name="vpn_permission_denied_error">터널을 만드는 동안 VPN 사용 권한이 거부되었습니다. 다시 연결해 보세요.</string>
     <string name="vpn_permission_error_notification_message">VPN 권한을 요청하려면 연결을 누르세요</string>
     <string name="vpn_permission_error_notification_title">VPN 권한 오류</string>
     <string name="we_will_look_into_this">조사해보겠습니다.</string>

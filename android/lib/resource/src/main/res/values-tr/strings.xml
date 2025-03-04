@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Kupon kodu zaten kullanılmış.</string>
     <string name="voucher_is_account_number">Kupon kodu yerine hesap numarası girdiniz. Aktif hesabı değiştirmek istiyorsanız lütfen önce çıkış yapın.</string>
     <string name="voucher_success_title">Kupon başarıyla kullanıldı.</string>
-    <string name="vpn_permission_denied_error">Tünel oluşturulurken VPN izni reddedildi. Lütfen tekrar bağlanmayı deneyin.</string>
     <string name="vpn_permission_error_notification_message">VPN izni istemek için lütfen bağlantıya dokunun</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>

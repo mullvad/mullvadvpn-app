@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Kupongkoden er allerede brukt.</string>
     <string name="voucher_is_account_number">Det ser ut til at du har oppgitt et kontonummer i stedet for en kupongkode. Hvis du vil endre den aktive kontoen, må du først logge ut.</string>
     <string name="voucher_success_title">Kupongkoden er løst inn.</string>
-    <string name="vpn_permission_denied_error">VPN-tillatelse ble avvist under opprettelsen av tunnelen. Prøv å koble til igjen.</string>
     <string name="vpn_permission_error_notification_message">Trykk på koble til for å be om VPN-tillatelse</string>
     <string name="vpn_permission_error_notification_title">Feil med VPN-tillatelse</string>
     <string name="we_will_look_into_this">Dette skal vi følge opp.</string>

@@ -160,6 +160,8 @@ class ConnectViewModel(
             if (hasVpnPermission) {
                 connectionProxy.connect()
             } else {
+                // Either the user denied the permission or another always-on-vpn is active (if
+                // Android 11+ and run from Android Studio)
                 _uiSideEffect.send(UiSideEffect.ConnectError.PermissionDenied)
             }
         }

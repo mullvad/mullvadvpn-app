@@ -378,7 +378,6 @@
     <string name="voucher_already_used">该优惠券码已被使用。</string>
     <string name="voucher_is_account_number">您输入的似乎是帐号，而不是代金券码。如果您想更改有效帐户，请先退出登录。</string>
     <string name="voucher_success_title">优惠券已成功兑换。</string>
-    <string name="vpn_permission_denied_error">创建隧道时，VPN 权限被拒绝。请尝试重新连接。</string>
     <string name="vpn_permission_error_notification_message">请按“连接”以请求 VPN 权限</string>
     <string name="vpn_permission_error_notification_title">VPN 权限错误</string>
     <string name="we_will_look_into_this">我们将对此进行调查。</string>
