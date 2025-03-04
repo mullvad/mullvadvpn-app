@@ -214,7 +214,6 @@ impl AppWindow {
             .build(&mut self.stable_message_frame)?;
 
         nwg::Font::builder()
-            // TODO: Ensure font always exists
             .family("Segoe Fluent Icons")
             .size(10)
             .build(&mut self.arrow_font)?;
