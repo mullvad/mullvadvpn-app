@@ -22,6 +22,9 @@ const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemo
 /// Pinned root certificate used when fetching version metadata
 const PINNED_CERTIFICATE: &[u8] = include_bytes!("../../mullvad-api/le_root_cert.pem");
 
+/// Base URL for pulling metadata. Actual JSON files should be stored at `<base url>/<platform>.json`
+const META_REPOSITORY_URL: &str = "https://api.stagemole.eu/app/releases/";
+
 /// Actions handled by an async worker task in [ActionMessageHandler].
 enum TaskMessage {
     SetVersionInfo(VersionInfo),
@@ -72,7 +75,7 @@ fn get_metadata_url() -> String {
     } else {
         panic!("Unsupported platform")
     };
-    format!("https://releases.stagemole.eu/desktop/metadata/{PLATFORM}.json")
+    format!("{META_REPOSITORY_URL}/{PLATFORM}.json")
 }
 
 impl AppController {
