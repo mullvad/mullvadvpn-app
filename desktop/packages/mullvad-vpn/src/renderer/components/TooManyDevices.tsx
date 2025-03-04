@@ -136,12 +136,16 @@ export default function TooManyDevices() {
                     variant="success"
                     onClick={continueLogin}
                     disabled={continueButtonDisabled}>
-                    {
-                      // TRANSLATORS: Button for continuing login process.
-                      messages.pgettext('device-management', 'Continue with login')
-                    }
+                    <Button.Text>
+                      {
+                        // TRANSLATORS: Button for continuing login process.
+                        messages.pgettext('device-management', 'Continue with login')
+                      }
+                    </Button.Text>
                   </Button>
-                  <Button onClick={cancel}>{messages.gettext('Back')}</Button>
+                  <Button onClick={cancel}>
+                    <Button.Text>{messages.gettext('Back')}</Button.Text>
+                  </Button>
                 </AppButton.ButtonGroup>
               </Footer>
             )}

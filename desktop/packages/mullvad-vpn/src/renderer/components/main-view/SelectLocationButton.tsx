@@ -42,17 +42,17 @@ function SelectLocationButton(props: ButtonProps) {
 
   return (
     <Button
-      variant="primary"
-      size="full"
       onClick={onSelectLocation}
       aria-label={sprintf(
         messages.pgettext('accessibility', 'Select location. Current location is %(location)s'),
         { location: selectedRelayName },
       )}
       {...props}>
-      {tunnelState === 'disconnected'
-        ? selectedRelayName
-        : messages.pgettext('tunnel-control', 'Switch location')}
+      <Button.Text>
+        {tunnelState === 'disconnected'
+          ? selectedRelayName
+          : messages.pgettext('tunnel-control', 'Switch location')}
+      </Button.Text>
     </Button>
   );
 }

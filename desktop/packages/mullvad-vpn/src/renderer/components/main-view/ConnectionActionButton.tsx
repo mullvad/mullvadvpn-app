@@ -30,7 +30,7 @@ function ConnectButton(props: Partial<Parameters<typeof Button>[0]>) {
 
   return (
     <Button variant="success" onClick={onConnect} {...props}>
-      {messages.pgettext('tunnel-control', 'Connect')}
+      <Button.Text>{messages.pgettext('tunnel-control', 'Connect')}</Button.Text>
     </Button>
   );
 }
@@ -52,7 +52,9 @@ function DisconnectButton() {
 
   return (
     <Button variant="destructive" onClick={onDisconnect}>
-      {displayAsCancel ? messages.gettext('Cancel') : messages.gettext('Disconnect')}
+      <Button.Text>
+        {displayAsCancel ? messages.gettext('Cancel') : messages.gettext('Disconnect')}
+      </Button.Text>
     </Button>
   );
 }

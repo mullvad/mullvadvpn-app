@@ -374,11 +374,8 @@ class Login extends React.Component<IProps, IState> {
         <LabelTiny color={Colors.white60}>
           {messages.pgettext('login-view', 'Don’t have an account number?')}
         </LabelTiny>
-        <Button
-          size="full"
-          onClick={this.props.createNewAccount}
-          disabled={!this.allowCreateAccount()}>
-          {messages.pgettext('login-view', 'Create account')}
+        <Button onClick={this.props.createNewAccount} disabled={!this.allowCreateAccount()}>
+          <Button.Text>{messages.pgettext('login-view', 'Create account')}</Button.Text>
         </Button>
       </Flex>
     );
