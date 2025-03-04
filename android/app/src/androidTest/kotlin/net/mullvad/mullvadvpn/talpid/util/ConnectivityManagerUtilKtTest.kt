@@ -170,6 +170,32 @@ class ConnectivityManagerUtilKtTest {
         }
     }
 
+    /** User slow roaming from WiFi to Cellular. */
+    @Test
+    fun slowRoamingFromWifiToCellular() = runTest {
+        val wifiNetwork = mockk<Network>()
+        val cellularNetwork = mockk<Network>()
+
+        every { connectivityManager.networksWithInternetConnectivity() } returns setOf(wifiNetwork)
+        every { connectivityManager.networkEvents(any()) } returns
+                callbackFlow {
+                    send(NetworkEvent.Available(wifiNetwork))
+                    delay(5.seconds)
+                    send(NetworkEvent.Lost(wifiNetwork))
+                    // We will have no network for a little time until cellular chip is on.
+                    delay(500.milliseconds)
+                    send(NetworkEvent.Available(cellularNetwork))
+                    awaitClose {}
+                }
+
+        connectivityManager.hasInternetConnectivity().test {
+            assertEquals(true, awaitItem())
+            assertEquals(false, awaitItem())
+            assertEquals(true, awaitItem())
+            expectNoEvents()
+        }
+    }
+
     companion object {
         private const val CONNECTIVITY_MANAGER_UTIL_CLASS =
             "net.mullvad.talpid.util.ConnectivityManagerUtilKt"
