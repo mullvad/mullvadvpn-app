@@ -4,6 +4,7 @@ import android.net.ConnectivityManager
 import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
+import co.touchlab.kermit.Logger
 import java.net.DatagramSocket
 import java.net.Inet4Address
 import java.net.Inet6Address
@@ -88,12 +89,19 @@ class ConnectivityListener(
     }
 
     private fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
-        activeNetwork?.let { initialNetwork: Network ->
-            RawNetworkState(
-                network = initialNetwork,
-                linkProperties = getLinkProperties(initialNetwork),
-                networkCapabilities = getNetworkCapabilities(initialNetwork),
+        try {
+            activeNetwork?.let { initialNetwork: Network ->
+                RawNetworkState(
+                    network = initialNetwork,
+                    linkProperties = getLinkProperties(initialNetwork),
+                    networkCapabilities = getNetworkCapabilities(initialNetwork),
+                )
+            }
+        } catch (_: RuntimeException) {
+            Logger.e(
+                "Unable to get active network or properties and capabilities of the active network"
             )
+            null
         }
 
     private fun RawNetworkState?.toConnectivity(): Connectivity.Status =
@@ -115,8 +123,6 @@ class ConnectivityListener(
                     this?.linkProperties?.routes?.any { it.destination.address is Inet6Address } ==
                         true,
             )
-            // If we have internet, but both IPv4 and IPv6 are not available, we
-            // assume something is wrong and instead will return presume online.
         }
 
     /**
