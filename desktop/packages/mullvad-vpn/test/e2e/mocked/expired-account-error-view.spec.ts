@@ -38,12 +38,9 @@ test('App should show out of time view after running out of time', async () => {
   const expiryDate = new Date();
   expiryDate.setSeconds(expiryDate.getSeconds() + 2);
 
-  expect(
-    await util.waitForNavigation(async () => {
-      await util.sendMockIpcResponse<IAccountData>({
-        channel: 'account-',
-        response: { expiry: expiryDate.toISOString() },
-      });
-    }),
-  ).toEqual(RoutePath.expired);
+  await util.sendMockIpcResponse<IAccountData>({
+    channel: 'account-',
+    response: { expiry: expiryDate.toISOString() },
+  });
+  await util.waitForRoute(RoutePath.expired);
 });
