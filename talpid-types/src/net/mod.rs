@@ -152,19 +152,14 @@ impl From<openvpn::TunnelParameters> for TunnelParameters {
 }
 
 /// The tunnel protocol used by a [`TunnelEndpoint`].
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename = "tunnel_type")]
 pub enum TunnelType {
     #[serde(rename = "openvpn")]
     OpenVpn,
     #[serde(rename = "wireguard")]
+    #[default]
     Wireguard,
-}
-
-impl Default for TunnelType {
-    fn default() -> Self {
-        Self::Wireguard
-    }
 }
 
 impl fmt::Display for TunnelType {
