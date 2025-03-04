@@ -199,7 +199,7 @@ pub const fn filter_tunnel_type(filter: &TunnelType, relay: &Relay) -> bool {
 
 /// Returns whether the relay matches the tunnel constraint `filter`
 #[cfg(target_os = "android")]
-pub const fn filter_tunnel_type(_: &Constraint<TunnelType>, relay: &Relay) -> bool {
+pub const fn filter_tunnel_type(_: &TunnelType, relay: &Relay) -> bool {
     // Only keep Wireguard relays on Android (i.e. filter out OpenVPN relays)
     filter_wireguard(relay)
 }

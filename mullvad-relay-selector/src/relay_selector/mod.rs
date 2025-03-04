@@ -703,7 +703,7 @@ impl RelaySelector {
         // to unwanted behavior. This should be seen as a workaround, and it would be nicer
         // to lift this invariant to be checked by the type system instead.
         let mut query = query.clone();
-        query.set_tunnel_protocol(Constraint::Only(TunnelType::Wireguard))?;
+        query.set_tunnel_protocol(TunnelType::Wireguard)?;
         Self::get_wireguard_relay_inner(&query, custom_lists, parsed_relays)
     }
 
