@@ -105,19 +105,18 @@ impl ErrorView {
             .position((34, 49))
             .build(&mut self.error_icon)?;
 
-        // TODO: put buttons 24px below bottom edge of text label
-        let text_bottom_y = 96; // TODO
-        let button_top_y = text_bottom_y + 24;
+        let button_y =
+            self.error_text.position().1 + i32::try_from(self.error_text.size().1).unwrap() + 11;
 
         nwg::Button::builder()
             .parent(&self.error_frame)
-            .position((304, button_top_y))
+            .position((304, button_y))
             .size((232, 32))
             .build(&mut self.error_cancel_button)?;
 
         nwg::Button::builder()
             .parent(&self.error_frame)
-            .position((64, button_top_y))
+            .position((64, button_y))
             .size((232, 32))
             .build(&mut self.error_retry_button)?;
 
