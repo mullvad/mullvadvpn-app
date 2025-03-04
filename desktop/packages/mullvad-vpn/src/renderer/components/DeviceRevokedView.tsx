@@ -55,7 +55,7 @@ export function DeviceRevokedView() {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <Flex $justifyContent="center" $margin={{ bottom: Spacings.spacing5 }}>
+            <Flex $justifyContent="center" $margin={{ bottom: Spacings.medium }}>
               <IconBadge state="negative" />
             </Flex>
             <StyledTitle data-testid="title">

@@ -9,17 +9,9 @@ export const spacingPrimitives = {
 } as const;
 
 export enum Spacings {
-  spacing1 = 'var(--spc-4)',
-  spacing2 = 'var(--spc-6)',
-  spacing3 = 'var(--spc-8)',
-  spacing4 = 'var(--spc-12)',
-  spacing5 = 'var(--spc-16)',
-  spacing6 = 'var(--spc-24)',
-  spacing7 = 'var(--spc-32)',
-  spacing8 = 'var(--spc-40)',
-  spacing9 = 'var(--spc-48)',
-  spacing10 = 'var(--spc-56)',
-  spacing11 = 'var(--spc-64)',
-  spacing12 = 'var(--spc-72)',
-  spacing13 = 'var(--spc-80)',
+  tiny = 'var(--spc-4)',
+  small = 'var(--spc-8)',
+  medium = 'var(--spc-16)',
+  large = 'var(--spc-24)',
+  big = 'var(--spc-32)',
 }

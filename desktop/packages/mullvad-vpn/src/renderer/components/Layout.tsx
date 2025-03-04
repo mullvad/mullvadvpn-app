@@ -40,7 +40,7 @@ export const Footer = styled.div({
   display: 'flex',
   flexDirection: 'column',
   flex: 0,
-  padding: `${Spacings.spacing6} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
+  padding: `${Spacings.large} ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
   [`${SettingsContent} &&`]: {
     paddingBottom: 0,
   },
@@ -48,7 +48,7 @@ export const Footer = styled.div({
 
 export const SettingsStack = styled(Flex).attrs({
   $flexDirection: 'column',
-  $gap: Spacings.spacing5,
+  $gap: Spacings.medium,
 })({});
 
 export const SettingsGroup = styled(Flex).attrs({
@@ -58,10 +58,10 @@ export const SettingsGroup = styled(Flex).attrs({
 
 export const ButtonStack = styled(Flex).attrs({
   $flexDirection: 'column',
-  $gap: Spacings.spacing5,
+  $gap: Spacings.medium,
 })({
   [`${Footer} &&`]: {
-    margin: `0 ${Spacings.spacing3}`,
+    margin: `0 ${Spacings.small}`,
   },
 });
 
@@ -69,5 +69,5 @@ export const LabelStack = styled(Flex).attrs({
   $flexGrow: 1,
   $flexDirection: 'row',
   $alignItems: 'center',
-  $gap: Spacings.spacing3,
+  $gap: Spacings.small,
 })({});

@@ -207,7 +207,7 @@ const StyledStatusTitle = styled.div(normalText, {
   fontWeight: 'bold',
   lineHeight: '20px',
   color: Colors.white,
-  gap: Spacings.spacing1,
+  gap: Spacings.tiny,
 });
 
 const StyledStatusSubTitle = styled.div(tinyText, {

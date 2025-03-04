@@ -122,7 +122,7 @@ function WelcomeView() {
         </StyledAccountNumberContainer>
       </StyledAccountNumberMessage>
 
-      <Flex $alignItems="center" $gap={Spacings.spacing1} $margin={{ bottom: Spacings.spacing5 }}>
+      <Flex $alignItems="center" $gap={Spacings.tiny} $margin={{ bottom: Spacings.medium }}>
         <StyledDeviceLabel>
           {sprintf(
             // TRANSLATORS: A label that will display the newly created device name to inform the user
@@ -156,7 +156,7 @@ function Content() {
 
   return (
     <>
-      <Flex $justifyContent="center" $margin={{ bottom: Spacings.spacing5 }}>
+      <Flex $justifyContent="center" $margin={{ bottom: Spacings.medium }}>
         <IconBadge state="negative" />
       </Flex>
       <StyledTitle data-testid="title">

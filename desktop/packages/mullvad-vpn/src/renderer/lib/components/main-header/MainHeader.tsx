@@ -38,9 +38,9 @@ const MainHeader = ({ size = '1', variant = 'default', children, ...props }: Hea
         $flexDirection="column"
         $justifyContent="center"
         $margin={{
-          horizontal: Spacings.spacing5,
-          top: Spacings.spacing5,
-          bottom: Spacings.spacing3,
+          horizontal: Spacings.medium,
+          top: Spacings.medium,
+          bottom: Spacings.small,
         }}>
         {children}
       </Flex>

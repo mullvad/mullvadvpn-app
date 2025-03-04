@@ -108,10 +108,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         <StyledButton ref={ref} disabled={disabled} {...props}>
           <StyledFlex
             $flex={1}
-            $gap={Spacings.spacing3}
+            $gap={Spacings.small}
             $alignItems="center"
             $padding={{
-              horizontal: Spacings.spacing3,
+              horizontal: Spacings.small,
             }}>
             {children}
           </StyledFlex>

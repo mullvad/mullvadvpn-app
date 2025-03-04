@@ -31,7 +31,7 @@ import { NavigationScrollbars } from './NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from './SettingsHeader';
 
 const StyledInfoButton = styled(InfoButton)({
-  marginRight: Spacings.spacing5,
+  marginRight: Spacings.medium,
 });
 
 const StyledTitleLabel = styled(Cell.SectionTitle)({
@@ -44,11 +44,11 @@ const StyledSectionItem = styled(Cell.Container)({
 
 const LanIpRanges = styled.ul({
   listStyle: 'disc outside',
-  marginLeft: Spacings.spacing6,
+  marginLeft: Spacings.large,
 });
 
 const IndentedValueLabel = styled(Cell.ValueLabel)({
-  marginLeft: Spacings.spacing5,
+  marginLeft: Spacings.medium,
 });
 
 export default function VpnSettings() {

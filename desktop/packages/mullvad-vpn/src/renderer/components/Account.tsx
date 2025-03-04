@@ -118,7 +118,7 @@ export default function Account() {
 function DeviceNameRow() {
   const deviceName = useSelector((state) => state.account.deviceName);
   return (
-    <Flex $gap={Spacings.spacing3} $alignItems="center">
+    <Flex $gap={Spacings.small} $alignItems="center">
       <DeviceRowValue>{deviceName}</DeviceRowValue>
       <DeviceInfoButton />
     </Flex>

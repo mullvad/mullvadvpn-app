@@ -312,7 +312,7 @@ class Login extends React.Component<IProps, IState> {
       this.props.loginState.method === 'existing_account';
 
     return (
-      <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+      <Flex $flexDirection="column" $gap={Spacings.small}>
         <Label htmlFor={inputId} data-testid="subtitle">
           {this.formSubtitle()}
         </Label>
@@ -370,7 +370,7 @@ class Login extends React.Component<IProps, IState> {
 
   private createFooter() {
     return (
-      <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+      <Flex $flexDirection="column" $gap={Spacings.small}>
         <LabelTiny color={Colors.white60}>
           {messages.pgettext('login-view', 'Don’t have an account number?')}
         </LabelTiny>

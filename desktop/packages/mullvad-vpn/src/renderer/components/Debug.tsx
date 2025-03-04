@@ -21,7 +21,7 @@ const StyledContent = styled.div({
 });
 
 const StyledButtonGroup = styled.div({
-  margin: `${Spacings.spacing6} ${measurements.horizontalViewMargin}`,
+  margin: `${Spacings.large} ${measurements.horizontalViewMargin}`,
 });
 
 export default function Debug() {

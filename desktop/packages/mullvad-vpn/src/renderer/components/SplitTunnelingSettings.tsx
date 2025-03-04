@@ -183,7 +183,7 @@ function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps
           </StyledNoResult>
         )}
 
-      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+      <Flex $flexDirection="column" $gap={Spacings.medium}>
         {filteredApplications !== undefined && filteredApplications.length > 0 && (
           <ApplicationList applications={filteredApplications} rowRenderer={rowRenderer} />
         )}
@@ -486,7 +486,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         )}
       </SettingsHeader>
       {loadingDiskPermissions && (
-        <Flex $justifyContent="center" $margin={{ top: Spacings.spacing6 }}>
+        <Flex $justifyContent="center" $margin={{ top: Spacings.large }}>
           <Spinner size="big" />
         </Flex>
       )}
@@ -508,10 +508,10 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
 
       <Flex
         $flexDirection="column"
-        $gap={Spacings.spacing5}
+        $gap={Spacings.medium}
         $margin={{ bottom: measurements.verticalViewMargin }}>
         {(showSplitSection || showNonSplitSection) && (
-          <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+          <Flex $flexDirection="column" $gap={Spacings.medium}>
             <Accordion expanded={showSplitSection}>
               <Cell.Section sectionTitle={excludedTitle}>
                 <ApplicationList
@@ -561,15 +561,15 @@ function MacOsSplitTunnelingAvailability({
   if (!needFullDiskPermissions) return null;
 
   return (
-    <Flex $flexDirection="column" $gap={Spacings.spacing6}>
+    <Flex $flexDirection="column" $gap={Spacings.large}>
       <HeaderSubTitle>
         {messages.pgettext(
           'split-tunneling-view',
           'To use split tunneling please enable “Full disk access” for “Mullvad VPN” in the macOS system settings.',
         )}
       </HeaderSubTitle>
-      <Flex $flexDirection="column" $gap={Spacings.spacing3}>
-        <Flex $flexDirection="column" $gap={Spacings.spacing7}>
+      <Flex $flexDirection="column" $gap={Spacings.small}>
+        <Flex $flexDirection="column" $gap={Spacings.big}>
           <WideSmallButton onClick={showFullDiskAccessSettings}>
             {messages.pgettext('split-tunneling-view', 'Open System Settings')}
           </WideSmallButton>
@@ -653,7 +653,7 @@ function ApplicationRow(props: IApplicationRowProps) {
         <StyledIconPlaceholder />
       )}
       <StyledCellLabel>{props.application.name}</StyledCellLabel>
-      <Flex $gap={Spacings.spacing3}>
+      <Flex $gap={Spacings.small}>
         {props.onDelete && (
           <IconButton variant="secondary" onClick={onDelete}>
             <IconButton.Icon icon="cross-circle" />

@@ -23,11 +23,10 @@ function SettingsHeader(props: SettingsHeaderProps, forwardRef: React.Ref<HTMLDi
     <Flex
       ref={forwardRef}
       $flexDirection="column"
-      $gap={Spacings.spacing3}
+      $gap={Spacings.small}
       $margin={{
-        top: Spacings.spacing3,
-        horizontal: Spacings.spacing5,
-        bottom: Spacings.spacing4,
+        horizontal: Spacings.medium,
+        bottom: Spacings.small,
       }}
       className={props.className}>
       {props.children}
