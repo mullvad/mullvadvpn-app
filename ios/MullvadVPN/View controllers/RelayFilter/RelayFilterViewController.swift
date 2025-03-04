@@ -81,10 +81,10 @@ class RelayFilterViewController: UIViewController {
 
         tableView.backgroundColor = view.backgroundColor
         tableView.separatorColor = view.backgroundColor
-        tableView.rowHeight = UITableView.automaticDimension
-        tableView.estimatedRowHeight = 60
-        tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
+        tableView.rowHeight = 60
+        tableView.sectionHeaderHeight = 60
         tableView.allowsMultipleSelection = true
+        tableView.allowsSelection = true
 
         view.addSubview(tableView)
         buttonContainerView.addArrangedSubview(descriptionLabel)
@@ -110,10 +110,10 @@ class RelayFilterViewController: UIViewController {
             .sink { [weak self] filter in
                 guard let self else { return }
                 let filterDescriptor = viewModel.getFilteredRelays(filter)
+                descriptionLabel.isEnabled = filterDescriptor.isEnabled
                 applyButton.isEnabled = filterDescriptor.isEnabled
                 applyButton.setTitle(filterDescriptor.title, for: .normal)
                 descriptionLabel.text = filterDescriptor.description
-                descriptionLabel.isEnabled = filterDescriptor.isEnabled
             }
             .store(in: &disposeBag)
         dataSource = RelayFilterDataSource(tableView: tableView, viewModel: viewModel)
