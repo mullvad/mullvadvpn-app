@@ -57,7 +57,7 @@ impl SignedResponse {
         // Reject data if the version counter is below `min_metadata_version`
         if signed_response.metadata_version < min_metadata_version {
             anyhow::bail!(
-                "Version metadata has is too old: {}, must be at least {}",
+                "Version metadata is too old: {}, must be at least {}",
                 signed_response.metadata_version,
                 min_metadata_version,
             );
