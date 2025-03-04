@@ -8,7 +8,7 @@ import {
   fontWeights,
   lineHeights,
   radius,
-  spacings,
+  spacingPrimitives,
 } from '../../foundations/variables';
 
 type VariablesProps = React.PropsWithChildren<object>;
@@ -17,7 +17,7 @@ const VariablesGlobalStyle = createGlobalStyle`
   :root {
     ${Object.entries({
       ...colors,
-      ...spacings,
+      ...spacingPrimitives,
       ...radius,
       ...fontFamilies,
       ...fontSizes,
