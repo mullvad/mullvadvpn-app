@@ -100,7 +100,7 @@ function build_executable {
     # Old bash versions complain about empty array expansion when -u is set
     set +u
 
-    RUSTFLAGS="-C codegen-units=1 -C panic=abort -C strip=symbols -C opt-level=z" \
+    RUSTFLAGS="-C codegen-units=1 -C panic=abort -C strip=symbols -C opt-level=z -Ctarget-feature=+crt-static" \
         cargo build --bin installer-downloader --release "${target_args[@]}"
 
     set -u
