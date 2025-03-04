@@ -386,8 +386,8 @@ fn handle_banner_label_colors(
         if msg == WM_CTLCOLORSTATIC {
             // SAFETY: `w` is a valid device context for WM_CTLCOLORSTATIC
             unsafe {
-                SetTextColor(w as _, rgb([255, 255, 255]));
-                SetBkColor(w as _, rgb(BACKGROUND_COLOR));
+                SetTextColor(w as isize, rgb([255, 255, 255]));
+                SetBkColor(w as isize, rgb(BACKGROUND_COLOR));
             }
         }
         None
@@ -405,11 +405,11 @@ fn handle_link_messages(
         if msg == WM_CTLCOLORSTATIC && Some(p) == link_hwnd {
             // SAFETY: `w` is a valid device context for WM_CTLCOLORSTATIC
             unsafe {
-                SetBkMode(w as _, TRANSPARENT as _);
-                SetTextColor(w as _, rgb(LINK_COLOR));
+                SetBkMode(w as isize, TRANSPARENT as _);
+                SetTextColor(w as isize, rgb(LINK_COLOR));
             }
             // Out of bounds background
-            return Some(COLOR_WINDOW as _);
+            return Some(COLOR_WINDOW as isize);
         }
 
         None
