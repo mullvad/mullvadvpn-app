@@ -97,12 +97,13 @@ impl TryFrom<proto::RelaySettings> for mullvad_types::relay_constraints::RelaySe
                     .unwrap_or(Constraint::Any);
                 let providers = try_providers_constraint_from_proto(&settings.providers)?;
                 let ownership = try_ownership_constraint_from_i32(settings.ownership)?;
-                let tunnel_protocol = Constraint::from(
-                    settings
-                        .tunnel_type
-                        .map(try_tunnel_type_from_i32)
-                        .transpose()?,
-                );
+                let tunnel_protocol = settings
+                    .tunnel_type
+                    .map(try_tunnel_type_from_i32)
+                    .transpose()?
+                    .ok_or(FromProtobufTypeError::InvalidArgument(
+                        "missing tunnel protocol",
+                    ))?;
                 let openvpn_constraints =
                     mullvad_constraints::OpenVpnConstraints::try_from(
                         &settings.openvpn_constraints.ok_or(
@@ -244,13 +245,8 @@ impl From<mullvad_types::relay_constraints::RelaySettings> for proto::RelaySetti
                     providers: convert_providers_constraint(&constraints.providers),
                     ownership: convert_ownership_constraint(&constraints.ownership) as i32,
                     tunnel_type: match constraints.tunnel_protocol {
-                        Constraint::Any => None,
-                        Constraint::Only(talpid_net::TunnelType::Wireguard) => {
-                            Some(proto::TunnelType::Wireguard)
-                        }
-                        Constraint::Only(talpid_net::TunnelType::OpenVpn) => {
-                            Some(proto::TunnelType::Openvpn)
-                        }
+                        talpid_net::TunnelType::Wireguard => Some(proto::TunnelType::Wireguard),
+                        talpid_net::TunnelType::OpenVpn => Some(proto::TunnelType::Openvpn),
                     }
                     .map(i32::from),
 
