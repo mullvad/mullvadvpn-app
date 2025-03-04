@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 #[cfg(target_os = "android")]
 use serde_json::json;
 #[cfg(target_os = "android")]
@@ -28,6 +29,16 @@ const SPLIT_TUNNELING_APPS: &str = "split-tunnelling.txt";
 /// The file where the split-tunnelling state (enabled / disabled) is stored.
 #[cfg(target_os = "android")]
 const SPLIT_TUNNELING_STATE: &str = "split-tunnelling-enabled.txt";
+
+/// Tunnel protocol
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[serde(rename = "tunnel_type")]
+pub enum TunnelType {
+    #[serde(rename = "openvpn")]
+    OpenVpn,
+    #[serde(rename = "wireguard")]
+    Wireguard,
+}
 
 // ======================================================
 
@@ -73,10 +84,62 @@ pub fn migrate(
         }
     }
 
+    migrate_tunnel_type(settings)?;
+
     // TODO: Uncomment this when closing the migration:
     // json_blob["settings_version"] = serde_json::json!(SettingsVersion::V10);
 
     Ok(())
+}
+
+fn migrate_tunnel_type(settings: &mut serde_json::Value) -> Result<()> {
+    let Some(ref mut normal) = relay_settings(settings) else {
+        return Ok(());
+    };
+    match normal.get_mut("tunnel_protocol") {
+        // Already migrated
+        Some(serde_json::Value::String(_s)) => (),
+        // Migrate
+        Some(serde_json::Value::Object(ref mut constraint)) => {
+            if constraint.get("any").is_some() {
+                // If openvpn is selected, migrate to openvpn tunnel type
+                // Otherwise, select wireguard
+                let hostname = normal
+                    .get_mut("location")
+                    .and_then(|location| location.get_mut("only"))
+                    .and_then(|only| only.get_mut("location"))
+                    .and_then(|only| only.get_mut("hostname").cloned());
+
+                let protocol = if let Some(serde_json::Value::String(s)) = hostname {
+                    if s.split('-').any(|token| token == "ovpn") {
+                        TunnelType::OpenVpn
+                    } else {
+                        TunnelType::Wireguard
+                    }
+                } else {
+                    TunnelType::Wireguard
+                };
+
+                normal["tunnel_protocol"] = serde_json::json!(protocol);
+            } else if let Some(tunnel_type) = constraint.get("only") {
+                let tunnel_type: TunnelType = serde_json::from_value(tunnel_type.clone())
+                    .map_err(|_| Error::InvalidSettingsContent)?;
+                normal["tunnel_protocol"] = serde_json::json!(tunnel_type);
+            } else {
+                return Err(Error::InvalidSettingsContent);
+            }
+        }
+        Some(_) => {
+            return Err(Error::InvalidSettingsContent);
+        }
+        // Unexpected result. Do nothing.
+        None => (),
+    }
+    Ok(())
+}
+
+fn relay_settings(settings: &mut serde_json::Value) -> Option<&mut serde_json::Value> {
+    settings.get_mut("relay_settings")?.get_mut("normal")
 }
 
 fn version_matches(settings: &serde_json::Value) -> bool {
