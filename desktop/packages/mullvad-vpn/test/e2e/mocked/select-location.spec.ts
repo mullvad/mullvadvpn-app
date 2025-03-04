@@ -3,6 +3,7 @@ import { Page } from 'playwright';
 
 import { getDefaultSettings } from '../../../src/main/default-settings';
 import { colors } from '../../../src/renderer/lib/foundations';
+import { RoutePath } from '../../../src/renderer/lib/routes';
 import {
   IRelayList,
   IRelayListWithEndpointData,
@@ -63,7 +64,8 @@ let util: MockedTestUtils;
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
   await setMultihop();
-  await util.waitForNavigation(() => page.getByLabel('Select location').click());
+  await page.getByLabel('Select location').click();
+  await util.waitForRoute(RoutePath.selectLocation);
 });
 
 test.afterAll(async () => {
