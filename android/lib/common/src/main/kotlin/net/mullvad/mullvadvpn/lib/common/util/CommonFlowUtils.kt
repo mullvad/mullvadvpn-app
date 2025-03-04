@@ -14,13 +14,13 @@ suspend fun <T> Flow<T>.firstOrNullWithTimeout(timeMillis: Long): T? {
 }
 
 @OptIn(FlowPreview::class)
-fun <T> Flow<T>.debounceFirst(firstTimeout: Duration, otherTimeout: Duration): Flow<T> =
+fun <T> Flow<T>.debounceFirst(firstTimeout: Duration, defaultTimeout: Duration): Flow<T> =
     withIndex()
         .debounce {
             if (it.index == 0) {
                 firstTimeout
             } else {
-                otherTimeout
+                defaultTimeout
             }
         }
         .map { it.value }
