@@ -47,7 +47,7 @@ pub fn get_native_arch() -> Result<Option<Architecture>, std::io::Error> {
 /// Return native architecture.
 #[cfg(not(target_os = "windows"))]
 pub fn get_native_arch() -> Result<Option<Architecture>, std::io::Error> {
-    const TARGET_ARCH: Option<Architecture> = if cfg!(any(target_arch = "x86_64",)) {
+    const TARGET_ARCH: Option<Architecture> = if cfg!(target_arch = "x86_64") {
         Some(Architecture::X86)
     } else if cfg!(target_arch = "aarch64") {
         Some(Architecture::Arm64)
