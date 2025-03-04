@@ -46,7 +46,7 @@ pub const FETCH_VERSION_ERROR_RETRY_BUTTON_TEXT: &str = "Try again";
 /// Displayed while fetching version info from the API failed (cancel button)
 pub const FETCH_VERSION_ERROR_CANCEL_BUTTON_TEXT: &str = "Cancel";
 
-/// The first part of "Downloading from <some url>... (x%)", displayed during download
+/// The first part of "Downloading from \<some url\>... (x%)", displayed during download
 pub const DOWNLOADING_DESC_PREFIX: &str = "Downloading from";
 
 /// Displayed after completed download

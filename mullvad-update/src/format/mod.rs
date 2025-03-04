@@ -7,7 +7,7 @@
 //! `signed` also contains an `expires` field, which is a timestamp indicating when the object
 //! expires.
 //!
-//! For [deserializer] to succeed in deserializing a file, it must verify that the canonicalized
+//! For the deserializer to succeed in deserializing a file, it must verify that the canonicalized
 //! form of `signed` is in fact signed by key/signature in `signature`. It also reads the `expires`
 //! and rejects the file if it has expired.
 
