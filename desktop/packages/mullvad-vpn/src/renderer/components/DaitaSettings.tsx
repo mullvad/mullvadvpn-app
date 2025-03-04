@@ -61,6 +61,22 @@ export default function DaitaSettings() {
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
+                              // TRANSLATORS: Information to the user that with this setting enabled
+                              // TRANSLATORS: their network and device's battery life will be
+                              // TRANSLATORS: affected negatively.
+                              'wireguard-settings-view',
+                              'Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s.',
+                            ),
+                            { wireguard: strings.wireguard },
+                          )}
+                        </StyledHeaderSubTitle>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              // TRANSLATORS: Information to the user what the DAITA setting does.
+                              // TRANSLATORS: Available placeholders:
+                              // TRANSLATORS: %(daita)s - Will be replaced with DAITA
+                              // TRANSLATORS: %(daitaFull)s - Will be replaced with Defence against AI-guided Traffic Analysis
                               'wireguard-settings-view',
                               '%(daita)s (%(daitaFull)s) hides patterns in your encrypted VPN traffic.',
                             ),
@@ -69,17 +85,9 @@ export default function DaitaSettings() {
                         </StyledHeaderSubTitle>
                         <StyledHeaderSubTitle>
                           {messages.pgettext(
+                            // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
                             'wireguard-settings-view',
                             'By using sophisticated AI it’s possible to analyze the traffic of data packets going in and out of your device (even if the traffic is encrypted).',
-                          )}
-                        </StyledHeaderSubTitle>
-                        <StyledHeaderSubTitle>
-                          {sprintf(
-                            messages.pgettext(
-                              'wireguard-settings-view',
-                              'If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.',
-                            ),
-                            { daita: strings.daita },
                           )}
                         </StyledHeaderSubTitle>
                       </Flex>
@@ -92,6 +100,19 @@ export default function DaitaSettings() {
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
+                              // TRANSLATORS: Information to the user on the background why the DAITA setting exists.
+                              'wireguard-settings-view',
+                              'If an observer monitors these data packets, %(daita)s makes it significantly harder for them to identify which websites you are visiting or with whom you are communicating.',
+                            ),
+                            { daita: strings.daita },
+                          )}
+                        </StyledHeaderSubTitle>
+                        <StyledHeaderSubTitle>
+                          {sprintf(
+                            messages.pgettext(
+                              // TRANSLATORS: Information to the user what the DAITA setting does.
+                              // TRANSLATORS: Available placeholders:
+                              // TRANSLATORS: %(daita)s - Will be replaced with DAITA
                               'wireguard-settings-view',
                               '%(daita)s does this by carefully adding network noise and making all network packets the same size.',
                             ),
@@ -101,19 +122,16 @@ export default function DaitaSettings() {
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
+                              // TRANSLATORS: Information to the user that DAITA is not available
+                              // TRANSLATORS: on all servers, however in the background the multihop
+                              // TRANSLATORS: feature is used automatically which enables the use
+                              // TRANSLATORS: of DAITA with any server.
+                              // TRANSLATORS: Available placeholders:
+                              // TRANSLATORS: %(daita)s - Will be replaced with DAITA
                               'wireguard-settings-view',
                               'Not all our servers are %(daita)s-enabled. Therefore, we use multihop automatically to enable %(daita)s with any server.',
                             ),
                             { daita: strings.daita },
-                          )}
-                        </StyledHeaderSubTitle>
-                        <StyledHeaderSubTitle>
-                          {sprintf(
-                            messages.pgettext(
-                              'wireguard-settings-view',
-                              'Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s.',
-                            ),
-                            { wireguard: strings.wireguard },
                           )}
                         </StyledHeaderSubTitle>
                       </Flex>
