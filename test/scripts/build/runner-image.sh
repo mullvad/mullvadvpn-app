@@ -23,8 +23,8 @@ echo "************************************************************"
 echo "* Preparing test runner image: $TARGET"
 echo "************************************************************"
 
-mkdir -p "${TEST_FRAMEWORK_REPO}/testrunner-images"
-TEST_RUNNER_IMAGE_PATH="${TEST_FRAMEWORK_REPO}/testrunner-images/${TEST_RUNNER_IMAGE_FILENAME}"
+mkdir -p "${TEST_FRAMEWORK_ROOT}/testrunner-images"
+TEST_RUNNER_IMAGE_PATH="${TEST_FRAMEWORK_ROOT}/testrunner-images/${TEST_RUNNER_IMAGE_FILENAME}"
 
 case $TARGET in
 
