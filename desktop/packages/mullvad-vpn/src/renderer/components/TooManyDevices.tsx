@@ -9,7 +9,7 @@ import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { Button, Flex, IconButton, Spinner } from '../lib/components';
 import { Colors, Spacings } from '../lib/foundations';
-import { transitions, useHistory } from '../lib/history';
+import { TransitionType, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge, IconBadgeProps } from '../lib/icon-badge';
 import { RoutePath } from '../lib/routes';
@@ -93,11 +93,11 @@ export default function TooManyDevices() {
 
   const continueLogin = useCallback(() => {
     void login(accountNumber);
-    reset(RoutePath.login, { transition: transitions.pop });
+    reset(RoutePath.login, { transition: TransitionType.pop });
   }, [reset, login, accountNumber]);
   const cancel = useCallback(() => {
     cancelLogin();
-    reset(RoutePath.login, { transition: transitions.pop });
+    reset(RoutePath.login, { transition: TransitionType.pop });
   }, [reset, cancelLogin]);
 
   const imageSource = getIconSource(devices);
