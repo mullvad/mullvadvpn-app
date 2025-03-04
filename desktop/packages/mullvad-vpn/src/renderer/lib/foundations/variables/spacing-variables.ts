@@ -1,6 +1,6 @@
 import { SpacingTokens } from '../tokens';
 
-export const spacings = {
+export const spacingPrimitives = {
   '--spc-4': SpacingTokens.spc4,
   '--spc-6': SpacingTokens.spc6,
   '--spc-8': SpacingTokens.spc8,
