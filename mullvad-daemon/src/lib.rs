@@ -2465,8 +2465,6 @@ impl Daemon {
 
     #[cfg(daita)]
     async fn on_set_daita_enabled(&mut self, tx: ResponseTx<(), settings::Error>, value: bool) {
-        use mullvad_types::{constraints::Constraint, Intersection};
-
         let result = self
             .settings
             .update(|settings| {
@@ -2481,10 +2479,7 @@ impl Daemon {
                     return; // DAITA is not supported for custom relays
                 };
 
-                let wireguard_enabled = constraints
-                    .tunnel_protocol
-                    .intersection(Constraint::Only(TunnelType::Wireguard))
-                    .is_some();
+                let wireguard_enabled = constraints.tunnel_protocol == TunnelType::Wireguard;
 
                 if settings_changed && wireguard_enabled {
                     log::info!("Reconnecting because DAITA settings changed");
@@ -2504,8 +2499,6 @@ impl Daemon {
         tx: ResponseTx<(), settings::Error>,
         value: bool,
     ) {
-        use mullvad_types::{constraints::Constraint, Intersection};
-
         match self
             .settings
             .update(|settings| {
@@ -2524,10 +2517,7 @@ impl Daemon {
                     return; // DAITA is not supported for custom relays
                 };
 
-                let wireguard_enabled = constraints
-                    .tunnel_protocol
-                    .intersection(Constraint::Only(TunnelType::Wireguard))
-                    .is_some();
+                let wireguard_enabled = constraints.tunnel_protocol == TunnelType::Wireguard;
 
                 let daita_enabled = self.settings.tunnel_options.wireguard.daita.enabled;
 

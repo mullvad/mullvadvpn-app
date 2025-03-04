@@ -161,6 +161,12 @@ pub enum TunnelType {
     Wireguard,
 }
 
+impl Default for TunnelType {
+    fn default() -> Self {
+        Self::Wireguard
+    }
+}
+
 impl fmt::Display for TunnelType {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         let tunnel = match self {
