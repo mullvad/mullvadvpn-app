@@ -51,7 +51,6 @@ async fn sign(file: String, secret: key::SecretKey) -> anyhow::Result<()> {
     };
 
     // Deserialize version data
-    // TODO: Make sure this never ignores missing fields
     let response: format::Response =
         serde_json::from_slice(&data).context("Failed to deserialize version metadata")?;
 
