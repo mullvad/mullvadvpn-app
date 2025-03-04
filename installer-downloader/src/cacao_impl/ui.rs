@@ -45,7 +45,7 @@ static BANNER_COLOR: LazyLock<Color> = LazyLock::new(|| {
         // SAFETY: This function returns a pointer to a refcounted NSColor instance, and panics if
         //         a null pointer is passed.
         // See https://developer.apple.com/documentation/appkit/nscolor/init(red:green:blue:alpha:)?language=objc
-        unsafe { Id::from_ptr(msg_send![class!(NSColor), colorWithRed:r green:g blue:b alpha:a]) };
+        unsafe { Id::from_retained_ptr(msg_send![class!(NSColor), colorWithRed:r green:g blue:b alpha:a]) };
     Color::Custom(Arc::new(RwLock::new(id)))
 });
 
