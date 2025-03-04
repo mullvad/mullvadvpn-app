@@ -43,9 +43,7 @@ jobs:
         run: rm rust-toolchain.toml
 
       - name: Install unicop
-        run: |
-          cargo install --locked unicop
-          unicop --version
+        run: cargo install --locked unicop
 
       - name: Check for unwanted unicode
         run: unicop --verbose .
