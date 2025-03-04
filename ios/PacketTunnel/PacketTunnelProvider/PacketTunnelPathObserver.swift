@@ -13,18 +13,16 @@ import Network
 import NetworkExtension
 import PacketTunnelCore
 
-final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
+final class PacketTunnelPathObserver: DefaultPathObserverProtocol, @unchecked Sendable {
     private let eventQueue: DispatchQueue
     private let pathMonitor: NWPathMonitor
     nonisolated(unsafe) let logger = Logger(label: "PacketTunnelPathObserver")
-    private let stateLock = NSLock()
 
-    nonisolated(unsafe) private var started = false
+    private var gatewayConnection: NWConnection?
+    private var started = false
 
     public var currentPathStatus: Network.NWPath.Status {
-        stateLock.withLock {
-            pathMonitor.currentPath.status
-        }
+        pathMonitor.currentPath.status
     }
 
     init(eventQueue: DispatchQueue) {
@@ -34,23 +32,43 @@ final class PacketTunnelPathObserver: DefaultPathObserverProtocol, Sendable {
     }
 
     func start(_ body: @escaping @Sendable (Network.NWPath.Status) -> Void) {
-        stateLock.withLock {
-            guard started == false else { return }
-            defer { started = true }
-            pathMonitor.pathUpdateHandler = { updatedPath in
-                body(updatedPath.status)
+        guard started == false else { return }
+        defer { started = true }
+        pathMonitor.pathUpdateHandler = { updatedPath in
+            #if DEBUG
+            var unsatisfiedReason = "<No value>"
+            if updatedPath.status == .unsatisfied {
+                unsatisfiedReason += updatedPath.unsatisfiedReasonDescription
             }
+            var interfaceDebug = ""
+            updatedPath.availableInterfaces.forEach { interfaceDebug += """
+                        \($0.customDebugDescription)
 
-            pathMonitor.start(queue: eventQueue)
+            """ }
+            let message = """
+            Path available interfaces: \(interfaceDebug)
+            Path status: \(updatedPath.status) Unsatisfied reason: \(unsatisfiedReason) Supports IPv4: \(
+                updatedPath
+                    .supportsIPv4
+            )
+            Supports IPv6: \(updatedPath.supportsIPv6) Supports DNS: \(updatedPath.supportsDNS) Is Constrained: \(
+                updatedPath
+                    .isConstrained
+            )
+            Is expensive: \(updatedPath.isExpensive) Gateways: \(updatedPath.gateways.map { $0.customDebugDescription })
+            """
+            self.logger.debug("\(message)")
+            #endif
+            body(updatedPath.status)
         }
+
+        pathMonitor.start(queue: eventQueue)
     }
 
     func stop() {
-        stateLock.withLock {
-            guard started == true else { return }
-            defer { started = false }
-            pathMonitor.pathUpdateHandler = nil
-            pathMonitor.cancel()
-        }
+        guard started == true else { return }
+        defer { started = false }
+        pathMonitor.pathUpdateHandler = nil
+        pathMonitor.cancel()
     }
 }
