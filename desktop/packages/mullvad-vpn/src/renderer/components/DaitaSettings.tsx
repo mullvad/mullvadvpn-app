@@ -255,14 +255,19 @@ function DirectOnlyModalMessage() {
 }
 
 function featureUnavailableMessage() {
-  const automatic = messages.gettext('Automatic');
   const tunnelProtocol = messages.pgettext('vpn-settings-view', 'Tunnel protocol');
 
   return sprintf(
     messages.pgettext(
+      // TRANSLATORS: Informs the user that the the feature is only available when WireGuard
+      // TRANSLATORS: is selected.
+      // TRANSLATORS: Available placeholders:
+      // TRANSLATORS: %(wireguard)s - will be replaced with WireGuard
+      // TRANSLATORS: %(tunnelProtocol)s - the name of the tunnel protocol setting
+      // TRANSLATORS: %(setting)s - the name of the setting
       'wireguard-settings-view',
-      'Switch to “%(wireguard)s” or “%(automatic)s” in Settings > %(tunnelProtocol)s to make %(setting)s available.',
+      'Switch to “%(wireguard)s” in Settings > %(tunnelProtocol)s to make %(setting)s available.',
     ),
-    { wireguard: strings.wireguard, automatic, tunnelProtocol, setting: strings.daita },
+    { wireguard: strings.wireguard, tunnelProtocol, setting: strings.daita },
   );
 }
