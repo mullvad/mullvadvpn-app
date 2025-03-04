@@ -182,6 +182,7 @@ impl AppWindow {
 }
 
 /// This simply mutates the UI on the main thread
+#[derive(Clone)]
 pub struct Queue {}
 
 impl AppDelegateQueue<AppWindow> for Queue {
