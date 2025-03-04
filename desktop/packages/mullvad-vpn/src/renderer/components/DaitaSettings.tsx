@@ -33,7 +33,7 @@ export const StyledIllustration = styled.img({
 });
 
 const StyledInfoButton = styled(InfoButton)({
-  marginRight: Spacings.spacing5,
+  marginRight: Spacings.medium,
 });
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
@@ -57,7 +57,7 @@ export default function DaitaSettings() {
                       <StyledIllustration
                         src={`${PATH_PREFIX}assets/images/daita-off-illustration.svg`}
                       />
-                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+                      <Flex $flexDirection="column" $gap={Spacings.medium}>
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
@@ -88,7 +88,7 @@ export default function DaitaSettings() {
                       <StyledIllustration
                         src={`${PATH_PREFIX}assets/images/daita-on-illustration.svg`}
                       />
-                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+                      <Flex $flexDirection="column" $gap={Spacings.medium}>
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(

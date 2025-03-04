@@ -32,17 +32,17 @@ export const ChangelogView = () => {
             <AppNavigationHeader title={messages.pgettext('changelog-view', 'What’s new')} />
 
             <NavigationScrollbars>
-              <Flex $flexDirection="column" $gap={Spacings.spacing6}>
+              <Flex $flexDirection="column" $gap={Spacings.large}>
                 <Container size="4">
                   <TitleBig as={'h1'}>{messages.pgettext('changelog-view', 'What’s new')}</TitleBig>
                 </Container>
-                <Flex $flexDirection="column" $gap={Spacings.spacing3}>
+                <Flex $flexDirection="column" $gap={Spacings.small}>
                   <Container size="4">
                     <TitleLarge as="h2">{version}</TitleLarge>
                   </Container>
                   <Container size="3" $flexDirection="column">
                     {changelog.length ? (
-                      <StyledList as="ul" $flexDirection="column" $gap={Spacings.spacing5}>
+                      <StyledList as="ul" $flexDirection="column" $gap={Spacings.medium}>
                         {changelog.map((item, i) => (
                           <BodySmall as="li" key={i} color={Colors.white60}>
                             {item}

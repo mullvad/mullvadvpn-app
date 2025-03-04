@@ -57,11 +57,11 @@ const FilterChip = forwardRef<HTMLButtonElement, FilterChipProps>(
           {...props}>
           <Flex
             $flex={1}
-            $gap={Spacings.spacing1}
+            $gap={Spacings.tiny}
             $alignItems="center"
             $justifyContent="space-between"
             $padding={{
-              horizontal: Spacings.spacing3,
+              horizontal: Spacings.small,
             }}>
             {children}
           </Flex>

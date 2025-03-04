@@ -117,7 +117,7 @@ export default function TooManyDevices() {
             <StyledBody>
               <Flex
                 $justifyContent="center"
-                $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+                $margin={{ top: Spacings.large, bottom: Spacings.medium }}>
                 <IconBadge key={imageSource} state={imageSource} />
               </Flex>
               {devices !== undefined && (

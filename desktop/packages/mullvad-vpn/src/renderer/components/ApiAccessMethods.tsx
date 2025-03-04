@@ -41,7 +41,7 @@ const StyledTestResultCircle = styled.div<{ $result: boolean }>((props) => ({
   height: '10px',
   borderRadius: '50%',
   backgroundColor: props.$result ? Colors.green : Colors.red,
-  marginRight: Spacings.spacing2,
+  marginRight: Spacings.small,
 }));
 
 // This component is the topmost component in the API access methods view.
@@ -100,7 +100,7 @@ export default function ApiAccessMethods() {
                   </HeaderSubTitle>
                 </SettingsHeader>
 
-                <Flex $flexDirection="column" $gap={Spacings.spacing6}>
+                <Flex $flexDirection="column" $gap={Spacings.large}>
                   <Cell.Group $noMarginBottom>
                     <ApiAccessMethod
                       method={methods.direct}
@@ -226,7 +226,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
         <StyledNameLabel>{props.method.name}</StyledNameLabel>
         {testing && (
           <Cell.SubLabel>
-            <Flex $gap={Spacings.spacing1} $alignItems="center">
+            <Flex $gap={Spacings.tiny} $alignItems="center">
               <Spinner size="small" />
               {messages.pgettext('api-access-methods-view', 'Testing...')}
             </Flex>
@@ -244,7 +244,7 @@ function ApiAccessMethod(props: ApiAccessMethodProps) {
           <Cell.SubLabel>{messages.pgettext('api-access-methods-view', 'In use')}</Cell.SubLabel>
         )}
       </Cell.LabelContainer>
-      <Flex $gap={Spacings.spacing3} $alignItems="center">
+      <Flex $gap={Spacings.small} $alignItems="center">
         {props.method.type === 'direct' && (
           <InfoButton
             message={[

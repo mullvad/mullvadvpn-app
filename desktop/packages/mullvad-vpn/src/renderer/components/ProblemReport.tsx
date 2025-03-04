@@ -234,9 +234,7 @@ function Sent() {
   return (
     <StyledContent>
       <StyledForm>
-        <Flex
-          $justifyContent="center"
-          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+        <Flex $justifyContent="center" $margin={{ top: Spacings.large, bottom: Spacings.medium }}>
           <IconBadge state="positive" />
         </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
@@ -261,9 +259,7 @@ function Failed() {
   return (
     <StyledContent>
       <StyledForm>
-        <Flex
-          $justifyContent="center"
-          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+        <Flex $justifyContent="center" $margin={{ top: Spacings.large, bottom: Spacings.medium }}>
           <IconBadge state="negative" />
         </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>

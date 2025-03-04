@@ -16,7 +16,7 @@ const StyledTitleLabel = styled(Cell.SectionTitle)({
 });
 
 const StyledInfoButton = styled(InfoButton)({
-  marginRight: Spacings.spacing5,
+  marginRight: Spacings.medium,
 });
 
 export interface SelectorItem<T> {

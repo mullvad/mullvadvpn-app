@@ -5,7 +5,7 @@ import { Spacings } from '../../lib/foundations';
 import { Row } from './Row';
 
 const StyledContainer = styled(Row)({
-  padding: `0 ${Spacings.spacing5}`,
+  padding: `0 ${Spacings.medium}`,
 });
 
 export const CellDisabledContext = React.createContext<boolean>(false);

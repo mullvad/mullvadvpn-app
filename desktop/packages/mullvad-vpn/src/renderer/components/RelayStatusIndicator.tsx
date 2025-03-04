@@ -19,7 +19,7 @@ const StyledRelayStatus = styled.div<{ $active: boolean }>(indicatorStyles, (pro
 
 const TickIcon = styled(Cell.CellIcon)({
   marginLeft: '3px',
-  marginRight: Spacings.spacing3,
+  marginRight: Spacings.small,
 });
 
 interface IProps {

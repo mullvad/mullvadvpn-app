@@ -39,7 +39,7 @@ const AppMainHeader = ({
         <FocusFallback>
           {logoVariant !== 'none' ? <Logo variant={logoVariant} /> : <div />}
         </FocusFallback>
-        <Flex $gap={Spacings.spacing5} $alignItems="center">
+        <Flex $gap={Spacings.medium} $alignItems="center">
           {children}
         </Flex>
       </Flex>

@@ -39,7 +39,7 @@ const baseButtonStyles = {
 
 export const StyledAccountDropdownItemButton = styled.button({
   ...baseButtonStyles,
-  paddingLeft: Spacings.spacing5,
+  paddingLeft: Spacings.medium,
 });
 
 export const StyledAccountDropdownItemIconButton = styled.button({

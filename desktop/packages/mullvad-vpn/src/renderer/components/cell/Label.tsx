@@ -30,7 +30,7 @@ const StyledSubText = styled.span<{ disabled: boolean }>(tinyText, (props) => ({
   color: props.disabled ? Colors.white20 : Colors.white60,
   flex: -1,
   textAlign: 'right',
-  margin: `0 ${Spacings.spacing3}`,
+  margin: `0 ${Spacings.small}`,
 }));
 
 const StyledImage = styled(Image)<ImageProps & { disabled?: boolean }>(({ disabled }) => ({

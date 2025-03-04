@@ -64,9 +64,9 @@ export const hugeText = {
 };
 
 export const measurements = {
-  rowMinHeight: Spacings.spacing9,
-  horizontalViewMargin: Spacings.spacing5,
-  verticalViewMargin: Spacings.spacing6,
-  rowVerticalMargin: Spacings.spacing6,
-  buttonVerticalMargin: Spacings.spacing5,
+  rowMinHeight: '48px',
+  horizontalViewMargin: Spacings.medium,
+  verticalViewMargin: Spacings.large,
+  rowVerticalMargin: Spacings.large,
+  buttonVerticalMargin: Spacings.medium,
 };

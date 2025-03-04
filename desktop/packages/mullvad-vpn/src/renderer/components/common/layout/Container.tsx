@@ -10,8 +10,8 @@ export interface ContainerProps extends FlexProps {
 }
 
 const sizes: Record<'3' | '4', string> = {
-  '3': `calc(100% - ${Spacings.spacing6} * 2)`,
-  '4': `calc(100% - ${Spacings.spacing5} * 2)`,
+  '3': `calc(100% - ${Spacings.large} * 2)`,
+  '4': `calc(100% - ${Spacings.medium} * 2)`,
 };
 
 const StyledFlex = styled(Flex)<{ $size: string }>((props) => ({
