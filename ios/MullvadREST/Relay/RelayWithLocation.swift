@@ -10,7 +10,7 @@ import Foundation
 import MullvadTypes
 
 public struct RelayWithLocation<T: AnyRelay> {
-    let relay: T
+    public let relay: T
     public let serverLocation: Location
 
     public func matches(location: RelayLocation) -> Bool {
