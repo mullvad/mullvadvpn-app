@@ -29,6 +29,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Removed
 - Stop bundling https://github.com/mullvad/apisocks5 as a standalone binary.
+- Remove "Any" option for tunnel protocol. The default is now WireGuard.
 
 ### Fixed
 #### macOS
