@@ -86,6 +86,28 @@ async fn test_download() {
     assert_yaml_snapshot!(delegate.state);
 }
 
+/// Test that the flow of retrying the version fetch after a failure
+#[tokio::test(start_paused = true)]
+async fn test_failed_fetch_version() {
+    let mut delegate = FakeAppDelegate::default();
+    AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
+        &mut delegate,
+        FakeVersionInfoProvider {
+            fail_fetching: true,
+        },
+        FAKE_ENVIRONMENT,
+    );
+
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    // Run UI updates to display the fetched version
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
+    // The fetch version failure screen with a retry and cancel button should be displayed
+    assert_yaml_snapshot!(delegate.state);
+}
+
 /// Test that the install aborts if verification fails
 #[tokio::test(start_paused = true)]
 async fn test_failed_verification() {
