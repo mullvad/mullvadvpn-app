@@ -83,4 +83,8 @@ extension WelcomeViewController: @preconcurrency WelcomeContentViewDelegate {
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton) {
         delegate?.didRequestToViewPurchaseOptions(accountNumber: interactor.accountNumber)
     }
+
+    func didTapCopyButton(welcomeContentView: WelcomeContentView, button: UIButton) {
+        UIPasteboard.general.string = interactor.accountNumber
+    }
 }
