@@ -23,7 +23,7 @@ jobs:
         run: git submodule update --init --depth=1 wireguard-go-rs
 
       - name: Run cargo deny
-        uses: EmbarkStudios/cargo-deny-action@v1
+        uses: EmbarkStudios/cargo-deny-action@v2
         with:
           log-level: warn
           rust-version: stable
