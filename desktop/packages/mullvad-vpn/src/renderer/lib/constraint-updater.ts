@@ -48,9 +48,10 @@ export function wrapRelaySettingsOrDefault(
     };
   }
 
+  // TODO: We should use a `defaultSettings` object or something when assigning these fallback values
   return {
     location: 'any',
-    tunnelProtocol: 'any',
+    tunnelProtocol: 'wireguard',
     providers: [],
     ownership: Ownership.any,
     openvpnConstraints: {

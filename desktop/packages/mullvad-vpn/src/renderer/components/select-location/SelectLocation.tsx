@@ -66,7 +66,7 @@ export default function SelectLocation() {
     daita,
     directOnly,
     locationType,
-    relaySettings?.tunnelProtocol ?? 'any',
+    relaySettings?.tunnelProtocol,
     relaySettings?.wireguard.useMultihop ?? false,
   );
 
@@ -75,7 +75,7 @@ export default function SelectLocation() {
   const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
 
-  const tunnelProtocol = relaySettings?.tunnelProtocol ?? 'any';
+  const tunnelProtocol = relaySettings?.tunnelProtocol;
   const bridgeState = useSelector((state) => state.settings.bridgeState);
   const allowEntrySelection =
     (tunnelProtocol === 'openvpn' && bridgeState === 'on') ||
