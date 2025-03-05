@@ -79,7 +79,7 @@ pub struct RelayQuery {
     location: Constraint<LocationConstraint>,
     providers: Constraint<Providers>,
     ownership: Constraint<Ownership>,
-    tunnel_protocol: Constraint<TunnelType>,
+    tunnel_protocol: TunnelType,
     wireguard_constraints: WireguardRelayQuery,
     openvpn_constraints: OpenVpnRelayQuery,
 }
@@ -90,7 +90,7 @@ impl RelayQuery {
         location: Constraint<LocationConstraint>,
         providers: Constraint<Providers>,
         ownership: Constraint<Ownership>,
-        tunnel_protocol: Constraint<TunnelType>,
+        tunnel_protocol: TunnelType,
         wireguard_constraints: WireguardRelayQuery,
         openvpn_constraints: OpenVpnRelayQuery,
     ) -> Result<RelayQuery, Error> {
@@ -108,11 +108,11 @@ impl RelayQuery {
 
     fn validate(&mut self) -> Result<(), Error> {
         if self.core_privacy_feature_enabled() {
-            if self.tunnel_protocol == Constraint::Only(TunnelType::OpenVpn) {
+            if self.tunnel_protocol == TunnelType::OpenVpn {
                 log::error!("Cannot use OpenVPN with a core privacy feature enabled (DAITA = {}, PQ = {}, or multihop = {})", self.wireguard_constraints.daita, self.wireguard_constraints.quantum_resistant, self.wireguard_constraints.multihop());
                 return Err(Error::InvalidConstraints);
             }
-            self.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
+            self.tunnel_protocol = TunnelType::Wireguard;
         }
         Ok(())
     }
@@ -139,14 +139,11 @@ impl RelayQuery {
         self.ownership
     }
 
-    pub fn tunnel_protocol(&self) -> Constraint<TunnelType> {
+    pub fn tunnel_protocol(&self) -> TunnelType {
         self.tunnel_protocol
     }
 
-    pub fn set_tunnel_protocol(
-        &mut self,
-        tunnel_protocol: Constraint<TunnelType>,
-    ) -> Result<(), Error> {
+    pub fn set_tunnel_protocol(&mut self, tunnel_protocol: TunnelType) -> Result<(), Error> {
         self.set_if_valid(|query| query.tunnel_protocol = tunnel_protocol)
     }
 
@@ -245,7 +242,7 @@ impl Default for RelayQuery {
             location: Constraint::Any,
             providers: Constraint::Any,
             ownership: Constraint::Any,
-            tunnel_protocol: Constraint::Any,
+            tunnel_protocol: TunnelType::default(),
             wireguard_constraints: WireguardRelayQuery::new(),
             openvpn_constraints: OpenVpnRelayQuery::new(),
         }
@@ -593,7 +590,7 @@ pub mod builder {
                 daita: Any,
                 quantum_resistant: Any,
             };
-            self.query.tunnel_protocol = Constraint::Only(TunnelType::Wireguard);
+            self.query.tunnel_protocol = TunnelType::Wireguard;
             // Update the type state
             RelayQueryBuilder {
                 query: self.query,
@@ -607,7 +604,7 @@ pub mod builder {
                 transport_port: Any,
                 bridge_settings: Any,
             };
-            self.query.tunnel_protocol = Constraint::Only(TunnelType::OpenVpn);
+            self.query.tunnel_protocol = TunnelType::OpenVpn;
             // Update the type state
             RelayQueryBuilder {
                 query: self.query,
@@ -1066,7 +1063,7 @@ mod test {
     fn test_relay_query_daita_openvpn() {
         let mut query = RelayQueryBuilder::new().wireguard().daita().build();
         query
-            .set_tunnel_protocol(Constraint::Only(TunnelType::OpenVpn))
+            .set_tunnel_protocol(TunnelType::OpenVpn)
             .expect_err("expected query to be invalid for OpenVPN");
     }
 
@@ -1076,7 +1073,7 @@ mod test {
     fn test_relay_query_multihop_openvpn() {
         let mut query = RelayQueryBuilder::new().wireguard().multihop().build();
         query
-            .set_tunnel_protocol(Constraint::Only(TunnelType::OpenVpn))
+            .set_tunnel_protocol(TunnelType::OpenVpn)
             .expect_err("expected query to be invalid for OpenVPN");
     }
 
@@ -1089,46 +1086,7 @@ mod test {
             .quantum_resistant()
             .build();
         query
-            .set_tunnel_protocol(Constraint::Only(TunnelType::OpenVpn))
+            .set_tunnel_protocol(TunnelType::OpenVpn)
             .expect_err("expected query to be invalid for OpenVPN");
-    }
-
-    /// The tunnel protocol should be constrained to Wireguard when enabling DAITA
-    /// DAITA is a core privacy feature
-    #[test]
-    fn test_relay_query_daita_wireguard() {
-        let mut query = RelayQueryBuilder::new().wireguard().daita().build();
-        query.set_tunnel_protocol(Constraint::Any).unwrap();
-        assert_eq!(
-            query.tunnel_protocol(),
-            Constraint::Only(TunnelType::Wireguard)
-        );
-    }
-
-    /// The tunnel protocol should be constrained to Wireguard when enabling multihop
-    /// Multihop is a core privacy feature
-    #[test]
-    fn test_relay_query_multihop_wireguard() {
-        let mut query = RelayQueryBuilder::new().wireguard().multihop().build();
-        query.set_tunnel_protocol(Constraint::Any).unwrap();
-        assert_eq!(
-            query.tunnel_protocol(),
-            Constraint::Only(TunnelType::Wireguard)
-        );
-    }
-
-    /// The tunnel protocol should be constrained to Wireguard when enabling PQ
-    /// PQ is a core privacy feature
-    #[test]
-    fn test_relay_query_quantum_resistant_wireguard() {
-        let mut query = RelayQueryBuilder::new()
-            .wireguard()
-            .quantum_resistant()
-            .build();
-        query.set_tunnel_protocol(Constraint::Any).unwrap();
-        assert_eq!(
-            query.tunnel_protocol(),
-            Constraint::Only(TunnelType::Wireguard)
-        );
     }
 }
