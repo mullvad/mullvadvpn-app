@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 # Convert svg assets to png assets
+# This must be done manually
 
 from cairosvg import svg2png
 
