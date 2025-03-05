@@ -1,6 +1,1 @@
-Add feature indicators to the main view along with redesigning the connection details.
-Add option to purchase 90-day subscriptions in the app.
-Add tinted customizable app icon.
-Fix bug in DAITA settings view on iOS15.
-Move changelog to settings.
-Encrypted DNS proxy will no longer use Google's resolvers.
+Fix DAITA for multihop.
