@@ -1,5 +1,4 @@
 import {
-  LiftedConstraint,
   Ownership,
   RelayEndpointType,
   RelayLocation,
@@ -29,7 +28,7 @@ export enum EndpointType {
 export function filterLocationsByEndPointType(
   locations: IRelayLocationCountryRedux[],
   endpointType: EndpointType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  tunnelProtocol: TunnelProtocol,
   relaySettings?: NormalRelaySettingsRedux,
 ): IRelayLocationCountryRedux[] {
   return filterLocationsImpl(
@@ -43,7 +42,7 @@ export function filterLocationsByDaita(
   daita: boolean,
   directOnly: boolean,
   locationType: LocationType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  tunnelProtocol: TunnelProtocol,
   multihop: boolean,
 ): IRelayLocationCountryRedux[] {
   return daitaFilterActive(daita, directOnly, locationType, tunnelProtocol, multihop)
@@ -55,7 +54,7 @@ export function daitaFilterActive(
   daita: boolean,
   directOnly: boolean,
   locationType: LocationType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  tunnelProtocol: TunnelProtocol,
   multihop: boolean,
 ) {
   const isEntry = multihop
@@ -78,7 +77,7 @@ export function filterLocations(
 
 function getTunnelProtocolFilter(
   endpointType: EndpointType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  tunnelProtocol: TunnelProtocol,
   relaySettings?: NormalRelaySettingsRedux,
 ): (relay: IRelayLocationRelayRedux) => boolean {
   const endpointTypes: Array<RelayEndpointType> = [];

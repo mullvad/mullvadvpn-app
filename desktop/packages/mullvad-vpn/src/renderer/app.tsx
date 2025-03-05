@@ -650,7 +650,7 @@ export default class AppRenderer {
             useMultihop: wireguardConstraints.useMultihop,
             entryLocation: liftConstraint(wireguardConstraints.entryLocation),
           },
-          tunnelProtocol: liftConstraint(tunnelProtocol),
+          tunnelProtocol,
         },
       });
     } else if ('customTunnelEndpoint' in relaySettings) {
