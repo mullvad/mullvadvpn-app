@@ -63,18 +63,18 @@ pub struct Release {
     /// Installer details for different architectures
     pub installers: Vec<Installer>,
     /// Fraction of users that should receive the new version
-    #[serde(default = "default_rollout")]
-    #[serde(skip_serializing_if = "is_default_rollout")]
+    #[serde(default = "complete_rollout")]
+    #[serde(skip_serializing_if = "is_complete_rollout")]
     pub rollout: f32,
 }
 
-/// By default, rollout includes all users
-fn default_rollout() -> f32 {
+/// A full rollout includes all users
+fn complete_rollout() -> f32 {
     1.
 }
 
-fn is_default_rollout(b: impl std::borrow::Borrow<f32>) -> bool {
-    (b.borrow() - default_rollout()).abs() < f32::EPSILON
+fn is_complete_rollout(b: impl std::borrow::Borrow<f32>) -> bool {
+    (b.borrow() - complete_rollout()).abs() < f32::EPSILON
 }
 
 /// App installer
@@ -124,7 +124,7 @@ mod test {
             version: "2024.1".parse().unwrap(),
             changelog: "".to_owned(),
             installers: vec![],
-            rollout: default_rollout(),
+            rollout: complete_rollout(),
         })
         .unwrap();
 
