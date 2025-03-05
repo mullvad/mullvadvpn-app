@@ -197,7 +197,7 @@ macro_rules! button_wrapper {
         }
 
         impl $name {
-            /// Register a callback to be execued on the main thread when this button is pressed.
+            /// Register a callback to be executed on the main thread when this button is pressed.
             pub fn set_callback(&mut self, callback: impl Fn() + Send + 'static) {
                 // Wrap it in an Arc<Mutex> to make it Sync.
                 // We need this because Dispatcher demands sync, but the AppDelegate trait does not
