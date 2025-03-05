@@ -537,7 +537,9 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
         {canEditSplitTunneling && (
           <Container size="3">
             <Button onClick={addWithFilePicker}>
-              {messages.pgettext('split-tunneling-view', 'Find another app')}
+              <Button.Text>
+                {messages.pgettext('split-tunneling-view', 'Find another app')}
+              </Button.Text>
             </Button>
           </Container>
         )}
