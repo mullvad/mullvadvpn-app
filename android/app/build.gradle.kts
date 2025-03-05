@@ -77,7 +77,6 @@ android {
 
     buildTypes {
         getByName(BuildTypes.RELEASE) {
-            ndk.debugSymbolLevel = "full"
             signingConfig = signingConfigs.findByName(SigningConfigs.RELEASE)
             isMinifyEnabled = true
             isShrinkResources = true
