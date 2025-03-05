@@ -1,9 +1,8 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
-snapshot_kind: text
 ---
-status_text: Loading version details...
+status_text: ""
 download_text: ""
 download_button_visible: true
 cancel_button_visible: false
@@ -26,7 +25,6 @@ call_log:
   - hide_cancel_button
   - hide_beta_text
   - hide_stable_text
-  - "set_status_text: Loading version details..."
   - on_download
   - on_cancel
   - on_beta_link

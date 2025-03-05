@@ -38,6 +38,11 @@ async fn test_fetch_version() {
     let queue = delegate.queue.clone();
     queue.run_callbacks(&mut delegate);
 
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
     // The download button and current version should be displayed
     assert_yaml_snapshot!(delegate.state);
 }
@@ -108,6 +113,9 @@ async fn test_failed_fetch_version() {
     let queue = delegate.queue.clone();
     queue.run_callbacks(&mut delegate);
 
+    tokio::time::sleep(Duration::from_secs(1)).await;
+    queue.run_callbacks(&mut delegate);
+
     // The fetch version failure screen with a retry and cancel button should be displayed
     assert_yaml_snapshot!(delegate.state);
 
@@ -124,6 +132,8 @@ async fn test_failed_fetch_version() {
 
     // Run UI updates to display the fetched version
     let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+    tokio::time::sleep(Duration::from_secs(1)).await;
     queue.run_callbacks(&mut delegate);
 
     // The download button and current version should be displayed

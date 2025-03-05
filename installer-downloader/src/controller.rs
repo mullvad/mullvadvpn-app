@@ -110,6 +110,16 @@ impl AppController {
         tokio::spawn(async move {
             let version_info =
                 fetch_app_version_info::<D, V>(queue.clone(), version_provider, environment).await;
+            let version_label = format_latest_version(&version_info.stable);
+            let has_beta = version_info.beta.is_some();
+            queue.queue_main(move |self_| {
+                self_.set_status_text(&version_label);
+                self_.enable_download_button();
+                if has_beta {
+                    self_.show_beta_text();
+                }
+            });
+
             ActionMessageHandler::<D, A>::run::<DirProvider>(
                 queue,
                 task_tx_clone,
@@ -118,7 +128,6 @@ impl AppController {
             )
             .await;
         });
-        delegate.set_status_text(resource::FETCH_VERSION_DESC);
 
         Self::register_user_action_callbacks(delegate, task_tx);
     }
@@ -157,6 +166,11 @@ where
     VersionProvider: VersionInfoProvider + Send,
 {
     loop {
+        queue.queue_main(|self_| {
+            self_.show_download_button();
+            self_.set_status_text(resource::FETCH_VERSION_DESC);
+            self_.hide_error_message();
+        });
         let version_params = VersionParameters {
             architecture,
             // For the downloader, the rollout version is always preferred
@@ -165,17 +179,9 @@ where
             lowest_metadata_version: 0,
         };
 
+        tokio::time::sleep(std::time::Duration::from_secs(1)).await;
         let err = match version_provider.get_version_info(version_params).await {
             Ok(version_info) => {
-                let version_label = format_latest_version(&version_info.stable);
-                let has_beta = version_info.beta.is_some();
-                queue.queue_main(move |self_| {
-                    self_.set_status_text(&version_label);
-                    self_.enable_download_button();
-                    if has_beta {
-                        self_.show_beta_text();
-                    }
-                });
                 return version_info;
             }
             Err(err) => err,
@@ -216,9 +222,11 @@ where
 
         match action {
             Action::Retry => {
+                log::debug!("Retrying to fetch version info");
                 continue;
             }
             Action::Cancel => {
+                log::debug!("Cancelling fetching version info");
                 queue.queue_main(|self_| {
                     self_.quit();
                 });

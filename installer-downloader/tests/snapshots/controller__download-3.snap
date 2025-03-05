@@ -1,7 +1,6 @@
 ---
 source: installer-downloader/tests/controller.rs
 expression: delegate.state
-snapshot_kind: text
 ---
 status_text: "Version: 2025.1"
 download_text: Verification successful. Starting install...
@@ -26,11 +25,13 @@ call_log:
   - hide_cancel_button
   - hide_beta_text
   - hide_stable_text
-  - "set_status_text: Loading version details..."
   - on_download
   - on_cancel
   - on_beta_link
   - on_stable_link
+  - show_download_button
+  - "set_status_text: Loading version details..."
+  - hide_error_message
   - "set_status_text: Version: 2025.1"
   - enable_download_button
   - hide_error_message
