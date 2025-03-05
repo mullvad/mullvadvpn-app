@@ -20,6 +20,9 @@ use crate::resource::{
 
 use super::delegate::QueueContext;
 
+/// Font height
+pub const FONT_HEIGHT: u32 = 16;
+
 static BANNER_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-icon.png");
 static BANNER_TEXT_IMAGE_DATA: &[u8] = include_bytes!("../../assets/logo-text.png");
 static ERROR_IMAGE_DATA: &[u8] = include_bytes!("../../assets/alert-circle.png");
@@ -473,6 +476,8 @@ fn create_link_font() -> Result<&'static nwg::Font, nwg::NwgError> {
         // SAFETY: Trivially safe. `LOGFONTW` is a C struct
         let mut logfont: LOGFONTW = unsafe { std::mem::zeroed() };
         logfont.lfUnderline = 1;
+        logfont.lfHeight = -i32::try_from(FONT_HEIGHT).unwrap();
+
         for (dest, src) in logfont.lfFaceName.iter_mut().zip(face_name) {
             *dest = src;
         }
