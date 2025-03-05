@@ -87,7 +87,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       daita,
       directOnly,
       locationType,
-      relaySettings?.tunnelProtocol,
+      tunnelProtocol,
       relaySettings?.wireguard.useMultihop ?? false,
     );
   }, [
@@ -95,7 +95,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     directOnly,
     locationType,
     relayListForEndpointType,
-    relaySettings?.tunnelProtocol,
+    tunnelProtocol,
     relaySettings?.wireguard.useMultihop,
   ]);
 
