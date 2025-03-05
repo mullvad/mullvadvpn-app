@@ -12,7 +12,10 @@ use mock::{
     FakeAppDelegate, FakeAppDownloaderHappyPath, FakeAppDownloaderVerifyFail,
     FakeDirectoryProvider, FakeVersionInfoProvider, FAKE_ENVIRONMENT,
 };
-use std::time::Duration;
+use std::{
+    sync::{atomic::AtomicBool, Arc},
+    time::Duration,
+};
 
 mod mock;
 
@@ -83,6 +86,47 @@ async fn test_download() {
 
     // Everything including verification should have succeeded
     // Downloader should have quit
+    assert_yaml_snapshot!(delegate.state);
+}
+
+/// Test that the flow of retrying the version fetch after a failure
+#[tokio::test(start_paused = true)]
+async fn test_failed_fetch_version() {
+    let mut delegate = FakeAppDelegate::default();
+    let fail_fetching = Arc::new(AtomicBool::new(true));
+    AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
+        &mut delegate,
+        FakeVersionInfoProvider {
+            fail_fetching: fail_fetching.clone(),
+        },
+        FAKE_ENVIRONMENT,
+    );
+
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    // Run UI updates to display the fetched version
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
+    // The fetch version failure screen with a retry and cancel button should be displayed
+    assert_yaml_snapshot!(delegate.state);
+
+    fail_fetching.store(false, std::sync::atomic::Ordering::SeqCst);
+
+    // Retry fetching the version
+    let cb = delegate
+        .error_retry_callback
+        .take()
+        .expect("no retry callback registered");
+    cb();
+
+    tokio::time::sleep(Duration::from_secs(1)).await;
+
+    // Run UI updates to display the fetched version
+    let queue = delegate.queue.clone();
+    queue.run_callbacks(&mut delegate);
+
+    // The download button and current version should be displayed
     assert_yaml_snapshot!(delegate.state);
 }
 

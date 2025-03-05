@@ -1,0 +1,37 @@
+---
+source: installer-downloader/tests/controller.rs
+expression: delegate.state
+---
+status_text: ""
+download_text: ""
+download_button_visible: false
+cancel_button_visible: false
+cancel_button_enabled: false
+download_button_enabled: false
+download_progress: 0
+download_progress_visible: false
+beta_text_visible: false
+stable_text_visible: false
+error_message_visible: true
+error_message:
+  status_text: "Failed to load version details, please try again or make sure you have the latest installer downloader."
+  cancel_button_text: Cancel
+  retry_button_text: Try again
+quit: false
+call_log:
+  - hide_download_progress
+  - show_download_button
+  - disable_download_button
+  - hide_cancel_button
+  - hide_beta_text
+  - hide_stable_text
+  - "set_status_text: Loading version details..."
+  - on_download
+  - on_cancel
+  - on_beta_link
+  - on_stable_link
+  - hide_download_button
+  - clear_status_text
+  - on_error_message_retry
+  - on_error_message_cancel
+  - "show_error_message: Failed to load version details, please try again or make sure you have the latest installer downloader.. retry: Try again. cancel: Cancel"
