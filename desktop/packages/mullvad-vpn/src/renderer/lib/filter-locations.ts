@@ -16,7 +16,6 @@ import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
-  NormalRelaySettingsRedux,
 } from '../redux/settings/reducers';
 
 export enum EndpointType {
@@ -29,12 +28,8 @@ export function filterLocationsByEndPointType(
   locations: IRelayLocationCountryRedux[],
   endpointType: EndpointType,
   tunnelProtocol: TunnelProtocol,
-  relaySettings?: NormalRelaySettingsRedux,
 ): IRelayLocationCountryRedux[] {
-  return filterLocationsImpl(
-    locations,
-    getTunnelProtocolFilter(endpointType, tunnelProtocol, relaySettings),
-  );
+  return filterLocationsImpl(locations, getTunnelProtocolFilter(endpointType, tunnelProtocol));
 }
 
 export function filterLocationsByDaita(
@@ -78,7 +73,6 @@ export function filterLocations(
 function getTunnelProtocolFilter(
   endpointType: EndpointType,
   tunnelProtocol: TunnelProtocol,
-  relaySettings?: NormalRelaySettingsRedux,
 ): (relay: IRelayLocationRelayRedux) => boolean {
   const endpointTypes: Array<RelayEndpointType> = [];
   if (endpointType !== EndpointType.exit && tunnelProtocol === 'openvpn') {

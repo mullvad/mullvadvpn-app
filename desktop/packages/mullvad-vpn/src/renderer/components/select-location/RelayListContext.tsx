@@ -78,13 +78,8 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const relayListForEndpointType = useMemo(() => {
     const endpointType =
       locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
-    return filterLocationsByEndPointType(
-      fullRelayList,
-      endpointType,
-      tunnelProtocol,
-      relaySettings,
-    );
-  }, [fullRelayList, locationType, relaySettings, tunnelProtocol]);
+    return filterLocationsByEndPointType(fullRelayList, endpointType, tunnelProtocol);
+  }, [fullRelayList, locationType, tunnelProtocol]);
 
   const relayListForDaita = useMemo(() => {
     return filterLocationsByDaita(
