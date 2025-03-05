@@ -23,15 +23,17 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
-## [android/2025.1] - 2025-01-22
-
+## [android/2025.1-beta1] - 2025-03-05
 ### Fixed
 - Fix a crash that would occur because a Provider would be listed twice in the filter screen.
 - Fix a bug that could cause the app to crash while navigating.
 
+### Security
+- Make daemon aware of route changes to prevent sending traffic before routes are up.
+- Minimize calls to re-establish the VPN tunnel, since this may cause Android to leak some traffic.
+
 
 ## [android/2024.10-beta2] - 2024-12-20
-
 ### Fixed
 - Update bundled relay list to address a UI bug in the filter screen.
 
