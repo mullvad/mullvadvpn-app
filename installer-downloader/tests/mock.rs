@@ -12,13 +12,14 @@ use mullvad_update::fetch::ProgressUpdater;
 use mullvad_update::version::{Version, VersionInfo, VersionParameters};
 use std::io;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::AtomicBool;
 use std::sync::{Arc, LazyLock, Mutex};
 use std::vec::Vec;
 
 /// Fake version info provider
 #[derive(Default)]
 pub struct FakeVersionInfoProvider {
-    pub fail_fetching: bool,
+    pub fail_fetching: Arc<AtomicBool>,
 }
 
 pub static FAKE_VERSION: LazyLock<VersionInfo> = LazyLock::new(|| VersionInfo {
@@ -39,7 +40,7 @@ pub const FAKE_ENVIRONMENT: Environment = Environment {
 #[async_trait::async_trait]
 impl VersionInfoProvider for FakeVersionInfoProvider {
     async fn get_version_info(&self, _params: VersionParameters) -> anyhow::Result<VersionInfo> {
-        if self.fail_fetching {
+        if self.fail_fetching.load(std::sync::atomic::Ordering::SeqCst) {
             anyhow::bail!("Failed to fetch version info");
         }
         Ok(FAKE_VERSION.clone())
