@@ -43,7 +43,7 @@ function main() {
     fi
 
     echo "[#] Verifying $PACKAGE_FILENAME signature"
-    if ! gpg --verify "$PACKAGE_FILENAME".asc; then
+    if ! gpg --verify "$PACKAGE_FILENAME".asc "$PACKAGE_FILENAME"; then
         echo "[!] Failed to verify signature"
         rm "$PACKAGE_FILENAME" "$PACKAGE_FILENAME.asc"
         exit 1
