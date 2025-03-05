@@ -22,7 +22,7 @@ async fn test_fetch_version() {
     let mut delegate = FakeAppDelegate::default();
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
         &mut delegate,
-        FakeVersionInfoProvider {},
+        FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
     );
 
@@ -46,7 +46,7 @@ async fn test_download() {
     let mut delegate = FakeAppDelegate::default();
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<true>>(
         &mut delegate,
-        FakeVersionInfoProvider {},
+        FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
     );
 
@@ -92,7 +92,7 @@ async fn test_failed_verification() {
     let mut delegate = FakeAppDelegate::default();
     AppController::initialize::<_, FakeAppDownloaderVerifyFail, _, FakeDirectoryProvider<true>>(
         &mut delegate,
-        FakeVersionInfoProvider {},
+        FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
     );
 
@@ -130,7 +130,7 @@ async fn test_failed_directory_creation() {
     let mut delegate = FakeAppDelegate::default();
     AppController::initialize::<_, FakeAppDownloaderHappyPath, _, FakeDirectoryProvider<false>>(
         &mut delegate,
-        FakeVersionInfoProvider {},
+        FakeVersionInfoProvider::default(),
         FAKE_ENVIRONMENT,
     );
 
