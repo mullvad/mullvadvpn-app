@@ -826,18 +826,12 @@ function convertFromWireguardConstraints(
 
 function convertFromTunnelTypeConstraint(
   constraint: grpcTypes.TunnelType | undefined,
-): Constraint<TunnelProtocol> {
-  switch (constraint) {
-    case grpcTypes.TunnelType.WIREGUARD: {
-      return { only: 'wireguard' };
-    }
-    case grpcTypes.TunnelType.OPENVPN: {
-      return { only: 'openvpn' };
-    }
-    default: {
-      return 'any';
-    }
+): TunnelProtocol {
+  if (constraint === grpcTypes.TunnelType.OPENVPN) {
+    return 'openvpn';
   }
+
+  return 'wireguard';
 }
 
 function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
@@ -853,9 +847,7 @@ export function convertToRelayConstraints(
 ): grpcTypes.NormalRelaySettings {
   const relayConstraints = new grpcTypes.NormalRelaySettings();
 
-  if (constraints.tunnelProtocol !== 'any') {
-    relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol.only));
-  }
+  relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol));
   relayConstraints.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
   relayConstraints.setWireguardConstraints(
     convertToWireguardConstraints(constraints.wireguardConstraints),

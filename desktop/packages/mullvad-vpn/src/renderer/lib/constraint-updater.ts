@@ -28,7 +28,7 @@ export function wrapRelaySettingsOrDefault(
     const wgIpVersion = wrapConstraint(relaySettings.wireguard.ipVersion);
     const wgEntryLocation = wrapConstraint(relaySettings.wireguard.entryLocation);
     const location = wrapConstraint(relaySettings.location);
-    const tunnelProtocol = wrapConstraint(relaySettings.tunnelProtocol);
+    const tunnelProtocol = relaySettings.tunnelProtocol;
 
     return {
       providers: [...relaySettings.providers],
