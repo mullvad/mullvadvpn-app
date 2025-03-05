@@ -55,10 +55,6 @@ android {
             warningsAsErrors = true
             checkDependencies = true
         }
-
-        if (isReleaseBuild()) {
-            ndk { debugSymbolLevel = "none" }
-        }
     }
 
     playConfigs { register("playStagemoleRelease") { enabled = true } }
@@ -81,6 +77,7 @@ android {
 
     buildTypes {
         getByName(BuildTypes.RELEASE) {
+            ndk.debugSymbolLevel = "full"
             signingConfig = signingConfigs.findByName(SigningConfigs.RELEASE)
             isMinifyEnabled = true
             isShrinkResources = true
