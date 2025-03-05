@@ -107,7 +107,6 @@ impl Dispatcher for AppImpl {
                 callback();
             }
             Action::QueueMain(cb) => {
-                // NOTE: We assume that this won't panic because they will never run simultaneously
                 let mut borrowed = delegate.inner.borrow_mut();
                 let cb = cb.lock().unwrap().take().unwrap();
                 cb(&mut borrowed);
