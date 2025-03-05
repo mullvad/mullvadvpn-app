@@ -8,7 +8,13 @@ mod ui;
 
 pub fn main() {
     nwg::init().expect("Failed to init Native Windows GUI");
-    nwg::Font::set_global_family("Segoe UI").expect("Failed to set default font");
+    let mut global_font = nwg::Font::default();
+    nwg::FontBuilder::new()
+        .family("Segoe UI")
+        .size_absolute(ui::FONT_HEIGHT)
+        .build(&mut global_font)
+        .unwrap();
+    nwg::Font::set_global_default(Some(global_font));
 
     // Load "global" values and resources
     let environment = match Environment::load() {
