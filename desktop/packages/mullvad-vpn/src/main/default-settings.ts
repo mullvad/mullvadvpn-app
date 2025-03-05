@@ -18,7 +18,7 @@ export function getDefaultSettings(): ISettings {
     relaySettings: {
       normal: {
         location: 'any',
-        tunnelProtocol: 'any',
+        tunnelProtocol: 'wireguard',
         providers: [],
         ownership: Ownership.any,
         openvpnConstraints: {

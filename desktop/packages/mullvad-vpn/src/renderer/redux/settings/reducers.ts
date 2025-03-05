@@ -139,7 +139,7 @@ const initialState: ISettingsReduxState = {
   relaySettings: {
     normal: {
       location: 'any',
-      tunnelProtocol: 'any',
+      tunnelProtocol: 'wireguard',
       providers: [],
       ownership: Ownership.any,
       wireguard: { port: 'any', ipVersion: 'any', useMultihop: false, entryLocation: 'any' },

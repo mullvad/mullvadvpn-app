@@ -664,8 +664,9 @@ function LockdownMode() {
 }
 
 function TunnelProtocolSetting() {
-  const tunnelProtocol = useSelector((state) =>
-    mapRelaySettingsToProtocol(state.settings.relaySettings),
+  const tunnelProtocol = useSelector(
+    // TODO: Improve how fallback value is assigned
+    (state) => mapRelaySettingsToProtocol(state.settings.relaySettings) || 'wireguard',
   );
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
@@ -723,7 +724,7 @@ function TunnelProtocolSetting() {
       <Selector
         title={messages.pgettext('vpn-settings-view', 'Tunnel protocol')}
         items={tunnelProtocolItems}
-        value={tunnelProtocol ?? null}
+        value={tunnelProtocol}
         onSelect={setTunnelProtocol}
       />
       {openVpnDisabled ? (
@@ -748,7 +749,7 @@ function TunnelProtocolSetting() {
 function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
   if ('normal' in relaySettings) {
     const { tunnelProtocol } = relaySettings.normal;
-    return tunnelProtocol === 'any' ? undefined : tunnelProtocol;
+    return tunnelProtocol;
     // since the GUI doesn't display custom settings, just display the default ones.
     // If the user sets any settings, then those will be applied.
   } else if ('customTunnelEndpoint' in relaySettings) {
