@@ -2,15 +2,9 @@ package net.mullvad.talpid
 
 import android.net.ConnectivityManager
 import android.net.LinkProperties
-import android.net.Network
-import android.net.NetworkCapabilities
-import co.touchlab.kermit.Logger
 import java.net.DatagramSocket
-import java.net.Inet4Address
-import java.net.Inet6Address
 import java.net.InetAddress
 import kotlin.collections.ArrayList
-import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
@@ -18,8 +12,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
@@ -31,9 +23,11 @@ import kotlinx.coroutines.plus
 import kotlinx.coroutines.runBlocking
 import net.mullvad.talpid.model.Connectivity
 import net.mullvad.talpid.model.NetworkState
-import net.mullvad.talpid.util.IpUtils
 import net.mullvad.talpid.util.RawNetworkState
+import net.mullvad.talpid.util.activeRawNetworkState
 import net.mullvad.talpid.util.defaultRawNetworkStateFlow
+import net.mullvad.talpid.util.hasInternetConnectivity
+import net.mullvad.talpid.util.toConnectivity
 
 class ConnectivityListener(
     private val connectivityManager: ConnectivityManager,
@@ -72,10 +66,7 @@ class ConnectivityListener(
 
         _isConnected =
             connectivityManager
-                .defaultRawNetworkStateFlow()
-                .debounce(300.milliseconds)
-                .map { it.toConnectivity() }
-                .distinctUntilChanged()
+                .hasInternetConnectivity(protect)
                 .onEach { notifyConnectivityChange(it.ipv4, it.ipv6) }
                 .stateIn(
                     scope + Dispatchers.IO,
@@ -83,47 +74,10 @@ class ConnectivityListener(
                     // Has to happen on IO to avoid NetworkOnMainThreadException, we actually don't
                     // send any traffic just open a socket to detect the IP version.
                     runBlocking(Dispatchers.IO) {
-                        connectivityManager.activeRawNetworkState().toConnectivity()
+                        connectivityManager.activeRawNetworkState().toConnectivity(protect)
                     },
                 )
     }
-
-    private fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
-        try {
-            activeNetwork?.let { initialNetwork: Network ->
-                RawNetworkState(
-                    network = initialNetwork,
-                    linkProperties = getLinkProperties(initialNetwork),
-                    networkCapabilities = getNetworkCapabilities(initialNetwork),
-                )
-            }
-        } catch (_: RuntimeException) {
-            Logger.e(
-                "Unable to get active network or properties and capabilities of the active network"
-            )
-            null
-        }
-
-    private fun RawNetworkState?.toConnectivity(): Connectivity.Status =
-        if (isVpn()) {
-            // If the default network is a VPN we need to use a socket to check
-            // the underlying network
-            Connectivity.Status(
-                IpUtils.hasIPv4(protect = { protect(it) }),
-                IpUtils.hasIPv6(protect = { protect(it) }),
-            )
-        } else {
-            // If the default network is not a VPN we can check the addresses
-            // directly
-            Connectivity.Status(
-                ipv4 =
-                    this?.linkProperties?.routes?.any { it.destination.address is Inet4Address } ==
-                        true,
-                ipv6 =
-                    this?.linkProperties?.routes?.any { it.destination.address is Inet6Address } ==
-                        true,
-            )
-        }
 
     /**
      * Invalidates the network state cache. E.g when the VPN is connected or disconnected, and we
@@ -135,10 +89,6 @@ class ConnectivityListener(
 
     private fun LinkProperties.dnsServersWithoutFallback(): List<InetAddress> =
         dnsServers.filter { it.hostAddress != TalpidVpnService.FALLBACK_DUMMY_DNS_SERVER }
-
-    private fun RawNetworkState?.isVpn(): Boolean =
-        this?.networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) ==
-            false
 
     private fun RawNetworkState.toNetworkState(): NetworkState =
         NetworkState(
