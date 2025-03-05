@@ -15,9 +15,8 @@ struct FilterDescriptor {
     var isEnabled: Bool {
         let exitCount = relayFilterResult.exitRelays.count
         let entryCount = relayFilterResult.entryRelays?.count ?? 0
-        let totalcount = exitCount + entryCount
-        let isMultihopEnabled = settings.tunnelMultihopState.isEnabled
-        return (isMultihopEnabled && totalcount > 1) || (!isMultihopEnabled && totalcount > 0)
+        let isMultihopEnabled = settings.tunnelMultihopState.isEnabled || settings.daita.isAutomaticRouting
+        return (isMultihopEnabled && entryCount > 1 && exitCount > 1) || (!isMultihopEnabled && exitCount > 0)
     }
 
     var title: String {
@@ -73,13 +72,7 @@ struct FilterDescriptor {
             number > 100 ? "99+" : "\(number)"
         }
 
-        if isMultihopEnabled && isDirectOnly {
-            return String(
-                format: "Show %@ entry & %@ exit servers",
-                displayNumber(entryCount),
-                displayNumber(exitCount)
-            )
-        }
-        return String(format: "Show %@ servers", displayNumber(exitCount))
+        let numberOfRelays = Set(relayFilterResult.entryRelays ?? []).union(relayFilterResult.exitRelays).count
+        return String(format: "Show %@ servers", displayNumber(numberOfRelays))
     }
 }
