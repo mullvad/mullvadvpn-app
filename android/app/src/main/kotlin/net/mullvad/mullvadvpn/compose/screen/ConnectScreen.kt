@@ -1,30 +1,43 @@
 package net.mullvad.mullvadvpn.compose.screen
 
 import android.content.Context
+import android.content.pm.PackageManager
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -37,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalConfiguration
@@ -44,6 +58,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,6 +68,11 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.dropUnlessResumed
+import androidx.tv.material3.DrawerValue
+import androidx.tv.material3.ModalNavigationDrawer
+import androidx.tv.material3.NavigationDrawerItem
+import androidx.tv.material3.Text as TvText
+import androidx.tv.material3.rememberDrawerState
 import co.touchlab.kermit.Logger
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.annotation.RootGraph
@@ -71,6 +92,7 @@ import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicatorsPanel
@@ -268,70 +290,248 @@ fun ConnectScreen(
     onDismissNewDeviceClick: () -> Unit,
 ) {
 
-    ScaffoldWithTopBarAndDeviceName(
-        topBarColor = state.tunnelState.topBarColor(),
-        iconTintColor = state.tunnelState.iconTintColor(),
-        onSettingsClicked = onSettingsClick,
-        onAccountClicked = onAccountClick,
-        deviceName = state.deviceName,
-        timeLeft = state.daysLeftUntilExpiry,
-        snackbarHostState = snackbarHostState,
-    ) {
-        val configuration = LocalConfiguration.current
-        val screenHeight = configuration.screenHeightDp.dp
-        val indicatorPercentOffset =
-            if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
-            else TALL_SCREEN_INDICATOR_BIAS
+    val isTV = LocalContext.current.packageManager.hasSystemFeature(PackageManager.FEATURE_LEANBACK)
 
-        Box(
-            Modifier.padding(
-                    top = it.calculateTopPadding(),
-                    start = it.calculateStartPadding(LocalLayoutDirection.current),
-                    end = it.calculateEndPadding(LocalLayoutDirection.current),
-                )
-                .fillMaxSize()
+    if (!isTV) {
+        ScaffoldWithTopBarAndDeviceName(
+            topBarColor = state.tunnelState.topBarColor(),
+            iconTintColor = state.tunnelState.iconTintColor(),
+            onSettingsClicked = onSettingsClick,
+            onAccountClicked = onAccountClick,
+            deviceName = state.deviceName,
+            timeLeft = state.daysLeftUntilExpiry,
+            snackbarHostState = snackbarHostState,
         ) {
-            MullvadMap(state, indicatorPercentOffset)
+            Content(
+                it,
+                state,
+                onDisconnectClick,
+                onReconnectClick,
+                onConnectClick,
+                onCancelClick,
+                onSwitchLocationClick,
+                onOpenAppListing,
+                onManageAccountClick,
+                onChangelogClick,
+                onDismissChangelogClick,
+                onSettingsClick,
+                onAccountClick,
+                onDismissNewDeviceClick,
+            )
+        }
+    } else {
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    snackbarHostState,
+                    snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
+                )
+            }
+        ) {
+            val drawerState = rememberDrawerState(DrawerValue.Closed)
+            if (drawerState.currentValue == DrawerValue.Open) {
+                BackHandler(onBack = { drawerState.setValue(DrawerValue.Closed) })
+            }
+            ModalNavigationDrawer(
+                drawerContent = {
+                    Column(
+                        Modifier.background(
+                                Brush.horizontalGradient(listOf(Color.Black, Color.Transparent))
+                            )
+                            .fillMaxHeight()
+                            .padding(12.dp),
+                        horizontalAlignment = Alignment.Start,
+                        verticalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        val animatedPadding = animateDpAsState(if (hasFocus) 4.dp else 0.dp)
+                        Column(modifier = Modifier.weight(1f)) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(
+                                    painter = painterResource(id = R.drawable.logo_icon),
+                                    contentDescription = null, // No meaningful user info or action.
+                                    modifier =
+                                        Modifier.padding(start = animatedPadding.value)
+                                            .padding(16.dp)
+                                            .size(32.dp),
+                                    tint = Color.Unspecified, // Logo should not be tinted
+                                )
+                                if (hasFocus) {
+                                    Icon(
+                                        modifier = Modifier.height(16.dp),
+                                        painter = painterResource(id = R.drawable.logo_text),
+                                        contentDescription =
+                                            null, // No meaningful user info or action.
+                                        tint = Color.Unspecified, // Logo should not be tinted
+                                    )
+                                }
+                            }
 
-            MullvadCircularProgressIndicatorLarge(
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
-                            layout(placeable.width, placeable.height) {
-                                placeable.placeRelative(
-                                    x = (constraints.maxWidth * 0.5f - placeable.width / 2).toInt(),
-                                    y =
-                                        (constraints.maxHeight * indicatorPercentOffset -
-                                                placeable.height / 2)
-                                            .toInt(),
+                            if (hasFocus) {
+
+                                TvText(
+                                    text =
+                                        stringResource(
+                                            id = R.string.top_bar_time_left,
+                                            pluralStringResource(
+                                                id = R.plurals.days,
+                                                state.daysLeftUntilExpiry?.toInt() ?: 0,
+                                                state.daysLeftUntilExpiry ?: 0,
+                                            ),
+                                        ),
+                                    maxLines = 1,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                )
+                                TvText(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    text = state.deviceName ?: "",
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Clip,
                                 )
                             }
                         }
-                        .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
-                        .testTag(CIRCULAR_PROGRESS_INDICATOR),
-            )
 
-            Box(modifier = Modifier.fillMaxSize().padding(bottom = it.calculateBottomPadding())) {
-                NotificationBanner(
-                    notification = state.inAppNotification,
-                    isPlayBuild = state.isPlayBuild,
-                    openAppListing = onOpenAppListing,
-                    onClickShowAccount = onManageAccountClick,
-                    onClickShowChangelog = onChangelogClick,
-                    onClickDismissChangelog = onDismissChangelogClick,
-                    onClickDismissNewDevice = onDismissNewDeviceClick,
-                )
-                ConnectionCard(
-                    state = state,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    onSwitchLocationClick = onSwitchLocationClick,
-                    onDisconnectClick = onDisconnectClick,
-                    onReconnectClick = onReconnectClick,
-                    onCancelClick = onCancelClick,
-                    onConnectClick = onConnectClick,
+                        NavigationDrawerItem(
+                            modifier = Modifier.weight(1f),
+                            onClick = onAccountClick,
+                            selected = false,
+                            leadingContent = {
+                                Icon(
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    imageVector = Icons.Default.AccountCircle,
+                                    contentDescription = null,
+                                )
+                            },
+                        ) {
+                            TvText(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                text = "Account",
+                                maxLines = 1,
+                                overflow = TextOverflow.Clip,
+                            )
+                        }
+                        NavigationDrawerItem(
+                            modifier = Modifier.weight(1f),
+                            onClick = onSettingsClick,
+                            selected = false,
+                            leadingContent = {
+                                Icon(
+                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    imageVector = Icons.Default.Settings,
+                                    contentDescription = null,
+                                )
+                            },
+                        ) {
+                            TvText(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                text = "Settings",
+                                maxLines = 1,
+                                overflow = TextOverflow.Clip,
+                            )
+                        }
+                    }
+                },
+                drawerState = drawerState,
+                scrimBrush = Brush.horizontalGradient(listOf(Color.Black, Color.Transparent)),
+            ) {
+                Content(
+                    it,
+                    state,
+                    onDisconnectClick,
+                    onReconnectClick,
+                    onConnectClick,
+                    onCancelClick,
+                    onSwitchLocationClick,
+                    onOpenAppListing,
+                    onManageAccountClick,
+                    onChangelogClick,
+                    onDismissChangelogClick,
+                    onSettingsClick,
+                    onAccountClick,
+                    onDismissNewDeviceClick,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun Content(
+    paddingValues: PaddingValues,
+    state: ConnectUiState,
+    onDisconnectClick: () -> Unit,
+    onReconnectClick: () -> Unit,
+    onConnectClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onSwitchLocationClick: () -> Unit,
+    onOpenAppListing: () -> Unit,
+    onManageAccountClick: () -> Unit,
+    onChangelogClick: () -> Unit,
+    onDismissChangelogClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onAccountClick: () -> Unit,
+    onDismissNewDeviceClick: () -> Unit,
+) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    val indicatorPercentOffset =
+        if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
+        else TALL_SCREEN_INDICATOR_BIAS
+
+    Box(
+        Modifier.padding(
+                top = paddingValues.calculateTopPadding(),
+                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
+            )
+            .fillMaxSize()
+    ) {
+        MullvadMap(state, indicatorPercentOffset)
+
+        MullvadCircularProgressIndicatorLarge(
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier =
+                Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(
+                                x = (constraints.maxWidth * 0.5f - placeable.width / 2).toInt(),
+                                y =
+                                    (constraints.maxHeight * indicatorPercentOffset -
+                                            placeable.height / 2)
+                                        .toInt(),
+                            )
+                        }
+                    }
+                    .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
+                    .testTag(CIRCULAR_PROGRESS_INDICATOR),
+        )
+
+        Box(
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = paddingValues.calculateBottomPadding())
+        ) {
+            NotificationBanner(
+                notification = state.inAppNotification,
+                isPlayBuild = state.isPlayBuild,
+                openAppListing = onOpenAppListing,
+                onClickShowAccount = onManageAccountClick,
+                onClickShowChangelog = onChangelogClick,
+                onClickDismissChangelog = onDismissChangelogClick,
+                onClickDismissNewDevice = onDismissNewDeviceClick,
+            )
+            ConnectionCard(
+                state = state,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onSwitchLocationClick = onSwitchLocationClick,
+                onDisconnectClick = onDisconnectClick,
+                onReconnectClick = onReconnectClick,
+                onCancelClick = onCancelClick,
+                onConnectClick = onConnectClick,
+            )
         }
     }
 }
