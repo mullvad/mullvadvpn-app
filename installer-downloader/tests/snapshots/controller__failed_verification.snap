@@ -1,0 +1,58 @@
+---
+source: installer-downloader/tests/controller.rs
+expression: delegate.state
+---
+status_text: ""
+download_text: ""
+download_button_visible: false
+cancel_button_visible: false
+cancel_button_enabled: false
+download_button_enabled: true
+download_progress: 100
+download_progress_visible: false
+beta_text_visible: false
+stable_text_visible: false
+error_message_visible: true
+error_message:
+  status_text: "Failed to verify download, please try downloading again or contact our support by sending an email to support@mullvadvpn.net with a description of what happened."
+  cancel_button_text: Cancel
+  retry_button_text: Try again
+quit: false
+call_log:
+  - hide_download_progress
+  - show_download_button
+  - disable_download_button
+  - hide_cancel_button
+  - hide_beta_text
+  - hide_stable_text
+  - on_download
+  - on_cancel
+  - on_beta_link
+  - on_stable_link
+  - show_download_button
+  - "set_status_text: Loading version details..."
+  - hide_error_message
+  - "set_status_text: Version: 2025.1"
+  - enable_download_button
+  - hide_error_message
+  - on_error_message_retry
+  - on_error_message_cancel
+  - clear_download_text
+  - hide_download_button
+  - hide_beta_text
+  - hide_stable_text
+  - show_cancel_button
+  - enable_cancel_button
+  - show_download_progress
+  - clear_download_progress
+  - "set_download_text: Downloading from mullvad.net... (0%)"
+  - "set_download_progress: 100"
+  - "set_download_text: Downloading from mullvad.net... (100%)"
+  - "set_download_text: Download complete. Verifying..."
+  - disable_cancel_button
+  - clear_status_text
+  - clear_download_text
+  - hide_download_progress
+  - hide_download_button
+  - hide_cancel_button
+  - "show_error_message: Failed to verify download, please try downloading again or contact our support by sending an email to support@mullvadvpn.net with a description of what happened.. retry: Try again. cancel: Cancel"

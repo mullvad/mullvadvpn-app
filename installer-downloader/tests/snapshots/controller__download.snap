@@ -1,0 +1,34 @@
+---
+source: installer-downloader/tests/controller.rs
+expression: delegate.state
+---
+status_text: Loading version details...
+download_text: ""
+download_button_visible: true
+cancel_button_visible: false
+cancel_button_enabled: false
+download_button_enabled: false
+download_progress: 0
+download_progress_visible: false
+beta_text_visible: false
+stable_text_visible: false
+error_message_visible: false
+error_message:
+  status_text: ""
+  cancel_button_text: ""
+  retry_button_text: ""
+quit: false
+call_log:
+  - hide_download_progress
+  - show_download_button
+  - disable_download_button
+  - hide_cancel_button
+  - hide_beta_text
+  - hide_stable_text
+  - on_download
+  - on_cancel
+  - on_beta_link
+  - on_stable_link
+  - show_download_button
+  - "set_status_text: Loading version details..."
+  - hide_error_message
