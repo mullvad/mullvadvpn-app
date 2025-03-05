@@ -1,4 +1,2 @@
-- Added support for multihop which allows routing traffic through an entry location to an exit location.
-- Added support for using DAITA with locations lacking DAITA support by automatically routing the traffic via a DAITA enabled location. This behaviour can be disabled using the "Direct only" setting.
-- Updated DAITA to v2 which supports dynamic DAITA configuration via relays.
-- Fixed a crash that could occur when entering the filter screen.
+- Make daemon aware of route changes to prevent sending traffic before routes are up.
+- Minimize calls to re-establish VPN tunnel, since android may leak some traffic during establish.
