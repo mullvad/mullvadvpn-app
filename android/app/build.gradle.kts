@@ -55,10 +55,6 @@ android {
             warningsAsErrors = true
             checkDependencies = true
         }
-
-        if (isReleaseBuild()) {
-            ndk { debugSymbolLevel = "none" }
-        }
     }
 
     playConfigs { register("playStagemoleRelease") { enabled = true } }
