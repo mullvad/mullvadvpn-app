@@ -191,7 +191,7 @@ struct SingleChoiceList<Value>: View where Value: Equatable {
     // Construct a row with arbitrary content and the correct style
     private func row<V: View>(isSelected: Bool, @ViewBuilder items: () -> V) -> some View {
         HStack {
-            Image(uiImage: UIImage(resource: .iconTick)).opacity(isSelected ? 1.0 : 0.0)
+            Image(uiImage: UIImage.tick).opacity(isSelected ? 1.0 : 0.0)
             Spacer().frame(width: UIMetrics.SettingsCell.selectableSettingsCellLeftViewSpacing)
 
             items()

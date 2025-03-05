@@ -70,7 +70,7 @@ class LatestChangesNotificationProvider: NotificationProvider, InAppNotification
 
     private func createCloseButtonAction() -> InAppNotificationAction {
         InAppNotificationAction(
-            image: UIImage(named: "IconCloseSml"),
+            image: UIImage.Buttons.closeSmall,
             handler: { [weak self] in
                 self?.invalidate()
             }

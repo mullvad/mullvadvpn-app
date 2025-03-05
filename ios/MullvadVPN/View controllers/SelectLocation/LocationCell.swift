@@ -33,7 +33,7 @@ class LocationCell: UITableViewCell {
     }()
 
     private let tickImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(resource: .iconTick))
+        let imageView = UIImageView(image: UIImage.tick)
         imageView.tintColor = .white
         return imageView
     }()
@@ -67,8 +67,8 @@ class LocationCell: UITableViewCell {
     }
 
     private var behavior: LocationCellBehavior = .select
-    private let chevronDown = UIImage(resource: .iconChevronDown)
-    private let chevronUp = UIImage(resource: .iconChevronUp)
+    private let chevronDown = UIImage.CellDecoration.chevronDown
+    private let chevronUp = UIImage.CellDecoration.chevronUp
 
     var isDisabled = false {
         didSet {

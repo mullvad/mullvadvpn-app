@@ -383,7 +383,7 @@ class RootContainerViewController: UIViewController {
             transitionViewButton.removeFromSuperview()
             button = transitionViewButton
         } else {
-            button = HeaderBarView.makeHeaderBarButton(with: UIImage(named: "IconAccount"))
+            button = HeaderBarView.makeHeaderBarButton(with: UIImage.Buttons.account)
             button.addTarget(
                 self,
                 action: #selector(handleAccountButtonTap),
@@ -404,7 +404,7 @@ class RootContainerViewController: UIViewController {
             transitionViewButton.removeFromSuperview()
             button = transitionViewButton
         } else {
-            button = HeaderBarView.makeHeaderBarButton(with: UIImage(named: "IconSettings"))
+            button = HeaderBarView.makeHeaderBarButton(with: UIImage.Buttons.settings)
             button.isEnabled = headerBarView.settingsButton.isEnabled
             button.addTarget(
                 self,

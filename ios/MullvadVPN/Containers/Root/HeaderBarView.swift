@@ -47,6 +47,7 @@ class HeaderBarView: UIView {
 
     private lazy var buttonContainer: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton])
+        stackView.spacing = 12
         return stackView
     }()
 
@@ -57,7 +58,7 @@ class HeaderBarView: UIView {
     }()
 
     let accountButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.account)
         button.setAccessibilityIdentifier(.accountButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
@@ -71,7 +72,7 @@ class HeaderBarView: UIView {
     }()
 
     let settingsButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.settings)
         button.setAccessibilityIdentifier(.settingsButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
@@ -86,14 +87,8 @@ class HeaderBarView: UIView {
 
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
         let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
-        let disabledButtonImage = image?.withTintColor(
-            UIColor.HeaderBar.disabledButtonColor,
-            renderingMode: .alwaysOriginal
-        )
-
         let barButton = IncreasedHitButton(type: .system)
-        barButton.setImage(buttonImage, for: .normal)
-        barButton.setImage(disabledButtonImage, for: .disabled)
+        barButton.setBackgroundImage(buttonImage, for: .normal)
         barButton.configureForAutoLayout()
 
         return barButton
