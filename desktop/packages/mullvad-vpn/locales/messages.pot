@@ -2127,7 +2127,7 @@ msgid "%(wireguard)s settings"
 msgstr ""
 
 msgctxt "wireguard-settings-view"
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic. This feature can only be used with %(wireguard)s."
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans. Only works with %(wireguard)s."
 msgstr ""
 
 msgctxt "wireguard-settings-view"
