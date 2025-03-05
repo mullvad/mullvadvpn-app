@@ -1,5 +1,6 @@
-use crate::{api, settings, Daemon};
-use mullvad_api::{proxy::ApiConnectionMode, rest, ApiProxy};
+use crate::{settings, Daemon};
+use mullvad_api::{api, rest};
+use mullvad_api::{proxy::ApiConnectionMode, ApiProxy};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -153,9 +154,9 @@ impl Daemon {
     #[cfg(not(target_os = "android"))]
     pub(crate) async fn test_access_method(
         proxy: talpid_types::net::AllowedEndpoint,
-        access_method_selector: api::AccessModeSelectorHandle,
+        access_method_selector: mullvad_api::api::AccessModeSelectorHandle,
         daemon_event_sender: crate::DaemonEventSender<(
-            api::AccessMethodEvent,
+            mullvad_api::api::AccessMethodEvent,
             futures::channel::oneshot::Sender<()>,
         )>,
         api_proxy: ApiProxy,
@@ -165,14 +166,14 @@ impl Daemon {
             .await
             .map(|connection_mode| connection_mode.endpoint)?;
 
-        api::AccessMethodEvent::Allow { endpoint: proxy }
-            .send(daemon_event_sender.clone())
+        mullvad_api::api::AccessMethodEvent::Allow { endpoint: proxy }
+            .send(daemon_event_sender.to_unbounded_sender())
             .await?;
 
         let result = Self::perform_api_request(api_proxy).await;
 
-        api::AccessMethodEvent::Allow { endpoint: reset }
-            .send(daemon_event_sender)
+        mullvad_api::api::AccessMethodEvent::Allow { endpoint: reset }
+            .send(daemon_event_sender.to_unbounded_sender())
             .await?;
 
         result
