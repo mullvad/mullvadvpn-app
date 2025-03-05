@@ -39,6 +39,7 @@ function main() {
     echo "[#] Downloading $PACKAGE_FILENAME.asc"
     if ! wget --quiet "$SIGNATURE_URL"; then
         echo "[!] Failed to download $SIGNATURE_URL"
+        rm "$PACKAGE_FILENAME"
         exit 1
     fi
 
@@ -63,8 +64,6 @@ function main() {
         return
     fi
 
-    echo "[#] $PACKAGE_FILENAME has changed"
-    cp "$PACKAGE_FILENAME" "$WORKDIR/"
     # Leaving a file in `$TMP_DIR` is used as an indicator further down that something changed
 }
 
@@ -104,7 +103,13 @@ if [[ -z "$(ls -A "$TMP_DIR")" ]]; then
     exit
 fi
 
+echo ""
 echo "[#] New browser build(s) exist"
+for package in "$TMP_DIR"/*; do
+    echo "[#] $PACKAGE_FILENAME has changed"
+    mv "$package" "$WORKDIR/"
+done
+
 for repository in "${REPOSITORIES[@]}"; do
     inbox_dir="$NOTIFY_DIR/$repository"
 
