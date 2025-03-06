@@ -11,6 +11,7 @@ import UIKit
 protocol WelcomeContentViewDelegate: AnyObject, Sendable {
     func didTapPurchaseButton(welcomeContentView: WelcomeContentView, button: AppButton)
     func didTapInfoButton(welcomeContentView: WelcomeContentView, button: UIButton)
+    func didTapCopyButton(welcomeContentView: WelcomeContentView, button: UIButton)
 }
 
 struct WelcomeViewModel: Sendable {
@@ -19,6 +20,8 @@ struct WelcomeViewModel: Sendable {
 }
 
 final class WelcomeContentView: UIView, Sendable {
+    private var revertCopyImageWorkItem: DispatchWorkItem?
+
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .preferredFont(forTextStyle: .largeTitle, weight: .bold)
@@ -60,6 +63,14 @@ final class WelcomeContentView: UIView, Sendable {
         label.font = .preferredFont(forTextStyle: .title2, weight: .bold)
         label.textColor = .white
         return label
+    }()
+
+    private let copyButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setAccessibilityIdentifier(.copyButton)
+        button.tintColor = .white
+        button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        return button
     }()
 
     private let deviceNameLabel: UILabel = {
@@ -124,6 +135,14 @@ final class WelcomeContentView: UIView, Sendable {
         return stackView
     }()
 
+    private let accountRowStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fill
+        stackView.spacing = UIMetrics.padding8
+        return stackView
+    }()
+
     private let deviceRowStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -175,12 +194,16 @@ final class WelcomeContentView: UIView, Sendable {
     }
 
     private func configureUI() {
+        accountRowStackView.addArrangedSubview(accountNumberLabel)
+        accountRowStackView.addArrangedSubview(copyButton)
+        accountRowStackView.addArrangedSubview(UIView()) // To push content to the left.
+
         textsStackView.addArrangedSubview(titleLabel)
         textsStackView.setCustomSpacing(UIMetrics.padding8, after: titleLabel)
         textsStackView.addArrangedSubview(subtitleLabel)
         textsStackView.setCustomSpacing(UIMetrics.padding16, after: subtitleLabel)
-        textsStackView.addArrangedSubview(accountNumberLabel)
-        textsStackView.setCustomSpacing(UIMetrics.padding16, after: accountNumberLabel)
+        textsStackView.addArrangedSubview(accountRowStackView)
+        textsStackView.setCustomSpacing(UIMetrics.padding16, after: accountRowStackView)
 
         deviceRowStackView.addArrangedSubview(deviceNameLabel)
         deviceRowStackView.setCustomSpacing(UIMetrics.padding8, after: deviceNameLabel)
@@ -196,6 +219,8 @@ final class WelcomeContentView: UIView, Sendable {
         addSubview(textsStackView)
         addSubview(buttonsStackView)
         addConstraints()
+
+        showCheckmark(false)
     }
 
     private func addConstraints() {
@@ -209,7 +234,7 @@ final class WelcomeContentView: UIView, Sendable {
     }
 
     private func addActions() {
-        [purchaseButton, infoButton].forEach {
+        [purchaseButton, infoButton, copyButton].forEach {
             $0.addTarget(self, action: #selector(tapped(button:)), for: .touchUpInside)
         }
     }
@@ -220,7 +245,40 @@ final class WelcomeContentView: UIView, Sendable {
             delegate?.didTapPurchaseButton(welcomeContentView: self, button: button)
         case AccessibilityIdentifier.infoButton.asString:
             delegate?.didTapInfoButton(welcomeContentView: self, button: button)
+        case AccessibilityIdentifier.copyButton.asString:
+            didTapCopyAccountNumber()
         default: return
         }
+    }
+
+    private func showCheckmark(_ showCheckmark: Bool) {
+        if showCheckmark {
+            let tickIcon = UIImage(named: "IconTick")
+
+            copyButton.setImage(tickIcon, for: .normal)
+            copyButton.tintColor = .successColor
+        } else {
+            let copyIcon = UIImage(named: "IconCopy")
+
+            copyButton.setImage(copyIcon, for: .normal)
+            copyButton.tintColor = .white
+        }
+    }
+
+    @objc private func didTapCopyAccountNumber() {
+        let delayedWorkItem = DispatchWorkItem { [weak self] in
+            self?.showCheckmark(false)
+        }
+
+        revertCopyImageWorkItem?.cancel()
+        revertCopyImageWorkItem = delayedWorkItem
+
+        showCheckmark(true)
+        delegate?.didTapCopyButton(welcomeContentView: self, button: copyButton)
+
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + .seconds(2),
+            execute: delayedWorkItem
+        )
     }
 }
