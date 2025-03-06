@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.viewModelScope
 import app.cash.turbine.test
 import arrow.core.right
+import io.mockk.Awaits
 import io.mockk.Runs
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -18,10 +19,10 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
-import mullvad_daemon.management_interface.daitaSettings
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DaitaSettings
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.Port
 import net.mullvad.mullvadvpn.lib.model.PortRange
@@ -163,6 +164,7 @@ class VpnSettingsViewModelTest {
             every { mockRelaySettings.relayConstraints } returns mockRelayConstraints
             every { mockRelayConstraints.wireguardConstraints } returns mockWireguardConstraints
             every { mockWireguardConstraints.port } returns expectedPort
+            every { mockWireguardConstraints.ipVersion } returns Constraint.Any
             every { mockSettings.tunnelOptions } returns
                 TunnelOptions(
                     wireguard =
@@ -193,6 +195,7 @@ class VpnSettingsViewModelTest {
                     port = wireguardPort,
                     isMultihopEnabled = false,
                     entryLocation = Constraint.Any,
+                    ipVersion = Constraint.Any,
                 )
             coEvery { mockWireguardConstraintsRepository.setWireguardPort(any()) } returns
                 Unit.right()
@@ -249,4 +252,42 @@ class VpnSettingsViewModelTest {
                 mockAutoStartAndConnectOnBootRepository.setAutoStartAndConnectOnBoot(targetState)
             }
         }
+
+    @Test
+    fun `when device ip version is IPv6 then UiState should be IPv6`() = runTest {
+        // Arrange
+        val ipVersion = Constraint.Only(IpVersion.IPV6)
+        val mockSettings = mockk<Settings>(relaxed = true)
+        every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.ipVersion } returns
+            ipVersion
+        every { mockSettings.tunnelOptions.wireguard } returns
+            WireguardTunnelOptions(
+                mtu = Mtu(0),
+                quantumResistant = QuantumResistantState.Off,
+                daitaSettings = DaitaSettings(enabled = false, directOnly = false),
+            )
+        every { mockSettings.relaySettings.relayConstraints.wireguardConstraints.port } returns
+            Constraint.Any
+
+        // Act, Assert
+        viewModel.uiState.test {
+            // Default value
+            awaitItem()
+            mockSettingsUpdate.value = mockSettings
+            assertEquals(ipVersion, awaitItem().deviceIpVersion)
+        }
+    }
+
+    @Test
+    fun `calling onDeviceIpVersionSelected should call setDeviceIpVersion`() = runTest {
+        // Arrange
+        val targetState = Constraint.Only(IpVersion.IPV4)
+        coEvery { mockWireguardConstraintsRepository.setDeviceIpVersion(targetState) } just Awaits
+
+        // Act
+        viewModel.onDeviceIpVersionSelected(targetState)
+
+        // Assert
+        coVerify(exactly = 1) { mockWireguardConstraintsRepository.setDeviceIpVersion(targetState) }
+    }
 }
