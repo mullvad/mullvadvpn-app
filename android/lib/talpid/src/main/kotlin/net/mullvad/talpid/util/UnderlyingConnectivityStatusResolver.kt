@@ -1,10 +1,13 @@
 package net.mullvad.talpid.util
 
+import arrow.core.Either
+import arrow.core.raise.result
 import co.touchlab.kermit.Logger
 import java.net.DatagramSocket
+import java.net.Inet4Address
+import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.InetSocketAddress
-import java.net.SocketException
 import net.mullvad.talpid.model.Connectivity
 
 /** This class is used to check the ip version of the underlying network when a VPN is active. */
@@ -15,10 +18,10 @@ class UnderlyingConnectivityStatusResolver(
         Connectivity.Status(ipv4 = hasIPv4(), ipv6 = hasIPv6())
 
     private fun hasIPv4(): Boolean =
-        hasIpVersion(InetAddress.getByName(PUBLIC_IPV4_ADDRESS), protect)
+        hasIpVersion(Inet4Address.getByName(PUBLIC_IPV4_ADDRESS), protect)
 
     private fun hasIPv6(): Boolean =
-        hasIpVersion(InetAddress.getByName(PUBLIC_IPV6_ADDRESS), protect)
+        hasIpVersion(Inet6Address.getByName(PUBLIC_IPV6_ADDRESS), protect)
 
     // Fake a connection to a public ip address using a UDP socket.
     // We don't care about the result of the connection, only that it is possible to create.
@@ -31,23 +34,33 @@ class UnderlyingConnectivityStatusResolver(
     private fun hasIpVersion(
         ip: InetAddress,
         protect: (socket: DatagramSocket) -> Boolean,
-    ): Boolean {
-        val socket = DatagramSocket()
-        if (!protect(socket)) {
-            Logger.e("Unable to protect the socket VPN is not set up correctly")
-            return false
-        }
-        return try {
-            socket.connect(InetSocketAddress(ip, 1))
-            socket.localSocketAddress.also { Logger.d("Public Local address: $it") }
-            true
-        } catch (_: SocketException) {
-            Logger.e("Socket could not be set up")
-            false
-        } finally {
-            socket.close()
-        }
-    }
+    ): Boolean =
+        result {
+                // Open socket
+                val socket = openSocket().bind()
+
+                val protected = protect(socket)
+
+                // Protect so we can get underlying network
+                if (!protected) {
+                    // We shouldn't be doing this if we don't have a VPN, then we should of checked
+                    // the network directly.
+                    Logger.w("Failed to protect socket")
+                }
+
+                // "Connect" to public ip to see IP version is available
+                val address = InetSocketAddress(ip, 1)
+                socket.connectSafe(address).bind()
+            }
+            .isSuccess
+
+    private fun openSocket(): Either<Throwable, DatagramSocket> =
+        Either.catch { DatagramSocket() }.onLeft { Logger.e("Could not open socket or bind port") }
+
+    private fun DatagramSocket.connectSafe(address: InetSocketAddress): Either<Throwable, Unit> =
+        Either.catch { connect(address.address, address.port) }
+            .onLeft { Logger.e("Socket could not be set up") }
+            .also { close() }
 
     companion object {
         private const val PUBLIC_IPV4_ADDRESS = "1.1.1.1"
