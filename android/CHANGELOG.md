@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Added
+- Add the ability to force the ip version used to connect to a relay.
+
 ### Changed
 - Disable Wireguard port setting when a obfuscation is selected since it is not used when an 
   obfuscation is applied.
