@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## Unreleased
+### Added
+- Make account number copyable on welcome screen.
 
 ## 2025.2 - 2025-02-08
 ### Added
