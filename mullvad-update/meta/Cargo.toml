@@ -1,0 +1,27 @@
+[package]
+name = "meta"
+description = "Tools for managing Mullvad version metadata"
+authors.workspace = true
+repository.workspace = true
+license.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow = "1.0"
+chrono = { workspace = true, features = ["serde", "now"] }
+clap = { workspace = true }
+hex = { version = "0.4" }
+rand = { version = "0.8.5" }
+reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"] }
+serde_json = { workspace = true }
+serde = { workspace = true }
+sha2 = "0.10"
+tokio = { version = "1", features = ["full"] }
+toml = "0.8"
+
+mullvad-version = { path = "../../mullvad-version", features = ["serde"] }
+mullvad-update = { path = "../", features = ["client", "sign"] }

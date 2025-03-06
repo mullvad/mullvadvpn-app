@@ -1,8 +1,7 @@
 use anyhow::Context;
-use sha2::Digest;
 use tokio::{
     fs,
-    io::{AsyncRead, AsyncReadExt, BufReader},
+    io::{AsyncRead, BufReader},
 };
 
 use std::{future::Future, path::Path};
@@ -21,11 +20,6 @@ pub trait AppVerifier: 'static + Clone {
 /// Checksum verifier that uses SHA256
 #[derive(Clone)]
 pub struct Sha256Verifier;
-
-impl Sha256Verifier {
-    /// Maximum number of bytes to read at a time
-    const BUF_SIZE: usize = 1024 * 1024;
-}
 
 impl AppVerifier for Sha256Verifier {
     /// The checksum
@@ -50,29 +44,13 @@ impl AppVerifier for Sha256Verifier {
 
 impl Sha256Verifier {
     async fn verify_inner(
-        mut reader: impl AsyncRead + Unpin,
+        reader: impl AsyncRead + Unpin,
         expected_hash: [u8; 32],
     ) -> anyhow::Result<()> {
-        let mut hasher = sha2::Sha256::new();
-
-        // Read data into hasher
-        let mut buffer = vec![0u8; Self::BUF_SIZE];
-        loop {
-            let read_n = reader
-                .read(&mut buffer)
-                .await
-                .context("Error reading bin file")?;
-            if read_n == 0 {
-                // We're done
-                break;
-            }
-            hasher.update(&buffer[..read_n]);
-        }
-
-        let actual_hash = hasher.finalize();
+        let actual_hash = crate::hash::checksum(reader).await?;
 
         // Verify that hash is correct
-        if expected_hash != actual_hash[..] {
+        if expected_hash != actual_hash {
             anyhow::bail!("Invalid checksum for bin file");
         }
 
@@ -83,6 +61,7 @@ impl Sha256Verifier {
 #[cfg(test)]
 mod test {
     use rand::RngCore;
+    use sha2::Digest;
     use std::io::Cursor;
 
     use super::*;
