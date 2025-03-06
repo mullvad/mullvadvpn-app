@@ -72,6 +72,7 @@ mod test {
     use super::*;
     use crate::format::deserializer::deserialize_and_verify;
     use serde_json::json;
+    use vec1::vec1;
 
     #[test]
     fn test_sign() -> anyhow::Result<()> {
@@ -95,7 +96,7 @@ mod test {
 
         let bytes = serde_json::to_vec(&partial)?;
 
-        deserialize_and_verify(&pubkey, &bytes)?;
+        deserialize_and_verify(&vec1![pubkey], &bytes)?;
 
         Ok(())
     }

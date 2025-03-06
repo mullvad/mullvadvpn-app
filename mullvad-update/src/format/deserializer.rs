@@ -1,6 +1,7 @@
 //! Deserializer and verifier of version metadata
 
 use anyhow::Context;
+use vec1::Vec1;
 
 use super::key::*;
 use super::Response;
@@ -10,11 +11,11 @@ impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
     pub fn deserialize_and_verify(
-        key: &VerifyingKey,
+        keys: &Vec1<VerifyingKey>,
         bytes: &[u8],
         min_metadata_version: usize,
     ) -> Result<Self, anyhow::Error> {
-        Self::deserialize_and_verify_at_time(key, bytes, chrono::Utc::now(), min_metadata_version)
+        Self::deserialize_and_verify_at_time(keys, bytes, chrono::Utc::now(), min_metadata_version)
     }
 
     /// This method is used mostly for testing, and skips all verification.
@@ -33,13 +34,13 @@ impl SignedResponse {
     /// Deserialize some bytes to JSON, and verify them, including signature and expiry.
     /// If successful, the deserialized data is returned.
     fn deserialize_and_verify_at_time(
-        key: &VerifyingKey,
+        keys: &Vec1<VerifyingKey>,
         bytes: &[u8],
         current_time: chrono::DateTime<chrono::Utc>,
         min_metadata_version: usize,
     ) -> Result<Self, anyhow::Error> {
         // Deserialize and verify signature
-        let partial_data = deserialize_and_verify(key, bytes)?;
+        let partial_data = deserialize_and_verify(keys, bytes)?;
 
         // Deserialize the canonical JSON to structured representation
         let signed_response: Response = serde_json::from_value(partial_data.signed)
@@ -74,16 +75,20 @@ impl SignedResponse {
 ///
 /// On success, this returns verified data and signature
 pub(super) fn deserialize_and_verify(
-    key: &VerifyingKey,
+    keys: &Vec1<VerifyingKey>,
     bytes: &[u8],
 ) -> anyhow::Result<PartialSignedResponse> {
     let partial_data: PartialSignedResponse =
         serde_json::from_slice(bytes).context("Invalid version JSON")?;
 
-    // Check if the key matches
-    let Some(sig) = partial_data.signatures.iter().find_map(|sig| match sig {
+    let valid_keys: Vec<_> = keys.into_iter().map(|k| k.0).collect();
+
+    // Check if one of the keys matches
+    let Some((key, sig)) = partial_data.signatures.iter().find_map(|sig| match sig {
         // Check if ed25519 key matches
-        ResponseSignature::Ed25519 { keyid, sig } if keyid.0 == key.0 => Some(sig),
+        ResponseSignature::Ed25519 { keyid, sig } if valid_keys.contains(&keyid.0) => {
+            Some((keyid, sig))
+        }
         // Ignore all non-matching key
         _ => None,
     }) else {
@@ -109,6 +114,8 @@ pub(super) fn deserialize_and_verify(
 mod test {
     use std::str::FromStr;
 
+    use vec1::vec1;
+
     use super::*;
 
     /// Test that a valid signed version response is successfully deserialized and verified
@@ -119,7 +126,7 @@ mod test {
             ed25519_dalek::VerifyingKey::from_bytes(&pubkey.try_into().unwrap()).unwrap();
 
         SignedResponse::deserialize_and_verify_at_time(
-            &VerifyingKey(verifying_key),
+            &vec1![VerifyingKey(verifying_key)],
             include_bytes!("../../test-version-response.json"),
             // It's 1970 again
             chrono::DateTime::UNIX_EPOCH,
@@ -130,7 +137,7 @@ mod test {
 
         // Reject expired data
         SignedResponse::deserialize_and_verify_at_time(
-            &VerifyingKey(verifying_key),
+            &vec1![VerifyingKey(verifying_key)],
             include_bytes!("../../test-version-response.json"),
             // In the year 3000
             chrono::DateTime::from_str("3000-01-01T00:00:00Z").unwrap(),
@@ -141,7 +148,7 @@ mod test {
 
         // Reject expired version number
         SignedResponse::deserialize_and_verify_at_time(
-            &VerifyingKey(verifying_key),
+            &vec1![VerifyingKey(verifying_key)],
             include_bytes!("../../test-version-response.json"),
             chrono::DateTime::UNIX_EPOCH,
             usize::MAX,
