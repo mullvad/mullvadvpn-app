@@ -28,7 +28,6 @@ use std::{
 
 use chrono::{DateTime, Local};
 use itertools::Itertools;
-
 use mullvad_types::{
     constraints::Constraint,
     custom_list::CustomListsSettings,
@@ -183,12 +182,26 @@ pub struct AdditionalWireguardConstraints {
 #[derive(Clone, Debug)]
 pub struct RuntimeParameters {
     /// Whether IPv6 is available
+    pub ipv4: bool,
+    /// Whether IPv6 is available
     pub ipv6: bool,
 }
 
 impl RuntimeParameters {
     /// Return whether a given [query][`RelayQuery`] is valid given the current runtime parameters
     pub fn compatible(&self, query: &RelayQuery) -> bool {
+        if !self.ipv4 {
+            let must_use_ipv4 = matches!(
+                query.wireguard_constraints().ip_version,
+                Constraint::Only(talpid_types::net::IpVersion::V4)
+            );
+            if must_use_ipv4 {
+                log::trace!(
+                    "{query:?} is incompatible with {self:?} due to IPv4 not being available"
+                );
+                return false;
+            }
+        }
         if !self.ipv6 {
             let must_use_ipv6 = matches!(
                 query.wireguard_constraints().ip_version,
@@ -210,7 +223,10 @@ impl RuntimeParameters {
 #[allow(clippy::derivable_impls)]
 impl Default for RuntimeParameters {
     fn default() -> Self {
-        RuntimeParameters { ipv6: false }
+        RuntimeParameters {
+            ipv4: true,
+            ipv6: false,
+        }
     }
 }
 
@@ -651,7 +667,9 @@ impl RelaySelector {
             // Remove candidate queries based on runtime parameters before trying to merge user
             // settings
             .filter(|query| runtime_params.compatible(query))
+            .filter(|query| runtime_params.compatible(&user_query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
+            .map(|query| force_valid_ip_version(&query, runtime_params.clone()))
             .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
@@ -1180,6 +1198,23 @@ impl RelaySelector {
         let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
         // Pick one of the valid relays.
         helpers::pick_random_relay(&candidates).cloned()
+    }
+}
+
+fn force_valid_ip_version(query: &RelayQuery, runtime_params: RuntimeParameters) -> RelayQuery {
+    let mut wireguard_constraints = query.wireguard_constraints().clone();
+    if wireguard_constraints.ip_version.is_any() {
+        if runtime_params.ipv4 && !runtime_params.ipv6 {
+            wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V4)
+        }
+        if runtime_params.ipv6 && !runtime_params.ipv4 {
+            wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V6)
+        }
+    }
+    let mut ret = query.clone();
+    match (ret.set_wireguard_constraints(wireguard_constraints)) {
+        Ok(()) => ret,
+        _Error => query.clone(),
     }
 }
 
