@@ -117,8 +117,9 @@ mod test {
     /// We're not testing the correctness of [version] here, only the HTTP client
     #[tokio::test]
     async fn test_http_version_provider() -> anyhow::Result<()> {
-        let valid_key = crate::format::key::VerifyingKey::from_hex(include_str!("../../test-pubkey"))
-            .expect("valid key");
+        let valid_key =
+            crate::format::key::VerifyingKey::from_hex(include_str!("../../test-pubkey"))
+                .expect("valid key");
         let verifying_keys = vec1![valid_key];
 
         // Start HTTP server
