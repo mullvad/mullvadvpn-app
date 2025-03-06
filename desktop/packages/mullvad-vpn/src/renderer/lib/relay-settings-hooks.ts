@@ -16,7 +16,11 @@ export function useTunnelProtocol(): TunnelProtocol {
   const quantumResistant = useSelector((state) => state.settings.wireguard.quantumResistant);
   const openVpnDisabled = daita || multihop || quantumResistant;
 
-  return openVpnDisabled ? 'wireguard' : (relaySettings?.tunnelProtocol ?? 'any');
+  if (openVpnDisabled || relaySettings?.tunnelProtocol === undefined) {
+    return 'wireguard';
+  }
+
+  return relaySettings.tunnelProtocol;
 }
 
 export function useNormalBridgeSettings() {
