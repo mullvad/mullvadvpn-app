@@ -821,22 +821,6 @@ function convertFromWireguardConstraints(
   return result;
 }
 
-function convertFromTunnelTypeConstraint(
-  constraint: grpcTypes.TunnelType | undefined,
-): Constraint<TunnelProtocol> {
-  switch (constraint) {
-    case grpcTypes.TunnelType.WIREGUARD: {
-      return { only: 'wireguard' };
-    }
-    case grpcTypes.TunnelType.OPENVPN: {
-      return { only: 'openvpn' };
-    }
-    default: {
-      return 'any';
-    }
-  }
-}
-
 function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
   if (value) {
     return { only: value };
