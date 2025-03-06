@@ -82,11 +82,13 @@ impl ConnectingState {
             }
             return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
         }
-        match shared_values.runtime.block_on(
-            shared_values
-                .tunnel_parameters_generator
-                .generate(retry_attempt, shared_values.connectivity.has_ipv6()),
-        ) {
+        match shared_values
+            .runtime
+            .block_on(shared_values.tunnel_parameters_generator.generate(
+                retry_attempt,
+                shared_values.connectivity.has_ipv4(),
+                shared_values.connectivity.has_ipv6(),
+            )) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
             }
