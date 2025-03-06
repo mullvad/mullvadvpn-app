@@ -498,10 +498,7 @@ function convertFromRelaySettings(
         const normal = relaySettings.getNormal()!;
         const locationConstraint = convertFromLocationConstraint(normal.getLocation());
         const location = wrapConstraint(locationConstraint);
-        // `getTunnelType()` is not falsy if type is 'any'
-        const tunnelProtocol = convertFromTunnelTypeConstraint(
-          normal.hasTunnelType() ? normal.getTunnelType() : undefined,
-        );
+        const tunnelProtocol = convertFromTunnelType(normal.getTunnelType());
         const providers = normal.getProvidersList();
         const ownership = convertFromOwnership(normal.getOwnership());
         const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
