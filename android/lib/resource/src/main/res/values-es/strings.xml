@@ -79,8 +79,6 @@
     <string name="connected">Conectado</string>
     <string name="connecting_to_daemon">Conectando al servicio del sistema Mullvad…</string>
     <string name="connection_details_in">Entrada</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
     <string name="connection_details_out">Salida</string>
     <string name="continue_login">Iniciar sesión</string>
     <string name="copied_logs_to_clipboard">Registros copiados en el portapapeles</string>
@@ -124,6 +122,8 @@
     <string name="device_inactive_description">Ha quitado este dispositivo. Vuelva a iniciar la sesión para conectarse.</string>
     <string name="device_inactive_title">El dispositivo está inactivo</string>
     <string name="device_inactive_unblock_warning">Al iniciar la sesión, se desbloqueará el acceso a Internet en este dispositivo.</string>
+    <string name="device_ip_version_ipv4">IPv4</string>
+    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Nombre del dispositivo</string>
     <string name="device_name_info_first_paragraph">Este es el nombre asignado al dispositivo. Cada dispositivo conectado a una cuenta de Mullvad recibe un nombre único que ayuda a identificarlo cuando gestiona sus dispositivos en la aplicación o en el sitio web.</string>
     <string name="device_name_info_second_paragraph">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>

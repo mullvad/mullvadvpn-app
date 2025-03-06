@@ -79,8 +79,6 @@
     <string name="connected">Подключено</string>
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
     <string name="connection_details_in">Вход</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
     <string name="connection_details_out">Выход</string>
     <string name="continue_login">Войти</string>
     <string name="copied_logs_to_clipboard">Журналы скопированы в буфер обмена</string>
@@ -124,6 +122,8 @@
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>
+    <string name="device_ip_version_ipv4">IPv4</string>
+    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Имя устройства</string>
     <string name="device_name_info_first_paragraph">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</string>
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
