@@ -32,6 +32,7 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix `mullvad-cli` panicking if it tried to write to a closed pipe on Linux and macOS.
 - Fix bug where new users are not forwarded to the main view after payment.
+- Will no longer try to connect over IPv4 if IPv4 is not available.
 
 #### Windows
 - Fix error setting up tunnel when MTU was incorrectly set to a value below 1280 for IPv6.

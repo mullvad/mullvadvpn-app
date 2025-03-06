@@ -36,6 +36,9 @@ pub enum Error {
 
     #[error("Invalid bridge settings")]
     InvalidBridgeSettings(#[from] MissingCustomBridgeSettings),
+
+    #[error("The requested IP version is not available")]
+    IpVersionUnavailable,
 }
 
 /// Special type which only shows up in [`Error`]. This error variant signals that no valid
