@@ -850,9 +850,7 @@ export function convertToRelayConstraints(
 ): grpcTypes.NormalRelaySettings {
   const relayConstraints = new grpcTypes.NormalRelaySettings();
 
-  if (constraints.tunnelProtocol !== 'any') {
-    relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol.only));
-  }
+  relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol));
   relayConstraints.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
   relayConstraints.setWireguardConstraints(
     convertToWireguardConstraints(constraints.wireguardConstraints),

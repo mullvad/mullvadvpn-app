@@ -25,7 +25,7 @@ import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
 
 export type NormalRelaySettingsRedux = {
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>;
+  tunnelProtocol: TunnelProtocol;
   location: LiftedConstraint<RelayLocation>;
   providers: string[];
   ownership: Ownership;

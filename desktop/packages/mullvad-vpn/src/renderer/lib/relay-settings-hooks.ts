@@ -1,4 +1,4 @@
-import { LiftedConstraint, TunnelProtocol } from '../../shared/daemon-rpc-types';
+import { TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { useSelector } from '../redux/store';
 
 export function useNormalRelaySettings() {
@@ -9,7 +9,7 @@ export function useNormalRelaySettings() {
 // Some features are considered core privacy features and when enabled prevent OpenVPN from being
 // used. This hook returns the tunnelprotocol with the exception that it always returns WireGuard
 // when any of those features are enabled.
-export function useTunnelProtocol(): LiftedConstraint<TunnelProtocol> {
+export function useTunnelProtocol(): TunnelProtocol {
   const relaySettings = useNormalRelaySettings();
   const multihop = relaySettings?.wireguard.useMultihop ?? false;
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
