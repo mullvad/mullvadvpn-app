@@ -664,9 +664,8 @@ function LockdownMode() {
 }
 
 function TunnelProtocolSetting() {
-  const tunnelProtocol = useSelector((state) =>
-    mapRelaySettingsToProtocol(state.settings.relaySettings),
-  );
+  const tunnelProtocol = useTunnelProtocol();
+
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
   const relaySettings = useSelector((state) => state.settings.relaySettings);
