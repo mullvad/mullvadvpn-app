@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { getDefaultRelaySettingsNormal } from '../../main/default-settings';
 import {
   BridgeSettings,
   IBridgeConstraints,
@@ -48,22 +49,9 @@ export function wrapRelaySettingsOrDefault(
     };
   }
 
-  return {
-    location: 'any',
-    tunnelProtocol: 'any',
-    providers: [],
-    ownership: Ownership.any,
-    openvpnConstraints: {
-      port: 'any',
-      protocol: 'any',
-    },
-    wireguardConstraints: {
-      port: 'any',
-      ipVersion: 'any',
-      useMultihop: false,
-      entryLocation: 'any',
-    },
-  };
+  const defaultSettings = getDefaultRelaySettingsNormal();
+
+  return defaultSettings;
 }
 
 type RelaySettingsUpdateFunction = (
