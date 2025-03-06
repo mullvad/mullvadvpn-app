@@ -14,7 +14,7 @@ export function getDefaultRelaySettingsNormal(): IRelaySettingsNormal<
 > {
   return {
     location: 'any',
-    tunnelProtocol: 'any',
+    tunnelProtocol: 'wireguard',
     providers: [],
     ownership: Ownership.any,
     openvpnConstraints: {
