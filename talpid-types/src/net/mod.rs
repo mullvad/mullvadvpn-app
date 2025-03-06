@@ -1,3 +1,4 @@
+use self::proxy::{CustomProxy, Socks5Local};
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(target_os = "android")]
 use jnix::FromJava;
@@ -11,8 +12,6 @@ use std::{
     str::FromStr,
     sync::LazyLock,
 };
-
-use self::proxy::{CustomProxy, Socks5Local};
 
 pub mod obfuscation;
 pub mod openvpn;
@@ -571,15 +570,22 @@ pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub enum Connectivity {
-    Status {
-        /// Whether IPv4 connectivity seems to be available on the host.
-        ipv4: bool,
-        /// Whether IPv6 connectivity seems to be available on the host.
-        ipv6: bool,
-    },
-    /// On/offline status could not be verified, but we have no particular
-    /// reason to believe that the host is offline.
+    /// Host is offline
+    Offline,
+    /// The connectivity status is unknown, but presumed to be online
     PresumeOnline,
+    /// Host is online with the given IP versions available
+    Online(IpAvailability),
+}
+
+#[derive(Debug, Clone, Copy, PartialEq)]
+#[cfg_attr(target_os = "android", derive(FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
+/// Available IP versions
+pub enum IpAvailability {
+    Ipv4,
+    Ipv6,
+    Ipv4AndIpv6,
 }
 
 impl Connectivity {
@@ -591,12 +597,18 @@ impl Connectivity {
     /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
     /// so we consider ourselves offline.
     pub fn is_offline(&self) -> bool {
+        *self == Connectivity::Offline
+    }
+
+    /// Whether IPv4 connectivity seems to be available on the host.
+    ///
+    /// If IPv4 status is unknown, `true` is returned.
+    pub fn has_ipv4(&self) -> bool {
         matches!(
             self,
-            Connectivity::Status {
-                ipv4: false,
-                ipv6: false
-            }
+            Connectivity::PresumeOnline
+                | Connectivity::Online(IpAvailability::Ipv4)
+                | Connectivity::Online(IpAvailability::Ipv4AndIpv6)
         )
     }
 
@@ -604,6 +616,19 @@ impl Connectivity {
     ///
     /// If IPv6 status is unknown, `false` is returned.
     pub fn has_ipv6(&self) -> bool {
-        matches!(self, Connectivity::Status { ipv6: true, .. })
+        matches!(
+            self,
+            Connectivity::Online(IpAvailability::Ipv6)
+                | Connectivity::Online(IpAvailability::Ipv4AndIpv6)
+        )
+    }
+
+    pub fn new(ipv4: bool, ipv6: bool) -> Connectivity {
+        match (ipv4, ipv6) {
+            (true, true) => Connectivity::Online(IpAvailability::Ipv4AndIpv6),
+            (true, false) => Connectivity::Online(IpAvailability::Ipv4),
+            (false, true) => Connectivity::Online(IpAvailability::Ipv6),
+            (false, false) => Connectivity::Offline,
+        }
     }
 }

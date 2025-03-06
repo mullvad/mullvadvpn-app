@@ -15,8 +15,8 @@ use talpid_types::net::{
 
 use mullvad_relay_selector::{
     query::{builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery},
-    Error, GetRelay, RelaySelector, RuntimeParameters, SelectedObfuscator, SelectorConfig,
-    WireguardConfig, OPENVPN_RETRY_ORDER, WIREGUARD_RETRY_ORDER,
+    Error, GetRelay, RelaySelector, SelectedObfuscator, SelectorConfig, WireguardConfig,
+    OPENVPN_RETRY_ORDER, WIREGUARD_RETRY_ORDER,
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -379,7 +379,8 @@ fn assert_openvpn_retry_order() {
     );
 }
 
-/// Test whether the relay selector seems to respect the order as defined by [`WIREGUARD_RETRY_ORDER`].
+/// Test whether the relay selector seems to respect the order as defined by
+/// [`WIREGUARD_RETRY_ORDER`].
 #[test]
 fn test_wireguard_retry_order() {
     // In order to for the relay queries defined by `RETRY_ORDER` to always take precedence,
@@ -390,7 +391,10 @@ fn test_wireguard_retry_order() {
     let relay_selector = default_relay_selector();
     for (retry_attempt, query) in WIREGUARD_RETRY_ORDER.iter().enumerate() {
         let relay = relay_selector
-            .get_relay(retry_attempt, RuntimeParameters { ipv6: true })
+            .get_relay(
+                retry_attempt,
+                talpid_types::net::IpAvailability::Ipv4AndIpv6,
+            )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
         // For each relay, cross-check that the it has the expected tunnel protocol
         let tunnel_type = tunnel_type(&unwrap_relay(relay.clone()));
@@ -429,7 +433,8 @@ fn test_wireguard_retry_order() {
     }
 }
 
-/// Test whether the relay selector seems to respect the order as defined by [`OPENVPN_RETRY_ORDER`].
+/// Test whether the relay selector seems to respect the order as defined by
+/// [`OPENVPN_RETRY_ORDER`].
 #[test]
 fn test_openvpn_retry_order() {
     // In order to for the relay queries defined by `RETRY_ORDER` to always take precedence,
@@ -448,7 +453,10 @@ fn test_openvpn_retry_order() {
 
     for (retry_attempt, query) in OPENVPN_RETRY_ORDER.iter().enumerate() {
         let relay = relay_selector
-            .get_relay(retry_attempt, RuntimeParameters { ipv6: true })
+            .get_relay(
+                retry_attempt,
+                talpid_types::net::IpAvailability::Ipv4AndIpv6,
+            )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
         // For each relay, cross-check that the it has the expected tunnel protocol
         let tunnel_type = tunnel_type(&unwrap_relay(relay.clone()));
@@ -1154,7 +1162,11 @@ fn test_openvpn_auto_bridge() {
         .take(100 * retry_order.len())
     {
         let relay = relay_selector
-            .get_relay_with_custom_params(retry_attempt, &retry_order, RuntimeParameters::default())
+            .get_relay_with_custom_params(
+                retry_attempt,
+                &retry_order,
+                talpid_types::net::IpAvailability::Ipv4,
+            )
             .unwrap();
         match relay {
             GetRelay::OpenVpn { bridge, .. } => {
@@ -1263,7 +1275,7 @@ fn test_include_in_country() {
     // If include_in_country is false for all relays, a relay must be selected anyway.
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list.clone());
     assert!(relay_selector
-        .get_relay(0, RuntimeParameters::default())
+        .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
         .is_ok());
 
     // If include_in_country is true for some relay, it must always be selected.
@@ -1272,7 +1284,7 @@ fn test_include_in_country() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), relay_list);
     let relay = unwrap_relay(
         relay_selector
-            .get_relay(0, RuntimeParameters::default())
+            .get_relay(0, talpid_types::net::IpAvailability::Ipv4)
             .expect("expected match"),
     );
 
@@ -1609,9 +1621,68 @@ fn valid_user_setting_should_yield_relay() {
     let user_result = relay_selector.get_relay_by_query(user_query.clone());
     for retry_attempt in 0..WIREGUARD_RETRY_ORDER.len() {
         let post_unification_result =
-            relay_selector.get_relay(retry_attempt, RuntimeParameters::default());
+            relay_selector.get_relay(retry_attempt, talpid_types::net::IpAvailability::Ipv4);
         if user_result.is_ok() {
             assert!(post_unification_result.is_ok(), "Expected Post-unification query to be valid because original query {:#?} yielded a connection configuration", user_query)
         }
+    }
+}
+
+/// Check that if IPv4 is not available and shadowsocks obfuscation is requested
+/// it should return a relay with IPv6 address.
+#[test]
+fn test_shadowsocks_runtime_ipv4_unavailable() {
+    // Make a valid user relay constraint
+    let (relay_constraints, _, _, obfs_settings) = RelayQueryBuilder::wireguard()
+        .shadowsocks()
+        .build()
+        .into_settings();
+
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        obfuscation_settings: obfs_settings,
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
+    let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    assert!(
+        matches!(user_result, GetRelay::Wireguard {
+        obfuscator: Some(SelectedObfuscator {
+            config: ObfuscatorConfig::Shadowsocks {
+                endpoint,
+                ..
+            },
+            ..
+        }),
+        ..
+    } if endpoint.is_ipv6()),
+        "expected IPv6 endpoint for Shadowsocks, got {user_result:?}"
+    );
+}
+
+/// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
+#[test]
+fn test_runtime_ipv4_unavailable() {
+    // Make a valid user relay constraint
+    let (relay_constraints, ..) = RelayQueryBuilder::wireguard().build().into_settings();
+
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = talpid_types::net::IpAvailability::Ipv6;
+    let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    match relay {
+        GetRelay::Wireguard { endpoint, .. } => {
+            assert!(
+                endpoint.peer.endpoint.is_ipv6(),
+                "expected IPv6 endpoint, got {endpoint:?}",
+            );
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+        ),
     }
 }

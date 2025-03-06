@@ -82,7 +82,7 @@ async fn check_connectivity(handle: &RouteManagerHandle, fwmark: Option<u32>) ->
         route_exists(PUBLIC_INTERNET_ADDRESS_V4).await,
         route_exists(PUBLIC_INTERNET_ADDRESS_V6).await,
     ) {
-        (Ok(ipv4), Ok(ipv6)) => Connectivity::Status { ipv4, ipv6 },
+        (Ok(ipv4), Ok(ipv6)) => Connectivity::new(ipv4, ipv6),
         // If we fail to retrieve the IPv4 route, always assume we're connected
         (Err(err), _) => {
             log::error!(
@@ -99,7 +99,7 @@ async fn check_connectivity(handle: &RouteManagerHandle, fwmark: Option<u32>) ->
                     "Failed to infer offline state for IPv6. Assuming it's unavailable"
                 )
             );
-            Connectivity::Status { ipv4, ipv6: false }
+            Connectivity::new(ipv4, false)
         }
     }
 }

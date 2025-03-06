@@ -9,7 +9,9 @@ use futures::{FutureExt, StreamExt};
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
-use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
+use talpid_types::net::{
+    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, IpAvailability, TunnelParameters,
+};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::ErrorExt;
 
@@ -73,19 +75,24 @@ impl ConnectingState {
                 });
         }
 
-        if shared_values.connectivity.is_offline() {
-            // FIXME: Temporary: Nudge route manager to update the default interface
-            #[cfg(target_os = "macos")]
-            {
-                log::debug!("Poking route manager to update default routes");
-                let _ = shared_values.route_manager.refresh_routes();
+        let ip_availability = match shared_values.connectivity {
+            talpid_types::net::Connectivity::Offline => {
+                // FIXME: Temporary: Nudge route manager to update the default interface
+                #[cfg(target_os = "macos")]
+                {
+                    log::debug!("Poking route manager to update default routes");
+                    let _ = shared_values.route_manager.refresh_routes();
+                }
+                return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
             }
-            return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
-        }
+            talpid_types::net::Connectivity::PresumeOnline => IpAvailability::Ipv4,
+            talpid_types::net::Connectivity::Online(ip_availability) => ip_availability,
+        };
+
         match shared_values.runtime.block_on(
             shared_values
                 .tunnel_parameters_generator
-                .generate(retry_attempt, shared_values.connectivity.has_ipv6()),
+                .generate(retry_attempt, ip_availability),
         ) {
             Err(err) => {
                 ErrorState::enter(shared_values, ErrorStateCause::TunnelParameterError(err))
