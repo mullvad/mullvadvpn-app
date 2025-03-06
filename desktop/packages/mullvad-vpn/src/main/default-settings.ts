@@ -41,22 +41,7 @@ export function getDefaultSettings(): ISettings {
       appsList: [],
     },
     relaySettings: {
-      normal: {
-        location: 'any',
-        tunnelProtocol: 'any',
-        providers: [],
-        ownership: Ownership.any,
-        openvpnConstraints: {
-          port: 'any',
-          protocol: 'any',
-        },
-        wireguardConstraints: {
-          port: 'any',
-          ipVersion: 'any',
-          useMultihop: false,
-          entryLocation: 'any',
-        },
-      },
+      normal: getDefaultRelaySettingsNormal(),
     },
     bridgeSettings: {
       type: 'normal',
