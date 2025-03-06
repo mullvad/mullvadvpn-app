@@ -79,8 +79,6 @@
     <string name="connected">Połączono</string>
     <string name="connecting_to_daemon">Łączenie z usługą systemową Mullvad...</string>
     <string name="connection_details_in">Wejście</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
     <string name="connection_details_out">Wyjście</string>
     <string name="continue_login">Kontynuuj logowanie</string>
     <string name="copied_logs_to_clipboard">Skopiowano dzienniki do schowka</string>
@@ -124,6 +122,8 @@
     <string name="device_inactive_description">Urządzenie usunięto. Aby połączyć się ponownie, musisz się ponownie zalogować.</string>
     <string name="device_inactive_title">Urządzenie nieaktywne</string>
     <string name="device_inactive_unblock_warning">Przejście do logowania odblokuje Internet na tym urządzeniu.</string>
+    <string name="device_ip_version_ipv4">IPv4</string>
+    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Nazwa urządzenia</string>
     <string name="device_name_info_first_paragraph">Jest to nazwa przypisana do urządzenia. Każde urządzenie zalogowane na koncie Mullvad otrzymuje unikalną nazwę, która pozwala zidentyfikować je podczas zarządzania urządzeniami w aplikacji lub za pośrednictwem witryny internetowej.</string>
     <string name="device_name_info_second_paragraph">Na jednym koncie Mullvad może być zalogowanych maksymalnie 5 urządzeń.</string>

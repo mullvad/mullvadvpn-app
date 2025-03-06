@@ -79,8 +79,6 @@
     <string name="connected">Tilkoblet</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="connection_details_in">Inngående</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
     <string name="connection_details_out">Utgående</string>
     <string name="continue_login">Fortsett med pålogging</string>
     <string name="copied_logs_to_clipboard">Logger kopiert til utklippstavlen</string>
@@ -124,6 +122,8 @@
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
     <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
+    <string name="device_ip_version_ipv4">IPv4</string>
+    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Enhetsnavn</string>
     <string name="device_name_info_first_paragraph">Dette er navnet som er tildelt enheten. Enhver enhet som er logget inn på en Mullvad-konto, får et unikt navn som gjør det enklere for deg å identifisere den når du administrerer enheten i appen eller på nettsiden.</string>
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
