@@ -51,6 +51,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     private(set) var shadowsocksLoader: ShadowsocksLoaderProtocol!
     private(set) var configuredTransportProvider: ProxyConfigurationTransportProvider!
     private(set) var ipOverrideRepository = IPOverrideRepository()
+    private(set) var relaySelector: RelaySelectorWrapper!
     private var launchArguments = LaunchArguments()
     private var encryptedDNSTransport: EncryptedDNSTransport!
 
@@ -105,7 +106,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
         tunnelStore = TunnelStore(application: backgroundTaskProvider)
 
-        let relaySelector = RelaySelectorWrapper(
+        relaySelector = RelaySelectorWrapper(
             relayCache: ipOverrideWrapper
         )
         tunnelManager = createTunnelManager(
