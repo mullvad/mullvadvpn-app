@@ -114,16 +114,23 @@ impl ConnectivityListener {
                 .map_err(Error::AttachJvmToThread)?,
         );
 
-        let is_connected = env
-            .call_method(
-                self.android_listener.as_obj(),
-                "isConnected",
-                "()Lnet/mullvad/talpid/model/Connectivity;",
-                &[],
-            )
-            .expect("Missing isConnected")
-            .l()
-            .expect("isConnected is not an object");
+        let is_connected = env.call_method(
+            self.android_listener.as_obj(),
+            "isConnected",
+            "()Lnet/mullvad/talpid/model/Connectivity;",
+            &[],
+        );
+
+        let is_connected = match is_connected {
+            Ok(JValue::Object(object)) => object,
+            value => {
+                return Err(Error::InvalidMethodResult(
+                    "ConnectivityListener",
+                    "isConnected",
+                    format!("{:?}", value),
+                ))
+            }
+        };
 
         Ok(Connectivity::from_java(&env, is_connected))
     }
