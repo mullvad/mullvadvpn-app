@@ -28,8 +28,8 @@ class UnderlyingConnectivityStatusResolver(
     // if the VPN is turned on or not.
     // If the ip version is not supported on the underlying network it will trigger a socket
     // exception. Otherwise we assume it is available.
-    private inline fun <reified T : InetAddress> hasIpVersion(
-        ip: T,
+    private fun hasIpVersion(
+        ip: InetAddress,
         protect: (socket: DatagramSocket) -> Boolean,
     ): Boolean {
         val socket = DatagramSocket()
