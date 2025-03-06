@@ -8,10 +8,8 @@ import android.net.NetworkCapabilities
 import app.cash.turbine.test
 import io.mockk.every
 import io.mockk.mockk
-import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.verify
-import java.net.DatagramSocket
 import java.net.Inet4Address
 import java.net.Inet6Address
 import kotlin.test.assertEquals
@@ -22,8 +20,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.talpid.model.Connectivity
-import net.mullvad.talpid.util.IpUtils
 import net.mullvad.talpid.util.NetworkEvent
+import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
 import net.mullvad.talpid.util.defaultNetworkEvents
 import net.mullvad.talpid.util.hasInternetConnectivity
 import org.junit.jupiter.api.BeforeEach
@@ -35,23 +33,14 @@ class ConnectivityManagerUtilKtTest {
     @BeforeEach
     fun setup() {
         mockkStatic(CONNECTIVITY_MANAGER_UTIL_CLASS)
-        mockkObject(IpUtils)
     }
 
     /** User being online, the listener should emit once with `true` */
     @Test
     fun userIsOnline() = runTest {
-        val network = mockk<Network>()
-        val linkProperties = mockk<LinkProperties>()
-        val ipv4Address: Inet4Address = mockk()
-        val ipv6Address: Inet6Address = mockk()
-        val linkIpv4Address: LinkAddress = mockk()
-        val linkIpv6Address: LinkAddress = mockk()
-        every { linkIpv4Address.address } returns ipv4Address
-        every { linkIpv6Address.address } returns ipv6Address
-        every { linkProperties.linkAddresses } returns
-            mutableListOf(linkIpv4Address, linkIpv6Address)
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val network = mockk<Network>(relaxed = true)
+        val linkProperties = mockLinkProperties(true, true)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 delay(100.milliseconds) // Simulate connectivity listener being a bit slow
@@ -61,7 +50,7 @@ class ConnectivityManagerUtilKtTest {
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Since initial state and listener both return `true` within debounce we only see one
             // event
             assertEquals(Connectivity.Status(true, true), awaitItem())
@@ -72,10 +61,10 @@ class ConnectivityManagerUtilKtTest {
     /** User being offline, the listener should emit once with `false` */
     @Test
     fun userIsOffline() = runTest {
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
         every { connectivityManager.defaultNetworkEvents() } returns callbackFlow { awaitClose {} }
 
-        connectivityManager.hasInternetConnectivity(mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Initially offline and no network events, so we should get a single `false` event
             assertEquals(Connectivity.Status(false, false), awaitItem())
             expectNoEvents()
@@ -86,16 +75,8 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun initiallyOfflineThenBecomingOnline() = runTest {
         val network = mockk<Network>()
-        val linkProperties = mockk<LinkProperties>()
-        val ipv4Address: Inet4Address = mockk()
-        val ipv6Address: Inet6Address = mockk()
-        val linkIpv4Address: LinkAddress = mockk()
-        val linkIpv6Address: LinkAddress = mockk()
-        every { linkIpv4Address.address } returns ipv4Address
-        every { linkIpv6Address.address } returns ipv6Address
-        every { linkProperties.linkAddresses } returns
-            mutableListOf(linkIpv4Address, linkIpv6Address)
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val linkProperties = mockLinkProperties(true, true)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 // Simulate offline for a little while
@@ -106,7 +87,7 @@ class ConnectivityManagerUtilKtTest {
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(protect = mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             assertEquals(Connectivity.Status(false, false), awaitItem())
             assertEquals(Connectivity.Status(true, true), awaitItem())
             expectNoEvents()
@@ -117,16 +98,9 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun initiallyOnlineAndThenTurningBecomingOffline() = runTest {
         val network = mockk<Network>()
-        val linkProperties = mockk<LinkProperties>()
-        val ipv4Address: Inet4Address = mockk()
-        val ipv6Address: Inet6Address = mockk()
-        val linkIpv4Address: LinkAddress = mockk()
-        val linkIpv6Address: LinkAddress = mockk()
-        every { linkIpv4Address.address } returns ipv4Address
-        every { linkIpv6Address.address } returns ipv6Address
-        every { linkProperties.linkAddresses } returns
-            mutableListOf(linkIpv4Address, linkIpv6Address)
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val linkProperties = mockLinkProperties(true, true)
+
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
                 // Starting as online
@@ -138,7 +112,7 @@ class ConnectivityManagerUtilKtTest {
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             assertEquals(Connectivity.Status(true, true), awaitItem())
             assertEquals(Connectivity.Status(false, false), awaitItem())
             expectNoEvents()
@@ -149,14 +123,10 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun roamingFromCellularToWifi() = runTest {
         val wifiNetwork = mockk<Network>()
-        val wifiNetworkLinkProperties = mockk<LinkProperties>()
-        every { wifiNetworkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet4Address>() })
+        val wifiNetworkLinkProperties = mockLinkProperties(true, false)
         val cellularNetwork = mockk<Network>()
-        val cellularNetworkLinkProperties = mockk<LinkProperties>()
-        every { cellularNetworkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet4Address>() })
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val cellularNetworkLinkProperties = mockLinkProperties(true, false)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
 
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
@@ -178,7 +148,7 @@ class ConnectivityManagerUtilKtTest {
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // We should always only see us being online
             assertEquals(Connectivity.Status(ipv4 = true, ipv6 = false), awaitItem())
             expectNoEvents()
@@ -189,14 +159,10 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun roamingFromWifiToCellular() = runTest {
         val wifiNetwork = mockk<Network>()
-        val wifiNetworkLinkProperties = mockk<LinkProperties>()
-        every { wifiNetworkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet4Address>() })
+        val wifiNetworkLinkProperties = mockLinkProperties(true, false)
         val cellularNetwork = mockk<Network>()
-        val cellularNetworkLinkProperties = mockk<LinkProperties>()
-        every { cellularNetworkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet4Address>() })
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val cellularNetworkLinkProperties = mockLinkProperties(true, false)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
 
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
@@ -216,7 +182,7 @@ class ConnectivityManagerUtilKtTest {
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // We should always only see us being online, small offline state is caught by debounce
             assertEquals(Connectivity.Status(ipv4 = true, ipv6 = false), awaitItem())
             expectNoEvents()
@@ -227,14 +193,10 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun slowRoamingFromWifiToCellular() = runTest {
         val wifiNetwork = mockk<Network>()
-        val wifiNetworkLinkProperties = mockk<LinkProperties>()
-        every { wifiNetworkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet6Address>() })
+        val wifiNetworkLinkProperties = mockLinkProperties(false, true)
         val cellularNetwork = mockk<Network>()
-        val cellularNetworkLinkProperties = mockk<LinkProperties>()
-        every { cellularNetworkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet6Address>() })
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val cellularNetworkLinkProperties = mockLinkProperties(false, true)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
 
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
@@ -254,7 +216,7 @@ class ConnectivityManagerUtilKtTest {
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(protect = mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Wifi is online
             assertEquals(Connectivity.Status(false, true), awaitItem())
             // We didn't get any network within debounce time, so we are offline
@@ -269,14 +231,10 @@ class ConnectivityManagerUtilKtTest {
     @Test
     fun roamingFromWifiWithIpv6OnlyToWifiWithIpv4Only() = runTest {
         val ipv6Network = mockk<Network>()
-        val ipv6NetworkLinkProperties = mockk<LinkProperties>()
-        every { ipv6NetworkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet4Address>() })
+        val ipv6NetworkLinkProperties = mockLinkProperties(false, true)
         val ipv4Network = mockk<Network>()
-        val ipv4NetworkkLinkProperties = mockk<LinkProperties>()
-        every { ipv4NetworkkLinkProperties.linkAddresses } returns
-            listOf(mockk<LinkAddress> { every { address } returns mockk<Inet6Address>() })
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>(relaxed = true)
+        val ipv4NetworkLinkProperties = mockLinkProperties(true, false)
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
 
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
@@ -286,15 +244,15 @@ class ConnectivityManagerUtilKtTest {
                 send(NetworkEvent.Lost(ipv6Network))
                 delay(100.milliseconds)
                 send(NetworkEvent.Available(ipv4Network))
-                send(NetworkEvent.LinkPropertiesChanged(ipv4Network, ipv4NetworkkLinkProperties))
+                send(NetworkEvent.LinkPropertiesChanged(ipv4Network, ipv4NetworkLinkProperties))
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(protect = mockProtect).test {
-            // Ipv4 network is online
-            assertEquals(Connectivity.Status(true, false), awaitItem())
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Ipv6 network is online
             assertEquals(Connectivity.Status(false, true), awaitItem())
+            // Ipv4 network is online
+            assertEquals(Connectivity.Status(true, false), awaitItem())
             expectNoEvents()
         }
     }
@@ -306,9 +264,8 @@ class ConnectivityManagerUtilKtTest {
         val capabilities = mockk<NetworkCapabilities>()
         every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) } returns
             false
-        val mockProtect = mockk<(socket: DatagramSocket) -> Boolean>()
-        every { IpUtils.hasIPv4(any()) } returns true
-        every { IpUtils.hasIPv6(any()) } returns true
+        val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
+        every { mockResolver.currentStatus() } returns Connectivity.Status(true, true)
 
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
@@ -317,14 +274,33 @@ class ConnectivityManagerUtilKtTest {
                 awaitClose {}
             }
 
-        connectivityManager.hasInternetConnectivity(protect = mockProtect).test {
+        connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Network is online
             assertEquals(Connectivity.Status(true, true), awaitItem())
         }
 
-        verify(exactly = 1) { IpUtils.hasIPv4(any()) }
-        verify(exactly = 1) { IpUtils.hasIPv6(any()) }
+        verify(exactly = 1) { mockResolver.currentStatus() }
     }
+
+    private fun mockLinkProperties(ipv4: Boolean, ipv6: Boolean) =
+        mockk<LinkProperties> {
+            val linkAddresses = buildList {
+                if (ipv4) {
+                    val linkIpv4Address: LinkAddress = mockk()
+                    val ipv4Address: Inet4Address = mockk()
+                    every { linkIpv4Address.address } returns ipv4Address
+                    add(linkIpv4Address)
+                }
+                if (ipv6) {
+                    val linkIpv6Address: LinkAddress = mockk()
+                    val ipv6Address: Inet6Address = mockk()
+                    every { linkIpv6Address.address } returns ipv6Address
+                    add(linkIpv6Address)
+                }
+            }
+
+            every { this@mockk.linkAddresses } returns linkAddresses
+        }
 
     companion object {
         private const val CONNECTIVITY_MANAGER_UTIL_CLASS =

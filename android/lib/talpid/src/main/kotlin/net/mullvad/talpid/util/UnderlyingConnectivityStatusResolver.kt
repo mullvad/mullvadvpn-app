@@ -5,12 +5,19 @@ import java.net.DatagramSocket
 import java.net.InetAddress
 import java.net.InetSocketAddress
 import java.net.SocketException
+import net.mullvad.talpid.model.Connectivity
 
-object IpUtils {
-    fun hasIPv4(protect: (socket: DatagramSocket) -> Boolean): Boolean =
+/** This class is used to check the ip version of the underlying network when a VPN is active. */
+class UnderlyingConnectivityStatusResolver(
+    private val protect: (socket: DatagramSocket) -> Boolean
+) {
+    fun currentStatus(): Connectivity.Status =
+        Connectivity.Status(ipv4 = hasIPv4(), ipv6 = hasIPv6())
+
+    private fun hasIPv4(): Boolean =
         hasIpVersion(InetAddress.getByName(PUBLIC_IPV4_ADDRESS), protect)
 
-    fun hasIPv6(protect: (socket: DatagramSocket) -> Boolean): Boolean =
+    private fun hasIPv6(): Boolean =
         hasIpVersion(InetAddress.getByName(PUBLIC_IPV6_ADDRESS), protect)
 
     // Fake a connection to a public ip address using a UDP socket.
@@ -42,6 +49,8 @@ object IpUtils {
         }
     }
 
-    private const val PUBLIC_IPV4_ADDRESS = "1.1.1.1"
-    private const val PUBLIC_IPV6_ADDRESS = "2606:4700:4700::1001"
+    companion object {
+        private const val PUBLIC_IPV4_ADDRESS = "1.1.1.1"
+        private const val PUBLIC_IPV6_ADDRESS = "2606:4700:4700::1001"
+    }
 }

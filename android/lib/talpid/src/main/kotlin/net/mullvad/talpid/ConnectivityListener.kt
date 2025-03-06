@@ -2,7 +2,6 @@ package net.mullvad.talpid
 
 import android.net.ConnectivityManager
 import android.net.LinkProperties
-import java.net.DatagramSocket
 import java.net.InetAddress
 import kotlin.collections.ArrayList
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +11,6 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.onEach
@@ -24,14 +22,15 @@ import kotlinx.coroutines.runBlocking
 import net.mullvad.talpid.model.Connectivity
 import net.mullvad.talpid.model.NetworkState
 import net.mullvad.talpid.util.RawNetworkState
+import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
 import net.mullvad.talpid.util.activeRawNetworkState
 import net.mullvad.talpid.util.defaultRawNetworkStateFlow
 import net.mullvad.talpid.util.hasInternetConnectivity
-import net.mullvad.talpid.util.toConnectivity
+import net.mullvad.talpid.util.resolveConnectivityStatus
 
 class ConnectivityListener(
     private val connectivityManager: ConnectivityManager,
-    val protect: (socket: DatagramSocket) -> Boolean,
+    private val resolver: UnderlyingConnectivityStatusResolver,
 ) {
     private lateinit var _isConnected: StateFlow<Connectivity>
     // Used by JNI
@@ -66,7 +65,7 @@ class ConnectivityListener(
 
         _isConnected =
             connectivityManager
-                .hasInternetConnectivity(protect)
+                .hasInternetConnectivity(resolver)
                 .onEach { notifyConnectivityChange(it.ipv4, it.ipv6) }
                 .stateIn(
                     scope + Dispatchers.IO,
@@ -74,7 +73,10 @@ class ConnectivityListener(
                     // Has to happen on IO to avoid NetworkOnMainThreadException, we actually don't
                     // send any traffic just open a socket to detect the IP version.
                     runBlocking(Dispatchers.IO) {
-                        connectivityManager.activeRawNetworkState().toConnectivity(protect)
+                        resolveConnectivityStatus(
+                            connectivityManager.activeRawNetworkState(),
+                            resolver,
+                        )
                     },
                 )
     }

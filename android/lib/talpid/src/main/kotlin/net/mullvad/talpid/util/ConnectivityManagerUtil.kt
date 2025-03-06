@@ -6,7 +6,6 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import co.touchlab.kermit.Logger
-import java.net.DatagramSocket
 import java.net.Inet4Address
 import java.net.Inet6Address
 import kotlin.time.Duration.Companion.milliseconds
@@ -104,13 +103,29 @@ sealed interface NetworkEvent {
     data class Lost(val network: Network) : NetworkEvent
 }
 
-internal data class RawNetworkState(
+data class RawNetworkState(
     val network: Network,
     val linkProperties: LinkProperties? = null,
     val networkCapabilities: NetworkCapabilities? = null,
     val blockedStatus: Boolean = false,
     val maxMsToLive: Int? = null,
 )
+
+internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
+    try {
+        activeNetwork?.let { currentNetwork: Network ->
+            RawNetworkState(
+                network = currentNetwork,
+                linkProperties = getLinkProperties(currentNetwork),
+                networkCapabilities = getNetworkCapabilities(currentNetwork),
+            )
+        }
+    } catch (_: RuntimeException) {
+        Logger.e(
+            "Unable to get active network or properties and capabilities of the active network"
+        )
+        null
+    }
 
 /**
  * Return a flow with the current internet connectivity status. The status is based on current
@@ -121,47 +136,32 @@ internal data class RawNetworkState(
  */
 @OptIn(FlowPreview::class)
 fun ConnectivityManager.hasInternetConnectivity(
-    protect: (socket: DatagramSocket) -> Boolean
+    resolver: UnderlyingConnectivityStatusResolver
 ): Flow<Connectivity.Status> =
     this.defaultRawNetworkStateFlow()
         .debounce(CONNECTIVITY_DEBOUNCE)
-        .map { it.toConnectivity(protect) }
+        .map { resolveConnectivityStatus(it, resolver) }
         .distinctUntilChanged()
 
-internal fun RawNetworkState?.toConnectivity(
-    protect: (socket: DatagramSocket) -> Boolean
+internal fun resolveConnectivityStatus(
+    currentRawNetworkState: RawNetworkState?,
+    resolver: UnderlyingConnectivityStatusResolver,
 ): Connectivity.Status =
-    if (isVpn()) {
+    if (currentRawNetworkState.isVpn()) {
         // If the default network is a VPN we need to use a socket to check
         // the underlying network
-        Connectivity.Status(
-            IpUtils.hasIPv4(protect = { protect(it) }),
-            IpUtils.hasIPv6(protect = { protect(it) }),
-        )
+        resolver.currentStatus()
     } else {
         // If the default network is not a VPN we can check the addresses
         // directly
-        Connectivity.Status(
-            ipv4 = this?.linkProperties?.linkAddresses?.any { it.address is Inet4Address } == true,
-            ipv6 = this?.linkProperties?.linkAddresses?.any { it.address is Inet6Address } == true,
-        )
+        currentRawNetworkState.toConnectivityStatus()
     }
+
+private fun RawNetworkState?.toConnectivityStatus() =
+    Connectivity.Status(
+        ipv4 = this?.linkProperties?.linkAddresses?.any { it.address is Inet4Address } == true,
+        ipv6 = this?.linkProperties?.linkAddresses?.any { it.address is Inet6Address } == true,
+    )
 
 private fun RawNetworkState?.isVpn(): Boolean =
     this?.networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) == false
-
-internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
-    try {
-        activeNetwork?.let { initialNetwork: Network ->
-            RawNetworkState(
-                network = initialNetwork,
-                linkProperties = getLinkProperties(initialNetwork),
-                networkCapabilities = getNetworkCapabilities(initialNetwork),
-            )
-        }
-    } catch (_: RuntimeException) {
-        Logger.e(
-            "Unable to get active network or properties and capabilities of the active network"
-        )
-        null
-    }
