@@ -34,6 +34,7 @@ pub struct SignedResponse {
 /// Helper type that leaves the signed data untouched
 /// Note that deserializing doesn't verify anything
 #[derive(Deserialize, Serialize)]
+#[cfg_attr(test, derive(Debug))]
 struct PartialSignedResponse {
     /// Signatures of the canonicalized JSON of `signed`
     pub signatures: Vec<ResponseSignature>,
