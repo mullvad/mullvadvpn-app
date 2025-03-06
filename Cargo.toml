@@ -122,6 +122,8 @@ ipnetwork = "0.20"
 tun = { version = "0.5.5", features = ["async"] }
 socket2 = "0.5.7"
 
+vec1 = "1.12"
+
 # Test dependencies
 proptest = "1.4"
 insta = { version = "1.42", features = ["yaml"] }

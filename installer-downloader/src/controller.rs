@@ -19,6 +19,7 @@ use tokio::{
     sync::{mpsc, oneshot},
     task::JoinHandle,
 };
+use vec1::vec1;
 
 /// ed25519 pubkey used to verify metadata from the Mullvad (stagemole) API
 const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
@@ -60,7 +61,7 @@ pub fn initialize_controller<T: AppDelegate + 'static>(delegate: &mut T, environ
     let version_provider = HttpVersionInfoProvider {
         url: get_metadata_url(),
         pinned_certificate: Some(cert),
-        verifying_key,
+        verifying_keys: vec1![verifying_key],
     };
 
     AppController::initialize::<_, Downloader<T>, _, DirProvider>(

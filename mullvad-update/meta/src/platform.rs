@@ -12,6 +12,7 @@ use std::{
     str::FromStr,
 };
 use tokio::{fs, io};
+use vec1::vec1;
 
 use crate::{
     artifacts,
@@ -128,7 +129,7 @@ impl Platform {
             // TODO: pin
             pinned_certificate: None,
             url,
-            verifying_key,
+            verifying_keys: vec1![verifying_key],
         };
         let response = version_provider
             .get_versions(crate::MIN_VERIFY_METADATA_VERSION)
@@ -234,7 +235,7 @@ impl Platform {
             key::VerifyingKey::from_hex(include_str!("../../test-pubkey")).expect("Invalid pubkey");
 
         format::SignedResponse::deserialize_and_verify(
-            &public_key,
+            &vec1![public_key],
             &bytes,
             crate::MIN_VERIFY_METADATA_VERSION,
         )
