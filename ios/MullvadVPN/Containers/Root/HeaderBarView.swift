@@ -57,7 +57,7 @@ class HeaderBarView: UIView {
     }()
 
     let accountButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.account)
         button.setAccessibilityIdentifier(.accountButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
@@ -71,7 +71,7 @@ class HeaderBarView: UIView {
     }()
 
     let settingsButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.settings)
         button.setAccessibilityIdentifier(.settingsButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
@@ -85,16 +85,13 @@ class HeaderBarView: UIView {
     }()
 
     class func prepareHeaderBarButtonImage(from image: UIImage) -> UIImage {
-        // The SVGs we get from desktop have a 20x20 graphic with a 2-pixel border on each side, making 24x24
-        // The PDFs we had were trimmed, with the entire image scaled up to 24x24
-        // to compensate, we need to resize the images by 6/5, to 28.8x28.8
         let resizeRatio = 24.0 / 20.0
         let targetSize = CGSize(width: image.size.width * resizeRatio, height: image.size.height * resizeRatio)
-        return image.resizeImage(targetSize: targetSize)
+        return image // .resizeImage(targetSize: targetSize)
     }
 
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
-        let image = image.map { prepareHeaderBarButtonImage(from: $0) }
+//        let image = image.map { prepareHeaderBarButtonImage(from: $0) }
         let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
         let disabledButtonImage = image?.withTintColor(
             UIColor.HeaderBar.disabledButtonColor,

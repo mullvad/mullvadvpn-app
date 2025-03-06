@@ -16,9 +16,9 @@ class StatusImageView: UIImageView {
         fileprivate var image: UIImage? {
             switch self {
             case .success:
-                return UIImage(named: "IconSuccess")
+                return UIImage.Status.success
             case .failure:
-                return UIImage(named: "IconFail")
+                return UIImage.Status.failure
             }
         }
     }

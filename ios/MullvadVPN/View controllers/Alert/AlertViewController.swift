@@ -31,11 +31,11 @@ enum AlertIcon {
     fileprivate var image: UIImage? {
         switch self {
         case .alert:
-            return UIImage(named: "IconAlert")?.withTintColor(.dangerColor)
+            return UIImage.Buttons.alert.withTintColor(.dangerColor)
         case .warning:
-            return UIImage(named: "IconAlert")?.withTintColor(.white)
+            return UIImage.Buttons.alert.withTintColor(.white)
         case .info:
-            return UIImage(named: "IconInfo")?.withTintColor(.white)
+            return UIImage.Buttons.info.withTintColor(.white)
         default:
             return nil
         }

@@ -19,11 +19,11 @@ enum SettingsDisclosureType {
         case .none:
             nil
         case .chevron:
-            UIImage(resource: .iconChevron)
+            UIImage.CellDecoration.chevronRight
         case .externalLink:
-            UIImage(resource: .iconExtlink)
+            UIImage.CellDecoration.externalLink
         case .tick:
-            UIImage(resource: .iconTickSml)
+            UIImage.CellDecoration.tick
         }
     }
 }
@@ -83,7 +83,7 @@ class SettingsCell: UITableViewCell, CustomCellDisclosureHandling {
         let button = UIButton(type: .custom)
         button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
-        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        button.setImage(UIImage.Buttons.info, for: .normal)
         button.isHidden = true
         return button
     }()
