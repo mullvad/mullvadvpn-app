@@ -60,10 +60,7 @@ final class LocationViewControllerWrapper: UIViewController {
     var onNewSettings: ((LatestTunnelSettings) -> Void)?
 
     private var relayFilter: RelayFilter {
-        if case let .only(filter) = settings.relayConstraints.filter {
-            return filter
-        }
-        return RelayFilter()
+        settings.relayConstraints.filter.value ?? RelayFilter()
     }
 
     init(

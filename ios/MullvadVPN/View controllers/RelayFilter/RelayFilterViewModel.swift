@@ -11,139 +11,173 @@ import MullvadREST
 import MullvadSettings
 import MullvadTypes
 
-class RelayFilterViewModel {
-    private var settings: LatestTunnelSettings
-    private let relaysWithLocation: LocationRelays
-    private let relaySelectorWrapper: RelaySelectorWrapper
+final class RelayFilterViewModel {
     @Published var relayFilter: RelayFilter
+
+    private var settings: LatestTunnelSettings
+    private let relaySelectorWrapper: RelaySelectorWrapper
+    private let relaysWithLocation: LocationRelays
+    private var relayCandidatesForAny: RelayCandidates
 
     init(settings: LatestTunnelSettings, relaySelectorWrapper: RelaySelectorWrapper) {
         self.settings = settings
         self.relaySelectorWrapper = relaySelectorWrapper
-        relaysWithLocation = if let cachedResponse = try? relaySelectorWrapper.relayCache.read().relays {
-            LocationRelays(relays: cachedResponse.wireguard.relays, locations: cachedResponse.locations)
+        self.relayFilter = settings.relayConstraints.filter.value ?? RelayFilter()
+
+        // Retrieve all available relays that satisfy the `any` constraint.
+        // This constraint ensures that the selected relays are associated with the current tunnel settings
+        // and serve as the primary source of truth for subsequent filtering operations.
+        // Further filtering will be applied based on specific criteria such as `ownership` or `provider`.
+        var copy = settings
+        copy.relayConstraints.filter = .any
+        if let relayCandidatesForAny = try? relaySelectorWrapper.findCandidates(tunnelSettings: copy) {
+            self.relayCandidatesForAny = relayCandidatesForAny
         } else {
-            LocationRelays(relays: [], locations: [:])
+            self.relayCandidatesForAny = RelayCandidates(entryRelays: nil, exitRelays: [])
         }
 
-        self.relayFilter = if case let .only(filter) = settings.relayConstraints.filter {
-            filter
+        // Directly setting relaysWithLocation in constructor
+        if let cachedResponse = try? relaySelectorWrapper.relayCache.read().relays {
+            self.relaysWithLocation = LocationRelays(
+                relays: cachedResponse.wireguard.relays,
+                locations: cachedResponse.locations
+            )
         } else {
-            RelayFilter()
+            self.relaysWithLocation = LocationRelays(relays: [], locations: [:])
         }
     }
 
-    private var relays: [REST.ServerRelay] {
-        relaysWithLocation.relays
-    }
+    private var relays: [REST.ServerRelay] { relaysWithLocation.relays }
 
     var uniqueProviders: [String] {
-        Set(relays.map { $0.provider }).caseInsensitiveSorted()
+        extractProviders(from: relays)
     }
 
     var ownedProviders: [String] {
-        Set(relays.filter { $0.owned == true }.map { $0.provider }).caseInsensitiveSorted()
+        extractProviders(from: relays.filter { $0.owned == true })
     }
 
     var rentedProviders: [String] {
-        Set(relays.filter { $0.owned == false }.map { $0.provider }).caseInsensitiveSorted()
+        extractProviders(from: relays.filter { $0.owned == false })
     }
 
-    func addItemToFilter(_ item: RelayFilterDataSource.Item) {
-        switch item {
+    // MARK: - public Methods
+
+    func toggleItem(_ item: RelayFilterDataSource.Item) {
+        switch item.type {
         case .ownershipAny, .ownershipOwned, .ownershipRented:
             relayFilter.ownership = ownership(for: item) ?? .any
         case .allProviders:
-            relayFilter.providers = .any
-        case let .provider(name):
-            switch relayFilter.providers {
-            case .any:
-                relayFilter.providers = .only([name])
-            case var .only(providers):
-                if !providers.contains(name) {
-                    providers.append(name)
-                    providers.caseInsensitiveSort()
-
-                    if providers == availableProviders(for: relayFilter.ownership) {
-                        relayFilter.providers = .any
-                    } else {
-                        relayFilter.providers = .only(providers)
-                    }
-                }
-            }
+            relayFilter.providers = relayFilter.providers == .any ? .only([]) : .any
+        case .provider:
+            toggleProvider(item.name)
         }
     }
 
-    func removeItemFromFilter(_ item: RelayFilterDataSource.Item) {
-        switch item {
-        case .ownershipAny, .ownershipOwned, .ownershipRented:
-            break
-        case .allProviders:
-            relayFilter.providers = .only([])
-        case let .provider(name):
-            switch relayFilter.providers {
-            case .any:
-                var providers = availableProviders(for: relayFilter.ownership)
-                providers.removeAll { $0 == name }
-                relayFilter.providers = .only(providers)
-            case var .only(providers):
-                providers.removeAll { $0 == name }
-                relayFilter.providers = .only(providers)
-            }
-        }
+    func availableProviders(for ownership: RelayFilter.Ownership) -> [RelayFilterDataSource.Item] {
+        providers(for: ownership)
+            .map { RelayFilterDataSource.Item(
+                name: $0,
+                type: .provider,
+                isEnabled: isProviderEnabled(for: $0)
+            ) }.sorted()
     }
 
-    func providerItem(for providerName: String?) -> RelayFilterDataSource.Item? {
-        return .provider(providerName ?? "")
+    func ownership(for item: RelayFilterDataSource.Item) -> RelayFilter.Ownership? {
+        let ownershipMapping: [RelayFilterDataSource.Item.ItemType: RelayFilter.Ownership] = [
+            .ownershipAny: .any,
+            .ownershipOwned: .owned,
+            .ownershipRented: .rented,
+        ]
+
+        return ownershipMapping[item.type]
     }
 
-    func availableProviders(for ownership: RelayFilter.Ownership) -> [String] {
-        switch ownership {
-        case .any:
-            return uniqueProviders
-        case .owned:
-            return ownedProviders
-        case .rented:
-            return rentedProviders
-        }
+    func ownershipItem(for ownership: RelayFilter.Ownership) -> RelayFilterDataSource.Item? {
+        let ownershipMapping: [RelayFilter.Ownership: RelayFilterDataSource.Item.ItemType] = [
+            .any: .ownershipAny,
+            .owned: .ownershipOwned,
+            .rented: .ownershipRented,
+        ]
+
+        return RelayFilterDataSource.Item.ownerships.first { $0.type == ownershipMapping[ownership] }
     }
 
-    func ownership(for item: RelayFilterDataSource.Item?) -> RelayFilter.Ownership? {
-        switch item {
-        case .ownershipAny:
-            return .any
-        case .ownershipOwned:
-            return .owned
-        case .ownershipRented:
-            return .rented
-        default:
-            return nil
-        }
-    }
-
-    func ownershipItem(for ownership: RelayFilter.Ownership?) -> RelayFilterDataSource.Item? {
-        switch ownership {
-        case .any:
-            return .ownershipAny
-        case .owned:
-            return .ownershipOwned
-        case .rented:
-            return .ownershipRented
-        default:
-            return nil
-        }
+    func providerItem(for providerName: String) -> RelayFilterDataSource.Item {
+        return RelayFilterDataSource.Item(
+            name: providerName,
+            type: .provider,
+            isEnabled: isProviderEnabled(for: providerName)
+        )
     }
 
     func getFilteredRelays(_ relayFilter: RelayFilter) -> FilterDescriptor {
-        settings.relayConstraints.filter = .only(relayFilter)
-        do {
-            let result = try relaySelectorWrapper.findCandidates(tunnelSettings: settings)
-            return FilterDescriptor(relayFilterResult: result, settings: settings)
-        } catch {
-            return FilterDescriptor(
-                relayFilterResult: RelayCandidates(entryRelays: [], exitRelays: []),
-                settings: settings
-            )
+        return FilterDescriptor(
+            relayFilterResult: RelayCandidates(
+                entryRelays: relayCandidatesForAny.entryRelays?.filter {
+                    RelaySelector.relayMatchesFilter($0.relay, filter: relayFilter)
+                },
+                exitRelays: relayCandidatesForAny.exitRelays.filter {
+                    RelaySelector.relayMatchesFilter($0.relay, filter: relayFilter)
+                }
+            ),
+            settings: settings
+        )
+    }
+
+    // MARK: - private Methods
+
+    private func providers(for ownership: RelayFilter.Ownership) -> [String] {
+        switch ownership {
+        case .any:
+            uniqueProviders
+        case .owned:
+            ownedProviders
+        case .rented:
+            rentedProviders
         }
+    }
+
+    private func toggleProvider(_ name: String) {
+        switch relayFilter.providers {
+        case .any:
+            // If currently "any", switch to only the selected provider
+            var providers = providers(for: relayFilter.ownership)
+            providers.removeAll { $0 == name }
+            relayFilter.providers = .only(providers.map { $0 })
+        case var .only(selectedProviders):
+            if selectedProviders.contains(name) {
+                // If provider exists, remove it
+                selectedProviders.removeAll { $0 == name }
+            } else {
+                // Otherwise, add it
+                selectedProviders.append(name)
+            }
+
+            // If all available providers are selected, switch back to "any"
+            relayFilter.providers = selectedProviders.isEmpty
+                ? .only([])
+                : (selectedProviders == providers(for: relayFilter.ownership) ? .any : .only(selectedProviders))
+        }
+    }
+
+    private func extractProviders(from relays: [REST.ServerRelay]) -> [String] {
+        Set(relays.map { $0.provider }).caseInsensitiveSorted()
+    }
+
+    private func isProviderEnabled(for providerName: String) -> Bool {
+        let relayFilterSnapshot = relayFilter
+        let isFilterPossible = getFilteredRelays(relayFilterSnapshot).isEnabled
+
+        if relayFilterSnapshot.providers == .any {
+            return isFilterPossible
+        }
+
+        if case let .only(providers) = relayFilterSnapshot.providers, providers.contains(providerName) {
+            return isFilterPossible
+        }
+        return getFilteredRelays(
+            RelayFilter(ownership: relayFilter.ownership, providers: .only([providerName]))
+        ).isEnabled
     }
 }
