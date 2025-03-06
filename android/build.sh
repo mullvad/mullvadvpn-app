@@ -50,10 +50,9 @@ if [[ "$GRADLE_BUILD_TYPE" == "release" ]]; then
         GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
         BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
     elif [[ "$PRODUCT_VERSION" == *"-alpha"* ]]; then
-        echo "Removing old Rust build artifacts"
-        GRADLE_TASKS+=(createPlayStagemoleReleaseDistApk)
-        BUNDLE_TASKS+=(createPlayStagemoleReleaseDistBundle)
-        PLAY_PUBLISH_TASKS=(publishPlayStagemoleReleaseBundle)
+        GRADLE_TASKS+=(createPlayDevmoleReleaseDistApk createPlayStagemoleReleaseDistApk)
+        BUNDLE_TASKS+=(createPlayDevmoleReleaseDistBundle createPlayStagemoleReleaseDistBundle)
+        PLAY_PUBLISH_TASKS=(publishPlayDevmoleReleaseBundle publishPlayStagemoleReleaseBundle)
     fi
 fi
 
