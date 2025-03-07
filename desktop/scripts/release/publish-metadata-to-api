@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+set -eu
+
+if [ $# -lt 3 ]; then
+    echo "Please provide three arguments:"
+    echo "    $(basename "$0") \\"
+    echo "        <metadata directory> \\"
+    echo "        <build server SSH destination> \\"
+    echo "        <metadata server SSH destination>"
+    echo ""
+    echo "Note that the metadata server SSH destination is part of the rsync command executed on the build server and will be checked against the SSH config of build@\$buildserver_host."
+    exit 1
+fi
+
+LOCAL_METADATA_DIR=$1
+BUILD_SERVER_HOST=$2
+METADATA_SERVER_HOST=$3
+
+BUILDSERVER_TMP_DIR="/tmp/desktop-upload-release"
+BUILDSERVER_METADATA_DIR="$BUILDSERVER_TMP_DIR/metadata"
+METADATA_SERVER_METADATA_DIR="desktop/metadata"
+
+BUILDSERVER_BUILDUSER="build"
+
+RSYNC_OPTIONS=(-av --mkpath)
+METADATA_SERVER_RSYNC_OPTIONS=("${RSYNC_OPTIONS[@]}" '--rsh="ssh -p 1122"')
+
+function run_on_build_server {
+  # shellcheck disable=SC2029
+  ssh "$BUILD_SERVER_HOST" "$@"
+}
+
+function run_on_build_server_as_build_user {
+  run_on_build_server sudo -i -u "$BUILDSERVER_BUILDUSER" "$@"
+}
+
+function local_rsync {
+  rsync "${RSYNC_OPTIONS[@]}" "$@"
+}
+
+function buildserver_rsync {
+  run_on_build_server_as_build_user rsync "${METADATA_SERVER_RSYNC_OPTIONS[@]}" "$@"
+}
+
+function remove_buildserver_tmp_dir {
+  run_on_build_server rm -rf $BUILDSERVER_METADATA_DIR
+}
+
+# Clean up previous metadata dir on build server in case this failed the last time this script ran
+remove_buildserver_tmp_dir
+
+# Send the local metadata dir to the build server
+local_rsync "$LOCAL_METADATA_DIR" "$BUILD_SERVER_HOST":$BUILDSERVER_METADATA_DIR
+
+# Send the metadata on the buildserver to the cdn server
+# TODO: Remove --dry-run when ready to take for a test drive
+buildserver_rsync --dry-run $BUILDSERVER_METADATA_DIR "$METADATA_SERVER_HOST":"$(dirname "$METADATA_SERVER_METADATA_DIR")"
+
+# Remove intermediate tmp dir when done
+remove_buildserver_tmp_dir
