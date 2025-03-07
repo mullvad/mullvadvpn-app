@@ -93,13 +93,10 @@ pub enum Opt {
     },
 
     /// Sign using an ed25519 key and output the signed metadata to `signed/`
+    /// A secret ed25519 key will be read from stdin
     Sign {
         /// Platforms to remove releases for. All if none are specified
         platforms: Vec<Platform>,
-        /// Secret ed25519 key used for signing, as hexadecimal string
-        /// If not specified, this will be read from stdin
-        #[arg(long)]
-        secret: Option<key::SecretKey>,
         /// When the metadata expires, in months from now
         #[arg(long, default_value_t = DEFAULT_EXPIRY_MONTHS)]
         expiry: usize,
@@ -149,19 +146,13 @@ async fn main() -> anyhow::Result<()> {
         }
         Opt::Sign {
             platforms,
-            secret,
             expiry,
             assume_yes,
         } => {
-            let secret = match secret {
-                Some(secret) => secret,
-                None => {
-                    let key_str = io_util::wait_for_input("Enter ed25519 secret: ")
-                        .await
-                        .context("Failed to read secret from stdin")?;
-                    key::SecretKey::from_str(&key_str).context("Invalid secret")?
-                }
-            };
+            let key_str = io_util::wait_for_input("Enter ed25519 secret: ")
+                .await
+                .context("Failed to read secret from stdin")?;
+            let secret = key::SecretKey::from_str(&key_str).context("Invalid secret")?;
 
             for platform in all_platforms_if_empty(platforms) {
                 platform
