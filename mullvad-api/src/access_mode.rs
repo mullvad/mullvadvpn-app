@@ -4,25 +4,16 @@
 //! [`ApiConnectionMode`], which in turn is used by `mullvad-api` for
 //! establishing connections when performing API requests.
 
-use crate::{
-    proxy::{AllowedClientsProvider, ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
-    AddressCache,
-};
+use crate::proxy::{ApiConnectionMode, ConnectionModeProvider};
+#[cfg(feature = "api-override")]
+use crate::ApiEndpoint;
+use async_trait::async_trait;
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
 };
-#[cfg(feature = "api-override")]
-use mullvad_api::ApiEndpoint;
-use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{
-    AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings,
-};
-use std::{net::SocketAddr, path::PathBuf};
-use talpid_types::net::{
-    proxy::CustomProxy, AllowedEndpoint, Endpoint, TransportProtocol,
-};
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, Id, Settings};
+use talpid_types::net::AllowedEndpoint;
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
@@ -35,10 +26,6 @@ pub enum Message {
     ),
 }
 
-/// Calling [`AccessMethodEvent::send`] will cause a
-/// [`crate::InternalDaemonEvent::AccessMethodEvent`] being sent to the daemon,
-/// which in turn will handle updating the firewall and notifying clients as
-/// applicable.
 pub enum AccessMethodEvent {
     /// A [`AccessMethodEvent::New`] event is emitted when the active access
     /// method changes.
@@ -48,12 +35,13 @@ pub enum AccessMethodEvent {
     New {
         /// The new active [`AccessMethodSetting`].
         setting: AccessMethodSetting,
+        connection_mode: ApiConnectionMode,
         /// The endpoint which represents how to connect to the Mullvad API and
         /// which clients are allowed to initiate such a connection.
         #[cfg(not(target_os = "android"))]
         endpoint: AllowedEndpoint,
     },
-    /// Emitted when the the firewall should be updated.
+    /// Emitted when the API endpoint is updated.
     ///
     /// This is useful for example when testing if some [`AccessMethodSetting`]
     /// can be used to reach the Mullvad API. In this scenario, the currently
@@ -69,14 +57,11 @@ pub enum AccessMethodEvent {
 impl AccessMethodEvent {
     pub async fn send(
         self,
-        daemon_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
+        event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     ) -> Result<()> {
-        // It is up to the daemon to actually allow traffic to/from `api_endpoint`
-        // by updating the firewall. This [`oneshot::Sender`] allows the daemon to
-        // communicate when that action is done.
         let (update_finished_tx, update_finished_rx) = oneshot::channel();
-        let _ = daemon_event_sender.unbounded_send((self, update_finished_tx));
-        // Wait for the daemon to finish processing `event`.
+        let _ = event_sender.unbounded_send((self, update_finished_tx));
+        // Wait for the listener to finish processing `event`.
         update_finished_rx.await.map_err(Error::NotRunning)
     }
 }
@@ -99,8 +84,7 @@ pub struct ResolvedConnectionMode {
     pub setting: AccessMethodSetting,
 }
 
-/// Describes all the ways the daemon service which handles access methods can
-/// fail.
+/// Describes all the ways handling access methods can fail.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("No access methods were provided.")]
@@ -130,9 +114,6 @@ impl std::fmt::Display for Message {
 impl Error {
     /// Check if this error implies that the currenly running
     /// [`AccessModeSelector`] can not continue to operate properly.
-    ///
-    /// To recover from this kind of error, the daemon will probably have to
-    /// intervene.
     fn is_critical_error(&self) -> bool {
         matches!(
             self,
@@ -247,35 +228,26 @@ impl ConnectionModeProvider for AccessModeConnectionModeProvider {
 /// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
 /// or via any supported custom proxy protocol
 /// ([`talpid_types::net::proxy::CustomProxy`]).
-pub struct AccessModeSelector {
+pub struct AccessModeSelector<B: AccessMethodResolver> {
     #[cfg(feature = "api-override")]
     api_endpoint: ApiEndpoint,
     cmd_rx: mpsc::UnboundedReceiver<Message>,
-    cache_dir: PathBuf,
-    /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
-    relay_selector: RelaySelector,
-    /// Used for selecting a config for the 'Encrypted DNS proxy' access method.
-    encrypted_dns_proxy_cache: EncryptedDnsProxyState,
+    bridge_dns_proxy_provider: B,
     access_method_settings: Settings,
-    address_cache: AddressCache,
     access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     connection_mode_provider_sender: mpsc::UnboundedSender<ApiConnectionMode>,
     current: ResolvedConnectionMode,
     /// `index` is used to keep track of the [`AccessMethodSetting`] to use.
     index: usize,
-    provider: Box<dyn AllowedClientsProvider>,
 }
 
-impl AccessModeSelector {
+impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     pub async fn spawn(
-        cache_dir: PathBuf,
-        relay_selector: RelaySelector,
+        mut bridge_dns_proxy_provider: B,
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
         access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
-        address_cache: AddressCache,
-        provider: Box<dyn AllowedClientsProvider>,
     ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -287,38 +259,25 @@ impl AccessModeSelector {
             }
         }
 
-        // Initialize the Encrypted DNS cache
-        let mut encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
-
         // Always start looking from the position of `Direct`.
         let (index, next) = Self::find_next_active(0, &access_method_settings);
-        let initial_connection_mode = Self::resolve_inner_with_default(
-            &next,
-            &relay_selector,
-            &mut encrypted_dns_proxy_cache,
-            &address_cache,
-            &*provider,
-        )
-        .await;
+        let initial_connection_mode =
+            Self::resolve_with_default(&next, &mut bridge_dns_proxy_provider).await;
 
         let (change_tx, change_rx) = mpsc::unbounded();
 
         let api_connection_mode = initial_connection_mode.connection_mode.clone();
 
         let selector = AccessModeSelector {
+            #[cfg(feature = "api-override")]
+            api_endpoint,
             cmd_rx,
-            cache_dir,
-            relay_selector,
-            encrypted_dns_proxy_cache,
+            bridge_dns_proxy_provider,
             access_method_settings,
-            address_cache,
             access_method_event_sender,
             connection_mode_provider_sender: change_tx,
             current: initial_connection_mode,
             index,
-            provider,
-            #[cfg(feature = "api-override")]
-            api_endpoint,
         };
 
         tokio::spawn(selector.into_future());
@@ -420,7 +379,8 @@ impl AccessModeSelector {
     }
 
     async fn set_current(&mut self, access_method: AccessMethodSetting) {
-        let resolved = self.resolve_with_default(access_method).await;
+        let resolved =
+            Self::resolve_with_default(&access_method, &mut self.bridge_dns_proxy_provider).await;
 
         // Note: If the daemon is busy waiting for a call to this function
         // to complete while we wait for the daemon to fully handle this
@@ -432,24 +392,17 @@ impl AccessModeSelector {
         let setting = resolved.setting.clone();
         #[cfg(not(target_os = "android"))]
         let endpoint = resolved.endpoint.clone();
-        let daemon_sender = self.access_method_event_sender.clone();
+        let sender = self.access_method_event_sender.clone();
+        let connection_mode = resolved.connection_mode.clone();
         tokio::spawn(async move {
             let _ = AccessMethodEvent::New {
                 setting,
+                connection_mode,
                 #[cfg(not(target_os = "android"))]
                 endpoint,
             }
-            .send(daemon_sender)
+            .send(sender)
             .await;
-        });
-
-        // Save the new connection mode to cache!
-        let cache_dir = self.cache_dir.clone();
-        let connection_mode = resolved.connection_mode.clone();
-        tokio::spawn(async move {
-            if connection_mode.save(&cache_dir).await.is_err() {
-                log::warn!("Failed to save {connection_mode:#?} to cache")
-            }
         });
 
         // Notify REST client
@@ -534,134 +487,49 @@ impl AccessModeSelector {
 
     async fn resolve(
         &mut self,
-        access_method: AccessMethodSetting,
+        method_setting: AccessMethodSetting,
     ) -> Option<ResolvedConnectionMode> {
-        Self::resolve_inner(
-            &access_method,
-            &self.relay_selector,
-            &mut self.encrypted_dns_proxy_cache,
-            &self.address_cache,
-            &*self.provider,
-        )
-        .await
-    }
-
-    async fn resolve_inner(
-        access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
-        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
-        address_cache: &AddressCache,
-        provider: &dyn AllowedClientsProvider,
-    ) -> Option<ResolvedConnectionMode> {
-        let connection_mode =
-            Self::resolve_connection_mode(access_method, relay_selector, encrypted_dns_proxy_cache)
-                .await?;
-        let endpoint = resolve_allowed_endpoint(
-            &connection_mode,
-            address_cache.get_address().await,
-            provider,
-        );
+        let (endpoint, connection_mode) = self
+            .bridge_dns_proxy_provider
+            .resolve_access_method_setting(&method_setting.access_method)
+            .await?;
         Some(ResolvedConnectionMode {
             connection_mode,
             endpoint,
-            setting: access_method.clone(),
+            setting: method_setting,
         })
     }
 
     /// Resolve an access method into a set of connection details - fall back to
     /// [`ApiConnectionMode::Direct`] in case `access_method` does not yield anything.
     async fn resolve_with_default(
-        &mut self,
-        access_method: AccessMethodSetting,
+        method_setting: &AccessMethodSetting,
+        bridge_dns_proxy_provider: &mut B,
     ) -> ResolvedConnectionMode {
-        Self::resolve_inner_with_default(
-            &access_method,
-            &self.relay_selector,
-            &mut self.encrypted_dns_proxy_cache,
-            &self.address_cache,
-            &*self.provider,
-        )
-        .await
-    }
-
-    async fn resolve_inner_with_default(
-        access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
-        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
-        address_cache: &AddressCache,
-        provider: &dyn AllowedClientsProvider,
-    ) -> ResolvedConnectionMode {
-        match Self::resolve_inner(
-            access_method,
-            relay_selector,
-            encrypted_dns_proxy_cache,
-            address_cache,
-            provider,
-        )
-        .await
+        let (endpoint, connection_mode) = match bridge_dns_proxy_provider
+            .resolve_access_method_setting(&method_setting.access_method)
+            .await
         {
             Some(resolved) => resolved,
-            None => {
-                log::trace!("Defaulting to direct API connection");
-                ResolvedConnectionMode {
-                    connection_mode: ApiConnectionMode::Direct,
-                    endpoint: resolve_allowed_endpoint(
-                        &ApiConnectionMode::Direct,
-                        address_cache.get_address().await,
-                        provider,
-                    ),
-                    setting: access_method.clone(),
-                }
-            }
-        }
-    }
-
-    async fn resolve_connection_mode(
-        access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
-        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
-    ) -> Option<ApiConnectionMode> {
-        let connection_mode = {
-            match &access_method.access_method {
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
-                    let Some(bridge) = relay_selector.get_bridge_forced() else {
-                        log::warn!("Could not select a Mullvad bridge");
-                        log::debug!("The relay list might be empty");
-                        return None;
-                    };
-                    let proxy = CustomProxy::Shadowsocks(bridge);
-                    ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
-                }
-                AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
-                    if let Err(error) = encrypted_dns_proxy_cache.fetch_configs("frakta.eu").await {
-                        log::warn!("Failed to fetch new Encrypted DNS Proxy configurations");
-                        log::debug!("{error:#?}");
-                    }
-                    let Some(edp) = encrypted_dns_proxy_cache.next_configuration() else {
-                        log::warn!("Could not select next Encrypted DNS proxy config");
-                        return None;
-                    };
-                    ApiConnectionMode::Proxied(ProxyConfig::from(edp))
-                }
-                AccessMethod::Custom(config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))
-                }
-            }
+            None => (
+                bridge_dns_proxy_provider.default_connection_mode().await,
+                ApiConnectionMode::Direct,
+            ),
         };
-        Some(connection_mode)
+        ResolvedConnectionMode {
+            connection_mode,
+            endpoint,
+            setting: method_setting.clone(),
+        }
     }
 }
 
-pub fn resolve_allowed_endpoint(
-    connection_mode: &ApiConnectionMode,
-    fallback: SocketAddr,
-    provider: &dyn AllowedClientsProvider,
-) -> AllowedEndpoint {
-    let endpoint = match connection_mode.get_endpoint() {
-        Some(endpoint) => endpoint,
-        None => Endpoint::from_socket_address(fallback, TransportProtocol::Tcp),
-    };
-    let clients = provider.allowed_clients(connection_mode);
-    AllowedEndpoint { endpoint, clients }
+#[async_trait]
+pub trait AccessMethodResolver: Send + Sync {
+    async fn resolve_access_method_setting(
+        &mut self,
+        access_method: &AccessMethod,
+    ) -> Option<(AllowedEndpoint, ApiConnectionMode)>;
+
+    async fn default_connection_mode(&self) -> AllowedEndpoint;
 }

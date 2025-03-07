@@ -1,6 +1,5 @@
 use crate::{settings, Daemon};
-use mullvad_api::{api, rest};
-use mullvad_api::{proxy::ApiConnectionMode, ApiProxy};
+use mullvad_api::{access_mode, proxy::ApiConnectionMode, rest, ApiProxy};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -17,7 +16,7 @@ pub enum Error {
     /// Some error occured in the daemon's state of handling
     /// [`AccessMethodSetting`]s & [`ApiConnectionMode`]s
     #[error("Error occured when handling connection settings & details")]
-    ApiService(#[from] api::Error),
+    ApiService(#[from] access_mode::Error),
     /// A REST request failed
     #[error("Reset request failed")]
     Rest(#[from] rest::Error),
@@ -154,9 +153,9 @@ impl Daemon {
     #[cfg(not(target_os = "android"))]
     pub(crate) async fn test_access_method(
         proxy: talpid_types::net::AllowedEndpoint,
-        access_method_selector: mullvad_api::api::AccessModeSelectorHandle,
+        access_method_selector: access_mode::AccessModeSelectorHandle,
         daemon_event_sender: crate::DaemonEventSender<(
-            mullvad_api::api::AccessMethodEvent,
+            access_mode::AccessMethodEvent,
             futures::channel::oneshot::Sender<()>,
         )>,
         api_proxy: ApiProxy,
@@ -166,13 +165,13 @@ impl Daemon {
             .await
             .map(|connection_mode| connection_mode.endpoint)?;
 
-        mullvad_api::api::AccessMethodEvent::Allow { endpoint: proxy }
+        access_mode::AccessMethodEvent::Allow { endpoint: proxy }
             .send(daemon_event_sender.to_unbounded_sender())
             .await?;
 
         let result = Self::perform_api_request(api_proxy).await;
 
-        mullvad_api::api::AccessMethodEvent::Allow { endpoint: reset }
+        access_mode::AccessMethodEvent::Allow { endpoint: reset }
             .send(daemon_event_sender.to_unbounded_sender())
             .await?;
 
@@ -182,9 +181,9 @@ impl Daemon {
     #[cfg(target_os = "android")]
     pub(crate) async fn test_access_method(
         _: talpid_types::net::AllowedEndpoint,
-        _: api::AccessModeSelectorHandle,
+        _: access_mode::AccessModeSelectorHandle,
         _: crate::DaemonEventSender<(
-            api::AccessMethodEvent,
+            access_mode::AccessMethodEvent,
             futures::channel::oneshot::Sender<()>,
         )>,
         api_proxy: ApiProxy,
