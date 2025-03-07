@@ -230,9 +230,8 @@ impl Platform {
         println!("Verifying signature of {}...", signed_path.display());
         let bytes = fs::read(signed_path).await.context("Failed to read file")?;
 
-        // TODO: Actual key
-        let public_key =
-            key::VerifyingKey::from_hex(include_str!("../../test-pubkey")).expect("Invalid pubkey");
+        let public_key = key::VerifyingKey::from_hex(include_str!("../../stagemole-pubkey"))
+            .expect("Invalid pubkey");
 
         format::SignedResponse::deserialize_and_verify(
             &vec1![public_key],
