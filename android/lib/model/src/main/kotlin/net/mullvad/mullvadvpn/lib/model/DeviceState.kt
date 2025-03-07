@@ -15,7 +15,7 @@ sealed class DeviceState : Parcelable {
         return (this as? LoggedIn)?.device?.displayName()
     }
 
-    fun token(): AccountNumber? {
+    fun accountNumber(): AccountNumber? {
         return (this as? LoggedIn)?.accountNumber
     }
 }

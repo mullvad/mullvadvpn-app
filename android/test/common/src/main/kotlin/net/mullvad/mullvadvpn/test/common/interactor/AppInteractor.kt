@@ -152,4 +152,15 @@ class AppInteractor(
         device.findObjectWithTimeout(By.desc("Remove")).click()
         clickActionButtonByText("Yes, log out device")
     }
+
+    fun dismissStorePasswordPromptIfShown() {
+        try {
+            device.waitForIdle()
+            val selector = By.textContains("password")
+            device.wait(Until.hasObject(selector), DEFAULT_TIMEOUT)
+            device.pressBack()
+        } catch (e: IllegalArgumentException) {
+            // This is OK since it means the password prompt wasn't shown.
+        }
+    }
 }
