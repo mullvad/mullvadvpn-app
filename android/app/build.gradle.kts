@@ -57,7 +57,10 @@ android {
         }
     }
 
-    playConfigs { register("playStagemoleRelease") { enabled = true } }
+    playConfigs {
+        register("playDevmoleRelease") { enabled = true }
+        register("playStagemoleRelease") { enabled = true }
+    }
 
     androidResources {
         @Suppress("UnstableApiUsage")
