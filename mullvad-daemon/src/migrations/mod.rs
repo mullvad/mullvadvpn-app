@@ -46,6 +46,7 @@ use tokio::{
 mod account_history;
 mod device;
 mod v1;
+mod v10;
 mod v2;
 mod v3;
 mod v4;
@@ -206,6 +207,8 @@ async fn migrate_settings(
             settings: directories.settings_dir,
         }),
     )?;
+
+    v10::migrate(settings)?;
 
     Ok(migration_data)
 }
