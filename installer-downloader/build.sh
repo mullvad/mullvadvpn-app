@@ -234,12 +234,22 @@ function dist_macos_app {
         notarize_mac "$dmg_path"
     fi
 
+    # GPG sign .dmg
+    if [[ "$SIGN" != "false" ]]; then
+        gpg_sign "$dmg_path"
+    fi
+
     # Move to dist dir
     log_info "Moving final artifacts to $DIST_DIR"
     rm -rf "$DIST_DIR/$FILENAME.app/"
     rm -rf "$DIST_DIR/$FILENAME.dmg"
+    rm -rf "$DIST_DIR/$FILENAME.dmg.asc"
     mv "$app_path" "$DIST_DIR/"
     mv "$dmg_path" "$DIST_DIR/"
+
+    if [[ "$SIGN" != "false" ]]; then
+        mv "$dmg_path.asc" "$DIST_DIR/"
+    fi
 }
 
 # Notarize and staple a file.
@@ -284,13 +294,32 @@ function sign_win {
     done
 }
 
+# Sign a file using gpg.
+# Arguments:
+# - file to sign
+function gpg_sign {
+    local file="$1"
+    log_info "Signing $file with gpg -> $file.asc"
+    gpg -u "$CODE_SIGNING_KEY_FINGERPRINT" --pinentry-mode loopback --sign --armor --detach-sign "$file"
+}
+
 # Copy executable and optionally sign it.
 function dist_windows_app {
     cp "$CARGO_TARGET_DIR/release/installer-downloader.exe" "$BUILD_DIR/$FILENAME.exe"
+
     if [[ "$SIGN" != "false" ]]; then
         sign_win "$BUILD_DIR/$FILENAME.exe"
+        gpg_sign "$BUILD_DIR/$FILENAME.exe"
     fi
+
+    log_info "Moving final artifacts to $DIST_DIR"
+    rm -rf "$DIST_DIR/$FILENAME.exe"
+    rm -rf "$DIST_DIR/$FILENAME.exe.asc"
+
     mv "$BUILD_DIR/$FILENAME.exe" "$DIST_DIR/"
+    if [[ "$SIGN" != "false" ]]; then
+        mv "$BUILD_DIR/$FILENAME.exe.asc" "$DIST_DIR/"
+    fi
 }
 
 function main {
