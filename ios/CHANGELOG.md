@@ -38,6 +38,10 @@ Line wrap the file at 100 chars.                                              Th
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
 
+## [2025.3 - 2025-03-06]
+### Fixed
+- Fix DAITA for multihop.
+
 ## [2025.1 - 2025-01-14]
 ### Added
 - Update to DAITA v2 - now machines are provided by relays dynamically instead
