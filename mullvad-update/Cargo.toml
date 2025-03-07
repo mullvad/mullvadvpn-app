@@ -13,22 +13,23 @@ workspace = true
 [features]
 default = []
 sign = ["rand", "clap"]
-client = ["async-trait", "reqwest", "sha2", "tokio", "thiserror", "vec1"]
+client = ["async-trait", "reqwest", "sha2", "tokio", "thiserror"]
 
 [dependencies]
 anyhow = { workspace = true }
 json-canon = "0.1"
 chrono = { workspace = true, features = ["serde", "now"] }
-ed25519-dalek = { version = "2.1" }
+ed25519-dalek = { version = "2.1", features = ["zeroize", "rand_core"] }
 hex = { version = "0.4" }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+zeroize = { version = "1.8", features = ["zeroize_derive"] }
 
 async-trait = { version = "0.1", optional = true }
 reqwest = { version = "0.12.9", default-features = false, features = ["rustls-tls"], optional = true }
 sha2 = { version = "0.10", optional = true }
 tokio = { workspace = true, features = ["rt-multi-thread", "fs", "process", "macros"], optional = true }
-vec1 = { workspace = true, optional = true }
+vec1 = { workspace = true }
 
 mullvad-version = { path = "../mullvad-version", features = ["serde"] }
 
