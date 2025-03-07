@@ -1,11 +1,15 @@
 #[cfg(target_os = "android")]
 use crate::DaemonCommand;
+#[cfg(target_os = "android")]
+use crate::DaemonEventSender;
 use futures::channel::mpsc;
 use futures::StreamExt;
 use mullvad_api::availability::ApiAvailability;
 use mullvad_api::proxy::AllowedClientsProvider;
 use mullvad_api::proxy::ApiConnectionMode;
 use mullvad_api::proxy::ProxyConfig;
+#[cfg(target_os = "android")]
+use talpid_core::mpsc::Sender;
 use talpid_types::net::AllowedClients;
 use talpid_types::net::Connectivity;
 
