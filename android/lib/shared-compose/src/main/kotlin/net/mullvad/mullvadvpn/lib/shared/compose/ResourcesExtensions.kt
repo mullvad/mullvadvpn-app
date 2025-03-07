@@ -1,8 +1,7 @@
-package net.mullvad.mullvadvpn.compose.extensions
+package net.mullvad.mullvadvpn.lib.shared.compose
 
 import android.content.res.Resources
 import java.time.Duration
-import net.mullvad.mullvadvpn.R
 
 private const val DAYS_IN_STANDARD_YEAR = 365
 

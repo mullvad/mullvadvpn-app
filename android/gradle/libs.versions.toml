@@ -21,6 +21,7 @@ androidx-testmonitor = "1.7.2"
 androidx-testorchestrator = "1.5.1"
 androidx-testrunner = "1.6.2"
 androidx-uiautomator = "2.4.0-alpha01"
+androidx-tv = "1.0.0"
 
 # Arrow
 arrow = "2.0.1"
@@ -99,6 +100,7 @@ androidx-test-runner = { module = "androidx.test:runner", version.ref = "android
 androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test" }
 androidx-test-uiautomator = { module = "androidx.test.uiautomator:uiautomator", version.ref = "androidx-uiautomator" }
 androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-testorchestrator" }
+androidx-tv = { module = "androidx.tv:tv-material", version.ref = "androidx-tv" }
 
 # Arrow
 arrow = { module = "io.arrow-kt:arrow-core", version.ref = "arrow" }
@@ -112,7 +114,6 @@ compose-destinations = { module = "io.github.raamcosta.compose-destinations:core
 compose-destinations-ksp = { module = "io.github.raamcosta.compose-destinations:ksp", version.ref = "compose-destinations" }
 compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose" }
 compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "compose-material3" }
-compose-material-tv = { module = "androidx.tv:tv-material", version.ref = "compose-material-tv" }
 compose-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
 compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
