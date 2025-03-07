@@ -1,33 +1,15 @@
 #[cfg(target_os = "android")]
 use crate::DaemonCommand;
-use futures::channel::mpsc;
-use futures::StreamExt;
-use mullvad_api::availability::ApiAvailability;
-use mullvad_api::proxy::AllowedClientsProvider;
-use mullvad_api::proxy::ApiConnectionMode;
-use mullvad_api::proxy::ProxyConfig;
-use talpid_types::net::AllowedClients;
-use talpid_types::net::Connectivity;
-
 #[cfg(target_os = "android")]
-pub(crate) fn create_bypass_tx(
-    event_sender: &DaemonEventSender,
-) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
-    let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
-    let daemon_tx = event_sender.to_specialized_sender();
-    tokio::spawn(async move {
-        while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
-            if daemon_tx
-                .send(DaemonCommand::BypassSocket(raw_fd, done_tx))
-                .is_err()
-            {
-                log::error!("Can't send socket bypass request to daemon");
-                break;
-            }
-        }
-    });
-    Some(bypass_tx)
-}
+use crate::DaemonEventSender;
+use futures::{channel::mpsc, StreamExt};
+use mullvad_api::{
+    availability::ApiAvailability,
+    proxy::{AllowedClientsProvider, ApiConnectionMode, ProxyConfig},
+};
+#[cfg(target_os = "android")]
+use talpid_core::mpsc::Sender;
+use talpid_types::net::{AllowedClients, Connectivity};
 
 #[derive(Clone, Copy)]
 pub struct AllowedClientsSelector {}
@@ -58,6 +40,26 @@ impl AllowedClientsProvider for AllowedClientsSelector {
             }
         }
     }
+}
+
+#[cfg(target_os = "android")]
+pub(crate) fn create_bypass_tx(
+    event_sender: &DaemonEventSender,
+) -> Option<mpsc::Sender<mullvad_api::SocketBypassRequest>> {
+    let (bypass_tx, mut bypass_rx) = mpsc::channel(1);
+    let daemon_tx = event_sender.to_specialized_sender();
+    tokio::spawn(async move {
+        while let Some((raw_fd, done_tx)) = bypass_rx.next().await {
+            if daemon_tx
+                .send(DaemonCommand::BypassSocket(raw_fd, done_tx))
+                .is_err()
+            {
+                log::error!("Can't send socket bypass request to daemon");
+                break;
+            }
+        }
+    });
+    Some(bypass_tx)
 }
 
 /// Forwards the received values from `offline_state_rx` to the [`ApiAvailability`].
