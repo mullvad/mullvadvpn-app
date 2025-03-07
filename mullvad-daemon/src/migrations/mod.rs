@@ -442,7 +442,7 @@ mod windows {
 
 #[cfg(test)]
 mod test {
-    use mullvad_types::settings::Settings;
+    use mullvad_types::settings::{Settings, CURRENT_SETTINGS_VERSION};
 
     use crate::migrations::migrate_settings;
 
@@ -458,5 +458,15 @@ mod test {
             .unwrap();
 
         assert_eq!(default_settings, migrated_settings);
+    }
+
+    /// Ensure that the settings version is correct after running all migration code
+    #[tokio::test]
+    async fn test_all_migrations() {
+        const V1_SETTINGS: &str = include_str!("v1_settings.json");
+        let mut settings = serde_json::from_str(V1_SETTINGS).unwrap();
+        migrate_settings(None, &mut settings).await.unwrap();
+        let deserialized: Settings = serde_json::from_value(settings).unwrap();
+        assert_eq!(deserialized.settings_version, CURRENT_SETTINGS_VERSION);
     }
 }

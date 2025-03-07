@@ -118,46 +118,7 @@ mod test {
 }
 "#;
 
-    const V1_SETTINGS: &str = r#"
-{
-  "account_token": "1234",
-  "relay_settings": {
-    "normal": {
-      "location": {
-        "only": {
-          "country": "se"
-        }
-      },
-      "tunnel": {
-        "only": {
-          "openvpn": {
-            "port": {
-              "only": 53
-            },
-            "protocol": {
-              "only": "udp"
-            }
-          }
-        }
-      }
-    }
-  },
-  "allow_lan": true,
-  "block_when_disconnected": false,
-  "auto_connect": false,
-  "tunnel_options": {
-    "openvpn": {
-      "mssfix": null
-    },
-    "wireguard": {
-      "mtu": null
-    },
-    "generic": {
-      "enable_ipv6": false
-    }
-  }
-}
-"#;
+    const V1_SETTINGS: &str = include_str!("v1_settings.json");
 
     const V1_SETTINGS_2019V3: &str = r#"
 {
