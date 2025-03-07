@@ -66,6 +66,10 @@ function publish_metadata {
     cp -r signed/ currently_published/
     echo ""
 
+    echo ">>> Replacing work/ directory with latest published data"
+    cp -rf signed/ work/
+    echo ""
+
     echo ">>> Adding new release $$PRODUCT_VERSION (rollout = 1)"
     meta add-release "$PRODUCT_VERSION" "${platforms[@]}"
     echo ""
