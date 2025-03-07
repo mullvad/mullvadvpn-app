@@ -5,7 +5,7 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useScheduler } from '../../shared/scheduler';
 import { Flex, Icon, IconButton } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 import { useBoolean } from '../lib/utility-hooks';
 
 const COPIED_ICON_DURATION = 2000;
@@ -52,7 +52,7 @@ export default function ClipboardLabel(props: IProps) {
       <StyledLabel aria-hidden={obscured} {...otherProps}>
         {obscured ? '●●●● ●●●● ●●●● ●●●●' : (displayValue ?? value)}
       </StyledLabel>
-      <Flex $gap={Spacings.spacing5}>
+      <Flex $gap="medium">
         {obscureValue !== false && (
           <IconButton
             onClick={toggleObscured}

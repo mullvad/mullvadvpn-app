@@ -10,7 +10,7 @@ import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Flex, Icon } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { generateRoutePath } from '../lib/routeHelpers';
@@ -166,7 +166,7 @@ export function TimeAdded(props: ITimeAddedProps) {
       <StyledCustomScrollbars fillContainer>
         <StyledContainer>
           <StyledBody>
-            <Flex $justifyContent="center" $margin={{ bottom: Spacings.spacing5 }}>
+            <Flex $justifyContent="center" $margin={{ bottom: 'medium' }}>
               <IconBadge state="positive" />
             </Flex>
             <StyledTitle>

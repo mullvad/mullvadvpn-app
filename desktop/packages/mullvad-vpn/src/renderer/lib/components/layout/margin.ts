@@ -1,33 +1,50 @@
-import { Spacings } from '../../foundations';
+import { Spacings, spacings } from '../../foundations';
 import { LayoutSpacings } from './types';
 
-export const all = (margin: Spacings) => ({ margin });
+export const all = (value: Spacings) => {
+  const marginAll = spacings[value];
+  return { margin: marginAll };
+};
 
-const vertical = (margin: Spacings) => ({
-  ...top(margin),
-  ...bottom(margin),
+const vertical = (value: Spacings) => ({
+  ...top(value),
+  ...bottom(value),
 });
 
-const horizontal = (margin: Spacings) => ({
-  ...left(margin),
-  ...right(margin),
-});
+const horizontal = (value: Spacings) => {
+  return {
+    ...left(value),
+    ...right(value),
+  };
+};
 
-const top = (marginTop: Spacings) => ({
-  marginTop,
-});
+const top = (value: Spacings) => {
+  const marginTop = spacings[value];
+  return {
+    marginTop,
+  };
+};
 
-const right = (marginRight: Spacings) => ({
-  marginRight,
-});
+const right = (value: Spacings) => {
+  const marginRight = spacings[value];
+  return {
+    marginRight,
+  };
+};
 
-const bottom = (marginBottom: Spacings) => ({
-  marginBottom,
-});
+const bottom = (value: Spacings) => {
+  const marginBottom = spacings[value];
+  return {
+    marginBottom,
+  };
+};
 
-const left = (marginLeft: Spacings) => ({
-  marginLeft,
-});
+const left = (value: Spacings) => {
+  const marginLeft = spacings[value];
+  return {
+    marginLeft,
+  };
+};
 
 export const margin: Record<keyof LayoutSpacings, (value: Spacings) => React.CSSProperties> = {
   all,

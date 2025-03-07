@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 
 import { Icon } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 import { buttonReset } from '../lib/styles';
 import * as Cell from './cell';
 import { hugeText, largeText, measurements, smallText, tinyText } from './common-styles';
@@ -39,7 +39,7 @@ const baseButtonStyles = {
 
 export const StyledAccountDropdownItemButton = styled.button({
   ...baseButtonStyles,
-  paddingLeft: Spacings.spacing5,
+  paddingLeft: spacings.medium,
 });
 
 export const StyledAccountDropdownItemIconButton = styled.button({

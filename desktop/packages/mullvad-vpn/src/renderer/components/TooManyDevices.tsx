@@ -8,7 +8,7 @@ import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { Button, Flex, IconButton, Spinner } from '../lib/components';
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import { IconBadge, IconBadgeProps } from '../lib/icon-badge';
@@ -115,9 +115,7 @@ export default function TooManyDevices() {
         <StyledCustomScrollbars fillContainer>
           <StyledContainer>
             <StyledBody>
-              <Flex
-                $justifyContent="center"
-                $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+              <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
                 <IconBadge key={imageSource} state={imageSource} />
               </Flex>
               {devices !== undefined && (

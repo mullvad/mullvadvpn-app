@@ -1,33 +1,48 @@
-import { Spacings } from '../../foundations';
+import { Spacings, spacings } from '../../foundations';
 import { LayoutSpacings } from './types';
 
-export const all = (padding: Spacings) => ({ padding });
+export const all = (value: Spacings) => {
+  const paddingAll = spacings[value];
+  return { padding: paddingAll };
+};
 
-const vertical = (padding: Spacings) => ({
-  ...top(padding),
-  ...bottom(padding),
+const vertical = (value: Spacings) => ({
+  ...top(value),
+  ...bottom(value),
 });
 
-const horizontal = (padding: Spacings) => ({
-  ...left(padding),
-  ...right(padding),
+const horizontal = (value: Spacings) => ({
+  ...left(value),
+  ...right(value),
 });
 
-const top = (paddingTop: Spacings) => ({
-  paddingTop,
-});
+const top = (value: Spacings) => {
+  const paddingTop = spacings[value];
+  return {
+    paddingTop,
+  };
+};
 
-const right = (paddingRight: Spacings) => ({
-  paddingRight,
-});
+const right = (value: Spacings) => {
+  const paddingRight = spacings[value];
+  return {
+    paddingRight,
+  };
+};
 
-const bottom = (paddingBottom: Spacings) => ({
-  paddingBottom,
-});
+const bottom = (value: Spacings) => {
+  const paddingBottom = spacings[value];
+  return {
+    paddingBottom,
+  };
+};
 
-const left = (paddingLeft: Spacings) => ({
-  paddingLeft,
-});
+const left = (value: Spacings) => {
+  const paddingLeft = spacings[value];
+  return {
+    paddingLeft,
+  };
+};
 
 export const padding: Record<keyof LayoutSpacings, (value: Spacings) => React.CSSProperties> = {
   all,

@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { messages } from '../../../shared/gettext';
 import { Icon } from '../../lib/components';
-import { Colors, Spacings } from '../../lib/foundations';
+import { Colors, spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { RoutePath } from '../../lib/routes';
 import { useStyledRef } from '../../lib/utility-hooks';
@@ -16,7 +16,7 @@ const StyledTitleLabel = styled(Cell.SectionTitle)({
 });
 
 const StyledInfoButton = styled(InfoButton)({
-  marginRight: Spacings.spacing5,
+  marginRight: spacings.medium,
 });
 
 export interface SelectorItem<T> {

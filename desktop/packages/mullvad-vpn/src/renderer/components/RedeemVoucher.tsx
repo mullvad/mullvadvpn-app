@@ -7,7 +7,6 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Flex, Spinner } from '../lib/components';
-import { Spacings } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -153,7 +152,7 @@ export function RedeemVoucherResponse() {
 
   if (submitting) {
     return (
-      <Flex $alignItems="center" $margin={{ top: Spacings.spacing3 }} $gap={Spacings.spacing3}>
+      <Flex $alignItems="center" $margin={{ top: 'small' }} $gap="small">
         <Spinner size="medium" />
         <StyledProgressResponse>
           {messages.pgettext('redeem-voucher-view', 'Verifying voucher...')}
@@ -226,9 +225,7 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
           </AppButton.BlueButton>,
         ]}
         close={props.onClose}>
-        <Flex
-          $justifyContent="center"
-          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+        <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
           <IconBadge state="positive" />
         </Flex>
         <StyledTitle>

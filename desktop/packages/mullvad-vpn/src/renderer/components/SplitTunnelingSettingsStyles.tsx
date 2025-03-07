@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../lib/foundations';
+import { Colors, spacings } from '../lib/foundations';
 import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
@@ -38,12 +38,12 @@ const disabledApplication = (props: DisabledApplicationProps) => ({
 });
 
 export const StyledIcon = styled(Cell.CellImage)<DisabledApplicationProps>(disabledApplication, {
-  marginRight: Spacings.spacing4,
+  marginRight: spacings.small,
 });
 
 export const StyledCellWarningIcon = styled(Cell.CellTintedIcon)({
-  marginLeft: Spacings.spacing3,
-  marginRight: Spacings.spacing1,
+  marginLeft: spacings.small,
+  marginRight: spacings.tiny,
 });
 
 export const StyledCellLabel = styled(Cell.Label)<DisabledApplicationProps>(
@@ -58,14 +58,14 @@ export const StyledCellLabel = styled(Cell.Label)<DisabledApplicationProps>(
 
 export const StyledIconPlaceholder = styled.div({
   width: '35px',
-  marginRight: Spacings.spacing4,
+  marginRight: spacings.small,
 });
 
 export const StyledSpinnerRow = styled(Cell.CellButton)({
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  padding: `${Spacings.spacing3} 0`,
+  padding: `${spacings.small} 0`,
   marginBottom: measurements.rowVerticalMargin,
   background: Colors.blue40,
 });
@@ -79,7 +79,7 @@ export const StyledNoResult = styled(Cell.CellFooter)({
   flexDirection: 'column',
   paddingTop: 0,
   marginTop: 0,
-  marginBottom: Spacings.spacing9,
+  marginBottom: spacings.large,
 });
 
 export const StyledNoResultText = styled(Cell.CellFooterText)({

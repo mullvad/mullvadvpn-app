@@ -7,7 +7,6 @@ import { messages } from '../../../shared/gettext';
 import { FilterChip, Flex, IconButton, LabelTiny } from '../../lib/components';
 import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
-import { Spacings } from '../../lib/foundations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
 import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
@@ -156,10 +155,10 @@ export default function SelectLocation() {
                 <>
                   {showFilters && (
                     <Flex
-                      $gap={Spacings.spacing3}
+                      $gap="small"
                       $alignItems="center"
                       $flexWrap="wrap"
-                      $margin={{ horizontal: Spacings.spacing3, bottom: Spacings.spacing5 }}>
+                      $margin={{ horizontal: 'small', bottom: 'medium' }}>
                       <LabelTiny>
                         {messages.pgettext('select-location-view', 'Filtered:')}
                       </LabelTiny>
