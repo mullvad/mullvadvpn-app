@@ -9,9 +9,10 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-if [ $# -lt 2 ]; then
+if [ $# -lt 3 ]; then
     echo "Please provide two arguments:"
     echo "    $(basename "$0") \\"
+    echo "        <product version> \\"
     echo "        <build server SSH destination> \\"
     echo "        <metadata server SSH destination>"
     echo ""
@@ -19,19 +20,21 @@ if [ $# -lt 2 ]; then
     exit 1
 fi
 
+# Duplicated from /scripts/utils/gh-ready-check
+if ! command -v gh > /dev/null; then
+    echo "gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
+if ! gh auth status > /dev/null; then
+    echo "Authentication through gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
+
+PRODUCT_VERSION=$1
 BUILDSERVER_HOST=$2
 CDN_HOST=$3
 
-REPO_ROOT=../../../
-PRODUCT_VERSION_PATH=$REPO_ROOT/dist-assets/desktop-product-version.txt
-PRODUCT_VERSION=$(cat $PRODUCT_VERSION_PATH)
-
-$REPO_ROOT/scripts/utils/gh-ready-check
-
-REPO_URL="git@github.com:mullvad/mullvadvpn-app"
 ARTIFACT_DIR="./artifacts"
-REPO_DIR=$(mktemp -d)
-CHANGELOG_PATH="$REPO_DIR/CHANGELOG.md"
 URL_BASE="https://releases.mullvad.net/desktop/releases"
 
 rm -rf $ARTIFACT_DIR
@@ -58,7 +61,7 @@ function download_and_verify {
             exit 1
         fi
         echo ""
-        echo "GOOD SIGNATURE IN $pkg_filename"
+        echo "GOOD SIGNATURE FOR $pkg_filename"
         echo ""
     done
 }
@@ -103,17 +106,18 @@ function publish_metadata {
 }
 
 function publish_release {
-    echo ">>> Cloning repository to extract changelog"
-    git clone --depth 1 --branch "$PRODUCT_VERSION" $REPO_URL "$REPO_DIR" 2> /dev/null > /dev/null
-    (cd "$REPO_DIR" && git verify-tag "$PRODUCT_VERSION")
-    echo ""
+    echo ">>> Downloading changelog"
+    local changelog_path
+    changelog_path=$(mktemp)
+    curl -o "$changelog_path" --progress-bar \
+      "https://raw.githubusercontent.com/mullvad/mullvadvpn-app/refs/tags/$PRODUCT_VERSION/CHANGELOG.md"
 
     changelog_end_version_pattern="20[0-9]\{2\}\.[0-9]\{1,2\}"
     if [[ $PRODUCT_VERSION == *-beta* ]]; then
         changelog_end_version_pattern=".*"
     fi
 
-    changelog_extract=$(sed -n "/^## \[$PRODUCT_VERSION\]/,/^## \[$changelog_end_version_pattern\]/p" "$CHANGELOG_PATH")
+    changelog_extract=$(sed -n "/^## \[$PRODUCT_VERSION\]/,/^## \[$changelog_end_version_pattern\]/p" "$changelog_path")
 
     changelog=$(echo "$changelog_extract" | sed '$d' | \
         awk 'NF { last = last ? last ORS $0 : $0 } END { print last }')
