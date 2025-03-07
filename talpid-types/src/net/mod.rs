@@ -1,8 +1,10 @@
+use self::proxy::{CustomProxy, Socks5Local};
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(target_os = "android")]
 use jnix::FromJava;
 use obfuscation::ObfuscatorConfig;
 use serde::{Deserialize, Serialize};
+use std::ops::Not;
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
@@ -11,8 +13,6 @@ use std::{
     str::FromStr,
     sync::LazyLock,
 };
-
-use self::proxy::{CustomProxy, Socks5Local};
 
 pub mod obfuscation;
 pub mod openvpn;
@@ -598,6 +598,13 @@ impl Connectivity {
                 ipv6: false
             }
         )
+    }
+
+    /// Whether IPv4 connectivity seems to be available on the host.
+    ///
+    /// If IPv4 status is unknown, `true` is returned.
+    pub fn has_ipv4(&self) -> bool {
+        matches!(self, Connectivity::Status { ipv4: false, .. }).not()
     }
 
     /// Whether IPv6 connectivity seems to be available on the host.
