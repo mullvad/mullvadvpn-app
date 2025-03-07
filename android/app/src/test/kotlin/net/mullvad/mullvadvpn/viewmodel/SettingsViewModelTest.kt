@@ -108,6 +108,7 @@ class SettingsViewModelTest {
                     isMultihopEnabled = true,
                     entryLocation = Constraint.Any,
                     port = Constraint.Any,
+                    ipVersion = Constraint.Any,
                 )
 
             // Act, Assert

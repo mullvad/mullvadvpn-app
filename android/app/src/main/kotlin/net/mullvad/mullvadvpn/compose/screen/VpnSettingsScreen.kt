@@ -93,6 +93,7 @@ import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.WIREGUARD_PRESET_PORTS
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -140,6 +141,7 @@ private fun PreviewVpnSettings(
             navigateToLocalNetworkSharingInfo = {},
             navigateToWireguardPortDialog = {},
             navigateToServerIpOverrides = {},
+            onSelectDeviceIpVersion = {},
         )
     }
 }
@@ -268,6 +270,7 @@ fun VpnSettings(
         navigateToUdp2TcpSettings =
             dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
+        onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
     )
 }
 
@@ -304,6 +307,7 @@ fun VpnSettingsScreen(
     navigateToShadowSocksSettings: () -> Unit,
     navigateToUdp2TcpSettings: () -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
+    onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
@@ -647,6 +651,32 @@ fun VpnSettingsScreen(
                     testTag = LAZY_LIST_QUANTUM_ITEM_OFF_TEST_TAG,
                     isSelected = state.quantumResistant == QuantumResistantState.Off,
                     onCellClicked = { onSelectQuantumResistanceSetting(QuantumResistantState.Off) },
+                )
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
+            }
+
+            itemWithDivider {
+                InformationComposeCell(title = stringResource(R.string.device_ip_version_title))
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.automatic),
+                    isSelected = state.deviceIpVersion == Constraint.Any,
+                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Any) },
+                )
+            }
+            itemWithDivider {
+                SelectableCell(
+                    title = stringResource(id = R.string.device_ip_version_ipv4),
+                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV4,
+                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV4)) },
+                )
+            }
+            item {
+                SelectableCell(
+                    title = stringResource(id = R.string.device_ip_version_ipv6),
+                    isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
+                    onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
                 )
                 Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }

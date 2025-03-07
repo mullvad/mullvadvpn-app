@@ -79,8 +79,6 @@
     <string name="connected">接続済み</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="connection_details_in">内側</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
     <string name="connection_details_out">外側</string>
     <string name="continue_login">ログインを続ける</string>
     <string name="copied_logs_to_clipboard">ログをクリップボードにコピーしました</string>
@@ -124,6 +122,8 @@
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>
     <string name="device_inactive_unblock_warning">ログインに進むと、このデバイスのインターネットのブロックが解除されます。</string>
+    <string name="device_ip_version_ipv4">IPv4</string>
+    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">デバイス名</string>
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>

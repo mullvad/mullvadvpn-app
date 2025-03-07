@@ -23,6 +23,7 @@ import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_CUSTOM_PORT_TEXT_
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_OBFUSCATION_TITLE_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.LAZY_LIST_WIREGUARD_PORT_ITEM_X_TEST_TAG
 import net.mullvad.mullvadvpn.lib.model.Constraint
+import net.mullvad.mullvadvpn.lib.model.IpVersion
 import net.mullvad.mullvadvpn.lib.model.Mtu
 import net.mullvad.mullvadvpn.lib.model.ObfuscationMode
 import net.mullvad.mullvadvpn.lib.model.Port
@@ -72,6 +73,7 @@ class VpnSettingsScreenTest {
         navigateToShadowSocksSettings: () -> Unit = {},
         navigateToUdp2TcpSettings: () -> Unit = {},
         onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = {},
+        onSelectDeviceIpVersion: (Constraint<IpVersion>) -> Unit = {},
     ) {
         setContentWithTheme {
             VpnSettingsScreen(
@@ -103,6 +105,7 @@ class VpnSettingsScreenTest {
                 navigateToShadowSocksSettings = navigateToShadowSocksSettings,
                 navigateToUdp2TcpSettings = navigateToUdp2TcpSettings,
                 onToggleAutoStartAndConnectOnBoot = onToggleAutoStartAndConnectOnBoot,
+                onSelectDeviceIpVersion = onSelectDeviceIpVersion,
             )
         }
     }

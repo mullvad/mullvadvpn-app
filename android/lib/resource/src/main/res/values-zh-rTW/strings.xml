@@ -79,8 +79,6 @@
     <string name="connected">已連線</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="connection_details_in">入境</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
     <string name="connection_details_out">出境</string>
     <string name="continue_login">繼續登入</string>
     <string name="copied_logs_to_clipboard">已將記錄複製到剪貼簿</string>
@@ -124,6 +122,8 @@
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
     <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
+    <string name="device_ip_version_ipv4">IPv4</string>
+    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">裝置名稱</string>
     <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
     <string name="device_name_info_second_paragraph">一個 Mulvad 帳戶最多可以登入 5 台裝置。</string>

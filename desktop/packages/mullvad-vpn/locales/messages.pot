@@ -2430,6 +2430,9 @@ msgstr ""
 msgid "Delete method?"
 msgstr ""
 
+msgid "Device IP version"
+msgstr ""
+
 msgid "Disable \"%s\" below to activate these settings."
 msgstr ""
 
