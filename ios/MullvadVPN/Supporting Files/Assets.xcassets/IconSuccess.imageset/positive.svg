@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="60px" height="60px" viewBox="0 0 60 60" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>icon-success</title>
+    <desc>Mullvad VPN app</desc>
+    <defs></defs>
+    <circle id="bg-circle" fill="#FFFFFF" fill-rule="nonzero" cx="30" cy="30" r="22"></circle>
+    <path d="M19.4142136,28.5857864 C18.633165,27.8047379 17.366835,27.8047379 16.5857864,28.5857864 C15.8047379,29.366835 15.8047379,30.633165 16.5857864,31.4142136 L24.5857864,39.4142136 C25.366835,40.1952621 26.633165,40.1952621 27.4142136,39.4142136 L43.4142136,23.4142136 C44.1952621,22.633165 44.1952621,21.366835 43.4142136,20.5857864 C42.633165,19.8047379 41.366835,19.8047379 40.5857864,20.5857864 L26,35.1715729 L19.4142136,28.5857864 Z" id="icon-tick" fill="#44AD4D" fill-rule="nonzero"></path>
+</svg>

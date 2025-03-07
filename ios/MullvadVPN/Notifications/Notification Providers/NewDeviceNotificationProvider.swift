@@ -58,7 +58,7 @@ final class NewDeviceNotificationProvider: NotificationProvider,
             ),
             body: attributedBody,
             button: InAppNotificationAction(
-                image: UIImage(named: "IconCloseSml"),
+                image: UIImage.Buttons.closeSmall,
                 handler: { [weak self] in
                     guard let self else { return }
                     isNewDeviceRegistered = false

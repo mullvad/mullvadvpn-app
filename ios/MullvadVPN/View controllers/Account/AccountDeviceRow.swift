@@ -44,7 +44,7 @@ class AccountDeviceRow: UIView {
         button.isExclusiveTouch = true
         button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
-        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        button.setImage(UIImage.Buttons.info, for: .normal)
         return button
     }()
 
