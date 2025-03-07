@@ -22,8 +22,9 @@ export const StyledContent = styled.div({
   display: 'grid',
   gridTemplateColumns: '1fr auto 1fr',
   placeContent: 'center',
-  minHeight: '32px',
-  height: '32px',
+  minHeight: '24px',
+  height: '24px',
+  padding: `${spacings.medium} 0`,
   gap: spacings.tiny,
 });
 
