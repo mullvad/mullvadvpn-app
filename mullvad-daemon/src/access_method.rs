@@ -1,6 +1,5 @@
 use crate::{settings, Daemon};
-use mullvad_api::{api, rest};
-use mullvad_api::{proxy::ApiConnectionMode, ApiProxy};
+use mullvad_api::{api, proxy::ApiConnectionMode, rest, ApiProxy};
 use mullvad_types::{
     access_method::{self, AccessMethod, AccessMethodSetting},
     settings::Settings,
@@ -154,7 +153,7 @@ impl Daemon {
     #[cfg(not(target_os = "android"))]
     pub(crate) async fn test_access_method(
         proxy: talpid_types::net::AllowedEndpoint,
-        access_method_selector: mullvad_api::api::AccessModeSelectorHandle,
+        access_method_selector: api::AccessModeSelectorHandle,
         daemon_event_sender: crate::DaemonEventSender<(
             mullvad_api::api::AccessMethodEvent,
             futures::channel::oneshot::Sender<()>,
