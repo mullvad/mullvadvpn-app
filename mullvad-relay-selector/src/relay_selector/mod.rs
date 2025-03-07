@@ -1214,7 +1214,7 @@ fn force_valid_ip_version(query: &RelayQuery, runtime_params: RuntimeParameters)
     let mut ret = query.clone();
     match (ret.set_wireguard_constraints(wireguard_constraints)) {
         Ok(()) => ret,
-        _Error => query.clone(),
+        _error => query.clone(),
     }
 }
 
