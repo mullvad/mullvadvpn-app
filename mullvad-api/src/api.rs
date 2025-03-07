@@ -4,6 +4,8 @@
 //! [`ApiConnectionMode`], which in turn is used by `mullvad-api` for
 //! establishing connections when performing API requests.
 
+#[cfg(feature = "api-override")]
+use crate::ApiEndpoint;
 use crate::{
     proxy::{AllowedClientsProvider, ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
     AddressCache,
@@ -12,17 +14,13 @@ use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
 };
-#[cfg(feature = "api-override")]
-use mullvad_api::ApiEndpoint;
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{
     AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings,
 };
 use std::{net::SocketAddr, path::PathBuf};
-use talpid_types::net::{
-    proxy::CustomProxy, AllowedEndpoint, Endpoint, TransportProtocol,
-};
+use talpid_types::net::{proxy::CustomProxy, AllowedEndpoint, Endpoint, TransportProtocol};
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
@@ -306,6 +304,8 @@ impl AccessModeSelector {
         let api_connection_mode = initial_connection_mode.connection_mode.clone();
 
         let selector = AccessModeSelector {
+            #[cfg(feature = "api-override")]
+            api_endpoint,
             cmd_rx,
             cache_dir,
             relay_selector,
@@ -317,8 +317,6 @@ impl AccessModeSelector {
             current: initial_connection_mode,
             index,
             provider,
-            #[cfg(feature = "api-override")]
-            api_endpoint,
         };
 
         tokio::spawn(selector.into_future());
