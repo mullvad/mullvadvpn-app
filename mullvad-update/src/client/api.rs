@@ -1,6 +1,7 @@
 //! This module implements fetching of information about app versions
 
 use anyhow::Context;
+use vec1::Vec1;
 
 use crate::format;
 use crate::version::{VersionInfo, VersionParameters};
@@ -19,7 +20,7 @@ pub struct HttpVersionInfoProvider {
     /// Accepted root certificate. Defaults are used unless specified
     pub pinned_certificate: Option<reqwest::Certificate>,
     /// Key to use for verifying the response
-    pub verifying_key: format::key::VerifyingKey,
+    pub verifying_keys: Vec1<format::key::VerifyingKey>,
 }
 
 #[async_trait::async_trait]
@@ -41,7 +42,7 @@ impl HttpVersionInfoProvider {
     ) -> anyhow::Result<format::SignedResponse> {
         let raw_json = Self::get(&self.url, self.pinned_certificate.clone()).await?;
         let response = format::SignedResponse::deserialize_and_verify(
-            &self.verifying_key,
+            &self.verifying_keys,
             &raw_json,
             lowest_metadata_version,
         )?;
@@ -101,6 +102,7 @@ impl HttpVersionInfoProvider {
 #[cfg(test)]
 mod test {
     use insta::assert_yaml_snapshot;
+    use vec1::vec1;
 
     use crate::version::VersionArchitecture;
 
@@ -115,9 +117,10 @@ mod test {
     /// We're not testing the correctness of [version] here, only the HTTP client
     #[tokio::test]
     async fn test_http_version_provider() -> anyhow::Result<()> {
-        let verifying_key =
+        let valid_key =
             crate::format::key::VerifyingKey::from_hex(include_str!("../../test-pubkey"))
                 .expect("valid key");
+        let verifying_keys = vec1![valid_key];
 
         // Start HTTP server
         let mut server = mockito::Server::new_async().await;
@@ -138,7 +141,7 @@ mod test {
         let info_provider = HttpVersionInfoProvider {
             url,
             pinned_certificate: None,
-            verifying_key,
+            verifying_keys,
         };
 
         let info = info_provider

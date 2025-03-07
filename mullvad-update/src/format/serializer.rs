@@ -72,6 +72,7 @@ mod test {
     use super::*;
     use crate::format::deserializer::deserialize_and_verify;
     use serde_json::json;
+    use vec1::vec1;
 
     #[test]
     fn test_sign() -> anyhow::Result<()> {
@@ -95,7 +96,58 @@ mod test {
 
         let bytes = serde_json::to_vec(&partial)?;
 
-        deserialize_and_verify(&pubkey, &bytes)?;
+        deserialize_and_verify(&vec1![pubkey.clone()], &bytes)?;
+
+        // Verify that an irrelevant key is ignored
+        let invalid_key = key::SecretKey::generate();
+        let invalid_pubkey = invalid_key.pubkey();
+
+        deserialize_and_verify(&vec1![pubkey.clone(), invalid_pubkey.clone()], &bytes)?;
+
+        // Wrong public key only fails
+        deserialize_and_verify(&vec1![invalid_pubkey], &bytes).unwrap_err();
+
+        Ok(())
+    }
+
+    #[test]
+    fn test_sign_multiple() -> anyhow::Result<()> {
+        // Generate keys and data
+        let key = key::SecretKey::generate();
+        let pubkey = key.pubkey();
+
+        let key2 = key::SecretKey::generate();
+        let pubkey2 = key2.pubkey();
+
+        let invalid_key = key::SecretKey::generate();
+        let invalid_pubkey = invalid_key.pubkey();
+
+        let data = json!({
+            "stuff": "I can prove that I wrote this"
+        });
+
+        // Sign with two keys
+        let mut partial = sign(&key, &data).context("Signing failed")?;
+        let partial2 = sign(&key2, &data).context("Signing failed")?;
+        partial.signatures.extend(partial2.signatures);
+
+        let bytes = serde_json::to_vec(&partial)?;
+
+        // Accept either (or both) keys
+        deserialize_and_verify(&vec1![pubkey.clone(), pubkey2.clone()], &bytes)?;
+        deserialize_and_verify(&vec1![pubkey2.clone()], &bytes)?;
+        deserialize_and_verify(&vec1![pubkey.clone()], &bytes)?;
+
+        // Ignore irrelevant key
+        deserialize_and_verify(
+            &vec1![pubkey.clone(), pubkey2.clone(), invalid_pubkey.clone()],
+            &bytes,
+        )?;
+        deserialize_and_verify(&vec1![pubkey2, invalid_pubkey.clone()], &bytes)?;
+        deserialize_and_verify(&vec1![invalid_pubkey.clone(), pubkey], &bytes)?;
+
+        // Using wrong public key fails
+        deserialize_and_verify(&vec1![invalid_pubkey], &bytes).unwrap_err();
 
         Ok(())
     }
