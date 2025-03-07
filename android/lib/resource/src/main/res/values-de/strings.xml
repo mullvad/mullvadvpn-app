@@ -378,7 +378,6 @@
     <string name="voucher_already_used">Der Gutscheincode wurde bereits verwendet.</string>
     <string name="voucher_is_account_number">Anscheinend haben Sie eine Kontonummer statt eines Gutscheincodes eingegeben. Wenn Sie das aktive Konto wechseln möchten, melden Sie sich bitte zuerst ab.</string>
     <string name="voucher_success_title">Der Gutschein wurde erfolgreich eingelöst.</string>
-    <string name="vpn_permission_denied_error">VPN-Berechtigungen wurden beim Erstellen des Tunnels abgelehnt.</string>
     <string name="vpn_permission_error_notification_message">Drücken Sie auf „Verbinden“, um die VPN-Berechtigung anzufordern</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
