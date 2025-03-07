@@ -671,7 +671,7 @@ impl RelaySelector {
             // Remove candidate queries based on runtime parameters before trying to merge user
             // settings
             .filter(|query| runtime_params.compatible(query))
-            .filter(|query| runtime_params.compatible(&user_query))
+            .filter(|_query| runtime_params.compatible(&user_query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
             .map(|query| force_valid_ip_version(&query, runtime_params.clone()))
             .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
@@ -1216,7 +1216,7 @@ fn force_valid_ip_version(query: &RelayQuery, runtime_params: RuntimeParameters)
         }
     }
     let mut ret = query.clone();
-    match (ret.set_wireguard_constraints(wireguard_constraints)) {
+    match ret.set_wireguard_constraints(wireguard_constraints) {
         Ok(()) => ret,
         _error => query.clone(),
     }
