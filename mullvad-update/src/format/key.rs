@@ -3,40 +3,43 @@
 use std::{fmt, str::FromStr};
 
 use anyhow::{bail, Context};
-use ed25519_dalek::ed25519::signature::SignerMut;
-#[cfg(feature = "sign")]
-use rand::RngCore;
+use ed25519_dalek::ed25519::signature::Signer;
 use serde::{Deserialize, Serialize};
+use zeroize::Zeroize;
 
 /// ed25519 secret/signing key
-#[derive(Debug, Clone, PartialEq)]
-pub struct SecretKey(pub ed25519_dalek::SecretKey);
+#[derive(Debug, Clone, PartialEq, zeroize::ZeroizeOnDrop)]
+pub struct SecretKey(ed25519_dalek::SigningKey);
 
 impl SecretKey {
     /// Generate a new secret ed25519 key
     #[cfg(feature = "sign")]
     pub fn generate() -> Self {
         // Using OsRng is suggested by the docs
-        let mut bytes = ed25519_dalek::SecretKey::default();
-        rand::rngs::OsRng.fill_bytes(&mut bytes);
-        SecretKey(bytes)
+        let key = ed25519_dalek::SigningKey::generate(&mut rand::rngs::OsRng);
+        SecretKey(key)
     }
 
     pub fn pubkey(&self) -> VerifyingKey {
-        let sign_key = ed25519_dalek::SigningKey::from_bytes(&self.0);
-        VerifyingKey(sign_key.verifying_key())
+        VerifyingKey(self.0.verifying_key())
     }
 
     /// Sign data using this key
     pub fn sign(&self, msg: &[u8]) -> Signature {
-        let mut secret = ed25519_dalek::SigningKey::from_bytes(&self.0);
-        Signature(secret.sign(msg))
+        Signature(self.0.sign(msg))
+    }
+
+    /// Convert bytes to a signing key, and zero the original bytes
+    fn from_bytes(mut key: [u8; ed25519_dalek::SECRET_KEY_LENGTH]) -> Self {
+        let secret = ed25519_dalek::SigningKey::from_bytes(&key);
+        key.zeroize();
+        SecretKey(secret)
     }
 }
 
 impl fmt::Display for SecretKey {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}", hex::encode(self.0))
+        write!(f, "{}", hex::encode(self.0.as_bytes()))
     }
 }
 
@@ -45,10 +48,11 @@ impl<'de> Deserialize<'de> for SecretKey {
     where
         D: serde::Deserializer<'de>,
     {
-        let key = String::deserialize(deserializer)?;
-        let key = bytes_from_hex::<{ ed25519_dalek::SECRET_KEY_LENGTH }>(&key)
+        let mut key_s = String::deserialize(deserializer)?;
+        let key = bytes_from_hex::<{ ed25519_dalek::SECRET_KEY_LENGTH }>(&key_s)
             .map_err(|err| serde::de::Error::custom(err.to_string()))?;
-        Ok(SecretKey(key))
+        key_s.zeroize();
+        Ok(SecretKey::from_bytes(key))
     }
 }
 
@@ -57,7 +61,7 @@ impl FromStr for SecretKey {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let bytes = bytes_from_hex::<{ ed25519_dalek::SECRET_KEY_LENGTH }>(s)?;
-        Ok(SecretKey(bytes))
+        Ok(Self::from_bytes(bytes))
     }
 }
 
@@ -66,7 +70,7 @@ impl Serialize for SecretKey {
     where
         S: serde::Serializer,
     {
-        serializer.serialize_str(&hex::encode(self.0))
+        serializer.serialize_str(&hex::encode(self.0.as_bytes()))
     }
 }
 
