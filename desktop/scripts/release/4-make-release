@@ -9,9 +9,14 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
-if [ $# -lt 1 ]; then
+if [ $# -lt 3 ]; then
     echo "Please provide the following arguments:"
-    echo "    $(basename "$0") <product version>"
+    echo "    $(basename "$0") \\"
+    echo "        <product version> \\"
+    echo "        <build server SSH destination> \\"
+    echo "        <metadata server SSH destination>"
+    echo ""
+    echo "Note that the metadata server SSH destination is part of the rsync command executed on the build server and will be checked against the SSH config of build@\$buildserver_host."
     exit 1
 fi
 
@@ -26,6 +31,8 @@ if ! gh auth status > /dev/null; then
 fi
 
 PRODUCT_VERSION=$1
+BUILDSERVER_HOST=$2
+CDN_HOST=$3
 
 ARTIFACT_DIR="./artifacts"
 URL_BASE="https://releases.mullvad.net/desktop/releases"
@@ -62,6 +69,7 @@ function download_and_verify {
 function publish_metadata {
     local platforms
     platforms=(windows macos linux)
+    local signed_dir="signed/"
 
     rm -rf currently_published/
 
@@ -70,7 +78,7 @@ function publish_metadata {
     echo ""
 
     echo ">>> Backing up released data"
-    cp -r signed/ currently_published/
+    cp -r $signed_dir currently_published/
     echo ""
 
     echo ">>> Replacing work/ directory with latest published data"
@@ -90,11 +98,11 @@ function publish_metadata {
     echo ""
 
     echo ">>> New metadata including $$PRODUCT_VERSION"
-    git diff --no-index -- currently_published/ signed/
+    git diff --no-index -- currently_published/ $signed_dir
     echo ""
 
     read -rp "Press enter to upload if the diff looks good "
-    # TODO: push metadata
+    ./publish-metadata-to-api $signed_dir "$BUILDSERVER_HOST" "$CDN_HOST"
 }
 
 function publish_release {
