@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Spacings } from '../../lib/foundations';
 import { Row } from './Row';
 
-const StyledContainer = styled(Row)({
+const StyledContainer = styled(Row).attrs({ className: 'styled-container' })({
   padding: `0 ${Spacings.spacing5}`,
 });
 
