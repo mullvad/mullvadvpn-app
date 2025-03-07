@@ -498,10 +498,7 @@ function convertFromRelaySettings(
         const normal = relaySettings.getNormal()!;
         const locationConstraint = convertFromLocationConstraint(normal.getLocation());
         const location = wrapConstraint(locationConstraint);
-        // `getTunnelType()` is not falsy if type is 'any'
-        const tunnelProtocol = convertFromTunnelTypeConstraint(
-          normal.hasTunnelType() ? normal.getTunnelType() : undefined,
-        );
+        const tunnelProtocol = convertFromTunnelType(normal.getTunnelType());
         const providers = normal.getProvidersList();
         const ownership = convertFromOwnership(normal.getOwnership());
         const openvpnConstraints = convertFromOpenVpnConstraints(normal.getOpenvpnConstraints()!);
@@ -824,22 +821,6 @@ function convertFromWireguardConstraints(
   return result;
 }
 
-function convertFromTunnelTypeConstraint(
-  constraint: grpcTypes.TunnelType | undefined,
-): Constraint<TunnelProtocol> {
-  switch (constraint) {
-    case grpcTypes.TunnelType.WIREGUARD: {
-      return { only: 'wireguard' };
-    }
-    case grpcTypes.TunnelType.OPENVPN: {
-      return { only: 'openvpn' };
-    }
-    default: {
-      return 'any';
-    }
-  }
-}
-
 function convertFromConstraint<T>(value: T | undefined): Constraint<T> {
   if (value) {
     return { only: value };
@@ -853,9 +834,7 @@ export function convertToRelayConstraints(
 ): grpcTypes.NormalRelaySettings {
   const relayConstraints = new grpcTypes.NormalRelaySettings();
 
-  if (constraints.tunnelProtocol !== 'any') {
-    relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol.only));
-  }
+  relayConstraints.setTunnelType(convertToTunnelType(constraints.tunnelProtocol));
   relayConstraints.setLocation(convertToLocation(unwrapConstraint(constraints.location)));
   relayConstraints.setWireguardConstraints(
     convertToWireguardConstraints(constraints.wireguardConstraints),

@@ -3,7 +3,7 @@ import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
 import { strings } from '../../shared/constants';
-import { IDnsOptions, TunnelProtocol, wrapConstraint } from '../../shared/daemon-rpc-types';
+import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
@@ -664,9 +664,8 @@ function LockdownMode() {
 }
 
 function TunnelProtocolSetting() {
-  const tunnelProtocol = useSelector((state) =>
-    mapRelaySettingsToProtocol(state.settings.relaySettings),
-  );
+  const tunnelProtocol = useTunnelProtocol();
+
   const relaySettingsUpdater = useRelaySettingsUpdater();
 
   const relaySettings = useSelector((state) => state.settings.relaySettings);
@@ -689,11 +688,11 @@ function TunnelProtocolSetting() {
   }
 
   const setTunnelProtocol = useCallback(
-    async (tunnelProtocol: TunnelProtocol | null) => {
+    async (tunnelProtocol: TunnelProtocol) => {
       try {
         await relaySettingsUpdater((settings) => ({
           ...settings,
-          tunnelProtocol: wrapConstraint(tunnelProtocol),
+          tunnelProtocol,
         }));
       } catch (e) {
         const error = e as Error;
@@ -723,9 +722,8 @@ function TunnelProtocolSetting() {
       <Selector
         title={messages.pgettext('vpn-settings-view', 'Tunnel protocol')}
         items={tunnelProtocolItems}
-        value={tunnelProtocol ?? null}
+        value={tunnelProtocol}
         onSelect={setTunnelProtocol}
-        automaticValue={null}
       />
       {openVpnDisabled ? (
         <Cell.CellFooter>
@@ -749,7 +747,7 @@ function TunnelProtocolSetting() {
 function mapRelaySettingsToProtocol(relaySettings: RelaySettingsRedux) {
   if ('normal' in relaySettings) {
     const { tunnelProtocol } = relaySettings.normal;
-    return tunnelProtocol === 'any' ? undefined : tunnelProtocol;
+    return tunnelProtocol;
     // since the GUI doesn't display custom settings, just display the default ones.
     // If the user sets any settings, then those will be applied.
   } else if ('customTunnelEndpoint' in relaySettings) {

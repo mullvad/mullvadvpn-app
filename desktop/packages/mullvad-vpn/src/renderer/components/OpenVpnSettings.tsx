@@ -375,8 +375,8 @@ function bridgeModeFooterText(
         // TRANSLATORS: available.
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(transportProtocol)s - the name of the transport protocol setting
-        // TRANSLATORS: %(automat)s - the translation of "Automatic"
-        // TRANSLATORS: %(openvpn)s - will be replaced with OpenVPN
+        // TRANSLATORS: %(automatic)s - the translation of "Automatic"
+        // TRANSLATORS: %(tcp)s - the translation of "TCP"
         messages.pgettext(
           'openvpn-settings-view',
           'To activate Bridge mode, change <b>%(transportProtocol)s</b> to <b>%(automatic)s</b> or <b>%(tcp)s</b>.',

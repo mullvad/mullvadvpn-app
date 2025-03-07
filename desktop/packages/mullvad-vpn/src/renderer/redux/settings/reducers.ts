@@ -25,7 +25,7 @@ import { IGuiSettingsState } from '../../../shared/gui-settings-state';
 import { ReduxAction } from '../store';
 
 export type NormalRelaySettingsRedux = {
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>;
+  tunnelProtocol: TunnelProtocol;
   location: LiftedConstraint<RelayLocation>;
   providers: string[];
   ownership: Ownership;
@@ -139,7 +139,7 @@ const initialState: ISettingsReduxState = {
   relaySettings: {
     normal: {
       location: 'any',
-      tunnelProtocol: 'any',
+      tunnelProtocol: 'wireguard',
       providers: [],
       ownership: Ownership.any,
       wireguard: { port: 'any', ipVersion: 'any', useMultihop: false, entryLocation: 'any' },

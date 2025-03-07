@@ -1,9 +1,34 @@
 import {
   ApiAccessMethodSettings,
+  IOpenVpnConstraints,
+  IRelaySettingsNormal,
   ISettings,
+  IWireguardConstraints,
   ObfuscationType,
   Ownership,
 } from '../shared/daemon-rpc-types';
+
+export function getDefaultRelaySettingsNormal(): IRelaySettingsNormal<
+  IOpenVpnConstraints,
+  IWireguardConstraints
+> {
+  return {
+    location: 'any',
+    tunnelProtocol: 'wireguard',
+    providers: [],
+    ownership: Ownership.any,
+    openvpnConstraints: {
+      port: 'any',
+      protocol: 'any',
+    },
+    wireguardConstraints: {
+      port: 'any',
+      ipVersion: 'any',
+      useMultihop: false,
+      entryLocation: 'any',
+    },
+  };
+}
 
 export function getDefaultSettings(): ISettings {
   return {
@@ -16,22 +41,7 @@ export function getDefaultSettings(): ISettings {
       appsList: [],
     },
     relaySettings: {
-      normal: {
-        location: 'any',
-        tunnelProtocol: 'any',
-        providers: [],
-        ownership: Ownership.any,
-        openvpnConstraints: {
-          port: 'any',
-          protocol: 'any',
-        },
-        wireguardConstraints: {
-          port: 'any',
-          ipVersion: 'any',
-          useMultihop: false,
-          entryLocation: 'any',
-        },
-      },
+      normal: getDefaultRelaySettingsNormal(),
     },
     bridgeSettings: {
       type: 'normal',

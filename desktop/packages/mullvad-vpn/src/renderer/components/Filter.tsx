@@ -114,7 +114,6 @@ export default function Filter() {
 
 // Returns only the ownership options that are compatible with the other filters
 function useFilteredOwnershipOptions(providers: string[], ownership: Ownership): Ownership[] {
-  const relaySettings = useNormalRelaySettings();
   const tunnelProtocol = useTunnelProtocol();
   const bridgeState = useSelector((state) => state.settings.bridgeState);
   const locations = useSelector((state) => state.settings.relayLocations);
@@ -126,7 +125,6 @@ function useFilteredOwnershipOptions(providers: string[], ownership: Ownership):
       locations,
       endpointType,
       tunnelProtocol,
-      relaySettings,
     );
     const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
 
@@ -143,14 +141,13 @@ function useFilteredOwnershipOptions(providers: string[], ownership: Ownership):
     }
 
     return ownershipOptions;
-  }, [locations, endpointType, tunnelProtocol, relaySettings, ownership, providers]);
+  }, [locations, endpointType, tunnelProtocol, ownership, providers]);
 
   return availableOwnershipOptions;
 }
 
 // Returns only the providers that are compatible with the other filters
 export function useFilteredProviders(providers: string[], ownership: Ownership): string[] {
-  const relaySettings = useNormalRelaySettings();
   const tunnelProtocol = useTunnelProtocol();
   const bridgeState = useSelector((state) => state.settings.bridgeState);
   const locations = useSelector((state) => state.settings.relayLocations);
@@ -162,11 +159,10 @@ export function useFilteredProviders(providers: string[], ownership: Ownership):
       locations,
       endpointType,
       tunnelProtocol,
-      relaySettings,
     );
     const relaylistForFilters = filterLocations(relayListForEndpointType, ownership, providers);
     return providersFromRelays(relaylistForFilters);
-  }, [endpointType, locations, ownership, providers, relaySettings, tunnelProtocol]);
+  }, [endpointType, locations, ownership, providers, tunnelProtocol]);
 
   return availableProviders;
 }
@@ -188,12 +184,7 @@ function useProviders(): Record<string, boolean> {
 
   const endpointType =
     tunnelProtocol === 'openvpn' && bridgeState === 'on' ? EndpointType.any : EndpointType.exit;
-  const relays = filterLocationsByEndPointType(
-    relayLocations,
-    endpointType,
-    tunnelProtocol,
-    relaySettings,
-  );
+  const relays = filterLocationsByEndPointType(relayLocations, endpointType, tunnelProtocol);
   const providers = providersFromRelays(relays);
 
   // Empty containt array means that all providers are selected. No selection isn't possible.

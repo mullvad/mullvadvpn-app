@@ -1,5 +1,4 @@
 import {
-  LiftedConstraint,
   Ownership,
   RelayEndpointType,
   RelayLocation,
@@ -17,7 +16,6 @@ import {
   IRelayLocationCityRedux,
   IRelayLocationCountryRedux,
   IRelayLocationRelayRedux,
-  NormalRelaySettingsRedux,
 } from '../redux/settings/reducers';
 
 export enum EndpointType {
@@ -29,13 +27,9 @@ export enum EndpointType {
 export function filterLocationsByEndPointType(
   locations: IRelayLocationCountryRedux[],
   endpointType: EndpointType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
-  relaySettings?: NormalRelaySettingsRedux,
+  tunnelProtocol: TunnelProtocol,
 ): IRelayLocationCountryRedux[] {
-  return filterLocationsImpl(
-    locations,
-    getTunnelProtocolFilter(endpointType, tunnelProtocol, relaySettings),
-  );
+  return filterLocationsImpl(locations, getTunnelProtocolFilter(endpointType, tunnelProtocol));
 }
 
 export function filterLocationsByDaita(
@@ -43,7 +37,7 @@ export function filterLocationsByDaita(
   daita: boolean,
   directOnly: boolean,
   locationType: LocationType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  tunnelProtocol: TunnelProtocol,
   multihop: boolean,
 ): IRelayLocationCountryRedux[] {
   return daitaFilterActive(daita, directOnly, locationType, tunnelProtocol, multihop)
@@ -55,7 +49,7 @@ export function daitaFilterActive(
   daita: boolean,
   directOnly: boolean,
   locationType: LocationType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
+  tunnelProtocol: TunnelProtocol,
   multihop: boolean,
 ) {
   const isEntry = multihop
@@ -78,17 +72,11 @@ export function filterLocations(
 
 function getTunnelProtocolFilter(
   endpointType: EndpointType,
-  tunnelProtocol: LiftedConstraint<TunnelProtocol>,
-  relaySettings?: NormalRelaySettingsRedux,
+  tunnelProtocol: TunnelProtocol,
 ): (relay: IRelayLocationRelayRedux) => boolean {
   const endpointTypes: Array<RelayEndpointType> = [];
   if (endpointType !== EndpointType.exit && tunnelProtocol === 'openvpn') {
     endpointTypes.push('bridge');
-  } else if (tunnelProtocol === 'any') {
-    endpointTypes.push('wireguard');
-    if (!relaySettings?.wireguard.useMultihop) {
-      endpointTypes.push('openvpn');
-    }
   } else {
     endpointTypes.push(tunnelProtocol);
   }
