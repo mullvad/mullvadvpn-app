@@ -8,7 +8,8 @@ use serde::{Deserialize, Serialize};
 use zeroize::Zeroize;
 
 /// ed25519 secret/signing key
-#[derive(Debug, Clone, PartialEq, zeroize::ZeroizeOnDrop)]
+#[derive(Clone, PartialEq, zeroize::ZeroizeOnDrop)]
+#[cfg_attr(test, derive(Debug))]
 pub struct SecretKey(ed25519_dalek::SigningKey);
 
 impl SecretKey {
