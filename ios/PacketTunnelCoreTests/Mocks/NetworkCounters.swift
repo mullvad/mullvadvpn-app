@@ -18,7 +18,7 @@ protocol NetworkStatsReporting {
 }
 
 /// A type providing network statistics.
-protocol NetworkStatsProviding {
+protocol NetworkStatsProviding: Sendable {
     /// Returns number of bytes sent.
     var bytesSent: UInt64 { get }
 
@@ -27,10 +27,10 @@ protocol NetworkStatsProviding {
 }
 
 /// Class that holds network statistics (bytes sent and received) for a simulated network adapter.
-final class NetworkCounters: NetworkStatsProviding, NetworkStatsReporting {
+final class NetworkCounters: NetworkStatsProviding, NetworkStatsReporting, Sendable {
     private let stateLock = NSLock()
-    private var _bytesSent: UInt64 = 0
-    private var _bytesReceived: UInt64 = 0
+    nonisolated(unsafe) private var _bytesSent: UInt64 = 0
+    nonisolated(unsafe) private var _bytesReceived: UInt64 = 0
 
     var bytesSent: UInt64 {
         stateLock.withLock { _bytesSent }
