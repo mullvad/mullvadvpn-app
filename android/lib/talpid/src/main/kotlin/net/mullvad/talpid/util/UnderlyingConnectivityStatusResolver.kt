@@ -58,7 +58,7 @@ class UnderlyingConnectivityStatusResolver(
         Either.catch { DatagramSocket() }.onLeft { Logger.e("Could not open socket or bind port") }
 
     private fun DatagramSocket.connectSafe(address: InetSocketAddress): Either<Throwable, Unit> =
-        Either.catch { connect(address.address, address.port) }
+        Either.catch { connect(address) }
             .onLeft { Logger.e("Socket could not be set up") }
             .also { close() }
 
