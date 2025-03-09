@@ -59,6 +59,8 @@ function download_and_verify {
     done
 }
 
+# Preconditions:
+# - $VERSION_METADATA_SECRET must be set to an ed25519 secret
 function publish_metadata {
     local platforms
     platforms=(windows macos linux)
@@ -78,7 +80,7 @@ function publish_metadata {
     echo ""
 
     echo ">>> Signing $PRODUCT_VERSION metadata"
-    meta sign "${platforms[@]}"
+    meta sign --secret "$VERSION_METADATA_SECRET" "${platforms[@]}"
     echo ""
 
     echo ">>> Verifying signed metadata"
