@@ -2,7 +2,6 @@
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
 # creates a GitHub draft release. This should be run after `3-verify-build`.
-# This also publishes new version metadata
 
 set -eu
 
@@ -27,11 +26,8 @@ fi
 
 PRODUCT_VERSION=$1
 
-ARTIFACT_DIR="./artifacts"
+ARTIFACT_DIR=$(mktemp -d)
 URL_BASE="https://releases.mullvad.net/desktop/releases"
-
-rm -rf $ARTIFACT_DIR
-mkdir -p $ARTIFACT_DIR
 
 function download_and_verify {
     # Find GnuPG command to use. Prefer gpg2
@@ -57,42 +53,6 @@ function download_and_verify {
         echo "GOOD SIGNATURE FOR $pkg_filename"
         echo ""
     done
-}
-
-# Preconditions:
-# - $VERSION_METADATA_SECRET must be set to an ed25519 secret
-function publish_metadata {
-    local platforms
-    platforms=(windows macos linux)
-
-    rm -rf currently_published/
-
-    echo ">>> Fetching current version metadata"
-    meta pull --assume-yes "${platforms[@]}"
-    echo ""
-
-    echo ">>> Backing up released data"
-    cp -r signed/ currently_published/
-    echo ""
-
-    echo ">>> Adding new release $$PRODUCT_VERSION (rollout = 1)"
-    meta add-release "$PRODUCT_VERSION" "${platforms[@]}"
-    echo ""
-
-    echo ">>> Signing $PRODUCT_VERSION metadata"
-    meta sign --secret "$VERSION_METADATA_SECRET" "${platforms[@]}"
-    echo ""
-
-    echo ">>> Verifying signed metadata"
-    meta verify "${platforms[@]}"
-    echo ""
-
-    echo ">>> New metadata including $$PRODUCT_VERSION"
-    git diff --no-index -- currently_published/ signed/
-    echo ""
-
-    read -rp "Press enter to upload if the diff looks good "
-    # TODO: push metadata
 }
 
 function publish_release {
@@ -145,5 +105,4 @@ function publish_release {
 }
 
 download_and_verify
-publish_metadata
 publish_release
