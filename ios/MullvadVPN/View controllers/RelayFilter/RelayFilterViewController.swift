@@ -85,6 +85,7 @@ class RelayFilterViewController: UIViewController {
         tableView.estimatedRowHeight = 60
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
         tableView.allowsMultipleSelection = true
+        tableView.isMultipleTouchEnabled = false
 
         view.addSubview(tableView)
         buttonContainerView.addArrangedSubview(descriptionLabel)
@@ -105,15 +106,14 @@ class RelayFilterViewController: UIViewController {
     private func setupDataSource() {
         viewModel
             .$relayFilter
-            .receive(on: DispatchQueue.main)
             .removeDuplicates()
             .sink { [weak self] filter in
                 guard let self else { return }
                 let filterDescriptor = viewModel.getFilteredRelays(filter)
+                descriptionLabel.isEnabled = filterDescriptor.isEnabled
                 applyButton.isEnabled = filterDescriptor.isEnabled
                 applyButton.setTitle(filterDescriptor.title, for: .normal)
                 descriptionLabel.text = filterDescriptor.description
-                descriptionLabel.isEnabled = filterDescriptor.isEnabled
             }
             .store(in: &disposeBag)
         dataSource = RelayFilterDataSource(tableView: tableView, viewModel: viewModel)

@@ -15,14 +15,11 @@ struct FilterDescriptor {
     var isEnabled: Bool {
         let exitCount = relayFilterResult.exitRelays.count
         let entryCount = relayFilterResult.entryRelays?.count ?? 0
-        let totalcount = exitCount + entryCount
-        let isMultihopEnabled = settings.tunnelMultihopState.isEnabled
-        return (isMultihopEnabled && totalcount > 1) || (!isMultihopEnabled && totalcount > 0)
+        let isMultihopEnabled = settings.tunnelMultihopState.isEnabled || settings.daita.isAutomaticRouting
+        return (isMultihopEnabled && entryCount > 1 && exitCount > 1) || (!isMultihopEnabled && exitCount > 0)
     }
 
     var title: String {
-        let exitCount = relayFilterResult.exitRelays.count
-        let entryCount = relayFilterResult.entryRelays?.count ?? 0
         guard isEnabled else {
             return NSLocalizedString(
                 "RELAY_FILTER_BUTTON_TITLE",
@@ -31,12 +28,7 @@ struct FilterDescriptor {
                 comment: ""
             )
         }
-        return createTitleForAvailableServers(
-            entryCount: entryCount,
-            exitCount: exitCount,
-            isMultihopEnabled: settings.tunnelMultihopState.isEnabled,
-            isDirectOnly: settings.daita.isDirectOnly
-        )
+        return createTitleForAvailableServers()
     }
 
     var description: String {
@@ -63,23 +55,12 @@ struct FilterDescriptor {
         self.relayFilterResult = relayFilterResult
     }
 
-    private func createTitleForAvailableServers(
-        entryCount: Int,
-        exitCount: Int,
-        isMultihopEnabled: Bool,
-        isDirectOnly: Bool
-    ) -> String {
+    private func createTitleForAvailableServers() -> String {
         let displayNumber: (Int) -> String = { number in
-            number > 100 ? "99+" : "\(number)"
+            number >= 100 ? "99+" : "\(number)"
         }
 
-        if isMultihopEnabled && isDirectOnly {
-            return String(
-                format: "Show %@ entry & %@ exit servers",
-                displayNumber(entryCount),
-                displayNumber(exitCount)
-            )
-        }
-        return String(format: "Show %@ servers", displayNumber(exitCount))
+        let numberOfRelays = Set(relayFilterResult.entryRelays ?? []).union(relayFilterResult.exitRelays).count
+        return String(format: "Show %@ servers", displayNumber(numberOfRelays))
     }
 }
