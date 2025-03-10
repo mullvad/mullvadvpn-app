@@ -10,6 +10,7 @@ export GOROOT="$HOME/go"
 export PATH="$GOROOT/bin:$PATH"
 
 # Ensure Rust crates know which tools to use for cross-compilation
+export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/27.2.12479018"
 export NDK_TOOLCHAIN_DIR="$NDK_PATH/toolchains/llvm/prebuilt/linux-x86_64/bin"
 
 export AR_i686_linux_android="$NDK_TOOLCHAIN_DIR/llvm-ar"

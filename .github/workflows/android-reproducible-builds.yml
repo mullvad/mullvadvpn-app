@@ -1,0 +1,99 @@
+---
+name: Android - Ensure reproducibility
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - .github/workflows/android-reproducible-builds.yml
+      - android/**
+  schedule:
+    # At 06:20 UTC every day.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '20 6 * * *'
+  push:
+
+    #inputs:
+    #  override_container_image:
+    #    description: Override container image
+    #    type: string
+    #    required: false
+
+permissions: {}
+
+jobs:
+  build-fdroid-app:
+    name: Build fdroid container
+    runs-on: ubuntu-latest
+    # container: ghcr.io/mullvad/mullvadvpn-app-build-android:754c2d39f
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Upload repro yaml file
+        uses: actions/upload-artifact@v4
+        with:
+          name: net.mullvad.mullvadvpn.yml
+          path: android/app/fdroid-build/metadata
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Build app
+        run: ./building/containerized-build.sh android --fdroid
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  build-fdroid-app-server:
+    name: Build fdroid with fdroid server
+    runs-on: ubuntu-latest
+    # container: registry.gitlab.com/fdroid/docker-executable-fdroidserver:master
+    steps:
+      - name: Create empty repo
+        run: mdkir fdroid && cd fdroid && mkdir metadata
+
+      - name: Init
+        run: docker run --rm -v /usr/local/lib/android/sdk:/opt/android-sdk -v $(pwd):/repo -e ANDROID_HOME:/opt/android-sdk registry.gitlab.com/fdroid/docker-executable-fdroidserver:master init -v
+
+      - name: Wait for repro yaml file to upload
+        uses: kachick/wait-other-jobs@v3.6.0
+        with:
+          wait-seconds-before-first-polling: '0'
+          wait-list: |
+            [
+              {
+                "workflowFile": "android-reproducible-builds.yml",
+                "jobMatchMode": "prefix",
+                "jobName": "Upload repro"
+              }
+            ]
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: net.mullvad.mullvadvpn.yml
+          path: metadata
+
+      - name: Update metadata
+        run: sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
+
+      - name: Rewrite metadata
+        run: docker run --rm -v /usr/local/lib/android/sdk:/opt/android-sdk -v $(pwd):/repo -e ANDROID_HOME:/opt/android-sdk registry.gitlab.com/fdroid/docker-executable-fdroidserver:master rewritemeta net.mullvad.mullvadvpn -v
+
+      - name: Build app
+        run: docker run --rm -v /usr/local/lib/android/sdk:/opt/android-sdk -v $(pwd):/repo -e ANDROID_HOME:/opt/android-sdk registry.gitlab.com/fdroid/docker-executable-fdroidserver:master build net.mullvad.mullvadvpn:24090099 -v
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: dist
+          if-no-files-found:
