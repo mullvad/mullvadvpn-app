@@ -229,13 +229,11 @@ function dist_macos_app {
     # Sign .dmg
     sign_macos "$dmg_path"
 
-    # Notarize .dmg
     if [[ "$SIGN" != "false" ]]; then
+        # Notarize .dmg
         notarize_mac "$dmg_path"
-    fi
 
-    # GPG sign .dmg
-    if [[ "$SIGN" != "false" ]]; then
+        # GPG sign .dmg
         gpg_sign "$dmg_path"
     fi
 
