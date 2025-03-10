@@ -579,13 +579,10 @@ impl Firewall {
 
     /// Allow traffic to relay_endpoint on the correct ip/port/protocol, for the root-user only.
     fn get_allow_relay_rule(&self, relay_endpoint: &AllowedEndpoint) -> Result<pfctl::FilterRule> {
-        let pfctl_proto = as_pfctl_proto(relay_endpoint.endpoint.protocol);
-
         let mut builder = self.create_rule_builder(FilterRuleAction::Pass);
         builder
             .direction(pfctl::Direction::Out)
-            .to(relay_endpoint.endpoint.address)
-            .proto(pfctl_proto)
+            .to(relay_endpoint.endpoint.address.ip())
             .keep_state(pfctl::StatePolicy::Keep)
             .quick(true);
 
@@ -605,9 +602,9 @@ impl Firewall {
         let pfctl_proto = as_pfctl_proto(allowed_endpoint.endpoint.protocol);
 
         let mut rule = self.create_rule_builder(FilterRuleAction::Pass);
+        log::error!("allowed endopoint: {}", allowed_endpoint.endpoint.address);
         rule.direction(pfctl::Direction::Out)
-            .to(allowed_endpoint.endpoint.address)
-            .proto(pfctl_proto)
+            .to(allowed_endpoint.endpoint.address.ip())
             .keep_state(pfctl::StatePolicy::Keep)
             .quick(true);
 
