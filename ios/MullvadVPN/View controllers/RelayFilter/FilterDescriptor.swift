@@ -16,7 +16,7 @@ struct FilterDescriptor {
         let exitCount = relayFilterResult.exitRelays.count
         let entryCount = relayFilterResult.entryRelays?.count ?? 0
         let isMultihopEnabled = settings.tunnelMultihopState.isEnabled || settings.daita.isAutomaticRouting
-        return (isMultihopEnabled && entryCount > 1 && exitCount > 1) || (!isMultihopEnabled && exitCount > 0)
+        return isMultihopEnabled ? (entryCount > 1 && exitCount > 1) : (exitCount > 0)
     }
 
     var title: String {

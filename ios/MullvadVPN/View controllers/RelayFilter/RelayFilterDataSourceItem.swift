@@ -8,75 +8,50 @@
 
 import Foundation
 
-extension RelayFilterDataSource {
-    enum Section: CaseIterable { case ownership, providers }
+struct RelayFilterDataSourceItem: Hashable, Comparable {
+    let name: String
+    let type: ItemType
+    let isEnabled: Bool
 
-    struct Item: Hashable, Comparable {
-        let name: String
-        let type: ItemType
-        let isEnabled: Bool
+    enum ItemType: Hashable {
+        case ownershipAny, ownershipOwned, ownershipRented, allProviders, provider
+    }
 
-        enum ItemType: Hashable {
-            case ownershipAny, ownershipOwned, ownershipRented, allProviders, provider
-        }
-
-        static var ownerships: [Item] {
-            [
-                Item(name: NSLocalizedString(
-                    "RELAY_FILTER_ANY_LABEL",
-                    tableName: "RelayFilter",
-                    value: "Any",
-                    comment: ""
-                ), type: .ownershipAny, isEnabled: true),
-
-                Item(name: NSLocalizedString(
-                    "RELAY_FILTER_OWNED_LABEL",
-                    tableName: "RelayFilter",
-                    value: "Owned",
-                    comment: ""
-                ), type: .ownershipOwned, isEnabled: true),
-                Item(name: NSLocalizedString(
-                    "RELAY_FILTER_RENTED_LABEL",
-                    tableName: "RelayFilter",
-                    value: "Rented",
-                    comment: ""
-                ), type: .ownershipRented, isEnabled: true),
-            ]
-        }
-
-        static var allProviders: Item {
-            Item(name: NSLocalizedString(
-                "RELAY_FILTER_ALL_PROVIDERS_LABEL",
+    static var ownerships: [RelayFilterDataSourceItem] {
+        [
+            RelayFilterDataSourceItem(name: NSLocalizedString(
+                "RELAY_FILTER_ANY_LABEL",
                 tableName: "RelayFilter",
-                value: "All Providers",
+                value: "Any",
                 comment: ""
-            ), type: .allProviders, isEnabled: true)
-        }
+            ), type: .ownershipAny, isEnabled: true),
 
-        static func < (lhs: Item, rhs: Item) -> Bool {
-            let nameComparison = lhs.name.caseInsensitiveCompare(rhs.name)
-            return nameComparison == .orderedAscending
-        }
-    }
-}
-
-// MARK: - Cell Identifiers
-
-extension RelayFilterDataSource {
-    enum CellReuseIdentifiers: String, CaseIterable {
-        case ownershipCell, providerCell
-
-        var reusableViewClass: AnyClass {
-            switch self {
-            case .ownershipCell: return SelectableSettingsCell.self
-            case .providerCell: return CheckableSettingsCell.self
-            }
-        }
+            RelayFilterDataSourceItem(name: NSLocalizedString(
+                "RELAY_FILTER_OWNED_LABEL",
+                tableName: "RelayFilter",
+                value: "Owned",
+                comment: ""
+            ), type: .ownershipOwned, isEnabled: true),
+            RelayFilterDataSourceItem(name: NSLocalizedString(
+                "RELAY_FILTER_RENTED_LABEL",
+                tableName: "RelayFilter",
+                value: "Rented",
+                comment: ""
+            ), type: .ownershipRented, isEnabled: true),
+        ]
     }
 
-    enum HeaderFooterReuseIdentifiers: String, CaseIterable {
-        case section
+    static var allProviders: RelayFilterDataSourceItem {
+        RelayFilterDataSourceItem(name: NSLocalizedString(
+            "RELAY_FILTER_ALL_PROVIDERS_LABEL",
+            tableName: "RelayFilter",
+            value: "All Providers",
+            comment: ""
+        ), type: .allProviders, isEnabled: true)
+    }
 
-        var reusableViewClass: AnyClass { SettingsHeaderView.self }
+    static func < (lhs: RelayFilterDataSourceItem, rhs: RelayFilterDataSourceItem) -> Bool {
+        let nameComparison = lhs.name.caseInsensitiveCompare(rhs.name)
+        return nameComparison == .orderedAscending
     }
 }
