@@ -10,11 +10,11 @@ import Foundation
 @testable import MullvadREST
 import WireGuardKitTypes
 
-enum ServerRelaysResponseStubs {
-    static let wireguardPortRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
-    static let shadowsocksPortRanges: [[UInt16]] = [[51900, 51949]]
+public enum ServerRelaysResponseStubs {
+    public static let wireguardPortRanges: [[UInt16]] = [[4000, 4001], [5000, 5001]]
+    public static let shadowsocksPortRanges: [[UInt16]] = [[51900, 51949]]
 
-    static let sampleRelays = REST.ServerRelaysResponse(
+    public static let sampleRelays = REST.ServerRelaysResponse(
         locations: [
             "es-mad": REST.ServerLocation(
                 country: "Spain",
@@ -79,7 +79,7 @@ enum ServerRelaysResponseStubs {
                 REST.ServerRelay(
                     hostname: "es1-wireguard",
                     active: true,
-                    owned: true,
+                    owned: false,
                     location: "es-mad",
                     provider: "100TB",
                     weight: 500,
@@ -109,7 +109,7 @@ enum ServerRelaysResponseStubs {
                     active: true,
                     owned: true,
                     location: "se-sto",
-                    provider: "",
+                    provider: "DataPacket",
                     weight: 50,
                     ipv4AddrIn: .loopback,
                     ipv6AddrIn: .loopback,
@@ -149,7 +149,7 @@ enum ServerRelaysResponseStubs {
                 REST.ServerRelay(
                     hostname: "us-nyc-wg-301",
                     active: true,
-                    owned: true,
+                    owned: false,
                     location: "us-nyc",
                     provider: "xtom",
                     weight: 100,

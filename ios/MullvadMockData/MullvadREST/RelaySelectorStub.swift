@@ -13,13 +13,17 @@ import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
 public final class RelaySelectorStub: RelaySelectorProtocol {
+    public let relayCache: any RelayCacheProtocol
+
     var selectedRelaysResult: (UInt) throws -> SelectedRelays
     var candidatesResult: (() throws -> RelayCandidates)?
 
     init(
+        relayCache: RelayCacheProtocol = MockRelayCache(),
         selectedRelaysResult: @escaping (UInt) throws -> SelectedRelays,
         candidatesResult: (() throws -> RelayCandidates)? = nil
     ) {
+        self.relayCache = relayCache
         self.selectedRelaysResult = selectedRelaysResult
         self.candidatesResult = candidatesResult
     }
