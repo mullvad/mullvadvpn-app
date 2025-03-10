@@ -6,7 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
-public struct RelayCandidates {
+public struct RelayCandidates: Equatable {
     public let entryRelays: [RelayWithLocation<REST.ServerRelay>]?
     public let exitRelays: [RelayWithLocation<REST.ServerRelay>]
     public init(
