@@ -68,7 +68,7 @@ pub struct Shadowsocks {
     outbound_fd: i32,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     /// Remote Shadowsocks endpoint
     pub shadowsocks_endpoint: SocketAddr,

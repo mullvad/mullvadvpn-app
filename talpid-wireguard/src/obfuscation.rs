@@ -2,6 +2,7 @@
 
 use super::{Error, Result};
 use crate::{CloseMsg, config::Config};
+use socket2::Socket;
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
 use std::{
@@ -13,7 +14,10 @@ use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{ErrorExt, net::obfuscation::ObfuscatorConfig};
 
 use tunnel_obfuscation::{
-    Settings as ObfuscationSettings, create_obfuscator, quic, shadowsocks, udp2tcp,
+    Obfuscator, Settings as ObfuscationSettings, create_obfuscator,
+    multiplexer::{self, Multiplexer},
+    quic, shadowsocks,
+    udp2tcp::{self, Udp2Tcp},
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -29,7 +33,53 @@ pub async fn apply_obfuscation_config(
     #[cfg(target_os = "android")] tun_provider: Arc<Mutex<TunProvider>>,
 ) -> Result<Option<ObfuscatorHandle>> {
     let Some(ref obfuscator_config) = config.obfuscator_config else {
-        return Ok(None);
+        let entry_addr = config.entry_peer.endpoint;
+
+        let direct = multiplexer::Transport::Direct(entry_addr);
+
+        let udp2tcp =
+            multiplexer::Transport::Obfuscated(ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
+                peer: SocketAddr::new(entry_addr.ip(), 443),
+            }));
+        let shadowsocks = multiplexer::Transport::Obfuscated(ObfuscationSettings::Shadowsocks(
+            shadowsocks::Settings {
+                shadowsocks_endpoint: SocketAddr::new(entry_addr.ip(), 51900),
+                wireguard_endpoint: SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 51820),
+            },
+        ));
+
+        let multiplexer_settings = multiplexer::Settings {
+            transports: vec![udp2tcp, shadowsocks, direct],
+        };
+
+        let Ok(obfuscator) = Multiplexer::new(multiplexer_settings).await else {
+            return Ok(None);
+        };
+
+        let packet_overhead = obfuscator.packet_overhead();
+
+        patch_endpoint(config, obfuscator.endpoint());
+
+        let obfuscation_task = tokio::spawn(async move {
+            match Box::new(obfuscator).run().await {
+                Ok(_) => {
+                    let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
+                }
+                Err(error) => {
+                    log::error!(
+                        "{}",
+                        error.display_chain_with_msg("Obfuscation controller failed")
+                    );
+                    let _ = close_msg_sender
+                        .send(CloseMsg::ObfuscatorFailed(Error::ObfuscationError(error)));
+                }
+            }
+        });
+
+        return Ok(Some(ObfuscatorHandle {
+            obfuscation_task,
+            packet_overhead,
+        }));
     };
 
     let settings = settings_from_config(
@@ -40,7 +90,6 @@ pub async fn apply_obfuscation_config(
     );
 
     log::trace!("Obfuscation settings: {settings:?}");
-
     let obfuscator = create_obfuscator(&settings)
         .await
         .map_err(Error::ObfuscationError)?;

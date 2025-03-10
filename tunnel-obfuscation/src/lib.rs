@@ -4,6 +4,7 @@ use std::net::SocketAddr;
 pub mod quic;
 pub mod shadowsocks;
 pub mod udp2tcp;
+pub mod multiplexer;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -45,7 +46,7 @@ pub trait Obfuscator: Send {
     fn packet_overhead(&self) -> u16;
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum Settings {
     Udp2Tcp(udp2tcp::Settings),
     Shadowsocks(shadowsocks::Settings),
