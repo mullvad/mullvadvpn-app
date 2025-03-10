@@ -2,7 +2,7 @@
 
 # This script downloads the build artifacts along with the signatures, verifies the signatures and
 # creates a GitHub draft release. This should be run after `3-verify-build`.
-# This also publishes new version metadata
+# This will also publish new version metadata
 
 set -eu
 
@@ -147,5 +147,6 @@ function publish_release {
 }
 
 download_and_verify
-publish_metadata
+# TODO: Uncomment before releasing installer downloader
+# publish_metadata
 publish_release
