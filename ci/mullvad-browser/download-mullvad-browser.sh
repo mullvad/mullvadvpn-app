@@ -39,11 +39,12 @@ function main() {
     echo "[#] Downloading $PACKAGE_FILENAME.asc"
     if ! wget --quiet "$SIGNATURE_URL"; then
         echo "[!] Failed to download $SIGNATURE_URL"
+        rm "$PACKAGE_FILENAME"
         exit 1
     fi
 
     echo "[#] Verifying $PACKAGE_FILENAME signature"
-    if ! gpg --verify "$PACKAGE_FILENAME".asc; then
+    if ! gpg --verify "$PACKAGE_FILENAME".asc "$PACKAGE_FILENAME"; then
         echo "[!] Failed to verify signature"
         rm "$PACKAGE_FILENAME" "$PACKAGE_FILENAME.asc"
         exit 1
@@ -63,8 +64,6 @@ function main() {
         return
     fi
 
-    echo "[#] $PACKAGE_FILENAME has changed"
-    cp "$PACKAGE_FILENAME" "$WORKDIR/"
     # Leaving a file in `$TMP_DIR` is used as an indicator further down that something changed
 }
 
@@ -104,7 +103,13 @@ if [[ -z "$(ls -A "$TMP_DIR")" ]]; then
     exit
 fi
 
+echo ""
 echo "[#] New browser build(s) exist"
+for package in *; do
+    echo "[#] $package has changed"
+    mv "$package" "$WORKDIR/"
+done
+
 for repository in "${REPOSITORIES[@]}"; do
     inbox_dir="$NOTIFY_DIR/$repository"
 
