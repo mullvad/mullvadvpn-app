@@ -72,8 +72,7 @@ jobs:
             [
               {
                 "workflowFile": "android-reproducible-builds.yml",
-                "jobMatchMode": "prefix",
-                "jobName": "Upload repro"
+                "jobName": "Upload repro yaml file"
               }
             ]
 
