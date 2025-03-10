@@ -1,6 +1,8 @@
+use std::{ffi::CStr, ptr};
+
 use mullvad_api::{
     rest::{self, MullvadRestHandle},
-    ApiProxy,
+    ApiProxy, RelayListProxy,
 };
 use talpid_future::retry::retry_future;
 
@@ -59,6 +61,64 @@ async fn mullvad_api_get_addresses_inner(
     let api = ApiProxy::new(rest_client);
 
     let future_factory = || api.get_api_addrs_response();
+
+    let should_retry = |result: &Result<_, rest::Error>| match result {
+        Err(err) => err.is_network_error(),
+        Ok(_) => false,
+    };
+
+    let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
+
+    SwiftMullvadApiResponse::with_body(response).await
+}
+
+#[no_mangle]
+pub unsafe extern "C" fn mullvad_api_get_relays(
+    api_context: SwiftApiContext,
+    completion_cookie: *mut libc::c_void,
+    retry_strategy: SwiftRetryStrategy,
+    etag: Option<*const u8>,
+) -> SwiftCancelHandle {
+    let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
+
+    let Ok(tokio_handle) = crate::mullvad_ios_runtime() else {
+        completion_handler.finish(SwiftMullvadApiResponse::no_tokio_runtime());
+        return SwiftCancelHandle::empty();
+    };
+
+    let api_context = api_context.into_rust_context();
+    let retry_strategy = unsafe { retry_strategy.into_rust() };
+
+    let etag = match etag {
+        Some(etag) => {
+            let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
+            Some(String::from(unwrapped_tag))
+        },
+        None => None,
+    };
+
+    let completion = completion_handler.clone();
+    let task = tokio_handle.clone().spawn(async move {
+        match mullvad_api_get_relays_inner(api_context.rest_handle(), retry_strategy, etag).await {
+            Ok(response) => completion.finish(response),
+            Err(err) => {
+                log::error!("{err:?}");
+                completion.finish(SwiftMullvadApiResponse::rest_error(err));
+            }
+        }
+    });
+
+    RequestCancelHandle::new(task, completion_handler.clone()).into_swift()
+}
+
+async fn mullvad_api_get_relays_inner(
+    rest_client: MullvadRestHandle,
+    retry_strategy: RetryStrategy,
+    etag: Option<String>,
+) -> Result<SwiftMullvadApiResponse, rest::Error> {
+    let api = RelayListProxy::new(rest_client);
+
+    let future_factory = || api.relay_list_response(etag.clone());
 
     let should_retry = |result: &Result<_, rest::Error>| match result {
         Err(err) => err.is_network_error(),

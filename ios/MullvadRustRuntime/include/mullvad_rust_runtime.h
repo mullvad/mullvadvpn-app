@@ -24,6 +24,8 @@ typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct Option______u8 Option______u8;
+
 typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
@@ -43,6 +45,7 @@ typedef struct SwiftRetryStrategy {
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
+  uint8_t *etag;
   uint16_t status_code;
   uint8_t *error_description;
   uint8_t *server_response_code;
@@ -112,6 +115,11 @@ struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
 struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_context,
                                                    void *completion_cookie,
                                                    struct SwiftRetryStrategy retry_strategy);
+
+struct SwiftCancelHandle mullvad_api_get_relays(struct SwiftApiContext api_context,
+                                                void *completion_cookie,
+                                                struct SwiftRetryStrategy retry_strategy,
+                                                struct Option______u8 etag);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.
