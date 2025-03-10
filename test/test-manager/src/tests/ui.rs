@@ -94,11 +94,9 @@ pub async fn test_ui_tunnel_settings(
 ) -> anyhow::Result<()> {
     // tunnel-state.spec precondition: a single WireGuard relay should be selected
     log::info!("Select WireGuard relay");
-    let entry = helpers::constrain_to_relay(
-        &mut mullvad_client,
-        RelayQueryBuilder::new().wireguard().build(),
-    )
-    .await?;
+    let entry =
+        helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::wireguard().build())
+            .await?;
 
     let ui_result = run_test_env(
         &rpc,

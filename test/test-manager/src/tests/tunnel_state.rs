@@ -343,11 +343,9 @@ pub async fn test_connected_state(
 
     // Set relay to use
     log::info!("Select relay");
-    let relay = helpers::constrain_to_relay(
-        &mut mullvad_client,
-        RelayQueryBuilder::new().wireguard().build(),
-    )
-    .await?;
+    let relay =
+        helpers::constrain_to_relay(&mut mullvad_client, RelayQueryBuilder::wireguard().build())
+            .await?;
 
     // Connect
     connect_and_wait(&mut mullvad_client).await?;
