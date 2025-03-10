@@ -23,6 +23,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ## Unreleased
 ### Added
+- Add animations to connection view.
 - Make account number copyable on welcome screen.
 
 ## 2025.2 - 2025-02-08
