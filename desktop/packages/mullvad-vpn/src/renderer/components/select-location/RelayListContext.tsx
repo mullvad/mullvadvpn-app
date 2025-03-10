@@ -78,13 +78,8 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
   const relayListForEndpointType = useMemo(() => {
     const endpointType =
       locationType === LocationType.entry ? EndpointType.entry : EndpointType.exit;
-    return filterLocationsByEndPointType(
-      fullRelayList,
-      endpointType,
-      tunnelProtocol,
-      relaySettings,
-    );
-  }, [fullRelayList, locationType, relaySettings, tunnelProtocol]);
+    return filterLocationsByEndPointType(fullRelayList, endpointType, tunnelProtocol);
+  }, [fullRelayList, locationType, tunnelProtocol]);
 
   const relayListForDaita = useMemo(() => {
     return filterLocationsByDaita(
@@ -92,7 +87,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
       daita,
       directOnly,
       locationType,
-      relaySettings?.tunnelProtocol ?? 'any',
+      tunnelProtocol,
       relaySettings?.wireguard.useMultihop ?? false,
     );
   }, [
@@ -100,7 +95,7 @@ export function RelayListContextProvider(props: RelayListContextProviderProps) {
     directOnly,
     locationType,
     relayListForEndpointType,
-    relaySettings?.tunnelProtocol,
+    tunnelProtocol,
     relaySettings?.wireguard.useMultihop,
   ]);
 

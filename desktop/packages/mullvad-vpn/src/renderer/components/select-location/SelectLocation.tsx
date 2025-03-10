@@ -9,7 +9,7 @@ import { useRelaySettingsUpdater } from '../../lib/constraint-updater';
 import { daitaFilterActive, filterSpecialLocations } from '../../lib/filter-locations';
 import { useHistory } from '../../lib/history';
 import { formatHtml } from '../../lib/html-formatter';
-import { useNormalRelaySettings } from '../../lib/relay-settings-hooks';
+import { useNormalRelaySettings, useTunnelProtocol } from '../../lib/relay-settings-hooks';
 import { RoutePath } from '../../lib/routes';
 import { useSelector } from '../../redux/store';
 import { AppNavigationHeader } from '../';
@@ -56,6 +56,7 @@ export default function SelectLocation() {
   const { expandSearchResults } = useRelayListContext();
 
   const relaySettings = useNormalRelaySettings();
+  const tunnelProtocol = useTunnelProtocol();
   const ownership = relaySettings?.ownership ?? Ownership.any;
   const providers = relaySettings?.providers ?? [];
   const filteredProviders = useFilteredProviders(providers, ownership);
@@ -65,7 +66,7 @@ export default function SelectLocation() {
     daita,
     directOnly,
     locationType,
-    relaySettings?.tunnelProtocol ?? 'any',
+    tunnelProtocol,
     relaySettings?.wireguard.useMultihop ?? false,
   );
 
@@ -74,7 +75,6 @@ export default function SelectLocation() {
   const onClose = useCallback(() => history.pop(), [history]);
   const onViewFilter = useCallback(() => history.push(RoutePath.filter), [history]);
 
-  const tunnelProtocol = relaySettings?.tunnelProtocol ?? 'any';
   const bridgeState = useSelector((state) => state.settings.bridgeState);
   const allowEntrySelection =
     (tunnelProtocol === 'openvpn' && bridgeState === 'on') ||
