@@ -2035,6 +2035,7 @@ dependencies = [
  "log",
  "mullvad-encrypted-dns-proxy",
  "mullvad-fs",
+ "mullvad-relay-selector",
  "mullvad-types",
  "rustls-pemfile 2.1.3",
  "serde",
