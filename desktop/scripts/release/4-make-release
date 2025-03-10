@@ -98,7 +98,7 @@ function publish_metadata {
     echo ""
 
     echo ">>> New metadata including $$PRODUCT_VERSION"
-    git diff --no-index -- currently_published/ $signed_dir
+    git --no-pager diff --no-index -- currently_published/ $signed_dir || true
     echo ""
 
     read -rp "Press enter to upload if the diff looks good "
