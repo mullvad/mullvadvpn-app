@@ -81,6 +81,9 @@ jobs:
           pattern: net.mullvad.mullvadvpn.yml
           path: metadata
 
+      - name: Metadata folder
+        run: ls && ls metadata
+
       - name: Update metadata
         run: sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
