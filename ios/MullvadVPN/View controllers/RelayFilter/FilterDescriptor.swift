@@ -13,16 +13,11 @@ struct FilterDescriptor {
     let settings: LatestTunnelSettings
 
     var isEnabled: Bool {
-        let exitCount = relayFilterResult.exitRelays.count
-        let entryCount = relayFilterResult.entryRelays?.count ?? 0
-        let totalcount = exitCount + entryCount
-        let isMultihopEnabled = settings.tunnelMultihopState.isEnabled
-        return (isMultihopEnabled && totalcount > 1) || (!isMultihopEnabled && totalcount > 0)
+        let isMultihopEnabled = settings.tunnelMultihopState.isEnabled || settings.daita.isAutomaticRouting
+        return isMultihopEnabled ? (numberOfServers > 1) : (numberOfServers > 0)
     }
 
     var title: String {
-        let exitCount = relayFilterResult.exitRelays.count
-        let entryCount = relayFilterResult.entryRelays?.count ?? 0
         guard isEnabled else {
             return NSLocalizedString(
                 "RELAY_FILTER_BUTTON_TITLE",
@@ -31,29 +26,17 @@ struct FilterDescriptor {
                 comment: ""
             )
         }
-        return createTitleForAvailableServers(
-            entryCount: entryCount,
-            exitCount: exitCount,
-            isMultihopEnabled: settings.tunnelMultihopState.isEnabled,
-            isDirectOnly: settings.daita.isDirectOnly
-        )
+        return createTitleForAvailableServers()
     }
 
     var description: String {
-        guard settings.daita.isDirectOnly else {
-            return settings.daita.daitaState.isEnabled
-                ? NSLocalizedString(
-                    "RELAY_FILTER_BUTTON_DESCRIPTION",
-                    tableName: "RelayFilter",
-                    value: "DAITA is enabled, affecting your filters.",
-                    comment: ""
-                )
-                : ""
+        guard settings.daita.daitaState.isEnabled else {
+            return ""
         }
         return NSLocalizedString(
             "RELAY_FILTER_BUTTON_DESCRIPTION",
             tableName: "RelayFilter",
-            value: "Direct only DAITA is enabled, affecting your filters.",
+            value: "When using DAITA, one provider with DAITA-enabled servers is required.",
             comment: ""
         )
     }
@@ -63,23 +46,14 @@ struct FilterDescriptor {
         self.relayFilterResult = relayFilterResult
     }
 
-    private func createTitleForAvailableServers(
-        entryCount: Int,
-        exitCount: Int,
-        isMultihopEnabled: Bool,
-        isDirectOnly: Bool
-    ) -> String {
-        let displayNumber: (Int) -> String = { number in
-            number > 100 ? "99+" : "\(number)"
-        }
+    private var numberOfServers: Int {
+        Set(relayFilterResult.entryRelays ?? []).union(relayFilterResult.exitRelays).count
+    }
 
-        if isMultihopEnabled && isDirectOnly {
-            return String(
-                format: "Show %@ entry & %@ exit servers",
-                displayNumber(entryCount),
-                displayNumber(exitCount)
-            )
+    private func createTitleForAvailableServers() -> String {
+        let displayNumber: (Int) -> String = { number in
+            number >= 100 ? "99+" : "\(number)"
         }
-        return String(format: "Show %@ servers", displayNumber(exitCount))
+        return String(format: "Show %@ servers", displayNumber(numberOfServers))
     }
 }
