@@ -27,7 +27,7 @@ pub struct Quic {
     config: ClientConfig,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     /// Remote Quic endpoint
     quic_endpoint: SocketAddr,

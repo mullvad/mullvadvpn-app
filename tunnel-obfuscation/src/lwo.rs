@@ -31,7 +31,7 @@ pub enum Error {
     PeekUdpSender(#[source] io::Error),
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     /// Remote LWO/WG server
     pub server_addr: SocketAddr,
