@@ -40,4 +40,8 @@ dependencies {
     implementation(projects.lib.shared)
     implementation(projects.lib.sharedCompose)
     implementation(projects.lib.theme)
+
+    // UI tooling
+    implementation(libs.compose.ui.tooling.preview)
+    debugImplementation(libs.compose.ui.tooling)
 }
