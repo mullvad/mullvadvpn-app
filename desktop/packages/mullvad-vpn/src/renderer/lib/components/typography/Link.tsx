@@ -7,8 +7,9 @@ import { RoutePath } from '../../routes';
 import { buttonReset } from '../../styles';
 import { Text, TextProps } from './Text';
 
-export interface LinkProps extends TextProps, Omit<React.HtmlHTMLAttributes<'button'>, 'color'> {
+export interface LinkProps extends Omit<TextProps<'button'>, 'color'> {
   to: RoutePath;
+  color?: Colors;
 }
 
 const StyledText = styled(Text)<{
@@ -41,7 +42,7 @@ const getHoverColor = (color: Colors | undefined) => {
 export const Link = ({ to, children, color, onClick, ...props }: LinkProps) => {
   const history = useHistory();
   const navigate = useCallback(
-    (e: React.MouseEvent<'button'>) => {
+    (e: React.MouseEvent<HTMLButtonElement>) => {
       if (onClick) {
         onClick(e);
       }
