@@ -2,13 +2,20 @@
 //! Used by the installer artifact packer to bundle the latest available
 //! relay list at the time of creating the installer.
 
+#[cfg(not(target_os = "android"))]
 use mullvad_api::{
     proxy::ApiConnectionMode, rest::Error as RestError, ApiEndpoint, RelayListProxy,
 };
+#[cfg(not(target_os = "android"))]
 use std::process;
+#[cfg(not(target_os = "android"))]
 use talpid_types::ErrorExt;
 
 #[tokio::main]
+#[cfg(target_os = "android")]
+async fn main() {}
+#[tokio::main]
+#[cfg(not(target_os = "android"))]
 async fn main() {
     let runtime = mullvad_api::Runtime::new(
         tokio::runtime::Handle::current(),

@@ -8,7 +8,7 @@ use std::{
     task::{self, Poll},
 };
 use talpid_types::{
-    net::{proxy, Endpoint, TransportProtocol},
+    net::{proxy, AllowedClients, Endpoint, TransportProtocol},
     ErrorExt,
 };
 use tokio::{
@@ -51,6 +51,10 @@ impl ConnectionModeProvider for StaticConnectionModeProvider {
     fn receive(&mut self) -> impl std::future::Future<Output = Option<ApiConnectionMode>> + Send {
         futures::future::pending()
     }
+}
+
+pub trait AllowedClientsProvider: Send + Sync {
+    fn allowed_clients(&self, connection_mode: &ApiConnectionMode) -> AllowedClients;
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]
