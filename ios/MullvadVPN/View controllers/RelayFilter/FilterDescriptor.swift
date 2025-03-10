@@ -13,16 +13,32 @@ struct FilterDescriptor {
     let settings: LatestTunnelSettings
 
     var isEnabled: Bool {
-        let exitCount = relayFilterResult.exitRelays.count
-        let entryCount = relayFilterResult.entryRelays?.count ?? 0
-        let totalcount = exitCount + entryCount
+        // Check if multihop is enabled via settings
         let isMultihopEnabled = settings.tunnelMultihopState.isEnabled
-        return (isMultihopEnabled && totalcount > 1) || (!isMultihopEnabled && totalcount > 0)
+        let isSmartRoutingEnabled = settings.daita.isAutomaticRouting
+
+        /// Closure to check if there are enough relays available for multihoping
+        let hasSufficientRelays: () -> Bool = {
+            (relayFilterResult.entryRelays ?? []).count >= 1 &&
+                relayFilterResult.exitRelays.count >= 1 &&
+                numberOfServers > 1
+        }
+
+        if isMultihopEnabled {
+            // Multihop mode requires at least one entry relay, one exit relay,
+            // and more than one unique server.
+            return hasSufficientRelays()
+        } else if isSmartRoutingEnabled {
+            // Smart Routing mode: Enabled only if there is NO daita server in the exit relays
+            let isSmartRoutingNeeded = !relayFilterResult.exitRelays.contains { $0.relay.daita == true }
+            return isSmartRoutingNeeded ? hasSufficientRelays() : true
+        } else {
+            // Single-hop mode: The filter is enabled if at least one available exit relay exists.
+            return !relayFilterResult.exitRelays.isEmpty
+        }
     }
 
     var title: String {
-        let exitCount = relayFilterResult.exitRelays.count
-        let entryCount = relayFilterResult.entryRelays?.count ?? 0
         guard isEnabled else {
             return NSLocalizedString(
                 "RELAY_FILTER_BUTTON_TITLE",
@@ -31,29 +47,17 @@ struct FilterDescriptor {
                 comment: ""
             )
         }
-        return createTitleForAvailableServers(
-            entryCount: entryCount,
-            exitCount: exitCount,
-            isMultihopEnabled: settings.tunnelMultihopState.isEnabled,
-            isDirectOnly: settings.daita.isDirectOnly
-        )
+        return createTitleForAvailableServers()
     }
 
     var description: String {
-        guard settings.daita.isDirectOnly else {
-            return settings.daita.daitaState.isEnabled
-                ? NSLocalizedString(
-                    "RELAY_FILTER_BUTTON_DESCRIPTION",
-                    tableName: "RelayFilter",
-                    value: "DAITA is enabled, affecting your filters.",
-                    comment: ""
-                )
-                : ""
+        guard settings.daita.daitaState.isEnabled else {
+            return ""
         }
         return NSLocalizedString(
             "RELAY_FILTER_BUTTON_DESCRIPTION",
             tableName: "RelayFilter",
-            value: "Direct only DAITA is enabled, affecting your filters.",
+            value: "When using DAITA, one provider with DAITA-enabled servers is required.",
             comment: ""
         )
     }
@@ -63,23 +67,14 @@ struct FilterDescriptor {
         self.relayFilterResult = relayFilterResult
     }
 
-    private func createTitleForAvailableServers(
-        entryCount: Int,
-        exitCount: Int,
-        isMultihopEnabled: Bool,
-        isDirectOnly: Bool
-    ) -> String {
-        let displayNumber: (Int) -> String = { number in
-            number > 100 ? "99+" : "\(number)"
-        }
+    private var numberOfServers: Int {
+        Set(relayFilterResult.entryRelays ?? []).union(relayFilterResult.exitRelays).count
+    }
 
-        if isMultihopEnabled && isDirectOnly {
-            return String(
-                format: "Show %@ entry & %@ exit servers",
-                displayNumber(entryCount),
-                displayNumber(exitCount)
-            )
+    private func createTitleForAvailableServers() -> String {
+        let displayNumber: (Int) -> String = { number in
+            number >= 100 ? "99+" : "\(number)"
         }
-        return String(format: "Show %@ servers", displayNumber(exitCount))
+        return String(format: "Show %@ servers", displayNumber(numberOfServers))
     }
 }

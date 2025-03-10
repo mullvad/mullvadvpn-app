@@ -8,8 +8,8 @@
 
 import Foundation
 
-public struct RelayFilter: Codable, Equatable {
-    public enum Ownership: Codable {
+public struct RelayFilter: Codable, Equatable, Sendable {
+    public enum Ownership: Codable, Sendable {
         case any
         case owned
         case rented
