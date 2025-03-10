@@ -4,13 +4,15 @@ import { Colors } from '../../../foundations';
 import { LabelTiny, LabelTinyProps } from '../../typography';
 import { useProgress } from '../ProgressContext';
 
-export type ProgressPercentProps = Omit<LabelTinyProps, 'children'>;
+export type ProgressPercentProps<T extends React.ElementType = 'span'> = LabelTinyProps<T>;
 
 const StyledText = styled(LabelTiny)`
   min-width: 26px;
 `;
 
-export const ProgressPercent = (props: ProgressPercentProps) => {
+export const ProgressPercent = <T extends React.ElementType = 'span'>(
+  props: ProgressPercentProps<T>,
+) => {
   const { percent, disabled } = useProgress();
   return (
     <StyledText color={disabled ? Colors.white40 : Colors.white} {...props}>
