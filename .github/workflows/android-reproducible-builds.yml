@@ -37,8 +37,8 @@ jobs:
       - name: Upload repro yaml file
         uses: actions/upload-artifact@v4
         with:
-          name: net.mullvad.mullvadvpn.yml
-          path: android/fdroid-build/metadata
+          name: net.mullvad.mullvadvpn
+          path: android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
           if-no-files-found: error
           retention-days: 7
 
@@ -78,7 +78,7 @@ jobs:
 
       - uses: actions/download-artifact@v4
         with:
-          pattern: net.mullvad.mullvadvpn.yml
+          name: net.mullvad.mullvadvpn
           path: metadata
 
       - name: Metadata folder
