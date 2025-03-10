@@ -1,0 +1,78 @@
+---
+name: Android - Ensure reproducibility
+on:
+#  pull_request:
+#    paths:
+#      - .github/workflows/android-reproducible-builds.yml
+#      - android/**
+  schedule:
+    # At 06:20 UTC every day.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '20 6 * * *'
+  workflow_dispatch:
+    inputs:
+      override_container_image:
+        description: Override container image
+        type: string
+        required: false
+
+permissions: {}
+
+jobs:
+  prepare:
+    name: Prepare
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Use custom container image if specified
+        if: ${{ github.event.inputs.override_container_image != '' }}
+        run: echo "inner_container_image=${{ github.event.inputs.override_container_image }}"
+          >> $GITHUB_ENV
+
+      - name: Use default container image and resolve digest
+        if: ${{ github.event.inputs.override_container_image == '' }}
+        run: |
+          echo "inner_container_image=$(cat ./building/android-container-image.txt)" >> $GITHUB_ENV
+
+    outputs:
+      container_image: ${{ env.inner_container_image }}
+
+  build-fdroid-app:
+    name: Build fdroid container
+    needs: [prepare]
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Prepare dummy debug keystore
+        run: |
+          echo "${{ secrets.ANDROID_DUMMY_DEBUG_KEYSTORE }}" | \
+            base64 -d > /root/.android/debug.keystore
+
+      - name: Build app
+        run: ./android/build.sh --fdroid
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: dist
+          if-no-files-found: error
+          retention-days: 7    
+
+
