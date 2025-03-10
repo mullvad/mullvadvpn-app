@@ -86,9 +86,9 @@ final class LocationViewController: UIViewController {
         dataSource?.setRelays(relaysWithLocation, selectedRelays: selectedRelays)
     }
 
-    func setShouldFilterDaita(_ shouldFilterDaita: Bool) {
-        self.shouldFilterDaita = shouldFilterDaita
-        filterView.setDaita(shouldFilterDaita)
+    func setDaitaChip(_ isEnabled: Bool) {
+        self.shouldFilterDaita = isEnabled
+        filterView.setDaita(isEnabled)
     }
 
     func refreshCustomLists() {
@@ -100,7 +100,16 @@ final class LocationViewController: UIViewController {
         dataSource?.setSelectedRelays(selectedRelays)
     }
 
-    func enableDaitaAutomaticRouting() {
+    func toggleDaitaAutomaticRouting(isEnabled: Bool) {
+        guard isEnabled else {
+            daitaInfoView?.removeFromSuperview()
+            daitaInfoView = nil
+
+            searchBar.searchTextField.isEnabled = true
+            UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
+            return
+        }
+
         guard daitaInfoView == nil else { return }
 
         let daitaInfoView = DAITAInfoView()
@@ -116,14 +125,6 @@ final class LocationViewController: UIViewController {
         }
 
         searchBar.searchTextField.isEnabled = false
-    }
-
-    func disableDaitaAutomaticRouting() {
-        daitaInfoView?.removeFromSuperview()
-        daitaInfoView = nil
-
-        searchBar.searchTextField.isEnabled = true
-        UITextField.SearchTextFieldAppearance.inactive.apply(to: searchBar)
     }
 
     // MARK: - Private

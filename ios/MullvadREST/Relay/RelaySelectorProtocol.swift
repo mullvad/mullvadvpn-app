@@ -12,10 +12,15 @@ import MullvadTypes
 
 /// Protocol describing a type that can select a relay.
 public protocol RelaySelectorProtocol {
+    var relayCache: RelayCacheProtocol { get }
     func selectRelays(
         tunnelSettings: LatestTunnelSettings,
         connectionAttemptCount: UInt
     ) throws -> SelectedRelays
+
+    func findCandidates(
+        tunnelSettings: LatestTunnelSettings
+    ) throws -> RelayCandidates
 }
 
 /// Struct describing the selected relay.
