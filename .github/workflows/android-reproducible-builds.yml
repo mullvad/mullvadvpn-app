@@ -64,17 +64,17 @@ jobs:
       - name: Init
         run: docker run --rm -v /usr/local/lib/android/sdk:/opt/android-sdk -v $(pwd):/repo -e ANDROID_HOME:/opt/android-sdk registry.gitlab.com/fdroid/docker-executable-fdroidserver:master init -v
 
-      - name: Wait for repro yaml file to upload
-        uses: kachick/wait-other-jobs@v3.6.0
-        with:
-          wait-seconds-before-first-polling: '0'
-          wait-list: |
-            [
-              {
-                "workflowFile": "android-reproducible-builds.yml",
-                "jobName": "Upload repro yaml file"
-              }
-            ]
+      #- name: Wait for repro yaml file to upload
+      #  uses: kachick/wait-other-jobs@v3.6.0
+      #  with:
+      #    wait-seconds-before-first-polling: '0'
+      #    wait-list: |
+      #      [
+      #        {
+      #          "workflowFile": "android-reproducible-builds.yml",
+      #          "jobName": "Upload repro yaml file"
+      #        }
+      #      ]
 
       - uses: actions/download-artifact@v4
         with:
