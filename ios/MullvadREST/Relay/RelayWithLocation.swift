@@ -60,8 +60,12 @@ public struct RelayWithLocation<T: AnyRelay> {
     }
 }
 
-extension RelayWithLocation: Equatable {
+extension RelayWithLocation: Hashable {
     public static func == (lhs: RelayWithLocation<T>, rhs: RelayWithLocation<T>) -> Bool {
         lhs.relay.hostname == rhs.relay.hostname
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(relay.hostname)
     }
 }

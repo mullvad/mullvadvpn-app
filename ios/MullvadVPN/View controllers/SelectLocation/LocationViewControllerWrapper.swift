@@ -60,10 +60,7 @@ final class LocationViewControllerWrapper: UIViewController {
     var onNewSettings: ((LatestTunnelSettings) -> Void)?
 
     private var relayFilter: RelayFilter {
-        if case let .only(filter) = settings.relayConstraints.filter {
-            return filter
-        }
-        return RelayFilter()
+        settings.relayConstraints.filter.value ?? RelayFilter()
     }
 
     init(
@@ -126,7 +123,7 @@ final class LocationViewControllerWrapper: UIViewController {
 
     private func setRelaysWithLocation() {
         let emptyResult = LocationRelays(relays: [], locations: [:])
-        let relaysCandidates = try? relaySelectorWrapper.findCandidates(tunnelSettings: self.settings)
+        let relaysCandidates = try? relaySelectorWrapper.findCandidates(tunnelSettings: settings)
         entryLocationViewController?.setDaitaChip(settings.daita.isDirectOnly)
         exitLocationViewController.setDaitaChip(settings.daita.isDirectOnly && !settings.tunnelMultihopState.isEnabled)
         entryLocationViewController?.toggleDaitaAutomaticRouting(isEnabled: settings.daita.isAutomaticRouting)
