@@ -28,6 +28,9 @@ yanked = "deny"
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
+    #
+    # RUSTSEC-2024-0436 - paste no longer maintained. There is currently no "fix" for this, and htmlize depend on it.
+    "RUSTSEC-2024-0436"
 ]
 
 
