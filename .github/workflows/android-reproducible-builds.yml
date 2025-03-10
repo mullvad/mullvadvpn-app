@@ -38,7 +38,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: net.mullvad.mullvadvpn.yml
-          path: android/app/fdroid-build/metadata
+          path: android/fdroid-build/metadata
           if-no-files-found: error
           retention-days: 7
 
@@ -59,7 +59,7 @@ jobs:
     # container: registry.gitlab.com/fdroid/docker-executable-fdroidserver:master
     steps:
       - name: Create empty repo
-        run: mdkir fdroid && cd fdroid && mkdir metadata
+        run: mkdir fdroid && cd fdroid && mkdir metadata
 
       - name: Init
         run: docker run --rm -v /usr/local/lib/android/sdk:/opt/android-sdk -v $(pwd):/repo -e ANDROID_HOME:/opt/android-sdk registry.gitlab.com/fdroid/docker-executable-fdroidserver:master init -v
