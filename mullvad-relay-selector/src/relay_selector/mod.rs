@@ -185,7 +185,7 @@ pub struct AdditionalWireguardConstraints {
 /// Values which affect the choice of relay but are only known at runtime.
 #[derive(Clone, Debug)]
 pub struct RuntimeParameters {
-    /// Whether IPv6 is available
+    /// Whether IPv4 is available
     pub ipv4: bool,
     /// Whether IPv6 is available
     pub ipv6: bool,
@@ -194,31 +194,11 @@ pub struct RuntimeParameters {
 impl RuntimeParameters {
     /// Return whether a given [query][`RelayQuery`] is valid given the current runtime parameters
     pub fn compatible(&self, query: &RelayQuery) -> bool {
-        if !self.ipv4 {
-            let must_use_ipv4 = matches!(
-                query.wireguard_constraints().ip_version,
-                Constraint::Only(talpid_types::net::IpVersion::V4)
-            );
-            if must_use_ipv4 {
-                log::trace!(
-                    "{query:?} is incompatible with {self:?} due to IPv4 not being available"
-                );
-                return false;
-            }
+        match query.wireguard_constraints().ip_version {
+            Constraint::Any => self.ipv4 || self.ipv6,
+            Constraint::Only(talpid_types::net::IpVersion::V4) => self.ipv4,
+            Constraint::Only(talpid_types::net::IpVersion::V6) => self.ipv6,
         }
-        if !self.ipv6 {
-            let must_use_ipv6 = matches!(
-                query.wireguard_constraints().ip_version,
-                Constraint::Only(talpid_types::net::IpVersion::V6)
-            );
-            if must_use_ipv6 {
-                log::trace!(
-                    "{query:?} is incompatible with {self:?} due to IPv6 not being available"
-                );
-                return false;
-            }
-        }
-        true
     }
 }
 
@@ -529,12 +509,18 @@ impl RelaySelector {
         let parsed_relays = &self.parsed_relays.lock().unwrap().parsed_list().clone();
         let config = self.config.lock().unwrap();
         let specialized_config = SpecializedSelectorConfig::from(&*config);
+        let runtime_parameters = RuntimeParameters::default();
 
         let near_location = match specialized_config {
             SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
                 .ok()
                 .and_then(|user_preferences| {
-                    Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
+                    Self::get_relay_midpoint(
+                        &user_preferences,
+                        parsed_relays,
+                        config.custom_lists,
+                        runtime_parameters,
+                    )
                 }),
             SpecializedSelectorConfig::Custom(_) => None,
         };
@@ -563,7 +549,11 @@ impl RelaySelector {
     }
 
     /// Returns random relay and relay endpoint matching `query`.
-    pub fn get_relay_by_query(&self, query: RelayQuery) -> Result<GetRelay, Error> {
+    pub fn get_relay_by_query(
+        &self,
+        query: RelayQuery,
+        runtime_parameters: RuntimeParameters,
+    ) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
         let config = SpecializedSelectorConfig::from(&*config_guard);
         match config {
@@ -572,7 +562,12 @@ impl RelaySelector {
             }
             SpecializedSelectorConfig::Normal(normal_config) => {
                 let relay_list = &self.parsed_relays.lock().unwrap().parsed_list().clone();
-                Self::get_relay_inner(&query, relay_list, normal_config.custom_lists)
+                Self::get_relay_inner(
+                    &query,
+                    relay_list,
+                    normal_config.custom_lists,
+                    runtime_parameters,
+                )
             }
         }
     }
@@ -634,11 +629,16 @@ impl RelaySelector {
                 let query = Self::pick_and_merge_query(
                     retry_attempt,
                     retry_order,
-                    runtime_params,
+                    runtime_params.clone(),
                     &normal_config,
                     &relay_list,
                 )?;
-                Self::get_relay_inner(&query, &relay_list, normal_config.custom_lists)
+                Self::get_relay_inner(
+                    &query,
+                    &relay_list,
+                    normal_config.custom_lists,
+                    runtime_params,
+                )
             }
         }
     }
@@ -673,8 +673,7 @@ impl RelaySelector {
             .filter(|query| runtime_params.compatible(query))
             .filter(|_query| runtime_params.compatible(&user_query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
-            .map(|query| force_valid_ip_version(&query, runtime_params.clone()))
-            .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
+            .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists, runtime_params.clone()).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
             .ok_or(Error::NoRelay)
@@ -714,6 +713,7 @@ impl RelaySelector {
         query: &RelayQuery,
         parsed_relays: &RelayList,
         custom_lists: &CustomListsSettings,
+        runtime_parameters: RuntimeParameters,
     ) -> Result<GetRelay, Error> {
         // FIXME: A bit of defensive programming - calling `get_wireguard_relay_inner` with a query that
         // doesn't specify Wireguard as the desired tunnel type is not valid and will lead
@@ -721,7 +721,7 @@ impl RelaySelector {
         // to lift this invariant to be checked by the type system instead.
         let mut query = query.clone();
         query.set_tunnel_protocol(TunnelType::Wireguard)?;
-        Self::get_wireguard_relay_inner(&query, custom_lists, parsed_relays)
+        Self::get_wireguard_relay_inner(&query, custom_lists, parsed_relays, runtime_parameters)
     }
 
     /// Derive a valid relay configuration from `query`.
@@ -741,10 +741,17 @@ impl RelaySelector {
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &RelayList,
+        runtime_parameters: RuntimeParameters,
     ) -> Result<GetRelay, Error> {
         assert_eq!(query.tunnel_protocol(), TunnelType::Wireguard);
-        let inner = Self::get_wireguard_relay_config(query, custom_lists, parsed_relays)?;
-        let endpoint = Self::get_wireguard_endpoint(query, parsed_relays, &inner)?;
+        let inner = Self::get_wireguard_relay_config(
+            query,
+            custom_lists,
+            parsed_relays,
+            runtime_parameters.clone(),
+        )?;
+        let endpoint =
+            Self::get_wireguard_endpoint(query, parsed_relays, &inner, runtime_parameters)?;
         let obfuscator =
             Self::get_wireguard_obfuscator(query, inner.clone(), &endpoint, parsed_relays)?;
 
@@ -765,9 +772,15 @@ impl RelaySelector {
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &RelayList,
+        runtime_parameters: RuntimeParameters,
     ) -> Result<WireguardConfig, Error> {
         let inner = if query.singlehop() {
-            match Self::get_wireguard_singlehop_config(query, custom_lists, parsed_relays) {
+            match Self::get_wireguard_singlehop_config(
+                query,
+                custom_lists,
+                parsed_relays,
+                runtime_parameters.clone(),
+            ) {
                 Some(exit) => WireguardConfig::from(exit),
                 None => {
                     // If we found no matching relays because DAITA was enabled, and
@@ -779,6 +792,7 @@ impl RelaySelector {
                             query,
                             custom_lists,
                             parsed_relays,
+                            runtime_parameters,
                         )?;
                         WireguardConfig::from(multihop)
                     } else {
@@ -792,9 +806,19 @@ impl RelaySelector {
             // entry relay with smarting routing enabled, even if multihop is turned on
             // Also implied: Multihop is enabled.
             let multihop = if query.using_daita() && query.use_multihop_if_necessary() {
-                Self::get_wireguard_auto_multihop_config(query, custom_lists, parsed_relays)?
+                Self::get_wireguard_auto_multihop_config(
+                    query,
+                    custom_lists,
+                    parsed_relays,
+                    runtime_parameters,
+                )?
             } else {
-                Self::get_wireguard_multihop_config(query, custom_lists, parsed_relays)?
+                Self::get_wireguard_multihop_config(
+                    query,
+                    custom_lists,
+                    parsed_relays,
+                    runtime_parameters,
+                )?
             };
             WireguardConfig::from(multihop)
         };
@@ -811,8 +835,10 @@ impl RelaySelector {
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &RelayList,
+        runtime_parameters: RuntimeParameters,
     ) -> Option<Singlehop> {
-        let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
+        let candidates =
+            filter_matching_relay_list(query, parsed_relays, custom_lists, runtime_parameters);
         helpers::pick_random_relay(&candidates)
             .cloned()
             .map(Singlehop::new)
@@ -827,6 +853,7 @@ impl RelaySelector {
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &RelayList,
+        runtime_parameters: RuntimeParameters,
     ) -> Result<Multihop, Error> {
         let mut exit_relay_query = query.clone();
 
@@ -835,18 +862,26 @@ impl RelaySelector {
         wireguard_constraints.daita = Constraint::Only(false);
         exit_relay_query.set_wireguard_constraints(wireguard_constraints)?;
 
-        let exit_candidates =
-            filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
+        let exit_candidates = filter_matching_relay_list(
+            &exit_relay_query,
+            parsed_relays,
+            custom_lists,
+            runtime_parameters.clone(),
+        );
         let exit = helpers::pick_random_relay(&exit_candidates).ok_or(Error::NoRelay)?;
 
         // generate a list of potential entry relays, disregarding any location constraint
         let mut entry_query = query.clone();
         entry_query.set_location(Constraint::Any)?;
-        let mut entry_candidates =
-            filter_matching_relay_list(&entry_query, parsed_relays, custom_lists)
-                .into_iter()
-                .map(|entry| RelayWithDistance::new_with_distance_from(entry, &exit.location))
-                .collect_vec();
+        let mut entry_candidates = filter_matching_relay_list(
+            &entry_query,
+            parsed_relays,
+            custom_lists,
+            runtime_parameters,
+        )
+        .into_iter()
+        .map(|entry| RelayWithDistance::new_with_distance_from(entry, &exit.location))
+        .collect_vec();
 
         // sort entry relay candidates by distance, and pick one from those that are closest
         entry_candidates.sort_unstable_by(|a, b| a.distance.total_cmp(&b.distance));
@@ -878,6 +913,7 @@ impl RelaySelector {
         query: &RelayQuery,
         custom_lists: &CustomListsSettings,
         parsed_relays: &RelayList,
+        runtime_parameters: RuntimeParameters,
     ) -> Result<Multihop, Error> {
         // Here, we modify the original query just a bit.
         // The actual query for an entry relay is identical as for an exit relay, with the
@@ -895,10 +931,18 @@ impl RelaySelector {
         wg_constraints.daita = Constraint::Only(false);
         exit_relay_query.set_wireguard_constraints(wg_constraints)?;
 
-        let exit_candidates =
-            filter_matching_relay_list(&exit_relay_query, parsed_relays, custom_lists);
-        let entry_candidates =
-            filter_matching_relay_list(&entry_relay_query, parsed_relays, custom_lists);
+        let exit_candidates = filter_matching_relay_list(
+            &exit_relay_query,
+            parsed_relays,
+            custom_lists,
+            runtime_parameters.clone(),
+        );
+        let entry_candidates = filter_matching_relay_list(
+            &entry_relay_query,
+            parsed_relays,
+            custom_lists,
+            runtime_parameters,
+        );
 
         // We avoid picking the same relay for entry and exit by choosing one and excluding it when
         // choosing the other.
@@ -928,11 +972,13 @@ impl RelaySelector {
         query: &RelayQuery,
         parsed_relays: &RelayList,
         relay: &WireguardConfig,
+        runtime_parameters: RuntimeParameters,
     ) -> Result<MullvadWireguardEndpoint, Error> {
         wireguard_endpoint(
             query.wireguard_constraints(),
             &parsed_relays.wireguard,
             relay,
+            runtime_parameters,
         )
         .map_err(|internal| Error::NoEndpoint {
             internal,
@@ -1170,6 +1216,7 @@ impl RelaySelector {
         query: &RelayQuery,
         parsed_relays: &RelayList,
         custom_lists: &CustomListsSettings,
+        runtime_parameters: RuntimeParameters,
     ) -> Option<Coordinates> {
         use std::ops::Not;
         if query.location().is_any() {
@@ -1177,7 +1224,7 @@ impl RelaySelector {
         }
 
         let matching_locations: Vec<Location> =
-            filter_matching_relay_list(query, parsed_relays, custom_lists)
+            filter_matching_relay_list(query, parsed_relays, custom_lists, runtime_parameters)
                 .into_iter()
                 .map(|relay| relay.location)
                 .unique_by(|location| location.city.clone())
@@ -1202,23 +1249,6 @@ impl RelaySelector {
         let candidates = filter_matching_relay_list(query, parsed_relays, custom_lists);
         // Pick one of the valid relays.
         helpers::pick_random_relay(&candidates).cloned()
-    }
-}
-
-fn force_valid_ip_version(query: &RelayQuery, runtime_params: RuntimeParameters) -> RelayQuery {
-    let mut wireguard_constraints = query.wireguard_constraints().clone();
-    if wireguard_constraints.ip_version.is_any() {
-        if runtime_params.ipv4 && !runtime_params.ipv6 {
-            wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V4)
-        }
-        if runtime_params.ipv6 && !runtime_params.ipv4 {
-            wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V6)
-        }
-    }
-    let mut ret = query.clone();
-    match ret.set_wireguard_constraints(wireguard_constraints) {
-        Ok(()) => ret,
-        _error => query.clone(),
     }
 }
 

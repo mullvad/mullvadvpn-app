@@ -516,7 +516,10 @@ fn prefer_wireguard_when_auto() {
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     for _ in 0..100 {
         let query = RelayQueryBuilder::new().build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query, runtime_parameters)
+            .unwrap();
         let tunnel_type = tunnel_type(&unwrap_relay(relay));
         assert_eq!(tunnel_type, TunnelType::Wireguard);
     }
@@ -527,6 +530,7 @@ fn prefer_wireguard_when_auto() {
 #[test]
 fn test_fail_wireguard_if_wrong_tunnel_type() {
     let relay_selector = default_relay_selector();
+    let runtime_parameters = RuntimeParameters::default();
     let query = RelayQueryBuilder::new()
         .location(GeographicLocationConstraint::hostname(
             "se",
@@ -538,7 +542,7 @@ fn test_fail_wireguard_if_wrong_tunnel_type() {
 
     for _ in 0..WIREGUARD_RETRY_ORDER.len() {
         relay_selector
-            .get_relay_by_query(query.clone())
+            .get_relay_by_query(query.clone(), runtime_parameters.clone())
             .expect_err("expected no match (tunnel type is openvpn)");
     }
 }
@@ -547,6 +551,7 @@ fn test_fail_wireguard_if_wrong_tunnel_type() {
 #[test]
 fn test_fail_openvpn_location_wrong_tunnel_type() {
     let relay_selector = default_relay_selector();
+    let runtime_parameters = RuntimeParameters::default();
     let query = RelayQueryBuilder::new()
         .location(GeographicLocationConstraint::hostname(
             "se",
@@ -557,7 +562,7 @@ fn test_fail_openvpn_location_wrong_tunnel_type() {
 
     for _ in 0..OPENVPN_RETRY_ORDER.len() {
         relay_selector
-            .get_relay_by_query(query.clone())
+            .get_relay_by_query(query.clone(), runtime_parameters.clone())
             .expect_err("expected no match (tunnel type is wireguard)");
     }
 }
@@ -660,8 +665,11 @@ fn test_wireguard_entry() {
             .multihop()
             .entry(specific_location.clone())
             .build();
+        let runtime_parameters = RuntimeParameters::default();
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector
+            .get_relay_by_query(query, runtime_parameters)
+            .unwrap();
         match relay {
             GetRelay::Wireguard {
                 inner: WireguardConfig::Multihop { exit, entry },
@@ -688,8 +696,11 @@ fn test_wireguard_entry() {
             .multihop()
             .entry(general_location.clone())
             .build();
+        let runtime_parameters = RuntimeParameters::default();
 
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let relay = relay_selector
+            .get_relay_by_query(query, runtime_parameters)
+            .unwrap();
         match relay {
             GetRelay::Wireguard {
                 inner: WireguardConfig::Multihop { exit, entry },
@@ -725,10 +736,11 @@ fn test_wireguard_entry_hostname_collision() {
         // .. and here we set `host1` to also be the entry relay!
         .entry(host1.clone())
         .build();
+    let runtime_parameters = RuntimeParameters::default();
 
     // Assert that the same host cannot be used for entry and exit
     assert!(relay_selector
-        .get_relay_by_query(invalid_multihop_query)
+        .get_relay_by_query(invalid_multihop_query, runtime_parameters)
         .is_err());
 
     let valid_multihop_query = RelayQueryBuilder::new().wireguard()
@@ -737,10 +749,11 @@ fn test_wireguard_entry_hostname_collision() {
         // We correct the erroneous query by setting `host2` as the entry relay
         .entry(host2)
         .build();
+    let runtime_parameters = RuntimeParameters::default();
 
     // Assert that the new query succeeds when the entry and exit hosts differ
     assert!(relay_selector
-        .get_relay_by_query(valid_multihop_query)
+        .get_relay_by_query(valid_multihop_query, runtime_parameters)
         .is_ok())
 }
 
@@ -821,7 +834,9 @@ fn test_openvpn_constraints() {
 
     for (query, should_match) in constraint_combinations.into_iter() {
         for _ in 0..100 {
-            let relay: Result<_, Error> = relay_selector.get_relay_by_query(query.clone());
+            let runtime_parameters = RuntimeParameters::default();
+            let relay: Result<_, Error> =
+                relay_selector.get_relay_by_query(query.clone(), runtime_parameters.clone());
             if !should_match {
                 relay.expect_err("Unexpected relay");
             } else {
@@ -844,7 +859,10 @@ fn test_selecting_wireguard_location_will_consider_multihop() {
 
     for _ in 0..100 {
         let query = RelayQueryBuilder::new().wireguard().multihop().build();
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query.clone(), runtime_parameters.clone())
+            .unwrap();
         assert!(matches!(
             relay,
             GetRelay::Wireguard {
@@ -862,9 +880,12 @@ fn test_selecting_wireguard_over_shadowsocks() {
     let relay_selector = RelaySelector::from_list(SelectorConfig::default(), RELAYS.clone());
 
     let query = RelayQueryBuilder::new().wireguard().shadowsocks().build();
+    let runtime_parameters = RuntimeParameters::default();
     assert!(!query.wireguard_constraints().multihop());
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    let relay = relay_selector
+        .get_relay_by_query(query, runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::Wireguard {
             obfuscator,
@@ -894,7 +915,10 @@ fn test_selecting_wireguard_over_shadowsocks_extra_ips() {
         .build();
     assert!(!query.wireguard_constraints().multihop());
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query, runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
@@ -938,7 +962,10 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v4() {
         .build();
     assert!(!query_v4.wireguard_constraints().multihop());
 
-    let relay = relay_selector.get_relay_by_query(query_v4).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query_v4, runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
@@ -982,7 +1009,10 @@ fn test_selecting_wireguard_ignore_extra_ips_override_v6() {
         .build();
     assert!(!query_v6.wireguard_constraints().multihop());
 
-    let relay = relay_selector.get_relay_by_query(query_v6).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query_v6, runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::Wireguard {
             obfuscator: Some(SelectedObfuscator { config: ObfuscatorConfig::Shadowsocks { endpoint }, .. }),
@@ -1008,7 +1038,10 @@ fn test_selecting_wireguard_endpoint_with_udp2tcp_obfuscation() {
     let query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
     assert!(!query.wireguard_constraints().multihop());
 
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query, runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::Wireguard {
             obfuscator,
@@ -1042,7 +1075,10 @@ fn test_selecting_wireguard_endpoint_with_auto_obfuscation() {
     );
 
     for _ in 0..100 {
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query.clone(), runtime_parameters)
+            .unwrap();
         match relay {
             GetRelay::Wireguard { obfuscator, .. } => {
                 assert!(obfuscator.is_none());
@@ -1064,7 +1100,10 @@ fn test_selected_wireguard_endpoints_use_correct_port_ranges() {
     let query = RelayQueryBuilder::new().wireguard().udp2tcp().build();
 
     for _ in 0..1000 {
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query.clone(), runtime_parameters)
+            .unwrap();
         match relay {
             GetRelay::Wireguard {
                 obfuscator,
@@ -1096,7 +1135,10 @@ fn test_ownership() {
         let query = RelayQueryBuilder::new()
             .ownership(Ownership::MullvadOwned)
             .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query, runtime_parameters)
+            .unwrap();
         // Check that the relay is owned by Mullvad.
         assert!(unwrap_relay(relay).owned);
     }
@@ -1106,7 +1148,10 @@ fn test_ownership() {
         let query = RelayQueryBuilder::new()
             .ownership(Ownership::Rented)
             .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query, runtime_parameters)
+            .unwrap();
         // Check that the relay is rented.
         assert!(!unwrap_relay(relay).owned);
     }
@@ -1130,10 +1175,11 @@ fn test_load_balancing() {
             .build(),
     ] {
         // Collect the range of unique relay ports and IP addresses over a large number of queries.
+        let runtime_parameters = RuntimeParameters::default();
         let (ports, ips): (HashSet<u16>, HashSet<std::net::IpAddr>) = std::iter::repeat(query.clone())
             .take(ATTEMPTS)
             // Execute the query
-            .map(|query| relay_selector.get_relay_by_query(query).unwrap())
+            .map(|query| relay_selector.get_relay_by_query(query, runtime_parameters.clone()).unwrap())
             // Perform some plumbing ..
             .map(unwrap_endpoint)
             .map(|endpoint| endpoint.to_endpoint().address)
@@ -1166,7 +1212,10 @@ fn test_providers() {
         let query = RelayQueryBuilder::new()
             .providers(providers.clone())
             .build();
-        let relay = relay_selector.get_relay_by_query(query).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query, runtime_parameters)
+            .unwrap();
 
         match &relay {
             GetRelay::Wireguard { .. } => {
@@ -1350,7 +1399,10 @@ fn ignore_bridge_state_when_wireguard_is_used() {
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     for _ in 0..100 {
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query.clone(), runtime_parameters)
+            .unwrap();
         let tunnel_type = tunnel_type(&unwrap_relay(relay));
         assert_eq!(tunnel_type, TunnelType::Wireguard);
     }
@@ -1370,7 +1422,10 @@ fn openvpn_handle_bridge_settings() {
         ..SelectorConfig::default()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
-    let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query.clone(), runtime_parameters)
+        .unwrap();
     // Assert that the resulting relay uses UDP.
     match relay {
         GetRelay::OpenVpn { endpoint, .. } => {
@@ -1388,7 +1443,8 @@ fn openvpn_handle_bridge_settings() {
             ..query.openvpn_constraints().clone()
         })
         .unwrap();
-    let relay = relay_selector.get_relay_by_query(query.clone());
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector.get_relay_by_query(query.clone(), runtime_parameters.clone());
     assert!(relay.is_err());
 
     // Correcting the query to use TCP, the relay selector should yield a valid relay + bridge
@@ -1401,7 +1457,10 @@ fn openvpn_handle_bridge_settings() {
             ..query.openvpn_constraints().clone()
         })
         .unwrap();
-    let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query.clone(), runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::OpenVpn {
             endpoint, bridge, ..
@@ -1440,7 +1499,10 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
         .unwrap();
 
     for _ in 0..100 {
-        let relay = relay_selector.get_relay_by_query(query.clone()).unwrap();
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector
+            .get_relay_by_query(query.clone(), runtime_parameters)
+            .unwrap();
         // Assert that the relay selector is able to cope with the transport protocol being set to
         // auto.
         match relay {
@@ -1460,7 +1522,8 @@ fn openvpn_bridge_with_automatic_transport_protocol() {
         .transport_protocol(Udp)
         .build();
     for _ in 0..100 {
-        let relay = relay_selector.get_relay_by_query(query.clone());
+        let runtime_parameters = RuntimeParameters::default();
+        let relay = relay_selector.get_relay_by_query(query.clone(), runtime_parameters.clone());
         assert!(relay.is_err())
     }
 }
@@ -1484,8 +1547,9 @@ fn test_daita_smart_routing_overrides_multihop() {
 
     for _ in 0..100 {
         // Make sure a DAITA-enabled relay is always selected due to smart routing.
+        let runtime_parameters = RuntimeParameters::default();
         let relay = relay_selector
-            .get_relay_by_query(query.clone())
+            .get_relay_by_query(query.clone(), runtime_parameters.clone())
             .expect("Expected to find a relay with daita_use_multihop_if_necessary");
         match relay {
                 GetRelay::Wireguard {
@@ -1510,7 +1574,8 @@ fn test_daita_smart_routing_overrides_multihop() {
         .entry(NON_DAITA_RELAY_LOCATION.clone())
         .build();
 
-    let relay = relay_selector.get_relay_by_query(query);
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector.get_relay_by_query(query, runtime_parameters.clone());
 
     assert!(
         relay.is_err(),
@@ -1531,7 +1596,12 @@ fn test_daita() {
         .daita()
         .daita_use_multihop_if_necessary(false)
         .build();
-    let relay = unwrap_entry_relay(relay_selector.get_relay_by_query(query).unwrap());
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = unwrap_entry_relay(
+        relay_selector
+            .get_relay_by_query(query, runtime_parameters)
+            .unwrap(),
+    );
     assert!(
         supports_daita(&relay),
         "Selector supported relay that does not support DAITA: {relay:?}"
@@ -1544,8 +1614,9 @@ fn test_daita() {
         .daita_use_multihop_if_necessary(false)
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
+    let runtime_parameters = RuntimeParameters::default();
     relay_selector
-        .get_relay_by_query(query)
+        .get_relay_by_query(query, runtime_parameters)
         .expect_err("Expected to find no matching relay");
 
     // Should be able to connect to non-DAITA relay with use_multihop_if_necessary
@@ -1555,8 +1626,9 @@ fn test_daita() {
         .daita_use_multihop_if_necessary(true)
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
+    let runtime_parameters = RuntimeParameters::default();
     let relay = relay_selector
-        .get_relay_by_query(query)
+        .get_relay_by_query(query, runtime_parameters)
         .expect("Expected to find a relay with daita_use_multihop_if_necessary");
     match relay {
         GetRelay::Wireguard {
@@ -1578,8 +1650,9 @@ fn test_daita() {
         .daita_use_multihop_if_necessary(true)
         .location(DAITA_RELAY_LOCATION.clone())
         .build();
+    let runtime_parameters = RuntimeParameters::default();
     let relay = relay_selector
-        .get_relay_by_query(query)
+        .get_relay_by_query(query, runtime_parameters)
         .expect("Expected to find a relay with daita_use_multihop_if_necessary");
     match relay {
         GetRelay::Wireguard {
@@ -1598,8 +1671,9 @@ fn test_daita() {
         .wireguard()
         .location(DAITA_RELAY_LOCATION.clone())
         .build();
+    let runtime_parameters = RuntimeParameters::default();
     relay_selector
-        .get_relay_by_query(query)
+        .get_relay_by_query(query, runtime_parameters)
         .expect("Expected DAITA-supporting relay to work without DAITA");
 
     // Non DAITA-supporting relays can be picked when it is disabled
@@ -1607,8 +1681,9 @@ fn test_daita() {
         .wireguard()
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
+    let runtime_parameters = RuntimeParameters::default();
     relay_selector
-        .get_relay_by_query(query)
+        .get_relay_by_query(query, runtime_parameters)
         .expect("Expected DAITA-supporting relay to work without DAITA");
 
     // Entry relay must support daita
@@ -1618,7 +1693,10 @@ fn test_daita() {
         .daita_use_multihop_if_necessary(false)
         .multihop()
         .build();
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query, runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::Wireguard {
             inner: WireguardConfig::Multihop { exit: _, entry },
@@ -1639,7 +1717,10 @@ fn test_daita() {
         .multihop()
         .location(NON_DAITA_RELAY_LOCATION.clone())
         .build();
-    let relay = relay_selector.get_relay_by_query(query).unwrap();
+    let runtime_parameters = RuntimeParameters::default();
+    let relay = relay_selector
+        .get_relay_by_query(query, runtime_parameters)
+        .unwrap();
     match relay {
         GetRelay::Wireguard {
             inner: WireguardConfig::Multihop { exit, entry: _ },
@@ -1674,7 +1755,8 @@ fn valid_user_setting_should_yield_relay() {
         ..SelectorConfig::default()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
-    let user_result = relay_selector.get_relay_by_query(user_query.clone());
+    let runtime_parameters = RuntimeParameters::default();
+    let user_result = relay_selector.get_relay_by_query(user_query.clone(), runtime_parameters);
     for retry_attempt in 0..WIREGUARD_RETRY_ORDER.len() {
         let post_unification_result =
             relay_selector.get_relay(retry_attempt, RuntimeParameters::default());

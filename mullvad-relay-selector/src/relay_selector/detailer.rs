@@ -9,6 +9,11 @@
 
 use std::net::{IpAddr, SocketAddr};
 
+use super::{
+    query::{BridgeQuery, OpenVpnRelayQuery, WireguardRelayQuery},
+    WireguardConfig,
+};
+use crate::RuntimeParameters;
 use ipnetwork::IpNetwork;
 use mullvad_types::{
     constraints::Constraint,
@@ -24,11 +29,6 @@ use talpid_types::net::{
     proxy::Shadowsocks,
     wireguard::{PeerConfig, PublicKey},
     Endpoint, IpVersion, TransportProtocol,
-};
-
-use super::{
-    query::{BridgeQuery, OpenVpnRelayQuery, WireguardRelayQuery},
-    WireguardConfig,
 };
 
 #[derive(thiserror::Error, Debug)]
@@ -56,11 +56,14 @@ pub fn wireguard_endpoint(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
     relay: &WireguardConfig,
+    runtime_parameters: RuntimeParameters,
 ) -> Result<MullvadWireguardEndpoint, Error> {
     match relay {
-        WireguardConfig::Singlehop { exit } => wireguard_singlehop_endpoint(query, data, exit),
+        WireguardConfig::Singlehop { exit } => {
+            wireguard_singlehop_endpoint(query, data, exit, runtime_parameters)
+        }
         WireguardConfig::Multihop { exit, entry } => {
-            wireguard_multihop_endpoint(query, data, exit, entry)
+            wireguard_multihop_endpoint(query, data, exit, entry, runtime_parameters)
         }
     }
 }
@@ -70,9 +73,10 @@ fn wireguard_singlehop_endpoint(
     query: &WireguardRelayQuery,
     data: &WireguardEndpointData,
     exit: &Relay,
+    runtime_parameters: RuntimeParameters,
 ) -> Result<MullvadWireguardEndpoint, Error> {
     let endpoint = {
-        let host = get_address_for_wireguard_relay(query, exit)?;
+        let host = get_address_for_wireguard_relay(query, exit, runtime_parameters)?;
         let port = get_port_for_wireguard_relay(query, data)?;
         SocketAddr::new(host, port)
     };
@@ -104,6 +108,7 @@ fn wireguard_multihop_endpoint(
     data: &WireguardEndpointData,
     exit: &Relay,
     entry: &Relay,
+    runtime_parameters: RuntimeParameters,
 ) -> Result<MullvadWireguardEndpoint, Error> {
     /// The standard port on which an exit relay accepts connections from an entry relay in a
     /// multihop circuit.
@@ -129,7 +134,7 @@ fn wireguard_multihop_endpoint(
     };
 
     let entry_endpoint = {
-        let host = get_address_for_wireguard_relay(query, entry)?;
+        let host = get_address_for_wireguard_relay(query, entry, runtime_parameters)?;
         let port = get_port_for_wireguard_relay(query, data)?;
         SocketAddr::from((host, port))
     };
@@ -158,8 +163,9 @@ fn wireguard_multihop_endpoint(
 fn get_address_for_wireguard_relay(
     query: &WireguardRelayQuery,
     relay: &Relay,
+    runtime_parameters: RuntimeParameters,
 ) -> Result<IpAddr, Error> {
-    match resolve_ip_version(query.ip_version) {
+    match resolve_ip_version(query.ip_version, runtime_parameters.ipv4) {
         IpVersion::V4 => Ok(relay.ipv4_addr_in.into()),
         IpVersion::V6 => relay
             .ipv6_addr_in
@@ -168,9 +174,16 @@ fn get_address_for_wireguard_relay(
     }
 }
 
-pub fn resolve_ip_version(ip_version: Constraint<IpVersion>) -> IpVersion {
+pub fn resolve_ip_version(ip_version: Constraint<IpVersion>, ip_v4_available: bool) -> IpVersion {
     match ip_version {
-        Constraint::Any | Constraint::Only(IpVersion::V4) => IpVersion::V4,
+        Constraint::Any => {
+            if ip_v4_available {
+                IpVersion::V4
+            } else {
+                IpVersion::V6
+            }
+        }
+        Constraint::Only(IpVersion::V4) => IpVersion::V4,
         Constraint::Only(IpVersion::V6) => IpVersion::V6,
     }
 }

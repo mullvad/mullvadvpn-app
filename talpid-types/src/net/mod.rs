@@ -4,7 +4,6 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use jnix::FromJava;
 use obfuscation::ObfuscatorConfig;
 use serde::{Deserialize, Serialize};
-use std::ops::Not;
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
@@ -604,7 +603,10 @@ impl Connectivity {
     ///
     /// If IPv4 status is unknown, `true` is returned.
     pub fn has_ipv4(&self) -> bool {
-        matches!(self, Connectivity::Status { ipv4: false, .. }).not()
+        matches!(
+            self,
+            Connectivity::Status { ipv4: true, .. } | Connectivity::PresumeOnline
+        )
     }
 
     /// Whether IPv6 connectivity seems to be available on the host.
