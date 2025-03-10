@@ -61,7 +61,7 @@ pub async fn test_daita(
     log::info!("Selected non-daita relay: {}", non_daita_relay.hostname);
 
     log::info!("Setting wireguard and DAITA");
-    let wireguard_query = RelayQueryBuilder::new().wireguard().build();
+    let wireguard_query = RelayQueryBuilder::wireguard().build();
     helpers::apply_settings_from_relay_query(&mut mullvad_client, wireguard_query.clone()).await?;
     mullvad_client.set_enable_daita(true).await?;
 

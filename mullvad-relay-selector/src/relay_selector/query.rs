@@ -570,54 +570,52 @@ pub mod builder {
     }
 
     impl RelayQueryBuilder<Any> {
-        /// Create a new [`RelayQueryBuilder`] with unopinionated defaults.
+        /// Create a new [`RelayQueryBuilder`] for Wireguard.
         ///
         /// Call [`Self::build`] to convert the builder into a [`RelayQuery`],
         /// which is used to guide the [`RelaySelector`]
         ///
         /// [`RelaySelector`]: crate::RelaySelector
-        pub fn new() -> RelayQueryBuilder<Any> {
-            RelayQueryBuilder {
-                query: RelayQuery::default(),
-                protocol: Any,
-            }
-        }
-        /// Set the VPN protocol for this [`RelayQueryBuilder`] to Wireguard.
-        pub fn wireguard(mut self) -> RelayQueryBuilder<Wireguard<Any, Any, Any, Any>> {
+        pub fn wireguard() -> RelayQueryBuilder<Wireguard<Any, Any, Any, Any>> {
             let protocol = Wireguard {
                 multihop: Any,
                 obfuscation: Any,
                 daita: Any,
                 quantum_resistant: Any,
             };
-            self.query.tunnel_protocol = TunnelType::Wireguard;
+            let query = RelayQuery {
+                tunnel_protocol: TunnelType::Wireguard,
+                ..Default::default()
+            };
             // Update the type state
-            RelayQueryBuilder {
-                query: self.query,
-                protocol,
-            }
+            RelayQueryBuilder { query, protocol }
         }
 
-        /// Set the VPN protocol for this [`RelayQueryBuilder`] to OpenVPN.
-        pub fn openvpn(mut self) -> RelayQueryBuilder<OpenVPN<Any, Any>> {
+        /// Create a new [`RelayQueryBuilder`] for OpenVPN.
+        ///
+        /// Call [`Self::build`] to convert the builder into a [`RelayQuery`],
+        /// which is used to guide the [`RelaySelector`]
+        ///
+        /// [`RelaySelector`]: crate::RelaySelector
+        pub fn openvpn() -> RelayQueryBuilder<OpenVPN<Any, Any>> {
             let protocol = OpenVPN {
                 transport_port: Any,
                 bridge_settings: Any,
             };
-            self.query.tunnel_protocol = TunnelType::OpenVpn;
+            let query = RelayQuery {
+                tunnel_protocol: TunnelType::OpenVpn,
+                ..Default::default()
+            };
             // Update the type state
-            RelayQueryBuilder {
-                query: self.query,
-                protocol,
-            }
+            RelayQueryBuilder { query, protocol }
         }
     }
 
-    impl Default for RelayQueryBuilder<Any> {
-        fn default() -> Self {
-            Self::new()
-        }
-    }
+    // impl Default for RelayQueryBuilder<Any> {
+    //     fn default() -> Self {
+    //         Self::new()
+    //     }
+    // }
 
     // Type-safe builder for Wireguard relay constraints.
 
@@ -1061,7 +1059,7 @@ mod test {
     /// DAITA is a core privacy feature.
     #[test]
     fn test_relay_query_daita_openvpn() {
-        let mut query = RelayQueryBuilder::new().wireguard().daita().build();
+        let mut query = RelayQueryBuilder::wireguard().daita().build();
         query
             .set_tunnel_protocol(TunnelType::OpenVpn)
             .expect_err("expected query to be invalid for OpenVPN");
@@ -1071,7 +1069,7 @@ mod test {
     /// Multihop is a core privacy feature.
     #[test]
     fn test_relay_query_multihop_openvpn() {
-        let mut query = RelayQueryBuilder::new().wireguard().multihop().build();
+        let mut query = RelayQueryBuilder::wireguard().multihop().build();
         query
             .set_tunnel_protocol(TunnelType::OpenVpn)
             .expect_err("expected query to be invalid for OpenVPN");
@@ -1081,10 +1079,7 @@ mod test {
     /// PQ is a core privacy feature.
     #[test]
     fn test_relay_query_quantum_resistant_openvpn() {
-        let mut query = RelayQueryBuilder::new()
-            .wireguard()
-            .quantum_resistant()
-            .build();
+        let mut query = RelayQueryBuilder::wireguard().quantum_resistant().build();
         query
             .set_tunnel_protocol(TunnelType::OpenVpn)
             .expect_err("expected query to be invalid for OpenVPN");
