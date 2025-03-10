@@ -20,7 +20,8 @@ extension UIImage {
         }
 
         static var info: UIImage {
-            UIImage(resource: .iconInfo).rescaled(by: 24 / 20)
+            // the info icon was 18x18 cropped
+            UIImage(resource: .iconInfo).resizeImage(targetSize: CGSize(width: 21.5, height: 21.5))
         }
 
         static var settings: UIImage {
