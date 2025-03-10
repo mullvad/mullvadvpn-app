@@ -1,6 +1,7 @@
 ---
 name: Android - Ensure reproducibility
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - .github/workflows/android-reproducible-builds.yml
@@ -12,12 +13,12 @@ on:
     # Github Actions enabled, so these don't go unnoticed.
     # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
     - cron: '20 6 * * *'
-  workflow_dispatch:
-    inputs:
-      override_container_image:
-        description: Override container image
-        type: string
-        required: false
+  
+    #inputs:
+    #  override_container_image:
+    #    description: Override container image
+    #    type: string
+    #    required: false
 
 permissions: {}
 
