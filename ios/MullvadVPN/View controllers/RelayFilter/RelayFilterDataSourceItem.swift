@@ -10,6 +10,7 @@ import Foundation
 
 struct RelayFilterDataSourceItem: Hashable, Comparable {
     let name: String
+    var description = ""
     let type: ItemType
     let isEnabled: Bool
 

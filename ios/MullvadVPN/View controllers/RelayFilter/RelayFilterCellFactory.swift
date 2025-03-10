@@ -71,6 +71,7 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
             value: item.name,
             comment: ""
         )
+        cell.detailTitleLabel.text = item.description
 
         if item.type == .allProviders {
             setFontWeight(.semibold, to: cell.titleLabel)

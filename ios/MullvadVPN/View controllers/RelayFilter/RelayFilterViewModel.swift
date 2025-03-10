@@ -76,11 +76,9 @@ final class RelayFilterViewModel {
 
     func availableProviders(for ownership: RelayFilter.Ownership) -> [RelayFilterDataSourceItem] {
         providers(for: ownership)
-            .map { RelayFilterDataSourceItem(
-                name: $0,
-                type: .provider,
-                isEnabled: isProviderEnabled(for: $0)
-            ) }.sorted()
+            .map {
+                providerItem(for: $0)
+            }.sorted()
     }
 
     func ownership(for item: RelayFilterDataSourceItem) -> RelayFilter.Ownership? {
@@ -105,10 +103,34 @@ final class RelayFilterViewModel {
     }
 
     func providerItem(for providerName: String) -> RelayFilterDataSourceItem {
+        let isDaitaEnabled = settings.daita.daitaState.isEnabled
+        let isProviderEnabled = isProviderEnabled(for: providerName)
+        let isFilterable = getFilteredRelays(relayFilter).isEnabled
+
+        let statusText = isDaitaEnabled
+            ? NSLocalizedString(
+                "ENABLED_LABEL",
+                tableName: "RelayFilter",
+                value: "enabled",
+                comment: ""
+            )
+            : ""
         return RelayFilterDataSourceItem(
             name: providerName,
+            description: isDaitaEnabled && isProviderEnabled
+                ? String(
+                    format: NSLocalizedString(
+                        "RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL",
+                        tableName: "RelayFilter",
+                        value: "DAITA-%@",
+                        comment: "Format for DAITA provider description"
+                    ), statusText
+                )
+                : "",
             type: .provider,
-            isEnabled: isProviderEnabled(for: providerName)
+            // If the current filter is valid, return true immediately.
+            // Otherwise, check if the provider is enabled when filtering specifically by the given provider name.
+            isEnabled: isFilterable || isProviderEnabled
         )
     }
 
@@ -167,14 +189,8 @@ final class RelayFilterViewModel {
     }
 
     private func isProviderEnabled(for providerName: String) -> Bool {
-        let relayFilterSnapshot = relayFilter
-
-        // Check if the filtered relays (based on the current filter) are enabled.
-        let isFilterable = getFilteredRelays(relayFilterSnapshot).isEnabled
-
-        // If the current filter is valid, return true immediately.
-        // Otherwise, check if the provider is enabled when filtering specifically by the given provider name.
-        return isFilterable || getFilteredRelays(
+        // Check if the provider is enabled when filtering specifically by the given provider name.
+        return getFilteredRelays(
             RelayFilter(ownership: relayFilter.ownership, providers: .only([providerName]))
         ).isEnabled
     }
