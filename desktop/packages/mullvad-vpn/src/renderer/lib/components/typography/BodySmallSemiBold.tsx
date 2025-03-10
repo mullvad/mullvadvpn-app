@@ -1,9 +1,7 @@
 import { Text, TextProps } from './Text';
 
-export type BodySmallSemiBoldProps = Omit<TextProps, 'variant'>;
+export type BodySmallSemiBoldProps<E extends React.ElementType> = TextProps<E>;
 
-export const BodySmallSemiBold = ({ children, ...props }: BodySmallSemiBoldProps) => (
-  <Text variant="bodySmallSemibold" {...props}>
-    {children}
-  </Text>
-);
+export const BodySmallSemiBold = <T extends React.ElementType = 'span'>(
+  props: BodySmallSemiBoldProps<T>,
+) => <Text variant="bodySmallSemibold" {...props} />;

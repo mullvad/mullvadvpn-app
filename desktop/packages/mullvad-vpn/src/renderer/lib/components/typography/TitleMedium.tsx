@@ -1,8 +1,6 @@
 import { Text, TextProps } from './Text';
-export type TitleMediumProps = Omit<TextProps, 'variant'>;
+export type TitleMediumProps<E extends React.ElementType> = TextProps<E>;
 
-export const TitleMedium = ({ children, ...props }: TitleMediumProps) => (
-  <Text variant="titleMedium" {...props}>
-    {children}
-  </Text>
+export const TitleMedium = <T extends React.ElementType = 'span'>(props: TitleMediumProps<T>) => (
+  <Text variant="titleMedium" {...props} />
 );
