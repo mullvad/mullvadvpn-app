@@ -5,7 +5,6 @@ import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Flex, Icon } from '../lib/components';
-import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
@@ -118,7 +117,7 @@ export default function Account() {
 function DeviceNameRow() {
   const deviceName = useSelector((state) => state.account.deviceName);
   return (
-    <Flex $gap={Spacings.spacing3} $alignItems="center">
+    <Flex $gap="small" $alignItems="center">
       <DeviceRowValue>{deviceName}</DeviceRowValue>
       <DeviceInfoButton />
     </Flex>

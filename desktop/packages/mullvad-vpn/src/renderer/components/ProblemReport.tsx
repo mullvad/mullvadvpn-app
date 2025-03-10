@@ -17,7 +17,6 @@ import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Flex, Icon, Spinner } from '../lib/components';
-import { Spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
@@ -234,9 +233,7 @@ function Sent() {
   return (
     <StyledContent>
       <StyledForm>
-        <Flex
-          $justifyContent="center"
-          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+        <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
           <IconBadge state="positive" />
         </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Sent')}</StyledSendStatus>
@@ -261,9 +258,7 @@ function Failed() {
   return (
     <StyledContent>
       <StyledForm>
-        <Flex
-          $justifyContent="center"
-          $margin={{ top: Spacings.spacing6, bottom: Spacings.spacing5 }}>
+        <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
           <IconBadge state="negative" />
         </Flex>
         <StyledSendStatus>{messages.pgettext('support-view', 'Failed to send')}</StyledSendStatus>

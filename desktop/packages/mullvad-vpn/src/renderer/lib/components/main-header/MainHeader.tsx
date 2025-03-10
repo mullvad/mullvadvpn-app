@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../../foundations';
+import { Colors } from '../../foundations';
 import { TransientProps } from '../../types';
 import { Flex } from '../flex';
 import { MainHeaderIconButton } from './components';
@@ -38,9 +38,9 @@ const MainHeader = ({ size = '1', variant = 'default', children, ...props }: Hea
         $flexDirection="column"
         $justifyContent="center"
         $margin={{
-          horizontal: Spacings.spacing5,
-          top: Spacings.spacing5,
-          bottom: Spacings.spacing3,
+          horizontal: 'medium',
+          top: 'medium',
+          bottom: 'small',
         }}>
         {children}
       </Flex>

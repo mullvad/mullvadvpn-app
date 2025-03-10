@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-import { Colors, Spacings } from '../../foundations';
+import { Colors, spacings } from '../../foundations';
 import { TransientProps } from '../../types';
 import { Flex } from '../flex';
 import {
@@ -22,9 +22,10 @@ export const StyledContent = styled.div({
   display: 'grid',
   gridTemplateColumns: '1fr auto 1fr',
   placeContent: 'center',
-  minHeight: '32px',
-  height: '32px',
-  gap: Spacings.spacing1,
+  minHeight: '24px',
+  height: '24px',
+  padding: `${spacings.medium} 0`,
+  gap: spacings.tiny,
 });
 
 const NavigationHeader = ({ titleVisible, children, ...props }: NavigationHeaderProps) => {
@@ -35,8 +36,8 @@ const NavigationHeader = ({ titleVisible, children, ...props }: NavigationHeader
           $flexDirection="column"
           $justifyContent="center"
           $padding={{
-            horizontal: Spacings.spacing5,
-            vertical: Spacings.spacing3,
+            horizontal: 'medium',
+            vertical: 'small',
           }}>
           <StyledContent>{children}</StyledContent>
         </Flex>

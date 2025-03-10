@@ -6,7 +6,7 @@ import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import { Flex } from '../lib/components';
-import { Spacings } from '../lib/foundations';
+import { spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
@@ -33,7 +33,7 @@ export const StyledIllustration = styled.img({
 });
 
 const StyledInfoButton = styled(InfoButton)({
-  marginRight: Spacings.spacing5,
+  marginRight: spacings.medium,
 });
 
 const PATH_PREFIX = process.env.NODE_ENV === 'development' ? '../' : '';
@@ -57,7 +57,7 @@ export default function DaitaSettings() {
                       <StyledIllustration
                         src={`${PATH_PREFIX}assets/images/daita-off-illustration.svg`}
                       />
-                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+                      <Flex $flexDirection="column" $gap="medium">
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
@@ -96,7 +96,7 @@ export default function DaitaSettings() {
                       <StyledIllustration
                         src={`${PATH_PREFIX}assets/images/daita-on-illustration.svg`}
                       />
-                      <Flex $flexDirection="column" $gap={Spacings.spacing5}>
+                      <Flex $flexDirection="column" $gap="medium">
                         <StyledHeaderSubTitle>
                           {sprintf(
                             messages.pgettext(
