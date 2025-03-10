@@ -2,7 +2,7 @@
 
 use crate::rest;
 
-use hyper::{header, StatusCode};
+use hyper::{body::Incoming, header, Error, StatusCode};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
 
@@ -29,43 +29,56 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list
-    pub fn relay_list(
+    pub async fn relay_list(
         &self,
         etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> + use<> {
+    ) -> Result<Option<relay_list::RelayList>, rest::Error> {
+        let response = self.relay_list_response(etag.clone()).await.map_err(rest::Error::from)?;
+
+        if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
+            return Ok(None);
+        }
+
+        let etag = Self::extract_etag(&response);
+
+        let relay_list: ServerRelayList = response.deserialize().await?;
+        Ok(Some(relay_list.into_relay_list(etag)))
+    }
+
+    pub async fn relay_list_response(
+        &self,
+        etag: Option<String>,
+    ) -> Result<rest::Response<Incoming>, rest::Error> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
 
-        async move {
-            let mut request = request?
-                .timeout(RELAY_LIST_TIMEOUT)
-                .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+        let mut request = request?
+            .timeout(RELAY_LIST_TIMEOUT)
+            .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
-            if let Some(ref tag) = etag {
-                request = request.header(header::IF_NONE_MATCH, tag)?;
-            }
-
-            let response = service.request(request).await?;
-            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
-                return Ok(None);
-            }
-
-            let etag = response
-                .headers()
-                .get(header::ETAG)
-                .and_then(|tag| match tag.to_str() {
-                    Ok(tag) => Some(tag.to_string()),
-                    Err(_) => {
-                        log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
-                        None
-                    }
-                });
-
-            let relay_list: ServerRelayList = response.deserialize().await?;
-            Ok(Some(relay_list.into_relay_list(etag)))
+        if let Some(ref tag) = etag {
+            request = request.header(header::IF_NONE_MATCH, tag)?;
         }
+
+        let response = service.request(request).await?;
+
+        Ok(response)
+    }
+    
+    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<String> {
+        response
+            .headers()
+            .get(header::ETAG)
+            .and_then(|tag| match tag.to_str() {
+                Ok(tag) => Some(tag.to_string()),
+                Err(_) => {
+                    log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
+                    None
+                }
+            })
     }
 }
+
 
 #[derive(Debug, serde::Deserialize)]
 struct ServerRelayList {
