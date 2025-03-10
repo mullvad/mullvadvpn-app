@@ -10,8 +10,8 @@ import Foundation
 
 private let anyConstraint = "any"
 
-public enum RelayConstraint<T>: Codable, Equatable,
-    CustomDebugStringConvertible where T: Codable & Equatable {
+public enum RelayConstraint<T>: Codable, Equatable, CustomDebugStringConvertible, Sendable
+    where T: Codable & Equatable & Sendable {
     case any
     case only(T)
 
@@ -34,7 +34,7 @@ public enum RelayConstraint<T>: Codable, Equatable,
         return output
     }
 
-    private struct OnlyRepr: Codable {
+    private struct OnlyRepr: Codable, Sendable {
         var only: T
     }
 
@@ -46,7 +46,6 @@ public enum RelayConstraint<T>: Codable, Equatable,
             self = .any
         } else {
             let onlyVariant = try container.decode(OnlyRepr.self)
-
             self = .only(onlyVariant.only)
         }
     }

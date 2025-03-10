@@ -28,7 +28,6 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
         containerView.axis = .horizontal
         containerView.spacing = 8
         containerView.isLayoutMarginsRelativeArrangement = true
-        containerView.layoutMargins = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         return containerView
     }()
 
@@ -64,7 +63,7 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
         containerView.addArrangedSubview(nameLabel)
         containerView.addArrangedSubview(actionButton)
         addConstrainedSubviews([containerView]) {
-            containerView.pinEdgesToSuperview()
+            containerView.pinEdgesToSuperviewMargins()
             actionButton.heightAnchor.constraint(equalTo: heightAnchor)
             actionButton.widthAnchor.constraint(equalTo: actionButton.heightAnchor)
         }
@@ -86,8 +85,7 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
     }
 
     private func applyAppearance() {
-        let leadingInset = UIMetrics.locationCellLayoutMargins.leading + 6
-        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: leadingInset, bottom: 8, trailing: 24)
+        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
     }
 }
 
