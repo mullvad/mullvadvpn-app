@@ -1,10 +1,10 @@
 ---
 name: Android - Ensure reproducibility
 on:
-#  pull_request:
-#    paths:
-#      - .github/workflows/android-reproducible-builds.yml
-#      - android/**
+  pull_request:
+    paths:
+      - .github/workflows/android-reproducible-builds.yml
+      - android/**
   schedule:
     # At 06:20 UTC every day.
     # Notifications for scheduled workflows are sent to the user who last modified the cron
