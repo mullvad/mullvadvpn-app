@@ -16,7 +16,6 @@ import {
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Link } from '../lib/components';
 import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
@@ -28,6 +27,7 @@ import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
+import { InternalLink } from './InternalLink';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
@@ -141,13 +141,13 @@ export default function NotificationArea(props: IProps) {
               {notification.title}
             </NotificationTitle>
             <NotificationSubtitle data-testid="notificationSubTitle">
-              {notification.subtitleAction?.type === 'navigate' ? (
-                <Link
+              {notification.subtitleAction?.type === 'navigate-internal' ? (
+                <InternalLink
                   variant="labelTiny"
                   color={Colors.white60}
                   {...notification.subtitleAction.link}>
                   {formatHtml(notification.subtitle ?? '')}
-                </Link>
+                </InternalLink>
               ) : (
                 formatHtml(notification.subtitle ?? '')
               )}
