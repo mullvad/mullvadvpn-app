@@ -1141,11 +1141,44 @@ impl Daemon {
             _ => {}
         }
 
+        let is_connecting = matches!(tunnel_state, TunnelState::Connecting { .. });
+
+        // During connecting we invoke establish which may leak internal tunnel IP and go outside the tunnel
+        #[cfg(target_os = "android")]
+        {
+            if is_connecting {
+                log::debug!("API_RUNTIME: SUSPENDING API REQUESTS!");
+                self.api_runtime.availability_handle().suspend();
+            }
+
+            // If we are leaving connecting state unsuspend API requests
+            if let TunnelState::Connecting { .. } = self.tunnel_state {
+                match tunnel_state {
+                    TunnelState::Connecting { .. } => {}
+                    _ => {
+                        // New state is not connecting
+                        log::debug!("API_RUNTIME: UNSUSPENDING API REQUESTS!");
+                        self.api_runtime.availability_handle().unsuspend();
+                    }
+                }
+            }
+        }
+
         self.tunnel_state = tunnel_state.clone();
         self.management_interface
             .notifier()
             .notify_new_state(tunnel_state);
-        self.fetch_am_i_mullvad();
+
+        #[cfg(target_os = "android")]
+        {
+            if !is_connecting {
+                self.fetch_am_i_mullvad();
+            }
+        }
+        #[cfg(not(target_os = "android"))]
+        {
+            self.fetch_am_i_mullvad();
+        }
     }
 
     /// Get the geographical location from am.i.mullvad.net. When it arrives,
