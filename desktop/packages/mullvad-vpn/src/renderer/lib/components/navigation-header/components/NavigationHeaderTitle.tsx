@@ -15,10 +15,10 @@ export const StyledText = styled(TitleMedium)<{ $visible?: boolean }>(({ $visibl
   textOverflow: 'ellipsis',
 }));
 
-export const NavigationHeaderTitle = ({ children }: NavigationHeaderTitleProps) => {
+export const NavigationHeaderTitle = ({ children, ...props }: NavigationHeaderTitleProps) => {
   const { titleVisible } = useNavigationHeader();
   return (
-    <StyledText tag="h1" $visible={titleVisible}>
+    <StyledText forwardedAs={'h1'} $visible={titleVisible} {...props}>
       {children}
     </StyledText>
   );

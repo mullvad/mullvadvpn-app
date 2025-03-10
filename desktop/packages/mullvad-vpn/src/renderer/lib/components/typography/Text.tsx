@@ -1,60 +1,43 @@
-import { createElement, forwardRef } from 'react';
-import styled, { WebTarget } from 'styled-components';
+import React from 'react';
+import styled, { PolymorphicComponentProps, WebTarget } from 'styled-components';
 
-import { Colors, Typography, typography, TypographyProperties } from '../../foundations';
+import { Colors, Typography, typography } from '../../foundations';
 import { TransientProps } from '../../types';
 
-export type TextProps = React.PropsWithChildren<{
+type TextBaseProps = React.PropsWithChildren<{
   variant?: Typography;
   color?: Colors;
-  tag?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
-  as?: WebTarget;
-  style?: React.CSSProperties;
 }>;
 
-const StyledText = styled(
-  ({ tag = 'span', ...props }: { tag: TextProps['tag'] } & TransientProps<TypographyProperties>) =>
-    createElement(tag, props),
-)((props) => ({
-  color: 'var(--color)',
-  fontFamily: props.$fontFamily,
-  fontWeight: props.$fontWeight,
-  fontSize: props.$fontSize,
-  lineHeight: props.$lineHeight,
-}));
+export type TextProps<T extends WebTarget> = PolymorphicComponentProps<'web', TextBaseProps, T, T>;
 
-export const Text = forwardRef(
-  (
-    {
-      tag = 'span',
-      variant = 'bodySmall',
-      color = Colors.white,
-      children,
-      style,
-      ...props
-    }: TextProps,
-    ref,
-  ) => {
-    const { fontFamily, fontSize, fontWeight, lineHeight } = typography[variant];
-    return (
-      <StyledText
-        ref={ref}
-        tag={tag}
-        style={
-          {
-            '--color': color,
-            ...style,
-          } as React.CSSProperties
-        }
-        $fontFamily={fontFamily}
-        $fontWeight={fontWeight}
-        $fontSize={fontSize}
-        $lineHeight={lineHeight}
-        {...props}>
-        {children}
-      </StyledText>
-    );
+const StyledText = styled.span<TransientProps<TextBaseProps>>(
+  ({ $variant = 'bodySmall', $color = Colors.white }) => {
+    const { fontFamily, fontSize, fontWeight, lineHeight } = typography[$variant];
+    return `
+      --color: ${$color};
+      
+      color: var(--color);
+      font-family: ${fontFamily};
+      font-size: ${fontSize};
+      font-weight: ${fontWeight};
+      line-height: ${lineHeight};
+    `;
   },
 );
+
+export const Text = <T extends WebTarget>({
+  variant,
+  color,
+  children,
+  style,
+  ...props
+}: TextProps<T>) => {
+  return (
+    <StyledText $variant={variant} $color={color} {...props}>
+      {children}
+    </StyledText>
+  );
+};
 
 Text.displayName = 'Text';
