@@ -1,0 +1,116 @@
+---
+name: Android - Ensure reproducibility
+on:
+  schedule:
+    # At 04:20 UTC every monday.
+    # Notifications for scheduled workflows are sent to the user who last modified the cron
+    # syntax in the workflow file. If you update this you must have notifications for
+    # Github Actions enabled, so these don't go unnoticed.
+    # https://docs.github.com/en/actions/monitoring-and-troubleshooting-workflows/notifications-for-workflow-runs
+    - cron: '20 6 * * 1'
+  push:
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  build-fdroid-app:
+    name: Build fdroid container
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Upload repro yaml file
+        uses: actions/upload-artifact@v4
+        with:
+          name: net.mullvad.mullvadvpn
+          path: android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Build app
+        run: ./building/containerized-build.sh android --fdroid
+
+      - name: Rename apk
+        run: |
+          cd dist
+          for file in *.apk; do mv "$file" "app-oss-prod-fdroid-container.apk"; done
+          cd ..
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: apks
+          path: dist
+          if-no-files-found: error
+          retention-days: 7
+
+  build-fdroid-app-server:
+    name: Build fdroid with fdroid server
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install fdroidserver
+        run: sudo apt-get install fdroidserver
+
+      - name: Install gradle
+        run: |
+          sudo apt-get remove gradle
+          mkdir /opt/gradle
+          curl -sfLo /opt/gradle/gradle-8.13-bin.zip https\://services.gradle.org/distributions/gradle-8.13-bin.zip 
+          unzip -d /opt/gradle /opt/gradle/gradle-8.13-bin.zip
+
+      # These are equivalent to the sudo section of the metadata file    
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential protobuf-compiler libprotobuf-dev
+
+      - name: Create empty repo
+        run: mkdir fdroid-repo && cd fdroid-repo && mkdir metadata
+
+      - name: Init
+        run: fdroid init
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: net.mullvad.mullvadvpn
+          path: metadata
+
+      - name: Update metadata
+        run: sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
+
+      - name: Build app
+        run: |
+          export PATH=$PATH:/opt/gradle/gradle-8.13/bin
+          fdroid build net.mullvad.mullvadvpn:24090099 -v
+
+      - name: Upload apks
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-oss-prod-fdroid-unsigned
+          path: build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+          if-no-files-found: error
+          retention-days: 7
+
+  compare-builds:
+    name: Check builds
+    runs-on: ubuntu-latest
+    needs: [build-fdroid-app, build-fdroid-app-server]
+    steps:
+      - name: Download container apk
+        uses: actions/download-artifact@v4
+        with:
+          name: apks
+          path: apks
+
+      - name: Download server apk
+        uses: actions/download-artifact@v4
+        with:
+          name: app-oss-prod-fdroid-unsigned
+          path: apks
+
+      - name: Compare files
+        run: if [[ "$(md5sum app-oss-prod-fdroid-container.apk)" = "$(md5sum app-oss-prod-fdroid-unsigned.apk)" ]] then echo "Equal checksums"; else exit 1; fi
