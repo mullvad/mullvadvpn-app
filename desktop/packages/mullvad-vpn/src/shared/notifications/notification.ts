@@ -69,8 +69,12 @@ export interface InAppNotification {
   indicator?: InAppNotificationIndicatorType;
   action?: InAppNotificationAction;
   title: string;
-  subtitle?: string;
-  subtitleAction?: InAppNotificationAction;
+  subtitle?: string | InAppNotificationSubtitle[];
+}
+
+export interface InAppNotificationSubtitle {
+  content: string;
+  action?: InAppNotificationAction;
 }
 
 export interface SystemNotificationProvider extends NotificationProvider {
