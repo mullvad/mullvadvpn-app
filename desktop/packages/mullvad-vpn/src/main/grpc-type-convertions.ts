@@ -1,5 +1,6 @@
 import { types as grpcTypes } from 'management-interface';
 
+import { AppUpgradeError } from '../shared/constants';
 import {
   AccessMethod,
   AccessMethodSetting,
@@ -14,6 +15,8 @@ import {
   Constraint,
   CustomLists,
   CustomProxy,
+  DaemonAppUpgradeError,
+  DaemonAppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
   DeviceState,
@@ -698,6 +701,65 @@ function convertFromObfuscationSettings(
       ? { port: convertFromConstraint(obfuscationSettings.shadowsocks.port) }
       : { port: 'any' },
   };
+}
+
+function convertFromAppUpgradeError(error: grpcTypes.AppUpgradeError.Error): DaemonAppUpgradeError {
+  switch (error) {
+    case grpcTypes.AppUpgradeError.Error.DOWNLOAD_FAILED:
+      return AppUpgradeError.downloadFailed;
+    case grpcTypes.AppUpgradeError.Error.VERFICATION_FAILED:
+      return AppUpgradeError.verificationFailed;
+    default:
+      return AppUpgradeError.generalError;
+  }
+}
+
+export function convertFromAppUpgradeEvent(data: grpcTypes.AppUpgradeEvent): DaemonAppUpgradeEvent {
+  const downloadStartingData = data.getDownloadStarting();
+  if (downloadStartingData !== undefined) {
+    return { type: 'APP_UPGRADE_EVENT_STATUS_DOWNLOAD_STARTED' };
+  }
+
+  const downloadProgressData = data.getDownloadProgress();
+  if (downloadProgressData !== undefined) {
+    const [server, progress, timeLeftDuration] = [
+      downloadProgressData.getServer(),
+      downloadProgressData.getProgress(),
+      downloadProgressData.getTimeLeft(),
+    ];
+
+    const timeLeft = timeLeftDuration?.getSeconds() || 0;
+
+    return { type: 'APP_UPGRADE_EVENT_STATUS_DOWNLOAD_PROGRESS', server, progress, timeLeft };
+  }
+
+  if (data.hasUpgradeAborted()) {
+    return { type: 'APP_UPGRADE_EVENT_STATUS_ABORTED' };
+  }
+
+  if (data.hasVerifyingInstaller()) {
+    return { type: 'APP_UPGRADE_EVENT_STATUS_VERIFYING_INSTALLER' };
+  }
+
+  if (data.hasVerifiedInstaller()) {
+    return { type: 'APP_UPGRADE_EVENT_STATUS_VERIFIED_INSTALLER' };
+  }
+
+  const errorData = data.getError();
+  if (errorData !== undefined) {
+    const error = errorData.getError();
+
+    return {
+      type: 'APP_UPGRADE_ERROR',
+      error: convertFromAppUpgradeError(error),
+    };
+  }
+
+  // Handle unknown AppUpgradeEvent messages
+  const keys = Object.entries(data.toObject())
+    .filter(([, value]) => value !== undefined)
+    .map(([key]) => key);
+  throw new Error(`Unknown app upgrade event received containing ${keys}`);
 }
 
 export function convertFromDaemonEvent(data: grpcTypes.DaemonEvent): DaemonEvent {
