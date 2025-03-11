@@ -55,11 +55,11 @@ extension UIImage {
         // the close button, which comes we consume in two sizes, both of which come from the same asset
 
         static var closeSmall: UIImage {
-            UIImage(named: "IconClose")!.resizeImage(targetSize: CGSize(width: 16, height: 16))
+            UIImage(named: "IconClose")!.resizeImage(targetSize: CGSize(width: 19, height: 19))
         }
 
         static var closeLarge: UIImage {
-            UIImage(named: "IconClose")!.resizeImage(targetSize: CGSize(width: 24, height: 24))
+            UIImage(named: "IconClose")!.resizeImage(targetSize: CGSize(width: 29, height: 29))
         }
     }
 
