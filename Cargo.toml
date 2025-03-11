@@ -100,7 +100,7 @@ hyper-util = { version = "0.1.8", features = [
   "http1",
 ] }
 
-env_logger = "0.10.0"
+env_logger = "0.11.7"
 thiserror = "2.0"
 anyhow = "1.0"
 log = "0.4"
