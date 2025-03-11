@@ -27,18 +27,22 @@ export class NewVersionNotificationProvider implements InAppNotificationProvider
       indicator: 'success',
       action: { type: 'close', close: this.context.close },
       title,
-      subtitle,
-      subtitleAction: {
-        type: 'navigate-internal',
-        link: {
-          to: RoutePath.changelog,
-          onClick: this.context.close,
-          'aria-label': messages.pgettext(
-            'accessibility',
-            'New version installed, click here to see the changelog',
-          ),
+      subtitle: [
+        {
+          content: subtitle,
+          action: {
+            type: 'navigate-internal',
+            link: {
+              to: RoutePath.changelog,
+              onClick: this.context.close,
+              'aria-label': messages.pgettext(
+                'accessibility',
+                'New version installed, click here to see the changelog',
+              ),
+            },
+          },
         },
-      },
+      ],
     };
   }
 }

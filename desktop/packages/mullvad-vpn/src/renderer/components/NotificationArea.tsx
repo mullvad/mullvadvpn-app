@@ -141,16 +141,28 @@ export default function NotificationArea(props: IProps) {
               {notification.title}
             </NotificationTitle>
             <NotificationSubtitle data-testid="notificationSubTitle">
-              {notification.subtitleAction?.type === 'navigate-internal' ? (
-                <InternalLink
-                  variant="labelTiny"
-                  color={Colors.white60}
-                  {...notification.subtitleAction.link}>
-                  {formatHtml(notification.subtitle ?? '')}
-                </InternalLink>
-              ) : (
-                formatHtml(notification.subtitle ?? '')
-              )}
+              {Array.isArray(notification.subtitle)
+                ? notification.subtitle.map((subtitle, index, arr) => {
+                    const content =
+                      subtitle.action && subtitle.action.type === 'navigate-internal' ? (
+                        <InternalLink
+                          variant="labelTiny"
+                          color={Colors.white60}
+                          {...subtitle.action.link}>
+                          {formatHtml(subtitle.content)}
+                        </InternalLink>
+                      ) : (
+                        formatHtml(subtitle.content)
+                      );
+
+                    return (
+                      <span key={index}>
+                        {content}
+                        {index !== arr.length - 1 && ' '}
+                      </span>
+                    );
+                  })
+                : formatHtml(notification.subtitle ?? '')}
             </NotificationSubtitle>
           </NotificationContent>
           {notification.action && (
