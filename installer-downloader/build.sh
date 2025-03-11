@@ -85,6 +85,10 @@ function assert_can_sign {
             exit 1
         fi
     fi
+    if [[ -z ${CODE_SIGNING_KEY_FINGERPRINT-} ]]; then
+        log_error "The variable CODE_SIGNING_KEY_FINGERPRINT is not set. It needs to be set to the GPG key fingerprint."
+        exit 1
+    fi
 }
 
 # Run cargo with all appropriate flags and options
