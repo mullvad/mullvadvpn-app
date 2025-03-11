@@ -8,6 +8,7 @@ import {
   AccountDataError,
   AccountDataResponse,
   AccountNumber,
+  AppUpgradeEvent,
   BridgeSettings,
   BridgeState,
   CustomListError,
@@ -74,7 +75,10 @@ export class SubscriptionListener<T> {
 
 export class DaemonRpc extends GrpcClient {
   private nextSubscriptionId = 0;
-  private subscriptions: Map<number, grpc.ClientReadableStream<grpcTypes.DaemonEvent>> = new Map();
+  private subscriptions: Map<
+    number,
+    grpc.ClientReadableStream<grpcTypes.DaemonEvent | grpcTypes.AppUpgradeEvent>
+  > = new Map();
 
   public constructor(connectionObserver?: ConnectionObserver) {
     super(DAEMON_RPC_PATH, connectionObserver);
