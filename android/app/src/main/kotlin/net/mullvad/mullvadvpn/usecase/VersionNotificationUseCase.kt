@@ -2,8 +2,8 @@ package net.mullvad.mullvadvpn.usecase
 
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
-import net.mullvad.mullvadvpn.repository.InAppNotification
-import net.mullvad.mullvadvpn.ui.VersionInfo
+import net.mullvad.mullvadvpn.lib.shared.InAppNotification
+import net.mullvad.mullvadvpn.lib.shared.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 
 class VersionNotificationUseCase(
