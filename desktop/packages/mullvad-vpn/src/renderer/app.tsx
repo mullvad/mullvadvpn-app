@@ -765,10 +765,7 @@ export default class AppRenderer {
         return RoutePath.deviceRevoked;
       } else if (!this.isLoggedIn()) {
         return RoutePath.login;
-      } else if (
-        loginState.type === 'ok' &&
-        (loginState.expiredState === 'expired' || loginState.method === 'new_account')
-      ) {
+      } else if (loginState.type === 'ok' && loginState.expiredState === 'expired') {
         return RoutePath.expired;
       } else if (loginState.type === 'ok' && loginState.expiredState === 'time_added') {
         return RoutePath.timeAdded;
