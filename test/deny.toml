@@ -20,6 +20,9 @@ yanked = "deny"
 ignore = [
     # Ignored audit issues. This list should be kept short, and effort should be
     # put into removing items from the list.
+    #
+    # RUSTSEC-2025-0014 - `humantime` is unmaintained: https://github.com/tailhook/humantime/issues/31
+    "RUSTSEC-2025-0014"
 ]
 
 
