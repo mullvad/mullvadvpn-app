@@ -2,11 +2,12 @@ import { useCallback, useMemo } from 'react';
 import { sprintf } from 'sprintf-js';
 import styled from 'styled-components';
 
-import { strings } from '../../shared/constants';
+import { strings, urls } from '../../shared/constants';
 import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
+import { Flex, Icon } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { Colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
@@ -22,6 +23,7 @@ import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } fr
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
 import CustomDnsSettings from './CustomDnsSettings';
+import { ExternalLink } from './ExternalLink';
 import InfoButton from './InfoButton';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsContent, SettingsGroup, SettingsStack } from './Layout';
@@ -725,7 +727,7 @@ function TunnelProtocolSetting() {
         value={tunnelProtocol}
         onSelect={setTunnelProtocol}
       />
-      {openVpnDisabled ? (
+      {openVpnDisabled && (
         <Cell.CellFooter>
           <AriaDescription>
             <Cell.CellFooterText>
@@ -739,7 +741,35 @@ function TunnelProtocolSetting() {
             </Cell.CellFooterText>
           </AriaDescription>
         </Cell.CellFooter>
-      ) : null}
+      )}
+      {tunnelProtocol === 'openvpn' && (
+        <Cell.CellFooter>
+          <AriaDescription>
+            <Cell.CellFooterText>
+              {sprintf(
+                // TRANSLATORS: Footer text for tunnel protocol selector when OpenVPN is selected.
+                // TRANSLATORS: Available placeholders:
+                // TRANSLATORS: %(openvpn)s - Will be replaced with OpenVPN
+                messages.pgettext(
+                  'vpn-settings-view',
+                  'Attention: We are removing support for %(openVpn)s.',
+                ),
+                { openVpn: strings.openvpn },
+              )}{' '}
+            </Cell.CellFooterText>
+          </AriaDescription>
+          <ExternalLink variant="labelTiny" to={urls.removingOpenVpnBlog}>
+            <Flex>
+              {sprintf(
+                // TRANSLATORS: Link in tunnel protocol selector footer to blog post
+                // TRANSLATORS: about OpenVPN support ending.
+                messages.pgettext('vpn-settings-view', 'Read more'),
+              )}
+              <Icon icon="external" size="small" />
+            </Flex>
+          </ExternalLink>
+        </Cell.CellFooter>
+      )}
     </AriaInputGroup>
   );
 }
