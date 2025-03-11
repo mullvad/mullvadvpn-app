@@ -1,3 +1,3 @@
-package net.mullvad.mullvadvpn.ui
+package net.mullvad.mullvadvpn.lib.shared
 
 data class VersionInfo(val currentVersion: String, val isSupported: Boolean)

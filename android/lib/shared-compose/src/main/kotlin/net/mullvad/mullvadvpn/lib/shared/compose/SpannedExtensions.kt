@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.extensions
+package net.mullvad.mullvadvpn.lib.shared.compose
 
 import android.graphics.Typeface
 import android.text.Spanned

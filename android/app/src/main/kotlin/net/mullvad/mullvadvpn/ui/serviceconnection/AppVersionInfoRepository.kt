@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import net.mullvad.mullvadvpn.lib.daemon.grpc.ManagementService
 import net.mullvad.mullvadvpn.lib.model.BuildVersion
-import net.mullvad.mullvadvpn.ui.VersionInfo
+import net.mullvad.mullvadvpn.lib.shared.VersionInfo
 
 class AppVersionInfoRepository(
     private val buildVersion: BuildVersion,

@@ -15,10 +15,10 @@ import com.ramcosta.composedestinations.result.ResultBackNavigator
 import com.ramcosta.composedestinations.spec.DestinationStyle
 import net.mullvad.mullvadvpn.R
 import net.mullvad.mullvadvpn.compose.component.textResource
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.compose.preview.DevicePreviewParameterProvider
 import net.mullvad.mullvadvpn.lib.model.Device
 import net.mullvad.mullvadvpn.lib.model.DeviceId
+import net.mullvad.mullvadvpn.lib.shared.compose.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
 @Preview
