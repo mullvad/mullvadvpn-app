@@ -24,7 +24,7 @@ function verify_repository_versions {
   fi
 
   deb_version_output=$(./print-package-versions --deb "${print_versions_args[@]}")
-  deb_version=$(echo "$deb_version_output" | grep mullvad-vpn | awk '{print $2}')
+  deb_version=$(echo "$deb_version_output" | grep mullvad-vpn | awk '{print $2}' | sed 's/~/-/')
 
   if [[ "$deb_version" != "$PRODUCT_VERSION" ]]; then
     log_error "Incorrect deb version in repository ($deb_version)"
@@ -33,7 +33,7 @@ function verify_repository_versions {
   fi
 
   rpm_version_output=$(./print-package-versions --rpm "${print_versions_args[@]}")
-  rpm_version=$(echo "$rpm_version_output" | grep mullvad-vpn | awk '{print $2}')
+  rpm_version=$(echo "$rpm_version_output" | grep mullvad-vpn | awk '{print $2}' | sed 's/~/-/')
 
   if [[ "$rpm_version" != "$PRODUCT_VERSION-1" ]]; then
     log_error "Incorrect rpm version in repository ($rpm_version)"
