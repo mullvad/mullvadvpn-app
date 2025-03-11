@@ -173,6 +173,21 @@ export type DaemonEvent =
   | { deviceRemoval: Array<IDevice> }
   | { accessMethodSetting: AccessMethodSetting };
 
+export enum AppUpgradeError {
+  generalError,
+  downloadFailed,
+  verificationFailed,
+  startInstallerFailed,
+}
+
+export type AppUpgradeEvent =
+  | { type: 'APP_UPGRADE_DOWNLOAD_STARTED' }
+  | { type: 'APP_UPGRADE_DOWNLOAD_PROGRESS'; server: string; progress: number; timeLeft: number }
+  | { type: 'APP_UPGRADE_ABORTED' }
+  | { type: 'APP_UPGRADE_VERIFYING_INSTALLER' }
+  | { type: 'APP_UPGRADE_STARTING_INSTALLER' }
+  | { type: 'APP_UPGRADE_ERROR'; error: AppUpgradeError };
+
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
   location?: ILocation;
