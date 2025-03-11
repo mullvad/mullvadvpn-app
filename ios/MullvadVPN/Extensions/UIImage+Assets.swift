@@ -12,44 +12,44 @@ extension UIImage {
     enum Buttons {
         // Button images we expect as tightly cropped 24x24 images. The SVGs are 20x20 with a 2px border
         static var account: UIImage {
-            UIImage(resource: .iconAccount).rescaled(by: 24 / 20)
+            UIImage(named: "IconAccount")!.rescaled(by: 24 / 20)
         }
 
         static var alert: UIImage {
-            UIImage(resource: .iconAlert).rescaled(by: 24 / 20)
+            UIImage(named: "IconAlert")!.rescaled(by: 24 / 20)
         }
 
         static var info: UIImage {
             // the info icon was 18x18 cropped
-            UIImage(resource: .iconInfo).resizeImage(targetSize: CGSize(width: 21.5, height: 21.5))
+            UIImage(named: "IconInfo")!.resizeImage(targetSize: CGSize(width: 21.5, height: 21.5))
         }
 
         static var settings: UIImage {
-            UIImage(resource: .iconSettings).rescaled(by: 24 / 20)
+            UIImage(named: "IconSettings")!.rescaled(by: 24 / 20)
         }
 
         static var back: UIImage {
-            UIImage(resource: .iconBack)
+            UIImage(named: "IconBack")!
         }
 
         static var copy: UIImage {
-            UIImage(resource: .iconCopy)
+            UIImage(named: "IconCopy")!
         }
 
         static var hide: UIImage {
-            UIImage(resource: .iconObscure)
+            UIImage(named: "IconObscure")!
         }
 
         static var reload: UIImage {
-            UIImage(resource: .iconReload)
+            UIImage(named: "IconReload")!
         }
 
         static var rightArrow: UIImage {
-            UIImage(resource: .iconArrow)
+            UIImage(named: "IconArrow")!
         }
 
         static var show: UIImage {
-            UIImage(resource: .iconUnobscure)
+            UIImage(named: "IconUnobscure")!
         }
 
         // the close button, which comes we consume in two sizes, both of which come from the same asset
@@ -65,43 +65,43 @@ extension UIImage {
 
     enum CellDecoration {
         static var chevronRight: UIImage {
-            UIImage(resource: .iconChevron)
+            UIImage(named: "IconChevron")!
         }
 
         static var chevronDown: UIImage {
-            UIImage(resource: .iconChevronDown)
+            UIImage(named: "IconChevronDown")!
         }
 
         static var chevronUp: UIImage {
-            UIImage(resource: .iconChevronUp)
+            UIImage(named: "IconChevronUp")!
         }
 
         static var externalLink: UIImage {
-            UIImage(resource: .iconExtlink)
+            UIImage(named: "IconExtlink")!
         }
 
         static var tick: UIImage {
-            UIImage(resource: .iconTickSml)
+            UIImage(named: "IconTickSml")!
                 .resizeImage(targetSize: CGSize(width: 16, height: 16))
         }
     }
 
     enum Status {
-        static var failure: UIImage { UIImage(resource: .iconFail) }
-        static var success: UIImage { UIImage(resource: .iconSuccess) }
+        static var failure: UIImage { UIImage(named: "IconFail")! }
+        static var success: UIImage { UIImage(named: "IconSuccess")! }
     }
 
     // miscellaneous images
     static var backTransitionMask: UIImage {
-        UIImage(resource: .iconBackTransitionMask)
+        UIImage(named: "IconBackTransitionMask")!
     }
 
     static var spinner: UIImage {
-        UIImage(resource: .iconSpinner)
+        UIImage(named: "IconSpinner")!
     }
 
     static var tick: UIImage {
-        UIImage(resource: .iconTickSml)
+        UIImage(named: "IconTickSml")!
             .resizeImage(targetSize: CGSize(width: 24, height: 24))
     }
 

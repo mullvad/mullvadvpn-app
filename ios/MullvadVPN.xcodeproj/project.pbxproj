@@ -43,6 +43,8 @@
 		06AC116228F94C450037AF9A /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		44075DFB2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44075DFA2CDA4F7400F61139 /* UDPOverTCPObfuscationSettingsViewModel.swift */; };
 		440870822D7A00B70038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
+		440870832D809B550038972F /* UIImage+Assets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440870812D7A00B00038972F /* UIImage+Assets.swift */; };
+		440870842D809C980038972F /* UIImage+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F062000B2CB7EB5D002E6DB9 /* UIImage+Helpers.swift */; };
 		440E5AB02CDBD67D00B09614 /* StatefulPreviewWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AAF2CDBD67D00B09614 /* StatefulPreviewWrapper.swift */; };
 		440E5AB42CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 440E5AB32CDCF24500B09614 /* TunnelObfuscationSettingsWatchingObservableObject.swift */; };
 		4419AA8B2D2826E5001B13C9 /* DetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4419AA8A2D2826E5001B13C9 /* DetailsView.swift */; };
@@ -5836,6 +5838,7 @@
 				A9A5F9F32ACB05160083449F /* AccountExpirySystemNotificationProvider.swift in Sources */,
 				A9A5F9F52ACB05160083449F /* NewDeviceNotificationProvider.swift in Sources */,
 				F09D04B72AE941DA003D4F89 /* OutgoingConnectionProxyTests.swift in Sources */,
+				440870832D809B550038972F /* UIImage+Assets.swift in Sources */,
 				F09D04B92AE95111003D4F89 /* OutgoingConnectionProxy.swift in Sources */,
 				7A6000F92B6273A4001CF0D9 /* AccessMethodViewModel.swift in Sources */,
 				7ABFB09E2BA316220074A49E /* RelayConstraintsTests.swift in Sources */,
@@ -5927,6 +5930,7 @@
 				44DD7D242B6CFFD70005F67F /* StartTunnelOperationTests.swift in Sources */,
 				44BB5F982BE527F4002520EB /* TunnelState+UI.swift in Sources */,
 				A9A5FA2B2ACB05160083449F /* CustomDateComponentsFormattingTests.swift in Sources */,
+				440870842D809C980038972F /* UIImage+Helpers.swift in Sources */,
 				A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */,
 				A9A5FA2D2ACB05160083449F /* DurationTests.swift in Sources */,
 				A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */,
