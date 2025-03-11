@@ -24,7 +24,7 @@ reqwest = { version = "0.12.9", optional = true, default-features = false, featu
 
 [dev-dependencies]
 tokio = { workspace = true, features = ["full"] }
-pretty_env_logger = "0.5.0"
+env_logger = { workspace = true }
 
 [target.'cfg(unix)'.dependencies]
 pnet_packet.workspace = true

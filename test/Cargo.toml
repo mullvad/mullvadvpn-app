@@ -67,7 +67,7 @@ hyper-util = { version = "0.1.8", features = [
 ] }
 
 # Logging
-env_logger = "0.11.0"
+env_logger = "0.11.7"
 thiserror = "2.0"
 log = "0.4"
 colored = "2.0.0"
