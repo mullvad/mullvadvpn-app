@@ -2,7 +2,7 @@ package net.mullvad.mullvadvpn.compose.state
 
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.repository.InAppNotification
+import net.mullvad.mullvadvpn.lib.shared.InAppNotification
 
 data class ConnectUiState(
     val location: GeoIpLocation?,

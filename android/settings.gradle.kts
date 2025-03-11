@@ -10,11 +10,8 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 rootProject.name = "MullvadVPN"
 
-include(
-    ":app",
-    ":service",
-    ":tile"
-)
+include(":app", ":service", ":tile")
+
 include(
     ":lib:billing",
     ":lib:common",
@@ -26,13 +23,10 @@ include(
     ":lib:payment",
     ":lib:resource",
     ":lib:shared",
+    ":lib:shared-compose",
     ":lib:talpid",
-    ":lib:theme"
+    ":lib:theme",
+    ":lib:tv",
 )
-include(
-    ":test",
-    ":test:arch",
-    ":test:common",
-    ":test:e2e",
-    ":test:mockapi"
-)
+
+include(":test", ":test:arch", ":test:common", ":test:e2e", ":test:mockapi")

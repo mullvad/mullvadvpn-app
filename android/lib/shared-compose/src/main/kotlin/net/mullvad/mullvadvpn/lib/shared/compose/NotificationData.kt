@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.compose.component.notificationbanner
+package net.mullvad.mullvadvpn.lib.shared.compose
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew
@@ -16,15 +16,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.core.text.HtmlCompat
 import java.net.InetAddress
-import net.mullvad.mullvadvpn.R
-import net.mullvad.mullvadvpn.compose.extensions.getExpiryQuantityString
-import net.mullvad.mullvadvpn.compose.extensions.toAnnotatedString
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
-import net.mullvad.mullvadvpn.repository.InAppNotification
-import net.mullvad.mullvadvpn.ui.notification.StatusLevel
+import net.mullvad.mullvadvpn.lib.shared.InAppNotification
+import net.mullvad.mullvadvpn.lib.shared.StatusLevel
 
 data class NotificationData(
     val title: AnnotatedString,
