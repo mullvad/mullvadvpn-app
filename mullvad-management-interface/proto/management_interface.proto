@@ -131,6 +131,40 @@ service ManagementService {
   // Debug features
   rpc DisableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
   rpc EnableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+
+  // App upgrade
+  rpc AppUpgrade(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AppUpgradeAbort(google.protobuf.Empty) returns (google.protobuf.Empty) {}
+  rpc AppUpgradeEventsListen(google.protobuf.Empty) returns (stream AppUpgradeEvent) {}
+}
+
+message AppUpgradeEvent {
+  oneof event {
+    AppUpgradeDownloadStarting download_starting = 1;
+    AppUpgradeDownloadProgress download_progress = 2;
+    AppUpgradeAborted upgrade_aborted = 3;
+    AppUpgradeVerifyingInstaller verifying_installer = 4;
+    AppUpgradeVerifiedInstaller verified_installer = 5;
+    AppUpgradeError error = 6;
+  }
+}
+
+message AppUpgradeDownloadStarting {}
+message AppUpgradeDownloadProgress {
+  string server = 1;
+  uint32 progress = 2;
+  google.protobuf.Duration time_left = 3;
+}
+message AppUpgradeAborted {}
+message AppUpgradeVerifyingInstaller {}
+message AppUpgradeVerifiedInstaller {}
+message AppUpgradeError {
+  enum Error {
+    GENERAL_ERROR = 0;
+    DOWNLOAD_FAILED = 1;
+    VERFICATION_FAILED = 2;
+  }
+  Error error = 1;
 }
 
 message UUID { string value = 1; }
