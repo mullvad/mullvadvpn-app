@@ -19,7 +19,7 @@ pub enum LeakMethod {
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
-    pretty_env_logger::formatted_builder()
+    env_logger::builder()
         .filter_level(log::LevelFilter::Debug)
         .parse_default_env()
         .init();
