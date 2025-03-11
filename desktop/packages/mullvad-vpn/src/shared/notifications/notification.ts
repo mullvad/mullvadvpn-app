@@ -1,3 +1,4 @@
+import { ExternalLinkProps } from '../../renderer/components/ExternalLink';
 import { InternalLinkProps } from '../../renderer/components/InternalLink';
 import { Url } from '../constants';
 
@@ -33,6 +34,10 @@ export type InAppNotificationAction =
   | {
       type: 'navigate-internal';
       link: Pick<InternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
+    }
+  | {
+      type: 'navigate-external';
+      link: Pick<ExternalLinkProps, 'to' | 'onClick' | 'aria-label'>;
     };
 
 export type InAppNotificationIndicatorType = 'success' | 'warning' | 'error';
