@@ -19,8 +19,6 @@ import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
 import net.mullvad.mullvadvpn.compose.test.CONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.CONNECT_CARD_HEADER_TEST_TAG
-import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_ACTION
-import net.mullvad.mullvadvpn.compose.test.NOTIFICATION_BANNER_TEXT_ACTION
 import net.mullvad.mullvadvpn.compose.test.RECONNECT_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.SELECT_LOCATION_BUTTON_TEST_TAG
 import net.mullvad.mullvadvpn.compose.test.TOP_BAR_ACCOUNT_BUTTON
@@ -28,11 +26,13 @@ import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.repository.InAppNotification
-import net.mullvad.mullvadvpn.ui.VersionInfo
+import net.mullvad.mullvadvpn.lib.model.VersionInfo
+import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_ACTION
+import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_TEXT_ACTION
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
