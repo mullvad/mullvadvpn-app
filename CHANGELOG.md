@@ -33,7 +33,12 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 #### macOS
+- Fix daemon ending up in blocked state if the user toggled split tunneling without having granted
+  Full Disk Access to `mullvad-daemon`. This could only ever be accomplished from the CLI.
 - Fix routing issue caused by upgrading `tun`.
+
+### Removed
+- Remove Google's resolvers from encrypted DNS proxy.
 
 
 ## [2025.4] - 2025-02-12
@@ -71,13 +76,6 @@ This release is identical to 2025.4-beta1
 
 ### Fixed
 - (macOS and Windows only) Add the correct route when using obfuscation with Wireguard.
-
-#### macOS
-- Fix daemon ending up in blocked state if the user toggled split tunneling without having granted
-  Full Disk Access to `mullvad-daemon`. This could only ever be accomplished from the CLI.
-
-### Removed
-- Remove Google's resolvers from encrypted DNS proxy.
 
 
 ## [2025.2] - 2025-01-08
