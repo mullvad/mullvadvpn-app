@@ -22,6 +22,9 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+
+
+## [2025.5-beta1] - 2025-03-11
 ### Added
 #### Windows
 - Add support for DAITA V2.
