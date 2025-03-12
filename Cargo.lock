@@ -2643,6 +2643,7 @@ dependencies = [
  "mullvad-types",
  "mullvad-version",
  "natord",
+ "nix 0.29.0",
  "serde",
  "serde_json",
  "talpid-types",

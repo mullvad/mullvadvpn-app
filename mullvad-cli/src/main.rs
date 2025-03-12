@@ -152,6 +152,12 @@ enum Cli {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Handle SIGPIPE
+    // https://stackoverflow.com/questions/65755853/simple-word-count-rust-program-outputs-valid-stdout-but-panicks-when-piped-to-he/65760807
+    // https://github.com/typst/typst/pull/5444
+    #[cfg(unix)]
+    handle_sigpipe().unwrap();
+
     match Cli::parse() {
         Cli::Account(cmd) => cmd.handle().await,
         Cli::Bridge(cmd) => cmd.handle().await,
@@ -188,4 +194,16 @@ async fn main() -> Result<()> {
             Ok(())
         }
     }
+}
+
+/// Install the default signal handler for `SIGPIPE`.
+///
+/// By default, Rust replaces it with an empty handler because reasons: https://github.com/rust-lang/rust/issues/119980
+#[cfg(unix)]
+fn handle_sigpipe() -> Result<(), nix::errno::Errno> {
+    use nix::sys::signal::{signal, SigHandler, Signal};
+    // SAFETY: We do not use the previous signal handler, which could cause UB if done carelessly:
+    // https://pubs.opengroup.org/onlinepubs/9699919799/functions/signal.html
+    unsafe { signal(Signal::SIGPIPE, SigHandler::SigDfl) }?;
+    Ok(())
 }
