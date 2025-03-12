@@ -5,8 +5,15 @@ if [ -z "$PROJECT_DIR" ]; then
   exit 1
 fi
 
+RELAYS_FILE="$PROJECT_DIR/MullvadREST/Assets/relays.json"
+
 # Do not download the file for release builds, a different script will take care of that.
 if [ "$CONFIGURATION" == "Release" ]; then
+  # Fail loudly if the required file is not already present.
+  if [ ! -f "$RELAYS_FILE" ]; then
+    echo "No file found at $RELAYS_FILE"
+    exit 1
+  fi
   return 0
 fi
 
@@ -23,5 +30,4 @@ if [ ! -f "$BACKUP_FILE" ]; then
   curl https://"$API_ENDPOINT"/app/v1/relays -s -o "$BACKUP_FILE"
 fi
 
-RELAYS_FILE="$PROJECT_DIR/MullvadREST/Assets/relays.json"
 cp "$BACKUP_FILE" "$RELAYS_FILE"
