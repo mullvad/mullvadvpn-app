@@ -9,7 +9,7 @@
 import Foundation
 import MullvadTypes
 
-public struct RelayWithLocation<T: AnyRelay> {
+public struct RelayWithLocation<T: AnyRelay & Sendable>: Sendable {
     public let relay: T
     public let serverLocation: Location
 
