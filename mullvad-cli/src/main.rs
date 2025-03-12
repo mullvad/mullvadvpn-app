@@ -152,6 +152,12 @@ enum Cli {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    // Handle SIGPIPE
+    // https://stackoverflow.com/questions/65755853/simple-word-count-rust-program-outputs-valid-stdout-but-panicks-when-piped-to-he/65760807
+    // https://github.com/rust-lang/rust/issues/119980
+    // https://github.com/typst/typst/pull/5444
+    sigpipe::reset();
+
     match Cli::parse() {
         Cli::Account(cmd) => cmd.handle().await,
         Cli::Bridge(cmd) => cmd.handle().await,
