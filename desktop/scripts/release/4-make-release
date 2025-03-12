@@ -148,10 +148,14 @@ function publish_release {
 
     body+="\n$changelog"
 
+    echo ""
     echo ">>> Creating GitHub release"
     # shellcheck disable=SC2059
     # shellcheck disable=SC2046
     printf "$body" | gh release create "${release_flags[@]}" "$PRODUCT_VERSION" $(printf "%s " "$ARTIFACT_DIR"/*)
+
+    echo ""
+    echo "The above URL contains the text \"untagged\", but don't worry it is tagged properly and everything will look correct once it's published."
 }
 
 download_and_verify
