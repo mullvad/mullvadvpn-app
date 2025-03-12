@@ -15,11 +15,11 @@ final class RelayFilterViewModel {
     @Published var relayFilter: RelayFilter
 
     private var settings: LatestTunnelSettings
-    private let relaySelectorWrapper: RelaySelectorWrapper
+    private let relaySelectorWrapper: RelaySelectorProtocol
     private let relaysWithLocation: LocationRelays
     private var relayCandidatesForAny: RelayCandidates
 
-    init(settings: LatestTunnelSettings, relaySelectorWrapper: RelaySelectorWrapper) {
+    init(settings: LatestTunnelSettings, relaySelectorWrapper: RelaySelectorProtocol) {
         self.settings = settings
         self.relaySelectorWrapper = relaySelectorWrapper
         self.relayFilter = settings.relayConstraints.filter.value ?? RelayFilter()
@@ -63,7 +63,7 @@ final class RelayFilterViewModel {
 
     // MARK: - public Methods
 
-    func toggleItem(_ item: RelayFilterDataSource.Item) {
+    func toggleItem(_ item: RelayFilterDataSourceItem) {
         switch item.type {
         case .ownershipAny, .ownershipOwned, .ownershipRented:
             relayFilter.ownership = ownership(for: item) ?? .any
@@ -74,15 +74,15 @@ final class RelayFilterViewModel {
         }
     }
 
-    func availableProviders(for ownership: RelayFilter.Ownership) -> [RelayFilterDataSource.Item] {
+    func availableProviders(for ownership: RelayFilter.Ownership) -> [RelayFilterDataSourceItem] {
         providers(for: ownership)
             .map {
                 providerItem(for: $0)
             }.sorted()
     }
 
-    func ownership(for item: RelayFilterDataSource.Item) -> RelayFilter.Ownership? {
-        let ownershipMapping: [RelayFilterDataSource.Item.ItemType: RelayFilter.Ownership] = [
+    func ownership(for item: RelayFilterDataSourceItem) -> RelayFilter.Ownership? {
+        let ownershipMapping: [RelayFilterDataSourceItem.ItemType: RelayFilter.Ownership] = [
             .ownershipAny: .any,
             .ownershipOwned: .owned,
             .ownershipRented: .rented,
@@ -91,40 +91,29 @@ final class RelayFilterViewModel {
         return ownershipMapping[item.type]
     }
 
-    func ownershipItem(for ownership: RelayFilter.Ownership) -> RelayFilterDataSource.Item? {
-        let ownershipMapping: [RelayFilter.Ownership: RelayFilterDataSource.Item.ItemType] = [
+    func ownershipItem(for ownership: RelayFilter.Ownership) -> RelayFilterDataSourceItem? {
+        let ownershipMapping: [RelayFilter.Ownership: RelayFilterDataSourceItem.ItemType] = [
             .any: .ownershipAny,
             .owned: .ownershipOwned,
             .rented: .ownershipRented,
         ]
 
-        return RelayFilterDataSource.Item.ownerships.first { $0.type == ownershipMapping[ownership] }
+        return RelayFilterDataSourceItem.ownerships
+            .first { $0.type == ownershipMapping[ownership] }
     }
 
-    func providerItem(for providerName: String) -> RelayFilterDataSource.Item {
+    func providerItem(for providerName: String) -> RelayFilterDataSourceItem {
         let isDaitaEnabled = settings.daita.daitaState.isEnabled
         let isProviderEnabled = isProviderEnabled(for: providerName)
         let isFilterable = getFilteredRelays(relayFilter).isEnabled
-
-        let statusText = isDaitaEnabled
-            ? NSLocalizedString(
-                "ENABLED_LABEL",
-                tableName: "RelayFilter",
-                value: "enabled",
-                comment: ""
-            )
-            : ""
-
-        return RelayFilterDataSource.Item(
+        return RelayFilterDataSourceItem(
             name: providerName,
             description: isDaitaEnabled && isProviderEnabled
-                ? String(
-                    format: NSLocalizedString(
-                        "RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL",
-                        tableName: "RelayFilter",
-                        value: "DAITA-%@",
-                        comment: "Format for DAITA provider description"
-                    ), statusText
+                ? NSLocalizedString(
+                    "RELAY_FILTER_PROVIDER_DESCRIPTION_FORMAT_LABEL",
+                    tableName: "RelayFilter",
+                    value: "DAITA-enabled",
+                    comment: "Format for DAITA provider description"
                 )
                 : "",
             type: .provider,
@@ -180,7 +169,11 @@ final class RelayFilterViewModel {
             // If all available providers are selected, switch back to "any"
             relayFilter.providers = selectedProviders.isEmpty
                 ? .only([])
-                : (selectedProviders == providers(for: relayFilter.ownership) ? .any : .only(selectedProviders))
+                : (
+                    selectedProviders.count == providers(for: relayFilter.ownership).count
+                        ? .any
+                        : .only(selectedProviders)
+                )
         }
     }
 
