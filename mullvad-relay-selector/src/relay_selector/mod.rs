@@ -39,7 +39,7 @@ use mullvad_types::{
         OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
         WireguardConstraints,
     },
-    relay_list::{Relay, RelayEndpointData, RelayList},
+    relay_list::{Relay, RelayEndpointData, RelayList, ShadowsocksBridgeProvider},
     settings::Settings,
     wireguard::QuantumResistantState,
     CustomTunnelEndpoint, Intersection,
@@ -53,9 +53,10 @@ use talpid_types::{
     ErrorExt,
 };
 
-/// [`WIREGUARD_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
-/// prioritize on successive connection attempts. Note that these will *never* override user
-/// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
+/// [`WIREGUARD_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector
+/// should should prioritize on successive connection attempts. Note that these will *never*
+/// override user preferences. See [the documentation on `RelayQuery`][RelayQuery] for further
+/// details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
 pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
@@ -83,8 +84,8 @@ pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
     ]
 });
 
-/// [`OPENVPN_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
-/// prioritize on successive connection attempts. Note that these will *never* override user
+/// [`OPENVPN_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector
+/// should prioritize on successive connection attempts. Note that these will *never* override user
 /// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
@@ -435,6 +436,47 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
     }
 }
 
+impl ShadowsocksBridgeProvider for RelaySelector {
+    /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
+    /// state.
+    fn get_bridge_forced(&self) -> Option<Shadowsocks> {
+        let parsed_relays = &self.parsed_relays.lock().unwrap().parsed_list().clone();
+        let config = self.config.lock().unwrap();
+        let specialized_config = SpecializedSelectorConfig::from(&*config);
+
+        let near_location = match specialized_config {
+            SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
+                .ok()
+                .and_then(|user_preferences| {
+                    Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
+                }),
+            SpecializedSelectorConfig::Custom(_) => None,
+        };
+
+        let bridge_settings = &config.bridge_settings;
+        let constraints = match bridge_settings.resolve() {
+            Ok(ResolvedBridgeSettings::Normal(settings)) => InternalBridgeConstraints {
+                location: settings.location.clone(),
+                providers: settings.providers.clone(),
+                ownership: settings.ownership,
+                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+            },
+            _ => InternalBridgeConstraints {
+                location: Constraint::Any,
+                providers: Constraint::Any,
+                ownership: Constraint::Any,
+                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+            },
+        };
+
+        let custom_lists = &config.custom_lists;
+        Self::get_proxy_settings(parsed_relays, &constraints, near_location, custom_lists)
+            .map(|(settings, _relay)| settings)
+            .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
+            .ok()
+    }
+}
+
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk.
     pub fn new(
@@ -505,45 +547,6 @@ impl RelaySelector {
 
     pub fn last_updated(&self) -> SystemTime {
         self.parsed_relays.lock().unwrap().last_updated()
-    }
-
-    /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
-    /// state.
-    pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
-        let parsed_relays = &self.parsed_relays.lock().unwrap().parsed_list().clone();
-        let config = self.config.lock().unwrap();
-        let specialized_config = SpecializedSelectorConfig::from(&*config);
-
-        let near_location = match specialized_config {
-            SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
-                .ok()
-                .and_then(|user_preferences| {
-                    Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
-                }),
-            SpecializedSelectorConfig::Custom(_) => None,
-        };
-
-        let bridge_settings = &config.bridge_settings;
-        let constraints = match bridge_settings.resolve() {
-            Ok(ResolvedBridgeSettings::Normal(settings)) => InternalBridgeConstraints {
-                location: settings.location.clone(),
-                providers: settings.providers.clone(),
-                ownership: settings.ownership,
-                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-            },
-            _ => InternalBridgeConstraints {
-                location: Constraint::Any,
-                providers: Constraint::Any,
-                ownership: Constraint::Any,
-                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-            },
-        };
-
-        let custom_lists = &config.custom_lists;
-        Self::get_proxy_settings(parsed_relays, &constraints, near_location, custom_lists)
-            .map(|(settings, _relay)| settings)
-            .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
-            .ok()
     }
 
     /// Returns random relay and relay endpoint matching `query`.
@@ -697,10 +700,10 @@ impl RelaySelector {
         parsed_relays: &RelayList,
         custom_lists: &CustomListsSettings,
     ) -> Result<GetRelay, Error> {
-        // FIXME: A bit of defensive programming - calling `get_wireguard_relay_inner` with a query that
-        // doesn't specify Wireguard as the desired tunnel type is not valid and will lead
-        // to unwanted behavior. This should be seen as a workaround, and it would be nicer
-        // to lift this invariant to be checked by the type system instead.
+        // FIXME: A bit of defensive programming - calling `get_wireguard_relay_inner` with a query
+        // that doesn't specify Wireguard as the desired tunnel type is not valid and will
+        // lead to unwanted behavior. This should be seen as a workaround, and it would be
+        // nicer to lift this invariant to be checked by the type system instead.
         let mut query = query.clone();
         query.set_tunnel_protocol(TunnelType::Wireguard)?;
         Self::get_wireguard_relay_inner(&query, custom_lists, parsed_relays)

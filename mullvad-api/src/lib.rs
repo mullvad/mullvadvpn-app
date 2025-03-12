@@ -25,7 +25,7 @@ use availability::ApiAvailability;
 pub mod rest;
 
 mod abortable_stream;
-pub mod api;
+pub mod access_mode;
 mod https_client_with_sni;
 pub mod proxy;
 mod tls_stream;
