@@ -1013,7 +1013,6 @@
 		F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */; };
 		F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
 		F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */; };
-		F0A1638A2C47B77300592300 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
 		F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7EBB12CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift */; };
 		F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		F0ACE30D2BE4E478006D5333 /* MullvadMockData.h in Headers */ = {isa = PBXBuildFile; fileRef = F0ACE30A2BE4E478006D5333 /* MullvadMockData.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1029,8 +1028,6 @@
 		F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */; };
 		F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */; };
 		F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */; };
-		F0ACE3362BE517D6006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
-		F0ACE3372BE517F1006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
 		F0ADC3722CD3AD1600A1AD97 /* ChipCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADC3712CD3AD1600A1AD97 /* ChipCollectionView.swift */; };
 		F0ADC3742CD3C47400A1AD97 /* ChipFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADC3732CD3C47400A1AD97 /* ChipFlowLayout.swift */; };
 		F0ADF1CD2CFDFF3100299F09 /* StringConversionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */; };
@@ -1085,6 +1082,14 @@
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
 		F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */; };
 		F0F56B092C0E058A009D676B /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
+		F0FA16092D7F0425007E2546 /* FilterDescriptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA16082D7F0413007E2546 /* FilterDescriptorTests.swift */; };
+		F0FA160A2D7F0E8B007E2546 /* FilterDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B583D32D6DCE0D007F5AE4 /* FilterDescriptor.swift */; };
+		F0FA160C2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA160B2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift */; };
+		F0FA160E2D7F2C40007E2546 /* MockRelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */; };
+		F0FA16102D7F2FC7007E2546 /* RelayFilterViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */; };
+		F0FA16112D7F2FE8007E2546 /* RelayFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */; };
+		F0FA16142D7F3ABF007E2546 /* RelayFilterDataSourceItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */; };
+		F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F910A4012D3FF23A002FF3BB /* View+Modifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4002D3FF22E002FF3BB /* View+Modifier.swift */; };
@@ -2425,7 +2430,6 @@
 		F0ACE3082BE4E478006D5333 /* MullvadMockData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadMockData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0ACE30A2BE4E478006D5333 /* MullvadMockData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadMockData.h; sourceTree = "<group>"; };
 		F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockProxyFactory.swift; sourceTree = "<group>"; };
-		F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ServerRelaysResponse+Stubs.swift"; sourceTree = "<group>"; };
 		F0ADC3712CD3AD1600A1AD97 /* ChipCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipCollectionView.swift; sourceTree = "<group>"; };
 		F0ADC3732CD3C47400A1AD97 /* ChipFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFlowLayout.swift; sourceTree = "<group>"; };
 		F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringConversionError.swift; sourceTree = "<group>"; };
@@ -2477,6 +2481,10 @@
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
 		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
 		F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoRelaysSatisfyingConstraintsError.swift; sourceTree = "<group>"; };
+		F0FA16082D7F0413007E2546 /* FilterDescriptorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterDescriptorTests.swift; sourceTree = "<group>"; };
+		F0FA160B2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ServerRelaysResponse+Stubs.swift"; sourceTree = "<group>"; };
+		F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRelayCache.swift; sourceTree = "<group>"; };
+		F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModelTests.swift; sourceTree = "<group>"; };
 		F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchangingResultStub.swift; sourceTree = "<group>"; };
 		F910A4002D3FF22E002FF3BB /* View+Modifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Modifier.swift"; sourceTree = "<group>"; };
 		F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
@@ -2742,7 +2750,6 @@
 			isa = PBXGroup;
 			children = (
 				A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */,
-				F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */,
 			);
 			path = ApiHandlers;
 			sourceTree = "<group>";
@@ -2822,6 +2829,7 @@
 		440E9EFC2BDA982200B1FD11 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F0FA16072D7F03F8007E2546 /* Filter */,
 				7A9BE5A02B8F881B00E2A7D0 /* SelectLocation */,
 				440E9EFD2BDA982A00B1FD11 /* Tunnel */,
 			);
@@ -4602,6 +4610,7 @@
 		F0ACE3172BE4E487006D5333 /* MullvadREST */ = {
 			isa = PBXGroup;
 			children = (
+				F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */,
 				F0164EB92B4456D30020268D /* AccessMethodRepository+Stub.swift */,
 				A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */,
 				A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */,
@@ -4611,6 +4620,7 @@
 				58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */,
 				A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */,
 				7AF84F452D12C59F00C72690 /* SelectedRelaysStub+Stubs.swift */,
+				F0FA160B2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift */,
 			);
 			path = MullvadREST;
 			sourceTree = "<group>";
@@ -4772,6 +4782,15 @@
 				F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */,
 			);
 			path = ChangeLog;
+			sourceTree = "<group>";
+		};
+		F0FA16072D7F03F8007E2546 /* Filter */ = {
+			isa = PBXGroup;
+			children = (
+				F0FA16082D7F0413007E2546 /* FilterDescriptorTests.swift */,
+				F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */,
+			);
+			path = Filter;
 			sourceTree = "<group>";
 		};
 		F910A4322D4A1BA1002FF3BB /* InAppPurchase */ = {
@@ -5837,6 +5856,7 @@
 				A9A5F9EF2ACB05160083449F /* String+AccountFormatting.swift in Sources */,
 				A9A5F9F02ACB05160083449F /* String+FuzzyMatch.swift in Sources */,
 				F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */,
+				F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */,
 				A9A5F9F12ACB05160083449F /* String+Helpers.swift in Sources */,
 				A9A5F9F22ACB05160083449F /* NotificationConfiguration.swift in Sources */,
 				44E1F75B2D3FEC81003A60FF /* DestinationDescriber.swift in Sources */,
@@ -5856,6 +5876,7 @@
 				A9A5F9FB2ACB05160083449F /* InAppNotificationProvider.swift in Sources */,
 				A9A5F9FC2ACB05160083449F /* SystemNotificationProvider.swift in Sources */,
 				A9A5F9FD2ACB05160083449F /* NotificationResponse.swift in Sources */,
+				F0FA16142D7F3ABF007E2546 /* RelayFilterDataSourceItem.swift in Sources */,
 				A9A5F9FE2ACB05160083449F /* NotificationManager.swift in Sources */,
 				A9A5F9FF2ACB05160083449F /* NotificationManagerDelegate.swift in Sources */,
 				7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */,
@@ -5875,6 +5896,7 @@
 				A9A5FA0A2ACB05160083449F /* StorePaymentEvent.swift in Sources */,
 				A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */,
 				A9A5FA0B2ACB05160083449F /* StorePaymentManager.swift in Sources */,
+				F0FA16092D7F0425007E2546 /* FilterDescriptorTests.swift in Sources */,
 				A9A5FA0C2ACB05160083449F /* StorePaymentManagerDelegate.swift in Sources */,
 				A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */,
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
@@ -5919,6 +5941,7 @@
 				7A9BE5A62B90762F00E2A7D0 /* CustomListsDataSource.swift in Sources */,
 				F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */,
 				7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */,
+				F0FA160A2D7F0E8B007E2546 /* FilterDescriptor.swift in Sources */,
 				A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,
 				A9A5FA252ACB05160083449F /* UpdateAccountDataOperation.swift in Sources */,
@@ -5937,6 +5960,7 @@
 				A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */,
 				A9A5FA2D2ACB05160083449F /* DurationTests.swift in Sources */,
 				A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */,
+				F0FA16112D7F2FE8007E2546 /* RelayFilterViewModel.swift in Sources */,
 				F0D5591F2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */,
 				7A9F28FC2CA69D0C005F2089 /* DAITASettingsTests.swift in Sources */,
 				A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
@@ -5945,7 +5969,7 @@
 				A9A5FA302ACB05160083449F /* InputTextFormatterTests.swift in Sources */,
 				44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */,
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
-				F0ACE3362BE517D6006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */,
+				F0FA16102D7F2FC7007E2546 /* RelayFilterViewModelTests.swift in Sources */,
 				7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */,
 				A9A5FA312ACB05160083449F /* MockFileCache.swift in Sources */,
 				44E1F75A2D3FDCCA003A60FF /* DestinationDescriberTests.swift in Sources */,
@@ -6097,7 +6121,6 @@
 				F08B6B7C2C528C6300D0A121 /* SingleHopEphemeralPeerExchanger.swift in Sources */,
 				F08B6B7D2C528C6300D0A121 /* EphemeralPeerExchangingPipeline.swift in Sources */,
 				F08B6B7E2C528C6300D0A121 /* MultiHopEphemeralPeerExchanger.swift in Sources */,
-				F0ACE3372BE517F1006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */,
 				58F7753D2AB8473200425B47 /* BlockedStateErrorMapperStub.swift in Sources */,
 				58FE25D42AA729B5003D1918 /* PacketTunnelActorTests.swift in Sources */,
 				F07751572C50F149006E6A12 /* EphemeralPeerExchangingPipelineTests.swift in Sources */,
@@ -6774,7 +6797,6 @@
 				A9D9A4CE2C36D54E004088DD /* TunnelObfuscationTests.swift in Sources */,
 				A9D9A4CC2C36D54E004088DD /* UnsafeListener.swift in Sources */,
 				A9D9A4CD2C36D54E004088DD /* UDPConnection.swift in Sources */,
-				F0A1638A2C47B77300592300 /* ServerRelaysResponse+Stubs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6790,8 +6812,10 @@
 				F0ACE3222BE4E4F2006D5333 /* APIProxy+Stubs.swift in Sources */,
 				F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */,
+				F0FA160E2D7F2C40007E2546 /* MockRelayCache.swift in Sources */,
 				7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */,
 				7AF84F462D12C5B000C72690 /* SelectedRelaysStub+Stubs.swift in Sources */,
+				F0FA160C2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift in Sources */,
 				F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */,
 				F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */,
 			);
