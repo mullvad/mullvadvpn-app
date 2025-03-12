@@ -19,7 +19,7 @@ use mullvad_relay_selector::RelaySelector;
 use mullvad_types::access_method::{
     AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings,
 };
-use std::{net::SocketAddr, path::PathBuf};
+use std::{marker::PhantomData, net::SocketAddr, path::PathBuf};
 use talpid_types::net::{proxy::CustomProxy, AllowedEndpoint, Endpoint, TransportProtocol};
 
 pub enum Message {
@@ -261,7 +261,7 @@ pub struct AccessModeSelector<P> {
     current: ResolvedConnectionMode,
     /// `index` is used to keep track of the [`AccessMethodSetting`] to use.
     index: usize,
-    provider: P,
+    provider: PhantomData<P>,
 }
 
 impl<P> AccessModeSelector<P>
@@ -276,7 +276,6 @@ where
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
         access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
         address_cache: AddressCache,
-        provider: P,
     ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -298,7 +297,6 @@ where
             &relay_selector,
             &mut encrypted_dns_proxy_cache,
             &address_cache,
-            &provider,
         )
         .await;
 
@@ -306,7 +304,7 @@ where
 
         let api_connection_mode = initial_connection_mode.connection_mode.clone();
 
-        let selector = AccessModeSelector {
+        let selector: AccessModeSelector<P> = AccessModeSelector {
             #[cfg(feature = "api-override")]
             api_endpoint,
             cmd_rx,
@@ -319,7 +317,7 @@ where
             connection_mode_provider_sender: change_tx,
             current: initial_connection_mode,
             index,
-            provider,
+            provider: PhantomData,
         };
 
         tokio::spawn(selector.into_future());
@@ -542,7 +540,6 @@ where
             &self.relay_selector,
             &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
-            &self.provider,
         )
         .await
     }
@@ -552,16 +549,12 @@ where
         relay_selector: &RelaySelector,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
-        provider: &P,
     ) -> Option<ResolvedConnectionMode> {
         let connection_mode =
             Self::resolve_connection_mode(access_method, relay_selector, encrypted_dns_proxy_cache)
                 .await?;
-        let endpoint = resolve_allowed_endpoint(
-            &connection_mode,
-            address_cache.get_address().await,
-            provider,
-        );
+        let endpoint =
+            resolve_allowed_endpoint::<P>(&connection_mode, address_cache.get_address().await);
         Some(ResolvedConnectionMode {
             connection_mode,
             endpoint,
@@ -580,7 +573,6 @@ where
             &self.relay_selector,
             &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
-            &self.provider,
         )
         .await
     }
@@ -590,27 +582,25 @@ where
         relay_selector: &RelaySelector,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
-        provider: &P,
     ) -> ResolvedConnectionMode {
         match Self::resolve_inner(
             access_method,
             relay_selector,
             encrypted_dns_proxy_cache,
             address_cache,
-            provider,
         )
         .await
         {
             Some(resolved) => resolved,
             None => {
                 log::trace!("Defaulting to direct API connection");
+                let endpoint = resolve_allowed_endpoint::<P>(
+                    &ApiConnectionMode::Direct,
+                    address_cache.get_address().await,
+                );
                 ResolvedConnectionMode {
                     connection_mode: ApiConnectionMode::Direct,
-                    endpoint: resolve_allowed_endpoint(
-                        &ApiConnectionMode::Direct,
-                        address_cache.get_address().await,
-                        provider,
-                    ),
+                    endpoint,
                     setting: access_method.clone(),
                 }
             }
@@ -657,7 +647,6 @@ where
 pub fn resolve_allowed_endpoint<P>(
     connection_mode: &ApiConnectionMode,
     fallback: SocketAddr,
-    provider: &P,
 ) -> AllowedEndpoint
 where
     P: AllowedClientsProvider,
@@ -666,6 +655,6 @@ where
         Some(endpoint) => endpoint,
         None => Endpoint::from_socket_address(fallback, TransportProtocol::Tcp),
     };
-    let clients = provider.allowed_clients(connection_mode);
+    let clients = P::allowed_clients(connection_mode);
     AllowedEndpoint { endpoint, clients }
 }

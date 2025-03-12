@@ -706,10 +706,8 @@ impl Daemon {
                 .set_config(SelectorConfig::from_settings(settings));
         });
 
-        let selector = AllowedClientsSelector {};
-
         let (access_mode_handler, access_mode_provider) =
-            mullvad_api::api::AccessModeSelector::spawn(
+            mullvad_api::api::AccessModeSelector::<AllowedClientsSelector>::spawn(
                 config.cache_dir.clone(),
                 relay_selector.clone(),
                 settings.api_access_methods.clone(),
@@ -717,7 +715,6 @@ impl Daemon {
                 config.endpoint.clone(),
                 internal_event_tx.to_unbounded_sender(),
                 api_runtime.address_cache().clone(),
-                selector,
             )
             .await
             .map_err(Error::ApiConnectionModeError)?;
@@ -2846,7 +2843,6 @@ impl Daemon {
         tx: ResponseTx<bool, Error>,
         proxy: talpid_types::net::proxy::CustomProxy,
     ) {
-        use crate::AllowedClientsSelector;
         use mullvad_api::proxy::{ApiConnectionMode, ProxyConfig};
         use talpid_types::net::AllowedEndpoint;
 
@@ -2854,7 +2850,7 @@ impl Daemon {
         let api_proxy = self.create_limited_api_proxy(connection_mode.clone());
         let proxy_endpoint = AllowedEndpoint {
             endpoint: proxy.get_remote_endpoint().endpoint,
-            clients: AllowedClientsSelector {}.allowed_clients(&connection_mode),
+            clients: AllowedClientsSelector::allowed_clients(&connection_mode),
         };
 
         let daemon_event_sender = self.tx.to_specialized_sender();
