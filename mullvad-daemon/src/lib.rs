@@ -41,8 +41,7 @@ use futures::{
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
-use mullvad_api::ApiEndpoint;
-use mullvad_api::{api::AccessMethodEvent, proxy::AllowedClientsProvider};
+use mullvad_api::{api::AccessMethodEvent, proxy::AllowedClientsProvider, ApiEndpoint};
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
@@ -581,7 +580,7 @@ where
     {
         let (tx, mut rx) = mpsc::unbounded::<T>();
         let sender = self.sender.clone();
-        tokio::runtime::Handle::current().spawn(async move {
+        tokio::spawn(async move {
             while let Some(msg) = rx.next().await {
                 if let Some(tx) = sender.upgrade() {
                     let e: E = E::from(msg);
@@ -708,7 +707,7 @@ impl Daemon {
         });
 
         let allowed_clients_selector = AllowedClientsSelector {};
-        let selector_box: Box<dyn AllowedClientsProvider> = Box::new(allowed_clients_selector);
+        let selector: Box<dyn AllowedClientsProvider> = Box::new(allowed_clients_selector);
 
         let (access_mode_handler, access_mode_provider) =
             mullvad_api::api::AccessModeSelector::spawn(
@@ -719,7 +718,7 @@ impl Daemon {
                 config.endpoint.clone(),
                 internal_event_tx.to_unbounded_sender(),
                 api_runtime.address_cache().clone(),
-                selector_box,
+                selector,
             )
             .await
             .map_err(Error::ApiConnectionModeError)?;
