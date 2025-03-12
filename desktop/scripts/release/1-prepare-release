@@ -61,9 +61,9 @@ function check_changelog {
     previous_version=$(grep -oP '## \[\K[^\]]+' $changelog_path | head -2 | tail -1)
 
     log_header "Changelog since previous release"
-    git --no-pager diff -U10 "$previous_version"..HEAD -- $changelog_path
+    git --no-pager diff -U30 "$previous_version"..HEAD -- $changelog_path
 
-    log_info "\nThe changelog should only contain changes in the \"Unreleased\" section, unless it's a correction of a previous message."
+    log_info "\nThe changelog should only contain changes in the \"Unreleased\" section, unless it's a correction of a previous message. If something is added to the section of an already published release, double check that the change was actually included in that release. Changes can be made in another terminal/editor while this script is waiting for input, press 'r' to reprint the new diff after making changes."
     read -r -n 1 -p "Does this look good? (y: yes, q: abort, r: reload): " response
     echo ""
 

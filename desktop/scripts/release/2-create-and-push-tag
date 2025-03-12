@@ -25,3 +25,5 @@ function push_tag {
 
 git verify-commit HEAD
 push_tag
+
+log_success "Follow build progress here: https://releases.mullvad.net/desktop/releases/$PRODUCT_VERSION"
