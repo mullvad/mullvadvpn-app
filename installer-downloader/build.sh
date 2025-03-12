@@ -87,6 +87,12 @@ function assert_can_sign {
     fi
 }
 
+# Get the project version (specified in Cargo.toml).
+# This outputs string such as 1.0.0.
+function product_version {
+    sed -n 's/^version = "\(.*\)"$/\1/p' Cargo.toml
+}
+
 # Run cargo with all appropriate flags and options
 # Arguments:
 # - (optional) target
@@ -212,7 +218,13 @@ function dist_macos_app {
 
     mkdir -p "$app_path/Contents/MacOS"
 
-    cp ./assets/Info.plist "$app_path/Contents/Info.plist"
+    # Generate info plist, using the version specified in Cargo.toml
+    sed -e "s/%BUNDLE_VERSION%/$(product_version)/g" \
+        -e "s/%BUNDLE_NAME%/$BUNDLE_NAME/g" \
+        -e "s/%BUNDLE_ID%/$BUNDLE_ID/g" \
+        ./assets/Info.plist > "$app_path/Contents/Info.plist"
+
+    # Copy executable
     cp "$BUILD_DIR/installer-downloader" "$app_path/Contents/MacOS/installer-downloader"
 
     # Sign app bundle
