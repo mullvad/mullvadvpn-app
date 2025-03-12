@@ -41,7 +41,7 @@ use futures::{
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
-use mullvad_api::{api::AccessMethodEvent, proxy::AllowedClientsProvider, ApiEndpoint};
+use mullvad_api::{access_mode::AccessMethodEvent, proxy::AllowedClientsProvider, ApiEndpoint};
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
@@ -196,7 +196,7 @@ pub enum Error {
     AccessMethodError(#[source] access_method::Error),
 
     #[error("API connection mode error")]
-    ApiConnectionModeError(#[source] mullvad_api::api::Error),
+    ApiConnectionModeError(#[source] mullvad_api::access_mode::Error),
     #[error("No custom bridge has been specified")]
     NoCustomProxySaved,
 
@@ -610,7 +610,7 @@ pub struct Daemon {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    access_mode_handler: mullvad_api::api::AccessModeSelectorHandle,
+    access_mode_handler: mullvad_api::access_mode::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -707,7 +707,7 @@ impl Daemon {
         });
 
         let (access_mode_handler, access_mode_provider) =
-            mullvad_api::api::AccessModeSelector::<AllowedClientsSelector>::spawn(
+            mullvad_api::access_mode::AccessModeSelector::<AllowedClientsSelector>::spawn(
                 config.cache_dir.clone(),
                 relay_selector.clone(),
                 settings.api_access_methods.clone(),
@@ -2892,9 +2892,10 @@ impl Daemon {
         {
             Ok(Some(test_subject)) => test_subject,
             Ok(None) => {
-                let error = Error::ApiConnectionModeError(mullvad_api::api::Error::Resolve {
-                    access_method: access_method.access_method,
-                });
+                let error =
+                    Error::ApiConnectionModeError(mullvad_api::access_mode::Error::Resolve {
+                        access_method: access_method.access_method,
+                    });
                 reply(Err(error));
                 return;
             }
