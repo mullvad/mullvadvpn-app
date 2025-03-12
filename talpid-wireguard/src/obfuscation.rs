@@ -2,19 +2,23 @@
 
 use super::{Error, Result};
 use crate::{config::Config, CloseMsg};
+use socket2::Socket;
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
 use std::{
     net::{Ipv4Addr, Ipv6Addr, SocketAddr},
     sync::mpsc as sync_mpsc,
 };
-use socket2::Socket;
 #[cfg(target_os = "android")]
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_types::{net::obfuscation::ObfuscatorConfig, ErrorExt};
 
 use tunnel_obfuscation::{
-    create_obfuscator, multiplexer::{self, Multiplexer}, shadowsocks, udp2tcp::{self, Udp2Tcp}, Obfuscator, Settings as ObfuscationSettings
+    create_obfuscator,
+    multiplexer::{self, Multiplexer},
+    shadowsocks,
+    udp2tcp::{self, Udp2Tcp},
+    Obfuscator, Settings as ObfuscationSettings,
 };
 
 /// Begin running obfuscation machine, if configured. This function will patch `config`'s endpoint
@@ -28,20 +32,34 @@ pub async fn apply_obfuscation_config(
         let entry_addr = config.entry_peer.endpoint;
 
         let direct = multiplexer::Transport::Direct(entry_addr);
-    
-        let udp2tcp = multiplexer::Transport::Obfuscated(ObfuscationSettings::Udp2Tcp(udp2tcp::Settings{ peer: SocketAddr::new(entry_addr.ip(), 443) }));
-        let shadowsocks = multiplexer::Transport::Obfuscated(ObfuscationSettings::Shadowsocks(shadowsocks::Settings{ shadowsocks_endpoint: SocketAddr::new(entry_addr.ip(), 51900) , wireguard_endpoint: SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 51820) }));
 
-        let multiplexer_settings = multiplexer::Settings{ transports: vec![ udp2tcp, shadowsocks, direct ]};
+        let udp2tcp =
+            multiplexer::Transport::Obfuscated(ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
+                peer: SocketAddr::new(entry_addr.ip(), 443),
+                #[cfg(target_os = "linux")]
+                fwmark: config.fwmark,
+            }));
+        let shadowsocks = multiplexer::Transport::Obfuscated(ObfuscationSettings::Shadowsocks(
+            shadowsocks::Settings {
+                shadowsocks_endpoint: SocketAddr::new(entry_addr.ip(), 51900),
+                wireguard_endpoint: SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 51820),
+                #[cfg(target_os = "linux")]
+                fwmark: config.fwmark,
+            },
+        ));
+
+        let multiplexer_settings = multiplexer::Settings {
+            transports: vec![udp2tcp, shadowsocks, direct],
+        };
 
         let Ok(obfuscator) = Multiplexer::new(multiplexer_settings).await else {
             return Ok(None);
         };
 
         let packet_overhead = obfuscator.packet_overhead();
-    
+
         patch_endpoint(config, obfuscator.endpoint());
-    
+
         let obfuscation_task = tokio::spawn(async move {
             match Box::new(obfuscator).run().await {
                 Ok(_) => {
@@ -57,8 +75,8 @@ pub async fn apply_obfuscation_config(
                 }
             }
         });
-    
-       return  Ok(Some(ObfuscatorHandle {
+
+        return Ok(Some(ObfuscatorHandle {
             obfuscation_task,
             packet_overhead,
         }));
