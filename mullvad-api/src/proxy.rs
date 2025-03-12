@@ -54,7 +54,7 @@ impl ConnectionModeProvider for StaticConnectionModeProvider {
 }
 
 pub trait AllowedClientsProvider: Send + Sync {
-    fn allowed_clients(&self, connection_mode: &ApiConnectionMode) -> AllowedClients;
+    fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients;
 }
 
 #[derive(Clone, Debug, PartialEq, Deserialize, Serialize)]

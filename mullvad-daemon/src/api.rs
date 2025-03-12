@@ -16,7 +16,7 @@ pub struct AllowedClientsSelector {}
 
 impl AllowedClientsProvider for AllowedClientsSelector {
     #[cfg(unix)]
-    fn allowed_clients(&self, connection_mode: &ApiConnectionMode) -> AllowedClients {
+    fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
         match connection_mode {
             ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(_)) => AllowedClients::All,
             ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => AllowedClients::Root,
@@ -24,7 +24,7 @@ impl AllowedClientsProvider for AllowedClientsSelector {
     }
 
     #[cfg(windows)]
-    fn allowed_clients(&self, connection_mode: &ApiConnectionMode) -> AllowedClients {
+    fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
         match connection_mode {
             ApiConnectionMode::Proxied(ProxyConfig::Socks5Local(_)) => AllowedClients::all(),
             ApiConnectionMode::Direct | ApiConnectionMode::Proxied(_) => {
