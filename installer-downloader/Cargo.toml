@@ -1,6 +1,7 @@
 [package]
 name = "installer-downloader"
 description = "A secure minimal web installer for the Mullvad app"
+version = "1.0.0"
 authors.workspace = true
 repository.workspace = true
 license.workspace = true
