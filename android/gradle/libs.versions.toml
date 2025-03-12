@@ -33,7 +33,7 @@ compose-constraintlayout = "1.1.1"
 compose-material3 = "1.3.1"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
-grpc = "1.70.0"
+grpc = "1.71.0"
 grpc-kotlin = "1.4.1"
 grpc-kotlin-jar = "1.4.1:jdk8@jar"
 
