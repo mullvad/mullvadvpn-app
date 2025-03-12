@@ -28,9 +28,9 @@ CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"../target"}
 export CARGO_TARGET_DIR
 
 # Temporary build directory
-BUILD_DIR="./build"
+BUILD_DIR="$SCRIPT_DIR/build"
 # Successfully built (and signed) artifacts
-DIST_DIR="../dist"
+DIST_DIR="$SCRIPT_DIR/../dist"
 
 BUNDLE_NAME="MullvadVPNInstaller"
 BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
@@ -45,6 +45,9 @@ mkdir -p "$DIST_DIR"
 # Whether to sign and notarized produced binaries
 SIGN="false"
 
+# Whether to upload signed binaries
+UPLOAD="false"
+
 # Temporary keychain to store the .p12 in.
 # This is automatically created/replaced when signing on macOS.
 SIGN_KEYCHAIN_PATH="$HOME/Library/Keychains/mv-metadata-keychain-db"
@@ -55,6 +58,9 @@ while [[ "$#" -gt 0 ]]; do
         --sign)
             SIGN="true"
             ;;
+        --upload)
+            UPLOAD="true"
+            ;;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -62,6 +68,11 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
+
+if [[ "$UPLOAD" == "true" && "$SIGN" != "true" ]]; then
+    log_error "'--upload' requires '--sign' to be specified"
+    exit 1
+fi
 
 # Check that we have the correct environment set for signing
 function assert_can_sign {
@@ -305,6 +316,43 @@ function dist_windows_app {
     mv "$BUILD_DIR/$FILENAME.exe" "$DIST_DIR/"
 }
 
+# Upload whatever matches the first argument to the Linux build server
+# Arguments:
+# - local file
+# - version
+function upload_sftp {
+    echo "Uploading \"$1\" to app-build-linux:upload/installer-downloader/$2"
+    sftp app-build-linux <<EOF
+mkdir upload
+mkdir upload/installer-downloader
+mkdir upload/installer-downloader/$2
+cd upload/installer-downloader/$2
+put "$1"
+bye
+EOF
+}
+
+# Upload latest build and checksum in the dist directory to Linux build server
+# The artifacts MUST have been built already
+# The working directory MUST be $DIST_DIR
+#
+# Arguments:
+# - version
+function upload {
+    local version=$1
+    local files=( "$FILENAME."* )
+
+    local checksums_path
+    checksums_path="desktop-downloader+$(hostname)+$version.sha256"
+
+    sha256sum "${files[@]}" > "$checksums_path"
+
+    for file in "${files[@]}"; do
+        upload_sftp "$file" "$version" || return 1
+    done
+    upload_sftp "$checksums_path" "$version" || return 1
+}
+
 function main {
     if [[ "$SIGN" != "false" ]]; then
         assert_can_sign
@@ -326,6 +374,12 @@ function main {
     elif [[ "$(uname -s)" == "MINGW"* ]]; then
         build_executable
         dist_windows_app
+    fi
+
+    if [[ "$UPLOAD" == "true" ]]; then
+        local version
+        version=$(product_version)
+        (cd "$DIST_DIR" && upload "$version") || return 1
     fi
 }
 
