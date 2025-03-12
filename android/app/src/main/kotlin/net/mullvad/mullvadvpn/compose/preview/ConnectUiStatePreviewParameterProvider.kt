@@ -5,7 +5,7 @@ import java.net.InetAddress
 import net.mullvad.mullvadvpn.compose.state.ConnectUiState
 import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
-import net.mullvad.mullvadvpn.lib.shared.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
 
 class ConnectUiStatePreviewParameterProvider : PreviewParameterProvider<ConnectUiState> {
     override val values = sequenceOf(ConnectUiState.INITIAL) + generateOtherStates()

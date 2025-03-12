@@ -1,7 +1,6 @@
-package net.mullvad.mullvadvpn.lib.shared
+package net.mullvad.mullvadvpn.lib.model
 
 import java.time.Duration
-import net.mullvad.mullvadvpn.lib.model.ErrorState
 
 enum class StatusLevel {
     Error,
