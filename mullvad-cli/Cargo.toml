@@ -22,6 +22,7 @@ thiserror = { workspace = true }
 futures = { workspace = true }
 itertools = "0.10"
 natord = "1.0.9"
+nix = { version = "0.29.0", features = ["signal"] }
 
 mullvad-types = { path = "../mullvad-types", features = ["clap"] }
 mullvad-version = { path = "../mullvad-version" }
@@ -29,7 +30,6 @@ talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 tokio = { workspace = true, features =  ["macros", "rt-multi-thread", "fs"] }
-sigpipe = "0.1"
 serde = { workspace = true }
 serde_json = { workspace = true }
 

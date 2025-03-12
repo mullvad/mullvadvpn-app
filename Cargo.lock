@@ -2643,9 +2643,9 @@ dependencies = [
  "mullvad-types",
  "mullvad-version",
  "natord",
+ "nix 0.29.0",
  "serde",
  "serde_json",
- "sigpipe",
  "talpid-types",
  "thiserror 2.0.9",
  "tokio",
@@ -4640,15 +4640,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77549399552de45a898a580c1b41d445bf730df867cc44e6c0233bbc4b8329de"
 dependencies = [
  "rand_core 0.6.4",
-]
-
-[[package]]
-name = "sigpipe"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5584bfb3e0d348139d8210285e39f6d2f8a1902ac06de343e06357d1d763d8e6"
-dependencies = [
- "libc",
 ]
 
 [[package]]
