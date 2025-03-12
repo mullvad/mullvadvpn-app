@@ -13,8 +13,19 @@ struct FilterDescriptor {
     let settings: LatestTunnelSettings
 
     var isEnabled: Bool {
+        // Check if multihop is enabled via settings
         let isMultihopEnabled = settings.tunnelMultihopState.isEnabled || settings.daita.isAutomaticRouting
-        return isMultihopEnabled ? (numberOfServers > 1) : (numberOfServers > 0)
+
+        if isMultihopEnabled {
+            // Multihop mode requires at least one entry relay and one exit relay,
+            // and there must be more than one unique server available.
+            return (relayFilterResult.entryRelays ?? []).count >= 1
+                && relayFilterResult.exitRelays.count >= 1
+                && numberOfServers != 1
+        } else {
+            // Single-hop mode: The filter is enabled if there's at least one available server.
+            return numberOfServers > 0
+        }
     }
 
     var title: String {

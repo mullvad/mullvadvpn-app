@@ -12,7 +12,7 @@ import UIKit
 struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
     let tableView: UITableView
 
-    func makeCell(for item: RelayFilterDataSource.Item, indexPath: IndexPath) -> UITableViewCell {
+    func makeCell(for item: RelayFilterDataSourceItem, indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(
             withIdentifier: RelayFilterDataSource.CellReuseIdentifiers.allCases[indexPath.section].rawValue,
             for: indexPath
@@ -22,7 +22,11 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
         return cell
     }
 
-    func configureCell(_ cell: UITableViewCell, item: RelayFilterDataSource.Item, indexPath: IndexPath) {
+    func configureCell(
+        _ cell: UITableViewCell,
+        item: RelayFilterDataSourceItem,
+        indexPath: IndexPath
+    ) {
         switch item.type {
         case .ownershipAny, .ownershipOwned, .ownershipRented:
             configureOwnershipCell(cell as? SelectableSettingsCell, item: item)
@@ -31,7 +35,7 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
         }
     }
 
-    private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: RelayFilterDataSource.Item) {
+    private func configureOwnershipCell(_ cell: SelectableSettingsCell?, item: RelayFilterDataSourceItem) {
         guard let cell = cell else { return }
 
         cell.titleLabel.text = NSLocalizedString(
@@ -58,7 +62,7 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
         cell.applySubCellStyling()
     }
 
-    private func configureProviderCell(_ cell: CheckableSettingsCell?, item: RelayFilterDataSource.Item) {
+    private func configureProviderCell(_ cell: CheckableSettingsCell?, item: RelayFilterDataSourceItem) {
         guard let cell = cell else { return }
         let alpha = item.isEnabled ? 1.0 : 0.5
 
