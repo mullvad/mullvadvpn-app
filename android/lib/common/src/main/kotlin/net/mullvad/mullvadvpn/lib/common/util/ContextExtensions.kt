@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.lib.common.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.core.net.toUri
 import net.mullvad.mullvadvpn.lib.model.WebsiteAuthToken
 
 fun createAccountUri(accountUri: String, websiteAuthToken: WebsiteAuthToken?): Uri {
@@ -13,7 +14,7 @@ fun createAccountUri(accountUri: String, websiteAuthToken: WebsiteAuthToken?): U
             append(websiteAuthToken.value)
         }
     }
-    return Uri.parse(urlString)
+    return urlString.toUri()
 }
 
 fun Context.openVpnSettings() {

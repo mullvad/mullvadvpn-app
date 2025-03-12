@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import android.content.res.Resources
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.channels.Channel
@@ -51,7 +52,7 @@ class AppInfoViewModel(
                 } else {
                     resources.getString(R.string.download_url)
                 }
-            _uiSideEffect.send(AppInfoSideEffect.OpenUri(Uri.parse(uri)))
+            _uiSideEffect.send(AppInfoSideEffect.OpenUri(uri.toUri()))
         }
 }
 

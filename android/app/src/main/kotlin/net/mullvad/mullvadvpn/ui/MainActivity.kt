@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.util.Consumer
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -158,7 +159,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
         callbackFlow<Intent> {
             send(intent)
 
-            val listener: (Intent) -> Unit = { trySend(it) }
+            val listener = Consumer<Intent> { intent -> trySend(intent) }
 
             addOnNewIntentListener(listener)
 
