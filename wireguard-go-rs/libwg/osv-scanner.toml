@@ -40,3 +40,9 @@ reason = "wireguard-go does not use the affected code"
 id = "CVE-2024-45341" # GO-2025-3373
 ignoreUntil = 2025-06-12
 reason = "wireguard-go does not use the affected code"
+
+# Denial of service in golang.org/x/crypto (for SSH server implementations)
+[[IgnoredVulns]]
+id = "CVE-2025-22869" # GO-2025-3487
+ignoreUntil = 2025-06-12
+reason = "wireguard-go does not use the affected code"
