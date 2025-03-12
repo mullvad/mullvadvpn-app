@@ -13,9 +13,9 @@ import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
 import net.mullvad.mullvadvpn.lib.model.Constraint
 import net.mullvad.mullvadvpn.lib.model.DeviceState
 import net.mullvad.mullvadvpn.lib.model.Settings
+import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.model.WireguardConstraints
 import net.mullvad.mullvadvpn.lib.shared.DeviceRepository
-import net.mullvad.mullvadvpn.lib.shared.VersionInfo
 import net.mullvad.mullvadvpn.repository.SettingsRepository
 import net.mullvad.mullvadvpn.repository.WireguardConstraintsRepository
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository

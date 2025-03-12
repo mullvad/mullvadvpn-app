@@ -10,8 +10,8 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.mullvadvpn.lib.common.test.TestCoroutineRule
-import net.mullvad.mullvadvpn.lib.shared.InAppNotification
-import net.mullvad.mullvadvpn.lib.shared.VersionInfo
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.ui.serviceconnection.AppVersionInfoRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
