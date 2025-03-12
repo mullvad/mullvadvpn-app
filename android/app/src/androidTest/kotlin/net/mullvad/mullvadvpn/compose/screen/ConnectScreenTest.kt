@@ -26,11 +26,11 @@ import net.mullvad.mullvadvpn.lib.model.ActionAfterDisconnect
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
 import net.mullvad.mullvadvpn.lib.model.GeoIpLocation
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
-import net.mullvad.mullvadvpn.lib.shared.InAppNotification
-import net.mullvad.mullvadvpn.lib.shared.VersionInfo
+import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_TEXT_ACTION
 import org.junit.jupiter.api.AfterEach

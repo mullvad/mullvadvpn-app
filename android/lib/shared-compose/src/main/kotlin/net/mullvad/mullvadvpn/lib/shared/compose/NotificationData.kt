@@ -19,9 +19,9 @@ import java.net.InetAddress
 import net.mullvad.mullvadvpn.lib.model.AuthFailedError
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.ParameterGenerationError
-import net.mullvad.mullvadvpn.lib.shared.InAppNotification
-import net.mullvad.mullvadvpn.lib.shared.StatusLevel
+import net.mullvad.mullvadvpn.lib.model.StatusLevel
 
 data class NotificationData(
     val title: AnnotatedString,

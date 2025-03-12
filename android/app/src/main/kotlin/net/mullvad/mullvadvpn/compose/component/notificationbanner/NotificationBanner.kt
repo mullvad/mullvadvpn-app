@@ -15,8 +15,8 @@ import net.mullvad.mullvadvpn.compose.component.MullvadTopBar
 import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.lib.model.ErrorState
 import net.mullvad.mullvadvpn.lib.model.ErrorStateCause
-import net.mullvad.mullvadvpn.lib.shared.InAppNotification
-import net.mullvad.mullvadvpn.lib.shared.VersionInfo
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.VersionInfo
 import net.mullvad.mullvadvpn.lib.shared.compose.AnimatedNotificationBanner
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.lib.tv.NotificationBannerTv

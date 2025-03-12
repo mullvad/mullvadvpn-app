@@ -25,8 +25,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.toUpperCase
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
-import net.mullvad.mullvadvpn.lib.shared.InAppNotification
-import net.mullvad.mullvadvpn.lib.shared.StatusLevel
+import net.mullvad.mullvadvpn.lib.model.InAppNotification
+import net.mullvad.mullvadvpn.lib.model.StatusLevel
 import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER
 import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_ACTION
 import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_TEXT_ACTION
