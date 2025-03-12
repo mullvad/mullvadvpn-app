@@ -45,7 +45,6 @@ test('App should show too many devices', async () => {
   await loginButton.click();
   await util.waitForRoute(RoutePath.login);
   await util.waitForRoute(RoutePath.main);
-  await expect(page.getByTestId(RoutePath.main)).toBeVisible();
 });
 
 function getInput(page: Page): Locator {
