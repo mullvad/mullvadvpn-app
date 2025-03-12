@@ -8,7 +8,7 @@ export interface StartAppResponse {
 }
 
 export interface TestUtils {
-  currentRoute: () => Promise<string>;
+  currentRoute: () => Promise<string | null>;
   waitForNavigation: (initiateNavigation?: () => Promise<void> | void) => Promise<string>;
   waitForNoTransition: () => Promise<void>;
 }
@@ -45,14 +45,20 @@ export const launch = (options: LaunchOptions): Promise<ElectronApplication> => 
 };
 
 const currentRouteFactory = (app: ElectronApplication) => {
-  return () =>
-    app.evaluate<string>(({ webContents }) =>
-      webContents
+  return () => {
+    return app.evaluate<string | null>(({ webContents }) => {
+      const electronWebContent = webContents
         .getAllWebContents()
         // Select window that isn't devtools
-        .find((webContents) => webContents.getURL().startsWith('file://'))!
-        .executeJavaScript('window.e2e.location'),
-    );
+        .find((webContents) => webContents.getURL().startsWith('file://'));
+
+      if (electronWebContent) {
+        return electronWebContent.executeJavaScript('window.e2e.location');
+      }
+
+      return null;
+    });
+  };
 };
 
 const waitForNavigationFactory = (app: ElectronApplication, page: Page) => {
