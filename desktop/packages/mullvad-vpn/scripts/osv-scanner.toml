@@ -1,43 +1,46 @@
 # See repository root `osv-scanner.toml` for instructions and rules for this file.
 
+# All issues found here are ignored for 6 months at a time, instead of three,
+# since it is only used on trusted input and is scheduled for removal completely anyway.
+
 # Pillow arbitrary code execution
 [[IgnoredVulns]]
 id = "CVE-2023-50447" # GHSA-3f63-hfp8-52jq
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-09-12
 reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
 
 # Pillow buffer overflow
 [[IgnoredVulns]]
 id = "CVE-2024-28219" # GHSA-44wm-f244-xhp3
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-09-12
 reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
 
 # Pillow DoS
 [[IgnoredVulns]]
 id = "CVE-2023-44271" # GHSA-8ghj-p4vj-mr35
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-09-12
 reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
 
 # libwebp: OOB write in BuildHuffmanTable
 [[IgnoredVulns]]
 id = "CVE-2023-5129" # GHSA-j7hp-h8jx-5ppr
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-09-12
 reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
 
 # Pillow versions before v10.0.1 bundled libwebp binaries in wheels that are vulnerable to CVE-2023-5129 (previously CVE-2023-4863)
 [[IgnoredVulns]]
 id = "PYSEC-2023-175"
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-09-12
 reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
 
 # Pillow versions before v10.0.1 bundled libwebp binaries in wheels that are vulnerable to CVE-2023-5129 (previously CVE-2023-4863)
 [[IgnoredVulns]]
 id = "GHSA-56pw-mpj4-fxww"
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-09-12
 reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
 
 # Pillow vulnerable to Data Amplification attack.
 [[IgnoredVulns]]
 id = "CVE-2022-45198" # GHSA-m2vv-5vj5-2hm7
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-09-12
 reason = "Only used internally, on trusted input. This tool is also scheduled for removal completely, so not worth trying to upgrade"
