@@ -22,10 +22,21 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.FocusRequester.Companion.Cancel
+import androidx.compose.ui.focus.FocusRequester.Companion.Default
+import androidx.compose.ui.focus.focusProperties
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -38,6 +49,7 @@ import androidx.tv.material3.DrawerValue
 import androidx.tv.material3.ModalNavigationDrawer
 import androidx.tv.material3.NavigationDrawerItem
 import androidx.tv.material3.NavigationDrawerItemDefaults
+import androidx.tv.material3.NavigationDrawerScope
 import androidx.tv.material3.rememberDrawerState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 
@@ -62,6 +74,7 @@ fun PreviewNavigationDrawerTvClosed(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 @Suppress("LongMethod")
 fun NavigationDrawerTv(
@@ -73,22 +86,36 @@ fun NavigationDrawerTv(
     content: @Composable () -> Unit,
 ) {
     val drawerState = rememberDrawerState(initialDrawerValue)
+    val focusRequester = remember { FocusRequester() }
+    val brush = remember { Brush.horizontalGradient(listOf(Color.Black, Color.Transparent)) }
+
+    val focusManager = LocalFocusManager.current
+
     if (drawerState.currentValue == DrawerValue.Open) {
-        BackHandler(onBack = { drawerState.setValue(DrawerValue.Closed) })
+        BackHandler(
+            onBack = {
+                drawerState.setValue(DrawerValue.Closed)
+                focusManager.moveFocus(FocusDirection.Right)
+            }
+        )
     }
-    val brush = Brush.horizontalGradient(listOf(Color.Black, Color.Transparent))
 
     ModalNavigationDrawer(
+        modifier =
+            Modifier.focusRequester(focusRequester).focusProperties {
+                enter = { if (focusRequester.restoreFocusedChild()) Cancel else Default }
+            },
         drawerState = drawerState,
         scrimBrush = brush,
         drawerContent = {
-            val animatedPadding = animateDpAsState(if (hasFocus) 20.dp else 16.dp)
             Box(
                 Modifier.fillMaxHeight()
                     .background(brush)
                     .padding(top = 24.dp, bottom = 24.dp, start = 12.dp, end = 12.dp)
                     .selectableGroup()
             ) {
+                val animatedPadding = animateDpAsState(if (hasFocus) 16.dp else 12.dp)
+
                 NavigationDrawerTvHeader(
                     modifier =
                         Modifier.align(Alignment.TopStart).padding(start = animatedPadding.value),
@@ -96,52 +123,57 @@ fun NavigationDrawerTv(
                     daysLeftUntilExpiry = daysLeftUntilExpiry,
                     deviceName = deviceName,
                 )
-
-                NavigationDrawerItem(
-                    modifier = Modifier.align(Alignment.CenterStart),
+                DrawerItemTv(
+                    modifier =
+                        Modifier.align(Alignment.CenterStart).onFocusChanged {
+                            focusRequester.saveFocusedChild()
+                        },
+                    icon = Icons.Default.AccountCircle,
+                    text = stringResource(R.string.settings_account),
                     onClick = onAccountClick,
-                    selected = false,
-                    leadingContent = {
-                        Icon(
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            imageVector = Icons.Default.AccountCircle,
-                            contentDescription = null,
-                        )
-                    },
-                ) {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        text = "Account",
-                        maxLines = 1,
-                        overflow = TextOverflow.Clip,
-                    )
-                }
-
-                NavigationDrawerItem(
-                    modifier = Modifier.align(Alignment.BottomStart),
+                )
+                DrawerItemTv(
+                    modifier =
+                        Modifier.align(Alignment.BottomStart).onFocusChanged {
+                            focusRequester.saveFocusedChild()
+                        },
+                    icon = Icons.Default.Settings,
+                    text = stringResource(R.string.settings),
                     onClick = onSettingsClick,
-                    selected = false,
-                    leadingContent = {
-                        Icon(
-                            tint = MaterialTheme.colorScheme.onPrimary,
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = null,
-                        )
-                    },
-                ) {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        text = "Settings",
-                        maxLines = 1,
-                        overflow = TextOverflow.Clip,
-                    )
-                }
+                )
             }
         },
         content = content,
     )
+}
+
+@Composable
+private fun NavigationDrawerScope.DrawerItemTv(
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    text: String,
+    onClick: () -> Unit,
+) {
+    NavigationDrawerItem(
+        modifier = modifier,
+        onClick = onClick,
+        selected = false,
+        leadingContent = {
+            Icon(
+                tint = MaterialTheme.colorScheme.onPrimary,
+                imageVector = icon,
+                contentDescription = null,
+            )
+        },
+    ) {
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.onPrimary,
+            text = text,
+            maxLines = 1,
+            overflow = TextOverflow.Clip,
+        )
+    }
 }
 
 @Composable
