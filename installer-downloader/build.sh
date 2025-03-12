@@ -346,7 +346,7 @@ function upload {
     local files=( "$FILENAME."* )
 
     local checksums_path
-    checksums_path="desktop-downloader+$(hostname)+$version.sha256"
+    checksums_path="installer-downloader+$(hostname)+$version.sha256"
 
     sha256sum "${files[@]}" > "$checksums_path"
 
