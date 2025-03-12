@@ -16,6 +16,8 @@ mod inner {
     pub fn run() {
         log::init().expect("failed to set up logger");
 
+        ::log::debug!("Installer downloader version: {}", resource::VERSION);
+
         let rt = tokio::runtime::Builder::new_multi_thread()
             .enable_all()
             .build()

@@ -1,5 +1,8 @@
 //! Shared text and other resources
 
+/// Installer downloader version
+pub const VERSION: &str = env!("CARGO_PKG_VERSION");
+
 /// Window title
 pub const WINDOW_TITLE: &str = "Mullvad VPN installer";
 /// Window width
