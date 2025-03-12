@@ -15,9 +15,9 @@ use futures::{
     StreamExt,
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{
-    AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings,
+use mullvad_types::{
+    access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings},
+    relay_list::ShadowsocksBridgeProvider,
 };
 use std::{marker::PhantomData, net::SocketAddr, path::PathBuf};
 use talpid_types::net::{proxy::CustomProxy, AllowedEndpoint, Endpoint, TransportProtocol};
@@ -251,7 +251,7 @@ pub struct AccessModeSelector<P> {
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     cache_dir: PathBuf,
     /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
-    relay_selector: RelaySelector,
+    bridge_provider: Box<dyn ShadowsocksBridgeProvider>,
     /// Used for selecting a config for the 'Encrypted DNS proxy' access method.
     encrypted_dns_proxy_cache: EncryptedDnsProxyState,
     access_method_settings: Settings,
@@ -270,7 +270,7 @@ where
 {
     pub async fn spawn(
         cache_dir: PathBuf,
-        relay_selector: RelaySelector,
+        bridge_provider: Box<dyn ShadowsocksBridgeProvider>,
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
@@ -294,7 +294,7 @@ where
         let (index, next) = Self::find_next_active(0, &access_method_settings);
         let initial_connection_mode = Self::resolve_inner_with_default(
             &next,
-            &relay_selector,
+            &bridge_provider,
             &mut encrypted_dns_proxy_cache,
             &address_cache,
         )
@@ -309,7 +309,7 @@ where
             api_endpoint,
             cmd_rx,
             cache_dir,
-            relay_selector,
+            bridge_provider,
             encrypted_dns_proxy_cache,
             access_method_settings,
             address_cache,
@@ -537,7 +537,7 @@ where
     ) -> Option<ResolvedConnectionMode> {
         Self::resolve_inner(
             &access_method,
-            &self.relay_selector,
+            &self.bridge_provider,
             &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
         )
@@ -546,13 +546,16 @@ where
 
     async fn resolve_inner(
         access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
+        bridge_provider: &Box<dyn ShadowsocksBridgeProvider>,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
     ) -> Option<ResolvedConnectionMode> {
-        let connection_mode =
-            Self::resolve_connection_mode(access_method, relay_selector, encrypted_dns_proxy_cache)
-                .await?;
+        let connection_mode = Self::resolve_connection_mode(
+            access_method,
+            bridge_provider,
+            encrypted_dns_proxy_cache,
+        )
+        .await?;
         let endpoint =
             resolve_allowed_endpoint::<P>(&connection_mode, address_cache.get_address().await);
         Some(ResolvedConnectionMode {
@@ -570,7 +573,7 @@ where
     ) -> ResolvedConnectionMode {
         Self::resolve_inner_with_default(
             &access_method,
-            &self.relay_selector,
+            &self.bridge_provider,
             &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
         )
@@ -579,13 +582,13 @@ where
 
     async fn resolve_inner_with_default(
         access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
+        bridge_provider: &Box<dyn ShadowsocksBridgeProvider>,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
     ) -> ResolvedConnectionMode {
         match Self::resolve_inner(
             access_method,
-            relay_selector,
+            bridge_provider,
             encrypted_dns_proxy_cache,
             address_cache,
         )
@@ -609,14 +612,14 @@ where
 
     async fn resolve_connection_mode(
         access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
+        bridge_provider: &Box<dyn ShadowsocksBridgeProvider>,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
     ) -> Option<ApiConnectionMode> {
         let connection_mode = {
             match &access_method.access_method {
                 AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
                 AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
-                    let Some(bridge) = relay_selector.get_bridge_forced() else {
+                    let Some(bridge) = bridge_provider.get_bridge_forced() else {
                         log::warn!("Could not select a Mullvad bridge");
                         log::debug!("The relay list might be empty");
                         return None;

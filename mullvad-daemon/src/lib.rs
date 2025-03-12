@@ -706,10 +706,12 @@ impl Daemon {
                 .set_config(SelectorConfig::from_settings(settings));
         });
 
+        let bridge_provider = Box::new(relay_selector.clone());
+
         let (access_mode_handler, access_mode_provider) =
             mullvad_api::access_mode::AccessModeSelector::<AllowedClientsSelector>::spawn(
                 config.cache_dir.clone(),
-                relay_selector.clone(),
+                bridge_provider,
                 settings.api_access_methods.clone(),
                 #[cfg(feature = "api-override")]
                 config.endpoint.clone(),
