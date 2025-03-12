@@ -155,7 +155,7 @@ impl Daemon {
         proxy: talpid_types::net::AllowedEndpoint,
         access_method_selector: api::AccessModeSelectorHandle,
         daemon_event_sender: crate::DaemonEventSender<(
-            mullvad_api::api::AccessMethodEvent,
+            api::AccessMethodEvent,
             futures::channel::oneshot::Sender<()>,
         )>,
         api_proxy: ApiProxy,
@@ -165,13 +165,13 @@ impl Daemon {
             .await
             .map(|connection_mode| connection_mode.endpoint)?;
 
-        mullvad_api::api::AccessMethodEvent::Allow { endpoint: proxy }
+        api::AccessMethodEvent::Allow { endpoint: proxy }
             .send(daemon_event_sender.to_unbounded_sender())
             .await?;
 
         let result = Self::perform_api_request(api_proxy).await;
 
-        mullvad_api::api::AccessMethodEvent::Allow { endpoint: reset }
+        api::AccessMethodEvent::Allow { endpoint: reset }
             .send(daemon_event_sender.to_unbounded_sender())
             .await?;
 
