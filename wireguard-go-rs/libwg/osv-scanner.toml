@@ -46,3 +46,9 @@ reason = "wireguard-go does not use the affected code"
 id = "CVE-2025-22869" # GO-2025-3487
 ignoreUntil = 2025-06-12
 reason = "wireguard-go does not use the affected code"
+
+# Timing sidechannel for P-256 on ppc64le in crypto/internal/nistec. We don't deploy to PowerPC.
+[[IgnoredVulns]]
+id = "CVE-2025-22866" # GO-2025-3447
+ignoreUntil = 2025-06-12
+reason = "wireguard-go does not use the affected code"
