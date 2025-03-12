@@ -7,20 +7,17 @@
 #[cfg(feature = "api-override")]
 use crate::ApiEndpoint;
 use crate::{
-    proxy::{AllowedClientsProvider, ApiConnectionMode, ConnectionModeProvider, ProxyConfig},
+    proxy::{AllowedClientsProvider, ApiConnectionMode, ConnectionModeProvider},
     AddressCache,
 };
+use async_trait::async_trait;
 use futures::{
     channel::{mpsc, oneshot},
     StreamExt,
 };
-use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
-use mullvad_relay_selector::RelaySelector;
-use mullvad_types::access_method::{
-    AccessMethod, AccessMethodSetting, BuiltInAccessMethod, Id, Settings,
-};
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, Id, Settings};
 use std::{marker::PhantomData, net::SocketAddr, path::PathBuf};
-use talpid_types::net::{proxy::CustomProxy, AllowedEndpoint, Endpoint, TransportProtocol};
+use talpid_types::net::{AllowedEndpoint, Endpoint, TransportProtocol};
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
@@ -250,10 +247,7 @@ pub struct AccessModeSelector<P> {
     api_endpoint: ApiEndpoint,
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     cache_dir: PathBuf,
-    /// Used for selecting a Bridge when the `Mullvad Bridges` access method is used.
-    relay_selector: RelaySelector,
-    /// Used for selecting a config for the 'Encrypted DNS proxy' access method.
-    encrypted_dns_proxy_cache: EncryptedDnsProxyState,
+    bridge_dns_proxy_provider: Box<dyn BridgeAndDNSProxy>,
     access_method_settings: Settings,
     address_cache: AddressCache,
     access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
@@ -270,7 +264,7 @@ where
 {
     pub async fn spawn(
         cache_dir: PathBuf,
-        relay_selector: RelaySelector,
+        mut bridge_dns_proxy_provider: Box<dyn BridgeAndDNSProxy>,
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
@@ -287,16 +281,12 @@ where
             }
         }
 
-        // Initialize the Encrypted DNS cache
-        let mut encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
-
         // Always start looking from the position of `Direct`.
         let (index, next) = Self::find_next_active(0, &access_method_settings);
         let initial_connection_mode = Self::resolve_inner_with_default(
             &next,
-            &relay_selector,
-            &mut encrypted_dns_proxy_cache,
             &address_cache,
+            &mut *bridge_dns_proxy_provider,
         )
         .await;
 
@@ -309,8 +299,7 @@ where
             api_endpoint,
             cmd_rx,
             cache_dir,
-            relay_selector,
-            encrypted_dns_proxy_cache,
+            bridge_dns_proxy_provider,
             access_method_settings,
             address_cache,
             access_method_event_sender,
@@ -537,22 +526,20 @@ where
     ) -> Option<ResolvedConnectionMode> {
         Self::resolve_inner(
             &access_method,
-            &self.relay_selector,
-            &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
+            &mut *self.bridge_dns_proxy_provider,
         )
         .await
     }
 
     async fn resolve_inner(
         access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
-        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
+        bridge_dns_proxy_provider: &mut dyn BridgeAndDNSProxy,
     ) -> Option<ResolvedConnectionMode> {
-        let connection_mode =
-            Self::resolve_connection_mode(access_method, relay_selector, encrypted_dns_proxy_cache)
-                .await?;
+        let connection_mode = bridge_dns_proxy_provider
+            .match_access_method(access_method)
+            .await?;
         let endpoint =
             resolve_allowed_endpoint::<P>(&connection_mode, address_cache.get_address().await);
         Some(ResolvedConnectionMode {
@@ -570,27 +557,18 @@ where
     ) -> ResolvedConnectionMode {
         Self::resolve_inner_with_default(
             &access_method,
-            &self.relay_selector,
-            &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
+            &mut *self.bridge_dns_proxy_provider,
         )
         .await
     }
 
     async fn resolve_inner_with_default(
         access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
-        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
+        bridge_dns_proxy_provider: &mut dyn BridgeAndDNSProxy,
     ) -> ResolvedConnectionMode {
-        match Self::resolve_inner(
-            access_method,
-            relay_selector,
-            encrypted_dns_proxy_cache,
-            address_cache,
-        )
-        .await
-        {
+        match Self::resolve_inner(access_method, address_cache, bridge_dns_proxy_provider).await {
             Some(resolved) => resolved,
             None => {
                 log::trace!("Defaulting to direct API connection");
@@ -606,42 +584,14 @@ where
             }
         }
     }
+}
 
-    async fn resolve_connection_mode(
+#[async_trait]
+pub trait BridgeAndDNSProxy: Send + Sync {
+    async fn match_access_method(
+        &mut self,
         access_method: &AccessMethodSetting,
-        relay_selector: &RelaySelector,
-        encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
-    ) -> Option<ApiConnectionMode> {
-        let connection_mode = {
-            match &access_method.access_method {
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
-                AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
-                    let Some(bridge) = relay_selector.get_bridge_forced() else {
-                        log::warn!("Could not select a Mullvad bridge");
-                        log::debug!("The relay list might be empty");
-                        return None;
-                    };
-                    let proxy = CustomProxy::Shadowsocks(bridge);
-                    ApiConnectionMode::Proxied(ProxyConfig::from(proxy))
-                }
-                AccessMethod::BuiltIn(BuiltInAccessMethod::EncryptedDnsProxy) => {
-                    if let Err(error) = encrypted_dns_proxy_cache.fetch_configs("frakta.eu").await {
-                        log::warn!("Failed to fetch new Encrypted DNS Proxy configurations");
-                        log::debug!("{error:#?}");
-                    }
-                    let Some(edp) = encrypted_dns_proxy_cache.next_configuration() else {
-                        log::warn!("Could not select next Encrypted DNS proxy config");
-                        return None;
-                    };
-                    ApiConnectionMode::Proxied(ProxyConfig::from(edp))
-                }
-                AccessMethod::Custom(config) => {
-                    ApiConnectionMode::Proxied(ProxyConfig::from(config.clone()))
-                }
-            }
-        };
-        Some(connection_mode)
-    }
+    ) -> Option<ApiConnectionMode>;
 }
 
 pub fn resolve_allowed_endpoint<P>(
