@@ -706,8 +706,7 @@ impl Daemon {
                 .set_config(SelectorConfig::from_settings(settings));
         });
 
-        let allowed_clients_selector = AllowedClientsSelector {};
-        let selector: Box<dyn AllowedClientsProvider> = Box::new(allowed_clients_selector);
+        let selector = AllowedClientsSelector {};
 
         let (access_mode_handler, access_mode_provider) =
             mullvad_api::api::AccessModeSelector::spawn(
