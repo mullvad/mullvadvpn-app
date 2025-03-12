@@ -2,10 +2,6 @@ use anyhow::Context;
 use std::env;
 
 fn main() -> anyhow::Result<()> {
-    if cfg!(debug_assertions) {
-        return Ok(());
-    }
-
     let target_os = env::var("CARGO_CFG_TARGET_OS").context("Missing 'CARGO_CFG_TARGET_OS")?;
     match target_os.as_str() {
         "windows" => win_main(),
@@ -23,8 +19,10 @@ fn win_main() -> anyhow::Result<()> {
         windows_sys::Win32::System::SystemServices::SUBLANG_ENGLISH_US as u16,
     ));
 
-    println!("cargo:rerun-if-changed=loader.manifest");
-    res.set_manifest_file("loader.manifest");
+    if !cfg!(debug_assertions) {
+        println!("cargo:rerun-if-changed=loader.manifest");
+        res.set_manifest_file("loader.manifest");
+    }
     res.set_icon("../dist-assets/icon.ico");
 
     res.compile().context("Failed to compile resources")
