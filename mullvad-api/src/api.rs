@@ -245,7 +245,7 @@ impl ConnectionModeProvider for AccessModeConnectionModeProvider {
 /// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
 /// or via any supported custom proxy protocol
 /// ([`talpid_types::net::proxy::CustomProxy`]).
-pub struct AccessModeSelector {
+pub struct AccessModeSelector<P> {
     #[cfg(feature = "api-override")]
     api_endpoint: ApiEndpoint,
     cmd_rx: mpsc::UnboundedReceiver<Message>,
@@ -261,10 +261,13 @@ pub struct AccessModeSelector {
     current: ResolvedConnectionMode,
     /// `index` is used to keep track of the [`AccessMethodSetting`] to use.
     index: usize,
-    provider: Box<dyn AllowedClientsProvider>,
+    provider: P,
 }
 
-impl AccessModeSelector {
+impl<P> AccessModeSelector<P>
+where
+    P: AllowedClientsProvider + 'static,
+{
     pub async fn spawn(
         cache_dir: PathBuf,
         relay_selector: RelaySelector,
@@ -273,7 +276,7 @@ impl AccessModeSelector {
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
         access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
         address_cache: AddressCache,
-        provider: Box<dyn AllowedClientsProvider>,
+        provider: P,
     ) -> Result<(AccessModeSelectorHandle, AccessModeConnectionModeProvider)> {
         let (cmd_tx, cmd_rx) = mpsc::unbounded();
 
@@ -295,7 +298,7 @@ impl AccessModeSelector {
             &relay_selector,
             &mut encrypted_dns_proxy_cache,
             &address_cache,
-            &*provider,
+            &provider,
         )
         .await;
 
@@ -539,7 +542,7 @@ impl AccessModeSelector {
             &self.relay_selector,
             &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
-            &*self.provider,
+            &self.provider,
         )
         .await
     }
@@ -549,7 +552,7 @@ impl AccessModeSelector {
         relay_selector: &RelaySelector,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
-        provider: &dyn AllowedClientsProvider,
+        provider: &P,
     ) -> Option<ResolvedConnectionMode> {
         let connection_mode =
             Self::resolve_connection_mode(access_method, relay_selector, encrypted_dns_proxy_cache)
@@ -577,7 +580,7 @@ impl AccessModeSelector {
             &self.relay_selector,
             &mut self.encrypted_dns_proxy_cache,
             &self.address_cache,
-            &*self.provider,
+            &self.provider,
         )
         .await
     }
@@ -587,7 +590,7 @@ impl AccessModeSelector {
         relay_selector: &RelaySelector,
         encrypted_dns_proxy_cache: &mut EncryptedDnsProxyState,
         address_cache: &AddressCache,
-        provider: &dyn AllowedClientsProvider,
+        provider: &P,
     ) -> ResolvedConnectionMode {
         match Self::resolve_inner(
             access_method,
@@ -651,11 +654,14 @@ impl AccessModeSelector {
     }
 }
 
-pub fn resolve_allowed_endpoint(
+pub fn resolve_allowed_endpoint<P>(
     connection_mode: &ApiConnectionMode,
     fallback: SocketAddr,
-    provider: &dyn AllowedClientsProvider,
-) -> AllowedEndpoint {
+    provider: &P,
+) -> AllowedEndpoint
+where
+    P: AllowedClientsProvider,
+{
     let endpoint = match connection_mode.get_endpoint() {
         Some(endpoint) => endpoint,
         None => Endpoint::from_socket_address(fallback, TransportProtocol::Tcp),
