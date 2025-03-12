@@ -12,7 +12,7 @@ import MullvadTypes
 import UIKit
 final class RelayFilterDataSource: UITableViewDiffableDataSource<
     RelayFilterDataSource.Section,
-    RelayFilterDataSource.Item
+    RelayFilterDataSourceItem
 > {
     private weak var tableView: UITableView?
     private var viewModel: RelayFilterViewModel
@@ -60,26 +60,26 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
     }
 
     private func createDataSnapshot() {
-        var snapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        var snapshot = NSDiffableDataSourceSnapshot<Section, RelayFilterDataSourceItem>()
         snapshot.appendSections(Section.allCases)
         apply(snapshot, animatingDifferences: false)
     }
 
     private func updateDataSnapshot(filter: RelayFilter) {
         let oldSnapshot = snapshot()
-        var newSnapshot = NSDiffableDataSourceSnapshot<Section, Item>()
+        var newSnapshot = NSDiffableDataSourceSnapshot<Section, RelayFilterDataSourceItem>()
         newSnapshot.appendSections(Section.allCases)
 
         Section.allCases.forEach { section in
             switch section {
             case .ownership:
                 if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
-                    newSnapshot.appendItems(Item.ownerships, toSection: .ownership)
+                    newSnapshot.appendItems(RelayFilterDataSourceItem.ownerships, toSection: .ownership)
                 }
             case .providers:
                 if !oldSnapshot.itemIdentifiers(inSection: section).isEmpty {
                     newSnapshot.appendItems(
-                        [Item.allProviders] + viewModel.availableProviders(for: filter.ownership),
+                        [RelayFilterDataSourceItem.allProviders] + viewModel.availableProviders(for: filter.ownership),
                         toSection: .providers
                     )
                     applySnapshot(newSnapshot, animated: false)
@@ -89,7 +89,7 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
     }
 
     private func applySnapshot(
-        _ snapshot: NSDiffableDataSourceSnapshot<Section, Item>,
+        _ snapshot: NSDiffableDataSourceSnapshot<Section, RelayFilterDataSourceItem>,
         animated: Bool,
         completion: (() -> Void)? = nil
     ) {
@@ -120,7 +120,7 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
         }
     }
 
-    private func isItemSelected(_ item: Item, for filter: RelayFilter) -> Bool {
+    private func isItemSelected(_ item: RelayFilterDataSourceItem, for filter: RelayFilter) -> Bool {
         switch item.type {
         case .ownershipAny, .ownershipOwned, .ownershipRented:
             return viewModel.ownership(for: item) == filter.ownership
@@ -145,9 +145,9 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
     private func handleCollapseOwnership(isExpanded: Bool) {
         var newSnapshot = snapshot()
         if isExpanded {
-            newSnapshot.deleteItems(Item.ownerships)
+            newSnapshot.deleteItems(RelayFilterDataSourceItem.ownerships)
         } else {
-            newSnapshot.appendItems(Item.ownerships, toSection: .ownership)
+            newSnapshot.appendItems(RelayFilterDataSourceItem.ownerships, toSection: .ownership)
         }
         applySnapshot(newSnapshot, animated: !isExpanded)
     }
@@ -161,7 +161,8 @@ final class RelayFilterDataSource: UITableViewDiffableDataSource<
             newSnapshot.deleteItems(items)
         } else {
             newSnapshot.appendItems(
-                [Item.allProviders] + viewModel.availableProviders(for: viewModel.relayFilter.ownership),
+                [RelayFilterDataSourceItem.allProviders] + viewModel
+                    .availableProviders(for: viewModel.relayFilter.ownership),
                 toSection: .providers
             )
         }
@@ -284,5 +285,28 @@ extension RelayFilterDataSource: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         return UIMetrics.TableView.separatorHeight
+    }
+}
+
+// MARK: - Cell Identifiers
+
+extension RelayFilterDataSource {
+    enum Section: CaseIterable { case ownership, providers }
+
+    enum CellReuseIdentifiers: String, CaseIterable {
+        case ownershipCell, providerCell
+
+        var reusableViewClass: AnyClass {
+            switch self {
+            case .ownershipCell: return SelectableSettingsCell.self
+            case .providerCell: return CheckableSettingsCell.self
+            }
+        }
+    }
+
+    enum HeaderFooterReuseIdentifiers: String, CaseIterable {
+        case section
+
+        var reusableViewClass: AnyClass { SettingsHeaderView.self }
     }
 }
