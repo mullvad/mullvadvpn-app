@@ -70,8 +70,7 @@ konsist = "0.17.3"
 ktfmt = "0.22.0"
 leakcanary = "2.14"
 
-# 1.13.16 is broken with value classes: https://github.com/mockk/mockk/issues/1333
-mockk = "1.13.14"
+mockk = "1.13.17"
 mockwebserver = "4.12.0"
 play-publisher = "3.12.1"
 turbine = "1.2.0"
