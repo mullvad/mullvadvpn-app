@@ -184,15 +184,14 @@ jobs:
           path: ./bin/mullvad-version
           if-no-files-found: error
 
+  # This step should always be run because the `test-manager` binary is used to compile the
+  # result matrix at the end! If that functionality is ever split out from the `test-manager`,
+  # this step may be conditionally run.
   build-test-manager-linux:
     name: Build Test Manager
     needs: prepare-linux
     # Note: libssl-dev is installed on the test server, so build test-manager there for the sake of simplicity
     runs-on: [self-hosted, desktop-test, Linux] # app-test-linux
-    if: |
-      !cancelled() &&
-      needs.prepare-matrices.outputs.linux_matrix != '[]' &&
-      needs.prepare-matrices.outputs.linux_matrix != ''
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
