@@ -40,11 +40,15 @@ pub async fn apply_obfuscation_config(
         let udp2tcp =
             multiplexer::Transport::Obfuscated(ObfuscationSettings::Udp2Tcp(udp2tcp::Settings {
                 peer: SocketAddr::new(entry_addr.ip(), 443),
+                #[cfg(target_os = "linux")]
+                fwmark: config.fwmark,
             }));
         let shadowsocks = multiplexer::Transport::Obfuscated(ObfuscationSettings::Shadowsocks(
             shadowsocks::Settings {
                 shadowsocks_endpoint: SocketAddr::new(entry_addr.ip(), 51900),
                 wireguard_endpoint: SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 51820),
+                #[cfg(target_os = "linux")]
+                fwmark: config.fwmark,
             },
         ));
 
