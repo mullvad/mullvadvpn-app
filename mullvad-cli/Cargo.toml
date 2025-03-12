@@ -29,6 +29,7 @@ talpid-types = { path = "../talpid-types" }
 
 mullvad-management-interface = { path = "../mullvad-management-interface" }
 tokio = { workspace = true, features =  ["macros", "rt-multi-thread", "fs"] }
+sigpipe = "0.1"
 serde = { workspace = true }
 serde_json = { workspace = true }
 
