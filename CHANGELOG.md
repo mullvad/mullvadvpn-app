@@ -32,6 +32,8 @@ Line wrap the file at 100 chars.                                              Th
 - Remove "Any" option for tunnel protocol. The default is now WireGuard.
 
 ### Fixed
+- Fix `mullvad-cli` panicking if it tried to write to a closed pipe on Linux and macOS.
+
 #### macOS
 - Fix routing issue caused by upgrading `tun`.
 
