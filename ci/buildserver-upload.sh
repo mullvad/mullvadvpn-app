@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 set -eu
-shopt -s nullglob
+shopt -s nullglob globstar
 
 CODE_SIGNING_KEY_FINGERPRINT="A1198702FC3E0A09A9AE5B75D5A1D4F266DE8DDF"
 
@@ -20,8 +20,6 @@ function rsync_upload {
         rsync -av --mkpath --rsh='ssh -p 1122' "$file" "$server:$upload_dir/"
     done
 }
-
-shopt -s globstar
 
 while true; do
     sleep 10
