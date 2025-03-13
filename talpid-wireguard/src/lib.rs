@@ -746,9 +746,7 @@ impl WireguardMonitor {
         #[cfg(target_os = "android")] cancel_receiver: connectivity::CancelReceiver,
     ) -> Result<WgGoTunnel> {
         #[cfg(all(unix, not(target_os = "android")))]
-        let routes = config
-            .get_tunnel_destinations()
-            .flat_map(Self::replace_default_prefixes);
+        let routes = config.get_tunnel_destinations();
 
         #[cfg(all(unix, not(target_os = "android")))]
         let tunnel = WgGoTunnel::start_tunnel(config, log_path, tun_provider, routes)
@@ -925,7 +923,6 @@ impl WireguardMonitor {
         let iter = config
             .get_tunnel_destinations()
             .filter(|allowed_ip| allowed_ip.prefix() == 0)
-            .flat_map(Self::replace_default_prefixes)
             .map(move |allowed_ip| {
                 if allowed_ip.is_ipv4() {
                     RequiredRoute::new(allowed_ip, node_v4.clone())
@@ -963,24 +960,6 @@ impl WireguardMonitor {
 
             route.mtu(mtu)
         }
-    }
-
-    /// Replace default (0-prefix) routes with more specific routes.
-    #[cfg(not(target_os = "android"))]
-    fn replace_default_prefixes(network: ipnetwork::IpNetwork) -> Vec<ipnetwork::IpNetwork> {
-        #[cfg(windows)]
-        if network.prefix() == 0 {
-            if network.is_ipv4() {
-                vec!["0.0.0.0/1".parse().unwrap(), "128.0.0.0/1".parse().unwrap()]
-            } else {
-                vec!["8000::/1".parse().unwrap(), "::/1".parse().unwrap()]
-            }
-        } else {
-            vec![network]
-        }
-
-        #[cfg(not(windows))]
-        vec![network]
     }
 
     fn tunnel_metadata(interface_name: &str, config: &Config) -> TunnelMetadata {
