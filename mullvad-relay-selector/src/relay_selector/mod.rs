@@ -39,7 +39,7 @@ use mullvad_types::{
         OpenVpnConstraints, RelayConstraints, RelayOverride, RelaySettings, ResolvedBridgeSettings,
         WireguardConstraints,
     },
-    relay_list::{Relay, RelayEndpointData, RelayList, ShadowsocksBridgeProvider},
+    relay_list::{Relay, RelayEndpointData, RelayList},
     settings::Settings,
     wireguard::QuantumResistantState,
     CustomTunnelEndpoint, Intersection,
@@ -436,47 +436,6 @@ impl<'a> TryFrom<NormalSelectorConfig<'a>> for RelayQuery {
     }
 }
 
-impl ShadowsocksBridgeProvider for RelaySelector {
-    /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
-    /// state.
-    fn get_bridge_forced(&self) -> Option<Shadowsocks> {
-        let parsed_relays = &self.parsed_relays.lock().unwrap().parsed_list().clone();
-        let config = self.config.lock().unwrap();
-        let specialized_config = SpecializedSelectorConfig::from(&*config);
-
-        let near_location = match specialized_config {
-            SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
-                .ok()
-                .and_then(|user_preferences| {
-                    Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
-                }),
-            SpecializedSelectorConfig::Custom(_) => None,
-        };
-
-        let bridge_settings = &config.bridge_settings;
-        let constraints = match bridge_settings.resolve() {
-            Ok(ResolvedBridgeSettings::Normal(settings)) => InternalBridgeConstraints {
-                location: settings.location.clone(),
-                providers: settings.providers.clone(),
-                ownership: settings.ownership,
-                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-            },
-            _ => InternalBridgeConstraints {
-                location: Constraint::Any,
-                providers: Constraint::Any,
-                ownership: Constraint::Any,
-                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
-            },
-        };
-
-        let custom_lists = &config.custom_lists;
-        Self::get_proxy_settings(parsed_relays, &constraints, near_location, custom_lists)
-            .map(|(settings, _relay)| settings)
-            .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
-            .ok()
-    }
-}
-
 impl RelaySelector {
     /// Returns a new `RelaySelector` backed by relays cached on disk.
     pub fn new(
@@ -547,6 +506,45 @@ impl RelaySelector {
 
     pub fn last_updated(&self) -> SystemTime {
         self.parsed_relays.lock().unwrap().last_updated()
+    }
+
+    /// Returns a non-custom bridge based on the relay and bridge constraints, ignoring the bridge
+    /// state.
+    pub fn get_bridge_forced(&self) -> Option<Shadowsocks> {
+        let parsed_relays = &self.parsed_relays.lock().unwrap().parsed_list().clone();
+        let config = self.config.lock().unwrap();
+        let specialized_config = SpecializedSelectorConfig::from(&*config);
+
+        let near_location = match specialized_config {
+            SpecializedSelectorConfig::Normal(config) => RelayQuery::try_from(config.clone())
+                .ok()
+                .and_then(|user_preferences| {
+                    Self::get_relay_midpoint(&user_preferences, parsed_relays, config.custom_lists)
+                }),
+            SpecializedSelectorConfig::Custom(_) => None,
+        };
+
+        let bridge_settings = &config.bridge_settings;
+        let constraints = match bridge_settings.resolve() {
+            Ok(ResolvedBridgeSettings::Normal(settings)) => InternalBridgeConstraints {
+                location: settings.location.clone(),
+                providers: settings.providers.clone(),
+                ownership: settings.ownership,
+                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+            },
+            _ => InternalBridgeConstraints {
+                location: Constraint::Any,
+                providers: Constraint::Any,
+                ownership: Constraint::Any,
+                transport_protocol: Constraint::Only(TransportProtocol::Tcp),
+            },
+        };
+
+        let custom_lists = &config.custom_lists;
+        Self::get_proxy_settings(parsed_relays, &constraints, near_location, custom_lists)
+            .map(|(settings, _relay)| settings)
+            .inspect_err(|error| log::error!("Failed to get bridge: {error}"))
+            .ok()
     }
 
     /// Returns random relay and relay endpoint matching `query`.
