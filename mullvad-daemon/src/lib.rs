@@ -391,6 +391,16 @@ pub enum DaemonCommand {
     ExportJsonSettings(ResponseTx<String, settings::patch::Error>),
     /// Request the current feature indicators.
     GetFeatureIndicators(oneshot::Sender<FeatureIndicators>),
+
+    // Debug features
+    DisableRelay {
+        relay: String,
+        tx: oneshot::Sender<()>,
+    },
+    EnableRelay {
+        relay: String,
+        tx: oneshot::Sender<()>,
+    },
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -1418,6 +1428,8 @@ impl Daemon {
             ApplyJsonSettings(tx, blob) => self.on_apply_json_settings(tx, blob).await,
             ExportJsonSettings(tx) => self.on_export_json_settings(tx),
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
+            DisableRelay { relay, tx } => self.on_toggle_relay(relay, false, tx),
+            EnableRelay { relay, tx } => self.on_toggle_relay(relay, true, tx),
         }
     }
 
@@ -3077,6 +3089,51 @@ impl Daemon {
             _ => FeatureIndicators::default(),
         };
         Self::oneshot_send(tx, feature_indicators, "get_feature_indicators response");
+    }
+
+    // Debug features
+
+    /// Mark [relay] as inactive in the daemon's relay list.
+    fn on_toggle_relay(&mut self, relay: String, active: bool, tx: oneshot::Sender<()>) {
+        use mullvad_types::relay_list::RelayList;
+        let relays = {
+            let relay_list = self.relay_selector.get_relays();
+            let countries = {
+                let mut countries = relay_list.countries;
+                for country in &mut countries {
+                    let matching_country = relay == country.name;
+                    for city in &mut country.cities {
+                        let matching_city = relay == city.name;
+                        for settings_relay in &mut city.relays {
+                            // `relay` can also be a VPN protocol. This is arbitrary, but useful.
+                            let matching_protocol = (relay.to_lowercase().eq("openvpn")
+                                && settings_relay.is_openvpn())
+                                || (relay.to_lowercase().eq("wireguard")
+                                    && settings_relay.is_wireguard());
+                            let matching_relay = relay == settings_relay.hostname;
+
+                            if matching_relay
+                                || matching_city
+                                || matching_country
+                                || matching_protocol
+                            {
+                                settings_relay.active = active;
+                            }
+                        }
+                    }
+                }
+                countries
+            };
+            RelayList {
+                countries,
+                ..relay_list
+            }
+        };
+
+        self.relay_selector.set_relays(relays);
+        self.reconnect_tunnel();
+
+        Self::oneshot_send(tx, (), "on_toggle_relay response");
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
