@@ -36,8 +36,7 @@ pub async fn test_mul_02_002(
     // Step 1 - Choose a relay
     constrain_to_relay(
         &mut mullvad_client,
-        RelayQueryBuilder::new()
-            .openvpn()
+        RelayQueryBuilder::openvpn()
             .transport_protocol(TransportProtocol::Tcp)
             .port(443)
             .build(),

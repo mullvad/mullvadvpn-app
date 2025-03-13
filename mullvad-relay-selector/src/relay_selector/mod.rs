@@ -62,21 +62,19 @@ pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
     use query::builder::{IpVersion, RelayQueryBuilder};
     vec![
         // 1 This works with any wireguard relay
-        RelayQueryBuilder::new().wireguard().build(),
+        RelayQueryBuilder::wireguard().build(),
         // 2
-        RelayQueryBuilder::new().wireguard().port(443).build(),
+        RelayQueryBuilder::wireguard().port(443).build(),
         // 3
-        RelayQueryBuilder::new()
-            .wireguard()
+        RelayQueryBuilder::wireguard()
             .ip_version(IpVersion::V6)
             .build(),
         // 4
-        RelayQueryBuilder::new().wireguard().shadowsocks().build(),
+        RelayQueryBuilder::wireguard().shadowsocks().build(),
         // 5
-        RelayQueryBuilder::new().wireguard().udp2tcp().build(),
+        RelayQueryBuilder::wireguard().udp2tcp().build(),
         // 6
-        RelayQueryBuilder::new()
-            .wireguard()
+        RelayQueryBuilder::wireguard()
             .udp2tcp()
             .ip_version(IpVersion::V6)
             .build(),
@@ -92,16 +90,14 @@ pub static OPENVPN_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
     use query::builder::RelayQueryBuilder;
     vec![
         // 1 (openvpn) This works with any openvpn relay
-        RelayQueryBuilder::new().openvpn().build(),
+        RelayQueryBuilder::openvpn().build(),
         // 2
-        RelayQueryBuilder::new()
-            .openvpn()
+        RelayQueryBuilder::openvpn()
             .transport_protocol(TransportProtocol::Tcp)
             .port(443)
             .build(),
         // 3
-        RelayQueryBuilder::new()
-            .openvpn()
+        RelayQueryBuilder::openvpn()
             .transport_protocol(TransportProtocol::Tcp)
             .bridge()
             .build(),
