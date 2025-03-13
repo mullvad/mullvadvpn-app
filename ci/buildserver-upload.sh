@@ -38,7 +38,7 @@ while true; do
             continue
         fi
 
-        if [[ "$platform" == "desktop-downloader" ]]; then
+        if [[ "$platform" == "installer-downloader" ]]; then
             upload_path="desktop/installer-downloader"
         elif [[ $version == *"-dev-"* ]]; then
             upload_path="$platform/builds"
