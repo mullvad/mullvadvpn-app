@@ -31,7 +31,7 @@ export class UpdateAvailableNotificationProvider
     }
     if (
       this.context.suggestedIsBeta &&
-      this.context.suggestedUpgrade === this.context.updateDismissedForVersion
+      this.context.suggestedUpgrade.version === this.context.updateDismissedForVersion
     ) {
       return false;
     }
