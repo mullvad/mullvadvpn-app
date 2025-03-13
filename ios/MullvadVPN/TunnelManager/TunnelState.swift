@@ -145,6 +145,10 @@ enum TunnelState: Equatable, CustomStringConvertible, Sendable {
             nil
         }
     }
+
+    var isMultihop: Bool {
+        relays?.entry != nil
+    }
 }
 
 /// A enum that describes the action to perform after disconnect.
