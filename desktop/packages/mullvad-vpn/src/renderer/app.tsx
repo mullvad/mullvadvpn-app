@@ -208,6 +208,17 @@ export default class AppRenderer {
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
 
+    // TODO: Remove this static change before merge
+    initialState.upgradeVersion = {
+      supported: true,
+      suggestedIsBeta: false,
+      suggestedUpgrade: {
+        downloaded: false,
+        changelog: 'This is a changelog.\nWith newlines in it.\n',
+        version: '2100.1',
+      },
+    };
+
     this.setLocale(initialState.translations.locale);
     loadTranslations(
       messages,
