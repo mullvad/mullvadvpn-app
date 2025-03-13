@@ -2,6 +2,7 @@ import { sprintf } from 'sprintf-js';
 
 import { RoutePath } from '../../renderer/lib/routes';
 import { messages } from '../../shared/gettext';
+import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
 import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
@@ -13,7 +14,7 @@ import {
 } from './notification';
 
 interface UpdateAvailableNotificationContext {
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
   updateDismissedForVersion?: string;
   close?: () => void;
@@ -30,7 +31,7 @@ export class UpdateAvailableNotificationProvider
     }
     if (
       this.context.suggestedIsBeta &&
-      this.context.suggestedUpgrade === this.context.updateDismissedForVersion
+      this.context.suggestedUpgrade.version === this.context.updateDismissedForVersion
     ) {
       return false;
     }
@@ -92,7 +93,7 @@ export class UpdateAvailableNotificationProvider
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(version)s - The version number of the new beta version.
         messages.pgettext('in-app-notifications', 'Try out the newest beta version (%(version)s).'),
-        { version: this.context.suggestedUpgrade },
+        { version: this.context.suggestedUpgrade?.version },
       );
     } else {
       // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
@@ -114,7 +115,7 @@ export class UpdateAvailableNotificationProvider
           'notifications',
           'Beta update available. Try out the newest beta version (%(version)s).',
         ),
-        { version: this.context.suggestedUpgrade },
+        { version: this.context.suggestedUpgrade?.version },
       );
     } else {
       return messages.pgettext(

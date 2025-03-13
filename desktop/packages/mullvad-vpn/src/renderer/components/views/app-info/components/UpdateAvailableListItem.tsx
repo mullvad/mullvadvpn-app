@@ -28,7 +28,7 @@ export const UpdateAvailableListItem = () => {
                 <ListItem.Label>
                   {messages.pgettext('app-info-view', 'Update available')}
                 </ListItem.Label>
-                <StyledText variant="footnoteMini">{suggestedUpgrade}</StyledText>
+                <StyledText variant="footnoteMini">{suggestedUpgrade?.version}</StyledText>
               </Flex>
               <ListItem.Group>
                 <Notification variant="warning" size="small" />
