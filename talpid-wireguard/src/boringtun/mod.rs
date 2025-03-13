@@ -268,11 +268,9 @@ fn get_tunnel_for_userspace(
     tun_config.routes = routes.collect();
     tun_config.mtu = config.mtu;
 
-    let tunnel_device = tun_provider
+    tun_provider
         .open_tun()
-        .map_err(TunnelError::SetupTunnelDevice)?;
-
-    return Ok(tunnel_device);
+        .map_err(TunnelError::SetupTunnelDevice)
 }
 
 #[cfg(target_os = "android")]
