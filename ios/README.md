@@ -100,4 +100,6 @@ ios/convert-assets.rb --additional-assets
 
 ## Cached relays
 
-The script `relays-prebuild.sh` runs on each Xcode build and updates the cached relay list whenever there *IS NO* relay file. To get a fresh relay file on demand, simply remove `MullvadREST/Assets/relays.json` and build the Xcode project.
+The script `relays-prebuild.sh` runs on each Xcode build and will download and cache a list of relays if it is not already present for a given configuration.
+The cached list for a given configuration will always override the current relays file.
+To get a fresh relay file on demand, issue a `clean` command to Xcode and re-build the project.
