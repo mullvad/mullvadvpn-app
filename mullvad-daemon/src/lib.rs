@@ -3187,7 +3187,12 @@ impl Daemon {
             }
         };
 
-        self.relay_selector.set_relays(relays);
+        self.relay_selector.set_relays(relays.clone());
+
+        self.management_interface
+            .notifier()
+            .notify_relay_list(relays);
+
         self.reconnect_tunnel();
 
         Self::oneshot_send(tx, (), "on_toggle_relay response");
