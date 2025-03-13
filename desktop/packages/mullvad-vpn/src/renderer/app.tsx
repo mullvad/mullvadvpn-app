@@ -53,7 +53,7 @@ import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
 import accountActions from './redux/account/actions';
 import connectionActions from './redux/connection/actions';
-import { downloadUpdateActions } from './redux/download-update/actions';
+import { appUpgradeActions } from './redux/download-update/actions';
 import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
 import userInterfaceActions from './redux/userinterface/actions';
@@ -97,7 +97,7 @@ export default class AppRenderer {
   private reduxActions = {
     account: bindActionCreators(accountActions, this.reduxStore.dispatch),
     connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
-    downloadUpdate: bindActionCreators(downloadUpdateActions, this.reduxStore.dispatch),
+    appUpgradeActions: bindActionCreators(appUpgradeActions, this.reduxStore.dispatch),
     settings: bindActionCreators(settingsActions, this.reduxStore.dispatch),
     version: bindActionCreators(versionActions, this.reduxStore.dispatch),
     userInterface: bindActionCreators(userInterfaceActions, this.reduxStore.dispatch),
@@ -404,39 +404,39 @@ export default class AppRenderer {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
 
-  public startDownload = async (version: string) => {
+  public startDownload = async () => {
     const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-    this.reduxActions.downloadUpdate.downloadUpdateStart(version);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadStarted();
     await delay(1000);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(0);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(0, 'cdn.mullvad.net', 3000);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(10);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(10, 'cdn.mullvad.net', 2700);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(20);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(20, 'cdn.mullvad.net', 2400);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(30);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(30, 'cdn.mullvad.net', 2100);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(40);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(40, 'cdn.mullvad.net', 1800);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(50);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(50, 'cdn.mullvad.net', 1500);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(60);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(60, 'cdn.mullvad.net', 1200);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(70);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(70, 'cdn.mullvad.net', 900);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(80);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(80, 'cdn.mullvad.net', 600);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(90);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(90, 'cdn.mullvad.net', 300);
     await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(100);
+    this.reduxActions.appUpgradeActions.appUpgradeDownloadProgress(100, 'cdn.mullvad.net', 0);
     await delay(100);
-    this.reduxActions.downloadUpdate.downloadUpdateVerify();
+    this.reduxActions.appUpgradeActions.appUpgradeVerifyingInstaller();
     await delay(500);
-    this.reduxActions.downloadUpdate.downloadUpdateReady();
+    this.reduxActions.appUpgradeActions.appUpgradeVerifyingInstaller();
   };
 
   public stopDownload = () => {
-    this.reduxActions.downloadUpdate.downloadUpdateReset();
+    this.reduxActions.appUpgradeActions.appUpgradeAborted();
   };
 
   public login = async (accountNumber: AccountNumber) => {
@@ -636,7 +636,7 @@ export default class AppRenderer {
 
   public setDismissedUpgrade = (): void => {
     IpcRendererEventChannel.upgradeVersion.dismissedUpgrade(
-      this.reduxStore.getState().version.suggestedUpgrade ?? '',
+      this.reduxStore.getState().version.suggestedUpgrade?.version ?? '',
     );
   };
 

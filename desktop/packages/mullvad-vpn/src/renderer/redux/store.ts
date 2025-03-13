@@ -7,8 +7,8 @@ import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
 import connectionReducer, { IConnectionReduxState } from './connection/reducers';
-import { downloadUpdateActions } from './download-update/actions';
-import { downloadUpdateReducer, DownloadUpdateState } from './download-update/reducers';
+import { appUpgradeActions } from './download-update/actions';
+import { appUpgradeReducer, AppUpgradeState } from './download-update/reducers';
 import settingsActions, { SettingsAction } from './settings/actions';
 import settingsReducer, { ISettingsReduxState } from './settings/reducers';
 import { SettingsImportAction } from './settings-import/actions';
@@ -23,7 +23,7 @@ import versionReducer, { IVersionReduxState } from './version/reducers';
 export interface IReduxState {
   account: IAccountReduxState;
   connection: IConnectionReduxState;
-  downloadUpdate: DownloadUpdateState;
+  appUpgrade: AppUpgradeState;
   settings: ISettingsReduxState;
   support: ISupportReduxState;
   version: IVersionReduxState;
@@ -46,7 +46,7 @@ export default function configureStore() {
   const reducers = {
     account: accountReducer,
     connection: connectionReducer,
-    downloadUpdate: downloadUpdateReducer,
+    appUpgrade: appUpgradeReducer,
     settings: settingsReducer,
     support: supportReducer,
     version: versionReducer,
@@ -63,7 +63,7 @@ function composeEnhancers(): StoreEnhancer {
   const actionCreators = {
     ...accountActions,
     ...connectionActions,
-    ...downloadUpdateActions,
+    ...appUpgradeActions,
     ...settingsActions,
     ...supportActions,
     ...versionActions,

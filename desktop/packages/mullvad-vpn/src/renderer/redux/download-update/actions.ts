@@ -1,96 +1,82 @@
-export type DownloadUpdateStatus =
-  | 'idle'
-  | 'starting'
-  | 'downloading'
-  | 'verifying'
-  | 'readyForInstall'
-  | 'error';
+import { AppUpgradeError } from '../../../shared/daemon-rpc-types';
 
-export const DOWNLOAD_UPDATE_START = 'DOWNLOAD_UPDATE_START';
-export const DOWNLOAD_UPDATE_DOWNLOADING = 'DOWNLOAD_UPDATE_DOWNLOADING';
-export const DOWNLOAD_UPDATE_PROGRESS = 'DOWNLOAD_UPDATE_PROGRESS';
-export const DOWNLOAD_UPDATE_VERIFY = 'DOWNLOAD_UPDATE_VERIFY';
-export const DOWNLOAD_UPDATE_READY = 'DOWNLOAD_UPDATE_READY';
-export const DOWNLOAD_UPDATE_ERROR = 'DOWNLOAD_UPDATE_ERROR';
-export const DOWNLOAD_UPDATE_RESET = 'DOWNLOAD_UPDATE_RESET';
+export const APP_UPGRADE_EVENT_DOWNLOAD_STARTED = 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED';
+export const APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS = 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS';
+export const APP_UPGRADE_EVENT_ABORTED = 'APP_UPGRADE_EVENT_ABORTED';
+export const APP_UPGRADE_EVENT_VERIFYING_INSTALLER = 'APP_UPGRADE_EVENT_VERIFYING_INSTALLER';
+export const APP_UPGRADE_EVENT_STARTING_INSTALLER = 'APP_UPGRADE_EVENT_STARTING_INSTALLER';
+export const APP_UPGRADE_EVENT_ERROR = 'APP_UPGRADE_EVENT_ERROR';
 
-export interface DownloadUpdateStartAction {
-  type: typeof DOWNLOAD_UPDATE_START;
-  version: string;
-}
+export type AppUpgradeEventDownloadStarted = {
+  type: typeof APP_UPGRADE_EVENT_DOWNLOAD_STARTED;
+};
 
-export interface DownloadUpdateDownloadingAction {
-  type: typeof DOWNLOAD_UPDATE_DOWNLOADING;
-}
-
-export interface DownloadUpdateProgressAction {
-  type: typeof DOWNLOAD_UPDATE_PROGRESS;
+export type AppUpgradeEventDownloadProgress = {
+  type: typeof APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS;
   progress: number;
-}
+  server: string;
+  timeLeft: number;
+};
 
-export interface DownloadUpdateVerifyAction {
-  type: typeof DOWNLOAD_UPDATE_VERIFY;
-}
+export type AppUpgradeEventAborted = {
+  type: typeof APP_UPGRADE_EVENT_ABORTED;
+};
 
-export interface DownloadUpdateReadyAction {
-  type: typeof DOWNLOAD_UPDATE_READY;
-}
+export type AppUpgradeEventVerifyingInstaller = {
+  type: typeof APP_UPGRADE_EVENT_VERIFYING_INSTALLER;
+};
 
-export interface DownloadUpdateErrorAction {
-  type: typeof DOWNLOAD_UPDATE_ERROR;
-  error: string;
-}
+export type AppUpgradeEventStartingInstaller = {
+  type: typeof APP_UPGRADE_EVENT_STARTING_INSTALLER;
+};
 
-export interface DownloadUpdateResetAction {
-  type: typeof DOWNLOAD_UPDATE_RESET;
-}
+export type AppUpgradeEventError = {
+  type: typeof APP_UPGRADE_EVENT_ERROR;
+  error: AppUpgradeError;
+};
 
-export type DownloadUpdateActions =
-  | DownloadUpdateStartAction
-  | DownloadUpdateDownloadingAction
-  | DownloadUpdateProgressAction
-  | DownloadUpdateVerifyAction
-  | DownloadUpdateReadyAction
-  | DownloadUpdateErrorAction
-  | DownloadUpdateResetAction;
+export type AppUpgradeEvent =
+  | AppUpgradeEventDownloadStarted
+  | AppUpgradeEventDownloadProgress
+  | AppUpgradeEventAborted
+  | AppUpgradeEventVerifyingInstaller
+  | AppUpgradeEventStartingInstaller
+  | AppUpgradeEventError;
 
-export const downloadUpdateStart = (version: string): DownloadUpdateStartAction => ({
-  type: DOWNLOAD_UPDATE_START,
-  version,
+export type AppUpgradeEventType = AppUpgradeEvent['type'];
+
+export const appUpgradeDownloadStarted = (): AppUpgradeEventDownloadStarted => ({
+  type: APP_UPGRADE_EVENT_DOWNLOAD_STARTED,
 });
 
-export const downloadUpdateDownloading = (): DownloadUpdateDownloadingAction => ({
-  type: DOWNLOAD_UPDATE_DOWNLOADING,
-});
-
-export const downloadUpdateProgress = (progress: number): DownloadUpdateProgressAction => ({
-  type: DOWNLOAD_UPDATE_PROGRESS,
+export const appUpgradeDownloadProgress = (
+  progress: number,
+  server: string,
+  timeLeft: number,
+): AppUpgradeEventDownloadProgress => ({
+  type: APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS,
   progress,
+  server,
+  timeLeft,
 });
 
-export const downloadUpdateVerify = (): DownloadUpdateVerifyAction => ({
-  type: DOWNLOAD_UPDATE_VERIFY,
+export const appUpgradeVerifyingInstaller = (): AppUpgradeEventVerifyingInstaller => ({
+  type: APP_UPGRADE_EVENT_VERIFYING_INSTALLER,
 });
 
-export const downloadUpdateReady = (): DownloadUpdateReadyAction => ({
-  type: DOWNLOAD_UPDATE_READY,
-});
-
-export const downloadUpdateError = (error: string): DownloadUpdateErrorAction => ({
-  type: DOWNLOAD_UPDATE_ERROR,
+export const appUpgradeError = (error: AppUpgradeError): AppUpgradeEventError => ({
+  type: APP_UPGRADE_EVENT_ERROR,
   error,
 });
 
-export const downloadUpdateReset = (): DownloadUpdateResetAction => ({
-  type: DOWNLOAD_UPDATE_RESET,
+export const appUpgradeAborted = (): AppUpgradeEventAborted => ({
+  type: APP_UPGRADE_EVENT_ABORTED,
 });
 
-export const downloadUpdateActions = {
-  downloadUpdateStart,
-  downloadUpdateDownloading,
-  downloadUpdateProgress,
-  downloadUpdateVerify,
-  downloadUpdateReady,
-  downloadUpdateError,
-  downloadUpdateReset,
+export const appUpgradeActions = {
+  appUpgradeDownloadStarted,
+  appUpgradeDownloadProgress,
+  appUpgradeVerifyingInstaller,
+  appUpgradeError,
+  appUpgradeAborted,
 };

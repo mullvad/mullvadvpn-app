@@ -1,2 +1,1 @@
 export * from './Changelog';
-export * from './Footer';

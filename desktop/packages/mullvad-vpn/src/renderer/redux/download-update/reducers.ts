@@ -1,75 +1,49 @@
 import {
-  DOWNLOAD_UPDATE_DOWNLOADING,
-  DOWNLOAD_UPDATE_ERROR,
-  DOWNLOAD_UPDATE_PROGRESS,
-  DOWNLOAD_UPDATE_READY,
-  DOWNLOAD_UPDATE_RESET,
-  DOWNLOAD_UPDATE_START,
-  DOWNLOAD_UPDATE_VERIFY,
-  DownloadUpdateActions,
-  DownloadUpdateStatus,
+  APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS,
+  APP_UPGRADE_EVENT_DOWNLOAD_STARTED,
+  APP_UPGRADE_EVENT_ERROR,
+  APP_UPGRADE_EVENT_STARTING_INSTALLER,
+  APP_UPGRADE_EVENT_VERIFYING_INSTALLER,
+  AppUpgradeEvent,
 } from './actions';
 
-export interface DownloadUpdateState {
-  version?: string;
-  status: DownloadUpdateStatus;
-  progress: number;
-  error?: string;
+export interface AppUpgradeState {
+  event?: AppUpgradeEvent;
 }
 
-const initialState: DownloadUpdateState = {
-  version: undefined,
-  status: 'idle',
-  progress: 0,
+const initialState: AppUpgradeState = {
+  event: undefined,
 };
 
-export function downloadUpdateReducer(
-  state: DownloadUpdateState = initialState,
-  action: DownloadUpdateActions,
-): DownloadUpdateState {
+export function appUpgradeReducer(
+  state: AppUpgradeState = initialState,
+  action: AppUpgradeEvent,
+): AppUpgradeState {
   switch (action.type) {
-    case DOWNLOAD_UPDATE_START:
+    case APP_UPGRADE_EVENT_DOWNLOAD_STARTED:
       return {
         ...state,
-        version: action.version,
-        status: 'starting',
-        progress: 0,
-        error: undefined,
+        event: action,
       };
-    case DOWNLOAD_UPDATE_DOWNLOADING:
+    case APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS:
       return {
         ...state,
-        status: 'downloading',
-        error: undefined,
+        event: action,
       };
-    case DOWNLOAD_UPDATE_PROGRESS:
+    case APP_UPGRADE_EVENT_VERIFYING_INSTALLER:
       return {
         ...state,
-        progress: action.progress,
+        event: action,
       };
-    case DOWNLOAD_UPDATE_VERIFY:
+    case APP_UPGRADE_EVENT_STARTING_INSTALLER:
       return {
         ...state,
-        status: 'verifying',
+        event: action,
       };
-    case DOWNLOAD_UPDATE_READY:
+    case APP_UPGRADE_EVENT_ERROR:
       return {
         ...state,
-        status: 'readyForInstall',
-        progress: 100,
-      };
-    case DOWNLOAD_UPDATE_ERROR:
-      return {
-        ...state,
-        status: 'error',
-        error: action.error,
-      };
-    case DOWNLOAD_UPDATE_RESET:
-      return {
-        version: undefined,
-        status: 'idle',
-        progress: 0,
-        error: undefined,
+        event: action,
       };
     default:
       return state;
