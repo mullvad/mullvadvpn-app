@@ -37,6 +37,9 @@ Line wrap the file at 100 chars.                                              Th
 #### macOS
 - Fix routing issue caused by upgrading `tun`.
 
+#### Windows
+- Mitigate potential routing loop for the tunnel interface.
+
 
 ## [2025.4] - 2025-02-12
 This release is identical to 2025.4-beta1
