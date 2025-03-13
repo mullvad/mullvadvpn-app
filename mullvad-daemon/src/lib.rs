@@ -31,7 +31,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use api::{AllowedClientsSelector, BridgeAndDNSProxyProvider};
+use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -41,7 +41,7 @@ use futures::{
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
-use mullvad_api::{access_mode::AccessMethodEvent, proxy::AllowedClientsProvider, ApiEndpoint};
+use mullvad_api::{access_mode::AccessMethodEvent, ApiEndpoint};
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
@@ -708,18 +708,20 @@ impl Daemon {
         });
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
-        let bridge_dns_proxy_provider =
-            BridgeAndDNSProxyProvider::new(relay_selector.clone(), encrypted_dns_proxy_cache);
+        let bridge_dns_proxy_provider = DaemonAccessMethodResolver::new(
+            relay_selector.clone(),
+            encrypted_dns_proxy_cache,
+            api_runtime.address_cache().clone(),
+        );
 
         let (access_mode_handler, access_mode_provider) =
-            mullvad_api::access_mode::AccessModeSelector::<AllowedClientsSelector>::spawn(
+            mullvad_api::access_mode::AccessModeSelector::spawn(
                 config.cache_dir.clone(),
-                Box::new(bridge_dns_proxy_provider),
+                bridge_dns_proxy_provider,
                 settings.api_access_methods.clone(),
                 #[cfg(feature = "api-override")]
                 config.endpoint.clone(),
                 internal_event_tx.to_unbounded_sender(),
-                api_runtime.address_cache().clone(),
             )
             .await
             .map_err(Error::ApiConnectionModeError)?;
@@ -2855,7 +2857,7 @@ impl Daemon {
         let api_proxy = self.create_limited_api_proxy(connection_mode.clone());
         let proxy_endpoint = AllowedEndpoint {
             endpoint: proxy.get_remote_endpoint().endpoint,
-            clients: AllowedClientsSelector::allowed_clients(&connection_mode),
+            clients: api::allowed_clients(&connection_mode),
         };
 
         let daemon_event_sender = self.tx.to_specialized_sender();
