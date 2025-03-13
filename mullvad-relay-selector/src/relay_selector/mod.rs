@@ -53,10 +53,9 @@ use talpid_types::{
     ErrorExt,
 };
 
-/// [`WIREGUARD_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector
-/// should should prioritize on successive connection attempts. Note that these will *never*
-/// override user preferences. See [the documentation on `RelayQuery`][RelayQuery] for further
-/// details.
+/// [`WIREGUARD_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
+/// prioritize on successive connection attempts. Note that these will *never* override user
+/// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
 pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
@@ -82,8 +81,8 @@ pub static WIREGUARD_RETRY_ORDER: LazyLock<Vec<RelayQuery>> = LazyLock::new(|| {
     ]
 });
 
-/// [`OPENVPN_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector
-/// should prioritize on successive connection attempts. Note that these will *never* override user
+/// [`OPENVPN_RETRY_ORDER`] defines an ordered set of relay parameters which the relay selector should
+/// prioritize on successive connection attempts. Note that these will *never* override user
 /// preferences. See [the documentation on `RelayQuery`][RelayQuery] for further details.
 ///
 /// This list should be kept in sync with the expected behavior defined in `docs/relay-selector.md`
@@ -694,10 +693,10 @@ impl RelaySelector {
         parsed_relays: &RelayList,
         custom_lists: &CustomListsSettings,
     ) -> Result<GetRelay, Error> {
-        // FIXME: A bit of defensive programming - calling `get_wireguard_relay_inner` with a query
-        // that doesn't specify Wireguard as the desired tunnel type is not valid and will
-        // lead to unwanted behavior. This should be seen as a workaround, and it would be
-        // nicer to lift this invariant to be checked by the type system instead.
+        // FIXME: A bit of defensive programming - calling `get_wireguard_relay_inner` with a query that
+        // doesn't specify Wireguard as the desired tunnel type is not valid and will lead
+        // to unwanted behavior. This should be seen as a workaround, and it would be nicer
+        // to lift this invariant to be checked by the type system instead.
         let mut query = query.clone();
         query.set_tunnel_protocol(TunnelType::Wireguard)?;
         Self::get_wireguard_relay_inner(&query, custom_lists, parsed_relays)
