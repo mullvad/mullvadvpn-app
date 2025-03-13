@@ -37,6 +37,10 @@ BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
 
 FILENAME="Install Mullvad VPN"
 
+# When --upload is passed, git verify-tag looks for a signed tag with the prefix below.
+# The signed tag must be named $TAG_PREFIX/<version>.
+TAG_PREFIX="desktop/installer-downloader/"
+
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
 
@@ -356,6 +360,36 @@ function upload {
     upload_sftp "$checksums_path" "$version" || return 1
 }
 
+# Check if the current commit has a signed tag
+#
+# Arguments:
+# - version
+function verify_version_tag {
+    local version=$1
+
+    local expect_tag="${TAG_PREFIX}${version}"
+    log_info "Current commit must have tag: $expect_tag"
+
+    local tag
+    set +e
+    tag=$(git describe --exact-match --tags)
+    local describe_exit=$?
+    set -e
+
+    if [[ $describe_exit -ne 0 ]]; then
+        log_error "'git describe' failed for the current commit (no tag?). Expected tag $expect_tag"
+        exit 1
+    fi
+
+    if [[ "$tag" != "$expect_tag" ]]; then
+        log_error "Unexpected tag found for current commit. Expected $expect_tag. Found: $tag"
+        exit 1
+    fi
+
+    log_info "Verifying tag $tag..."
+    git verify-tag "$tag"
+}
+
 function main {
     if [[ "$SIGN" != "false" ]]; then
         assert_can_sign
@@ -382,6 +416,9 @@ function main {
     if [[ "$UPLOAD" == "true" ]]; then
         local version
         version=$(product_version)
+
+        verify_version_tag "$version"
+
         (cd "$DIST_DIR" && upload "$version") || return 1
     fi
 }
