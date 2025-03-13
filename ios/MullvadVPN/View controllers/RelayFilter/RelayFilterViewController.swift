@@ -110,7 +110,7 @@ class RelayFilterViewController: UIViewController {
             .sink { [weak self] filter in
                 guard let self else { return }
                 let filterDescriptor = viewModel.getFilteredRelays(filter)
-                descriptionLabel.alpha = filterDescriptor.isEnabled ? 1.0 : 0.5
+                descriptionLabel.alpha = filterDescriptor.isEnabled ? 1.0 : 0.2
                 applyButton.isEnabled = filterDescriptor.isEnabled
                 applyButton.setTitle(filterDescriptor.title, for: .normal)
                 descriptionLabel.text = filterDescriptor.description
