@@ -59,10 +59,10 @@ jobs:
         run: |
           sudo apt-get remove gradle
           mkdir /opt/gradle
-          curl -sfLo /opt/gradle/gradle-8.13-bin.zip https\://services.gradle.org/distributions/gradle-8.13-bin.zip 
+          curl -sfLo /opt/gradle/gradle-8.13-bin.zip https\://services.gradle.org/distributions/gradle-8.13-bin.zip
           unzip -d /opt/gradle /opt/gradle/gradle-8.13-bin.zip
 
-      # These are equivalent to the sudo section of the metadata file    
+      # These are equivalent to the sudo section of the metadata file
       - name: Install dependencies
         run: |
           sudo apt-get update
