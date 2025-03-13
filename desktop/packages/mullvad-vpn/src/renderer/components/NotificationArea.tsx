@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
@@ -17,13 +18,15 @@ import {
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
 import { Icon } from '../lib/components';
-import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
 import {
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
+  NoOpenVpnServerAvailableNotificationProvider,
+  OpenVpnSupportEndingNotificationProvider,
 } from '../lib/notifications';
+import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
@@ -47,6 +50,11 @@ interface IProps {
   className?: string;
 }
 
+const StyledIcon = styled(Icon)`
+  display: inline-flex;
+  vertical-align: middle;
+`;
+
 export default function NotificationArea(props: IProps) {
   const { showFullDiskAccessSettings } = useAppContext();
 
@@ -54,6 +62,10 @@ export default function NotificationArea(props: IProps) {
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
   const version = useSelector((state: IReduxState) => state.version);
+  const tunnelProtocol = useTunnelProtocol();
+  const reduxConnection = useSelector((state) => state.connection);
+  const fullRelayList = useSelector((state) => state.settings.relayLocations);
+
   const blockWhenDisconnected = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
@@ -92,7 +104,11 @@ export default function NotificationArea(props: IProps) {
       blockWhenDisconnected,
       hasExcludedApps,
     }),
-
+    new NoOpenVpnServerAvailableNotificationProvider({
+      tunnelProtocol,
+      tunnelState: reduxConnection.status,
+      relayLocations: fullRelayList,
+    }),
     new ErrorNotificationProvider({
       tunnelState,
       hasExcludedApps,
@@ -122,6 +138,7 @@ export default function NotificationArea(props: IProps) {
       close,
     }),
     new UpdateAvailableNotificationProvider(version),
+    new OpenVpnSupportEndingNotificationProvider({ tunnelProtocol }),
   );
 
   const notificationProvider = notificationProviders.find((notification) =>
@@ -147,16 +164,13 @@ export default function NotificationArea(props: IProps) {
                 ? notification.subtitle.map((subtitle, index, arr) => {
                     const content = subtitle.action ? (
                       subtitle.action.type === 'navigate-internal' ? (
-                        <InternalLink
-                          variant="labelTiny"
-                          color={Colors.white60}
-                          {...subtitle.action.link}>
+                        <InternalLink variant="labelTiny" {...subtitle.action.link}>
                           {formatHtml(subtitle.content)}
                         </InternalLink>
                       ) : subtitle.action.type === 'navigate-external' ? (
                         <ExternalLink variant="labelTiny" {...subtitle.action.link}>
                           {formatHtml(subtitle.content)}
-                          <Icon icon="external" size="small" />
+                          <StyledIcon icon="external" size="small" />
                         </ExternalLink>
                       ) : (
                         formatHtml(subtitle.content)
@@ -166,10 +180,10 @@ export default function NotificationArea(props: IProps) {
                     );
 
                     return (
-                      <span key={index}>
+                      <>
                         {content}
                         {index !== arr.length - 1 && ' '}
-                      </span>
+                      </>
                     );
                   })
                 : formatHtml(notification.subtitle ?? '')}
