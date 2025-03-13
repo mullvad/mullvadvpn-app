@@ -81,7 +81,7 @@ export default class Version {
 
     const suggestedIsBeta =
       latestVersionInfo.suggestedUpgrade !== undefined &&
-      IS_BETA.test(latestVersionInfo.suggestedUpgrade);
+      IS_BETA.test(latestVersionInfo.suggestedUpgrade.version);
 
     const upgradeVersion = {
       ...latestVersionInfo,
