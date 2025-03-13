@@ -15,12 +15,6 @@ TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
 # just running the suggested 'help' task isn't sufficient.
 GRADLE_TASKS=(
     "lint"
-    "assemble"
-    "compileDebugUnitTestKotlin"
-    "assembleAndroidTest"
-)
-EXCLUDED_GRADLE_TASKS=(
-    "-xcargoBuild"
 )
 
 export GRADLE_OPTS
@@ -49,7 +43,7 @@ echo "Generating new components..."
 # Using a loop here since providing all tasks at once result in gradle task dependency issues.
 for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
     echo "Gradle task: $GRADLE_TASK"
-    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "$GRADLE_TASK" "${EXCLUDED_GRADLE_TASKS[@]}"
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "$GRADLE_TASK"
     echo ""
 done
 
@@ -60,7 +54,7 @@ echo "Temporarily enabling key servers..."
 sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' ../gradle/verification-metadata.xml
 
 echo "Generating new trusted keys..."
-../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys --dry-run "${EXCLUDED_GRADLE_TASKS[@]}"
+../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys --dry-run
 
 # Move keys from dry run file to existing file.
 # This part is taken from: https://gitlab.com/fdroid/fdroidclient/-/blob/master/gradle/update-verification-metadata.sh
