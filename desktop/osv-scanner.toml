@@ -3,19 +3,19 @@
 # PostCSS line return parsing error
 [[IgnoredVulns]]
 id = "CVE-2023-44270" # GHSA-7fh5-64p2-3v2j
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-06-05
 reason = "This project does not use PostCSS to parse untrusted CSS"
 
 # braces: Uncontrolled resource consumption
 [[IgnoredVulns]]
 id = "CVE-2024-4068" # GHSA-grv7-fg5c-xmjg
-ignoreUntil = 2025-03-05
+ignoreUntil = 2025-06-05
 reason = "This package is only used to match paths from either us or trusted libraries"
 
 # micromatch (dev): Regular Expression Denial of Service (ReDoS) in micromatch
 [[IgnoredVulns]]
 id = "CVE-2024-4067" # GHSA-952p-6rrq-rcjv
-ignoreUntil = 2025-02-23
+ignoreUntil = 2025-05-23
 reason = "This is just a dev dependency, and we don't have untrusted input to micromatch there"
 
 # node-gettext: Prototype Pullution via the addTranslations function
