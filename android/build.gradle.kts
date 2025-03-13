@@ -23,7 +23,6 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        maven(Repositories.GradlePlugins)
         gradlePluginPortal()
     }
     dependencies {
