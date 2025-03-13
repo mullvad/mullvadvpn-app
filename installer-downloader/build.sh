@@ -321,9 +321,9 @@ function dist_windows_app {
 # - local file
 # - remote file
 function upload_sftp {
-    echo "Uploading \"$1\" to app-build-linux:upload/downloader/$2"
+    echo "Uploading \"$1\" to app-build-linux:upload/installer-downloader/$2"
     sftp app-build-linux <<EOF
-cd upload/downloader
+cd upload/installer-downloader
 put $1 $2
 bye
 EOF
