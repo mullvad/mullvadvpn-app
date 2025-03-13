@@ -251,7 +251,3 @@ impl ShadowsocksEndpointData {
         }
     }
 }
-
-pub trait ShadowsocksBridgeProvider: Send + Sync {
-    fn get_bridge_forced(&self) -> Option<Shadowsocks>;
-}
