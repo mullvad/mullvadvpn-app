@@ -10,33 +10,31 @@ use mullvad_api::{
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_management_interface::async_trait;
-use mullvad_types::{
-    access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod},
-    relay_list::ShadowsocksBridgeProvider,
-};
+use mullvad_relay_selector::RelaySelector;
+use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, BuiltInAccessMethod};
 #[cfg(target_os = "android")]
 use talpid_core::mpsc::Sender;
 use talpid_types::net::{proxy::CustomProxy, AllowedClients, Connectivity};
 
-pub struct BridgeAndDNSProxyProvider<T> {
-    bridge_provider: T,
+pub struct BridgeAndDNSProxyProvider {
+    relay_selector: RelaySelector,
     encrypted_dns_proxy_cache: EncryptedDnsProxyState,
 }
 
-impl<T: ShadowsocksBridgeProvider> BridgeAndDNSProxyProvider<T> {
-    pub fn new(bridge_provider: T, encrypted_dns_proxy_cache: EncryptedDnsProxyState) -> Self {
+impl BridgeAndDNSProxyProvider {
+    pub fn new(
+        relay_selector: RelaySelector,
+        encrypted_dns_proxy_cache: EncryptedDnsProxyState,
+    ) -> Self {
         Self {
-            bridge_provider,
+            relay_selector,
             encrypted_dns_proxy_cache,
         }
     }
 }
 
 #[async_trait]
-impl<T> BridgeAndDNSProxy for BridgeAndDNSProxyProvider<T>
-where
-    T: ShadowsocksBridgeProvider,
-{
+impl BridgeAndDNSProxy for BridgeAndDNSProxyProvider {
     async fn match_access_method(
         &mut self,
         access_method: &AccessMethodSetting,
@@ -45,7 +43,7 @@ where
             match &access_method.access_method {
                 AccessMethod::BuiltIn(BuiltInAccessMethod::Direct) => ApiConnectionMode::Direct,
                 AccessMethod::BuiltIn(BuiltInAccessMethod::Bridge) => {
-                    let Some(bridge) = self.bridge_provider.get_bridge_forced() else {
+                    let Some(bridge) = self.relay_selector.get_bridge_forced() else {
                         log::warn!("Could not select a Mullvad bridge");
                         log::debug!("The relay list might be empty");
                         return None;
