@@ -81,7 +81,7 @@ export default class Version {
 
     const suggestedIsBeta =
       latestVersionInfo.suggestedUpgrade !== undefined &&
-      IS_BETA.test(latestVersionInfo.suggestedUpgrade);
+      IS_BETA.test(latestVersionInfo.suggestedUpgrade.version);
 
     const upgradeVersion = {
       ...latestVersionInfo,
@@ -95,7 +95,6 @@ export default class Version {
       new UnsupportedVersionNotificationProvider({
         supported: latestVersionInfo.supported,
         consistent: this.currentVersionData.isConsistent,
-        suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
         suggestedIsBeta,
       }),
       new UpdateAvailableNotificationProvider({
