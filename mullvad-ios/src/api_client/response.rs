@@ -29,19 +29,19 @@ impl SwiftMullvadApiResponse {
         let body_size = body.len();
         let body = body.into_boxed_slice();
 
-        let etag = match maybe_etag {
-            Some(etag) => {
-                let header_value =
-                    CString::new(etag).map_err(|_| rest::Error::InvalidHeaderError)?;
-                header_value.into_raw().cast()
-            },
-            None => ptr::null_mut(),
-        };
+        // let etag = match maybe_etag {
+        //     Some(etag) => {
+        //         let header_value =
+        //             CString::new(etag).map_err(|_| rest::Error::InvalidHeaderError)?;
+        //         header_value.into_raw().cast()
+        //     },
+        //     None => ptr::null_mut(),
+        // };
 
         Ok(Self {
             body: Box::<[u8]>::into_raw(body).cast(),
             body_size,
-            etag,
+            etag: null_mut(),
             status_code,
             error_description: null_mut(),
             server_response_code: null_mut(),

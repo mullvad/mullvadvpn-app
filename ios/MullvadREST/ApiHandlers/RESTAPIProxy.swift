@@ -18,6 +18,11 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable
 
+    func mullvadApiGetRelayList(
+        retryStrategy: REST.RetryStrategy,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<[REST.ServerRelay]>
+    ) -> Cancellable
+
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
@@ -71,10 +76,38 @@ extension REST {
                 with: responseDecoder
             )
 
-            let networkOperation = MullvadApiNetworkOperation(
-                name: "get-api-addrs",
-                dispatchQueue: dispatchQueue,
+            return createNetworkOperation(
                 request: .getAddressList(retryStrategy),
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
+
+        public func mullvadApiGetRelayList(
+            retryStrategy: REST.RetryStrategy,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<[REST.ServerRelay]>
+        ) -> Cancellable {
+            let responseHandler = rustResponseHandler(
+                decoding: [REST.ServerRelay].self,
+                with: responseDecoder
+            )
+
+            return createNetworkOperation(
+                request: .getRelayList(retryStrategy),
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
+
+        private func createNetworkOperation<T: Decodable>(
+            request: APIRequest,
+            responseHandler: RustResponseHandler<T>,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<T>
+        ) -> MullvadApiNetworkOperation<T> {
+            let networkOperation = MullvadApiNetworkOperation(
+                name: request.name,
+                dispatchQueue: dispatchQueue,
+                request: request,
                 transportProvider: configuration.apiTransportProvider,
                 responseDecoder: responseDecoder,
                 responseHandler: responseHandler,

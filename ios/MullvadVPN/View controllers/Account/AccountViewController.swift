@@ -64,6 +64,10 @@ class AccountViewController: UIViewController, @unchecked Sendable {
         super.viewDidLoad()
         view.backgroundColor = .secondaryColor
 
+        interactor.apiProxy.mullvadApiGetRelayList(retryStrategy: .default) { result in
+            print(result)
+        }
+
         navigationItem.title = NSLocalizedString(
             "NAVIGATION_TITLE",
             tableName: "Account",

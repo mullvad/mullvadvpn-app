@@ -8,11 +8,21 @@
 
 public enum APIRequest: Codable, Sendable {
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
+    case getRelayList(_ retryStrategy: REST.RetryStrategy)
+
+    var name: String {
+        switch self {
+        case .getAddressList:
+            "get-address-list"
+        case .getRelayList:
+            "get-relay-lisy"
+        }
+    }
 
     var retryStrategy: REST.RetryStrategy {
         switch self {
-        case let .getAddressList(strategy):
-            return strategy
+        case .getAddressList(let strategy), .getRelayList(let strategy):
+            strategy
         }
     }
 }
