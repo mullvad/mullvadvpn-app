@@ -655,11 +655,17 @@ message ExcludedProcess {
 
 message ExcludedProcessList { repeated ExcludedProcess processes = 1; }
 
+message SuggestedUpgrade {
+  string version = 1;
+  optional string changelog = 2;
+  bool downloaded = 3;
+}
+
 message AppVersionInfo {
   bool supported = 1;
   string latest_stable = 2;
   string latest_beta = 3;
-  optional string suggested_upgrade = 4;
+  SuggestedUpgrade suggested_upgrade = 4;
 }
 
 message RelayListCountry {
