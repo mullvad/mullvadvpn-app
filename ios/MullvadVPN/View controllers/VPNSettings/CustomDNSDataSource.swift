@@ -563,17 +563,13 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
     ) -> NSDiffableDataSourceSnapshot<Section, Item> {
         var snapshot = snapshot
 
-        if snapshot.itemIdentifiers(inSection: .contentBlockers).isEmpty {
+        if viewModel.customDNSPrecondition == .satisfied {
             snapshot.deleteItems([.dnsServerInfo])
         } else {
-            if viewModel.customDNSPrecondition == .satisfied {
-                snapshot.deleteItems([.dnsServerInfo])
+            if snapshot.itemIdentifiers(inSection: .customDNS).contains(.dnsServerInfo) {
+                snapshot.reloadItems([.dnsServerInfo])
             } else {
-                if snapshot.itemIdentifiers(inSection: .customDNS).contains(.dnsServerInfo) {
-                    snapshot.reloadItems([.dnsServerInfo])
-                } else {
-                    snapshot.appendItems([.dnsServerInfo], toSection: .customDNS)
-                }
+                snapshot.appendItems([.dnsServerInfo], toSection: .customDNS)
             }
         }
 
@@ -618,10 +614,8 @@ final class CustomDNSDataSource: UITableViewDiffableDataSource<
 
             if headerView.isExpanded {
                 snapshot.deleteItems(Item.contentBlockers)
-                snapshot.deleteItems([.dnsServerInfo])
             } else {
                 snapshot.appendItems(Item.contentBlockers, toSection: .contentBlockers)
-                snapshot.appendItems([.dnsServerInfo])
             }
 
             headerView.isExpanded.toggle()
