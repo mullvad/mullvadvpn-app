@@ -51,7 +51,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -88,7 +87,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
@@ -105,7 +103,6 @@ describe('System notifications', () => {
     const notification = new UnsupportedVersionNotificationProvider({
       supported: false,
       consistent: true,
-      suggestedUpgrade: '2100.1',
       suggestedIsBeta: false,
     });
 
