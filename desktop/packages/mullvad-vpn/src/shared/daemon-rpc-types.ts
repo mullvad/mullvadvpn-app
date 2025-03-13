@@ -396,9 +396,15 @@ export interface IDnsOptions {
   };
 }
 
+export type AppVersionInfoSuggestedUpgrade = {
+  changelog?: string;
+  downloaded: boolean;
+  version: string;
+};
+
 export interface IAppVersionInfo {
   supported: boolean;
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
 }
 
