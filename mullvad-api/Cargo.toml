@@ -52,7 +52,6 @@ mullvad-fs = { path = "../mullvad-fs" }
 mullvad-types = { path = "../mullvad-types" }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
-mullvad-relay-selector = { path = "../mullvad-relay-selector" }
 
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
 
