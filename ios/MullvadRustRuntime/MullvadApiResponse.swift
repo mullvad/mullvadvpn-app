@@ -25,6 +25,14 @@ public class MullvadApiResponse {
         return Data(UnsafeBufferPointer(start: body, count: Int(response.body_size)))
     }
 
+    public var etag: String? {
+        return if response.etag == nil {
+            nil
+        } else {
+            String(cString: response.etag)
+        }
+    }
+
     public var errorDescription: String? {
         return if response.error_description == nil {
             nil

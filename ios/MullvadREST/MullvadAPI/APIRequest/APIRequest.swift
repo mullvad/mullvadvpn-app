@@ -8,11 +8,21 @@
 
 public enum APIRequest: Codable, Sendable {
     case getAddressList(_ retryStrategy: REST.RetryStrategy)
+    case getRelayList(_ retryStrategy: REST.RetryStrategy, etag: String?)
+
+    var name: String {
+        switch self {
+        case .getAddressList:
+            "get-address-list"
+        case .getRelayList:
+            "get-relay-lisy"
+        }
+    }
 
     var retryStrategy: REST.RetryStrategy {
         switch self {
-        case let .getAddressList(strategy):
-            return strategy
+        case .getAddressList(let strategy), .getRelayList(let strategy, _):
+            strategy
         }
     }
 }
@@ -30,9 +40,11 @@ public struct ProxyAPIRequest: Codable, Sendable {
 public struct ProxyAPIResponse: Codable, Sendable {
     public let data: Data?
     public let error: APIError?
+    public let etag: String?
 
-    public init(data: Data?, error: APIError?) {
+    public init(data: Data?, error: APIError?, etag: String? = nil) {
         self.data = data
         self.error = error
+        self.etag = etag
     }
 }

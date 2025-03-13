@@ -1,4 +1,4 @@
-use std::{ffi::CStr, ptr};
+use std::{ffi::CStr, ptr::null};
 
 use mullvad_api::{
     rest::{self, MullvadRestHandle},
@@ -77,7 +77,7 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
     api_context: SwiftApiContext,
     completion_cookie: *mut libc::c_void,
     retry_strategy: SwiftRetryStrategy,
-    etag: Option<*const u8>,
+    etag: *const u8,
 ) -> SwiftCancelHandle {
     let completion_handler = SwiftCompletionHandler::new(CompletionCookie(completion_cookie));
 
@@ -89,17 +89,15 @@ pub unsafe extern "C" fn mullvad_api_get_relays(
     let api_context = api_context.into_rust_context();
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
-    let etag = match etag {
-        Some(etag) => {
-            let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
-            Some(String::from(unwrapped_tag))
-        },
-        None => None,
-    };
+    let mut maybe_etag: Option<String> = None;
+    if etag != null() {
+        let unwrapped_tag = unsafe { CStr::from_ptr(etag.cast()) }.to_str().unwrap();
+        maybe_etag = Some(String::from(unwrapped_tag));
+    }
 
     let completion = completion_handler.clone();
     let task = tokio_handle.clone().spawn(async move {
-        match mullvad_api_get_relays_inner(api_context.rest_handle(), retry_strategy, etag).await {
+        match mullvad_api_get_relays_inner(api_context.rest_handle(), retry_strategy, maybe_etag).await {
             Ok(response) => completion.finish(response),
             Err(err) => {
                 log::error!("{err:?}");
@@ -124,6 +122,8 @@ async fn mullvad_api_get_relays_inner(
         Err(err) => err.is_network_error(),
         Ok(_) => false,
     };
+
+
 
     let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
 

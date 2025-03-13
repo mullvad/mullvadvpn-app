@@ -44,7 +44,8 @@ public final class APITransport: APITransportProtocol {
 
             completion(ProxyAPIResponse(
                 data: response.body,
-                error: error
+                error: error,
+                etag: response.etag
             ))
         }
     }
