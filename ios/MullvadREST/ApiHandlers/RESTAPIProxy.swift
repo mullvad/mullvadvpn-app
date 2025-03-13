@@ -18,6 +18,12 @@ public protocol APIQuerying: Sendable {
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
     ) -> Cancellable
 
+    func mullvadApiGetRelayList(
+        retryStrategy: REST.RetryStrategy,
+        etag: String?,
+        completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
+    ) -> Cancellable
+
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping @Sendable ProxyCompletionHandler<[AnyIPEndpoint]>
@@ -71,10 +77,56 @@ extension REST {
                 with: responseDecoder
             )
 
-            let networkOperation = MullvadApiNetworkOperation(
-                name: "get-api-addrs",
-                dispatchQueue: dispatchQueue,
+            return createNetworkOperation(
                 request: .getAddressList(retryStrategy),
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
+
+        public func mullvadApiGetRelayList(
+            retryStrategy: REST.RetryStrategy,
+            etag: String?,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<REST.ServerRelaysCacheResponse>
+        ) -> Cancellable {
+            if var etag {
+                // Enforce weak validator to account for some backend caching quirks.
+                if etag.starts(with: "\"") {
+                    etag.insert(contentsOf: "W/", at: etag.startIndex)
+                }
+            }
+
+            let responseHandler = rustCustomResponseHandler { [weak self] (data, responseEtag) in
+                // Discarding result since we're only interested in knowing that it's parseable.
+                let canDecodeResponse = (try? self?.responseDecoder.decode(REST.ServerRelaysResponse.self, from: data)) != nil
+
+                return if canDecodeResponse {
+                    if let responseEtag, responseEtag == etag {
+                        REST.ServerRelaysCacheResponse.notModified
+                    } else {
+                        REST.ServerRelaysCacheResponse.newContent(responseEtag, data)
+                    }
+                } else {
+                    nil
+                }
+            }
+
+            return createNetworkOperation(
+                request: .getRelayList(retryStrategy, etag: etag),
+                responseHandler: responseHandler,
+                completionHandler: completionHandler
+            )
+        }
+
+        private func createNetworkOperation<Success: Decodable>(
+            request: APIRequest,
+            responseHandler: RustResponseHandler<Success>,
+            completionHandler: @escaping @Sendable ProxyCompletionHandler<Success>
+        ) -> MullvadApiNetworkOperation<Success> {
+            let networkOperation = MullvadApiNetworkOperation(
+                name: request.name,
+                dispatchQueue: dispatchQueue,
+                request: request,
                 transportProvider: configuration.apiTransportProvider,
                 responseDecoder: responseDecoder,
                 responseHandler: responseHandler,
@@ -314,7 +366,7 @@ extension REST {
 
     // MARK: - Response types
 
-    public enum ServerRelaysCacheResponse: Sendable {
+    public enum ServerRelaysCacheResponse: Sendable, Decodable {
         case notModified
         case newContent(_ etag: String?, _ rawData: Data)
     }

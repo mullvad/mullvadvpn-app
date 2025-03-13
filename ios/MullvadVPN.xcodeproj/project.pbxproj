@@ -2677,8 +2677,8 @@
 		06799ABD28F98E1D00ACD94E /* MullvadREST */ = {
 			isa = PBXGroup;
 			children = (
+				7A2C0E872D82E450003D8048 /* MullvadAPI */,
 				F06045F02B2324DA00B2D37A /* ApiHandlers */,
-				7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */,
 				062B45A228FD4C0F00746E77 /* Assets */,
 				7AD63A422CDA661B00445268 /* Extensions */,
 				582FFA82290A84E700895745 /* Info.plist */,
@@ -4156,6 +4156,16 @@
 			path = Alert;
 			sourceTree = "<group>";
 		};
+		7A2C0E872D82E450003D8048 /* MullvadAPI */ = {
+			isa = PBXGroup;
+			children = (
+				7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */,
+				7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */,
+				7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */,
+			);
+			path = MullvadAPI;
+			sourceTree = "<group>";
+		};
 		7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */ = {
 			isa = PBXGroup;
 			children = (
@@ -4535,7 +4545,6 @@
 				06AC114128F8413A0037AF9A /* AddressCache.swift */,
 				A935594B2B4C2DA900D5D524 /* APIAvailabilityTestRequest.swift */,
 				06FAE67128F83CA40033DD93 /* HTTP.swift */,
-				7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */,
 				06FAE67228F83CA40033DD93 /* RESTAccessTokenManager.swift */,
 				06FAE66828F83CA30033DD93 /* RESTAccountsProxy.swift */,
 				06FAE67328F83CA40033DD93 /* RESTAPIProxy.swift */,
@@ -4554,7 +4563,6 @@
 				06FAE66628F83CA30033DD93 /* RESTResponseHandler.swift */,
 				06FAE67528F83CA40033DD93 /* RESTTaskIdentifier.swift */,
 				06FAE66528F83CA30033DD93 /* RESTURLSession.swift */,
-				7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */,
 				06FAE67728F83CA40033DD93 /* ServerRelaysResponse.swift */,
 				06FAE66B28F83CA30033DD93 /* SSLPinningURLSessionDelegate.swift */,
 			);

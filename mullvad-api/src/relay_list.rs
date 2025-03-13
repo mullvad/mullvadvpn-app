@@ -2,13 +2,12 @@
 
 use crate::rest;
 
-use hyper::{body::Incoming, header, Error, StatusCode};
+use hyper::{body::Incoming, header, StatusCode};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
 
 use std::{
     collections::BTreeMap,
-    future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::RangeInclusive,
     time::Duration,

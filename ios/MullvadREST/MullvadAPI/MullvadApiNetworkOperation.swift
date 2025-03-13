@@ -78,7 +78,7 @@ extension REST {
                     return
                 }
 
-                let decodedResponse = responseHandler.handleResponse(response.data)
+                let decodedResponse = responseHandler.handleResponse(response)
 
                 switch decodedResponse {
                 case let .success(value):

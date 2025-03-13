@@ -19,6 +19,14 @@ struct APIProxyStub: APIQuerying {
         AnyCancellable()
     }
 
+    func mullvadApiGetRelayList(
+        retryStrategy: REST.RetryStrategy,
+        etag: String?,
+        completionHandler: @escaping ProxyCompletionHandler<REST.ServerRelaysCacheResponse>)
+    -> Cancellable {
+        AnyCancellable()
+    }
+
     func getAddressList(
         retryStrategy: REST.RetryStrategy,
         completionHandler: @escaping ProxyCompletionHandler<[AnyIPEndpoint]>
