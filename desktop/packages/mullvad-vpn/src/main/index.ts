@@ -717,7 +717,15 @@ class ApplicationMain
         } else if ('relayList' in daemonEvent) {
           IpcMainEventChannel.relays.notify?.(daemonEvent.relayList);
         } else if ('appVersionInfo' in daemonEvent) {
-          this.version.setLatestVersion(daemonEvent.appVersionInfo);
+          // TODO: Remove this after testing
+          this.version.setLatestVersion({
+            ...daemonEvent.appVersionInfo,
+            suggestedUpgrade: {
+              version: '2025.5',
+              downloaded: false,
+              changelog: 'This is a changelog.\nIt has newlines.\n',
+            },
+          });
         } else if ('device' in daemonEvent) {
           this.account.handleDeviceEvent(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
