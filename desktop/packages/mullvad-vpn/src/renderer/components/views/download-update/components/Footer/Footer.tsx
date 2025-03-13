@@ -1,8 +1,8 @@
 import styled from 'styled-components';
 
 import { Flex } from '../../../../../lib/components';
-import { AnimateHeight } from '../../../../AnimateHeight';
-import { CancelButton, DownloadProgress, Label, UpgradeButton } from './components';
+import { CancelButton, DownloadDetails, UpgradeButton } from './components';
+import { useShowCancelButton, useShowDownloadDetails, useShowUpgradeButton } from './hooks';
 
 const StyledFlex = styled(Flex)`
   background-color: rgba(21, 39, 58, 1);
@@ -12,15 +12,13 @@ const StyledFlex = styled(Flex)`
 `;
 
 export const Footer = () => {
-  const showUpgradeButton = false;
-  const showCancelButton = false;
+  const showCancelButton = useShowCancelButton();
+  const showDownloadDetails = useShowDownloadDetails();
+  const showUpgradeButton = useShowUpgradeButton();
 
   return (
     <StyledFlex $padding="medium" $flexDirection="column">
-      <AnimateHeight>
-        <Label />
-        <DownloadProgress />
-      </AnimateHeight>
+      {showDownloadDetails ? <DownloadDetails /> : null}
       {showUpgradeButton ? <UpgradeButton /> : null}
       {showCancelButton ? <CancelButton /> : null}
     </StyledFlex>

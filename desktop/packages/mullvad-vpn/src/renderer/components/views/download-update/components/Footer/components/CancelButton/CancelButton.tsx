@@ -3,8 +3,8 @@ import { Button } from '../../../../../../../lib/components';
 import { useDisabled, useHandleOnClick } from './hooks';
 
 export function CancelButton() {
-  const handleOnClick = useHandleOnClick();
   const disabled = useDisabled();
+  const handleOnClick = useHandleOnClick();
 
   return (
     <Button disabled={disabled} onClick={handleOnClick}>
