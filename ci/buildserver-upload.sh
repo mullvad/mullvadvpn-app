@@ -21,9 +21,10 @@ function rsync_upload {
     done
 }
 
+shopt -s globstar
+
 while true; do
     sleep 10
-    shopt -s globstar
     for checksums_path in **/*.sha256; do
         sleep 1
 
