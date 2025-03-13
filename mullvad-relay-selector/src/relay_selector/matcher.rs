@@ -1,6 +1,8 @@
 //! This module is responsible for filtering the whole relay list based on queries.
 use std::{collections::HashSet, ops::RangeInclusive};
 
+use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
+use crate::RuntimeParameters;
 use mullvad_types::{
     constraints::{Constraint, Match},
     custom_list::CustomListsSettings,
@@ -12,14 +14,13 @@ use mullvad_types::{
 };
 use talpid_types::net::{IpVersion, TunnelType};
 
-use super::query::{ObfuscationQuery, RelayQuery, WireguardRelayQuery};
-
 /// Filter a list of relays and their endpoints based on constraints.
 /// Only relays with (and including) matching endpoints are returned.
 pub fn filter_matching_relay_list(
     query: &RelayQuery,
     relay_list: &RelayList,
     custom_lists: &CustomListsSettings,
+    runtime_parameters: RuntimeParameters,
 ) -> Vec<Relay> {
     let relays = relay_list.relays();
 
@@ -38,7 +39,7 @@ pub fn filter_matching_relay_list(
             // Filter by DAITA support
             .filter(|relay| filter_on_daita(&query.wireguard_constraints().daita, relay))
             // Filter by obfuscation support
-            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay));
+            .filter(|relay| filter_on_obfuscation(query.wireguard_constraints(), relay_list, relay, runtime_parameters.clone()));
 
     // The last filtering to be done is on the `include_in_country` attribute found on each
     // relay. When the location constraint is based on country, a relay which has
@@ -132,6 +133,7 @@ fn filter_on_obfuscation(
     query: &WireguardRelayQuery,
     relay_list: &RelayList,
     relay: &Relay,
+    runtime_parameters: RuntimeParameters,
 ) -> bool {
     match &query.obfuscation {
         // Shadowsocks has relay-specific constraints
@@ -142,6 +144,7 @@ fn filter_on_obfuscation(
                 &query.ip_version,
                 settings,
                 relay,
+                runtime_parameters,
             )
         }
 
@@ -156,8 +159,9 @@ fn filter_on_shadowsocks(
     ip_version: &Constraint<IpVersion>,
     settings: &ShadowsocksSettings,
     relay: &Relay,
+    runtime_parameters: RuntimeParameters,
 ) -> bool {
-    let ip_version = super::detailer::resolve_ip_version(*ip_version);
+    let ip_version = super::detailer::resolve_ip_version(*ip_version, runtime_parameters.ipv4);
 
     match (settings, &relay.endpoint_data) {
         // If Shadowsocks is specifically asked for, we must check if the specific relay supports

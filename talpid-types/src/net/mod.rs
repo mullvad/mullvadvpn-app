@@ -1,3 +1,4 @@
+use self::proxy::{CustomProxy, Socks5Local};
 use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 #[cfg(target_os = "android")]
 use jnix::FromJava;
@@ -11,8 +12,6 @@ use std::{
     str::FromStr,
     sync::LazyLock,
 };
-
-use self::proxy::{CustomProxy, Socks5Local};
 
 pub mod obfuscation;
 pub mod openvpn;
@@ -597,6 +596,16 @@ impl Connectivity {
                 ipv4: false,
                 ipv6: false
             }
+        )
+    }
+
+    /// Whether IPv4 connectivity seems to be available on the host.
+    ///
+    /// If IPv4 status is unknown, `true` is returned.
+    pub fn has_ipv4(&self) -> bool {
+        matches!(
+            self,
+            Connectivity::Status { ipv4: true, .. } | Connectivity::PresumeOnline
         )
     }
 
