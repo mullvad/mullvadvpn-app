@@ -1,4 +1,4 @@
-import { Progress } from '../../../../../../../lib/components/progress';
+import { Progress } from '../../../../../../../../../lib/components/progress';
 import { useText, useValue } from './hooks';
 
 export function DownloadProgress() {

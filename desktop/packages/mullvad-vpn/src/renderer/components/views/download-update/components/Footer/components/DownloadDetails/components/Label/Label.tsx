@@ -1,4 +1,4 @@
-import { useAppUpgradeEvent } from '../../../../hooks';
+import { useAppUpgradeEvent } from '../../../../../../hooks';
 import {
   DownloadProgress,
   DownloadStarted,

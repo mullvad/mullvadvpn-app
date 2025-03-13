@@ -1,5 +1,5 @@
-import { messages } from '../../../../../../../../../shared/gettext';
-import { useAppUpgradeEvent } from '../../../../../hooks';
+import { messages } from '../../../../../../../../../../../shared/gettext';
+import { useAppUpgradeEvent } from '../../../../../../../hooks';
 import useGetTextTimeLeft from './useGetTextTimeLeft';
 
 export const useText = () => {

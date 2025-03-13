@@ -1,6 +1,6 @@
-import { messages } from '../../../../../../../../../shared/gettext';
-import { Flex, Icon, LabelTiny } from '../../../../../../../../lib/components';
-import { Colors } from '../../../../../../../../lib/foundations';
+import { messages } from '../../../../../../../../../../../shared/gettext';
+import { Flex, Icon, LabelTiny } from '../../../../../../../../../../lib/components';
+import { Colors } from '../../../../../../../../../../lib/foundations';
 
 export function StartingInstaller() {
   return (

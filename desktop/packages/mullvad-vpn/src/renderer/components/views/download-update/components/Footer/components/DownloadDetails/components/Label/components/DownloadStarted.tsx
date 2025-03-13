@@ -1,5 +1,5 @@
-import { messages } from '../../../../../../../../../shared/gettext';
-import { Flex, LabelTiny } from '../../../../../../../../lib/components';
+import { messages } from '../../../../../../../../../../../shared/gettext';
+import { Flex, LabelTiny } from '../../../../../../../../../../lib/components';
 
 export function DownloadStarted() {
   return (

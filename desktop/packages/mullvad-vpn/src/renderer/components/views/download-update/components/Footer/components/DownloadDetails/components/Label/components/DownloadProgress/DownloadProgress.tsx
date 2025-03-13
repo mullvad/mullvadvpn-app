@@ -1,4 +1,4 @@
-import { Flex, LabelTiny } from '../../../../../../../../../lib/components';
+import { Flex, LabelTiny } from '../../../../../../../../../../../lib/components';
 import { useTextServer } from './hooks';
 
 export function DownloadProgress() {

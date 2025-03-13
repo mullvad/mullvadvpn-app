@@ -1,7 +1,7 @@
 import { sprintf } from 'sprintf-js';
 
-import { messages } from '../../../../../../../../../shared/gettext';
-import { useAppUpgradeEvent } from '../../../../../hooks';
+import { messages } from '../../../../../../../../../../../shared/gettext';
+import { useAppUpgradeEvent } from '../../../../../../../hooks';
 
 export const useGetTextTimeLeft = () => {
   const appUpgradeEvent = useAppUpgradeEvent();

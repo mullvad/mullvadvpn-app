@@ -1,5 +1,5 @@
-import { messages } from '../../../../../../../../../shared/gettext';
-import { Flex, LabelTiny, Spinner } from '../../../../../../../../lib/components';
+import { messages } from '../../../../../../../../../../../shared/gettext';
+import { Flex, LabelTiny, Spinner } from '../../../../../../../../../../lib/components';
 
 export function VerifyingInstaller() {
   return (
