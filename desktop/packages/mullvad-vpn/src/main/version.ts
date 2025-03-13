@@ -95,7 +95,6 @@ export default class Version {
       new UnsupportedVersionNotificationProvider({
         supported: latestVersionInfo.supported,
         consistent: this.currentVersionData.isConsistent,
-        suggestedUpgrade: latestVersionInfo.suggestedUpgrade,
         suggestedIsBeta,
       }),
       new UpdateAvailableNotificationProvider({
