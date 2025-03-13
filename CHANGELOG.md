@@ -22,6 +22,8 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Removed
+- Remove "Any" option for tunnel protocol. The default is now WireGuard.
 
 
 ## [2025.5-beta1] - 2025-03-11
@@ -32,16 +34,13 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Removed
 - Stop bundling https://github.com/mullvad/apisocks5 as a standalone binary.
-- Remove "Any" option for tunnel protocol. The default is now WireGuard.
+- Remove Google's resolvers from encrypted DNS proxy.
 
 ### Fixed
 #### macOS
 - Fix daemon ending up in blocked state if the user toggled split tunneling without having granted
   Full Disk Access to `mullvad-daemon`. This could only ever be accomplished from the CLI.
 - Fix routing issue caused by upgrading `tun`.
-
-### Removed
-- Remove Google's resolvers from encrypted DNS proxy.
 
 
 ## [2025.4] - 2025-02-12
