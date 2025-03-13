@@ -23,11 +23,11 @@ export const Footer = () => {
   const showReportProblemButton = useShowReportProblemButton();
 
   return (
-    <StyledFlex $padding="medium" $flexDirection="column">
+    <StyledFlex $gap="medium" $padding="medium" $flexDirection="column">
       {showDownloadDetails ? <DownloadDetails /> : null}
+      {showReportProblemButton ? <ReportProblemButton /> : null}
       {showUpgradeButton ? <UpgradeButton /> : null}
       {showCancelButton ? <CancelButton /> : null}
-      {showReportProblemButton ? <ReportProblemButton /> : null}
     </StyledFlex>
   );
 };
