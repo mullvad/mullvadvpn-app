@@ -14,10 +14,10 @@ TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
 # Task list to discover all tasks and their dependencies since
 # just running the suggested 'help' task isn't sufficient.
 GRADLE_TASKS=(
+    "lint"
     "assemble"
     "compileDebugUnitTestKotlin"
     "assembleAndroidTest"
-    "lint"
 )
 EXCLUDED_GRADLE_TASKS=(
     "-xcargoBuild"
