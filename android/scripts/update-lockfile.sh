@@ -5,6 +5,24 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+refresh_all_keys_flag=false
+
+print_usage() {
+  echo "Usage:"
+  echo "    -r        Refresh all keys, will remove all trusted keys and clear the keyring, allowing for old keys to removed and keys entries to be updated."
+  echo "              This result is not reproducible since entries may change depending on from which keyserver keys was fetched and how gradle decides to"
+  echo "              create verification xml file. Also make sure to do an additional normal run afterwards."
+  echo "    -h        Show this help page."
+}
+
+while getopts 'rh' flag; do
+  case "${flag}" in
+    r) refresh_all_keys_flag=true ;;
+    *) print_usage
+       exit 1 ;;
+  esac
+done
+
 # Disable daemon since it causes problems with the temp dir cleanup
 # regardless if stopped.
 GRADLE_OPTS="-Dorg.gradle.daemon=false"
@@ -52,24 +70,37 @@ done
 echo "Moving checksums to the side..."
 mv verification-metadata.xml verification-metadata.checksums.xml
 
-
-
 echo "### Updating keys metadata ###"
 echo ""
 
 echo "Moving keys to be active metadata file"
 mv verification-metadata.keys.xml verification-metadata.xml
-
+echo ""
 
 echo "Temporarily enabling key servers..."
 sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' verification-metadata.xml
+echo ""
 
 echo "Removing old components..."
 sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
 echo ""
 
-echo "Generating new trusted keys..."
+
+if [ "$refresh_all_keys_flag" = true ]; then
+    echo "Refreshing all keys"
+
+    echo "Removing old trusted keys..."
+    sed -i '/<trusted-keys>/,/<\/trusted-keys>/d' verification-metadata.xml
+    echo ""
+
+    echo "Removing old keyring..."
+    rm verification-keyring.keys
+    echo ""
+fi
+
+echo "Generating new trusted keys & updating keyring..."
 ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys
+echo ""
 
 echo "Sorting keyring and removing duplicates..."
   # Sort and unique the keyring
@@ -89,15 +120,17 @@ echo "Sorting keyring and removing duplicates..."
     | uniq \
     | sed 's/NEWLINE/\n/g' \
     > verification-keyring.new.keys
-
 mv -f verification-keyring.new.keys verification-keyring.keys
+echo ""
 
 echo "Disabling key servers..."
 sed -Ezi 's,key-servers,key-servers enabled="false",' verification-metadata.xml
+echo ""
 
 echo "Moving back keys verification metadata"
 mv verification-metadata.xml verification-metadata.keys.xml
-
 echo ""
+
 echo "Moving checksums to be active metadata file"
 mv verification-metadata.checksums.xml verification-metadata.xml
+echo ""
