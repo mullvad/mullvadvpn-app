@@ -20,7 +20,12 @@ import net.mullvad.mullvadvpn.lib.theme.AppTheme
 @Composable
 private fun PreviewDnsCell() {
     AppTheme {
-        DnsCell(address = "0.0.0.0", isUnreachableLocalDnsWarningVisible = true, onClick = {})
+        DnsCell(
+            address = "0.0.0.0",
+            isUnreachableLocalDnsWarningVisible = true,
+            isUnreachableIpv6DnsWarningVisible = false,
+            onClick = {},
+        )
     }
 }
 
@@ -28,6 +33,7 @@ private fun PreviewDnsCell() {
 fun DnsCell(
     address: String,
     isUnreachableLocalDnsWarningVisible: Boolean,
+    isUnreachableIpv6DnsWarningVisible: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -41,6 +47,13 @@ fun DnsCell(
                 Icon(
                     imageVector = Icons.Rounded.Error,
                     contentDescription = stringResource(id = R.string.confirm_local_dns),
+                    tint = MaterialTheme.colorScheme.error,
+                )
+            }
+            if (isUnreachableIpv6DnsWarningVisible) {
+                Icon(
+                    imageVector = Icons.Rounded.Error,
+                    contentDescription = stringResource(id = R.string.confirm_ipv6_dns),
                     tint = MaterialTheme.colorScheme.error,
                 )
             }
