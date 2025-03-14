@@ -802,6 +802,11 @@ class ManagementService(
             .mapLeft(SetWireguardConstraintsError::Unknown)
             .mapEmpty()
 
+    suspend fun setIpv6Enabled(enabled: Boolean): Either<SetDaitaSettingsError, Unit> =
+        Either.catch { grpc.setEnableIpv6(BoolValue.of(enabled)) }
+            .mapLeft(SetDaitaSettingsError::Unknown)
+            .mapEmpty()
+
     private fun <A> Either<A, Empty>.mapEmpty() = map {}
 
     private inline fun <B, C> Either<Throwable, B>.mapLeftStatus(

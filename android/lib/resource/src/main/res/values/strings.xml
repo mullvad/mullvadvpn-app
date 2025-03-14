@@ -412,4 +412,5 @@
     <string name="device_ip_version_title">Device IP version</string>
     <string name="device_ip_version_ipv4">IPv4</string>
     <string name="device_ip_version_ipv6">IPv6</string>
+    <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>
 </resources>

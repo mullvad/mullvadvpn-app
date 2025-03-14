@@ -7,6 +7,7 @@ import arrow.core.Either
 import arrow.core.raise.either
 import arrow.core.raise.ensure
 import com.ramcosta.composedestinations.generated.destinations.DnsDestination
+import java.net.Inet6Address
 import java.net.InetAddress
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,8 @@ data class DnsDialogViewState(
     val validationError: ValidationError?,
     val isLocal: Boolean,
     val isAllowLanEnabled: Boolean,
+    val isIpv6: Boolean,
+    val isIpv6Enabled: Boolean,
     val index: Int?,
 ) {
     val isNewEntry = index == null
@@ -67,12 +70,24 @@ class DnsDialogViewModel(
                 input,
                 currentIndex,
                 settings ->
-                createViewState(settings.addresses(), currentIndex, settings.allowLan, input)
+                createViewState(
+                    settings.addresses(),
+                    currentIndex,
+                    settings.allowLan,
+                    settings.tunnelOptions.genericOptions.enableIpv6,
+                    input,
+                )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                createViewState(emptyList(), null, false, _ipAddressInput.value),
+                createViewState(
+                    customDnsList = emptyList(),
+                    currentIndex = null,
+                    isAllowLanEnabled = false,
+                    isIpv6Enabled = false,
+                    input = _ipAddressInput.value,
+                ),
             )
 
     private val _uiSideEffect = Channel<DnsDialogSideEffect>()
@@ -86,14 +101,17 @@ class DnsDialogViewModel(
         customDnsList: List<InetAddress>,
         currentIndex: Int?,
         isAllowLanEnabled: Boolean,
+        isIpv6Enabled: Boolean,
         input: String,
     ): DnsDialogViewState =
         DnsDialogViewState(
-            input,
-            input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
-            input.isLocalAddress(),
+            input = input,
+            validationError = input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
+            isLocal = input.isLocalAddress(),
+            isIpv6 = input.isIpv6(),
             isAllowLanEnabled = isAllowLanEnabled,
-            currentIndex,
+            isIpv6Enabled = isIpv6Enabled,
+            index = currentIndex,
         )
 
     private fun String.validateDnsEntry(
@@ -149,6 +167,10 @@ class DnsDialogViewModel(
 
     private fun String.isLocalAddress(): Boolean {
         return isValidIp() && InetAddress.getByName(this).isLocalAddress()
+    }
+
+    private fun String.isIpv6(): Boolean {
+        return isValidIp() && InetAddress.getByName(this) is Inet6Address
     }
 
     private fun InetAddress.isLocalAddress(): Boolean {
