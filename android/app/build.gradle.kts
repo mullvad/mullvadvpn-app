@@ -363,6 +363,7 @@ protobuf {
 
 dependencies {
     implementation(projects.lib.common)
+    implementation(projects.lib.component)
     implementation(projects.lib.daemonGrpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.map)
@@ -371,6 +372,7 @@ dependencies {
     implementation(projects.lib.resource)
     implementation(projects.lib.shared)
     implementation(projects.lib.talpid)
+    implementation(projects.lib.tv)
     implementation(projects.tile)
     implementation(projects.lib.theme)
     implementation(projects.service)
@@ -387,6 +389,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime)
     implementation(libs.androidx.lifecycle.viewmodel)
     implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.tv)
     implementation(libs.arrow)
     implementation(libs.arrow.optics)
     implementation(libs.arrow.resilience)

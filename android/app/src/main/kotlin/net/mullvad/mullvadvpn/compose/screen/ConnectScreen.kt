@@ -10,6 +10,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.calculateEndPadding
@@ -25,6 +26,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,6 +74,7 @@ import net.mullvad.mullvadvpn.compose.button.SwitchLocationButton
 import net.mullvad.mullvadvpn.compose.component.ConnectionStatusText
 import net.mullvad.mullvadvpn.compose.component.ExpandChevron
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
+import net.mullvad.mullvadvpn.compose.component.MullvadSnackbar
 import net.mullvad.mullvadvpn.compose.component.ScaffoldWithTopBarAndDeviceName
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.ConnectionDetailPanel
 import net.mullvad.mullvadvpn.compose.component.connectioninfo.FeatureIndicatorsPanel
@@ -89,6 +93,7 @@ import net.mullvad.mullvadvpn.compose.transitions.HomeTransition
 import net.mullvad.mullvadvpn.compose.util.CollectSideEffectWithLifecycle
 import net.mullvad.mullvadvpn.compose.util.CreateVpnProfile
 import net.mullvad.mullvadvpn.compose.util.OnNavResultValue
+import net.mullvad.mullvadvpn.compose.util.isTv
 import net.mullvad.mullvadvpn.compose.util.showSnackbarImmediately
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
@@ -115,6 +120,7 @@ import net.mullvad.mullvadvpn.lib.theme.color.AlphaScrollbar
 import net.mullvad.mullvadvpn.lib.theme.color.AlphaVisible
 import net.mullvad.mullvadvpn.lib.theme.typeface.connectionStatus
 import net.mullvad.mullvadvpn.lib.theme.typeface.hostname
+import net.mullvad.mullvadvpn.lib.tv.NavigationDrawerTv
 import net.mullvad.mullvadvpn.util.removeHtmlTags
 import net.mullvad.mullvadvpn.viewmodel.ConnectViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -267,71 +273,130 @@ fun ConnectScreen(
     onAccountClick: () -> Unit,
     onDismissNewDeviceClick: () -> Unit,
 ) {
-
-    ScaffoldWithTopBarAndDeviceName(
-        topBarColor = state.tunnelState.topBarColor(),
-        iconTintColor = state.tunnelState.iconTintColor(),
-        onSettingsClicked = onSettingsClick,
-        onAccountClicked = onAccountClick,
-        deviceName = state.deviceName,
-        timeLeft = state.daysLeftUntilExpiry,
-        snackbarHostState = snackbarHostState,
-    ) {
-        val configuration = LocalConfiguration.current
-        val screenHeight = configuration.screenHeightDp.dp
-        val indicatorPercentOffset =
-            if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
-            else TALL_SCREEN_INDICATOR_BIAS
-
-        Box(
-            Modifier.padding(
-                    top = it.calculateTopPadding(),
-                    start = it.calculateStartPadding(LocalLayoutDirection.current),
-                    end = it.calculateEndPadding(LocalLayoutDirection.current),
-                )
-                .fillMaxSize()
-        ) {
-            MullvadMap(state, indicatorPercentOffset)
-
-            MullvadCircularProgressIndicatorLarge(
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier =
-                    Modifier.layout { measurable, constraints ->
-                            val placeable = measurable.measure(constraints)
-                            layout(placeable.width, placeable.height) {
-                                placeable.placeRelative(
-                                    x = (constraints.maxWidth * 0.5f - placeable.width / 2).toInt(),
-                                    y =
-                                        (constraints.maxHeight * indicatorPercentOffset -
-                                                placeable.height / 2)
-                                            .toInt(),
-                                )
-                            }
-                        }
-                        .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
-                        .testTag(CIRCULAR_PROGRESS_INDICATOR),
+    val content =
+        @Composable { padding: PaddingValues ->
+            Content(
+                padding,
+                state,
+                onDisconnectClick,
+                onReconnectClick,
+                onConnectClick,
+                onCancelClick,
+                onSwitchLocationClick,
+                onOpenAppListing,
+                onManageAccountClick,
+                onChangelogClick,
+                onDismissChangelogClick,
+                onDismissNewDeviceClick,
             )
+        }
 
-            Box(modifier = Modifier.fillMaxSize().padding(bottom = it.calculateBottomPadding())) {
-                NotificationBanner(
-                    notification = state.inAppNotification,
-                    isPlayBuild = state.isPlayBuild,
-                    openAppListing = onOpenAppListing,
-                    onClickShowAccount = onManageAccountClick,
-                    onClickShowChangelog = onChangelogClick,
-                    onClickDismissChangelog = onDismissChangelogClick,
-                    onClickDismissNewDevice = onDismissNewDeviceClick,
-                )
-                ConnectionCard(
-                    state = state,
-                    modifier = Modifier.align(Alignment.BottomCenter),
-                    onSwitchLocationClick = onSwitchLocationClick,
-                    onDisconnectClick = onDisconnectClick,
-                    onReconnectClick = onReconnectClick,
-                    onCancelClick = onCancelClick,
-                    onConnectClick = onConnectClick,
+    if (isTv()) {
+        Scaffold(
+            snackbarHost = {
+                SnackbarHost(
+                    snackbarHostState,
+                    snackbar = { snackbarData -> MullvadSnackbar(snackbarData = snackbarData) },
                 )
             }
+        ) {
+            NavigationDrawerTv(
+                daysLeftUntilExpiry = state.daysLeftUntilExpiry,
+                deviceName = state.deviceName,
+                onSettingsClick = onSettingsClick,
+                onAccountClick = onAccountClick,
+            ) {
+                content(it)
+            }
+        }
+    } else {
+        ScaffoldWithTopBarAndDeviceName(
+            topBarColor = state.tunnelState.topBarColor(),
+            iconTintColor = state.tunnelState.iconTintColor(),
+            onSettingsClicked = onSettingsClick,
+            onAccountClicked = onAccountClick,
+            deviceName = state.deviceName,
+            timeLeft = state.daysLeftUntilExpiry,
+            snackbarHostState = snackbarHostState,
+        ) {
+            content(it)
+        }
+    }
+}
+
+@Composable
+private fun Content(
+    paddingValues: PaddingValues,
+    state: ConnectUiState,
+    onDisconnectClick: () -> Unit,
+    onReconnectClick: () -> Unit,
+    onConnectClick: () -> Unit,
+    onCancelClick: () -> Unit,
+    onSwitchLocationClick: () -> Unit,
+    onOpenAppListing: () -> Unit,
+    onManageAccountClick: () -> Unit,
+    onChangelogClick: () -> Unit,
+    onDismissChangelogClick: () -> Unit,
+    onDismissNewDeviceClick: () -> Unit,
+) {
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+    val indicatorPercentOffset =
+        if (screenHeight < SCREEN_HEIGHT_THRESHOLD) SHORT_SCREEN_INDICATOR_BIAS
+        else TALL_SCREEN_INDICATOR_BIAS
+
+    Box(
+        Modifier.padding(
+                top = paddingValues.calculateTopPadding(),
+                start = paddingValues.calculateStartPadding(LocalLayoutDirection.current),
+                end = paddingValues.calculateEndPadding(LocalLayoutDirection.current),
+            )
+            .fillMaxSize()
+    ) {
+        MullvadMap(state, indicatorPercentOffset)
+
+        MullvadCircularProgressIndicatorLarge(
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier =
+                Modifier.layout { measurable, constraints ->
+                        val placeable = measurable.measure(constraints)
+                        layout(placeable.width, placeable.height) {
+                            placeable.placeRelative(
+                                x = (constraints.maxWidth * 0.5f - placeable.width / 2).toInt(),
+                                y =
+                                    (constraints.maxHeight * indicatorPercentOffset -
+                                            placeable.height / 2)
+                                        .toInt(),
+                            )
+                        }
+                    }
+                    .alpha(if (state.showLoading) AlphaVisible else AlphaInvisible)
+                    .testTag(CIRCULAR_PROGRESS_INDICATOR),
+        )
+
+        Box(
+            modifier =
+                Modifier.fillMaxSize().padding(bottom = paddingValues.calculateBottomPadding())
+        ) {
+            NotificationBanner(
+                modifier = Modifier.align(Alignment.TopCenter),
+                notification = state.inAppNotification,
+                isPlayBuild = state.isPlayBuild,
+                openAppListing = onOpenAppListing,
+                onClickShowAccount = onManageAccountClick,
+                onClickShowChangelog = onChangelogClick,
+                onClickDismissChangelog = onDismissChangelogClick,
+                onClickDismissNewDevice = onDismissNewDeviceClick,
+            )
+            ConnectionCard(
+                state = state,
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onSwitchLocationClick = onSwitchLocationClick,
+                onDisconnectClick = onDisconnectClick,
+                onReconnectClick = onReconnectClick,
+                onCancelClick = onCancelClick,
+                onConnectClick = onConnectClick,
+            )
         }
     }
 }
