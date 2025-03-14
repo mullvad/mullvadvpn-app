@@ -30,3 +30,6 @@ export DEV_LINUX_REPOSITORY_PUBLIC_URL="https://repository.devmole.eu"
 export PRODUCTION_REPOSITORY_SERVER="cdn.mullvad.net"
 export STAGING_REPOSITORY_SERVER="cdn.stagemole.eu"
 export DEV_REPOSITORY_SERVER="cdn.devmole.eu"
+
+#export BUNNYCDN_PULL_ZONE_ID="PLEASE CONFIGURE ME"
+#export BUNNYCDN_API_KEY="PLEASE CONFIGURE ME"
