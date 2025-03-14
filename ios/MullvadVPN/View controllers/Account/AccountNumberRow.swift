@@ -141,9 +141,9 @@ class AccountNumberRow: UIView {
 
     private var showHideImage: UIImage? {
         if isObscured {
-            return UIImage(named: "IconUnobscure")
+            return UIImage.Buttons.show
         } else {
-            return UIImage(named: "IconObscure")
+            return UIImage.Buttons.hide
         }
     }
 
@@ -211,12 +211,12 @@ class AccountNumberRow: UIView {
 
     private func showCheckmark(_ showCheckmark: Bool) {
         if showCheckmark {
-            let tickIcon = UIImage(named: "IconTick")
+            let tickIcon = UIImage.tick
 
             copyButton.setImage(tickIcon, for: .normal)
             copyButton.tintColor = .successColor
         } else {
-            let copyIcon = UIImage(named: "IconCopy")
+            let copyIcon = UIImage.Buttons.copy
 
             copyButton.setImage(copyIcon, for: .normal)
             copyButton.tintColor = .white

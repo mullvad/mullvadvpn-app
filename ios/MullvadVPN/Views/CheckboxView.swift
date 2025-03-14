@@ -17,7 +17,7 @@ class CheckboxView: UIView {
     }()
 
     private let checkmarkView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "IconTick"))
+        let imageView = UIImageView(image: UIImage.tick)
         imageView.tintColor = .successColor
         imageView.contentMode = .scaleAspectFit
         imageView.alpha = 0
