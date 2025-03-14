@@ -1141,6 +1141,18 @@ impl Daemon {
             _ => {}
         }
 
+        // On Android we may leak some traffic during Connecting & Disconnecting due to how
+        // `establish` works on android, so we halt all requests during this phase
+        #[cfg(target_os = "android")]
+        match tunnel_state {
+            TunnelState::Connecting { .. } | TunnelState::Disconnecting(_) => {
+                self.api_handle.availability.suspend();
+                self.api_handle.service().reset();
+                self.location_handler.abort_current_request();
+            }
+            _ => self.api_handle.availability.unsuspend(),
+        }
+
         self.tunnel_state = tunnel_state.clone();
         self.management_interface
             .notifier()
