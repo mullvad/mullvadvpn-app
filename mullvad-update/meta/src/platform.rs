@@ -307,6 +307,7 @@ impl Platform {
             installers.push(
                 artifacts::generate_installer_details(
                     format::Architecture::Arm64,
+                    version,
                     base_urls,
                     &artifact,
                 )
@@ -317,6 +318,7 @@ impl Platform {
             installers.push(
                 artifacts::generate_installer_details(
                     format::Architecture::X86,
+                    version,
                     base_urls,
                     &artifact,
                 )

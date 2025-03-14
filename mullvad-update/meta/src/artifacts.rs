@@ -12,6 +12,7 @@ use mullvad_update::{format, hash};
 /// See [crate::config::Config::base_urls] for the assumptions made.
 pub async fn generate_installer_details(
     architecture: format::Architecture,
+    version: &mullvad_version::Version,
     base_urls: &[String],
     artifact: &Path,
 ) -> anyhow::Result<format::Installer> {
@@ -36,7 +37,7 @@ pub async fn generate_installer_details(
         .file_name()
         .and_then(|f| f.to_str())
         .context("Unexpected filename")?;
-    let urls = derive_urls(base_urls, filename);
+    let urls = derive_urls(base_urls, version, filename);
 
     Ok(format::Installer {
         architecture,
@@ -46,12 +47,16 @@ pub async fn generate_installer_details(
     })
 }
 
-fn derive_urls(base_urls: &[String], filename: &str) -> Vec<String> {
+fn derive_urls(
+    base_urls: &[String],
+    version: &mullvad_version::Version,
+    filename: &str,
+) -> Vec<String> {
     base_urls
         .iter()
         .map(|base_url| {
             let url = base_url.strip_suffix("/").unwrap_or(base_url);
-            format!("{url}/{}", filename)
+            format!("{url}/{version}/{}", filename)
         })
         .collect()
 }
@@ -69,8 +74,11 @@ mod test {
         ];
 
         assert_eq!(
-            &derive_urls(&base_urls, "test.exe"),
-            &["https://fake1.fake/test.exe", "https://fake2.fake/test.exe",]
+            &derive_urls(&base_urls, &"2025.1".parse().unwrap(), "test.exe"),
+            &[
+                "https://fake1.fake/2025.1/test.exe",
+                "https://fake2.fake/2025.1/test.exe"
+            ],
         );
     }
 }
