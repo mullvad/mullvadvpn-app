@@ -3,7 +3,6 @@ package net.mullvad.talpid
 import android.net.ConnectivityManager
 import android.net.VpnService
 import android.os.ParcelFileDescriptor
-import android.system.OsConstants.AF_INET6
 import androidx.annotation.CallSuper
 import androidx.core.content.getSystemService
 import androidx.lifecycle.lifecycleScope
@@ -19,8 +18,6 @@ import kotlin.properties.Delegates.observable
 import net.mullvad.mullvadvpn.lib.common.util.establishSafe
 import net.mullvad.mullvadvpn.lib.common.util.prepareVpnSafe
 import net.mullvad.mullvadvpn.lib.model.PrepareError
-import net.mullvad.mullvadvpn.lib.model.TunnelPreferencesRepository
-import net.mullvad.mullvadvpn.lib.model.modelModule
 import net.mullvad.talpid.model.CreateTunResult
 import net.mullvad.talpid.model.CreateTunResult.EstablishError
 import net.mullvad.talpid.model.CreateTunResult.InvalidDnsServers
@@ -30,8 +27,6 @@ import net.mullvad.talpid.model.CreateTunResult.OtherLegacyAlwaysOnVpn
 import net.mullvad.talpid.model.TunConfig
 import net.mullvad.talpid.util.TalpidSdkUtils.setMeteredIfSupported
 import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
-import org.koin.android.ext.android.getKoin
-import org.koin.core.context.loadKoinModules
 
 open class TalpidVpnService : LifecycleVpnService() {
     private var activeTunStatus by
@@ -50,7 +45,6 @@ open class TalpidVpnService : LifecycleVpnService() {
 
     // Used by JNI
     lateinit var connectivityListener: ConnectivityListener
-    private lateinit var tunnelPreferencesRepository: TunnelPreferencesRepository
 
     @CallSuper
     override fun onCreate() {
@@ -61,8 +55,6 @@ open class TalpidVpnService : LifecycleVpnService() {
                 UnderlyingConnectivityStatusResolver(::protect),
             )
         connectivityListener.register(lifecycleScope)
-        loadKoinModules(listOf(modelModule))
-        with(getKoin()) { tunnelPreferencesRepository = get() }
     }
 
     // Used by JNI
@@ -83,6 +75,8 @@ open class TalpidVpnService : LifecycleVpnService() {
         config: TunConfig
     ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
         prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
+        Logger.d("Creating tunnel with config: $config")
+        Logger.d("Routes are IPv6: ${config.routes.any { it.address is Inet6Address }}")
 
         val builder = Builder()
         builder.setMtu(config.mtu)
@@ -92,12 +86,6 @@ open class TalpidVpnService : LifecycleVpnService() {
         config.addresses.forEach { builder.addAddress(it, it.prefixLength()) }
         config.routes.forEach { builder.addRoute(it.address, it.prefixLength.toInt()) }
         config.excludedPackages.forEach { app -> builder.addDisallowedApplication(app) }
-
-        if (config.routes.none { it.isIpv6 } && tunnelPreferencesRepository.isRouteIpv6()) {
-            Logger.d("We are routing all ipv6 into space")
-            builder.addRoute(Inet6Address.getByName("::"), 0)
-            builder.allowFamily(AF_INET6)
-        }
 
         // We don't care if adding DNS servers fails at this point, since we can still create a
         // tunnel to consume traffic and then notify daemon to later enter blocked state.

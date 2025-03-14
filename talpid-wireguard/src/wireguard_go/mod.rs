@@ -382,7 +382,13 @@ impl WgGoTunnel {
             // Route everything into the tunnel and have wireguard-go act as a firewall when
             // blocking. These will not necessarily be the actual routes used by android. Those will
             // be generated at a later stage e.g. if Local Network Sharing is enabled.
-            tun_config.routes = vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()];
+            // If IPv6 is not enabled in the tunnel we should not route IPv6 traffic as this
+            // leads to leaks.
+            tun_config.routes = if config.ipv6_gateway.is_some() {
+                vec!["0.0.0.0/0".parse().unwrap(), "::/0".parse().unwrap()]
+            } else {
+                vec!["0.0.0.0/0".parse().unwrap()]
+            }
         }
 
         for _ in 1..=MAX_PREPARE_TUN_ATTEMPTS {

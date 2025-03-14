@@ -33,7 +33,6 @@ import net.mullvad.mullvadvpn.lib.endpoint.ApiEndpointFromIntentHolder
 import net.mullvad.mullvadvpn.lib.endpoint.getApiEndpointConfigurationExtras
 import net.mullvad.mullvadvpn.lib.model.PrepareError
 import net.mullvad.mullvadvpn.lib.model.Prepared
-import net.mullvad.mullvadvpn.lib.model.modelModule
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
 import net.mullvad.mullvadvpn.repository.SplashCompleteRepository
 import net.mullvad.mullvadvpn.repository.UserPreferencesRepository
@@ -66,7 +65,7 @@ class MainActivity : ComponentActivity(), AndroidScopeComponent {
     private var isReadyNextDraw: Boolean = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        loadKoinModules(listOf(uiModule, paymentModule, modelModule))
+        loadKoinModules(listOf(uiModule, paymentModule))
 
         lifecycle.addObserver(mullvadAppViewModel)
 
