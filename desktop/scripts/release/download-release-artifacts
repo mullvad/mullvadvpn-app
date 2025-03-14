@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+
+# This script downloads the build artifacts along with the signatures, and verifies them.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+if [ $# -ne 1 ]; then
+    echo "Please provide the following arguments:"
+    echo "    $(basename "$0") \\"
+    echo "        <product version>"
+    exit 1
+fi
+
+PRODUCT_VERSION=$1
+
+ARTIFACT_DIR="./artifacts"
+URL_BASE="https://releases.mullvad.net/desktop/releases"
+
+mkdir -p $ARTIFACT_DIR
+
+function download_and_verify {
+    # Find GnuPG command to use. Prefer gpg2
+    gpg_cmd=$(command -v gpg2 || command -v gpg)
+
+    for ext in .exe _arm64.exe _x64.exe _amd64.deb _arm64.deb _x86_64.rpm _aarch64.rpm .pkg; do
+        pkg_filename="MullvadVPN-${PRODUCT_VERSION}${ext}"
+        pkg_path="$ARTIFACT_DIR/$pkg_filename"
+        url="$URL_BASE/$PRODUCT_VERSION/$pkg_filename"
+
+        if [ -f "$pkg_path" ]; then
+            echo ">>> Using existing file: $pkg_filename"
+        else
+            echo ">>> Downloading $pkg_filename - $url"
+            curl -o "$pkg_path" --progress-bar --fail "$url"
+        fi
+
+        if [ -f "$pkg_path.asc" ]; then
+            echo ">>> Using existing file: $pkg_filename.asc"
+        else
+            echo ">>> Downloading $pkg_filename.asc - $url.asc"
+            curl -o "$pkg_path.asc" --progress-bar --fail "$url.asc"
+        fi
+
+        echo ""
+        echo ">>> Verifying integrity of $pkg_filename"
+        if ! $gpg_cmd --verify "$pkg_path.asc" "$pkg_path"; then
+            echo ""
+            echo "!!! INTEGRITY CHECKING FAILED !!!"
+            rm "$pkg_path" "$pkg_path.asc"
+            exit 1
+        fi
+        echo ""
+        echo "GOOD SIGNATURE FOR $pkg_filename"
+        echo ""
+    done
+}
+
+download_and_verify
