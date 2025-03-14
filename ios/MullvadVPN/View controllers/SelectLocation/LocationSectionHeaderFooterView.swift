@@ -50,9 +50,8 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
     init(configuration: Configuration) {
         self.actualConfiguration = configuration
         super.init(frame: .zero)
-        applyAppearance()
-        addSubviews()
         apply(configuration: configuration)
+        addSubviews()
     }
 
     required init?(coder: NSCoder) {
@@ -64,7 +63,6 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
         containerView.addArrangedSubview(actionButton)
         addConstrainedSubviews([containerView]) {
             containerView.pinEdgesToSuperviewMargins()
-            actionButton.heightAnchor.constraint(equalTo: heightAnchor)
             actionButton.widthAnchor.constraint(equalTo: actionButton.heightAnchor)
         }
     }
@@ -82,10 +80,7 @@ class LocationSectionHeaderFooterView: UIView, UIContentView {
             actionButton.setAccessibilityIdentifier(.openCustomListsMenuButton)
             actionButton.addAction(action, for: .touchUpInside)
         }
-    }
-
-    private func applyAppearance() {
-        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
+        directionalLayoutMargins = actualConfiguration.directionalEdgeInsets
     }
 }
 
@@ -114,6 +109,7 @@ extension LocationSectionHeaderFooterView {
     struct Configuration: UIContentConfiguration, Equatable {
         let name: String
         let style: Style
+        var directionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
         var primaryAction: UIAction?
 
         func makeContentView() -> UIView & UIContentView {
