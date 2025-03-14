@@ -127,6 +127,10 @@ service ManagementService {
 
   // Get current feature indicators
   rpc GetFeatureIndicators(google.protobuf.Empty) returns (FeatureIndicators) {}
+
+  // Debug features
+  rpc DisableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
+  rpc EnableRelay(google.protobuf.StringValue) returns (google.protobuf.Empty) {}
 }
 
 message UUID { string value = 1; }

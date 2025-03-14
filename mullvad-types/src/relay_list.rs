@@ -100,6 +100,14 @@ impl Relay {
         self.ipv6_addr_in = Some(new_ipv6);
         self.overridden_ipv6 = true;
     }
+
+    pub const fn is_wireguard(&self) -> bool {
+        matches!(self.endpoint_data, RelayEndpointData::Wireguard(_))
+    }
+
+    pub const fn is_openvpn(&self) -> bool {
+        matches!(self.endpoint_data, RelayEndpointData::Openvpn)
+    }
 }
 
 impl PartialEq for Relay {
