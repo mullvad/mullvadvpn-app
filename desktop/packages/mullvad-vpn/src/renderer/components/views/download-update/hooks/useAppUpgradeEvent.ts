@@ -7,6 +7,9 @@ export const useAppUpgradeEvent = (): AppUpgradeEvent | undefined => {
 
   const event: typeof appUpgradeEvent = {
     type: 'APP_UPGRADE_EVENT_ERROR',
+    // progress: 50,
+    // server: 'cdn.mullvad.net',
+    // timeLeft: 240,
     error: AppUpgradeError.verificationFailed,
   };
 

@@ -5,7 +5,6 @@ export const useShowReportProblemButton = () => {
 
   switch (appUpgradeEventType) {
     case 'APP_UPGRADE_EVENT_ERROR':
-    case 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED':
       return true;
 
     default:
