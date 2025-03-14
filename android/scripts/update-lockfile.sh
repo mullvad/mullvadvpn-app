@@ -5,6 +5,24 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+refresh_all_keys_flag=false
+
+print_usage() {
+  echo "Usage:"
+  echo "    -r        Refresh all keys, will all trusted keys and clear the keyring, allowing for old keys to removed and keys to be updated."
+}
+
+while getopts 'rh' flag; do
+  case "${flag}" in
+    r) refresh_all_keys_flag=true ;;
+    h) print_usage
+       exit 1 ;;
+  esac
+done
+
+
+exit
+
 # Disable daemon since it causes problems with the temp dir cleanup
 # regardless if stopped.
 GRADLE_OPTS="-Dorg.gradle.daemon=false"
@@ -20,9 +38,11 @@ GRADLE_TASKS=(
 export GRADLE_OPTS
 export GRADLE_USER_HOME
 
+cd ../gradle/
+
 function cleanup {
     echo "Cleaning up temp dirs..."
-    rm -rf -- "$GRADLE_USER_HOME" "$TEMP_GRADLE_PROJECT_CACHE_DIR" ../gradle/verification-metadata.dryrun.xml ../gradle/verification-keyring.dryrun.keys ../gradle/verification-keyring.dryrun.gpg
+    rm -rf -- "$GRADLE_USER_HOME" "$TEMP_GRADLE_PROJECT_CACHE_DIR" verification-keyring.gpg
 }
 
 trap cleanup EXIT
@@ -36,7 +56,7 @@ echo "### Updating checksums ###"
 echo ""
 
 echo "Removing old components..."
-sed -i '/<components>/,/<\/components>/d' ../gradle/verification-metadata.xml
+sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
 echo ""
 
 echo "Generating new components..."
@@ -47,35 +67,40 @@ for GRADLE_TASK in "${GRADLE_TASKS[@]}"; do
     echo ""
 done
 
-echo "### Updating keys ###"
+echo "Moving checksums to the side..."
+mv verification-metadata.xml verification-metadata.checksums.xml
+
+
+
+echo "### Updating keys metadata ###"
 echo ""
 
+echo "Moving keys to be active metadata file"
+mv verification-metadata.keys.xml verification-metadata.xml
+
+
 echo "Temporarily enabling key servers..."
-sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' ../gradle/verification-metadata.xml
+sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' verification-metadata.xml
 
-echo "Generating new trusted keys..."
-../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys --dry-run
+echo "Removing old components..."
+sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
+echo ""
 
-# Move keys from dry run file to existing file.
-# This part is taken from: https://gitlab.com/fdroid/fdroidclient/-/blob/master/gradle/update-verification-metadata.sh
 
-# Extract the middle of the new file due to: https://github.com/gradle/gradle/issues/18569
-grep -B 10000 "<trusted-keys>" ../gradle/verification-metadata.dryrun.xml > "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.head"
-grep -A 10000 "</trusted-keys>" ../gradle/verification-metadata.dryrun.xml > "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.tail"
-numTopLines="$(< "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.head" wc -l)"
-numTopLinesPlus1="$((numTopLines + 1))"
-numBottomLines="$(< "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.tail" wc -l)"
-numLines="$(< ../gradle/verification-metadata.dryrun.xml wc -l)"
-numMiddleLines="$((numLines - numTopLines - numBottomLines))"
-# Remove 'version=' due to: https://github.com/gradle/gradle/issues/20192
-< ../gradle/verification-metadata.dryrun.xml tail -n "+$numTopLinesPlus1" | head -n "$numMiddleLines" | sed 's/ version="[^"]*"//' > "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.middle"
+if [ "$refresh_all_keys_flag" = true ]; then
+    echo "Refreshing all keys"
 
-# Extract the top and bottom of the old file
-grep -B 10000 "<trusted-keys>" ../gradle/verification-metadata.xml > "$TEMP_GRADLE_PROJECT_CACHE_DIR/old.head"
-grep -A 10000 "</trusted-keys>" ../gradle/verification-metadata.xml > "$TEMP_GRADLE_PROJECT_CACHE_DIR/old.tail"
+    echo "Removing old trusted keys..."
+    sed -i '/<trusted-keys>/,/<\/trusted-keys>/d' verification-metadata.xml
+    echo ""
 
-# Update verification metadata file
-cat "$TEMP_GRADLE_PROJECT_CACHE_DIR/old.head" "$TEMP_GRADLE_PROJECT_CACHE_DIR/new.middle" "$TEMP_GRADLE_PROJECT_CACHE_DIR/old.tail" > ../gradle/verification-metadata.xml
+    echo "Removing old keyring..."
+    rm verification-keyring.keys
+    echo ""
+fi
+
+echo "Generating new trusted keys & updating keyring..."
+../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys
 
 echo "Sorting keyring and removing duplicates..."
   # Sort and unique the keyring
@@ -86,7 +111,7 @@ echo "Sorting keyring and removing duplicates..."
   # `sort` orders the keys deterministically
   # `uniq` removes identical keys
   # `sed 's/NEWLINE/\n/g'` puts the newlines back
-< ../gradle/verification-keyring.dryrun.keys \
+< verification-keyring.keys \
     sed 's/$/NEWLINE/g' \
     | tr -d '\n' \
     | sed 's/\(-----END PGP PUBLIC KEY BLOCK-----\)/\1\n/g' \
@@ -94,7 +119,16 @@ echo "Sorting keyring and removing duplicates..."
     | sort \
     | uniq \
     | sed 's/NEWLINE/\n/g' \
-    > ../gradle/verification-keyring.keys
+    > verification-keyring.new.keys
+
+mv -f verification-keyring.new.keys verification-keyring.keys
 
 echo "Disabling key servers..."
-sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="false",' ../gradle/verification-metadata.xml
+sed -Ezi 's,key-servers,key-servers enabled="false",' verification-metadata.xml
+
+echo "Moving back keys verification metadata"
+mv verification-metadata.xml verification-metadata.keys.xml
+
+echo ""
+echo "Moving checksums to be active metadata file"
+mv verification-metadata.checksums.xml verification-metadata.xml
