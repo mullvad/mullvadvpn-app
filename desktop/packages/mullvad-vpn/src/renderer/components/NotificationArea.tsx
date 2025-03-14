@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
@@ -17,9 +16,7 @@ import {
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Icon } from '../lib/components';
 import { transitions, useHistory } from '../lib/history';
-import { formatHtml } from '../lib/html-formatter';
 import {
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
@@ -31,8 +28,6 @@ import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
-import { ExternalLink } from './ExternalLink';
-import { InternalLink } from './InternalLink';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
@@ -41,19 +36,14 @@ import {
   NotificationContent,
   NotificationIndicator,
   NotificationOpenLinkAction,
-  NotificationSubtitle,
   NotificationTitle,
   NotificationTroubleshootDialogAction,
 } from './NotificationBanner';
+import { NotificationSubtitle } from './NotificationSubtitle';
 
 interface IProps {
   className?: string;
 }
-
-const StyledIcon = styled(Icon)`
-  display: inline-flex;
-  vertical-align: middle;
-`;
 
 export default function NotificationArea(props: IProps) {
   const { showFullDiskAccessSettings } = useAppContext();
@@ -159,35 +149,10 @@ export default function NotificationArea(props: IProps) {
             <NotificationTitle data-testid="notificationTitle">
               {notification.title}
             </NotificationTitle>
-            <NotificationSubtitle data-testid="notificationSubTitle">
-              {Array.isArray(notification.subtitle)
-                ? notification.subtitle.map((subtitle, index, arr) => {
-                    const content = subtitle.action ? (
-                      subtitle.action.type === 'navigate-internal' ? (
-                        <InternalLink variant="labelTiny" {...subtitle.action.link}>
-                          {formatHtml(subtitle.content)}
-                        </InternalLink>
-                      ) : subtitle.action.type === 'navigate-external' ? (
-                        <ExternalLink variant="labelTiny" {...subtitle.action.link}>
-                          {formatHtml(subtitle.content)}
-                          <StyledIcon icon="external" size="small" />
-                        </ExternalLink>
-                      ) : (
-                        formatHtml(subtitle.content)
-                      )
-                    ) : (
-                      formatHtml(subtitle.content)
-                    );
-
-                    return (
-                      <>
-                        {content}
-                        {index !== arr.length - 1 && ' '}
-                      </>
-                    );
-                  })
-                : formatHtml(notification.subtitle ?? '')}
-            </NotificationSubtitle>
+            <NotificationSubtitle
+              data-testid="notificationSubTitle"
+              subtitle={notification.subtitle}
+            />
           </NotificationContent>
           {notification.action && (
             <NotificationActionWrapper
