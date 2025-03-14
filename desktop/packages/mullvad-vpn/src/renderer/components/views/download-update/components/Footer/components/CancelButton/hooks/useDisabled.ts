@@ -1,9 +1,9 @@
-import { useAppUpgradeEvent } from '../../../../../hooks';
+import { useAppUpgradeEventType } from '../../../../../hooks';
 
 export const useDisabled = () => {
-  const appUpgradeEvent = useAppUpgradeEvent();
+  const appUpgradeEventType = useAppUpgradeEventType();
 
-  switch (appUpgradeEvent?.type) {
+  switch (appUpgradeEventType) {
     case 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS':
     case 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED':
       return false;

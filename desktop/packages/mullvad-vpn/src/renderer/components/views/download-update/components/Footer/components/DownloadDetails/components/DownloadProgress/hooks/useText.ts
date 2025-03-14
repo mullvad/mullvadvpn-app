@@ -1,16 +1,16 @@
 import { messages } from '../../../../../../../../../../../shared/gettext';
-import { useAppUpgradeEvent } from '../../../../../../../hooks';
+import { useAppUpgradeEventType } from '../../../../../../../hooks';
 import useGetTextTimeLeft from './useGetTextTimeLeft';
 
 export const useText = () => {
-  const appUpgradeEvent = useAppUpgradeEvent();
+  const appUpgradeEventType = useAppUpgradeEventType();
   const getTextTimeLeft = useGetTextTimeLeft();
 
   // TODO: We must ensure that we cover all the cases where we should display a text,
   // for example we don't show 'Download complete!' when the previous install attempt
   // was canceled.
 
-  switch (appUpgradeEvent?.type) {
+  switch (appUpgradeEventType) {
     case 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED':
       // TRANSLATORS: Status text displayed below a progress bar when the download of an update is starting
       return messages.pgettext('download-update-view', 'Starting download...');

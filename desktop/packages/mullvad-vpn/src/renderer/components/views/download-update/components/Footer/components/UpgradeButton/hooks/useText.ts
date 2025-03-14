@@ -1,18 +1,18 @@
 import { AppUpgradeError } from '../../../../../../../../../shared/daemon-rpc-types';
 import { messages } from '../../../../../../../../../shared/gettext';
 import {
-  useAppUpgradeEvent,
+  useAppUpgradeEventType,
   useGetHasAppUpgradeError,
   useIsAppUpgradeDownloaded,
 } from '../../../../../hooks';
 
 export const useText = () => {
-  const appUpgradeEvent = useAppUpgradeEvent();
+  const appUpgradeEventType = useAppUpgradeEventType();
   const isAppUpgradeDownloaded = useIsAppUpgradeDownloaded();
   const getHasAppUpgradeError = useGetHasAppUpgradeError();
 
   if (isAppUpgradeDownloaded) {
-    const appUpgradeEventAborted = appUpgradeEvent?.type === 'APP_UPGRADE_EVENT_ABORTED';
+    const appUpgradeEventAborted = appUpgradeEventType === 'APP_UPGRADE_EVENT_ABORTED';
     const hasErrorStartInstallerFailed = getHasAppUpgradeError(
       AppUpgradeError.startInstallerFailed,
     );
@@ -22,7 +22,7 @@ export const useText = () => {
     }
   }
 
-  if (appUpgradeEvent?.type === 'APP_UPGRADE_EVENT_ERROR') {
+  if (appUpgradeEventType === 'APP_UPGRADE_EVENT_ERROR') {
     // TRANSLATORS: Button text to retry download of an update
     return messages.pgettext('download-update-view', 'Retry download');
   }

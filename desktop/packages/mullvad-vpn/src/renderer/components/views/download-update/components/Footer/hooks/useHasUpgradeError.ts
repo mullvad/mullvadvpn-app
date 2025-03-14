@@ -1,9 +1,9 @@
-import { useAppUpgradeEvent } from '../../../hooks';
+import { useAppUpgradeEventType } from '../../../hooks';
 
 export const useHasUpgradeError = () => {
-  const appUpgradeEvent = useAppUpgradeEvent();
+  const appUpgradeEventType = useAppUpgradeEventType();
 
-  const hasUpgradeError = appUpgradeEvent?.type === 'APP_UPGRADE_EVENT_ERROR';
+  const hasUpgradeError = appUpgradeEventType === 'APP_UPGRADE_EVENT_ERROR';
 
   return hasUpgradeError;
 };

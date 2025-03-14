@@ -1,9 +1,9 @@
-import { useAppUpgradeEvent } from '../../../hooks';
+import { useAppUpgradeEventType } from '../../../hooks';
 
 export const useShowUpgradeButton = () => {
-  const appUpgradeEvent = useAppUpgradeEvent();
+  const appUpgradeEventType = useAppUpgradeEventType();
 
-  switch (appUpgradeEvent?.type) {
+  switch (appUpgradeEventType) {
     case 'APP_UPGRADE_EVENT_ABORTED':
     case 'APP_UPGRADE_EVENT_ERROR':
       return true;

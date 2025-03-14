@@ -1,9 +1,17 @@
-import { useAppUpgradeEvent } from '../../../hooks';
+import { useAppUpgradeEventType } from '../../../hooks';
 
 export const useShowDownloadDetails = () => {
-  const appUpgradeEvent = useAppUpgradeEvent();
+  const appUpgradeEventType = useAppUpgradeEventType();
 
-  const showDownloadDetails = appUpgradeEvent !== undefined;
+  switch (appUpgradeEventType) {
+    case 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS':
+    case 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED':
+    case 'APP_UPGRADE_EVENT_ERROR':
+    case 'APP_UPGRADE_EVENT_STARTING_INSTALLER':
+    case 'APP_UPGRADE_EVENT_VERIFYING_INSTALLER':
+      return true;
 
-  return showDownloadDetails;
+    default:
+      return false;
+  }
 };
