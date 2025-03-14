@@ -15,18 +15,6 @@ export const NotificationTitle = styled.span(tinyText, {
   color: Colors.white,
 });
 
-export const NotificationSubtitleText = styled.span(tinyText, {
-  color: Colors.white60,
-});
-
-interface INotificationSubtitleProps {
-  children?: React.ReactNode;
-}
-
-export function NotificationSubtitle(props: INotificationSubtitleProps) {
-  return React.Children.count(props.children) > 0 ? <NotificationSubtitleText {...props} /> : null;
-}
-
 export const NotificationActionButton = styled(AppButton.SimpleButton)({
   flex: 1,
   justifyContent: 'center',
