@@ -9,8 +9,8 @@
 import Foundation
 import MullvadTypes
 
-public struct RelayWithLocation<T: AnyRelay> {
-    let relay: T
+public struct RelayWithLocation<T: AnyRelay & Sendable>: Sendable {
+    public let relay: T
     public let serverLocation: Location
 
     public func matches(location: RelayLocation) -> Bool {
@@ -60,8 +60,12 @@ public struct RelayWithLocation<T: AnyRelay> {
     }
 }
 
-extension RelayWithLocation: Equatable {
+extension RelayWithLocation: Hashable {
     public static func == (lhs: RelayWithLocation<T>, rhs: RelayWithLocation<T>) -> Bool {
         lhs.relay.hostname == rhs.relay.hostname
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(relay.hostname)
     }
 }

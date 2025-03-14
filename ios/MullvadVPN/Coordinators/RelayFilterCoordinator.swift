@@ -11,10 +11,10 @@ import MullvadTypes
 import Routing
 import UIKit
 
-class RelayFilterCoordinator: Coordinator, Presentable, @preconcurrency RelayCacheTrackerObserver {
+class RelayFilterCoordinator: Coordinator, Presentable {
     private let tunnelManager: TunnelManager
-    private let relayCacheTracker: RelayCacheTracker
-    private var cachedRelays: CachedRelays?
+    private let relaySelectorWrapper: RelaySelectorWrapper
+    private var tunnelObserver: TunnelObserver?
 
     let navigationController: UINavigationController
 
@@ -28,29 +28,23 @@ class RelayFilterCoordinator: Coordinator, Presentable, @preconcurrency RelayCac
         } as? RelayFilterViewController
     }
 
-    var relayFilter: RelayFilter {
-        switch tunnelManager.settings.relayConstraints.filter {
-        case .any:
-            return RelayFilter()
-        case let .only(filter):
-            return filter
-        }
-    }
-
     var didFinish: ((RelayFilterCoordinator, RelayFilter?) -> Void)?
 
     init(
         navigationController: UINavigationController,
         tunnelManager: TunnelManager,
-        relayCacheTracker: RelayCacheTracker
+        relaySelectorWrapper: RelaySelectorWrapper
     ) {
         self.navigationController = navigationController
         self.tunnelManager = tunnelManager
-        self.relayCacheTracker = relayCacheTracker
+        self.relaySelectorWrapper = relaySelectorWrapper
     }
 
     func start() {
-        let relayFilterViewController = RelayFilterViewController()
+        let relayFilterViewController = RelayFilterViewController(
+            settings: tunnelManager.settings,
+            relaySelectorWrapper: relaySelectorWrapper
+        )
 
         relayFilterViewController.onApplyFilter = { [weak self] filter in
             guard let self else { return }
@@ -65,25 +59,8 @@ class RelayFilterCoordinator: Coordinator, Presentable, @preconcurrency RelayCac
 
         relayFilterViewController.didFinish = { [weak self] in
             guard let self else { return }
-
             didFinish?(self, nil)
         }
-
-        relayCacheTracker.addObserver(self)
-
-        if let cachedRelays = try? relayCacheTracker.getCachedRelays() {
-            self.cachedRelays = cachedRelays
-            relayFilterViewController.setCachedRelays(cachedRelays, filter: relayFilter)
-        }
-
         navigationController.pushViewController(relayFilterViewController, animated: false)
-    }
-
-    func relayCacheTracker(
-        _ tracker: RelayCacheTracker,
-        didUpdateCachedRelays cachedRelays: CachedRelays
-    ) {
-        self.cachedRelays = cachedRelays
-        relayFilterViewController?.setCachedRelays(cachedRelays, filter: relayFilter)
     }
 }

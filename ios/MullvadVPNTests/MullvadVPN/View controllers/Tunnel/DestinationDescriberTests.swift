@@ -7,27 +7,11 @@
 //
 
 import Foundation
+import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 import Network
 import XCTest
-
-struct MockRelayCache: RelayCacheProtocol {
-    func read() throws -> MullvadREST.StoredRelays {
-        try .init(
-            cachedRelays: CachedRelays(
-                relays: ServerRelaysResponseStubs.sampleRelays,
-                updatedAt: Date()
-            )
-        )
-    }
-
-    func readPrebundledRelays() throws -> MullvadREST.StoredRelays {
-        try self.read()
-    }
-
-    func write(record: MullvadREST.StoredRelays) throws {}
-}
 
 final class DestinationDescriberTests: XCTestCase {
     static let store = InMemorySettingsStore<SettingNotFound>()

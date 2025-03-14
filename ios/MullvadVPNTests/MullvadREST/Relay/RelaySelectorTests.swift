@@ -6,6 +6,7 @@
 //  Copyright © 2025 Mullvad VPN AB. All rights reserved.
 //
 
+import MullvadMockData
 @testable import MullvadREST
 @testable import MullvadSettings
 import MullvadTypes
@@ -214,14 +215,12 @@ class RelaySelectorTests: XCTestCase {
         let filter = RelayFilter(ownership: .rented, providers: .any)
 
         let constraints = RelayConstraints(
-            exitLocations: .only(UserSelectedRelays(locations: [.hostname("se", "sto", "se6-wireguard")])),
+            exitLocations: .only(UserSelectedRelays(locations: [.hostname("es", "mad", "es1-wireguard")])),
             filter: .only(filter)
         )
 
-        XCTAssertThrowsError(try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)) { error in
-            let error = error as? NoRelaysSatisfyingConstraintsError
-            XCTAssertEqual(error?.reason, .filterConstraintNotMatching)
-        }
+        let result = try pickRelay(by: constraints, in: sampleRelays, failedAttemptCount: 0)
+        XCTAssertNotEqual(result.relay.owned, true)
     }
 
     func testRelayFilterConstraintWithCorrectProvider() throws {
@@ -238,7 +237,7 @@ class RelaySelectorTests: XCTestCase {
     }
 
     func testRelayFilterConstraintWithIncorrectProvider() throws {
-        let provider = "DataPacket"
+        let provider = ""
         let filter = RelayFilter(ownership: .any, providers: .only([provider]))
 
         let constraints = RelayConstraints(
