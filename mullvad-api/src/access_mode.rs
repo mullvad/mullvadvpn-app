@@ -7,7 +7,7 @@
 #[cfg(feature = "api-override")]
 use crate::ApiEndpoint;
 use crate::{
-    proxy::{AllowedClientsProvider, ApiConnectionMode, ConnectionModeProvider},
+    proxy::{ApiConnectionMode, ConnectionModeProvider},
     AddressCache,
 };
 use async_trait::async_trait;
@@ -16,8 +16,8 @@ use futures::{
     StreamExt,
 };
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, Id, Settings};
-use std::{marker::PhantomData, net::SocketAddr, path::PathBuf};
-use talpid_types::net::{AllowedEndpoint, Endpoint, TransportProtocol};
+use std::{net::SocketAddr, path::PathBuf};
+use talpid_types::net::{AllowedClients, AllowedEndpoint, Endpoint, TransportProtocol};
 
 pub enum Message {
     Get(ResponseTx<ResolvedConnectionMode>),
@@ -242,12 +242,12 @@ impl ConnectionModeProvider for AccessModeConnectionModeProvider {
 /// [`ApiConnectionMode::Direct`]) via a bridge ([`ApiConnectionMode::Proxied`])
 /// or via any supported custom proxy protocol
 /// ([`talpid_types::net::proxy::CustomProxy`]).
-pub struct AccessModeSelector<P> {
+pub struct AccessModeSelector<B: BridgeAndDNSProxy> {
     #[cfg(feature = "api-override")]
     api_endpoint: ApiEndpoint,
     cmd_rx: mpsc::UnboundedReceiver<Message>,
     cache_dir: PathBuf,
-    bridge_dns_proxy_provider: Box<dyn BridgeAndDNSProxy>,
+    bridge_dns_proxy_provider: B,
     access_method_settings: Settings,
     address_cache: AddressCache,
     access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
@@ -255,16 +255,12 @@ pub struct AccessModeSelector<P> {
     current: ResolvedConnectionMode,
     /// `index` is used to keep track of the [`AccessMethodSetting`] to use.
     index: usize,
-    provider: PhantomData<P>,
 }
 
-impl<P> AccessModeSelector<P>
-where
-    P: AllowedClientsProvider + 'static,
-{
+impl<B: BridgeAndDNSProxy + 'static> AccessModeSelector<B> {
     pub async fn spawn(
         cache_dir: PathBuf,
-        mut bridge_dns_proxy_provider: Box<dyn BridgeAndDNSProxy>,
+        mut bridge_dns_proxy_provider: B,
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
@@ -283,18 +279,15 @@ where
 
         // Always start looking from the position of `Direct`.
         let (index, next) = Self::find_next_active(0, &access_method_settings);
-        let initial_connection_mode = Self::resolve_inner_with_default(
-            &next,
-            &address_cache,
-            &mut *bridge_dns_proxy_provider,
-        )
-        .await;
+        let initial_connection_mode =
+            Self::resolve_inner_with_default(&next, &address_cache, &mut bridge_dns_proxy_provider)
+                .await;
 
         let (change_tx, change_rx) = mpsc::unbounded();
 
         let api_connection_mode = initial_connection_mode.connection_mode.clone();
 
-        let selector: AccessModeSelector<P> = AccessModeSelector {
+        let selector = AccessModeSelector {
             #[cfg(feature = "api-override")]
             api_endpoint,
             cmd_rx,
@@ -306,7 +299,6 @@ where
             connection_mode_provider_sender: change_tx,
             current: initial_connection_mode,
             index,
-            provider: PhantomData,
         };
 
         tokio::spawn(selector.into_future());
@@ -527,7 +519,7 @@ where
         Self::resolve_inner(
             &access_method,
             &self.address_cache,
-            &mut *self.bridge_dns_proxy_provider,
+            &mut self.bridge_dns_proxy_provider,
         )
         .await
     }
@@ -535,13 +527,13 @@ where
     async fn resolve_inner(
         access_method: &AccessMethodSetting,
         address_cache: &AddressCache,
-        bridge_dns_proxy_provider: &mut dyn BridgeAndDNSProxy,
+        bridge_dns_proxy_provider: &mut B,
     ) -> Option<ResolvedConnectionMode> {
         let connection_mode = bridge_dns_proxy_provider
             .match_access_method(access_method)
             .await?;
         let endpoint =
-            resolve_allowed_endpoint::<P>(&connection_mode, address_cache.get_address().await);
+            resolve_allowed_endpoint::<B>(&connection_mode, address_cache.get_address().await);
         Some(ResolvedConnectionMode {
             connection_mode,
             endpoint,
@@ -558,7 +550,7 @@ where
         Self::resolve_inner_with_default(
             &access_method,
             &self.address_cache,
-            &mut *self.bridge_dns_proxy_provider,
+            &mut self.bridge_dns_proxy_provider,
         )
         .await
     }
@@ -566,13 +558,13 @@ where
     async fn resolve_inner_with_default(
         access_method: &AccessMethodSetting,
         address_cache: &AddressCache,
-        bridge_dns_proxy_provider: &mut dyn BridgeAndDNSProxy,
+        bridge_dns_proxy_provider: &mut B,
     ) -> ResolvedConnectionMode {
         match Self::resolve_inner(access_method, address_cache, bridge_dns_proxy_provider).await {
             Some(resolved) => resolved,
             None => {
                 log::trace!("Defaulting to direct API connection");
-                let endpoint = resolve_allowed_endpoint::<P>(
+                let endpoint = resolve_allowed_endpoint::<B>(
                     &ApiConnectionMode::Direct,
                     address_cache.get_address().await,
                 );
@@ -592,19 +584,21 @@ pub trait BridgeAndDNSProxy: Send + Sync {
         &mut self,
         access_method: &AccessMethodSetting,
     ) -> Option<ApiConnectionMode>;
+
+    fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients;
 }
 
-pub fn resolve_allowed_endpoint<P>(
+pub fn resolve_allowed_endpoint<B>(
     connection_mode: &ApiConnectionMode,
     fallback: SocketAddr,
 ) -> AllowedEndpoint
 where
-    P: AllowedClientsProvider,
+    B: BridgeAndDNSProxy,
 {
     let endpoint = match connection_mode.get_endpoint() {
         Some(endpoint) => endpoint,
         None => Endpoint::from_socket_address(fallback, TransportProtocol::Tcp),
     };
-    let clients = P::allowed_clients(connection_mode);
+    let clients = B::allowed_clients(connection_mode);
     AllowedEndpoint { endpoint, clients }
 }

@@ -6,7 +6,7 @@ use futures::{channel::mpsc, StreamExt};
 use mullvad_api::{
     access_mode::BridgeAndDNSProxy,
     availability::ApiAvailability,
-    proxy::{AllowedClientsProvider, ApiConnectionMode, ProxyConfig},
+    proxy::{ApiConnectionMode, ProxyConfig},
 };
 use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_management_interface::async_trait;
@@ -73,12 +73,7 @@ impl BridgeAndDNSProxy for BridgeAndDNSProxyProvider {
         };
         Some(connection_mode)
     }
-}
 
-#[derive(Clone, Copy)]
-pub struct AllowedClientsSelector {}
-
-impl AllowedClientsProvider for AllowedClientsSelector {
     #[cfg(unix)]
     fn allowed_clients(connection_mode: &ApiConnectionMode) -> AllowedClients {
         match connection_mode {
