@@ -64,7 +64,7 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
 
     private func configureProviderCell(_ cell: CheckableSettingsCell?, item: RelayFilterDataSourceItem) {
         guard let cell = cell else { return }
-        let alpha = item.isEnabled ? 1.0 : 0.5
+        let alpha = item.isEnabled ? 1.0 : 0.2
 
         cell.titleLabel.text = NSLocalizedString(
             "RELAY_FILTER_CELL_LABEL",
@@ -84,7 +84,6 @@ struct RelayFilterCellFactory: @preconcurrency CellFactoryProtocol {
         cell.setAccessibilityIdentifier(.relayFilterProviderCell)
         cell.titleLabel.alpha = alpha
         cell.detailTitleLabel.alpha = alpha
-        cell.detailTitleLabel.textColor = cell.titleLabel.textColor
     }
 
     private func setFontWeight(_ weight: UIFont.Weight, to label: UILabel) {

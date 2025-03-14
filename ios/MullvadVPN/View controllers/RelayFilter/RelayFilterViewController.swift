@@ -31,7 +31,7 @@ class RelayFilterViewController: UIViewController {
         label.numberOfLines = 0
         label.lineBreakMode = .byWordWrapping
         label.font = .preferredFont(forTextStyle: .body)
-        label.textColor = .primaryTextColor
+        label.textColor = .secondaryTextColor
         label.textAlignment = .center
         return label
     }()
@@ -110,7 +110,6 @@ class RelayFilterViewController: UIViewController {
             .sink { [weak self] filter in
                 guard let self else { return }
                 let filterDescriptor = viewModel.getFilteredRelays(filter)
-                descriptionLabel.alpha = filterDescriptor.isEnabled ? 1.0 : 0.5
                 applyButton.isEnabled = filterDescriptor.isEnabled
                 applyButton.setTitle(filterDescriptor.title, for: .normal)
                 descriptionLabel.text = filterDescriptor.description
