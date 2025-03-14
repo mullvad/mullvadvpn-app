@@ -2,6 +2,7 @@ package net.mullvad.mullvadvpn.viewmodel
 
 import android.content.res.Resources
 import android.net.Uri
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.FlowPreview
@@ -190,7 +191,7 @@ class ConnectViewModel(
                 } else {
                     resources.getString(R.string.download_url)
                 }
-            _uiSideEffect.send(UiSideEffect.OpenUri(Uri.parse(uri)))
+            _uiSideEffect.send(UiSideEffect.OpenUri(uri.toUri()))
         }
 
     fun dismissNewDeviceNotification() {

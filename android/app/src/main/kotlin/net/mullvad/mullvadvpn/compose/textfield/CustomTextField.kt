@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.textfield
 
-import android.text.TextUtils
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -30,6 +29,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.core.text.isDigitsOnly
 import net.mullvad.mullvadvpn.constant.EMPTY_STRING
 import net.mullvad.mullvadvpn.constant.NEWLINE_STRING
 import net.mullvad.mullvadvpn.lib.theme.Dimens
@@ -87,8 +87,7 @@ fun CustomTextField(
 
             if (stringChangedSinceLastInvocation) {
                 val isValidInput =
-                    if (isDigitsOnlyAllowed) TextUtils.isDigitsOnly(newTextFieldValueState.text)
-                    else true
+                    if (isDigitsOnlyAllowed) newTextFieldValueState.text.isDigitsOnly() else true
                 if (newTextFieldValueState.text.length <= maxCharLength && isValidInput) {
                     // Remove any newline chars added by enter key clicks
                     onValueChanged(
