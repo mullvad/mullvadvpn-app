@@ -13,7 +13,6 @@ use futures::{
     StreamExt,
 };
 use mullvad_types::access_method::{AccessMethod, AccessMethodSetting, Id, Settings};
-use std::path::PathBuf;
 use talpid_types::net::AllowedEndpoint;
 
 pub enum Message {
@@ -40,6 +39,7 @@ pub enum AccessMethodEvent {
     New {
         /// The new active [`AccessMethodSetting`].
         setting: AccessMethodSetting,
+        connection_mode: ApiConnectionMode,
         /// The endpoint which represents how to connect to the Mullvad API and
         /// which clients are allowed to initiate such a connection.
         #[cfg(not(target_os = "android"))]
@@ -243,7 +243,6 @@ pub struct AccessModeSelector<B: AccessMethodResolver> {
     #[cfg(feature = "api-override")]
     api_endpoint: ApiEndpoint,
     cmd_rx: mpsc::UnboundedReceiver<Message>,
-    cache_dir: PathBuf,
     bridge_dns_proxy_provider: B,
     access_method_settings: Settings,
     access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
@@ -255,7 +254,6 @@ pub struct AccessModeSelector<B: AccessMethodResolver> {
 
 impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     pub async fn spawn(
-        cache_dir: PathBuf,
         mut bridge_dns_proxy_provider: B,
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
@@ -285,7 +283,6 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
             #[cfg(feature = "api-override")]
             api_endpoint,
             cmd_rx,
-            cache_dir,
             bridge_dns_proxy_provider,
             access_method_settings,
             access_method_event_sender,
@@ -407,23 +404,16 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         #[cfg(not(target_os = "android"))]
         let endpoint = resolved.endpoint.clone();
         let daemon_sender = self.access_method_event_sender.clone();
+        let connection_mode = resolved.connection_mode.clone();
         tokio::spawn(async move {
             let _ = AccessMethodEvent::New {
                 setting,
+                connection_mode,
                 #[cfg(not(target_os = "android"))]
                 endpoint,
             }
             .send(daemon_sender)
             .await;
-        });
-
-        // Save the new connection mode to cache!
-        let cache_dir = self.cache_dir.clone();
-        let connection_mode = resolved.connection_mode.clone();
-        tokio::spawn(async move {
-            if connection_mode.save(&cache_dir).await.is_err() {
-                log::warn!("Failed to save {connection_mode:#?} to cache")
-            }
         });
 
         // Notify REST client
