@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.android
-
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
@@ -40,6 +38,4 @@ dependencies {
     implementation(libs.kermit)
     implementation(libs.kotlin.stdlib)
     implementation(libs.kotlinx.coroutines.android)
-    implementation(libs.koin)
-    implementation(libs.koin.android)
 }

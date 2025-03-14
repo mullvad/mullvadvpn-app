@@ -11,7 +11,6 @@ use jnix::{
     },
     FromJava, IntoJava, JnixEnv,
 };
-use std::net::Ipv6Addr;
 use std::{
     net::IpAddr,
     os::unix::io::{AsRawFd, RawFd},
@@ -308,7 +307,6 @@ impl VpnServiceConfig {
     /// Potentially subtract LAN nets from the VPN service routes, excepting gateways.
     /// This prevents LAN traffic from going in the tunnel.
     fn resolve_routes(config: &TunConfig) -> Vec<InetNetwork> {
-        log::debug!("routes: {:?}", config.routes);
         if !config.allow_lan {
             return config
                 .routes

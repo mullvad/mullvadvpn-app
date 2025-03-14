@@ -113,7 +113,7 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val uiModule = module {
-    single<DataStore<UserPreferences>>(named("COOL")) { androidContext().userPreferencesStore }
+    single<DataStore<UserPreferences>> { androidContext().userPreferencesStore }
 
     single<PackageManager> { androidContext().packageManager }
     single<String>(named(SELF_PACKAGE_NAME)) { androidContext().packageName }
@@ -131,9 +131,7 @@ val uiModule = module {
     single { androidContext().contentResolver }
 
     single { ChangelogRepository(get(), get(), get()) }
-    single<UserPreferencesRepository> {
-        UserPreferencesRepository(get<DataStore<UserPreferences>>(named("COOL")), get())
-    }
+    single { UserPreferencesRepository(get(), get()) }
     single { SettingsRepository(get()) }
     single { MullvadProblemReport(get(), get<DaemonConfig>().apiEndpointOverride, get()) }
     single { RelayOverridesRepository(get()) }
