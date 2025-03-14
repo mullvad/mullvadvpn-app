@@ -6,6 +6,7 @@ import { useSelector } from '../redux/store';
 const StyledLang = styled.div({
   display: 'flex',
   flex: '1',
+  maxWidth: '100%',
 });
 
 export default function Lang(props: PropsWithChildren) {

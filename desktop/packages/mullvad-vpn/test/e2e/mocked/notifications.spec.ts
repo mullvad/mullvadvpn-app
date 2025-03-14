@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
 import { colors } from '../../../src/renderer/lib/foundations';
+import { RoutePath } from '../../../src/renderer/lib/routes';
 import { IAccountData } from '../../../src/shared/daemon-rpc-types';
 import { getBackgroundColor } from '../utils';
 import { MockedTestUtils, startMockedApp } from './mocked-utils';
@@ -11,6 +12,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
