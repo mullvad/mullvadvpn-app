@@ -143,7 +143,6 @@ private fun PreviewVpnSettings(
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
             onToggleIPv6Toggle = {},
-            onToggleRouteIpv6Traffic = {},
         )
     }
 }
@@ -274,7 +273,6 @@ fun VpnSettings(
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
         onToggleIPv6Toggle = vm::setIpV6Enabled,
-        onToggleRouteIpv6Traffic = vm::onToggleRouteIpv6Traffic,
     )
 }
 
@@ -313,7 +311,6 @@ fun VpnSettingsScreen(
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
     onToggleIPv6Toggle: (Boolean) -> Unit,
-    onToggleRouteIpv6Traffic: (Boolean) -> Unit,
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
@@ -473,6 +470,8 @@ fun VpnSettingsScreen(
                         address = item.address,
                         isUnreachableLocalDnsWarningVisible =
                             item.isLocal && !state.isLocalNetworkSharingEnabled,
+                        isUnreachableIpv6DnsWarningVisible =
+                            item.isIpv6 && !state.isIPv6Enabled,
                         onClick = { navigateToDns(index, item.address) },
                         modifier = Modifier.animateItem(),
                     )
@@ -698,16 +697,6 @@ fun VpnSettingsScreen(
                     isToggled = state.isIPv6Enabled,
                     isEnabled = true,
                     onCellClicked = { newValue -> onToggleIPv6Toggle(newValue) },
-                )
-                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
-            }
-
-            item {
-                HeaderSwitchComposeCell(
-                    title = "Route IPv6 traffic",
-                    isToggled = state.routeIpv6Traffic || state.isIPv6Enabled,
-                    isEnabled = !state.isIPv6Enabled,
-                    onCellClicked = { newValue -> onToggleRouteIpv6Traffic(newValue) },
                 )
                 Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }
