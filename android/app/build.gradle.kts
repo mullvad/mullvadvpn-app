@@ -364,6 +364,7 @@ protobuf {
 
 dependencies {
     implementation(projects.lib.common)
+    implementation(projects.lib.component)
     implementation(projects.lib.daemonGrpc)
     implementation(projects.lib.endpoint)
     implementation(projects.lib.map)
@@ -371,7 +372,6 @@ dependencies {
     implementation(projects.lib.payment)
     implementation(projects.lib.resource)
     implementation(projects.lib.shared)
-    implementation(projects.lib.sharedCompose)
     implementation(projects.lib.talpid)
     implementation(projects.lib.tv)
     implementation(projects.tile)
