@@ -277,7 +277,8 @@ extension LocationDataSource: UITableViewDelegate {
         case .allLocations:
             return LocationSectionHeaderFooterView(configuration: LocationSectionHeaderFooterView.Configuration(
                 name: LocationSection.allLocations.footer,
-                style: .footer
+                style: .footer,
+                directionalEdgeInsets: NSDirectionalEdgeInsets(top: 24, leading: 16, bottom: 0, trailing: 16)
             ))
         case .customLists:
             return nil
@@ -287,7 +288,7 @@ extension LocationDataSource: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
         switch sections[section] {
         case .allLocations:
-            return dataSources[section].nodes.isEmpty ? 60.0 : .zero
+            return dataSources[section].nodes.isEmpty ? 92 : .zero
         case .customLists:
             return 24
         }
