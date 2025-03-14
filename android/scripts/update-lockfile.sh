@@ -5,6 +5,24 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+refresh_all_keys_flag=false
+
+print_usage() {
+  echo "Usage:"
+  echo "    -r        Refresh all keys, will all trusted keys and clear the keyring, allowing for old keys to removed and keys to be updated."
+}
+
+while getopts 'rh' flag; do
+  case "${flag}" in
+    r) refresh_all_keys_flag=true ;;
+    h) print_usage
+       exit 1 ;;
+  esac
+done
+
+
+exit
+
 # Disable daemon since it causes problems with the temp dir cleanup
 # regardless if stopped.
 GRADLE_OPTS="-Dorg.gradle.daemon=false"
@@ -68,7 +86,20 @@ echo "Removing old components..."
 sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
 echo ""
 
-echo "Generating new trusted keys..."
+
+if [ "$refresh_all_keys_flag" = true ]; then
+    echo "Refreshing all keys"
+
+    echo "Removing old trusted keys..."
+    sed -i '/<trusted-keys>/,/<\/trusted-keys>/d' verification-metadata.xml
+    echo ""
+
+    echo "Removing old keyring..."
+    rm verification-keyring.keys
+    echo ""
+fi
+
+echo "Generating new trusted keys & updating keyring..."
 ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys
 
 echo "Sorting keyring and removing duplicates..."
