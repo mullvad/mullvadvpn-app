@@ -30,18 +30,18 @@ log = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = [
-  "macros",
-  "time",
-  "rt-multi-thread",
-  "net",
-  "io-std",
-  "io-util",
-  "fs",
+    "macros",
+    "time",
+    "rt-multi-thread",
+    "net",
+    "io-std",
+    "io-util",
+    "fs",
 ] }
 tokio-rustls = { version = "0.26.0", features = [
-  "logging",
-  "tls12",
-  "ring",
+    "logging",
+    "tls12",
+    "ring",
 ], default-features = false }
 tokio-socks = "0.5.1"
 rustls-pemfile = "2.1.3"
