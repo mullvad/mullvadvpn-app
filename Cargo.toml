@@ -8,6 +8,7 @@ rust-version = "1.83.0"
 
 [workspace]
 resolver = "2"
+exclude = [ "ci/ios/test-router/raas" ]
 members = [
   "android/translations-converter",
   "desktop/packages/nseventforwarder",
