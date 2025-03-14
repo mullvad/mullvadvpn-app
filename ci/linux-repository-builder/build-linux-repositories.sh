@@ -144,6 +144,14 @@ function rsync_repo {
         build@"$repository_server_upload_domain":"$remote_repo_dir"
 }
 
+function invalidate_bunny_cdn_cache {
+    curl --request POST \
+        --url "https://api.bunny.net/pullzone/${BUNNYCDN_PULL_ZONE_ID}/purgeCache" \
+        --header "AccessKey: ${BUNNYCDN_API_KEY}" \
+        --header 'content-type: application/json' \
+        --fail-with-body
+}
+
 for repository in "${REPOSITORIES[@]}"; do
     deb_remote_repo_dir="deb/$repository"
     rpm_remote_repo_dir="rpm/$repository"
@@ -182,5 +190,10 @@ for repository in "${REPOSITORIES[@]}"; do
     rsync_repo "$deb_repo_dir" "$deb_remote_repo_dir"
     echo "[#] Syncing rpm repository to $rpm_remote_repo_dir"
     rsync_repo "$rpm_repo_dir" "$rpm_remote_repo_dir"
+
+    if [[ "$environment" == "production" ]]; then
+        echo "[#] Invalidating Bunny CDN cache"
+        invalidate_bunny_cdn_cache
+    fi
 
 done
