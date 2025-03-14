@@ -21,7 +21,7 @@ class VpnSettingsUiStatePreviewParameterProvider : PreviewParameterProvider<VpnS
                 mtu = Mtu(MTU),
                 isLocalNetworkSharingEnabled = true,
                 isCustomDnsEnabled = true,
-                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false)),
+                customDnsItems = listOf(CustomDnsItem("0.0.0.0", false, false)),
                 contentBlockersOptions =
                     DefaultDnsOptions(
                         blockAds = true,
