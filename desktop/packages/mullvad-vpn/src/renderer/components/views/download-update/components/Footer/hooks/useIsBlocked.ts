@@ -1,6 +1,7 @@
+import { useSelector } from '../../../../../../redux/store';
+
 export const useIsBlocked = () => {
-  // TODO: Verify if lockdown mode is enabled and user is not connected.
-  const isBlocked = false;
+  const isBlocked = useSelector((state) => state.connection.isBlocked);
 
   return isBlocked;
 };

@@ -1,9 +1,10 @@
-import { useIsBlocked } from '../../../hooks';
+import { useHasUpgradeError, useIsBlocked } from '../../../hooks';
 
 export const useShowDownloadProgress = () => {
+  const hasUpgradeError = useHasUpgradeError();
   const isBlocked = useIsBlocked();
 
-  const showDownloadProgress = !isBlocked;
+  const showDownloadProgress = !hasUpgradeError && !isBlocked;
 
   return showDownloadProgress;
 };

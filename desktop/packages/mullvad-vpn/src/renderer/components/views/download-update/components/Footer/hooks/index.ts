@@ -1,3 +1,4 @@
+export * from './useHasUpgradeError';
 export * from './useIsBlocked';
 export * from './useShowCancelButton';
 export * from './useShowDownloadDetails';

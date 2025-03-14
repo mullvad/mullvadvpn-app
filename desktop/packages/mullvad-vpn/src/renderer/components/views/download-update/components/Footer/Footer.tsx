@@ -25,7 +25,7 @@ export const Footer = () => {
   const showReportProblemButton = useShowReportProblemButton();
 
   return (
-    <StyledFlex $gap="medium" $padding="medium" $flexDirection="column">
+    <StyledFlex $gap="medium" $padding="large" $flexDirection="column">
       <AnimateHeight expanded={showDownloadDetails}>
         <DownloadDetails />
       </AnimateHeight>

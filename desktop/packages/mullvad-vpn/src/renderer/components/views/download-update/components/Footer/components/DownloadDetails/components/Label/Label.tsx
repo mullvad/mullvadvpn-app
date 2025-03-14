@@ -2,8 +2,8 @@ import { useAppUpgradeEvent } from '../../../../../../hooks';
 import {
   DownloadProgress,
   DownloadStarted,
-  ErrorMessage,
   StartingInstaller,
+  UpgradeError,
   VerifyingInstaller,
 } from './components';
 
@@ -20,7 +20,7 @@ export function Label() {
     case 'APP_UPGRADE_EVENT_STARTING_INSTALLER':
       return <StartingInstaller />;
     case 'APP_UPGRADE_EVENT_ERROR':
-      return <ErrorMessage />;
+      return <UpgradeError />;
     default:
       return null;
   }

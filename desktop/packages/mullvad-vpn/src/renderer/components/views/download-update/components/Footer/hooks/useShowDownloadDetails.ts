@@ -1,5 +1,9 @@
+import { useAppUpgradeEvent } from '../../../hooks';
+
 export const useShowDownloadDetails = () => {
-  const showDownloadDetails = false;
+  const appUpgradeEvent = useAppUpgradeEvent();
+
+  const showDownloadDetails = appUpgradeEvent !== undefined;
 
   return showDownloadDetails;
 };
