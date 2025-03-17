@@ -709,7 +709,7 @@ impl Daemon {
         });
 
         let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
-        let bridge_dns_proxy_provider = DaemonAccessMethodResolver::new(
+        let method_resolver = DaemonAccessMethodResolver::new(
             relay_selector.clone(),
             encrypted_dns_proxy_cache,
             api_runtime.address_cache().clone(),
@@ -717,7 +717,7 @@ impl Daemon {
 
         let (access_mode_handler, access_mode_provider) =
             mullvad_api::access_mode::AccessModeSelector::spawn(
-                bridge_dns_proxy_provider,
+                method_resolver,
                 settings.api_access_methods.clone(),
                 #[cfg(feature = "api-override")]
                 config.endpoint.clone(),
