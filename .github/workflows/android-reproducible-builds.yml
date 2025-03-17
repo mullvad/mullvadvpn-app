@@ -77,7 +77,7 @@ jobs:
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
-          name: app-oss-prod-fdroid-unsigned
+          name: app-oss-prod-fdroid-server.apk
           path: |
             build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
@@ -91,23 +91,23 @@ jobs:
       - name: Download container apk
         uses: actions/download-artifact@v4
         with:
-          name: apks
+          name: app-oss-prod-fdroid-container.apk
           path: apks
 
       - name: Download server apk
         uses: actions/download-artifact@v4
         with:
-          name: app-oss-prod-fdroid-unsigned
+          name: app-oss-prod-fdroid-server.apk
           path: apks
 
       - name: Show checksums
-        run: >
+        run: |
           echo "Container build checksum $(md5sum apks/app-oss-prod-fdroid-container.apk)"
-          && echo "Fdroid build checksum $(md5sum apks/app-oss-prod-fdroid-unsigned.apk)"
+          echo "Fdroid build checksum $(md5sum apks/app-oss-prod-fdroid-server.apk)"
 
       - name: Compare files
         run: >
-          if [[ "$(md5sum apks/app-oss-prod-fdroid-container.apk)" = "$(md5sum apks/app-oss-prod-fdroid-unsigned.apk)" ]]
+          if [[ "$(md5sum apks/app-oss-prod-fdroid-container.apk)" = "$(md5sum apks/app-oss-prod-fdroid-server.apk)" ]]
           then echo "Equal checksums";
           else echo "Checksums are different";
           exit 1; fi
