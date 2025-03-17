@@ -311,7 +311,8 @@ impl WgGoTunnel {
                 .map_err(|e| BoxedError::new(TunnelError::SetupIpInterfaces(e)))?;
             log::debug!("Waiting for tunnel IP interfaces: Done");
 
-            if let Err(error) = talpid_tunnel::network_interface::initialize_interfaces(luid, None)
+            if let Err(error) =
+                talpid_tunnel::network_interface::initialize_interfaces(luid, None, None)
             {
                 log::error!(
                     "{}",
