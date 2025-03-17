@@ -26,10 +26,6 @@ pub enum Message {
     ),
 }
 
-/// Calling [`AccessMethodEvent::send`] will cause a
-/// [`crate::InternalDaemonEvent::AccessMethodEvent`] being sent to the daemon,
-/// which in turn will handle updating the firewall and notifying clients as
-/// applicable.
 pub enum AccessMethodEvent {
     /// A [`AccessMethodEvent::New`] event is emitted when the active access
     /// method changes.
@@ -45,7 +41,7 @@ pub enum AccessMethodEvent {
         #[cfg(not(target_os = "android"))]
         endpoint: AllowedEndpoint,
     },
-    /// Emitted when the the firewall should be updated.
+    /// Emitted when the API endpoint is updated.
     ///
     /// This is useful for example when testing if some [`AccessMethodSetting`]
     /// can be used to reach the Mullvad API. In this scenario, the currently
@@ -61,14 +57,11 @@ pub enum AccessMethodEvent {
 impl AccessMethodEvent {
     pub async fn send(
         self,
-        daemon_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
+        event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     ) -> Result<()> {
-        // It is up to the daemon to actually allow traffic to/from `api_endpoint`
-        // by updating the firewall. This [`oneshot::Sender`] allows the daemon to
-        // communicate when that action is done.
         let (update_finished_tx, update_finished_rx) = oneshot::channel();
-        let _ = daemon_event_sender.unbounded_send((self, update_finished_tx));
-        // Wait for the daemon to finish processing `event`.
+        let _ = event_sender.unbounded_send((self, update_finished_tx));
+        // Wait for the listener to finish processing `event`.
         update_finished_rx.await.map_err(Error::NotRunning)
     }
 }
@@ -91,8 +84,7 @@ pub struct ResolvedConnectionMode {
     pub setting: AccessMethodSetting,
 }
 
-/// Describes all the ways the daemon service which handles access methods can
-/// fail.
+/// Describes all the ways handling access methods can fail.
 #[derive(thiserror::Error, Debug)]
 pub enum Error {
     #[error("No access methods were provided.")]
@@ -122,9 +114,6 @@ impl std::fmt::Display for Message {
 impl Error {
     /// Check if this error implies that the currenly running
     /// [`AccessModeSelector`] can not continue to operate properly.
-    ///
-    /// To recover from this kind of error, the daemon will probably have to
-    /// intervene.
     fn is_critical_error(&self) -> bool {
         matches!(
             self,
@@ -403,7 +392,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         let setting = resolved.setting.clone();
         #[cfg(not(target_os = "android"))]
         let endpoint = resolved.endpoint.clone();
-        let daemon_sender = self.access_method_event_sender.clone();
+        let sender = self.access_method_event_sender.clone();
         let connection_mode = resolved.connection_mode.clone();
         tokio::spawn(async move {
             let _ = AccessMethodEvent::New {
@@ -412,7 +401,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
                 #[cfg(not(target_os = "android"))]
                 endpoint,
             }
-            .send(daemon_sender)
+            .send(sender)
             .await;
         });
 
