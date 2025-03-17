@@ -73,8 +73,8 @@ jobs:
           sparse-checkout: |
             android/fdroid-build/metadata
 
-      - name: Update metadata
-        run: ls && sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
+      - name: Update and move metadata file
+        run: ls && ls .. && ls android/fdroid-build/metadata && cd .. && sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
       - name: Build app
         run: |
