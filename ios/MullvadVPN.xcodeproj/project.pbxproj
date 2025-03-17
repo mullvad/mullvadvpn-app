@@ -66,17 +66,12 @@
 		44A2624B2D6373E000085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624A2D6373E000085380 /* WireGuardKitTypes */; };
 		44A262512D63742B00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2624E2D63742B00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262532D63743A00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262522D63743A00085380 /* WireGuardKitTypes */; };
-		44A262552D63743A00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262522D63743A00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262572D63744400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262562D63744400085380 /* WireGuardKitTypes */; };
-		44A262592D63744400085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262562D63744400085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A2625B2D63744A00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625A2D63744A00085380 /* WireGuardKitTypes */; };
 		44A2625D2D63744A00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625A2D63744A00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A2625F2D63745000085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625E2D63745000085380 /* WireGuardKitTypes */; };
-		44A262612D63745000085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2625E2D63745000085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262632D63745700085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262622D63745700085380 /* WireGuardKitTypes */; };
-		44A262652D63745700085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262622D63745700085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A262672D63745C00085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A262662D63745C00085380 /* WireGuardKitTypes */; };
-		44A262692D63745C00085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A262662D63745C00085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44A2626B2D63746400085380 /* WireGuardKitTypes in Frameworks */ = {isa = PBXBuildFile; productRef = 44A2626A2D63746400085380 /* WireGuardKitTypes */; };
 		44A2626D2D63746400085380 /* WireGuardKitTypes in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 44A2626A2D63746400085380 /* WireGuardKitTypes */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 44B02E3A2BC5732D008EDF34 /* LoggingTests.swift */; };
@@ -630,10 +625,10 @@
 		7A9CCCC32A96302800DD6A34 /* ApplicationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCB12A96302800DD6A34 /* ApplicationCoordinator.swift */; };
 		7A9CCCC42A96302800DD6A34 /* TunnelCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */; };
 		7A9F28FC2CA69D0C005F2089 /* DAITASettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F28FB2CA69D04005F2089 /* DAITASettingsTests.swift */; };
+		7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */; };
 		7A9F29392CABFAFC005F2089 /* InfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */; };
 		7A9F293B2CAC4443005F2089 /* InfoHeaderConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F293A2CAC4420005F2089 /* InfoHeaderConfig.swift */; };
 		7A9F293D2CAD2FD5005F2089 /* InfoModalConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */; };
-		7A9F29352CAA8829005F2089 /* AccessMethodsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */; };
 		7A9FA1422A2E3306000B728D /* CheckboxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1412A2E3306000B728D /* CheckboxView.swift */; };
 		7A9FA1442A2E3FE5000B728D /* CheckableSettingsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */; };
 		7AA130992CFF365D00640DF9 /* ConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA130982CFF365A00640DF9 /* ConnectionView.swift */; };
@@ -1462,7 +1457,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				44A262552D63743A00085380 /* WireGuardKitTypes in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1473,7 +1467,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				44A262592D63744400085380 /* WireGuardKitTypes in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1495,7 +1488,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				44A262612D63745000085380 /* WireGuardKitTypes in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1506,7 +1498,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				44A262652D63745700085380 /* WireGuardKitTypes in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1517,7 +1508,6 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				44A262692D63745C00085380 /* WireGuardKitTypes in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2146,10 +2136,10 @@
 		7A9CCCB12A96302800DD6A34 /* ApplicationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationCoordinator.swift; sourceTree = "<group>"; };
 		7A9CCCB22A96302800DD6A34 /* TunnelCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TunnelCoordinator.swift; sourceTree = "<group>"; };
 		7A9F28FB2CA69D04005F2089 /* DAITASettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettingsTests.swift; sourceTree = "<group>"; };
+		7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodsTests.swift; sourceTree = "<group>"; };
 		7A9F29382CABFAEC005F2089 /* InfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoHeaderView.swift; sourceTree = "<group>"; };
 		7A9F293A2CAC4420005F2089 /* InfoHeaderConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoHeaderConfig.swift; sourceTree = "<group>"; };
 		7A9F293C2CAD2FCF005F2089 /* InfoModalConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InfoModalConfig.swift; sourceTree = "<group>"; };
-		7A9F29342CAA8823005F2089 /* AccessMethodsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodsTests.swift; sourceTree = "<group>"; };
 		7A9FA1412A2E3306000B728D /* CheckboxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxView.swift; sourceTree = "<group>"; };
 		7A9FA1432A2E3FE5000B728D /* CheckableSettingsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckableSettingsCell.swift; sourceTree = "<group>"; };
 		7AA130982CFF365A00640DF9 /* ConnectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionView.swift; sourceTree = "<group>"; };
