@@ -88,6 +88,7 @@ android {
                 "proguard-rules.pro",
             )
         }
+        getByName(BuildTypes.DEBUG) { packaging { jniLibs.keepDebugSymbols.add("**/*.so") } }
         create(BuildTypes.FDROID) {
             initWith(buildTypes.getByName(BuildTypes.RELEASE))
             signingConfig = null
