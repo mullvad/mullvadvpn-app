@@ -4,7 +4,7 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
 TEST_DIR="$TEST_FRAMEWORK_ROOT"
 
@@ -40,7 +40,7 @@ if [[ -z "${ACCOUNT_TOKENS+x}" ]]; then
     echo "'ACCOUNT_TOKENS' must be specified" 1>&2
     exit 1
 fi
-if ! readarray -t tokens < "${ACCOUNT_TOKENS}"; then
+if ! readarray -t tokens <"${ACCOUNT_TOKENS}"; then
     echo "Specify account numbers in 'ACCOUNT_TOKENS' file" 1>&2
     exit 1
 fi
@@ -48,15 +48,13 @@ fi
 # TODO: Can we get rid of this? Seemse excessive / leaves a trail
 CI_LOGS_DIR="$TEST_DIR/.ci-logs"
 mkdir -p "$CI_LOGS_DIR"
-echo "$CURRENT_VERSION" > "$CI_LOGS_DIR/last-version.log"
-
+echo "$CURRENT_VERSION" >"$CI_LOGS_DIR/last-version.log"
 
 # TODO: This should def be it's own step in the GitHub actions workflow
 
 echo "**********************************"
 echo "* Downloading app packages"
 echo "**********************************"
-
 
 nice_time download_app_package "$LATEST_STABLE_RELEASE" "$TEST_OS"
 nice_time download_app_package "$CURRENT_VERSION" "$TEST_OS"
