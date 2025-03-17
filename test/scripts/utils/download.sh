@@ -2,17 +2,10 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
-REPO_ROOT="$TEST_FRAMEWORK_ROOT/.."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 export BUILD_RELEASE_REPOSITORY="https://releases.mullvad.net/desktop/releases"
 export BUILD_DEV_REPOSITORY="https://releases.mullvad.net/desktop/builds"
-
-function executable_not_found_in_dist_error {
-    1>&2 echo "Executable \"$1\" not found in specified dist dir. Exiting."
-    exit 1
-}
 
 # Returns the directory of the lib.sh script
 function get_test_utils_dir {
@@ -23,31 +16,11 @@ function get_test_utils_dir {
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-function get_current_version {
-    local app_dir
-    app_dir="$REPO_ROOT"
-    if [ -n "${TEST_DIST_DIR+x}" ]; then
-        if [ ! -x "${TEST_DIST_DIR%/}/mullvad-version" ]; then
-            executable_not_found_in_dist_error mullvad-version
-        fi
-        "${TEST_DIST_DIR%/}/mullvad-version"
-    else
-        cargo run -q --manifest-path="$app_dir/Cargo.toml" --bin mullvad-version
-    fi
-}
-
-CURRENT_VERSION=$(get_current_version)
 commit=$(git rev-parse HEAD^\{commit\})
 commit=${commit:0:6}
 
 TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
 
-if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
-    # Remove disallowed version characters from the tag
-    CURRENT_VERSION+="+${TAG//[^0-9a-z_-]/}"
-fi
-
-export CURRENT_VERSION
 export LATEST_STABLE_RELEASE
 
 function print_available_releases {
