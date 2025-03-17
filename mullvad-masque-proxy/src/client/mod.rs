@@ -11,7 +11,7 @@ use tokio::{net::UdpSocket, time::interval};
 
 use h3::{client, ext::Protocol, proto::varint::VarInt, quic::StreamId};
 use h3_datagram::datagram_traits::HandleDatagramsExt;
-use http::{uri::Scheme, Response, StatusCode};
+use http::{header, uri::Scheme, Response, StatusCode};
 use quinn::{crypto::rustls::QuicClientConfig, ClientConfig, Endpoint, TransportConfig};
 
 use crate::fragment::{self, Fragments};
@@ -300,6 +300,8 @@ fn new_connect_request(
         .method(http::method::Method::CONNECT)
         .uri(uri)
         .header(b"Capsule-Protocol".as_slice(), b"?1".as_slice())
+        .header(header::AUTHORIZATION, b"Bearer test".as_slice())
+        .header(header::HOST, authority.as_ref())
         .body(())
         .expect("failed to construct a body");
 
