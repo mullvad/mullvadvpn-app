@@ -4,8 +4,10 @@ import { formatDate, hasExpired } from '../../shared/account-expiry';
 import { urls } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Flex, Icon } from '../lib/components';
+import { Button, Flex } from '../lib/components';
+import { Column } from '../lib/components/column';
 import { useHistory } from '../lib/history';
+import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
@@ -19,9 +21,8 @@ import {
   AccountRowValue,
   DeviceRowValue,
 } from './AccountStyles';
-import * as AppButton from './AppButton';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import DeviceInfoButton from './DeviceInfoButton';
+import { Id } from './Id';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { RedeemVoucherButton } from './RedeemVoucher';
@@ -32,9 +33,9 @@ export default function Account() {
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const { updateAccountData, openUrlWithAuth, logout } = useAppContext();
 
-  const onBuyMore = useCallback(async () => {
+  const [buyMore] = useExclusiveTask(async () => {
     await openUrlWithAuth(urls.purchase);
-  }, [openUrlWithAuth]);
+  });
 
   const onMount = useEffectEvent(() => updateAccountData());
   useEffect(() => onMount(), []);
@@ -83,29 +84,35 @@ export default function Account() {
             </AccountRows>
 
             <Footer>
-              <AppButton.ButtonGroup>
-                <AppButton.BlockingButton disabled={isOffline} onClick={onBuyMore}>
-                  <AriaDescriptionGroup>
-                    <AriaDescribed>
-                      <AppButton.GreenButton>
-                        <AppButton.Label>{messages.gettext('Buy more credit')}</AppButton.Label>
-                        <AriaDescription>
-                          <Icon
-                            icon="external"
-                            aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                          />
-                        </AriaDescription>
-                      </AppButton.GreenButton>
-                    </AriaDescribed>
-                  </AriaDescriptionGroup>
-                </AppButton.BlockingButton>
+              <Column $gap="medium">
+                <Id>
+                  {(iconId) => (
+                    <Button
+                      variant="success"
+                      aria-describedby={iconId}
+                      disabled={isOffline}
+                      onClick={buyMore}>
+                      <Button.Text>{messages.gettext('Buy more credit')}</Button.Text>
+                      <Button.Icon
+                        id={iconId}
+                        icon="external"
+                        aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                      />
+                    </Button>
+                  )}
+                </Id>
 
                 <RedeemVoucherButton />
 
-                <AppButton.RedButton onClick={doLogout}>
-                  {messages.pgettext('account-view', 'Log out')}
-                </AppButton.RedButton>
-              </AppButton.ButtonGroup>
+                <Button variant="destructive" onClick={doLogout}>
+                  <Button.Text>
+                    {
+                      // TRANSLATORS: Button label for logging out.
+                      messages.pgettext('account-view', 'Log out')
+                    }
+                  </Button.Text>
+                </Button>
+              </Column>
             </Footer>
           </AccountContainer>
         </SettingsContainer>
