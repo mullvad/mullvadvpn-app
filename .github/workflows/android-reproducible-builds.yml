@@ -68,17 +68,23 @@ jobs:
             android/fdroid-build/metadata
 
       - name: Create empty repo
-        run: cd .. && mkdir fdroid-repo && cd fdroid-repo && mkdir metadata
+        run: |
+          ls
+          cd .. 
+          ls
+          mkdir fdroid-repo
+          ls
+          cd fdroid-repo
+          ls
+          mkdir metadata
 
       #- name: Init
       #  run: fdroid init
 
-      - name: Update and move metadata file
+      - name: Move and update metadata file
         run: |
-          ls ..
-          ls ../mullvadvpn-app/android/
-          ls ../mullvadvpn-app/android/fdroid-build/metadata/
           ls
+          ls ../mullvadvpn-app/android/fdroid-build/metadata/
           mv ../mullvadvpn-app/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
