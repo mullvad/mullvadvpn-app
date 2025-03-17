@@ -59,9 +59,6 @@ echo "**********************************"
 echo "* Downloading app packages"
 echo "**********************************"
 
-# shellcheck source=test/scripts/utils/download.sh
-source "scripts/utils/download.sh"
-
 download_app_package "$APP_VERSION" "$TEST_OS"
 download_e2e_executable "$APP_VERSION" "$TEST_OS"
 
