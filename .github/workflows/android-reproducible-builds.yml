@@ -44,21 +44,21 @@ jobs:
     name: Build fdroid with fdroid server
     runs-on: ubuntu-latest
     steps:
-      #- name: Install fdroidserver
-      #  run: sudo apt-get install fdroidserver
+      - name: Install fdroidserver
+        run: sudo apt-get install fdroidserver
 
-      #- name: Install gradle
-      #  run: |
-      #    sudo apt-get remove gradle
-      #    mkdir /opt/gradle
-      #    curl -sfLo /opt/gradle/gradle-8.13-bin.zip https\://services.gradle.org/distributions/gradle-8.13-bin.zip
-      #    unzip -d /opt/gradle /opt/gradle/gradle-8.13-bin.zip
+      - name: Install gradle
+        run: |
+          sudo apt-get remove gradle
+          mkdir /opt/gradle
+          curl -sfLo /opt/gradle/gradle-8.13-bin.zip https\://services.gradle.org/distributions/gradle-8.13-bin.zip
+          unzip -d /opt/gradle /opt/gradle/gradle-8.13-bin.zip
 
       # These are equivalent to the sudo section of the metadata file
-      #- name: Install dependencies
-      #  run: |
-      #    sudo apt-get update
-      #    sudo apt-get install -y build-essential protobuf-compiler libprotobuf-dev
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential protobuf-compiler libprotobuf-dev
 
       - name: Download metadata file
         uses: actions/checkout@v4
@@ -73,8 +73,8 @@ jobs:
           mv ../mullvadvpn-app/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
-      #- name: Init
-      #  run: fdroid init    
+      - name: Init
+        run: fdroid init
 
       - name: Build app
         run: |
