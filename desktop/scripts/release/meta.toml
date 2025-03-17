@@ -1,0 +1,3 @@
+base_urls = [
+    "https://bunny.cdn.app.mullvad.net"
+]
