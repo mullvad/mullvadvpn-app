@@ -98,7 +98,7 @@ impl WintunAdapter {
 
     pub fn prepare_interface(&self) {
         if let Err(error) =
-            talpid_tunnel::network_interface::initialize_interfaces(self.luid(), None)
+            talpid_tunnel::network_interface::initialize_interfaces(self.luid(), None, None)
         {
             log::error!(
                 "{}",
