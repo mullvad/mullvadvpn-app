@@ -543,8 +543,12 @@ async fn setup_ip_listener(device: Arc<WgNtAdapter>, mtu: u32, has_ipv6: bool) -
         .map_err(Error::IpInterfaces)?;
     log::debug!("Waiting for tunnel IP interfaces: Done");
 
-    talpid_tunnel::network_interface::initialize_interfaces(luid, Some(mtu), has_ipv6.then(|| mtu))
-        .map_err(Error::SetTunnelMtu)?;
+    talpid_tunnel::network_interface::initialize_interfaces(
+        luid,
+        Some(mtu),
+        has_ipv6.then_some(mtu),
+    )
+    .map_err(Error::SetTunnelMtu)?;
 
     device
         .set_state(WgAdapterState::Up)
