@@ -72,7 +72,7 @@ jobs:
       - name: Build app
         run: |
           export PATH=$PATH:/opt/gradle/gradle-8.13/bin
-          fdroid build net.mullvad.mullvadvpn:64220099 -v
+          fdroid build net.mullvad.mullvadvpn:1 -v
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
