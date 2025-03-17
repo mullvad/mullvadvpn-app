@@ -28,6 +28,9 @@ Line wrap the file at 100 chars.                                              Th
 ### Fixed
 - Fix `mullvad-cli` panicking if it tried to write to a closed pipe on Linux and macOS.
 
+#### Windows
+- Fix error setting up tunnel when MTU was incorrectly set to a value below 1280 for IPv6.
+
 
 ## [2025.5-beta1] - 2025-03-11
 ### Added
