@@ -65,7 +65,7 @@ impl Fragments {
         let payload = {
             let fragments = self.fragment_map.get_mut(&id)?;
 
-            if fragments.len() < fragment_count.into() {
+            if fragments.len() != fragment_count.into() {
                 return None;
             }
 
@@ -113,7 +113,8 @@ pub fn fragment_packet(
             crate::HTTP_MASQUE_FRAGMENTED_DATAGRAM_CONTEXT_ID.encode(&mut fragment);
             fragment.put_u16(packet_id);
             fragment.put_u8(
-                u8::try_from(fragment_index)
+                // fragment indexes start at 1
+                u8::try_from(fragment_index +1)
                     .expect("fragment index must fit in an u8, since num_fragments fits is an u8"),
             );
             fragment.put_u8(fragment_count);
