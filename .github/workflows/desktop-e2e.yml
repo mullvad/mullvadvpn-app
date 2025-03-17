@@ -298,7 +298,6 @@ jobs:
           # A directory with all the binaries is required to run test-manager.
           # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
           export TEST_DIST_DIR="${{ github.workspace }}/bin/"
-          git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ls -la "$TEST_DIST_DIR"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
@@ -390,7 +389,6 @@ jobs:
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
         run: |
-          git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
@@ -466,7 +464,6 @@ jobs:
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
         run: |
-          git fetch --tags --prune-tags --force
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
