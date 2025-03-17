@@ -72,23 +72,25 @@ jobs:
           mkdir fdroid-repo && cd fdroid-repo && mkdir metadata
           mv ../android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
+        working-directory: $GITHUB_WORKSPACE/
 
       - name: Init and build app
         run: |
-          cd fdroid-repo
           fdroid init
           export PATH=$PATH:/opt/gradle/gradle-8.13/bin
           fdroid build net.mullvad.mullvadvpn:64220099 -v
+        working-directory: $GITHUB_WORKSPACE/fdroid-repo
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
         with:
           name: app-oss-prod-fdroid-unsigned
           path: >
-            fdroid-repo/build/net\.mullvad\.mullvadvpn/android/app/build/outputs
+            build/net\.mullvad\.mullvadvpn/android/app/build/outputs
             /apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
           retention-days: 7
+        working-directory: $GITHUB_WORKSPACE/fdroid-repo
 
   compare-builds:
     name: Check builds
