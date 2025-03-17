@@ -27,8 +27,6 @@ fi
 
 # shellcheck source=test/scripts/utils/lib.sh
 source "../utils/lib.sh"
-# shellcheck source=test/scripts/utils/download.sh
-source "../utils/download.sh" # TODO: Do not source it, call it instead.
 
 echo "**********************************"
 echo "* Version to upgrade from: $LATEST_STABLE_RELEASE"
