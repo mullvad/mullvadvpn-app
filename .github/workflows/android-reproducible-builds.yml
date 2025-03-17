@@ -116,4 +116,8 @@ jobs:
       - name: Compare files
         run: >
           if [[ "$(md5sum app-oss-prod-fdroid-container.apk)" = "$(md5sum app-oss-prod-fdroid-unsigned.apk)" ]]
-          then echo "Equal checksums"; else exit 1; fi
+          then echo "Equal checksums";
+          else echo "Checksums are different
+          $(md5sum md5sum app-oss-prod-fdroid-container.apk)
+          $(md5sum md5sum app-oss-prod-fdroid-unsigned.apk)";
+          exit 1; fi
