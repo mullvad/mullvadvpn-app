@@ -102,6 +102,8 @@ jobs:
 
       - name: Show checksums
         run: |
+          ls
+          ls apks
           echo "Container build checksum $(md5sum apks/app-oss-prod-fdroid-container.apk)"
           echo "Fdroid build checksum $(md5sum apks/app-oss-prod-fdroid-server.apk)"
 
