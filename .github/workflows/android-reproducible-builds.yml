@@ -74,6 +74,8 @@ jobs:
           cd .. && mkdir fdroid-repo && cd fdroid-repo && mkdir metadata
           ls
           ls ..
+          ls ../mullvadvpn-app/
+          ls ../mullvadvpn-app/android
           mv ../mullvadvpn-app/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
