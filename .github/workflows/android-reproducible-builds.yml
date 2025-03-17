@@ -73,12 +73,10 @@ jobs:
           mv ../android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
-      - name: Init
-        run: fdroid init
-
-      - name: Build app
+      - name: Init and build app
         run: |
           cd fdroid-repo
+          fdroid-repofdroid init
           export PATH=$PATH:/opt/gradle/gradle-8.13/bin
           fdroid build net.mullvad.mullvadvpn:64220099 -v
 
