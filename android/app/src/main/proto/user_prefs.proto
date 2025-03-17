@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+option java_package = "net.mullvad.mullvadvpn.repository";
+option java_multiple_files = true;
+
+message UserPreferences {
+  bool is_privacy_disclosure_accepted = 1;
+  int32 last_shown_changelog_version_code = 2;
+}
