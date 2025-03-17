@@ -199,7 +199,7 @@ impl Client {
     pub async fn run(mut self) -> Result<()> {
         let stream_id: StreamId = self.request_stream.id();
         // this is the variable ID used to signify UDP payloads in HTTP datagrams.
-        let mut client_read_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE);
+        let mut client_read_buf = BytesMut::with_capacity(crate::PACKET_BUFFER_SIZE * 1024);
         crate::HTTP_MASQUE_DATAGRAM_CONTEXT_ID.encode(&mut client_read_buf);
 
         let mut return_addr = SocketAddr::new(Ipv4Addr::UNSPECIFIED.into(), 0);
