@@ -470,8 +470,7 @@ fun VpnSettingsScreen(
                         address = item.address,
                         isUnreachableLocalDnsWarningVisible =
                             item.isLocal && !state.isLocalNetworkSharingEnabled,
-                        isUnreachableIpv6DnsWarningVisible =
-                            item.isIpv6 && !state.isIPv6Enabled,
+                        isUnreachableIpv6DnsWarningVisible = item.isIpv6 && !state.isIPv6Enabled,
                         onClick = { navigateToDns(index, item.address) },
                         modifier = Modifier.animateItem(),
                     )
