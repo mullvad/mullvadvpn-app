@@ -12,20 +12,29 @@ extension UIImage {
     enum Buttons {
         // Button images we expect as tightly cropped 24x24 images. The SVGs are 20x20 with a 2px border
         static var account: UIImage {
-            UIImage(named: "IconAccount")!.rescaled(by: 24 / 20)
+            UIImage(named: "IconAccount")!
+                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
         }
 
         static var alert: UIImage {
-            UIImage(named: "IconAlert")!.rescaled(by: 24 / 20)
+            UIImage(named: "IconAlert")!
+                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
         }
 
         static var info: UIImage {
             // the info icon was 18x18 cropped
-            UIImage(named: "IconInfo")!.resizeImage(targetSize: CGSize(width: 21.5, height: 21.5))
+            UIImage(named: "IconInfo")!
+                .resized(to: CGSize(width: 18, height: 18), trimmingBorder: 2)
+        }
+
+        static var infoLarge: UIImage {
+            UIImage(named: "IconInfo")!
+                .resized(to: CGSize(width: 44, height: 44), trimmingBorder: 2)
         }
 
         static var settings: UIImage {
-            UIImage(named: "IconSettings")!.rescaled(by: 24 / 20)
+            UIImage(named: "IconSettings")!
+                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
         }
 
         static var back: UIImage {
@@ -52,14 +61,15 @@ extension UIImage {
             UIImage(named: "IconUnobscure")!
         }
 
-        // the close button, which comes we consume in two sizes, both of which come from the same asset
+        // the close button, which comes we consume in two sizes, both of which come from the same asset. The SVG is 48x48, though with 4 pixels of border
 
         static var closeSmall: UIImage {
-            UIImage(named: "IconClose")!.resizeImage(targetSize: CGSize(width: 19, height: 19))
+            UIImage(named: "IconClose")!
+                .resized(to: CGSize(width: 16, height: 16), trimmingBorder: 2)
         }
 
         static var closeLarge: UIImage {
-            UIImage(named: "IconClose")!.resizeImage(targetSize: CGSize(width: 29, height: 29))
+            UIImage(named: "IconClose")!.resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
         }
     }
 
@@ -82,7 +92,7 @@ extension UIImage {
 
         static var tick: UIImage {
             UIImage(named: "IconTickSml")!
-                .resizeImage(targetSize: CGSize(width: 16, height: 16))
+                .resized(to: CGSize(width: 16, height: 16))
         }
     }
 
@@ -102,15 +112,6 @@ extension UIImage {
 
     static var tick: UIImage {
         UIImage(named: "IconTickSml")!
-            .resizeImage(targetSize: CGSize(width: 24, height: 24))
-    }
-
-    // a utility function to resize an image by an aspect ratio;
-    // used for compensating for scalable assets' nominal sizes being off
-    func rescaled(by ratio: CGFloat) -> UIImage {
-        resizeImage(targetSize: CGSize(
-            width: size.width * ratio,
-            height: size.height * ratio
-        ))
+            .resized(to: CGSize(width: 24, height: 24))
     }
 }
