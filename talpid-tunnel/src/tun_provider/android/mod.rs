@@ -301,7 +301,7 @@ impl VpnServiceConfig {
             .clone()
             .unwrap_or_else(|| config.gateways())
             // If IPv6 not available we need to disable all IPv6 DNS servers as that will cause leaks
-            .iter().filter(|ip| !ip.is_ipv6() || config.ipv6_gateway.is_some()).map(|ip| *ip).collect()
+            .iter().filter(|ip| !ip.is_ipv6() || config.ipv6_gateway.is_some()).copied().collect()
     }
 
     /// Potentially subtract LAN nets from the VPN service routes, excepting gateways.
