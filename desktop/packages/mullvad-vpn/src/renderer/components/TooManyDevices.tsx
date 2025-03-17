@@ -8,6 +8,7 @@ import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
 import { Button, Flex, IconButton, Spinner } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
 import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
@@ -16,7 +17,6 @@ import { RoutePath } from '../lib/routes';
 import { useBoolean } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
-import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { bigText, measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
@@ -129,7 +129,7 @@ export default function TooManyDevices() {
 
             {devices !== undefined && (
               <Footer>
-                <AppButton.ButtonGroup>
+                <FlexColumn $gap="medium">
                   <Button
                     variant="success"
                     onClick={continueLogin}
@@ -144,7 +144,7 @@ export default function TooManyDevices() {
                   <Button onClick={cancel}>
                     <Button.Text>{messages.gettext('Back')}</Button.Text>
                   </Button>
-                </AppButton.ButtonGroup>
+                </FlexColumn>
               </Footer>
             )}
           </StyledContainer>
@@ -258,15 +258,17 @@ function Device(props: IDeviceProps) {
         type={ModalAlertType.warning}
         iconColor={Colors.red}
         buttons={[
-          <AppButton.RedButton key="remove" onClick={onRemove} disabled={deleting}>
-            {
-              // TRANSLATORS: Confirmation button when logging out other device.
-              messages.pgettext('device-management', 'Yes, log out device')
-            }
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={hideConfirmation} disabled={deleting}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
+          <Button variant="destructive" key="remove" onClick={onRemove} disabled={deleting}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button label for confirming logout of another device.
+                messages.pgettext('device-management', 'Yes, log out device')
+              }
+            </Button.Text>
+          </Button>,
+          <Button key="back" onClick={hideConfirmation} disabled={deleting}>
+            <Button.Text>{messages.gettext('Back')}</Button.Text>
+          </Button>,
         ]}
         close={hideConfirmation}>
         <ModalMessage>
@@ -290,9 +292,9 @@ function Device(props: IDeviceProps) {
         type={ModalAlertType.warning}
         iconColor={Colors.red}
         buttons={[
-          <AppButton.BlueButton key="close" onClick={resetError}>
-            {messages.gettext('Close')}
-          </AppButton.BlueButton>,
+          <Button key="close" onClick={resetError}>
+            <Button.Text>{messages.gettext('Close')}</Button.Text>
+          </Button>,
         ]}
         close={resetError}
         message={messages.pgettext('device-management', 'Failed to remove device')}
