@@ -17,7 +17,6 @@ import { LoginState } from '../redux/account/reducers';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
 import { AppMainHeader } from './app-main-header';
-import * as AppButton from './AppButton';
 import { Container, Layout } from './Layout';
 import {
   StyledAccountDropdownContainer,
@@ -515,7 +514,9 @@ function BlockMessage() {
     <StyledBlockMessageContainer>
       <StyledBlockTitle>{messages.gettext('Blocking internet')}</StyledBlockTitle>
       <StyledBlockMessage>{message}</StyledBlockMessage>
-      <AppButton.RedButton onClick={unlock}>{buttonText}</AppButton.RedButton>
+      <Button variant="destructive" onClick={unlock}>
+        <Button.Text>{buttonText}</Button.Text>
+      </Button>
     </StyledBlockMessageContainer>
   );
 }
