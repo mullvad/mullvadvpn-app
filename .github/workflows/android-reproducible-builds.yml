@@ -23,14 +23,6 @@ jobs:
         with:
           submodules: true
 
-      - name: Upload repro yaml file
-        uses: actions/upload-artifact@v4
-        with:
-          name: net.mullvad.mullvadvpn
-          path: android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
-          if-no-files-found: error
-          retention-days: 7
-
       - name: Build app
         run: ./building/containerized-build.sh android --fdroid
 
@@ -74,9 +66,12 @@ jobs:
       - name: Init
         run: fdroid init
 
-      - uses: actions/download-artifact@v4
+      - name: Download metadata file
+      - uses: actions/checkout@v4
         with:
-          name: net.mullvad.mullvadvpn
+          sparse-checkout: |
+            android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
+          sparse-checkout-cone-mode: false
           path: metadata
 
       - name: Update metadata
@@ -85,7 +80,7 @@ jobs:
       - name: Build app
         run: |
           export PATH=$PATH:/opt/gradle/gradle-8.13/bin
-          fdroid build net.mullvad.mullvadvpn:24090099 -v
+          fdroid build net.mullvad.mullvadvpn:64220099 -v
 
       - name: Upload apks
         uses: actions/upload-artifact@v4
@@ -113,11 +108,14 @@ jobs:
           name: app-oss-prod-fdroid-unsigned
           path: apks
 
+      - name: Show checksums
+        run: >
+          echo "Container build checksum $(md5sum apks/app-oss-prod-fdroid-container.apk)"
+          && echo "Fdroid build checksum $(md5sum apks/app-oss-prod-fdroid-unsigned.apk)"
+
       - name: Compare files
         run: >
-          if [[ "$(md5sum app-oss-prod-fdroid-container.apk)" = "$(md5sum app-oss-prod-fdroid-unsigned.apk)" ]]
+          if [[ "$(md5sum apks/app-oss-prod-fdroid-container.apk)" = "$(md5sum apks/app-oss-prod-fdroid-unsigned.apk)" ]]
           then echo "Equal checksums";
-          else echo "Checksums are different
-          $(md5sum md5sum app-oss-prod-fdroid-container.apk)
-          $(md5sum md5sum app-oss-prod-fdroid-unsigned.apk)";
+          else echo "Checksums are different";
           exit 1; fi
