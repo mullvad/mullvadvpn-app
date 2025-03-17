@@ -70,12 +70,10 @@ jobs:
         uses: actions/checkout@v4
         with:
           sparse-checkout: |
-            android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
-          sparse-checkout-cone-mode: false
-          path: metadata
+            android/fdroid-build/metadata
 
       - name: Update metadata
-        run: sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
+        run: ls && sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
       - name: Build app
         run: |
