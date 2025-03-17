@@ -24,6 +24,8 @@ class DnsDialogTest {
             isLocal = false,
             isAllowLanEnabled = false,
             index = null,
+            isIpv6 = false,
+            isIpv6Enabled = true,
         )
 
     private fun ComposeContext.initDialog(

@@ -174,6 +174,7 @@ class VpnSettingsViewModelTest {
                             daitaSettings = DaitaSettings(enabled = false, directOnly = false),
                         ),
                     dnsOptions = mockk(relaxed = true),
+                    genericOptions = mockk(relaxed = true),
                 )
 
             // Act, Assert
