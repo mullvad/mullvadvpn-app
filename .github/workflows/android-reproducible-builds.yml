@@ -92,24 +92,24 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: app-oss-prod-fdroid-container.apk
-          path: apks
+          path: container
 
       - name: Download server apk
         uses: actions/download-artifact@v4
         with:
           name: app-oss-prod-fdroid-server.apk
-          path: apks
+          path: server
 
       - name: Show checksums
         run: |
-          ls
-          ls apks
-          echo "Container build checksum $(md5sum apks/app-oss-prod-fdroid-container.apk)"
-          echo "Fdroid build checksum $(md5sum apks/app-oss-prod-fdroid-server.apk)"
+          echo "Container build checksum"
+          md5sum container/app-oss-prod-fdroid-unsigned.apk
+          echo "Fdroid build checksum"
+          md5sum server/app-oss-prod-fdroid-unsigned.apk
 
       - name: Compare files
         run: >
-          if [[ "$(md5sum apks/app-oss-prod-fdroid-container.apk)" = "$(md5sum apks/app-oss-prod-fdroid-server.apk)" ]]
+          if [[ "$(md5sum container/app-oss-prod-fdroid-unsigned.apk)" = "$(md5sum server/app-oss-prod-fdroid-unsigned.apk)" ]]
           then echo "Equal checksums";
           else echo "Checksums are different";
           exit 1; fi
