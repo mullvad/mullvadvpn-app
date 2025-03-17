@@ -232,7 +232,7 @@ pub struct AccessModeSelector<B: AccessMethodResolver> {
     #[cfg(feature = "api-override")]
     api_endpoint: ApiEndpoint,
     cmd_rx: mpsc::UnboundedReceiver<Message>,
-    bridge_dns_proxy_provider: B,
+    method_resolver: B,
     access_method_settings: Settings,
     access_method_event_sender: mpsc::UnboundedSender<(AccessMethodEvent, oneshot::Sender<()>)>,
     connection_mode_provider_sender: mpsc::UnboundedSender<ApiConnectionMode>,
@@ -243,7 +243,7 @@ pub struct AccessModeSelector<B: AccessMethodResolver> {
 
 impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     pub async fn spawn(
-        mut bridge_dns_proxy_provider: B,
+        mut method_resolver: B,
         #[cfg_attr(not(feature = "api-override"), allow(unused_mut))]
         mut access_method_settings: Settings,
         #[cfg(feature = "api-override")] api_endpoint: ApiEndpoint,
@@ -261,8 +261,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
 
         // Always start looking from the position of `Direct`.
         let (index, next) = Self::find_next_active(0, &access_method_settings);
-        let initial_connection_mode =
-            Self::resolve_with_default(&next, &mut bridge_dns_proxy_provider).await;
+        let initial_connection_mode = Self::resolve_with_default(&next, &mut method_resolver).await;
 
         let (change_tx, change_rx) = mpsc::unbounded();
 
@@ -272,7 +271,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
             #[cfg(feature = "api-override")]
             api_endpoint,
             cmd_rx,
-            bridge_dns_proxy_provider,
+            method_resolver,
             access_method_settings,
             access_method_event_sender,
             connection_mode_provider_sender: change_tx,
@@ -379,8 +378,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     }
 
     async fn set_current(&mut self, access_method: AccessMethodSetting) {
-        let resolved =
-            Self::resolve_with_default(&access_method, &mut self.bridge_dns_proxy_provider).await;
+        let resolved = Self::resolve_with_default(&access_method, &mut self.method_resolver).await;
 
         // Note: If the daemon is busy waiting for a call to this function
         // to complete while we wait for the daemon to fully handle this
@@ -490,7 +488,7 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
         method_setting: AccessMethodSetting,
     ) -> Option<ResolvedConnectionMode> {
         let (endpoint, connection_mode) = self
-            .bridge_dns_proxy_provider
+            .method_resolver
             .resolve_access_method_setting(&method_setting.access_method)
             .await?;
         Some(ResolvedConnectionMode {
@@ -504,15 +502,15 @@ impl<B: AccessMethodResolver + 'static> AccessModeSelector<B> {
     /// [`ApiConnectionMode::Direct`] in case `access_method` does not yield anything.
     async fn resolve_with_default(
         method_setting: &AccessMethodSetting,
-        bridge_dns_proxy_provider: &mut B,
+        method_resolver: &mut B,
     ) -> ResolvedConnectionMode {
-        let (endpoint, connection_mode) = match bridge_dns_proxy_provider
+        let (endpoint, connection_mode) = match method_resolver
             .resolve_access_method_setting(&method_setting.access_method)
             .await
         {
             Some(resolved) => resolved,
             None => (
-                bridge_dns_proxy_provider.default_connection_mode().await,
+                method_resolver.default_connection_mode().await,
                 ApiConnectionMode::Direct,
             ),
         };
