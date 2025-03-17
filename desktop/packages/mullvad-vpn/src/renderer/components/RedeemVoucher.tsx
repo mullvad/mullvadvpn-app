@@ -6,7 +6,7 @@ import { VoucherResponse } from '../../shared/daemon-rpc-types';
 import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Flex, Spinner } from '../lib/components';
+import { Button, ButtonProps, Flex, Spinner } from '../lib/components';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
@@ -258,11 +258,9 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
   }
 }
 
-interface IRedeemVoucherButtonProps {
-  className?: string;
-}
+type RedeemVoucherButtonProps = ButtonProps;
 
-export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
+export function RedeemVoucherButton(props: RedeemVoucherButtonProps) {
   const [showAlert, setShowAlert] = useState(false);
 
   const onClick = useCallback(() => setShowAlert(true), []);
@@ -270,9 +268,14 @@ export function RedeemVoucherButton(props: IRedeemVoucherButtonProps) {
 
   return (
     <>
-      <AppButton.GreenButton onClick={onClick} className={props.className}>
-        {messages.pgettext('redeem-voucher-alert', 'Redeem voucher')}
-      </AppButton.GreenButton>
+      <Button variant="success" onClick={onClick} {...props}>
+        <Button.Text>
+          {
+            // TRANSLATORS: Button label for redeeming a voucher.
+            messages.pgettext('redeem-voucher-alert', 'Redeem voucher')
+          }
+        </Button.Text>
+      </Button>
       <RedeemVoucherContainer>
         <RedeemVoucherAlert show={showAlert} onClose={onClose} />
       </RedeemVoucherContainer>
