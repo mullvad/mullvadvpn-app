@@ -7,5 +7,5 @@ type ButtonIconProps = Omit<IconProps, 'size'>;
 export const StyledIcon = styled(Icon)({});
 
 export const ButtonIcon = ({ ...props }: ButtonIconProps) => {
-  return <StyledIcon size="medium" {...props} />;
+  return <StyledIcon size="medium" aria-hidden="true" {...props} />;
 };
