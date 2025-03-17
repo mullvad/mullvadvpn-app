@@ -67,7 +67,7 @@ jobs:
         run: fdroid init
 
       - name: Download metadata file
-      - uses: actions/checkout@v4
+        uses: actions/checkout@v4
         with:
           sparse-checkout: |
             android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml
