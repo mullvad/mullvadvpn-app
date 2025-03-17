@@ -91,7 +91,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-oss-prod-fdroid-unsigned
-          path: build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+          path: |
+            build/net\.mullvad\.mullvadvpn/android/app/build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
           if-no-files-found: error
           retention-days: 7
 
@@ -113,4 +114,6 @@ jobs:
           path: apks
 
       - name: Compare files
-        run: if [[ "$(md5sum app-oss-prod-fdroid-container.apk)" = "$(md5sum app-oss-prod-fdroid-unsigned.apk)" ]] then echo "Equal checksums"; else exit 1; fi
+        run: >
+          if [[ "$(md5sum app-oss-prod-fdroid-container.apk)" = "$(md5sum app-oss-prod-fdroid-unsigned.apk)" ]]
+          then echo "Equal checksums"; else exit 1; fi
