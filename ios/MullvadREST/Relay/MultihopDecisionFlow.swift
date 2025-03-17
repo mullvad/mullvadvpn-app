@@ -92,11 +92,6 @@ struct OneToMany: MultihopDecisionFlow {
             )
         }
 
-        guard !daitaAutomaticRouting else {
-            return try ManyToOne(next: next, relayPicker: relayPicker)
-                .pick(entryCandidates: entryCandidates, exitCandidates: exitCandidates, daitaAutomaticRouting: true)
-        }
-
         let entryMatch = try multihopPicker.findBestMatch(from: entryCandidates, useObfuscatedPortIfAvailable: true)
         let exitMatch = try multihopPicker.exclude(
             relay: entryMatch,
