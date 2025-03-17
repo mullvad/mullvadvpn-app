@@ -74,11 +74,11 @@ function publish_metadata {
     ./publish-metadata-to-api $signed_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
 }
 
-function remove-release-artifacts {
+function remove_release_artifacts {
     echo ">>> Cleaning up $ARTIFACT_DIR"
     rm -r "$ARTIFACT_DIR"
 }
 
 ./download-release-artifacts "$PRODUCT_VERSION"
 publish_metadata
-remove-release-artifacts
+remove_release_artifacts
