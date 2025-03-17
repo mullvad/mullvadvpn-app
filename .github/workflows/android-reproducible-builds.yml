@@ -71,7 +71,8 @@ jobs:
       - name: Setup fdroid repo and metadata file
         run: |
           ls
-          cd .. && mkdir fdroid-repo && cd fdroid-repo && mkdir metadata
+          cd .. && mkdir fdroid-repo && cd fdroid-repo && mkdir 
+          ls
           mv ../mullvadvpn-app/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
