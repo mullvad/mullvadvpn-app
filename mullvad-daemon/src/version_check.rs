@@ -405,7 +405,7 @@ impl UpdateContext {
 
         async move {
             log::debug!("Writing version check cache to {}", cache_path.display());
-            let cached_app_version = CachedAppVersionInfo::from(last_app_version.to_owned());
+            let cached_app_version = CachedAppVersionInfo::from(last_app_version);
             let buf = serde_json::to_vec_pretty(&cached_app_version).map_err(Error::Serialize)?;
             tokio::fs::write(cache_path, buf)
                 .await

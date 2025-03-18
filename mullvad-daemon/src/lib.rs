@@ -809,7 +809,7 @@ impl Daemon {
             }
         });
         settings.register_change_listener(move |settings| {
-            let _ = param_gen_tx.unbounded_send(settings.tunnel_options.to_owned());
+            let _ = param_gen_tx.unbounded_send(settings.tunnel_options.clone());
         });
 
         // Register a listener for generic settings changes.
