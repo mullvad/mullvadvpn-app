@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">有効なWireGuard鍵が見つかりません。詳細設定で鍵を管理してください。</string>
     <string name="not_found">見つかりませんでした</string>
     <string name="number_of_providers">プロバイダ数: %1$d</string>
-    <string name="obfuscation_info">難読化は、WireGuardトラフィックを別のプロトコル内に隠します。プレーンなWireGuard接続がブロックされる検閲やその他のフィルタリングを回避するために使用できます。</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">注意: Shadowsocksの場合、データ通信の使い方 (動画配信など) によってはバッテリー消費量が増加する可能性があります。</string>
     <string name="obfuscation_title">WireGuardの難読化</string>
     <string name="off">オフ</string>

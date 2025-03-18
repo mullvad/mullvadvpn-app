@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">အကျုံးဝင်သည့် WireGuard ကီး မရှိပါ။ အဆင့်မြင့်ဆက်တင် အောက်တွင် ကီးများကို စီမံခန့်ခွဲပါ။</string>
     <string name="not_found">ရှာမတွေ့ပါ</string>
     <string name="number_of_providers">ပံ့ပိုးသူများ- %1$d</string>
-    <string name="obfuscation_info">Obfuscation သည် အခြားပရိုတိုကောလ်အတွင်းရှိ WireGuard ကူးလူးမှုကို ဝှက်ထားပေးပါသည်။ သာမန် WireGuard ချိတ်ဆက်မှုကို ပိတ်ဆို့မည့် အခြားသော စစ်ထုတ်မှု အမျိုးအစားများနှင့် ဆင်ဆာဖြတ်တောက်ခြင်းကို ရှောင်လွှဲနိုင်စေရာတွင် ကူညီနိုင်စေရန် ဤသည်ကို သုံးနိုင်ပါသည်။</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">သတိပြုရန်- Shadowsocks သည် ဗီဒီယိုတစ်ခုကို တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းကဲ့သို့ ဒေတာသုံးစွဲမှုပေါ် မူတည်၍ ဘက်ထရီသုံးစွဲမှု တိုးလာနိုင်ပါသည်။</string>
     <string name="obfuscation_title">WireGuard Obfuscation\\n</string>
     <string name="off">ပိတ်</string>

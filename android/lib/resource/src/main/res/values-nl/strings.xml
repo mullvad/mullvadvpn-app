@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">Geldige WireGuard-sleutel ontbreekt. Beheer sleutels onder Geavanceerde instellingen.</string>
     <string name="not_found">Niet gevonden</string>
     <string name="number_of_providers">Providers: %1$d</string>
-    <string name="obfuscation_info">Obfuscatie verbergt het WireGuard-verkeer in een ander protocol. Het kan worden gebruikt om censuur en andere soorten filtering te omzeilen, waar een gewone WireGuard-verbinding zou worden geblokkeerd.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Let op: Shadowsocks kan het batterijverbruik verhogen afhankelijk van het gegevensgebruik, zoals het streamen van een video.</string>
     <string name="obfuscation_title">WireGuard-obfuscatie</string>
     <string name="off">Uit</string>

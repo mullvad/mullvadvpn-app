@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">คีย์ WireGuard ที่ใช้ได้ขาดหายไป จัดการคีย์ภายใต้การตั้งค่าขั้นสูง</string>
     <string name="not_found">ไม่พบ</string>
     <string name="number_of_providers">ผู้ให้บริการ: %1$d</string>
-    <string name="obfuscation_info">การทำให้ข้อมูลยุ่งเหยิง จะซ่อนการรับส่งข้อมูล WireGuard ภายในอีกโพรโทคอลหนึ่ง ซึ่งใช้เพื่อช่วยหลบเลี่ยงการเซ็นเซอร์ และการกรองประเภทอื่นๆ ที่การเชื่อมต่อ WireGuard แบบธรรมดาจะถูกบล็อกได้</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ</string>
     <string name="obfuscation_title">การทำให้ข้อมูลยุ่งเหยิงของ WireGuard</string>
     <string name="off">ปิด</string>

@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">Falta una clave de WireGuard válida. Para administrar las claves, vaya a Configuración avanzada.</string>
     <string name="not_found">No encontrado</string>
     <string name="number_of_providers">Proveedores: %1$d</string>
-    <string name="obfuscation_info">La ofuscación oculta el tráfico de WireGuard dentro de otro protocolo. Puede usarse para sortear la censura y otros tipos de filtrado donde podría bloquearse una conexión de WireGuard normal.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Atención: Shadowsocks puede aumentar el consumo de batería en función del uso de datos, como la transmisión de un vídeo.</string>
     <string name="obfuscation_title">Ofuscación de WireGuard</string>
     <string name="off">Desactivado</string>

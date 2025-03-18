@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">缺少有效的 WireGuard 金鑰。在「進階」設定下管理金鑰。</string>
     <string name="not_found">找不到</string>
     <string name="number_of_providers">供應商：%1$d</string>
-    <string name="obfuscation_info">藉由混淆，WireGuard 的流量能隱藏在另一個通訊協定中。這有助於規避審查或其他類型的篩選。在這類篩選中，普通 WireGuard 連線將遭到封鎖。</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">注意：Shadowsocks 可能會因資料使用情形 (如播放串流影片) 而增加電力消耗。</string>
     <string name="obfuscation_title">WireGuard 混淆</string>
     <string name="off">關閉</string>
