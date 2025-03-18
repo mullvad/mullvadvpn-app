@@ -604,7 +604,10 @@ impl Connectivity {
     ///
     /// If IPv4 status is unknown, `true` is returned.
     pub fn has_ipv4(&self) -> bool {
-        matches!(self, Connectivity::Status { ipv4: false, .. }).not()
+        matches!(
+            self,
+            Connectivity::Status { ipv4: true, .. } | Connectivity::PresumeOnline
+        )
     }
 
     /// Whether IPv6 connectivity seems to be available on the host.
