@@ -9,7 +9,6 @@ import { useAppContext } from '../context';
 import { Button, ButtonProps, Flex, Spinner } from '../lib/components';
 import { IconBadge } from '../lib/icon-badge';
 import { useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { ModalAlert } from './Modal';
 import {
   StyledEmptyResponse,
@@ -194,9 +193,14 @@ export function RedeemVoucherSubmitButton() {
   const disabled = submitting || response?.type === 'success';
 
   return (
-    <AppButton.GreenButton disabled={!valueValid || disabled} onClick={onSubmit}>
-      {messages.pgettext('redeem-voucher-view', 'Redeem')}
-    </AppButton.GreenButton>
+    <Button variant="success" disabled={!valueValid || disabled} onClick={onSubmit}>
+      <Button.Text>
+        {
+          // TRANSLATORS: Button label for voucher redemption.
+          messages.pgettext('redeem-voucher-view', 'Redeem')
+        }
+      </Button.Text>
+    </Button>
   );
 }
 
@@ -220,9 +224,9 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
       <ModalAlert
         isOpen={props.show}
         buttons={[
-          <AppButton.BlueButton key="gotit" onClick={props.onClose}>
-            {messages.gettext('Got it!')}
-          </AppButton.BlueButton>,
+          <Button key="gotit" onClick={props.onClose}>
+            <Button.Text>{messages.gettext('Got it!')}</Button.Text>
+          </Button>,
         ]}
         close={props.onClose}>
         <Flex $justifyContent="center" $margin={{ top: 'large', bottom: 'medium' }}>
@@ -245,12 +249,22 @@ export function RedeemVoucherAlert(props: IRedeemVoucherAlertProps) {
         isOpen={props.show}
         buttons={[
           <RedeemVoucherSubmitButton key="submit" />,
-          <AppButton.BlueButton key="cancel" disabled={submitting} onClick={props.onClose}>
-            {messages.pgettext('redeem-voucher-alert', 'Cancel')}
-          </AppButton.BlueButton>,
+          <Button key="cancel" disabled={submitting} onClick={props.onClose}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Cancel button label for voucher redemption.
+                messages.pgettext('redeem-voucher-alert', 'Cancel')
+              }
+            </Button.Text>
+          </Button>,
         ]}
         close={props.onClose}>
-        <StyledLabel>{messages.pgettext('redeem-voucher-alert', 'Enter voucher code')}</StyledLabel>
+        <StyledLabel>
+          {
+            // TRANSLATORS: Input field label for voucher code.
+            messages.pgettext('redeem-voucher-alert', 'Enter voucher code')
+          }
+        </StyledLabel>
         <RedeemVoucherInput />
         <RedeemVoucherResponse />
       </ModalAlert>
