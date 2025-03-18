@@ -1,0 +1,56 @@
+AntiFeatures:
+  NonFreeNet:
+    en-US: Depends on the Mullvad VPN service.
+Categories:
+  - Connectivity
+  - Internet
+  - Security
+  - System
+License: GPL-3.0-or-later
+WebSite: https://mullvad.net
+SourceCode: https://github.com/mullvad/mullvadvpn-app
+IssueTracker: https://github.com/mullvad/mullvadvpn-app/issues
+Translation: https://github.com/mullvad/mullvadvpn-app/blob/HEAD/CONTRIBUTING.md#localization--translations
+Changelog: https://github.com/mullvad/mullvadvpn-app/blob/HEAD/android/CHANGELOG.md
+
+AutoName: Mullvad VPN
+
+RepoType: git
+Repo: https://github.com/mullvad/mullvadvpn-app.git
+
+Builds:
+  - versionName: 'Reproducible'
+    versionCode: 1
+    commit: commit-hash
+    timeout: 10800
+    subdir: android/app
+    sudo:
+      - apt-get update
+      - apt-get install -y build-essential protobuf-compiler libprotobuf-dev
+    init: NDK_PATH="$$NDK$$" ../fdroid-build/init.sh
+    output: build/outputs/apk/ossProd/fdroid/app-oss-prod-fdroid-unsigned.apk
+    rm:
+      - desktop
+      - graphics
+      - ios
+      - windows
+      - building/sigstore
+      - android/lib/billing
+    prebuild:
+      - git -C ../.. submodule update --init --recursive --depth=1 wireguard-go-rs
+      - sed -i -e 's|Repositories.GradlePlugins|"https://plugins.gradle.org/m2/"|'
+        ../build.gradle.kts
+      - sed -i '/\"desktop\//d' ../../Cargo.toml
+      - sed -i '/^android-billingclient/d' ../gradle/libs.versions.toml
+    build:
+      - NDK_PATH="$$NDK$$" source ../fdroid-build/env.sh
+      - cargo install --force cbindgen --version "0.26.0" --locked
+      - echo $NDK_TOOLCHAIN_DIR "$$NDK$$"
+      - ../build.sh --fdroid
+    ndk: 27.2.12479018
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags ^android/[0-9]{4}\.[0-9]+$
+UpdateCheckData: dist-assets/android-version-code.txt|(\d+)|dist-assets/android-version-name.txt|(.+)
+CurrentVersion: 'Reproducible'
+CurrentVersionCode: 1
