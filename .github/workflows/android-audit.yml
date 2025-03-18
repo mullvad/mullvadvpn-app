@@ -5,7 +5,10 @@ on:
     paths:
       - .github/workflows/android-audit.yml
       - android/gradle/verification-metadata.xml
+      - android/gradle/verification-metadata.keys.xml
+      - android/gradle/verification-keyring.keys
       - android/scripts/update-lockfile.sh
+      - android/scripts/verify-lockfile-keys.sh
       # libs.versions.toml and *.kts are necessary to ensure that the verification-metadata.xml is up-to-date
       # with our dependency usage due to the dependency verification not working as expected when keys are
       # specified for dependencies (DROID-1425).
