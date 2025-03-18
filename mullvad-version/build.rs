@@ -62,7 +62,7 @@ fn get_product_version(target: Target) -> String {
     // Compute the expected tag name for the release named `product_version`
     let release_tag = match target {
         Target::Android => format!("android/{release_version}"),
-        Target::Desktop => release_version.to_owned(),
+        Target::Desktop => release_version.clone(),
     };
 
     format!("{release_version}{}", get_suffix(&release_tag))

@@ -108,7 +108,7 @@ impl WintunAdapter {
     }
 
     pub fn name(&self) -> U16CString {
-        self.name.to_owned()
+        self.name.clone()
     }
 
     pub fn luid(&self) -> NET_LUID_LH {

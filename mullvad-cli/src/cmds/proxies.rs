@@ -168,8 +168,8 @@ impl ProxyEditParams {
     pub fn merge_shadowsocks(self, shadowsocks: &Shadowsocks) -> Shadowsocks {
         let ip = self.ip.unwrap_or(shadowsocks.endpoint.ip());
         let port = self.port.unwrap_or(shadowsocks.endpoint.port());
-        let password = self.password.unwrap_or(shadowsocks.password.to_owned());
-        let cipher = self.cipher.unwrap_or(shadowsocks.cipher.to_owned());
+        let password = self.password.unwrap_or(shadowsocks.password.clone());
+        let cipher = self.cipher.unwrap_or(shadowsocks.cipher.clone());
         Shadowsocks::new((ip, port), cipher, password)
     }
 }
