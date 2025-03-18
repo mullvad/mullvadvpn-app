@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - .github/workflows/verify-locked-down-signatures.yml
+      - .github/workflows/android-audit.yml
       - .github/workflows/unicop.yml
       - .github/CODEOWNERS
       - Cargo.toml
@@ -21,6 +22,8 @@ on:
       - android/gradlew
       - android/gradlew.bat
       - android/gradle/verification-metadata.xml
+      - android/gradle/verification-metadata.keys.xml
+      - android/gradle/verification-keyring.keys
       - android/gradle/wrapper/gradle-wrapper.jar
       - android/gradle/wrapper/gradle-wrapper.properties
       - building/build-and-publish-container-image.sh
