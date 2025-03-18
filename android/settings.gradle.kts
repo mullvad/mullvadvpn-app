@@ -28,5 +28,10 @@ include(
     ":lib:tv",
     ":lib:ui:component",
 )
-
-include(":test", ":test:arch", ":test:common", ":test:e2e", ":test:mockapi")
+include(
+    ":test",
+    ":test:arch",
+    ":test:common",
+    ":test:e2e",
+    ":test:mockapi"
+)
