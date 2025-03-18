@@ -54,6 +54,15 @@ typedef struct CompletionCookie {
   void *inner;
 } CompletionCookie;
 
+typedef struct SwiftProblemReportRequest {
+  const uint8_t *address;
+  uintptr_t address_len;
+  const uint8_t *message;
+  uintptr_t message_len;
+  const uint8_t *log;
+  uintptr_t log_len;
+} SwiftProblemReportRequest;
+
 typedef struct ProxyHandle {
   void *context;
   uint16_t port;
@@ -257,6 +266,11 @@ struct SwiftRetryStrategy mullvad_api_retry_strategy_exponential(uintptr_t max_r
                                                                  uint64_t initial_sec,
                                                                  uint32_t factor,
                                                                  uint64_t max_delay_sec);
+
+struct SwiftCancelHandle mullvad_api_send_problem_report(struct SwiftApiContext api_context,
+                                                         void *completion_cookie,
+                                                         struct SwiftRetryStrategy retry_strategy,
+                                                         const struct SwiftProblemReportRequest *request);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
