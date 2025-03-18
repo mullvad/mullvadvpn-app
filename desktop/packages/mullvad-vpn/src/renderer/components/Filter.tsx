@@ -3,7 +3,7 @@ import styled from 'styled-components';
 
 import { Ownership } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
-import { Icon } from '../lib/components';
+import { Button, Icon } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import {
   EndpointType,
@@ -18,7 +18,6 @@ import { IRelayLocationCountryRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
 import Accordion from './Accordion';
-import * as AppButton from './AppButton';
 import { AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector from './cell/Selector';
@@ -99,11 +98,12 @@ export default function Filter() {
               />
             </StyledNavigationScrollbars>
             <Footer>
-              <AppButton.GreenButton
+              <Button
+                variant="success"
                 disabled={Object.values(providers).every((provider) => !provider)}
                 onClick={onApply}>
-                {messages.gettext('Apply')}
-              </AppButton.GreenButton>
+                <Button.Text>{messages.gettext('Apply')}</Button.Text>
+              </Button>
             </Footer>
           </NavigationContainer>
         </SettingsContainer>
