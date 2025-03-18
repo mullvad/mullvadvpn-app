@@ -1649,7 +1649,8 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
         ipv6: true,
     };
     let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
-    assert!(matches!(user_result, GetRelay::Wireguard {
+    assert!(
+        matches!(user_result, GetRelay::Wireguard {
         obfuscator: Some(SelectedObfuscator {
             config: ObfuscatorConfig::Shadowsocks {
                 endpoint,
@@ -1658,16 +1659,16 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
             ..
         }),
         ..
-    } if endpoint.is_ipv6()), "expected IPv6 endpoint for Shadowsocks, got {user_result:?}");
+    } if endpoint.is_ipv6()),
+        "expected IPv6 endpoint for Shadowsocks, got {user_result:?}"
+    );
 }
 
-/// Check that if IPv4 is not available, and IPv6 endpoint is returned.
+/// Check that if IPv4 is not available, a relay with an IPv6 endpoint is returned.
 #[test]
 fn test_runtime_ipv4_unavailable() {
     // Make a valid user relay constraint
-    let (relay_constraints, _, _, _) = RelayQueryBuilder::wireguard()
-        .build()
-        .into_settings();
+    let (relay_constraints, _, _, _) = RelayQueryBuilder::wireguard().build().into_settings();
 
     let config = SelectorConfig {
         relay_settings: relay_constraints.into(),
@@ -1680,10 +1681,7 @@ fn test_runtime_ipv4_unavailable() {
     };
     let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
     match relay {
-        GetRelay::Wireguard {
-            endpoint,
-            ..
-        } => {
+        GetRelay::Wireguard { endpoint, .. } => {
             assert!(
                 endpoint.peer.endpoint.is_ipv6(),
                 "expected IPv6 endpoint, got {endpoint:?}",
