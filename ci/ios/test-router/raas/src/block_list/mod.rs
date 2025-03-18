@@ -6,7 +6,7 @@ static TABLE_NAME: Lazy<CString> = Lazy::new(|| CString::new("raas").unwrap());
 static FORWARD_CHAIN_NAME: Lazy<CString> = Lazy::new(|| CString::new("forward").unwrap());
 
 mod rule;
-pub use rule::BlockRule;
+pub use rule::{BlockRule, Endpoints};
 
 #[derive(Default)]
 pub struct BlockList {
