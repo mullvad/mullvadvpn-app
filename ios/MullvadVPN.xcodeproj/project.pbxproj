@@ -928,6 +928,7 @@
 		F0164EBE2B4BFF940020268D /* ShadowsocksLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */; };
 		F0164EC32B4C49D30020268D /* ShadowsocksLoaderStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */; };
 		F0164ED12B4F2DCB0020268D /* AccessMethodIterator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */; };
+		F017F8E02D78AC020076EC01 /* RelayFilterDataSourceItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */; };
 		F01DAE332C2B032A00521E46 /* RelaySelection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F01DAE322C2B032A00521E46 /* RelaySelection.swift */; };
 		F022EBA62CF0C6AE009484B9 /* ConsolidatedApplicationLog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5871FB95254ADE4E0051A0A4 /* ConsolidatedApplicationLog.swift */; };
 		F028A56A2A34D4E700C0CAA3 /* RedeemVoucherViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */; };
@@ -976,6 +977,7 @@
 		F07751572C50F149006E6A12 /* EphemeralPeerExchangingPipelineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F053F4B92C4A94D300FBD937 /* EphemeralPeerExchangingPipelineTests.swift */; };
 		F07751582C50F149006E6A12 /* MultiHopEphemeralPeerExchangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C4C9BD2C49477B00A79006 /* MultiHopEphemeralPeerExchangerTests.swift */; };
 		F07751592C50F149006E6A12 /* SingleHopEphemeralPeerExchangerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A163882C47B46300592300 /* SingleHopEphemeralPeerExchangerTests.swift */; };
+		F0791F1B2D76377500449F6D /* RelayCandidates.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0791F1A2D76377400449F6D /* RelayCandidates.swift */; };
 		F07B53572C53B5270024F547 /* LocalNetworkIPs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07B53562C53B5270024F547 /* LocalNetworkIPs.swift */; };
 		F07BF2622A26279100042943 /* RedeemVoucherOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */; };
 		F07C9D952B220C77006F1C5E /* libmullvad_ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 01F1FF1D29F0627D007083C3 /* libmullvad_ios.a */; };
@@ -1006,7 +1008,6 @@
 		F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BF2AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift */; };
 		F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F09D04BC2AEBB7C5003D4F89 /* OutgoingConnectionService.swift */; };
 		F0A086902C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A0868F2C22D6A700BF83E7 /* TunnelSettingsStrategyTests.swift */; };
-		F0A1638A2C47B77300592300 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
 		F0A7EBB22CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0A7EBB12CEF6C79005BB671 /* ConsolidatedApplicationLogTests.swift */; };
 		F0A7EBB62CF092CC005BB671 /* ApplicationConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58BFA5CB22A7CE1F00A6173D /* ApplicationConfiguration.swift */; };
 		F0ACE30D2BE4E478006D5333 /* MullvadMockData.h in Headers */ = {isa = PBXBuildFile; fileRef = F0ACE30A2BE4E478006D5333 /* MullvadMockData.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1022,8 +1023,6 @@
 		F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 449EB9FE2B95FF2500DFA4EB /* AccountMock.swift */; };
 		F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */; };
 		F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */; };
-		F0ACE3362BE517D6006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
-		F0ACE3372BE517F1006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */; };
 		F0ADC3722CD3AD1600A1AD97 /* ChipCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADC3712CD3AD1600A1AD97 /* ChipCollectionView.swift */; };
 		F0ADC3742CD3C47400A1AD97 /* ChipFlowLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADC3732CD3C47400A1AD97 /* ChipFlowLayout.swift */; };
 		F0ADF1CD2CFDFF3100299F09 /* StringConversionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */; };
@@ -1034,11 +1033,12 @@
 		F0B495762D02025200CFEC2A /* ChipContainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495752D02025200CFEC2A /* ChipContainerView.swift */; };
 		F0B495782D02038B00CFEC2A /* ChipViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */; };
 		F0B4957A2D02F49200CFEC2A /* ChipFeature.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B495792D02F41F00CFEC2A /* ChipFeature.swift */; };
+		F0B583D42D6DCE12007F5AE4 /* FilterDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B583D32D6DCE0D007F5AE4 /* FilterDescriptor.swift */; };
 		F0B894EF2BF751C500817A42 /* RelayWithLocation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */; };
 		F0B894F12BF751E300817A42 /* RelayWithDistance.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F02BF751E300817A42 /* RelayWithDistance.swift */; };
 		F0B894F32BF7526700817A42 /* RelaySelector+Wireguard.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */; };
 		F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */; };
-		F0BE65372B9F136A005CC385 /* LocationSectionHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */; };
+		F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */; };
 		F0C13FE42C64F7CB00BD087D /* DAITASettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */; };
 		F0C13FE62C64FB3400BD087D /* TunnelSettingsV6.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */; };
 		F0C2AEFD2A0BB5CC00986207 /* NotificationProviderIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */; };
@@ -1077,6 +1077,14 @@
 		F0F316192BF3572B0078DBCF /* RelaySelectorResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */; };
 		F0F3161B2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */; };
 		F0F56B092C0E058A009D676B /* ObserverList.swift in Sources */ = {isa = PBXBuildFile; fileRef = 58CC40EE24A601900019D96E /* ObserverList.swift */; };
+		F0FA16092D7F0425007E2546 /* FilterDescriptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA16082D7F0413007E2546 /* FilterDescriptorTests.swift */; };
+		F0FA160A2D7F0E8B007E2546 /* FilterDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B583D32D6DCE0D007F5AE4 /* FilterDescriptor.swift */; };
+		F0FA160C2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA160B2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift */; };
+		F0FA160E2D7F2C40007E2546 /* MockRelayCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */; };
+		F0FA16102D7F2FC7007E2546 /* RelayFilterViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */; };
+		F0FA16112D7F2FE8007E2546 /* RelayFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */; };
+		F0FA16142D7F3ABF007E2546 /* RelayFilterDataSourceItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */; };
+		F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AF9BE8F2A39F26000DBFEDB /* Collection+Sorting.swift */; };
 		F0FADDEA2BE90AAA000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F0FADDEC2BE90AB0000D0B02 /* LaunchArguments.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */; };
 		F910A4012D3FF23A002FF3BB /* View+Modifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = F910A4002D3FF22E002FF3BB /* View+Modifier.swift */; };
@@ -2344,6 +2352,7 @@
 		F0164EBD2B4BFF940020268D /* ShadowsocksLoader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoader.swift; sourceTree = "<group>"; };
 		F0164EC22B4C49D30020268D /* ShadowsocksLoaderStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderStub.swift; sourceTree = "<group>"; };
 		F0164ED02B4F2DCB0020268D /* AccessMethodIterator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccessMethodIterator.swift; sourceTree = "<group>"; };
+		F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterDataSourceItem.swift; sourceTree = "<group>"; };
 		F01DAE322C2B032A00521E46 /* RelaySelection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaySelection.swift; sourceTree = "<group>"; };
 		F028A5692A34D4E700C0CAA3 /* RedeemVoucherViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherViewController.swift; sourceTree = "<group>"; };
 		F028A56B2A34D8E600C0CAA3 /* AddCreditSucceededViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddCreditSucceededViewController.swift; sourceTree = "<group>"; };
@@ -2386,6 +2395,7 @@
 		F072D3CE2C07122400906F64 /* SettingsUpdaterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsUpdaterTests.swift; sourceTree = "<group>"; };
 		F072D3D12C071AD100906F64 /* ShadowsocksLoaderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShadowsocksLoaderTests.swift; sourceTree = "<group>"; };
 		F073FCB22C6617D70062EA1D /* TunnelStore+Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "TunnelStore+Stubs.swift"; sourceTree = "<group>"; };
+		F0791F1A2D76377400449F6D /* RelayCandidates.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayCandidates.swift; sourceTree = "<group>"; };
 		F07B53562C53B5270024F547 /* LocalNetworkIPs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalNetworkIPs.swift; sourceTree = "<group>"; };
 		F07BF2572A26112D00042943 /* InputTextFormatterTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputTextFormatterTests.swift; sourceTree = "<group>"; };
 		F07BF2612A26279100042943 /* RedeemVoucherOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RedeemVoucherOperation.swift; sourceTree = "<group>"; };
@@ -2410,7 +2420,6 @@
 		F0ACE3082BE4E478006D5333 /* MullvadMockData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MullvadMockData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F0ACE30A2BE4E478006D5333 /* MullvadMockData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MullvadMockData.h; sourceTree = "<group>"; };
 		F0ACE32E2BE4EA8B006D5333 /* MockProxyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockProxyFactory.swift; sourceTree = "<group>"; };
-		F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ServerRelaysResponse+Stubs.swift"; sourceTree = "<group>"; };
 		F0ADC3712CD3AD1600A1AD97 /* ChipCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipCollectionView.swift; sourceTree = "<group>"; };
 		F0ADC3732CD3C47400A1AD97 /* ChipFlowLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFlowLayout.swift; sourceTree = "<group>"; };
 		F0ADF1CC2CFDFF3100299F09 /* StringConversionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringConversionError.swift; sourceTree = "<group>"; };
@@ -2421,11 +2430,12 @@
 		F0B495752D02025200CFEC2A /* ChipContainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipContainerView.swift; sourceTree = "<group>"; };
 		F0B495772D02038B00CFEC2A /* ChipViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipViewModelProtocol.swift; sourceTree = "<group>"; };
 		F0B495792D02F41F00CFEC2A /* ChipFeature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChipFeature.swift; sourceTree = "<group>"; };
+		F0B583D32D6DCE0D007F5AE4 /* FilterDescriptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterDescriptor.swift; sourceTree = "<group>"; };
 		F0B894EE2BF751C500817A42 /* RelayWithLocation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithLocation.swift; sourceTree = "<group>"; };
 		F0B894F02BF751E300817A42 /* RelayWithDistance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayWithDistance.swift; sourceTree = "<group>"; };
 		F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Wireguard.swift"; sourceTree = "<group>"; };
 		F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RelaySelector+Shadowsocks.swift"; sourceTree = "<group>"; };
-		F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderView.swift; sourceTree = "<group>"; };
+		F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationSectionHeaderFooterView.swift; sourceTree = "<group>"; };
 		F0C13FE32C64F7CB00BD087D /* DAITASettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAITASettings.swift; sourceTree = "<group>"; };
 		F0C13FE52C64FB3400BD087D /* TunnelSettingsV6.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TunnelSettingsV6.swift; sourceTree = "<group>"; };
 		F0C2AEFC2A0BB5CC00986207 /* NotificationProviderIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationProviderIdentifier.swift; sourceTree = "<group>"; };
@@ -2461,6 +2471,10 @@
 		F0F1EF8C2BE8FF0A00CED01D /* LaunchArguments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchArguments.swift; sourceTree = "<group>"; };
 		F0F316182BF3572B0078DBCF /* RelaySelectorResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaySelectorResult.swift; sourceTree = "<group>"; };
 		F0F3161A2BF358590078DBCF /* NoRelaysSatisfyingConstraintsError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NoRelaysSatisfyingConstraintsError.swift; sourceTree = "<group>"; };
+		F0FA16082D7F0413007E2546 /* FilterDescriptorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterDescriptorTests.swift; sourceTree = "<group>"; };
+		F0FA160B2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ServerRelaysResponse+Stubs.swift"; sourceTree = "<group>"; };
+		F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockRelayCache.swift; sourceTree = "<group>"; };
+		F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelayFilterViewModelTests.swift; sourceTree = "<group>"; };
 		F0FBD98E2C4A60CC00EE5323 /* KeyExchangingResultStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyExchangingResultStub.swift; sourceTree = "<group>"; };
 		F910A4002D3FF22E002FF3BB /* View+Modifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Modifier.swift"; sourceTree = "<group>"; };
 		F910A4302D4A1B3B002FF3BB /* InAppPurchaseCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InAppPurchaseCoordinator.swift; sourceTree = "<group>"; };
@@ -2726,7 +2740,6 @@
 			isa = PBXGroup;
 			children = (
 				A9CF11FC2A0518E7001D9565 /* AddressCacheTests.swift */,
-				F0ACE3342BE51745006D5333 /* ServerRelaysResponse+Stubs.swift */,
 			);
 			path = ApiHandlers;
 			sourceTree = "<group>";
@@ -2806,6 +2819,7 @@
 		440E9EFC2BDA982200B1FD11 /* View controllers */ = {
 			isa = PBXGroup;
 			children = (
+				F0FA16072D7F03F8007E2546 /* Filter */,
 				7A9BE5A02B8F881B00E2A7D0 /* SelectLocation */,
 				440E9EFD2BDA982A00B1FD11 /* Tunnel */,
 			);
@@ -3118,7 +3132,7 @@
 				7A6389F72B864CDF008E77E1 /* LocationNode.swift */,
 				7A5468AB2C6A55B100590086 /* LocationRelays.swift */,
 				F050AE512B70DFC0003F4EDB /* LocationSection.swift */,
-				F0BE65362B9F136A005CC385 /* LocationSectionHeaderView.swift */,
+				F0BE65362B9F136A005CC385 /* LocationSectionHeaderFooterView.swift */,
 				5888AD86227B17950051EB06 /* LocationViewController.swift */,
 				7AB3BEB42BD7A6CB00E34384 /* LocationViewControllerWrapper.swift */,
 				F01DAE322C2B032A00521E46 /* RelaySelection.swift */,
@@ -4312,8 +4326,10 @@
 				F0ADC3712CD3AD1600A1AD97 /* ChipCollectionView.swift */,
 				F0ADC3732CD3C47400A1AD97 /* ChipFlowLayout.swift */,
 				7AF9BE962A41C71F00DBFEDB /* ChipViewCell.swift */,
+				F0B583D32D6DCE0D007F5AE4 /* FilterDescriptor.swift */,
 				7A1A26482A29D48A00B978AA /* RelayFilterCellFactory.swift */,
 				7A1A26462A29CF0800B978AA /* RelayFilterDataSource.swift */,
+				F017F8DF2D78ABE90076EC01 /* RelayFilterDataSourceItem.swift */,
 				7AF9BE942A40461100DBFEDB /* RelayFilterView.swift */,
 				7A1A26442A29CEF700B978AA /* RelayFilterViewController.swift */,
 				7AF9BE8D2A331C7B00DBFEDB /* RelayFilterViewModel.swift */,
@@ -4584,6 +4600,7 @@
 		F0ACE3172BE4E487006D5333 /* MullvadREST */ = {
 			isa = PBXGroup;
 			children = (
+				F0FA160D2D7F2C3D007E2546 /* MockRelayCache.swift */,
 				F0164EB92B4456D30020268D /* AccessMethodRepository+Stub.swift */,
 				A900E9BF2ACC661900C95F67 /* AccessTokenManager+Stubs.swift */,
 				A900E9B72ACC5C2B00C95F67 /* AccountsProxy+Stubs.swift */,
@@ -4593,6 +4610,7 @@
 				58FE25EF2AA77664003D1918 /* RelaySelectorStub.swift */,
 				A900E9B92ACC5D0600C95F67 /* RESTRequestExecutor+Stubs.swift */,
 				7AF84F452D12C59F00C72690 /* SelectedRelaysStub+Stubs.swift */,
+				F0FA160B2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift */,
 			);
 			path = MullvadREST;
 			sourceTree = "<group>";
@@ -4621,7 +4639,6 @@
 		F0DC779F2B2222D20087F09D /* Relay */ = {
 			isa = PBXGroup;
 			children = (
-				7AFBE38E2D09AB4E002335FC /* RelayPicking */,
 				7ADCB2D72B6A6EB300C88F89 /* AnyRelay.swift */,
 				585DA87626B024A600B8C587 /* CachedRelays.swift */,
 				F0DDE4272B220A15006B57A7 /* Haversine.swift */,
@@ -4633,6 +4650,8 @@
 				7AD63A3A2CD5278900445268 /* ObfuscationMethodSelector.swift */,
 				7AD63A382CD520FD00445268 /* ObfuscatorPortSelector.swift */,
 				5820675A26E6576800655B05 /* RelayCache.swift */,
+				7AFBE38E2D09AB4E002335FC /* RelayPicking */,
+				F0791F1A2D76377400449F6D /* RelayCandidates.swift */,
 				F0DDE4282B220A15006B57A7 /* RelaySelector.swift */,
 				F0B894F42BF7528700817A42 /* RelaySelector+Shadowsocks.swift */,
 				F0B894F22BF7526700817A42 /* RelaySelector+Wireguard.swift */,
@@ -4753,6 +4772,15 @@
 				F0EF50D42A949F8E0031E8DF /* ChangeLogViewModel.swift */,
 			);
 			path = ChangeLog;
+			sourceTree = "<group>";
+		};
+		F0FA16072D7F03F8007E2546 /* Filter */ = {
+			isa = PBXGroup;
+			children = (
+				F0FA16082D7F0413007E2546 /* FilterDescriptorTests.swift */,
+				F0FA160F2D7F2FC0007E2546 /* RelayFilterViewModelTests.swift */,
+			);
+			path = Filter;
 			sourceTree = "<group>";
 		};
 		F910A4322D4A1BA1002FF3BB /* InAppPurchase */ = {
@@ -5682,6 +5710,7 @@
 				06799AEC28F98E4800ACD94E /* RESTTaskIdentifier.swift in Sources */,
 				7A2E7B712D6C9FE0009EF2C3 /* APIError.swift in Sources */,
 				58E7BA192A975DF70068EC3A /* RESTTransportProvider.swift in Sources */,
+				F0791F1B2D76377500449F6D /* RelayCandidates.swift in Sources */,
 				F0B894F52BF7528700817A42 /* RelaySelector+Shadowsocks.swift in Sources */,
 				06799ADE28F98E4800ACD94E /* RESTRequestHandler.swift in Sources */,
 				F0DDE4162B220458006B57A7 /* TransportProvider.swift in Sources */,
@@ -5817,6 +5846,7 @@
 				A9A5F9EF2ACB05160083449F /* String+AccountFormatting.swift in Sources */,
 				A9A5F9F02ACB05160083449F /* String+FuzzyMatch.swift in Sources */,
 				F09D04C12AF39EA2003D4F89 /* OutgoingConnectionService.swift in Sources */,
+				F0FA16152D7F3E16007E2546 /* Collection+Sorting.swift in Sources */,
 				A9A5F9F12ACB05160083449F /* String+Helpers.swift in Sources */,
 				A9A5F9F22ACB05160083449F /* NotificationConfiguration.swift in Sources */,
 				44E1F75B2D3FEC81003A60FF /* DestinationDescriber.swift in Sources */,
@@ -5836,6 +5866,7 @@
 				A9A5F9FB2ACB05160083449F /* InAppNotificationProvider.swift in Sources */,
 				A9A5F9FC2ACB05160083449F /* SystemNotificationProvider.swift in Sources */,
 				A9A5F9FD2ACB05160083449F /* NotificationResponse.swift in Sources */,
+				F0FA16142D7F3ABF007E2546 /* RelayFilterDataSourceItem.swift in Sources */,
 				A9A5F9FE2ACB05160083449F /* NotificationManager.swift in Sources */,
 				A9A5F9FF2ACB05160083449F /* NotificationManagerDelegate.swift in Sources */,
 				7A9BE5AD2B90DF2D00E2A7D0 /* AllLocationsDataSourceTests.swift in Sources */,
@@ -5855,6 +5886,7 @@
 				A9A5FA0A2ACB05160083449F /* StorePaymentEvent.swift in Sources */,
 				A902E7A62D3FB0D9007F844A /* LogFileOutputStreamTests.swift in Sources */,
 				A9A5FA0B2ACB05160083449F /* StorePaymentManager.swift in Sources */,
+				F0FA16092D7F0425007E2546 /* FilterDescriptorTests.swift in Sources */,
 				A9A5FA0C2ACB05160083449F /* StorePaymentManagerDelegate.swift in Sources */,
 				A9A5FA0D2ACB05160083449F /* StorePaymentManagerError.swift in Sources */,
 				A9A5FA0E2ACB05160083449F /* StorePaymentObserver.swift in Sources */,
@@ -5899,6 +5931,7 @@
 				7A9BE5A62B90762F00E2A7D0 /* CustomListsDataSource.swift in Sources */,
 				F09D04C02AF39D63003D4F89 /* OutgoingConnectionServiceTests.swift in Sources */,
 				7A9BE5A22B8F88C500E2A7D0 /* LocationNodeTests.swift in Sources */,
+				F0FA160A2D7F0E8B007E2546 /* FilterDescriptor.swift in Sources */,
 				A9A5FA232ACB05160083449F /* TunnelState.swift in Sources */,
 				A9A5FA242ACB05160083449F /* TunnelStore.swift in Sources */,
 				A9A5FA252ACB05160083449F /* UpdateAccountDataOperation.swift in Sources */,
@@ -5917,6 +5950,7 @@
 				A9A5FA2C2ACB05160083449F /* DeviceCheckOperationTests.swift in Sources */,
 				A9A5FA2D2ACB05160083449F /* DurationTests.swift in Sources */,
 				A9A5FA2E2ACB05160083449F /* FileCacheTests.swift in Sources */,
+				F0FA16112D7F2FE8007E2546 /* RelayFilterViewModel.swift in Sources */,
 				F0D5591F2D38051C0072B63F /* LatestChangesNotificationProvider.swift in Sources */,
 				7A9F28FC2CA69D0C005F2089 /* DAITASettingsTests.swift in Sources */,
 				A9A5FA2F2ACB05160083449F /* FixedWidthIntegerArithmeticsTests.swift in Sources */,
@@ -5925,7 +5959,7 @@
 				A9A5FA302ACB05160083449F /* InputTextFormatterTests.swift in Sources */,
 				44B02E3B2BC5732D008EDF34 /* LoggingTests.swift in Sources */,
 				F0B0E6972AFE6E7E001DC66B /* XCTest+Async.swift in Sources */,
-				F0ACE3362BE517D6006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */,
+				F0FA16102D7F2FC7007E2546 /* RelayFilterViewModelTests.swift in Sources */,
 				7ADCB2DA2B6A730400C88F89 /* IPOverrideRepositoryStub.swift in Sources */,
 				A9A5FA312ACB05160083449F /* MockFileCache.swift in Sources */,
 				44E1F75A2D3FDCCA003A60FF /* DestinationDescriberTests.swift in Sources */,
@@ -6077,7 +6111,6 @@
 				F08B6B7C2C528C6300D0A121 /* SingleHopEphemeralPeerExchanger.swift in Sources */,
 				F08B6B7D2C528C6300D0A121 /* EphemeralPeerExchangingPipeline.swift in Sources */,
 				F08B6B7E2C528C6300D0A121 /* MultiHopEphemeralPeerExchanger.swift in Sources */,
-				F0ACE3372BE517F1006D5333 /* ServerRelaysResponse+Stubs.swift in Sources */,
 				58F7753D2AB8473200425B47 /* BlockedStateErrorMapperStub.swift in Sources */,
 				58FE25D42AA729B5003D1918 /* PacketTunnelActorTests.swift in Sources */,
 				F07751572C50F149006E6A12 /* EphemeralPeerExchangingPipelineTests.swift in Sources */,
@@ -6204,7 +6237,7 @@
 				7ABE318D2A1CDD4500DF4963 /* UIFont+Weight.swift in Sources */,
 				58C774BE29A7A249003A1A56 /* CustomNavigationController.swift in Sources */,
 				E1FD0DF528AA7CE400299DB4 /* StatusActivityView.swift in Sources */,
-				F0BE65372B9F136A005CC385 /* LocationSectionHeaderView.swift in Sources */,
+				F0BE65372B9F136A005CC385 /* LocationSectionHeaderFooterView.swift in Sources */,
 				7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */,
 				0697D6E728F01513007A9E99 /* TransportMonitor.swift in Sources */,
 				58968FAE28743E2000B799DC /* TunnelInteractor.swift in Sources */,
@@ -6378,6 +6411,7 @@
 				7A5869B92B56E7F000640D27 /* IPOverrideViewControllerDelegate.swift in Sources */,
 				586C0D7A2B039CE300E7CDD7 /* ShadowsocksCipherPicker.swift in Sources */,
 				58B93A1326C3F13600A55733 /* TunnelState.swift in Sources */,
+				F017F8E02D78AC020076EC01 /* RelayFilterDataSourceItem.swift in Sources */,
 				586C0D832B03D2FF00E7CDD7 /* ShadowsocksSectionHandler.swift in Sources */,
 				58B26E262943522400D5980C /* NotificationProvider.swift in Sources */,
 				58CE5E64224146200008646E /* AppDelegate.swift in Sources */,
@@ -6439,6 +6473,7 @@
 				584592612639B4A200EF967F /* TermsOfServiceContentView.swift in Sources */,
 				5875960A26F371FC00BF6711 /* Tunnel+Messaging.swift in Sources */,
 				586C0D912B03D8A400E7CDD7 /* AccessMethodHeaderFooterReuseIdentifier.swift in Sources */,
+				F0B583D42D6DCE12007F5AE4 /* FilterDescriptor.swift in Sources */,
 				7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */,
 				F050AE522B70DFC0003F4EDB /* LocationSection.swift in Sources */,
 				063687BA28EB234F00BE7161 /* PacketTunnelTransport.swift in Sources */,
@@ -6752,7 +6787,6 @@
 				A9D9A4CE2C36D54E004088DD /* TunnelObfuscationTests.swift in Sources */,
 				A9D9A4CC2C36D54E004088DD /* UnsafeListener.swift in Sources */,
 				A9D9A4CD2C36D54E004088DD /* UDPConnection.swift in Sources */,
-				F0A1638A2C47B77300592300 /* ServerRelaysResponse+Stubs.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6768,8 +6802,10 @@
 				F0ACE3222BE4E4F2006D5333 /* APIProxy+Stubs.swift in Sources */,
 				F0ACE3332BE516F1006D5333 /* RESTRequestExecutor+Stubs.swift in Sources */,
 				F0ACE32D2BE4E784006D5333 /* AccountMock.swift in Sources */,
+				F0FA160E2D7F2C40007E2546 /* MockRelayCache.swift in Sources */,
 				7A52F96A2C1735AE00B133B9 /* RelaySelectorStub.swift in Sources */,
 				7AF84F462D12C5B000C72690 /* SelectedRelaysStub+Stubs.swift in Sources */,
+				F0FA160C2D7F2BF2007E2546 /* ServerRelaysResponse+Stubs.swift in Sources */,
 				F03A69F72C2AD2D6000E2E7E /* TimeInterval+Timeout.swift in Sources */,
 				F0ACE32F2BE4EA8B006D5333 /* MockProxyFactory.swift in Sources */,
 			);

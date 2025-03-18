@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class LocationSectionHeaderView: UIView, UIContentView {
+class LocationSectionHeaderFooterView: UIView, UIContentView {
     var configuration: UIContentConfiguration {
         get {
             actualConfiguration
@@ -22,9 +22,19 @@ class LocationSectionHeaderView: UIView, UIContentView {
     }
 
     private var actualConfiguration: Configuration
+
+    private let containerView: UIStackView = {
+        let containerView = UIStackView()
+        containerView.axis = .horizontal
+        containerView.spacing = 8
+        containerView.isLayoutMarginsRelativeArrangement = true
+        return containerView
+    }()
+
     private let nameLabel: UILabel = {
         let label = UILabel()
-        label.numberOfLines = 1
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
         label.textColor = .primaryTextColor
         label.font = .systemFont(ofSize: 16, weight: .semibold)
         return label
@@ -40,9 +50,8 @@ class LocationSectionHeaderView: UIView, UIContentView {
     init(configuration: Configuration) {
         self.actualConfiguration = configuration
         super.init(frame: .zero)
-        applyAppearance()
-        addSubviews()
         apply(configuration: configuration)
+        addSubviews()
     }
 
     required init?(coder: NSCoder) {
@@ -50,44 +59,61 @@ class LocationSectionHeaderView: UIView, UIContentView {
     }
 
     private func addSubviews() {
-        addConstrainedSubviews([nameLabel, actionButton]) {
-            nameLabel.pinEdgesToSuperviewMargins(.all().excluding(.trailing))
-
-            actionButton.pinEdgesToSuperview(PinnableEdges([.trailing(8)]))
-            actionButton.heightAnchor.constraint(equalTo: heightAnchor)
+        containerView.addArrangedSubview(nameLabel)
+        containerView.addArrangedSubview(actionButton)
+        addConstrainedSubviews([containerView]) {
+            containerView.pinEdgesToSuperviewMargins()
             actionButton.widthAnchor.constraint(equalTo: actionButton.heightAnchor)
-
-            actionButton.leadingAnchor.constraint(equalTo: nameLabel.trailingAnchor, constant: 16)
         }
     }
 
     private func apply(configuration: Configuration) {
         let isActionHidden = configuration.primaryAction == nil
+        backgroundColor = configuration.style.backgroundColor
+        nameLabel.textColor = configuration.style.textColor
         nameLabel.text = configuration.name
+        nameLabel.font = configuration.style.font
+        nameLabel.textAlignment = configuration.style.textAlignment
         actionButton.isHidden = isActionHidden
         actionButton.accessibilityIdentifier = nil
         actualConfiguration.primaryAction.flatMap { action in
             actionButton.setAccessibilityIdentifier(.openCustomListsMenuButton)
             actionButton.addAction(action, for: .touchUpInside)
         }
-    }
-
-    private func applyAppearance() {
-        backgroundColor = .primaryColor
-
-        let leadingInset = UIMetrics.locationCellLayoutMargins.leading + 6
-        directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: leadingInset, bottom: 8, trailing: 24)
+        directionalLayoutMargins = actualConfiguration.directionalEdgeInsets
     }
 }
 
-extension LocationSectionHeaderView {
+extension LocationSectionHeaderFooterView {
+    struct Style: Equatable {
+        let font: UIFont
+        let textColor: UIColor
+        let textAlignment: NSTextAlignment
+        let backgroundColor: UIColor
+
+        static let header = Style(
+            font: .preferredFont(forTextStyle: .body, weight: .semibold),
+            textColor: .primaryTextColor,
+            textAlignment: .natural,
+            backgroundColor: .primaryColor
+        )
+
+        static let footer = Style(
+            font: .preferredFont(forTextStyle: .body, weight: .regular),
+            textColor: .secondaryTextColor,
+            textAlignment: .center,
+            backgroundColor: .clear
+        )
+    }
+
     struct Configuration: UIContentConfiguration, Equatable {
         let name: String
-
+        let style: Style
+        var directionalEdgeInsets = NSDirectionalEdgeInsets(top: 0, leading: 16, bottom: 0, trailing: 16)
         var primaryAction: UIAction?
 
         func makeContentView() -> UIView & UIContentView {
-            LocationSectionHeaderView(configuration: self)
+            LocationSectionHeaderFooterView(configuration: self)
         }
 
         func updated(for state: UIConfigurationState) -> Configuration {

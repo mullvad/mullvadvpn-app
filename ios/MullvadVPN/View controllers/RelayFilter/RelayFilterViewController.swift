@@ -8,31 +8,54 @@
 
 import Combine
 import MullvadREST
+import MullvadSettings
 import MullvadTypes
 import UIKit
 
 class RelayFilterViewController: UIViewController {
     private let tableView = UITableView(frame: .zero, style: .grouped)
-    private var viewModel: RelayFilterViewModel?
+    private var viewModel: RelayFilterViewModel
     private var dataSource: RelayFilterDataSource?
-    private var cachedRelays: CachedRelays?
-    private var filter = RelayFilter()
     private var disposeBag = Set<Combine.AnyCancellable>()
+
+    private let buttonContainerView: UIStackView = {
+        let containerView = UIStackView()
+        containerView.axis = .vertical
+        containerView.spacing = 8
+        containerView.isLayoutMarginsRelativeArrangement = true
+        return containerView
+    }()
+
+    private let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.numberOfLines = 0
+        label.lineBreakMode = .byWordWrapping
+        label.font = .preferredFont(forTextStyle: .body)
+        label.textColor = .secondaryTextColor
+        label.textAlignment = .center
+        return label
+    }()
 
     private let applyButton: AppButton = {
         let button = AppButton(style: .success)
         button.setAccessibilityIdentifier(.applyButton)
-        button.setTitle(NSLocalizedString(
-            "RELAY_FILTER_BUTTON_TITLE",
-            tableName: "RelayFilter",
-            value: "Apply",
-            comment: ""
-        ), for: .normal)
         return button
     }()
 
     var onApplyFilter: ((RelayFilter) -> Void)?
     var didFinish: (() -> Void)?
+
+    init(
+        settings: LatestTunnelSettings,
+        relaySelectorWrapper: RelaySelectorWrapper
+    ) {
+        self.viewModel = RelayFilterViewModel(settings: settings, relaySelectorWrapper: relaySelectorWrapper)
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -62,61 +85,40 @@ class RelayFilterViewController: UIViewController {
         tableView.estimatedRowHeight = 60
         tableView.estimatedSectionHeaderHeight = tableView.estimatedRowHeight
         tableView.allowsMultipleSelection = true
+        tableView.isMultipleTouchEnabled = false
 
-        view.addConstrainedSubviews([tableView, applyButton]) {
+        view.addSubview(tableView)
+        buttonContainerView.addArrangedSubview(descriptionLabel)
+        buttonContainerView.addArrangedSubview(applyButton)
+
+        view.addConstrainedSubviews([tableView, buttonContainerView]) {
             tableView.pinEdgesToSuperview(.all().excluding(.bottom))
-            applyButton.pinEdgesToSuperviewMargins(.all().excluding(.top))
-            applyButton.topAnchor.constraint(
+            buttonContainerView.pinEdgesToSuperviewMargins(.all().excluding(.top))
+            buttonContainerView.topAnchor.constraint(
                 equalTo: tableView.bottomAnchor,
                 constant: UIMetrics.contentLayoutMargins.top
             )
         }
 
-        setUpDataSource()
+        setupDataSource()
     }
 
-    func setCachedRelays(_ cachedRelays: CachedRelays, filter: RelayFilter) {
-        self.cachedRelays = cachedRelays
-        self.filter = filter
-
-        viewModel?.relays = cachedRelays.relays.wireguard.relays
-        viewModel?.relayFilter = filter
-    }
-
-    private func setUpDataSource() {
-        let viewModel = RelayFilterViewModel(
-            relays: cachedRelays?.relays.wireguard.relays ?? [],
-            relayFilter: filter
-        )
-        self.viewModel = viewModel
-
-        viewModel.$relayFilter
+    private func setupDataSource() {
+        viewModel
+            .$relayFilter
+            .removeDuplicates()
             .sink { [weak self] filter in
-                switch filter.providers {
-                case .any:
-                    self?.applyButton.isEnabled = true
-                case let .only(providers):
-                    switch filter.ownership {
-                    case .any:
-                        self?.applyButton.isEnabled = !providers.isEmpty
-                    case .owned:
-                        let filterHasAtLeastOneOwnedProvider = viewModel.ownedProviders
-                            .first(where: { providers.contains($0) }) != nil
-                        self?.applyButton.isEnabled = filterHasAtLeastOneOwnedProvider
-                    case .rented:
-                        let filterHasAtLeastOneRentedProvider = viewModel.rentedProviders
-                            .first(where: { providers.contains($0) }) != nil
-                        self?.applyButton.isEnabled = filterHasAtLeastOneRentedProvider
-                    }
-                }
+                guard let self else { return }
+                let filterDescriptor = viewModel.getFilteredRelays(filter)
+                applyButton.isEnabled = filterDescriptor.isEnabled
+                applyButton.setTitle(filterDescriptor.title, for: .normal)
+                descriptionLabel.text = filterDescriptor.description
             }
             .store(in: &disposeBag)
-
         dataSource = RelayFilterDataSource(tableView: tableView, viewModel: viewModel)
     }
 
     @objc private func applyFilter() {
-        guard let viewModel = viewModel else { return }
         var relayFilter = viewModel.relayFilter
 
         switch viewModel.relayFilter.ownership {

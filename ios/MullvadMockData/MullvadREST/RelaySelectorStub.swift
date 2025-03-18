@@ -13,10 +13,19 @@ import WireGuardKitTypes
 
 /// Relay selector stub that accepts a block that can be used to provide custom implementation.
 public final class RelaySelectorStub: RelaySelectorProtocol {
-    var selectedRelaysResult: (UInt) throws -> SelectedRelays
+    public let relayCache: any RelayCacheProtocol
 
-    init(selectedRelaysResult: @escaping (UInt) throws -> SelectedRelays) {
+    var selectedRelaysResult: (UInt) throws -> SelectedRelays
+    var candidatesResult: (() throws -> RelayCandidates)?
+
+    init(
+        relayCache: RelayCacheProtocol = MockRelayCache(),
+        selectedRelaysResult: @escaping (UInt) throws -> SelectedRelays,
+        candidatesResult: (() throws -> RelayCandidates)? = nil
+    ) {
+        self.relayCache = relayCache
         self.selectedRelaysResult = selectedRelaysResult
+        self.candidatesResult = candidatesResult
     }
 
     public func selectRelays(
@@ -25,6 +34,12 @@ public final class RelaySelectorStub: RelaySelectorProtocol {
     ) throws -> SelectedRelays {
         return try selectedRelaysResult(connectionAttemptCount)
     }
+
+    public func findCandidates(
+        tunnelSettings: LatestTunnelSettings
+    ) throws -> RelayCandidates {
+        return try candidatesResult?() ?? RelayCandidates(entryRelays: [], exitRelays: [])
+    }
 }
 
 extension RelaySelectorStub {
@@ -32,7 +47,7 @@ extension RelaySelectorStub {
     public static func nonFallible() -> RelaySelectorStub {
         let publicKey = PrivateKey().publicKey.rawValue
 
-        return RelaySelectorStub { _ in
+        return RelaySelectorStub(selectedRelaysResult: { _ in
             let cityRelay = SelectedRelay(
                 endpoint: MullvadEndpoint(
                     ipv4Relay: IPv4Endpoint(ip: .loopback, port: 1300),
@@ -56,13 +71,15 @@ extension RelaySelectorStub {
                 exit: cityRelay,
                 retryAttempt: 0
             )
-        }
+        }, candidatesResult: nil)
     }
 
     /// Returns a relay selector that cannot satisfy constraints .
     public static func unsatisfied() -> RelaySelectorStub {
-        return RelaySelectorStub { _ in
+        return RelaySelectorStub(selectedRelaysResult: { _ in
             throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
-        }
+        }, candidatesResult: {
+            throw NoRelaysSatisfyingConstraintsError(.relayConstraintNotMatching)
+        })
     }
 }
