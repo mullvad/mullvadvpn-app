@@ -166,7 +166,7 @@ impl InnerParametersGenerator {
         let data = self.device().await?;
         let selected_relay = self
             .relay_selector
-            .get_relay(retry_attempt as usize, RuntimeParameters { ipv4, ipv6 })?;
+            .get_relay(retry_attempt as usize, RuntimeParameters::new(ipv4, ipv6))?;
 
         match selected_relay {
             #[cfg(not(target_os = "android"))]

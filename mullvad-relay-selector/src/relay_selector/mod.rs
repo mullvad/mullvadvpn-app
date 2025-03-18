@@ -181,19 +181,35 @@ pub struct AdditionalWireguardConstraints {
 /// Values which affect the choice of relay but are only known at runtime.
 #[derive(Clone, Debug)]
 pub struct RuntimeParameters {
-    /// Whether IPv4 is available
-    pub ipv4: bool,
-    /// Whether IPv6 is available
-    pub ipv6: bool,
+    /// Whether IPv4, IPv6 or both is available
+    pub ip_availability: IpAvailability,
 }
 
 impl RuntimeParameters {
     /// Return whether a given [query][`RelayQuery`] is valid given the current runtime parameters
     pub fn compatible(&self, query: &RelayQuery) -> bool {
         match query.wireguard_constraints().ip_version {
-            Constraint::Any => self.ipv4 || self.ipv6,
-            Constraint::Only(talpid_types::net::IpVersion::V4) => self.ipv4,
-            Constraint::Only(talpid_types::net::IpVersion::V6) => self.ipv6,
+            Constraint::Any => true,
+            Constraint::Only(talpid_types::net::IpVersion::V4) => self.ip_availability.has_ipv4(),
+            Constraint::Only(talpid_types::net::IpVersion::V6) => self.ip_availability.has_ipv6(),
+        }
+    }
+
+    pub fn new(ipv4: bool, ipv6: bool) -> RuntimeParameters {
+        if ipv4 && ipv6 {
+            RuntimeParameters {
+                ip_availability: IpAvailability::All,
+            }
+        } else if !ipv6 {
+            RuntimeParameters {
+                ip_availability: IpAvailability::Ipv4,
+            }
+        } else if !ipv4 {
+            RuntimeParameters {
+                ip_availability: IpAvailability::Ipv6,
+            }
+        } else {
+            panic!("Device is offline!")
         }
     }
 }
@@ -201,9 +217,25 @@ impl RuntimeParameters {
 impl Default for RuntimeParameters {
     fn default() -> Self {
         RuntimeParameters {
-            ipv4: true,
-            ipv6: false,
+            ip_availability: IpAvailability::Ipv4,
         }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum IpAvailability {
+    Ipv4,
+    Ipv6,
+    All,
+}
+
+impl IpAvailability {
+    fn has_ipv4(&self) -> bool {
+        self.clone() == IpAvailability::Ipv4 || self.clone() == IpAvailability::All
+    }
+
+    fn has_ipv6(&self) -> bool {
+        self.clone() == IpAvailability::Ipv6 || self.clone() == IpAvailability::All
     }
 }
 
@@ -1184,10 +1216,10 @@ impl RelaySelector {
 fn resolve_valid_ip_version(query: &RelayQuery, runtime_params: &RuntimeParameters) -> RelayQuery {
     let mut wireguard_constraints = query.wireguard_constraints().clone();
     if wireguard_constraints.ip_version.is_any() {
-        if runtime_params.ipv4 && !runtime_params.ipv6 {
+        if runtime_params.ip_availability == IpAvailability::Ipv4 {
             wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V4)
         }
-        if runtime_params.ipv6 && !runtime_params.ipv4 {
+        if runtime_params.ip_availability == IpAvailability::Ipv6 {
             wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V6)
         }
     }

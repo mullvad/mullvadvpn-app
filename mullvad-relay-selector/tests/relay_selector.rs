@@ -15,8 +15,8 @@ use talpid_types::net::{
 
 use mullvad_relay_selector::{
     query::{builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery},
-    Error, GetRelay, RelaySelector, RuntimeParameters, SelectedObfuscator, SelectorConfig,
-    WireguardConfig, OPENVPN_RETRY_ORDER, WIREGUARD_RETRY_ORDER,
+    Error, GetRelay, IpAvailability, RelaySelector, RuntimeParameters, SelectedObfuscator,
+    SelectorConfig, WireguardConfig, OPENVPN_RETRY_ORDER, WIREGUARD_RETRY_ORDER,
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -393,8 +393,7 @@ fn test_wireguard_retry_order() {
             .get_relay(
                 retry_attempt,
                 RuntimeParameters {
-                    ipv4: true,
-                    ipv6: true,
+                    ip_availability: IpAvailability::All,
                 },
             )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
@@ -457,8 +456,7 @@ fn test_openvpn_retry_order() {
             .get_relay(
                 retry_attempt,
                 RuntimeParameters {
-                    ipv4: true,
-                    ipv6: true,
+                    ip_availability: IpAvailability::All,
                 },
             )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
@@ -1645,8 +1643,7 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let runtime_parameters = RuntimeParameters {
-        ipv4: false,
-        ipv6: true,
+        ip_availability: IpAvailability::Ipv6,
     };
     let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
     assert!(
@@ -1676,8 +1673,7 @@ fn test_runtime_ipv4_unavailable() {
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let runtime_parameters = RuntimeParameters {
-        ipv4: false,
-        ipv6: true,
+        ip_availability: IpAvailability::Ipv6,
     };
     let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
     match relay {
