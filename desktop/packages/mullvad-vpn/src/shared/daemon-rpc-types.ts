@@ -180,13 +180,41 @@ export enum AppUpgradeError {
   startInstallerFailed,
 }
 
+export type AppUpgradeEventDownloadStarted = {
+  type: 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED';
+};
+
+export type AppUpgradeEventDownloadProgress = {
+  type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS';
+  progress: number;
+  server: string;
+  timeLeft: number;
+};
+
+export type AppUpgradeEventAborted = {
+  type: 'APP_UPGRADE_EVENT_ABORTED';
+};
+
+export type AppUpgradeEventVerifyingInstaller = {
+  type: 'APP_UPGRADE_EVENT_VERIFYING_INSTALLER';
+};
+
+export type AppUpgradeEventInstallerReady = {
+  type: 'APP_UPGRADE_EVENT_INSTALLER_READY';
+};
+
+export type AppUpgradeEventError = {
+  type: 'APP_UPGRADE_EVENT_ERROR';
+  error: AppUpgradeError;
+};
+
 export type AppUpgradeEvent =
-  | { type: 'APP_UPGRADE_DOWNLOAD_STARTED' }
-  | { type: 'APP_UPGRADE_DOWNLOAD_PROGRESS'; server: string; progress: number; timeLeft: number }
-  | { type: 'APP_UPGRADE_ABORTED' }
-  | { type: 'APP_UPGRADE_VERIFYING_INSTALLER' }
-  | { type: 'APP_UPGRADE_STARTING_INSTALLER' }
-  | { type: 'APP_UPGRADE_ERROR'; error: AppUpgradeError };
+  | AppUpgradeEventDownloadStarted
+  | AppUpgradeEventDownloadProgress
+  | AppUpgradeEventAborted
+  | AppUpgradeEventVerifyingInstaller
+  | AppUpgradeEventInstallerReady
+  | AppUpgradeEventError;
 
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
