@@ -31,7 +31,7 @@ pub mod version;
 mod version_check;
 
 use crate::target_state::PersistentTargetState;
-use api::AccessMethodEvent;
+use api::DaemonAccessMethodResolver;
 use device::{AccountEvent, PrivateAccountAndDevice, PrivateDeviceEvent};
 use futures::{
     channel::{mpsc, oneshot},
@@ -41,7 +41,8 @@ use futures::{
 use geoip::GeoIpHandler;
 use leak_checker::{LeakChecker, LeakInfo};
 use management_interface::ManagementInterfaceServer;
-use mullvad_api::ApiEndpoint;
+use mullvad_api::{access_mode::AccessMethodEvent, proxy::ApiConnectionMode, ApiEndpoint};
+use mullvad_encrypted_dns_proxy::state::EncryptedDnsProxyState;
 use mullvad_relay_selector::{RelaySelector, SelectorConfig};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
@@ -196,7 +197,7 @@ pub enum Error {
     AccessMethodError(#[source] access_method::Error),
 
     #[error("API connection mode error")]
-    ApiConnectionModeError(#[source] api::Error),
+    ApiConnectionModeError(#[source] mullvad_api::access_mode::Error),
     #[error("No custom bridge has been specified")]
     NoCustomProxySaved,
 
@@ -543,7 +544,6 @@ impl DaemonEventSender {
             _event: PhantomData,
         }
     }
-
     pub fn to_specialized_sender<E>(&self) -> DaemonEventSender<E>
     where
         InternalDaemonEvent: From<E>,
@@ -569,6 +569,34 @@ where
     }
 }
 
+impl<E> DaemonEventSender<E>
+where
+    InternalDaemonEvent: From<E>,
+{
+    pub fn to_unbounded_sender<T>(&self) -> mpsc::UnboundedSender<T>
+    where
+        InternalDaemonEvent: From<E>,
+        T: Send + 'static,
+        E: From<T>,
+    {
+        let (tx, mut rx) = mpsc::unbounded::<T>();
+        let sender = self.sender.clone();
+        tokio::spawn(async move {
+            while let Some(msg) = rx.next().await {
+                if let Some(tx) = sender.upgrade() {
+                    let e: E = E::from(msg);
+                    if tx.send(e.into()).is_err() {
+                        return;
+                    }
+                } else {
+                    return;
+                };
+            }
+        });
+        tx
+    }
+}
+
 pub struct Daemon {
     tunnel_state: TunnelState,
     target_state: PersistentTargetState,
@@ -583,7 +611,7 @@ pub struct Daemon {
     account_history: account_history::AccountHistory,
     device_checker: device::TunnelStateChangeHandler,
     account_manager: device::AccountManagerHandle,
-    access_mode_handler: api::AccessModeSelectorHandle,
+    access_mode_handler: mullvad_api::access_mode::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
     version_updater_handle: version_check::VersionUpdaterHandle,
@@ -596,6 +624,7 @@ pub struct Daemon {
     volume_update_tx: mpsc::UnboundedSender<()>,
     location_handler: GeoIpHandler,
     leak_checker: LeakChecker,
+    cache_dir: PathBuf,
 }
 pub struct DaemonConfig {
     pub log_dir: Option<PathBuf>,
@@ -679,17 +708,23 @@ impl Daemon {
                 .set_config(SelectorConfig::from_settings(settings));
         });
 
-        let (access_mode_handler, access_mode_provider) = api::AccessModeSelector::spawn(
-            config.cache_dir.clone(),
+        let encrypted_dns_proxy_cache = EncryptedDnsProxyState::default();
+        let method_resolver = DaemonAccessMethodResolver::new(
             relay_selector.clone(),
-            settings.api_access_methods.clone(),
-            #[cfg(feature = "api-override")]
-            config.endpoint.clone(),
-            internal_event_tx.to_specialized_sender(),
+            encrypted_dns_proxy_cache,
             api_runtime.address_cache().clone(),
-        )
-        .await
-        .map_err(Error::ApiConnectionModeError)?;
+        );
+
+        let (access_mode_handler, access_mode_provider) =
+            mullvad_api::access_mode::AccessModeSelector::spawn(
+                method_resolver,
+                settings.api_access_methods.clone(),
+                #[cfg(feature = "api-override")]
+                config.endpoint.clone(),
+                internal_event_tx.to_unbounded_sender(),
+            )
+            .await
+            .map_err(Error::ApiConnectionModeError)?;
 
         let api_handle = api_runtime.mullvad_rest_handle(access_mode_provider);
 
@@ -912,6 +947,7 @@ impl Daemon {
             volume_update_tx,
             location_handler,
             leak_checker,
+            cache_dir: config.cache_dir,
         };
 
         api_availability.unsuspend();
@@ -1485,6 +1521,16 @@ impl Daemon {
         }
     }
 
+    fn save_connection_mode_to_cache(&self, connection_mode: ApiConnectionMode) {
+        // Save the new connection mode to cache!
+        let cache_dir = self.cache_dir.clone();
+        tokio::spawn(async move {
+            if connection_mode.save(&cache_dir).await.is_err() {
+                log::warn!("Failed to save {connection_mode:#?} to cache")
+            }
+        });
+    }
+
     fn handle_access_method_event(
         &mut self,
         event: AccessMethodEvent,
@@ -1492,7 +1538,12 @@ impl Daemon {
     ) {
         #[cfg(target_os = "android")]
         match event {
-            AccessMethodEvent::New { setting, .. } => {
+            AccessMethodEvent::New {
+                setting,
+                connection_mode,
+                ..
+            } => {
+                self.save_connection_mode_to_cache(connection_mode.clone());
                 // On android mullvad-api invokes protect on a socket to send requests
                 // outside the tunnel
                 let notifier = self.management_interface.notifier().clone();
@@ -1516,7 +1567,12 @@ impl Daemon {
                     let _ = endpoint_active_tx.send(());
                 });
             }
-            AccessMethodEvent::New { setting, endpoint } => {
+            AccessMethodEvent::New {
+                setting,
+                connection_mode,
+                endpoint,
+            } => {
+                self.save_connection_mode_to_cache(connection_mode.clone());
                 // Update the firewall to exempt a new API endpoint.
                 let (completion_tx, completion_rx) = oneshot::channel();
                 self.send_tunnel_command(TunnelCommand::AllowEndpoint(endpoint, completion_tx));
@@ -2864,9 +2920,10 @@ impl Daemon {
         {
             Ok(Some(test_subject)) => test_subject,
             Ok(None) => {
-                let error = Error::ApiConnectionModeError(self::api::Error::Resolve {
-                    access_method: access_method.access_method,
-                });
+                let error =
+                    Error::ApiConnectionModeError(mullvad_api::access_mode::Error::Resolve {
+                        access_method: access_method.access_method,
+                    });
                 reply(Err(error));
                 return;
             }
