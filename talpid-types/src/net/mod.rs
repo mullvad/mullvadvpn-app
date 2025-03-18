@@ -4,7 +4,6 @@ use ipnetwork::{IpNetwork, Ipv4Network, Ipv6Network};
 use jnix::FromJava;
 use obfuscation::ObfuscatorConfig;
 use serde::{Deserialize, Serialize};
-use std::ops::Not;
 #[cfg(windows)]
 use std::path::PathBuf;
 use std::{
