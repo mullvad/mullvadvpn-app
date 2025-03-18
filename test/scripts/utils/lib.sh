@@ -2,7 +2,7 @@
 
 set -eu
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 TEST_FRAMEWORK_ROOT="$SCRIPT_DIR/../.."
 REPO_ROOT="$TEST_FRAMEWORK_ROOT/.."
 
@@ -23,31 +23,9 @@ function get_test_utils_dir {
 RELEASES=$(curl -sf https://api.github.com/repos/mullvad/mullvadvpn-app/releases | jq -r '[.[] | select(((.tag_name|(startswith("android") or startswith("ios"))) | not))]')
 LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_name' <<<"$RELEASES")
 
-function get_current_version {
-    local app_dir
-    app_dir="$REPO_ROOT"
-    if [ -n "${TEST_DIST_DIR+x}" ]; then
-        if [ ! -x "${TEST_DIST_DIR%/}/mullvad-version" ]; then
-            executable_not_found_in_dist_error mullvad-version
-        fi
-        "${TEST_DIST_DIR%/}/mullvad-version"
-    else
-        cargo run -q --manifest-path="$app_dir/Cargo.toml" --bin mullvad-version
-    fi
-}
-
-CURRENT_VERSION=$(get_current_version)
 commit=$(git rev-parse HEAD^\{commit\})
 commit=${commit:0:6}
 
-TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
-
-if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
-    # Remove disallowed version characters from the tag
-    CURRENT_VERSION+="+${TAG//[^0-9a-z_-]/}"
-fi
-
-export CURRENT_VERSION
 export LATEST_STABLE_RELEASE
 
 function print_available_releases {
@@ -264,15 +242,19 @@ function run_tests_for_os {
 function build_current_version {
     local app_dir
     app_dir="$REPO_ROOT"
+    local current_version
+    pushd "$app_dir"
+    current_version=$(cargo run --package mullvad-version)
+    popd
     local app_filename
     # TODO: TEST_OS must be set to local OS manually, should be set automatically
-    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
+    app_filename=$(get_app_filename "$current_version" "${TEST_OS:?Error: TEST_OS not set}")
     local package_dir
     package_dir=$(get_package_dir)
     local app_package="$package_dir"/"$app_filename"
 
     local gui_test_filename
-    gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
+    gui_test_filename=$(get_e2e_filename "$current_version" "$TEST_OS")
     local gui_test_bin="$package_dir"/"$gui_test_filename"
 
     if [ ! -f "$app_package" ]; then
@@ -296,5 +278,61 @@ function build_current_version {
         mv -n "$app_dir"/dist/"$gui_test_filename" "$gui_test_bin"
     else
         echo "GUI e2e executable for current version already exists at $gui_test_bin, skipping build"
+    fi
+}
+
+function download_app_package {
+    local version=$1
+    local os=$2
+    local package_repo=""
+
+    if is_dev_version "$version"; then
+        package_repo="${BUILD_DEV_REPOSITORY}"
+    else
+        package_repo="${BUILD_RELEASE_REPOSITORY}"
+    fi
+
+    local filename
+    filename=$(get_app_filename "$version" "$os")
+    local url="${package_repo}/$version/$filename"
+
+    local package_dir
+    package_dir=$(get_package_dir)
+    if [[ ! -f "$package_dir/$filename" ]]; then
+        echo "Downloading build for $version ($os) from $url"
+        if ! curl -sf -o "$package_dir/$filename" "$url"; then
+            echo "Failed to download package from $url (hint: build may not exist, check the url)" 1>&2
+            exit 1
+        fi
+    else
+        echo "App package for version $version ($os) already exists at $package_dir/$filename, skipping download"
+    fi
+}
+
+function download_e2e_executable {
+    local version=${1:?Error: version not set}
+    local os=${2:?Error: os not set}
+    local package_repo
+
+    if is_dev_version "$version"; then
+        package_repo="${BUILD_DEV_REPOSITORY}"
+    else
+        package_repo="${BUILD_RELEASE_REPOSITORY}"
+    fi
+
+    local filename
+    filename=$(get_e2e_filename "$version" "$os")
+    local url="${package_repo}/$version/additional-files/$filename"
+
+    local package_dir
+    package_dir=$(get_package_dir)
+    if [[ ! -f "$package_dir/$filename" ]]; then
+        echo "Downloading e2e executable for $version ($os) from $url"
+        if ! curl -sf -o "$package_dir/$filename" "$url"; then
+            echo "Failed to download package from $url (hint: build may not exist, check the url)" 1>&2
+            exit 1
+        fi
+    else
+        echo "GUI e2e executable for version $version ($os) already exists at $package_dir/$filename, skipping download"
     fi
 }

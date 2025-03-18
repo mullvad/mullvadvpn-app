@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# This script is invoked by the GitHub workflow file below to launch the desktop end to end test framwork.
+# <https://github.com/mullvad/mullvadvpn-app/blob/main/.github/workflows/desktop-e2e.yml>
+
 # TODO: Break this down into multiple, smaller scripts and compose them in this file.
 
 set -eu
@@ -27,8 +30,15 @@ fi
 
 # shellcheck source=test/scripts/utils/lib.sh
 source "../utils/lib.sh"
-# shellcheck source=test/scripts/utils/download.sh
-source "../utils/download.sh" # TODO: Do not source it, call it instead.
+
+# The `CURRENT_VERSION` variable is set by the workflow file which invokes `mullvad-version`
+# We need to add a suffix with tag information to get the current version string
+TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
+if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
+    # Remove disallowed version characters from the tag
+    CURRENT_VERSION+="+${TAG//[^0-9a-z_-]/}"
+fi
+export CURRENT_VERSION
 
 echo "**********************************"
 echo "* Version to upgrade from: $LATEST_STABLE_RELEASE"
