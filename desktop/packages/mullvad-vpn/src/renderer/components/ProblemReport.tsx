@@ -16,15 +16,14 @@ import { messages } from '../../shared/gettext';
 import { getDownloadUrl } from '../../shared/version';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Flex, Icon, Spinner } from '../lib/components';
+import { Button, Flex, Spinner } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
 import { useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import support from '../redux/support/actions';
 import { AppNavigationHeader } from './';
-import * as AppButton from './AppButton';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { BackAction } from './KeyboardNavigation';
 import { Footer, Layout, SettingsContainer } from './Layout';
 import { ModalAlert, ModalAlertType } from './Modal';
@@ -180,26 +179,28 @@ function Form() {
         </StyledFormMessageRow>
       </StyledForm>
       <Footer>
-        <AriaDescriptionGroup>
-          <AriaDescribed>
-            <AppButton.ButtonGroup>
-              <AppButton.BlueButton onClick={onViewLog} disabled={disableActions}>
-                <AppButton.Label>
-                  {messages.pgettext('support-view', 'View app logs')}
-                </AppButton.Label>
-                <AriaDescription>
-                  <Icon
-                    icon="external"
-                    aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                  />
-                </AriaDescription>
-              </AppButton.BlueButton>
-            </AppButton.ButtonGroup>
-          </AriaDescribed>
-        </AriaDescriptionGroup>
-        <AppButton.GreenButton disabled={!validate() || disableActions} onClick={onSend}>
-          {messages.pgettext('support-view', 'Send')}
-        </AppButton.GreenButton>
+        <FlexColumn $gap="medium">
+          <Button
+            onClick={onViewLog}
+            disabled={disableActions}
+            aria-description={messages.pgettext('accessibility', 'Opens externally')}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button label for opening app logs.
+                messages.pgettext('support-view', 'View app logs')
+              }
+            </Button.Text>
+            <Button.Icon icon="external" />
+          </Button>
+          <Button variant="success" disabled={!validate() || disableActions} onClick={onSend}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button label for sending the problem report.
+                messages.pgettext('support-view', 'Send')
+              }
+            </Button.Text>
+          </Button>
+        </FlexColumn>
       </Footer>
     </StyledContent>
   );
@@ -270,14 +271,24 @@ function Failed() {
         </StyledSentMessage>
       </StyledForm>
       <Footer>
-        <AppButton.ButtonGroup>
-          <AppButton.BlueButton onClick={handleEditMessage}>
-            {messages.pgettext('support-view', 'Edit message')}
-          </AppButton.BlueButton>
-          <AppButton.GreenButton onClick={onSend}>
-            {messages.pgettext('support-view', 'Try again')}
-          </AppButton.GreenButton>
-        </AppButton.ButtonGroup>
+        <FlexColumn $gap="medium">
+          <Button onClick={handleEditMessage}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button text to edit the message after a failed attempt to send the problem report.
+                messages.pgettext('support-view', 'Edit message')
+              }
+            </Button.Text>
+          </Button>
+          <Button variant="success" onClick={onSend}>
+            <Button.Text>
+              {
+                // TRANSLATORS: Button label for retrying problem report submission after a failure.
+                messages.pgettext('support-view', 'Try again')
+              }
+            </Button.Text>
+          </Button>
+        </FlexColumn>
       </Footer>
     </StyledContent>
   );
@@ -301,12 +312,17 @@ function NoEmailDialog() {
       type={ModalAlertType.warning}
       message={message}
       buttons={[
-        <AppButton.RedButton key="proceed" onClick={onSend}>
-          {messages.pgettext('support-view', 'Send anyway')}
-        </AppButton.RedButton>,
-        <AppButton.BlueButton key="cancel" onClick={onCancelNoEmailDialog}>
-          {messages.gettext('Back')}
-        </AppButton.BlueButton>,
+        <Button variant="destructive" key="proceed" onClick={onSend}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for sending the problem report without an email address.
+              messages.pgettext('support-view', 'Send anyway')
+            }
+          </Button.Text>
+        </Button>,
+        <Button key="cancel" onClick={onCancelNoEmailDialog}>
+          <Button.Text>{messages.gettext('Back')}</Button.Text>
+        </Button>,
       ]}
       close={onCancelNoEmailDialog}
     />
@@ -347,25 +363,31 @@ function OutdatedVersionWarningDialog() {
       type={ModalAlertType.warning}
       message={message}
       buttons={[
-        <AriaDescriptionGroup key="upgrade">
-          <AriaDescribed>
-            <AppButton.GreenButton disabled={isOffline} onClick={openDownloadLink}>
-              <AppButton.Label>{messages.pgettext('support-view', 'Upgrade app')}</AppButton.Label>
-              <AriaDescription>
-                <Icon
-                  icon="external"
-                  aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                />
-              </AriaDescription>
-            </AppButton.GreenButton>
-          </AriaDescribed>
-        </AriaDescriptionGroup>,
-        <AppButton.RedButton key="proceed" onClick={acknowledgeOutdatedVersion}>
-          {messages.pgettext('support-view', 'Continue anyway')}
-        </AppButton.RedButton>,
-        <AppButton.BlueButton key="cancel" onClick={outdatedVersionCancel}>
-          {messages.gettext('Cancel')}
-        </AppButton.BlueButton>,
+        <Button
+          key="upgrade"
+          variant="success"
+          disabled={isOffline}
+          onClick={openDownloadLink}
+          aria-description={messages.pgettext('accessibility', 'Opens externally')}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for upgrading the app to the latest version.
+              messages.pgettext('support-view', 'Upgrade app')
+            }
+          </Button.Text>
+          <Button.Icon icon="external" />
+        </Button>,
+        <Button variant="destructive" key="proceed" onClick={acknowledgeOutdatedVersion}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label for continuing problem report submission with an outdated app version.
+              messages.pgettext('support-view', 'Continue anyway')
+            }
+          </Button.Text>
+        </Button>,
+        <Button key="cancel" onClick={outdatedVersionCancel}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>,
       ]}
       close={pop}
     />
