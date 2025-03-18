@@ -52,6 +52,7 @@ import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
 import accountActions from './redux/account/actions';
+import { appUpgradeActions } from './redux/app-upgrade/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
@@ -95,6 +96,7 @@ export default class AppRenderer {
   private reduxStore = configureStore();
   private reduxActions = {
     account: bindActionCreators(accountActions, this.reduxStore.dispatch),
+    appUpgrade: bindActionCreators(appUpgradeActions, this.reduxStore.dispatch),
     connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
     settings: bindActionCreators(settingsActions, this.reduxStore.dispatch),
     version: bindActionCreators(versionActions, this.reduxStore.dispatch),
