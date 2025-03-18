@@ -9,7 +9,7 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Button, Flex, Icon } from '../lib/components';
+import { Button, Flex } from '../lib/components';
 import { Column } from '../lib/components/column';
 import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
@@ -19,10 +19,9 @@ import { RoutePath } from '../lib/routes';
 import account from '../redux/account/actions';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
-import * as AppButton from './AppButton';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import { hugeText, measurements, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
+import { Id } from './Id';
 import { Container, Footer, Layout } from './Layout';
 import {
   RedeemVoucherContainer,
@@ -227,26 +226,33 @@ export function SetupFinished() {
           </StyledBody>
 
           <Footer>
-            <AppButton.ButtonGroup>
-              <AriaDescriptionGroup>
-                <AriaDescribed>
-                  <AppButton.BlueButton onClick={openPrivacyLink}>
-                    <AppButton.Label>
-                      {messages.pgettext('connect-view', 'Learn about privacy')}
-                    </AppButton.Label>
-                    <AriaDescription>
-                      <Icon
-                        icon="external"
-                        aria-label={messages.pgettext('accessibility', 'Opens externally')}
-                      />
-                    </AriaDescription>
-                  </AppButton.BlueButton>
-                </AriaDescribed>
-              </AriaDescriptionGroup>
-              <AppButton.GreenButton onClick={finish}>
-                {messages.pgettext('connect-view', 'Start using the app')}
-              </AppButton.GreenButton>
-            </AppButton.ButtonGroup>
+            <Column $gap="medium">
+              <Id>
+                {(iconId) => (
+                  <Button aria-describedby={iconId} onClick={openPrivacyLink}>
+                    <Button.Text>
+                      {
+                        // TRANSLATORS: Button label for opening privacy information link.
+                        messages.pgettext('connect-view', 'Learn about privacy')
+                      }
+                    </Button.Text>
+                    <Button.Icon
+                      id={iconId}
+                      icon="external"
+                      aria-label={messages.pgettext('accessibility', 'Opens externally')}
+                    />
+                  </Button>
+                )}
+              </Id>
+              <Button variant="success" onClick={finish}>
+                <Button.Text>
+                  {
+                    // TRANSLATORS: Button label for starting the app.
+                    messages.pgettext('connect-view', 'Start using the app')
+                  }
+                </Button.Text>
+              </Button>
+            </Column>
           </Footer>
         </StyledContainer>
       </StyledCustomScrollbars>
