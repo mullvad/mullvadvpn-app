@@ -1,5 +1,5 @@
 ---
-name: Android - Ensure reproducibility
+name: Android - Verify F-Droid and reproducible builds
 on:
   schedule:
     # At 04:20 UTC every monday.
@@ -64,9 +64,8 @@ jobs:
 
       - name: Prepare metadata
         run: |
-          ls app-repo/android/fdroid-build
           mkdir metadata
-          mv app-repo/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
+          cp app-repo/android/fdroid-build/metadata/net.mullvad.mullvadvpn.yml metadata/net.mullvad.mullvadvpn.yml
           sed -i 's/commit-hash/${{ github.sha }}/' metadata/net.mullvad.mullvadvpn.yml
 
       - name: Build app

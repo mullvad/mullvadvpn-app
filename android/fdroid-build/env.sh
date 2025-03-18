@@ -5,7 +5,7 @@
 # shellcheck source=/dev/null
 source "$HOME/.cargo/env"
 
-# Ensure Go compiler is accessible (needs to be removed if building locally)
+# Ensure Go compiler is accessible (needs to be removed if building locally on macOS)
 export GOROOT="$HOME/go"
 export PATH="$GOROOT/bin:$PATH"
 
