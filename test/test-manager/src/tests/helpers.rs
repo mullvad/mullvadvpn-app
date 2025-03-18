@@ -568,7 +568,7 @@ pub async fn geoip_lookup_with_retries(rpc: &ServiceClient) -> Result<AmIMullvad
 
     loop {
         let result = rpc
-            .geoip_lookup(TEST_CONFIG.mullvad_host.to_owned())
+            .geoip_lookup(TEST_CONFIG.mullvad_host.clone())
             .await
             .map_err(Error::GeoipLookup);
 

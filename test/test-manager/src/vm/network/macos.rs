@@ -67,7 +67,7 @@ pub(crate) fn find_vm_bridge(guest_ip: &Ipv4Addr) -> Result<(String, Ipv4Addr)> 
             ipnetwork::Ipv4Network::with_netmask(address, netmask)
                 .ok()
                 .filter(|ip_v4_network| ip_v4_network.contains(*guest_ip))
-                .map(|_| (interface_name.to_owned(), address))
+                .map(|_| (interface_name.clone(), address))
         })
         .ok_or_else(|| anyhow!("Failed to identify bridge used by tart -- not running?"))
 }
