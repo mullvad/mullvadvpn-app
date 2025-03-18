@@ -3,10 +3,10 @@ import styled from 'styled-components';
 
 import { messages } from '../../shared/gettext';
 import { InAppNotificationIndicatorType } from '../../shared/notifications/notification';
-import { Icon, IconButton } from '../lib/components';
+import { IconButton } from '../lib/components';
 import { Colors } from '../lib/foundations';
+import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { useEffectEvent, useLastDefinedValue, useStyledRef } from '../lib/utility-hooks';
-import * as AppButton from './AppButton';
 import { tinyText } from './common-styles';
 
 const NOTIFICATION_AREA_ID = 'notification-area';
@@ -15,45 +15,46 @@ export const NotificationTitle = styled.span(tinyText, {
   color: Colors.white,
 });
 
-export const NotificationActionButton = styled(AppButton.SimpleButton)({
-  flex: 1,
-  justifyContent: 'center',
-  cursor: 'default',
-  padding: '4px',
-  background: 'transparent',
-  border: 'none',
+export const NotificationSubtitleText = styled.span(tinyText, {
+  color: Colors.white60,
 });
 
-export const NotificationActionButtonInner = styled(Icon)({
-  [NotificationActionButton + ':hover &&']: {
-    backgroundColor: Colors.white80,
-  },
-});
+interface INotificationSubtitleProps {
+  children?: React.ReactNode;
+}
+
+export function NotificationSubtitle(props: INotificationSubtitleProps) {
+  return React.Children.count(props.children) > 0 ? <NotificationSubtitleText {...props} /> : null;
+}
 
 interface NotificationActionProps {
   onClick: () => Promise<void>;
 }
 
 export function NotificationOpenLinkAction(props: NotificationActionProps) {
+  const [onClick] = useExclusiveTask(props.onClick);
   return (
-    <AppButton.BlockingButton onClick={props.onClick}>
-      <NotificationActionButton
-        aria-describedby={NOTIFICATION_AREA_ID}
-        aria-label={messages.gettext('Open URL')}>
-        <NotificationActionButtonInner size="small" icon="external" color={Colors.white60} />
-      </NotificationActionButton>
-    </AppButton.BlockingButton>
+    <IconButton
+      size="small"
+      variant="secondary"
+      onClick={onClick}
+      aria-describedby={NOTIFICATION_AREA_ID}
+      aria-label={messages.gettext('Open URL')}>
+      <IconButton.Icon icon="external" />
+    </IconButton>
   );
 }
 
 export function NotificationTroubleshootDialogAction(props: NotificationActionProps) {
   return (
-    <NotificationActionButton
+    <IconButton
+      size="small"
+      variant="secondary"
       aria-describedby={NOTIFICATION_AREA_ID}
       aria-label={messages.gettext('Troubleshoot')}
       onClick={props.onClick}>
-      <NotificationActionButtonInner size="small" icon="info-circle" />
-    </NotificationActionButton>
+      <IconButton.Icon icon="info-circle" />
+    </IconButton>
   );
 }
 
