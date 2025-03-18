@@ -26,7 +26,6 @@ include(
     ":lib:talpid",
     ":lib:theme",
     ":lib:tv",
-    ":lib:ui",
     ":lib:ui:component",
 )
 

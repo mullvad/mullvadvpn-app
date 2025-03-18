@@ -80,6 +80,7 @@ data class Dimensions(
     val topPadding: Dp = 20.dp,
     val tvDrawerHorizontalPadding: Dp = 12.dp,
     val tvDrawerHeaderStartPadding: Dp = 12.dp,
+    val tvDrawerHeaderWithFocusStartPadding: Dp = 16.dp,
     val verticalDividerPadding: Dp = 12.dp,
     val verticalSpace: Dp = 20.dp,
     val verticalSpacer: Dp = 1.dp,

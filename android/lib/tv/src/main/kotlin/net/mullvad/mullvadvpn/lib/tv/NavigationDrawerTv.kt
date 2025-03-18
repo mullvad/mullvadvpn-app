@@ -122,7 +122,7 @@ fun NavigationDrawerTv(
             ) {
                 val animatedPadding =
                     animateDpAsState(
-                        if (hasFocus) Dimens.tvDrawerHeaderStartPadding + 4.dp
+                        if (hasFocus) Dimens.tvDrawerHeaderWithFocusStartPadding
                         else Dimens.tvDrawerHeaderStartPadding
                     )
 
