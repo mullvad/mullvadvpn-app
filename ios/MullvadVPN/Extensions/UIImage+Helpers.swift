@@ -34,24 +34,6 @@ extension UIImage {
         return resizedImage.withRenderingMode(renderingMode)
     }
 
-    func trimmedAndResized(border: CGFloat, targetSize: CGSize) -> UIImage {
-        let sourceSize = CGSize(width: size.width - 2 * border, height: size.height - 2 * border)
-        let widthRatio = targetSize.width / sourceSize.width
-        let heightRatio = targetSize.height / sourceSize.height
-        let scaleFactor = min(widthRatio, heightRatio)
-
-        let newSize = CGSize(width: sourceSize.width * scaleFactor, height: sourceSize.height * scaleFactor)
-        let renderer = UIGraphicsImageRenderer(size: newSize)
-        return renderer.image { _ in
-            draw(
-                in: CGRect(
-                    origin: .init(x: -border, y: -border),
-                    size: .init(width: newSize.width + 2 * border, height: newSize.height + 2 * border)
-                )
-            )
-        }.withRenderingMode(renderingMode)
-    }
-
     func withAlpha(_ alpha: CGFloat) -> UIImage? {
         return UIGraphicsImageRenderer(size: size, format: imageRendererFormat).image { _ in
             draw(in: CGRect(origin: .zero, size: size), blendMode: .normal, alpha: alpha)
