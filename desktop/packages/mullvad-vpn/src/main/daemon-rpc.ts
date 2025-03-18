@@ -8,6 +8,7 @@ import {
   AccountDataError,
   AccountDataResponse,
   AccountNumber,
+  AppUpgradeError,
   AppUpgradeEvent,
   BridgeSettings,
   BridgeState,
@@ -50,6 +51,140 @@ import {
 
 const DAEMON_RPC_PATH =
   process.platform === 'win32' ? 'unix:////./pipe/Mullvad VPN' : 'unix:///var/run/mullvad-vpn';
+
+let appUpgradeEventListener: SubscriptionListener<AppUpgradeEvent>;
+let appUpgradeAborted = false;
+
+let timeouts: Array<NodeJS.Timeout> = [];
+
+const triggerMockAppUpgradeAbort = () => {
+  appUpgradeAborted = true;
+  timeouts.forEach((timeout) => {
+    clearTimeout(timeout);
+  });
+  timeouts = [];
+  appUpgradeEventListener.onEvent({
+    type: 'APP_UPGRADE_EVENT_ABORTED',
+  });
+};
+
+const sendMockAppUpgradeEvent = (event: AppUpgradeEvent) => {
+  if (appUpgradeAborted) {
+    return;
+  }
+
+  appUpgradeEventListener.onEvent(event);
+};
+
+const triggerMockAppUpgradeEvents = async () => {
+  const delay = (ms: number) => {
+    if (appUpgradeAborted) {
+      return Promise.resolve(null);
+    }
+
+    return new Promise((resolve) => {
+      const timeout = setTimeout(() => {
+        resolve(null);
+      }, ms);
+      timeouts.push(timeout);
+    });
+  };
+
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED',
+  });
+
+  await delay(1000);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 0,
+    server: 'cdn.mullvad.net',
+    timeLeft: 3000,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 10,
+    server: 'cdn.mullvad.net',
+    timeLeft: 2700,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 20,
+    server: 'cdn.mullvad.net',
+    timeLeft: 2400,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 30,
+    server: 'cdn.mullvad.net',
+    timeLeft: 2100,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 40,
+    server: 'cdn.mullvad.net',
+    timeLeft: 1800,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 50,
+    server: 'cdn.mullvad.net',
+    timeLeft: 1500,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 60,
+    server: 'cdn.mullvad.net',
+    timeLeft: 1200,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 70,
+    server: 'cdn.mullvad.net',
+    timeLeft: 900,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 80,
+    server: 'cdn.mullvad.net',
+    timeLeft: 600,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 90,
+    server: 'cdn.mullvad.net',
+    timeLeft: 300,
+  });
+  await delay(300);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS',
+    progress: 100,
+    server: 'cdn.mullvad.net',
+    timeLeft: 0,
+  });
+  await delay(100);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_VERIFYING_INSTALLER',
+  });
+  await delay(500);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_INSTALLER_READY',
+  });
+  await delay(5000);
+  sendMockAppUpgradeEvent({
+    type: 'APP_UPGRADE_EVENT_ERROR',
+    error: AppUpgradeError.startInstallerFailed,
+  });
+};
 
 export class SubscriptionListener<T> {
   // Only meant to be used by DaemonRpc
@@ -116,6 +251,25 @@ export class DaemonRpc extends GrpcClient {
       listener.onError(error);
       this.removeSubscription(subscriptionId);
     });
+  }
+
+  public appUpgrade() {
+    // void this.callEmpty(this.client.appUpgrade);
+    appUpgradeAborted = false;
+    void triggerMockAppUpgradeEvents();
+  }
+
+  public appUpgradeAbort() {
+    // void this.callEmpty(this.client.appUpgradeAbort);
+    triggerMockAppUpgradeAbort();
+  }
+
+  public async subscribeAppUpgradeEventListenerMock(
+    listener: SubscriptionListener<AppUpgradeEvent>,
+  ) {
+    appUpgradeEventListener = listener;
+
+    return Promise.resolve();
   }
 
   public unsubscribeAppUpgradeEventListener(listener: SubscriptionListener<AppUpgradeEvent>) {
