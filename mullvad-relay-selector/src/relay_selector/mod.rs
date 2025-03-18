@@ -646,7 +646,7 @@ impl RelaySelector {
             .filter(|query| runtime_params.compatible(query))
             .filter(|_query| runtime_params.compatible(&user_query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
-            .map(|query| force_valid_ip_version(&query, &runtime_params))
+            .map(|query| resolve_valid_ip_version(&query, &runtime_params))
             .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
