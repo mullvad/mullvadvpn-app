@@ -31,8 +31,8 @@ import net.mullvad.mullvadvpn.lib.model.TransportProtocol
 import net.mullvad.mullvadvpn.lib.model.TunnelEndpoint
 import net.mullvad.mullvadvpn.lib.model.TunnelState
 import net.mullvad.mullvadvpn.lib.model.VersionInfo
-import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_ACTION
-import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_TEXT_ACTION
+import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_ACTION
+import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_TEXT_ACTION
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
