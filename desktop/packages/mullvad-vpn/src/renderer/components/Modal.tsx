@@ -4,10 +4,10 @@ import styled from 'styled-components';
 
 import log from '../../shared/logging';
 import { Icon, IconProps, Spinner } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
 import { Colors } from '../lib/foundations';
 import { IconBadge } from '../lib/icon-badge';
 import { useEffectEvent } from '../lib/utility-hooks';
-import * as AppButton from './AppButton';
 import { measurements, normalText, tinyText } from './common-styles';
 import CustomScrollbars from './CustomScrollbars';
 import { BackAction } from './KeyboardNavigation';
@@ -292,11 +292,11 @@ class ModalAlertImpl extends React.Component<IModalAlertImplProps, IModalAlertSt
                   <StyledSmallButtonGrid>{this.props.gridButtons}</StyledSmallButtonGrid>
                 )}
                 {this.props.buttons && (
-                  <AppButton.ButtonGroup>
+                  <FlexColumn $gap="medium">
                     {this.props.buttons.map((button, index) => (
                       <ModalAlertButtonContainer key={index}>{button}</ModalAlertButtonContainer>
                     ))}
-                  </AppButton.ButtonGroup>
+                  </FlexColumn>
                 )}
               </ModalAlertButtonGroupContainer>
             </StyledModalAlert>
