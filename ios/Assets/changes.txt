@@ -1,1 +1,2 @@
 Add animations for connection view.
+Improve filter view to display the number of available servers based on selection.
