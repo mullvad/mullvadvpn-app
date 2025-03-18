@@ -181,7 +181,7 @@ pub struct AdditionalWireguardConstraints {
 /// Values which affect the choice of relay but are only known at runtime.
 #[derive(Clone, Debug)]
 pub struct RuntimeParameters {
-    /// Whether IPv6 is available
+    /// Whether IPv4 is available
     pub ipv4: bool,
     /// Whether IPv6 is available
     pub ipv6: bool,
@@ -190,31 +190,11 @@ pub struct RuntimeParameters {
 impl RuntimeParameters {
     /// Return whether a given [query][`RelayQuery`] is valid given the current runtime parameters
     pub fn compatible(&self, query: &RelayQuery) -> bool {
-        if !self.ipv4 {
-            let must_use_ipv4 = matches!(
-                query.wireguard_constraints().ip_version,
-                Constraint::Only(talpid_types::net::IpVersion::V4)
-            );
-            if must_use_ipv4 {
-                log::trace!(
-                    "{query:?} is incompatible with {self:?} due to IPv4 not being available"
-                );
-                return false;
-            }
+        match query.wireguard_constraints().ip_version {
+            Constraint::Any => self.ipv4 || self.ipv6,
+            Constraint::Only(talpid_types::net::IpVersion::V4) => self.ipv4,
+            Constraint::Only(talpid_types::net::IpVersion::V6) => self.ipv6,
         }
-        if !self.ipv6 {
-            let must_use_ipv6 = matches!(
-                query.wireguard_constraints().ip_version,
-                Constraint::Only(talpid_types::net::IpVersion::V6)
-            );
-            if must_use_ipv6 {
-                log::trace!(
-                    "{query:?} is incompatible with {self:?} due to IPv6 not being available"
-                );
-                return false;
-            }
-        }
-        true
     }
 }
 
