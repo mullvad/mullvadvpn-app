@@ -26,14 +26,6 @@ LATEST_STABLE_RELEASE=$(jq -r '[.[] | select(.prerelease==false)] | .[0].tag_nam
 commit=$(git rev-parse HEAD^\{commit\})
 commit=${commit:0:6}
 
-TAG=$(git describe --exact-match HEAD 2>/dev/null || echo "")
-
-if [[ -n "$TAG" && ${CURRENT_VERSION} =~ -dev- ]]; then
-    # Remove disallowed version characters from the tag
-    CURRENT_VERSION+="+${TAG//[^0-9a-z_-]/}"
-fi
-
-export CURRENT_VERSION
 export LATEST_STABLE_RELEASE
 
 function print_available_releases {
@@ -250,15 +242,19 @@ function run_tests_for_os {
 function build_current_version {
     local app_dir
     app_dir="$REPO_ROOT"
+    local current_version
+    pushd "$app_dir"
+    current_version=$(cargo run --package mullvad-version)
+    popd
     local app_filename
     # TODO: TEST_OS must be set to local OS manually, should be set automatically
-    app_filename=$(get_app_filename "$CURRENT_VERSION" "${TEST_OS:?Error: TEST_OS not set}")
+    app_filename=$(get_app_filename "$current_version" "${TEST_OS:?Error: TEST_OS not set}")
     local package_dir
     package_dir=$(get_package_dir)
     local app_package="$package_dir"/"$app_filename"
 
     local gui_test_filename
-    gui_test_filename=$(get_e2e_filename "$CURRENT_VERSION" "$TEST_OS")
+    gui_test_filename=$(get_e2e_filename "$current_version" "$TEST_OS")
     local gui_test_bin="$package_dir"/"$gui_test_filename"
 
     if [ ! -f "$app_package" ]; then
