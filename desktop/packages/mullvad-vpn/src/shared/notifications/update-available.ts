@@ -55,6 +55,7 @@ export class UpdateAvailableNotificationProvider
           action: {
             type: 'navigate',
             link: {
+              to: RoutePath.appUpgrade,
               // TRANSLATORS: The aria-label for the link to go to the download update view
               'aria-label': messages.pgettext(
                 'accessibility',
