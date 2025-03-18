@@ -40,4 +40,3 @@ export type LocalizationContexts =
   | 'troubleshoot'
   | 'app-info-view'
   | 'changelog-view'
-  | 'download-update-view';
