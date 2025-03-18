@@ -3,6 +3,8 @@ import { combineReducers, compose, createStore, Dispatch, StoreEnhancer } from '
 
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
+import { appUpgradeActions } from './app-upgrade/actions';
+import { appUpgradeReducer, AppUpgradeReduxState } from './app-upgrade/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
 import connectionReducer, { IConnectionReduxState } from './connection/reducers';
 import settingsActions, { SettingsAction } from './settings/actions';
@@ -18,6 +20,7 @@ import versionReducer, { IVersionReduxState } from './version/reducers';
 
 export interface IReduxState {
   account: IAccountReduxState;
+  appUpgrade: AppUpgradeReduxState;
   connection: IConnectionReduxState;
   settings: ISettingsReduxState;
   support: ISupportReduxState;
@@ -40,6 +43,7 @@ export type ReduxDispatch = Dispatch<ReduxAction>;
 export default function configureStore() {
   const reducers = {
     account: accountReducer,
+    appUpgrade: appUpgradeReducer,
     connection: connectionReducer,
     settings: settingsReducer,
     support: supportReducer,
@@ -56,6 +60,7 @@ export default function configureStore() {
 function composeEnhancers(): StoreEnhancer {
   const actionCreators = {
     ...accountActions,
+    ...appUpgradeActions,
     ...connectionActions,
     ...settingsActions,
     ...supportActions,
