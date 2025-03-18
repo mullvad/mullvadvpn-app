@@ -2,13 +2,12 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { IconButton } from '../lib/components';
+import { Button, IconButton } from '../lib/components';
 import { formatHtml } from '../lib/html-formatter';
 import { IpAddress } from '../lib/ip';
 import { useBoolean, useMounted, useStyledRef } from '../lib/utility-hooks';
 import { useSelector } from '../redux/store';
 import Accordion from './Accordion';
-import * as AppButton from './AppButton';
 import {
   AriaDescribed,
   AriaDescription,
@@ -386,12 +385,17 @@ function ConfirmationDialog(props: IConfirmationDialogProps) {
       isOpen={props.isOpen}
       type={ModalAlertType.caution}
       buttons={[
-        <AppButton.RedButton key="confirm" onClick={props.confirm}>
-          {messages.pgettext('vpn-settings-view', 'Add anyway')}
-        </AppButton.RedButton>,
-        <AppButton.BlueButton key="back" onClick={props.abort}>
-          {messages.gettext('Back')}
-        </AppButton.BlueButton>,
+        <Button variant="destructive" key="confirm" onClick={props.confirm}>
+          <Button.Text>
+            {
+              // TRANSLATORS: Button label to add a private IP DNS server despite warning.
+              messages.pgettext('vpn-settings-view', 'Add anyway')
+            }
+          </Button.Text>
+        </Button>,
+        <Button key="back" onClick={props.abort}>
+          <Button.Text>{messages.gettext('Back')}</Button.Text>
+        </Button>,
       ]}
       close={props.abort}
       message={message}
