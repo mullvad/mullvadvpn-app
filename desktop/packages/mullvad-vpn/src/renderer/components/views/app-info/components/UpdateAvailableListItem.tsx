@@ -17,6 +17,7 @@ export const UpdateAvailableListItem = () => {
   const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const history = useHistory();
+  const navigate = useCallback(() => history.push(RoutePath.appUpgrade), [history]);
 
   return (
     <>
