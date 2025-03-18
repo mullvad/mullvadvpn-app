@@ -718,39 +718,42 @@ function convertFromAppUpgradeError(error: grpcTypes.AppUpgradeError.Error): App
 export function convertFromAppUpgradeEvent(data: grpcTypes.AppUpgradeEvent): AppUpgradeEvent {
   const downloadStarting = data.getDownloadStarting();
   if (downloadStarting !== undefined) {
-    return { type: 'APP_UPGRADE_DOWNLOAD_STARTED' };
+    return { type: 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED' };
   }
 
   const downloadProgress = data.getDownloadProgress();
   if (downloadProgress !== undefined) {
-    // TODO: Fix time left
     const [server, progress] = [
       downloadProgress.getServer(),
       downloadProgress.getProgress(),
+      // TODO: Fix time left
       // downloadProgress.getTimeLeft()!,
     ];
 
-    return { type: 'APP_UPGRADE_DOWNLOAD_PROGRESS', server, progress, timeLeft: 860 };
+    return { type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS', server, progress, timeLeft: 860 };
   }
 
   const upgradeAborted = data.getUpgradeAborted();
   if (upgradeAborted !== undefined) {
-    return { type: 'APP_UPGRADE_ABORTED' };
+    return { type: 'APP_UPGRADE_EVENT_ABORTED' };
   }
 
   const verifyingInstaller = data.getVerifyingInstaller();
   if (verifyingInstaller !== undefined) {
-    return { type: 'APP_UPGRADE_VERIFYING_INSTALLER' };
+    return { type: 'APP_UPGRADE_EVENT_VERIFYING_INSTALLER' };
   }
 
-  const startingInstaller = data.getStartingInstaller();
-  if (startingInstaller !== undefined) {
-    return { type: 'APP_UPGRADE_STARTING_INSTALLER' };
+  const installerReady = data.getInstallerReady();
+  if (installerReady !== undefined) {
+    return { type: 'APP_UPGRADE_EVENT_INSTALLER_READY' };
   }
 
   const error = data.getError();
   if (error !== undefined) {
-    return { type: 'APP_UPGRADE_ERROR', error: convertFromAppUpgradeError(error.getError()) };
+    return {
+      type: 'APP_UPGRADE_EVENT_ERROR',
+      error: convertFromAppUpgradeError(error.getError()),
+    };
   }
 
   // Handle unknown AppUpgradeEvent messages
