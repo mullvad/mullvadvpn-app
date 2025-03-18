@@ -163,7 +163,11 @@ function run_tests_for_os {
 
     if [ -n "${TEST_DIST_DIR+x}" ]; then
         if [ ! -x "${TEST_DIST_DIR%/}/test-runner" ]; then
-            executable_not_found_in_dist_error test-runner
+            # executable_not_found_in_dist_error test-runner
+            echo "**********************************"
+            echo "* Building test runner"
+            echo "**********************************"
+            nice_time build_test_runner "$vm"
         fi
 
         echo "**********************************"
