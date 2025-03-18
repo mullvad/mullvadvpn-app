@@ -1627,3 +1627,70 @@ fn valid_user_setting_should_yield_relay() {
         }
     }
 }
+
+/// Check that if IPv4 is not available and shadowsocks obfuscation is requested
+/// it should return a relay with IPv6 address.
+#[test]
+fn test_shadowsocks_runtime_ipv4_unavailable() {
+    // Make a valid user relay constraint
+    let (relay_constraints, _, _, obfs_settings) = RelayQueryBuilder::wireguard()
+        .shadowsocks()
+        .build()
+        .into_settings();
+
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        obfuscation_settings: obfs_settings.into(),
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = RuntimeParameters {
+        ipv4: false,
+        ipv6: true,
+    };
+    let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    assert!(matches!(user_result, GetRelay::Wireguard {
+        obfuscator: Some(SelectedObfuscator {
+            config: ObfuscatorConfig::Shadowsocks {
+                endpoint,
+                ..
+            },
+            ..
+        }),
+        ..
+    } if endpoint.is_ipv6()), "expected IPv6 endpoint for Shadowsocks, got {user_result:?}");
+}
+
+/// Check that if IPv4 is not available, and IPv6 endpoint is returned.
+#[test]
+fn test_runtime_ipv4_unavailable() {
+    // Make a valid user relay constraint
+    let (relay_constraints, _, _, _) = RelayQueryBuilder::wireguard()
+        .build()
+        .into_settings();
+
+    let config = SelectorConfig {
+        relay_settings: relay_constraints.into(),
+        ..SelectorConfig::default()
+    };
+    let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
+    let runtime_parameters = RuntimeParameters {
+        ipv4: false,
+        ipv6: true,
+    };
+    let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
+    match relay {
+        GetRelay::Wireguard {
+            endpoint,
+            ..
+        } => {
+            assert!(
+                endpoint.peer.endpoint.is_ipv6(),
+                "expected IPv6 endpoint, got {endpoint:?}",
+            );
+        }
+        wrong_relay => panic!(
+            "Relay selector should have picked a Wireguard relay, instead chose {wrong_relay:?}"
+        ),
+    }
+}
