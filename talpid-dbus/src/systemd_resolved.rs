@@ -261,7 +261,6 @@ impl SystemdResolved {
     }
 
     pub fn set_dns(&self, interface_index: u32, servers: Vec<IpAddr>) -> Result<DnsState> {
-        let set_servers = servers.to_vec();
         let link_object_path = self
             .fetch_link(interface_index)
             .map_err(|e| Error::GetLinkError(Box::new(e)))?;
@@ -269,7 +268,7 @@ impl SystemdResolved {
         Ok(DnsState {
             interface_path: link_object_path,
             interface_index,
-            set_servers,
+            set_servers: servers,
         })
     }
 
