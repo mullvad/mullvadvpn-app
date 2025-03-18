@@ -52,6 +52,7 @@ import androidx.tv.material3.NavigationDrawerItemDefaults
 import androidx.tv.material3.NavigationDrawerScope
 import androidx.tv.material3.rememberDrawerState
 import net.mullvad.mullvadvpn.lib.theme.AppTheme
+import net.mullvad.mullvadvpn.lib.theme.Dimens
 
 private class DrawerValueProvider : PreviewParameterProvider<DrawerValue> {
     override val values: Sequence<DrawerValue>
@@ -111,10 +112,19 @@ fun NavigationDrawerTv(
             Box(
                 Modifier.fillMaxHeight()
                     .background(brush)
-                    .padding(top = 24.dp, bottom = 24.dp, start = 12.dp, end = 12.dp)
+                    .padding(
+                        top = Dimens.screenVerticalMargin,
+                        bottom = Dimens.screenVerticalMargin,
+                        start = Dimens.tvDrawerHorizontalPadding,
+                        end = Dimens.tvDrawerHorizontalPadding,
+                    )
                     .selectableGroup()
             ) {
-                val animatedPadding = animateDpAsState(if (hasFocus) 16.dp else 12.dp)
+                val animatedPadding =
+                    animateDpAsState(
+                        if (hasFocus) Dimens.tvDrawerHeaderStartPadding + 4.dp
+                        else Dimens.tvDrawerHeaderStartPadding
+                    )
 
                 NavigationDrawerTvHeader(
                     modifier =
@@ -192,17 +202,17 @@ private fun NavigationDrawerTvHeader(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            horizontalArrangement = Arrangement.spacedBy(Dimens.mullvadLogoTextStartPadding),
         ) {
             Icon(
-                modifier = Modifier.size(32.dp),
+                modifier = Modifier.size(Dimens.mediumIconSize),
                 painter = painterResource(id = R.drawable.logo_icon),
                 contentDescription = null, // No meaningful user info or action.
                 tint = Color.Unspecified, // Logo should not be tinted
             )
             if (isExpanded) {
                 Icon(
-                    modifier = Modifier.height(13.dp),
+                    modifier = Modifier.height(Dimens.mullvadLogoTextHeight),
                     painter = painterResource(id = R.drawable.logo_text),
                     contentDescription = null, // No meaningful user info or action.
                     tint = Color.Unspecified, // Logo should not be tinted
