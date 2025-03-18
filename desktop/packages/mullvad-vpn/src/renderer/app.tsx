@@ -175,6 +175,14 @@ export default class AppRenderer {
       this.setRelayListPair(relayListPair);
     });
 
+    IpcRendererEventChannel.app.listenUpgradeEvent((appUpgradeEvent) => {
+      this.reduxActions.appUpgrade.setAppUpgradeEvent(appUpgradeEvent);
+    });
+
+    IpcRendererEventChannel.app.listenUpgradeError((appUpgradeError) => {
+      this.reduxActions.appUpgrade.setAppUpgradeError(appUpgradeError);
+    });
+
     IpcRendererEventChannel.currentVersion.listen((currentVersion: ICurrentAppVersionInfo) => {
       this.setCurrentVersion(currentVersion);
     });
