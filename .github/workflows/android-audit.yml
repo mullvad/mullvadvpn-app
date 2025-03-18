@@ -75,3 +75,29 @@ jobs:
 
       - name: Ensure no changes
         run: git diff --exit-code
+
+  verify-lockfile-keys:
+    needs: prepare
+    name: Verify lockfile keys
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - name: Set locale
+        run: echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+
+      - name: Fix git dir
+        run: git config --global --add safe.directory $(pwd)
+
+      - name: Create Android rustJniLibs dir
+        run: mkdir -p android/app/build/rustJniLibs/android
+
+      - name: Verify lockfile keys
+        run: android/scripts/verify-lockfile-keys.sh
