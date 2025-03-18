@@ -12,6 +12,7 @@ import {
 import { urls } from '../shared/constants';
 import {
   AccessMethodSetting,
+  AppUpgradeEvent,
   DaemonEvent,
   DeviceEvent,
   ErrorStateCause,
@@ -100,6 +101,7 @@ class ApplicationMain
   private tunnelState = new TunnelStateHandler(this);
 
   private daemonEventListener?: SubscriptionListener<DaemonEvent>;
+  private appUpgradeEventListener?: SubscriptionListener<AppUpgradeEvent>;
   private reconnectBackoff = new ReconnectionBackoff();
   private beforeFirstDaemonConnection = true;
   private isPerformingPostUpgrade = false;
@@ -512,6 +514,22 @@ class ApplicationMain
     this.connectToDaemon();
   };
 
+  private subscribeAppUpgradeEvents() {
+    const appUpgradeEventListener = new SubscriptionListener(
+      (appUpgradeEvent: AppUpgradeEvent) => {
+        IpcMainEventChannel.app.notifyUpgradeEvent?.(appUpgradeEvent);
+      },
+      (error: Error) => {
+        log.error(`Cannot deserialize the app upgrade event: ${error.message}`);
+      },
+    );
+
+    // this.daemonRpc.subscribeAppUpgradeEventListener(appUpgradeEventListener);
+    void this.daemonRpc.subscribeAppUpgradeEventListenerMock(appUpgradeEventListener);
+
+    return appUpgradeEventListener;
+  }
+
   private onDaemonConnected = async () => {
     const firstDaemonConnection = this.beforeFirstDaemonConnection;
     this.beforeFirstDaemonConnection = false;
@@ -531,6 +549,8 @@ class ApplicationMain
 
       return this.handleBootstrapError(error);
     }
+
+    this.appUpgradeEventListener = this.subscribeAppUpgradeEvents();
 
     if (firstDaemonConnection) {
       // check if daemon is performing post upgrade tasks the first time it's connected to
@@ -717,15 +737,7 @@ class ApplicationMain
         } else if ('relayList' in daemonEvent) {
           IpcMainEventChannel.relays.notify?.(daemonEvent.relayList);
         } else if ('appVersionInfo' in daemonEvent) {
-          // TODO: Remove this after testing
-          this.version.setLatestVersion({
-            ...daemonEvent.appVersionInfo,
-            suggestedUpgrade: {
-              version: '2025.5',
-              downloaded: false,
-              changelog: 'This is a changelog.\nIt has newlines.\n',
-            },
-          });
+          this.version.setLatestVersion(daemonEvent.appVersionInfo);
         } else if ('device' in daemonEvent) {
           this.account.handleDeviceEvent(daemonEvent.device);
         } else if ('deviceRemoval' in daemonEvent) {
@@ -911,6 +923,16 @@ class ApplicationMain
     this.userInterface!.registerIpcListeners();
     this.settings.registerIpcListeners();
     this.account.registerIpcListeners();
+
+    IpcMainEventChannel.app.handleUpgrade(() => {
+      console.log('received app upgrade');
+      return this.daemonRpc.appUpgrade();
+    });
+
+    IpcMainEventChannel.app.handleUpgradeAbort(() => {
+      console.log('received app upgrade abort');
+      return this.daemonRpc.appUpgradeAbort();
+    });
 
     if (this.splitTunneling) {
       this.settings.gui.browsedForSplitTunnelingApplications.forEach((application) => {
