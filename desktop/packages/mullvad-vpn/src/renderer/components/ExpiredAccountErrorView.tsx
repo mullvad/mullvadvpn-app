@@ -6,14 +6,14 @@ import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { capitalizeEveryWord } from '../../shared/string-helpers';
 import { useAppContext } from '../context';
-import { Flex, Icon } from '../lib/components';
+import { Button, Flex } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
 import { useHistory } from '../lib/history';
+import { useExclusiveTask } from '../lib/hooks/use-exclusive-task';
 import { IconBadge } from '../lib/icon-badge';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { AppMainHeader } from './app-main-header';
-import * as AppButton from './AppButton';
-import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import DeviceInfoButton from './DeviceInfoButton';
 import {
@@ -52,14 +52,14 @@ function ExpiredAccountErrorViewComponent() {
   const { recoveryAction } = useRecoveryAction();
   const isNewAccount = useIsNewAccount();
 
-  const onDisconnect = useCallback(async () => {
+  const [disconnect, disconnecting] = useExclusiveTask(async () => {
     try {
       await disconnectTunnel();
     } catch (e) {
       const error = e as Error;
       log.error(`Failed to disconnect the tunnel: ${error.message}`);
     }
-  }, [disconnectTunnel]);
+  });
 
   const navigateToRedeemVoucher = useCallback(() => {
     push(RoutePath.redeemVoucher);
@@ -78,21 +78,29 @@ function ExpiredAccountErrorViewComponent() {
           <StyledBody>{isNewAccount ? <WelcomeView /> : <Content />}</StyledBody>
 
           <Footer>
-            <AppButton.ButtonGroup>
+            <FlexColumn $gap="medium">
               {recoveryAction === RecoveryAction.disconnect && (
-                <AppButton.BlockingButton onClick={onDisconnect}>
-                  <AppButton.RedButton>
-                    {messages.pgettext('connect-view', 'Disconnect')}
-                  </AppButton.RedButton>
-                </AppButton.BlockingButton>
+                <Button variant="destructive" disabled={disconnecting} onClick={disconnect}>
+                  <Button.Text>
+                    {
+                      // TRANSLATORS: Button label for disconnecting from the VPN.
+                      messages.pgettext('connect-view', 'Disconnect')
+                    }
+                  </Button.Text>
+                </Button>
               )}
 
               <ExternalPaymentButton />
 
-              <AppButton.GreenButton onClick={navigateToRedeemVoucher}>
-                {messages.pgettext('connect-view', 'Redeem voucher')}
-              </AppButton.GreenButton>
-            </AppButton.ButtonGroup>
+              <Button variant="success" onClick={navigateToRedeemVoucher}>
+                <Button.Text>
+                  {
+                    // TRANSLATORS: Button label for navigating to the voucher redemption view.
+                    messages.pgettext('connect-view', 'Redeem voucher')
+                  }
+                </Button.Text>
+              </Button>
+            </FlexColumn>
           </Footer>
 
           <BlockWhenDisconnectedAlert />
@@ -184,32 +192,26 @@ function ExternalPaymentButton() {
     ? messages.gettext('Buy credit')
     : messages.gettext('Buy more credit');
 
-  const onOpenExternalPayment = useCallback(async () => {
+  const [openExternalPayment, openingExternalPayment] = useExclusiveTask(async () => {
     if (recoveryAction === RecoveryAction.disableBlockedWhenDisconnected) {
       setShowBlockWhenDisconnectedAlert(true);
     } else {
       await openUrlWithAuth(urls.purchase);
     }
-  }, [openUrlWithAuth, recoveryAction, setShowBlockWhenDisconnectedAlert]);
+  });
 
   return (
-    <AppButton.BlockingButton
-      disabled={recoveryAction === RecoveryAction.disconnect}
-      onClick={onOpenExternalPayment}>
-      <AriaDescriptionGroup>
-        <AriaDescribed>
-          <AppButton.GreenButton>
-            <AppButton.Label>{buttonText}</AppButton.Label>
-            <AriaDescription>
-              <Icon
-                icon="external"
-                aria-label={messages.pgettext('accessibility', 'Opens externally')}
-              />
-            </AriaDescription>
-          </AppButton.GreenButton>
-        </AriaDescribed>
-      </AriaDescriptionGroup>
-    </AppButton.BlockingButton>
+    <Button
+      variant="success"
+      disabled={openingExternalPayment || recoveryAction === RecoveryAction.disconnect}
+      onClick={openExternalPayment}
+      aria-description={
+        // TRANSLATORS: Accessibility label for the button that opens the browser to buy credit.
+        messages.pgettext('accessibility', 'Opens externally')
+      }>
+      <Button.Text>{buttonText}</Button.Text>
+      <Button.Icon icon="external" />
+    </Button>
   );
 }
 
@@ -240,9 +242,9 @@ function BlockWhenDisconnectedAlert() {
       isOpen={showBlockWhenDisconnectedAlert}
       type={ModalAlertType.caution}
       buttons={[
-        <AppButton.BlueButton key="cancel" onClick={onCloseBlockWhenDisconnectedInstructions}>
-          {messages.gettext('Close')}
-        </AppButton.BlueButton>,
+        <Button key="cancel" onClick={onCloseBlockWhenDisconnectedInstructions}>
+          <Button.Text>{messages.gettext('Close')}</Button.Text>
+        </Button>,
       ]}
       close={onCloseBlockWhenDisconnectedInstructions}>
       <ModalMessage>
