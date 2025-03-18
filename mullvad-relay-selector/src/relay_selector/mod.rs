@@ -676,8 +676,11 @@ impl RelaySelector {
             // Remove candidate queries based on runtime parameters before trying to merge user
             // settings
             .filter(|query| runtime_params.compatible(query))
+            // Check if the user query aligns with the runtime parameters so that if the user
+            // has selected an ip version that is not available it will return an error
             .filter(|_query| runtime_params.compatible(&user_query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
+            // Resolve query ip version set to Any based on runtime ip availability
             .map(|query| resolve_valid_ip_version(&query, &runtime_params))
             .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
