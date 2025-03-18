@@ -107,8 +107,4 @@ jobs:
           md5sum fdroidserver/app-oss-prod-fdroid-unsigned.apk
 
       - name: Compare files
-        run: >
-          if [[ -z $(diff container/app-oss-prod-fdroid-unsigned.apk fdroidserver/app-oss-prod-fdroid-unsigned.apk) ]]
-          then echo "Equal checksums";
-          else echo "Checksums are different";
-          exit 1; fi
+        run: diff container/app-oss-prod-fdroid-unsigned.apk fdroidserver/app-oss-prod-fdroid-unsigned.apk
