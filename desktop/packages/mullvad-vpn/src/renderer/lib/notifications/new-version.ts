@@ -29,7 +29,7 @@ export class NewVersionNotificationProvider implements InAppNotificationProvider
       title,
       subtitle,
       subtitleAction: {
-        type: 'navigate',
+        type: 'navigate-internal',
         link: {
           to: RoutePath.changelog,
           onClick: this.context.close,

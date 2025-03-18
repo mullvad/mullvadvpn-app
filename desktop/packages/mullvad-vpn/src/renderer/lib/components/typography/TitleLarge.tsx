@@ -1,8 +1,7 @@
 import { Text, TextProps } from './Text';
-export type TitleLargeProps = Omit<TextProps, 'variant'>;
 
-export const TitleLarge = ({ children, ...props }: TitleLargeProps) => (
-  <Text variant="titleLarge" {...props}>
-    {children}
-  </Text>
+export type TitleLargeProps<E extends React.ElementType = 'span'> = TextProps<E>;
+
+export const TitleLarge = <T extends React.ElementType = 'span'>(props: TitleLargeProps<T>) => (
+  <Text variant="titleLarge" {...props} />
 );
