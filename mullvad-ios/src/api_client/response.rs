@@ -2,6 +2,7 @@ use std::{ffi::CString, ptr::null_mut};
 
 use mullvad_api::rest::{self, Response};
 
+
 #[repr(C)]
 pub struct SwiftMullvadApiResponse {
     body: *mut u8,
