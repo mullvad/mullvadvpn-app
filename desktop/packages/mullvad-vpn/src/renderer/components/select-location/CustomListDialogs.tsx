@@ -11,11 +11,11 @@ import {
 import { messages } from '../../../shared/gettext';
 import log from '../../../shared/logging';
 import { useAppContext } from '../../context';
+import { Button } from '../../lib/components';
 import { Colors } from '../../lib/foundations';
 import { formatHtml } from '../../lib/html-formatter';
 import { useBoolean } from '../../lib/utility-hooks';
 import { useSelector } from '../../redux/store';
-import * as AppButton from '../AppButton';
 import * as Cell from '../cell';
 import { normalText, tinyText } from '../common-styles';
 import { ModalAlert, ModalAlertType, ModalMessage } from '../Modal';
@@ -76,9 +76,9 @@ export function AddToListDialog(props: AddToListDialogProps) {
     <ModalAlert
       isOpen={props.isOpen}
       buttons={[
-        <AppButton.BlueButton key="cancel" onClick={props.hide}>
-          {messages.gettext('Cancel')}
-        </AppButton.BlueButton>,
+        <Button key="cancel" onClick={props.hide}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>,
       ]}
       close={props.hide}>
       <StyledModalMessage>
@@ -188,12 +188,12 @@ export function EditListDialog(props: EditListProps) {
     <ModalAlert
       isOpen={props.isOpen}
       buttons={[
-        <AppButton.BlueButton key="save" disabled={!newNameValid} onClick={save}>
-          {messages.gettext('Save')}
-        </AppButton.BlueButton>,
-        <AppButton.BlueButton key="cancel" onClick={props.hide}>
-          {messages.gettext('Cancel')}
-        </AppButton.BlueButton>,
+        <Button key="save" disabled={!newNameValid} onClick={save}>
+          <Button.Text>{messages.gettext('Save')}</Button.Text>
+        </Button>,
+        <Button key="cancel" onClick={props.hide}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>,
       ]}
       close={props.hide}>
       <StyledModalMessage>
@@ -236,12 +236,12 @@ export function DeleteConfirmDialog(props: DeleteConfirmDialogProps) {
       type={ModalAlertType.warning}
       isOpen={props.isOpen}
       buttons={[
-        <AppButton.RedButton key="save" onClick={confirm}>
-          {messages.gettext('Delete list')}
-        </AppButton.RedButton>,
-        <AppButton.BlueButton key="cancel" onClick={props.hide}>
-          {messages.gettext('Cancel')}
-        </AppButton.BlueButton>,
+        <Button key="save" variant="destructive" onClick={confirm}>
+          <Button.Text>{messages.gettext('Delete list')}</Button.Text>
+        </Button>,
+        <Button key="cancel" onClick={props.hide}>
+          <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+        </Button>,
       ]}
       close={props.hide}>
       <ModalMessage>
