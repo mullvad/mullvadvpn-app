@@ -9,7 +9,8 @@ import { formatRelativeDate } from '../../shared/date-helper';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Flex, Icon } from '../lib/components';
+import { Button, Flex, Icon } from '../lib/components';
+import { FlexColumn } from '../lib/components/flex-column';
 import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
 import { IconBadge } from '../lib/icon-badge';
@@ -99,12 +100,12 @@ export function VoucherInput() {
             </StyledBody>
 
             <Footer>
-              <AppButton.ButtonGroup>
+              <FlexColumn $gap="medium">
                 <RedeemVoucherSubmitButton />
-                <AppButton.BlueButton onClick={navigateBack}>
-                  {messages.gettext('Cancel')}
-                </AppButton.BlueButton>
-              </AppButton.ButtonGroup>
+                <Button onClick={navigateBack}>
+                  <Button.Text>{messages.gettext('Cancel')}</Button.Text>
+                </Button>
+              </FlexColumn>
             </Footer>
           </RedeemVoucherContainer>
         </StyledContainer>
