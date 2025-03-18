@@ -5,6 +5,7 @@ import {
   AccessMethodSetting,
   AccountDataError,
   AccountNumber,
+  AppUpgradeEvent,
   BridgeSettings,
   BridgeState,
   CustomListError,
@@ -164,6 +165,9 @@ export const ipcSchema = {
     showLaunchDaemonSettings: invoke<void, void>(),
     showFullDiskAccessSettings: invoke<void, void>(),
     getPathBaseName: invoke<string, string>(),
+    upgrade: send<void>(),
+    upgradeAbort: send<void>(),
+    upgradeEvent: notifyRenderer<AppUpgradeEvent>(),
   },
   tunnel: {
     '': notifyRenderer<TunnelState>(),
