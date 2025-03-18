@@ -1,7 +1,6 @@
 import styled from 'styled-components';
 
 import { Colors, spacings } from '../lib/foundations';
-import * as AppButton from './AppButton';
 import * as Cell from './cell';
 import { measurements, normalText } from './common-styles';
 import { NavigationScrollbars } from './NavigationScrollbars';
@@ -68,10 +67,6 @@ export const StyledSpinnerRow = styled(Cell.CellButton)({
   padding: `${spacings.small} 0`,
   marginBottom: measurements.rowVerticalMargin,
   background: Colors.blue40,
-});
-
-export const StyledBrowseButton = styled(AppButton.BlueButton)({
-  margin: `0 ${measurements.horizontalViewMargin} ${measurements.verticalViewMargin}`,
 });
 
 export const StyledNoResult = styled(Cell.CellFooter)({
