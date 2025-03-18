@@ -198,9 +198,6 @@ impl RuntimeParameters {
     }
 }
 
-// Note: It is probably not a good idea to rely on derived default values to be correct for our use
-// case.
-#[allow(clippy::derivable_impls)]
 impl Default for RuntimeParameters {
     fn default() -> Self {
         RuntimeParameters {
@@ -649,7 +646,7 @@ impl RelaySelector {
             .filter(|query| runtime_params.compatible(query))
             .filter(|_query| runtime_params.compatible(&user_query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
-            .map(|query| force_valid_ip_version(&query, runtime_params.clone()))
+            .map(|query| force_valid_ip_version(&query, &runtime_params))
             .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
@@ -1181,7 +1178,10 @@ impl RelaySelector {
     }
 }
 
-fn force_valid_ip_version(query: &RelayQuery, runtime_params: RuntimeParameters) -> RelayQuery {
+/// If the selected ip version is Any we want to resolve that to an Only ip version if only
+/// one ip version is available on the network. This is to avoid situations where in other parts
+/// of the relay selector that Any is resolved to IPv4 and IPv4 is not available.
+fn resolve_valid_ip_version(query: &RelayQuery, runtime_params: &RuntimeParameters) -> RelayQuery {
     let mut wireguard_constraints = query.wireguard_constraints().clone();
     if wireguard_constraints.ip_version.is_any() {
         if runtime_params.ipv4 && !runtime_params.ipv6 {
