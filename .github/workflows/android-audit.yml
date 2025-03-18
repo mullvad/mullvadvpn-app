@@ -62,16 +62,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: Set locale
-        run: echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
-
       - uses: actions/checkout@v4
-
-      - name: Fix git dir
-        run: git config --global --add safe.directory $(pwd)
-
-      - name: Create Android rustJniLibs dir
-        run: mkdir -p android/app/build/rustJniLibs/android
 
       - name: Re-generate lockfile
         run: android/scripts/update-lockfile.sh
@@ -91,16 +82,7 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: Set locale
-        run: echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
-
       - uses: actions/checkout@v4
-
-      - name: Fix git dir
-        run: git config --global --add safe.directory $(pwd)
-
-      - name: Create Android rustJniLibs dir
-        run: mkdir -p android/app/build/rustJniLibs/android
 
       - name: Verify lockfile keys
         run: android/scripts/verify-lockfile-keys.sh
