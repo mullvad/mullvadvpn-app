@@ -393,41 +393,6 @@ export default class AppRenderer {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
 
-  public startDownload = async (version: string) => {
-    const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-    this.reduxActions.downloadUpdate.downloadUpdateStart(version);
-    await delay(1000);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(0);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(10);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(20);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(30);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(40);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(50);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(60);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(70);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(80);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(90);
-    await delay(300);
-    this.reduxActions.downloadUpdate.downloadUpdateProgress(100);
-    await delay(100);
-    this.reduxActions.downloadUpdate.downloadUpdateVerify();
-    await delay(500);
-    this.reduxActions.downloadUpdate.downloadUpdateReady();
-  };
-
-  public stopDownload = () => {
-    this.reduxActions.downloadUpdate.downloadUpdateReset();
-  };
-
   public login = async (accountNumber: AccountNumber) => {
     const actions = this.reduxActions;
     actions.account.startLogin(accountNumber);
