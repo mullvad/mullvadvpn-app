@@ -278,7 +278,7 @@ impl Platform {
         let new_release = format::Release {
             changelog: changes.to_owned(),
             version: version.clone(),
-            installers: installers.to_owned(),
+            installers,
             rollout,
         };
 

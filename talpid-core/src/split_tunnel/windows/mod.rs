@@ -446,7 +446,7 @@ impl SplitTunnel {
                                     error.display_chain_with_msg("Failed to update path monitor")
                                 );
                             }
-                            *monitored_paths_guard = paths.to_vec();
+                            *monitored_paths_guard = paths;
                         }
 
                         result
