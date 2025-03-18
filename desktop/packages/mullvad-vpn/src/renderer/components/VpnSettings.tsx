@@ -7,6 +7,7 @@ import { IDnsOptions, TunnelProtocol } from '../../shared/daemon-rpc-types';
 import { messages } from '../../shared/gettext';
 import log from '../../shared/logging';
 import { useAppContext } from '../context';
+import { Button } from '../lib/components';
 import { useRelaySettingsUpdater } from '../lib/constraint-updater';
 import { Colors, spacings } from '../lib/foundations';
 import { useHistory } from '../lib/history';
@@ -17,7 +18,6 @@ import { useBoolean } from '../lib/utility-hooks';
 import { RelaySettingsRedux } from '../redux/settings/reducers';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import * as AppButton from './AppButton';
 import { AriaDescription, AriaDetails, AriaInput, AriaInputGroup, AriaLabel } from './AriaGroup';
 import * as Cell from './cell';
 import Selector, { SelectorItem } from './cell/Selector';
@@ -548,9 +548,9 @@ function KillSwitchInfo() {
         isOpen={killSwitchInfoVisible}
         type={ModalAlertType.info}
         buttons={[
-          <AppButton.BlueButton key="back" onClick={hideKillSwitchInfo}>
-            {messages.gettext('Got it!')}
-          </AppButton.BlueButton>,
+          <Button key="back" onClick={hideKillSwitchInfo}>
+            <Button.Text>{messages.gettext('Got it!')}</Button.Text>
+          </Button>,
         ]}
         close={hideKillSwitchInfo}>
         <ModalMessage>
@@ -639,12 +639,12 @@ function LockdownMode() {
         isOpen={confirmationDialogVisible}
         type={ModalAlertType.caution}
         buttons={[
-          <AppButton.RedButton key="confirm" onClick={confirmLockdownMode}>
-            {messages.gettext('Enable anyway')}
-          </AppButton.RedButton>,
-          <AppButton.BlueButton key="back" onClick={hideConfirmationDialog}>
-            {messages.gettext('Back')}
-          </AppButton.BlueButton>,
+          <Button variant="destructive" key="confirm" onClick={confirmLockdownMode}>
+            <Button.Text>{messages.gettext('Enable anyway')}</Button.Text>
+          </Button>,
+          <Button key="back" onClick={hideConfirmationDialog}>
+            <Button.Text>{messages.gettext('Back')}</Button.Text>
+          </Button>,
         ]}
         close={hideConfirmationDialog}>
         <ModalMessage>
