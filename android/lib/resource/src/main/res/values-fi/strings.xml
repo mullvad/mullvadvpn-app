@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">Käypä WireGuard-avain puuttuu. Voit hallinnoida avaimia lisäasetuksissa.</string>
     <string name="not_found">Ei löydy</string>
     <string name="number_of_providers">Palveluntarjoajat: %1$d</string>
-    <string name="obfuscation_info">Hämäysteknologian käyttäminen piilottaa WireGuard-liikenteen toisen protokollan sisään. Sitä voidaan käyttää kiertämään sensuuria ja muita suodatuksia niissä tapauksissa, kun tavallinen WireGuard-yhteys muutoin estettäisi.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Huomio: Shadowsocksin käyttö voi kasvattaa akun kulutusta riippuen tiedonsiirtomääristä (esimerkiksi suoratoistettaessa videoita).</string>
     <string name="obfuscation_title">WireGuard-obfuskointi</string>
     <string name="off">Pois</string>

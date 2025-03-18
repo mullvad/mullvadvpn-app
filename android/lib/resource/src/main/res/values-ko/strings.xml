@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">유효한 WireGuard 키가 없습니다. 고급 설정에서 키를 관리하세요.</string>
     <string name="not_found">찾을 수 없음</string>
     <string name="number_of_providers">제공업체: %1$d</string>
-    <string name="obfuscation_info">난독 처리는 다른 프로토콜 내에서 WireGuard 트래픽을 숨깁니다. 일반 WireGuard 연결이 차단되는 상황에서 검열 및 기타 유형의 필터링을 우회하는 데 사용할 수 있습니다.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다.</string>
     <string name="obfuscation_title">WireGuard 난독화</string>
     <string name="off">끄기</string>

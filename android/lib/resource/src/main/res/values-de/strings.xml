@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">Gültiger WireGuard-Schlüssel fehlt. Sie können Ihre Schlüssel in den erweiterten Einstellungen verwalten.</string>
     <string name="not_found">Nicht gefunden</string>
     <string name="number_of_providers">Provider: %1$d</string>
-    <string name="obfuscation_info">Bei der Verschleierung wird der WireGuard-Datenverkehr in einem anderen Protokoll versteckt. Sie kann dazu verwendet werden, Zensur und andere Arten von Filtern zu umgehen, bei denen eine reine WireGuard-Verbindung blockiert würde.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Achtung! Shadowsocks kann den Akkuverbrauch je nach Datennutzung erhöhen, z. B. beim Streaming eines Videos.</string>
     <string name="obfuscation_title">WireGuard-Verschleierung</string>
     <string name="off">Aus</string>

@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">Giltig WireGuard-nyckel saknas. Hantera nycklar i Avancerade inställningar.</string>
     <string name="not_found">Hittades inte</string>
     <string name="number_of_providers">Leverantörer: %1$d</string>
-    <string name="obfuscation_info">Obfuskering döljer WireGuard-trafik inne i ett annat protokoll. Det kan användas för att kringgå censur och andra filtertyper där en vanlig WireGuard-anslutning skulle blockeras.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Obs! Shadowsocks kan öka batteriförbrukningen beroende på dataanvändningen, som till exempel att strömma en video.</string>
     <string name="obfuscation_title">WireGuard-obfuskering</string>
     <string name="off">Av</string>

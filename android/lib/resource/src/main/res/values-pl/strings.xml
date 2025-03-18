@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">Brak prawidłowego klucza WireGuard. Zarządzaj kluczami w Ustawieniach zaawansowanych.</string>
     <string name="not_found">Nie znaleziono</string>
     <string name="number_of_providers">Dostawcy: %1$d</string>
-    <string name="obfuscation_info">Zaciemnianie ukrywa ruch WireGuard w innym protokole. Można go użyć do obchodzenia cenzury i innych typów filtrowania, w których zwykłe połączenie WireGuard byłoby blokowane.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Uwaga: protokół Shadowsocks może zwiększyć zużycie baterii w zależności od wykorzystania danych, takich jak przesyłanie strumieniowe wideo.</string>
     <string name="obfuscation_title">Zaciemnianie WireGuard</string>
     <string name="off">Wył.</string>

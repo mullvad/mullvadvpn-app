@@ -250,7 +250,6 @@
     <string name="no_wireguard_key">Une clé WireGuard valide manque. Gérez les clés dans les paramètres avancés.</string>
     <string name="not_found">Introuvable</string>
     <string name="number_of_providers">Fournisseurs : %1$d</string>
-    <string name="obfuscation_info">La dissimulation cache le trafic WireGuard à l\'intérieur d\'un autre protocole. Elle peut être utilisée pour aider à contourner la censure et d\'autres types de filtrage, où une connexion WireGuard simple serait bloquée.</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention : Shadowsocks peut augmenter la consommation de la batterie en fonction de l\'utilisation des données, comme la diffusion d\'une vidéo.</string>
     <string name="obfuscation_title">Obfuscation WireGuard</string>
     <string name="off">Désactivé</string>
