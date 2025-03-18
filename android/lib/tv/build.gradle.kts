@@ -36,11 +36,11 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)
-    implementation(projects.lib.component)
     implementation(projects.lib.model)
     implementation(projects.lib.resource)
     implementation(projects.lib.shared)
     implementation(projects.lib.theme)
+    implementation(projects.lib.ui.component)
 
     // UI tooling
     implementation(libs.compose.ui.tooling.preview)

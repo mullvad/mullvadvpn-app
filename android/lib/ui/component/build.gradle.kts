@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "net.mullvad.mullvadvpn.lib.shared.compose"
+    namespace = "net.mullvad.mullvadvpn.lib.ui.component"
     compileSdk = Versions.compileSdkVersion
     buildToolsVersion = Versions.buildToolsVersion
 

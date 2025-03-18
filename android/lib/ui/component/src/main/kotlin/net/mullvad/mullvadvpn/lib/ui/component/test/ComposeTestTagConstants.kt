@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared.compose.test
+package net.mullvad.mullvadvpn.lib.ui.component.test
 
 // ConnectScreen - Notification banner
 const val NOTIFICATION_BANNER = "notification_banner"

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared.compose
+package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
@@ -27,11 +27,11 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import net.mullvad.mullvadvpn.lib.model.InAppNotification
 import net.mullvad.mullvadvpn.lib.model.StatusLevel
-import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER
-import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_ACTION
-import net.mullvad.mullvadvpn.lib.shared.compose.test.NOTIFICATION_BANNER_TEXT_ACTION
 import net.mullvad.mullvadvpn.lib.theme.Dimens
 import net.mullvad.mullvadvpn.lib.theme.color.warning
+import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER
+import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_ACTION
+import net.mullvad.mullvadvpn.lib.ui.component.test.NOTIFICATION_BANNER_TEXT_ACTION
 
 @Composable
 fun AnimatedNotificationBanner(

@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared.compose
+package net.mullvad.mullvadvpn.lib.ui.component
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.OpenInNew

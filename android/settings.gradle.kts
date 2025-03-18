@@ -16,7 +16,6 @@ include(
     ":lib:billing",
     ":lib:common",
     ":lib:common-test",
-    ":lib:component",
     ":lib:daemon-grpc",
     ":lib:endpoint",
     ":lib:map",
@@ -27,6 +26,8 @@ include(
     ":lib:talpid",
     ":lib:theme",
     ":lib:tv",
+    ":lib:ui",
+    ":lib:ui:component",
 )
 
 include(":test", ":test:arch", ":test:common", ":test:e2e", ":test:mockapi")

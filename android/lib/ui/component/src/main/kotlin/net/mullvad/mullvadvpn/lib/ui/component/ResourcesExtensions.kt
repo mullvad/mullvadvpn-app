@@ -1,4 +1,4 @@
-package net.mullvad.mullvadvpn.lib.shared.compose
+package net.mullvad.mullvadvpn.lib.ui.component
 
 import android.content.res.Resources
 import java.time.Duration
