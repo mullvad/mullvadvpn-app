@@ -360,7 +360,13 @@ jobs:
           path: .\dist\*.exe
 
   e2e-test-windows:
-    needs: [prepare-matrices, build-windows, get-app-version]
+    needs:
+      [
+        prepare-matrices,
+        build-windows,
+        get-app-version,
+        build-test-manager-linux,
+      ]
     if: |
       !cancelled() &&
       needs.get-app-version.result == 'success' &&
@@ -374,19 +380,36 @@ jobs:
       matrix:
         os: ${{ fromJSON(needs.prepare-matrices.outputs.windows_matrix) }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Create binaries directory & add to PATH
+        shell: bash -ieo pipefail {0}
+        run: |
+          mkdir "${{ github.workspace }}/bin"
+          echo "${{ github.workspace }}/bin/" >> "$GITHUB_PATH"
+      - name: Download Test Manager
+        uses: actions/download-artifact@v4
+        if: ${{ needs.build-test-manager-linux.result == 'success' }}
+        with:
+          name: linux-test-manager-build
+          path: ${{ github.workspace }}/bin
+      - name: chmod binaries
+        run: |
+          chmod +x ${{ github.workspace }}/bin/*
       - name: Download App
         uses: actions/download-artifact@v4
         if: ${{ needs.build-windows.result == 'success' }}
         with:
           name: windows-build
           path: ~/.cache/mullvad-test/packages
-      - name: Checkout repository
-        uses: actions/checkout@v4
       - name: Run end-to-end tests
         shell: bash -ieo pipefail {0}
         env:
           CURRENT_VERSION: ${{needs.get-app-version.outputs.mullvad-version}}
         run: |
+          # A directory with all the binaries is required to run test-manager.
+          # The test scripts which runs in CI expects this folder to be available as the `TEST_DIST_DIR` variable.
+          export TEST_DIST_DIR="${{ github.workspace }}/bin/"
           export TEST_FILTERS="${{ github.event.inputs.tests }}"
           ./test/scripts/run/ci.sh ${{ matrix.os }}
       - name: Upload test report
