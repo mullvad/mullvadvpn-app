@@ -279,7 +279,7 @@ async function packWin() {
           },
         ],
       },
-      asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico'],
+      asarUnpack: ['build/assets/images/menubar-icons/win32/lock-*.ico', '**/*.node'],
       beforeBuild: (options) => {
         process.env.CPP_BUILD_MODE = release ? 'Release' : 'Debug';
         process.env.CPP_BUILD_TARGET = options.arch;
