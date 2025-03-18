@@ -8,6 +8,7 @@ use mullvad_api::{
     RelayListProxy, StatusCode,
 };
 
+
 #[repr(C)]
 pub struct SwiftMullvadApiResponse {
     body: *mut u8,
