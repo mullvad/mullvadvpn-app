@@ -34,6 +34,7 @@ single_use_lifetimes = "warn"
 
 [workspace.lints.clippy]
 unused_async = "deny"
+implicit_clone = "warn"
 
 [workspace.dependencies]
 futures = "0.3"
