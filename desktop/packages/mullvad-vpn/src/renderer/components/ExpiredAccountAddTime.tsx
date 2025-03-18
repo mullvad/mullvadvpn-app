@@ -189,9 +189,9 @@ export function TimeAdded(props: ITimeAddedProps) {
           </StyledBody>
 
           <Footer>
-            <AppButton.BlueButton onClick={navigateToSetupFinished}>
-              {messages.gettext('Next')}
-            </AppButton.BlueButton>
+            <Button onClick={navigateToSetupFinished}>
+              <Button.Text>{messages.gettext('Next')}</Button.Text>
+            </Button>
           </Footer>
         </StyledContainer>
       </StyledCustomScrollbars>
