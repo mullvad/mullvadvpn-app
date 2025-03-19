@@ -6135,6 +6135,8 @@ name = "windows-utils"
 version = "0.0.0"
 dependencies = [
  "neon",
+ "talpid-types",
+ "talpid-windows",
  "thiserror 2.0.9",
  "windows 0.59.0",
 ]
