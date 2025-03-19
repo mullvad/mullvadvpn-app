@@ -101,10 +101,11 @@ extension REST {
                 return .unhandledResponse(nil)
             }
 
-            return if let decoded = try? decoder.decode(type, from: data) {
-                .decoding { decoded }
-            } else {
-                .unhandledResponse(nil)
+            do {
+                let decoded = try decoder.decode(type, from: data)
+                return .decoding { decoded }
+            } catch {
+                return .unhandledResponse(ServerErrorResponse(code: .parsingError, detail: error.localizedDescription))
             }
         }
     }

@@ -15,13 +15,13 @@ public enum APIRequest: Codable, Sendable {
         case .getAddressList:
             "get-address-list"
         case .getRelayList:
-            "get-relay-lisy"
+            "get-relay-list"
         }
     }
 
     var retryStrategy: REST.RetryStrategy {
         switch self {
-        case .getAddressList(let strategy), .getRelayList(let strategy, _):
+        case let .getAddressList(strategy), let .getRelayList(strategy, _):
             strategy
         }
     }
