@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+
+# This script downloads the build artifacts along with the signatures, verifies the signatures and
+# publishes new version metadata to Mullvads API. This should be run after `4-make-release`.
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+if [ $# -ne 3 ]; then
+    echo "Please provide the following arguments:"
+    echo "    $(basename "$0") \\"
+    echo "        <product version> \\"
+    echo "        <build server SSH destination> \\"
+    echo "        <metadata server SSH destination>"
+    echo ""
+    echo "Note that the metadata server SSH destination is part of the rsync command executed on the build server and will be checked against the SSH config of build@\$buildserver_host."
+    exit 1
+fi
+
+# Duplicated from /scripts/utils/gh-ready-check
+if ! command -v gh > /dev/null; then
+    echo "gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
+if ! gh auth status > /dev/null; then
+    echo "Authentication through gh (GitHub CLI) is required to run this script"
+    exit 1
+fi
+
+PRODUCT_VERSION=$1
+BUILDSERVER_HOST=$2
+METADATA_SERVER_HOST=$3
+
+ARTIFACT_DIR="./artifacts"
+
+function publish_metadata {
+    local platforms
+    platforms=(windows macos linux)
+    local signed_dir="signed/"
+
+    rm -rf currently_published/
+
+    echo ">>> Fetching current version metadata"
+    meta pull --assume-yes "${platforms[@]}"
+    echo ""
+
+    echo ">>> Backing up released data"
+    cp -r $signed_dir currently_published/
+    echo ""
+
+    echo ">>> Replacing work/ directory with latest published data"
+    cp -rf signed/ work/
+    echo ""
+
+    echo ">>> Adding new release $PRODUCT_VERSION (rollout = 1)"
+    meta add-release "$PRODUCT_VERSION" "${platforms[@]}" 1
+    echo ""
+
+    echo ">>> Signing $PRODUCT_VERSION metadata"
+    meta sign "${platforms[@]}"
+    echo ""
+
+    echo ">>> Verifying signed metadata"
+    meta verify "${platforms[@]}"
+    echo ""
+
+    echo ">>> New metadata including $$PRODUCT_VERSION"
+    git --no-pager diff --no-index -- currently_published/ $signed_dir || true
+    echo ""
+
+    read -rp "Press enter to upload if the diff looks good "
+    ./publish-metadata-to-api $signed_dir "$BUILDSERVER_HOST" "$METADATA_SERVER_HOST"
+}
+
+function remove_release_artifacts {
+    echo ">>> Cleaning up $ARTIFACT_DIR"
+    rm -r "$ARTIFACT_DIR"
+}
+
+./download-release-artifacts "$PRODUCT_VERSION"
+publish_metadata
+remove_release_artifacts
