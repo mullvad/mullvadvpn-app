@@ -195,6 +195,7 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "[#] Syncing rpm repository to $rpm_remote_repo_dir"
     rsync_repo "$rpm_repo_dir" "$rpm_remote_repo_dir"
 
+    echo "[#] ==== Done updating $repository in $environment ===="
     repositories_were_updated="true"
 done
 
