@@ -30,7 +30,7 @@ pub fn is_admin_owned<T: AsRawHandle>(handle: T) -> io::Result<bool> {
     };
 
     if result != ERROR_SUCCESS {
-        return Err(io::Error::last_os_error());
+        return Err(io::Error::from_raw_os_error(result as i32));
     }
 
     Ok(
