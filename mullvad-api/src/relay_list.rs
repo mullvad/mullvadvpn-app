@@ -8,6 +8,7 @@ use talpid_types::net::wireguard;
 
 use std::{
     collections::BTreeMap,
+    future::Future,
     net::{IpAddr, Ipv4Addr, Ipv6Addr},
     ops::RangeInclusive,
     time::Duration,
@@ -28,42 +29,48 @@ impl RelayListProxy {
     }
 
     /// Fetch the relay list
-    pub async fn relay_list(
+    pub fn relay_list(
         &self,
         etag: Option<String>,
-    ) -> Result<Option<relay_list::RelayList>, rest::Error> {
-        let response = self.relay_list_response(etag.clone()).await.map_err(rest::Error::from)?;
+    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
+        let request = self.relay_list_response(etag.clone());
 
-        if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
-            return Ok(None);
+        async move {
+            let response = request.await.map_err(rest::Error::from)?;
+
+            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
+                return Ok(None);
+            }
+
+            let etag = Self::extract_etag(&response);
+
+            let relay_list: ServerRelayList = response.deserialize().await?;
+            Ok(Some(relay_list.into_relay_list(etag)))
         }
-
-        let etag = Self::extract_etag(&response);
-
-        let relay_list: ServerRelayList = response.deserialize().await?;
-        Ok(Some(relay_list.into_relay_list(etag)))
     }
 
-    pub async fn relay_list_response(
+    pub fn relay_list_response(
         &self,
         etag: Option<String>,
-    ) -> Result<rest::Response<Incoming>, rest::Error> {
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
 
-        let mut request = request?
-            .timeout(RELAY_LIST_TIMEOUT)
-            .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
+        async move {
+            let mut request = request?
+                .timeout(RELAY_LIST_TIMEOUT)
+                .expected_status(&[StatusCode::NOT_MODIFIED, StatusCode::OK]);
 
-        if let Some(ref tag) = etag {
-            request = request.header(header::IF_NONE_MATCH, tag)?;
+            if let Some(ref tag) = etag {
+                request = request.header(header::IF_NONE_MATCH, tag)?;
+            }
+
+            let response = service.request(request).await?;
+
+            Ok(response)
         }
-
-        let response = service.request(request).await?;
-
-        Ok(response)
     }
-    
+
     pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<String> {
         response
             .headers()
@@ -77,7 +84,6 @@ impl RelayListProxy {
             })
     }
 }
-
 
 #[derive(Debug, serde::Deserialize)]
 struct ServerRelayList {

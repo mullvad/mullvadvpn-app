@@ -43,7 +43,7 @@ struct RelayFilterViewModelTests {
         arguments: [
             RelayFilter.Ownership.any,
             RelayFilter.Ownership.owned,
-            RelayFilter.Ownership.rented
+            RelayFilter.Ownership.rented,
         ]
     )
     func testAvailableProvidersByOwnership(_ ownership: RelayFilter.Ownership) {
@@ -61,7 +61,7 @@ struct RelayFilterViewModelTests {
         arguments: [
             RelayFilterDataSourceItem(name: "DataPacket", type: .provider, isEnabled: true),
             RelayFilterDataSourceItem(name: "All Providers", type: .allProviders, isEnabled: true),
-            RelayFilterDataSourceItem(name: "Blix", type: .provider, isEnabled: true)
+            RelayFilterDataSourceItem(name: "Blix", type: .provider, isEnabled: true),
         ]
     )
     func testToggleFilterItem(_ item: RelayFilterDataSourceItem) {
@@ -85,7 +85,7 @@ struct RelayFilterViewModelTests {
         "Toggles relay provider filter items correctly",
         arguments: [
             RelayFilterDataSourceItem.ownedOwnershipItem,
-            RelayFilterDataSourceItem.rentedOwnershipItem
+            RelayFilterDataSourceItem.rentedOwnershipItem,
         ]
     )
     func testToggleRelayProviderFilterItem(_ item: RelayFilterDataSourceItem) {
@@ -110,7 +110,7 @@ struct RelayFilterViewModelTests {
         arguments: [
             (RelayFilter.Ownership.any, RelayFilterDataSourceItem.anyOwnershipItem),
             (RelayFilter.Ownership.owned, RelayFilterDataSourceItem.ownedOwnershipItem),
-            (RelayFilter.Ownership.rented, RelayFilterDataSourceItem.rentedOwnershipItem)
+            (RelayFilter.Ownership.rented, RelayFilterDataSourceItem.rentedOwnershipItem),
         ]
     )
     func testOwnershipItemForFilter(
