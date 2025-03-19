@@ -325,13 +325,16 @@ function dist_windows_app {
 # - local file
 # - version
 function upload_sftp {
-    echo "Uploading \"$1\" to app-build-linux:upload/installer-downloader/$2"
+    local local_path=$1
+    local version=$2
+    echo "Uploading \"$local_path\" to app-build-linux:upload/installer-downloader/$version"
     sftp app-build-linux <<EOF
-mkdir upload
 mkdir upload/installer-downloader
-mkdir upload/installer-downloader/$2
-cd upload/installer-downloader/$2
-put "$1"
+mkdir upload/installer-downloader/$version
+chmod 770 upload/installer-downloader
+chmod 770 upload/installer-downloader/$version
+cd upload/installer-downloader/$version
+put "$local_path"
 bye
 EOF
 }
