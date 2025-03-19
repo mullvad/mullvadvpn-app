@@ -16,18 +16,18 @@ import {
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
-import { Colors } from '../lib/foundations';
 import { transitions, useHistory } from '../lib/history';
-import { formatHtml } from '../lib/html-formatter';
 import {
   NewDeviceNotificationProvider,
   NewVersionNotificationProvider,
+  NoOpenVpnServerAvailableNotificationProvider,
+  OpenVpnSupportEndingNotificationProvider,
 } from '../lib/notifications';
+import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
 import * as AppButton from './AppButton';
-import { InternalLink } from './InternalLink';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
@@ -36,10 +36,10 @@ import {
   NotificationContent,
   NotificationIndicator,
   NotificationOpenLinkAction,
-  NotificationSubtitle,
   NotificationTitle,
   NotificationTroubleshootDialogAction,
 } from './NotificationBanner';
+import { NotificationSubtitle } from './NotificationSubtitle';
 
 interface IProps {
   className?: string;
@@ -52,6 +52,10 @@ export default function NotificationArea(props: IProps) {
   const locale = useSelector((state: IReduxState) => state.userInterface.locale);
   const tunnelState = useSelector((state: IReduxState) => state.connection.status);
   const version = useSelector((state: IReduxState) => state.version);
+  const tunnelProtocol = useTunnelProtocol();
+  const reduxConnection = useSelector((state) => state.connection);
+  const fullRelayList = useSelector((state) => state.settings.relayLocations);
+
   const blockWhenDisconnected = useSelector(
     (state: IReduxState) => state.settings.blockWhenDisconnected,
   );
@@ -90,7 +94,11 @@ export default function NotificationArea(props: IProps) {
       blockWhenDisconnected,
       hasExcludedApps,
     }),
-
+    new NoOpenVpnServerAvailableNotificationProvider({
+      tunnelProtocol,
+      tunnelState: reduxConnection.status,
+      relayLocations: fullRelayList,
+    }),
     new ErrorNotificationProvider({
       tunnelState,
       hasExcludedApps,
@@ -120,6 +128,7 @@ export default function NotificationArea(props: IProps) {
       close,
     }),
     new UpdateAvailableNotificationProvider(version),
+    new OpenVpnSupportEndingNotificationProvider({ tunnelProtocol }),
   );
 
   const notificationProvider = notificationProviders.find((notification) =>
@@ -140,18 +149,10 @@ export default function NotificationArea(props: IProps) {
             <NotificationTitle data-testid="notificationTitle">
               {notification.title}
             </NotificationTitle>
-            <NotificationSubtitle data-testid="notificationSubTitle">
-              {notification.subtitleAction?.type === 'navigate-internal' ? (
-                <InternalLink
-                  variant="labelTiny"
-                  color={Colors.white60}
-                  {...notification.subtitleAction.link}>
-                  {formatHtml(notification.subtitle ?? '')}
-                </InternalLink>
-              ) : (
-                formatHtml(notification.subtitle ?? '')
-              )}
-            </NotificationSubtitle>
+            <NotificationSubtitle
+              data-testid="notificationSubTitle"
+              subtitle={notification.subtitle}
+            />
           </NotificationContent>
           {notification.action && (
             <NotificationActionWrapper
