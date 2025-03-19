@@ -17,7 +17,7 @@ pub fn is_admin_owned<T: AsRawHandle>(handle: T) -> io::Result<bool> {
     let mut security_descriptor: *mut SECURITY_DESCRIPTOR = ptr::null_mut();
     let mut owner: *mut SID = ptr::null_mut();
 
-    // SAFETY: `handle` is a valid handle. We return a pointer to the owner associated with the handle(?)
+    // SAFETY: `handle` is a valid handle
     let result = unsafe {
         GetSecurityInfo(
             handle.as_raw_handle() as isize,
