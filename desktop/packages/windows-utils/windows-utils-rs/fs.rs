@@ -5,6 +5,8 @@ use neon::prelude::{Context, FunctionContext};
 use neon::result::JsResult;
 use neon::types::{JsString, JsValue, Value};
 
+use talpid_types::ErrorExt;
+
 #[derive(thiserror::Error, Debug)]
 enum Error {
     /// Failed to open the provided file
@@ -21,7 +23,7 @@ pub fn pipe_is_admin_owned(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue>
 
     match pipe_is_admin_owned_inner(link_path) {
         Ok(is_admin_owned) => Ok(cx.boolean(is_admin_owned).as_value(&mut cx)),
-        Err(err) => cx.throw_error(format!("Failed to get pipe ownership: {err}")),
+        Err(err) => cx.throw_error(err.display_chain()),
     }
 }
 

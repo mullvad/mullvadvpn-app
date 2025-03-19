@@ -20,4 +20,5 @@ neon = "1"
 windows = { version = "0.59.0", features = ["Win32", "Win32_UI", "Win32_UI_Shell", "Win32_System", "Win32_System_Com", "Win32_Storage_FileSystem"] }
 thiserror = { workspace = true }
 
+talpid-types = { path = "../../../talpid-types" }
 talpid-windows = { path = "../../../talpid-windows" }
