@@ -7,6 +7,7 @@ import * as addon from './load.cjs';
 // which otherwise by default are `any`.
 declare module './load.cjs' {
   function readShortcut(linkPath: string): string | null;
+  function pipeIsAdminOwned(pipePath: string): boolean;
 }
 
 /**
@@ -15,4 +16,12 @@ declare module './load.cjs' {
  */
 export function readShortcut(linkPath: string): string | null {
   return addon.readShortcut(linkPath);
+}
+
+/**
+ * Return whether a named pipe is owned by the admin or SYSTEM account.
+ * @param pipePath path to a named pipe.
+ */
+export function pipeIsAdminOwned(pipePath: string): boolean {
+  return addon.pipeIsAdminOwned(pipePath);
 }
