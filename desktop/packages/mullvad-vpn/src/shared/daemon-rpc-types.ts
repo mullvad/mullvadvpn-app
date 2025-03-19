@@ -173,6 +173,49 @@ export type DaemonEvent =
   | { deviceRemoval: Array<IDevice> }
   | { accessMethodSetting: AccessMethodSetting };
 
+export enum AppUpgradeError {
+  generalError,
+  downloadFailed,
+  verificationFailed,
+  startInstallerFailed,
+}
+
+export type AppUpgradeEventDownloadStarted = {
+  type: 'APP_UPGRADE_EVENT_DOWNLOAD_STARTED';
+};
+
+export type AppUpgradeEventDownloadProgress = {
+  type: 'APP_UPGRADE_EVENT_DOWNLOAD_PROGRESS';
+  progress: number;
+  server: string;
+  timeLeft: number;
+};
+
+export type AppUpgradeEventAborted = {
+  type: 'APP_UPGRADE_EVENT_ABORTED';
+};
+
+export type AppUpgradeEventVerifyingInstaller = {
+  type: 'APP_UPGRADE_EVENT_VERIFYING_INSTALLER';
+};
+
+export type AppUpgradeEventInstallerReady = {
+  type: 'APP_UPGRADE_EVENT_INSTALLER_READY';
+};
+
+export type AppUpgradeEventError = {
+  type: 'APP_UPGRADE_EVENT_ERROR';
+  error: AppUpgradeError;
+};
+
+export type AppUpgradeEvent =
+  | AppUpgradeEventDownloadStarted
+  | AppUpgradeEventDownloadProgress
+  | AppUpgradeEventAborted
+  | AppUpgradeEventVerifyingInstaller
+  | AppUpgradeEventInstallerReady
+  | AppUpgradeEventError;
+
 export interface ITunnelStateRelayInfo {
   endpoint: ITunnelEndpoint;
   location?: ILocation;
@@ -381,9 +424,15 @@ export interface IDnsOptions {
   };
 }
 
+export type AppVersionInfoSuggestedUpgrade = {
+  changelog?: string;
+  downloaded: boolean;
+  version: string;
+};
+
 export interface IAppVersionInfo {
   supported: boolean;
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
 }
 

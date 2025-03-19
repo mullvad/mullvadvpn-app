@@ -1,6 +1,8 @@
 import { sprintf } from 'sprintf-js';
 
+import { RoutePath } from '../../renderer/lib/routes';
 import { messages } from '../../shared/gettext';
+import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
 import { getDownloadUrl } from '../version';
 import {
   InAppNotification,
@@ -12,8 +14,10 @@ import {
 } from './notification';
 
 interface UpdateAvailableNotificationContext {
-  suggestedUpgrade?: string;
+  suggestedUpgrade?: AppVersionInfoSuggestedUpgrade;
   suggestedIsBeta?: boolean;
+  updateDismissedForVersion?: string;
+  close?: () => void;
 }
 
 export class UpdateAvailableNotificationProvider
@@ -21,8 +25,17 @@ export class UpdateAvailableNotificationProvider
 {
   public constructor(private context: UpdateAvailableNotificationContext) {}
 
-  public mayDisplay() {
-    return this.context.suggestedUpgrade ? true : false;
+  public mayDisplay(): boolean {
+    if (!this.context.suggestedUpgrade) {
+      return false;
+    }
+    if (
+      this.context.suggestedIsBeta &&
+      this.context.suggestedUpgrade.version === this.context.updateDismissedForVersion
+    ) {
+      return false;
+    }
+    return true;
   }
 
   public getInAppNotification(): InAppNotification {
@@ -31,11 +44,30 @@ export class UpdateAvailableNotificationProvider
       title: this.context.suggestedIsBeta
         ? messages.pgettext('in-app-notifications', 'BETA UPDATE AVAILABLE')
         : messages.pgettext('in-app-notifications', 'UPDATE AVAILABLE'),
-      subtitle: this.inAppMessage(),
-      action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-      },
+      subtitle: [
+        {
+          content: this.inAppMessage(),
+        },
+        {
+          content:
+            // TRANSLATORS: Link text to go to the download update view
+            messages.pgettext('in-app-notifications', 'Click here to update.'),
+          action: {
+            type: 'navigate-internal',
+            link: {
+              to: RoutePath.appUpgrade,
+              // TRANSLATORS: The aria-label for the link to go to the download update view
+              'aria-label': messages.pgettext(
+                'accessibility',
+                'New version available, click here to update',
+              ),
+            },
+          },
+        },
+      ],
+      action: this.context.suggestedIsBeta
+        ? { type: 'close', close: this.context.close }
+        : undefined,
     };
   }
 
@@ -62,7 +94,7 @@ export class UpdateAvailableNotificationProvider
         // TRANSLATORS: Available placeholders:
         // TRANSLATORS: %(version)s - The version number of the new beta version.
         messages.pgettext('in-app-notifications', 'Try out the newest beta version (%(version)s).'),
-        { version: this.context.suggestedUpgrade },
+        { version: this.context.suggestedUpgrade?.version },
       );
     } else {
       // TRANSLATORS: The in-app banner displayed to the user when the app update is available.
@@ -84,7 +116,7 @@ export class UpdateAvailableNotificationProvider
           'notifications',
           'Beta update available. Try out the newest beta version (%(version)s).',
         ),
-        { version: this.context.suggestedUpgrade },
+        { version: this.context.suggestedUpgrade?.version },
       );
     } else {
       return messages.pgettext(

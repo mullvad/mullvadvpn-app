@@ -5,6 +5,8 @@ import { combineReducers, compose, createStore, Dispatch, StoreEnhancer } from '
 import { useWillExit } from '../lib/will-exit';
 import accountActions, { AccountAction } from './account/actions';
 import accountReducer, { IAccountReduxState } from './account/reducers';
+import { appUpgradeActions } from './app-upgrade/actions';
+import { appUpgradeReducer, AppUpgradeState } from './app-upgrade/reducers';
 import connectionActions, { ConnectionAction } from './connection/actions';
 import connectionReducer, { IConnectionReduxState } from './connection/reducers';
 import settingsActions, { SettingsAction } from './settings/actions';
@@ -19,6 +21,7 @@ import versionActions, { VersionAction } from './version/actions';
 import versionReducer, { IVersionReduxState } from './version/reducers';
 
 export interface IReduxState {
+  appUpgrade: AppUpgradeState;
   account: IAccountReduxState;
   connection: IConnectionReduxState;
   settings: ISettingsReduxState;
@@ -41,6 +44,7 @@ export type ReduxDispatch = Dispatch<ReduxAction>;
 
 export default function configureStore() {
   const reducers = {
+    appUpgrade: appUpgradeReducer,
     account: accountReducer,
     connection: connectionReducer,
     settings: settingsReducer,
@@ -57,6 +61,7 @@ export default function configureStore() {
 
 function composeEnhancers(): StoreEnhancer {
   const actionCreators = {
+    ...appUpgradeActions,
     ...accountActions,
     ...connectionActions,
     ...settingsActions,

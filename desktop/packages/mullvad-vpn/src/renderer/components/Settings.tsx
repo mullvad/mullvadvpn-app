@@ -1,14 +1,15 @@
-import { useCallback } from 'react';
+import styled from 'styled-components';
 
 import { strings } from '../../shared/constants';
 import { messages } from '../../shared/gettext';
 import { useAppContext } from '../context';
-import { Button, TitleBig } from '../lib/components';
+import { Button, Flex, Icon, TitleBig } from '../lib/components';
+import { ListItem } from '../lib/components/list-item';
+import { Notification } from '../lib/components/notification';
 import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import {
   ButtonStack,
@@ -16,12 +17,16 @@ import {
   Layout,
   SettingsContainer,
   SettingsContent,
-  SettingsGroup,
   SettingsNavigationScrollbars,
   SettingsStack,
 } from './Layout';
 import { NavigationContainer } from './NavigationContainer';
+import { NavigationListItem } from './NavigationListItem';
 import SettingsHeader from './SettingsHeader';
+
+export const StyledFlex = styled(Flex).attrs({ $flexDirection: 'column' })`
+  gap: 1px;
+`;
 
 export default function Support() {
   const history = useHistory();
@@ -48,45 +53,38 @@ export default function Support() {
             <SettingsNavigationScrollbars fillContainer>
               <SettingsContent>
                 <SettingsHeader>
-                  <TitleBig>{messages.pgettext('navigation-bar', 'Settings')}</TitleBig>
+                  <TitleBig>
+                    {
+                      // TRANSLATORS: Main title for settings view
+                      messages.pgettext('navigation-bar', 'Settings')
+                    }
+                  </TitleBig>
                 </SettingsHeader>
 
                 <SettingsStack>
                   {showSubSettings ? (
                     <>
-                      <SettingsGroup>
-                        <DaitaButton />
-                        <MultihopButton />
-                        <VpnSettingsButton />
-                        <UserInterfaceSettingsButton />
-                      </SettingsGroup>
+                      <StyledFlex>
+                        <DaitaListItem />
+                        <MultihopListItem />
+                        <VpnSettingsListItem />
+                        <UserInterfaceSettingsListItem />
+                      </StyledFlex>
 
-                      {showSplitTunneling && (
-                        <SettingsGroup>
-                          <SplitTunnelingButton />
-                        </SettingsGroup>
-                      )}
+                      {showSplitTunneling && <SplitTunnelingListItem />}
                     </>
                   ) : (
-                    <SettingsGroup>
-                      <UserInterfaceSettingsButton />
-                    </SettingsGroup>
+                    <UserInterfaceSettingsListItem />
                   )}
 
-                  <SettingsGroup>
-                    <ApiAccessMethodsButton />
-                  </SettingsGroup>
+                  <ApiAccessMethodsButton />
 
-                  <SettingsGroup>
-                    <SupportButton />
-                    <AppInfoButton />
-                  </SettingsGroup>
+                  <StyledFlex>
+                    <SupportListItem />
+                    <AppInfoListItem />
+                  </StyledFlex>
 
-                  {window.env.development && (
-                    <SettingsGroup>
-                      <DebugButton />
-                    </SettingsGroup>
-                  )}
+                  {window.env.development && <DebugButton />}
                 </SettingsStack>
                 <Footer>
                   <ButtonStack>
@@ -102,137 +100,142 @@ export default function Support() {
   );
 }
 
-function UserInterfaceSettingsButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.userInterfaceSettings), [history]);
+const UserInterfaceSettingsListItem = () => (
+  <NavigationListItem to={RoutePath.userInterfaceSettings}>
+    <ListItem.Label>
+      {
+        // TRANSLATORS: Navigation button to the 'User interface settings' view
+        messages.pgettext('settings-view', 'User interface settings')
+      }
+    </ListItem.Label>
+    <Icon icon="chevron-right" />
+  </NavigationListItem>
+);
 
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>
-        {
-          // TRANSLATORS: Navigation button to the 'User interface settings' view
-          messages.pgettext('settings-view', 'User interface settings')
-        }
-      </Cell.Label>
-    </Cell.CellNavigationButton>
-  );
-}
-
-function MultihopButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.multihopSettings), [history]);
+const MultihopListItem = () => {
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const multihop = 'normal' in relaySettings ? relaySettings.normal.wireguard.useMultihop : false;
   const unavailable =
     'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
 
   return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{messages.pgettext('settings-view', 'Multihop')}</Cell.Label>
-      <Cell.SubText>
-        {multihop && !unavailable ? messages.gettext('On') : messages.gettext('Off')}
-      </Cell.SubText>
-    </Cell.CellNavigationButton>
+    <NavigationListItem to={RoutePath.multihopSettings}>
+      <ListItem.Label>{messages.pgettext('settings-view', 'Multihop')}</ListItem.Label>
+      <ListItem.Group>
+        <ListItem.Text>
+          {multihop && !unavailable ? messages.gettext('On') : messages.gettext('Off')}
+        </ListItem.Text>
+        <Icon icon="chevron-right" />
+      </ListItem.Group>
+    </NavigationListItem>
   );
-}
+};
 
-function DaitaButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.daitaSettings), [history]);
+const DaitaListItem = () => {
   const daita = useSelector((state) => state.settings.wireguard.daita?.enabled ?? false);
   const relaySettings = useSelector((state) => state.settings.relaySettings);
   const unavailable =
     'normal' in relaySettings ? relaySettings.normal.tunnelProtocol === 'openvpn' : true;
 
   return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{strings.daita}</Cell.Label>
-      <Cell.SubText>
-        {daita && !unavailable ? messages.gettext('On') : messages.gettext('Off')}
-      </Cell.SubText>
-    </Cell.CellNavigationButton>
+    <NavigationListItem to={RoutePath.daitaSettings}>
+      <ListItem.Label>{strings.daita}</ListItem.Label>
+      <ListItem.Group>
+        <ListItem.Text>
+          {daita && !unavailable ? messages.gettext('On') : messages.gettext('Off')}
+        </ListItem.Text>
+        <Icon icon="chevron-right" />
+      </ListItem.Group>
+    </NavigationListItem>
   );
-}
+};
 
-function VpnSettingsButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.vpnSettings), [history]);
+const VpnSettingsListItem = () => (
+  <NavigationListItem to={RoutePath.vpnSettings}>
+    <ListItem.Label>
+      {
+        // TRANSLATORS: Navigation button to the 'VPN settings' view
+        messages.pgettext('settings-view', 'VPN settings')
+      }
+    </ListItem.Label>
+    <Icon icon="chevron-right" />
+  </NavigationListItem>
+);
 
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>
-        {
-          // TRANSLATORS: Navigation button to the 'VPN settings' view
-          messages.pgettext('settings-view', 'VPN settings')
-        }
-      </Cell.Label>
-    </Cell.CellNavigationButton>
-  );
-}
+const SplitTunnelingListItem = () => (
+  <NavigationListItem to={RoutePath.splitTunneling}>
+    <ListItem.Label>{strings.splitTunneling}</ListItem.Label>
+    <Icon icon="chevron-right" />
+  </NavigationListItem>
+);
 
-function SplitTunnelingButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.splitTunneling), [history]);
+const ApiAccessMethodsButton = () => (
+  <NavigationListItem to={RoutePath.apiAccessMethods}>
+    <ListItem.Label>
+      {
+        // TRANSLATORS: Navigation button to the 'API access methods' view
+        messages.pgettext('settings-view', 'API access')
+      }
+    </ListItem.Label>
+    <Icon icon="chevron-right" />
+  </NavigationListItem>
+);
 
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{strings.splitTunneling}</Cell.Label>
-    </Cell.CellNavigationButton>
-  );
-}
+const StyledText = styled(ListItem.Text)`
+  margin-top: -4px;
+`;
 
-function ApiAccessMethodsButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.apiAccessMethods), [history]);
-
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>
-        {
-          // TRANSLATORS: Navigation button to the 'API access methods' view
-          messages.pgettext('settings-view', 'API access')
-        }
-      </Cell.Label>
-    </Cell.CellNavigationButton>
-  );
-}
-
-function AppInfoButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.appInfo), [history]);
+const AppInfoListItem = () => {
   const appVersion = useSelector((state) => state.version.current);
+  const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
 
   return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{messages.pgettext('settings-view', 'App info')}</Cell.Label>
-      <Cell.SubText>{appVersion}</Cell.SubText>
-    </Cell.CellNavigationButton>
+    <NavigationListItem to={RoutePath.appInfo}>
+      <Flex $flexDirection="column">
+        <ListItem.Label>
+          {
+            // TRANSLATORS: Navigation button to the 'App info' view
+            messages.pgettext('settings-view', 'App info')
+          }
+        </ListItem.Label>
+        {suggestedUpgrade && (
+          <StyledText variant="footnoteMini">
+            {
+              // TRANSLATORS: Label for the app info list item indicating that an update is available and can be downloaded
+              messages.pgettext('settings-view', 'Update available')
+            }
+          </StyledText>
+        )}
+      </Flex>
+      <ListItem.Group>
+        <ListItem.Text>{appVersion}</ListItem.Text>
+        {suggestedUpgrade && <Notification variant="warning" size="small" />}
+        <Icon icon="chevron-right" />
+      </ListItem.Group>
+    </NavigationListItem>
   );
-}
+};
 
-function SupportButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.support), [history]);
+const SupportListItem = () => (
+  <NavigationListItem to={RoutePath.support}>
+    <ListItem.Label>
+      {
+        // TRANSLATORS: Navigation button to the 'Support' view
+        messages.pgettext('settings-view', 'Support')
+      }
+    </ListItem.Label>
+    <Icon icon="chevron-right" />
+  </NavigationListItem>
+);
 
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>{messages.pgettext('settings-view', 'Support')}</Cell.Label>
-    </Cell.CellNavigationButton>
-  );
-}
+const DebugButton = () => (
+  <NavigationListItem to={RoutePath.debug}>
+    <ListItem.Label>Developer tools</ListItem.Label>
+    <Icon icon="chevron-right" />
+  </NavigationListItem>
+);
 
-function DebugButton() {
-  const history = useHistory();
-  const navigate = useCallback(() => history.push(RoutePath.debug), [history]);
-
-  return (
-    <Cell.CellNavigationButton onClick={navigate}>
-      <Cell.Label>Developer tools</Cell.Label>
-    </Cell.CellNavigationButton>
-  );
-}
-
-function QuitButton() {
+const QuitButton = () => {
   const { quit } = useAppContext();
   const tunnelState = useSelector((state) => state.connection.status);
 
@@ -245,4 +248,4 @@ function QuitButton() {
       </Button.Text>
     </Button>
   );
-}
+};

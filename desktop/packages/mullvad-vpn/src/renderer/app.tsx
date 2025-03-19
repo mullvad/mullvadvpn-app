@@ -52,6 +52,7 @@ import { loadTranslations } from './lib/load-translations';
 import IpcOutput from './lib/logging';
 import { RoutePath } from './lib/routes';
 import accountActions from './redux/account/actions';
+import { appUpgradeActions } from './redux/app-upgrade/actions';
 import connectionActions from './redux/connection/actions';
 import settingsActions from './redux/settings/actions';
 import configureStore from './redux/store';
@@ -95,6 +96,7 @@ export default class AppRenderer {
   private reduxStore = configureStore();
   private reduxActions = {
     account: bindActionCreators(accountActions, this.reduxStore.dispatch),
+    appUpgrade: bindActionCreators(appUpgradeActions, this.reduxStore.dispatch),
     connection: bindActionCreators(connectionActions, this.reduxStore.dispatch),
     settings: bindActionCreators(settingsActions, this.reduxStore.dispatch),
     version: bindActionCreators(versionActions, this.reduxStore.dispatch),
@@ -173,6 +175,14 @@ export default class AppRenderer {
       this.setRelayListPair(relayListPair);
     });
 
+    IpcRendererEventChannel.app.listenUpgradeEvent((appUpgradeEvent) => {
+      if (appUpgradeEvent.type === 'APP_UPGRADE_EVENT_ERROR') {
+        this.reduxActions.appUpgrade.setAppUpgradeError(appUpgradeEvent.error);
+      } else {
+        this.reduxActions.appUpgrade.setAppUpgradeEvent(appUpgradeEvent);
+      }
+    });
+
     IpcRendererEventChannel.currentVersion.listen((currentVersion: ICurrentAppVersionInfo) => {
       this.setCurrentVersion(currentVersion);
     });
@@ -205,6 +215,17 @@ export default class AppRenderer {
 
     // Request the initial state from the main process
     const initialState = IpcRendererEventChannel.state.get();
+
+    // TODO: Remove this static change before merge
+    initialState.upgradeVersion = {
+      supported: true,
+      suggestedIsBeta: false,
+      suggestedUpgrade: {
+        downloaded: false,
+        changelog: 'This is a changelog.\nWith newlines in it.',
+        version: '2100.1',
+      },
+    };
 
     this.setLocale(initialState.translations.locale);
     loadTranslations(
@@ -390,6 +411,14 @@ export default class AppRenderer {
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
+  public appUpgrade = () => {
+    this.reduxActions.appUpgrade.resetAppUpgrade();
+    IpcRendererEventChannel.app.upgrade();
+  };
+  public appUpgradeInstall = () => {
+    console.log('install');
+  };
+  public appUpgradeAbort = () => IpcRendererEventChannel.app.upgradeAbort();
 
   public login = async (accountNumber: AccountNumber) => {
     const actions = this.reduxActions;
@@ -584,6 +613,12 @@ export default class AppRenderer {
 
   public setDisplayedChangelog = (): void => {
     IpcRendererEventChannel.currentVersion.displayedChangelog();
+  };
+
+  public setDismissedUpgrade = (): void => {
+    IpcRendererEventChannel.upgradeVersion.dismissedUpgrade(
+      this.reduxStore.getState().version.suggestedUpgrade?.version ?? '',
+    );
   };
 
   public setNavigationHistory(history: IHistoryObject) {

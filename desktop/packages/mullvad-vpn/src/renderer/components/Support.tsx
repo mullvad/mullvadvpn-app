@@ -8,14 +8,7 @@ import { useHistory } from '../lib/history';
 import { RoutePath } from '../lib/routes';
 import { useSelector } from '../redux/store';
 import { AppNavigationHeader } from './';
-import {
-  AriaDescribed,
-  AriaDescription,
-  AriaDescriptionGroup,
-  AriaInput,
-  AriaInputGroup,
-  AriaLabel,
-} from './AriaGroup';
+import { AriaDescribed, AriaDescription, AriaDescriptionGroup } from './AriaGroup';
 import * as Cell from './cell';
 import { BackAction } from './KeyboardNavigation';
 import { Layout, SettingsContainer } from './Layout';
@@ -54,10 +47,6 @@ export default function Support() {
                 <Cell.Group>
                   <ProblemReportButton />
                   <FaqButton />
-                </Cell.Group>
-
-                <Cell.Group>
-                  <BetaProgramSetting />
                 </Cell.Group>
               </StyledContent>
             </NavigationScrollbars>
@@ -107,39 +96,5 @@ function FaqButton() {
         </Cell.CellButton>
       </AriaDescribed>
     </AriaDescriptionGroup>
-  );
-}
-
-function BetaProgramSetting() {
-  const isBeta = useSelector((state) => state.version.isBeta);
-  const showBetaReleases = useSelector((state) => state.settings.showBetaReleases);
-  const { setShowBetaReleases } = useAppContext();
-
-  return (
-    <AriaInputGroup>
-      <Cell.Container disabled={isBeta}>
-        <AriaLabel>
-          <Cell.InputLabel>{messages.pgettext('support-view', 'Beta program')}</Cell.InputLabel>
-        </AriaLabel>
-        <AriaInput>
-          <Cell.Switch isOn={showBetaReleases} onChange={setShowBetaReleases} />
-        </AriaInput>
-      </Cell.Container>
-      <Cell.CellFooter>
-        <AriaDescription>
-          <Cell.CellFooterText>
-            {isBeta
-              ? messages.pgettext(
-                  'support-view',
-                  'This option is unavailable while using a beta version.',
-                )
-              : messages.pgettext(
-                  'support-view',
-                  'Enable to get notified when new beta versions of the app are released.',
-                )}
-          </Cell.CellFooterText>
-        </AriaDescription>
-      </Cell.CellFooter>
-    </AriaInputGroup>
   );
 }
