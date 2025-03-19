@@ -165,6 +165,7 @@ msgstr ""
 msgid "Filter"
 msgstr ""
 
+#. Button label for system settings.
 msgid "Go to System Settings"
 msgstr ""
 
@@ -365,6 +366,7 @@ msgctxt "accessibility"
 msgid "New version installed, click here to see the changelog"
 msgstr ""
 
+#. Accessibility label for the button that opens the browser to buy credit.
 msgctxt "accessibility"
 msgid "Opens externally"
 msgstr ""
@@ -412,6 +414,7 @@ msgctxt "account-view"
 msgid "Currently unavailable"
 msgstr ""
 
+#. Button label for logging out.
 msgctxt "account-view"
 msgid "Log out"
 msgstr ""
@@ -670,6 +673,7 @@ msgctxt "connect-view"
 msgid "Connection details"
 msgstr ""
 
+#. Button label for disconnecting from the VPN.
 msgctxt "connect-view"
 msgid "Disconnect"
 msgstr ""
@@ -690,6 +694,7 @@ msgctxt "connect-view"
 msgid "Here’s your account number. Save it!"
 msgstr ""
 
+#. Button label for opening privacy information link.
 msgctxt "connect-view"
 msgid "Learn about privacy"
 msgstr ""
@@ -698,6 +703,7 @@ msgctxt "connect-view"
 msgid "Out of time"
 msgstr ""
 
+#. Button label for navigating to the voucher redemption view.
 msgctxt "connect-view"
 msgid "Redeem voucher"
 msgstr ""
@@ -706,6 +712,7 @@ msgctxt "connect-view"
 msgid "Remember, turning it off will allow network traffic while the VPN is disconnected until you turn it back on under Advanced settings."
 msgstr ""
 
+#. Button label for starting the app.
 msgctxt "connect-view"
 msgid "Start using the app"
 msgstr ""
@@ -818,6 +825,7 @@ msgctxt "device-management"
 msgid "Failed to remove device"
 msgstr ""
 
+#. Button label for navigating to login.
 msgctxt "device-management"
 msgid "Go to login"
 msgstr ""
@@ -854,7 +862,7 @@ msgctxt "device-management"
 msgid "Too many devices"
 msgstr ""
 
-#. Confirmation button when logging out other device.
+#. Button label for confirming logout of another device.
 msgctxt "device-management"
 msgid "Yes, log out device"
 msgstr ""
@@ -1018,6 +1026,7 @@ msgctxt "in-app-notifications"
 msgid "Read more"
 msgstr ""
 
+#. Button label to send a problem report.
 msgctxt "in-app-notifications"
 msgid "Send problem report"
 msgstr ""
@@ -1066,6 +1075,7 @@ msgctxt "launch-view"
 msgid "Restarting your computer."
 msgstr ""
 
+#. Button label for problem report view.
 msgctxt "launch-view"
 msgid "Send problem report"
 msgstr ""
@@ -1430,14 +1440,17 @@ msgctxt "openvpn-settings-view"
 msgid "Transport protocol"
 msgstr ""
 
+#. Cancel button label for voucher redemption.
 msgctxt "redeem-voucher-alert"
 msgid "Cancel"
 msgstr ""
 
+#. Input field label for voucher code.
 msgctxt "redeem-voucher-alert"
 msgid "Enter voucher code"
 msgstr ""
 
+#. Button label for redeeming a voucher.
 msgctxt "redeem-voucher-alert"
 msgid "Redeem voucher"
 msgstr ""
@@ -1446,6 +1459,7 @@ msgctxt "redeem-voucher-view"
 msgid "An error occurred."
 msgstr ""
 
+#. Button label for voucher redemption.
 msgctxt "redeem-voucher-view"
 msgid "Redeem"
 msgstr ""
@@ -1702,6 +1716,7 @@ msgctxt "split-tunneling-view"
 msgid "Excluded apps"
 msgstr ""
 
+#. Button label for browsing applications with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Find another app"
 msgstr ""
@@ -1710,6 +1725,7 @@ msgctxt "split-tunneling-view"
 msgid "If it’s already running, close %(applicationName)s before launching it from here. Otherwise it might not be excluded from the VPN tunnel."
 msgstr ""
 
+#. Button label for launching an application with split tunneling.
 msgctxt "split-tunneling-view"
 msgid "Launch"
 msgstr ""
@@ -1748,10 +1764,12 @@ msgctxt "support-view"
 msgid "Beta program"
 msgstr ""
 
+#. Button label for continuing problem report submission with an outdated app version.
 msgctxt "support-view"
 msgid "Continue anyway"
 msgstr ""
 
+#. Button text to edit the message after a failed attempt to send the problem report.
 msgctxt "support-view"
 msgid "Edit message"
 msgstr ""
@@ -1786,10 +1804,12 @@ msgctxt "support-view"
 msgid "Report a problem"
 msgstr ""
 
+#. Button label for sending the problem report.
 msgctxt "support-view"
 msgid "Send"
 msgstr ""
 
+#. Button label for sending the problem report without an email address.
 msgctxt "support-view"
 msgid "Send anyway"
 msgstr ""
@@ -1823,14 +1843,17 @@ msgctxt "support-view"
 msgid "To help you more effectively, your app’s log file will be attached to this message. Your data will remain secure and private, as it is anonymised before being sent over an encrypted channel."
 msgstr ""
 
+#. Button label for retrying problem report submission after a failure.
 msgctxt "support-view"
 msgid "Try again"
 msgstr ""
 
+#. Button label for upgrading the app to the latest version.
 msgctxt "support-view"
 msgid "Upgrade app"
 msgstr ""
 
+#. Button label for opening app logs.
 msgctxt "support-view"
 msgid "View app logs"
 msgstr ""
@@ -2011,6 +2034,7 @@ msgctxt "vpn-settings-view"
 msgid "Add a server"
 msgstr ""
 
+#. Button label to add a private IP DNS server despite warning.
 msgctxt "vpn-settings-view"
 msgid "Add anyway"
 msgstr ""
