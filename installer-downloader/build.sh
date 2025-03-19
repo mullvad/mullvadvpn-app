@@ -371,10 +371,18 @@ function verify_version_tag {
     log_info "Current commit must have tag: $expect_tag"
 
     local tag
+    set +e
     tag=$(git describe --exact-match --tags)
+    local describe_exit=$?
+    set -e
+
+    if [[ $describe_exit -ne 0 ]]; then
+        log_error "'git describe' failed for the current commit (no tag?). Expected tag $expect_tag"
+        exit 1
+    fi
 
     if [[ "$tag" != "$expect_tag" ]]; then
-        log_error "Tag not found for current commit. Expected $expect_tag. Found: $tag"
+        log_error "Unexpected tag found for current commit. Expected $expect_tag. Found: $tag"
         exit 1
     fi
 
