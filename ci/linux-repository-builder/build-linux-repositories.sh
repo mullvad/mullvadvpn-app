@@ -155,6 +155,7 @@ function invalidate_bunny_cdn_cache {
         --fail-with-body
 }
 
+repositories_were_updated="false"
 for repository in "${REPOSITORIES[@]}"; do
     deb_remote_repo_dir="deb/$repository"
     rpm_remote_repo_dir="rpm/$repository"
@@ -194,9 +195,12 @@ for repository in "${REPOSITORIES[@]}"; do
     echo "[#] Syncing rpm repository to $rpm_remote_repo_dir"
     rsync_repo "$rpm_repo_dir" "$rpm_remote_repo_dir"
 
+    repositories_were_updated="true"
+done
+
+if [[ "$repositories_were_updated" == "true" ]]; then
     if [[ "$environment" == "production" || "$environment" == "staging" ]]; then
         echo "[#] Invalidating Bunny CDN cache for pull zone $bunnycdn_pull_zone_id"
         invalidate_bunny_cdn_cache "$bunnycdn_pull_zone_id"
     fi
-
-done
+fi
