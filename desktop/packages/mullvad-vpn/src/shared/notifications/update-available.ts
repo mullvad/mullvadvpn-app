@@ -1,5 +1,6 @@
 import { sprintf } from 'sprintf-js';
 
+import { RoutePath } from '../../renderer/lib/routes';
 import { messages } from '../../shared/gettext';
 import { AppVersionInfoSuggestedUpgrade } from '../daemon-rpc-types';
 import { getDownloadUrl } from '../version';
@@ -42,11 +43,27 @@ export class UpdateAvailableNotificationProvider
       title: this.context.suggestedIsBeta
         ? messages.pgettext('in-app-notifications', 'BETA UPDATE AVAILABLE')
         : messages.pgettext('in-app-notifications', 'UPDATE AVAILABLE'),
-      subtitle: this.inAppMessage(),
-      action: {
-        type: 'open-url',
-        url: getDownloadUrl(this.context.suggestedIsBeta ?? false),
-      },
+      subtitle: [
+        {
+          content: this.inAppMessage(),
+        },
+        {
+          content:
+            // TRANSLATORS: Link text to go to the download update view
+            messages.pgettext('in-app-notifications', 'Click here to update.'),
+          action: {
+            type: 'navigate-internal',
+            link: {
+              to: RoutePath.appUpgrade,
+              // TRANSLATORS: The aria-label for the link to go to the download update view
+              'aria-label': messages.pgettext(
+                'accessibility',
+                'New version available, click here to update',
+              ),
+            },
+          },
+        },
+      ],
     };
   }
 
