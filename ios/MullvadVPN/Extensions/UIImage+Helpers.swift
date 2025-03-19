@@ -16,6 +16,7 @@ extension UIImage {
         let widthRatio = to.width / sourceSize.width
         let heightRatio = to.height / sourceSize.height
         let scaleFactor = min(widthRatio, heightRatio)
+        let scaledBorder = border * scaleFactor
 
         // Calculate new size based on the scale factor
         let newSize = CGSize(width: sourceSize.width * scaleFactor, height: sourceSize.height * scaleFactor)
@@ -25,8 +26,8 @@ extension UIImage {
         let resizedImage = renderer.image { _ in
             draw(
                 in: CGRect(
-                    origin: .init(x: -border, y: -border),
-                    size: .init(width: newSize.width + 2 * border, height: newSize.height + 2 * border)
+                    origin: .init(x: -scaledBorder, y: -scaledBorder),
+                    size: .init(width: newSize.width + 2 * scaledBorder, height: newSize.height + 2 * scaledBorder)
                 )
             )
         }

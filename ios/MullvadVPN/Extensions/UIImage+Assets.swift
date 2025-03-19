@@ -65,11 +65,11 @@ extension UIImage {
 
         static var closeSmall: UIImage {
             UIImage(named: "IconClose")!
-                .resized(to: CGSize(width: 16, height: 16), trimmingBorder: 2)
+                .resized(to: CGSize(width: 16, height: 16), trimmingBorder: 4)
         }
 
         static var closeLarge: UIImage {
-            UIImage(named: "IconClose")!.resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
+            UIImage(named: "IconClose")!.resized(to: CGSize(width: 24, height: 24), trimmingBorder: 4)
         }
     }
 
