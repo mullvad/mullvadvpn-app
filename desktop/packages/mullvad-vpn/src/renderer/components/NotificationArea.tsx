@@ -68,6 +68,9 @@ export default function NotificationArea(props: IProps) {
   const displayedForVersion = useSelector(
     (state) => state.settings.guiSettings.changelogDisplayedForVersion,
   );
+  const updateDismissedForVersion = useSelector(
+    (state) => state.settings.guiSettings.updateDismissedForVersion,
+  );
   const changelog = useSelector((state) => state.userInterface.changelog);
 
   const close = useCallback(() => {
@@ -119,7 +122,10 @@ export default function NotificationArea(props: IProps) {
       changelog,
       close,
     }),
-    new UpdateAvailableNotificationProvider(version),
+    new UpdateAvailableNotificationProvider({
+      ...version,
+      updateDismissedForVersion,
+    }),
   );
 
   const notificationProvider = notificationProviders.find((notification) =>
