@@ -27,7 +27,9 @@ include(
     ":lib:resource",
     ":lib:shared",
     ":lib:talpid",
-    ":lib:theme"
+    ":lib:theme",
+    ":lib:tv",
+    ":lib:ui:component",
 )
 include(
     ":test",

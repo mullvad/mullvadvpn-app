@@ -29,6 +29,8 @@ Line wrap the file at 100 chars.                                              Th
 ### Changed
 - Disable Wireguard port setting when a obfuscation is selected since it is not used when an
   obfuscation is applied.
+- Adapt UI on Connect Screen for Android TV, including a navigation rail and redesigned in-app
+  notification bar.
 
 ### Removed
 - Remove Google's resolvers from encrypted DNS proxy.
