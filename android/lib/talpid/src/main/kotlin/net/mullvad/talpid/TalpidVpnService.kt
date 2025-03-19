@@ -75,8 +75,6 @@ open class TalpidVpnService : LifecycleVpnService() {
         config: TunConfig
     ): Either<CreateTunResult.Error, CreateTunResult.Success> = either {
         prepareVpnSafe().mapLeft { it.toCreateTunError() }.bind()
-        Logger.d("Creating tunnel with config: $config")
-        Logger.d("Routes are IPv6: ${config.routes.any { it.address is Inet6Address }}")
 
         val builder = Builder()
         builder.setMtu(config.mtu)

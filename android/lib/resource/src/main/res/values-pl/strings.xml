@@ -154,6 +154,7 @@
     <string name="enable_anyway">Mimo to włącz</string>
     <string name="enable_custom_dns">Użyj niestandardowego serwera DNS</string>
     <string name="enable_direct_only">Włącz %1$s</string>
+    <string name="enable_ipv6">Włącz IPv6</string>
     <string name="enable_method">Włącz metodę</string>
     <string name="encrypted_dns_proxy_info_message_part1">Dzięki metodzie „szyfrowany serwer proxy DNS” aplikacja będzie komunikować się z naszym interfejsem API Mullvad za pośrednictwem adresu serwera proxy. Odbywa się to poprzez pobranie adresu z serwera DNS over HTTPS (DoH), a następnie użycie go do połączenia z naszymi serwerami interfejsu API.</string>
     <string name="enter_value_placeholder">Wprowadź MTU</string>

@@ -154,6 +154,7 @@
     <string name="enable_anyway">မည်သို့ပင်ဖြစ်စေ ဖွင့်ရန်</string>
     <string name="enable_custom_dns">စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်</string>
     <string name="enable_direct_only">%1$s ကို ဖွင့်ရန်</string>
+    <string name="enable_ipv6">IPv6 ကို ဖွင့်ရန်</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
     <string name="encrypted_dns_proxy_info_message_part1">ထိုအက်ပ်သည် “ကုဒ်ဝှက်ထားသော DNS ပရောက်စီ” နည်းလမ်းအားဖြင့် ကျွန်ုပ်တို့၏ Mullvad API ထံသို့ ပရောက်စီလိပ်စာမှတစ်ဆင့် ဆက်သွယ်ပေးမည်ဖြစ်သည်။ HTTPS (DoH) ဆာဗာရှိ DNS မှ လိပ်စာတစ်ခုကို ပြန်လည်ရယူခြင်းအားဖြင့် ထိုသို့လုပ်ဆောင်ပြီးနောက် ကျွန်ုပ်တို့၏ API ဆာဗာများသို့ရောက်ရှိရန် ၎င်းကို အသုံးပြုသည်။</string>
     <string name="enter_value_placeholder">MTU ကို ရိုက်ထည့်ရန်</string>

@@ -154,6 +154,7 @@
     <string name="enable_anyway">Aktiver uansett</string>
     <string name="enable_custom_dns">Bruk egendefinert DNS-server</string>
     <string name="enable_direct_only">Aktiver %1$s</string>
+    <string name="enable_ipv6">Aktiver IPv6</string>
     <string name="enable_method">Aktiver metoden</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden «Kryptert DNS-proxy» vil appen kommunisere med Mullvad API gjennom en proxy-adresse. Dette gjøres ved å hente en adresse fra en DNS over HTTPS-server (DoH) og deretter bruke den til å nå API-serverne våre.</string>
     <string name="enter_value_placeholder">Angi MTU</string>

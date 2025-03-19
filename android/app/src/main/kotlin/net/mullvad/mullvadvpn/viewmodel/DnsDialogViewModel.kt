@@ -70,23 +70,28 @@ class DnsDialogViewModel(
                 input,
                 currentIndex,
                 settings ->
-                createViewState(
-                    settings.addresses(),
-                    currentIndex,
-                    settings.allowLan,
-                    settings.tunnelOptions.genericOptions.enableIpv6,
-                    input,
+                DnsDialogViewState(
+                    input = input,
+                    validationError =
+                        input.validateDnsEntry(currentIndex, settings.addresses()).leftOrNull(),
+                    isLocal = input.isLocalAddress(),
+                    isIpv6 = input.isIpv6(),
+                    isAllowLanEnabled = settings.allowLan,
+                    isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
+                    index = currentIndex,
                 )
             }
             .stateIn(
                 viewModelScope,
                 SharingStarted.Lazily,
-                createViewState(
-                    customDnsList = emptyList(),
-                    currentIndex = null,
+                DnsDialogViewState(
+                    input = _ipAddressInput.value,
+                    validationError = null,
+                    isLocal = _ipAddressInput.value.isLocalAddress(),
+                    isIpv6 = _ipAddressInput.value.isIpv6(),
                     isAllowLanEnabled = false,
                     isIpv6Enabled = false,
-                    input = _ipAddressInput.value,
+                    index = null,
                 ),
             )
 
@@ -96,23 +101,6 @@ class DnsDialogViewModel(
     init {
         viewModelScope.launch { settings.emit(repository.settingsUpdates.filterNotNull().first()) }
     }
-
-    private fun createViewState(
-        customDnsList: List<InetAddress>,
-        currentIndex: Int?,
-        isAllowLanEnabled: Boolean,
-        isIpv6Enabled: Boolean,
-        input: String,
-    ): DnsDialogViewState =
-        DnsDialogViewState(
-            input = input,
-            validationError = input.validateDnsEntry(currentIndex, customDnsList).leftOrNull(),
-            isLocal = input.isLocalAddress(),
-            isIpv6 = input.isIpv6(),
-            isAllowLanEnabled = isAllowLanEnabled,
-            isIpv6Enabled = isIpv6Enabled,
-            index = currentIndex,
-        )
 
     private fun String.validateDnsEntry(
         index: Int?,
