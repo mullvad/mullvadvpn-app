@@ -497,6 +497,7 @@
 		7A28826A2BA8336600FD9F20 /* VPNSettingsCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */; };
 		7A2960F62A963F7500389B82 /* AlertCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960F52A963F7500389B82 /* AlertCoordinator.swift */; };
 		7A2960FD2A964BB700389B82 /* AlertPresentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2960FC2A964BB700389B82 /* AlertPresentation.swift */; };
+		7A2C0E8C2D8B13F0003D8048 /* MullvadAPIProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2C0E8B2D8B13E8003D8048 /* MullvadAPIProxy.swift */; };
 		7A2E7B702D6C9FCF009EF2C3 /* APITransport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */; };
 		7A2E7B712D6C9FE0009EF2C3 /* APIError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */; };
 		7A2E7B722D6C9FE5009EF2C3 /* APIRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */; };
@@ -2030,6 +2031,7 @@
 		7A2882692BA8336600FD9F20 /* VPNSettingsCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VPNSettingsCoordinator.swift; sourceTree = "<group>"; };
 		7A2960F52A963F7500389B82 /* AlertCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertCoordinator.swift; sourceTree = "<group>"; };
 		7A2960FC2A964BB700389B82 /* AlertPresentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertPresentation.swift; sourceTree = "<group>"; };
+		7A2C0E8B2D8B13E8003D8048 /* MullvadAPIProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MullvadAPIProxy.swift; sourceTree = "<group>"; };
 		7A2E7B672D6C9D7A009EF2C3 /* APITransport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APITransport.swift; sourceTree = "<group>"; };
 		7A2E7B6C2D6C9E53009EF2C3 /* APIRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIRequest.swift; sourceTree = "<group>"; };
 		7A2E7B6E2D6C9ED9009EF2C3 /* APIError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIError.swift; sourceTree = "<group>"; };
@@ -4159,11 +4161,20 @@
 		7A2C0E872D82E450003D8048 /* MullvadAPI */ = {
 			isa = PBXGroup;
 			children = (
+				7A2C0E8A2D8B13DB003D8048 /* APIHandlers */,
 				7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */,
 				7AB9312D2D4A5D0A005FCEBA /* MullvadApiNetworkOperation.swift */,
 				7A99D36E2D5606F900891FF7 /* MullvadApiRequestFactory.swift */,
 			);
 			path = MullvadAPI;
+			sourceTree = "<group>";
+		};
+		7A2C0E8A2D8B13DB003D8048 /* APIHandlers */ = {
+			isa = PBXGroup;
+			children = (
+				7A2C0E8B2D8B13E8003D8048 /* MullvadAPIProxy.swift */,
+			);
+			path = APIHandlers;
 			sourceTree = "<group>";
 		};
 		7A2E7B6B2D6C9E45009EF2C3 /* APIRequest */ = {
@@ -5712,6 +5723,7 @@
 				06799AE728F98E4800ACD94E /* RESTURLSession.swift in Sources */,
 				A90763B52B2857D50045ADF0 /* Socks5Constants.swift in Sources */,
 				A90763BA2B2857D50045ADF0 /* Socks5Error.swift in Sources */,
+				7A2C0E8C2D8B13F0003D8048 /* MullvadAPIProxy.swift in Sources */,
 				06799AF428F98E4800ACD94E /* RESTAuthorization.swift in Sources */,
 				06799AE228F98E4800ACD94E /* RESTRequestFactory.swift in Sources */,
 				A90763BD2B2857D50045ADF0 /* Socks5Connection.swift in Sources */,

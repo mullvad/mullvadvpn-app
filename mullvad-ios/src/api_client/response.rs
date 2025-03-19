@@ -34,7 +34,7 @@ impl SwiftMullvadApiResponse {
                 let header_value =
                     CString::new(etag).map_err(|_| rest::Error::InvalidHeaderError)?;
                 header_value.into_raw().cast()
-            },
+            }
             None => ptr::null_mut(),
         };
 

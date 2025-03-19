@@ -26,7 +26,7 @@ protocol RelayCacheTrackerProtocol: Sendable {
 
 final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
     /// Relay update interval.
-    static let relayUpdateInterval: Duration = .seconds(30)
+    static let relayUpdateInterval: Duration = .hours(1)
 
     /// Tracker log.
     nonisolated(unsafe) private let logger = Logger(label: "RelayCacheTracker")
@@ -174,14 +174,9 @@ final class RelayCacheTracker: RelayCacheTrackerProtocol, @unchecked Sendable {
                 return AnyCancellable()
             }
 
-            return self.apiProxy.getRelays(etag: "hello", retryStrategy: .noRetry) { result in
-                print(result)
+            return self.apiProxy.getRelays(etag: cachedRelays?.etag, retryStrategy: .noRetry) { result in
                 finish(self.handleResponse(result: result))
             }
-
-//            return self.apiProxy.mullvadApiGetRelayList(retryStrategy: .noRetry, etag: cachedRelays.etag) { result in
-//                finish(self.handleResponse(result: result))
-//            }
         }
 
         operation.addObserver(
