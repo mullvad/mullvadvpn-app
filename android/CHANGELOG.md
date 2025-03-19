@@ -38,6 +38,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Will no longer try to connect over IPv6 if IPv6 is not available.
+- Will no longer try to connect over IPv4 if IPv4 is not available.
 
 
 ## [android/2025.1-beta1] - 2025-03-05
