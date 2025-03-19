@@ -1638,7 +1638,7 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
 
     let config = SelectorConfig {
         relay_settings: relay_constraints.into(),
-        obfuscation_settings: obfs_settings.into(),
+        obfuscation_settings: obfs_settings,
         ..SelectorConfig::default()
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
