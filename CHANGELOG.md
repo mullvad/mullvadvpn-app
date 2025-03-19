@@ -34,6 +34,7 @@ Line wrap the file at 100 chars.                                              Th
 
 #### Windows
 - Fix error setting up tunnel when MTU was incorrectly set to a value below 1280 for IPv6.
+- Fix node native module being unpacked to a temporary folder.
 
 
 ## [2025.5-beta1] - 2025-03-11
