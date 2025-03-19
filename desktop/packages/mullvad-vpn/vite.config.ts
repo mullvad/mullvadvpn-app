@@ -74,7 +74,7 @@ const viteConfig = defineConfig({
                 // Packages in workspace which exports common js
                 /management-interface/,
                 /nseventforwarder/,
-                /win-shortcuts/,
+                /windows-utils/,
                 // External dependencies which exports common js
                 /node_modules/,
               ],
@@ -87,7 +87,7 @@ const viteConfig = defineConfig({
               },
               external: [
                 // Packages in workspace which can not be bundled
-                'win-shortcuts',
+                'windows-utils',
                 // External dependencies
                 '@grpc/grpc-js',
                 'google-protobuf',

@@ -1,5 +1,5 @@
 [package]
-name = "win-shortcuts"
+name = "windows-utils"
 description = ""
 authors.workspace = true
 repository.workspace = true
@@ -13,7 +13,7 @@ workspace = true
 
 [lib]
 crate-type = ["cdylib"]
-path = "win-shortcuts-rs/lib.rs"
+path = "windows-utils-rs/lib.rs"
 
 [target.'cfg(target_os = "windows")'.dependencies]
 neon = "1"
