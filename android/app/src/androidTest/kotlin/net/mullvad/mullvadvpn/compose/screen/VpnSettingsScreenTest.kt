@@ -107,7 +107,7 @@ class VpnSettingsScreenTest {
                 navigateToUdp2TcpSettings = navigateToUdp2TcpSettings,
                 onToggleAutoStartAndConnectOnBoot = onToggleAutoStartAndConnectOnBoot,
                 onSelectDeviceIpVersion = onSelectDeviceIpVersion,
-                onToggleIPv6Toggle = onToggleIPv6Toggle,
+                onToggleIpv6Toggle = onToggleIPv6Toggle,
             )
         }
     }

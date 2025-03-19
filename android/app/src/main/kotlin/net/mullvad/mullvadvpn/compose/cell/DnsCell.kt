@@ -43,17 +43,15 @@ fun DnsCell(
     BaseCell(
         headlineContent = { DnsTitle(address = address, modifier = titleModifier) },
         bodyView = {
-            if (isUnreachableLocalDnsWarningVisible) {
+            if (isUnreachableLocalDnsWarningVisible || isUnreachableIpv6DnsWarningVisible) {
                 Icon(
                     imageVector = Icons.Rounded.Error,
-                    contentDescription = stringResource(id = R.string.confirm_local_dns),
-                    tint = MaterialTheme.colorScheme.error,
-                )
-            }
-            if (isUnreachableIpv6DnsWarningVisible) {
-                Icon(
-                    imageVector = Icons.Rounded.Error,
-                    contentDescription = stringResource(id = R.string.confirm_ipv6_dns),
+                    contentDescription =
+                        if (isUnreachableLocalDnsWarningVisible) {
+                            stringResource(id = R.string.confirm_local_dns)
+                        } else {
+                            stringResource(id = R.string.confirm_ipv6_dns)
+                        },
                     tint = MaterialTheme.colorScheme.error,
                 )
             }

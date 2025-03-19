@@ -142,7 +142,7 @@ private fun PreviewVpnSettings(
             navigateToWireguardPortDialog = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
-            onToggleIPv6Toggle = {},
+            onToggleIpv6Toggle = {},
         )
     }
 }
@@ -272,7 +272,7 @@ fun VpnSettings(
             dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
-        onToggleIPv6Toggle = vm::setIpV6Enabled,
+        onToggleIpv6Toggle = vm::setIpV6Enabled,
     )
 }
 
@@ -310,7 +310,7 @@ fun VpnSettingsScreen(
     navigateToUdp2TcpSettings: () -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
-    onToggleIPv6Toggle: (Boolean) -> Unit,
+    onToggleIpv6Toggle: (Boolean) -> Unit,
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
@@ -470,7 +470,7 @@ fun VpnSettingsScreen(
                         address = item.address,
                         isUnreachableLocalDnsWarningVisible =
                             item.isLocal && !state.isLocalNetworkSharingEnabled,
-                        isUnreachableIpv6DnsWarningVisible = item.isIpv6 && !state.isIPv6Enabled,
+                        isUnreachableIpv6DnsWarningVisible = item.isIpv6 && !state.isIpv6Enabled,
                         onClick = { navigateToDns(index, item.address) },
                         modifier = Modifier.animateItem(),
                     )
@@ -686,19 +686,19 @@ fun VpnSettingsScreen(
             }
 
             item {
-                MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
-            }
-            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
-
-            item {
                 HeaderSwitchComposeCell(
-                    title = "Enable IPv6",
-                    isToggled = state.isIPv6Enabled,
+                    title = stringResource(R.string.enable_ipv6),
+                    isToggled = state.isIpv6Enabled,
                     isEnabled = true,
-                    onCellClicked = { newValue -> onToggleIPv6Toggle(newValue) },
+                    onCellClicked = { newValue -> onToggleIpv6Toggle(newValue) },
                 )
                 Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }
+
+            item {
+                MtuComposeCell(mtuValue = state.mtu, onEditMtu = { navigateToMtuDialog(state.mtu) })
+            }
+            item { MtuSubtitle(modifier = Modifier.testTag(LAZY_LIST_LAST_ITEM_TEST_TAG)) }
 
             item { ServerIpOverrides(navigateToServerIpOverrides) }
         }
