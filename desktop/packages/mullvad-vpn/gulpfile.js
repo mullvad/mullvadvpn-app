@@ -41,7 +41,7 @@ task(
     'clean',
     'set-dev-env',
     scripts.buildNseventforwarder,
-    scripts.buildWinShortcuts,
+    scripts.buildWindowsUtils,
     watch.start,
   ),
 );

@@ -117,9 +117,9 @@ function buildNseventforwarder(callback) {
   }
 }
 
-function buildWinShortcuts(callback) {
+function buildWindowsUtils(callback) {
   if (process.platform === 'win32') {
-    exec('npm -w win-shortcuts run build-debug', (err) => callback(err));
+    exec('npm -w windows-utils run build-debug', (err) => callback(err));
   } else {
     callback();
   }
@@ -127,12 +127,12 @@ function buildWinShortcuts(callback) {
 
 compileScripts.displayName = 'compile-scripts';
 buildNseventforwarder.displayName = 'build-nseventforwarder';
-buildWinShortcuts.displayName = 'build-win-shortcuts';
+buildWindowsUtils.displayName = 'build-windows-utils';
 
 exports.build = series(
   compileScripts,
   parallel(makeBrowserifyPreload(false), makeBrowserifyRenderer(false)),
 );
 exports.buildNseventforwarder = buildNseventforwarder;
-exports.buildWinShortcuts = buildWinShortcuts;
+exports.buildWindowsUtils = buildWindowsUtils;
 exports.makeWatchCompiler = makeWatchCompiler;

@@ -1,5 +1,3 @@
-#![cfg(target_os = "windows")]
-
 use std::marker::PhantomData;
 use std::string::FromUtf16Error;
 use std::sync::{mpsc, OnceLock};
@@ -51,14 +49,7 @@ enum Error {
 /// 32 KiB: https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=registry
 const MAX_PATH_LEN: usize = 0x7fff;
 
-#[neon::main]
-fn main(mut cx: ModuleContext<'_>) -> NeonResult<()> {
-    cx.export_function("readShortcut", read_shortcut)?;
-
-    Ok(())
-}
-
-fn read_shortcut(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue> {
+pub fn read_shortcut(mut cx: FunctionContext<'_>) -> JsResult<'_, JsValue> {
     let link_path = cx.argument::<JsString>(0)?.value(&mut cx);
 
     match read_shortcut_inner(link_path) {

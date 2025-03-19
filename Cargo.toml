@@ -11,7 +11,7 @@ resolver = "2"
 members = [
   "android/translations-converter",
   "desktop/packages/nseventforwarder",
-  "desktop/packages/win-shortcuts",
+  "desktop/packages/windows-utils",
   "mullvad-api",
   "mullvad-cli",
   "mullvad-daemon",

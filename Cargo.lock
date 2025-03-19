@@ -5813,15 +5813,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7219d36b6eac893fa81e84ebe06485e7dcbb616177469b142df14f1f4deb1311"
 
 [[package]]
-name = "win-shortcuts"
-version = "0.0.0"
-dependencies = [
- "neon",
- "thiserror 2.0.9",
- "windows 0.59.0",
-]
-
-[[package]]
 name = "winapi"
 version = "0.3.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -6137,6 +6128,15 @@ dependencies = [
  "windows_x86_64_gnu 0.53.0",
  "windows_x86_64_gnullvm 0.53.0",
  "windows_x86_64_msvc 0.53.0",
+]
+
+[[package]]
+name = "windows-utils"
+version = "0.0.0"
+dependencies = [
+ "neon",
+ "thiserror 2.0.9",
+ "windows 0.59.0",
 ]
 
 [[package]]

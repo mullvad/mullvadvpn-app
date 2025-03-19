@@ -22,6 +22,10 @@ Line wrap the file at 100 chars.                                              Th
 * **Security**: in case of vulnerabilities.
 
 ## [Unreleased]
+### Changed
+#### Windows
+- Rename `win-shortcuts` native module to `windows-utils`.
+
 ### Removed
 - Remove "Any" option for tunnel protocol. The default is now WireGuard.
 
