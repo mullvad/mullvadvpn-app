@@ -23,6 +23,11 @@ Line wrap the file at 100 chars.                                              Th
 
 ## [Unreleased]
 
+
+## [android/2025.1] - 2025-03-20
+Identical to `android/2025.1-beta1`
+
+
 ## [android/2025.1-beta1] - 2025-03-05
 ### Fixed
 - Fix a crash that would occur because a Provider would be listed twice in the filter screen.
