@@ -178,8 +178,8 @@ function deactivate_keys_metadata {
 function verify {
     activate_keys_metadata
 
-    log_header "Verify package signatures"
-    log "Verifying package..."
+    log_header "Verify dependencies' signatures"
+    log "Verifying signatures..."
     ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" "${GRADLE_TASKS[@]}"
 
     deactivate_keys_metadata
