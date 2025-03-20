@@ -36,14 +36,20 @@ function main {
 
     case "$1" in
     "-u"|"--update")
-        update false
+        setup_gradle
+        update_checksums
+        update_keys false
         ;;
     "-v"|"--verifiy")
         verify
         ;;
     "-r"|"--regenerate-and-refresh-keys")
-        update true
-#        update false
+        setup_gradle
+        update_checksums
+        update_keys true
+        # First run can produce a pgp entry in among the checksums, a second run clears this out.
+        setup_gradle
+        update_keys false
         ;;
     "-h"|"--help")
         print_usage
@@ -87,10 +93,8 @@ function setup_gradle {
     log_info "cache: $TEMP_GRADLE_PROJECT_CACHE_DIR"
 }
 
-function update {
-    setup_gradle
-
-    local refresh_all_keys=$1
+function update_checksums {
+    log_header "Updating checksums"
 
     log "Removing old components..."
     sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
@@ -98,10 +102,16 @@ function update {
     log "Generating new components..."
     ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "${GRADLE_TASKS[@]}"
 
+    log_success "Successfully updated checksums"
+}
+
+function update_keys {
+    log_header "Updating keys metadata"
+
+    local refresh_all_keys=$1
+
     log "Moving checksums to the side..."
     mv verification-metadata.xml verification-metadata.checksums.xml
-
-    log_header "Updating keys metadata"
 
     log "Moving keys to be active metadata file"
     mv verification-metadata.keys.xml verification-metadata.xml
