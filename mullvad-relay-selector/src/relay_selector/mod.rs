@@ -47,7 +47,7 @@ use talpid_types::{
     net::{
         obfuscation::ObfuscatorConfig,
         proxy::{CustomProxy, Shadowsocks},
-        Endpoint, TransportProtocol, TunnelType,
+        Endpoint, IpVersion, TransportProtocol, TunnelType,
     },
     ErrorExt,
 };
@@ -182,34 +182,18 @@ pub struct AdditionalWireguardConstraints {
 #[derive(Clone, Debug)]
 pub struct RuntimeParameters {
     /// Whether IPv4, IPv6 or both is available
-    pub ip_availability: IpAvailability,
+    pub ip_availability: Option<Constraint<IpVersion>>,
 }
 
 impl RuntimeParameters {
-    /// Return whether a given [query][`RelayQuery`] is valid given the current runtime parameters
-    pub fn compatible(&self, query: &RelayQuery) -> bool {
-        match query.wireguard_constraints().ip_version {
-            Constraint::Any => true,
-            Constraint::Only(talpid_types::net::IpVersion::V4) => self.ip_availability.has_ipv4(),
-            Constraint::Only(talpid_types::net::IpVersion::V6) => self.ip_availability.has_ipv6(),
-        }
-    }
-
     pub fn new(ipv4: bool, ipv6: bool) -> RuntimeParameters {
-        if ipv4 && ipv6 {
             RuntimeParameters {
-                ip_availability: IpAvailability::All,
-            }
-        } else if !ipv6 {
-            RuntimeParameters {
-                ip_availability: IpAvailability::Ipv4,
-            }
-        } else if !ipv4 {
-            RuntimeParameters {
-                ip_availability: IpAvailability::Ipv6,
-            }
-        } else {
-            panic!("Device is offline!")
+            ip_availability: match (ipv4, ipv6) {
+                (true, true) => Some(Constraint::Any),
+                (false, true) => Some(Constraint::Only(IpVersion::V6)),
+                (true, false) => Some(Constraint::Only(IpVersion::V4)),
+                (false, false) => None,
+            },
         }
     }
 }
@@ -217,25 +201,8 @@ impl RuntimeParameters {
 impl Default for RuntimeParameters {
     fn default() -> Self {
         RuntimeParameters {
-            ip_availability: IpAvailability::Ipv4,
+            ip_availability: Some(Constraint::Only(IpVersion::V4)),
         }
-    }
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub enum IpAvailability {
-    Ipv4,
-    Ipv6,
-    All,
-}
-
-impl IpAvailability {
-    fn has_ipv4(&self) -> bool {
-        self.clone() == IpAvailability::Ipv4 || self.clone() == IpAvailability::All
-    }
-
-    fn has_ipv6(&self) -> bool {
-        self.clone() == IpAvailability::Ipv6 || self.clone() == IpAvailability::All
     }
 }
 
@@ -669,19 +636,12 @@ impl RelaySelector {
         user_config: &NormalSelectorConfig<'_>,
         parsed_relays: &RelayList,
     ) -> Result<RelayQuery, Error> {
-        let user_query = RelayQuery::try_from(user_config.clone())?;
+        let mut user_query = RelayQuery::try_from(user_config.clone())?;
+        apply_ip_availability(runtime_params, &mut user_query)?;
         log::trace!("Merging user preferences {user_query:?} with default retry strategy");
         retry_order
             .iter()
-            // Remove candidate queries based on runtime parameters before trying to merge user
-            // settings
-            .filter(|query| runtime_params.compatible(query))
-            // Check if the user query aligns with the runtime parameters so that if the user
-            // has selected an ip version that is not available it will return an error
-            .filter(|_query| runtime_params.compatible(&user_query))
             .filter_map(|query| query.clone().intersection(user_query.clone()))
-            // Resolve query ip version set to Any based on runtime ip availability
-            .map(|query| resolve_valid_ip_version(&query, &runtime_params))
             .filter(|query| Self::get_relay_inner(query, parsed_relays, user_config.custom_lists).is_ok())
             .cycle() // If the above filters remove all relays, cycle will also return an empty iterator
             .nth(retry_attempt)
@@ -1213,24 +1173,22 @@ impl RelaySelector {
     }
 }
 
-/// If the selected ip version is Any we want to resolve that to an Only ip version if only
-/// one ip version is available on the network. This is to avoid situations where in other parts
-/// of the relay selector that Any is resolved to IPv4 and IPv4 is not available.
-fn resolve_valid_ip_version(query: &RelayQuery, runtime_params: &RuntimeParameters) -> RelayQuery {
-    let mut wireguard_constraints = query.wireguard_constraints().clone();
-    if wireguard_constraints.ip_version.is_any() {
-        if runtime_params.ip_availability == IpAvailability::Ipv4 {
-            wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V4)
-        }
-        if runtime_params.ip_availability == IpAvailability::Ipv6 {
-            wireguard_constraints.ip_version = Constraint::Only(talpid_types::net::IpVersion::V6)
-        }
-    }
-    let mut ret = query.clone();
-    match ret.set_wireguard_constraints(wireguard_constraints) {
-        Ok(()) => ret,
-        _error => query.clone(),
-    }
+fn apply_ip_availability(
+    runtime_params: RuntimeParameters,
+    user_query: &mut RelayQuery,
+) -> Result<(), Error> {
+    let wireguard_constraints = user_query
+        .wireguard_constraints()
+        .to_owned()
+        .intersection(WireguardRelayQuery {
+            ip_version: runtime_params
+                .ip_availability
+                .ok_or(Error::IpVersionUnavailable)?,
+            ..Default::default()
+        })
+        .ok_or(Error::IpVersionUnavailable)?;
+    user_query.set_wireguard_constraints(wireguard_constraints)?;
+    Ok(())
 }
 
 #[derive(Clone)]

@@ -15,8 +15,8 @@ use talpid_types::net::{
 
 use mullvad_relay_selector::{
     query::{builder::RelayQueryBuilder, BridgeQuery, ObfuscationQuery, OpenVpnRelayQuery},
-    Error, GetRelay, IpAvailability, RelaySelector, RuntimeParameters, SelectedObfuscator,
-    SelectorConfig, WireguardConfig, OPENVPN_RETRY_ORDER, WIREGUARD_RETRY_ORDER,
+    Error, GetRelay, RelaySelector, RuntimeParameters, SelectedObfuscator, SelectorConfig,
+    WireguardConfig, OPENVPN_RETRY_ORDER, WIREGUARD_RETRY_ORDER,
 };
 use mullvad_types::{
     constraints::Constraint,
@@ -393,7 +393,7 @@ fn test_wireguard_retry_order() {
             .get_relay(
                 retry_attempt,
                 RuntimeParameters {
-                    ip_availability: IpAvailability::All,
+                    ip_availability: Some(Constraint::Any),
                 },
             )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
@@ -456,7 +456,7 @@ fn test_openvpn_retry_order() {
             .get_relay(
                 retry_attempt,
                 RuntimeParameters {
-                    ip_availability: IpAvailability::All,
+                    ip_availability: Some(Constraint::Any),
                 },
             )
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
@@ -1643,7 +1643,7 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let runtime_parameters = RuntimeParameters {
-        ip_availability: IpAvailability::Ipv6,
+        ip_availability: Some(Constraint::Only(IpVersion::V6)),
     };
     let user_result = relay_selector.get_relay(0, runtime_parameters).unwrap();
     assert!(
@@ -1665,7 +1665,7 @@ fn test_shadowsocks_runtime_ipv4_unavailable() {
 #[test]
 fn test_runtime_ipv4_unavailable() {
     // Make a valid user relay constraint
-    let (relay_constraints, _, _, _) = RelayQueryBuilder::wireguard().build().into_settings();
+    let (relay_constraints, ..) = RelayQueryBuilder::wireguard().build().into_settings();
 
     let config = SelectorConfig {
         relay_settings: relay_constraints.into(),
@@ -1673,7 +1673,7 @@ fn test_runtime_ipv4_unavailable() {
     };
     let relay_selector = RelaySelector::from_list(config, RELAYS.clone());
     let runtime_parameters = RuntimeParameters {
-        ip_availability: IpAvailability::Ipv6,
+        ip_availability: Some(Constraint::Only(IpVersion::V6)),
     };
     let relay = relay_selector.get_relay(0, runtime_parameters).unwrap();
     match relay {
