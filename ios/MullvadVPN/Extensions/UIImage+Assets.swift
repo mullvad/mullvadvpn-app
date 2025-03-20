@@ -29,7 +29,6 @@ extension UIImage {
 
         static var infoLarge: UIImage {
             UIImage(named: "IconInfo")!
-                .resized(to: CGSize(width: 44, height: 44), trimmingBorder: 2)
         }
 
         static var settings: UIImage {

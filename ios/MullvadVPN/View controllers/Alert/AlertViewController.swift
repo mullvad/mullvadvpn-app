@@ -284,7 +284,7 @@ class AlertViewController: UIViewController {
         imageContainerView.addConstrainedSubviews([imageView]) {
             imageView.pinEdges(.init([.top(0), .bottom(0)]), to: imageContainerView)
             imageView.centerXAnchor.constraint(equalTo: imageContainerView.centerXAnchor, constant: 0)
-            imageView.heightAnchor.constraint(equalToConstant: 44)
+            imageView.heightAnchor.constraint(equalToConstant: 52)
             imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 1)
         }
 
