@@ -66,7 +66,7 @@ class ConnectivityListener(
         _isConnected =
             connectivityManager
                 .hasInternetConnectivity(resolver)
-                .onEach { notifyConnectivityChange(it.ipv4, it.ipv6) }
+                .onEach { notifyConnectivityChange(it.hasIpV4(), it.hasIpV6()) }
                 .stateIn(
                     scope + Dispatchers.IO,
                     SharingStarted.Eagerly,

@@ -180,10 +180,7 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
     let is_ipv6 = JNI_TRUE == is_ipv6;
 
     if tx
-        .unbounded_send(Connectivity::Status {
-            ipv4: is_ipv4,
-            ipv6: is_ipv6,
-        })
+        .unbounded_send(Connectivity::new(is_ipv4, is_ipv6))
         .is_err()
     {
         log::warn!("Failed to send offline change event");

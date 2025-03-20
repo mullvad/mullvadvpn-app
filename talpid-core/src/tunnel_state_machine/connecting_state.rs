@@ -9,7 +9,9 @@ use futures::{FutureExt, StreamExt};
 use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
-use talpid_types::net::{AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, TunnelParameters};
+use talpid_types::net::{
+    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, Connectivity, TunnelParameters,
+};
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::ErrorExt;
 
@@ -73,7 +75,7 @@ impl ConnectingState {
                 });
         }
 
-        if shared_values.connectivity.is_offline() {
+        if shared_values.connectivity == Connectivity::Offline {
             // FIXME: Temporary: Nudge route manager to update the default interface
             #[cfg(target_os = "macos")]
             {

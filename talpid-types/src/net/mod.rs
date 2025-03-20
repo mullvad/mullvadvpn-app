@@ -570,12 +570,10 @@ pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 pub enum Connectivity {
-    Status {
-        /// Whether IPv4 connectivity seems to be available on the host.
-        ipv4: bool,
-        /// Whether IPv6 connectivity seems to be available on the host.
-        ipv6: bool,
+    Online {
+        ip_availability: IpAvailability,
     },
+    Offline,
     /// On/offline status could not be verified, but we have no particular
     /// reason to believe that the host is offline.
     PresumeOnline,
@@ -590,29 +588,64 @@ impl Connectivity {
     /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
     /// so we consider ourselves offline.
     pub fn is_offline(&self) -> bool {
-        matches!(
-            self,
-            Connectivity::Status {
-                ipv4: false,
-                ipv6: false
-            }
-        )
+        matches!(self, Connectivity::Offline)
     }
 
     /// Whether IPv4 connectivity seems to be available on the host.
     ///
     /// If IPv4 status is unknown, `true` is returned.
     pub fn has_ipv4(&self) -> bool {
-        matches!(
-            self,
-            Connectivity::Status { ipv4: true, .. } | Connectivity::PresumeOnline
-        )
+        match self {
+            Connectivity::Offline => false,
+            Connectivity::PresumeOnline => true,
+            Connectivity::Online { ip_availability } => ip_availability.has_ipv4(),
+        }
     }
 
     /// Whether IPv6 connectivity seems to be available on the host.
     ///
     /// If IPv6 status is unknown, `false` is returned.
     pub fn has_ipv6(&self) -> bool {
-        matches!(self, Connectivity::Status { ipv6: true, .. })
+        match self {
+            Connectivity::Offline | Connectivity::PresumeOnline => false,
+            Connectivity::Online { ip_availability } => ip_availability.has_ipv6(),
+        }
+    }
+
+    pub fn new(ipv4: bool, ipv6: bool) -> Connectivity {
+        if ipv4 && ipv6 {
+            Connectivity::Online {
+                ip_availability: IpAvailability::All,
+            }
+        } else if ipv4 {
+            Connectivity::Online {
+                ip_availability: IpAvailability::Ipv4,
+            }
+        } else if ipv6 {
+            Connectivity::Online {
+                ip_availability: IpAvailability::Ipv6,
+            }
+        } else {
+            Connectivity::Offline
+        }
+    }
+}
+
+#[cfg_attr(target_os = "android", derive(FromJava))]
+#[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
+#[derive(Clone, Debug, PartialEq, Eq, Copy)]
+pub enum IpAvailability {
+    Ipv4,
+    Ipv6,
+    All,
+}
+
+impl IpAvailability {
+    pub fn has_ipv4(&self) -> bool {
+        self.clone() == IpAvailability::Ipv4 || self.clone() == IpAvailability::All
+    }
+
+    pub fn has_ipv6(&self) -> bool {
+        self.clone() == IpAvailability::Ipv6 || self.clone() == IpAvailability::All
     }
 }
