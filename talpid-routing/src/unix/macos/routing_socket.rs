@@ -173,7 +173,7 @@ impl RoutingSocketInner {
             let mut guard = self.socket.readable().await?;
             match guard.try_io(|sock| sock.get_ref().read(out)) {
                 Ok(result) => return result,
-                Err(_err) => continue,
+                Err(_would_block) => continue,
             }
         }
     }
