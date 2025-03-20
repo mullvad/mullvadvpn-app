@@ -953,17 +953,15 @@ struct sockaddr_hdr {
 /// routing socket message.
 pub struct RouteSockAddrIterator<'a> {
     buffer: &'a [u8],
-    flags: AddressFlag,
-    // Cursor used to iterate through address flags
-    flag_cursor: i32,
+    /// Iterator over all the set bits in the provided [AddressFlag].
+    flags_iter: bitflags::iter::Iter<AddressFlag>,
 }
 
 impl<'a> RouteSockAddrIterator<'a> {
     fn new(buffer: &'a [u8], flags: AddressFlag) -> Self {
         Self {
             buffer,
-            flags,
-            flag_cursor: AddressFlag::RTA_DST.bits(),
+            flags_iter: flags.iter(),
         }
     }
 
@@ -995,26 +993,27 @@ impl Iterator for RouteSockAddrIterator<'_> {
     type Item = Result<RouteSocketAddress>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        loop {
-            // If address flags don't contain the current one, try the next one.
-            // Will return None if it runs out of valid flags.
-            let current_flag = AddressFlag::from_bits(self.flag_cursor)?;
-            self.flag_cursor <<= 1;
+        // Will return None if it runs out of set flags.
+        let current_flag = self.flags_iter.next()?;
 
-            if !self.flags.contains(current_flag) {
-                continue;
+        // Any undefiend flags are all returned as a clump in the final iteration.
+        let no_undefined_flags = AddressFlag::all().contains(current_flag);
+        debug_assert!(
+            no_undefined_flags,
+            "AddressFlag contained undefined bits! {current_flag:?}. \
+            Consider adding them to the definition."
+        );
+
+        return match RouteSocketAddress::new(current_flag, self.buffer) {
+            Ok((next_addr, addr_len)) => {
+                self.advance_buffer(addr_len);
+                Some(Ok(next_addr))
             }
-            return match RouteSocketAddress::new(current_flag, self.buffer) {
-                Ok((next_addr, addr_len)) => {
-                    self.advance_buffer(addr_len);
-                    Some(Ok(next_addr))
-                }
-                Err(err) => {
-                    self.buffer = &[];
-                    Some(Err(err))
-                }
-            };
-        }
+            Err(err) => {
+                self.buffer = &[];
+                Some(Err(err))
+            }
+        };
     }
 }
 
