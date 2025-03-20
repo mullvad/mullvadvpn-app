@@ -99,6 +99,7 @@ import net.mullvad.mullvadvpn.constant.SECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.SECURE_ZOOM_ANIMATION_MILLIS
 import net.mullvad.mullvadvpn.constant.UNSECURE_ZOOM
 import net.mullvad.mullvadvpn.constant.fallbackLatLong
+import net.mullvad.mullvadvpn.lib.common.util.openVpnSettings
 import net.mullvad.mullvadvpn.lib.map.AnimatedMap
 import net.mullvad.mullvadvpn.lib.map.data.GlobeColors
 import net.mullvad.mullvadvpn.lib.map.data.LocationMarkerColors
@@ -215,12 +216,22 @@ fun Connect(
                     is PrepareError.NotPrepared ->
                         createVpnProfile.launch(sideEffect.prepareError.prepareIntent)
                 }
-            is ConnectViewModel.UiSideEffect.ConnectError ->
+
+            is ConnectViewModel.UiSideEffect.ConnectError.Generic ->
+                snackbarHostState.showSnackbarImmediately(
+                    message = context.getString(R.string.error_occurred)
+                )
+
+            is ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied -> {
                 launch {
                     snackbarHostState.showSnackbarImmediately(
-                        message = sideEffect.toMessage(context)
+                        message = context.getString(R.string.vpn_permission_denied_error),
+                        actionLabel = context.getString(R.string.go_to_vpn_settings),
+                        withDismissAction = true,
+                        onAction = context::openVpnSettings,
                     )
                 }
+            }
 
             is ConnectViewModel.UiSideEffect.OpenUri ->
                 try {
@@ -687,15 +698,6 @@ fun TunnelState.iconTintColor(): Color =
 
 fun GeoIpLocation.toLatLong() =
     LatLong(Latitude(latitude.toFloat()), Longitude(longitude.toFloat()))
-
-private fun ConnectViewModel.UiSideEffect.ConnectError.toMessage(context: Context): String =
-    when (this) {
-        ConnectViewModel.UiSideEffect.ConnectError.Generic ->
-            context.getString(R.string.error_occurred)
-
-        ConnectViewModel.UiSideEffect.ConnectError.PermissionDenied ->
-            context.getString(R.string.vpn_permission_denied_error)
-    }
 
 private fun PrepareError.OtherLegacyAlwaysOnVpn.toMessage(context: Context) =
     context
