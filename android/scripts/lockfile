@@ -36,6 +36,9 @@ function main {
         exit 1
     fi
 
+    cd ../gradle/
+    trap cleanup EXIT
+
     case "$1" in
     "-u"|"--update")
         setup_gradle
@@ -65,15 +68,10 @@ function main {
     esac
 }
 
-cd ../gradle/
-
 function cleanup {
     log "Cleaning up temp dirs..."
     rm -rf -- "$GRADLE_USER_HOME" "$TEMP_GRADLE_PROJECT_CACHE_DIR" verification-keyring.gpg
 }
-
-trap cleanup EXIT
-
 
 function setup_gradle {
     # regardless if stopped.
@@ -164,7 +162,6 @@ function update_keys {
 
     log_success "Successfully updated keys"
 }
-
 
 function activate_keys_metadata {
     log_info "Activating keys metadata"
