@@ -13,7 +13,7 @@ use super::{
 };
 
 use mullvad_api::rest::Error;
-use std::{collections::BTreeMap};
+use std::collections::BTreeMap;
 use std::slice;
 use tokio::task::JoinHandle;
 
@@ -35,10 +35,15 @@ pub unsafe extern "C" fn mullvad_api_send_problem_report(
     let api_context = api_context.into_rust_context();
     let retry_strategy = unsafe { retry_strategy.into_rust() };
 
-    let problem_report_request = match unsafe { ProblemReportRequest::from_swift_parameters(request) } {
+    let problem_report_request = match unsafe {
+        ProblemReportRequest::from_swift_parameters(request)
+    } {
         Some(req) => req,
         None => {
-            let err = Error::ApiError(rest::StatusCode::BAD_REQUEST, "Failed to send problem report: invalid address, message, or log data.".to_string());
+            let err = Error::ApiError(
+                rest::StatusCode::BAD_REQUEST,
+                "Failed to send problem report: invalid address, message, or log data.".to_string(),
+            );
             log::error!("{err:?}");
             completion.finish(SwiftMullvadApiResponse::rest_error(err));
             return SwiftCancelHandle::empty();
@@ -72,7 +77,14 @@ async fn mullvad_api_send_problem_report_inner(
     let api = ProblemReportProxy::new(rest_client);
     let empty_metadata: BTreeMap<String, String> = BTreeMap::new();
 
-    let future_factory = || api.porblem_report_response(&problem_report_request.address, &problem_report_request.message, &(String::from_utf8_lossy(&problem_report_request.log)), &empty_metadata);
+    let future_factory = || {
+        api.porblem_report_response(
+            &problem_report_request.address,
+            &problem_report_request.message,
+            &(String::from_utf8_lossy(&problem_report_request.log)),
+            &empty_metadata,
+        )
+    };
 
     let should_retry = |result: &Result<_, rest::Error>| match result {
         Err(err) => err.is_network_error(),
@@ -81,7 +93,6 @@ async fn mullvad_api_send_problem_report_inner(
 
     let response = retry_future(future_factory, should_retry, retry_strategy.delays()).await?;
     SwiftMullvadApiResponse::with_body(response).await
-
 }
 
 #[repr(C)]
@@ -99,7 +110,6 @@ struct ProblemReportRequest {
     message: String,
     log: Vec<u8>,
 }
-
 
 unsafe impl Send for SwiftProblemReportRequest {}
 
@@ -119,6 +129,10 @@ impl ProblemReportRequest {
         let message = String::from_utf8(message_slice.to_vec()).ok()?;
         let log = log_slice.to_vec();
 
-        Some(Self { address, message, log })
+        Some(Self {
+            address,
+            message,
+            log,
+        })
     }
 }
