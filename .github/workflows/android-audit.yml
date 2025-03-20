@@ -69,7 +69,7 @@ jobs:
         run: git config --global --add safe.directory $(pwd)
 
       - name: Re-generate lockfile
-        run: android/scripts/update-lockfile.sh
+        run: android/scripts/lockfile -u
 
       - name: Ensure no changes
         run: git diff --exit-code
@@ -88,5 +88,5 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Verify lockfile keys
-        run: android/scripts/verify-lockfile-keys.sh
+      - name: Verify lockfile keys metadata
+        run: android/scripts/lockfile -v
