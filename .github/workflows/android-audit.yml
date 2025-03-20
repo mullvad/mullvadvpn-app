@@ -5,7 +5,9 @@ on:
     paths:
       - .github/workflows/android-audit.yml
       - android/gradle/verification-metadata.xml
-      - android/scripts/update-lockfile.sh
+      - android/gradle/verification-metadata.keys.xml
+      - android/gradle/verification-keyring.keys
+      - android/scripts/lockfile
       # libs.versions.toml and *.kts are necessary to ensure that the verification-metadata.xml is up-to-date
       # with our dependency usage due to the dependency verification not working as expected when keys are
       # specified for dependencies (DROID-1425).
@@ -59,19 +61,31 @@ jobs:
       - name: Fix HOME path
         run: echo "HOME=/root" >> $GITHUB_ENV
 
-      - name: Set locale
-        run: echo "LC_ALL=C.UTF-8" >> $GITHUB_ENV
-
       - uses: actions/checkout@v4
 
+      # Needed to run git diff later
       - name: Fix git dir
         run: git config --global --add safe.directory $(pwd)
 
-      - name: Create Android rustJniLibs dir
-        run: mkdir -p android/app/build/rustJniLibs/android
-
       - name: Re-generate lockfile
-        run: android/scripts/update-lockfile.sh
+        run: android/scripts/lockfile -u
 
       - name: Ensure no changes
         run: git diff --exit-code
+
+  verify-lockfile-keys:
+    needs: prepare
+    name: Verify lockfile keys
+    runs-on: ubuntu-latest
+    container:
+      image: ${{ needs.prepare.outputs.container_image }}
+    steps:
+      # Fix for HOME path overridden by GH runners when building in containers, see:
+      # https://github.com/actions/runner/issues/863
+      - name: Fix HOME path
+        run: echo "HOME=/root" >> $GITHUB_ENV
+
+      - uses: actions/checkout@v4
+
+      - name: Verify lockfile keys metadata
+        run: android/scripts/lockfile -v
