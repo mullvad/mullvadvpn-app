@@ -13,6 +13,9 @@ workspace = true
 [features]
 # Allow the API server to use to be configured
 api-override = ["mullvad-api/api-override"]
+boringtun = ["talpid-core/boringtun"]
+
+default = ["boringtun"]
 
 [dependencies]
 anyhow = { workspace = true }
