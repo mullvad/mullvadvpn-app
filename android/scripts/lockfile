@@ -179,8 +179,6 @@ function deactivate_keys_metadata {
 }
 
 function verify {
-    setup_gradle
-
     activate_keys_metadata
 
     log_header "Verify package signatures"
