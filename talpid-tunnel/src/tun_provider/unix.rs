@@ -54,8 +54,10 @@ impl UnixTunProvider {
             let mut builder = TunnelDeviceBuilder::default();
             #[cfg(target_os = "linux")]
             {
-                // FIXME: boringtun doesn't like this, it prepends 4 bytes before the ip header of each packet read
-                //builder.enable_packet_information();
+                if self.config.packet_information {
+                    builder.enable_packet_information();
+                }
+
                 if let Some(ref name) = self.config.name {
                     builder.name(name);
                 }
@@ -124,18 +126,18 @@ impl TunnelDeviceBuilder {
         self
     }
 
-    /*/// Enable packet information.
+    /// Enable packet information.
     /// When enabled the first 4 bytes of each packet is a header with flags and protocol type.
     #[cfg(target_os = "linux")]
     pub fn enable_packet_information(&mut self) -> &mut Self {
-        self.config.platform(|config| {
+        self.config.platform_config(|config| {
             #[allow(deprecated)]
             // NOTE: This function does seemingly have an effect on Linux, despite what the deprecation
             // warning says.
             config.packet_information(true);
         });
         self
-    }*/
+    }
 }
 
 impl AsRawFd for TunnelDevice {

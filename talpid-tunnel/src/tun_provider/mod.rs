@@ -48,6 +48,10 @@ pub struct TunConfig {
     #[cfg(target_os = "linux")]
     pub name: Option<String>,
 
+    /// Whether to enable the packet_information option on the tun device.
+    #[cfg(target_os = "linux")]
+    pub packet_information: bool,
+
     /// IP addresses for the tunnel interface.
     pub addresses: Vec<IpAddr>,
 
@@ -103,6 +107,8 @@ pub fn blocking_config() -> TunConfig {
     TunConfig {
         #[cfg(target_os = "linux")]
         name: None,
+        #[cfg(target_os = "linux")]
+        packet_information: false,
         addresses: vec![IpAddr::V4(Ipv4Addr::new(10, 0, 0, 1))],
         mtu: 1380,
         ipv4_gateway: Ipv4Addr::new(10, 64, 0, 1),
