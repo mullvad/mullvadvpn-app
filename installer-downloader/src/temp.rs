@@ -11,10 +11,11 @@
 //! # macOS
 //!
 //! The downloader does not run as a privileged user, so we store downloads in a temporary
-//! directory.
+//! directory that only the current user may access.
 //!
-//! This is vulnerable to TOCTOU, ie replacing the file after its hash has been verified, but only
-//! by the current user. Using a random directory name mitigates this issue.
+//! This is potentially vulnerable to TOCTOU, ie replacing the file after its hash has been
+//! verified, but only by the current user. However, this would require asking the user to approve
+//! privilege escalation, just like the actual installer does.
 
 use anyhow::Context;
 use async_trait::async_trait;
