@@ -49,7 +49,6 @@ function main {
         setup_gradle
         update_keys true
         # First run can produce a pgp entry in among the checksums, a second run clears this out.
-        setup_gradle
         update_keys false
         ;;
     "-h"|"--help")
