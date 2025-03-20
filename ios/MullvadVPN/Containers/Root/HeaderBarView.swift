@@ -84,11 +84,11 @@ class HeaderBarView: UIView {
         return button
     }()
 
-    class func prepareHeaderBarButtonImage(from image: UIImage) -> UIImage {
-        let resizeRatio = 24.0 / 20.0
-        let targetSize = CGSize(width: image.size.width * resizeRatio, height: image.size.height * resizeRatio)
-        return image // .resizeImage(targetSize: targetSize)
-    }
+//    class func prepareHeaderBarButtonImage(from image: UIImage) -> UIImage {
+//        let resizeRatio = 24.0 / 20.0
+//        let targetSize = CGSize(width: image.size.width * resizeRatio, height: image.size.height * resizeRatio)
+//        return image // .resizeImage(targetSize: targetSize)
+//    }
 
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
 //        let image = image.map { prepareHeaderBarButtonImage(from: $0) }

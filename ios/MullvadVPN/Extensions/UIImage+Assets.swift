@@ -13,12 +13,12 @@ extension UIImage {
         // Button images we expect as tightly cropped 24x24 images. The SVGs are 20x20 with a 2px border
         static var account: UIImage {
             UIImage(named: "IconAccount")!
-                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
+//                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
         }
 
         static var alert: UIImage {
             UIImage(named: "IconAlert")!
-                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
+//                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
         }
 
         static var info: UIImage {
@@ -27,7 +27,7 @@ extension UIImage {
 
         static var settings: UIImage {
             UIImage(named: "IconSettings")!
-                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
+//                .resized(to: CGSize(width: 24, height: 24), trimmingBorder: 2)
         }
 
         static var back: UIImage {
@@ -58,11 +58,12 @@ extension UIImage {
 
         static var closeSmall: UIImage {
             UIImage(named: "IconClose")!
-                .resized(to: CGSize(width: 16, height: 16), trimmingBorder: 4)
+                .resized(to: CGSize(width: 18, height: 18))
         }
 
-        static var closeLarge: UIImage {
-            UIImage(named: "IconClose")!.resized(to: CGSize(width: 24, height: 24), trimmingBorder: 4)
+        static var close: UIImage {
+            UIImage(named: "IconClose")!
+//                .resized(to: CGSize(width: 24, height: 24))
         }
     }
 
@@ -85,7 +86,7 @@ extension UIImage {
 
         static var tick: UIImage {
             UIImage(named: "IconTickSml")!
-                .resized(to: CGSize(width: 16, height: 16))
+//                .resized(to: CGSize(width: 16, height: 16))
         }
     }
 
@@ -105,6 +106,6 @@ extension UIImage {
 
     static var tick: UIImage {
         UIImage(named: "IconTickSml")!
-            .resized(to: CGSize(width: 24, height: 24))
+//            .resized(to: CGSize(width: 24, height: 24))
     }
 }

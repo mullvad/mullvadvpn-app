@@ -35,7 +35,7 @@ class DeviceRowView: UIView {
     }()
 
     let removeButton: UIButton = {
-        let image = UIImage.Buttons.closeLarge
+        let image = UIImage.Buttons.close
             .withTintColor(
                 .white.withAlphaComponent(0.4),
                 renderingMode: .alwaysOriginal
