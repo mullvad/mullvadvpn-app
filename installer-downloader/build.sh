@@ -28,14 +28,18 @@ CARGO_TARGET_DIR=${CARGO_TARGET_DIR:-"../target"}
 export CARGO_TARGET_DIR
 
 # Temporary build directory
-BUILD_DIR="./build"
+BUILD_DIR="$SCRIPT_DIR/build"
 # Successfully built (and signed) artifacts
-DIST_DIR="../dist"
+DIST_DIR="$SCRIPT_DIR/../dist"
 
 BUNDLE_NAME="MullvadVPNInstaller"
 BUNDLE_ID="net.mullvad.$BUNDLE_NAME"
 
 FILENAME="Install Mullvad VPN"
+
+# When --upload is passed, git verify-tag looks for a signed tag with the prefix below.
+# The signed tag must be named $TAG_PREFIX/<version>.
+TAG_PREFIX="desktop/installer-downloader/"
 
 rm -rf "$BUILD_DIR"
 mkdir -p "$BUILD_DIR"
@@ -44,6 +48,9 @@ mkdir -p "$DIST_DIR"
 
 # Whether to sign and notarized produced binaries
 SIGN="false"
+
+# Whether to upload signed binaries
+UPLOAD="false"
 
 # Temporary keychain to store the .p12 in.
 # This is automatically created/replaced when signing on macOS.
@@ -55,6 +62,9 @@ while [[ "$#" -gt 0 ]]; do
         --sign)
             SIGN="true"
             ;;
+        --upload)
+            UPLOAD="true"
+            ;;
         *)
             log_error "Unknown parameter: $1"
             exit 1
@@ -62,6 +72,11 @@ while [[ "$#" -gt 0 ]]; do
     esac
     shift
 done
+
+if [[ "$UPLOAD" == "true" && "$SIGN" != "true" ]]; then
+    log_error "'--upload' requires '--sign' to be specified"
+    exit 1
+fi
 
 # Check that we have the correct environment set for signing
 function assert_can_sign {
@@ -305,6 +320,76 @@ function dist_windows_app {
     mv "$BUILD_DIR/$FILENAME.exe" "$DIST_DIR/"
 }
 
+# Upload whatever matches the first argument to the Linux build server
+# Arguments:
+# - local file
+# - version
+function upload_sftp {
+    local local_path=$1
+    local version=$2
+    echo "Uploading \"$local_path\" to app-build-linux:upload/installer-downloader/$version"
+    sftp app-build-linux <<EOF
+mkdir upload/installer-downloader
+mkdir upload/installer-downloader/$version
+chmod 770 upload/installer-downloader
+chmod 770 upload/installer-downloader/$version
+cd upload/installer-downloader/$version
+put "$local_path"
+bye
+EOF
+}
+
+# Upload latest build and checksum in the dist directory to Linux build server
+# The artifacts MUST have been built already
+# The working directory MUST be $DIST_DIR
+#
+# Arguments:
+# - version
+function upload {
+    local version=$1
+    local files=( "$FILENAME."* )
+
+    local checksums_path
+    checksums_path="installer-downloader+$(hostname)+$version.sha256"
+
+    sha256sum "${files[@]}" > "$checksums_path"
+
+    for file in "${files[@]}"; do
+        upload_sftp "$file" "$version" || return 1
+    done
+    upload_sftp "$checksums_path" "$version" || return 1
+}
+
+# Check if the current commit has a signed tag
+#
+# Arguments:
+# - version
+function verify_version_tag {
+    local version=$1
+
+    local expect_tag="${TAG_PREFIX}${version}"
+    log_info "Current commit must have tag: $expect_tag"
+
+    local tag
+    set +e
+    tag=$(git describe --exact-match --tags)
+    local describe_exit=$?
+    set -e
+
+    if [[ $describe_exit -ne 0 ]]; then
+        log_error "'git describe' failed for the current commit (no tag?). Expected tag $expect_tag"
+        exit 1
+    fi
+
+    if [[ "$tag" != "$expect_tag" ]]; then
+        log_error "Unexpected tag found for current commit. Expected $expect_tag. Found: $tag"
+        exit 1
+    fi
+
+    log_info "Verifying tag $tag..."
+    git verify-tag "$tag"
+}
+
 function main {
     if [[ "$SIGN" != "false" ]]; then
         assert_can_sign
@@ -326,6 +411,15 @@ function main {
     elif [[ "$(uname -s)" == "MINGW"* ]]; then
         build_executable
         dist_windows_app
+    fi
+
+    if [[ "$UPLOAD" == "true" ]]; then
+        local version
+        version=$(product_version)
+
+        verify_version_tag "$version"
+
+        (cd "$DIST_DIR" && upload "$version") || return 1
     fi
 }
 
