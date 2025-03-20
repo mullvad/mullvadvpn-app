@@ -11,6 +11,6 @@ pub use error::Error;
 pub use relay_selector::{
     detailer, matcher, matcher::filter_matching_relay_list, query, relays::WireguardConfig,
     AdditionalRelayConstraints, AdditionalWireguardConstraints, GetRelay, RelaySelector,
-    RuntimeParameters, SelectedBridge, SelectedObfuscator, SelectorConfig, OPENVPN_RETRY_ORDER,
+    RuntimeIpAvailability, SelectedBridge, SelectedObfuscator, SelectorConfig, OPENVPN_RETRY_ORDER,
     WIREGUARD_RETRY_ORDER,
 };

@@ -8,7 +8,7 @@ use std::{
 
 use tokio::sync::Mutex;
 
-use mullvad_relay_selector::{GetRelay, RelaySelector, RuntimeParameters, WireguardConfig};
+use mullvad_relay_selector::{GetRelay, RelaySelector, RuntimeIpAvailability, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
     settings::TunnelOptions,
@@ -164,9 +164,10 @@ impl InnerParametersGenerator {
         ipv6: bool,
     ) -> Result<TunnelParameters, Error> {
         let data = self.device().await?;
-        let selected_relay = self
-            .relay_selector
-            .get_relay(retry_attempt as usize, RuntimeParameters::new(ipv4, ipv6))?;
+        let selected_relay = self.relay_selector.get_relay(
+            retry_attempt as usize,
+            RuntimeIpAvailability::new(ipv4, ipv6),
+        )?;
 
         match selected_relay {
             #[cfg(not(target_os = "android"))]
