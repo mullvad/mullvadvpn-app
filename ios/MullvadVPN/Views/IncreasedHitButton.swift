@@ -10,7 +10,7 @@ import SwiftUI
 import UIKit
 
 final class IncreasedHitButton: UIButton {
-    private let defaultSize = UIMetrics.Button.barButtonSize
+    private let defaultSize = UIMetrics.Button.minimumTappableAreaSize.width
 
     override func point(inside point: CGPoint, with event: UIEvent?) -> Bool {
         let width = bounds.width

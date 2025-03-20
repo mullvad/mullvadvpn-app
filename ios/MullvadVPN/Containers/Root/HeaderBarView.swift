@@ -47,6 +47,7 @@ class HeaderBarView: UIView {
 
     private lazy var buttonContainer: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [accountButton, settingsButton])
+        stackView.spacing = 12
         return stackView
     }()
 
@@ -84,23 +85,10 @@ class HeaderBarView: UIView {
         return button
     }()
 
-    class func prepareHeaderBarButtonImage(from image: UIImage) -> UIImage {
-        let resizeRatio = 24.0 / 20.0
-        let targetSize = CGSize(width: image.size.width * resizeRatio, height: image.size.height * resizeRatio)
-        return image // .resizeImage(targetSize: targetSize)
-    }
-
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
-//        let image = image.map { prepareHeaderBarButtonImage(from: $0) }
         let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
-        let disabledButtonImage = image?.withTintColor(
-            UIColor.HeaderBar.disabledButtonColor,
-            renderingMode: .alwaysOriginal
-        )
-
         let barButton = IncreasedHitButton(type: .system)
-        barButton.setImage(buttonImage, for: .normal)
-        barButton.setImage(disabledButtonImage, for: .disabled)
+        barButton.setBackgroundImage(buttonImage, for: .normal)
         barButton.configureForAutoLayout()
 
         return barButton

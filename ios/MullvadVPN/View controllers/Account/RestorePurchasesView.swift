@@ -34,9 +34,11 @@ class RestorePurchasesView: UIView {
     private lazy var infoButton: UIButton = {
         let button = IncreasedHitButton(type: .custom)
         button.isExclusiveTouch = true
-        button.setImage(UIImage.Buttons.info, for: .normal)
+        button.setBackgroundImage(UIImage.Buttons.info, for: .normal)
         button.tintColor = .white
         button.addTarget(self, action: #selector(didTapInfoButton), for: .touchUpInside)
+        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.accountInfoSize).isActive = true
+        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
     }()
 
