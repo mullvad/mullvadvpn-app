@@ -106,7 +106,9 @@ pub(super) fn deserialize_and_verify(
 
     Ok(PartialSignedResponse {
         signatures: partial_data.signatures,
-        signed: partial_data.signed,
+        // Serialize back in case something was lost during deserialization
+        signed: serde_json::from_slice(&canon_data)
+            .context("Failed to serialize canonical JSON")?,
     })
 }
 
