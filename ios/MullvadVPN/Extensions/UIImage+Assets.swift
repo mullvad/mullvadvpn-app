@@ -22,12 +22,6 @@ extension UIImage {
         }
 
         static var info: UIImage {
-            // the info icon was 18x18 cropped
-            UIImage(named: "IconInfo")!
-                .resized(to: CGSize(width: 18, height: 18), trimmingBorder: 2)
-        }
-
-        static var infoLarge: UIImage {
             UIImage(named: "IconInfo")!
         }
 

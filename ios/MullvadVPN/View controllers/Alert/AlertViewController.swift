@@ -35,7 +35,7 @@ enum AlertIcon {
         case .warning:
             return UIImage.Buttons.alert.withTintColor(.white)
         case .info:
-            return UIImage.Buttons.infoLarge.withTintColor(.white)
+            return UIImage.Buttons.info.withTintColor(.white)
         default:
             return nil
         }
@@ -284,7 +284,7 @@ class AlertViewController: UIViewController {
         imageContainerView.addConstrainedSubviews([imageView]) {
             imageView.pinEdges(.init([.top(0), .bottom(0)]), to: imageContainerView)
             imageView.centerXAnchor.constraint(equalTo: imageContainerView.centerXAnchor, constant: 0)
-            imageView.heightAnchor.constraint(equalToConstant: 52)
+            imageView.heightAnchor.constraint(equalToConstant: 48)
             imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 1)
         }
 
