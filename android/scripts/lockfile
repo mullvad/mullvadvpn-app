@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+
+set -eu
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd "$SCRIPT_DIR"
+
+source ../../scripts/utils/log
+
+print_usage() {
+  echo "Usage:"
+  echo "    -r        Refresh all keys, will remove all trusted keys and clear the keyring, allowing for old keys to removed and keys entries to be updated."
+  echo "              This result is not reproducible since entries may change depending on from which keyserver keys was fetched and how gradle decides to"
+  echo "              create verification xml file. Also make sure to do an additional normal run afterwards."
+  echo "    -r        Refresh all keys, will remove all trusted keys and clear the keyring, allowing for old keys to removed and keys entries to be updated."
+  echo "              This result is not reproducible since entries may change depending on from which keyserver keys was fetched and how gradle decides to"
+  echo "              create verification xml file. Also make sure to do an additional normal run afterwards."
+  echo "    -r        Refresh all keys, will remove all trusted keys and clear the keyring, allowing for old keys to removed and keys entries to be updated."
+  echo "              This result is not reproducible since entries may change depending on from which keyserver keys was fetched and how gradle decides to"
+  echo "              create verification xml file. Also make sure to do an additional normal run afterwards."
+
+  echo "    -h        Show this help page."
+}
+
+function main {
+    if [[ $# -eq 0 ]]; then
+        print_usage
+        exit 1
+    fi
+
+    if [[ $# -gt 1 ]]; then
+        log_error "Too many arguments"
+        print_usage
+        exit 1
+    fi
+
+    case "$1" in
+    "-u"|"--update")
+        update false
+        ;;
+    "-v"|"--verifiy")
+        verify
+        ;;
+    "-r"|"--regenerate-and-refresh-keys")
+        update true
+#        update false
+        ;;
+    "-h"|"--help")
+        print_usage
+        exit 0
+        ;;
+    *)
+        log_error "Invalid argument: \`$1\`"
+        print_usage
+        exit 1
+        ;;
+    esac
+}
+
+cd ../gradle/
+
+function cleanup {
+    log "Cleaning up temp dirs..."
+    rm -rf -- "$GRADLE_USER_HOME" "$TEMP_GRADLE_PROJECT_CACHE_DIR" verification-keyring.gpg
+}
+
+trap cleanup EXIT
+
+
+function setup_gradle {
+    # regardless if stopped.
+    GRADLE_OPTS="-Dorg.gradle.daemon=false"
+    # We must provide a template for mktemp to work properly on macOS.
+    GRADLE_USER_HOME=$(mktemp -d -t gradle-home-XXX)
+    TEMP_GRADLE_PROJECT_CACHE_DIR=$(mktemp -d -t gradle-cache-XXX)
+    # Task list to discover all tasks and their dependencies since
+    # just running the suggested 'help' task isn't sufficient.
+    GRADLE_TASKS=(
+        "lint"
+    )
+
+    export GRADLE_OPTS
+    export GRADLE_USER_HOME
+
+    log_header "Gradle Configuration"
+    log_info "home: $GRADLE_USER_HOME"
+    log_info "cache: $TEMP_GRADLE_PROJECT_CACHE_DIR"
+}
+
+function update {
+    setup_gradle
+
+    local refresh_all_keys=$1
+
+    log "Removing old components..."
+    sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
+
+    log "Generating new components..."
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M sha256 "${GRADLE_TASKS[@]}"
+
+    log "Moving checksums to the side..."
+    mv verification-metadata.xml verification-metadata.checksums.xml
+
+    log_header "Updating keys metadata"
+
+    log "Moving keys to be active metadata file"
+    mv verification-metadata.keys.xml verification-metadata.xml
+
+    log "Temporarily enabling key servers..."
+    sed -Ei 's,key-servers enabled="[^"]+",key-servers enabled="true",' verification-metadata.xml
+
+    log "Removing old components..."
+    sed -i '/<components>/,/<\/components>/d' verification-metadata.xml
+
+
+    if [ "$refresh_all_keys" = true ]; then
+        log_info "Refreshing all keys"
+
+        log "Removing old trusted keys..."
+        sed -i '/<trusted-keys>/,/<\/trusted-keys>/d' verification-metadata.xml
+
+        log "Removing old keyring..."
+        rm verification-keyring.keys
+    fi
+
+    log "Generating new trusted keys & updating keyring..."
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" -M pgp,sha256 "${GRADLE_TASKS[@]}" --export-keys
+
+    log "Sorting keyring and removing duplicates..."
+      # Sort and unique the keyring
+      # https://github.com/gradle/gradle/issues/20140
+      # `sed 's/$/NEWLINE/g'` adds the word NEWLINE at the end of each line
+      # `tr -d '\n'` deletes the actual newlines
+      # `sed` again adds a newline at the end of each key, so each key is one line
+      # `sort` orders the keys deterministically
+      # `uniq` removes identical keys
+      # `sed 's/NEWLINE/\n/g'` puts the newlines back
+    < verification-keyring.keys \
+        sed 's/$/NEWLINE/g' \
+        | tr -d '\n' \
+        | sed 's/\(-----END PGP PUBLIC KEY BLOCK-----\)/\1\n/g' \
+        | grep "END PGP PUBLIC KEY BLOCK" \
+        | sort \
+        | uniq \
+        | sed 's/NEWLINE/\n/g' \
+        > verification-keyring.new.keys
+    mv -f verification-keyring.new.keys verification-keyring.keys
+
+    log "Disabling key servers..."
+    sed -Ezi 's,key-servers,key-servers enabled="false",' verification-metadata.xml
+
+    log "Moving back keys verification metadata"
+    mv verification-metadata.xml verification-metadata.keys.xml
+
+    log "Moving checksums to be active metadata file"
+    mv verification-metadata.checksums.xml verification-metadata.xml
+}
+
+
+function verify {
+    setup_gradle
+
+    log_header "Verifying packages"
+    log "Moving checksums to the side..."
+    mv verification-metadata.xml verification-metadata.checksums.xml
+
+    log "Moving keys to be active metadata file"
+    mv verification-metadata.keys.xml verification-metadata.xml
+
+    log "Verifying package..."
+    ../gradlew -q -p .. --project-cache-dir "$TEMP_GRADLE_PROJECT_CACHE_DIR" "${GRADLE_TASKS[@]}"
+    log_success "Verification successful"
+
+    log "Moving back keys verification metadata"
+    mv verification-metadata.xml verification-metadata.keys.xml
+
+    log "Moving back checksums to be active metadata file"
+    mv verification-metadata.checksums.xml verification-metadata.xml
+}
+
+# Run script
+main "$@"
