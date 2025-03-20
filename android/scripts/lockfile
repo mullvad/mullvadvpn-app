@@ -8,18 +8,20 @@ cd "$SCRIPT_DIR"
 source ../../scripts/utils/log
 
 print_usage() {
-  echo "Usage:"
-  echo "    -r        Refresh all keys, will remove all trusted keys and clear the keyring, allowing for old keys to removed and keys entries to be updated."
-  echo "              This result is not reproducible since entries may change depending on from which keyserver keys was fetched and how gradle decides to"
-  echo "              create verification xml file. Also make sure to do an additional normal run afterwards."
-  echo "    -r        Refresh all keys, will remove all trusted keys and clear the keyring, allowing for old keys to removed and keys entries to be updated."
-  echo "              This result is not reproducible since entries may change depending on from which keyserver keys was fetched and how gradle decides to"
-  echo "              create verification xml file. Also make sure to do an additional normal run afterwards."
-  echo "    -r        Refresh all keys, will remove all trusted keys and clear the keyring, allowing for old keys to removed and keys entries to be updated."
-  echo "              This result is not reproducible since entries may change depending on from which keyserver keys was fetched and how gradle decides to"
-  echo "              create verification xml file. Also make sure to do an additional normal run afterwards."
-
-  echo "    -h        Show this help page."
+  log "Usage: lockfile <option>"
+  log "Where option is one of the following flags:"
+  log "    -u, --update"
+  log "              Update the lockfile with new entries, and add new keys that may be used."
+  log "    -v, --verify"
+  log "              Verify all dependencies with the current key configuration."
+  log "    -r, --renew-keys"
+  log "              Renew all keys, will remove all trusted keys and clear the keyring, allowing for old"
+  log "              keys to removed and key entries to be updated. This result is not reproducible since"
+  log "              entries may change depending on from which keyserver keys was fetched and how gradle"
+  log "              decides to create verification xml file. Also make sure to do an additional normal run"
+  log "              afterwards."
+  log "    -h, --help"
+  log "              Show this help page."
 }
 
 function main {
@@ -43,9 +45,8 @@ function main {
     "-v"|"--verifiy")
         verify
         ;;
-    "-r"|"--regenerate-and-refresh-keys")
+    "-r"|"--renew-keys")
         setup_gradle
-        update_checksums
         update_keys true
         # First run can produce a pgp entry in among the checksums, a second run clears this out.
         setup_gradle
