@@ -141,7 +141,7 @@
             <trusting group="androidx.graphics"/>
             <trusting group="androidx.lifecycle"/>
             <trusting group="androidx.profileinstaller"/>
-            <trusting group="androidx.tv" name="tv-material" version="1.0.0"/>
+            <trusting group="androidx.tv"/>
             <trusting group="^androidx[.]compose($|([.].*))" regex="true"/>
             <trusting group="^androidx[.]test($|([.].*))" regex="true"/>
          </trusted-key>
