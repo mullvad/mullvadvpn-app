@@ -57,6 +57,7 @@ final class NotificationBannerView: UIView {
     private lazy var contentStackView: UIStackView = {
         let stackView = UIStackView(arrangedSubviews: [bodyStackView, actionButton])
         stackView.spacing = UIStackView.spacingUseSystem
+        stackView.alignment = .center
         return stackView
     }()
 
@@ -89,7 +90,9 @@ final class NotificationBannerView: UIView {
             let image = action?.image
             let showsAction = image != nil
 
-            actionButton.setImage(image, for: .normal)
+            actionButton.setBackgroundImage(image, for: .normal)
+            actionButton.widthAnchor.constraint(equalToConstant: 24).isActive = true
+            actionButton.heightAnchor.constraint(equalTo: actionButton.widthAnchor).isActive = true
             actionButton.isHidden = !showsAction
         }
     }

@@ -44,7 +44,9 @@ class AccountDeviceRow: UIView {
         button.isExclusiveTouch = true
         button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
-        button.setImage(UIImage.Buttons.info, for: .normal)
+        button.setBackgroundImage(UIImage.Buttons.info, for: .normal)
+        button.heightAnchor.constraint(equalToConstant: UIMetrics.Button.accountInfoSize).isActive = true
+        button.widthAnchor.constraint(equalTo: button.heightAnchor, multiplier: 1).isActive = true
         return button
     }()
 
