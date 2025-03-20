@@ -5,6 +5,7 @@ set -eu
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd "$SCRIPT_DIR"
 
+# shellcheck source=../../scripts/utils/log
 source ../../scripts/utils/log
 
 print_usage() {
