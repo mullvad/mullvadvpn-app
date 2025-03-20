@@ -1,2 +1,5 @@
-- Make daemon aware of route changes to prevent sending traffic before routes are up.
-- Minimize calls to re-establish the VPN tunnel, since this may cause Android to leak some traffic.
+- Added support for multihop which allows routing traffic through an entry location to an exit location.
+- Added support for using DAITA with locations lacking DAITA support by automatically routing the traffic via a DAITA enabled location. This behaviour can be disabled using the "Direct only" setting.
+- Updated DAITA to v2 which supports dynamic configurations provided by relays.
+- Improved how the app detects whether routes are available in order to reduce potential leaks.
+- Minimized calls to re-establish the VPN tunnel, since this may cause Android to leak some traffic.
