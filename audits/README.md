@@ -17,3 +17,4 @@ performed on this app so far:
 Apart from the biannual audits mentioned above, we've also conducted the the following:
 
 * [2025-02-24 - NCC Group Mobile Application Security Assessment (MASA) of the Android app](./2025-02-24-nccgroup-android-masa.md)
+* [2025-03-20 - Audit of the installer downloader by Assured](./2025-03-20-assured-installer-downloader.md)
