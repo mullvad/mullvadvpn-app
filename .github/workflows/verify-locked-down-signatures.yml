@@ -26,6 +26,7 @@ on:
       - android/gradle/verification-keyring.keys
       - android/gradle/wrapper/gradle-wrapper.jar
       - android/gradle/wrapper/gradle-wrapper.properties
+      - android/script/lockfile
       - building/build-and-publish-container-image.sh
       - building/mullvad-app-container-signing.asc
       - building/linux-container-image.txt
