@@ -7,7 +7,7 @@ description = "RaaS stands for Router as a Service"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-nftnl = { version = "0.6.2", features = ["nftnl-1-1-0"] }
+nftnl = { version = "0.7.0", features = ["nftnl-1-1-0"] }
 mnl = { version = "0.2.2", features = ["mnl-1-0-4"] }
 once_cell = "1"
 log = "0.4"

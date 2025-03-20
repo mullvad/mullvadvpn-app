@@ -18,6 +18,7 @@ pub fn router(block_list: BlockList) -> Router {
         .route("/own-ip", get(ip::host_ip))
         .route("/rules", get(routes::list_all_rules))
         .route("/rule", post(routes::add_rule))
+        .route("/block-wireguard", post(routes::block_wireguard_rule))
         .route("/remove-rules/:label", delete(routes::delete_rules))
         .route("/capture", post(firewall::start))
         .route("/stop-capture/:label", post(firewall::stop))
