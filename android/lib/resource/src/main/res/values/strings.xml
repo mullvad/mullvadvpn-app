@@ -62,7 +62,7 @@
     <string name="copied_mullvad_account_number">Copied Mullvad account number to clipboard</string>
     <string name="paid_until">Paid until</string>
     <string name="log_out">Log out</string>
-    <string name="local_network_sharing">Local network sharing</string>
+    <string name="local_network_sharing" translatable="false">Local network sharing</string>
     <string name="auto_connect_and_lockdown_mode">Auto-connect &amp; Lockdown mode</string>
     <string name="auto_connect_and_lockdown_mode_footer">Makes sure the device is always on the VPN tunnel.</string>
     <string name="go_to_vpn_settings">Go to VPN settings</string>
@@ -355,7 +355,6 @@
     <string name="feature_custom_dns">Custom DNS</string>
     <string name="feature_server_ip_override">Server IP override</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_multihop">Multihop</string>
     <string name="dns_content_blockers">DNS content blockers</string>
     <string name="ipv4">IPv4</string>
     <string name="ipv6">IPv6</string>
