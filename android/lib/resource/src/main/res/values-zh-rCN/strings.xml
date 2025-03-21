@@ -154,6 +154,7 @@
     <string name="enable_anyway">仍然启用</string>
     <string name="enable_custom_dns">使用自定义 DNS 服务器</string>
     <string name="enable_direct_only">启用“%1$s”</string>
+    <string name="enable_ipv6">启用 IPv6</string>
     <string name="enable_method">启用方法</string>
     <string name="encrypted_dns_proxy_info_message_part1">利用“加密 DNS 代理”方法，应用将通过代理地址与我们的 Mullvad API 进行通信。通信时，应用从 DNS over HTTPS (DoH) 服务器获取地址，然后使用该地址连接我们的 API 服务器。</string>
     <string name="enter_value_placeholder">输入 MTU</string>

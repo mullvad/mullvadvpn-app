@@ -296,10 +296,16 @@ impl VpnServiceConfig {
     /// Return a list of custom DNS servers. If not specified, gateway addresses are used for DNS.
     /// Note that `Some(vec![])` is different from `None`. `Some(vec![])` disables DNS.
     fn resolve_dns_servers(config: &TunConfig) -> Vec<IpAddr> {
+        // If IPv6 is not available we need to disable all IPv6 DNS servers as setting any ipv6
+        // setting while ipv6 is disabled will cause leaks.
+        let want_ipv6 = |ip: &IpAddr| config.ipv6_gateway.is_some() || !ip.is_ipv6();
         config
             .dns_servers
             .clone()
             .unwrap_or_else(|| config.gateways())
+            .into_iter()
+            .filter(want_ipv6)
+            .collect()
     }
 
     /// Potentially subtract LAN nets from the VPN service routes, excepting gateways.

@@ -154,6 +154,7 @@
     <string name="enable_anyway">Habilitar de todos modos</string>
     <string name="enable_custom_dns">Usar servidor DNS personalizado</string>
     <string name="enable_direct_only">Habilitar %1$s</string>
+    <string name="enable_ipv6">Habilitar IPv6</string>
     <string name="enable_method">Habilitar método</string>
     <string name="encrypted_dns_proxy_info_message_part1">Con el método «Proxy DNS cifrado», la aplicación se comunicará con nuestra API de Mullvad a través de una dirección proxy. Para ello, recupera una dirección de un servidor DNS sobre HTTPS (DoH) y luego la utiliza para contactar con nuestros servidores API.</string>
     <string name="enter_value_placeholder">Introducir MTU</string>

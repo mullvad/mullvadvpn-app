@@ -74,6 +74,7 @@ class VpnSettingsScreenTest {
         navigateToUdp2TcpSettings: () -> Unit = {},
         onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = {},
         onSelectDeviceIpVersion: (Constraint<IpVersion>) -> Unit = {},
+        onToggleIpv6Toggle: (Boolean) -> Unit = {},
     ) {
         setContentWithTheme {
             VpnSettingsScreen(
@@ -106,6 +107,7 @@ class VpnSettingsScreenTest {
                 navigateToUdp2TcpSettings = navigateToUdp2TcpSettings,
                 onToggleAutoStartAndConnectOnBoot = onToggleAutoStartAndConnectOnBoot,
                 onSelectDeviceIpVersion = onSelectDeviceIpVersion,
+                onToggleIpv6Toggle = onToggleIpv6Toggle,
             )
         }
     }
@@ -154,9 +156,9 @@ class VpnSettingsScreenTest {
                         isCustomDnsEnabled = true,
                         customDnsItems =
                             listOf(
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS, false),
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false),
-                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false),
+                                CustomDnsItem(address = DUMMY_DNS_ADDRESS, false, false),
+                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_2, false, false),
+                                CustomDnsItem(address = DUMMY_DNS_ADDRESS_3, false, false),
                             ),
                     )
             )
@@ -176,7 +178,8 @@ class VpnSettingsScreenTest {
                 state =
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = false,
-                        customDnsItems = listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false)),
+                        customDnsItems =
+                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, false, false)),
                     )
             )
             onNodeWithTag(LAZY_LIST_VPN_SETTINGS_TEST_TAG)
@@ -196,7 +199,13 @@ class VpnSettingsScreenTest {
                         isCustomDnsEnabled = true,
                         isLocalNetworkSharingEnabled = true,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = true,
+                                    isIpv6 = false,
+                                )
+                            ),
                     )
             )
 
@@ -213,7 +222,13 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = false,
+                                    isIpv6 = false,
+                                )
+                            ),
                     )
             )
 
@@ -230,7 +245,13 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = false)),
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = false,
+                                    isIpv6 = false,
+                                )
+                            ),
                     )
             )
 
@@ -247,7 +268,13 @@ class VpnSettingsScreenTest {
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
                         customDnsItems =
-                            listOf(CustomDnsItem(address = DUMMY_DNS_ADDRESS, isLocal = true)),
+                            listOf(
+                                CustomDnsItem(
+                                    address = DUMMY_DNS_ADDRESS,
+                                    isLocal = true,
+                                    isIpv6 = false,
+                                )
+                            ),
                     )
             )
 
@@ -417,7 +444,7 @@ class VpnSettingsScreenTest {
                 state =
                     VpnSettingsUiState.createDefault(
                         isCustomDnsEnabled = true,
-                        customDnsItems = listOf(CustomDnsItem("1.1.1.1", false)),
+                        customDnsItems = listOf(CustomDnsItem("1.1.1.1", false, false)),
                     ),
                 navigateToDns = mockedClickHandler,
             )

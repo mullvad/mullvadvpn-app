@@ -154,6 +154,7 @@
     <string name="enable_anyway">เปิดใช้งานต่อไป</string>
     <string name="enable_custom_dns">ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเอง</string>
     <string name="enable_direct_only">เปิดใช้งาน %1$s</string>
+    <string name="enable_ipv6">เปิดใช้งาน IPv6</string>
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
     <string name="encrypted_dns_proxy_info_message_part1">การใช้วิธี \"พร็อกซี DNS ที่เข้ารหัส\" จะช่วยให้แอปสื่อสารกับ Mullvad API ของเราผ่านที่อยู่พร็อกซี ซึ่งทำได้โดยดึงที่อยู่จากเซิร์ฟเวอร์ DNS ผ่าน HTTPS (DoH) แล้วจึงใช้ที่อยู่ดังกล่าวเพื่อเข้าถึงเซิร์ฟเวอร์ API ของเรา</string>
     <string name="enter_value_placeholder">ป้อน MTU</string>

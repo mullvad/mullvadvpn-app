@@ -26,6 +26,7 @@ data class VpnSettingsUiState(
     val systemVpnSettingsAvailable: Boolean,
     val autoStartAndConnectOnBoot: Boolean,
     val deviceIpVersion: Constraint<IpVersion>,
+    val isIpv6Enabled: Boolean,
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
@@ -51,6 +52,7 @@ data class VpnSettingsUiState(
             systemVpnSettingsAvailable: Boolean = false,
             autoStartAndConnectOnBoot: Boolean = false,
             deviceIpVersion: Constraint<IpVersion> = Constraint.Any,
+            isIpv6Enabled: Boolean = true,
         ) =
             VpnSettingsUiState(
                 mtu,
@@ -68,6 +70,7 @@ data class VpnSettingsUiState(
                 systemVpnSettingsAvailable,
                 autoStartAndConnectOnBoot,
                 deviceIpVersion,
+                isIpv6Enabled,
             )
     }
 }

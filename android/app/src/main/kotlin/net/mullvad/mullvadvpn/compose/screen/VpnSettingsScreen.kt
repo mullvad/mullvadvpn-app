@@ -142,6 +142,7 @@ private fun PreviewVpnSettings(
             navigateToWireguardPortDialog = {},
             navigateToServerIpOverrides = {},
             onSelectDeviceIpVersion = {},
+            onToggleIpv6Toggle = {},
         )
     }
 }
@@ -271,6 +272,7 @@ fun VpnSettings(
             dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
+        onToggleIpv6Toggle = vm::setIpv6Enabled,
     )
 }
 
@@ -308,6 +310,7 @@ fun VpnSettingsScreen(
     navigateToUdp2TcpSettings: () -> Unit,
     onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit,
     onSelectDeviceIpVersion: (ipVersion: Constraint<IpVersion>) -> Unit,
+    onToggleIpv6Toggle: (Boolean) -> Unit,
 ) {
     var expandContentBlockersState by rememberSaveable { mutableStateOf(false) }
     val biggerPadding = 54.dp
@@ -467,6 +470,7 @@ fun VpnSettingsScreen(
                         address = item.address,
                         isUnreachableLocalDnsWarningVisible =
                             item.isLocal && !state.isLocalNetworkSharingEnabled,
+                        isUnreachableIpv6DnsWarningVisible = item.isIpv6 && !state.isIpv6Enabled,
                         onClick = { navigateToDns(index, item.address) },
                         modifier = Modifier.animateItem(),
                     )
@@ -677,6 +681,16 @@ fun VpnSettingsScreen(
                     title = stringResource(id = R.string.device_ip_version_ipv6),
                     isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
                     onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
+                )
+                Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
+            }
+
+            item {
+                HeaderSwitchComposeCell(
+                    title = stringResource(R.string.enable_ipv6),
+                    isToggled = state.isIpv6Enabled,
+                    isEnabled = true,
+                    onCellClicked = { newValue -> onToggleIpv6Toggle(newValue) },
                 )
                 Spacer(modifier = Modifier.height(Dimens.cellVerticalSpacing))
             }

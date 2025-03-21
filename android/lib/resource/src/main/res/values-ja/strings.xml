@@ -154,6 +154,7 @@
     <string name="enable_anyway">それでも有効にする</string>
     <string name="enable_custom_dns">カスタムDNSサーバーを使う</string>
     <string name="enable_direct_only">%1$sを有効にする</string>
+    <string name="enable_ipv6">IPv6を有効にする</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
     <string name="enter_value_placeholder">MTU を入力</string>

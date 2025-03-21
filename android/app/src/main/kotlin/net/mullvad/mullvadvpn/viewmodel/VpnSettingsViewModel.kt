@@ -3,6 +3,7 @@ package net.mullvad.mullvadvpn.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.Logger
+import java.net.Inet6Address
 import java.net.InetAddress
 import java.net.UnknownHostException
 import kotlinx.coroutines.CoroutineDispatcher
@@ -85,6 +86,7 @@ class VpnSettingsViewModel(
                     systemVpnSettingsAvailable = systemVpnSettingsUseCase(),
                     autoStartAndConnectOnBoot = autoStartAndConnectOnBoot,
                     deviceIpVersion = settings?.getDeviceIpVersion() ?: Constraint.Any,
+                    ipv6Enabled = settings?.tunnelOptions?.genericOptions?.enableIpv6 == true,
                 )
             }
             .stateIn(
@@ -253,6 +255,14 @@ class VpnSettingsViewModel(
         }
     }
 
+    fun setIpv6Enabled(enable: Boolean) {
+        viewModelScope.launch(dispatcher) {
+            repository.setIpv6Enabled(enable).onLeft {
+                _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
+            }
+        }
+    }
+
     private fun updateDefaultDnsOptionsViaRepository(contentBlockersOption: DefaultDnsOptions) =
         viewModelScope.launch(dispatcher) {
             repository
@@ -275,7 +285,11 @@ class VpnSettingsViewModel(
 
     private fun List<InetAddress>.asStringAddressList(): List<CustomDnsItem> {
         return map {
-            CustomDnsItem(address = it.hostAddress ?: EMPTY_STRING, isLocal = it.isLocalAddress())
+            CustomDnsItem(
+                address = it.hostAddress ?: EMPTY_STRING,
+                isLocal = it.isLocalAddress(),
+                isIpv6 = it is Inet6Address,
+            )
         }
     }
 

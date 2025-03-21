@@ -154,6 +154,7 @@
     <string name="enable_anyway">Toch inschakelen</string>
     <string name="enable_custom_dns">Aangepaste DNS-server gebruiken</string>
     <string name="enable_direct_only">%1$s inschakelen</string>
+    <string name="enable_ipv6">IPv6 inschakelen</string>
     <string name="enable_method">Methode inschakelen</string>
     <string name="encrypted_dns_proxy_info_message_part1">Met de methode \"Versleutelde DNS-proxy\" communiceert de app met onze Mullvad-API via een proxyadres. De app doet dit door een adres op te halen van een DoH-server (DNS over HTTPS) en dat te gebruiken om onze API-servers te bereiken.</string>
     <string name="enter_value_placeholder">Voer MTU in</string>
