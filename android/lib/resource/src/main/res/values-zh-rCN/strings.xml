@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">我们无法启动付款流程，请稍后再试。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服务不可用</string>
     <string name="payment_pending_dialog_message">我们目前正在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将增加。</string>
-    <string name="payment_pending_dialog_title">正在验证购买</string>
     <string name="payment_status_pending">Google Play 付款待处理</string>
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</string>
     <string name="username">用户名</string>
     <string name="verifying_api_method">正在验证 API 方法…</string>
+    <string name="verifying_purchase">正在验证购买</string>
     <string name="verifying_voucher">正在验证优惠券…</string>
     <string name="version">版本</string>
     <string name="view_logs">查看应用日志</string>

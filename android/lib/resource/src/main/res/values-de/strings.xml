@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Wir konnten den Zahlungsvorgang nicht starten, bitte versuchen Sie es später noch einmal.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-Dienste nicht verfügbar</string>
     <string name="payment_pending_dialog_message">Wir verifizieren gerade Ihren Kauf, dies kann einige Zeit dauern. Ihre Zeit wird hinzugefügt, wenn die Verifizierung erfolgreich ist.</string>
-    <string name="payment_pending_dialog_title">Kauf verifizieren</string>
     <string name="payment_status_pending">Google-Play-Zahlung ausstehend</string>
     <string name="please_enter_a_valid_ip_address">Bitte geben Sie eine gültige IPv4- oder IPv6-Adresse ein</string>
     <string name="please_enter_a_valid_remote_server_port">Bitte geben Sie einen gültigen Remote-Server-Port ein</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">Um Ihnen besser weiterhelfen zu können, schreiben Sie uns bitte auf Englisch oder Schwedisch und geben Sie an, aus welchem Land Sie die Verbindung herstellen.</string>
     <string name="username">Benutzername</string>
     <string name="verifying_api_method">API-Methode verifizieren …</string>
+    <string name="verifying_purchase">Kauf verifizieren</string>
     <string name="verifying_voucher">Gutschein verifizieren …</string>
     <string name="version">Version</string>
     <string name="view_logs">App-Protokolle anzeigen</string>

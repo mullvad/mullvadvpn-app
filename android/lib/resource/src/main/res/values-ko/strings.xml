@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">결제 프로세스를 시작할 수 없습니다. 나중에 다시 시도해 주세요.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 서비스 사용 불가</string>
     <string name="payment_pending_dialog_message">구매를 현재 확인하는 중이므로 다소 시간이 걸릴 수 있습니다. 확인을 성공적으로 마치면 시간이 추가됩니다.</string>
-    <string name="payment_pending_dialog_title">구매 확인 중</string>
     <string name="payment_status_pending">Google Play 결제 보류 중</string>
     <string name="please_enter_a_valid_ip_address">유효한 IPv4 또는 IPv6 주소를 입력하세요</string>
     <string name="please_enter_a_valid_remote_server_port">유효한 원격 서버 포트를 입력하세요</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">더 나은 지원을 위해 영어 또는 스웨덴어로 메시지를 작성하고 연결 국가를 포함하세요.</string>
     <string name="username">사용자 이름</string>
     <string name="verifying_api_method">API 방법 확인 중...</string>
+    <string name="verifying_purchase">구매 확인 중</string>
     <string name="verifying_voucher">바우처 확인 중…</string>
     <string name="version">버전</string>
     <string name="view_logs">앱 로그 보기</string>

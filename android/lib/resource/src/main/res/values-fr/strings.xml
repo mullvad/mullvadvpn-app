@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de réessayer plus tard.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Services Mullvad indisponibles</string>
     <string name="payment_pending_dialog_message">Nous vérifions actuellement votre achat, ce qui peut prendre un certain temps. Votre temps sera ajouté si la vérification réussit.</string>
-    <string name="payment_pending_dialog_title">Vérification de l\'achat</string>
     <string name="payment_status_pending">Paiement Google Play en attente</string>
     <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">Pour nous permettre de mieux vous assister, merci d\'écrire en anglais ou en suédois et d\'indiquer le pays à partir duquel vous vous connectez.</string>
     <string name="username">Nom d\'utilisateur</string>
     <string name="verifying_api_method">Vérification de la méthode API...</string>
+    <string name="verifying_purchase">Vérification de l\'achat</string>
     <string name="verifying_voucher">Vérification du bon…</string>
     <string name="version">Version</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>
