@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Actieve functies</string>
     <string name="connect_panel_connection_details">Verbindingsgegevens</string>
     <string name="connected">Verbonden</string>
+    <string name="connecting">Verbinden ...</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="connection_details_in">In</string>
     <string name="connection_details_out">Uit</string>
@@ -205,7 +206,6 @@
     <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>
-    <string name="loading_connecting">Verbinden ...</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
     <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
     <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>

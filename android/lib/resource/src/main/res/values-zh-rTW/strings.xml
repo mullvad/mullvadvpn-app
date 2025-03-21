@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">有效功能</string>
     <string name="connect_panel_connection_details">連線詳細資訊</string>
     <string name="connected">已連線</string>
+    <string name="connecting">正在連線…</string>
     <string name="connecting_to_daemon">連線 Mullvad 系統服務中...</string>
     <string name="connection_details_in">入境</string>
     <string name="connection_details_out">出境</string>
@@ -205,7 +206,6 @@
     <string name="less_than_a_day_left">剩餘時間不足 1 天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">清單名稱</string>
-    <string name="loading_connecting">正在連線…</string>
     <string name="loading_verifying">正在驗證購買…</string>
     <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
