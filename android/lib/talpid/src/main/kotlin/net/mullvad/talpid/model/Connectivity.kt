@@ -12,26 +12,12 @@ sealed class Connectivity {
     // Required by jni
     data object PresumeOnline : Connectivity()
 
-    fun hasIpV4() =
-        when (this) {
-            is Online ->
-                ipAvailability == IpAvailability.Ipv4 || ipAvailability == IpAvailability.All
-            else -> false
-        }
-
-    fun hasIpV6() =
-        when (this) {
-            is Online ->
-                ipAvailability == IpAvailability.Ipv6 || ipAvailability == IpAvailability.All
-            else -> false
-        }
-
     companion object {
         fun fromIpAvailability(ipv4: Boolean, ipv6: Boolean) =
             when {
-                ipv4 && ipv6 -> Online(IpAvailability.All)
-                ipv4 -> Online(IpAvailability.Ipv4)
-                ipv6 -> Online(IpAvailability.Ipv6)
+                ipv4 && ipv6 -> Online(IpAvailability.IpV4AndIpV6)
+                ipv4 -> Online(IpAvailability.IpV4)
+                ipv6 -> Online(IpAvailability.IpV6)
                 else -> Offline
             }
 

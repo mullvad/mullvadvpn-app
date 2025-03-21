@@ -23,7 +23,7 @@ use talpid_types::net::{
 #[cfg(target_os = "android")]
 use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParameters};
 
-use talpid_types::{net::IpAvailbility, tunnel::ParameterGenerationError, ErrorExt};
+use talpid_types::{net::IpAvailability, tunnel::ParameterGenerationError, ErrorExt};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
 
@@ -160,7 +160,7 @@ impl InnerParametersGenerator {
     async fn generate(
         &mut self,
         retry_attempt: u32,
-        ip_availability: IpAvailbility,
+        ip_availability: IpAvailability,
     ) -> Result<TunnelParameters, Error> {
         let data = self.device().await?;
         let selected_relay = self
@@ -299,7 +299,7 @@ impl TunnelParametersGenerator for ParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
-        ip_availbility: IpAvailbility,
+        ip_availbility: IpAvailability,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {

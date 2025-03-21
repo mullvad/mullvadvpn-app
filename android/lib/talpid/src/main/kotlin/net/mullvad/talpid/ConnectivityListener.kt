@@ -66,7 +66,7 @@ class ConnectivityListener(
         _isConnected =
             connectivityManager
                 .hasInternetConnectivity(resolver)
-                .onEach { notifyConnectivityChange(it.hasIpV4(), it.hasIpV6()) }
+                .onEach { notifyConnectivityChange(it) }
                 .stateIn(
                     scope + Dispatchers.IO,
                     SharingStarted.Eagerly,
@@ -99,7 +99,7 @@ class ConnectivityListener(
             linkProperties?.dnsServersWithoutFallback(),
         )
 
-    private external fun notifyConnectivityChange(isIPv4: Boolean, isIPv6: Boolean)
+    private external fun notifyConnectivityChange(connectivity: Connectivity)
 
     private external fun notifyDefaultNetworkChange(networkState: NetworkState?)
 }

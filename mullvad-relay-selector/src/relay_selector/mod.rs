@@ -47,7 +47,7 @@ use talpid_types::{
     net::{
         obfuscation::ObfuscatorConfig,
         proxy::{CustomProxy, Shadowsocks},
-        Endpoint, IpAvailbility, IpVersion, TransportProtocol, TunnelType,
+        Endpoint, IpAvailability, IpVersion, TransportProtocol, TunnelType,
     },
     ErrorExt,
 };
@@ -527,7 +527,7 @@ impl RelaySelector {
     pub fn get_relay(
         &self,
         retry_attempt: usize,
-        runtime_ip_availability: IpAvailbility,
+        runtime_ip_availability: IpAvailability,
     ) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
         let config = SpecializedSelectorConfig::from(&*config_guard);
@@ -561,7 +561,7 @@ impl RelaySelector {
         &self,
         retry_attempt: usize,
         retry_order: &[RelayQuery],
-        runtime_ip_availability: IpAvailbility,
+        runtime_ip_availability: IpAvailability,
     ) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
         let config = SpecializedSelectorConfig::from(&*config_guard);
@@ -604,7 +604,7 @@ impl RelaySelector {
     fn pick_and_merge_query(
         retry_attempt: usize,
         retry_order: &[RelayQuery],
-        runtime_ip_availability: IpAvailbility,
+        runtime_ip_availability: IpAvailability,
         user_config: &NormalSelectorConfig<'_>,
         parsed_relays: &RelayList,
     ) -> Result<RelayQuery, Error> {
@@ -1146,13 +1146,13 @@ impl RelaySelector {
 }
 
 fn apply_ip_availability(
-    runtime_ip_availability: IpAvailbility,
+    runtime_ip_availability: IpAvailability,
     user_query: &mut RelayQuery,
 ) -> Result<(), Error> {
     let ip_version = match runtime_ip_availability {
-        IpAvailbility::IpV4 => Constraint::Only(IpVersion::V4),
-        IpAvailbility::IpV6 => Constraint::Only(IpVersion::V6),
-        IpAvailbility::IpV4AndIpV6 => Constraint::Any,
+        IpAvailability::IpV4 => Constraint::Only(IpVersion::V4),
+        IpAvailability::IpV6 => Constraint::Only(IpVersion::V6),
+        IpAvailability::IpV4AndIpV6 => Constraint::Any,
     };
     let wireguard_constraints = user_query
         .wireguard_constraints()

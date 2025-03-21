@@ -575,14 +575,14 @@ pub enum Connectivity {
     /// The connectivity status is unknown, but persumed to be online
     PresumeOnline,
     /// Host is online with the given IP versions available
-    Online(IpAvailbility),
+    Online(IpAvailability),
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
 #[cfg_attr(target_os = "android", derive(FromJava))]
 #[cfg_attr(target_os = "android", jnix(package = "net.mullvad.talpid.model"))]
 /// Available IP versions
-pub enum IpAvailbility {
+pub enum IpAvailability {
     IpV4,
     IpV6,
     IpV4AndIpV6,
@@ -607,8 +607,8 @@ impl Connectivity {
         matches!(
             self,
             Connectivity::PresumeOnline
-                | Connectivity::Online(IpAvailbility::IpV4)
-                | Connectivity::Online(IpAvailbility::IpV4AndIpV6)
+                | Connectivity::Online(IpAvailability::IpV4)
+                | Connectivity::Online(IpAvailability::IpV4AndIpV6)
         )
     }
 
@@ -618,8 +618,8 @@ impl Connectivity {
     pub fn has_ipv6(&self) -> bool {
         matches!(
             self,
-            Connectivity::Online(IpAvailbility::IpV6)
-                | Connectivity::Online(IpAvailbility::IpV4AndIpV6)
+            Connectivity::Online(IpAvailability::IpV6)
+                | Connectivity::Online(IpAvailability::IpV4AndIpV6)
         )
     }
 }

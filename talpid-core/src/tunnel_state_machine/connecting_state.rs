@@ -10,7 +10,7 @@ use talpid_routing::RouteManagerHandle;
 use talpid_tunnel::tun_provider::TunProvider;
 use talpid_tunnel::{EventHook, TunnelArgs, TunnelEvent, TunnelMetadata};
 use talpid_types::net::{
-    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, IpAvailbility, TunnelParameters,
+    AllowedClients, AllowedEndpoint, AllowedTunnelTraffic, IpAvailability, TunnelParameters,
 };
 use talpid_types::tunnel::{ErrorStateCause, FirewallPolicyError};
 use talpid_types::ErrorExt;
@@ -85,7 +85,7 @@ impl ConnectingState {
                 }
                 return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
             }
-            talpid_types::net::Connectivity::PresumeOnline => IpAvailbility::IpV4,
+            talpid_types::net::Connectivity::PresumeOnline => IpAvailability::IpV4,
             talpid_types::net::Connectivity::Online(ip_availbility) => ip_availbility,
         };
 
