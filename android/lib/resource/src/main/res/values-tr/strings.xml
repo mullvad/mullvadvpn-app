@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s tane daha...</string>
     <string name="feature_quantum_resistant">Kuantum direnci</string>
-    <string name="feature_split_tunneling">Bölünmüş tünelleme</string>
     <string name="feature_udp_2_tcp">Gizleme</string>
     <string name="filter">Filtrele</string>
     <string name="filters">Filtreler:</string>

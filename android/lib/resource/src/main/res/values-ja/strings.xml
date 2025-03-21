@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">その他%1$s件…</string>
     <string name="feature_quantum_resistant">耐量子</string>
-    <string name="feature_split_tunneling">スプリットトンネリング</string>
     <string name="feature_udp_2_tcp">難読化</string>
     <string name="filter">絞り込み</string>
     <string name="filters">絞り込み:</string>

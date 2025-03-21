@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
-    <string name="feature_split_tunneling">การแยกอุโมงค์</string>
     <string name="feature_udp_2_tcp">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="filter">ตัวกรอง</string>
     <string name="filters">ตัวกรอง:</string>

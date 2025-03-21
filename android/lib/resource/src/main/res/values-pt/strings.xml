@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Mais %1$s...</string>
     <string name="feature_quantum_resistant">Resistência quântica</string>
-    <string name="feature_split_tunneling">Divisão do túnel</string>
     <string name="feature_udp_2_tcp">Ofuscação</string>
     <string name="filter">Filtrar</string>
     <string name="filters">Filtros:</string>
