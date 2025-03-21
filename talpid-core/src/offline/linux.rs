@@ -82,7 +82,20 @@ async fn check_connectivity(handle: &RouteManagerHandle, fwmark: Option<u32>) ->
         route_exists(PUBLIC_INTERNET_ADDRESS_V4).await,
         route_exists(PUBLIC_INTERNET_ADDRESS_V6).await,
     ) {
-        (Ok(ipv4), Ok(ipv6)) => Connectivity::Status { ipv4, ipv6 },
+        (Ok(true), Ok(true)) => Connectivity::Online(talpid_types::net::IpAvailbility::IpV4AndIpV6),
+        (Ok(false), Ok(true)) => Connectivity::Online(talpid_types::net::IpAvailbility::IpV6),
+        (Ok(true), no_ipv6) => {
+            // Errors for IPv6 likely mean it's disabled, so assume it's unavailable
+            if let Err(err) = no_ipv6 {
+                log::trace!(
+                    "{}",
+                    err.display_chain_with_msg(
+                        "Failed to infer offline state for IPv6. Assuming it's unavailable"
+                    )
+                )
+            }
+            Connectivity::Online(talpid_types::net::IpAvailbility::IpV4)
+        }
         // If we fail to retrieve the IPv4 route, always assume we're connected
         (Err(err), _) => {
             log::error!(
@@ -91,15 +104,6 @@ async fn check_connectivity(handle: &RouteManagerHandle, fwmark: Option<u32>) ->
             );
             Connectivity::PresumeOnline
         }
-        // Errors for IPv6 likely mean it's disabled, so assume it's unavailable
-        (Ok(ipv4), Err(err)) => {
-            log::trace!(
-                "{}",
-                err.display_chain_with_msg(
-                    "Failed to infer offline state for IPv6. Assuming it's unavailable"
-                )
-            );
-            Connectivity::Status { ipv4, ipv6: false }
-        }
+        _ => Connectivity::Offline,
     }
 }

@@ -46,7 +46,7 @@ use std::{
 #[cfg(target_os = "android")]
 use talpid_types::{android::AndroidContext, ErrorExt};
 use talpid_types::{
-    net::{AllowedEndpoint, Connectivity, TunnelParameters},
+    net::{AllowedEndpoint, Connectivity, IpAvailbility, TunnelParameters},
     tunnel::{ErrorStateCause, ParameterGenerationError, TunnelStateTransition},
 };
 
@@ -452,8 +452,7 @@ pub trait TunnelParametersGenerator: Send + 'static {
     fn generate(
         &mut self,
         retry_attempt: u32,
-        ipv4: bool,
-        ipv6: bool,
+        ip_availbility: IpAvailbility,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>>;
 }
 

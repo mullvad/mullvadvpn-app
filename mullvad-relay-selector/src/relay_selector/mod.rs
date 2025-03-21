@@ -47,7 +47,7 @@ use talpid_types::{
     net::{
         obfuscation::ObfuscatorConfig,
         proxy::{CustomProxy, Shadowsocks},
-        Endpoint, IpVersion, TransportProtocol, TunnelType,
+        Endpoint, IpAvailbility, IpVersion, TransportProtocol, TunnelType,
     },
     ErrorExt,
 };
@@ -176,29 +176,6 @@ pub struct AdditionalWireguardConstraints {
 
     /// If enabled, select relays that support PQ.
     pub quantum_resistant: QuantumResistantState,
-}
-
-/// Whether IPv4 and IPv6 is available at runtime.
-///
-/// `None` means that no IP version is available, `Some(Any)` means that both are available,
-#[derive(Clone, Debug)]
-pub struct RuntimeIpAvailability(Option<Constraint<IpVersion>>);
-
-impl RuntimeIpAvailability {
-    pub fn new(ipv4: bool, ipv6: bool) -> RuntimeIpAvailability {
-        RuntimeIpAvailability(match (ipv4, ipv6) {
-            (true, true) => Some(Constraint::Any),
-            (false, true) => Some(Constraint::Only(IpVersion::V6)),
-            (true, false) => Some(Constraint::Only(IpVersion::V4)),
-            (false, false) => None,
-        })
-    }
-}
-
-impl Default for RuntimeIpAvailability {
-    fn default() -> Self {
-        RuntimeIpAvailability(Some(Constraint::Only(IpVersion::V4)))
-    }
 }
 
 /// This enum exists to separate the two types of [`SelectorConfig`] that exists.
@@ -550,7 +527,7 @@ impl RelaySelector {
     pub fn get_relay(
         &self,
         retry_attempt: usize,
-        runtime_ip_availability: RuntimeIpAvailability,
+        runtime_ip_availability: IpAvailbility,
     ) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
         let config = SpecializedSelectorConfig::from(&*config_guard);
@@ -584,7 +561,7 @@ impl RelaySelector {
         &self,
         retry_attempt: usize,
         retry_order: &[RelayQuery],
-        runtime_ip_availability: RuntimeIpAvailability,
+        runtime_ip_availability: IpAvailbility,
     ) -> Result<GetRelay, Error> {
         let config_guard = self.config.lock().unwrap();
         let config = SpecializedSelectorConfig::from(&*config_guard);
@@ -627,7 +604,7 @@ impl RelaySelector {
     fn pick_and_merge_query(
         retry_attempt: usize,
         retry_order: &[RelayQuery],
-        runtime_ip_availability: RuntimeIpAvailability,
+        runtime_ip_availability: IpAvailbility,
         user_config: &NormalSelectorConfig<'_>,
         parsed_relays: &RelayList,
     ) -> Result<RelayQuery, Error> {
@@ -1169,16 +1146,19 @@ impl RelaySelector {
 }
 
 fn apply_ip_availability(
-    runtime_ip_availability: RuntimeIpAvailability,
+    runtime_ip_availability: IpAvailbility,
     user_query: &mut RelayQuery,
 ) -> Result<(), Error> {
+    let ip_version = match runtime_ip_availability {
+        IpAvailbility::IpV4 => Constraint::Only(IpVersion::V4),
+        IpAvailbility::IpV6 => Constraint::Only(IpVersion::V6),
+        IpAvailbility::IpV4AndIpV6 => Constraint::Any,
+    };
     let wireguard_constraints = user_query
         .wireguard_constraints()
         .to_owned()
         .intersection(WireguardRelayQuery {
-            ip_version: runtime_ip_availability
-                .0
-                .ok_or(Error::IpVersionUnavailable)?,
+            ip_version,
             ..Default::default()
         })
         .ok_or(Error::IpVersionUnavailable)?;

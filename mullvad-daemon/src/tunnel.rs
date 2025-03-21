@@ -8,7 +8,7 @@ use std::{
 
 use tokio::sync::Mutex;
 
-use mullvad_relay_selector::{GetRelay, RelaySelector, RuntimeIpAvailability, WireguardConfig};
+use mullvad_relay_selector::{GetRelay, RelaySelector, WireguardConfig};
 use mullvad_types::{
     endpoint::MullvadWireguardEndpoint, location::GeoIpLocation, relay_list::Relay,
     settings::TunnelOptions,
@@ -23,7 +23,7 @@ use talpid_types::net::{
 #[cfg(target_os = "android")]
 use talpid_types::net::{obfuscation::ObfuscatorConfig, wireguard, TunnelParameters};
 
-use talpid_types::{tunnel::ParameterGenerationError, ErrorExt};
+use talpid_types::{net::IpAvailbility, tunnel::ParameterGenerationError, ErrorExt};
 
 use crate::device::{AccountManagerHandle, Error as DeviceError, PrivateAccountAndDevice};
 
@@ -160,14 +160,12 @@ impl InnerParametersGenerator {
     async fn generate(
         &mut self,
         retry_attempt: u32,
-        ipv4: bool,
-        ipv6: bool,
+        ip_availability: IpAvailbility,
     ) -> Result<TunnelParameters, Error> {
         let data = self.device().await?;
-        let selected_relay = self.relay_selector.get_relay(
-            retry_attempt as usize,
-            RuntimeIpAvailability::new(ipv4, ipv6),
-        )?;
+        let selected_relay = self
+            .relay_selector
+            .get_relay(retry_attempt as usize, ip_availability)?;
 
         match selected_relay {
             #[cfg(not(target_os = "android"))]
@@ -301,14 +299,13 @@ impl TunnelParametersGenerator for ParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
-        ipv4: bool,
-        ipv6: bool,
+        ip_availbility: IpAvailbility,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {
             let mut inner = generator.lock().await;
             inner
-                .generate(retry_attempt, ipv4, ipv6)
+                .generate(retry_attempt, ip_availbility)
                 .await
                 .inspect_err(|error| {
                     log::error!(
