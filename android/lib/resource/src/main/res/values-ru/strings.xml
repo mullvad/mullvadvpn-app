@@ -123,7 +123,6 @@
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
     <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Имя устройства</string>
     <string name="device_name_info_first_paragraph">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</string>
@@ -199,6 +198,7 @@
     <string name="import_overrides_text_title">Импортировать через текст</string>
     <string name="invalid_dns_servers">Пользовательские адреса DNS-серверов %1$s недопустимы</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
+    <string name="ipv4">IPv4</string>
     <string name="ipv6_unavailable">Не удается сконфигурировать IPv6. Отключите этот протокол в приложении или включите на устройстве.</string>
     <string name="is_offline">Устройство отключено от Интернета. Туннельное подключение автоматически запустится, как только ваше устройство подключится к Интернету.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Не удалось запустить туннельное соединение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN».</string>

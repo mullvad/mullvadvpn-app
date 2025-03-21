@@ -105,7 +105,7 @@ fun ConnectionDetails(
                     buildString {
                         append(stringResource(R.string.connection_details_out))
                         append(SPACE_CHAR)
-                        append(stringResource(R.string.connection_details_ipv4))
+                        append(stringResource(R.string.ipv4))
                     },
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 style = MaterialTheme.typography.bodySmall,

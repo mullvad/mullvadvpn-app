@@ -123,7 +123,6 @@
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
     <string name="device_inactive_unblock_warning">Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
     <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Apparaatnaam</string>
     <string name="device_name_info_first_paragraph">Dit is de naam die aan het apparaat is toegewezen. Elk apparaat dat is aangemeld op een Mullvad-account, krijgt een unieke naam waarmee u het kunt identificeren wanneer u uw apparaten beheert in de app of op de website.</string>
@@ -199,6 +198,7 @@
     <string name="import_overrides_text_title">Importeren via tekst</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
+    <string name="ipv4">IPv4</string>
     <string name="ipv6_unavailable">Kon IPv6 niet configureren. Schakel het uit in de app of schakel het in op uw apparaat.</string>
     <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voordat u Mullvad VPN gebruikt.</string>
