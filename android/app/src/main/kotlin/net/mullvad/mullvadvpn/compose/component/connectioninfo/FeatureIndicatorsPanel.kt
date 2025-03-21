@@ -83,7 +83,7 @@ private fun FeatureIndicator.text(): String {
     val resource =
         when (this) {
             FeatureIndicator.QUANTUM_RESISTANCE -> R.string.feature_quantum_resistant
-            FeatureIndicator.SPLIT_TUNNELING -> R.string.feature_split_tunneling
+            FeatureIndicator.SPLIT_TUNNELING -> R.string.split_tunneling
             FeatureIndicator.SHADOWSOCKS,
             FeatureIndicator.UDP_2_TCP -> R.string.feature_udp_2_tcp
             FeatureIndicator.LAN_SHARING -> R.string.local_network_sharing

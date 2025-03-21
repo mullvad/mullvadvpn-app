@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Nog %1$s...</string>
     <string name="feature_quantum_resistant">Kwantumbestendigheid</string>
-    <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscatie</string>
     <string name="filter">Filter</string>
     <string name="filters">Filters:</string>

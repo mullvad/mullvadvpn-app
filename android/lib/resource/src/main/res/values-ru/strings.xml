@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Еще %1$s...</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>
-    <string name="feature_split_tunneling">Раздельное туннелирование</string>
     <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
     <string name="filters">Фильтры:</string>

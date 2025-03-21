@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s개 더 보기...</string>
     <string name="feature_quantum_resistant">양자 저항</string>
-    <string name="feature_split_tunneling">분할 터널링</string>
     <string name="feature_udp_2_tcp">난독 처리</string>
     <string name="filter">필터</string>
     <string name="filters">필터:</string>
