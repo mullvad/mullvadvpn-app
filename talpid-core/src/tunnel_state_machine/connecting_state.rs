@@ -86,7 +86,7 @@ impl ConnectingState {
                 return ErrorState::enter(shared_values, ErrorStateCause::IsOffline);
             }
             talpid_types::net::Connectivity::PresumeOnline => IpAvailability::IpV4,
-            talpid_types::net::Connectivity::Online(ip_availbility) => ip_availbility,
+            talpid_types::net::Connectivity::Online(ip_availability) => ip_availability,
         };
 
         match shared_values.runtime.block_on(

@@ -597,7 +597,7 @@ impl Connectivity {
     /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
     /// so we consider ourselves offline.
     pub fn is_offline(&self) -> bool {
-        self == Connectivity::Offline
+        *self == Connectivity::Offline
     }
 
     /// Whether IPv4 connectivity seems to be available on the host.
@@ -621,5 +621,17 @@ impl Connectivity {
             Connectivity::Online(IpAvailability::IpV6)
                 | Connectivity::Online(IpAvailability::IpV4AndIpV6)
         )
+    }
+
+    pub fn new(ipv4: bool, ipv6: bool) -> Connectivity {
+        if ipv4 && ipv6 {
+            Connectivity::Online(IpAvailability::IpV4AndIpV6)
+        } else if ipv4 {
+            Connectivity::Online(IpAvailability::IpV4)
+        } else if ipv6 {
+            Connectivity::Online(IpAvailability::IpV6)
+        } else {
+            Connectivity::Offline
+        }
     }
 }

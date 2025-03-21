@@ -299,13 +299,13 @@ impl TunnelParametersGenerator for ParametersGenerator {
     fn generate(
         &mut self,
         retry_attempt: u32,
-        ip_availbility: IpAvailability,
+        ip_availability: IpAvailability,
     ) -> Pin<Box<dyn Future<Output = Result<TunnelParameters, ParameterGenerationError>>>> {
         let generator = self.0.clone();
         Box::pin(async move {
             let mut inner = generator.lock().await;
             inner
-                .generate(retry_attempt, ip_availbility)
+                .generate(retry_attempt, ip_availability)
                 .await
                 .inspect_err(|error| {
                     log::error!(
