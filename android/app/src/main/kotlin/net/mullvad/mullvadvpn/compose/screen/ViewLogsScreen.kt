@@ -77,7 +77,8 @@ fun ViewLogs(navigator: DestinationsNavigator) {
 @Composable
 fun ViewLogsScreen(state: ViewLogsUiState, onBackClick: () -> Unit) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val clipboardHandle = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val clipboardHandle =
+        createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = false)
     Scaffold(
         snackbarHost = {
             SnackbarHost(

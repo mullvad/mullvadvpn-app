@@ -287,7 +287,8 @@ private fun WelcomeInfo(
 @Composable
 private fun AccountNumberRow(snackbarHostState: SnackbarHostState, state: WelcomeUiState) {
     val copiedAccountNumberMessage = stringResource(id = R.string.copied_mullvad_account_number)
-    val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val copyToClipboard =
+        createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = true)
     val onCopyToClipboard = {
         copyToClipboard(state.accountNumber?.value ?: "", copiedAccountNumberMessage)
     }
