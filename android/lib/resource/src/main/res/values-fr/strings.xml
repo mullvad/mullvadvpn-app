@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Déconnecté (aucune autorisation VPN)</string>
     <string name="disconnecting">Déconnexion en cours...</string>
     <string name="dismiss">Ignorer</string>
+    <string name="dns_content_blockers">Bloqueurs de contenu DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention : ce paramètre ne peut pas être utilisé en combinaison avec « Utiliser un serveur DNS personnalisé ».</string>
     <string name="dns_content_blockers_info">Lorsque cette fonctionnalité est activée, elle empêche l\'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</string>
     <string name="dns_content_blockers_subtitle">Désactivez « %1$s » ci-dessous pour activer ces paramètres.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">FAQ et guides</string>
     <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">Bloqueurs de contenu DNS</string>
     <string name="feature_indicators_show_more">%1$s autre(s)...</string>
     <string name="feature_lan_sharing">Partage réseau local</string>
     <string name="feature_quantum_resistant">Résistance quantique</string>

@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Desligado (sem permissão de VPN)</string>
     <string name="disconnecting">A desligar...</string>
     <string name="dismiss">Dispensar</string>
+    <string name="dns_content_blockers">Bloqueadores de conteúdo de DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Atenção: esta definição não pode ser utilizada em combinação com \"Utilizar servidor DNS personalizado\".</string>
     <string name="dns_content_blockers_info">Quando esta funcionalidade é ativada, impede que o dispositivo contacte certos domínios ou sites conhecidos por distribuir anúncios, malware, trackers e muito mais.</string>
     <string name="dns_content_blockers_subtitle">Desative \"%1$s\" abaixo para ativar estas definições.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Perguntas frequentes e guias</string>
     <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">Bloqueadores de conteúdo de DNS</string>
     <string name="feature_indicators_show_more">Mais %1$s...</string>
     <string name="feature_lan_sharing">Partilha de rede local</string>
     <string name="feature_quantum_resistant">Resistência quântica</string>

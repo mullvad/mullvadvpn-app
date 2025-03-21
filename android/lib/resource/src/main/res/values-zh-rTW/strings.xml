@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">已中斷連線 (無 VPN 權限)</string>
     <string name="disconnecting">正在中斷連線…</string>
     <string name="dismiss">取消</string>
+    <string name="dns_content_blockers">DNS 內容封鎖程式</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此設定不能與「使用自訂 DNS 伺服器」共同使用。</string>
     <string name="dns_content_blockers_info">此功能啟用後，便會禁止裝置聯繫某些已知會傳播廣告、惡意軟體、追蹤程式等內容的網域或網站。</string>
     <string name="dns_content_blockers_subtitle">停用下方的「%1$s」以啟動這些設定。</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">常見問題集與指南</string>
     <string name="feature_custom_dns">自訂 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS 內容封鎖程式</string>
     <string name="feature_indicators_show_more">其他 %1$s 個…</string>
     <string name="feature_lan_sharing">本機網路分享</string>
     <string name="feature_quantum_resistant">抗量子</string>

@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Rozłączono (brak uprawnienia VPN)</string>
     <string name="disconnecting">Rozłączanie...</string>
     <string name="dismiss">Odrzuć</string>
+    <string name="dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Uwaga: tego ustawienia nie można używać w połączeniu z opcją „Użyj niestandardowego serwera DNS”.</string>
     <string name="dns_content_blockers_info">Po włączeniu funkcja ta uniemożliwia urządzeniu kontakt z określonymi domenami lub witrynami internetowymi, które rozpowszechniają reklamy, złośliwe oprogramowanie itd.</string>
     <string name="dns_content_blockers_subtitle">Aby aktywować te ustawienia, wyłącz opcję „%1$s” poniżej.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Często zadawane pytania i poradniki</string>
     <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">Funkcje blokowania treści DNS</string>
     <string name="feature_indicators_show_more">Jeszcze %1$s...</string>
     <string name="feature_lan_sharing">Udostępnianie sieci lokalnej</string>
     <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>

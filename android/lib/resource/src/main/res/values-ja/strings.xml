@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">接続が解除されました (VPN のアクセス許可なし)</string>
     <string name="disconnecting">接続解除中...</string>
     <string name="dismiss">閉じる</string>
+    <string name="dns_content_blockers">DNSコンテンツブロッカー</string>
     <string name="dns_content_blockers_custom_dns_warning">注意: この設定を [カスタムDNSサーバーを使う] と一緒に使用することはできません。</string>
     <string name="dns_content_blockers_info">この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。</string>
     <string name="dns_content_blockers_subtitle">これらの設定を有効にするには、下の [%1$s] を無効にしてください。</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">よくある質問とガイド</string>
     <string name="feature_custom_dns">カスタムDNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNSコンテンツブロッカー</string>
     <string name="feature_indicators_show_more">その他%1$s件…</string>
     <string name="feature_lan_sharing">ローカルネットワーク共有</string>
     <string name="feature_quantum_resistant">耐量子</string>

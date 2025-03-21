@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Yhteys katkaistu (ei VPN-käyttöoikeutta)</string>
     <string name="disconnecting">Katkaistaan yhteyttä...</string>
     <string name="dismiss">Jätä huomiotta</string>
+    <string name="dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa.</string>
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
     <string name="dns_content_blockers_subtitle">Ota nämä asetukset käyttöön poistamalla \"%1$s\" käytöstä alta.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
     <string name="feature_lan_sharing">Paikallisen verkon jakaminen</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>

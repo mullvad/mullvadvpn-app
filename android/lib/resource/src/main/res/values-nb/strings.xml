@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Frakoblet (ingen VPN-tillatelse)</string>
     <string name="disconnecting">Kobler fra …</string>
     <string name="dismiss">Ignorer</string>
+    <string name="dns_content_blockers">DNS-innholdsblokkering</string>
     <string name="dns_content_blockers_custom_dns_warning">OBS: Denne innstillingen kan ikke brukes sammen med «Bruk egendefinert DNS-server».</string>
     <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver «%1$s» nedenfor for å aktivere innstillingene.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
     <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-innholdsblokkering</string>
     <string name="feature_indicators_show_more">%1$s til …</string>
     <string name="feature_lan_sharing">Deling over lokalt nettverk</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>

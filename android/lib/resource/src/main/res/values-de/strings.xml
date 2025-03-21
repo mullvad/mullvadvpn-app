@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Verbindung getrennt (keine VPN-Berechtigung)</string>
     <string name="disconnecting">Verbindung wird getrennt …</string>
     <string name="dismiss">Ausblenden</string>
+    <string name="dns_content_blockers">DNS-Inhaltssperren</string>
     <string name="dns_content_blockers_custom_dns_warning">Achtung: Diese Einstellung kann nicht in Kombination mit der Option „Benutzerdefinierten DNS-Server verwenden“ verwendet werden.</string>
     <string name="dns_content_blockers_info">Wenn diese Funktion aktiviert ist, wird das Gerät daran gehindert, bestimmte Domains oder Websites zu kontaktieren, die für die Verbreitung von Werbung, Malware, Trackern und mehr bekannt sind.</string>
     <string name="dns_content_blockers_subtitle">Deaktivieren Sie unten „%1$s“, um diese Einstellungen zu aktivieren.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Häufig gestellte Fragen &amp; Anleitungen</string>
     <string name="feature_custom_dns">Eigenes DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-Inhaltssperren</string>
     <string name="feature_indicators_show_more">%1$s weitere …</string>
     <string name="feature_lan_sharing">Teilen im lokalen Netzwerk</string>
     <string name="feature_quantum_resistant">Quantenresistenz</string>

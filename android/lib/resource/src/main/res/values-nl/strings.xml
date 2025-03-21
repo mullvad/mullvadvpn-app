@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Verbinding verbroken (geen VPN-toestemming)</string>
     <string name="disconnecting">Verbinding wordt verbroken...</string>
     <string name="dismiss">Negeren</string>
+    <string name="dns_content_blockers">DNS-contentblokkeringen</string>
     <string name="dns_content_blockers_custom_dns_warning">Let op: deze instelling kan niet worden gebruikt in combinatie met \"Aangepaste DNS-server gebruiken\".</string>
     <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
     <string name="dns_content_blockers_subtitle">Schakel \"%1$s\" hieronder uit om deze instellingen te activeren.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Veelgestelde vragen en gidsen</string>
     <string name="feature_custom_dns">Aangepaste DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-contentblokkeringen</string>
     <string name="feature_indicators_show_more">Nog %1$s...</string>
     <string name="feature_lan_sharing">Delen op lokaal netwerk</string>
     <string name="feature_quantum_resistant">Kwantumbestendigheid</string>

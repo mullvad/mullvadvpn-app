@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">연결되지 않음(VPN 권한 없음)</string>
     <string name="disconnecting">연결 해제 중...</string>
     <string name="dismiss">해제</string>
+    <string name="dns_content_blockers">DNS 콘텐츠 차단기</string>
     <string name="dns_content_blockers_custom_dns_warning">주의: 이 설정은 \"사용자 지정 DNS 서버 사용\"과 함께 사용할 수 없습니다.</string>
     <string name="dns_content_blockers_info">이 기능이 활성화되면 광고, 맬웨어, 트래커 등을 배포하는 것으로 알려진 특정 도메인이나 웹사이트에 장치가 연결하지 않게 방지됩니다.</string>
     <string name="dns_content_blockers_subtitle">이 설정을 활성화하려면 아래의 \"%1$s\"를 비활성화하세요.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">FAQ 및 가이드</string>
     <string name="feature_custom_dns">사용자 지정 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS 콘텐츠 차단기</string>
     <string name="feature_indicators_show_more">%1$s개 더 보기...</string>
     <string name="feature_lan_sharing">로컬 네트워크 공유</string>
     <string name="feature_quantum_resistant">양자 저항</string>
