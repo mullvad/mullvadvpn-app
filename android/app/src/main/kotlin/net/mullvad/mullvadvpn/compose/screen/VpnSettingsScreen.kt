@@ -272,7 +272,7 @@ fun VpnSettings(
             dropUnlessResumed { navigator.navigate(Udp2TcpSettingsDestination) },
         onToggleAutoStartAndConnectOnBoot = vm::onToggleAutoStartAndConnectOnBoot,
         onSelectDeviceIpVersion = vm::onDeviceIpVersionSelected,
-        onToggleIpv6Toggle = vm::setIpV6Enabled,
+        onToggleIpv6Toggle = vm::setIpv6Enabled,
     )
 }
 

@@ -74,7 +74,7 @@ class VpnSettingsScreenTest {
         navigateToUdp2TcpSettings: () -> Unit = {},
         onToggleAutoStartAndConnectOnBoot: (Boolean) -> Unit = {},
         onSelectDeviceIpVersion: (Constraint<IpVersion>) -> Unit = {},
-        onToggleIPv6Toggle: (Boolean) -> Unit = {},
+        onToggleIpv6Toggle: (Boolean) -> Unit = {},
     ) {
         setContentWithTheme {
             VpnSettingsScreen(
@@ -107,7 +107,7 @@ class VpnSettingsScreenTest {
                 navigateToUdp2TcpSettings = navigateToUdp2TcpSettings,
                 onToggleAutoStartAndConnectOnBoot = onToggleAutoStartAndConnectOnBoot,
                 onSelectDeviceIpVersion = onSelectDeviceIpVersion,
-                onToggleIpv6Toggle = onToggleIPv6Toggle,
+                onToggleIpv6Toggle = onToggleIpv6Toggle,
             )
         }
     }

@@ -35,15 +35,27 @@ sealed interface DnsDialogSideEffect {
 data class DnsDialogViewState(
     val input: String,
     val validationError: ValidationError?,
-    val isLocal: Boolean,
     val isAllowLanEnabled: Boolean,
-    val isIpv6: Boolean,
     val isIpv6Enabled: Boolean,
     val index: Int?,
 ) {
     val isNewEntry = index == null
+    val isIpv6: Boolean = input.isIpv6()
+    val isLocal: Boolean = input.isLocalAddress()
 
     fun isValid() = validationError == null
+
+    private fun String.isLocalAddress(): Boolean {
+        return isValid() && InetAddress.getByName(this).isLocalAddress()
+    }
+
+    private fun String.isIpv6(): Boolean {
+        return isValid() && InetAddress.getByName(this) is Inet6Address
+    }
+
+    private fun InetAddress.isLocalAddress(): Boolean {
+        return isLinkLocalAddress || isSiteLocalAddress
+    }
 }
 
 sealed class ValidationError {
@@ -74,8 +86,6 @@ class DnsDialogViewModel(
                     input = input,
                     validationError =
                         input.validateDnsEntry(currentIndex, settings.addresses()).leftOrNull(),
-                    isLocal = input.isLocalAddress(),
-                    isIpv6 = input.isIpv6(),
                     isAllowLanEnabled = settings.allowLan,
                     isIpv6Enabled = settings.tunnelOptions.genericOptions.enableIpv6,
                     index = currentIndex,
@@ -87,8 +97,6 @@ class DnsDialogViewModel(
                 DnsDialogViewState(
                     input = _ipAddressInput.value,
                     validationError = null,
-                    isLocal = _ipAddressInput.value.isLocalAddress(),
-                    isIpv6 = _ipAddressInput.value.isIpv6(),
                     isAllowLanEnabled = false,
                     isIpv6Enabled = false,
                     index = null,
@@ -151,18 +159,6 @@ class DnsDialogViewModel(
 
     private fun String.isValidIp(): Boolean {
         return inetAddressValidator.isValid(this)
-    }
-
-    private fun String.isLocalAddress(): Boolean {
-        return isValidIp() && InetAddress.getByName(this).isLocalAddress()
-    }
-
-    private fun String.isIpv6(): Boolean {
-        return isValidIp() && InetAddress.getByName(this) is Inet6Address
-    }
-
-    private fun InetAddress.isLocalAddress(): Boolean {
-        return isLinkLocalAddress || isSiteLocalAddress
     }
 
     private fun InetAddress.isDuplicateDnsEntry(

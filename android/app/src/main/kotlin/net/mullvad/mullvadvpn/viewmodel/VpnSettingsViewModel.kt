@@ -255,9 +255,9 @@ class VpnSettingsViewModel(
         }
     }
 
-    fun setIpV6Enabled(enable: Boolean) {
+    fun setIpv6Enabled(enable: Boolean) {
         viewModelScope.launch(dispatcher) {
-            repository.setIpV6Enabled(enable).onLeft {
+            repository.setIpv6Enabled(enable).onLeft {
                 _uiSideEffect.send(VpnSettingsSideEffect.ShowToast.GenericError)
             }
         }
