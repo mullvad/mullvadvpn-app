@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">활성 기능</string>
     <string name="connect_panel_connection_details">연결 세부 정보</string>
     <string name="connected">연결됨</string>
+    <string name="connecting">연결 중...</string>
     <string name="connecting_to_daemon">Mullvad 시스템 서비스에 연결하는 중...</string>
     <string name="connection_details_in">인</string>
     <string name="connection_details_out">아웃</string>
@@ -205,7 +206,6 @@
     <string name="less_than_a_day_left">1일 이내</string>
     <string name="less_than_one_day">1일 미만</string>
     <string name="list_name">목록 이름</string>
-    <string name="loading_connecting">연결 중...</string>
     <string name="loading_verifying">구매 확인 중...</string>
     <string name="local_network_sharing_additional_info">이를 위해 터널 외부에서 로컬 멀티캐스트 및 브로드캐스트 범위는 물론 다음 개인 IP 범위와의 네트워크 통신을 허용합니다.</string>
     <string name="local_network_sharing_info">이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다.</string>

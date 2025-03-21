@@ -20,7 +20,7 @@ fun PurchaseResult.toPaymentDialogData(): PaymentDialogData? =
         PurchaseResult.FetchingProducts,
         PurchaseResult.FetchingObfuscationId ->
             PaymentDialogData(
-                title = R.string.loading_connecting,
+                title = R.string.connecting,
                 icon = PaymentDialogIcon.LOADING,
                 closeOnDismiss = false,
             )
