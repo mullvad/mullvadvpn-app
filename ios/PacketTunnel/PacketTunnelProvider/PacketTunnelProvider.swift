@@ -73,7 +73,6 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
         let pinger = TunnelPinger(pingProvider: adapter.icmpPingProvider, replyQueue: internalQueue)
 
         let tunnelMonitor = TunnelMonitor(
-            eventQueue: internalQueue,
             pinger: pinger,
             tunnelDeviceInfo: adapter,
             timings: TunnelMonitorTimings()
@@ -188,11 +187,13 @@ class PacketTunnelProvider: NEPacketTunnelProvider, @unchecked Sendable {
     }
 
     override func sleep() async {
-        actor.onSleep()
+        await actor.onSleep()
     }
 
     override func wake() {
-        actor.onWake()
+        Task {
+            await actor.onWake()
+        }
     }
 
     private func performSettingsMigration() {
