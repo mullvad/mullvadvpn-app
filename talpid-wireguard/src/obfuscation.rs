@@ -2,7 +2,6 @@
 
 use super::{Error, Result};
 use crate::{CloseMsg, config::Config};
-use socket2::Socket;
 #[cfg(target_os = "android")]
 use std::sync::{Arc, Mutex};
 use std::{
@@ -65,19 +64,8 @@ pub async fn apply_obfuscation_config(
         patch_endpoint(config, obfuscator.endpoint());
 
         let obfuscation_task = tokio::spawn(async move {
-            match Box::new(obfuscator).run().await {
-                Ok(_) => {
-                    let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
-                }
-                Err(error) => {
-                    log::error!(
-                        "{}",
-                        error.display_chain_with_msg("Obfuscation controller failed")
-                    );
-                    let _ = close_msg_sender
-                        .send(CloseMsg::ObfuscatorFailed(Error::ObfuscationError(error)));
-                }
-            }
+            obfuscator.start().await.unwrap();
+            let _ = close_msg_sender.send(CloseMsg::ObfuscatorExpired);
         });
 
         return Ok(Some(ObfuscatorHandle {

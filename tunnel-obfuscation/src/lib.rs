@@ -1,10 +1,10 @@
 use async_trait::async_trait;
-use std::net::SocketAddr;
+use std::{io, net::SocketAddr};
 
+pub mod multiplexer;
 pub mod quic;
 pub mod shadowsocks;
 pub mod udp2tcp;
-pub mod multiplexer;
 
 pub type Result<T> = std::result::Result<T, Error>;
 
@@ -27,6 +27,9 @@ pub enum Error {
 
     #[error("Failed to run Quic")]
     RunQuicObfuscator(#[source] quic::Error),
+
+    #[error("IO-error while running multiplexer")]
+    IoError(#[from] io::Error),
 }
 
 #[async_trait]

@@ -28,7 +28,7 @@ pub struct Quic {
     _shutdown: DropGuard,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Settings {
     /// Remote Quic endpoint
     quic_endpoint: SocketAddr,
