@@ -23,9 +23,17 @@ features = [
     "Win32_Foundation",
     "Win32_Globalization",
     "Win32_Security",
+    "Win32_Security_Authorization",
     "Win32_System_Diagnostics_ToolHelp",
     "Win32_System_IO",
     "Win32_Networking_WinSock",
     "Win32_NetworkManagement_IpHelper",
     "Win32_NetworkManagement_Ndis",
+]
+
+[target.'cfg(windows)'.dev-dependencies.windows-sys]
+workspace = true
+features = [
+    "Win32_Storage",
+    "Win32_Storage_FileSystem"
 ]
