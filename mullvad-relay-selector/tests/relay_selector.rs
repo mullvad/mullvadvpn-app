@@ -391,7 +391,7 @@ fn test_wireguard_retry_order() {
     let relay_selector = default_relay_selector();
     for (retry_attempt, query) in WIREGUARD_RETRY_ORDER.iter().enumerate() {
         let relay = relay_selector
-            .get_relay(retry_attempt, talpid_types::net::IpAvailability::IpV6)
+            .get_relay(retry_attempt, talpid_types::net::IpAvailability::IpV4AndIpV6)
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
         // For each relay, cross-check that the it has the expected tunnel protocol
         let tunnel_type = tunnel_type(&unwrap_relay(relay.clone()));
@@ -450,7 +450,7 @@ fn test_openvpn_retry_order() {
 
     for (retry_attempt, query) in OPENVPN_RETRY_ORDER.iter().enumerate() {
         let relay = relay_selector
-            .get_relay(retry_attempt, talpid_types::net::IpAvailability::IpV6)
+            .get_relay(retry_attempt, talpid_types::net::IpAvailability::IpV4AndIpV6)
             .unwrap_or_else(|_| panic!("Retry attempt {retry_attempt} did not yield any relay"));
         // For each relay, cross-check that the it has the expected tunnel protocol
         let tunnel_type = tunnel_type(&unwrap_relay(relay.clone()));

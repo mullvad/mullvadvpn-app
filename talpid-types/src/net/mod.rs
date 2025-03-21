@@ -572,7 +572,7 @@ pub fn all_of_the_internet() -> Vec<ipnetwork::IpNetwork> {
 pub enum Connectivity {
     /// Host is offline
     Offline,
-    /// The connectivity status is unknown, but persumed to be online
+    /// The connectivity status is unknown, but presumed to be online
     PresumeOnline,
     /// Host is online with the given IP versions available
     Online(IpAvailability),
@@ -597,7 +597,7 @@ impl Connectivity {
     /// If no IP4 nor IPv6 routes exist, we have no way of reaching the internet
     /// so we consider ourselves offline.
     pub fn is_offline(&self) -> bool {
-        matches!(self, Connectivity::Offline)
+        self == Connectivity::Offline
     }
 
     /// Whether IPv4 connectivity seems to be available on the host.
