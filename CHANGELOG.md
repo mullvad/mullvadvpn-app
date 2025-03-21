@@ -27,6 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 
 ### Fixed
 - Fix `mullvad-cli` panicking if it tried to write to a closed pipe on Linux and macOS.
+- Will no longer try to connect over IPv4 if IPv4 is not available.
 
 
 ## [2025.5-beta1] - 2025-03-11
