@@ -18,18 +18,26 @@ public struct MullvadApiRequestFactory: Sendable {
 
     public func makeRequest(_ request: APIRequest) -> REST.MullvadApiRequestHandler {
         { completion in
-            let pointerClass = MullvadApiCompletion { apiResponse in
+            let completionPointer = MullvadApiCompletion { apiResponse in
                 try? completion?(apiResponse)
             }
 
-            let rawPointer = Unmanaged.passRetained(pointerClass).toOpaque()
+            let rawCompletionPointer = Unmanaged.passRetained(completionPointer).toOpaque()
 
             return switch request {
             case let .getAddressList(retryStrategy):
                 MullvadApiCancellable(handle: mullvad_api_get_addresses(
                     apiContext.context,
-                    rawPointer,
+                    rawCompletionPointer,
                     retryStrategy.toRustStrategy()
+                ))
+
+            case let .getRelayList(retryStrategy, etag: etag):
+                MullvadApiCancellable(handle: mullvad_api_get_relays(
+                    apiContext.context,
+                    rawCompletionPointer,
+                    retryStrategy.toRustStrategy(),
+                    etag
                 ))
             }
         }

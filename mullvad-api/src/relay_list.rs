@@ -2,7 +2,7 @@
 
 use crate::rest;
 
-use hyper::{header, StatusCode};
+use hyper::{body::Incoming, header, StatusCode};
 use mullvad_types::{location, relay_list};
 use talpid_types::net::wireguard;
 
@@ -32,7 +32,27 @@ impl RelayListProxy {
     pub fn relay_list(
         &self,
         etag: Option<String>,
-    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> + use<> {
+    ) -> impl Future<Output = Result<Option<relay_list::RelayList>, rest::Error>> {
+        let request = self.relay_list_response(etag.clone());
+
+        async move {
+            let response = request.await.map_err(rest::Error::from)?;
+
+            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
+                return Ok(None);
+            }
+
+            let etag = Self::extract_etag(&response);
+
+            let relay_list: ServerRelayList = response.deserialize().await?;
+            Ok(Some(relay_list.into_relay_list(etag)))
+        }
+    }
+
+    pub fn relay_list_response(
+        &self,
+        etag: Option<String>,
+    ) -> impl Future<Output = Result<rest::Response<Incoming>, rest::Error>> {
         let service = self.handle.service.clone();
         let request = self.handle.factory.get("app/v1/relays");
 
@@ -46,24 +66,22 @@ impl RelayListProxy {
             }
 
             let response = service.request(request).await?;
-            if etag.is_some() && response.status() == StatusCode::NOT_MODIFIED {
-                return Ok(None);
-            }
 
-            let etag = response
-                .headers()
-                .get(header::ETAG)
-                .and_then(|tag| match tag.to_str() {
-                    Ok(tag) => Some(tag.to_string()),
-                    Err(_) => {
-                        log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
-                        None
-                    }
-                });
-
-            let relay_list: ServerRelayList = response.deserialize().await?;
-            Ok(Some(relay_list.into_relay_list(etag)))
+            Ok(response)
         }
+    }
+
+    pub fn extract_etag(response: &rest::Response<Incoming>) -> Option<String> {
+        response
+            .headers()
+            .get(header::ETAG)
+            .and_then(|tag| match tag.to_str() {
+                Ok(tag) => Some(tag.to_string()),
+                Err(_) => {
+                    log::error!("Ignoring invalid tag from server: {:?}", tag.as_bytes());
+                    None
+                }
+            })
     }
 }
 

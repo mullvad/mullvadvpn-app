@@ -43,6 +43,7 @@ typedef struct SwiftRetryStrategy {
 typedef struct SwiftMullvadApiResponse {
   uint8_t *body;
   uintptr_t body_size;
+  uint8_t *etag;
   uint16_t status_code;
   uint8_t *error_description;
   uint8_t *server_response_code;
@@ -112,6 +113,25 @@ struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
 struct SwiftCancelHandle mullvad_api_get_addresses(struct SwiftApiContext api_context,
                                                    void *completion_cookie,
                                                    struct SwiftRetryStrategy retry_strategy);
+
+/**
+ * # Safety
+ *
+ * `api_context` must be pointing to a valid instance of `SwiftApiContext`. A `SwiftApiContext` is created
+ * by calling `mullvad_api_init_new`.
+ *
+ * `completion_cookie` must be pointing to a valid instance of `CompletionCookie`. `CompletionCookie` is
+ * safe because the pointer in `MullvadApiCompletion` is valid for the lifetime of the process where this
+ * type is intended to be used.
+ *
+ * `etag` must be a pointer to a null terminated string.
+ *
+ * This function is not safe to call multiple times with the same `CompletionCookie`.
+ */
+struct SwiftCancelHandle mullvad_api_get_relays(struct SwiftApiContext api_context,
+                                                void *completion_cookie,
+                                                struct SwiftRetryStrategy retry_strategy,
+                                                const uint8_t *etag);
 
 /**
  * Called by the Swift side to signal that a Mullvad API call should be cancelled.
