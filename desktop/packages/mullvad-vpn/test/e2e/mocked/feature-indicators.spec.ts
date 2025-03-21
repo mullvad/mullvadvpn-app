@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { Page } from 'playwright';
 
+import { RoutePath } from '../../../src/renderer/lib/routes';
 import {
   FeatureIndicator,
   ILocation,
@@ -33,6 +34,7 @@ let util: MockedTestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startMockedApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {

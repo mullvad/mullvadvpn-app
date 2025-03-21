@@ -15,6 +15,7 @@ import { Button, Container, Flex, FootnoteMini, IconButton, Spinner } from '../l
 import { Colors } from '../lib/foundations';
 import { useHistory } from '../lib/history';
 import { formatHtml } from '../lib/html-formatter';
+import { useAfterTransition } from '../lib/transition-hooks';
 import { useEffectEvent, useStyledRef } from '../lib/utility-hooks';
 import { IReduxState } from '../redux/store';
 import { AppNavigationHeader } from './';
@@ -114,14 +115,17 @@ function useFilePicker(
 
 function LinuxSplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsProps) {
   const { getLinuxSplitTunnelingApplications, launchExcludedApplication } = useAppContext();
+  const runAfterTransition = useAfterTransition();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [applications, setApplications] = useState<ILinuxSplitTunnelingApplication[]>();
   const [browseError, setBrowseError] = useState<string>();
 
-  const updateApplications = useEffectEvent(async () => {
-    const applications = await getLinuxSplitTunnelingApplications();
-    setApplications(applications);
+  const updateApplications = useEffectEvent(() => {
+    runAfterTransition(async () => {
+      const applications = await getLinuxSplitTunnelingApplications();
+      setApplications(applications);
+    });
   });
 
   useEffect(() => void updateApplications(), []);
@@ -312,6 +316,7 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     needFullDiskPermissions,
     setSplitTunnelingState,
   } = useAppContext();
+  const runAfterTransition = useAfterTransition();
   const splitTunnelingEnabled = useSelector((state: IReduxState) => state.settings.splitTunneling);
   const splitTunnelingApplications = useSelector(
     (state: IReduxState) => state.settings.splitTunnelingApplications,
@@ -340,14 +345,16 @@ export function SplitTunnelingSettings(props: IPlatformSplitTunnelingSettingsPro
     }
   }, [fetchNeedFullDiskPermissions]);
 
-  const onMount = useEffectEvent(async () => {
-    const { fromCache, applications } = await getSplitTunnelingApplications();
-    setApplications(applications);
-
-    if (fromCache) {
-      const { applications } = await getSplitTunnelingApplications(true);
+  const onMount = useEffectEvent(() => {
+    runAfterTransition(async () => {
+      const { fromCache, applications } = await getSplitTunnelingApplications();
       setApplications(applications);
-    }
+
+      if (fromCache) {
+        const { applications } = await getSplitTunnelingApplications(true);
+        setApplications(applications);
+      }
+    });
   });
 
   useEffect(() => void onMount(), []);

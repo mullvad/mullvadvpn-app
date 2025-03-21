@@ -25,6 +25,7 @@ let util: TestUtils;
 
 test.beforeAll(async () => {
   ({ page, util } = await startInstalledApp());
+  await util.waitForRoute(RoutePath.main);
 });
 
 test.afterAll(async () => {
@@ -32,8 +33,10 @@ test.afterAll(async () => {
 });
 
 async function navigateToAccessMethods() {
-  await util.waitForNavigation(() => page.click('button[aria-label="Settings"]'));
-  await util.waitForNavigation(() => page.getByText('API access').click());
+  await page.click('button[aria-label="Settings"]');
+  await util.waitForRoute(RoutePath.settings);
+  await page.getByText('API access').click();
+  await util.waitForRoute(RoutePath.apiAccessMethods);
 
   const title = page.locator('h1');
   await expect(title).toHaveText('API access');
@@ -55,7 +58,8 @@ test('App should display access methods', async () => {
 });
 
 test('App should add invalid access method', async () => {
-  await util.waitForNavigation(() => page.locator('button:has-text("Add")').click());
+  await page.locator('button:has-text("Add")').click();
+  await util.waitForNextRoute();
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Add method');
@@ -79,9 +83,8 @@ test('App should add invalid access method', async () => {
   await expect(page.getByText('Testing method...')).toBeVisible();
   await expect(page.getByText('API unreachable, add anyway?')).toBeVisible();
 
-  expect(
-    await util.waitForNavigation(() => page.locator('button:has-text("Save")').click()),
-  ).toEqual(RoutePath.apiAccessMethods);
+  await page.locator('button:has-text("Save")').click();
+  await util.waitForRoute(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
   // Direct, Bridges, Encrypted DNS Proxy & the non-functioning access method.
@@ -109,7 +112,8 @@ test('App should use invalid method', async () => {
 test('App should edit access method', async () => {
   const customMethod = page.getByTestId('access-method').last();
   await customMethod.locator('button').last().click();
-  await util.waitForNavigation(() => customMethod.getByText('Edit').click());
+  await customMethod.getByText('Edit').click();
+  await util.waitForNextRoute();
 
   const title = page.locator('h1');
   await expect(title).toHaveText('Edit method');
@@ -133,9 +137,8 @@ test('App should edit access method', async () => {
     .getByRole('option', { name: process.env.SHADOWSOCKS_SERVER_CIPHER!, exact: true })
     .click();
 
-  expect(await util.waitForNavigation(() => saveButton.click())).toEqual(
-    RoutePath.apiAccessMethods,
-  );
+  await page.locator('button:has-text("Save")').last().click();
+  await util.waitForRoute(RoutePath.apiAccessMethods);
 
   const accessMethods = page.getByTestId('access-method');
   // Direct, Bridges, Encrypted DNS Proxy & the custom access method.
