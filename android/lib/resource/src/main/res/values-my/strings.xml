@@ -302,7 +302,6 @@
     <string name="search_location_empty_text">\"%1$s\" အတွက် ရလဒ်မရှိပါ၊ အခြားရှာဖွေမှုတစ်ခုကို စမ်းလုပ်ကြည့်ပါ</string>
     <string name="search_placeholder">ရှာရန်...</string>
     <string name="search_query_empty">စတင်ရှာဖွေရန် အနည်းဆုံး အက္ခရာ 2 လုံး ရိုက်ထည့်ပါ။</string>
-    <string name="see_full_changelog">ပြောင်းလဲမှုမှတ်တမ်း အပြည့်အစုံကို ကြည့်ရန်</string>
     <string name="select_location">တည်နေရာ ရွေးရန်</string>
     <string name="send">ပို့ရန်</string>
     <string name="send_anyway">မည်သို့ပင်ဖြစ်စေ ပို့ရန်</string>
