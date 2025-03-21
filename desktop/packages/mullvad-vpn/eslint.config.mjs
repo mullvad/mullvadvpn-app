@@ -51,7 +51,7 @@ export default [
     rules: { '@typescript-eslint/no-unused-expressions': 'off' },
   },
   {
-    files: ['tasks/*', 'scripts/*', 'gulpfile.js', 'init.js'],
+    files: ['tasks/*', 'scripts/*'],
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
 ];
