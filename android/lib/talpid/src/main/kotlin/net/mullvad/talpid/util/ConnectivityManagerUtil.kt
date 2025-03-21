@@ -6,8 +6,6 @@ import android.net.LinkProperties
 import android.net.Network
 import android.net.NetworkCapabilities
 import co.touchlab.kermit.Logger
-import java.net.Inet4Address
-import java.net.Inet6Address
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.awaitClose
@@ -137,7 +135,7 @@ internal fun ConnectivityManager.activeRawNetworkState(): RawNetworkState? =
 @OptIn(FlowPreview::class)
 fun ConnectivityManager.hasInternetConnectivity(
     resolver: UnderlyingConnectivityStatusResolver
-): Flow<Connectivity.Status> =
+): Flow<Connectivity> =
     this.defaultRawNetworkStateFlow()
         .debounce(CONNECTIVITY_DEBOUNCE)
         .map { resolveConnectivityStatus(it, resolver) }
@@ -146,7 +144,7 @@ fun ConnectivityManager.hasInternetConnectivity(
 internal fun resolveConnectivityStatus(
     currentRawNetworkState: RawNetworkState?,
     resolver: UnderlyingConnectivityStatusResolver,
-): Connectivity.Status =
+): Connectivity =
     if (currentRawNetworkState.isVpn()) {
         // If the default network is a VPN we need to use a socket to check
         // the underlying network
@@ -158,10 +156,7 @@ internal fun resolveConnectivityStatus(
     }
 
 private fun RawNetworkState?.toConnectivityStatus() =
-    Connectivity.Status(
-        ipv4 = this?.linkProperties?.linkAddresses?.any { it.address is Inet4Address } == true,
-        ipv6 = this?.linkProperties?.linkAddresses?.any { it.address is Inet6Address } == true,
-    )
+    Connectivity.fromLinkAddresses(this?.linkProperties?.linkAddresses ?: emptyList())
 
 private fun RawNetworkState?.isVpn(): Boolean =
     this?.networkCapabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) == false

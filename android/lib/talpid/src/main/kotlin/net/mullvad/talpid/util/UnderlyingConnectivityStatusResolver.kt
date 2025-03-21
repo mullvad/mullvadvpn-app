@@ -14,8 +14,8 @@ import net.mullvad.talpid.model.Connectivity
 class UnderlyingConnectivityStatusResolver(
     private val protect: (socket: DatagramSocket) -> Boolean
 ) {
-    fun currentStatus(): Connectivity.Status =
-        Connectivity.Status(ipv4 = hasIPv4(), ipv6 = hasIPv6())
+    fun currentStatus(): Connectivity =
+        Connectivity.fromIpAvailability(ipv4 = hasIPv4(), ipv6 = hasIPv6())
 
     private fun hasIPv4(): Boolean =
         hasIpVersion(Inet4Address.getByName(PUBLIC_IPV4_ADDRESS), protect)
