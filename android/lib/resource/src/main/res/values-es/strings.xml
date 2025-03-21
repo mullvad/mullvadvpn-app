@@ -123,7 +123,6 @@
     <string name="device_inactive_description">Ha quitado este dispositivo. Vuelva a iniciar la sesión para conectarse.</string>
     <string name="device_inactive_title">El dispositivo está inactivo</string>
     <string name="device_inactive_unblock_warning">Al iniciar la sesión, se desbloqueará el acceso a Internet en este dispositivo.</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Nombre del dispositivo</string>
     <string name="device_name_info_first_paragraph">Este es el nombre asignado al dispositivo. Cada dispositivo conectado a una cuenta de Mullvad recibe un nombre único que ayuda a identificarlo cuando gestiona sus dispositivos en la aplicación o en el sitio web.</string>
     <string name="device_name_info_second_paragraph">Puede tener hasta 5 dispositivos conectados a una cuenta de Mullvad.</string>
@@ -199,6 +198,7 @@
     <string name="invalid_dns_servers">Las direcciones del servidor DNS personalizado %1$s no son válidas</string>
     <string name="invalid_voucher">El código del cupón no es válido.</string>
     <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">No se pudo configurar IPv6. Desactívelo en la aplicación o actívelo en el dispositivo.</string>
     <string name="is_offline">El dispositivo está sin conexión. El túnel se conectará automáticamente cuando el dispositivo vuelva a estar en línea.</string>
     <string name="legacy_always_on_vpn_error_notification_content">No se puede iniciar la conexión de túnel. Deshabilite la VPN siempre activa antes de utilizar la Mullvad VPN.</string>

@@ -674,7 +674,7 @@ fun VpnSettingsScreen(
             }
             item {
                 SelectableCell(
-                    title = stringResource(id = R.string.device_ip_version_ipv6),
+                    title = stringResource(id = R.string.ipv6),
                     isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
                     onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
                 )

@@ -359,7 +359,7 @@
     <string name="feature_multihop">Multihop</string>
     <string name="dns_content_blockers">DNS content blockers</string>
     <string name="ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
+    <string name="ipv6">IPv6</string>
     <string name="connection_details_in">In</string>
     <string name="feature_indicators_show_more">%1$s more...</string>
     <string name="connect">Connect</string>
@@ -406,5 +406,4 @@
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
     <string name="device_ip_version_title">Device IP version</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
 </resources>
