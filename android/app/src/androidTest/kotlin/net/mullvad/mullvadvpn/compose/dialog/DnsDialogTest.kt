@@ -21,10 +21,8 @@ class DnsDialogTest {
         DnsDialogViewState(
             input = "",
             validationError = null,
-            isLocal = false,
             isAllowLanEnabled = false,
             index = null,
-            isIpv6 = false,
             isIpv6Enabled = true,
         )
 
@@ -50,7 +48,7 @@ class DnsDialogTest {
     fun testDnsDialogLanWarningShownWhenLanTrafficDisabledAndLocalAddressUsed() =
         composeExtension.use {
             // Arrange
-            initDialog(defaultState.copy(isAllowLanEnabled = false, isLocal = true))
+            initDialog(defaultState.copy(isAllowLanEnabled = false, input = localIpAddress))
 
             // Assert
             onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertExists()
@@ -60,7 +58,7 @@ class DnsDialogTest {
     fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndLocalAddressUsed() =
         composeExtension.use {
             // Arrange
-            initDialog(defaultState.copy(isAllowLanEnabled = true, isLocal = true))
+            initDialog(defaultState.copy(isAllowLanEnabled = true, input = localIpAddress))
 
             // Assert
             onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
@@ -70,7 +68,7 @@ class DnsDialogTest {
     fun testDnsDialogLanWarningNotShownWhenLanTrafficEnabledAndNonLocalAddressUsed() =
         composeExtension.use {
             // Arrange
-            initDialog(defaultState.copy(isAllowLanEnabled = true, isLocal = false))
+            initDialog(defaultState.copy(isAllowLanEnabled = true, input = publicIpAddress))
 
             // Assert
             onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
@@ -80,7 +78,7 @@ class DnsDialogTest {
     fun testDnsDialogLanWarningNotShownWhenLanTrafficDisabledAndNonLocalAddressUsed() =
         composeExtension.use {
             // Arrange
-            initDialog(defaultState.copy(isAllowLanEnabled = false, isLocal = false))
+            initDialog(defaultState.copy(isAllowLanEnabled = false, input = publicIpAddress))
 
             // Assert
             onNodeWithText(LOCAL_DNS_SERVER_WARNING).assertDoesNotExist()
@@ -107,7 +105,7 @@ class DnsDialogTest {
             // Arrange
             initDialog(
                 defaultState.copy(
-                    input = "192.168.0.1",
+                    input = localIpAddress,
                     validationError = ValidationError.DuplicateAddress,
                 )
             )
@@ -122,5 +120,7 @@ class DnsDialogTest {
                 "\"Local Network Sharing\" under VPN settings."
 
         private const val invalidIpAddress = "300.300.300.300"
+        private const val localIpAddress = "192.168.0.1"
+        private const val publicIpAddress = "1.1.1.1"
     }
 }

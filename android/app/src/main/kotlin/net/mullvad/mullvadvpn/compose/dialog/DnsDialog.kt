@@ -29,7 +29,7 @@ import org.koin.androidx.compose.koinViewModel
 private fun PreviewDnsDialogNew() {
     AppTheme {
         DnsDialog(
-            DnsDialogViewState("1.1.1.1", null, false, false, false, false, null),
+            DnsDialogViewState("1.1.1.1", null, false, false, null),
             {},
             {},
             {},
@@ -43,7 +43,7 @@ private fun PreviewDnsDialogNew() {
 private fun PreviewDnsDialogEdit() {
     AppTheme {
         DnsDialog(
-            DnsDialogViewState("1.1.1.1", null, false, false, false, false, 0),
+            DnsDialogViewState("1.1.1.1", null, false, false, 0),
             {},
             {},
             {},
@@ -57,7 +57,7 @@ private fun PreviewDnsDialogEdit() {
 private fun PreviewDnsDialogEditAllowLanDisabled() {
     AppTheme {
         DnsDialog(
-            DnsDialogViewState("192.168.1.1", null, true, false, false, false, 0),
+            DnsDialogViewState("192.168.1.1", null, false, false, 0),
             {},
             {},
             {},
