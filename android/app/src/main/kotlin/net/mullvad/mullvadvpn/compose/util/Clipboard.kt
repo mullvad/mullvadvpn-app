@@ -1,19 +1,26 @@
 package net.mullvad.mullvadvpn.compose.util
 
+import android.content.ClipData
 import android.os.Build
+import android.os.PersistableBundle
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.toClipEntry
 import kotlinx.coroutines.launch
 
 typealias CopyToClipboardHandle = (content: String, toastMessage: String?) -> Unit
 
+private const val IS_SENSITIVE_FLAG = "android.content.extra.IS_SENSITIVE"
+
 @Composable
-fun createCopyToClipboardHandle(snackbarHostState: SnackbarHostState): CopyToClipboardHandle {
+fun createCopyToClipboardHandle(
+    snackbarHostState: SnackbarHostState,
+    isSensitive: Boolean,
+): CopyToClipboardHandle {
     val scope = rememberCoroutineScope()
     val clipboardManager: ClipboardManager = LocalClipboardManager.current
 
@@ -27,6 +34,14 @@ fun createCopyToClipboardHandle(snackbarHostState: SnackbarHostState): CopyToCli
             }
         }
 
-        clipboardManager.setText(AnnotatedString(textToCopy))
+        val clip =
+            ClipData.newPlainText("", textToCopy)
+                .apply {
+                    description.extras =
+                        PersistableBundle().apply { putBoolean(IS_SENSITIVE_FLAG, isSensitive) }
+                }
+                .toClipEntry()
+
+        clipboardManager.setClip(clip)
     }
 }
