@@ -16,6 +16,7 @@ import {
 } from '../../shared/notifications';
 import { useAppContext } from '../context';
 import useActions from '../lib/actionsHook';
+import { Button } from '../lib/components';
 import { transitions, useHistory } from '../lib/history';
 import {
   NewDeviceNotificationProvider,
@@ -27,7 +28,6 @@ import { useTunnelProtocol } from '../lib/relay-settings-hooks';
 import { RoutePath } from '../lib/routes';
 import accountActions from '../redux/account/actions';
 import { IReduxState, useSelector } from '../redux/store';
-import * as AppButton from './AppButton';
 import { ModalAlert, ModalAlertType, ModalMessage, ModalMessageList } from './Modal';
 import {
   NotificationActions,
@@ -238,43 +238,38 @@ function NotificationActionWrapper({
   }
 
   const problemReportButton = action.troubleshoot?.buttons ? (
-    <AppButton.BlueButton key="problem-report" onClick={goToProblemReport}>
-      {messages.pgettext('in-app-notifications', 'Send problem report')}
-    </AppButton.BlueButton>
+    <Button key="problem-report" onClick={goToProblemReport}>
+      <Button.Text>
+        {
+          // TRANSLATORS: Button label to send a problem report.
+          messages.pgettext('in-app-notifications', 'Send problem report')
+        }
+      </Button.Text>
+    </Button>
   ) : (
-    <AppButton.GreenButton key="problem-report" onClick={goToProblemReport}>
-      {messages.pgettext('in-app-notifications', 'Send problem report')}
-    </AppButton.GreenButton>
+    <Button variant="success" key="problem-report" onClick={goToProblemReport}>
+      <Button.Text>
+        {
+          // TRANSLATORS: Button label to send a problem report.
+          messages.pgettext('in-app-notifications', 'Send problem report')
+        }
+      </Button.Text>
+    </Button>
   );
 
   let buttons = [
     problemReportButton,
-    <AppButton.BlueButton key="back" onClick={closeTroubleshootModal}>
-      {messages.gettext('Back')}
-    </AppButton.BlueButton>,
+    <Button key="back" onClick={closeTroubleshootModal}>
+      <Button.Text>{messages.gettext('Back')}</Button.Text>
+    </Button>,
   ];
 
   if (action.troubleshoot?.buttons) {
-    const actionButtons = action.troubleshoot.buttons.map(({ variant, label, action }) => {
-      if (variant === 'success')
-        return (
-          <AppButton.GreenButton key={label} onClick={action}>
-            {label}
-          </AppButton.GreenButton>
-        );
-      else if (variant === 'destructive')
-        return (
-          <AppButton.RedButton key={label} onClick={action}>
-            {label}
-          </AppButton.RedButton>
-        );
-      else
-        return (
-          <AppButton.BlueButton key={label} onClick={action}>
-            {label}
-          </AppButton.BlueButton>
-        );
-    });
+    const actionButtons = action.troubleshoot.buttons.map(({ variant, label, action }) => (
+      <Button key={label} variant={variant} onClick={action}>
+        <Button.Text>{label}</Button.Text>
+      </Button>
+    ));
 
     buttons = actionButtons.concat(buttons);
   }
