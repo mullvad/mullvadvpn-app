@@ -206,7 +206,7 @@ fun ServerIpOverridesScreen(
             SnackbarHost(hostState = snackbarHostState) { MullvadSnackbar(snackbarData = it) }
             PrimaryButton(
                 onClick = { showBottomSheet = true },
-                text = stringResource(R.string.server_ip_overrides_import_button),
+                text = stringResource(R.string.import_overrides_import),
                 modifier =
                     Modifier.padding(horizontal = Dimens.sideMargin)
                         .padding(bottom = Dimens.screenVerticalMargin)
