@@ -35,8 +35,10 @@ mod android;
 mod gettext;
 mod normalize;
 
+use crate::android::{StringResource, StringValue};
 use crate::gettext::MsgValue;
 use crate::normalize::Normalize;
+use itertools::Itertools;
 use std::{
     collections::HashMap,
     fs::{self, File},
@@ -52,6 +54,32 @@ fn main() {
     let string_resources: android::StringResources =
         quick_xml::de::from_reader(BufReader::new(strings_file))
             .expect("Failed to read string resources file");
+
+    // The current format is not built to handle multiple strings with the same values
+    // so we check for duplicates and panic if they are present
+    let duplicates: HashMap<&StringValue, Vec<&StringResource>> = string_resources
+        .iter()
+        .into_group_map_by(|res| &res.value)
+        .into_iter()
+        .filter(|(_, string_resources)| string_resources.len() > 1)
+        .collect();
+
+    if !duplicates.is_empty() {
+        duplicates
+            .iter()
+            .for_each(|(string_value, string_resources)| {
+                eprintln!(
+                    "String value: '{}', exists in following resource IDs: {}",
+                    string_value,
+                    string_resources
+                        .iter()
+                        .map(|x| x.name.clone())
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                )
+            });
+        panic!("Duplicate string values!!");
+    }
 
     let known_strings: HashMap<_, _> = string_resources
         .into_iter()
