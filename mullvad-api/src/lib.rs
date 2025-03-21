@@ -670,7 +670,7 @@ impl ProblemReportProxy {
         log: &str,
         metadata: &BTreeMap<String, String>,
     ) -> impl Future<Output = Result<(), rest::Error>> {
-        let future =         self.porblem_report_response(email, message, log, metadata);
+        let future = self.porblem_report_response(email, message, log, metadata);
 
         async move {
             future.await?;
