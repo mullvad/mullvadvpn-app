@@ -302,7 +302,6 @@
     <string name="search_location_empty_text">Haulle \"%1$s\" ei löytynyt tuloksia. Kokeile toista hakua.</string>
     <string name="search_placeholder">Hae...</string>
     <string name="search_query_empty">Aloita haku kirjoittamalla vähintään 2 merkkiä.</string>
-    <string name="see_full_changelog">Avaa koko muutosloki</string>
     <string name="select_location">Valitse sijainti</string>
     <string name="send">Lähetä</string>
     <string name="send_anyway">Lähetä silti</string>
