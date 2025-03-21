@@ -57,7 +57,7 @@ class HeaderBarView: UIView {
     }()
 
     let accountButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconAccount"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.account)
         button.setAccessibilityIdentifier(.accountButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_ACCOUNT_BUTTON_ACCESSIBILITY_LABEL",
@@ -71,7 +71,7 @@ class HeaderBarView: UIView {
     }()
 
     let settingsButton: UIButton = {
-        let button = makeHeaderBarButton(with: UIImage(named: "IconSettings"))
+        let button = makeHeaderBarButton(with: UIImage.Buttons.settings)
         button.setAccessibilityIdentifier(.settingsButton)
         button.accessibilityLabel = NSLocalizedString(
             "HEADER_BAR_SETTINGS_BUTTON_ACCESSIBILITY_LABEL",
@@ -84,7 +84,14 @@ class HeaderBarView: UIView {
         return button
     }()
 
+//    class func prepareHeaderBarButtonImage(from image: UIImage) -> UIImage {
+//        let resizeRatio = 24.0 / 20.0
+//        let targetSize = CGSize(width: image.size.width * resizeRatio, height: image.size.height * resizeRatio)
+//        return image // .resizeImage(targetSize: targetSize)
+//    }
+
     class func makeHeaderBarButton(with image: UIImage?) -> IncreasedHitButton {
+//        let image = image.map { prepareHeaderBarButtonImage(from: $0) }
         let buttonImage = image?.withTintColor(UIColor.HeaderBar.buttonColor, renderingMode: .alwaysOriginal)
         let disabledButtonImage = image?.withTintColor(
             UIColor.HeaderBar.disabledButtonColor,

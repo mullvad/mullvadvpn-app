@@ -25,7 +25,7 @@ class SettingsHeaderView: UITableViewHeaderFooterView {
         let button = UIButton(type: .custom)
         button.setAccessibilityIdentifier(.infoButton)
         button.tintColor = .white
-        button.setImage(UIImage(named: "IconInfo"), for: .normal)
+        button.setImage(UIImage.Buttons.info, for: .normal)
         return button
     }()
 

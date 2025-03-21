@@ -31,11 +31,11 @@ enum AlertIcon {
     fileprivate var image: UIImage? {
         switch self {
         case .alert:
-            return UIImage(named: "IconAlert")?.withTintColor(.dangerColor)
+            return UIImage.Buttons.alert.withTintColor(.dangerColor)
         case .warning:
-            return UIImage(named: "IconAlert")?.withTintColor(.white)
+            return UIImage.Buttons.alert.withTintColor(.white)
         case .info:
-            return UIImage(named: "IconInfo")?.withTintColor(.white)
+            return UIImage.Buttons.info.withTintColor(.white)
         default:
             return nil
         }
@@ -284,7 +284,7 @@ class AlertViewController: UIViewController {
         imageContainerView.addConstrainedSubviews([imageView]) {
             imageView.pinEdges(.init([.top(0), .bottom(0)]), to: imageContainerView)
             imageView.centerXAnchor.constraint(equalTo: imageContainerView.centerXAnchor, constant: 0)
-            imageView.heightAnchor.constraint(equalToConstant: 44)
+            imageView.heightAnchor.constraint(equalToConstant: 48)
             imageView.widthAnchor.constraint(equalTo: imageView.heightAnchor, multiplier: 1)
         }
 
