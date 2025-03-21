@@ -667,7 +667,7 @@ fun VpnSettingsScreen(
             }
             itemWithDivider {
                 SelectableCell(
-                    title = stringResource(id = R.string.device_ip_version_ipv4),
+                    title = stringResource(id = R.string.ipv4),
                     isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV4,
                     onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV4)) },
                 )

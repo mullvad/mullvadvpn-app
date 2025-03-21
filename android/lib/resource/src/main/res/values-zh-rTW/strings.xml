@@ -123,7 +123,6 @@
     <string name="device_inactive_description">您已移除此裝置。若要重新連線，您需要重新登入。</string>
     <string name="device_inactive_title">裝置處於非活動狀態</string>
     <string name="device_inactive_unblock_warning">若前往登入，則會在此裝置上解除對網際網路的封鎖。</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
     <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">裝置名稱</string>
     <string name="device_name_info_first_paragraph">這是系統指派給裝置的名稱。每台登入 Mulvad 帳戶的裝置都會獲得一個獨特名稱，有助於您在應用程式或網站上管理裝置時識別各台裝置。</string>
@@ -199,6 +198,7 @@
     <string name="import_overrides_text_title">透過文字匯入</string>
     <string name="invalid_dns_servers">自訂 DNS 伺服器位址 %1$s 無效</string>
     <string name="invalid_voucher">憑證兌換碼無效。</string>
+    <string name="ipv4">IPv4</string>
     <string name="ipv6_unavailable">無法配置 IPv6。請在應用程式中將其停用，或是在您的裝置上啟用它。</string>
     <string name="is_offline">您的裝置已離線。在您的裝置重新上線後，通道將自動連線。</string>
     <string name="legacy_always_on_vpn_error_notification_content">無法啟動通道連線。在使用 Mullvad VPN 之前，請停用「一律啟用 VPN」。</string>

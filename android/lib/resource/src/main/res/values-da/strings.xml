@@ -123,7 +123,6 @@
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>
     <string name="device_inactive_unblock_warning">Hvis du logger på, ophæves blokeringen af internettet på denne enhed.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
     <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Enhedsnavn</string>
     <string name="device_name_info_first_paragraph">Dette er det navn, der er tildelt enheden. Hver enhed, der er logget på en Mullvad-konto, får et unikt navn, der hjælper dig med at identificere den, når du administrerer dine enheder i appen eller på webstedet.</string>
@@ -199,6 +198,7 @@
     <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
+    <string name="ipv4">IPv4</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver det i appen, eller aktiver det på din enhed.</string>
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN før brug af Mullvad VPN.</string>

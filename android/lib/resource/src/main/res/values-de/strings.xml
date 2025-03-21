@@ -123,7 +123,6 @@
     <string name="device_inactive_description">Sie haben dieses Gerät entfernt. Um sich erneut zu verbinden, müssen Sie sich erneut anmelden.</string>
     <string name="device_inactive_title">Gerät ist inaktiv</string>
     <string name="device_inactive_unblock_warning">Wenn Sie mit der Anmeldung fortfahren, wird die Internetsperre auf diesem Gerät aufgehoben.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
     <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Gerätename</string>
     <string name="device_name_info_first_paragraph">Dies ist der dem Gerät zugewiesene Name. Jedes Gerät, das in einem Mullvad-Konto angemeldet ist, erhält einen eindeutigen Namen, mit dem Sie es identifizieren können, wenn Sie Ihre Geräte in der App oder auf der Website verwalten.</string>
@@ -199,6 +198,7 @@
     <string name="import_overrides_text_title">Import via Text</string>
     <string name="invalid_dns_servers">Eigene DNS-Server Adressen %1$s sind ungültig</string>
     <string name="invalid_voucher">Der Gutscheincode ist ungültig.</string>
+    <string name="ipv4">IPv4</string>
     <string name="ipv6_unavailable">IPv6 konnte nicht konfiguriert werden. Deaktivieren Sie es in der App oder aktivieren Sie es auf Ihrem Gerät.</string>
     <string name="is_offline">Ihr Gerät ist offline. Der Tunnel wird automatisch verbunden, sobald Ihr Gerät wieder online ist.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunnelverbindung kann nicht gestartet werden. Bitte deaktivieren Sie Always-on VPN, bevor Sie Mullvad VPN verwenden.</string>
