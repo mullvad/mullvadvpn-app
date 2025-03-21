@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Nog %1$s...</string>
     <string name="feature_quantum_resistant">Kwantumbestendigheid</string>
-    <string name="feature_server_ip_override">Overschrijving van server-IP-adressen</string>
     <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscatie</string>
     <string name="filter">Filter</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
     <string name="server">Server</string>
+    <string name="server_ip_override">Overschrijving van server-IP-adressen</string>
     <string name="server_ip_overrides_active">Overschrijvingen actief</string>
     <string name="server_ip_overrides_import_by">Nieuwe overschrijvingen importeren vanuit</string>
     <string name="server_ip_overrides_import_by_file">Bestand</string>

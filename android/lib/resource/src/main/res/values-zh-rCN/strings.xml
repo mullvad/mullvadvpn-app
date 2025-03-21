@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">其他 %1$s 个…</string>
     <string name="feature_quantum_resistant">量子阻力</string>
-    <string name="feature_server_ip_override">服务器 IP 覆盖</string>
     <string name="feature_split_tunneling">分割隧道</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">筛选</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">如果需要，我们将通过 %1$s 与您联系</string>
     <string name="sent_thanks">谢谢！</string>
     <string name="server">服务器</string>
+    <string name="server_ip_override">服务器 IP 覆盖</string>
     <string name="server_ip_overrides_active">覆盖设置已激活</string>
     <string name="server_ip_overrides_import_by">导入新覆盖设置的方式</string>
     <string name="server_ip_overrides_import_by_file">文件</string>

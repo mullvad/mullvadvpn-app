@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s개 더 보기...</string>
     <string name="feature_quantum_resistant">양자 저항</string>
-    <string name="feature_server_ip_override">서버 IP 재정의</string>
     <string name="feature_split_tunneling">분할 터널링</string>
     <string name="feature_udp_2_tcp">난독 처리</string>
     <string name="filter">필터</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">필요한 경우 %1$s(으)로 연락드리겠습니다.</string>
     <string name="sent_thanks">감사합니다!</string>
     <string name="server">서버</string>
+    <string name="server_ip_override">서버 IP 재정의</string>
     <string name="server_ip_overrides_active">재정의 활성화</string>
     <string name="server_ip_overrides_import_by">다음으로 새로운 재정의 가져오기:</string>
     <string name="server_ip_overrides_import_by_file">파일</string>

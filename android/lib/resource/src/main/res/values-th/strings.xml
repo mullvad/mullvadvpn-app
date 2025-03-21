@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
-    <string name="feature_server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
     <string name="feature_split_tunneling">การแยกอุโมงค์</string>
     <string name="feature_udp_2_tcp">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="filter">ตัวกรอง</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
     <string name="server">เซิร์ฟเวอร์</string>
+    <string name="server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
     <string name="server_ip_overrides_active">เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="server_ip_overrides_import_by">นำเข้าโอเวอร์ไรด์ใหม่โดยใช้</string>
     <string name="server_ip_overrides_import_by_file">ไฟล์</string>

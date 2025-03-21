@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s till ...</string>
     <string name="feature_quantum_resistant">Kvantresistens</string>
-    <string name="feature_server_ip_override">Åsidosättning av server-IP</string>
     <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuskering</string>
     <string name="filter">Filtrera</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">Om det behövs kontaktar vi dig på %1$s</string>
     <string name="sent_thanks">Tack!</string>
     <string name="server">Server</string>
+    <string name="server_ip_override">Åsidosättning av server-IP</string>
     <string name="server_ip_overrides_active">Åsidosättningar aktiva</string>
     <string name="server_ip_overrides_import_by">Importera nya åsidosättningar med</string>
     <string name="server_ip_overrides_import_by_file">Fil</string>

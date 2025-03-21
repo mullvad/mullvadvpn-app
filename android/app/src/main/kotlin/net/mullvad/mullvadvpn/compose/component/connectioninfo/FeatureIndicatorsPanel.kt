@@ -89,7 +89,7 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.LAN_SHARING -> R.string.local_network_sharing
             FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
-            FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.feature_server_ip_override
+            FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.server_ip_override
             FeatureIndicator.CUSTOM_MTU -> R.string.feature_custom_mtu
             FeatureIndicator.DAITA -> R.string.daita
             FeatureIndicator.MULTIHOP -> R.string.multihop

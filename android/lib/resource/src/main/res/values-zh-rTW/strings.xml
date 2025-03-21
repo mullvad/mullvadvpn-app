@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">其他 %1$s 個…</string>
     <string name="feature_quantum_resistant">抗量子</string>
-    <string name="feature_server_ip_override">伺服器 IP 覆寫</string>
     <string name="feature_split_tunneling">分割通道</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">篩選</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">如有需要，我們將透過 %1$s 與您聯絡</string>
     <string name="sent_thanks">謝謝！</string>
     <string name="server">伺服器</string>
+    <string name="server_ip_override">伺服器 IP 覆寫</string>
     <string name="server_ip_overrides_active">覆寫設定已啟用</string>
     <string name="server_ip_overrides_import_by">匯入新覆寫設定的方式</string>
     <string name="server_ip_overrides_import_by_file">檔案</string>

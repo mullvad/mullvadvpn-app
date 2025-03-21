@@ -276,7 +276,7 @@
     <string name="name_was_changed_to">Name was changed to %s</string>
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
     <string name="not_found">Not found</string>
-    <string name="server_ip_overrides">Server IP override</string>
+    <string name="server_ip_override">Server IP override</string>
     <string name="server_ip_overrides_active">Overrides active</string>
     <string name="server_ip_overrides_inactive">Overrides inactive</string>
     <string name="server_ip_overrides_info_first_paragraph">On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</string>
@@ -353,7 +353,6 @@
     <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscation</string>
     <string name="feature_custom_dns">Custom DNS</string>
-    <string name="feature_server_ip_override">Server IP override</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="dns_content_blockers">DNS content blockers</string>
     <string name="ipv4">IPv4</string>

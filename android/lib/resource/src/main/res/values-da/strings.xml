@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s mere...</string>
     <string name="feature_quantum_resistant">Kvantemodstand</string>
-    <string name="feature_server_ip_override">Server IP tilsidesættelse</string>
     <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">Hvis det er nødvendigt, kontakter vi dig på %1$s</string>
     <string name="sent_thanks">Tak!</string>
     <string name="server">Server</string>
+    <string name="server_ip_override">Server IP tilsidesættelse</string>
     <string name="server_ip_overrides_active">Tilsidesættelser aktive</string>
     <string name="server_ip_overrides_import_by">Importer nye tilsidesættelser med</string>
     <string name="server_ip_overrides_import_by_file">Fil</string>

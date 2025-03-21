@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">နောက်ထပ် %1$s ခု...</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>
-    <string name="feature_server_ip_override">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="feature_split_tunneling">Split Tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscation</string>
     <string name="filter">စစ်ထုတ်မှု</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">လိုအပ်ပါက %1$s မှတစ်ဆင့် ကျွန်ုပ်တို့ထံ ဆက်သွယ်ပါ</string>
     <string name="sent_thanks">ကျေးဇူးတင်ပါသည်။</string>
     <string name="server">ဆာဗာ</string>
+    <string name="server_ip_override">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="server_ip_overrides_active">ကျော်လွန် ပယ်ဖျက်မှုများ သက်ဝင်နေသည်</string>
     <string name="server_ip_overrides_import_by">ဖော်ပြပါဖြင့် ကျော်လွန် ပယ်ဖျက်မှုအသစ်များကို ထည့်သွင်းရန်</string>
     <string name="server_ip_overrides_import_by_file">ဖိုင်</string>

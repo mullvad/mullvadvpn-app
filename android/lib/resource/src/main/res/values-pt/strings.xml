@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Mais %1$s...</string>
     <string name="feature_quantum_resistant">Resistência quântica</string>
-    <string name="feature_server_ip_override">Substituição de IP de servidor</string>
     <string name="feature_split_tunneling">Divisão do túnel</string>
     <string name="feature_udp_2_tcp">Ofuscação</string>
     <string name="filter">Filtrar</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">Se necessário, iremos contactá-lo através de %1$s</string>
     <string name="sent_thanks">Obrigado!</string>
     <string name="server">Servidor</string>
+    <string name="server_ip_override">Substituição de IP de servidor</string>
     <string name="server_ip_overrides_active">Substituições ativas</string>
     <string name="server_ip_overrides_import_by">Importar novas substituições através de</string>
     <string name="server_ip_overrides_import_by_file">Ficheiro</string>
