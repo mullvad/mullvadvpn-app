@@ -88,7 +88,8 @@ fun Account(
     val snackbarHostState = remember { SnackbarHostState() }
     val copyTextString = stringResource(id = R.string.copied_mullvad_account_number)
     val errorString = stringResource(id = R.string.error_occurred)
-    val copyToClipboard = createCopyToClipboardHandle(snackbarHostState = snackbarHostState)
+    val copyToClipboard =
+        createCopyToClipboardHandle(snackbarHostState = snackbarHostState, isSensitive = true)
     val openAccountPage = LocalUriHandler.current.createOpenAccountPageHook()
 
     CollectSideEffectWithLifecycle(vm.uiSideEffect) { sideEffect ->
