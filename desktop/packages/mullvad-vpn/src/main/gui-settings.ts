@@ -14,6 +14,7 @@ const settingsSchema: Record<keyof IGuiSettingsState, string> = {
   unpinnedWindow: 'boolean',
   browsedForSplitTunnelingApplications: 'Array<string>',
   changelogDisplayedForVersion: 'string',
+  updateDismissedForVersion: 'string',
   animateMap: 'boolean',
 };
 
@@ -26,6 +27,7 @@ const defaultSettings: IGuiSettingsState = {
   unpinnedWindow: process.platform !== 'win32' && process.platform !== 'darwin',
   browsedForSplitTunnelingApplications: [],
   changelogDisplayedForVersion: '',
+  updateDismissedForVersion: '',
   animateMap: true,
 };
 
@@ -114,6 +116,16 @@ export default class GuiSettings {
     return this.stateValue.changelogDisplayedForVersion === ''
       ? undefined
       : this.stateValue.changelogDisplayedForVersion;
+  }
+
+  set updateDismissedForVersion(newValue: string | undefined) {
+    this.changeStateAndNotify({ ...this.stateValue, updateDismissedForVersion: newValue ?? '' });
+  }
+
+  get updateDismissedForVersion(): string | undefined {
+    return this.stateValue.updateDismissedForVersion === ''
+      ? undefined
+      : this.stateValue.updateDismissedForVersion;
   }
 
   set animateMap(newValue: boolean) {
