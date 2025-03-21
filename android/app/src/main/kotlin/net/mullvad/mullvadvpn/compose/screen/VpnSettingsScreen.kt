@@ -364,7 +364,7 @@ fun VpnSettingsScreen(
 
             itemWithDivider {
                 ExpandableComposeCell(
-                    title = stringResource(R.string.dns_content_blockers_title),
+                    title = stringResource(R.string.dns_content_blockers),
                     isExpanded = expandContentBlockersState,
                     isEnabled = !state.isCustomDnsEnabled,
                     onInfoClicked = { navigateToContentBlockersInfo() },
@@ -667,14 +667,14 @@ fun VpnSettingsScreen(
             }
             itemWithDivider {
                 SelectableCell(
-                    title = stringResource(id = R.string.device_ip_version_ipv4),
+                    title = stringResource(id = R.string.ipv4),
                     isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV4,
                     onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV4)) },
                 )
             }
             item {
                 SelectableCell(
-                    title = stringResource(id = R.string.device_ip_version_ipv6),
+                    title = stringResource(id = R.string.ipv6),
                     isSelected = state.deviceIpVersion.getOrNull() == IpVersion.IPV6,
                     onCellClicked = { onSelectDeviceIpVersion(Constraint.Only(IpVersion.IPV6)) },
                 )
@@ -694,7 +694,7 @@ fun VpnSettingsScreen(
 @Composable
 private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit) {
     NavigationComposeCell(
-        title = stringResource(id = R.string.server_ip_overrides),
+        title = stringResource(id = R.string.server_ip_override),
         onClick = onServerIpOverridesClick,
     )
 }

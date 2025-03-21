@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Активные функции</string>
     <string name="connect_panel_connection_details">Сведения о подключении</string>
     <string name="connected">Подключено</string>
+    <string name="connecting">Идет подключение...</string>
     <string name="connecting_to_daemon">Подключение к системному сервису Mullvad...</string>
     <string name="connection_details_in">Вход</string>
     <string name="connection_details_out">Выход</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">Вы удалили это устройство. Чтобы снова подключиться, нужно будет выполнить вход.</string>
     <string name="device_inactive_title">Устройство неактивно</string>
     <string name="device_inactive_unblock_warning">Вход в профиль разблокирует Интернет на этом устройстве.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Имя устройства</string>
     <string name="device_name_info_first_paragraph">Это имя, присвоенное устройству. Каждое устройство, подключенное к учетной записи Mullvad, получает уникальное имя, которое помогает вам идентифицировать его при управлении устройствами в приложении или на сайте.</string>
     <string name="device_name_info_second_paragraph">К одной учетной записи Mullvad можно подключить до 5 устройств.</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">Отключено (нет разрешения для VPN)</string>
     <string name="disconnecting">Отключение...</string>
     <string name="dismiss">Закрыть</string>
+    <string name="dns_content_blockers">DNS-блокировщики контента</string>
     <string name="dns_content_blockers_custom_dns_warning">Внимание! Этот параметр нельзя использовать вместе с параметром «Пользовательский DNS-сервер».</string>
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
     <string name="dns_content_blockers_subtitle">Чтобы активировать эти параметры, отключите параметр «%1$s».</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
     <string name="feature_custom_dns">Пользовательский DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-блокировщики контента</string>
     <string name="feature_indicators_show_more">Еще %1$s...</string>
-    <string name="feature_lan_sharing">Обмен данными в локальной сети</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>
-    <string name="feature_server_ip_override">Переопределение IP-адреса сервера</string>
-    <string name="feature_split_tunneling">Раздельное туннелирование</string>
     <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
     <string name="filters">Фильтры:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">Импортировать через текст</string>
     <string name="invalid_dns_servers">Пользовательские адреса DNS-серверов %1$s недопустимы</string>
     <string name="invalid_voucher">Код ваучера недействителен.</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">Не удается сконфигурировать IPv6. Отключите этот протокол в приложении или включите на устройстве.</string>
     <string name="is_offline">Устройство отключено от Интернета. Туннельное подключение автоматически запустится, как только ваше устройство подключится к Интернету.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Не удалось запустить туннельное соединение. Перед использованием Mullvad VPN отключите опцию «Постоянная VPN».</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">осталось менее суток</string>
     <string name="less_than_one_day">менее суток</string>
     <string name="list_name">Имя списка</string>
-    <string name="loading_connecting">Идет подключение...</string>
     <string name="loading_verifying">Идет проверка оплаты...</string>
+    <string name="local_network_sharing">Обмен данными в локальной сети</string>
     <string name="local_network_sharing_additional_info">Это достигается путем разрешения сетевого взаимодействия вне туннеля с локальными многоадресными и широковещательными диапазонами, а также со следующими диапазонами частных IP-адресов:</string>
     <string name="local_network_sharing_info">Эта функция позволяет получить доступ к другим устройствам в локальной сети, например, для организации общего доступа, печати, потоковой передачи и т. д.</string>
     <string name="local_network_sharing_info_block_connections_warning">Внимание! Если включена функция «Блокировать соединения без VPN», обмен данными в локальной сети работать не будет.</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Не удалось начать процесс оплаты. Повторите попытку позже.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Службы Mullvad недоступны</string>
     <string name="payment_pending_dialog_message">Сейчас мы проверяем, прошла ли оплата; нужно немного подождать. Если проверка завершится успешно, мы добавим оплаченное время.</string>
-    <string name="payment_pending_dialog_title">Идет проверка оплаты</string>
     <string name="payment_status_pending">Ожидается оплата в Google Play</string>
     <string name="please_enter_a_valid_ip_address">Введите действительный адрес IPv4 или IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">При необходимости мы свяжемся с вами по адресу %1$s</string>
     <string name="sent_thanks">Спасибо!</string>
     <string name="server">Сервер</string>
+    <string name="server_ip_override">Переопределение IP-адреса сервера</string>
     <string name="server_ip_overrides_active">Переопределения активны</string>
     <string name="server_ip_overrides_import_by">Импорт новых переопределений:</string>
     <string name="server_ip_overrides_import_by_file">Файл</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">Чтобы мы могли быстрее решить проблему, напишите нам на английском или шведском и укажите, из какой страны вы подключаетесь.</string>
     <string name="username">Имя пользователя</string>
     <string name="verifying_api_method">Проверяем метод доступа к API...</string>
+    <string name="verifying_purchase">Идет проверка оплаты</string>
     <string name="verifying_voucher">Идет проверка ваучера…</string>
     <string name="version">Версия</string>
     <string name="view_logs">Открыть журналы</string>

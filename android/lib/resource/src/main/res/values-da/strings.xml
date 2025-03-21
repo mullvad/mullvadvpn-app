@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Aktive funktioner</string>
     <string name="connect_panel_connection_details">Forbindelsesoplysninger</string>
     <string name="connected">Tilsluttet</string>
+    <string name="connecting">Tilslutter...</string>
     <string name="connecting_to_daemon">Opretter forbindelse til Mullvad-systemtjeneste...</string>
     <string name="connection_details_in">Ind</string>
     <string name="connection_details_out">Ud</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">Du har fjernet denne enhed. For at oprette forbindelse igen skal du logge ind igen.</string>
     <string name="device_inactive_title">Enheden er inaktiv</string>
     <string name="device_inactive_unblock_warning">Hvis du logger på, ophæves blokeringen af internettet på denne enhed.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Enhedsnavn</string>
     <string name="device_name_info_first_paragraph">Dette er det navn, der er tildelt enheden. Hver enhed, der er logget på en Mullvad-konto, får et unikt navn, der hjælper dig med at identificere den, når du administrerer dine enheder i appen eller på webstedet.</string>
     <string name="device_name_info_second_paragraph">Du kan have op til 5 enheder logget ind på én Mullvad-konto.</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">Afbrudt (ingen VPN-tilladelse)</string>
     <string name="disconnecting">Afbryder...</string>
     <string name="dismiss">Afvis</string>
+    <string name="dns_content_blockers">DNS-indholdsblokkere</string>
     <string name="dns_content_blockers_custom_dns_warning">Bemærk: Denne indstilling kan ikke bruges i kombination med \"Brug brugerdefineret DNS-server\".</string>
     <string name="dns_content_blockers_info">Når denne funktion er aktiveret, forhindrer den enheden i at kontakte bestemte domæner eller websteder, der er kendt for at distribuere annoncer, malware, trackere og lignende.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver \"%1$s\" nedenfor for at aktivere disse indstillinger.</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">Ofte stillede spørgsmål og vejledninger</string>
     <string name="feature_custom_dns">Brugerdefineret DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-indholdsblokkere</string>
     <string name="feature_indicators_show_more">%1$s mere...</string>
-    <string name="feature_lan_sharing">Lokal netværksdeling</string>
     <string name="feature_quantum_resistant">Kvantemodstand</string>
-    <string name="feature_server_ip_override">Server IP tilsidesættelse</string>
-    <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
     <string name="filters">Filtre:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="invalid_dns_servers">Tilpassede DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Kuponkode er ugyldig.</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver det i appen, eller aktiver det på din enhed.</string>
     <string name="is_offline">Din enhed er offline. Tunnelen vil oprette forbindelse automatisk, når din enhed er online igen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kunne ikke starte tunnelforbindelse. Deaktiver Altid-til VPN før brug af Mullvad VPN.</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">mindre end én dag tilbage</string>
     <string name="less_than_one_day">mindre end én dag</string>
     <string name="list_name">Listenavn</string>
-    <string name="loading_connecting">Tilslutter...</string>
     <string name="loading_verifying">Bekræfter køb...</string>
+    <string name="local_network_sharing">Lokal netværksdeling</string>
     <string name="local_network_sharing_additional_info">Det opnås ved at tillade netværkskommunikation uden for tunnelen til lokale multicast- og broadcast-områder samt til og fra disse private IP-intervaller:</string>
     <string name="local_network_sharing_info">Denne funktion giver adgang til andre enheder på det lokale netværk, såsom til deling, udskrivning, streaming osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">Bemærk: Hvis \"Bloker forbindelser uden VPN\" er aktiveret, vil \"Lokal netværksdeling\" ikke fungere.</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprocessen. Prøv igen senere.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester er ikke tilgængelige</string>
     <string name="payment_pending_dialog_message">Vi er i øjeblikket ved at bekræfte dit køb, det kan tage noget tid. Din tid vil blive tilføjet, hvis bekræftelsen lykkes.</string>
-    <string name="payment_pending_dialog_title">Bekræfter køb</string>
     <string name="payment_status_pending">Google Play-betaling afventer</string>
     <string name="please_enter_a_valid_ip_address">Indtast en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Indtast en gyldig fjernserverport</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">Hvis det er nødvendigt, kontakter vi dig på %1$s</string>
     <string name="sent_thanks">Tak!</string>
     <string name="server">Server</string>
+    <string name="server_ip_override">Server IP tilsidesættelse</string>
     <string name="server_ip_overrides_active">Tilsidesættelser aktive</string>
     <string name="server_ip_overrides_import_by">Importer nye tilsidesættelser med</string>
     <string name="server_ip_overrides_import_by_file">Fil</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">For at vi bedre kan hjælpe dig, bedes du skrive på engelsk eller svensk og nævne hvilket land, du befinder dig i.</string>
     <string name="username">Brugernavn</string>
     <string name="verifying_api_method">Bekræfter API-metode...</string>
+    <string name="verifying_purchase">Bekræfter køb</string>
     <string name="verifying_voucher">Bekræfter kupon…</string>
     <string name="version">Version</string>
     <string name="view_logs">Se app-logfiler</string>

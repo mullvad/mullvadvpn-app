@@ -33,7 +33,7 @@ fun VerificationPendingDialog(onClose: () -> Unit) {
         icon = {}, // Makes it look a bit more balanced
         title = {
             Text(
-                text = stringResource(id = R.string.payment_pending_dialog_title),
+                text = stringResource(id = R.string.verifying_purchase),
                 style = MaterialTheme.typography.headlineSmall,
             )
         },

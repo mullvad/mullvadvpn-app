@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Aktif özellikler</string>
     <string name="connect_panel_connection_details">Bağlantı ayrıntıları</string>
     <string name="connected">Bağlandı</string>
+    <string name="connecting">Bağlanılıyor...</string>
     <string name="connecting_to_daemon">Mullvad sistem hizmetlerine bağlanılıyor...</string>
     <string name="connection_details_in">Giriş</string>
     <string name="connection_details_out">Çıkış</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">Bu cihazı kaldırdın. Tekrar bağlanmak için yeniden giriş yapmanız gerekecek.</string>
     <string name="device_inactive_title">Cihaz etkin değil</string>
     <string name="device_inactive_unblock_warning">Giriş yapmak bu cihazdaki internet engelini kaldıracaktır.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Cihaz adı</string>
     <string name="device_name_info_first_paragraph">Bu, cihaza atanan addır. Mullvad hesabında oturum açan her cihaza, uygulamadaki veya web sitesindeki cihazlarınızı yönetirken tanımlamanıza yardımcı olacak benzersiz bir ad verilir.</string>
     <string name="device_name_info_second_paragraph">Bir Mullvad hesabı ile en fazla 5 cihazda oturum açabilirsiniz.</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">Bağlantı kesildi (VPN izni yok)</string>
     <string name="disconnecting">Bağlantı kesiliyor...</string>
     <string name="dismiss">Reddet</string>
+    <string name="dns_content_blockers">DNS içerik engelleyiciler</string>
     <string name="dns_content_blockers_custom_dns_warning">Dikkat: Bu ayar, \"Özel DNS sunucusu kullan\" seçeneği ile birlikte kullanılamaz.</string>
     <string name="dns_content_blockers_info">Bu özellik etkinleştirildiğinde, cihazınızın reklamlar, kötü amaçlı yazılımlar, izleyiciler ve daha fazlasını dağıttığı bilinen belirli alan adlarıyla veya web siteleriyle iletişim kurmasını durdurur.</string>
     <string name="dns_content_blockers_subtitle">Bu ayarları etkinleştirmek için aşağıdaki \"%1$s\" seçeneğini devre dışı bırakın.</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">SSS ve Kılavuzlar</string>
     <string name="feature_custom_dns">Özel DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS içerik engelleyiciler</string>
     <string name="feature_indicators_show_more">%1$s tane daha...</string>
-    <string name="feature_lan_sharing">Yerel ağ paylaşımı</string>
     <string name="feature_quantum_resistant">Kuantum direnci</string>
-    <string name="feature_server_ip_override">Sunucu IP\'sini geçersiz kılma</string>
-    <string name="feature_split_tunneling">Bölünmüş tünelleme</string>
     <string name="feature_udp_2_tcp">Gizleme</string>
     <string name="filter">Filtrele</string>
     <string name="filters">Filtreler:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">Metin yoluyla içe aktar</string>
     <string name="invalid_dns_servers">Özel DNS sunucu adresleri (%1$s) geçersiz</string>
     <string name="invalid_voucher">Kupon kodu geçersiz.</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">IPv6 yapılandırılamadı. IPv6\'yı uygulamada devre dışı bırakın veya cihazınızda etkinleştirin.</string>
     <string name="is_offline">Cihazınız çevrimdışı. Cihazınız tekrar çevrimiçi olduğunda tünel otomatik olarak bağlanacak.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tünel bağlantısı başlatılamıyor. Mullvad VPN\'i kullanmadan önce lütfen \"Her zaman açık VPN\"i devre dışı bırakın.</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">bir günden az kaldı</string>
     <string name="less_than_one_day">bir günden az</string>
     <string name="list_name">Liste adı</string>
-    <string name="loading_connecting">Bağlanılıyor...</string>
     <string name="loading_verifying">Satın alma işlemi doğrulanıyor...</string>
+    <string name="local_network_sharing">Yerel ağ paylaşımı</string>
     <string name="local_network_sharing_additional_info">Bunu, yerel çok noktaya yayın ve yayın aralıklarının yanı sıra aşağıdaki özel IP aralıkları arasında tünel dışı ağ iletişimine izin vererek yapar:</string>
     <string name="local_network_sharing_info">Bu özellik; paylaşım, yazdırma, akış sağlama gibi özellikler için yerel ağdaki diğer cihazlara erişim izni verir.</string>
     <string name="local_network_sharing_info_block_connections_warning">Dikkat: \"VPN üzerinden olmayan bağlantıları engelle\" seçeneği etkinse \"Yerel ağ paylaşımı\" etkinleşmez.</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Ödeme işlemini başlatamadık, lütfen daha sonra tekrar deneyin.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad hizmetleri kullanılamıyor</string>
     <string name="payment_pending_dialog_message">Şu anda satın alma işleminizi doğruluyoruz. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir.</string>
-    <string name="payment_pending_dialog_title">Satın alma işlemi doğrulanıyor</string>
     <string name="payment_status_pending">Google Play ödemesi bekleniyor</string>
     <string name="please_enter_a_valid_ip_address">Lütfen geçerli bir IPv4 veya IPv6 adresi girin</string>
     <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">Gerektiğinde sizinle %1$s adresinden iletişime geçeceğiz</string>
     <string name="sent_thanks">Teşekkürler!</string>
     <string name="server">Sunucu</string>
+    <string name="server_ip_override">Sunucu IP\'sini geçersiz kılma</string>
     <string name="server_ip_overrides_active">Geçersiz kılmalar etkin</string>
     <string name="server_ip_overrides_import_by">Şuradaki yeni geçersiz kılmaları içe aktar</string>
     <string name="server_ip_overrides_import_by_file">Dosya</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">Size daha iyi yardımcı olabilmemiz için lütfen mesajınızı İngilizce veya İsveççe olarak yazın ve hangi ülkeden bağlandığınızı belirtin.</string>
     <string name="username">Kullanıcı adı</string>
     <string name="verifying_api_method">API yöntemi doğrulanıyor...</string>
+    <string name="verifying_purchase">Satın alma işlemi doğrulanıyor</string>
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="version">Sürüm</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>

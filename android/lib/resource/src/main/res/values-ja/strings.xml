@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">有効な機能</string>
     <string name="connect_panel_connection_details">接続の詳細</string>
     <string name="connected">接続済み</string>
+    <string name="connecting">接続中...</string>
     <string name="connecting_to_daemon">Mullvad システムサービスに接続中...</string>
     <string name="connection_details_in">内側</string>
     <string name="connection_details_out">外側</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">このデバイスを削除しました。再度接続するには、ログインし直す必要があります。</string>
     <string name="device_inactive_title">デバイスが無効です</string>
     <string name="device_inactive_unblock_warning">ログインに進むと、このデバイスのインターネットのブロックが解除されます。</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">デバイス名</string>
     <string name="device_name_info_first_paragraph">これはデバイスに割り当てられる名前です。Mullvadアカウントにログインするデバイスごとに一意の名前が付けられるため、アプリまたはウェブサイトでデバイスを管理する際にデバイスを区別しやすくなります。</string>
     <string name="device_name_info_second_paragraph">1つのMullvadアカウントで最大5台のデバイスにログインできます。</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">接続が解除されました (VPN のアクセス許可なし)</string>
     <string name="disconnecting">接続解除中...</string>
     <string name="dismiss">閉じる</string>
+    <string name="dns_content_blockers">DNSコンテンツブロッカー</string>
     <string name="dns_content_blockers_custom_dns_warning">注意: この設定を [カスタムDNSサーバーを使う] と一緒に使用することはできません。</string>
     <string name="dns_content_blockers_info">この機能を有効にすると、広告、マルウェア、トラッカーなどの配信が確認されている特定のドメインまたはWebサイトへのデバイスの接続が阻止されます。</string>
     <string name="dns_content_blockers_subtitle">これらの設定を有効にするには、下の [%1$s] を無効にしてください。</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">よくある質問とガイド</string>
     <string name="feature_custom_dns">カスタムDNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNSコンテンツブロッカー</string>
     <string name="feature_indicators_show_more">その他%1$s件…</string>
-    <string name="feature_lan_sharing">ローカルネットワーク共有</string>
     <string name="feature_quantum_resistant">耐量子</string>
-    <string name="feature_server_ip_override">サーバーIPのオーバーライド</string>
-    <string name="feature_split_tunneling">スプリットトンネリング</string>
     <string name="feature_udp_2_tcp">難読化</string>
     <string name="filter">絞り込み</string>
     <string name="filters">絞り込み:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">テキストでインポート</string>
     <string name="invalid_dns_servers">カスタムDNSサーバーアドレス %1$s は無効です</string>
     <string name="invalid_voucher">バウチャーコードが無効です。</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">IPv6を設定できませんでした。アプリで無効にするか、デバイスで有効にしてください。</string>
     <string name="is_offline">デバイスがオフラインになっています。トンネルはデバイスがオンラインに戻ると自動的に接続されます。</string>
     <string name="legacy_always_on_vpn_error_notification_content">トンネル接続を開始できません。Mullvad VPNを使用する前にAlways-on VPNを無効にしてください。</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">残り1日未満</string>
     <string name="less_than_one_day">1日未満</string>
     <string name="list_name">リスト名</string>
-    <string name="loading_connecting">接続中...</string>
     <string name="loading_verifying">購入を確認中...</string>
+    <string name="local_network_sharing">ローカルネットワーク共有</string>
     <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
     <string name="local_network_sharing_info_block_connections_warning">注意: [VPN 以外の接続のブロック] が有効の場合、[ローカルネットワーク共有] は機能しません。</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">決済処理を開始できませんでした。後でもう一度お試しください。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvadサービスを使用できません</string>
     <string name="payment_pending_dialog_message">購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。</string>
-    <string name="payment_pending_dialog_title">購入を確認中</string>
     <string name="payment_status_pending">Google Playの決済は未完了です</string>
     <string name="please_enter_a_valid_ip_address">有効な IPv4 または IPv6 アドレスを入力してください</string>
     <string name="please_enter_a_valid_remote_server_port">有効なリモートサーバーのポートを入力してください</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">必要に応じて %1$s 宛にご連絡します　</string>
     <string name="sent_thanks">ありがとうございます！</string>
     <string name="server">サーバー</string>
+    <string name="server_ip_override">サーバーIPのオーバーライド</string>
     <string name="server_ip_overrides_active">オーバーライドは有効です</string>
     <string name="server_ip_overrides_import_by">新しいオーバーライドのインポート</string>
     <string name="server_ip_overrides_import_by_file">ファイル</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">最適なサポートを提供するため、英語またはスウェーデン語でご入力ください。また、接続元の国をお知らせください。</string>
     <string name="username">ユーザー名</string>
     <string name="verifying_api_method">API 接続方法を検証しています...</string>
+    <string name="verifying_purchase">購入を確認中</string>
     <string name="verifying_voucher">バウチャーを確認中…</string>
     <string name="version">バージョン</string>
     <string name="view_logs">アプリのログを表示</string>

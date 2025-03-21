@@ -83,16 +83,16 @@ private fun FeatureIndicator.text(): String {
     val resource =
         when (this) {
             FeatureIndicator.QUANTUM_RESISTANCE -> R.string.feature_quantum_resistant
-            FeatureIndicator.SPLIT_TUNNELING -> R.string.feature_split_tunneling
+            FeatureIndicator.SPLIT_TUNNELING -> R.string.split_tunneling
             FeatureIndicator.SHADOWSOCKS,
             FeatureIndicator.UDP_2_TCP -> R.string.feature_udp_2_tcp
-            FeatureIndicator.LAN_SHARING -> R.string.feature_lan_sharing
-            FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.feature_dns_content_blockers
+            FeatureIndicator.LAN_SHARING -> R.string.local_network_sharing
+            FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
-            FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.feature_server_ip_override
+            FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.server_ip_override
             FeatureIndicator.CUSTOM_MTU -> R.string.feature_custom_mtu
             FeatureIndicator.DAITA -> R.string.daita
-            FeatureIndicator.MULTIHOP -> R.string.feature_multihop
+            FeatureIndicator.MULTIHOP -> R.string.multihop
         }
     return textResource(resource)
 }

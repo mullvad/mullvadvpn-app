@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">有效功能</string>
     <string name="connect_panel_connection_details">连接详细信息</string>
     <string name="connected">已连接</string>
+    <string name="connecting">正在连接…</string>
     <string name="connecting_to_daemon">正在连接到 Mullvad 系统服务…</string>
     <string name="connection_details_in">内部</string>
     <string name="connection_details_out">外部</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">您已移除此设备。要重新连接，您需要重新登录。</string>
     <string name="device_inactive_title">设备处于非活动状态</string>
     <string name="device_inactive_unblock_warning">前往登录将在此设备上解除阻止互联网。</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">设备名称</string>
     <string name="device_name_info_first_paragraph">这是为设备分配的名称。每台登录 Mulvad 帐户的设备都会获得一个唯一名称，有助于您在应用或网站上管理设备时识别各个设备。</string>
     <string name="device_name_info_second_paragraph">一个 Mulvad 帐户最多可以登录 5 台设备。</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">已断开连接（无 VPN 权限）</string>
     <string name="disconnecting">正在断开连接…</string>
     <string name="dismiss">关闭</string>
+    <string name="dns_content_blockers">DNS 内容阻止程序</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此设置不能与“使用自定义 DNS 服务器”结合使用。</string>
     <string name="dns_content_blockers_info">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</string>
     <string name="dns_content_blockers_subtitle">禁用下方的“%1$s”以激活这些设置。</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">常见问题解答与指南</string>
     <string name="feature_custom_dns">自定义 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS 内容阻止程序</string>
     <string name="feature_indicators_show_more">其他 %1$s 个…</string>
-    <string name="feature_lan_sharing">本地网络共享</string>
     <string name="feature_quantum_resistant">量子阻力</string>
-    <string name="feature_server_ip_override">服务器 IP 覆盖</string>
-    <string name="feature_split_tunneling">分割隧道</string>
     <string name="feature_udp_2_tcp">混淆</string>
     <string name="filter">筛选</string>
     <string name="filters">筛选器：</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">通过文本导入</string>
     <string name="invalid_dns_servers">自定义 DNS 服务器地址 %1$s 无效</string>
     <string name="invalid_voucher">该优惠券码无效。</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">无法配置 IPv6。请在应用中将其禁用或在您的设备上将其启用。</string>
     <string name="is_offline">您的设备已离线。在您的设备重新上线后，隧道将自动连接。</string>
     <string name="legacy_always_on_vpn_error_notification_content">无法启动隧道连接。在使用 Mullvad VPN 之前，请禁用“始终开启 VPN”。</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">剩余时间不足 1 天</string>
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">列表名称</string>
-    <string name="loading_connecting">正在连接…</string>
     <string name="loading_verifying">正在验证购买…</string>
+    <string name="local_network_sharing">本地网络共享</string>
     <string name="local_network_sharing_additional_info">此功能通过允许隧道以外到本地组播和广播范围以及与以下私有 IP 范围的网络通信来实现访问。</string>
     <string name="local_network_sharing_info">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</string>
     <string name="local_network_sharing_info_block_connections_warning">注意：如果启用了“屏蔽未使用 VPN 的所有连接”，将无法使用“本地网络共享”功能。</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">我们无法启动付款流程，请稍后再试。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad 服务不可用</string>
     <string name="payment_pending_dialog_message">我们目前正在验证您的购买，这可能需要一些时间。如果验证成功，您的时间将增加。</string>
-    <string name="payment_pending_dialog_title">正在验证购买</string>
     <string name="payment_status_pending">Google Play 付款待处理</string>
     <string name="please_enter_a_valid_ip_address">请输入有效的 IPv4 或 IPv6 地址</string>
     <string name="please_enter_a_valid_remote_server_port">请输入有效的远程服务器端口</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">如果需要，我们将通过 %1$s 与您联系</string>
     <string name="sent_thanks">谢谢！</string>
     <string name="server">服务器</string>
+    <string name="server_ip_override">服务器 IP 覆盖</string>
     <string name="server_ip_overrides_active">覆盖设置已激活</string>
     <string name="server_ip_overrides_import_by">导入新覆盖设置的方式</string>
     <string name="server_ip_overrides_import_by_file">文件</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">为了更好地帮助您，请用英语或瑞典语书写，并包含您连接时所在的国家/地区。</string>
     <string name="username">用户名</string>
     <string name="verifying_api_method">正在验证 API 方法…</string>
+    <string name="verifying_purchase">正在验证购买</string>
     <string name="verifying_voucher">正在验证优惠券…</string>
     <string name="version">版本</string>
     <string name="view_logs">查看应用日志</string>

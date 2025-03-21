@@ -185,7 +185,7 @@ fun CustomDnsCellSubtitle(isCellClickable: Boolean, modifier: Modifier) {
         } else {
             textResource(
                 id = R.string.custom_dns_disable_mode_subtitle,
-                textResource(id = R.string.dns_content_blockers_title),
+                textResource(id = R.string.dns_content_blockers),
             )
         }
     Text(
