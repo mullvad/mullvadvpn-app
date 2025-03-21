@@ -45,7 +45,9 @@ while true; do
             upload_path="$platform/releases"
         fi
 
-        readarray -t files < <(cut -f 2- -d ' ' < "$checksums_path" | sed 's/^\*\(.*\)/\1/')
+        # Read all files listed in the checksum file at $checksums_path into an array.
+        # sed is used to trim surrounding whitespace and asterisks from filenames.
+        readarray -t files < <(cut -f 2- -d ' ' < "$checksums_path" | sed 's/^[ \t\*]*\(.*\)[ \t]*$/\1/')
         for filename in "${files[@]}"; do
             file="$checksums_dir/$filename"
 
