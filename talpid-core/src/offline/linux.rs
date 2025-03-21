@@ -84,12 +84,12 @@ async fn check_connectivity(handle: &RouteManagerHandle, fwmark: Option<u32>) ->
     ) {
         (Ok(true), Err(err)) => {
             // Errors for IPv6 likely mean it's disabled, so assume it's unavailable
-                log::trace!(
-                    "{}",
-                    err.display_chain_with_msg(
-                        "Failed to infer offline state for IPv6. Assuming it's unavailable"
-                    )
+            log::trace!(
+                "{}",
+                err.display_chain_with_msg(
+                    "Failed to infer offline state for IPv6. Assuming it's unavailable"
                 )
+            );
             Connectivity::Online(talpid_types::net::IpAvailbility::IpV4)
         }
         (Ok(ipv4), Ok(ipv6)) => Connectivity::new(ipv4, ipv6),
