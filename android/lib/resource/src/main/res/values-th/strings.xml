@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">DNS แบบกำหนดเอง</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
-    <string name="feature_lan_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
     <string name="feature_server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
     <string name="feature_split_tunneling">การแยกอุโมงค์</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">น้อยกว่าหนึ่งวัน</string>
     <string name="list_name">ชื่อรายการ</string>
     <string name="loading_verifying">กำลังตรวจสอบยืนยันการซื้อ...</string>
+    <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="local_network_sharing_additional_info">ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:</string>
     <string name="local_network_sharing_info">คุณลักษณะนี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
     <string name="local_network_sharing_info_block_connections_warning">โปรดทราบ: หากเปิดใช้งาน \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" อยู่ \"การแชร์ในเครือข่ายท้องถิ่น\" จะไม่ทำงาน</string>

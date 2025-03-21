@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Mais %1$s...</string>
-    <string name="feature_lan_sharing">Partilha de rede local</string>
     <string name="feature_quantum_resistant">Resistência quântica</string>
     <string name="feature_server_ip_override">Substituição de IP de servidor</string>
     <string name="feature_split_tunneling">Divisão do túnel</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">menos de um dia</string>
     <string name="list_name">Nome da lista</string>
     <string name="loading_verifying">A verificar compra...</string>
+    <string name="local_network_sharing">Partilha de rede local</string>
     <string name="local_network_sharing_additional_info">Para tal, permite a comunicação de rede fora do túnel para intervalos locais de multicast e difusão, bem como de e para estes intervalos de IPs privados:</string>
     <string name="local_network_sharing_info">Esta funcionalidade permite o acesso a outros dispositivos na rede local, por exemplo, para partilha, impressão, streaming, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Atenção: se a opção \"Bloquear ligações sem VPN\" estiver ativada, a opção \"Partilha de rede local\" não funcionará.</string>

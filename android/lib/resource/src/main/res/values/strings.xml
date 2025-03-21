@@ -352,7 +352,6 @@
     <string name="feature_quantum_resistant">Quantum resistance</string>
     <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscation</string>
-    <string name="feature_lan_sharing">Local network sharing</string>
     <string name="feature_custom_dns">Custom DNS</string>
     <string name="feature_server_ip_override">Server IP override</string>
     <string name="feature_custom_mtu">MTU</string>

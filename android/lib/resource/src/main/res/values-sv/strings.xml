@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">Anpassad DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s till ...</string>
-    <string name="feature_lan_sharing">Lokal nätverksdelning</string>
     <string name="feature_quantum_resistant">Kvantresistens</string>
     <string name="feature_server_ip_override">Åsidosättning av server-IP</string>
     <string name="feature_split_tunneling">Split tunneling</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">mindre än en dag</string>
     <string name="list_name">Listnamn</string>
     <string name="loading_verifying">Verifierar köp ...</string>
+    <string name="local_network_sharing">Lokal nätverksdelning</string>
     <string name="local_network_sharing_additional_info">Den gör det genom att tillåta nätverkskommunikation utanför tunneln till lokala multicast- och sändningsintervall, samt till och från dessa privata IP-intervall:</string>
     <string name="local_network_sharing_info">Funktionen tillåter åtkomst till andra enheter på det lokala nätverket, t.ex. för att dela, skriva ut, streama osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat fungerar inte \"Lokal nätverksdelning\".</string>

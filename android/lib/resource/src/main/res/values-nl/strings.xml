@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">Aangepaste DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Nog %1$s...</string>
-    <string name="feature_lan_sharing">Delen op lokaal netwerk</string>
     <string name="feature_quantum_resistant">Kwantumbestendigheid</string>
     <string name="feature_server_ip_override">Overschrijving van server-IP-adressen</string>
     <string name="feature_split_tunneling">Split tunneling</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
+    <string name="local_network_sharing">Delen op lokaal netwerk</string>
     <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
     <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>
     <string name="local_network_sharing_info_block_connections_warning">Let op: als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, werkt \"Delen via lokaal netwerk\" niet.</string>

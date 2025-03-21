@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">စိတ်ကြိုက် DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">နောက်ထပ် %1$s ခု...</string>
-    <string name="feature_lan_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>
     <string name="feature_server_ip_override">ဆာဗာ IP ကျော်လွန် ပယ်ဖျက်မှု</string>
     <string name="feature_split_tunneling">Split Tunneling</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">တစ်ရက်အောက် နည်းသည်။</string>
     <string name="list_name">စာရင်း အမည်</string>
     <string name="loading_verifying">ဝယ်ယူမှုကို စစ်ဆေးနေဆဲ...</string>
+    <string name="local_network_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="local_network_sharing_additional_info">ဒေသတွင်း Multicast နှင့် Broadcast အပိုင်းအခြားများဆီသို့ သာမက ဤသီးသန့် IP အပိုင်းအခြားများထံမှနှင့် ၎င်းတို့ဆီသို့ Tunnel ပြင်ပ ကွန်ရက် ဆက်သွယ်မှုကို ခွင့်ပြုခြင်းဖြင့် ဤသည်ကို လုပ်ဆောင်ပါသည်။</string>
     <string name="local_network_sharing_info">ဤလုပ်ဆောင်ချက်သည် မျှဝေခြင်း၊ ပရင့်ထုတ်ခြင်း၊ တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းအစရှိသည်တို့အတွက် ဒေသတွင်း ကွန်ရက်ရှိ အခြားစက်များကို ရယူသုံးစွဲခွင့်ပေးပါသည်။</string>
     <string name="local_network_sharing_info_block_connections_warning">သတိပြုရန်- \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက \"လိုကယ် ကွန်ရက် ဝေမျှမှု\" အလုပ်လုပ်မည် မဟုတ်ပါ။</string>

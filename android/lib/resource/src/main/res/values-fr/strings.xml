@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s autre(s)...</string>
-    <string name="feature_lan_sharing">Partage réseau local</string>
     <string name="feature_quantum_resistant">Résistance quantique</string>
     <string name="feature_server_ip_override">Substitution d\'IP de serveur</string>
     <string name="feature_split_tunneling">Split tunneling</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">moins d\'un jour</string>
     <string name="list_name">Nom de la liste</string>
     <string name="loading_verifying">Vérification de l\'achat...</string>
+    <string name="local_network_sharing">Partage réseau local</string>
     <string name="local_network_sharing_additional_info">Pour ce faire, il autorise la communication réseau à l\'extérieur du tunnel vers les plages locales de multidiffusion et de diffusion, ainsi que vers et à partir de ces plages IP privées :</string>
     <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Attention : si l\'option « Bloquer les connexions sans VPN » est activée, l\'option « Partage réseau local » ne fonctionne pas.</string>

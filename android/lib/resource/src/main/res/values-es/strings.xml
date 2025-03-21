@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">DNS personalizado</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s más...</string>
-    <string name="feature_lan_sharing">Uso compartido de la red local</string>
     <string name="feature_quantum_resistant">Resistencia cuántica</string>
     <string name="feature_server_ip_override">Anulación de IP de servidor</string>
     <string name="feature_split_tunneling">«Split tunneling»</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">menos de un día</string>
     <string name="list_name">Nombre de la lista</string>
     <string name="loading_verifying">Verificando la compra…</string>
+    <string name="local_network_sharing">Uso compartido de la red local</string>
     <string name="local_network_sharing_additional_info">Lo realiza permitiendo la comnunicación de red fuera del túnel hacia rangos de emisión y multidifusión locales y también hacia y desde estos rangos de IP privados:</string>
     <string name="local_network_sharing_info">Esta característica permite el acceso a otros dispositivos de la red local, como para compartir, imprimir, transmitir, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Atención: si «Bloquear conexiones sin VPN» está activado, «Uso compartido de la red local» no funcionará.</string>

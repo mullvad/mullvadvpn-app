@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">自定义 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">其他 %1$s 个…</string>
-    <string name="feature_lan_sharing">本地网络共享</string>
     <string name="feature_quantum_resistant">量子阻力</string>
     <string name="feature_server_ip_override">服务器 IP 覆盖</string>
     <string name="feature_split_tunneling">分割隧道</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">列表名称</string>
     <string name="loading_verifying">正在验证购买…</string>
+    <string name="local_network_sharing">本地网络共享</string>
     <string name="local_network_sharing_additional_info">此功能通过允许隧道以外到本地组播和广播范围以及与以下私有 IP 范围的网络通信来实现访问。</string>
     <string name="local_network_sharing_info">此功能允许访问本地网络中的其他设备，以实现共享、打印、流式传输等</string>
     <string name="local_network_sharing_info_block_connections_warning">注意：如果启用了“屏蔽未使用 VPN 的所有连接”，将无法使用“本地网络共享”功能。</string>

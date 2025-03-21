@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">カスタムDNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">その他%1$s件…</string>
-    <string name="feature_lan_sharing">ローカルネットワーク共有</string>
     <string name="feature_quantum_resistant">耐量子</string>
     <string name="feature_server_ip_override">サーバーIPのオーバーライド</string>
     <string name="feature_split_tunneling">スプリットトンネリング</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">1日未満</string>
     <string name="list_name">リスト名</string>
     <string name="loading_verifying">購入を確認中...</string>
+    <string name="local_network_sharing">ローカルネットワーク共有</string>
     <string name="local_network_sharing_additional_info">これは、トンネル外のネットワーク通信をローカルのマルチキャストおよびブロードキャスト範囲、および以下のプライベート IP 範囲との間で許可することによって行われます。</string>
     <string name="local_network_sharing_info">この機能は、共有、印刷、ストリーミングなどのため、ローカルネットワーク上の他デバイスへのアクセスを許可します。</string>
     <string name="local_network_sharing_info_block_connections_warning">注意: [VPN 以外の接続のブロック] が有効の場合、[ローカルネットワーク共有] は機能しません。</string>
