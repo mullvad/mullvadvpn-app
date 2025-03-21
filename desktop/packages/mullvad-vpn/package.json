@@ -99,7 +99,6 @@
     "e2e:sequential:no-build": "xvfb-maybe -- playwright test -c test/e2e/installed/playwright.config.ts --workers 1",
     "e2e:update-snapshots": "npm run e2e:no-build -- --update-snapshots",
     "develop": "vite",
-    "develop:vite": "vite",
     "test": "cross-env NODE_ENV=test mocha --reporter spec --require ts-node/register --require \"test/unit/setup.ts\" \"test/unit/*.spec.ts\"",
     "update-translations": "node scripts/extract-translations",
     "pack:mac": "node tasks/pack-mac.js",
