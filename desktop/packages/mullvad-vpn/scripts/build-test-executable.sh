@@ -66,7 +66,7 @@ function build_test_executable {
     rm -rf "$temp_dir"
 }
 
-npx gulp build-standalone
+npm run build:standalone
 
 case "$TARGET" in
     "aarch64-unknown-linux-gnu")
