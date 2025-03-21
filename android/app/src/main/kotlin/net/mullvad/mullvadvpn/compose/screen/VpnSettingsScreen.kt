@@ -694,7 +694,7 @@ fun VpnSettingsScreen(
 @Composable
 private fun ServerIpOverrides(onServerIpOverridesClick: () -> Unit) {
     NavigationComposeCell(
-        title = stringResource(id = R.string.server_ip_overrides),
+        title = stringResource(id = R.string.server_ip_override),
         onClick = onServerIpOverridesClick,
     )
 }

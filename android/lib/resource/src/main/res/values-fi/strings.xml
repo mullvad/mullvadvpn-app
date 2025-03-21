@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
-    <string name="feature_server_ip_override">Palvelimen IP-osoitteen ohitus</string>
     <string name="feature_split_tunneling">Sovelluskohtainen yhdistäminen</string>
     <string name="feature_udp_2_tcp">Hämäysteknologia</string>
     <string name="filter">Suodatin</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
     <string name="server">Palvelin</string>
+    <string name="server_ip_override">Palvelimen IP-osoitteen ohitus</string>
     <string name="server_ip_overrides_active">Ohituksia on käytössä</string>
     <string name="server_ip_overrides_import_by">Uusien ohitusten tuontitapa</string>
     <string name="server_ip_overrides_import_by_file">Tiedosto</string>

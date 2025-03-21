@@ -177,7 +177,6 @@
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Еще %1$s...</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>
-    <string name="feature_server_ip_override">Переопределение IP-адреса сервера</string>
     <string name="feature_split_tunneling">Раздельное туннелирование</string>
     <string name="feature_udp_2_tcp">Обфускация</string>
     <string name="filter">Фильтр</string>
@@ -310,6 +309,7 @@
     <string name="sent_contact">При необходимости мы свяжемся с вами по адресу %1$s</string>
     <string name="sent_thanks">Спасибо!</string>
     <string name="server">Сервер</string>
+    <string name="server_ip_override">Переопределение IP-адреса сервера</string>
     <string name="server_ip_overrides_active">Переопределения активны</string>
     <string name="server_ip_overrides_import_by">Импорт новых переопределений:</string>
     <string name="server_ip_overrides_import_by_file">Файл</string>
