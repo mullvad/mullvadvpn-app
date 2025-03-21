@@ -177,10 +177,7 @@ pub extern "system" fn Java_net_mullvad_talpid_ConnectivityListener_notifyConnec
     let env = JnixEnv::from(env);
     let connectivity: Connectivity = FromJava::from_java(&env, connectivity);
 
-    if tx
-        .unbounded_send(connectivity)
-        .is_err()
-    {
+    if tx.unbounded_send(connectivity).is_err() {
         log::warn!("Failed to send offline change event");
     }
 }
