@@ -6,7 +6,6 @@
     <string name="market_uri" translatable="false">market://details?id=%s</string>
     <string name="faqs_and_guides_url" translatable="false">https://mullvad.net/help/tag/mullvad-app/</string>
     <string name="privacy_policy_url" translatable="false">https://mullvad.net/help/privacy-policy/</string>
-    <string name="changelog_url" translatable="false">https://github.com/mullvad/mullvadvpn-app/blob/main/android/CHANGELOG.md</string>
     <string name="lockdown_url" translatable="false">https://mullvad.net/l/android-lockdown</string>
     <string name="split_tunneling" translatable="false">Split tunneling</string>
     <string name="wireguard" translatable="false">WireGuard</string>

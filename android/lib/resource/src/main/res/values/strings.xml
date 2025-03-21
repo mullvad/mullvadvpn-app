@@ -406,7 +406,6 @@
     <string name="open_feature_settings">Open %1$s settings</string>
     <string name="search">Search</string>
     <string name="obfuscation_info_shadowsocks_batteryusage">Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video.</string>
-    <string name="see_full_changelog">See full changelog</string>
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
     <string name="device_ip_version_title">Device IP version</string>

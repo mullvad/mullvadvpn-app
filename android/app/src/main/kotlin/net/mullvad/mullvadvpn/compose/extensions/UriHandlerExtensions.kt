@@ -17,12 +17,6 @@ fun UriHandler.createOpenAccountPageHook(): (WebsiteAuthToken?) -> Unit {
     }
 }
 
-@Composable
-fun UriHandler.createOpenFullChangeLogHook(): () -> Unit {
-    val changelogUrl = stringResource(id = R.string.changelog_url)
-    return { safeOpenUri(changelogUrl) }
-}
-
 fun UriHandler.createUriHook(uri: String): () -> Unit = { safeOpenUri(uri) }
 
 private fun UriHandler.safeOpenUri(uri: String) {
