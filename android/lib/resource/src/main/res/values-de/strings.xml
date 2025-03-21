@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">Eigenes DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s weitere …</string>
-    <string name="feature_lan_sharing">Teilen im lokalen Netzwerk</string>
     <string name="feature_quantum_resistant">Quantenresistenz</string>
     <string name="feature_server_ip_override">Server-IP überschreiben</string>
     <string name="feature_split_tunneling">Split Tunneling</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">weniger als ein Tag</string>
     <string name="list_name">Name der Liste</string>
     <string name="loading_verifying">Kauf verifizieren …</string>
+    <string name="local_network_sharing">Teilen im lokalen Netzwerk</string>
     <string name="local_network_sharing_additional_info">Das geschieht, indem die Netzwerkkommunikation außerhalb des Tunnels zu lokalen Multicast- und Broadcast-Bereichen sowie zu und von diesen privaten IP-Bereichen zugelassen wird:</string>
     <string name="local_network_sharing_info">Diese Funktion ermöglicht den Zugriff auf andere Geräte im lokalen Netzwerk, z. B. zum Teilen, Drucken, Streamen usw.</string>
     <string name="local_network_sharing_info_block_connections_warning">Achtung: Wenn „Verbindungen ohne VPN blockieren“ aktiviert ist, funktioniert „Teilen im lokalen Netzwerk“ nicht.</string>

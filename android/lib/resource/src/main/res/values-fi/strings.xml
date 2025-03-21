@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
-    <string name="feature_lan_sharing">Paikallisen verkon jakaminen</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
     <string name="feature_server_ip_override">Palvelimen IP-osoitteen ohitus</string>
     <string name="feature_split_tunneling">Sovelluskohtainen yhdistäminen</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">alle vuorokausi</string>
     <string name="list_name">Luettelon nimi</string>
     <string name="loading_verifying">Ostosta vahvistetaan...</string>
+    <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
     <string name="local_network_sharing_additional_info">Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:</string>
     <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
     <string name="local_network_sharing_info_block_connections_warning">Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallisen verkon jakaminen ei toimi.</string>

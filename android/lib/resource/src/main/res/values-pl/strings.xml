@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">Niestandardowy serwer DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">Jeszcze %1$s...</string>
-    <string name="feature_lan_sharing">Udostępnianie sieci lokalnej</string>
     <string name="feature_quantum_resistant">Odporność na ataki z użyciem komputerów kwantowych</string>
     <string name="feature_server_ip_override">Zastąpienie adresu IP serwera</string>
     <string name="feature_split_tunneling">Dzielone tunelowanie</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">mniej niż jeden dzień</string>
     <string name="list_name">Nazwa listy</string>
     <string name="loading_verifying">Weryfikowanie zakupu...</string>
+    <string name="local_network_sharing">Udostępnianie sieci lokalnej</string>
     <string name="local_network_sharing_additional_info">Zapewnia to poprzez umożliwienie komunikacji sieciowej poza tunelem do lokalnych zakresów adresów IP multiemisji i emisji, a także do i z następujących prywatnych zakresów adresów IP:</string>
     <string name="local_network_sharing_info">Funkcja ta umożliwia dostęp do innych urządzeń w sieci lokalnej, np. w celu udostępniania, drukowania, transmisji strumieniowej itd.</string>
     <string name="local_network_sharing_info_block_connections_warning">Uwaga: Jeśli opcja „Blokuj połączenia bez VPN” jest włączona, funkcja „Udostępnianie sieci lokalnej” nie będzie działać.</string>

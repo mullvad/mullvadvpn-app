@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">사용자 지정 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s개 더 보기...</string>
-    <string name="feature_lan_sharing">로컬 네트워크 공유</string>
     <string name="feature_quantum_resistant">양자 저항</string>
     <string name="feature_server_ip_override">서버 IP 재정의</string>
     <string name="feature_split_tunneling">분할 터널링</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">1일 미만</string>
     <string name="list_name">목록 이름</string>
     <string name="loading_verifying">구매 확인 중...</string>
+    <string name="local_network_sharing">로컬 네트워크 공유</string>
     <string name="local_network_sharing_additional_info">이를 위해 터널 외부에서 로컬 멀티캐스트 및 브로드캐스트 범위는 물론 다음 개인 IP 범위와의 네트워크 통신을 허용합니다.</string>
     <string name="local_network_sharing_info">이 기능을 사용하면 공유, 인쇄, 스트리밍 등을 위해 로컬 네트워크의 다른 장치에 액세스할 수 있습니다.</string>
     <string name="local_network_sharing_info_block_connections_warning">주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \"로컬 네트워크 공유\"가 작동하지 않습니다.</string>

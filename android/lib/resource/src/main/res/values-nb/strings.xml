@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">%1$s til …</string>
-    <string name="feature_lan_sharing">Deling over lokalt nettverk</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>
     <string name="feature_server_ip_override">Overstyring av server-IP</string>
     <string name="feature_split_tunneling">Delt tunnelering</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">mindre enn én dag</string>
     <string name="list_name">Listenavn</string>
     <string name="loading_verifying">Bekrefter kjøp ...</string>
+    <string name="local_network_sharing">Deling over lokalt nettverk</string>
     <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
     <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av lokalt nettverk» ikke fungere.</string>

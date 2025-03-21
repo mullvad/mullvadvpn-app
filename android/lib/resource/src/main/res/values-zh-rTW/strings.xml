@@ -176,7 +176,6 @@
     <string name="feature_custom_dns">自訂 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_indicators_show_more">其他 %1$s 個…</string>
-    <string name="feature_lan_sharing">本機網路分享</string>
     <string name="feature_quantum_resistant">抗量子</string>
     <string name="feature_server_ip_override">伺服器 IP 覆寫</string>
     <string name="feature_split_tunneling">分割通道</string>
@@ -207,6 +206,7 @@
     <string name="less_than_one_day">不足 1 天</string>
     <string name="list_name">清單名稱</string>
     <string name="loading_verifying">正在驗證購買…</string>
+    <string name="local_network_sharing">本機網路分享</string>
     <string name="local_network_sharing_additional_info">其原理是允許通道外的網路與本機網路進行通訊，包括以下私人 IP 範圍內的多點傳送和廣播：</string>
     <string name="local_network_sharing_info">此功能可允許存取本機網路上的其他裝置，以便用於分享、列印、串流等。</string>
     <string name="local_network_sharing_info_block_connections_warning">注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，將無法使用「本機網路共享」功能。</string>
