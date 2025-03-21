@@ -24,6 +24,8 @@ typedef struct EncryptedDnsProxyState EncryptedDnsProxyState;
 
 typedef struct ExchangeCancelToken ExchangeCancelToken;
 
+typedef struct Map Map;
+
 typedef struct RequestCancelHandle RequestCancelHandle;
 
 typedef struct RetryStrategy RetryStrategy;
@@ -53,6 +55,10 @@ typedef struct CompletionCookie {
   void *_0;
 } CompletionCookie;
 
+typedef struct SwiftMap {
+  struct Map *inner;
+} SwiftMap;
+
 typedef struct SwiftProblemReportRequest {
   const uint8_t *address;
   uintptr_t address_len;
@@ -60,6 +66,7 @@ typedef struct SwiftProblemReportRequest {
   uintptr_t message_len;
   const uint8_t *log;
   uintptr_t log_len;
+  struct SwiftMap *meta_data;
 } SwiftProblemReportRequest;
 
 typedef struct ProxyHandle {
@@ -197,6 +204,14 @@ struct SwiftCancelHandle mullvad_api_send_problem_report(struct SwiftApiContext 
                                                          void *completion_cookie,
                                                          struct SwiftRetryStrategy retry_strategy,
                                                          const struct SwiftProblemReportRequest *request);
+
+struct SwiftMap *swift_map_new(void);
+
+void swift_map_add(struct SwiftMap *map, const char *key, const char *value);
+
+const char *swift_map_get(struct SwiftMap *map, const char *key);
+
+void swift_map_free(struct SwiftMap *map);
 
 /**
  * Initializes a valid pointer to an instance of `EncryptedDnsProxyState`.
