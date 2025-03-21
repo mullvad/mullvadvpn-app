@@ -85,9 +85,9 @@
   },
   "scripts": {
     "preinstall": "test -d node_modules || mkdir node_modules",
-    "build": "gulp build-vite",
+    "build": "node tasks/build-production.js",
     "build:vite": "vite build",
-    "build:test": "gulp build-test",
+    "build:test": "node tasks/build-test.js",
     "pack-test-executable": "./scripts/build-test-executable.sh",
     "build-test-executable": "npm run pack-test-executable",
     "lint": "eslint .",
@@ -97,13 +97,13 @@
     "e2e:sequential": "npm run build && npm run e2e:sequential:no-build",
     "e2e:sequential:no-build": "xvfb-maybe -- playwright test -c test/e2e/installed/playwright.config.ts --workers 1",
     "e2e:update-snapshots": "npm run e2e:no-build -- --update-snapshots",
-    "develop": "gulp develop",
+    "develop": "vite",
     "develop:vite": "vite",
     "test": "cross-env NODE_ENV=test mocha --reporter spec --require ts-node/register --require \"test/unit/setup.ts\" \"test/unit/*.spec.ts\"",
     "update-translations": "node scripts/extract-translations",
-    "pack:mac": "gulp pack-mac",
-    "pack:win": "gulp pack-win",
-    "pack:linux": "gulp pack-linux"
+    "pack:mac": "node tasks/pack-mac.js",
+    "pack:win": "node tasks/pack-windows.js",
+    "pack:linux": "node tasks/pack-linux.js"
   },
   "volta": {
     "extends": "../../package.json"
