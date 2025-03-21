@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Отключено (нет разрешения для VPN)</string>
     <string name="disconnecting">Отключение...</string>
     <string name="dismiss">Закрыть</string>
+    <string name="dns_content_blockers">DNS-блокировщики контента</string>
     <string name="dns_content_blockers_custom_dns_warning">Внимание! Этот параметр нельзя использовать вместе с параметром «Пользовательский DNS-сервер».</string>
     <string name="dns_content_blockers_info">При включенной опции устройство не будет устанавливать соединение с определенными доменами и сайтами, известными распространением рекламы, вредоносного ПО, трекеров и т. д.</string>
     <string name="dns_content_blockers_subtitle">Чтобы активировать эти параметры, отключите параметр «%1$s».</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Ответы на вопросы и руководства</string>
     <string name="feature_custom_dns">Пользовательский DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-блокировщики контента</string>
     <string name="feature_indicators_show_more">Еще %1$s...</string>
     <string name="feature_lan_sharing">Обмен данными в локальной сети</string>
     <string name="feature_quantum_resistant">Квантовая устойчивость</string>

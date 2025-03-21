@@ -87,7 +87,7 @@ private fun FeatureIndicator.text(): String {
             FeatureIndicator.SHADOWSOCKS,
             FeatureIndicator.UDP_2_TCP -> R.string.feature_udp_2_tcp
             FeatureIndicator.LAN_SHARING -> R.string.feature_lan_sharing
-            FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.feature_dns_content_blockers
+            FeatureIndicator.DNS_CONTENT_BLOCKERS -> R.string.dns_content_blockers
             FeatureIndicator.CUSTOM_DNS -> R.string.feature_custom_dns
             FeatureIndicator.SERVER_IP_OVERRIDE -> R.string.feature_server_ip_override
             FeatureIndicator.CUSTOM_MTU -> R.string.feature_custom_mtu

@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">Frånkopplad (VPN-behörighet saknas)</string>
     <string name="disconnecting">Kopplar från ...</string>
     <string name="dismiss">Ignorera</string>
+    <string name="dns_content_blockers">DNS-innehållsblockerare</string>
     <string name="dns_content_blockers_custom_dns_warning">Obs! Den här inställningen kan inte användas tillsammans med \"Använd anpassad DNS-server\".</string>
     <string name="dns_content_blockers_info">När den här funktionen är aktiverad stoppas enheten från att kontakta vissa domäner eller webbplatser som är kända för att sprida annonser, skadlig kod, spårare med mera.</string>
     <string name="dns_content_blockers_subtitle">Inaktivera \"%1$s\" nedan för att aktivera dessa inställningar.</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">Vanliga frågor och guider</string>
     <string name="feature_custom_dns">Anpassad DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-innehållsblockerare</string>
     <string name="feature_indicators_show_more">%1$s till ...</string>
     <string name="feature_lan_sharing">Lokal nätverksdelning</string>
     <string name="feature_quantum_resistant">Kvantresistens</string>

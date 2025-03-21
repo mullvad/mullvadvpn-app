@@ -364,7 +364,7 @@ fun VpnSettingsScreen(
 
             itemWithDivider {
                 ExpandableComposeCell(
-                    title = stringResource(R.string.dns_content_blockers_title),
+                    title = stringResource(R.string.dns_content_blockers),
                     isExpanded = expandContentBlockersState,
                     isEnabled = !state.isCustomDnsEnabled,
                     onInfoClicked = { navigateToContentBlockersInfo() },

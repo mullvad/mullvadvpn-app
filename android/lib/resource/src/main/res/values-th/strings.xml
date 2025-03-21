@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">ตัดการเชื่อมต่อแล้ว (ไม่มีสิทธิ์ VPN)</string>
     <string name="disconnecting">กำลังตัดการเชื่อมต่อ...</string>
     <string name="dismiss">ละทิ้ง</string>
+    <string name="dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\"</string>
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
     <string name="dns_content_blockers_subtitle">ปิดใช้งาน \"%1$s\" ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">คำถามที่พบบ่อยและคำแนะนำ</string>
     <string name="feature_custom_dns">DNS แบบกำหนดเอง</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
     <string name="feature_lan_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>

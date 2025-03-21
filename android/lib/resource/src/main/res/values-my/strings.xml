@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">ချိတ်ဆက်မှုဖြုတ်ထားသည် (VPN ခွင့်ပြုချက် မရှိပါ)</string>
     <string name="disconnecting">ချိတ်ဆက်မှုဖြုတ်နေသည်...</string>
     <string name="dismiss">ဖယ်ပစ်ရန်</string>
+    <string name="dns_content_blockers">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
     <string name="dns_content_blockers_custom_dns_warning">သတိပြုရန်- ဤဆက်တင်ကို \"စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်\" နှင့် အတူတွဲပြီး သုံးစွဲ၍မရပါ။</string>
     <string name="dns_content_blockers_info">ဤလုပ်ဆောင်ချက်ကို ဖွင့်ထားသည့်အခါ အနှောင့်အယှက်ဖြစ်စေသည့် ကြော်ငြာများ၊ မဲလ်ဝဲရ်၊ ခြေရာခံများနှင့် အစရှိသည်တို့နှင့်စပ်လျဉ်း၍ သိရှိထားသော အချို့သော Domain များ သို့မဟုတ် ဝဘ်ဆိုက်များနှင့် ဆက်သွယ်ခြင်းမှ စက်ကို ရပ်တန့်ပေးပါသည်။</string>
     <string name="dns_content_blockers_subtitle">ဤဆက်တင်များကို ဖွင့်ရန် အောက်ပါ \"%1$s\" ကို ပိတ်ပါ။</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">မေးလေ့ရှိသည့် မေးခွန်းများနှင့် လမ်းညွှန်များ</string>
     <string name="feature_custom_dns">စိတ်ကြိုက် DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS အကြောင်းအရာ ပိတ်ဆို့မှုများ</string>
     <string name="feature_indicators_show_more">နောက်ထပ် %1$s ခု...</string>
     <string name="feature_lan_sharing">လိုကယ် ကွန်ရက် ဝေမျှမှု</string>
     <string name="feature_quantum_resistant">Quantum ခုခံမှု</string>

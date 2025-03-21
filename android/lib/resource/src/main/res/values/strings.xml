@@ -180,7 +180,6 @@
     <string name="add_dns_server_dialog_title">Add DNS server</string>
     <string name="update_dns_server_dialog_title">Update DNS server</string>
     <string name="duplicate_address_warning">This address has already been entered.</string>
-    <string name="dns_content_blockers_title">DNS content blockers</string>
     <string name="dns_content_blockers_info">When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</string>
     <string name="dns_content_blockers_warning">This might cause issues on certain websites, services, and apps.</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention: this setting cannot be used in combination with \"Use custom DNS server\".</string>
@@ -359,7 +358,7 @@
     <string name="feature_server_ip_override">Server IP override</string>
     <string name="feature_custom_mtu">MTU</string>
     <string name="feature_multihop">Multihop</string>
-    <string name="feature_dns_content_blockers">DNS content blockers</string>
+    <string name="dns_content_blockers">DNS content blockers</string>
     <string name="connection_details_ipv4">IPv4</string>
     <string name="connection_details_ipv6">IPv6</string>
     <string name="connection_details_in">In</string>

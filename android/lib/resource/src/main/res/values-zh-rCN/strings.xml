@@ -138,6 +138,7 @@
     <string name="disconnected_vpn_permission_error">已断开连接（无 VPN 权限）</string>
     <string name="disconnecting">正在断开连接…</string>
     <string name="dismiss">关闭</string>
+    <string name="dns_content_blockers">DNS 内容阻止程序</string>
     <string name="dns_content_blockers_custom_dns_warning">注意：此设置不能与“使用自定义 DNS 服务器”结合使用。</string>
     <string name="dns_content_blockers_info">启用此功能后，它将阻止设备与已知的分发广告、恶意软件、跟踪器等内容的特定域或网站联系。</string>
     <string name="dns_content_blockers_subtitle">禁用下方的“%1$s”以激活这些设置。</string>
@@ -176,7 +177,6 @@
     <string name="faqs_and_guides">常见问题解答与指南</string>
     <string name="feature_custom_dns">自定义 DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS 内容阻止程序</string>
     <string name="feature_indicators_show_more">其他 %1$s 个…</string>
     <string name="feature_lan_sharing">本地网络共享</string>
     <string name="feature_quantum_resistant">量子阻力</string>
