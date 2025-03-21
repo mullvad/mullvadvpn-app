@@ -302,7 +302,6 @@
     <string name="search_location_empty_text">Brak wyników dla hasła „%1$s”, spróbuj innego wyszukiwania</string>
     <string name="search_placeholder">Wyszukaj...</string>
     <string name="search_query_empty">Wpisz co najmniej 2 znaki, aby rozpocząć wyszukiwanie.</string>
-    <string name="see_full_changelog">Zobacz pełny dziennik zmian</string>
     <string name="select_location">Wybierz lokalizację</string>
     <string name="send">Wyślij</string>
     <string name="send_anyway">Mimo to wyślij</string>

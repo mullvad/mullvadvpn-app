@@ -302,7 +302,6 @@
     <string name="search_location_empty_text">Nessun risultato per \"%1$s\", prova una ricerca diversa</string>
     <string name="search_placeholder">Cerca...</string>
     <string name="search_query_empty">Digita almeno 2 caratteri per iniziare la ricerca.</string>
-    <string name="see_full_changelog">Vedi changelog completo</string>
     <string name="select_location">Seleziona posizione</string>
     <string name="send">Invia</string>
     <string name="send_anyway">Invia comunque</string>

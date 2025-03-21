@@ -302,7 +302,6 @@
     <string name="search_location_empty_text">\"%1$s\" 검색 결과가 없습니다. 다른 검색어를 시도하세요</string>
     <string name="search_placeholder">검색...</string>
     <string name="search_query_empty">검색을 시작하려면 2자 이상 입력하세요.</string>
-    <string name="see_full_changelog">전체 변경 로그 확인</string>
     <string name="select_location">위치 선택</string>
     <string name="send">전송</string>
     <string name="send_anyway">그래도 전송</string>
