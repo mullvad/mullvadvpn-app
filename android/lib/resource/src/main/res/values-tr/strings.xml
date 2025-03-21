@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Ödeme işlemini başlatamadık, lütfen daha sonra tekrar deneyin.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad hizmetleri kullanılamıyor</string>
     <string name="payment_pending_dialog_message">Şu anda satın alma işleminizi doğruluyoruz. Bu işlem biraz zaman alabilir. Süreniz, doğrulama işleminin başarılı olması durumunda eklenecektir.</string>
-    <string name="payment_pending_dialog_title">Satın alma işlemi doğrulanıyor</string>
     <string name="payment_status_pending">Google Play ödemesi bekleniyor</string>
     <string name="please_enter_a_valid_ip_address">Lütfen geçerli bir IPv4 veya IPv6 adresi girin</string>
     <string name="please_enter_a_valid_remote_server_port">Lütfen geçerli bir uzak sunucu portu girin</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">Size daha iyi yardımcı olabilmemiz için lütfen mesajınızı İngilizce veya İsveççe olarak yazın ve hangi ülkeden bağlandığınızı belirtin.</string>
     <string name="username">Kullanıcı adı</string>
     <string name="verifying_api_method">API yöntemi doğrulanıyor...</string>
+    <string name="verifying_purchase">Satın alma işlemi doğrulanıyor</string>
     <string name="verifying_voucher">Kupon doğrulanıyor…</string>
     <string name="version">Sürüm</string>
     <string name="view_logs">Uygulama kayıtlarını görüntüle</string>

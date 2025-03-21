@@ -54,7 +54,7 @@ private fun PreviewPaymentDialogPurchasePending() {
         PaymentDialog(
             paymentDialogData =
                 PaymentDialogData(
-                    title = R.string.payment_pending_dialog_title,
+                    title = R.string.verifying_purchase,
                     message = R.string.payment_pending_dialog_message,
                     confirmAction = PaymentDialogAction.Close,
                     closeOnDismiss = true,

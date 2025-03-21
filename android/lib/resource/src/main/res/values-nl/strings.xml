@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">We kunnen het betalingsproces niet starten, probeer het later opnieuw.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-diensten niet beschikbaar</string>
     <string name="payment_pending_dialog_message">We verifiëren momenteel uw aankoop, dit kan even duren. Uw tijd wordt toegevoegd als de controle succesvol is.</string>
-    <string name="payment_pending_dialog_title">Aankoop verifiëren</string>
     <string name="payment_status_pending">Google Play-betaling in behandeling</string>
     <string name="please_enter_a_valid_ip_address">Voer een geldig IPv4- of IPv6-adres in</string>
     <string name="please_enter_a_valid_remote_server_port">Voer een geldige poort op de externe server in</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">Om u beter te kunnen helpen, kunt u in het Engels of Zweeds schrijven. Vermeld uit welk land u komt.</string>
     <string name="username">Gebruikersnaam</string>
     <string name="verifying_api_method">API-methode verifiëren ...</string>
+    <string name="verifying_purchase">Aankoop verifiëren</string>
     <string name="verifying_voucher">Voucher verifiëren …</string>
     <string name="version">Versie</string>
     <string name="view_logs">Applogboeken weergeven</string>

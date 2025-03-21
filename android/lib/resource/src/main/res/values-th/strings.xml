@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง</string>
     <string name="payment_obfuscation_id_error_dialog_title">บริการ Mullavad ไม่พร้อมใช้งาน</string>
     <string name="payment_pending_dialog_message">เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ</string>
-    <string name="payment_pending_dialog_title">กำลังตรวจสอบยืนยันการซื้อ</string>
     <string name="payment_status_pending">กำลังชำระเงิน Google Play</string>
     <string name="please_enter_a_valid_ip_address">โปรดป้อนที่อยู่ IPv4 หรือ IPv6 ที่ถูกต้อง</string>
     <string name="please_enter_a_valid_remote_server_port">โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
     <string name="username">ชื่อผู้ใช้</string>
     <string name="verifying_api_method">กำลังตรวจสอบยืนยันวิธีการ API...</string>
+    <string name="verifying_purchase">กำลังตรวจสอบยืนยันการซื้อ</string>
     <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="version">เวอร์ชัน</string>
     <string name="view_logs">ดูบันทึกของแอป</string>

@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Не удалось начать процесс оплаты. Повторите попытку позже.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Службы Mullvad недоступны</string>
     <string name="payment_pending_dialog_message">Сейчас мы проверяем, прошла ли оплата; нужно немного подождать. Если проверка завершится успешно, мы добавим оплаченное время.</string>
-    <string name="payment_pending_dialog_title">Идет проверка оплаты</string>
     <string name="payment_status_pending">Ожидается оплата в Google Play</string>
     <string name="please_enter_a_valid_ip_address">Введите действительный адрес IPv4 или IPv6</string>
     <string name="please_enter_a_valid_remote_server_port">Введите действительный порт удаленного сервера</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">Чтобы мы могли быстрее решить проблему, напишите нам на английском или шведском и укажите, из какой страны вы подключаетесь.</string>
     <string name="username">Имя пользователя</string>
     <string name="verifying_api_method">Проверяем метод доступа к API...</string>
+    <string name="verifying_purchase">Идет проверка оплаты</string>
     <string name="verifying_voucher">Идет проверка ваучера…</string>
     <string name="version">Версия</string>
     <string name="view_logs">Открыть журналы</string>

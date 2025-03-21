@@ -235,8 +235,7 @@
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad services unavailable</string>
     <string name="payment_obfuscation_id_error_dialog_message">We were unable to start the payment process, please try again later.</string>
     <string name="payment_status_pending">Google Play payment pending</string>
-    <string name="payment_status_verification_in_progress">Verifying purchase</string>
-    <string name="payment_pending_dialog_title">Verifying purchase</string>
+    <string name="verifying_purchase">Verifying purchase</string>
     <string name="payment_pending_dialog_message">We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful.</string>
     <string name="connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>

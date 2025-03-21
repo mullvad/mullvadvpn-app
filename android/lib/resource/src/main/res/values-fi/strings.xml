@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-palvelut eivät ole käytettävissä</string>
     <string name="payment_pending_dialog_message">Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu.</string>
-    <string name="payment_pending_dialog_title">Ostoksen vahvistaminen</string>
     <string name="payment_status_pending">Google Play -maksu odottaa</string>
     <string name="please_enter_a_valid_ip_address">Anna kelvollinen IPv4- tai IPv6-osoite</string>
     <string name="please_enter_a_valid_remote_server_port">Anna kelvollinen etäpalvelimen portti</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">Jotta voisimme avustaa sinua paremmin, kirjoita englanniksi tai ruotsiksi ja mainitse, mistä maasta muodostat yhteyden.</string>
     <string name="username">Käyttäjätunnus</string>
     <string name="verifying_api_method">Vahvistetaan API-menetelmää...</string>
+    <string name="verifying_purchase">Ostoksen vahvistaminen</string>
     <string name="verifying_voucher">Kuponkia vahvistetaan…</string>
     <string name="version">Versio</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>

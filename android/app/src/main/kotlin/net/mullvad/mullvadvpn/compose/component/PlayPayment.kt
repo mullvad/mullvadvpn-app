@@ -145,9 +145,7 @@ fun PlayPayment(
                             PaymentStatus.PENDING ->
                                 stringResource(id = R.string.payment_status_pending)
                             PaymentStatus.VERIFICATION_IN_PROGRESS ->
-                                stringResource(
-                                    id = R.string.payment_status_verification_in_progress
-                                )
+                                stringResource(id = R.string.verifying_purchase)
                             else -> null
                         }
                     statusMessage?.let {

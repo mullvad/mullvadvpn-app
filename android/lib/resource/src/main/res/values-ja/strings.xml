@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">決済処理を開始できませんでした。後でもう一度お試しください。</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvadサービスを使用できません</string>
     <string name="payment_pending_dialog_message">購入を確認中です。これにはしばらく時間がかかる場合があります。正常に確認されると、この時間が追加されます。</string>
-    <string name="payment_pending_dialog_title">購入を確認中</string>
     <string name="payment_status_pending">Google Playの決済は未完了です</string>
     <string name="please_enter_a_valid_ip_address">有効な IPv4 または IPv6 アドレスを入力してください</string>
     <string name="please_enter_a_valid_remote_server_port">有効なリモートサーバーのポートを入力してください</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">最適なサポートを提供するため、英語またはスウェーデン語でご入力ください。また、接続元の国をお知らせください。</string>
     <string name="username">ユーザー名</string>
     <string name="verifying_api_method">API 接続方法を検証しています...</string>
+    <string name="verifying_purchase">購入を確認中</string>
     <string name="verifying_voucher">バウチャーを確認中…</string>
     <string name="version">バージョン</string>
     <string name="view_logs">アプリのログを表示</string>

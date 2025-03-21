@@ -270,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunde inte starta betalningsprocessen, försök igen senare.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjänster är inte tillgängliga</string>
     <string name="payment_pending_dialog_message">Vi verifierar ditt köp just nu och det kan ta en stund. Din tid läggs till om verifieringen lyckas.</string>
-    <string name="payment_pending_dialog_title">Verifierar köp</string>
     <string name="payment_status_pending">Google Play-betalning väntar</string>
     <string name="please_enter_a_valid_ip_address">Ange en giltig IPv4- eller IPv6-adress</string>
     <string name="please_enter_a_valid_remote_server_port">Ange en giltig fjärrserverport</string>
@@ -369,6 +368,7 @@
     <string name="user_message_hint">Skriv på engelska eller svenska och ange från vilket land du är ansluten så att vi kan hjälpa dig bättre.</string>
     <string name="username">Användarnamn</string>
     <string name="verifying_api_method">Verifierar API-metod ...</string>
+    <string name="verifying_purchase">Verifierar köp</string>
     <string name="verifying_voucher">Verifierar kupong …</string>
     <string name="version">Version</string>
     <string name="view_logs">Visa appens loggar</string>
