@@ -2,8 +2,6 @@ args@{ hostname
 , # hostname of the router
   lanMac ? null
 , # MAC address of the local area network interface
-  wifiMac ? null
-, # MAC address of the local area network interface
   wanMac
 , # MAC address of the upstream interface
   lanIp
@@ -50,10 +48,6 @@ in
       linkConfig.Name = "lanEth";
     };
 
-    "1-wifiIface" = ifNotNull wifiMac {
-      matchConfig.PermanentMACAddress = args.wifiMac;
-      linkConfig.Name = "wifi";
-    };
     "1-wanIface" = {
       matchConfig.PermanentMACAddress = args.wanMac;
       linkConfig.Name = "wan";
@@ -141,11 +135,6 @@ in
   #  "/org/freedesktop/network1/link/${link_id}" \
   #  org.freedesktop.network1.DHCPServer \
   #  Leases
-  systemd.network.networks."wifi" = ifNotNull wifiMac {
-    matchConfig.Name = "wifi";
-    networkConfig.Bridge = "lan";
-    linkConfig.RequiredForOnline = "enslaved";
-  };
 
   systemd.network.networks."lanEth" = ifNotNull lanMac {
     matchConfig.Name = "lanEth";
@@ -234,45 +223,6 @@ in
         ${raas}/bin/raas ${listenAddress}:80
       '';
     };
-
-  # WiFi is only enabled if a MAC address is supplied
-  services.hostapd.enable = !builtins.isNull wifiMac;
-  systemd.services.hostapd = ifNotNull wifiMac {
-    bindsTo = [ "sys-subsystem-net-devices-wifi.device" ];
-  };
-
-  services.hostapd.radios.wifi = ifNotNull wifiMac {
-    wifi5.enable = false;
-    wifi4.capabilities = [ "HT40+" "HT40-" "HT20" "SHORT-GI-20" "SHORT-GI-40" "SHORT-GI-80" ];
-
-    countryCode = "SE";
-    band = "2g";
-    networks.wifi = {
-      # the regular NixOS config is too strict w.r.t. to old WPA standards, so for increased compatibility we should use this.
-      settings = {
-        "channel" = lib.mkForce "7";
-        "driver" = lib.mkForce "nl80211";
-        "ht_capab" =
-          lib.mkForce "[HT40+][HT40-][HT20][SHORT-GI-20][SHORT-GI-40]";
-        "hw_mode" = lib.mkForce "g";
-        "ieee80211w" = lib.mkForce "1";
-        "ieee80211d" = lib.mkForce "1";
-        "ieee80211h" = lib.mkForce "1";
-        "ieee80211n" = lib.mkForce "1";
-        "noscan" = lib.mkForce "0";
-        "require_ht" = lib.mkForce "0";
-        "wpa_key_mgmt" = lib.mkForce "WPA-PSK WPA-PSK-SHA256 SAE";
-        "group_mgmt_cipher" = lib.mkForce "AES-128-CMAC";
-      };
-      ssid = args.hostname;
-      authentication = {
-        mode = "wpa2-sha256";
-        # ¡¡¡ CREATE THESE FILES WITH THE NECESSARY PASSWORD !!!
-        wpaPasswordFile = "/wifi-password";
-        saePasswordsFile = "/wifi-sae-passwords";
-      };
-    };
-  };
 
   services.shadowsocks = {
     enable = true;
