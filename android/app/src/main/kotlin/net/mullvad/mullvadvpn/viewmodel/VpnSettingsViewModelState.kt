@@ -26,6 +26,7 @@ data class VpnSettingsViewModelState(
     val systemVpnSettingsAvailable: Boolean,
     val autoStartAndConnectOnBoot: Boolean,
     val deviceIpVersion: Constraint<IpVersion>,
+    val ipv6Enabled: Boolean,
 ) {
     val isCustomWireguardPort =
         selectedWireguardPort is Constraint.Only &&
@@ -48,6 +49,7 @@ data class VpnSettingsViewModelState(
             systemVpnSettingsAvailable,
             autoStartAndConnectOnBoot,
             deviceIpVersion,
+            ipv6Enabled,
         )
 
     companion object {
@@ -68,16 +70,17 @@ data class VpnSettingsViewModelState(
                 systemVpnSettingsAvailable = false,
                 autoStartAndConnectOnBoot = false,
                 deviceIpVersion = Constraint.Any,
+                ipv6Enabled = false,
             )
     }
 }
 
-data class CustomDnsItem(val address: String, val isLocal: Boolean) {
+data class CustomDnsItem(val address: String, val isLocal: Boolean, val isIpv6: Boolean) {
     companion object {
         private const val EMPTY_STRING = ""
 
         fun default(): CustomDnsItem {
-            return CustomDnsItem(address = EMPTY_STRING, isLocal = false)
+            return CustomDnsItem(address = EMPTY_STRING, isLocal = false, isIpv6 = false)
         }
     }
 }

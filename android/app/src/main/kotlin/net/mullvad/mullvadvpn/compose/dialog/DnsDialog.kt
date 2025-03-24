@@ -39,7 +39,7 @@ private fun PreviewDnsDialogEdit() {
 @Preview
 @Composable
 private fun PreviewDnsDialogEditAllowLanDisabled() {
-    AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
+    AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, false, false, 0), {}, {}, {}, {}) }
 }
 
 data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = null)
@@ -99,6 +99,9 @@ fun DnsDialog(
                         }
                         state.isLocal && !state.isAllowLanEnabled -> {
                             stringResource(id = R.string.confirm_local_dns)
+                        }
+                        state.isIpv6 && !state.isIpv6Enabled -> {
+                            stringResource(id = R.string.confirm_ipv6_dns)
                         }
                         else -> {
                             null
