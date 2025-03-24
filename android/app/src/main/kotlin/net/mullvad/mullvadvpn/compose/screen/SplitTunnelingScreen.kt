@@ -1,6 +1,6 @@
 package net.mullvad.mullvadvpn.compose.screen
 
-import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -91,7 +91,7 @@ fun SplitTunnelingScreen(
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
     onBackClick: () -> Unit,
-    onResolveIcon: (String) -> Bitmap?,
+    onResolveIcon: (String) -> Drawable?,
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -164,7 +164,7 @@ private fun LazyListScope.appList(
     onShowSystemAppsClick: (show: Boolean) -> Unit,
     onExcludeAppClick: (packageName: String) -> Unit,
     onIncludeAppClick: (packageName: String) -> Unit,
-    onResolveIcon: (String) -> Bitmap?,
+    onResolveIcon: (String) -> Drawable?,
 ) {
     if (state.excludedApps.isNotEmpty()) {
         headerItem(
@@ -206,7 +206,7 @@ private fun LazyListScope.appItems(
     apps: List<AppData>,
     focusManager: FocusManager,
     onAppClick: (String) -> Unit,
-    onResolveIcon: (String) -> Bitmap?,
+    onResolveIcon: (String) -> Drawable?,
     enabled: Boolean,
     excluded: Boolean,
 ) {
