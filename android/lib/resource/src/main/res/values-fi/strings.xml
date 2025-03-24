@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Käytössä olevat ominaisuudet</string>
     <string name="connect_panel_connection_details">Yhteyden tiedot</string>
     <string name="connected">Yhdistetty</string>
+    <string name="connecting">Yhdistetään...</string>
     <string name="connecting_to_daemon">Yhdistetään Mullvad-järjestelmäpalveluun...</string>
     <string name="connection_details_in">Saapuva</string>
     <string name="connection_details_out">Lähtevä</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">Olet poistanut tämän laitteen. Jos haluat muodostaa yhteyden uudelleen, sinun täytyy kirjautua takaisin sisään.</string>
     <string name="device_inactive_title">Laite ei ole aktiivinen</string>
     <string name="device_inactive_unblock_warning">Kirjautumiseen siirtyminen purkaa internetin käytön eston tältä laitteelta.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Laitteen nimi</string>
     <string name="device_name_info_first_paragraph">Tämä on laitteelle annettu nimi. Jokainen Mullvad-tilille kirjautunut laite saa yksilöllisen nimen, jonka avulla sen voi tunnistaa laitteiden hallinnassa sovelluksessa tai verkkosivustolla.</string>
     <string name="device_name_info_second_paragraph">Yhdelle Mullvad-tilille voi olla kirjautuneena enintään viisi laitetta.</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">Yhteys katkaistu (ei VPN-käyttöoikeutta)</string>
     <string name="disconnecting">Katkaistaan yhteyttä...</string>
     <string name="dismiss">Jätä huomiotta</string>
+    <string name="dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="dns_content_blockers_custom_dns_warning">Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa.</string>
     <string name="dns_content_blockers_info">Kun tämä ominaisuus on käytössä, se estää laitetta ottamasta yhteyttä tiettyihin verkkotunnuksiin tai -sivustoihin, jotka tunnetaan mainosten, haittaohjelmien, seurantaohjelmien tai muiden vastaavien jakelijoina.</string>
     <string name="dns_content_blockers_subtitle">Ota nämä asetukset käyttöön poistamalla \"%1$s\" käytöstä alta.</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">Usein kysytyt kysymykset ja oppaat</string>
     <string name="feature_custom_dns">Mukautettu DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-sisällönestotoiminnot</string>
     <string name="feature_indicators_show_more">%1$s lisää...</string>
-    <string name="feature_lan_sharing">Paikallisen verkon jakaminen</string>
     <string name="feature_quantum_resistant">Kvanttihyökkäysten esto</string>
-    <string name="feature_server_ip_override">Palvelimen IP-osoitteen ohitus</string>
-    <string name="feature_split_tunneling">Sovelluskohtainen yhdistäminen</string>
     <string name="feature_udp_2_tcp">Hämäysteknologia</string>
     <string name="filter">Suodatin</string>
     <string name="filters">Suodattimet:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">Tuo tekstinä</string>
     <string name="invalid_dns_servers">Mukautetut DNS-palvelimen osoitteet %1$s ovat virheellisiä</string>
     <string name="invalid_voucher">Kuponkikoodi ei kelpaa.</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">IPv6:n määritys ei onnistunut. Poista se käytöstä sovelluksessa tai ota käyttöön laitteellasi.</string>
     <string name="is_offline">Laitteesi on offline-tilassa. Kun laitteesi on taas online-tilassa, tunneli muodostaa yhteyden automaattisesti.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Tunneliyhteyden käynnistäminen ei onnistu. Poista aina päällä oleva VPN käytöstä ennen Mullvad VPN:n käyttämistä.</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">alle vuorokausi jäljellä</string>
     <string name="less_than_one_day">alle vuorokausi</string>
     <string name="list_name">Luettelon nimi</string>
-    <string name="loading_connecting">Yhdistetään...</string>
     <string name="loading_verifying">Ostosta vahvistetaan...</string>
+    <string name="local_network_sharing">Paikallisen verkon jakaminen</string>
     <string name="local_network_sharing_additional_info">Ominaisuus siis sallii verkkoviestinnän tunnelin ulkopuolella paikallisille lähetys- ja monilähetysalueille sekä näillä yksityisillä IP-alueilla kumpaankin suuntaan:</string>
     <string name="local_network_sharing_info">Tämä ominaisuus mahdollistaa pääsyn muihin paikallisverkon laitteisiin esimerkiksi jakamisen, tulostamisen, suoratoiston jne. tarpeisiin.</string>
     <string name="local_network_sharing_info_block_connections_warning">Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallisen verkon jakaminen ei toimi.</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Emme pystyneet aloittamaan maksun käsittelyä. Yritä myöhemmin uudelleen.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-palvelut eivät ole käytettävissä</string>
     <string name="payment_pending_dialog_message">Vahvistamme ostostasi parhaillaan. Siinä saattaa vierähtää jonkin aikaa. Tilillesi lisätään käyttöaikaa, kunhan ostoksen vahvistus onnistuu.</string>
-    <string name="payment_pending_dialog_title">Ostoksen vahvistaminen</string>
     <string name="payment_status_pending">Google Play -maksu odottaa</string>
     <string name="please_enter_a_valid_ip_address">Anna kelvollinen IPv4- tai IPv6-osoite</string>
     <string name="please_enter_a_valid_remote_server_port">Anna kelvollinen etäpalvelimen portti</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">Tarvittaessa otamme sinuun yhteyttä osoitteeseen %1$s</string>
     <string name="sent_thanks">Kiitos!</string>
     <string name="server">Palvelin</string>
+    <string name="server_ip_override">Palvelimen IP-osoitteen ohitus</string>
     <string name="server_ip_overrides_active">Ohituksia on käytössä</string>
     <string name="server_ip_overrides_import_by">Uusien ohitusten tuontitapa</string>
     <string name="server_ip_overrides_import_by_file">Tiedosto</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">Jotta voisimme avustaa sinua paremmin, kirjoita englanniksi tai ruotsiksi ja mainitse, mistä maasta muodostat yhteyden.</string>
     <string name="username">Käyttäjätunnus</string>
     <string name="verifying_api_method">Vahvistetaan API-menetelmää...</string>
+    <string name="verifying_purchase">Ostoksen vahvistaminen</string>
     <string name="verifying_voucher">Kuponkia vahvistetaan…</string>
     <string name="version">Versio</string>
     <string name="view_logs">Tarkastele sovelluslokeja</string>

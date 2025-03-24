@@ -1,5 +1,4 @@
 <resources>
-    <string name="connecting">Connecting...</string>
     <string name="disconnecting">Disconnecting...</string>
     <string name="blocking">Blocking...</string>
     <string name="critical_error">Critical error (your attention is required)</string>
@@ -181,7 +180,6 @@
     <string name="add_dns_server_dialog_title">Add DNS server</string>
     <string name="update_dns_server_dialog_title">Update DNS server</string>
     <string name="duplicate_address_warning">This address has already been entered.</string>
-    <string name="dns_content_blockers_title">DNS content blockers</string>
     <string name="dns_content_blockers_info">When this feature is enabled it stops the device from contacting certain domains or websites known for distributing ads, malware, trackers and more.</string>
     <string name="dns_content_blockers_warning">This might cause issues on certain websites, services, and apps.</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention: this setting cannot be used in combination with \"Use custom DNS server\".</string>
@@ -237,10 +235,9 @@
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad services unavailable</string>
     <string name="payment_obfuscation_id_error_dialog_message">We were unable to start the payment process, please try again later.</string>
     <string name="payment_status_pending">Google Play payment pending</string>
-    <string name="payment_status_verification_in_progress">Verifying purchase</string>
-    <string name="payment_pending_dialog_title">Verifying purchase</string>
+    <string name="verifying_purchase">Verifying purchase</string>
     <string name="payment_pending_dialog_message">We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful.</string>
-    <string name="loading_connecting">Connecting...</string>
+    <string name="connecting">Connecting...</string>
     <string name="loading_verifying">Verifying purchase...</string>
     <string name="copied_logs_to_clipboard">Copied logs to clipboard</string>
     <string name="custom_lists">Custom lists</string>
@@ -278,8 +275,7 @@
     <string name="name_was_changed_to">Name was changed to %s</string>
     <string name="locations_were_changed_for">Locations were changed for \"%s\"</string>
     <string name="not_found">Not found</string>
-    <string name="server_ip_overrides_import_button">Import</string>
-    <string name="server_ip_overrides">Server IP override</string>
+    <string name="server_ip_override">Server IP override</string>
     <string name="server_ip_overrides_active">Overrides active</string>
     <string name="server_ip_overrides_inactive">Overrides inactive</string>
     <string name="server_ip_overrides_info_first_paragraph">On some networks, where various types of censorship are being used, our server IP addresses are sometimes blocked.</string>
@@ -353,16 +349,12 @@
     <string name="connect_panel_active_features">Active features</string>
     <string name="connect_panel_connection_details">Connection details</string>
     <string name="feature_quantum_resistant">Quantum resistance</string>
-    <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscation</string>
-    <string name="feature_lan_sharing">Local network sharing</string>
     <string name="feature_custom_dns">Custom DNS</string>
-    <string name="feature_server_ip_override">Server IP override</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_multihop">Multihop</string>
-    <string name="feature_dns_content_blockers">DNS content blockers</string>
-    <string name="connection_details_ipv4">IPv4</string>
-    <string name="connection_details_ipv6">IPv6</string>
+    <string name="dns_content_blockers">DNS content blockers</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="connection_details_in">In</string>
     <string name="feature_indicators_show_more">%1$s more...</string>
     <string name="connect">Connect</string>
@@ -409,6 +401,4 @@
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
     <string name="device_ip_version_title">Device IP version</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
 </resources>

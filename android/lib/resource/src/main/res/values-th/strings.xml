@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">คุณลักษณะที่ใช้งาน</string>
     <string name="connect_panel_connection_details">รายละเอียดการเชื่อมต่อ</string>
     <string name="connected">เชื่อมต่อแล้ว</string>
+    <string name="connecting">กำลังเชื่อมต่อ...</string>
     <string name="connecting_to_daemon">กำลังเชื่อมต่อบริการของระบบ Mullvad...</string>
     <string name="connection_details_in">เข้า</string>
     <string name="connection_details_out">ออก</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">คุณได้ลบอุปกรณ์เครื่องนี้แล้ว หากต้องการเชื่อมต่ออีกครั้ง คุณจะต้องเข้าสู่ระบบใหม่อีกครั้ง</string>
     <string name="device_inactive_title">อุปกรณ์ไม่ได้ใช้งาน</string>
     <string name="device_inactive_unblock_warning">การไปที่ส่วนเข้าสู่ระบบจะปลดบล็อกอินเทอร์เน็ตบนอุปกรณ์เครื่องนี้</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">ชื่ออุปกรณ์</string>
     <string name="device_name_info_first_paragraph">นี่เป็นชื่อที่มอบหมายให้กับอุปกรณ์ อุปกรณ์แต่ละเครื่องที่ลงชื่อเข้าใช้บนบัญชี Mullvad จะได้รับชื่อเฉพาะ ที่จะช่วยคุณระบุอุปกรณ์ ในขณะที่คุณจัดการอุปกรณ์ของคุณในแอปหรือบนเว็บไซต์</string>
     <string name="device_name_info_second_paragraph">คุณสามารถลงชื่อเข้าใช้อุปกรณ์ได้สูงสุด 5 เครื่อง กับบัญชี Mullvad หนึ่งบัญชี</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">ตัดการเชื่อมต่อแล้ว (ไม่มีสิทธิ์ VPN)</string>
     <string name="disconnecting">กำลังตัดการเชื่อมต่อ...</string>
     <string name="dismiss">ละทิ้ง</string>
+    <string name="dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\"</string>
     <string name="dns_content_blockers_info">ในขณะที่เปิดใช้งานคุณลักษณะนี้ คุณลักษณะนี้จะหยุดไม่ให้อุปกรณ์ติดต่อโดเมน หรือเว็บไซต์ใดๆ ที่เป็นที่ทราบกันว่า ใช้ในการเผยแพร่โฆษณา มัลแวร์ ตัวติดตาม และอื่นๆ</string>
     <string name="dns_content_blockers_subtitle">ปิดใช้งาน \"%1$s\" ด้านล่าง เพื่อเปิดใช้การตั้งค่าเหล่านี้</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">คำถามที่พบบ่อยและคำแนะนำ</string>
     <string name="feature_custom_dns">DNS แบบกำหนดเอง</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">ตัวบล็อกเนื้อหา DNS</string>
     <string name="feature_indicators_show_more">อีก %1$s...</string>
-    <string name="feature_lan_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="feature_quantum_resistant">การต่อต้านควอนตัม</string>
-    <string name="feature_server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
-    <string name="feature_split_tunneling">การแยกอุโมงค์</string>
     <string name="feature_udp_2_tcp">การทำให้ข้อมูลยุ่งเหยิง</string>
     <string name="filter">ตัวกรอง</string>
     <string name="filters">ตัวกรอง:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">นำเข้าผ่านข้อความ</string>
     <string name="invalid_dns_servers">ที่อยู่เซิร์ฟเวอร์ DNS %1$s ที่กำหนดเองไม่ถูกต้อง</string>
     <string name="invalid_voucher">รหัสบัตรกำนัลไม่ถูกต้อง</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">ไม่สามารถกำหนดค่า IPv6 ได้ โปรดปิดใช้งานรายการนี้ในแอป หรือเปิดใช้งานบนอุปกรณ์ของคุณ</string>
     <string name="is_offline">อุปกรณ์ของคุณออฟไลน์อยู่ อุโมงค์จะเชื่อมต่อโดยอัตโนมัติ หลังจากที่อุปกรณ์ของคุณกลับมาออนไลน์</string>
     <string name="legacy_always_on_vpn_error_notification_content">ไม่สามารถเริ่มการเชื่อมต่ออุโมงค์ได้ โปรดปิดใช้งาน VPN เปิดอยู่เสมอ ก่อนที่จะใช้งาน Mullvad VPN</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">เหลือเวลาน้อยกว่าหนึ่งวัน</string>
     <string name="less_than_one_day">น้อยกว่าหนึ่งวัน</string>
     <string name="list_name">ชื่อรายการ</string>
-    <string name="loading_connecting">กำลังเชื่อมต่อ...</string>
     <string name="loading_verifying">กำลังตรวจสอบยืนยันการซื้อ...</string>
+    <string name="local_network_sharing">การแชร์ในเครือข่ายท้องถิ่น</string>
     <string name="local_network_sharing_additional_info">ทำเช่นนี้ได้โดยการอนุญาตให้มีการสื่อสารเครือข่ายนอกอุโมงค์ ไปยังมัลติคาสต์และช่วงการเผยแพร่ในท้องถิ่น รวมถึงการสื่อสารไปมาในช่วง IP ส่วนตัวเหล่านี้:</string>
     <string name="local_network_sharing_info">คุณลักษณะนี้จะช่วยให้สามารถเข้าถึงอุปกรณ์อื่นๆ บนเครือข่ายท้องถิ่น เช่น การแชร์ การพิมพ์ การสตรีม ฯลฯ</string>
     <string name="local_network_sharing_info_block_connections_warning">โปรดทราบ: หากเปิดใช้งาน \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" อยู่ \"การแชร์ในเครือข่ายท้องถิ่น\" จะไม่ทำงาน</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">เราไม่สามารถเริ่มกระบวนการชำระเงินได้ โปรดลองอีกครั้งในภายหลัง</string>
     <string name="payment_obfuscation_id_error_dialog_title">บริการ Mullavad ไม่พร้อมใช้งาน</string>
     <string name="payment_pending_dialog_message">เรากำลังตรวจสอบยืนยันการซื้อของคุณ ซึ่งอาจใช้เวลาสักครู่ คุณจะได้รับเวลาเพิ่ม หากการตรวจสอบยืนยันสำเร็จ</string>
-    <string name="payment_pending_dialog_title">กำลังตรวจสอบยืนยันการซื้อ</string>
     <string name="payment_status_pending">กำลังชำระเงิน Google Play</string>
     <string name="please_enter_a_valid_ip_address">โปรดป้อนที่อยู่ IPv4 หรือ IPv6 ที่ถูกต้อง</string>
     <string name="please_enter_a_valid_remote_server_port">โปรดป้อนพอร์ตเซิร์ฟเวอร์ระยะไกลที่ถูกต้อง</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">เราจะติดต่อคุณไปทาง %1$s ในกรณีจำเป็น</string>
     <string name="sent_thanks">ขอบคุณ!</string>
     <string name="server">เซิร์ฟเวอร์</string>
+    <string name="server_ip_override">โอเวอร์ไรด์ IP เซิร์ฟเวอร์</string>
     <string name="server_ip_overrides_active">เปิดใช้โอเวอร์ไรด์อยู่</string>
     <string name="server_ip_overrides_import_by">นำเข้าโอเวอร์ไรด์ใหม่โดยใช้</string>
     <string name="server_ip_overrides_import_by_file">ไฟล์</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">โปรดเขียนเป็นภาษาอังกฤษหรือสวีเดน พร้อมระบุประเทศต้นทางที่คุณเชื่อมต่อ เพื่อให้รับความช่วยเหลือได้ดียิ่งขึ้น</string>
     <string name="username">ชื่อผู้ใช้</string>
     <string name="verifying_api_method">กำลังตรวจสอบยืนยันวิธีการ API...</string>
+    <string name="verifying_purchase">กำลังตรวจสอบยืนยันการซื้อ</string>
     <string name="verifying_voucher">กำลังตรวจสอบยืนยันบัตรกำนัล…</string>
     <string name="version">เวอร์ชัน</string>
     <string name="view_logs">ดูบันทึกของแอป</string>

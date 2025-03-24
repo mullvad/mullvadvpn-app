@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Fonctionnalités activées</string>
     <string name="connect_panel_connection_details">Détails de la connexion</string>
     <string name="connected">Connecté</string>
+    <string name="connecting">Connexion...</string>
     <string name="connecting_to_daemon">Connexion au service système Mullvad...</string>
     <string name="connection_details_in">Entrante</string>
     <string name="connection_details_out">Sortante</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">Vous avez supprimé cet appareil. Vous devrez vous reconnecter pour connecter cet appareil à nouveau.</string>
     <string name="device_inactive_title">L\'appareil est inactif</string>
     <string name="device_inactive_unblock_warning">Aller à la connexion débloquera la connexion Internet sur cet appareil.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Nom de l\'appareil</string>
     <string name="device_name_info_first_paragraph">Il s\'agit du nom attribué à l\'appareil. Chaque appareil connecté à un compte Mullvad reçoit un nom unique qui vous aide à l\'identifier lorsque vous gérez vos appareils dans l\'application ou sur le site Web.</string>
     <string name="device_name_info_second_paragraph">Vous pouvez connecter jusqu\'à 5 appareils au même compte Mullvad.</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">Déconnecté (aucune autorisation VPN)</string>
     <string name="disconnecting">Déconnexion en cours...</string>
     <string name="dismiss">Ignorer</string>
+    <string name="dns_content_blockers">Bloqueurs de contenu DNS</string>
     <string name="dns_content_blockers_custom_dns_warning">Attention : ce paramètre ne peut pas être utilisé en combinaison avec « Utiliser un serveur DNS personnalisé ».</string>
     <string name="dns_content_blockers_info">Lorsque cette fonctionnalité est activée, elle empêche l\'appareil de contacter certains domaines ou sites Web connus pour distribuer des publicités, des logiciels malveillants, des trackers et plus.</string>
     <string name="dns_content_blockers_subtitle">Désactivez « %1$s » ci-dessous pour activer ces paramètres.</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">FAQ et guides</string>
     <string name="feature_custom_dns">DNS personnalisé</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">Bloqueurs de contenu DNS</string>
     <string name="feature_indicators_show_more">%1$s autre(s)...</string>
-    <string name="feature_lan_sharing">Partage réseau local</string>
     <string name="feature_quantum_resistant">Résistance quantique</string>
-    <string name="feature_server_ip_override">Substitution d\'IP de serveur</string>
-    <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Dissimulation</string>
     <string name="filter">Filtrer</string>
     <string name="filters">Filtres :</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">Importer par texte</string>
     <string name="invalid_dns_servers">Les adresses de serveur DNS personnalisées %1$s ne sont pas valides</string>
     <string name="invalid_voucher">Le code du bon n\'est pas valide.</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">Impossible de configurer IPv6. Désactivez le protocole dans l\'application ou activez-le dans votre appareil.</string>
     <string name="is_offline">Votre appareil est hors ligne. Le tunnel se connectera automatiquement une fois votre appareil à nouveau en ligne.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Impossible de démarrer la connexion au tunnel. Veuillez désactiver Toujours exiger un VPN avant d\'utiliser Mullvad VPN.</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">moins d\'un jour restant</string>
     <string name="less_than_one_day">moins d\'un jour</string>
     <string name="list_name">Nom de la liste</string>
-    <string name="loading_connecting">Connexion...</string>
     <string name="loading_verifying">Vérification de l\'achat...</string>
+    <string name="local_network_sharing">Partage réseau local</string>
     <string name="local_network_sharing_additional_info">Pour ce faire, il autorise la communication réseau à l\'extérieur du tunnel vers les plages locales de multidiffusion et de diffusion, ainsi que vers et à partir de ces plages IP privées :</string>
     <string name="local_network_sharing_info">Cette fonctionnalité permet d\'accéder à d\'autres appareils sur le réseau local, par exemple pour le partage, l\'impression, le streaming, etc.</string>
     <string name="local_network_sharing_info_block_connections_warning">Attention : si l\'option « Bloquer les connexions sans VPN » est activée, l\'option « Partage réseau local » ne fonctionne pas.</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Nous n\'avons pas pu lancer le processus de paiement, merci de réessayer plus tard.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Services Mullvad indisponibles</string>
     <string name="payment_pending_dialog_message">Nous vérifions actuellement votre achat, ce qui peut prendre un certain temps. Votre temps sera ajouté si la vérification réussit.</string>
-    <string name="payment_pending_dialog_title">Vérification de l\'achat</string>
     <string name="payment_status_pending">Paiement Google Play en attente</string>
     <string name="please_enter_a_valid_ip_address">Merci de saisir une adresse IPv4 ou IPv6 valide</string>
     <string name="please_enter_a_valid_remote_server_port">Merci de saisir un port de serveur distant valide</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">Si nécessaire, nous vous contacterons à l\'adresse %1$s</string>
     <string name="sent_thanks">Merci !</string>
     <string name="server">Serveur</string>
+    <string name="server_ip_override">Substitution d\'IP de serveur</string>
     <string name="server_ip_overrides_active">Substitutions actives</string>
     <string name="server_ip_overrides_import_by">Importer les nouvelles substitutions depuis</string>
     <string name="server_ip_overrides_import_by_file">Fichier</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">Pour nous permettre de mieux vous assister, merci d\'écrire en anglais ou en suédois et d\'indiquer le pays à partir duquel vous vous connectez.</string>
     <string name="username">Nom d\'utilisateur</string>
     <string name="verifying_api_method">Vérification de la méthode API...</string>
+    <string name="verifying_purchase">Vérification de l\'achat</string>
     <string name="verifying_voucher">Vérification du bon…</string>
     <string name="version">Version</string>
     <string name="view_logs">Afficher les journaux de l\'application</string>

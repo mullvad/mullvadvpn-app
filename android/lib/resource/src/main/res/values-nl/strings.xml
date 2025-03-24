@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Actieve functies</string>
     <string name="connect_panel_connection_details">Verbindingsgegevens</string>
     <string name="connected">Verbonden</string>
+    <string name="connecting">Verbinden ...</string>
     <string name="connecting_to_daemon">Verbinden met Mullvad-systeemdienst...</string>
     <string name="connection_details_in">In</string>
     <string name="connection_details_out">Uit</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">U hebt dit apparaat verwijderd. U moet zich opnieuw aanmelden om het opnieuw te verbinden.</string>
     <string name="device_inactive_title">Apparaat is niet actief</string>
     <string name="device_inactive_unblock_warning">Als u naar aanmelden gaat, wordt het blokkeren van internet op dit apparaat opgeheven.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Apparaatnaam</string>
     <string name="device_name_info_first_paragraph">Dit is de naam die aan het apparaat is toegewezen. Elk apparaat dat is aangemeld op een Mullvad-account, krijgt een unieke naam waarmee u het kunt identificeren wanneer u uw apparaten beheert in de app of op de website.</string>
     <string name="device_name_info_second_paragraph">U kunt maximaal 5 apparaten aangemeld hebben op één Mullvad-account.</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">Verbinding verbroken (geen VPN-toestemming)</string>
     <string name="disconnecting">Verbinding wordt verbroken...</string>
     <string name="dismiss">Negeren</string>
+    <string name="dns_content_blockers">DNS-contentblokkeringen</string>
     <string name="dns_content_blockers_custom_dns_warning">Let op: deze instelling kan niet worden gebruikt in combinatie met \"Aangepaste DNS-server gebruiken\".</string>
     <string name="dns_content_blockers_info">Als deze functie is ingeschakeld, maakt het apparaat geen contact meer met bepaalde domeinen of websites waarvan bekend is dat ze advertenties, malware, trackers en meer verspreiden.</string>
     <string name="dns_content_blockers_subtitle">Schakel \"%1$s\" hieronder uit om deze instellingen te activeren.</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">Veelgestelde vragen en gidsen</string>
     <string name="feature_custom_dns">Aangepaste DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-contentblokkeringen</string>
     <string name="feature_indicators_show_more">Nog %1$s...</string>
-    <string name="feature_lan_sharing">Delen op lokaal netwerk</string>
     <string name="feature_quantum_resistant">Kwantumbestendigheid</string>
-    <string name="feature_server_ip_override">Overschrijving van server-IP-adressen</string>
-    <string name="feature_split_tunneling">Split tunneling</string>
     <string name="feature_udp_2_tcp">Obfuscatie</string>
     <string name="filter">Filter</string>
     <string name="filters">Filters:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">Importeren via tekst</string>
     <string name="invalid_dns_servers">Aangepaste DNS-serveradressen %1$s zijn ongeldig</string>
     <string name="invalid_voucher">Vouchercode is ongeldig.</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">Kon IPv6 niet configureren. Schakel het uit in de app of schakel het in op uw apparaat.</string>
     <string name="is_offline">Uw apparaat is offline. De tunnel wordt automatisch verbonden wanneer uw apparaat weer online is.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kan de tunnelverbinding niet starten. Schakel Altijd-aan VPN uit voordat u Mullvad VPN gebruikt.</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">minder dan een dag over</string>
     <string name="less_than_one_day">minder dan één dag</string>
     <string name="list_name">Lijstnaam</string>
-    <string name="loading_connecting">Verbinden ...</string>
     <string name="loading_verifying">Aankoop controleren ...</string>
+    <string name="local_network_sharing">Delen op lokaal netwerk</string>
     <string name="local_network_sharing_additional_info">De functie doet dit door netwerkcommunicatie buiten de tunnel naar lokale multicast- en broadcastbereiken toe te staan, alsmede van en naar deze private IP-adresbereiken:</string>
     <string name="local_network_sharing_info">Deze functie geeft toegang tot andere apparaten op het lokale netwerk, bijvoorbeeld voor delen, afdrukken, streamen en dergelijke</string>
     <string name="local_network_sharing_info_block_connections_warning">Let op: als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, werkt \"Delen via lokaal netwerk\" niet.</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">We kunnen het betalingsproces niet starten, probeer het later opnieuw.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-diensten niet beschikbaar</string>
     <string name="payment_pending_dialog_message">We verifiëren momenteel uw aankoop, dit kan even duren. Uw tijd wordt toegevoegd als de controle succesvol is.</string>
-    <string name="payment_pending_dialog_title">Aankoop verifiëren</string>
     <string name="payment_status_pending">Google Play-betaling in behandeling</string>
     <string name="please_enter_a_valid_ip_address">Voer een geldig IPv4- of IPv6-adres in</string>
     <string name="please_enter_a_valid_remote_server_port">Voer een geldige poort op de externe server in</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">Indien nodig nemen we u contact op via %1$s</string>
     <string name="sent_thanks">Bedankt!</string>
     <string name="server">Server</string>
+    <string name="server_ip_override">Overschrijving van server-IP-adressen</string>
     <string name="server_ip_overrides_active">Overschrijvingen actief</string>
     <string name="server_ip_overrides_import_by">Nieuwe overschrijvingen importeren vanuit</string>
     <string name="server_ip_overrides_import_by_file">Bestand</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">Om u beter te kunnen helpen, kunt u in het Engels of Zweeds schrijven. Vermeld uit welk land u komt.</string>
     <string name="username">Gebruikersnaam</string>
     <string name="verifying_api_method">API-methode verifiëren ...</string>
+    <string name="verifying_purchase">Aankoop verifiëren</string>
     <string name="verifying_voucher">Voucher verifiëren …</string>
     <string name="version">Versie</string>
     <string name="view_logs">Applogboeken weergeven</string>

@@ -77,6 +77,7 @@
     <string name="connect_panel_active_features">Aktive funksjoner</string>
     <string name="connect_panel_connection_details">Tilkoblingsdetaljer</string>
     <string name="connected">Tilkoblet</string>
+    <string name="connecting">Kobler til ...</string>
     <string name="connecting_to_daemon">Kobler til Mullvads systemtjeneste ...</string>
     <string name="connection_details_in">Inngående</string>
     <string name="connection_details_out">Utgående</string>
@@ -122,8 +123,6 @@
     <string name="device_inactive_description">Du har fjernet denne enheten. For å koble til igjen, må du logge inn på nytt.</string>
     <string name="device_inactive_title">Enheten er inaktiv</string>
     <string name="device_inactive_unblock_warning">Å gå til pålogging vil oppheve blokkeringen av internettet på denne enheten.</string>
-    <string name="device_ip_version_ipv4">IPv4</string>
-    <string name="device_ip_version_ipv6">IPv6</string>
     <string name="device_name">Enhetsnavn</string>
     <string name="device_name_info_first_paragraph">Dette er navnet som er tildelt enheten. Enhver enhet som er logget inn på en Mullvad-konto, får et unikt navn som gjør det enklere for deg å identifisere den når du administrerer enheten i appen eller på nettsiden.</string>
     <string name="device_name_info_second_paragraph">Du kan ha opptil fem enheter logget inn på samme Mullvad-konto.</string>
@@ -137,6 +136,7 @@
     <string name="disconnected_vpn_permission_error">Frakoblet (ingen VPN-tillatelse)</string>
     <string name="disconnecting">Kobler fra …</string>
     <string name="dismiss">Ignorer</string>
+    <string name="dns_content_blockers">DNS-innholdsblokkering</string>
     <string name="dns_content_blockers_custom_dns_warning">OBS: Denne innstillingen kan ikke brukes sammen med «Bruk egendefinert DNS-server».</string>
     <string name="dns_content_blockers_info">Når denne funksjonen er aktivert, forhindrer den enheten fra å kontakte bestemte domener og nettsteder som er kjent for å spre annonser, skadelig programvare, sporingsenheter og mer.</string>
     <string name="dns_content_blockers_subtitle">Deaktiver «%1$s» nedenfor for å aktivere innstillingene.</string>
@@ -175,12 +175,8 @@
     <string name="faqs_and_guides">Ofte stilte spørsmål og veiledninger</string>
     <string name="feature_custom_dns">Tilpasset DNS</string>
     <string name="feature_custom_mtu">MTU</string>
-    <string name="feature_dns_content_blockers">DNS-innholdsblokkering</string>
     <string name="feature_indicators_show_more">%1$s til …</string>
-    <string name="feature_lan_sharing">Deling over lokalt nettverk</string>
     <string name="feature_quantum_resistant">Kvantemotstand</string>
-    <string name="feature_server_ip_override">Overstyring av server-IP</string>
-    <string name="feature_split_tunneling">Delt tunnelering</string>
     <string name="feature_udp_2_tcp">Tilsløring</string>
     <string name="filter">Filter</string>
     <string name="filters">Filtre:</string>
@@ -198,6 +194,8 @@
     <string name="import_overrides_text_title">Importer via tekst</string>
     <string name="invalid_dns_servers">Egendefinerte DNS-serveradresser %1$s er ugyldige</string>
     <string name="invalid_voucher">Ugyldig kupongkode.</string>
+    <string name="ipv4">IPv4</string>
+    <string name="ipv6">IPv6</string>
     <string name="ipv6_unavailable">Kunne ikke konfigurere IPv6. Deaktiver den i appen eller aktiver den på enheten din.</string>
     <string name="is_offline">Enheten er frakoblet. Tunnelen vil koble til automatisk når enheten er tilkoblet internett igjen.</string>
     <string name="legacy_always_on_vpn_error_notification_content">Kunne ikke starte tunneltilkobling. Deaktiver VPN som alltid er på, før du bruker Mullvad VPN.</string>
@@ -205,8 +203,8 @@
     <string name="less_than_a_day_left">mindre enn én dag igjen</string>
     <string name="less_than_one_day">mindre enn én dag</string>
     <string name="list_name">Listenavn</string>
-    <string name="loading_connecting">Kobler til ...</string>
     <string name="loading_verifying">Bekrefter kjøp ...</string>
+    <string name="local_network_sharing">Deling over lokalt nettverk</string>
     <string name="local_network_sharing_additional_info">Den gjør det ved å tillate nettverkkommunikasjon utenfor tunnelen til lokale multicast- og sendingsintervall, samt mellom følgende privat IP-intervall:</string>
     <string name="local_network_sharing_info">Funksjonen gir tilgang til andre enheter på det lokale nettverket for ting som deling, utskrift, strømming osv.</string>
     <string name="local_network_sharing_info_block_connections_warning">OBS: Hvis «Blokker tilkoblinger uten VPN» er aktivert, vil «Deling av lokalt nettverk» ikke fungere.</string>
@@ -272,7 +270,6 @@
     <string name="payment_obfuscation_id_error_dialog_message">Vi kunne ikke starte betalingsprosessen. Prøv igjen senere.</string>
     <string name="payment_obfuscation_id_error_dialog_title">Mullvad-tjenester utilgjengelig</string>
     <string name="payment_pending_dialog_message">Vi behandler kjøpet. Det kan ta litt tid. Hvis kjøpet blir bekreftet, legges tiden din til.</string>
-    <string name="payment_pending_dialog_title">Bekrefter kjøp</string>
     <string name="payment_status_pending">Google Play-betaling venter</string>
     <string name="please_enter_a_valid_ip_address">Skriv inn en gyldig IPv4- eller IPv6-adresse</string>
     <string name="please_enter_a_valid_remote_server_port">Skriv inn en gyldig ekstern server-port</string>
@@ -310,6 +307,7 @@
     <string name="sent_contact">Vi vil kontakte deg på %1$s ved behov</string>
     <string name="sent_thanks">Takk!</string>
     <string name="server">Server</string>
+    <string name="server_ip_override">Overstyring av server-IP</string>
     <string name="server_ip_overrides_active">Overstyringer aktive</string>
     <string name="server_ip_overrides_import_by">Importer nye overstyringer via</string>
     <string name="server_ip_overrides_import_by_file">Fil</string>
@@ -370,6 +368,7 @@
     <string name="user_message_hint">For at vi skal kunne hjelpe deg bedre, ber vi deg om å skrive på engelsk eller svensk og fortelle hvilket land du befinner deg i.</string>
     <string name="username">Brukernavn</string>
     <string name="verifying_api_method">Bekrefter API-metode ...</string>
+    <string name="verifying_purchase">Bekrefter kjøp</string>
     <string name="verifying_voucher">Bekrefter kupong …</string>
     <string name="version">Versjon</string>
     <string name="view_logs">Se applogger</string>
