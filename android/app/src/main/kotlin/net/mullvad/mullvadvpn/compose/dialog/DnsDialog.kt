@@ -39,7 +39,7 @@ private fun PreviewDnsDialogEdit() {
 @Preview
 @Composable
 private fun PreviewDnsDialogEditAllowLanDisabled() {
-    AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, true, false, 0), {}, {}, {}, {}) }
+    AppTheme { DnsDialog(DnsDialogViewState("192.168.1.1", null, false, false, 0), {}, {}, {}, {}) }
 }
 
 data class DnsDialogNavArgs(val index: Int? = null, val initialValue: String? = null)
@@ -94,15 +94,15 @@ fun DnsDialog(
                 placeholderText = stringResource(R.string.custom_dns_hint),
                 errorText =
                     when {
-                        state.validationError is ValidationError.DuplicateAddress -> {
+                        state.validationError is ValidationError.DuplicateAddress ->
                             stringResource(R.string.duplicate_address_warning)
-                        }
-                        state.isLocal && !state.isAllowLanEnabled -> {
+                        // Ordering is important, as we consider the lan error to have higher
+                        // priority than the ipv6 error
+                        state.isLocal && !state.isAllowLanEnabled ->
                             stringResource(id = R.string.confirm_local_dns)
-                        }
-                        else -> {
-                            null
-                        }
+                        state.isIpv6 && !state.isIpv6Enabled ->
+                            stringResource(id = R.string.confirm_ipv6_dns)
+                        else -> null
                     },
                 modifier = Modifier.fillMaxWidth(),
             )

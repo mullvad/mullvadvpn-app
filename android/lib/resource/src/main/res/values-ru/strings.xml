@@ -154,6 +154,7 @@
     <string name="enable_anyway">Всё равно включить</string>
     <string name="enable_custom_dns">Пользовательский DNS-сервер</string>
     <string name="enable_direct_only">Включить параметр «%1$s»</string>
+    <string name="enable_ipv6">Включить IPv6</string>
     <string name="enable_method">Включить метод</string>
     <string name="encrypted_dns_proxy_info_message_part1">При использовании метода «Прокси через зашифрованный DNS» приложение будет взаимодействовать с API Mullvad через прокси-адрес. Полученный от сервера «DNS по HTTPS» (DoH) адрес будет использоваться для доступа к нашим серверам API.</string>
     <string name="enter_value_placeholder">Введите MTU</string>
