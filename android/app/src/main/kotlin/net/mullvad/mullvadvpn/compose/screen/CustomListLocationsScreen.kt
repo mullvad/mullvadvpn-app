@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,6 +42,7 @@ import net.mullvad.mullvadvpn.compose.component.ScaffoldWithSmallTopBar
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.CommonContentKey
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.preview.CustomListLocationUiStatePreviewParameterProvider
 import net.mullvad.mullvadvpn.compose.state.CustomListLocationsUiState
 import net.mullvad.mullvadvpn.compose.test.CIRCULAR_PROGRESS_INDICATOR
@@ -150,6 +152,7 @@ fun CustomListLocationsScreen(
             }
             Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
+
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
@@ -173,6 +176,16 @@ fun CustomListLocationsScreen(
                             onRelaySelectedChanged = onRelaySelectionClick,
                             onExpand = onExpand,
                         )
+                    }
+                }
+            }
+
+            if (state is CustomListLocationsUiState.Content.Data && !state.newList) {
+                val firstChecked = state.locations.indexOfFirst { it.checked }
+                LaunchedEffect(Unit) {
+                    if (firstChecked != -1) {
+                        lazyListState.scrollToItem(firstChecked)
+                        lazyListState.animateScrollAndCentralizeItem(firstChecked)
                     }
                 }
             }
