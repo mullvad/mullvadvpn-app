@@ -80,8 +80,7 @@ impl ParsedConnections {
     }
 
     fn parse_pcap_packet(&mut self, packet: &PcapPacket<'_>) {
-        let timestamp =
-            packet.timestamp.as_secs() * 1_000_000 + packet.timestamp.subsec_nanos() as u64 / 1000;
+        let timestamp = packet.timestamp.as_micros() as u64;
         if packet.data.len() < 3 {
             return;
         }
