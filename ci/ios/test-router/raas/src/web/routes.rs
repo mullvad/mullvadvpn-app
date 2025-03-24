@@ -11,7 +11,7 @@ use std::{
 };
 use uuid::Uuid;
 
-use crate::block_list::{BlockList, BlockRule};
+use crate::block_list::{BlockList, BlockRule, Endpoints};
 use crate::web;
 
 #[derive(serde::Deserialize, Clone)]
@@ -19,11 +19,8 @@ pub struct NewRule {
     pub src: IpAddr,
     pub dst: IpAddr,
     pub protocols: Option<BTreeSet<TransportProtocol>>,
-    pub label: Uuid,
-}
-
-#[derive(serde::Deserialize, Clone)]
-pub struct BlockWireguardRule {
+    #[serde(default)]
+    pub block_wireguard: bool,
     pub label: Uuid,
 }
 
@@ -50,32 +47,24 @@ impl TransportProtocol {
 
 pub async fn add_rule(
     State(state): State<super::State>,
-    Json(rule): Json<NewRule>,
+    Json(json): Json<NewRule>,
 ) -> impl IntoResponse {
     let result = access_firewall(state, move |mut fw| {
-        let label = rule.label;
-        let rule = BlockRule::Ip {
-            src: rule.src,
-            dst: rule.dst,
-            protocols: rule.protocols.unwrap_or_default(),
+        let label = json.label;
+        let src = json.src;
+        let dst = json.dst;
+
+        let rule = if json.block_wireguard {
+            BlockRule::WireGuard {
+                endpoints: Endpoints { src, dst },
+            }
+        } else {
+            BlockRule::Host {
+                endpoints: Endpoints { src, dst },
+                protocols: json.protocols.unwrap_or_default(),
+            }
         };
 
-        fw.add_rule(rule.clone(), label)?;
-        log_rule(&rule, &label);
-        Ok(())
-    })
-    .await;
-
-    respond_with_result(result, StatusCode::CREATED)
-}
-
-pub async fn block_wireguard_rule(
-    State(state): State<super::State>,
-    Json(rule): Json<BlockWireguardRule>,
-) -> impl IntoResponse {
-    let result = access_firewall(state, move |mut fw| {
-        let label = rule.label;
-        let rule = BlockRule::Wireguard;
         fw.add_rule(rule.clone(), label)?;
         log_rule(&rule, &label);
         Ok(())
@@ -139,16 +128,15 @@ pub async fn list_all_rules(State(state): State<super::State>) -> impl IntoRespo
 
 fn log_rule(rule: &BlockRule, label: &Uuid) {
     match rule {
-        BlockRule::Ip {
+        BlockRule::Host {
             protocols,
-            src,
-            dst,
+            endpoints: Endpoints { src, dst },
         } => {
             log::info!(
                 "Successfully added a rule to block {src} from {dst} for test {label} for protocols {protocols:?}",
             );
         }
-        BlockRule::Wireguard => {
+        BlockRule::WireGuard { .. } => {
             log::info!("Successfully added a rule to block Wireguard traffic for test {label}",);
         }
     }
