@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ButtonDefaults
@@ -15,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -150,6 +152,7 @@ fun CustomListLocationsScreen(
             }
             Spacer(modifier = Modifier.height(Dimens.verticalSpace))
             val lazyListState = rememberLazyListState()
+
             LazyColumn(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier =
@@ -176,6 +179,8 @@ fun CustomListLocationsScreen(
                     }
                 }
             }
+
+            lazyListState.ScrollToFirstCheckedItem(state)
         }
     }
 }
@@ -229,6 +234,18 @@ private fun LazyListScope.content(
                 onExpand = { expand -> onExpand(listItem.item, expand) },
                 expanded = listItem.expanded,
             )
+        }
+    }
+}
+
+@Composable
+private fun LazyListState.ScrollToFirstCheckedItem(state: CustomListLocationsUiState) {
+    if (state is CustomListLocationsUiState.Content.Data && !state.newList) {
+        val firstChecked = state.locations.indexOfFirst { it.checked }
+        LaunchedEffect(Unit) {
+            if (firstChecked != -1) {
+                scrollToItem(firstChecked)
+            }
         }
     }
 }
