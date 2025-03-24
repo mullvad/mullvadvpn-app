@@ -1,7 +1,7 @@
 import { Flex, FlexProps } from '../../flex';
 
-export type ListIOtemFooterProps = FlexProps;
+export type ListItemFooterProps = FlexProps;
 
-export const ListItemFooter = (props: ListIOtemFooterProps) => {
+export const ListItemFooter = (props: ListItemFooterProps) => {
   return <Flex $padding={{ horizontal: 'medium' }} {...props} />;
 };
