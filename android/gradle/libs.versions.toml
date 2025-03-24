@@ -33,6 +33,7 @@ compose-destinations = "2.1.0"
 compose-constraintlayout = "1.1.1"
 compose-material3 = "1.3.1"
 compose-material-tv = "1.1.0-alpha01"
+drawablepainter = "0.37.2"
 
 # Update suppression for 'InvalidPackage' in config/lint.xml
 grpc = "1.71.0"
@@ -122,6 +123,7 @@ compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = 
 compose-ui-tooling-android-preview = { module = "androidx.compose.ui:ui-tooling-preview-android", version.ref = "compose" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
 compose-ui-util = { module = "androidx.compose.ui:ui-util", version.ref = "compose" }
+accompanist-drawablepainter = { module = "com.google.accompanist:accompanist-drawablepainter", version.ref = "drawablepainter"  }
 
 # gRPC
 grpc-okhttp = { module = "io.grpc:grpc-okhttp", version.ref = "grpc" }

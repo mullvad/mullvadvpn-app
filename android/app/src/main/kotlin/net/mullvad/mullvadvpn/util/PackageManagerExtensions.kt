@@ -1,12 +1,11 @@
 package net.mullvad.mullvadvpn.util
 
 import android.content.pm.PackageManager
-import android.graphics.Bitmap
-import androidx.core.graphics.drawable.toBitmapOrNull
+import android.graphics.drawable.Drawable
 
-fun PackageManager.getApplicationIconBitmapOrNull(packageName: String): Bitmap? =
+fun PackageManager.getApplicationIconBitmapOrNull(packageName: String): Drawable? =
     try {
-        getApplicationIcon(packageName).toBitmapOrNull()
+        getApplicationIcon(packageName)
     } catch (e: PackageManager.NameNotFoundException) {
         // Name not found is thrown if the application is not installed
         null
