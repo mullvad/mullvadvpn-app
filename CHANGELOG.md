@@ -38,6 +38,9 @@ Line wrap the file at 100 chars.                                              Th
 - Fix node native module being unpacked to a temporary folder.
 - Mitigate potential routing loop for the tunnel interface.
 
+#### Linux
+- Fix syntax error in Apparmor profile.
+
 
 ## [2025.5-beta1] - 2025-03-11
 ### Added
