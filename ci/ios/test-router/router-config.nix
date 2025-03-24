@@ -44,21 +44,21 @@ in
     };
   };
 
-  systemd.network.links."1-lanIface" = ifNotNull lanMac {
-    matchConfig.PermanentMACAddress = args.lanMac;
-    linkConfig.Name = "lanEth";
-  };
+  systemd.network.links = {
+    "1-lanIface" = ifNotNull lanMac {
+      matchConfig.PermanentMACAddress = args.lanMac;
+      linkConfig.Name = "lanEth";
+    };
 
-  systemd.network.links."1-wifiIface" = ifNotNull wifiMac {
-    matchConfig.PermanentMACAddress = args.wifiMac;
-    linkConfig.Name = "wifi";
+    "1-wifiIface" = ifNotNull wifiMac {
+      matchConfig.PermanentMACAddress = args.wifiMac;
+      linkConfig.Name = "wifi";
+    };
+    "1-wanIface" = {
+      matchConfig.PermanentMACAddress = args.wanMac;
+      linkConfig.Name = "wan";
+    };
   };
-
-  systemd.network.links."1-wanIface" = {
-    matchConfig.PermanentMACAddress = args.wanMac;
-    linkConfig.Name = "wan";
-  };
-
 
   networking = { firewall.enable = false; };
   hardware.bluetooth.enable = false;
