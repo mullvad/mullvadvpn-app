@@ -669,8 +669,6 @@ message SuggestedUpgrade {
 
 message AppVersionInfo {
   bool supported = 1;
-  string latest_stable = 2;
-  string latest_beta = 3;
   SuggestedUpgrade suggested_upgrade = 2;
 }
 
