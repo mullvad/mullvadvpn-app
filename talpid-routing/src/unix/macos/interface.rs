@@ -24,15 +24,20 @@ use system_configuration::{
     dynamic_store::{SCDynamicStore, SCDynamicStoreBuilder, SCDynamicStoreCallBackContext},
     network_configuration::SCNetworkSet,
     preferences::SCPreferences,
-    sys::schema_definitions::{
-        kSCDynamicStorePropNetPrimaryInterface, kSCPropInterfaceName, kSCPropNetIPv4Addresses,
-        kSCPropNetIPv4Router, kSCPropNetIPv6Addresses, kSCPropNetIPv6Router,
-    },
 };
 
 const STATE_IPV4_KEY: &str = "State:/Network/Global/IPv4";
 const STATE_IPV6_KEY: &str = "State:/Network/Global/IPv6";
 const STATE_SERVICE_PATTERN: &str = "State:/Network/Service/.*/IP.*";
+
+/// Safely read a symbol in [system_configuration::sys::schema_definitions].
+macro_rules! schema_definition {
+    ($name:ident) => {
+        // SAFETY: system_configuration_sys is generated using bindgen, and all symbols in the
+        // schema_definitions module are to static string pointers, and should be safe to read.
+        unsafe { ::system_configuration::sys::schema_definitions::$name }
+    };
+}
 
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum Family {
@@ -137,7 +142,11 @@ impl PrimaryInterfaceMonitor {
             }
 
             let run_loop_source = listener_store.create_run_loop_source();
-            CFRunLoop::get_current().add_source(&run_loop_source, unsafe { kCFRunLoopCommonModes });
+
+            // SAFETY: this is just a static string pointer, referencing it should be safe.
+            let run_loop_common_modes = unsafe { kCFRunLoopCommonModes };
+
+            CFRunLoop::get_current().add_source(&run_loop_source, run_loop_common_modes);
             CFRunLoop::run_current();
 
             log::debug!("Interface listener exiting");
@@ -218,9 +227,11 @@ impl PrimaryInterfaceMonitor {
             .store
             .get(key)
             .and_then(|v| v.downcast_into::<CFDictionary>())?;
-        let name = get_dict_elem_as_string(&global_dict, unsafe {
-            kSCDynamicStorePropNetPrimaryInterface
-        })
+
+        let name = get_dict_elem_as_string(
+            &global_dict,
+            schema_definition!(kSCDynamicStorePropNetPrimaryInterface),
+        )
         .or_else(|| {
             log::debug!("Missing name for primary interface ({family})");
             None
@@ -255,11 +266,15 @@ impl PrimaryInterfaceMonitor {
                     .store
                     .get(CFString::new(&service_key))
                     .and_then(|v| v.downcast_into::<CFDictionary>())?;
-                let name = get_dict_elem_as_string(&service_dict, unsafe { kSCPropInterfaceName })
-                    .or_else(|| {
-                        log::debug!("Missing name for service {service_key} ({family})");
-                        None
-                    })?;
+
+                let name = get_dict_elem_as_string(
+                    &service_dict,
+                    schema_definition!(kSCPropInterfaceName),
+                )
+                .or_else(|| {
+                    log::debug!("Missing name for service {service_key} ({family})");
+                    None
+                })?;
                 let router_ip = get_service_router_ip(&service_dict, family).or_else(|| {
                     log::debug!("Missing router IP for {service_key} ({name}, {family})");
                     None
@@ -310,9 +325,9 @@ fn is_link_local_v6(addr: &Ipv6Addr) -> bool {
 
 fn get_service_router_ip(service_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
     let router_key = if family == Family::V4 {
-        unsafe { kSCPropNetIPv4Router }
+        schema_definition!(kSCPropNetIPv4Router)
     } else {
-        unsafe { kSCPropNetIPv6Router }
+        schema_definition!(kSCPropNetIPv6Router)
     };
     get_dict_elem_as_string(service_dict, router_key).and_then(|ip| ip.parse().ok())
 }
@@ -323,9 +338,9 @@ fn get_service_router_ip(service_dict: &CFDictionary, family: Family) -> Option<
 /// `kSCPropNetIPv6Addresses`, depending on the family.
 fn get_service_first_ip(service_dict: &CFDictionary, family: Family) -> Option<IpAddr> {
     let ip_key = if family == Family::V4 {
-        unsafe { kSCPropNetIPv4Addresses }
+        schema_definition!(kSCPropNetIPv4Addresses)
     } else {
-        unsafe { kSCPropNetIPv6Addresses }
+        schema_definition!(kSCPropNetIPv6Addresses)
     };
     service_dict
         .find(ip_key.to_void())
