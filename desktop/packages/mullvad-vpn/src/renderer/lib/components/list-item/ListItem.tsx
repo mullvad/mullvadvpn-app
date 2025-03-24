@@ -20,7 +20,7 @@ export interface ListItemProps {
 const ListItem = ({ level = 0, disabled, children }: ListItemProps) => {
   return (
     <ListItemProvider level={level} disabled={disabled}>
-      <Flex $flexDirection="column" $gap="small">
+      <Flex $flexDirection="column" $gap="tiny">
         {children}
       </Flex>
     </ListItemProvider>
