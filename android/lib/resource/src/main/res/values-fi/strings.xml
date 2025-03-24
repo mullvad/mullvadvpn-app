@@ -154,6 +154,7 @@
     <string name="enable_anyway">Ota silti käyttöön</string>
     <string name="enable_custom_dns">Käytä mukautettua DNS-palvelinta</string>
     <string name="enable_direct_only">Ota %1$s käyttöön</string>
+    <string name="enable_ipv6">Salli IPv6</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
     <string name="enter_value_placeholder">Syötä MTU</string>

@@ -2761,6 +2761,9 @@ msgstr ""
 msgid "The Auto-connect and Lockdown mode settings can be found in the Android system settings, follow this guide to enable one or both."
 msgstr ""
 
+msgid "The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings."
+msgstr ""
+
 msgid "The Lockdown mode is called \"Block connections without VPN\" in the Android system settings. It helps minimize leaks, however it has some known limitations which you can read more about"
 msgstr ""
 
