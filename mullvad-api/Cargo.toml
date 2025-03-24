@@ -52,11 +52,13 @@ vec1 = { workspace = true }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-types = { path = "../mullvad-types" }
-mullvad-update = { path = "../mullvad-update", features = ["client"] }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
+
+[target.'cfg(not(target_os = "ios"))'.dependencies]
+mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [dev-dependencies]
 talpid-time = { path = "../talpid-time", features = ["test"] }

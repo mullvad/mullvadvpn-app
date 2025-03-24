@@ -700,11 +700,13 @@ impl ProblemReportProxy {
     }
 }
 
+#[cfg(not(target_os = "ios"))]
 #[derive(Clone)]
 pub struct AppVersionProxy {
     handle: rest::MullvadRestHandle,
 }
 
+#[cfg(not(target_os = "ios"))]
 #[derive(serde::Deserialize, Debug)]
 pub struct AppVersionResponse {
     pub supported: bool,
@@ -713,6 +715,7 @@ pub struct AppVersionResponse {
     pub latest_beta: AppVersion,
 }
 
+#[cfg(not(target_os = "ios"))]
 impl AppVersionProxy {
     const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
 
