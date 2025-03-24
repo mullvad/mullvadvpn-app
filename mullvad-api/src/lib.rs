@@ -700,11 +700,13 @@ impl ProblemReportProxy {
     }
 }
 
+#[cfg(feature = "version")]
 #[derive(Clone)]
 pub struct AppVersionProxy {
     handle: rest::MullvadRestHandle,
 }
 
+#[cfg(feature = "version")]
 #[derive(serde::Deserialize, Debug)]
 pub struct AppVersionResponse {
     pub supported: bool,
@@ -713,6 +715,7 @@ pub struct AppVersionResponse {
     pub latest_beta: AppVersion,
 }
 
+#[cfg(feature = "version")]
 impl AppVersionProxy {
     const VERSION_PROVIDER_PUBKEY: &str = include_str!("../../mullvad-update/stagemole-pubkey");
 

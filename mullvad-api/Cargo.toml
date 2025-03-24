@@ -11,8 +11,10 @@ rust-version.workspace = true
 workspace = true
 
 [features]
+default = ["version"]
 # Allow the API server to use to be configured via MULLVAD_API_HOST and MULLVAD_API_ADDR.
 api-override = []
+version = ["mullvad-update"]
 
 [dependencies]
 anyhow = { workspace = true }
@@ -52,7 +54,7 @@ vec1 = { workspace = true }
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-types = { path = "../mullvad-types" }
-mullvad-update = { path = "../mullvad-update", features = ["client"] }
+mullvad-update = { path = "../mullvad-update", features = ["client"], optional = true }
 talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 
