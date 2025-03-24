@@ -423,16 +423,18 @@ impl RouteManagerImpl {
     async fn refresh_routes(&mut self) -> Result<()> {
         talpid_types::detect_flood!();
 
+        // These may set `self.unhandled_default_route_changes`
         self.update_best_default_route(interface::Family::V4)?;
         self.update_best_default_route(interface::Family::V6)?;
 
         self.debug_offline();
 
         if !self.unhandled_default_route_changes {
+            self.ensure_default_tunnel_routes_exists().await?;
             return Ok(());
         }
 
-        // Remove any existing ifscope route that we've added
+        // Remove any existing ifscoped default route that we've added
         self.remove_applied_routes(|route| {
             route.is_ifscope() && route.is_default().unwrap_or(false)
         })
@@ -539,22 +541,25 @@ impl RouteManagerImpl {
             self.replace_with_scoped_route(family).await?;
 
             // Make sure there is really no other unscoped default route
-            let mut msg = RouteMessage::new_route(family.default_network().into());
-            msg = msg.set_gateway_route(true);
-            let old_route = self.routing_table.get_route(&msg).await;
-            if let Ok(Some(old_route)) = old_route {
+
+            let actual_default_route = self.get_actual_default_route(family).await.unwrap_or(None);
+
+            if let Some(actual_default_route) = actual_default_route {
                 let tun_gateway_link_addr =
                     tunnel_route.gateway().and_then(|addr| addr.as_link_addr());
-                let current_link_addr = old_route.gateway().and_then(|addr| addr.as_link_addr());
-                if current_link_addr
-                    .map(|addr| Some(addr) != tun_gateway_link_addr)
-                    .unwrap_or(true)
-                {
+                let actual_link_addr = actual_default_route
+                    .gateway()
+                    .and_then(|addr| addr.as_link_addr());
+
+                if actual_link_addr.is_none() || actual_link_addr != tun_gateway_link_addr {
                     log::trace!("Removing existing unscoped default route");
-                    let _ = self.routing_table.delete_route(&msg).await;
-                } else if !old_route.is_ifscope() {
-                    // NOTE: Skipping route
-                    continue;
+
+                    let _ = self
+                        .routing_table
+                        .delete_route(&default_route_msg(family))
+                        .await;
+                } else if !actual_default_route.is_ifscope() {
+                    continue; // Skipping route
                 }
             }
 
@@ -734,6 +739,56 @@ impl RouteManagerImpl {
 
         false
     }
+
+    async fn ensure_default_tunnel_routes_exists(&mut self) -> Result<()> {
+        // TODO: ignore ipv6 if disabled?
+        for family in [interface::Family::V4, interface::Family::V6] {
+            if !self.default_route_is_tunnel_route(family).await? {
+                return self.apply_tunnel_default_routes().await;
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Check if the `0.0.0.0/0`/`::/0`-route goes to our tunnel interface.
+    async fn default_route_is_tunnel_route(&mut self, family: interface::Family) -> Result<bool> {
+        let actual_default_route = self.get_actual_default_route(family).await?;
+
+        let Some(actual_default_route) = actual_default_route else {
+            return Ok(false);
+        };
+
+        let tunnel_route = match family {
+            interface::Family::V4 => self.v4_tunnel_default_route.as_ref(),
+            interface::Family::V6 => self.v6_tunnel_default_route.as_ref(),
+        };
+
+        let Some(tunnel_route) = tunnel_route else {
+            return Ok(false);
+        };
+
+        Ok(route_matches_interface(&actual_default_route, tunnel_route))
+    }
+
+    /// Get the route which goes to `0.0.0.0/0`/`::/0`, if any.
+    async fn get_actual_default_route(
+        &mut self,
+        family: interface::Family,
+    ) -> Result<Option<data::RouteMessage>> {
+        self.routing_table
+            .get_route(&default_route_msg(family))
+            .await
+            .map_err(Error::RoutingTable)
+    }
+}
+
+/// Construct a [RouteMessage] that refers to the `0.0.0.0/0` or `::/0` route with the
+/// RTF_GATEAWAY-flag set. Used to reference the default route created by macOS.
+fn default_route_msg(family: interface::Family) -> RouteMessage {
+    let mut msg = RouteMessage::new_route(family.default_network().into());
+    msg = msg.set_gateway_route(true);
+    msg
 }
 
 fn route_matches_interface(default_route: &RouteMessage, interface_route: &RouteMessage) -> bool {
