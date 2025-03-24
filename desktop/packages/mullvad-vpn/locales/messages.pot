@@ -1205,11 +1205,6 @@ msgctxt "navigation-bar"
 msgid "API access"
 msgstr ""
 
-#. Title label in navigation bar
-msgctxt "navigation-bar"
-msgid "Settings"
-msgstr ""
-
 #. The system notification displayed to the user when the account credit is close to expiry.
 #. Available placeholder:
 #. %(duration)s - remaining time, e.g. "2 days"
@@ -1670,6 +1665,7 @@ msgctxt "settings-view"
 msgid "API access"
 msgstr ""
 
+#. Navigation button to the 'App info' view
 msgctxt "settings-view"
 msgid "App info"
 msgstr ""
@@ -1678,8 +1674,20 @@ msgctxt "settings-view"
 msgid "Multihop"
 msgstr ""
 
+#. Title label in navigation bar
+#. Main title for settings view
+msgctxt "settings-view"
+msgid "Settings"
+msgstr ""
+
+#. Navigation button to the 'Support' view
 msgctxt "settings-view"
 msgid "Support"
+msgstr ""
+
+#. Label for the app info list item indicating that an update is available and can be downloaded
+msgctxt "settings-view"
+msgid "Update available"
 msgstr ""
 
 #. Navigation button to the 'User interface settings' view
