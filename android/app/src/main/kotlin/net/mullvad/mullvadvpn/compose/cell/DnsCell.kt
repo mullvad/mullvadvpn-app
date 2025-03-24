@@ -59,12 +59,12 @@ fun DnsCell(
                         ),
                 imageVector = Icons.Rounded.Error,
                 contentDescription =
-                    if (isUnreachableLocalDnsWarningVisible) {
-                        stringResource(id = R.string.confirm_local_dns)
-                    } else if (isUnreachableIpv6DnsWarningVisible) {
-                        stringResource(id = R.string.confirm_ipv6_dns)
-                    } else {
-                        null
+                    when {
+                        isUnreachableLocalDnsWarningVisible ->
+                            stringResource(id = R.string.confirm_local_dns)
+                        isUnreachableIpv6DnsWarningVisible ->
+                            stringResource(id = R.string.confirm_ipv6_dns)
+                        else -> null
                     },
                 tint = MaterialTheme.colorScheme.error,
             )

@@ -45,17 +45,12 @@ data class DnsDialogViewState(
 
     fun isValid() = validationError == null
 
-    private fun String.isLocalAddress(): Boolean {
-        return isValid() && InetAddress.getByName(this).isLocalAddress()
-    }
+    private fun String.isLocalAddress(): Boolean =
+        isValid() && InetAddress.getByName(this).isLocalAddress()
 
-    private fun String.isIpv6(): Boolean {
-        return isValid() && InetAddress.getByName(this) is Inet6Address
-    }
+    private fun String.isIpv6(): Boolean = isValid() && InetAddress.getByName(this) is Inet6Address
 
-    private fun InetAddress.isLocalAddress(): Boolean {
-        return isLinkLocalAddress || isSiteLocalAddress
-    }
+    private fun InetAddress.isLocalAddress(): Boolean = isLinkLocalAddress || isSiteLocalAddress
 }
 
 sealed class ValidationError {
