@@ -401,4 +401,6 @@
     <string name="changelog_empty">No changelog was added for this version</string>
     <string name="wg_port_subtitle">Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting.</string>
     <string name="device_ip_version_title">Device IP version</string>
+    <string name="confirm_ipv6_dns">The IPv6 DNS server will not work unless you enable \"IPv6\" under VPN settings.</string>
+    <string name="enable_ipv6">Enable IPv6</string>
 </resources>
