@@ -338,7 +338,7 @@ impl RouteManagerImpl {
             self.add_route_with_record(message).await?;
         }
 
-        self.apply_tunnel_default_route().await?;
+        self.apply_tunnel_default_routes().await?;
 
         // Add routes that use the default interface
         if let Err(error) = self.apply_non_tunnel_routes().await {
@@ -439,7 +439,7 @@ impl RouteManagerImpl {
         .await;
 
         // Substitute route with a tunnel route
-        self.apply_tunnel_default_route().await?;
+        self.apply_tunnel_default_routes().await?;
 
         // Update routes using default interface
         self.apply_non_tunnel_routes().await?;
@@ -503,7 +503,7 @@ impl RouteManagerImpl {
 
     /// Replace the default routes with an ifscope route, and
     /// add a new default tunnel route.
-    async fn apply_tunnel_default_route(&mut self) -> Result<()> {
+    async fn apply_tunnel_default_routes(&mut self) -> Result<()> {
         // As long as the relay route has a way of reaching the internet, we'll want to add a tunnel
         // route for both IPv4 and IPv6.
         // NOTE: This is incorrect. We're assuming that any "default destination" is used for
