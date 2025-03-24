@@ -136,8 +136,10 @@ fn log_rule(rule: &BlockRule, label: &Uuid) {
                 "Successfully added a rule to block {src} from {dst} for test {label} for protocols {protocols:?}",
             );
         }
-        BlockRule::WireGuard { .. } => {
-            log::info!("Successfully added a rule to block Wireguard traffic for test {label}",);
+        BlockRule::WireGuard {
+            endpoints: Endpoints { src, dst },
+        } => {
+            log::info!("Successfully added a rule to block {src} from {dst} WireGuard traffic for test {label}",);
         }
     }
 }
