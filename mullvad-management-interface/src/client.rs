@@ -67,9 +67,9 @@ impl TryFrom<types::daemon_event::Event> for DaemonEvent {
             types::daemon_event::Event::RelayList(list) => RelayList::try_from(list)
                 .map(DaemonEvent::RelayList)
                 .map_err(Error::InvalidResponse),
-            types::daemon_event::Event::VersionInfo(info) => {
-                Ok(DaemonEvent::AppVersionInfo(AppVersionInfo::from(info)))
-            }
+            types::daemon_event::Event::VersionInfo(info) => AppVersionInfo::try_from(info)
+                .map(DaemonEvent::AppVersionInfo)
+                .map_err(Error::InvalidResponse),
             types::daemon_event::Event::Device(event) => DeviceEvent::try_from(event)
                 .map(DaemonEvent::Device)
                 .map_err(Error::InvalidResponse),
@@ -192,7 +192,7 @@ impl MullvadProxyClient {
             .await
             .map_err(Error::Rpc)?
             .into_inner();
-        Ok(AppVersionInfo::from(version_info))
+        AppVersionInfo::try_from(version_info).map_err(Error::InvalidResponse)
     }
 
     pub async fn get_relay_locations(&mut self) -> Result<RelayList> {
