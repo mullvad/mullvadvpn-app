@@ -28,7 +28,6 @@ pub mod shutdown;
 mod target_state;
 mod tunnel;
 pub mod version;
-mod version_check;
 
 use crate::target_state::PersistentTargetState;
 use api::DaemonAccessMethodResolver;
@@ -64,7 +63,7 @@ use mullvad_types::{
     relay_list::RelayList,
     settings::{DnsOptions, Settings},
     states::{Secured, TargetState, TargetStateStrict, TunnelState},
-    version::{AppVersion, AppVersionInfo},
+    version::AppVersionInfo,
     wireguard::{PublicKey, QuantumResistantState, RotationInterval},
 };
 use relay_list::{RelayListUpdater, RelayListUpdaterHandle, RELAYS_FILENAME};
@@ -126,7 +125,7 @@ pub enum Error {
     ApiCheckError(#[source] mullvad_api::availability::Error),
 
     #[error("Version check failed")]
-    VersionCheckError(#[source] version_check::Error),
+    VersionCheckError(#[source] version::Error),
 
     #[error("Unable to load account history")]
     LoadAccountHistory(#[source] account_history::Error),
@@ -337,7 +336,7 @@ pub enum DaemonCommand {
     /// Return whether the daemon is performing post-upgrade tasks
     IsPerformingPostUpgrade(oneshot::Sender<bool>),
     /// Get current version of the app
-    GetCurrentVersion(oneshot::Sender<AppVersion>),
+    GetCurrentVersion(oneshot::Sender<String>),
     /// Remove settings and clear the cache
     #[cfg(not(target_os = "android"))]
     FactoryReset(ResponseTx<(), Error>),
@@ -392,6 +391,13 @@ pub enum DaemonCommand {
     ExportJsonSettings(ResponseTx<String, settings::patch::Error>),
     /// Request the current feature indicators.
     GetFeatureIndicators(oneshot::Sender<FeatureIndicators>),
+    // App upgrade
+    /// Prompt the daemon to start an app version upgrade.
+    ///
+    /// If an upgrade had previously been started but not completed the daemon should continue the upgrade process at the appropriate step. The client need not be notified about this detail.
+    AppUpgrade(ResponseTx<(), Error>),
+    /// Prompt the daemon to abort the current upgrade.
+    AppUpgradeAbort(ResponseTx<(), Error>),
 }
 
 /// All events that can happen in the daemon. Sent from various threads and exposed interfaces.
@@ -614,7 +620,7 @@ pub struct Daemon {
     access_mode_handler: mullvad_api::access_mode::AccessModeSelectorHandle,
     api_runtime: mullvad_api::Runtime,
     api_handle: mullvad_api::rest::MullvadRestHandle,
-    version_updater_handle: version_check::VersionUpdaterHandle,
+    version_handle: version::router::VersionRouterHandle,
     relay_selector: RelaySelector,
     relay_list_updater: RelayListUpdaterHandle,
     parameters_generator: tunnel::ParametersGenerator,
@@ -883,14 +889,13 @@ impl Daemon {
             on_relay_list_update,
         );
 
-        let version_updater_handle = version_check::VersionUpdater::spawn(
+        let version_handle = version::router::VersionRouter::spawn(
             api_handle.clone(),
-            api_availability.clone(),
+            api_handle.availability.clone(),
             config.cache_dir.clone(),
             internal_event_tx.to_specialized_sender(),
             settings.show_beta_releases,
-        )
-        .await;
+        );
 
         // Attempt to download a fresh relay list
         relay_list_updater.update().await;
@@ -937,7 +942,7 @@ impl Daemon {
             access_mode_handler,
             api_runtime,
             api_handle,
-            version_updater_handle,
+            version_handle,
             relay_selector,
             relay_list_updater,
             parameters_generator,
@@ -1454,6 +1459,8 @@ impl Daemon {
             ApplyJsonSettings(tx, blob) => self.on_apply_json_settings(tx, blob).await,
             ExportJsonSettings(tx) => self.on_export_json_settings(tx),
             GetFeatureIndicators(tx) => self.on_get_feature_indicators(tx),
+            AppUpgrade(tx) => self.on_app_upgrade(tx),
+            AppUpgradeAbort(tx) => self.on_app_upgrade_abort(tx),
         }
     }
 
@@ -1920,12 +1927,12 @@ impl Daemon {
     }
 
     fn on_get_version_info(&mut self, tx: oneshot::Sender<Result<AppVersionInfo, Error>>) {
-        let mut handle = self.version_updater_handle.clone();
+        let handle = self.version_handle.clone();
         tokio::spawn(async move {
             Self::oneshot_send(
                 tx,
                 handle
-                    .get_version_info()
+                    .get_latest_version()
                     .await
                     .inspect_err(|error| {
                         log::error!(
@@ -1939,7 +1946,7 @@ impl Daemon {
         });
     }
 
-    fn on_get_current_version(&mut self, tx: oneshot::Sender<AppVersion>) {
+    fn on_get_current_version(&mut self, tx: oneshot::Sender<String>) {
         Self::oneshot_send(
             tx,
             mullvad_version::VERSION.to_owned(),
@@ -2288,8 +2295,12 @@ impl Daemon {
             Ok(settings_changed) => {
                 Self::oneshot_send(tx, Ok(()), "set_show_beta_releases response");
                 if settings_changed {
-                    let mut handle = self.version_updater_handle.clone();
-                    handle.set_show_beta_releases(enabled).await;
+                    let version_handle = self.version_handle.clone();
+                    tokio::spawn(async move {
+                        if let Err(error) = version_handle.set_show_beta_releases(enabled).await {
+                            log::error!("Failed to reset beta releases state: {error}");
+                        }
+                    });
                 }
             }
             Err(e) => {
@@ -2994,9 +3005,16 @@ impl Daemon {
         let dns = dns::addresses_from_options(&self.settings.tunnel_options.dns_options);
         self.send_tunnel_command(TunnelCommand::Dns(dns, tx));
 
-        self.version_updater_handle
-            .set_show_beta_releases(self.settings.show_beta_releases)
-            .await;
+        let version_handle = self.version_handle.clone();
+        let show_beta_releases = self.settings.show_beta_releases;
+        tokio::spawn(async move {
+            if let Err(error) = version_handle
+                .set_show_beta_releases(show_beta_releases)
+                .await
+            {
+                log::error!("Failed to reset beta releases state: {error}");
+            }
+        });
         let access_mode_handler = self.access_mode_handler.clone();
         tokio::spawn(async move {
             if let Err(error) = access_mode_handler.rotate().await {
@@ -3134,6 +3152,18 @@ impl Daemon {
             _ => FeatureIndicators::default(),
         };
         Self::oneshot_send(tx, feature_indicators, "get_feature_indicators response");
+    }
+
+    fn on_app_upgrade(&self, tx: ResponseTx<(), Error>) {
+        // TODO: Call the Downloader
+        let result = Ok(());
+        Self::oneshot_send(tx, result, "on_app_upgrade response");
+    }
+
+    fn on_app_upgrade_abort(&self, tx: ResponseTx<(), Error>) {
+        // TODO: Abort the Downloader
+        let result = Ok(());
+        Self::oneshot_send(tx, result, "on_app_upgrade_abort response");
     }
 
     /// Set the target state of the client. If it changed trigger the operations needed to
