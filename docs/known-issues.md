@@ -102,25 +102,34 @@ is not really possible, or hard to implement on some operating systems. See the
 [split tunneling documentation]: ./split-tunneling.md#dns
 
 
-### Temporary DNS leaks while tunnel is being reconfigured on Android
+### Temporary leaks while tunnel is being reconfigured on Android
 
-DNS lookups performed directly with the C function `getaddrinfo` can leak for a short period
-of time while an android VPN app is being re-configured (reconnecting, force-stopped etc).
-These leaks happens even when the system setting "Block connections without VPN" is
-enabled.
+Android may leak for a short period of time while a VPN tunnel is being re-configured
+(reconnecting, force-stopped etc), sending traffic outside the tunnel that is supposed to be inside
+the tunnel. Packets sent may have the source IP of the internal tunnel interface. Some of these
+leaks can happen even when the system setting "Block connections without VPN" is enabled.
 
-We have not found any leaks from apps that only use Android API:s such as [DnsResolver]. The Chrome browser is an example of an app that can use getaddrinfo [directly](https://source.chromium.org/chromium/chromium/src/+/main:android_webview/browser/aw_pac_processor.cc;l=197;drc=133b2d903fa57cfda1317bc589b349cf4c284b7c).
+The known leaks include, but may not be limited to, the following type of traffic:
+- Any traffic sent by the current VPN app (e.g API requests).
+- DNS lookups performed directly with the C function `getaddrinfo`.
+- Private DNS traffic (e.g DNS-over-TLS).
+- [OS connectivity checks](https://issuetracker.google.com/issues/250529027).
 
-Mullvad is not aware of any mitigation to this leak. It has been reported upstream to Google,
-and we wait for their response.
+Multiple reports with variants of this behaviour have surfaced over the years, however the problems
+still persist. Mullvad is not aware of any mitigation to these leaks.
+
+- [A few packets leak to the public network at VPN reconnection](https://issuetracker.google.com/issues/37343051)
+- [Android's VPN does not provide a seamless routing transition across VPN reconfigurations.](https://issuetracker.google.com/issues/117288570)
+- [Android 10 Private DNS breaks VPN](https://issuetracker.google.com/issues/141674015)
+- [Packets leak to the public network when VPN reconnection using seamless handover](https://issuetracker.google.com/issues/172141171)
+- [VPN leaks DNS traffic outside the tunnel](https://issuetracker.google.com/issues/337961996)
 
 #### Timeline
 
-* April 22, 2024 - Mullvad became aware of the leaks, via a [reddit post](https://www.reddit.com/r/mullvadvpn/comments/1c9p96y/dns_leak_with_block_connections_without_vpn_on/)
+* April 22, 2024 - Mullvad became aware that Android could leak DNS when getaddrinfo was being used.
 * April 30, 2024 - Mullvad [report the issue](https://issuetracker.google.com/issues/337961996) upstream to Google.
 * May 3, 2024 - Mullvad [blog](https://mullvad.net/blog/dns-traffic-can-leak-outside-the-vpn-tunnel-on-android) about the findings. This post contains more details.
-
-[DnsResolver]: https://developer.android.com/reference/android/net/DnsResolver
+* Mar 12, 2025 - Mullvad realize the leaks are about much more than just DNS. This document is updated accordingly.
 
 
 ### Broadcast traffic to the LAN bypass the VPN on Android
