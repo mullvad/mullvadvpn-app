@@ -27,7 +27,7 @@ Line wrap the file at 100 chars.                                              Th
 - Rename `win-shortcuts` native module to `windows-utils`.
 
 ### Removed
-- Remove "Any" option for tunnel protocol. The default is now WireGuard.
+- Remove "Automatic" option for tunnel protocol. The default is now WireGuard.
 
 ### Fixed
 - Fix `mullvad-cli` panicking if it tried to write to a closed pipe on Linux and macOS.
