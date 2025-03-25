@@ -37,6 +37,7 @@ mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
 mullvad-paths = { path = "../mullvad-paths" }
 mullvad-version = { path = "../mullvad-version" }
+mullvad-update = { path = "../mullvad-update", features = ["client"] }
 mullvad-leak-checker = { path = "../mullvad-leak-checker", default-features = false }
 talpid-core = { path = "../talpid-core" }
 talpid-future = { path = "../talpid-future" }
