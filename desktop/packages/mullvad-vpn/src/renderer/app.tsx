@@ -588,7 +588,7 @@ export default class AppRenderer {
 
   public setDismissedUpgrade = (): void => {
     IpcRendererEventChannel.upgradeVersion.dismissedUpgrade(
-      this.reduxStore.getState().version.suggestedUpgrade ?? '',
+      this.reduxStore.getState().version.suggestedUpgrade?.version ?? '',
     );
   };
 
