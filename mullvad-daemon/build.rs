@@ -33,6 +33,12 @@ fn main() {
     // Enable DAITA by default on desktop and android
     println!("cargo::rustc-check-cfg=cfg(daita)");
     println!(r#"cargo::rustc-cfg=daita"#);
+
+    // Enable in-app upgrades on macOS and Windows
+    println!("cargo::rustc-check-cfg=cfg(update)");
+    if cfg!(any(target_os = "macos", target_os = "windows")) {
+        println!(r#"cargo::rustc-cfg=update"#);
+    }
 }
 
 fn commit_date() -> String {
