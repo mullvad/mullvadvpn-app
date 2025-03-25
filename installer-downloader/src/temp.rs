@@ -13,9 +13,12 @@
 //! The downloader does not run as a privileged user, so we store downloads in a temporary
 //! directory that only the current user may access.
 //!
-//! This is potentially vulnerable to TOCTOU, ie replacing the file after its hash has been
-//! verified, but only by the current user. However, this would require asking the user to approve
-//! privilege escalation, just like the actual installer does.
+//! This is potentially vulnerable to TOCTOU, i.e. replacing the file after its hash has been
+//! verified but before it has been launched, leading to the installer downloader launching
+//! a malicious binary. However, this is considered outside the threat model of the installer
+//! downloader, since the attack can only be carried out by code running as the same user
+//! that runs the installer downloader. If such code is running, the attacker can just as well
+//! replace the installer downloader instead.
 
 use anyhow::Context;
 use async_trait::async_trait;
