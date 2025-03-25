@@ -1,7 +1,9 @@
 package net.mullvad.mullvadvpn.compose.extensions
 
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.HorizontalDivider
@@ -39,3 +41,14 @@ inline fun <T> LazyListScope.itemsIndexedWithDivider(
         itemContent(index, item)
         HorizontalDivider(color = Color.Transparent)
     }
+
+suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
+    val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
+    if (itemInfo != null) {
+        val center = layoutInfo.viewportEndOffset / 2
+        val childCenter = itemInfo.offset + itemInfo.size / 2
+        animateScrollBy((childCenter - center).toFloat())
+    } else {
+        animateScrollToItem(index)
+    }
+}

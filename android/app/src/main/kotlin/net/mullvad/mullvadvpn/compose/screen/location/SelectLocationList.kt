@@ -1,6 +1,5 @@
 package net.mullvad.mullvadvpn.compose.screen.location
 
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,7 +7,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +26,7 @@ import net.mullvad.mullvadvpn.compose.button.PrimaryButton
 import net.mullvad.mullvadvpn.compose.component.MullvadCircularProgressIndicatorLarge
 import net.mullvad.mullvadvpn.compose.component.drawVerticalScrollbar
 import net.mullvad.mullvadvpn.compose.constant.ContentType
+import net.mullvad.mullvadvpn.compose.extensions.animateScrollAndCentralizeItem
 import net.mullvad.mullvadvpn.compose.state.RelayListItem
 import net.mullvad.mullvadvpn.compose.state.RelayListType
 import net.mullvad.mullvadvpn.compose.state.SelectLocationListUiState
@@ -153,14 +152,3 @@ private fun SelectLocationListUiState.indexOfSelectedRelayItem(): Int? =
     } else {
         null
     }
-
-private suspend fun LazyListState.animateScrollAndCentralizeItem(index: Int) {
-    val itemInfo = this.layoutInfo.visibleItemsInfo.firstOrNull { it.index == index }
-    if (itemInfo != null) {
-        val center = layoutInfo.viewportEndOffset / 2
-        val childCenter = itemInfo.offset + itemInfo.size / 2
-        animateScrollBy((childCenter - center).toFloat())
-    } else {
-        animateScrollToItem(index)
-    }
-}
