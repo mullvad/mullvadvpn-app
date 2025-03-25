@@ -4,7 +4,11 @@ use futures::{
     future::{BoxFuture, FusedFuture},
     FutureExt, SinkExt, StreamExt, TryFutureExt,
 };
-use mullvad_api::{availability::ApiAvailability, rest::MullvadRestHandle, AppVersionProxy};
+use mullvad_api::{
+    availability::ApiAvailability,
+    rest::MullvadRestHandle,
+    version::{AppVersionProxy, AppVersionResponse},
+};
 use mullvad_types::version::AppVersionInfo;
 use mullvad_version::Version;
 use serde::{Deserialize, Serialize};
@@ -194,11 +198,8 @@ impl VersionUpdaterInner {
         self.last_app_version_info.as_ref().map(|(info, _)| info)
     }
 
-    /// Convert a [mullvad_api::AppVersionResponse] to an [AppVersionInfo].
-    fn response_to_version_info(
-        &self,
-        response: mullvad_api::AppVersionResponse,
-    ) -> AppVersionInfo {
+    /// Convert a [AppVersionResponse] to an [AppVersionInfo].
+    fn response_to_version_info(&self, response: AppVersionResponse) -> AppVersionInfo {
         let suggested_upgrade = suggested_upgrade(
             &APP_VERSION,
             &response.latest_stable,
@@ -295,12 +296,9 @@ impl VersionUpdaterInner {
         mut self,
         mut rx: mpsc::Receiver<VersionUpdaterCommand>,
         update: impl Fn(AppVersionInfo) -> BoxFuture<'static, Result<(), Error>>,
-        do_version_check: impl Fn()
-            -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>>,
-        do_version_check_in_background: impl Fn() -> BoxFuture<
-            'static,
-            Result<mullvad_api::AppVersionResponse, Error>,
-        >,
+        do_version_check: impl Fn() -> BoxFuture<'static, Result<AppVersionResponse, Error>>,
+        do_version_check_in_background: impl Fn()
+            -> BoxFuture<'static, Result<AppVersionResponse, Error>>,
     ) {
         let mut version_is_stale = self.wait_until_version_is_stale();
         let mut version_check = futures::future::Fuse::terminated();
@@ -422,9 +420,7 @@ struct ApiContext {
 }
 
 /// Immediately query the API for the latest [AppVersionInfo].
-fn do_version_check(
-    api: ApiContext,
-) -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>> {
+fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<AppVersionResponse, Error>> {
     let download_future_factory = move || {
         api.version_proxy
             .version_check(
@@ -459,7 +455,7 @@ fn do_version_check(
 /// On any error, this function retries repeatedly every [UPDATE_INTERVAL_ERROR] until success.
 fn do_version_check_in_background(
     api: ApiContext,
-) -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>> {
+) -> BoxFuture<'static, Result<AppVersionResponse, Error>> {
     let download_future_factory = move || {
         let when_available = api.api_handle.wait_background();
         let request = api.version_proxy.version_check(
@@ -721,12 +717,11 @@ mod test {
         }
     }
 
-    fn fake_version_check() -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>> {
+    fn fake_version_check() -> BoxFuture<'static, Result<AppVersionResponse, Error>> {
         Box::pin(async { Ok(fake_version_response()) })
     }
 
-    fn fake_version_check_err() -> BoxFuture<'static, Result<mullvad_api::AppVersionResponse, Error>>
-    {
+    fn fake_version_check_err() -> BoxFuture<'static, Result<AppVersionResponse, Error>> {
         Box::pin(retry_future(
             || async { Err(Error::Download(mullvad_api::rest::Error::TimeoutError)) },
             |_| true,
@@ -734,8 +729,8 @@ mod test {
         ))
     }
 
-    fn fake_version_response() -> mullvad_api::AppVersionResponse {
-        mullvad_api::AppVersionResponse {
+    fn fake_version_response() -> AppVersionResponse {
+        AppVersionResponse {
             supported: true,
             latest: "2024.1".to_owned(),
             latest_stable: None,
