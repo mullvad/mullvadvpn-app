@@ -601,20 +601,42 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr ""
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr ""
 
+#. Description for version list item when app is out of sync.
 msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr ""
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
+msgid "Beta program"
 msgstr ""
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
+msgid "Enable to get notified when new beta versions of the app are released."
+msgstr ""
+
+msgctxt "app-info-view"
+msgid "This option is unavailable while using a beta version."
+msgstr ""
+
+#. Label for update available list item.
+msgctxt "app-info-view"
+msgid "Update available"
+msgstr ""
+
+#. Label for version list item.
+msgctxt "app-info-view"
+msgid "Version"
+msgstr ""
+
+#. Label for changelog list item.
+msgctxt "app-info-view"
+msgid "What’s new"
 msgstr ""
 
 msgctxt "auth-failure"
@@ -1652,10 +1674,6 @@ msgctxt "settings-view"
 msgid "VPN settings"
 msgstr ""
 
-msgctxt "settings-view"
-msgid "What’s new"
-msgstr ""
-
 msgctxt "split-tunneling-view"
 msgid "%(applicationName)s is problematic and can’t be excluded from the VPN tunnel."
 msgstr ""
@@ -1727,19 +1745,11 @@ msgid "Unable to launch selection. %(detailedErrorMessage)s"
 msgstr ""
 
 msgctxt "support-view"
-msgid "Beta program"
-msgstr ""
-
-msgctxt "support-view"
 msgid "Continue anyway"
 msgstr ""
 
 msgctxt "support-view"
 msgid "Edit message"
-msgstr ""
-
-msgctxt "support-view"
-msgid "Enable to get notified when new beta versions of the app are released."
 msgstr ""
 
 msgctxt "support-view"
@@ -1791,10 +1801,6 @@ msgstr ""
 
 msgctxt "support-view"
 msgid "Thanks!"
-msgstr ""
-
-msgctxt "support-view"
-msgid "This option is unavailable while using a beta version."
 msgstr ""
 
 msgctxt "support-view"
@@ -2858,9 +2864,6 @@ msgid "Verifying purchase..."
 msgstr ""
 
 msgid "Verifying voucher…"
-msgstr ""
-
-msgid "Version"
 msgstr ""
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
