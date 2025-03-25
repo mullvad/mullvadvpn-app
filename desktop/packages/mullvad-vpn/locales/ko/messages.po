@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d개 더 보기..."
@@ -321,9 +321,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s 확장"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "%(accountNumber)s 지우기"
+msgid "Forget account number %(accountNumber)s"
+msgstr "계정 번호 %(accountNumber)s 삭제하기"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -339,6 +342,13 @@ msgstr "정보"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "로그인"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "계정 번호 %(accountNumber)s 사용해 로그인"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -473,8 +483,8 @@ msgid "Enter port"
 msgstr "포트 입력"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare, Google 등의 제공업체에서 호스팅합니다."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "당사 VPN에 연결되지 않은 경우, 연결 시 암호화된 DNS 프록시는 사용자의 비 VPN IP를 사용합니다. DoH 서버는 Quad 9, CloudFlare 등의 제공업체에서 호스팅합니다."
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -615,10 +625,6 @@ msgstr "계정을 인증할 수 없습니다. 문제 보고서를 보내주세�
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "잘못된 계정 번호로 로그인했습니다. 로그아웃한 후 다른 계정 번호로 시도하세요."
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "전체 변경 로그 확인"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -966,6 +972,10 @@ msgstr "환영합니다! 이제 이 장치의 이름은 <b>%(deviceName)s</b>입
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad 시스템 서비스에 연결하는 중..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "타사 안티바이러스 소프트웨어를 비활성화합니다."
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2338,9 +2348,6 @@ msgstr "상시 접속 VPN이 다른 VPN에 할당됨"
 msgid "At least one method needs to be enabled"
 msgstr "1개 이상의 방법이 활성화되어 있어야 합니다"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "주의: 이 기능은 네트워크 트래픽을 증가시키므로 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되어 있는 경우, \"로컬 네트워크 공유\"가 작동하지 않습니다."
 
@@ -2349,6 +2356,9 @@ msgstr "주의: \"VPN 없이 연결 차단\"이 활성화되면, 분할 앱에 �
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "주의: Shadowsocks는 비디오 스트리밍 등 데이터 사용량에 따라 배터리 소모량이 증가할 수 있습니다."
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "주의: 이 기능은 네트워크 트래픽을 증가시키며 속도, 대기 시간, 배터리 사용에도 부정적인 영향을 미칩니다. 제한된 데이터 플랜 사용 시에는 유의하시기 바랍니다."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "주의: 이 설정은 \"사용자 지정 DNS 서버 사용\"과 함께 사용할 수 없습니다."
@@ -2628,6 +2638,12 @@ msgstr "기본값으로 재설정"
 
 msgid "Search"
 msgstr "검색"
+
+msgid "See full changelog"
+msgstr "전체 변경 로그 확인"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "이 설정을 활성화하려면 아래 %s 난독 처리를 \"자동\" 또는 \"끄기\"로 설정합니다."
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU 값을 설정하세요. 유효 범위: %d ~ %d"

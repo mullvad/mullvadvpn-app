@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">Anpassad %1$s-port</string>
     <string name="custom_port_dialog_valid_ranges">Giltiga intervall: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Det går inte att lösa värd för anpassad tunnel. Försök att ändra inställningarna.</string>
+    <string name="daita_description_slide_1_first_paragraph">Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) döljer mönster i din krypterade VPN-trafik.</string>
     <string name="daita_description_slide_1_third_paragraph">Med sofistikerad AI är det möjligt att analysera trafiken för datapaket som går in och ut från din enhet (även om trafiken är krypterad).</string>
     <string name="daita_description_slide_2_first_paragraph">Om dessa datapaket övervakas av en observatör, gör %1$s det svårare för dem att identifiera vilka webbplatser du besöker eller vem du kommunicerar med.</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">Aktivera IPv6</string>
     <string name="enable_method">Aktivera metod</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden \"Krypterad DNS-proxy\" kommunicerar appen med vår Mullvad API via en proxyadress. Den gör det genom att hämta en adress från en DNS over HTTPS-server (DoH) och sedan använda den för att nå våra API-servrar.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Om du inte är ansluten till vår VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9 eller CloudFlare.</string>
     <string name="enter_value_placeholder">Ange MTU</string>
     <string name="enter_voucher_code">Ange kupongkod</string>
     <string name="entry">Ingång</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">Tryck på anslut för att begära VPN-behörighet</string>
     <string name="vpn_permission_error_notification_title">Behörighetsfel med VPN</string>
     <string name="we_will_look_into_this">Vi kommer att undersöka detta.</string>
+    <string name="wg_port_subtitle">Ställ in %1$s-obfuskering som \"Automatisk\" eller \"Av\" nedan för att aktivera inställningen.</string>
     <string name="wireguard_custon_port_title">Anpassad</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Ange WireGuard MTU-värde. Giltigt intervall: %1$d–%2$d.</string>

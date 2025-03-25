@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">Mukautettu %1$s-portti</string>
     <string name="custom_port_dialog_valid_ranges">Kelvolliset portit: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Muokatun tunnelin isännän selvittäminen ei onnistu. Kokeile muuttaa asetuksiasi.</string>
+    <string name="daita_description_slide_1_first_paragraph">Huomio: Toiminto kasvattaa verkkoliikennettä ja vaikuttaa sen vuoksi negatiivisesti sekä nopeuteen, viiveeseen että akun kulumiseen. Käytä harkiten, kun datasopimuksesi on rajoitettu.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) piilottaa kuviot salatusta VPN-liikenteestäsi.</string>
     <string name="daita_description_slide_1_third_paragraph">Käyttämällä edistynyttä tekoälyä on mahdollista analysoida laitteestasi lähtevä ja siihen tuleva datapakettiliikenne (vaikka liikenne olisi salattu).</string>
     <string name="daita_description_slide_2_first_paragraph">Jos havaitsija valvoo näitä datapaketteja, %1$s tekee hänelle huomattavasti hankalammaksi tunnistaa, millä verkkosivuilla käyt tai kenen kanssa viestit.</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">Salli IPv6</string>
     <string name="enable_method">Ota menetelmä käyttöön</string>
     <string name="encrypted_dns_proxy_info_message_part1">Sovellus kommunikoi Mullvad API:n kanssa välityspalvelinosoitteen kautta \"Salattu DNS-välityspalvelin\" -menetelmällä, joka toimii niin, että sovellus hakee osoitteen DNS over HTTPS (DoH) -palvelimelta ja käyttää sitä API-palvelimillemme pääsemiseen.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai CloudFlare.</string>
     <string name="enter_value_placeholder">Syötä MTU</string>
     <string name="enter_voucher_code">Syötä kuponkikoodi</string>
     <string name="entry">Tulo</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">Pyydä VPN:n käyttölupa yhteydenluontipainiketta painamalla</string>
     <string name="vpn_permission_error_notification_title">VPN-lupavirhe</string>
     <string name="we_will_look_into_this">Tutkimme asiaa.</string>
+    <string name="wg_port_subtitle">Jotta voit käyttää tätä asetusta, poista %1$s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta.</string>
     <string name="wireguard_custon_port_title">Mukautettu</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Aseta WireGuardin MTU-arvo väliltä %1$d–%2$d.</string>

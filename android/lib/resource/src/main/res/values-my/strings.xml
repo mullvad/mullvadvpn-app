@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">%1$s စိတ်ကြိုက်ပေါ့တ်</string>
     <string name="custom_port_dialog_valid_ranges">အကျုံးဝင်သည့် အပိုင်းအခြား- %1$s</string>
     <string name="custom_tunnel_host_resolution_error">စိတ်ကြိုက်ပြုလုပ်ထားသည့် Tunnel ၏ Host ကို ဖြေရှင်း၍ မရနိုင်ပါ။ သင့်ဆက်တင်ကို ပြောင်းကြည့်ပါ။</string>
+    <string name="daita_description_slide_1_first_paragraph">သတိပြုပါ- ဤသည်က ကွန်ရက် ကူးလူးမှုကို မြင့်တက်စေပြီး အမြန်နှုန်း၊ တုံ့ပြန်မှုနှောင့်နှေးခြင်း (Latency) နှင့် ဘက်ထရီ သုံးစွဲမှုကိုလည်း ထိခိုက်စေပါလိမ့်မည်။ အကန့်အသတ်ရှိသော ပလန်များကို သတိဖြင့် သုံးစွဲပါ။</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) က သင်၏ ကုဒ်ပြောင်းဝှက်ထားသော VPN ဝင်ရောက်ကြည့်ရှုမှုထဲရှိ ပက်တန်များကို ဝှက်ပေးသည်။</string>
     <string name="daita_description_slide_1_third_paragraph">ခေတ်မီဆန်းပြားသော AI ကိုအသုံးပြုခြင်းဖြင့် (အသွားအလာကို ကုဒ်ဝှက်ထားသည့်တိုင်) သင့်စက်၏အဝင်အထွက်ဒေတာပက်ကတ်များ၏ အသွားအလာကို ပိုင်းခြားစိတ်ဖြာနိုင်သည်။</string>
     <string name="daita_description_slide_2_first_paragraph">အကဲခတ်သူတစ်ဦးက ဤဒေတာပက်ကတ်များကို စောင့်ကြည့်လျှင် %1$s သည် သင်သွားရောက်ကြည့်ရှုနေသော ဝဘ်ဆိုက်များ သို့မဟုတ် သင်ဆက်သွယ်နေသည့်သူများကို ခွဲခြားဖော်ထုတ်ရန် ၎င်းတို့အတွက် သိသိသာသာ ခက်ခဲစေသည်။</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">IPv6 ကို ဖွင့်ရန်</string>
     <string name="enable_method">နည်းလမ်းကို ဖွင့်ရန်</string>
     <string name="encrypted_dns_proxy_info_message_part1">ထိုအက်ပ်သည် “ကုဒ်ဝှက်ထားသော DNS ပရောက်စီ” နည်းလမ်းအားဖြင့် ကျွန်ုပ်တို့၏ Mullvad API ထံသို့ ပရောက်စီလိပ်စာမှတစ်ဆင့် ဆက်သွယ်ပေးမည်ဖြစ်သည်။ HTTPS (DoH) ဆာဗာရှိ DNS မှ လိပ်စာတစ်ခုကို ပြန်လည်ရယူခြင်းအားဖြင့် ထိုသို့လုပ်ဆောင်ပြီးနောက် ကျွန်ုပ်တို့၏ API ဆာဗာများသို့ရောက်ရှိရန် ၎င်းကို အသုံးပြုသည်။</string>
+    <string name="encrypted_dns_proxy_info_message_part2">အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် CloudFlare ။</string>
     <string name="enter_value_placeholder">MTU ကို ရိုက်ထည့်ရန်</string>
     <string name="enter_voucher_code">ဘောက်ချာကုဒ် ဖြည့်သွင်းရန်</string>
     <string name="entry">အဝင်</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">VPN ခွင့်ပြုချက်တောင်းရန် ချိတ်ဆက်ရန်ကို နှိပ်ပေးပါ</string>
     <string name="vpn_permission_error_notification_title">VPN ခွင့်ပြုချက် ချို့ယွင်းချက်</string>
     <string name="we_will_look_into_this">ဤသည်ကို စစ်ဆေးလိုက်ပါမည်။</string>
+    <string name="wg_port_subtitle">ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ရှိ %1$s obfuscation ကို \"အော်တိုမက်တစ်\" သို့မဟုတ် \"ပိတ်\" ဟု သတ်မှတ်ပါ။</string>
     <string name="wireguard_custon_port_title">စိတ်ကြိုက်</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %1$d - %2$d ။</string>
