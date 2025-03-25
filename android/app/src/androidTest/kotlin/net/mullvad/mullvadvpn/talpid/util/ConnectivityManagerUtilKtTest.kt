@@ -20,6 +20,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.test.runTest
 import net.mullvad.talpid.model.Connectivity
+import net.mullvad.talpid.model.IpAvailability
 import net.mullvad.talpid.util.NetworkEvent
 import net.mullvad.talpid.util.UnderlyingConnectivityStatusResolver
 import net.mullvad.talpid.util.defaultNetworkEvents
@@ -53,7 +54,7 @@ class ConnectivityManagerUtilKtTest {
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Since initial state and listener both return `true` within debounce we only see one
             // event
-            assertEquals(Connectivity.Status(true, true), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4AndIpv6), awaitItem())
             expectNoEvents()
         }
     }
@@ -66,7 +67,7 @@ class ConnectivityManagerUtilKtTest {
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Initially offline and no network events, so we should get a single `false` event
-            assertEquals(Connectivity.Status(false, false), awaitItem())
+            assertEquals(Connectivity.Offline, awaitItem())
             expectNoEvents()
         }
     }
@@ -88,8 +89,8 @@ class ConnectivityManagerUtilKtTest {
             }
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
-            assertEquals(Connectivity.Status(false, false), awaitItem())
-            assertEquals(Connectivity.Status(true, true), awaitItem())
+            assertEquals(Connectivity.Offline, awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4AndIpv6), awaitItem())
             expectNoEvents()
         }
     }
@@ -113,8 +114,8 @@ class ConnectivityManagerUtilKtTest {
             }
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
-            assertEquals(Connectivity.Status(true, true), awaitItem())
-            assertEquals(Connectivity.Status(false, false), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4AndIpv6), awaitItem())
+            assertEquals(Connectivity.Offline, awaitItem())
             expectNoEvents()
         }
     }
@@ -150,7 +151,7 @@ class ConnectivityManagerUtilKtTest {
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             // We should always only see us being online
-            assertEquals(Connectivity.Status(ipv4 = true, ipv6 = false), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4), awaitItem())
             expectNoEvents()
         }
     }
@@ -184,7 +185,7 @@ class ConnectivityManagerUtilKtTest {
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             // We should always only see us being online, small offline state is caught by debounce
-            assertEquals(Connectivity.Status(ipv4 = true, ipv6 = false), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4), awaitItem())
             expectNoEvents()
         }
     }
@@ -218,11 +219,11 @@ class ConnectivityManagerUtilKtTest {
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Wifi is online
-            assertEquals(Connectivity.Status(false, true), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv6), awaitItem())
             // We didn't get any network within debounce time, so we are offline
-            assertEquals(Connectivity.Status(false, false), awaitItem())
+            assertEquals(Connectivity.Offline, awaitItem())
             // Cellular network is online
-            assertEquals(Connectivity.Status(false, true), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv6), awaitItem())
             expectNoEvents()
         }
     }
@@ -250,9 +251,9 @@ class ConnectivityManagerUtilKtTest {
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Ipv6 network is online
-            assertEquals(Connectivity.Status(false, true), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv6), awaitItem())
             // Ipv4 network is online
-            assertEquals(Connectivity.Status(true, false), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4), awaitItem())
             expectNoEvents()
         }
     }
@@ -265,7 +266,8 @@ class ConnectivityManagerUtilKtTest {
         every { capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_VPN) } returns
             false
         val mockResolver = mockk<UnderlyingConnectivityStatusResolver>()
-        every { mockResolver.currentStatus() } returns Connectivity.Status(true, true)
+        every { mockResolver.currentStatus() } returns
+            Connectivity.Online(IpAvailability.Ipv4AndIpv6)
 
         every { connectivityManager.defaultNetworkEvents() } returns
             callbackFlow {
@@ -276,7 +278,7 @@ class ConnectivityManagerUtilKtTest {
 
         connectivityManager.hasInternetConnectivity(mockResolver).test {
             // Network is online
-            assertEquals(Connectivity.Status(true, true), awaitItem())
+            assertEquals(Connectivity.Online(IpAvailability.Ipv4AndIpv6), awaitItem())
         }
 
         verify(exactly = 1) { mockResolver.currentStatus() }
