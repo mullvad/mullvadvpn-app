@@ -3,12 +3,9 @@ use async_trait::async_trait;
 #[cfg(target_os = "android")]
 use futures::channel::mpsc;
 use hyper::body::Incoming;
+use mullvad_types::account::{AccountData, AccountNumber, VoucherSubmission};
 #[cfg(target_os = "android")]
 use mullvad_types::account::{PlayPurchase, PlayPurchasePaymentToken};
-use mullvad_types::{
-    account::{AccountData, AccountNumber, VoucherSubmission},
-    version::AppVersion,
-};
 use proxy::{ApiConnectionMode, ConnectionModeProvider};
 use std::{
     collections::BTreeMap,
@@ -23,6 +20,8 @@ use talpid_types::ErrorExt;
 pub mod availability;
 use availability::ApiAvailability;
 pub mod rest;
+#[cfg(not(target_os = "ios"))]
+pub mod version;
 
 mod abortable_stream;
 pub mod access_mode;
@@ -694,45 +693,6 @@ impl ProblemReportProxy {
                 .expected_status(&[StatusCode::NO_CONTENT]);
             service.request(request).await?;
             Ok(())
-        }
-    }
-}
-
-#[derive(Clone)]
-pub struct AppVersionProxy {
-    handle: rest::MullvadRestHandle,
-}
-
-#[derive(serde::Deserialize, Debug)]
-pub struct AppVersionResponse {
-    pub supported: bool,
-    pub latest: AppVersion,
-    pub latest_stable: Option<AppVersion>,
-    pub latest_beta: AppVersion,
-}
-
-impl AppVersionProxy {
-    pub fn new(handle: rest::MullvadRestHandle) -> Self {
-        Self { handle }
-    }
-
-    pub fn version_check(
-        &self,
-        app_version: AppVersion,
-        platform: &str,
-        platform_version: String,
-    ) -> impl Future<Output = Result<AppVersionResponse, rest::Error>> + use<> {
-        let service = self.handle.service.clone();
-
-        let path = format!("{APP_URL_PREFIX}/releases/{platform}/{app_version}");
-        let request = self.handle.factory.get(&path);
-
-        async move {
-            let request = request?
-                .expected_status(&[StatusCode::OK])
-                .header("M-Platform-Version", &platform_version)?;
-            let response = service.request(request).await?;
-            response.deserialize().await
         }
     }
 }

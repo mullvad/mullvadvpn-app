@@ -15,6 +15,7 @@ workspace = true
 api-override = []
 
 [dependencies]
+anyhow = { workspace = true }
 async-trait = "0.1"
 libc = "0.2"
 chrono = { workspace = true }
@@ -46,6 +47,7 @@ tokio-rustls = { version = "0.26.0", features = [
 tokio-socks = "0.5.1"
 rustls-pemfile = "2.1.3"
 uuid = { version = "1.4.1", features = ["v4"] }
+vec1 = { workspace = true }
 
 mullvad-encrypted-dns-proxy = { path = "../mullvad-encrypted-dns-proxy" }
 mullvad-fs = { path = "../mullvad-fs" }
@@ -54,6 +56,9 @@ talpid-types = { path = "../talpid-types" }
 talpid-time = { path = "../talpid-time" }
 
 shadowsocks = { workspace = true, features = ["stream-cipher"] }
+
+[target.'cfg(not(target_os = "ios"))'.dependencies]
+mullvad-update = { path = "../mullvad-update", features = ["client"] }
 
 [dev-dependencies]
 talpid-time = { path = "../talpid-time", features = ["test"] }
