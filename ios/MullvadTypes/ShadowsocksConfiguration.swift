@@ -7,8 +7,12 @@
 //
 
 import Foundation
-import MullvadTypes
 import Network
+
+public protocol ShadowsocksLoaderProtocol: Sendable {
+    func load() throws -> ShadowsocksConfiguration
+    func clear() throws
+}
 
 public struct ShadowsocksConfiguration: Codable, Equatable, Sendable {
     public let address: AnyIPAddress
