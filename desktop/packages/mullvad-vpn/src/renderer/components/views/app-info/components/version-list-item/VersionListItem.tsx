@@ -4,7 +4,7 @@ import { ListItem } from '../../../../../lib/components/list-item';
 import { Colors } from '../../../../../lib/foundations';
 import { useSelector } from '../../../../../redux/store';
 
-export const VersionListItem = () => {
+export function VersionListItem() {
   const appVersion = useSelector((state) => state.version.current);
   const consistentVersion = useSelector((state) => state.version.consistent);
 
@@ -38,4 +38,4 @@ export const VersionListItem = () => {
       )}
     </ListItem>
   );
-};
+}
