@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">Port %1$s personnalisé</string>
     <string name="custom_port_dialog_valid_ranges">Plages valides : %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Échec de la résolution de l\'hôte du tunnel personnalisé. Essayez de modifier vos paramètres.</string>
+    <string name="daita_description_slide_1_first_paragraph">Attention : cette option augmente le trafic sur le réseau et peut avoir un impact négatif sur la vitesse, la latence et l\'utilisation de la batterie. À utiliser avec précaution pour les forfaits limités.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) masque les schémas de votre trafic VPN chiffré.</string>
     <string name="daita_description_slide_1_third_paragraph">Utiliser une IA sophistiquée peut permettre d\'analyser le trafic des paquets de données entrant et sortant de votre appareil (même si le trafic est chiffré).</string>
     <string name="daita_description_slide_2_first_paragraph">Si un observateur surveille ces paquets de données, %1$s rend beaucoup plus difficile l\'identification des sites web que vous visitez ou des personnes avec lesquelles vous communiquez.</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">Activer IPv6</string>
     <string name="enable_method">Activer la méthode</string>
     <string name="encrypted_dns_proxy_info_message_part1">Avec la méthode « proxy DNS chiffré », l\'application communiquera avec notre API Mullvad par le biais d\'une adresse proxy. Pour ce faire, elle récupère une adresse auprès d\'un serveur DNS over HTTPS (DoH) et l\'utilise pour atteindre nos serveurs API.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Si vous n\'êtes pas connecté à notre VPN, le proxy DNS chiffré utilisera votre propre IP non VPN lors de la connexion. Les serveurs DoH sont hébergés par l\'un des fournisseurs suivants : Quad 9 ou CloudFlare.</string>
     <string name="enter_value_placeholder">Saisir le MTU</string>
     <string name="enter_voucher_code">Saisir un code de bon</string>
     <string name="entry">Entrée</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">Veuillez appuyer sur connexion pour demander l\'autorisation VPN</string>
     <string name="vpn_permission_error_notification_title">Erreur de permission VPN</string>
     <string name="we_will_look_into_this">Nous allons nous pencher dessus.</string>
+    <string name="wg_port_subtitle">Pour activer ce paramètre, réglez l\'offuscation de %1$s sur « Automatique » ou « Désactivée » ci-dessous.</string>
     <string name="wireguard_custon_port_title">Personnalisé</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Définir la valeur MTU WireGuard. Plage valide : %1$d - %2$d.</string>

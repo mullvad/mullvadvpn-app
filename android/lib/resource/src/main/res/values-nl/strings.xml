@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">Aangepaste %1$s-poort</string>
     <string name="custom_port_dialog_valid_ranges">Geldige bereiken: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kan host van aangepaste tunnel niet omzetten. Probeer uw instellingen te wijzigen.</string>
+    <string name="daita_description_slide_1_first_paragraph">Let op: dit verhoogt het netwerkverkeer en heeft een negatieve invloed op de snelheid, de latentie en het batterijverbruik. Gebruik dit voorzichtig bij beperkte abonnementen.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) verbergt patronen in uw versleutelde VPN-verkeer.</string>
     <string name="daita_description_slide_1_third_paragraph">Door gebruik te maken van geavanceerde AI is het mogelijk om het verkeer van datapakketten te analyseren die uw apparaat in- en uitgaan (zelfs als het verkeer versleuteld is).</string>
     <string name="daita_description_slide_2_first_paragraph">Als een waarnemer deze gegevenspakketten in de gaten houdt, maakt %1$s het aanzienlijk moeilijker voor diegene om vast te stellen welke websites u bezoekt of met wie u communiceert.</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">IPv6 inschakelen</string>
     <string name="enable_method">Methode inschakelen</string>
     <string name="encrypted_dns_proxy_info_message_part1">Met de methode \"Versleutelde DNS-proxy\" communiceert de app met onze Mullvad-API via een proxyadres. De app doet dit door een adres op te halen van een DoH-server (DNS over HTTPS) en dat te gebruiken om onze API-servers te bereiken.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad9 of CloudFlare.</string>
     <string name="enter_value_placeholder">Voer MTU in</string>
     <string name="enter_voucher_code">Vouchercode invoeren</string>
     <string name="entry">Ingang</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">Druk op Verbinding maken om VPN-toestemming te verzoeken</string>
     <string name="vpn_permission_error_notification_title">VPN-machtigingsfout</string>
     <string name="we_will_look_into_this">We gaan het bekijken.</string>
+    <string name="wg_port_subtitle">Stel %1$s-obfuscatie hieronder in op \"Automatisch\" of \"Uit\" om deze instelling te activeren.</string>
     <string name="wireguard_custon_port_title">Aangepast</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">Stel de MTU-waarde voor WireGuard in. Geldig bereik: %1$d - %2$d.</string>

@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">%1$sカスタムポート</string>
     <string name="custom_port_dialog_valid_ranges">有効な範囲: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">カスタムトンネルのホストを解決できません。設定を変更してみてください。</string>
+    <string name="daita_description_slide_1_first_paragraph">注意: これによりネットワークトラフィックが増加し、速度、遅延、およびバッテリー使用率に悪影響を及ぼします。上限付きプランでは注意して使用してください。</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) は暗号化されたVPNトラフィックのパターンを隠します。</string>
     <string name="daita_description_slide_1_third_paragraph">高度なAIを使用することで、(トラフィックが暗号化されている場合でも) デバイスが送受信するデータパケットのトラフィックを分析することは可能です。</string>
     <string name="daita_description_slide_2_first_paragraph">%1$sはこのようなデータパケットが監視されている場合でも、訪問先ウェブサイトや通信相手を特定するのを極めて困難にします。</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">IPv6を有効にする</string>
     <string name="enable_method">方法を有効化する</string>
     <string name="encrypted_dns_proxy_info_message_part1">[暗号化DNSプロキシ] 方式を使用すると、アプリはプロキシアドレスを通じてMullvad APIと通信します。これはDNS over HTTPS (DoH) サーバーからアドレスを取得し、APIサーバーへのアクセスに利用することで行われます。</string>
+    <string name="encrypted_dns_proxy_info_message_part2">当社のVPNに接続していない場合、暗号化DNSプロキシは接続時に独自の非VPN IPを使用します。DoHサーバーは、Quad9またはCloudFlareのいずれかによってホストされます。</string>
     <string name="enter_value_placeholder">MTU を入力</string>
     <string name="enter_voucher_code">バウチャーコードを入力</string>
     <string name="entry">入口</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">[接続] を押してVPNへのアクセス許可をリクエストしてください</string>
     <string name="vpn_permission_error_notification_title">VPN許可エラー</string>
     <string name="we_will_look_into_this">この問題を調査いたします。</string>
+    <string name="wg_port_subtitle">この設定を有効化するには、以下の%1$sの難読化を「自動」または「オフ」に設定してください。</string>
     <string name="wireguard_custon_port_title">カスタム</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTUの値を設定します。有効範囲: %1$d ～ %2$d</string>

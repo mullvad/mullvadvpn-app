@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">Porta personalizzata %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Intervalli validi: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Impossibile risolvere l\'host del tunnel personalizzato. Prova a modificare le impostazioni.</string>
+    <string name="daita_description_slide_1_first_paragraph">Attenzione: questo aumenta il traffico di rete e avrà anche effetti negativi su velocità, latenza e consumo della batteria. Da usare con cautela su un piano dati limitato.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) nasconde i percorsi in un traffico VPN crittografato.</string>
     <string name="daita_description_slide_1_third_paragraph">Utilizzando un\'IA sofisticata è possibile analizzare il traffico dei pacchetti di dati in entrata e in uscita dal dispositivo (anche se il traffico è crittografato).</string>
     <string name="daita_description_slide_2_first_paragraph">Se un osservatore monitora questi pacchetti di dati, %1$s rende molto più difficile per lui identificare quali siti web stai visitando o con chi stai comunicando.</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">Abilita IPv6</string>
     <string name="enable_method">Abilita metodo</string>
     <string name="encrypted_dns_proxy_info_message_part1">Con il metodo \"Proxy DNS crittografato\", l\'app comunicherà con la nostra API Mullvad tramite un indirizzo proxy. Lo fa recuperando un indirizzo da un server DNS over HTTPS (DoH) e quindi utilizzandolo per raggiungere i nostri server API.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Se non sei connesso alla nostra VPN, il proxy DNS crittografato utilizzerà il tuo IP non VPN durante la connessione. I server DoH sono ospitati da uno dei seguenti provider: Quad9 o CloudFlare.</string>
     <string name="enter_value_placeholder">Inserisci MTU</string>
     <string name="enter_voucher_code">Inserisci codice voucher</string>
     <string name="entry">Ingresso</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">Premi Connetti per richiedere l\'autorizzazione VPN</string>
     <string name="vpn_permission_error_notification_title">Errore di autorizzazione VPN</string>
     <string name="we_will_look_into_this">Verificheremo.</string>
+    <string name="wg_port_subtitle">Per attivare, imposta l\'offuscamento %1$s su \"Automatico\" o \"Off\" qui sotto.</string>
     <string name="wireguard_custon_port_title">Personalizzato</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Imposta il valore MTU WireGuard. Intervallo valido: %1$d - %2$d.</string>

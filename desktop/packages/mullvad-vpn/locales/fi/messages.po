@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Finnish\n"
 "Language: fi_FI\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d lisää..."
@@ -327,9 +327,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Näytä enemmän: %(location)s"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "Unohda %(accountNumber)s"
+msgid "Forget account number %(accountNumber)s"
+msgstr "Pyyhi tilin numero %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -345,6 +348,13 @@ msgstr "tietoa"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "Kirjaudu sisään"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "Kirjaudu sisään tilille numero %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -479,8 +489,8 @@ msgid "Enter port"
 msgstr "Anna portti"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää omaa, ei VPN:n kautta toimivaa IP-osoitettasi yhteyden muodostamisessa. DoH-palvelimia isännöi joko Quad 9, CloudFlare tai Google."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "Jos et ole yhteydessä VPN-verkkoomme, salattu DNS-välityspalvelin käyttää yhdistämiseen omaa, ei-VPN-pohjaista IP-osoitettasi. DoH-palvelimia isännöi joko Quad9 tai CloudFlare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -621,10 +631,6 @@ msgstr "Tilin todentaminen ei onnistu. Lähetä ongelmaraportti."
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Olet kirjautunut sisään virheellisellä tilinumerolla. Kirjaudu ulos ja kokeile toista."
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "Avaa koko muutosloki"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -972,6 +978,10 @@ msgstr "Tervetuloa! Tämän laitteen nimi on nyt <b>%(deviceName)s</b>. Katso li
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Yhdistetään Mullvad-järjestelmäpalveluun..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "Poista kolmannen osapuolen virustorjuntaohjelmisto käytöstä."
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2344,9 +2354,6 @@ msgstr "Aina päällä oleva VPN on määritetty toiselle VPN:lle"
 msgid "At least one method needs to be enabled"
 msgstr "Vähintään yhden menetelmän on oltava käytössä"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "Huomio: harkitse DAITAn käyttöäsi, jos sinulla on rajoitettu datasopimus, koska ominaisuus kasvattaa verkkoliikennettäsi."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "Huomio: jos yhteyksien estäminen ilman VPN:ää on sallittu, paikallisen verkon jakaminen ei toimi."
 
@@ -2355,6 +2362,9 @@ msgstr "Huomio: Jos \"Estä yhteydet ilman VPN:ää\" -vaihtoehto on käytössä
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "Huomio: Shadowsocksin käyttö voi kasvattaa akun kulutusta riippuen tiedonsiirtomääristä (esimerkiksi suoratoistettaessa videoita)."
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "Huomio: Toiminto kasvattaa verkkoliikennettä ja vaikuttaa sen vuoksi negatiivisesti sekä nopeuteen, viiveeseen että akun kulumiseen. Käytä harkiten, kun datasopimuksesi on rajoitettu."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Huomio: asetusta ei voi käyttää yhdessä \"Käytä mukautettua DNS-palvelinta\" -asetuksen kanssa."
@@ -2634,6 +2644,12 @@ msgstr "Palauta oletusarvo"
 
 msgid "Search"
 msgstr "Haku"
+
+msgid "See full changelog"
+msgstr "Avaa koko muutosloki"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "Jotta voit käyttää tätä asetusta, poista %s-hämäysteknologia käytöstä tai säädä sen asetukseksi \"Automaattinen\" alta."
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Aseta WireGuardin MTU-arvo väliltä %d–%d."

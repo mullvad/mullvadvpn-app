@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Dutch\n"
 "Language: nl_NL\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "Nog %(amount)d..."
@@ -327,9 +327,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s uitvouwen"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "%(accountNumber)s vergeten"
+msgid "Forget account number %(accountNumber)s"
+msgstr "Accountnummer %(accountNumber)s vergeten"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -345,6 +348,13 @@ msgstr "info"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "Aanmelden"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "Aanmelden met accountnummer %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -479,8 +489,8 @@ msgid "Enter port"
 msgstr "Voer poort in"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad 9, CloudFlare of Google."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "Als u niet verbonden bent met onze VPN, gebruikt de versleutelde DNS-proxy uw eigen niet-VPN IP-adres bij het verbinden. De DoH-servers worden gehost door een van de volgende aanbieders: Quad9 of CloudFlare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -621,10 +631,6 @@ msgstr "Kan account niet verifiëren. Stuur een probleemrapport."
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "U bent aangemeld met een ongeldig accountnummer. Meld af en probeer een ander account."
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "Volledige changelog weergeven"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -972,6 +978,10 @@ msgstr "Welkom, dit apparaat heet nu <b>%(deviceName)s</b>. Zie voor meer inform
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Verbinden met Mullvad-systeemdienst..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "Schakel antivirussoftware van derden uit."
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2344,9 +2354,6 @@ msgstr "Altijd-aan VPN toegewezen aan andere VPN"
 msgid "At least one method needs to be enabled"
 msgstr "Er moet minimaal één methode ingeschakeld zijn"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "Let op: wees voorzichtig als u een beperkt data-abonnement hebt, want deze functie zorgt voor meer netwerkverkeer."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "Let op: als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, werkt \"Delen via lokaal netwerk\" niet."
 
@@ -2355,6 +2362,9 @@ msgstr "Let op: Als \"Verbindingen zonder VPN blokkeren\" is ingeschakeld, hebbe
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "Let op: Shadowsocks kan het batterijverbruik verhogen afhankelijk van het gegevensgebruik, zoals het streamen van een video."
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "Let op: dit verhoogt het netwerkverkeer en heeft een negatieve invloed op de snelheid, de latentie en het batterijverbruik. Gebruik dit voorzichtig bij beperkte abonnementen."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Let op: deze instelling kan niet worden gebruikt in combinatie met \"Aangepaste DNS-server gebruiken\"."
@@ -2634,6 +2644,12 @@ msgstr "Standaardwaarde herstellen"
 
 msgid "Search"
 msgstr "Zoeken"
+
+msgid "See full changelog"
+msgstr "Volledige changelog weergeven"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "Stel %s-obfuscatie hieronder in op \"Automatisch\" of \"Uit\" om deze instelling te activeren."
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Stel de MTU-waarde voor WireGuard in. Geldig bereik: %d - %d."
