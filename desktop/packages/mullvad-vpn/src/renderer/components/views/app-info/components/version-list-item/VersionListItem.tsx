@@ -1,19 +1,21 @@
 import { messages } from '../../../../../../shared/gettext';
-import { Box, Icon } from '../../../../../lib/components';
+import { Icon } from '../../../../../lib/components';
 import { ListItem } from '../../../../../lib/components/list-item';
 import { Colors } from '../../../../../lib/foundations';
-import { useSelector } from '../../../../../redux/store';
+import { useVersionCurrent } from '../../hooks';
+import { useShowAlert, useShowFooter } from './hooks';
 
 export function VersionListItem() {
-  const appVersion = useSelector((state) => state.version.current);
-  const consistentVersion = useSelector((state) => state.version.consistent);
+  const { current } = useVersionCurrent();
+  const showAlert = useShowAlert();
+  const showFooter = useShowFooter();
 
   return (
     <ListItem>
       <ListItem.Item>
         <ListItem.Content>
           <ListItem.Group>
-            {!consistentVersion && <Icon icon="alert-circle" color={Colors.red} />}
+            {showAlert && <Icon icon="alert-circle" color={Colors.red} />}
             <ListItem.Label>
               {
                 // TRANSLATORS: Label for version list item.
@@ -21,12 +23,10 @@ export function VersionListItem() {
               }
             </ListItem.Label>
           </ListItem.Group>
-          <Box $width="24px" $height="24px" center>
-            <ListItem.Text>{appVersion}</ListItem.Text>
-          </Box>
+          <ListItem.Text>{current}</ListItem.Text>
         </ListItem.Content>
       </ListItem.Item>
-      {!consistentVersion && (
+      {showFooter && (
         <ListItem.Footer>
           <ListItem.Text>
             {
