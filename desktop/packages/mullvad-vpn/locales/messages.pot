@@ -601,6 +601,7 @@ msgctxt "api-access-methods-view"
 msgid "With the “Mullvad bridges” method, the app communicates with a Mullvad API server via a Mullvad bridge server. It does this by sending the traffic obfuscated by Shadowsocks."
 msgstr ""
 
+#. Title of the app info view.
 msgctxt "app-info-view"
 msgid "App info"
 msgstr ""
@@ -609,12 +610,17 @@ msgctxt "app-info-view"
 msgid "App is out of sync. Please quit and restart."
 msgstr ""
 
+#. Label for switch to toggle beta program.
 msgctxt "app-info-view"
-msgid "App version"
+msgid "Beta program"
 msgstr ""
 
 msgctxt "app-info-view"
-msgid "Update available. Install the latest app version to stay up to date."
+msgid "Update available"
+msgstr ""
+
+msgctxt "app-info-view"
+msgid "Version"
 msgstr ""
 
 msgctxt "auth-failure"
@@ -1724,10 +1730,6 @@ msgstr ""
 #. Error message showed in a dialog when an application fails to launch.
 msgctxt "split-tunneling-view"
 msgid "Unable to launch selection. %(detailedErrorMessage)s"
-msgstr ""
-
-msgctxt "support-view"
-msgid "Beta program"
 msgstr ""
 
 msgctxt "support-view"
@@ -2846,9 +2848,6 @@ msgid "Verifying purchase..."
 msgstr ""
 
 msgid "Verifying voucher…"
-msgstr ""
-
-msgid "Version"
 msgstr ""
 
 msgid "We are currently verifying your purchase, this might take some time. Your time will be added if the verification is successful."
