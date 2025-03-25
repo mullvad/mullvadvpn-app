@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Swedish\n"
 "Language: sv_SE\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "%(amount)d till ..."
@@ -327,9 +327,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Visa %(location)s"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "Glöm %(accountNumber)s"
+msgid "Forget account number %(accountNumber)s"
+msgstr "Glöm kontonumret %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -345,6 +348,13 @@ msgstr "info"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "Logga in"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "Logga in med kontonumret %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -479,8 +489,8 @@ msgid "Enter port"
 msgstr "Ange port"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "Om du inte är ansluten till VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9, CloudFlare eller Google."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "Om du inte är ansluten till vår VPN använder den krypterade DNS-proxyn din egen IP-adress utan VPN när du ansluter. En av följande leverantörer är värd för DoH-servrarna: Quad 9 eller CloudFlare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -621,10 +631,6 @@ msgstr "Det går inte att autentisera kontot. Skicka en problemrapport."
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Du är inloggad med ett ogiltigt kontonummer. Logga ut och försök med ett annat."
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "Visa hela ändringsloggen"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -972,6 +978,10 @@ msgstr "Välkommen! Den här enheten heter nu <b>%(deviceName)s</b>. Använd inf
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Ansluter till Mullvads systemtjänst..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "Inaktivera antivirusprogram från tredje part."
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2344,9 +2354,6 @@ msgstr "Alltid på-VPN har tilldelats en annan VPN"
 msgid "At least one method needs to be enabled"
 msgstr "Minst en metod måste vara aktiverad"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "Obs! Var försiktig om du har ett abonnemang med begränsad mängd data eftersom detta ökar nätverkstrafiken."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat fungerar inte \"Lokal nätverksdelning\"."
 
@@ -2355,6 +2362,9 @@ msgstr "Obs! Om \"Blockera anslutningar utan VPN\" är aktiverat kommer inte del
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "Obs! Shadowsocks kan öka batteriförbrukningen beroende på dataanvändningen, som till exempel att strömma en video."
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "Obs! Detta ökar nätverkstrafiken men påverkar också hastighet, fördröjning och batterianvändning negativt. Var försiktig om du har ett abonnemang med begränsad datamängd."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Obs! Den här inställningen kan inte användas tillsammans med \"Använd anpassad DNS-server\"."
@@ -2634,6 +2644,12 @@ msgstr "Återställ till standard"
 
 msgid "Search"
 msgstr "Sök"
+
+msgid "See full changelog"
+msgstr "Visa hela ändringsloggen"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "Ställ in %s-obfuskering som \"Automatisk\" eller \"Av\" nedan för att aktivera inställningen."
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Ange WireGuard MTU-värde. Giltigt intervall: %d–%d."

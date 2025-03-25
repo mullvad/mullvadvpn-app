@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Chinese Traditional\n"
 "Language: zh_TW\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "其他 %(amount)d 個..."
@@ -321,9 +321,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "展開 %(location)s"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "忘記 %(accountNumber)s"
+msgid "Forget account number %(accountNumber)s"
+msgstr "忘記帳號 %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -339,6 +342,13 @@ msgstr "資訊"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "登入"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "使用帳號 %(accountNumber)s 登入"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -473,8 +483,8 @@ msgid "Enter port"
 msgstr "輸入連接埠"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad 9、CloudFlare 或 Google 。"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "如果您未連線至我們的 VPN 服務，則加密 DNS 代理伺服器將在連線時使用您本人的非 VPN IP。DoH 伺服器由下列供應商之一負責託管：Quad9 或 CloudFlare。"
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -615,10 +625,6 @@ msgstr "無法驗證帳戶。請傳送問題回報。"
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "您登入時所使用的帳號無效。請登出並嘗試其他帳號。"
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "查看完整變更日誌"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -966,6 +972,10 @@ msgstr "歡迎，此裝置現在稱為 <b>%(deviceName)s</b>。如需詳細資�
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "連線 Mullvad 系統服務中..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "停用第三方防毒軟體。"
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2338,9 +2348,6 @@ msgstr "「一律啟用 VPN」已指派給其他 VPN"
 msgid "At least one method needs to be enabled"
 msgstr "至少需要啟用一種方式"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "注意：如果您方案中的流量有限，請謹慎使用，因為此功能將增加您的網路流量。"
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，將無法使用「本機網路共享」功能。"
 
@@ -2349,6 +2356,9 @@ msgstr "注意：如果啟用了「在沒有 VPN 的情況下封鎖連線」，�
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "注意：Shadowsocks 可能會因資料使用情形 (如播放串流影片) 而增加電力消耗。"
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "請注意：這會增加網路流量，並對速度、延遲與電池耗電產生負面影響。若方案流量有限，請謹慎使用。"
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "注意：此設定不能與「使用自訂 DNS 伺服器」共同使用。"
@@ -2628,6 +2638,12 @@ msgstr "重設為預設值"
 
 msgid "Search"
 msgstr "搜尋"
+
+msgid "See full changelog"
+msgstr "查看完整變更日誌"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "若要啟用此設定，請將 %s 混淆設為「自動」或「關閉」。"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "設定 WireGuard MTU 值。有效範圍：%d - %d。"

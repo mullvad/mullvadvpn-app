@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Burmese\n"
 "Language: my_MM\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "နောက်ထပ် %(amount)d လုံး..."
@@ -321,9 +321,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "%(location)s ကို ဖြန့်ပြရန်"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "%(accountNumber)s ကို မေ့ပစ်ရန်"
+msgid "Forget account number %(accountNumber)s"
+msgstr "အကောင့်နံပါတ် %(accountNumber)s ကို မမှတ်ထားရန်"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -339,6 +342,13 @@ msgstr "အချက်အလက်"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "ဝင်ရန်"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "အကောင့်နံပါတ် %(accountNumber)s ဖြင့် ဝင်ရောက်ရန်"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -473,8 +483,8 @@ msgid "Enter port"
 msgstr "ပေါ့တ် ရိုက်ထည့်ရန်"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9၊ CloudFlare သို့မဟုတ် Google။"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "အကယ်၍ သင်သည် ကျွန်ုပ်တို့၏ VPN သို့ ချိတ်ဆက်ထားခြင်းမရှိပါက ကုဒ်ဝှက်ထားသော DNS ပရောက်စီသည် ချိတ်ဆက်ရာတွင် သင်၏ကိုယ်ပိုင် VPN မဟုတ်သော IP ကို ​​အသုံးပြုပါမည်။ DoH ဆာဗာများကို အောက်ပါဝန်ဆောင်မှုပေးသူများထဲမှ တစ်ခုမှ လက်ခံဆောင်ရွက်ပေးသည်- Quad 9 သို့မဟုတ် CloudFlare ။"
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -615,10 +625,6 @@ msgstr "အကောင့်ကို စစ်မှန်ကြောင်�
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "မှားနေသည့် အကောင့်နံပါတ်ဖြင့် စနစ်တွင်း ဝင်ရောက်ထားပါသည်။ စနစ်တွင်းမှ ထွက်ပြီး အခြားတစ်ခုဖြင့် ကြိုးစားကြည့်ပါ။"
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "ပြောင်းလဲမှုမှတ်တမ်း အပြည့်အစုံကို ကြည့်ရန်"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -966,6 +972,10 @@ msgstr "ကြိုဆိုပါသည်၊ ယခုမှစ၍ ဤစက�
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Mullvad စနစ် ဝန်ဆောင်မှုနှင့် ချိတ်ဆက်နေဆဲ..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "ပြင်ပအဖွဲ့အစည်း ဗိုင်းရပ်စ် ကာကွယ်ရေး ဆော့ဖ်ဝဲကို ပိတ်ပါ။"
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2338,9 +2348,6 @@ msgstr "အမြဲဖွင့် VPN ကို အခြား VPN တစ်�
 msgid "At least one method needs to be enabled"
 msgstr "အနည်းဆုံး နည်းလမ်းတစ်ခုကို ဖွင့်ရမည်"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "သတိပြုရန်- ဤလုပ်ဆောင်ချက်က ကွန်ရက်သုံးစွဲမှုကို တိုးစေသောကြောင့် သင့်ဒေတာပလန်မှာ အကန့်အသတ်ဖြင့်သာ ရှိပါက သတိထားပါ။"
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "သတိပြုရန်- \"VPN မသုံးဘဲ ချိတ်ဆက်မှုများကို ပိတ်ဆို့ရန်\" ကို ဖွင့်ထားပါက \"လိုကယ် ကွန်ရက် ဝေမျှမှု\" အလုပ်လုပ်မည် မဟုတ်ပါ။"
 
@@ -2349,6 +2356,9 @@ msgstr "သတိပြုရန်- \"VPN မသုံးဘဲချိတ်�
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "သတိပြုရန်- Shadowsocks သည် ဗီဒီယိုတစ်ခုကို တိုက်ရိုက်ကြည့်ရှုနားဆင်ခြင်းကဲ့သို့ ဒေတာသုံးစွဲမှုပေါ် မူတည်၍ ဘက်ထရီသုံးစွဲမှု တိုးလာနိုင်ပါသည်။"
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "သတိပြုပါ- ဤသည်က ကွန်ရက် ကူးလူးမှုကို မြင့်တက်စေပြီး အမြန်နှုန်း၊ တုံ့ပြန်မှုနှောင့်နှေးခြင်း (Latency) နှင့် ဘက်ထရီ သုံးစွဲမှုကိုလည်း ထိခိုက်စေပါလိမ့်မည်။ အကန့်အသတ်ရှိသော ပလန်များကို သတိဖြင့် သုံးစွဲပါ။"
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "သတိပြုရန်- ဤဆက်တင်ကို \"စိတ်ကြိုက် DNS ဆာဗာကို သုံးရန်\" နှင့် အတူတွဲပြီး သုံးစွဲ၍မရပါ။"
@@ -2628,6 +2638,12 @@ msgstr "ပုံသေသို့ ပြန်လည်သတ်မှတ်�
 
 msgid "Search"
 msgstr "ရှာဖွေမှု"
+
+msgid "See full changelog"
+msgstr "ပြောင်းလဲမှုမှတ်တမ်း အပြည့်အစုံကို ကြည့်ရန်"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "ဤဆက်တင်ကို သက်ဝင်လုပ်ဆောင်ရန် အောက်ရှိ %s obfuscation ကို \"အော်တိုမက်တစ်\" သို့မဟုတ် \"ပိတ်\" ဟု သတ်မှတ်ပါ။"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "WireGuard MTU တန်ဖိုးကို သတ်မှတ်ပါ။ အကျုံးဝင်သည့် အပိုင်းအခြား- %d - %d ။"

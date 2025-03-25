@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">%1$s brugerdefineret port</string>
     <string name="custom_port_dialog_valid_ranges">Gyldige områder: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Kunne ikke fortolke værten for den tilpassede tunnel. Prøv at ændre dine indstillinger.</string>
+    <string name="daita_description_slide_1_first_paragraph">Bemærk: Dette øger netværkstrafikken og vil også påvirke hastighed, ventetid og batteriforbrug negativt. Brug det varsomt på abonnementer med begrænsninger.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) skjuler mønstre i din krypterede VPN-trafik.</string>
     <string name="daita_description_slide_1_third_paragraph">Ved at bruge sofistikeret AI er det muligt at analysere trafikken af datapakker, der går ind og ud af din enhed (selv hvis trafikken er krypteret).</string>
     <string name="daita_description_slide_2_first_paragraph">Hvis en observatør overvåger disse datapakker, gør %1$s det betydeligt sværere for dem at identificere, hvilke hjemmesider du besøger, eller hvem du kommunikerer med.</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">Aktiver IPv6</string>
     <string name="enable_method">Aktiver metode</string>
     <string name="encrypted_dns_proxy_info_message_part1">Med metoden \"krypteret DNS-proxy\" vil appen kommunikere med vores Mullvad API via en proxy-adresse. Det gør den ved at hente en adresse fra en DNS over HTTPS-server (DoH) og derefter bruge den til at få adgang til en vores API-servere.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Hvis du ikke er tilsluttet vores VPN, vil den krypterede DNS-proxy bruge din egen ikke-VPN IP,-adresse når du opretter forbindelse. DoH-serverne hostes af en af følgende udbydere: Quad9 eller CloudFlare.</string>
     <string name="enter_value_placeholder">Indtast MTU</string>
     <string name="enter_voucher_code">Indtast kuponkode</string>
     <string name="entry">Indgang</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">Tryk på Opret forbindelse for at anmode om VPN-tilladelse</string>
     <string name="vpn_permission_error_notification_title">VPN-tilladelsesfejl</string>
     <string name="we_will_look_into_this">Vi vil undersøge dette.</string>
+    <string name="wg_port_subtitle">Sæt %1$s-tilsløring til \"Automatisk\" eller \"Fra\" nedenfor for at aktivere denne indstilling.</string>
     <string name="wireguard_custon_port_title">Brugerdefineret</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">Indstil WireGuard MTU-værdi. Gyldigt område: %1$d - %2$d.</string>

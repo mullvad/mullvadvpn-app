@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Russian\n"
 "Language: ru_RU\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "Еще %(amount)d..."
@@ -226,10 +226,10 @@ msgid "No result for <b>%(searchTerm)s</b>."
 msgstr "По запросу <b>%(searchTerm)s</b> ничего не найдено."
 
 msgid "Off"
-msgstr "Выключен"
+msgstr "Выкл."
 
 msgid "On"
-msgstr "Включен"
+msgstr "Вкл."
 
 msgid "Open URL"
 msgstr "Открыть URL"
@@ -339,9 +339,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "Развернуть %(location)s"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "Забыть %(accountNumber)s"
+msgid "Forget account number %(accountNumber)s"
+msgstr "Забыть номер учетной записи %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -357,6 +360,13 @@ msgstr "информация"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "Вход"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "Войти с номером учетной записи %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -491,8 +501,8 @@ msgid "Enter port"
 msgstr "Введите порт"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "Если вы не подключены к нашему VPN, функция «Прокси через зашифрованный DNS» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad 9, CloudFlare или Google."
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "Если вы не подключены к нашему VPN, функция «Зашифрованный DNS-прокси» при подключении будет использовать ваш IP-адрес, не относящийся к VPN. Серверы DoH размещаются у одного из следующих провайдеров: Quad9 или CloudFlare."
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -633,10 +643,6 @@ msgstr "Не удается произвести аутентификацию у
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "Вы вошли в систему под недействительным номером учетной записи. Выйдите из системы и попробуйте еще раз."
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "Полная история изменений"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -984,6 +990,10 @@ msgstr "Добро пожаловать, теперь это устройств�
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "Подключение к системному сервису Mullvad..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "Отключите сторонние антивирусы."
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2356,9 +2366,6 @@ msgstr "Опция «Постоянная VPN» назначена другой 
 msgid "At least one method needs to be enabled"
 msgstr "Должен быть включен хотя бы один метод"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "Внимание! Будьте осторожны, если у вас ограниченный тариф: эта функция повышает объем сетевого трафика."
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "Внимание! Если включена функция «Блокировать соединения без VPN», обмен данными в локальной сети работать не будет."
 
@@ -2367,6 +2374,9 @@ msgstr "Внимание! Если включена функция «Блоки�
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "Внимание! Функция Shadowsocks может увеличивать расход заряда аккумулятора в зависимости от использования трафика (например, при потоковой передаче видео)."
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "Внимание! Включение этой функции приведет к увеличению сетевого трафика. Также снизится скорость, увеличится задержка и усилится расход заряда аккумулятора. Будьте внимательны при использовании функции на ограниченных по трафику планах."
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "Внимание! Этот параметр нельзя использовать вместе с параметром «Пользовательский DNS-сервер»."
@@ -2646,6 +2656,12 @@ msgstr "Восстановить значение по умолчанию"
 
 msgid "Search"
 msgstr "Поиск"
+
+msgid "See full changelog"
+msgstr "Полная история изменений"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "Чтобы активировать эту настройку, установите для параметра обфускации %s значение «Автоматически» или «Выкл.» (см. ниже)."
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "Установите значение MTU для WireGuard. Диапазон значений: %d–%d."

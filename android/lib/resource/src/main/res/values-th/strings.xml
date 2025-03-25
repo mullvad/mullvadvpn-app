@@ -108,6 +108,7 @@
     <string name="custom_port_dialog_title">พอร์ต %1$s แบบกำหนดเอง</string>
     <string name="custom_port_dialog_valid_ranges">ช่วงที่ใช้ได้: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">ไม่พบโฮสต์ของช่องทางแบบกำหนดเอง กรุณาลองเปลี่ยนการตั้งค่าของคุณ</string>
+    <string name="daita_description_slide_1_first_paragraph">โปรดทราบ: การดำเนินการนี้จะเพิ่มการรับส่งข้อมูลทางเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วงแฝง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังในขณะที่ใช้แผนบริการแบบจำกัด</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) ซ่อนรูปแบบในการรับส่งข้อมูล VPN ที่เข้ารหัสของคุณ</string>
     <string name="daita_description_slide_1_third_paragraph">โดยการใช้ AI ที่ซับซ้อน จึงเป็นไปได้ที่จะวิเคราะห์ปริมาณการรับส่งข้อมูล ที่เข้าออกอุปกรณ์ของคุณได้ (แม้ว่าการรับส่งข้อมูลจะเข้ารหัสไว้ก็ตาม)</string>
     <string name="daita_description_slide_2_first_paragraph">หากผู้สังเกตการณ์เฝ้าดูแพ็กเก็ตข้อมูลเหล่านี้ %1$s จะทำให้พวกเขาระบุเว็บไซต์ที่คุณกำลังเยี่ยมชม หรือผู้ที่คุณกำลังติดต่อสื่อสารด้วยได้ยากขึ้นอย่างมาก</string>
@@ -157,6 +158,7 @@
     <string name="enable_ipv6">เปิดใช้งาน IPv6</string>
     <string name="enable_method">เปิดใช้งานวิธีการ</string>
     <string name="encrypted_dns_proxy_info_message_part1">การใช้วิธี \"พร็อกซี DNS ที่เข้ารหัส\" จะช่วยให้แอปสื่อสารกับ Mullvad API ของเราผ่านที่อยู่พร็อกซี ซึ่งทำได้โดยดึงที่อยู่จากเซิร์ฟเวอร์ DNS ผ่าน HTTPS (DoH) แล้วจึงใช้ที่อยู่ดังกล่าวเพื่อเข้าถึงเซิร์ฟเวอร์ API ของเรา</string>
+    <string name="encrypted_dns_proxy_info_message_part2">หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare</string>
     <string name="enter_value_placeholder">ป้อน MTU</string>
     <string name="enter_voucher_code">ป้อนรหัสบัตรกำนัล</string>
     <string name="entry">เข้า</string>
@@ -379,6 +381,7 @@
     <string name="vpn_permission_error_notification_message">กรุณากดเชื่อมต่อ เพื่อขออนุญาตสิทธิ์ VPN</string>
     <string name="vpn_permission_error_notification_title">เกิดข้อผิดพลาดในการอนุญาต VPN</string>
     <string name="we_will_look_into_this">เราจะตรวจสอบปัญหานี้</string>
+    <string name="wg_port_subtitle">ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %1$s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้</string>
     <string name="wireguard_custon_port_title">กำหนดเอง</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %1$d - %2$d</string>
