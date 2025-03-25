@@ -129,7 +129,7 @@ extension LocationNode: Hashable {
 
 extension LocationNode: Comparable {
     static func < (lhs: LocationNode, rhs: LocationNode) -> Bool {
-        lhs.name < rhs.name
+        lhs.name.lowercased() < rhs.name.lowercased()
     }
 }
 
