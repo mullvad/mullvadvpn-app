@@ -313,6 +313,7 @@ impl VersionUpdaterInner {
                             .last_app_version_info()
                             .cloned()
                         {
+                            // suggested upgrade is not from api
                             let suggested_upgrade = suggested_upgrade(
                                 &APP_VERSION,
                                 &Some(last_app_version_info.latest_stable.clone()),
@@ -420,15 +421,30 @@ struct ApiContext {
 }
 
 /// Immediately query the API for the latest [AppVersionInfo].
-fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<AppVersionResponse, Error>> {
-    let download_future_factory = move || {
-        api.version_proxy
+fn do_version_check(api: ApiContext) -> BoxFuture<'static, Result<AppVersionInfo, Error>> {
+    let download_future_factory = move || async move {
+        let first = api.version_proxy
             .version_check(
                 mullvad_version::VERSION.to_owned(),
                 PLATFORM,
                 api.platform_version.clone(),
             )
-            .map_err(Error::Download)
+            .map_err(Error::Download);
+        let second = api.version_proxy
+            .version_check_2(
+                mullvad_version::VERSION.to_owned(),
+                PLATFORM,
+                api.platform_version.clone(),
+            )
+            .map_err(Error::Download);
+        let (v1_response, v2_response) = tokio::try_join!(first, second).expect("fixme");
+
+        Ok(AppVersionInfo {
+            latest_beta: v1_response.latest_beta,
+            latest_stable: v1_response.latest_stable,
+            suggested_upgrade: suggested_upgrade(v1_response., latest_stable, latest_beta, show_beta)
+            supported: v1_response.supported,
+        })
     };
 
     // retry immediately on network errors (unless we're offline)
