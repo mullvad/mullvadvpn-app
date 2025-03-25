@@ -1,7 +1,6 @@
 import { messages } from '../../../../shared/gettext';
 import { Flex } from '../../../lib/components';
 import { useHistory } from '../../../lib/history';
-import { useSelector } from '../../../redux/store';
 import { AppNavigationHeader } from '../../';
 import { BackAction } from '../../KeyboardNavigation';
 import { Layout, SettingsContainer, SettingsStack } from '../../Layout';
@@ -10,10 +9,11 @@ import { NavigationScrollbars } from '../../NavigationScrollbars';
 import SettingsHeader, { HeaderTitle } from '../../SettingsHeader';
 import { ChangelogListItem, UpdateAvailableListItem, VersionListItem } from './components';
 import { BetaListItem } from './components/beta-list-item';
+import { useShowUpdateAvailable } from './hooks';
 
 export function AppInfoView() {
   const { pop } = useHistory();
-  const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
+  const showUpdateAvailable = useShowUpdateAvailable();
   return (
     <BackAction action={pop}>
       <Layout>
@@ -32,7 +32,7 @@ export function AppInfoView() {
               </SettingsHeader>
               <SettingsContainer>
                 <SettingsStack>
-                  {suggestedUpgrade && <UpdateAvailableListItem />}
+                  {showUpdateAvailable && <UpdateAvailableListItem />}
                   <Flex $flexDirection="column">
                     <VersionListItem />
                     <ChangelogListItem />
