@@ -904,6 +904,14 @@ class ApplicationMain
     this.settings.registerIpcListeners();
     this.account.registerIpcListeners();
 
+    IpcMainEventChannel.app.handleUpgrade(() => {
+      this.daemonRpc.appUpgrade();
+    });
+
+    IpcMainEventChannel.app.handleUpgradeAbort(() => {
+      this.daemonRpc.appUpgradeAbort();
+    });
+
     if (this.splitTunneling) {
       this.settings.gui.browsedForSplitTunnelingApplications.forEach((application) => {
         void this.splitTunneling!.addApplicationPathToCache(application);
