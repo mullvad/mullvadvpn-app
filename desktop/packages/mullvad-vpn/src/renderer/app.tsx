@@ -392,6 +392,11 @@ export default class AppRenderer {
   public daemonPrepareRestart = (shutdown: boolean): void => {
     IpcRendererEventChannel.daemon.prepareRestart(shutdown);
   };
+  public appUpgrade = () => {
+    this.reduxActions.appUpgrade.resetAppUpgrade();
+    IpcRendererEventChannel.app.upgrade();
+  };
+  public appUpgradeAbort = () => IpcRendererEventChannel.app.upgradeAbort();
 
   public login = async (accountNumber: AccountNumber) => {
     const actions = this.reduxActions;
