@@ -30,9 +30,15 @@ typedef struct RetryStrategy RetryStrategy;
 
 typedef struct SwiftConnectionModeProviderContext SwiftConnectionModeProviderContext;
 
+typedef struct SwiftShadowsocksLoaderWrapperContext SwiftShadowsocksLoaderWrapperContext;
+
 typedef struct SwiftApiContext {
   const struct ApiContext *_0;
 } SwiftApiContext;
+
+typedef struct SwiftShadowsocksLoaderWrapper {
+  struct SwiftShadowsocksLoaderWrapperContext *_0;
+} SwiftShadowsocksLoaderWrapper;
 
 typedef struct SwiftConnectionModeProvider {
   struct SwiftConnectionModeProviderContext *_0;
@@ -103,6 +109,7 @@ extern const uint16_t CONFIG_SERVICE_PORT;
  */
 struct SwiftApiContext mullvad_api_init_new(const uint8_t *host,
                                             const uint8_t *address,
+                                            struct SwiftShadowsocksLoaderWrapper bridge_provider,
                                             struct SwiftConnectionModeProvider provider);
 
 /**
@@ -275,6 +282,10 @@ struct SwiftConnectionModeProvider init_connection_mode_provider(const void *raw
                                                                  const char *domain_name);
 
 const void *convert_direct(void);
+
+extern const void *swift_get_shadowsocks_bridges(const void *rawBridgeProvider);
+
+struct SwiftShadowsocksLoaderWrapper init_swift_shadowsocks_loader_wrapper(const void *shadowsocks_loader);
 
 const void *convert_shadowsocks(const uint8_t *address,
                                 uintptr_t address_len,
