@@ -23,6 +23,6 @@ uuid = { version = "1.4.1", features = ["v4", "serde" ] }
 talpid-types = { path = "../talpid-types" }
 intersection-derive = { path = "intersection-derive" }
 
-
 clap = { workspace = true , optional = true }
 
+mullvad-version = { path = "../mullvad-version", features = ["serde"] }

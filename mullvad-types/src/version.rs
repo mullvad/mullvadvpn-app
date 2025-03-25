@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 
 /// AppVersionInfo represents the current stable and the current latest release versions of the
@@ -11,14 +13,41 @@ pub struct AppVersionInfo {
     ///   issues, so using it is no longer recommended.
     ///
     /// The user should really upgrade when this is false.
-    pub supported: bool,
-    /// Latest stable version
-    pub latest_stable: AppVersion,
-    /// Equal to `latest_stable` when the newest release is a stable release. But will contain
-    /// beta versions when those are out for testing.
-    pub latest_beta: AppVersion,
-    /// Whether should update to newer version
-    pub suggested_upgrade: Option<AppVersion>,
+    pub current_version_supported: bool,
+    /// A newer version that may be upgraded to
+    pub suggested_upgrade: Option<SuggestedUpgrade>,
 }
 
-pub type AppVersion = String;
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct SuggestedUpgrade {
+    /// Version available for update
+    pub version: mullvad_version::Version,
+    /// Changelog
+    pub changelog: Option<String>,
+    /// Path to the available installer, iff it has been verified
+    pub verified_installer_path: Option<PathBuf>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct AppUpgradeDownloadProgress {
+    pub server: String,
+    pub progress: u32,
+    pub time_left: std::time::Duration,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AppUpgradeEvent {
+    DownloadStarting,
+    DownloadProgress(AppUpgradeDownloadProgress),
+    Aborted,
+    VerifyingInstaller,
+    VerifiedInstaller,
+    Error(AppUpgradeError),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub enum AppUpgradeError {
+    GeneralError,
+    DownloadFailed,
+    VerificationFailed,
+}
