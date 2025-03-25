@@ -33,6 +33,7 @@ interface ILogEntry {
   message: string;
 }
 import { MapData } from '../renderer/lib/3dmap';
+import { AppUpgradeError, AppUpgradeEvent } from './app-upgrade';
 import { invoke, invokeSync, notifyRenderer, send } from './ipc-helpers';
 import {
   IChangelog,
@@ -164,6 +165,10 @@ export const ipcSchema = {
     showLaunchDaemonSettings: invoke<void, void>(),
     showFullDiskAccessSettings: invoke<void, void>(),
     getPathBaseName: invoke<string, string>(),
+    upgrade: send<void>(),
+    upgradeAbort: send<void>(),
+    upgradeEvent: notifyRenderer<AppUpgradeEvent>(),
+    upgradeError: notifyRenderer<AppUpgradeError>(),
   },
   tunnel: {
     '': notifyRenderer<TunnelState>(),
