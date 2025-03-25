@@ -13,7 +13,7 @@ const StyledText = styled(ListItem.Text)`
   margin-top: -4px;
 `;
 
-export const UpdateAvailableListItem = () => {
+export function UpdateAvailableListItem() {
   const suggestedUpgrade = useSelector((state) => state.version.suggestedUpgrade);
   const isOffline = useSelector((state) => state.connection.isBlocked);
   const history = useHistory();
@@ -42,4 +42,4 @@ export const UpdateAvailableListItem = () => {
       </ListItem>
     </>
   );
-};
+}
