@@ -109,6 +109,7 @@
     <string name="custom_port_dialog_title">%1$s – eigener Port</string>
     <string name="custom_port_dialog_valid_ranges">Gültige Bereiche: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Der Host des benutzerdefinierten Tunnels konnte nicht aufgelöst werden. Versuchen Sie, Ihre Einstellungen zu ändern.</string>
+    <string name="daita_description_slide_1_first_paragraph">Achtung! Dies erhöht den Netzwerkverkehr und wirkt sich auch negativ auf die Geschwindigkeit, die Latenz und den Akkuverbrauch aus. Bei begrenzten Tarifen ist Vorsicht geboten.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) verbirgt Muster in Ihrem verschlüsselten VPN-Traffic.</string>
     <string name="daita_description_slide_1_third_paragraph">Durch den Einsatz hochentwickelter KI ist es möglich, den Traffic von Datenpaketen zu analysieren, die auf Ihrem Gerät ein- und ausgehen (selbst wenn der Verkehr verschlüsselt ist).</string>
     <string name="daita_description_slide_2_first_paragraph">Wenn ein Beobachter diese Datenpakete überwacht, macht %1$s es für ihn wesentlich schwieriger zu erkennen, welche Websites Sie besuchen oder mit wem Sie kommunizieren.</string>
@@ -156,6 +157,7 @@
     <string name="enable_direct_only">%1$s aktivieren</string>
     <string name="enable_method">Methode aktivieren</string>
     <string name="encrypted_dns_proxy_info_message_part1">Mit der Methode „Verschlüsseltes-DNS-Proxy“ kommuniziert die App mit unserer Mullvad-API über eine Proxy-Adresse. Sie tut dies, indem sie eine Adresse von einem DNS-over-HTTPS-Server (DoH) abruft und dann diese verwendet, um unsere API-Server zu erreichen.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Wenn Sie nicht mit unserem VPN verbunden sind, verwendet der Verschlüsseltes-DNS-Proxy bei der Verbindung Ihre eigene Nicht-VPN-IP. Die DoH-Server werden von einem der folgenden Anbieter gehostet: Quad9 oder CloudFlare.</string>
     <string name="enter_value_placeholder">MTU eingeben</string>
     <string name="enter_voucher_code">Gutscheincode eingeben</string>
     <string name="entry">Eingang</string>
@@ -382,6 +384,7 @@
     <string name="vpn_permission_error_notification_message">Drücken Sie auf „Verbinden“, um die VPN-Berechtigung anzufordern</string>
     <string name="vpn_permission_error_notification_title">VPN-Berechtigungsfehler</string>
     <string name="we_will_look_into_this">Wir werden uns das anschauen.</string>
+    <string name="wg_port_subtitle">%1$s-Verschleierung unten auf „Automatisch“ oder „Aus“ einstellen, um diese Einstellung zu aktivieren.</string>
     <string name="wireguard_custon_port_title">Benutzerdefiniert</string>
     <string name="wireguard_mtu">WireGuard-MTU</string>
     <string name="wireguard_mtu_footer">WireGuard-MTU-Wert einstellen. Gültiger Bereich: %1$d – %2$d.</string>

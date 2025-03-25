@@ -109,6 +109,7 @@
     <string name="custom_port_dialog_title">Port niestandardowy %1$s</string>
     <string name="custom_port_dialog_valid_ranges">Prawidłowe zakresy: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Nie można rozpoznać hosta tunelu niestandardowego. Spróbuj zmienić ustawienia.</string>
+    <string name="daita_description_slide_1_first_paragraph">Uwaga: zwiększa to ruch sieciowy, a także negatywnie wpływa na szybkość, opóźnienia i zużycie baterii. Używaj ostrożnie w przypadku planów z ograniczeniami.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s) ukrywa wzorce w Twoim zaszyfrowanym ruchu VPN.</string>
     <string name="daita_description_slide_1_third_paragraph">Dzięki użyciu zaawansowanej sztucznej inteligencji możliwe jest analizowanie ruchu pakietów danych przychodzących i wychodzących z Twojego urządzenia (nawet jeśli ruch jest szyfrowany).</string>
     <string name="daita_description_slide_2_first_paragraph">Jeśli obserwator monitoruje te pakiety danych, %1$s znacznie utrudnia mu zidentyfikowanie witryn internetowych, które odwiedzasz lub z którymi się komunikujesz.</string>
@@ -156,6 +157,7 @@
     <string name="enable_direct_only">Włącz %1$s</string>
     <string name="enable_method">Włącz metodę</string>
     <string name="encrypted_dns_proxy_info_message_part1">Dzięki metodzie „szyfrowany serwer proxy DNS” aplikacja będzie komunikować się z naszym interfejsem API Mullvad za pośrednictwem adresu serwera proxy. Odbywa się to poprzez pobranie adresu z serwera DNS over HTTPS (DoH), a następnie użycie go do połączenia z naszymi serwerami interfejsu API.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">Jeśli nie masz połączenia z naszą siecią VPN, szyfrowany serwer proxy DNS użyje Twojego własnego adresu IP bez VPN podczas łączenia. Serwery DoH są hostowane przez jednego z następujących dostawców: Quad 9 lub CloudFlare.</string>
     <string name="enter_value_placeholder">Wprowadź MTU</string>
     <string name="enter_voucher_code">Wprowadź kod kuponu</string>
     <string name="entry">Wejście</string>
@@ -382,6 +384,7 @@
     <string name="vpn_permission_error_notification_message">Naciśnij przycisk Połącz, aby zażądać uprawnienia VPN</string>
     <string name="vpn_permission_error_notification_title">Błąd uprawnienia VPN</string>
     <string name="we_will_look_into_this">Sprawdzimy to.</string>
+    <string name="wg_port_subtitle">Aby aktywować to ustawienie, ustaw poniżej zaciemnianie %1$s na „Automatyczne” lub „Wył.”.</string>
     <string name="wireguard_custon_port_title">Niestandardowy</string>
     <string name="wireguard_mtu">MTU WireGuard</string>
     <string name="wireguard_mtu_footer">Ustaw wartość MTU WireGuard. Prawidłowy zakres: %1$d–%2$d.</string>

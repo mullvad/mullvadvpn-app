@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: mullvad-app\n"
 "Language-Team: Thai\n"
 "Language: th_TH\n"
-"PO-Revision-Date: 2025-01-30 09:44\n"
+"PO-Revision-Date: 2025-03-25 14:23\n"
 
 msgid "%(amount)d more..."
 msgstr "อีก %(amount)d..."
@@ -321,9 +321,12 @@ msgctxt "accessibility"
 msgid "Expand %(location)s"
 msgstr "ขยาย %(location)s"
 
+#. This is used by screenreaders to communicate the "x" button next to a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the account number to the left of the button
 msgctxt "accessibility"
-msgid "Forget %(accountNumber)s"
-msgstr "ลืม %(accountNumber)s"
+msgid "Forget account number %(accountNumber)s"
+msgstr "ลืมหมายเลขบัญชี %(accountNumber)s"
 
 #. Provided to accessibility tools such as screenreaders to describe
 #. the button which obscures the account number.
@@ -339,6 +342,13 @@ msgstr "ข้อมูล"
 msgctxt "accessibility"
 msgid "Login"
 msgstr "เข้าสู่ระบบ"
+
+#. This is used by screenreaders to communicate logging in with a saved account number.
+#. Available placeholders:
+#. %(accountNumber)s - the saved account number
+msgctxt "accessibility"
+msgid "Login with account number %(accountNumber)s"
+msgstr "เข้าสู่ระบบด้วยหมายเลขบัญชี %(accountNumber)s"
 
 msgctxt "accessibility"
 msgid "More information"
@@ -473,8 +483,8 @@ msgid "Enter port"
 msgstr "ป้อนพอร์ต"
 
 msgctxt "api-access-methods-view"
-msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad 9, CloudFlare, or Google."
-msgstr "หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad 9, CloudFlare หรือ Google"
+msgid "If you are not connected to our VPN, then the Encrypted DNS proxy will use your own non-VPN IP when connecting. The DoH servers are hosted by one of the following providers: Quad9 or CloudFlare."
+msgstr "หากคุณไม่ได้เชื่อมต่อกับ VPN ของเรา พร็อกซี DNS ที่เข้ารหัสจะใช้ IP ที่ไม่ใช่ VPN ของคุณในขณะที่เชื่อมต่อ เซิร์ฟเวอร์ DoH ได้รับการโฮสต์โดยผู้ให้บริการรายใดรายหนึ่งต่อไปนี้: Quad9 หรือ CloudFlare"
 
 msgctxt "api-access-methods-view"
 msgid "In use"
@@ -615,10 +625,6 @@ msgstr "ไม่สามารถตรวจสอบความถูกต
 msgctxt "auth-failure"
 msgid "You are logged in with an invalid account number. Please log out and try another one."
 msgstr "คุณกำลังเข้าสู่ระบบโดยใช้หมายเลขบัญชีที่ไม่ถูกต้อง โปรดออกจากระบบแล้วลองใช้บัญชีอื่น"
-
-msgctxt "changelog"
-msgid "See full changelog"
-msgstr "ดูบันทึกการเปลี่ยนแปลงทั้งหมด"
 
 msgctxt "changelog-view"
 msgid "No updates or changes were made in this release for this platform."
@@ -966,6 +972,10 @@ msgstr "ยินดีต้อนรับ ขณะนี้อุปกร�
 msgctxt "launch-view"
 msgid "Connecting to Mullvad system service..."
 msgstr "กำลังเชื่อมต่อบริการของระบบ Mullvad..."
+
+msgctxt "launch-view"
+msgid "Disable third party antivirus software."
+msgstr "ปิดใช้งานซอฟต์แวร์ป้องกันไวรัสของบริษัทอื่น"
 
 msgctxt "launch-view"
 msgid "If these steps do not work please send a problem report."
@@ -2338,9 +2348,6 @@ msgstr "VPN เปิดอยู่เสมอ ได้รับการม�
 msgid "At least one method needs to be enabled"
 msgstr "จำเป็นต้องเปิดใช้อย่างน้อยหนึ่งวิธีการ"
 
-msgid "Attention: Be cautious if you have a limited data plan as this feature will increase your network traffic."
-msgstr "โปรดทราบ: โปรดใช้ความระมัดระวัง หากคุณมีแผนข้อมูลจำกัด เนื่องจากคุณลักษณะนี้จะเพิ่มปริมาณการรับส่งข้อมูลในเครือข่ายของคุณ"
-
 msgid "Attention: If \"Block connections without VPN\" is enabled, \"Local network sharing\" will not work."
 msgstr "โปรดทราบ: หากเปิดใช้งาน \"ปิดกั้นการเชื่อมต่อที่ไม่ใช้ VPN\" อยู่ \"การแชร์ในเครือข่ายท้องถิ่น\" จะไม่ทำงาน"
 
@@ -2349,6 +2356,9 @@ msgstr "โปรดทราบ: แอปแยกจะไม่มีอิ�
 
 msgid "Attention: Shadowsocks can increase battery consumption depending on data usage, such as streaming a video."
 msgstr "โปรดทราบ: Shadowsocks อาจเพิ่มการใช้แบตเตอรี่ โดยขึ้นอยู่กับการใช้งานข้อมูล เช่น การสตรีมวิดีโอ"
+
+msgid "Attention: This increases network traffic and will also negatively affect speed, latency, and battery usage. Use with caution on limited plans."
+msgstr "โปรดทราบ: การดำเนินการนี้จะเพิ่มการรับส่งข้อมูลทางเครือข่าย และส่งผลเสียต่อความเร็ว ความหน่วงแฝง และการใช้งานแบตเตอรี่ โปรดใช้ด้วยความระมัดระวังในขณะที่ใช้แผนบริการแบบจำกัด"
 
 msgid "Attention: this setting cannot be used in combination with \"Use custom DNS server\"."
 msgstr "โปรดทราบ: การตั้งค่านี้ไม่สามารถใช้ร่วมกับ \"ใช้เซิร์ฟเวอร์ DNS แบบกำหนดเองได้\""
@@ -2628,6 +2638,12 @@ msgstr "รีเซ็ตเป็นค่าเริ่มต้น"
 
 msgid "Search"
 msgstr "ค้นหา"
+
+msgid "See full changelog"
+msgstr "ดูบันทึกการเปลี่ยนแปลงทั้งหมด"
+
+msgid "Set %s obfuscation to \"Automatic\" or \"Off\" below to activate this setting."
+msgstr "ตั้งค่าการทำให้ข้อมูลยุ่งเหยิง %s ให้เป็น \"อัตโนมัติ\" หรือ \"ปิด\" ที่ด้านล่าง เพื่อเปิดใช้งานการตั้งค่านี้"
 
 msgid "Set WireGuard MTU value. Valid range: %d - %d."
 msgstr "ตั้งค่า WireGuard MTU ช่วงที่ใช้ได้: %d - %d"

@@ -109,6 +109,7 @@
     <string name="custom_port_dialog_title">%1$s özel portu</string>
     <string name="custom_port_dialog_valid_ranges">Geçerli aralıklar: %1$s</string>
     <string name="custom_tunnel_host_resolution_error">Özel tünel ana bilgisayarı çözülemedi. Ayarlarınızı değiştirmeyi deneyin.</string>
+    <string name="daita_description_slide_1_first_paragraph">Dikkat: Bu, ağ trafiğini artırır ve hızı, gecikmeyi ve pil kullanımını da olumsuz bir şekilde etkiler. Sınırlı planlarda dikkatli kullanın.</string>
     <string name="daita_description_slide_1_second_paragraph">%1$s (%2$s), şifrelenmiş VPN trafiğinizdeki kalıpları gizler.</string>
     <string name="daita_description_slide_1_third_paragraph">Gelişmiş yapay zeka kullanarak cihazınıza gelen ve giden veri paketlerinin trafiğini (trafik şifrelenmiş olsa bile) analiz etmek mümkündür.</string>
     <string name="daita_description_slide_2_first_paragraph">Bir gözlemci bu veri paketlerini izliyorsa, %1$s ziyaret ettiğiniz web sitelerini veya iletişim kurduğunuz alıcıları tespit etmesini önemli ölçüde zorlaştırır.</string>
@@ -156,6 +157,7 @@
     <string name="enable_direct_only">%1$s ayarını etkinleştir</string>
     <string name="enable_method">Yöntemi etkinleştir</string>
     <string name="encrypted_dns_proxy_info_message_part1">\"Şifreli DNS proxy\'si\" yönteminde, uygulama bir proxy adresi üzerinden Mullvad API ile iletişim kurar. Bunun için bir DNS over HTTPS (DoH) sunucusundan bir adres alır ve bu adresi kullanarak API sunucularımıza bağlanır.</string>
+    <string name="encrypted_dns_proxy_info_message_part2">VPN\'imize bağlı değilseniz Şifreli DNS proxy\'si bağlanırken VPN dışı IP\'nizi kullanır. DoH sunucuları şu sağlayıcılardan birinde barındırılır: Quad9 veya CloudFlare.</string>
     <string name="enter_value_placeholder">MTU\'yu girin</string>
     <string name="enter_voucher_code">Kupon kodunu girin</string>
     <string name="entry">Giriş</string>
@@ -382,6 +384,7 @@
     <string name="vpn_permission_error_notification_message">VPN izni istemek için lütfen bağlantıya dokunun</string>
     <string name="vpn_permission_error_notification_title">VPN izin hatası</string>
     <string name="we_will_look_into_this">Bunu araştıracağız.</string>
+    <string name="wg_port_subtitle">Bu ayarı etkinleştirmek için aşağıdaki %1$s gizlemeyi \"Otomatik\" veya \"Kapalı\" olarak ayarlayın.</string>
     <string name="wireguard_custon_port_title">Özel</string>
     <string name="wireguard_mtu">WireGuard MTU</string>
     <string name="wireguard_mtu_footer">WireGuard MTU değerini ayarlayın. Geçerli aralık: %1$d - %2$d.</string>
