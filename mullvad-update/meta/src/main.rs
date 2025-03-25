@@ -119,7 +119,9 @@ async fn main() -> anyhow::Result<()> {
 
     match opt {
         Opt::GenerateKey => {
-            println!("{}", key::SecretKey::generate());
+            let secret = key::SecretKey::generate();
+            println!("Secret key: {secret}");
+            println!("Public key: {}", secret.pubkey());
             Ok(())
         }
         Opt::CreateMetadataFile { platforms } => {
