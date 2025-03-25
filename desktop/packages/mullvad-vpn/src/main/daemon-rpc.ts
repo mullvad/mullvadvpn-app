@@ -118,6 +118,14 @@ export class DaemonRpc extends GrpcClient {
     });
   }
 
+  public appUpgrade() {
+    void this.callEmpty(this.client.appUpgrade);
+  }
+
+  public appUpgradeAbort() {
+    void this.callEmpty(this.client.appUpgradeAbort);
+  }
+
   public unsubscribeAppUpgradeEventListener(listener: SubscriptionListener<AppUpgradeEvent>) {
     const id = listener.subscriptionId;
     if (id !== undefined) {
